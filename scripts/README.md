@@ -45,4 +45,7 @@ future              ---      ---      0
 **Статус 07.09.2026:** `@pms/imports` — парсеры выгрузок Exely (`src/exely/`): `parseExelyInventory`,
 `parseExelyAccommodationTypes`, `buildInventoryImportPlan`. Чистые функции, без БД; ошибки данных —
 `ExelyImportError` с номером единицы, догадок нет. Запуск TS-скриптов — `npx tsx`.
-`@pms/reconciliation` — пока каркас.
+`importInventoryPlan` — идемпотентный импорт внутри `db.$transaction`, отчёт создано/обновлено, запись в AuditLog.
+CLI: `npx tsx scripts/imports/src/cli-import-inventory.ts`.
+`@pms/reconciliation` — `compareInventory`/`renderInventoryReport` (Gate 1), CLI
+`npx tsx scripts/reconciliation/src/cli-inventory.ts` → `reports/inventory-YYYY-MM-DD.md`, exit 1 при diff.

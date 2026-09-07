@@ -4,7 +4,7 @@
  * Строка подключения читается программой при запуске из окружения, не агентом (SECURITY.md).
  */
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient, type Prisma } from './generated/prisma/client';
 
 export * from './generated/prisma/client';
 
@@ -17,3 +17,6 @@ export function createPrismaClient(connectionString = process.env.DATABASE_URL):
 }
 
 export type Db = PrismaClient;
+
+/** Клиент внутри `db.$transaction(async (tx) => …)`. Импортёры принимают именно его. */
+export type DbTx = Prisma.TransactionClient;

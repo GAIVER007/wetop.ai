@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@pms/domain": "*",
-    "@pms/shared": "*"
+    "@pms/shared": "*",
+    "@pms/database": "*",
+    "dotenv": "*"
   }
 }

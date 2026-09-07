@@ -22,17 +22,17 @@ describe('buildInventoryImportPlan', () => {
       'exely-900003',
     ]);
     expect(plan.units).toHaveLength(7);
-    const u99 = plan.units.find((u) => u.exelyRoomNumber === '99');
-    expect(u99).toEqual({
-      code: '99',
-      exelyRoomNumber: '99',
+    const u = plan.units.find((x) => x.exelyRoomNumber === '9099');
+    expect(u).toEqual({
+      code: '9099',
+      exelyRoomNumber: '9099',
       kind: 'ROOM',
       accommodationTypeCode: 'exely-900002',
-      roomNumber: '99',
+      roomNumber: '9099',
       roomCapacity: 2,
       isDorm: false,
     });
-    expect(plan.units.filter((u) => u.isDorm)).toHaveLength(3);
+    expect(plan.units.filter((x) => x.isDorm)).toHaveLength(3);
   });
   it('rejects a unit whose category is unknown', () => {
     const broken = {
@@ -40,19 +40,19 @@ describe('buildInventoryImportPlan', () => {
       declaredTotal: null,
       units: [
         ...inv.units,
-        { exelyRoomNumber: '500', categoryName: 'Нет такой', kind: 'ROOM' as const, capacity: 1 },
+        { exelyRoomNumber: '9500', categoryName: 'Нет такой', kind: 'ROOM' as const, capacity: 1 },
       ],
     };
-    expect(() => buildInventoryImportPlan(broken, types)).toThrow(/500.*Нет такой/);
+    expect(() => buildInventoryImportPlan(broken, types)).toThrow(/9500.*Нет такой/);
   });
   it('rejects a unit whose type contradicts its category (номер в dorm-категории)', () => {
     const broken = {
       ...inv,
-      units: inv.units.map((u) =>
-        u.exelyRoomNumber === '10' ? { ...u, kind: 'ROOM' as const } : u,
+      units: inv.units.map((x) =>
+        x.exelyRoomNumber === '9010' ? { ...x, kind: 'ROOM' as const } : x,
       ),
     };
-    expect(() => buildInventoryImportPlan(broken, types)).toThrow(/10.*ROOM.*DORM_BED/);
+    expect(() => buildInventoryImportPlan(broken, types)).toThrow(/9010.*ROOM.*DORM_BED/);
   });
   it('rejects when declared total differs from parsed rows', () => {
     expect(() => buildInventoryImportPlan({ ...inv, declaredTotal: 8 }, types)).toThrow(/8.*7/);

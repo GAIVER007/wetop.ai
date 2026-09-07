@@ -1,6 +1,6 @@
 # Slice 1 — Inventory: план
 
-**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). Шаги 1 и 3 выполнены. Шаг 2 (миграция) ждёт `DATABASE_URL` в `.env` — БД выбрана: Supabase dev-проект (вариант A).
+**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). Шаги 1 и 3 выполнены; код шагов 4 и 5 написан. Шаг 2 (миграция) и доказательства 4–5 ждут `DATABASE_URL` в `.env` — БД выбрана: Supabase dev-проект (вариант A).
 Дата: 2026-09-07. Основание: `DATA_MODEL.md` утверждён 07.09.2026 (кроме §6 Folio).
 
 ---
@@ -73,8 +73,8 @@ Vitest выбран как стандарт для TS-монорепо; если
 | 1 | ✅ 07.09.2026 Каркас: workspaces, TS, ESLint, Vitest, скрипты `npm test` / `npm run lint` | `npm run check` зелёный: 1 тест, lint 0, tsc 0; правило ADR-004 проверено красным |
 | 2 | Prisma schema по §1, §4, §10 + первая миграция; `.env` только имена (уже есть) | миграция применяется к пустой БД и откатывается |
 | 3 | ✅ 07.09.2026 Парсер `inventory.md` + `spravochniki.md` → план импорта (`@pms/imports`, `@pms/domain`). Red: 5 файлов тестов упали без реализации → green: 16 тестов | фикстура: 3 вымышленные категории, 7 единиц; прогон на реальной выгрузке дал 88 / 16 / 72 / 92 и 4-8-4-36-36 без расхождений |
-| 4 | Импорт: одна транзакция, upsert по `(property, exely_room_number)`; `PhysicalRoom` 1:1; повторный запуск не создаёт дублей. **Red → green** | integration-тест: 2 запуска → 88 единиц, 0 дублей |
-| 5 | Отчёт сверки: `scripts/reconciliation/inventory` пишет `reports/inventory-YYYY-MM-DD.md` с diff по каждой строке §1 | отчёт с diff = 0 по всем строкам |
+| 4 | 🟡 код написан 07.09.2026: `importInventoryPlan(tx, plan, property)` — одна транзакция, upsert по бизнес-ключам (Property.name, code категории, `InventoryUnit.code`), `PhysicalRoom` 1:1, проверка «в БД = в плане» с откатом, запись в `AuditLog`. CLI `scripts/imports/src/cli-import-inventory.ts` | integration-тест `tests/integration/inventory-import.test.ts` (2 запуска на фикстуре 9xxx → 7 единиц, 0 дублей, откат) **пропускается без `DATABASE_URL`** — доказательство ждёт строку подключения |
+| 5 | 🟡 код написан 07.09.2026: `compareInventory` + `renderInventoryReport` (red → green, 3 теста), CLI `scripts/reconciliation/src/cli-inventory.ts` пишет `reports/inventory-YYYY-MM-DD.md`, код выхода 1 при diff ≠ 0 | отчёт по реальной БД — после миграции и импорта |
 | 6 | API: `GET /inventory/summary`, `GET /inventory/units?category=` | контрактный тест + пример ответа |
 | 7 | UI: страница `/inventory` — сводка по категориям с итогами 88/16/72/92 и таблица 88 единиц | скриншот + e2e «88 строк» |
 

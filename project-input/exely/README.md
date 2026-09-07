@@ -23,12 +23,10 @@
 | `channels.xlsx` | channel_name, property_id, account_id, average_bookings_month, future_bookings, current_connectivity_provider, notes |
 | `blocks.xlsx` | блокировки номерного фонда |
 
-## Плюс обязательный документ
+## Разбор номерного фонда
 
-`inventory_breakdown.md` — разбор 88 номеров.
-Шаблон: `templates/inventory-breakdown-template.md`.
-
-**Без него DATA_MODEL.md не утверждается.**
+Закрыт аудитом: **88 = 16 номеров + 72 койки**, см. `OBJECT.md` §2.
+Не закрыта только физическая планировка — в Exely её нет.
 
 ## Чеклист получения — состояние на 07.09.2026
 

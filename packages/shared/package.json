@@ -1,0 +1,14 @@
+{
+  "name": "@pms/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Общие типы и утилиты: money (integer minor units, ADR-008), даты, ошибки",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  }
+}

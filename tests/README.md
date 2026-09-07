@@ -6,6 +6,9 @@
 | `integration/` | API endpoints, БД, адаптеры интеграций (sandbox) |
 | `e2e/` | Playwright, критичные сценарии стойки |
 
+Инструменты: Vitest (unit, integration), Playwright (e2e). Запуск: `npm test`, полная проверка: `npm run check`.
+Первый тест — `unit/scaffold.test.ts`: пакеты `@pms/*` резолвятся по имени.
+
 ## Правила
 
 1. **Red before green** (AGENTS.md §6): новый bugfix или business rule начинается

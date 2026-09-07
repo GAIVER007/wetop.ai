@@ -8,3 +8,7 @@
 | `shared/` | Общие типы, money, даты, ошибки | Money — integer minor units (ADR-008) |
 
 Границы модулей поддерживаются дисциплиной пакетов, а не сетью (ADR-002).
+
+**Статус 07.09.2026:** каркас создан (шаг 1 Slice 1): npm workspaces, `@pms/*`, TS strict,
+Vitest, ESLint. Правило ADR-004 закреплено в `eslint.config.js`: импорт Channex вне
+`packages/integrations` — ошибка линтера (проверено). Код пакетов пока пуст.

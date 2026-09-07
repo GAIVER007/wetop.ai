@@ -5,4 +5,5 @@
 | `web/` | Next.js + TypeScript + React — интерфейс стойки | пусто |
 | `api/` | NestJS + TypeScript — backend | пусто |
 
-Код не создаётся до прохождения Gate 0 и утверждения `DATA_MODEL.md` (AGENTS.md §2).
+`DATA_MODEL.md` утверждён 07.09.2026 (кроме §6). Приложения создаются на шагах 6–7
+`plans/slice-1-inventory.md`; до этого папки пустые.

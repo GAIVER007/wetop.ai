@@ -1,0 +1,9 @@
+/**
+ * @pms/shared — общие типы и утилиты без бизнес-логики.
+ * Деньги — только integer minor units (ADR-008); float запрещён.
+ */
+
+/** Исчерпывающая проверка switch/if по union-типам: компилятор и runtime ловят пропущенный вариант. */
+export function assertNever(value: never, context = 'assertNever'): never {
+  throw new Error(`${context}: unexpected value ${JSON.stringify(value)}`);
+}

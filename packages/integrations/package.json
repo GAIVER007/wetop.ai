@@ -1,0 +1,14 @@
+{
+  "name": "@pms/integrations",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Адаптеры Channex, eQonaq, fiscal, S3. Единственное место vendor SDK (ADR-004)",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "pms-lux",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PMS MVP for Luxx Aparts (Almaty). Replaces Exely. Modular monolith (ADR-002).",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "scripts/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format": "prettier --check \"**/*.{ts,tsx,js,json}\"",
+    "format:fix": "prettier --write \"**/*.{ts,tsx,js,json}\"",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.5.0",
+    "eslint": "^10.10.0",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
+  }
+}

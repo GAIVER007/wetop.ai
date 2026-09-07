@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./project-input/exely/*.xlsx)",
+      "Read(./project-input/exely/*.csv)",
+      "Read(./project-input/exely/exports/**)",
+      "Bash(cat .env*)",
+      "Bash(cat ./.env*)",
+      "Bash(cat secrets/*)",
+      "Bash(source .env*)",
+      "Bash(export $(cat .env*)"
+    ]
+  }
+}

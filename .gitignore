@@ -1,0 +1,47 @@
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.n8n_token
+
+# --- Персональные данные: реальные выгрузки НЕ коммитим (SECURITY.md §4) ---
+project-input/exely/*
+!project-input/exely/README.md
+!project-input/exely/.gitkeep
+project-input/exely-screens/*
+!project-input/exely-screens/README.md
+!project-input/exely-screens/.gitkeep
+project-input/forms/*
+!project-input/forms/README.md
+!project-input/forms/.gitkeep
+project-input/interviews/*
+!project-input/interviews/README.md
+!project-input/interviews/.gitkeep
+
+# --- Node ---
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# --- Tests ---
+playwright-report/
+test-results/
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# --- Logs ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*

@@ -1,2 +1,2 @@
-/** @pms/domain — заполняется по шагам plans/slice-1-inventory.md. */
-export {};
+/** @pms/domain — бизнес-логика PMS. Не знает про Channex/eQonaq/HTTP/Prisma. */
+export * from './inventory/index';

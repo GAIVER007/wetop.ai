@@ -1,2 +1,2 @@
-/** @pms/imports — заполняется по шагам plans/slice-1-inventory.md. */
-export {};
+/** @pms/imports — импорт выгрузок Exely: парсеры (чистые) и импортёры (с БД). */
+export * from './exely/index';

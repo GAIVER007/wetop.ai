@@ -42,4 +42,7 @@ future              ---      ---      0
 
 Допустимое расхождение — **0**.
 
-**Статус 07.09.2026:** пакеты `@pms/imports` и `@pms/reconciliation` созданы как каркас (шаг 1 Slice 1), код пуст.
+**Статус 07.09.2026:** `@pms/imports` — парсеры выгрузок Exely (`src/exely/`): `parseExelyInventory`,
+`parseExelyAccommodationTypes`, `buildInventoryImportPlan`. Чистые функции, без БД; ошибки данных —
+`ExelyImportError` с номером единицы, догадок нет. Запуск TS-скриптов — `npx tsx`.
+`@pms/reconciliation` — пока каркас.

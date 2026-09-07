@@ -11,13 +11,14 @@ loadEnv({ path: resolve(here, '../../.env'), quiet: true });
 
 const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
 if (!url) {
-  throw new Error(
-    'DATABASE_URL (или DIRECT_URL) не задан в .env. Значение вписывает владелец, агенту не диктуется (SECURITY.md §3).',
+  // `prisma generate` базы не требует; migrate/studio упадут на подключении с понятной причиной.
+  console.warn(
+    '[prisma.config] DATABASE_URL (или DIRECT_URL) не задан в .env — генерация клиента работает, миграции нет. Значение вписывает владелец (SECURITY.md §3).',
   );
 }
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: { path: 'prisma/migrations' },
-  datasource: { url },
+  datasource: { url: url ?? 'postgresql://DATABASE_URL_NOT_SET@localhost:5432/unset' },
 });

@@ -8,12 +8,14 @@
 
 **Делаем:**
 
+- [ ] **Отдать [TZ-EXELY-AUDIT.md](TZ-EXELY-AUDIT.md) исполнителю** — блокирует Gate 0 и утверждение DATA_MODEL
 - [ ] Channex: заявка, sandbox, запрос certification (`outbox/01-channex.md`)
 - [ ] eQonaq: запрос API / Smart Bridge (`outbox/02-eqonaq.md`)
 - [ ] Exely: запрос полных выгрузок (`outbox/03-exely.md`)
-- [ ] Скриншоты Exely — 23 экрана (`project-input/exely-screens/`)
-- [ ] Интервью с управляющим (`templates/manager-interview.md`)
-- [ ] Разбор 88 номеров (`templates/inventory-breakdown-template.md`)
+- [ ] Скриншоты Exely — 23 экрана (раздел 21 ТЗ)
+- [ ] Интервью по рабочему дню (разделы 11–15 и 19 ТЗ)
+- [ ] Разбор 88 номеров (разделы 5–6 ТЗ)
+- [ ] **Контрольный срез на дату** (раздел 23 ТЗ) — база для Gate 1
 - [ ] Скачать vendor docs локально в `/docs`
 - [ ] Репозиторий + AGENTS/SPEC/DECISIONS/QUESTIONS/GLOSSARY/SECURITY
 - [ ] Решение по хостингу персональных данных в Казахстане (Q-070)

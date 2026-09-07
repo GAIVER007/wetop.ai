@@ -25,6 +25,7 @@
 | [CUTOVER.md](CUTOVER.md) | Переезд с Exely на Channex по каналам |
 | [SECURITY.md](SECURITY.md) | Персональные данные, секреты, доступы |
 | [ONBOARDING.md](ONBOARDING.md) | Что делать прямо сейчас, по шагам |
+| [TZ-EXELY-AUDIT.md](TZ-EXELY-AUDIT.md) | **ТЗ на аудит текущей PMS.** Отдаётся исполнителю. Блокирует всё остальное |
 
 ## Директории
 

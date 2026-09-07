@@ -22,7 +22,7 @@
 | Inventory | 9 | 2 | 0 |
 | Reservation | 3 | 3 | 0 |
 | Money | 4 | 1 | 1 |
-| Channex | 0 | 1 | 5 |
+| Channex | 0 | 1 | 6 |
 | eQonaq | 0 | 0 | 7 |
 | Fiscal | 0 | 1 | 3 |
 | Roles | 0 | 1 | 3 |
@@ -89,6 +89,7 @@
 | Q-033 | Какие поля отсутствуют в импортированных старых future bookings? | **OPEN** | |
 | Q-034 | Как переносить future reservations канала без pull? | **OPEN** | |
 | Q-035 | Процедура переключения provider с Exely на Channex? | **OPEN** | |
+| **Q-096** | Есть ли в Channex адаптеры для **Trip.com, Hostelworld, Bronevik, OneTwoTrip**? | **OPEN** | Выявлено 07.09.2026 по документации Channel API (`docs/channex/channel-api.md`): в списке гайдов по каналам этих четырёх нет, есть Booking.com, Agoda, Expedia, Ostrovok (ETG). Список гайдов ≠ полный каталог. Проверить `GET /channels/list` на staging после регистрации и спросить в письме `outbox/01-channex.md`. Trip.com — 20% заездов и 75 будущих броней: без адаптера план миграции (CUTOVER.md) меняется |
 
 ---
 

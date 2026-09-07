@@ -63,7 +63,12 @@ Could you please clarify the following before we begin the integration:
 
 9. Our channel pricing is implemented as **a separate rate plan per channel**, not
    as a markup. Please confirm this is supported and describe the recommended
-   mapping approach.
+   mapping approach (separate rate plans vs. `derived_option` on the channel mapping).
+
+10. Please confirm that channel adapters exist for **Trip.com Group, Hostelworld,
+    Bronevik.com and OneTwoTrip** (we could not find channel guides for them in the
+    documentation), and whether `load_future_reservations` is available for each
+    of our eight channels.
 
 Thank you.
 
@@ -77,7 +82,8 @@ certification checklist and sandbox documentation.
 | Вопрос письма | ID в QUESTIONS.md |
 |---|---|
 | 1, 2, 3 | Q-030, Q-031 |
-| 4 | Q-032 |
+| 4, 10 (load_future_reservations) | Q-032 |
+| 10 (адаптеры) | Q-096 |
 | 5 | Q-034 |
 | 6 | Q-035 |
 | 7 | Q-033 |

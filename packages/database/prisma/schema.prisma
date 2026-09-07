@@ -1,0 +1,218 @@
+// Prisma schema — ТОЛЬКО утверждённые разделы DATA_MODEL.md v1.0 (07.09.2026):
+//   §1 Объект и физическая структура, §4 Housekeeping и блокировки, §10 Аудит.
+// Раздел 6 (Folio) не утверждён (Q-091) — сущностей финансов здесь нет и быть не должно.
+// Любое изменение сущности/поля/связи — сначала правка DATA_MODEL.md (AGENTS.md §2).
+//
+// Соглашения: имена таблиц и колонок — snake_case через @map; id — uuid;
+// события — timestamptz (UTC); stay dates — DATE в timezone объекта (AGENTS.md §13).
+// Внешние ID Exely хранятся как ссылки (exely_*), не как собственные ключи (ADR-003).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url задаётся в prisma.config.ts из DIRECT_URL / DATABASE_URL (значение — только в .env)
+}
+
+// ───────────────────────── §1 Объект и физическая структура ─────────────────────────
+
+/// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
+model Property {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  legalName    String?  @map("legal_name")
+  bin          String?
+  address      String?
+  /// IANA timezone объекта, например Asia/Almaty
+  timezone     String
+  /// ISO 4217, на объекте KZT
+  currency     String   @db.Char(3)
+  /// Локальное время заезда "HH:mm", на объекте 14:00
+  checkInTime  String   @map("check_in_time")
+  /// Локальное время выезда "HH:mm", на объекте 12:00
+  checkOutTime String   @map("check_out_time")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  buildings          Building[]
+  accommodationTypes AccommodationType[]
+
+  @@map("properties")
+}
+
+model Building {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  name       String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property @relation(fields: [propertyId], references: [id])
+  floors   Floor[]
+
+  @@unique([propertyId, name])
+  @@map("buildings")
+}
+
+model Floor {
+  id         String   @id @default(uuid()) @db.Uuid
+  buildingId String   @map("building_id") @db.Uuid
+  name       String
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  building      Building       @relation(fields: [buildingId], references: [id])
+  physicalRooms PhysicalRoom[]
+
+  @@unique([buildingId, name])
+  @@map("floors")
+}
+
+/// Продаваемая категория. Гендерное деление dorm — отдельные категории, не атрибут (DATA_MODEL §1).
+enum AccommodationKind {
+  PRIVATE_ROOM
+  DORM_BED
+  APARTMENT
+}
+
+model AccommodationType {
+  id               String            @id @default(uuid()) @db.Uuid
+  propertyId       String            @map("property_id") @db.Uuid
+  code             String
+  name             String
+  kind             AccommodationKind
+  capacityAdults   Int               @map("capacity_adults")
+  /// На объекте у всех 0: детское размещение выключено
+  capacityChildren Int               @default(0) @map("capacity_children")
+  active           Boolean           @default(true)
+  /// ID категории в Exely (например 5074312) — внешняя ссылка, ADR-003
+  exelyId          String?           @map("exely_id")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property Property        @relation(fields: [propertyId], references: [id])
+  units    InventoryUnit[]
+
+  @@unique([propertyId, code])
+  @@unique([propertyId, exelyId])
+  @@map("accommodation_types")
+}
+
+/// Физическая комната. По ADR-013 при импорте заполняется 1:1 из единицы продажи (Q-095 отложен).
+/// Бизнес-логика MVP на неё не опирается — только на InventoryUnit.
+model PhysicalRoom {
+  id         String   @id @default(uuid()) @db.Uuid
+  floorId    String   @map("floor_id") @db.Uuid
+  roomNumber String   @map("room_number")
+  name       String?
+  capacity   Int
+  isDorm     Boolean  @default(false) @map("is_dorm")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  floor Floor           @relation(fields: [floorId], references: [id])
+  units InventoryUnit[]
+
+  @@unique([floorId, roomNumber])
+  @@map("physical_rooms")
+}
+
+enum InventoryUnitKind {
+  ROOM
+  BED
+}
+
+/// Статус уборки по Exely: «Грязно», «Убрано», «Проверено». Ремонт/вывод из продажи — InventoryBlock.
+enum HousekeepingStatus {
+  DIRTY
+  CLEAN
+  INSPECTED
+}
+
+/// Единица продажи = ячейка (ADR-013). На объекте 88 = 16 ROOM + 72 BED.
+/// Ничего не выводится из номера единицы — только явные связи (DATA_MODEL принцип 7).
+model InventoryUnit {
+  id                  String             @id @default(uuid()) @db.Uuid
+  physicalRoomId      String             @map("physical_room_id") @db.Uuid
+  accommodationTypeId String             @map("accommodation_type_id") @db.Uuid
+  kind                InventoryUnitKind
+  /// Код единицы в PMS; в MVP уникален глобально (один объект)
+  code                String             @unique
+  housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
+  active              Boolean            @default(true)
+  /// «№ комнаты в Exely» (1…88) — внешняя ссылка, ADR-003. Из него ничего не выводится.
+  exelyRoomNumber     String?            @unique @map("exely_room_number")
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  physicalRoom      PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
+  accommodationType AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
+  blocks            InventoryBlock[]
+  housekeepingEvents HousekeepingEvent[]
+
+  @@index([accommodationTypeId])
+  @@index([physicalRoomId])
+  @@map("inventory_units")
+}
+
+// ───────────────────────── §4 Housekeeping и блокировки ─────────────────────────
+
+model HousekeepingEvent {
+  id              String             @id @default(uuid()) @db.Uuid
+  inventoryUnitId String             @map("inventory_unit_id") @db.Uuid
+  fromStatus      HousekeepingStatus @map("from_status")
+  toStatus        HousekeepingStatus @map("to_status")
+  /// Сущность User появится после Q-060…Q-064; до этого — идентификатор без FK
+  userId          String?            @map("user_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  inventoryUnit InventoryUnit @relation(fields: [inventoryUnitId], references: [id])
+
+  @@index([inventoryUnitId, createdAt])
+  @@map("housekeeping_events")
+}
+
+enum InventoryBlockType {
+  MAINTENANCE
+  MANAGEMENT
+  OUT_OF_ORDER
+  OTHER
+}
+
+/// Единственный источник правды для «единица недоступна» (DATA_MODEL v0.3).
+/// Даты — DATE в timezone объекта, полуинтервал [date_from, date_to).
+model InventoryBlock {
+  id              String             @id @default(uuid()) @db.Uuid
+  inventoryUnitId String             @map("inventory_unit_id") @db.Uuid
+  dateFrom        DateTime           @map("date_from") @db.Date
+  dateTo          DateTime           @map("date_to") @db.Date
+  reason          String?
+  type            InventoryBlockType
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  inventoryUnit InventoryUnit @relation(fields: [inventoryUnitId], references: [id])
+
+  @@index([inventoryUnitId, dateFrom, dateTo])
+  @@map("inventory_blocks")
+}
+
+// ───────────────────────── §10 Аудит ─────────────────────────
+
+/// Обязательно логируется: даты, цена, room move, cancellation, payment, refund,
+/// ручное изменение availability, изменение документа гостя (SECURITY.md §6). Без PII в логах.
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

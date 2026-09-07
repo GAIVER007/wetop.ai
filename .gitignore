@@ -49,3 +49,6 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 yarn-error.log*
+
+# --- Prisma generated client (создаётся prisma generate) ---
+packages/database/src/generated/

@@ -28,12 +28,22 @@ Could you please clarify the following before we begin the integration:
 
 4. We currently have existing future reservations in our OTA channels.
    Can Channex import reservations that were created before the channel was connected
-   to Channex? We specifically need confirmation for:
-   - Booking.com
-   - Trip.com
-   - Agoda
-   - Expedia
-   - and the other channels available through our property.
+   to Channex? We need confirmation **for each of our eight channels**, with the
+   current volume of future reservations we would need to migrate:
+
+   | Channel | Property ID in channel | Future reservations |
+   |---|---|---|
+   | Booking.com | 14087887 | 72 |
+   | Trip.com Group | 132059275 | 75 |
+   | Agoda | 77196946 | 19 |
+   | Expedia / Hotels.com | 131927054 | 10 |
+   | Ostrovok.ru (Emerging Travel Group) | 326506274 | 4 |
+   | Hostelworld | 335147 | 2 |
+   | Bronevik.com | 738372 | 0 |
+   | OneTwoTrip | 41647 | 0 |
+
+   Total: 182 future reservations, of which 96.5% are unpaid — a lost reservation
+   costs us the full amount, not a remaining balance.
 
 5. For channels where existing future reservations cannot be imported automatically,
    what migration procedure do you recommend?
@@ -44,6 +54,16 @@ Could you please clarify the following before we begin the integration:
 
 7. Is there a recommended reconciliation procedure before sending the first full
    availability update?
+
+8. Our property is a hostel: 88 sellable units = 16 private rooms + 72 dorm beds,
+   sold as 5 accommodation types. Dorm beds are sold individually and are split by
+   gender into two separate accommodation types. Please confirm this maps cleanly
+   in Channex, and how a multi-bed reservation (one booking, several beds) is
+   delivered to the PMS.
+
+9. Our channel pricing is implemented as **a separate rate plan per channel**, not
+   as a markup. Please confirm this is supported and describe the recommended
+   mapping approach.
 
 Thank you.
 

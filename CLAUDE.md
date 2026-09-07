@@ -20,7 +20,7 @@
 | 7 | [QUESTIONS.md](QUESTIONS.md) | Открытые вопросы. Гадать запрещено |
 | 8 | [PLAN.md](PLAN.md) | 8 недель, 11 гейтов, контрольные числа |
 
-Дальше по необходимости: `CUTOVER.md`, `SECURITY.md`, `GLOSSARY.md`, `ONBOARDING.md`.
+Дальше по необходимости: `CUTOVER.md`, `SECURITY.md`, `GLOSSARY.md`, `ONBOARDING.md`, `HANDOFF.md`.
 
 ---
 

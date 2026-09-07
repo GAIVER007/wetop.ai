@@ -20,5 +20,5 @@ if (!url) {
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: { path: 'prisma/migrations' },
-  datasource: { url: url ?? 'postgresql://DATABASE_URL_NOT_SET@localhost:5432/unset' },
+  datasource: { url: url || 'postgresql://DATABASE_URL_NOT_SET@localhost:5432/unset' },
 });

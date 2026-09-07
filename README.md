@@ -17,8 +17,8 @@
 
 **Неделя 1. Аудит действующей PMS сдан 07.09.2026. Production feature code = 0 строк.**
 
-Разработка не начинается, пока владелец не примет **одно решение**, блокирующее
-[DATA_MODEL.md](DATA_MODEL.md):
+[DATA_MODEL.md](DATA_MODEL.md) **утверждён 07.09.2026**, кроме раздела Folio.
+План первого среза — [plans/slice-1-inventory.md](plans/slice-1-inventory.md). Открыто:
 
 | Вопрос | О чём |
 |---|---|

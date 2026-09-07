@@ -10,6 +10,10 @@
 project-input/exely/*
 !project-input/exely/README.md
 !project-input/exely/.gitkeep
+# Аудит 07.09.2026 — проверено: данных гостей (ФИО, телефоны, email, документы) нет.
+# Содержит рабочие email сотрудников и финансовые показатели объекта.
+!project-input/exely/audit-2026-09-07/
+!project-input/exely/audit-2026-09-07/*.md
 project-input/exely-screens/*
 !project-input/exely-screens/README.md
 !project-input/exely-screens/.gitkeep

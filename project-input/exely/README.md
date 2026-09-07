@@ -30,17 +30,24 @@
 
 **Без него DATA_MODEL.md не утверждается.**
 
-## Чеклист получения
+## Чеклист получения — состояние на 07.09.2026
 
-- [ ] inventory
-- [ ] accommodation_types
-- [ ] rate_plans
-- [ ] rates_12_months
-- [ ] restrictions
-- [ ] future_reservations
-- [ ] reservations_history_12_months
-- [ ] services
-- [ ] payment_methods
-- [ ] channels
-- [ ] blocks
-- [ ] inventory_breakdown.md
+- [x] inventory — 88 единиц, `audit-2026-09-07/inventory.md`
+- [x] accommodation_types — 5 категорий
+- [x] rate_plans — 6 тарифов
+- [ ] **rates_12_months** — программно не выгружается, нужна кнопка «Экспорт в Excel»
+- [x] restrictions — **пусто**, действующих ограничений нет
+- [x] future_reservations — 209 проживаний на 4 743 535 ₸
+- [~] reservations_history_12_months — снят август + июль, полные 12 месяцев не получены
+- [x] services — 9 услуг
+- [x] payment_methods — 9 способов
+- [x] channels — 8 каналов с ID
+- [x] blocks — **пусто**, 0 блокировок
+- [ ] **Отчёт по отменам за 01–31.08.2026**
+- [ ] **Физическая планировка** — в Exely не хранится, нужен замер
+
+Аудит сведён в [OBJECT.md](../../OBJECT.md) и [FINDINGS.md](../../FINDINGS.md).
+
+> Реальные выгрузки отличаются от эталонных заголовков в `templates/exely-exports/`:
+> данные сняты из внутренних структур Exely, а не через «Экспорт в XLSX».
+> Под шаблон не подгонялись, как требует ТЗ п. 2.2.

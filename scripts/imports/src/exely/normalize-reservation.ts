@@ -111,12 +111,17 @@ const SOURCE_BY_NAME: Record<string, ReservationSourceCode> = {
   whatsapp: 'WHATSAPP',
   'walk-in': 'WALK_IN',
   instagram: 'INSTAGRAM',
+  // факты выгрузки Универсального API 08.09.2026: «Из канала продаж» (key 2) — OTA; «Мобильный экстранет» —
+  // бронь сотрудника из мобильного приложения Exely, то есть стойка
+  'из канала продаж': 'OTA',
+  'мобильный экстранет': 'DESK',
 };
 
 const STAY_STATUS: Record<string, ReservationStatusCode> = {
   new: 'CONFIRMED',
   confirmed: 'CONFIRMED',
   unconfirmed: 'TENTATIVE',
+  pending: 'TENTATIVE',
   checkedin: 'CHECKED_IN',
   checkedout: 'CHECKED_OUT',
   cancelled: 'CANCELLED',

@@ -42,6 +42,7 @@ export function anonymizeGuest(g: GuestRecord, salt: string): GuestRecord {
 }
 
 /** Заметки брони тоже могут содержать ПД (имена, телефоны) — в dev не переносятся. */
-export function anonymizeReservationNotes(_notes: string | null): string | null {
+export function anonymizeReservationNotes(notes: string | null): string | null {
+  void notes; // содержимое намеренно не анализируется: любые заметки в dev стираются
   return null;
 }

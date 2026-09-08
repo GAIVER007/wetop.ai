@@ -4,6 +4,7 @@
 |---|---|---|---|---|
 | `channel-api.md` | docs.channex.io — Welcome, Channel API (OpenAPI «Channex.io — Channels» 0.0.0) | 07.09.2026 (вставка владельца в чат) | 0.0.0 | Выжимка: все эндпоинты `/channels*`, пробы, дескрипторы адаптеров, коды ошибок, derived_option, known mappings. Это сторона Channex → OTA |
 
+| `how-channex-works-for-us.md` | объяснение для владельца: три потока (маппинг, ARI наружу, брони внутрь), что Channex делает сам, порядок Slice 4 | 08.09.2026 | — | по `pms-integration-guide.md` и API-справочникам |
 | `site/**/*.md` | https://docs.channex.io/ — все 112 страниц из `llms.txt`, markdown-версии (`.md`) | 07.09.2026, `curl`, разрешение владельца («вот тут вся документация») | по состоянию сайта на 07.09.2026 | Полная документация: PMS Integration Guide, API Reference, Properties/Room Types/Rate Plans, ARI, Webhooks, Bookings, Channel API, Certification Tests, гайды по каналам. Манифест — `site/_manifest.json`, индекс — `llms.txt` |
 
 Статус: **получена полностью** (07.09.2026). Код адаптера пишется только по `site/` (AGENTS.md §5).

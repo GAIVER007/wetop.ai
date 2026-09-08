@@ -201,7 +201,7 @@ reservation_id        → Reservation
 accommodation_type_id → AccommodationType
 arrival_date
 departure_date
-quantity              ← v0.3: помечено к удалению, см. ниже
+~~quantity~~          ← убран 08.09.2026 (v0.3 утверждена; одно проживание = одна ячейка, ADR-013)
 price                 integer minor units
 status                ← v0.3: TENTATIVE | CONFIRMED | CHECKED_IN | CHECKED_OUT | CANCELLED | NO_SHOW
 ```
@@ -215,6 +215,12 @@ status                ← v0.3: TENTATIVE | CONFIRMED | CHECKED_IN | CHECKED_OUT
 > избыточно: в Exely проживание = одна единица, у нас одно проживание = одна ячейка
 > (ADR-013), а `Allocation` и folio по проживанию (если Q-091 = б) требуют именно этого.
 > Предлагается убрать. Оба пункта утверждаются вместе с Q-091.
+>
+> **08.09.2026:** оба пункта реализованы в схеме (миграция `20260908000002_reservations_guests`):
+> `status` на проживании, `quantity` нет. Основание — утверждение модели v1.0 «включая правки v0.3»
+> и режим «работать по умолчаниям, совпадающим с объектом» (владелец 08.09.2026). Внешние ссылки
+> для идемпотентного импорта: `Reservation.confirmation_number` = номер брони Exely,
+> `ReservationItem.exely_room_stay_id`, `Guest.exely_person_id` (ADR-003).
 
 ### StayGuest (v0.3 — предложено)
 

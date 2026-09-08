@@ -1,5 +1,5 @@
 // Prisma schema — ТОЛЬКО утверждённые разделы DATA_MODEL.md v1.0 (07.09.2026):
-//   §1 Объект и физическая структура, §4 Housekeeping и блокировки, §10 Аудит.
+//   §1 Объект и физическая структура, §2 Бронирование, §3 Гости, §4 Housekeeping и блокировки, §10 Аудит.
 // Раздел 6 (Folio) не утверждён (Q-091) — сущностей финансов здесь нет и быть не должно.
 // Любое изменение сущности/поля/связи — сначала правка DATA_MODEL.md (AGENTS.md §2).
 //
@@ -39,6 +39,7 @@ model Property {
 
   buildings          Building[]
   accommodationTypes AccommodationType[]
+  reservations       Reservation[]
 
   @@map("properties")
 }
@@ -92,8 +93,9 @@ model AccommodationType {
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property        @relation(fields: [propertyId], references: [id])
+  property Property          @relation(fields: [propertyId], references: [id])
   units    InventoryUnit[]
+  items    ReservationItem[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -147,14 +149,187 @@ model InventoryUnit {
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  physicalRoom      PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
-  accommodationType AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
-  blocks            InventoryBlock[]
+  physicalRoom       PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
+  accommodationType  AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
+  blocks             InventoryBlock[]
   housekeepingEvents HousekeepingEvent[]
+  allocations        Allocation[]
 
   @@index([accommodationTypeId])
   @@index([physicalRoomId])
   @@map("inventory_units")
+}
+
+// ───────────────────────── §2 Бронирование ─────────────────────────
+
+/// Источник брони. Обязателен без значения по умолчанию (Q-089 — до ответа принято самое строгое).
+enum ReservationSource {
+  DESK
+  PHONE
+  WHATSAPP
+  WALK_IN
+  INSTAGRAM
+  OTA
+  WEBSITE
+}
+
+enum ReservationStatus {
+  TENTATIVE
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+/// Шапка брони (коммерческая бронь). Статус — производный от проживаний (v0.3), хранится для выборок.
+/// `confirmationNumber` у перенесённых броней = номер брони в Exely (20260802-513903-…): один
+/// бизнес-ключ для идемпотентного импорта (ADR-003, ADR-007).
+model Reservation {
+  id                 String            @id @default(uuid()) @db.Uuid
+  propertyId         String            @map("property_id") @db.Uuid
+  confirmationNumber String            @map("confirmation_number")
+  source             ReservationSource
+  /// Канал OTA/сайт как текст источника (например Booking.com); null для стойки
+  channel            String?
+  /// Номер брони на стороне канала (OTA), если известен
+  externalId         String?           @map("external_id")
+  status             ReservationStatus
+  bookedAt           DateTime?         @map("booked_at") @db.Timestamptz(6)
+  arrivalDate        DateTime          @map("arrival_date") @db.Date
+  departureDate      DateTime          @map("departure_date") @db.Date
+  adults             Int
+  children           Int               @default(0)
+  currency           String            @db.Char(3)
+  /// integer minor units (тиын), ADR-008
+  totalAmount        BigInt            @map("total_amount")
+  primaryGuestId     String?           @map("primary_guest_id") @db.Uuid
+  /// Заметки — главный канал передачи смены (FINDINGS §2 #8)
+  notes              String?
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property     Property          @relation(fields: [propertyId], references: [id])
+  primaryGuest Guest?            @relation("primaryGuest", fields: [primaryGuestId], references: [id])
+  items        ReservationItem[]
+
+  @@unique([propertyId, confirmationNumber])
+  @@index([propertyId, arrivalDate])
+  @@index([propertyId, departureDate])
+  @@index([status])
+  @@map("reservations")
+}
+
+/// Проживание (room stay): одна ячейка на весь период (ADR-013; `quantity` убран, v0.3).
+/// Статус ведётся здесь: no-show, переселение и счёт в Exely — на уровне проживания.
+model ReservationItem {
+  id                  String            @id @default(uuid()) @db.Uuid
+  reservationId       String            @map("reservation_id") @db.Uuid
+  accommodationTypeId String            @map("accommodation_type_id") @db.Uuid
+  arrivalDate         DateTime          @map("arrival_date") @db.Date
+  departureDate       DateTime          @map("departure_date") @db.Date
+  /// integer minor units (тиын), ADR-008
+  price               BigInt
+  status              ReservationStatus
+  /// pmsRoomStayId в Exely — внешняя ссылка для идемпотентного импорта (ADR-003)
+  exelyRoomStayId     String?           @unique @map("exely_room_stay_id")
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  reservation       Reservation       @relation(fields: [reservationId], references: [id])
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
+  allocations       Allocation[]
+  stayGuests        StayGuest[]
+
+  @@index([reservationId])
+  @@index([accommodationTypeId, arrivalDate, departureDate])
+  @@map("reservation_items")
+}
+
+/// Кто живёт в каком проживании (v0.3). Нужно для eQonaq (на гостя) и folio по проживанию.
+model StayGuest {
+  reservationItemId String  @map("reservation_item_id") @db.Uuid
+  guestId           String  @map("guest_id") @db.Uuid
+  isPrimary         Boolean @default(false) @map("is_primary")
+
+  reservationItem ReservationItem @relation(fields: [reservationItemId], references: [id])
+  guest           Guest           @relation(fields: [guestId], references: [id])
+
+  @@id([reservationItemId, guestId])
+  @@index([guestId])
+  @@map("stay_guests")
+}
+
+/// Фактическое назначение ячейки на период [start_date, end_date). Переселение = закрыть одну
+/// allocation и открыть другую (ADR-006). Правило автоназначения для OTA — Q-094.
+model Allocation {
+  id                String   @id @default(uuid()) @db.Uuid
+  reservationItemId String   @map("reservation_item_id") @db.Uuid
+  inventoryUnitId   String   @map("inventory_unit_id") @db.Uuid
+  startDate         DateTime @map("start_date") @db.Date
+  endDate           DateTime @map("end_date") @db.Date
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  reservationItem ReservationItem @relation(fields: [reservationItemId], references: [id])
+  inventoryUnit   InventoryUnit   @relation(fields: [inventoryUnitId], references: [id])
+
+  @@index([inventoryUnitId, startDate, endDate])
+  @@index([reservationItemId])
+  @@map("allocations")
+}
+
+// ───────────────────────── §3 Гости ─────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+/// Персональные данные — доступ по роли, не попадают в логи (SECURITY.md §1).
+/// В dev-БД только анонимизированные значения (ADR-018).
+model Guest {
+  id            String    @id @default(uuid()) @db.Uuid
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  middleName    String?   @map("middle_name")
+  birthDate     DateTime? @map("birth_date") @db.Date
+  /// ISO 3166-1 alpha-3; обязательно на check-in, не на импорте (DATA_MODEL §3)
+  citizenship   String?   @db.Char(3)
+  gender        Gender    @default(UNKNOWN)
+  phone         String?
+  email         String?
+  notes         String?
+  /// pmsPersonId в Exely — внешняя ссылка (ADR-003)
+  exelyPersonId String?   @unique @map("exely_person_id")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  documents           GuestDocument[]
+  stays               StayGuest[]
+  primaryReservations Reservation[]   @relation("primaryGuest")
+
+  @@index([lastName, firstName])
+  @@index([phone])
+  @@map("guests")
+}
+
+/// Документ гостя. Номер — только шифротекст (PII_ENCRYPTION_KEY), просмотр логируется.
+model GuestDocument {
+  id              String    @id @default(uuid()) @db.Uuid
+  guestId         String    @map("guest_id") @db.Uuid
+  type            String
+  numberEncrypted String    @map("number_encrypted")
+  issueCountry    String?   @map("issue_country") @db.Char(3)
+  issuedAt        DateTime? @map("issued_at") @db.Date
+  expiresAt       DateTime? @map("expires_at") @db.Date
+  documentFileId  String?   @map("document_file_id")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  guest Guest @relation(fields: [guestId], references: [id])
+
+  @@index([guestId])
+  @@map("guest_documents")
 }
 
 // ───────────────────────── §4 Housekeeping и блокировки ─────────────────────────

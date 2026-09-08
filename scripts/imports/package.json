@@ -12,9 +12,10 @@
     }
   },
   "dependencies": {
+    "@pms/database": "*",
     "@pms/domain": "*",
     "@pms/shared": "*",
-    "@pms/database": "*",
-    "dotenv": "*"
+    "dotenv": "*",
+    "exceljs": "^4.4.0"
   }
 }

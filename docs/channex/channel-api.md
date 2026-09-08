@@ -10,8 +10,7 @@
 **Что это.** Channel API описывает, как **подключить OTA-канал к объекту в Channex**
 и построить mapping «тариф Channex ↔ комната/тариф канала». Это сторона Channex → OTA.
 Сторона **PMS → Channex** (property, room types, rate plans, ARI push, бронирования, webhooks,
-acknowledge) описана в **PMS Integration Guide** — `/guides/pms-integration-guide` —
-**в этой папке ещё нет** (см. README).
+acknowledge) описана в **PMS Integration Guide** — `site/guides/pms-integration-guide.md` (скачан 07.09.2026).
 
 Формат ниже: все эндпоинты, поля, коды ошибок и правила из оригинала, без повторов
 компонентных схем. Полный OpenAPI при кодировании адаптера скачать с docs.channex.io.
@@ -86,9 +85,9 @@ acknowledge) описана в **PMS Integration Guide** — `/guides/pms-integr
 eDreams, **Emerging Travel Group (Ostrovok)**, **Expedia**, Hopper, Hotelbeds, HotelTonight, Lido,
 Klook, Mr and Mrs Smith, Pitchup, Reconline, Roibos, VacanceSelect, World2Meet.
 
-> ⚠ Для нашего объекта: в списке гайдов **нет Trip.com, Hostelworld, Bronevik, OneTwoTrip**.
-> Список гайдов ≠ полный каталог адаптеров. Проверить через `GET /channels/list` на staging —
-> **Q-096** в `QUESTIONS.md`. Trip.com даёт 20% заездов объекта.
+> Для нашего объекта (уточнено по полной документации 07.09.2026, Q-096): Trip.com (Ctrip) и
+> Hostelworld имеют адаптеры — `site/channel-mapping-guides/`; Ostrovok — `site/channel-api-examples/`.
+> **Bronevik и OneTwoTrip в документации отсутствуют.** Подтвердить у Channex и `GET /channels/list`.
 
 ---
 

@@ -89,7 +89,7 @@
 | Q-033 | Какие поля отсутствуют в импортированных старых future bookings? | **OPEN** | |
 | Q-034 | Как переносить future reservations канала без pull? | **OPEN** | |
 | Q-035 | Процедура переключения provider с Exely на Channex? | **OPEN** | |
-| **Q-096** | Есть ли в Channex адаптеры для **Trip.com, Hostelworld, Bronevik, OneTwoTrip**? | **OPEN** | Выявлено 07.09.2026 по документации Channel API (`docs/channex/channel-api.md`): в списке гайдов по каналам этих четырёх нет, есть Booking.com, Agoda, Expedia, Ostrovok (ETG). Список гайдов ≠ полный каталог. Проверить `GET /channels/list` на staging после регистрации и спросить в письме `outbox/01-channex.md`. Trip.com — 20% заездов и 75 будущих броней: без адаптера план миграции (CUTOVER.md) меняется |
+| **Q-096** | Есть ли в Channex адаптеры для **Trip.com, Hostelworld, Bronevik, OneTwoTrip**? | **ЧАСТИЧНО** | По полной документации Channex (скачана 07.09.2026, `docs/channex/site/`): **Trip.com (Ctrip) — есть** (`channel-mapping-guides/ctrip-trip.com.md`), **Hostelworld — есть** (`channel-mapping-guides/hostelworld.md`), Ostrovok/ETG — есть. **Bronevik и OneTwoTrip не упоминаются ни разу** во всех 112 страницах — адаптеров, по документации, нет. У них 0 будущих броней и 1 / 0 продаж за 30 дней (OBJECT.md §4): для MVP они могут остаться на прямом подключении или отпасть — решение владельца при cutover. Подтвердить у Channex (письмо, вопрос 10) и `GET /channels/list` на staging `DOCS` |
 
 ---
 

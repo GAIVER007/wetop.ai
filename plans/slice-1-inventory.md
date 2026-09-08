@@ -1,6 +1,6 @@
 # Slice 1 — Inventory: план
 
-**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). Шаги 1 и 3 выполнены; код шагов 4 и 5 написан. Шаг 2 (миграция) и доказательства 4–5 ждут `DATABASE_URL` в `.env` — БД выбрана: Supabase dev-проект (вариант A).
+**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). Шаги 1, 2, 3 выполнены; код шагов 4 и 5 написан. Схема в Supabase есть (через MCP). Доказательства 4–5 (импорт, тест, отчёт) ждут `DATABASE_URL` в `.env`: приложение ходит в БД через Prisma, а пароль БД коннектор не отдаёт.
 Дата: 2026-09-07. Основание: `DATA_MODEL.md` утверждён 07.09.2026 (кроме §6 Folio).
 
 ---
@@ -71,7 +71,7 @@ Vitest выбран как стандарт для TS-монорепо; если
 | # | Шаг | Доказательство |
 |---|---|---|
 | 1 | ✅ 07.09.2026 Каркас: workspaces, TS, ESLint, Vitest, скрипты `npm test` / `npm run lint` | `npm run check` зелёный: 1 тест, lint 0, tsc 0; правило ADR-004 проверено красным |
-| 2 | Prisma schema по §1, §4, §10 + первая миграция; `.env` только имена (уже есть) | миграция применяется к пустой БД и откатывается |
+| 2 | ✅ 07.09.2026 Prisma schema по §1, §4, §10; миграция `20260907000001_init_inventory` сгенерирована `prisma migrate diff` и **применена через Supabase MCP** к пустой БД (`apply_migration`); `_prisma_migrations` заполнена вручную с checksum файла; `down.sql` сгенерирован | в БД: 9 таблиц, 4 enum, 22 индекса, 8 FK (проверено SQL). Откат `down.sql` не прогонялся; `prisma migrate status` — после `DATABASE_URL` |
 | 3 | ✅ 07.09.2026 Парсер `inventory.md` + `spravochniki.md` → план импорта (`@pms/imports`, `@pms/domain`). Red: 5 файлов тестов упали без реализации → green: 16 тестов | фикстура: 3 вымышленные категории, 7 единиц; прогон на реальной выгрузке дал 88 / 16 / 72 / 92 и 4-8-4-36-36 без расхождений |
 | 4 | 🟡 код написан 07.09.2026: `importInventoryPlan(tx, plan, property)` — одна транзакция, upsert по бизнес-ключам (Property.name, code категории, `InventoryUnit.code`), `PhysicalRoom` 1:1, проверка «в БД = в плане» с откатом, запись в `AuditLog`. CLI `scripts/imports/src/cli-import-inventory.ts` | integration-тест `tests/integration/inventory-import.test.ts` (2 запуска на фикстуре 9xxx → 7 единиц, 0 дублей, откат) **пропускается без `DATABASE_URL`** — доказательство ждёт строку подключения |
 | 5 | 🟡 код написан 07.09.2026: `compareInventory` + `renderInventoryReport` (red → green, 3 теста), CLI `scripts/reconciliation/src/cli-inventory.ts` пишет `reports/inventory-YYYY-MM-DD.md`, код выхода 1 при diff ≠ 0 | отчёт по реальной БД — после миграции и импорта |

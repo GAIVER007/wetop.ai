@@ -4,6 +4,9 @@
 в чат 07.09.2026. Дата сохранения: 07.09.2026. Версия OpenAPI в документе: `0.0.0`
 (`Channex.io — Channels`).
 
+> **07.09.2026, позже:** вся документация скачана в `site/` (112 страниц). Этот файл — выжимка
+> одной страницы; оригинал — `site/api-v.1-documentation/channel-api.md`.
+
 **Что это.** Channel API описывает, как **подключить OTA-канал к объекту в Channex**
 и построить mapping «тариф Channex ↔ комната/тариф канала». Это сторона Channex → OTA.
 Сторона **PMS → Channex** (property, room types, rate plans, ARI push, бронирования, webhooks,

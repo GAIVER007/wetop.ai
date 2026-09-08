@@ -1,19 +1,49 @@
-# docs/exely
+# docs/exely — документация Exely
 
-| Файл | Источник (URL) | Дата скачивания | Версия | Примечание |
-|---|---|---|---|---|
-| | | | | |
+Скачано агентом 08.09.2026 по просьбе владельца («найди сам документацию»). Только публичные
+страницы, без авторизации. Код интеграции с Exely пишется **только по этой папке** (AGENTS.md §5).
 
-Статус: документация не получена.
+| Что | Где | Источник | Дата |
+|---|---|---|---|
+| Спецификация OpenAPI 3.0 «Exely Connect APIs» v1.0.0, **44 эндпоинта** | `openapi-spec.json` | `https://exely.com/dev-portal/openapi/spec.json` | 08.09.2026 |
+| Портал разработчика: категории API, сценарии, авторизация, webhooks (28 страниц, текст) | `dev-portal/**/*.md` | `https://exely.com/dev-portal/docs/…` | 08.09.2026 |
+| База знаний: Public API (брони), PMS Integration, ключ интеграции / FiscalConnector (ru) | `help/*.md` | `https://exely.com/help/kb350850/`, `kb283752/`, `ru/help/kb380807/` | 08.09.2026 |
+| Манифест обхода | `_manifest.json` | | |
 
-**Установлено аудитом:** у Exely есть открытый API (раздел «Подключения API» →
-«Создать подключение»). Данные для миграции можно забирать программно, а не выгрузками.
-Решение — Q-088 / ADR-015. Документацию API запросить письмом `outbox/03-exely.md`.
+## Что это даёт проекту (Q-088)
 
-## Что нужно получить
+**Exely Connect** — единый шлюз API, хост `connect.hopenapi.com`. Авторизация **OAuth2 client
+credentials**: гостиница создаёт в экстранете «API-подключение» (Connectivity Hub), получает
+`client_id` и `client_secret`; `POST /auth/token` → `access_token` на **30 минут**, заголовок
+`Authorization: Bearer …`. Соблюдать лимиты авторизации (dev-portal/connect/intro).
 
-- [ ] Форматы доступных выгрузок
-- [ ] Ответ поддержки: какие данные выгружаются только через них
-- [ ] Идентификаторы объектов/номеров/тарифов в подключённых OTA
+> Ключ на вкладке «Настройки → Интеграции» — это **«ключ интеграции»** для Exely Агента /
+> FiscalConnector (help/kb380807), другой механизм. К Exely Connect он отношения не имеет,
+> но его всё равно надо перевыпустить (засвечен 08.09.2026).
 
-Запрос отправлен письмом `outbox/03-exely.md`.
+### Эндпоинты, нужные для миграции и сверки (PMS API v2, Analytics, Reservation API)
+
+| Задача проекта | Эндпоинт | Сценарий |
+|---|---|---|
+| **История и будущие брони** (Slice 2, Gate 2) | `GET /api/pms/reservations/search?state=&startAffectPeriodDateTime=&endAffectPeriodDateTime=` + `pageToken` | `dev-portal/scenarios/webpms-api/pms-search-reservations.md` |
+| Детали брони: проживания, гости, суммы, единица | `GET /v2/properties/{propertyId}/reservations/{number}` | `pms-get-reservation.md` |
+| **Загрузка по дням** — контроль Gate 2 (2174/2728, 79,7%) | `GET /api/pms-analytics/v1/properties/{id}/daily-occupancy?startStayDate&endStayDate` (макс. 31 день; `otbDate` — снимок на дату) | `analytics-api/analytics-get-daily-occupancy.md` |
+| Номерной фонд из API (сверка с импортом Slice 1) | `GET /v2/properties/{id}/rooms`, `GET /v2/properties/{id}/obtain-accommodation-inventory` | spec |
+| Блокировки | `POST /v1/properties/{id}/inventories/search`, `GET …/inventories/blocks/{id}` | spec |
+| Гости, документы | `GET /v2/properties/{id}/guests/search`, `…/guests/{pmsPersonId}`, `PUT …/personal-document` | spec (ПД! только production в РК) |
+| Счета, платежи, возвраты | `GET …/reservations/{number}/invoices`, `POST …/room-stays/{id}/process-payment`, `process-refund` | `pms-save-payment.md` |
+| Check-in / check-out, назначение единицы | `POST …/room-stays/{id}/check-in`, `check-out`, `PUT …/room-stays/{id}/room`, `assign-rooms` | spec — **только чтение до cutover (AGENTS §9)** |
+| Брони с изменениями с даты (Booking Engine / CM) | `GET /v1/properties/{id}/bookings?lastModification=` + `continueToken` | `reservation-api/read-reservation-get-all-bookings.md`, help/kb350850 |
+| События | Webhooks: типы, авторизация, обработка | `dev-portal/scenarios/webhooks/*.md` |
+| Правила аннуляции, ранний/поздний | `GET /v1/properties/{id}/cancellation-rules`, `…/extra-stay-rules` | spec (закрывает Q-093, Q-014/015 по данным) |
+
+Все методы записи (check-in, payment, assign-rooms) в MVP **не вызываются** — Exely production
+только для чтения до отдельного разрешения на cutover.
+
+## Чего здесь нет
+
+- Тестовый контур: в результатах поиска упоминался `connect.test.hopenapi.com` — не проверен.
+- Точная инструкция «как создать API-подключение» в экстранете — статья, на которую ссылается
+  `dev-portal/connect/hotel.md`, не скачана (внутренняя ссылка). Ориентир: раздел «Подключения API»
+  (Connectivity Hub), по аудиту 07.09.2026 список там пуст.
+- Лимиты запросов (rate limits) — см. `dev-portal/connect/intro.md`, конкретные числа уточнить.

@@ -22,7 +22,7 @@
 | Inventory | 9 | 2 | 0 |
 | Reservation | 3 | 3 | 0 |
 | Money | 4 | 1 | 1 |
-| Channex | 0 | 1 | 6 |
+| Channex | 2 | 0 | 5 |
 | eQonaq | 0 | 0 | 7 |
 | Fiscal | 0 | 1 | 3 |
 | Roles | 0 | 1 | 3 |
@@ -85,11 +85,11 @@
 |---|---|---|---|
 | Q-030 | Когда доступен certification review? | **OPEN** | Письмо `outbox/01-channex.md` |
 | Q-031 | Какие требования production activation? | **OPEN** | То же |
-| Q-032 | Какие OTA позволяют Pull Future Reservations? | **ЧАСТИЧНО** | Известно: Booking.com — да, Expedia — да. Проверить по остальным 6. Актуальный объём для переноса — 209 проживаний на 4 743 535 ₸, см. `CUTOVER.md` |
+| Q-032 | Какие OTA позволяют Pull Future Reservations? | **ЗАКРЫТ** | 08.09.2026, `GET /channels/list` на staging Channex (ключ владельца): `load_future_reservations` есть у **Booking.com, Trip.com (CTrip), Expedia**; **нет** у Agoda, Hostelworld, Ostrovok. Значит 19 + 2 + 4 = **25 будущих проживаний** этих трёх каналов Channex не подтянет — они переносятся из нашей БД (импорт из Exely, Slice 2) и подтверждаются с каналом руками при cutover `CHANNEX API` |
 | Q-033 | Какие поля отсутствуют в импортированных старых future bookings? | **OPEN** | |
 | Q-034 | Как переносить future reservations канала без pull? | **OPEN** | |
 | Q-035 | Процедура переключения provider с Exely на Channex? | **OPEN** | |
-| **Q-096** | Есть ли в Channex адаптеры для **Trip.com, Hostelworld, Bronevik, OneTwoTrip**? | **ЧАСТИЧНО** | По полной документации Channex (скачана 07.09.2026, `docs/channex/site/`): **Trip.com (Ctrip) — есть** (`channel-mapping-guides/ctrip-trip.com.md`), **Hostelworld — есть** (`channel-mapping-guides/hostelworld.md`), Ostrovok/ETG — есть. **Bronevik и OneTwoTrip не упоминаются ни разу** во всех 112 страницах — адаптеров, по документации, нет. У них 0 будущих броней и 1 / 0 продаж за 30 дней (OBJECT.md §4): для MVP они могут остаться на прямом подключении или отпасть — решение владельца при cutover. Подтвердить у Channex (письмо, вопрос 10) и `GET /channels/list` на staging `DOCS` |
+| **Q-096** | Есть ли в Channex адаптеры для **Trip.com, Hostelworld, Bronevik, OneTwoTrip**? | **ЗАКРЫТ** | **08.09.2026, факт из `GET /channels/list` (57 адаптеров):** Trip.com — есть (`CTrip`), Hostelworld — есть, Ostrovok — есть (`Ostrovok`), **Bronevik и OneTwoTrip — нет**. Судьба двух каналов — решение владельца до cutover (а: оставить на Exely, б: отключить, в: спросить Channex о добавлении). Ниже — история: | По полной документации Channex (скачана 07.09.2026, `docs/channex/site/`): **Trip.com (Ctrip) — есть** (`channel-mapping-guides/ctrip-trip.com.md`), **Hostelworld — есть** (`channel-mapping-guides/hostelworld.md`), Ostrovok/ETG — есть. **Bronevik и OneTwoTrip не упоминаются ни разу** во всех 112 страницах — адаптеров, по документации, нет. У них 0 будущих броней и 1 / 0 продаж за 30 дней (OBJECT.md §4): для MVP они могут остаться на прямом подключении или отпасть — решение владельца при cutover. Подтвердить у Channex (письмо, вопрос 10) и `GET /channels/list` на staging `DOCS` |
 
 ---
 

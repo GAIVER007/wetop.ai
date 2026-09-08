@@ -1,2 +1,2 @@
-/** @pms/integrations — заполняется по шагам plans/slice-1-inventory.md. */
-export {};
+/** @pms/integrations — адаптеры внешних систем. Vendor SDK/ID живут только здесь (ADR-004). */
+export * as exely from './exely/index';

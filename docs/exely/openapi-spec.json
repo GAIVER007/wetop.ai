@@ -8,9 +8,7 @@
   "paths": {
     "/v1/properties/{propertyId}/cancellation-rules": {
       "get": {
-        "tags": [
-          "CancellationRules"
-        ],
+        "tags": ["CancellationRules"],
         "summary": "Receive cancellation rules",
         "parameters": [
           {
@@ -45,9 +43,7 @@
     },
     "/v1/properties": {
       "get": {
-        "tags": [
-          "ContentApi"
-        ],
+        "tags": ["ContentApi"],
         "summary": "Receive property entity",
         "parameters": [
           {
@@ -109,9 +105,7 @@
     },
     "/v1/properties/{propertyId}": {
       "get": {
-        "tags": [
-          "ContentApi"
-        ],
+        "tags": ["ContentApi"],
         "summary": "Receive description of a property",
         "parameters": [
           {
@@ -155,9 +149,7 @@
     },
     "/v1/meal-plans": {
       "get": {
-        "tags": [
-          "ContentApi"
-        ],
+        "tags": ["ContentApi"],
         "summary": "Receive entity of possible meal options",
         "responses": {
           "200": {
@@ -183,9 +175,7 @@
     },
     "/v1/room-type-categories": {
       "get": {
-        "tags": [
-          "ContentApi"
-        ],
+        "tags": ["ContentApi"],
         "summary": "Receive entity of possible room types",
         "responses": {
           "200": {
@@ -211,9 +201,7 @@
     },
     "/v1/room-amenity-categories": {
       "get": {
-        "tags": [
-          "ContentApi"
-        ],
+        "tags": ["ContentApi"],
         "summary": "Receive entity of possible room amenities",
         "responses": {
           "200": {
@@ -239,9 +227,7 @@
     },
     "/v1/properties/{propertyId}/extra-stay-rules": {
       "get": {
-        "tags": [
-          "ExtraStayRules"
-        ],
+        "tags": ["ExtraStayRules"],
         "summary": "Receive early check-in and late check-out rules",
         "parameters": [
           {
@@ -276,9 +262,7 @@
     },
     "/corporates": {
       "post": {
-        "tags": [
-          "CorporateApi"
-        ],
+        "tags": ["CorporateApi"],
         "summary": "Creates a corporate client",
         "requestBody": {
           "description": "Corporate client creation entity",
@@ -321,9 +305,7 @@
     },
     "/corporates/{corporateId}": {
       "get": {
-        "tags": [
-          "CorporateApi"
-        ],
+        "tags": ["CorporateApi"],
         "summary": "Retrieves corporate client information",
         "parameters": [
           {
@@ -357,9 +339,7 @@
     },
     "/payment-methods": {
       "get": {
-        "tags": [
-          "PaymentMethods"
-        ],
+        "tags": ["PaymentMethods"],
         "summary": "Get list of payment methods",
         "responses": {
           "200": {
@@ -382,9 +362,7 @@
     },
     "/property-amenity-types": {
       "get": {
-        "tags": [
-          "PropertyAmenity"
-        ],
+        "tags": ["PropertyAmenity"],
         "summary": "Get list of property amenity types",
         "parameters": [
           {
@@ -417,9 +395,7 @@
     },
     "/property-kinds": {
       "get": {
-        "tags": [
-          "PropertyKind"
-        ],
+        "tags": ["PropertyKind"],
         "summary": "Get list of property kinds",
         "parameters": [
           {
@@ -452,9 +428,7 @@
     },
     "/v1/properties/{propertyId}/bookings": {
       "get": {
-        "tags": [
-          "Reservation"
-        ],
+        "tags": ["Reservation"],
         "summary": "Receive booking summaries",
         "parameters": [
           {
@@ -522,9 +496,7 @@
     },
     "/v1/properties/{propertyId}/bookings/{number}": {
       "get": {
-        "tags": [
-          "Reservation"
-        ],
+        "tags": ["Reservation"],
         "summary": "Receive booking details",
         "parameters": [
           {
@@ -571,9 +543,7 @@
     },
     "/v1/properties/room-stays/search": {
       "post": {
-        "tags": [
-          "SearchRoomStays"
-        ],
+        "tags": ["SearchRoomStays"],
         "summary": "Search for the lowest priced accommodation options across all available accommodations.\r\nThe maximum number of accommodation to be searched - 200.",
         "requestBody": {
           "description": "Search parameters",
@@ -616,9 +586,7 @@
     },
     "/v1/properties/{propertyId}/room-stays": {
       "get": {
-        "tags": [
-          "SearchRoomStays"
-        ],
+        "tags": ["SearchRoomStays"],
         "summary": "Search for accommodation options by specific accommodation",
         "parameters": [
           {
@@ -696,9 +664,7 @@
     },
     "/v1/properties/{propertyId}/services": {
       "post": {
-        "tags": [
-          "SearchRoomStays"
-        ],
+        "tags": ["SearchRoomStays"],
         "summary": "Search for extra services by accommodation conditions",
         "parameters": [
           {
@@ -754,9 +720,7 @@
     },
     "/v1/properties/{propertyId}/extra-stays": {
       "post": {
-        "tags": [
-          "SearchRoomStays"
-        ],
+        "tags": ["SearchRoomStays"],
         "summary": "Search for extra stays by accommodation conditions",
         "parameters": [
           {
@@ -812,9 +776,7 @@
     },
     "/v2/properties/{propertyId}/obtain-accommodation-inventory": {
       "get": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Retrieves the accommodation inventory for a property.",
         "parameters": [
           {
@@ -869,9 +831,7 @@
     },
     "/v2/properties/{propertyId}/companies": {
       "get": {
-        "tags": [
-          "PropertyCompany"
-        ],
+        "tags": ["PropertyCompany"],
         "summary": "Retrieves the list of companies for a property.",
         "parameters": [
           {
@@ -947,9 +907,7 @@
     },
     "/v2/properties/{propertyId}/guests/search": {
       "get": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Searches guest profiles by name, phone or room number.",
         "parameters": [
           {
@@ -1065,9 +1023,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}/loyalty-cards": {
       "get": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Retrieves basic loyalty card details for a guest.",
         "parameters": [
           {
@@ -1153,9 +1109,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}": {
       "get": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Retrieves a guest profile by its PMS identifier.",
         "parameters": [
           {
@@ -1230,9 +1184,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}/find-occupied-room-stays": {
       "get": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Retrieves the list of stays for a given guest.",
         "parameters": [
           {
@@ -1318,9 +1270,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}/personal-document": {
       "put": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Updates guest’s identity document details.",
         "parameters": [
           {
@@ -1413,9 +1363,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}/birth-address": {
       "put": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Updates guest's place of birth details.",
         "parameters": [
           {
@@ -1508,9 +1456,7 @@
     },
     "/v2/properties/{propertyId}/guests/{pmsPersonId}/personal-document/files": {
       "post": {
-        "tags": [
-          "PropertyGuest"
-        ],
+        "tags": ["PropertyGuest"],
         "summary": "Uploads guest’s identity document scan files.",
         "parameters": [
           {
@@ -1603,9 +1549,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}": {
       "get": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Retrieves reservation details by reservation number.",
         "parameters": [
           {
@@ -1680,9 +1624,7 @@
     },
     "/v2/properties/{propertyId}/reservations/search": {
       "get": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Searches reservations by parameters; at least one time period must be specified.",
         "parameters": [
           {
@@ -1819,9 +1761,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/find-available-rooms": {
       "get": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Searches available rooms for each stay in the reservation.",
         "parameters": [
           {
@@ -1907,9 +1847,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/assign-rooms": {
       "post": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Assigns room/suite for each stay in the reservation.",
         "parameters": [
           {
@@ -1996,9 +1934,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/check-in": {
       "post": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Assigns the actual check-in time for a stay.",
         "parameters": [
           {
@@ -2101,9 +2037,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/check-out": {
       "post": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Assigns the actual check-out time for a stay.",
         "parameters": [
           {
@@ -2206,9 +2140,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/find-available-payment-systems": {
       "get": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Retrieves available payment methods for a stay.",
         "parameters": [
           {
@@ -2328,9 +2260,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/process-payment": {
       "post": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Processes a payment for a stay.",
         "parameters": [
           {
@@ -2433,9 +2363,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/process-refund": {
       "post": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Processes a refund for a stay.",
         "parameters": [
           {
@@ -2538,9 +2466,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/room-stays/{pmsRoomStayId}/room": {
       "put": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Assigns a room for a stay.",
         "parameters": [
           {
@@ -2643,9 +2569,7 @@
     },
     "/v2/properties/{propertyId}/reservations/{number}/invoices": {
       "get": {
-        "tags": [
-          "PropertyReservation"
-        ],
+        "tags": ["PropertyReservation"],
         "summary": "Retrieves all invoices related to a reservation.",
         "parameters": [
           {
@@ -2741,9 +2665,7 @@
     },
     "/v2/properties/{propertyId}/rooms": {
       "get": {
-        "tags": [
-          "PropertyRoom"
-        ],
+        "tags": ["PropertyRoom"],
         "summary": "Retrieves the list of rooms/suites for a property.",
         "parameters": [
           {
@@ -2829,9 +2751,7 @@
     },
     "/v1/properties/{propertyId}/daily-occupancy": {
       "get": {
-        "tags": [
-          "PropertyAnalytics"
-        ],
+        "tags": ["PropertyAnalytics"],
         "summary": "Retrieves daily occupancy statistics for a property.",
         "parameters": [
           {
@@ -2921,9 +2841,7 @@
     },
     "/v1/properties/{propertyId}/bookings/{bookingId}": {
       "get": {
-        "tags": [
-          "Bookings"
-        ],
+        "tags": ["Bookings"],
         "summary": "Retrieves booking details. The bookingId is obtained from a pms_integration_storage:booking_changed webhook event.",
         "parameters": [
           {
@@ -3018,9 +2936,7 @@
     },
     "/v1/properties/{propertyId}/inventories/search": {
       "post": {
-        "tags": [
-          "Inventory"
-        ],
+        "tags": ["Inventory"],
         "summary": "Returns PMS inventory filtered by room type codes and date range.",
         "parameters": [
           {
@@ -3126,9 +3042,7 @@
     },
     "/v1/properties/{propertyId}/inventories/blocks/{inventoryBlockId}": {
       "get": {
-        "tags": [
-          "Inventory"
-        ],
+        "tags": ["Inventory"],
         "summary": "Retrieves inventory block details. The inventoryBlockId is obtained from a pms_integration_storage:inventory_block_changed webhook event.",
         "parameters": [
           {
@@ -3223,9 +3137,7 @@
     },
     "/v1/properties/{propertyId}/calculate-stay-units": {
       "get": {
-        "tags": [
-          "Statistics"
-        ],
+        "tags": ["Statistics"],
         "summary": "Calculates the number of booked stay units (days or nights) for a given period and rate plan.",
         "parameters": [
           {
@@ -3334,9 +3246,7 @@
   "components": {
     "schemas": {
       "ContentApi_Address": {
-        "required": [
-          "countryCode"
-        ],
+        "required": ["countryCode"],
         "type": "object",
         "properties": {
           "postalCode": {
@@ -3406,9 +3316,7 @@
         "description": "Property address"
       },
       "ContentApi_Amenity": {
-        "required": [
-          "code"
-        ],
+        "required": ["code"],
         "type": "object",
         "properties": {
           "code": {
@@ -3422,18 +3330,12 @@
         "description": "Room amenities"
       },
       "ContentApi_AmenityChargeType": {
-        "enum": [
-          "None",
-          "Free",
-          "Chargeable"
-        ],
+        "enum": ["None", "Free", "Chargeable"],
         "type": "string",
         "description": "Amenity charge type:\r\n\r\nNone - Charge type is not applicable or not specified\r\n\r\nFree - Amenity is free\r\n\r\nChargeable - Chargeable amenity\r\n"
       },
       "ContentApi_AmenityInfo": {
-        "required": [
-          "code"
-        ],
+        "required": ["code"],
         "type": "object",
         "properties": {
           "code": {
@@ -3476,20 +3378,12 @@
         "additionalProperties": false
       },
       "ContentApi_BeforeArrivalMatching": {
-        "enum": [
-          "NoMatter",
-          "AtLeast",
-          "NoMoreThan",
-          "Between"
-        ],
+        "enum": ["NoMatter", "AtLeast", "NoMoreThan", "Between"],
         "type": "string",
         "description": "Range before arrival:\r\n\r\nNoMatter - Not dependent on any specific time;\r\n\r\nAtLeast - More than or equal to beforeArrivalValue;\r\n\r\nNoMoreThan - Less than or equal to beforeArrivalValue;\r\n\r\nBetween - Within the period from beforeArrivalValue to beforeArrivalValueMax."
       },
       "ContentApi_CancellationRule": {
-        "required": [
-          "id",
-          "propertyId"
-        ],
+        "required": ["id", "propertyId"],
         "type": "object",
         "properties": {
           "id": {
@@ -3617,9 +3511,7 @@
         "description": "Basic information about the company, such as the name of the organization and Taxpayer Identification Number."
       },
       "ContentApi_ContactInfo": {
-        "required": [
-          "address"
-        ],
+        "required": ["address"],
         "type": "object",
         "properties": {
           "address": {
@@ -3640,37 +3532,25 @@
             },
             "description": "(Planned) Hotel email addresses",
             "nullable": true,
-            "example": [
-              "email@example.com"
-            ]
+            "example": ["email@example.com"]
           }
         },
         "additionalProperties": false,
         "description": "Contact details entity of a property"
       },
       "ContentApi_EntityState": {
-        "enum": [
-          "Active",
-          "Inactive"
-        ],
+        "enum": ["Active", "Inactive"],
         "type": "string",
         "description": "EntityState:\r\n\r\nInactive - entity is unavailable\r\n\r\nActive - entity is available",
         "example": "Active"
       },
       "ContentApi_ExtraServiceSurchargeOption": {
-        "enum": [
-          "None",
-          "All",
-          "MealOnly"
-        ],
+        "enum": ["None", "All", "MealOnly"],
         "type": "string",
         "description": "Extra services for which a surcharge applies in case of early check-in or late check-out:\r\n\r\nNone - No surcharge for extra services;\r\n\r\nAll - All extra services are provided for a surcharge;\r\n\r\nMealOnly - Only breakfast is provided for a surcharge in case of early check-in. Everything else requires no surcharge."
       },
       "ContentApi_ExtraStayChargeRate": {
-        "required": [
-          "currency",
-          "rate"
-        ],
+        "required": ["currency", "rate"],
         "type": "object",
         "properties": {
           "currency": {
@@ -3688,23 +3568,12 @@
         "description": "Charge rate for early check-in and late check-out rules."
       },
       "ContentApi_ExtraStayChargeType": {
-        "enum": [
-          "Free",
-          "Fixed",
-          "Percent",
-          "HourlyRate",
-          "HourlyRateAutoCalculated",
-          "Forbidden"
-        ],
+        "enum": ["Free", "Fixed", "Percent", "HourlyRate", "HourlyRateAutoCalculated", "Forbidden"],
         "type": "string",
         "description": "Charge type for early check-in and late check-out rules:\r\n\r\nFree - free of charge;\r\n\r\nFixed - fixed rate;\r\n\r\nPercent - percentage of the daily rate;\r\n\r\nHourlyRate - hourly fixed rate;\r\n\r\nHourlyRateAutoCalculated - hourly auto-calculated price;\r\n\r\nForbidden - no early check-in/late check-out."
       },
       "ContentApi_ExtraStayPercentOptions": {
-        "required": [
-          "extraPlacementEnabled",
-          "extraServiceOption",
-          "percentage"
-        ],
+        "required": ["extraPlacementEnabled", "extraServiceOption", "percentage"],
         "type": "object",
         "properties": {
           "percentage": {
@@ -3786,12 +3655,7 @@
         "description": "Early check-in and late check-out rule."
       },
       "ContentApi_ExtraStayRulePeriod": {
-        "required": [
-          "chargeType",
-          "endTime",
-          "rates",
-          "startTime"
-        ],
+        "required": ["chargeType", "endTime", "rates", "startTime"],
         "type": "object",
         "properties": {
           "startTime": {
@@ -3829,9 +3693,7 @@
         "description": "Early check-in or late check-out rule for a time period before CheckInTime or after CheckOutTime."
       },
       "ContentApi_ExtraStayRulesResponse": {
-        "required": [
-          "extraStayRules"
-        ],
+        "required": ["extraStayRules"],
         "type": "object",
         "properties": {
           "extraStayRules": {
@@ -3918,10 +3780,7 @@
         "description": "Property contact number"
       },
       "ContentApi_Placement": {
-        "required": [
-          "count",
-          "kind"
-        ],
+        "required": ["count", "kind"],
         "type": "object",
         "properties": {
           "kind": {
@@ -3950,21 +3809,12 @@
         "description": "Accommodation in a room"
       },
       "ContentApi_PlacementKind": {
-        "enum": [
-          "Adult",
-          "ExtraAdult",
-          "Child",
-          "ExtraChild",
-          "ChildBandWithoutBed"
-        ],
+        "enum": ["Adult", "ExtraAdult", "Child", "ExtraChild", "ChildBandWithoutBed"],
         "type": "string",
         "description": "Types of accommodations:\r\n\r\nAdult - adult with main occupancy\r\n\r\nExtraAdult - adult on extra bed\r\n\r\nChild - child with main occupancy\r\n\r\nExtraChild - child on extra bed\r\n\r\nChildBandWithoutBed - child without bed"
       },
       "ContentApi_PolicyInfo": {
-        "required": [
-          "checkInTime",
-          "checkOutTime"
-        ],
+        "required": ["checkInTime", "checkOutTime"],
         "type": "object",
         "properties": {
           "checkInTime": {
@@ -3984,11 +3834,7 @@
         "description": "Standard check-in and check-out time"
       },
       "ContentApi_PropertyAmenity": {
-        "required": [
-          "chargeType",
-          "code",
-          "displayName"
-        ],
+        "required": ["chargeType", "code", "displayName"],
         "type": "object",
         "properties": {
           "code": {
@@ -4010,9 +3856,7 @@
         "additionalProperties": false
       },
       "ContentApi_PropertyInfoPage": {
-        "required": [
-          "properties"
-        ],
+        "required": ["properties"],
         "type": "object",
         "properties": {
           "next": {
@@ -4151,11 +3995,7 @@
         "description": "Property detailed description"
       },
       "ContentApi_PropertyInfoTypeWithInclude": {
-        "required": [
-          "amenities",
-          "id",
-          "propertyKindId"
-        ],
+        "required": ["amenities", "id", "propertyKindId"],
         "type": "object",
         "properties": {
           "id": {
@@ -4342,9 +4182,7 @@
         "description": "Time reference point for the rule:\r\n\r\nProviderArrivalTime - \"Hotel check-in time.\"\r\n\r\nProviderDepartureTime - \"Hotel check-out time\" - The countdown starts from the check-out time on the day of arrival.\r\n\r\nGuestArrivalTime - \"Guest-specified check-in time\" - The countdown starts from the check-in time specified by the guest.\r\n\r\nCustomArrivalTime - \"Specified time\" - The countdown starts from the time specified in the cancellation rule.\r\n\r\nBookingCreationTime - \"Booking time\" - The countdown starts from the time the guest made the booking."
       },
       "ContentApi_Resource": {
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "type": "object",
         "properties": {
           "url": {
@@ -4357,9 +4195,7 @@
         "description": "Resource information"
       },
       "ContentApi_RoomAmenitiesCategories": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -4381,10 +4217,7 @@
         "description": "Room amenities category"
       },
       "ContentApi_RoomTypeAvailability": {
-        "enum": [
-          "All",
-          "Selective"
-        ],
+        "enum": ["All", "Selective"],
         "type": "string",
         "description": "Type of service availability:\r\n\r\nAll - service is available for all room types\r\n\r\nSelective - service is available to specific room types"
       },
@@ -4408,13 +4241,7 @@
         "description": "Room type entity"
       },
       "ContentApi_RoomTypeInfo": {
-        "required": [
-          "categoryCode",
-          "categoryName",
-          "id",
-          "name",
-          "placements"
-        ],
+        "required": ["categoryCode", "categoryName", "id", "name", "placements"],
         "type": "object",
         "properties": {
           "id": {
@@ -4491,9 +4318,7 @@
         "description": "Room type info"
       },
       "ContentApi_RoomTypeSquare": {
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "type": "object",
         "properties": {
           "value": {
@@ -4535,11 +4360,7 @@
         "description": "Details of the rate plan service"
       },
       "ContentApi_ServiceInfo": {
-        "required": [
-          "id",
-          "kind",
-          "name"
-        ],
+        "required": ["id", "kind", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -4592,35 +4413,23 @@
         "description": "Description of the service provided by the property\r\n\r\nIf ‘kind’=Meal, the meal plan code is specified in mealPlanCode field, otherwise mealPlanCode=null"
       },
       "ContentApi_ServiceKind": {
-        "enum": [
-          "Common",
-          "Meal"
-        ],
+        "enum": ["Common", "Meal"],
         "type": "string",
         "description": "Service type:\r\n\r\nCommon - common service\r\n\r\nMeal - meal service",
         "example": "Common"
       },
       "ContentApi_StayUnitKind": {
-        "enum": [
-          "NightRate",
-          "DailyRate"
-        ],
+        "enum": ["NightRate", "DailyRate"],
         "type": "string",
         "description": "Type of accommodation unit ‘nights’ or ‘days’"
       },
       "ContentApi_TimeUnit": {
-        "enum": [
-          "None",
-          "Day",
-          "Hour"
-        ],
+        "enum": ["None", "Day", "Hour"],
         "type": "string",
         "description": "Timeframes when a penalty can be set.\r\nNone used only with BeforeArrivalMatching.NoMatter."
       },
       "ContentApi_TimeZoneInfo": {
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "type": "object",
         "properties": {
           "id": {
@@ -4634,9 +4443,7 @@
         "description": "Property time zone"
       },
       "ContentApi_Vat": {
-        "required": [
-          "applicable"
-        ],
+        "required": ["applicable"],
         "type": "object",
         "properties": {
           "applicable": {
@@ -4677,12 +4484,7 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_Corporate": {
-        "required": [
-          "id",
-          "legalName",
-          "registrationReasonCode",
-          "taxpayerIdentificationNumber"
-        ],
+        "required": ["id", "legalName", "registrationReasonCode", "taxpayerIdentificationNumber"],
         "type": "object",
         "properties": {
           "id": {
@@ -4717,10 +4519,7 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_CorporateRq": {
-        "required": [
-          "registrationReasonCode",
-          "taxpayerIdentificationNumber"
-        ],
+        "required": ["registrationReasonCode", "taxpayerIdentificationNumber"],
         "type": "object",
         "properties": {
           "taxpayerIdentificationNumber": {
@@ -4746,9 +4545,7 @@
         "description": "Corporate client creation entity"
       },
       "ReferenceDataApi_CorporateRs": {
-        "required": [
-          "corporate"
-        ],
+        "required": ["corporate"],
         "type": "object",
         "properties": {
           "corporate": {
@@ -4766,10 +4563,7 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_PaymentMethod": {
-        "required": [
-          "code",
-          "type"
-        ],
+        "required": ["code", "type"],
         "type": "object",
         "properties": {
           "code": {
@@ -4782,20 +4576,12 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_PaymentMethodCode": {
-        "enum": [
-          "AtArrival",
-          "BankCardGuarantee",
-          "BankCard",
-          "SBP"
-        ],
+        "enum": ["AtArrival", "BankCardGuarantee", "BankCard", "SBP"],
         "type": "string",
         "description": "Payment method code\n\r\n`AtArrival` - Payment for the booking at arrival at the hotel\n\r\n`BankCardGuarantee` - Card details are provided for create booking but payment is made later\n\r\n`BankCard` - Payment for the booking online via booking form\n\r\n`SBP` - Payment via fast payment system using QR code"
       },
       "ReferenceDataApi_PaymentMethodType": {
-        "enum": [
-          "Cash",
-          "Prepay"
-        ],
+        "enum": ["Cash", "Prepay"],
         "type": "string",
         "description": "Payment type\n\r\n`Cash` - Payment for the booking at arrival at the hotel\n\r\n`Prepay` - Prepayment for the booking online"
       },
@@ -4814,11 +4600,7 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_PropertyAmenityType": {
-        "required": [
-          "chargeTypeApplicable",
-          "code",
-          "displayName"
-        ],
+        "required": ["chargeTypeApplicable", "code", "displayName"],
         "type": "object",
         "properties": {
           "code": {
@@ -4856,11 +4638,7 @@
         "additionalProperties": false
       },
       "ReferenceDataApi_PropertyKindDto": {
-        "required": [
-          "displayName",
-          "id",
-          "propertyKindType"
-        ],
+        "required": ["displayName", "id", "propertyKindType"],
         "type": "object",
         "properties": {
           "id": {
@@ -5009,11 +4787,7 @@
         "description": "Booking details"
       },
       "ReservationApi_BookingService": {
-        "required": [
-          "description",
-          "id",
-          "name"
-        ],
+        "required": ["description", "id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -5042,19 +4816,13 @@
         "description": "Extra service for a booking"
       },
       "ReservationApi_BookingStatus": {
-        "enum": [
-          "Active",
-          "Cancelled",
-          "Unconfirmed"
-        ],
+        "enum": ["Active", "Cancelled", "Unconfirmed"],
         "type": "string",
         "description": "Booking status:<br />\r\nActive - active booking<br />\r\nCancelled - cancelled booking<br />\r\nUnconfirmed - not confirmed booking<br />",
         "example": "Cancelled"
       },
       "ReservationApi_BookingSummary": {
-        "required": [
-          "number"
-        ],
+        "required": ["number"],
         "type": "object",
         "properties": {
           "number": {
@@ -5090,10 +4858,7 @@
         "description": "Booking summary"
       },
       "ReservationApi_BookingsPage": {
-        "required": [
-          "bookingSummaries",
-          "hasMoreData"
-        ],
+        "required": ["bookingSummaries", "hasMoreData"],
         "type": "object",
         "properties": {
           "continueToken": {
@@ -5119,9 +4884,7 @@
         "description": "Booking summary page"
       },
       "ReservationApi_Cancellation": {
-        "required": [
-          "cancelledDateTime"
-        ],
+        "required": ["cancelledDateTime"],
         "type": "object",
         "properties": {
           "penaltyAmount": {
@@ -5161,11 +4924,7 @@
         "description": "BookingCustomer information"
       },
       "ReservationApi_DailyRate": {
-        "required": [
-          "date",
-          "priceBeforeTax",
-          "ratePlanId"
-        ],
+        "required": ["date", "priceBeforeTax", "ratePlanId"],
         "type": "object",
         "properties": {
           "ratePlanId": {
@@ -5219,10 +4978,7 @@
         "description": "Discount"
       },
       "ReservationApi_DiscountType": {
-        "enum": [
-          "Percentage",
-          "Fixed"
-        ],
+        "enum": ["Percentage", "Fixed"],
         "type": "string",
         "description": "Discount type: \"Percentage\" for a percentage discount and \"Fixed\" for a fixed discount.",
         "example": "Percentage"
@@ -5257,9 +5013,7 @@
         "description": "Surcharge details for early arrival or late departure"
       },
       "ReservationApi_GetBookingResponse": {
-        "required": [
-          "booking"
-        ],
+        "required": ["booking"],
         "type": "object",
         "properties": {
           "booking": {
@@ -5270,9 +5024,7 @@
         "description": "Response with booking details"
       },
       "ReservationApi_Guarantee": {
-        "required": [
-          "paymentMethod"
-        ],
+        "required": ["paymentMethod"],
         "type": "object",
         "properties": {
           "paymentMethod": {
@@ -5283,11 +5035,7 @@
         "description": "Booking guarantee"
       },
       "ReservationApi_GuaranteeInfo": {
-        "required": [
-          "guarantees",
-          "loyalty",
-          "totalPrepaid"
-        ],
+        "required": ["guarantees", "loyalty", "totalPrepaid"],
         "type": "object",
         "properties": {
           "loyalty": {
@@ -5330,9 +5078,7 @@
         "description": "Guest"
       },
       "ReservationApi_GuestCount": {
-        "required": [
-          "adultCount"
-        ],
+        "required": ["adultCount"],
         "type": "object",
         "properties": {
           "adultCount": {
@@ -5349,9 +5095,7 @@
             },
             "description": "Child age range<br />\r\nIf the child age is not specified, the value is null",
             "nullable": true,
-            "example": [
-              5
-            ]
+            "example": [5]
           }
         },
         "additionalProperties": false,
@@ -5414,12 +5158,7 @@
         "description": "Point of sale through which a booking was made"
       },
       "ReservationApi_POSType": {
-        "enum": [
-          "Channel",
-          "BookingEngine",
-          "PMS",
-          "Other"
-        ],
+        "enum": ["Channel", "BookingEngine", "PMS", "Other"],
         "type": "string",
         "description": "POS type<br />\r\nThe list of POS types can be expanded<br />\r\nChannel - channel or PartnerAPI or Yandex<br />\r\nBookingEngine - booking engine<br />\r\nPMS - property management system<br />\r\nOther - other POS types<br />",
         "example": "Channel"
@@ -5450,10 +5189,7 @@
         "example": "BankCard"
       },
       "ReservationApi_RatePlan": {
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -5473,14 +5209,7 @@
         "description": "Rate plan"
       },
       "ReservationApi_RoomStay": {
-        "required": [
-          "dailyRates",
-          "guestCount",
-          "ratePlans",
-          "roomType",
-          "stayDates",
-          "total"
-        ],
+        "required": ["dailyRates", "guestCount", "ratePlans", "roomType", "stayDates", "total"],
         "type": "object",
         "properties": {
           "index": {
@@ -5538,13 +5267,7 @@
         "description": "Room accommodation details"
       },
       "ReservationApi_RoomStayService": {
-        "required": [
-          "description",
-          "id",
-          "inclusive",
-          "kind",
-          "name"
-        ],
+        "required": ["description", "id", "inclusive", "kind", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -5587,10 +5310,7 @@
         "description": "Extra service for accommodation"
       },
       "ReservationApi_RoomType": {
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -5610,20 +5330,13 @@
         "description": "Room type"
       },
       "ReservationApi_ServiceKind": {
-        "enum": [
-          "Common",
-          "Meal"
-        ],
+        "enum": ["Common", "Meal"],
         "type": "string",
         "description": "Service type:<br />\r\nCommon - common service<br />\r\nMeal - meal service",
         "example": "Meal"
       },
       "ReservationApi_ServiceTotal": {
-        "required": [
-          "priceAfterTax",
-          "priceBeforeTax",
-          "taxAmount"
-        ],
+        "required": ["priceAfterTax", "priceBeforeTax", "taxAmount"],
         "type": "object",
         "properties": {
           "priceBeforeTax": {
@@ -5657,10 +5370,7 @@
         "description": "Total for service"
       },
       "ReservationApi_StayDates": {
-        "required": [
-          "arrivalDateTime",
-          "departureDateTime"
-        ],
+        "required": ["arrivalDateTime", "departureDateTime"],
         "type": "object",
         "properties": {
           "arrivalDateTime": {
@@ -5680,9 +5390,7 @@
         "description": "Period of stay"
       },
       "ReservationApi_Tax": {
-        "required": [
-          "index"
-        ],
+        "required": ["index"],
         "type": "object",
         "properties": {
           "index": {
@@ -5708,10 +5416,7 @@
         "description": "Taxes and fees"
       },
       "ReservationApi_TaxAmount": {
-        "required": [
-          "amount",
-          "index"
-        ],
+        "required": ["amount", "index"],
         "type": "object",
         "properties": {
           "amount": {
@@ -5731,11 +5436,7 @@
         "description": "Amount of tax or fee"
       },
       "ReservationApi_Total": {
-        "required": [
-          "priceAfterTax",
-          "priceBeforeTax",
-          "taxAmount"
-        ],
+        "required": ["priceAfterTax", "priceBeforeTax", "taxAmount"],
         "type": "object",
         "properties": {
           "priceBeforeTax": {
@@ -5777,9 +5478,7 @@
         "description": "Total"
       },
       "SearchApi_AggregationSearchByPropertiesResponse": {
-        "required": [
-          "roomStays"
-        ],
+        "required": ["roomStays"],
         "type": "object",
         "properties": {
           "roomStays": {
@@ -5802,10 +5501,7 @@
         "description": "Groups of the accommodation search by accommodations;\r\nincludes accommodations with a minimum price by accommodations\r\nthat can be used when booking"
       },
       "SearchApi_AvailableDiscount": {
-        "required": [
-          "amount",
-          "reason"
-        ],
+        "required": ["amount", "reason"],
         "type": "object",
         "properties": {
           "reason": {
@@ -5822,23 +5518,12 @@
         "description": "Available discount information"
       },
       "SearchApi_BookingPlacementKind": {
-        "enum": [
-          "Adult",
-          "ExtraAdult",
-          "Child",
-          "ExtraChild",
-          "ChildBandWithoutBed"
-        ],
+        "enum": ["Adult", "ExtraAdult", "Child", "ExtraChild", "ChildBandWithoutBed"],
         "type": "string",
         "description": "Types of accommodations:\r\n\r\nAdult - adult with main occupancy\r\n\r\nExtraAdult - adult on extra bed\r\n\r\nChild - child with main occupancy\r\n\r\nExtraChild - child on extra bed\r\n\r\nChildBandWithoutBed - child without bed"
       },
       "SearchApi_CalculationMethod": {
-        "enum": [
-          "PerStay",
-          "PerPerson",
-          "PerPersonByAge",
-          "PerUse"
-        ],
+        "enum": ["PerStay", "PerPerson", "PerPersonByAge", "PerUse"],
         "type": "string",
         "description": "Price calculation methods: \r\n\r\nPerStay - The extra service is charged per room stay\r\n\r\nPerPerson - The extra service is charged per guest\r\n\r\nPerPersonByAge - The extra service is charged per guest. The service price may vary depending on the age of the guests.\r\n\r\nPerUse - The extra service is charged per use of the service",
         "example": "PerPerson"
@@ -6028,10 +5713,7 @@
         "description": "Room stay entity"
       },
       "SearchApi_DetailedRoomType": {
-        "required": [
-          "id",
-          "placements"
-        ],
+        "required": ["id", "placements"],
         "type": "object",
         "properties": {
           "id": {
@@ -6052,20 +5734,12 @@
         "description": "Detailed room type entity"
       },
       "SearchApi_DiscountReason": {
-        "enum": [
-          "StayDatesDiscount",
-          "RegistrationDiscount",
-          "LoyaltyDiscount"
-        ],
+        "enum": ["StayDatesDiscount", "RegistrationDiscount", "LoyaltyDiscount"],
         "type": "string",
         "description": "Discount reason type:\r\n\r\nStayDatesDiscount - Discount for the specified dates.\r\n\r\nRegistrationDiscount - Discount for registration on the property site.\r\n\r\nLoyaltyDiscount - Discount for the loyalty program on the property site.\r\n"
       },
       "SearchApi_ExtraStay": {
-        "required": [
-          "currencyCode",
-          "dateTimeLocal",
-          "total"
-        ],
+        "required": ["currencyCode", "dateTimeLocal", "total"],
         "type": "object",
         "properties": {
           "total": {
@@ -6092,10 +5766,7 @@
         "additionalProperties": false
       },
       "SearchApi_ExtraStays": {
-        "required": [
-          "earlyCheckIn",
-          "lateCheckOut"
-        ],
+        "required": ["earlyCheckIn", "lateCheckOut"],
         "type": "object",
         "properties": {
           "earlyCheckIn": {
@@ -6116,10 +5787,7 @@
         "additionalProperties": false
       },
       "SearchApi_GuestCount": {
-        "required": [
-          "adultCount",
-          "childAges"
-        ],
+        "required": ["adultCount", "childAges"],
         "type": "object",
         "properties": {
           "adultCount": {
@@ -6135,18 +5803,14 @@
               "format": "int32"
             },
             "description": "Child age range",
-            "example": [
-              5
-            ]
+            "example": [5]
           }
         },
         "additionalProperties": false,
         "description": "Number of guests entity"
       },
       "SearchApi_IncludedRoomStayService": {
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "type": "object",
         "properties": {
           "id": {
@@ -6204,11 +5868,7 @@
         "description": "Meal filters"
       },
       "SearchApi_MealPreferenceType": {
-        "enum": [
-          "All",
-          "MealOnly",
-          "RoomOnly"
-        ],
+        "enum": ["All", "MealOnly", "RoomOnly"],
         "type": "string",
         "description": "Meal types:\r\n\r\nAll - Display of accommodations with minimum price. If MealsIncluded is specified, display accommodations without meal included or with the selected meals\r\n\r\nMealOnly - Display of accommodations with meal included, if a hotel has no accommodations with meal included, it is not in the output\r\n\r\nRoomOnly - Display of accommodations without any meal included\r\n",
         "example": "MealOnly"
@@ -6223,20 +5883,14 @@
             },
             "description": "Used to identify the types of meals included",
             "nullable": true,
-            "example": [
-              "BreakFast"
-            ]
+            "example": ["BreakFast"]
           }
         },
         "additionalProperties": false,
         "description": "Defines which specific meals are included in stay.\r\n\r\nThe filter allows you to display the lowest cost of stay with a specific meal included for each stay.\r\n\r\nFor example, if you specify MealsIncluded.MealPlanCodes [“BreakFast”] in the request - in the response,\r\n\r\nyou can get the minimum cost of stay with only the “BreakFast” MealType only.\r\n\r\nResponse will not contain “AllInclusive” or “HalfBoard”.\r\n\r\nMealsIncluded can be used only with the MealType: \"All\" or \"MealOnly\"\r\n"
       },
       "SearchApi_Placement": {
-        "required": [
-          "code",
-          "count",
-          "kind"
-        ],
+        "required": ["code", "count", "kind"],
         "type": "object",
         "properties": {
           "code": {
@@ -6271,9 +5925,7 @@
         "description": "Accommodation in a room"
       },
       "SearchApi_PlacementRq": {
-        "required": [
-          "code"
-        ],
+        "required": ["code"],
         "type": "object",
         "properties": {
           "code": {
@@ -6337,9 +5989,7 @@
         "description": "Number of extra services provided depending on the age of the guests"
       },
       "SearchApi_RatePlan": {
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "type": "object",
         "properties": {
           "id": {
@@ -6353,14 +6003,7 @@
         "description": "Rate plan entity"
       },
       "SearchApi_RoomStayExtraService": {
-        "required": [
-          "calculationMethod",
-          "currencyCode",
-          "id",
-          "kind",
-          "mealPlanCode",
-          "total"
-        ],
+        "required": ["calculationMethod", "currencyCode", "id", "kind", "mealPlanCode", "total"],
         "type": "object",
         "properties": {
           "id": {
@@ -6410,10 +6053,7 @@
         "additionalProperties": false
       },
       "SearchApi_RoomType": {
-        "required": [
-          "id",
-          "placements"
-        ],
+        "required": ["id", "placements"],
         "type": "object",
         "properties": {
           "id": {
@@ -6434,10 +6074,7 @@
         "description": "Short room type entity"
       },
       "SearchApi_RoomTypeRq": {
-        "required": [
-          "id",
-          "placements"
-        ],
+        "required": ["id", "placements"],
         "type": "object",
         "properties": {
           "id": {
@@ -6457,9 +6094,7 @@
         "additionalProperties": false
       },
       "SearchApi_SearchByPropertyResponse": {
-        "required": [
-          "roomStays"
-        ],
+        "required": ["roomStays"],
         "type": "object",
         "properties": {
           "roomStays": {
@@ -6476,9 +6111,7 @@
             },
             "description": "Warnings",
             "nullable": true,
-            "example": [
-              null
-            ]
+            "example": [null]
           }
         },
         "additionalProperties": false,
@@ -6526,12 +6159,7 @@
         "additionalProperties": false
       },
       "SearchApi_SearchServicesCriteria": {
-        "required": [
-          "guestCount",
-          "ratePlan",
-          "roomType",
-          "stayDates"
-        ],
+        "required": ["guestCount", "ratePlan", "roomType", "stayDates"],
         "type": "object",
         "properties": {
           "stayDates": {
@@ -6550,10 +6178,7 @@
         "additionalProperties": false
       },
       "SearchApi_ServiceKind": {
-        "enum": [
-          "Common",
-          "Meal"
-        ],
+        "enum": ["Common", "Meal"],
         "type": "string",
         "description": "Service type:\r\n\r\nCommon - common service\r\n\r\nMeal - meal service",
         "example": "Meal"
@@ -6643,11 +6268,7 @@
         "description": "Brief overview of the accommodation option"
       },
       "SearchApi_SimpleSearchCriteria": {
-        "required": [
-          "adults",
-          "arrivalDate",
-          "departureDate"
-        ],
+        "required": ["adults", "arrivalDate", "departureDate"],
         "type": "object",
         "properties": {
           "propertyIds": {
@@ -6657,10 +6278,7 @@
             },
             "description": "Accommodations IDs\r\n\r\nMaximum number of IDs - 200",
             "nullable": true,
-            "example": [
-              "1024",
-              "11"
-            ]
+            "example": ["1024", "11"]
           },
           "adults": {
             "type": "integer",
@@ -6676,9 +6294,7 @@
             },
             "description": "Child age range",
             "nullable": true,
-            "example": [
-              5
-            ]
+            "example": [5]
           },
           "include": {
             "type": "string",
@@ -6709,10 +6325,7 @@
         "description": "Search parameters\r\n"
       },
       "SearchApi_StayDates": {
-        "required": [
-          "arrivalDateTime",
-          "departureDateTime"
-        ],
+        "required": ["arrivalDateTime", "departureDateTime"],
         "type": "object",
         "properties": {
           "arrivalDateTime": {
@@ -6732,10 +6345,7 @@
         "description": "Period of stay"
       },
       "SearchApi_Tax": {
-        "required": [
-          "amount",
-          "name"
-        ],
+        "required": ["amount", "name"],
         "type": "object",
         "properties": {
           "amount": {
@@ -6761,10 +6371,7 @@
         "description": "Taxes and fees"
       },
       "SearchApi_Total": {
-        "required": [
-          "priceBeforeTax",
-          "taxAmount"
-        ],
+        "required": ["priceBeforeTax", "taxAmount"],
         "type": "object",
         "properties": {
           "priceBeforeTax": {
@@ -6952,20 +6559,14 @@
             },
             "description": "List of rooms available for check-in",
             "nullable": true,
-            "example": [
-              "4503599628227391",
-              "4503599628227392"
-            ]
+            "example": ["4503599628227391", "4503599628227392"]
           }
         },
         "additionalProperties": false,
         "description": "Available rooms/suites for a given room stay"
       },
       "PmsApi_Building": {
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -6992,10 +6593,7 @@
         "additionalProperties": false
       },
       "PmsApi_CommissionCalculationSource": {
-        "enum": [
-          "Pms",
-          "Ota"
-        ],
+        "enum": ["Pms", "Ota"],
         "type": "string",
         "description": "Source of commission calculation.\n New values can be added (enum is not frozen).\n- **Pms**: The commission is calculated based on the agent company's settings in PMS.\n- **Ota**: The commission is calculated by the OTA."
       },
@@ -7028,10 +6626,7 @@
         "description": "Company entity in PMS"
       },
       "PmsApi_CompanyType": {
-        "enum": [
-          "Customer",
-          "Payer"
-        ],
+        "enum": ["Customer", "Payer"],
         "type": "string",
         "description": "Type of company\n New values will not be added (enum is frozen).\n- **Customer**: Customer company\n- **Payer**: Agent company"
       },
@@ -7068,10 +6663,7 @@
         "description": "File content and name"
       },
       "PmsApi_FindCompaniesResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7113,10 +6705,7 @@
         "description": "List of companies"
       },
       "PmsApi_FindGuestLoyaltyCardsResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7158,10 +6747,7 @@
         "description": "List of guest loyalty cards"
       },
       "PmsApi_FindGuestRoomStaysResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7203,10 +6789,7 @@
         "description": "List of room stays for a guest"
       },
       "PmsApi_FindGuestsResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7248,10 +6831,7 @@
         "description": "Search results of guest profiles"
       },
       "PmsApi_FindInvoicesResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7293,10 +6873,7 @@
         "description": "List of invoices by reservation"
       },
       "PmsApi_FindReservationRoomsResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7338,10 +6915,7 @@
         "description": "List of available rooms/suites per stay"
       },
       "PmsApi_FindReservationsResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7383,10 +6957,7 @@
         "description": "List of reservations by filters"
       },
       "PmsApi_FindRoomsResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7427,10 +6998,7 @@
         "additionalProperties": false
       },
       "PmsApi_Floor": {
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -7457,11 +7025,7 @@
         "additionalProperties": false
       },
       "PmsApi_Gender": {
-        "enum": [
-          "Male",
-          "Female",
-          "Unknown"
-        ],
+        "enum": ["Male", "Female", "Unknown"],
         "type": "string",
         "description": "Gender\n New values will not be added (enum is frozen).\n- **Male**: Male\n- **Female**: Female\n- **Unknown**: Unknown"
       },
@@ -7497,10 +7061,7 @@
         "description": "Guest profile details"
       },
       "PmsApi_GetPaymentSystemsForPaymentResponse": {
-        "required": [
-          "hasNextPage",
-          "nextPageToken"
-        ],
+        "required": ["hasNextPage", "nextPageToken"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -7647,9 +7208,7 @@
         "description": "Invoice data for a reservation"
       },
       "PmsApi_InvoiceItem": {
-        "required": [
-          "vat"
-        ],
+        "required": ["vat"],
         "type": "object",
         "properties": {
           "accountingCode": {
@@ -7705,11 +7264,7 @@
         "description": "Single line item on an invoice"
       },
       "PmsApi_InvoiceItemKind": {
-        "enum": [
-          "RoomType",
-          "Option",
-          "Transfer"
-        ],
+        "enum": ["RoomType", "Option", "Transfer"],
         "type": "string",
         "description": "Kind of invoice item\n New values can be added (enum is not frozen).\n- **RoomType**: Room stay\n- **Option**: Service\n- **Transfer**: Transfer"
       },
@@ -7736,11 +7291,7 @@
         "description": "Quantity details for an invoice item"
       },
       "PmsApi_InvoiceItemQuantityType": {
-        "enum": [
-          "Pcs",
-          "Hours",
-          "Nights"
-        ],
+        "enum": ["Pcs", "Hours", "Nights"],
         "type": "string",
         "description": "Unit of measure for invoice item\n New values can be added (enum is not frozen).\n- **Pcs**: Pieces\n- **Hours**: Hours\n- **Nights**: Nights"
       },
@@ -7787,10 +7338,7 @@
         "description": "Information about who pays the invoice"
       },
       "PmsApi_PaymentActionKind": {
-        "enum": [
-          "Payment",
-          "Refund"
-        ],
+        "enum": ["Payment", "Refund"],
         "type": "string",
         "description": "Transaction direction\n New values can be added (enum is not frozen).\n- **Payment**: Payment\n- **Refund**: Refund"
       },
@@ -7971,11 +7519,7 @@
         "description": "Phone"
       },
       "PmsApi_Reservation": {
-        "required": [
-          "creationSource",
-          "currencyCode",
-          "customerLanguageCode"
-        ],
+        "required": ["creationSource", "currencyCode", "customerLanguageCode"],
         "type": "object",
         "properties": {
           "number": {
@@ -8090,9 +7634,7 @@
         "description": "Detailed reservation record"
       },
       "PmsApi_ReservationChannelInformation": {
-        "required": [
-          "channelName"
-        ],
+        "required": ["channelName"],
         "type": "object",
         "properties": {
           "channelName": {
@@ -8106,10 +7648,7 @@
         "description": "Reservation channel details"
       },
       "PmsApi_ReservationCreationSource": {
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "type": "object",
         "properties": {
           "id": {
@@ -8129,9 +7668,7 @@
         "description": "Reservation creation source details"
       },
       "PmsApi_ReservationInfo": {
-        "required": [
-          "number"
-        ],
+        "required": ["number"],
         "type": "object",
         "properties": {
           "number": {
@@ -8145,14 +7682,7 @@
         "description": "Minimal reservation info"
       },
       "PmsApi_ReservationStatus": {
-        "enum": [
-          "Unconfirmed",
-          "Confirmed",
-          "Cancelled",
-          "Released",
-          "Pending",
-          "Edited"
-        ],
+        "enum": ["Unconfirmed", "Confirmed", "Cancelled", "Released", "Pending", "Edited"],
         "type": "string",
         "description": "Reservation status\n New values will not be added (enum is frozen).\n- **Unconfirmed**: Unconfirmed\n- **Confirmed**: Confirmed\n- **Cancelled**: Cancelled\n- **Released**: Released\n- **Pending**: Pending\n- **Edited**: Edited"
       },
@@ -8234,10 +7764,7 @@
             },
             "description": "IDs of guests on this stay",
             "nullable": true,
-            "example": [
-              "4503599627465719",
-              "4503599627465718"
-            ]
+            "example": ["4503599627465719", "4503599627465718"]
           },
           "checkInDateTime": {
             "type": "string",
@@ -8312,12 +7839,7 @@
         "description": "Room stay details"
       },
       "PmsApi_RoomStayStatus": {
-        "enum": [
-          "New",
-          "CheckedIn",
-          "CheckedOut",
-          "Cancelled"
-        ],
+        "enum": ["New", "CheckedIn", "CheckedOut", "Cancelled"],
         "type": "string",
         "description": "Room stay status\n New values will not be added (enum is frozen).\n- **New**: New\n- **CheckedIn**: Checked in\n- **CheckedOut**: Checked out\n- **Cancelled**: Cancelled"
       },
@@ -8513,11 +8035,7 @@
         "description": "Aggregated price details"
       },
       "PmsApi_Vat": {
-        "required": [
-          "applicable",
-          "included",
-          "percent"
-        ],
+        "required": ["applicable", "included", "percent"],
         "type": "object",
         "properties": {
           "applicable": {
@@ -8660,10 +8178,7 @@
         "description": "Daily occupancy statistics for a specific stay date"
       },
       "PmsAnalyticsApi_GetDailyOccupancyResponse": {
-        "required": [
-          "currencyCode",
-          "propertyRoomCount"
-        ],
+        "required": ["currencyCode", "propertyRoomCount"],
         "type": "object",
         "properties": {
           "warnings": {
@@ -8820,18 +8335,13 @@
         "description": "PMS booking (reservation)."
       },
       "PmsIntegrationApi_BookingAgeQualifyingCode": {
-        "enum": [
-          "AdultBed",
-          "ChildBandBed"
-        ],
+        "enum": ["AdultBed", "ChildBandBed"],
         "type": "string",
         "description": "Age qualifying code for guest count.\r\nOpen — new values may be added in future versions.",
         "example": "AdultBed"
       },
       "PmsIntegrationApi_BookingAmount": {
-        "required": [
-          "currencyCode"
-        ],
+        "required": ["currencyCode"],
         "type": "object",
         "properties": {
           "amountAfterTax": {
@@ -8895,20 +8405,13 @@
         "description": "Booking channel — agent or company associated with the booking."
       },
       "PmsIntegrationApi_BookingChannelCodeType": {
-        "enum": [
-          "Unknown",
-          "Pms"
-        ],
+        "enum": ["Unknown", "Pms"],
         "type": "string",
         "description": "Type of booking channel code.\r\nOpen — new values may be added in future versions.",
         "example": "Pms"
       },
       "PmsIntegrationApi_BookingChannelType": {
-        "enum": [
-          "Unknown",
-          "TravelAgent",
-          "Company"
-        ],
+        "enum": ["Unknown", "TravelAgent", "Company"],
         "type": "string",
         "description": "Type of booking channel.\r\nOpen — new values may be added in future versions.",
         "example": "TravelAgent"
@@ -9038,9 +8541,7 @@
         "description": "Daily revenue for a room stay date."
       },
       "PmsIntegrationApi_BookingRoomShare": {
-        "required": [
-          "roomShareCode"
-        ],
+        "required": ["roomShareCode"],
         "type": "object",
         "properties": {
           "roomShareCode": {
@@ -9220,14 +8721,7 @@
         "description": "Additional service (extra) attached to a room stay."
       },
       "PmsIntegrationApi_BookingStatus": {
-        "enum": [
-          "Unknown",
-          "Confirmed",
-          "Waitlisted",
-          "InHouse",
-          "CheckedOut",
-          "Cancelled"
-        ],
+        "enum": ["Unknown", "Confirmed", "Waitlisted", "InHouse", "CheckedOut", "Cancelled"],
         "type": "string",
         "description": "Booking status.\r\nOpen — new values may be added in future versions.",
         "example": "Confirmed"
@@ -9282,12 +8776,7 @@
         "description": "Unique identifier of the booking in an external system."
       },
       "PmsIntegrationApi_BookingUniqueIdContext": {
-        "enum": [
-          "Unknown",
-          "Pms",
-          "Internal",
-          "External"
-        ],
+        "enum": ["Unknown", "Pms", "Internal", "External"],
         "type": "string",
         "description": "Context identifying the source system of a booking unique identifier.\r\nOpen — new values may be added in future versions.",
         "example": "Pms"
@@ -9334,9 +8823,7 @@
         "description": "Daily breakdown item of an inventory block."
       },
       "PmsIntegrationApi_DailyInventoryBlockPricing": {
-        "required": [
-          "currencyCode"
-        ],
+        "required": ["currencyCode"],
         "type": "object",
         "properties": {
           "oneAdultPrice": {
@@ -9441,12 +8928,7 @@
         "description": "Error response."
       },
       "PmsIntegrationApi_InventoryBlock": {
-        "required": [
-          "dailyItems",
-          "id",
-          "propertyId",
-          "ratePlanCodes"
-        ],
+        "required": ["dailyItems", "id", "propertyId", "ratePlanCodes"],
         "type": "object",
         "properties": {
           "id": {
@@ -9530,22 +9012,13 @@
         "description": "Response containing inventory block data."
       },
       "PmsIntegrationApi_InventoryBlockStatus": {
-        "enum": [
-          "Unknown",
-          "Inquiry",
-          "Active",
-          "Cancelled"
-        ],
+        "enum": ["Unknown", "Inquiry", "Active", "Cancelled"],
         "type": "string",
         "description": "Status of an inventory block.\r\nOpen — new values may be added in future versions.",
         "example": "Inquiry"
       },
       "PmsIntegrationApi_SearchInventoryRequest": {
-        "required": [
-          "endDate",
-          "roomTypeCodes",
-          "startDate"
-        ],
+        "required": ["endDate", "roomTypeCodes", "startDate"],
         "type": "object",
         "properties": {
           "roomTypeCodes": {
@@ -9554,10 +9027,7 @@
               "type": "string"
             },
             "description": "Room type codes to filter by (PMS codes).",
-            "example": [
-              "DBL",
-              "SGL"
-            ]
+            "example": ["DBL", "SGL"]
           },
           "startDate": {
             "type": "string",
@@ -9576,10 +9046,7 @@
         "description": "Search filters for inventory query."
       },
       "PmsIntegrationApi_SearchInventoryResult": {
-        "required": [
-          "inventories",
-          "propertyId"
-        ],
+        "required": ["inventories", "propertyId"],
         "type": "object",
         "properties": {
           "propertyId": {
@@ -9785,40 +9252,23 @@
   "x-tagGroups": [
     {
       "name": "API Documentation",
-      "tags": [
-        "Authorization",
-        "Rate limits",
-        "Error codes"
-      ]
+      "tags": ["Authorization", "Rate limits", "Error codes"]
     },
     {
       "name": "Exely Connect - Content API",
-      "tags": [
-        "CancellationRules",
-        "ContentApi",
-        "ExtraStayRules"
-      ]
+      "tags": ["CancellationRules", "ContentApi", "ExtraStayRules"]
     },
     {
       "name": "ReferenceData API",
-      "tags": [
-        "CorporateApi",
-        "PaymentMethods",
-        "PropertyAmenity",
-        "PropertyKind"
-      ]
+      "tags": ["CorporateApi", "PaymentMethods", "PropertyAmenity", "PropertyKind"]
     },
     {
       "name": "Read Reservation API",
-      "tags": [
-        "Reservation"
-      ]
+      "tags": ["Reservation"]
     },
     {
       "name": "Exely Connect - Search API",
-      "tags": [
-        "SearchRoomStays"
-      ]
+      "tags": ["SearchRoomStays"]
     },
     {
       "name": "PMS API",
@@ -9832,17 +9282,11 @@
     },
     {
       "name": "PMS Analytics API",
-      "tags": [
-        "PropertyAnalytics"
-      ]
+      "tags": ["PropertyAnalytics"]
     },
     {
       "name": "Exely Partner - PMS Integration Storage API",
-      "tags": [
-        "Bookings",
-        "Inventory",
-        "Statistics"
-      ]
+      "tags": ["Bookings", "Inventory", "Statistics"]
     }
   ]
 }

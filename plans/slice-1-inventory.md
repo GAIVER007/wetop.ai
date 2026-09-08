@@ -1,6 +1,6 @@
 # Slice 1 — Inventory: план
 
-**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). Шаги 1–6 выполнены и доказаны на реальной БД (08.09.2026). Остался шаг 7 — страница «Номерной фонд».
+**Статус: подтверждён владельцем 07.09.2026** («давай начинай первый шаг»). **Slice 1 завершён 08.09.2026.** Все 7 шагов доказаны на реальной БД; Gate 1 — `reports/inventory-2026-09-08.md` (diff 0) и скриншот. Дальше — `plans/roadmap-2026-09-08.md`.
 Дата: 2026-09-07. Основание: `DATA_MODEL.md` утверждён 07.09.2026 (кроме §6 Folio).
 
 ---
@@ -76,7 +76,7 @@ Vitest выбран как стандарт для TS-монорепо; если
 | 4 | ✅ 08.09.2026 доказано на Supabase: integration-тест прошёл (2 запуска фикстуры → 7 единиц, 0 дублей, откат); реальный импорт: 1-й запуск 88 создано / 0 обновлено, 2-й запуск 0 создано / 88 обновлено. Код 07.09.2026: `importInventoryPlan(tx, plan, property)` — одна транзакция, upsert по бизнес-ключам (Property.name, code категории, `InventoryUnit.code`), `PhysicalRoom` 1:1, проверка «в БД = в плане» с откатом, запись в `AuditLog`. CLI `scripts/imports/src/cli-import-inventory.ts` | integration-тест `tests/integration/inventory-import.test.ts` (2 запуска на фикстуре 9xxx → 7 единиц, 0 дублей, откат) **пропускается без `DATABASE_URL`** — доказательство ждёт строку подключения |
 | 5 | ✅ 08.09.2026 `reports/inventory-2026-09-08.md`: RESULT OK, diff 0 по всем 11 строкам. Код 07.09.2026: `compareInventory` + `renderInventoryReport` (red → green, 3 теста), CLI `scripts/reconciliation/src/cli-inventory.ts` пишет `reports/inventory-YYYY-MM-DD.md`, код выхода 1 при diff ≠ 0 | отчёт по реальной БД — после миграции и импорта |
 | 6 | ✅ 08.09.2026 живой запуск на реальной БД: `/inventory/summary` → 88/16/72/92 и 5 категорий, `/inventory/units` → 88, `?category=exely-5074687` → 88, 4, 44, 48. Код 07.09.2026: `apps/api` NestJS 12 — `GET /inventory/summary`, `GET /inventory/units?category=`; порт `InventoryRepository` (Prisma-реализация через `readInventoryPlanFromDb`), сервис поверх `summarizeInventoryPlan`; слушает 127.0.0.1:3001 | контрактный тест с фальшивым репозиторием: red (модулей нет) → green, 4 теста; живой запуск на реальной БД — после `DATABASE_URL` |
-| 7 | UI: страница `/inventory` — сводка по категориям с итогами 88/16/72/92 и таблица 88 единиц | скриншот + e2e «88 строк» |
+| 7 | ✅ 08.09.2026 `apps/web` Next.js 16 / React 19: `/inventory` — сводка 88/16/72/92/0, таблица категорий, таблица 88 единиц с фильтром `?category=`. Playwright: red против заглушки (0 строк) → green | `reports/screenshots/inventory-2026-09-08.png`; e2e 2 теста: «88 строк + сводка», «фильтр → 4 двухместных». `npm run e2e` |
 
 Порядок именно такой: сначала данные и сверка, интерфейс последним. Красный тест
 показывается до зелёного (AGENTS.md §6). Реальные данные в тесты не попадают:

@@ -19,10 +19,13 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "prettier --check \"**/*.{ts,tsx,js,json}\"",
     "format:fix": "prettier --write \"**/*.{ts,tsx,js,json}\"",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm run typecheck:web && npm test",
+    "e2e": "playwright test",
+    "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^26.5.0",
     "eslint": "^10.10.0",
     "prettier": "^3.9.6",

@@ -1,0 +1,20 @@
+{
+  "name": "@pms/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Next.js интерфейс стойки PMS. Slice 1: страница «Номерной фонд»",
+  "scripts": {
+    "dev": "next dev --port 3000 --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --port 3000 --hostname 127.0.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7"
+  },
+  "dependencies": {
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

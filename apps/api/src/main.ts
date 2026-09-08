@@ -1,5 +1,7 @@
 /**
- * PMS API. Запуск из корня: `npm run dev -w apps/api` (порт API_PORT, по умолчанию 3001).
+ * PMS API. Запуск из корня: `npm run dev -w apps/api` или `npm run start -w apps/api`
+ * (порт API_PORT, по умолчанию 3001). Именно через workspace-скрипт: tsx должен взять
+ * apps/api/tsconfig.json с experimentalDecorators, из корня он берёт корневой и падает.
  * Слушает только 127.0.0.1: авторизации нет до решения Q-061…064 (plans/slice-1-inventory.md §7).
  * DATABASE_URL читает программа из .env — не агент (SECURITY.md §3).
  */

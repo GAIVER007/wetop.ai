@@ -46,7 +46,9 @@ export class InventoryService {
   async units(category?: string): Promise<InventoryUnitDto[]> {
     const model = await this.load();
     const nameByCode = new Map(model.plan.accommodationTypes.map((t) => [t.code, t.name]));
-    return model.plan.units
+    // Порядок ответа стабилен: по коду с числовым сравнением («2» раньше «10»). Из кода ничего не выводится.
+    return [...model.plan.units]
+      .sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }))
       .filter((u) => category === undefined || u.accommodationTypeCode === category)
       .map((u) => ({
         code: u.code,

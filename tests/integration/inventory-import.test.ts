@@ -72,11 +72,11 @@ describe.skipIf(!url)('importInventoryPlan (integration, DATABASE_URL required)'
           );
           throw new Rollback('rollback test data');
         },
-        { timeout: 60_000 },
+        { timeout: 120_000, maxWait: 30_000 },
       ),
     ).rejects.toBeInstanceOf(Rollback);
 
     // после отката тестового объекта в БД нет
     expect(await db.property.findFirst({ where: { name: TEST_PROPERTY.name } })).toBeNull();
-  });
+  }, 180_000); // БД удалённая (Supabase, Сингапур): десятки последовательных запросов
 });

@@ -11,7 +11,9 @@
       "Bash(cat ./.env*)",
       "Bash(cat secrets/*)",
       "Bash(source .env*)",
-      "Bash(export $(cat .env*)"
+      "Bash(export $(cat .env*)",
+      "Read(./project-input/exely/api/**)",
+      "Bash(cat project-input/exely/api/*)"
     ]
   }
 }

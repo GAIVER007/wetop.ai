@@ -12,3 +12,12 @@ export { buildInventoryImportPlan, accommodationTypeCode } from './build-invento
 export { importInventoryPlan, type InventoryImportReport } from './import-inventory';
 export { readInventoryPlanFromDb } from './read-inventory-from-db';
 export { LUXX_APARTS_PROPERTY, type PropertySpec } from './property';
+export { normalizeExelyReservation, toMinorUnits } from './normalize-reservation';
+export type {
+  ExelyReservationDetails,
+  ReservationImportRecord,
+  ReservationItemImportRecord,
+  GuestImportRecord,
+  NormalizeContext,
+} from './normalize-reservation';
+export { anonymizeGuest, anonymizeReservationNotes, type GuestRecord } from './anonymize';

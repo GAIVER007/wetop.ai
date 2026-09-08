@@ -8,7 +8,26 @@
 | Спецификация OpenAPI 3.0 «Exely Connect APIs» v1.0.0, **44 эндпоинта** | `openapi-spec.json` | `https://exely.com/dev-portal/openapi/spec.json` | 08.09.2026 |
 | Портал разработчика: категории API, сценарии, авторизация, webhooks (28 страниц, текст) | `dev-portal/**/*.md` | `https://exely.com/dev-portal/docs/…` | 08.09.2026 |
 | База знаний: Public API (брони), PMS Integration, ключ интеграции / FiscalConnector (ru) | `help/*.md` | `https://exely.com/help/kb350850/`, `kb283752/`, `ru/help/kb380807/` | 08.09.2026 |
+| **Универсальный API Exely PMS 1.5.0** — PDF от Exely + извлечённый текст | `Opisanie-API-ExelyPMS-1.5.0.pdf`, `universal-pms-api-1.5.0.md` | владелец, вкладка «Интеграции» Exely | 08.09.2026 |
 | Манифест обхода | `_manifest.json` | | |
+
+## Два API Exely — какой для чего
+
+| | Exely Connect (dev-portal, `openapi-spec.json`) | Универсальный API Exely PMS 1.5.0 (`universal-pms-api-1.5.0.md`) |
+|---|---|---|
+| Хост | `connect.hopenapi.com/api/pms`, `/api/content`, … | `connect.hopenapi.com/api/exelypms/v1/…` (Swagger: `/api/exelypms/swagger/ui/index`) |
+| Авторизация | OAuth2 client credentials → Bearer, токен 15 мин; client_id/secret из «Подключения API» | заголовок **`X-API-KEY`** = **ключ интеграции** из «Управление отелем → Настройки → Интеграции» |
+| Состояние 08.09.2026 | подключение создано, токен выдаётся, **шлюз отвечает 401** (ждём Exely) | ключ существует, **не проверен**; засвечен в чате 08.09 → перевыпустить |
+| Брони | `GET …/reservations/search` (period, pageToken) + `GET …/reservations/{number}` | `GET /v1/bookings?state=&affectsPeriodFrom&To` → `{bookingNumbers[]}` + `GET /v1/bookings/{number}` (Booking, RoomStay, Customer, TotalPrice) |
+| **История для Gate 2** | `daily-occupancy` (≤31 дней) | **`GET /v1/analytics/services?startDate=yyyyMMdd&endDate=&dateKind=1`** — начисления по дням пребывания (≤31 день): проживания, категории, суммы; `dateKind` 0 по выезду, 2 по созданию, 3 по модификации; `/cancelled` — отменённые; `/csv` — файлом |
+| Платежи | invoices, process-payment | `GET /v1/analytics/payments?startDateTime=yyyyMMddHHmm&endDateTime=` |
+| Номера | `GET …/rooms` | `GET /v1/rooms?roomTypeId=` → `{id, name, roomTypeId}` |
+| Гости | search / profile / document | `/v1/guests…` — то же |
+| Запись | check-in, payment, assign | то же — **в MVP не вызывать** (AGENTS §9) |
+
+Обе версии описывают одни и те же сущности (Booking → RoomStay → Customer). План: пробовать
+Универсальный API первым — он не требует активации шлюза; Exely Connect остаётся как основной,
+когда Exely его включит. Код адаптера принимает оба через общий интерфейс.
 
 ## Что это даёт проекту (Q-088)
 

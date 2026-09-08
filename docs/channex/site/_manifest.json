@@ -1,0 +1,454 @@
+{
+ "date": "2026-09-07",
+ "source": "https://docs.channex.io/llms.txt",
+ "pages": [
+  {
+   "url": "https://docs.channex.io/readme.md",
+   "bytes": 2958
+  },
+  {
+   "url": "https://docs.channex.io/about-channex-and-faq.md",
+   "bytes": 3511
+  },
+  {
+   "url": "https://docs.channex.io/changelog.md",
+   "bytes": 41646
+  },
+  {
+   "url": "https://docs.channex.io/for-ota/intro.md",
+   "bytes": 960
+  },
+  {
+   "url": "https://docs.channex.io/for-ota/shopping-api.md",
+   "bytes": 21183
+  },
+  {
+   "url": "https://docs.channex.io/for-ota/open-channel-api.md",
+   "bytes": 30785
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/api-reference.md",
+   "bytes": 6519
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/rate-limits.md",
+   "bytes": 2270
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/property-size-limits.md",
+   "bytes": 1913
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/hotels-collection.md",
+   "bytes": 25826
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/property-users-collection.md",
+   "bytes": 12074
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/groups-collection.md",
+   "bytes": 13067
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/group-users-collection.md",
+   "bytes": 12052
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/room-types-collection.md",
+   "bytes": 18079
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/rate-plans-collection.md",
+   "bytes": 33483
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/ari.md",
+   "bytes": 19334
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/webhook-collection.md",
+   "bytes": 47301
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/bookings-collection.md",
+   "bytes": 63216
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/booking-crs-api.md",
+   "bytes": 11125
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/channel-api.md",
+   "bytes": 123082
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/airbnb-api.md",
+   "bytes": 185791
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/photos-collection.md",
+   "bytes": 10750
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/hotel-policy-collection.md",
+   "bytes": 13054
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/facilities-collection.md",
+   "bytes": 5253
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/taxes-and-tax-sets.md",
+   "bytes": 26312
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/applications-api.md",
+   "bytes": 5702
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/messages-collection.md",
+   "bytes": 26931
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/reviews-collection.md",
+   "bytes": 40506
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/availability-rules-collection.md",
+   "bytes": 13065
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/stripe-tokenization-app.md",
+   "bytes": 3891
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/payment-application-api.md",
+   "bytes": 25874
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/channel-codes.md",
+   "bytes": 14891
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/channel-iframe.md",
+   "bytes": 6818
+  },
+  {
+   "url": "https://docs.channex.io/api-v.1-documentation/pms-certification-tests.md",
+   "bytes": 21867
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/agoda.md",
+   "bytes": 15835
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/airbnb.md",
+   "bytes": 89460
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/bed-and-breakfast.it.md",
+   "bytes": 17727
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/booking.com.md",
+   "bytes": 21081
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/check24.md",
+   "bytes": 17124
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/edreams.md",
+   "bytes": 16333
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/emerging-travel-group-ostrovok.md",
+   "bytes": 17819
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/expedia.md",
+   "bytes": 19045
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/hopper.md",
+   "bytes": 10474
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/hotelbeds.md",
+   "bytes": 18798
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/hoteltonight.md",
+   "bytes": 16434
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/lido.md",
+   "bytes": 13337
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/klook.md",
+   "bytes": 17015
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/mr-and-mrs-smith.md",
+   "bytes": 16073
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/pitchup.md",
+   "bytes": 19917
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/reconline.md",
+   "bytes": 17578
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/roibos.md",
+   "bytes": 20597
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/szallas.md",
+   "bytes": 21231
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/vacanceselect.md",
+   "bytes": 15871
+  },
+  {
+   "url": "https://docs.channex.io/channel-api-examples/world2meet.md",
+   "bytes": 21484
+  },
+  {
+   "url": "https://docs.channex.io/guides/pms-integration-guide.md",
+   "bytes": 7480
+  },
+  {
+   "url": "https://docs.channex.io/guides/best-practices-guide.md",
+   "bytes": 2534
+  },
+  {
+   "url": "https://docs.channex.io/guides/test-account-for-booking.com.md",
+   "bytes": 4760
+  },
+  {
+   "url": "https://docs.channex.io/guides/test-accounts-for-airbnb.md",
+   "bytes": 1023
+  },
+  {
+   "url": "https://docs.channex.io/guides/channex-retention-periods.md",
+   "bytes": 808
+  },
+  {
+   "url": "https://docs.channex.io/guides/guide-to-pci.md",
+   "bytes": 1035
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/overview.md",
+   "bytes": 596
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/dashboard.md",
+   "bytes": 1026
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/properties-and-groups-management.md",
+   "bytes": 4621
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/property-tasks.md",
+   "bytes": 942
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/rooms-management.md",
+   "bytes": 4951
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/inventory-management.md",
+   "bytes": 4364
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/channels-management.md",
+   "bytes": 1341
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/channel-actions-log.md",
+   "bytes": 854
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/bookings-management.md",
+   "bytes": 2526
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/availability-rules.md",
+   "bytes": 2565
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/api-key-access.md",
+   "bytes": 3002
+  },
+  {
+   "url": "https://docs.channex.io/application-documentation/change-log-feature.md",
+   "bytes": 1882
+  },
+  {
+   "url": "https://docs.channex.io/google/google-hotel-ads.md",
+   "bytes": 7669
+  },
+  {
+   "url": "https://docs.channex.io/google/google-hotel-ads-1.md",
+   "bytes": 5274
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/agoda.md",
+   "bytes": 2095
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/airbnb.md",
+   "bytes": 8736
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/booking.com.md",
+   "bytes": 6374
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/check24.md",
+   "bytes": 1988
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/crewdogs.md",
+   "bytes": 1800
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/ctrip-trip.com.md",
+   "bytes": 2298
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/despegar.md",
+   "bytes": 2278
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/dida.md",
+   "bytes": 1616
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/emerging-travel.md",
+   "bytes": 1770
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/expedia.md",
+   "bytes": 2648
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/feratel.md",
+   "bytes": 1847
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/getaroom.md",
+   "bytes": 651
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/glamping-hub.md",
+   "bytes": 1965
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hipcamp.md",
+   "bytes": 1744
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hostelworld.md",
+   "bytes": 1372
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hopper.md",
+   "bytes": 2906
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hopper-homes.md",
+   "bytes": 1977
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hotelbeds.md",
+   "bytes": 4011
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hoteltonight.md",
+   "bytes": 1584
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hyperguest.md",
+   "bytes": 1654
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/hrs.md",
+   "bytes": 2060
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/inntopia.md",
+   "bytes": 2444
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/instant-booking-page.md",
+   "bytes": 2340
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/kliknbook.md",
+   "bytes": 2858
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/klook.md",
+   "bytes": 1426
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/mmt.md",
+   "bytes": 1951
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/mg.md",
+   "bytes": 1766
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/smith.md",
+   "bytes": 2100
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/nuitee.md",
+   "bytes": 1682
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/opengds.md",
+   "bytes": 1743
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/pricetravel.md",
+   "bytes": 1830
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/roibos.md",
+   "bytes": 1800
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/traveloka.md",
+   "bytes": 2432
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/tiket.md",
+   "bytes": 1558
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/webbeds.md",
+   "bytes": 2331
+  },
+  {
+   "url": "https://docs.channex.io/channel-mapping-guides/vrbo.md",
+   "bytes": 3011
+  },
+  {
+   "url": "https://docs.channex.io/app-guide/apaleo.md",
+   "bytes": 1625
+  },
+  {
+   "url": "https://docs.channex.io/app-guide/pci-app.md",
+   "bytes": 1616
+  }
+ ]
+}

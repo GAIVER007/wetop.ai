@@ -3,33 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { ChessboardAllocation, ChessboardBlock, ChessboardUnit } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 
-export interface ReservationCardItem {
-  id: string;
-  accommodationTypeName: string;
-  arrivalDate: string;
-  departureDate: string;
-  status: string;
-  priceMinor: string;
-  unitCode: string | null;
-  guests: Array<{ label: string; isPrimary: boolean }>;
-}
-export interface ReservationCard {
-  confirmationNumber: string;
-  source: string;
-  channel: string | null;
-  status: string;
-  arrivalDate: string;
-  departureDate: string;
-  adults: number;
-  children: number;
-  currency: string;
-  /** integer minor units как строка — BigInt в JSON не сериализуется */
-  totalAmountMinor: string;
-  notes: string | null;
-  primaryGuest: { label: string; citizenship: string | null } | null;
-  items: ReservationCardItem[];
-}
+export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
 /** Порт чтения шахматки. В тестах подменяется фальшивкой. */
 export interface ChessboardRepository {
@@ -119,49 +95,6 @@ export class PrismaChessboardRepository implements ChessboardRepository {
   }
 
   async reservation(confirmationNumber: string): Promise<ReservationCard | null> {
-    const propertyId = await this.propertyId();
-    const r = await this.prisma.db.reservation.findUnique({
-      where: { propertyId_confirmationNumber: { propertyId, confirmationNumber } },
-      include: {
-        primaryGuest: { select: { firstName: true, lastName: true, citizenship: true } },
-        items: {
-          include: {
-            accommodationType: { select: { name: true } },
-            allocations: { include: { inventoryUnit: { select: { code: true } } } },
-            stayGuests: { include: { guest: { select: { firstName: true, lastName: true } } } },
-          },
-        },
-      },
-    });
-    if (!r) return null;
-    return {
-      confirmationNumber: r.confirmationNumber,
-      source: r.source,
-      channel: r.channel,
-      status: r.status,
-      arrivalDate: d(r.arrivalDate),
-      departureDate: d(r.departureDate),
-      adults: r.adults,
-      children: r.children,
-      currency: r.currency,
-      totalAmountMinor: r.totalAmount.toString(),
-      notes: r.notes,
-      primaryGuest: r.primaryGuest
-        ? { label: guestLabel(r.primaryGuest), citizenship: r.primaryGuest.citizenship }
-        : null,
-      items: r.items.map((it) => ({
-        id: it.id,
-        accommodationTypeName: it.accommodationType.name,
-        arrivalDate: d(it.arrivalDate),
-        departureDate: d(it.departureDate),
-        status: it.status,
-        priceMinor: it.price.toString(),
-        unitCode: it.allocations[0]?.inventoryUnit.code ?? null,
-        guests: it.stayGuests.map((sg) => ({
-          label: guestLabel(sg.guest),
-          isPrimary: sg.isPrimary,
-        })),
-      })),
-    };
+    return loadReservationCard(this.prisma.db, await this.propertyId(), confirmationNumber);
   }
 }

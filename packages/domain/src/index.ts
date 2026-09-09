@@ -2,3 +2,4 @@
 export * from './inventory/index';
 export * from './chessboard/index';
 export * from './availability/index';
+export * from './reservations/index';

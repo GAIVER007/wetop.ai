@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "noEmit": true },
+  "compilerOptions": { "noEmit": true, "experimentalDecorators": true, "emitDecoratorMetadata": true },
   "include": [
     "packages/*/src/**/*.ts",
     "scripts/*/src/**/*.ts",

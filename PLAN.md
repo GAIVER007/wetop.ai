@@ -25,8 +25,8 @@
 - [ ] Скачать vendor docs локально в `/docs`
 - [ ] Решение по хостингу персональных данных в Казахстане (Q-070)
 - [x] Q-080 — модель койки: **вариант А**, 07.09.2026 (ADR-013)
-- [x] `DATA_MODEL.md` утверждён 07.09.2026, кроме §6 Folio
-- [ ] **Q-091 — Folio на бронь или на проживание** (блокирует §6 и Slice «Finance», неделя 5)
+- [x] `DATA_MODEL.md` утверждён 07.09.2026 (§1–5, 7–10) и 09.09.2026 (§6 Folio)
+- [x] **Q-091 — Folio на проживание** (закрыт 09.09.2026, ADR-014; Slice «Finance» сделан)
 - [ ] БД для разработки: на машине нет Docker, PostgreSQL и Homebrew (07.09.2026) — выбор в `plans/slice-1-inventory.md` §6
 - [x] Q-092 — отложен владельцем 07.09.2026: сверка по 88 как в Exely, собственная метрика после MVP
 - [ ] Q-094 — правило назначения ячейки для OTA-броней (нужно до Slice 2)
@@ -154,8 +154,8 @@ No-show                        9
 **Financial:** charges; services; payments; refunds; folio.
 **Kazakhstan:** формы RU/KZ; eQonaq integration/test package; fiscal sandbox.
 
-**Gate 4 — Front Desk.** Полный stay lifecycle проходит.
-**Gate 6 — Finance.** Folio и оплаты сходятся.
+**Gate 4 — Front Desk.** Полный stay lifecycle проходит. ✅ 09.09.2026: бронь → заселение (гражданство и документ обязательны) → выезд; незаезд снимает ячейку — e2e `check-in-out.spec.ts`.
+**Gate 6 — Finance.** Folio и оплаты сходятся. 🟡 09.09.2026: счёт на проживание, начисления/оплата/возврат/сторно сходятся в баланс — e2e `finance.spec.ts`; оплаченное из Exely переносится платежом `EXTERNAL`. Сверка балансов перенесённых проживаний с Exely — после полного импорта августа.
 **Gate 7 — Kazakhstan.** eQonaq + fiscal тестовый контур работает.
 
 ---

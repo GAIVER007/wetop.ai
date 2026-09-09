@@ -1,6 +1,13 @@
 import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { MAX_CHESSBOARD_DAYS, buildChessboard, dateRange, type Chessboard } from '@pms/domain';
+import {
+  MAX_CHESSBOARD_DAYS,
+  availableUnitsForStay,
+  buildChessboard,
+  dateRange,
+  type Chessboard,
+  type StayAvailability,
+} from '@pms/domain';
 import {
   CHESSBOARD_REPOSITORY,
   type ChessboardRepository,
@@ -40,6 +47,39 @@ export class ChessboardService {
       this.repo.blocks(from, to),
     ]);
     return buildChessboard({ from, to, units, allocations, blocks });
+  }
+
+  /** Доступность ячеек по категориям для проживания [arrival, departure). */
+  async availability(arrivalRaw?: string, departureRaw?: string): Promise<StayAvailability> {
+    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const arrival = arrivalRaw ?? today;
+    const departure = departureRaw ?? plusDays(arrival, 1);
+    if (
+      !ISO.test(arrival) ||
+      !ISO.test(departure) ||
+      Number.isNaN(Date.parse(arrival)) ||
+      Number.isNaN(Date.parse(departure)) ||
+      departure <= arrival
+    ) {
+      throw new BadRequestException(
+        'arrival/departure должны быть датами YYYY-MM-DD, departure > arrival',
+      );
+    }
+    const lastNight = plusDays(departure, -1);
+    if (dateRange(arrival, lastNight).length > MAX_CHESSBOARD_DAYS)
+      throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} ночей`);
+    const [units, allocations, blocks] = await Promise.all([
+      this.repo.units(),
+      this.repo.allocations(arrival, lastNight),
+      this.repo.blocks(arrival, lastNight),
+    ]);
+    return availableUnitsForStay({
+      arrivalDate: arrival,
+      departureDate: departure,
+      units,
+      allocations,
+      blocks,
+    });
   }
 
   async reservation(number: string): Promise<ReservationCard> {

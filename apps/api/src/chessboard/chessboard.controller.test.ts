@@ -113,6 +113,30 @@ describe('GET /chessboard, GET /reservations/:number', () => {
     await request(app.getHttpServer()).get('/chessboard?from=2026-09-10&to=2026-13-40').expect(400);
     await request(app.getHttpServer()).get('/chessboard?from=2026-01-01&to=2026-12-31').expect(400);
   });
+  it('/availability counts units free on every night of the stay, per category', async () => {
+    // u2 занята 10–11 (выезд 12): для 10→12 доступна 0 в dorm; для 12→13 — 1
+    const a = await request(app.getHttpServer())
+      .get('/availability?arrival=2026-09-10&departure=2026-09-12')
+      .expect(200);
+    expect(a.body.nights).toBe(2);
+    expect(a.body.byCategory['exely-900003']).toEqual({
+      units: 1,
+      available: 0,
+      availableUnitCodes: [],
+    });
+    expect(a.body.byCategory['exely-900001']).toEqual({
+      units: 1,
+      available: 1,
+      availableUnitCodes: ['9001'],
+    });
+    const b = await request(app.getHttpServer())
+      .get('/availability?arrival=2026-09-12&departure=2026-09-13')
+      .expect(200);
+    expect(b.body.total).toEqual({ units: 2, available: 2 });
+    await request(app.getHttpServer())
+      .get('/availability?arrival=2026-09-12&departure=2026-09-12')
+      .expect(400);
+  });
   it('returns a reservation card by confirmation number, 404 when unknown', async () => {
     const res = await request(app.getHttpServer()).get('/reservations/B-1').expect(200);
     expect(res.body).toMatchObject({

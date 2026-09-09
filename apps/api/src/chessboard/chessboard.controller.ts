@@ -12,6 +12,12 @@ export class ChessboardController {
     return this.service.board(from || undefined, to || undefined);
   }
 
+  /** Доступность по категориям: ?arrival=YYYY-MM-DD&departure=YYYY-MM-DD (по умолчанию сегодня → завтра). */
+  @Get('availability')
+  availability(@Query('arrival') arrival?: string, @Query('departure') departure?: string) {
+    return this.service.availability(arrival || undefined, departure || undefined);
+  }
+
   /** Карточка брони по номеру подтверждения (для перенесённых — номер Exely). */
   @Get('reservations/:number')
   reservation(@Param('number') number: string) {

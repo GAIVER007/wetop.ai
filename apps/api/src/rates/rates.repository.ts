@@ -120,6 +120,7 @@ export class PrismaRatesRepository implements RatesRepository {
       };
     });
   }
+  /** Множественно: на каждое изменение 2–4 запроса вместо сотен upsert (полгода × 2 категории ≈ 760 строк). */
   async applyChanges(
     changes: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
@@ -131,61 +132,54 @@ export class PrismaRatesRepository implements RatesRepository {
         let restrictionRows = 0;
         for (const c of changes) {
           const dates = expandDates(c.dateFrom, c.dateTo, c.days);
-          const occupancies = c.occupancy
-            ? [c.occupancy]
-            : Array.from({ length: c.capacityAdults }, (_, i) => i + 1);
-          for (const date of dates) {
-            if (c.priceMinor !== undefined) {
-              for (const occupancy of occupancies) {
-                await tx.dailyRate.upsert({
-                  where: {
-                    date_accommodationTypeId_ratePlanId_occupancy: {
-                      date: asDate(date),
-                      accommodationTypeId: c.accommodationTypeId,
-                      ratePlanId: c.ratePlanId,
-                      occupancy,
-                    },
-                  },
-                  create: {
-                    date: asDate(date),
-                    accommodationTypeId: c.accommodationTypeId,
-                    ratePlanId: c.ratePlanId,
-                    occupancy,
-                    price: c.priceMinor,
-                  },
-                  update: { price: c.priceMinor },
-                });
-                rateRows += 1;
-              }
-            }
-            const patch = {
-              ...(c.minStay !== undefined ? { minStay: c.minStay } : {}),
-              ...(c.maxStay !== undefined ? { maxStay: c.maxStay } : {}),
-              ...(c.stopSell !== undefined ? { stopSell: c.stopSell } : {}),
-              ...(c.closedToArrival !== undefined ? { closedToArrival: c.closedToArrival } : {}),
-              ...(c.closedToDeparture !== undefined
-                ? { closedToDeparture: c.closedToDeparture }
-                : {}),
-            };
-            if (Object.keys(patch).length) {
-              await tx.restriction.upsert({
-                where: {
-                  date_accommodationTypeId_ratePlanId: {
-                    date: asDate(date),
-                    accommodationTypeId: c.accommodationTypeId,
-                    ratePlanId: c.ratePlanId,
-                  },
-                },
-                create: {
-                  date: asDate(date),
-                  accommodationTypeId: c.accommodationTypeId,
-                  ratePlanId: c.ratePlanId,
+          if (dates.length === 0) continue;
+          const dateValues = dates.map(asDate);
+          const key = { accommodationTypeId: c.accommodationTypeId, ratePlanId: c.ratePlanId };
+          if (c.priceMinor !== undefined) {
+            const occupancies = c.occupancy
+              ? [c.occupancy]
+              : Array.from({ length: c.capacityAdults }, (_, i) => i + 1);
+            await tx.dailyRate.deleteMany({
+              where: { ...key, occupancy: { in: occupancies }, date: { in: dateValues } },
+            });
+            const res = await tx.dailyRate.createMany({
+              data: dateValues.flatMap((date) =>
+                occupancies.map((occupancy) => ({ ...key, date, occupancy, price: c.priceMinor! })),
+              ),
+            });
+            rateRows += res.count;
+          }
+          const patch = {
+            ...(c.minStay !== undefined ? { minStay: c.minStay } : {}),
+            ...(c.maxStay !== undefined ? { maxStay: c.maxStay } : {}),
+            ...(c.stopSell !== undefined ? { stopSell: c.stopSell } : {}),
+            ...(c.closedToArrival !== undefined ? { closedToArrival: c.closedToArrival } : {}),
+            ...(c.closedToDeparture !== undefined
+              ? { closedToDeparture: c.closedToDeparture }
+              : {}),
+          };
+          if (Object.keys(patch).length) {
+            const existing = await tx.restriction.findMany({
+              where: { ...key, date: { in: dateValues } },
+            });
+            const byDate = new Map(existing.map((r) => [iso(r.date), r]));
+            await tx.restriction.deleteMany({ where: { ...key, date: { in: dateValues } } });
+            const res = await tx.restriction.createMany({
+              data: dates.map((d) => {
+                const cur = byDate.get(d);
+                return {
+                  ...key,
+                  date: asDate(d),
+                  minStay: cur?.minStay ?? null,
+                  maxStay: cur?.maxStay ?? null,
+                  stopSell: cur?.stopSell ?? false,
+                  closedToArrival: cur?.closedToArrival ?? false,
+                  closedToDeparture: cur?.closedToDeparture ?? false,
                   ...patch,
-                },
-                update: patch,
-              });
-              restrictionRows += 1;
-            }
+                };
+              }),
+            });
+            restrictionRows += res.count;
           }
         }
         return { rateRows, restrictionRows };

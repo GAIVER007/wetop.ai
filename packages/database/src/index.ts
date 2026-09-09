@@ -12,7 +12,13 @@ export function createPrismaClient(connectionString = process.env.DATABASE_URL):
   if (!connectionString) {
     throw new Error('DATABASE_URL is not set');
   }
-  const adapter = new PrismaPg({ connectionString });
+  // Supabase Session pooler допускает 15 клиентов на проект: пул каждого процесса ограничен
+  // (DATABASE_POOL_MAX, по умолчанию 5), а в API один клиент на процесс (apps/api PrismaService).
+  const max = Number(process.env.DATABASE_POOL_MAX ?? 5);
+  const adapter = new PrismaPg({
+    connectionString,
+    max: Number.isFinite(max) && max > 0 ? max : 5,
+  });
   return new PrismaClient({ adapter });
 }
 

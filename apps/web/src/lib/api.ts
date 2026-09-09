@@ -184,3 +184,88 @@ export const reservationsApi = {
       body,
     ),
 };
+
+// ── Цены и ограничения (Slice 3.5 / 4.5) ──
+export interface RateCalendarDay {
+  date: string;
+  prices: Record<string, string>;
+  minStay: number | null;
+  maxStay: number | null;
+  stopSell: boolean;
+  closedToArrival: boolean;
+  closedToDeparture: boolean;
+}
+export interface RateCalendar {
+  accommodationTypeCode: string;
+  ratePlanCode: string;
+  currency: string;
+  capacityAdults: number;
+  days: RateCalendarDay[];
+}
+export interface RateOptions {
+  categories: Array<{ code: string; name: string; capacityAdults: number }>;
+  ratePlans: Array<{ code: string; name: string; currency: string; active: boolean }>;
+}
+export interface RateChangeInput {
+  accommodationTypeCode: string;
+  ratePlanCode: string;
+  dateFrom: string;
+  dateTo: string;
+  days?: string[] | undefined;
+  price?: string | undefined;
+  occupancy?: number | undefined;
+  minStay?: number | null | undefined;
+  maxStay?: number | null | undefined;
+  stopSell?: boolean | undefined;
+  closedToArrival?: boolean | undefined;
+  closedToDeparture?: boolean | undefined;
+}
+export const ratesApi = {
+  options: () => getJson<RateOptions>('/rates/options'),
+  calendar: (accommodationTypeCode: string, ratePlanCode: string, from: string, to: string) =>
+    getJson<RateCalendar>(
+      `/rates?accommodationTypeCode=${encodeURIComponent(accommodationTypeCode)}&ratePlanCode=${encodeURIComponent(ratePlanCode)}&from=${from}&to=${to}`,
+    ),
+  bulk: (changes: RateChangeInput[]) =>
+    sendJson<{ applied: number; rateRows: number; restrictionRows: number }>(
+      'POST',
+      '/rates/bulk',
+      { changes },
+    ),
+};
+
+// ── Каналы (Channex) ──
+export interface ChannelMappingRow {
+  id: string;
+  localAccommodationTypeCode: string | null;
+  localRatePlanId: string | null;
+  providerPropertyId: string;
+  providerRoomTypeId: string | null;
+  providerRatePlanId: string | null;
+}
+export interface OutboxSummary {
+  pending: number;
+  failed: number;
+  sent: number;
+  lastSentAt: string | null;
+  lastTaskId: string | null;
+}
+export const channelsApi = {
+  mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
+  outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
+  setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
+  sync: (days = 365) =>
+    sendJson<{ from: string; to: string; tasks: string[] }>(
+      'POST',
+      `/channels/channex/sync?days=${days}`,
+      {},
+    ),
+  pull: () =>
+    sendJson<{ received: number; acknowledged: number; outcomes: unknown[] }>(
+      'POST',
+      '/channels/channex/pull',
+      {},
+    ),
+  flush: () =>
+    sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
+};

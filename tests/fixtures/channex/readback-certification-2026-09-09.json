@@ -1,0 +1,1645 @@
+{
+ "restrictions": {
+  "data": {
+   "2d1bc399-5857-4f98-a929-bffb8e16bcb9": {
+    "2026-11-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-03": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-04": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-05": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-06": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-07": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-08": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-09": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-10": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-11": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-12": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-13": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-14": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-15": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-16": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-17": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-18": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-19": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-20": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-21": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-22": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-23": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-24": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-25": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-26": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-27": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-28": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-29": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-30": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "14000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    }
+   },
+   "428d744c-0c7d-4469-9002-f323d4bf8cbe": {
+    "2026-11-01": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-02": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-03": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-04": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-05": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-06": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-07": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-08": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-09": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-10": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 4,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-11": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-12": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-13": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-14": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-15": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-16": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-17": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-18": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-19": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-20": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-21": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-22": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-23": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-24": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-25": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-26": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-27": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-28": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-29": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-11-30": {
+     "closed_to_arrival": true,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 2,
+     "min_stay_through": 2,
+     "rate": "312.66",
+     "stop_sell": true,
+     "unavailable_reasons": []
+    },
+    "2026-12-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 3,
+     "min_stay_through": 3,
+     "rate": "342.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 3,
+     "min_stay_through": 3,
+     "rate": "342.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    }
+   },
+   "6ee98055-57cf-4831-a231-eba142307235": {
+    "2026-11-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-03": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-04": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-05": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-06": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-07": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-08": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-09": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-10": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-11": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-12": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-13": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-14": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-15": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-16": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-17": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-18": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-19": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-20": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-21": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-22": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-23": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-24": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-25": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "444.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-26": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-27": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-28": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-29": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "456.23",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-30": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "21000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 3,
+     "min_stay_through": 3,
+     "rate": "342.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 3,
+     "min_stay_through": 3,
+     "rate": "342.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    }
+   },
+   "96d6b4fb-c209-45c2-9c01-668dc2e545d3": {
+    "2026-11-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-03": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-04": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-05": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-06": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-07": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-08": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-09": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-10": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-11": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-12": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-13": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-14": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-15": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-16": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-17": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-18": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-19": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-20": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-21": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-22": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-23": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-24": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-25": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-26": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-27": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-28": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-29": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-30": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    }
+   },
+   "ba25fbce-fee3-47de-82a4-13443e8e9a85": {
+    "2026-11-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-03": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-04": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-05": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-06": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-07": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-08": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-09": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-10": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-11": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-12": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-13": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-14": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-15": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-16": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-17": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-18": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-19": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-20": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-21": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-22": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-23": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-24": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-25": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-26": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-27": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-28": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-29": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-11-30": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-01": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    },
+    "2026-12-02": {
+     "closed_to_arrival": false,
+     "closed_to_departure": false,
+     "max_stay": 0,
+     "min_stay_arrival": 1,
+     "min_stay_through": 1,
+     "rate": "9000.00",
+     "stop_sell": false,
+     "unavailable_reasons": []
+    }
+   }
+  }
+ },
+ "availability": {
+  "data": {
+   "0bceeb60-06a2-4c7c-93c1-d19c8885d1b8": {
+    "2026-11-20": 36,
+    "2026-11-21": 36,
+    "2026-11-22": 36
+   },
+   "1a9bd53b-1c5e-4063-b654-d377839125b3": {
+    "2026-11-20": 4,
+    "2026-11-21": 4,
+    "2026-11-22": 4
+   },
+   "6269649c-e765-4c13-9010-be7cb195ce92": {
+    "2026-11-20": 34,
+    "2026-11-21": 33,
+    "2026-11-22": 33
+   },
+   "65ef6dd7-e0cd-4dbf-bf9b-e8dfe9cf4c2b": {
+    "2026-11-20": 8,
+    "2026-11-21": 8,
+    "2026-11-22": 8
+   },
+   "b0655bc0-f559-4abc-be1f-b9a241ddf036": {
+    "2026-11-20": 4,
+    "2026-11-21": 4,
+    "2026-11-22": 4
+   }
+  }
+ }
+}

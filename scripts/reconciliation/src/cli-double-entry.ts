@@ -1,0 +1,131 @@
+/**
+ * Двойной ввод (PLAN неделя 6, Gate 8): сутки в Exely и в PMS должны сходиться числом к числу.
+ * Только чтение Exely (Универсальный API, EXELY_API_KEY), без персональных данных — только счётчики.
+ * Запуск: npx tsx scripts/reconciliation/src/cli-double-entry.ts [YYYY-MM-DD]  (по умолчанию завтра, Алматы)
+ * Пишет reports/double-entry-YYYY-MM-DD.md. Код выхода 1 при любом расхождении.
+ */
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { config as loadEnv } from 'dotenv';
+import { createPrismaClient } from '@pms/database';
+import { exely } from '@pms/integrations';
+import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+
+const ROOT = resolve(import.meta.dirname, '../../..');
+loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
+const almatyToday = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+const plus = (d: string, n: number) => {
+  const x = new Date(`${d}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + n);
+  return x.toISOString().slice(0, 10);
+};
+const DATE = process.argv[2] ?? plus(almatyToday, 1);
+if (!/^\d{4}-\d{2}-\d{2}$/.test(DATE)) throw new Error('дата YYYY-MM-DD');
+const key = process.env.EXELY_API_KEY;
+if (!key) throw new Error('EXELY_API_KEY пуст');
+
+interface Counts {
+  arrivals: number;
+  departures: number;
+  occupied: number;
+  byCategory: Record<string, number>;
+}
+const empty = (): Counts => ({ arrivals: 0, departures: 0, occupied: 0, byCategory: {} });
+
+// ── Exely: активные брони, затрагивающие сутки ──
+const client = new exely.ExelyUniversalClient({ apiKey: key });
+const numbers = await client.searchBookings({
+  state: 'Active',
+  affectsPeriodFrom: `${DATE}T00:00`,
+  affectsPeriodTo: `${plus(DATE, 1)}T00:00`,
+});
+const ex = empty();
+const roomTypeNames = new Map<string, string>();
+for (const n of numbers) {
+  const b = await client.booking(n);
+  for (const rs of b.roomStays) {
+    if (rs.bookingStatus === 'Cancelled' || rs.status === 'Cancelled') continue;
+    const ci = rs.checkInDateTime.slice(0, 10);
+    const co = rs.checkOutDateTime.slice(0, 10);
+    if (ci === DATE) ex.arrivals += 1;
+    if (co === DATE) ex.departures += 1;
+    if (ci <= DATE && DATE < co) {
+      ex.occupied += 1;
+      ex.byCategory[rs.roomTypeId] = (ex.byCategory[rs.roomTypeId] ?? 0) + 1;
+    }
+  }
+}
+
+// ── PMS ──
+const db = createPrismaClient();
+const pms = empty();
+try {
+  const property = await db.property.findFirstOrThrow({
+    where: { name: LUXX_APARTS_PROPERTY.name },
+    select: { id: true },
+  });
+  const types = await db.accommodationType.findMany({
+    where: { propertyId: property.id },
+    select: { id: true, exelyId: true, name: true },
+  });
+  for (const t of types) roomTypeNames.set(t.exelyId ?? t.id, t.name);
+  const items = await db.reservationItem.findMany({
+    where: {
+      reservation: { propertyId: property.id },
+      status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+      arrivalDate: { lte: new Date(`${DATE}T00:00:00Z`) },
+      departureDate: { gte: new Date(`${DATE}T00:00:00Z`) },
+    },
+    select: {
+      arrivalDate: true,
+      departureDate: true,
+      accommodationType: { select: { exelyId: true, id: true } },
+    },
+  });
+  for (const it of items) {
+    const ci = it.arrivalDate.toISOString().slice(0, 10);
+    const co = it.departureDate.toISOString().slice(0, 10);
+    if (ci === DATE) pms.arrivals += 1;
+    if (co === DATE) pms.departures += 1;
+    if (ci <= DATE && DATE < co) {
+      pms.occupied += 1;
+      const k = it.accommodationType.exelyId ?? it.accommodationType.id;
+      pms.byCategory[k] = (pms.byCategory[k] ?? 0) + 1;
+    }
+  }
+} finally {
+  await db.$disconnect();
+}
+
+const lines = [
+  `# Double entry — ${DATE}`,
+  '',
+  `CONTROL: ${new Date().toISOString().slice(0, 16)} UTC · Exely активных броней за сутки: ${numbers.length} (только чтение, без ПД)`,
+  '',
+  '| Metric | PMS | EXELY | DIFF |',
+  '|---|---:|---:|---:|',
+  `| arrivals | ${pms.arrivals} | ${ex.arrivals} | ${pms.arrivals - ex.arrivals} |`,
+  `| departures | ${pms.departures} | ${ex.departures} | ${pms.departures - ex.departures} |`,
+  `| occupied units (night) | ${pms.occupied} | ${ex.occupied} | ${pms.occupied - ex.occupied} |`,
+];
+const cats = new Set([...Object.keys(pms.byCategory), ...Object.keys(ex.byCategory)]);
+for (const c of [...cats].sort())
+  lines.push(
+    `| ${roomTypeNames.get(c) ?? c} | ${pms.byCategory[c] ?? 0} | ${ex.byCategory[c] ?? 0} | ${(pms.byCategory[c] ?? 0) - (ex.byCategory[c] ?? 0)} |`,
+  );
+const ok =
+  pms.arrivals === ex.arrivals &&
+  pms.departures === ex.departures &&
+  pms.occupied === ex.occupied &&
+  [...cats].every((c) => (pms.byCategory[c] ?? 0) === (ex.byCategory[c] ?? 0));
+lines.push(
+  '',
+  `RESULT: ${ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения (пока PMS не ведётся параллельно, расхождение ожидаемо: брони после 08.09 в PMS нет)'}`,
+  '',
+);
+mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
+const out = resolve(ROOT, `reports/double-entry-${DATE}.md`);
+writeFileSync(out, lines.join('\n'));
+console.log(lines.join('\n'));
+console.log(`→ ${out}`);
+process.exitCode = ok ? 0 : 1;

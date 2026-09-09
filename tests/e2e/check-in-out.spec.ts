@@ -23,6 +23,23 @@ test('заселить → карточка и шахматка показыва
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
+  // без гражданства заселение блокируется (DATA_MODEL §3, eQonaq)
+  await page.locator('[data-testid^="check-in-"]').click();
+  await expect(page.getByRole('alert').first()).toContainText('гражданство');
+  await page.getByTestId('guest-link').click();
+  await expect(page).toHaveURL(/\/guests\//);
+  await page.getByTestId('guest-form').locator('input[name="citizenship"]').fill('KAZ');
+  await page.getByTestId('guest-form').getByRole('button', { name: 'Сохранить' }).click();
+  await expect(page.getByTestId('guest-form').locator('input[name="citizenship"]')).toHaveValue(
+    'KAZ',
+  );
+  const doc = page.getByTestId('document-form');
+  await doc.locator('input[name="number"]').fill('N 0000001');
+  await doc.locator('input[name="issueCountry"]').fill('KAZ');
+  await doc.getByRole('button', { name: 'Добавить' }).click();
+  await expect(page.getByTestId('document-row')).toContainText('****0001');
+  await page.screenshot({ path: 'reports/screenshots/guest-card.png', fullPage: true });
+  await page.goto(`/reservations/${number}`);
   await page.locator('[data-testid^="check-in-"]').click();
   await expect(page.getByText('заселён').first()).toBeVisible();
   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);

@@ -24,7 +24,7 @@ export interface ReservationCard {
   /** integer minor units как строка — BigInt в JSON не сериализуется */
   totalAmountMinor: string;
   notes: string | null;
-  primaryGuest: { label: string; citizenship: string | null } | null;
+  primaryGuest: { id: string; label: string; citizenship: string | null } | null;
   items: ReservationCardItem[];
 }
 
@@ -41,7 +41,7 @@ export async function loadReservationCard(
   const r = await db.reservation.findUnique({
     where: { propertyId_confirmationNumber: { propertyId, confirmationNumber } },
     include: {
-      primaryGuest: { select: { firstName: true, lastName: true, citizenship: true } },
+      primaryGuest: { select: { id: true, firstName: true, lastName: true, citizenship: true } },
       items: {
         orderBy: { createdAt: 'asc' },
         include: {
@@ -69,7 +69,11 @@ export async function loadReservationCard(
     totalAmountMinor: r.totalAmount.toString(),
     notes: r.notes,
     primaryGuest: r.primaryGuest
-      ? { label: guestLabel(r.primaryGuest), citizenship: r.primaryGuest.citizenship }
+      ? {
+          id: r.primaryGuest.id,
+          label: guestLabel(r.primaryGuest),
+          citizenship: r.primaryGuest.citizenship,
+        }
       : null,
     items: r.items.map((it) => ({
       id: it.id,

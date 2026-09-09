@@ -41,6 +41,7 @@ export default async function ChessboardPage({
           <Link href="/inventory">номерной фонд</Link>
           <Link href="/rates">цены</Link>
           <Link href="/channels">каналы</Link>
+          <Link href="/guests">гости</Link>
           <Link href="/reservations/new" style={{ fontWeight: 600 }}>
             + новая бронь
           </Link>

@@ -31,9 +31,7 @@ export interface UnitCard {
   housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus }>;
 }
 export interface UnitsRepository {
-  unitByCode(
-    code: string,
-  ): Promise<{
+  unitByCode(code: string): Promise<{
     id: string;
     code: string;
     accommodationTypeCode: string;

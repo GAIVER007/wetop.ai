@@ -14,6 +14,10 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run start -w apps/api',
+      // ключ шифрования ПД для e2e, если владелец ещё не вписал свой (документы вымышленных гостей)
+      env: {
+        PII_ENCRYPTION_KEY: process.env.PII_ENCRYPTION_KEY || 'e2e-only-key-not-for-production',
+      },
       url: 'http://127.0.0.1:3001/inventory/summary',
       reuseExistingServer: true,
       timeout: 120_000,

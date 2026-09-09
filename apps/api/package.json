@@ -23,6 +23,7 @@
     "rxjs": "^7.8.2",
     "@pms/database": "*",
     "@pms/domain": "*",
-    "@pms/imports": "*"
+    "@pms/imports": "*",
+    "@pms/shared": "*"
   }
 }

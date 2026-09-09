@@ -54,7 +54,18 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         <Fact label="Выезд" value={r.departureDate} />
         <Fact label="Гостей" value={`${r.adults}${r.children ? ` + ${r.children} дет.` : ''}`} />
         <Fact label="Сумма" value={formatMinor(r.totalAmountMinor, r.currency)} />
-        <Fact label="Заказчик" value={r.primaryGuest?.label ?? '—'} />
+        <Fact
+          label="Заказчик"
+          value={r.primaryGuest?.label ?? '—'}
+          href={r.primaryGuest ? `/guests/${r.primaryGuest.id}` : undefined}
+          hint={
+            r.primaryGuest
+              ? r.primaryGuest.citizenship
+                ? `гражданство ${r.primaryGuest.citizenship}`
+                : 'гражданство не указано'
+              : undefined
+          }
+        />
       </section>
       <h2 style={{ fontSize: 16, margin: '0 0 8px' }}>Проживания</h2>
       <table
@@ -126,7 +137,17 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
     </main>
   );
 }
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({
+  label,
+  value,
+  href,
+  hint,
+}: {
+  label: string;
+  value: string;
+  href?: string | undefined;
+  hint?: string | undefined;
+}) {
   return (
     <div
       style={{
@@ -137,7 +158,20 @@ function Fact({ label, value }: { label: string; value: string }) {
       }}
     >
       <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>{value}</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>
+        {href ? (
+          <Link href={href} data-testid="guest-link">
+            {value}
+          </Link>
+        ) : (
+          value
+        )}
+      </div>
+      {hint && (
+        <div style={{ fontSize: 12, color: hint.includes('не указано') ? '#b45309' : '#666' }}>
+          {hint}
+        </div>
+      )}
     </div>
   );
 }

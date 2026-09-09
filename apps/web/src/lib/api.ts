@@ -94,7 +94,7 @@ export interface ReservationCard {
   currency: string;
   totalAmountMinor: string;
   notes: string | null;
-  primaryGuest: { label: string; citizenship: string | null } | null;
+  primaryGuest: { id: string; label: string; citizenship: string | null } | null;
   items: Array<{
     id: string;
     accommodationTypeCode: string;
@@ -326,4 +326,57 @@ export const unitsApi = {
     ),
   housekeeping: (code: string, status: string) =>
     sendJson<UnitCard>('POST', `/units/${encodeURIComponent(code)}/housekeeping`, { status }),
+};
+
+// ── Гости ──
+export interface GuestSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+  citizenship: string | null;
+  staysCount: number;
+  lastStay: string | null;
+}
+export interface GuestCard {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  birthDate: string | null;
+  citizenship: string | null;
+  gender: 'MALE' | 'FEMALE' | 'UNKNOWN';
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  documents: Array<{
+    id: string;
+    type: string;
+    numberMasked: string;
+    issueCountry: string | null;
+    issuedAt: string | null;
+    expiresAt: string | null;
+  }>;
+  stays: Array<{
+    confirmationNumber: string;
+    accommodationTypeName: string;
+    arrivalDate: string;
+    departureDate: string;
+    status: string;
+    unitCode: string | null;
+  }>;
+}
+export const guestsApi = {
+  search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  card: (id: string) => getJson<GuestCard>(`/guests/${encodeURIComponent(id)}`),
+  update: (id: string, body: unknown) =>
+    sendJson<GuestCard>('PATCH', `/guests/${encodeURIComponent(id)}`, body),
+  addDocument: (id: string, body: unknown) =>
+    sendJson<GuestCard>('POST', `/guests/${encodeURIComponent(id)}/documents`, body),
+  deleteDocument: (id: string, documentId: string) =>
+    deleteJson<GuestCard>(
+      `/guests/${encodeURIComponent(id)}/documents/${encodeURIComponent(documentId)}`,
+    ),
 };

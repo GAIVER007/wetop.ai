@@ -385,6 +385,11 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         assertCanCheckIn(item.status, item.allocations.length > 0);
         const before = await repo.card(number);
+        // DATA_MODEL §3: гражданство обязательно на check-in (eQonaq) — заполняется в карточке гостя
+        if (!before?.primaryGuest?.citizenship)
+          throw new UnprocessableEntityException(
+            'Укажите гражданство в карточке гостя — без него заселение невозможно (eQonaq)',
+          );
         await repo.updateItem(item.id, { status: 'CHECKED_IN' });
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(

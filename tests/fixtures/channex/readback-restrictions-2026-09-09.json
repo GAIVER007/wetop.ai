@@ -1,0 +1,189 @@
+{
+ "data": {
+  "2d1bc399-5857-4f98-a929-bffb8e16bcb9": {
+   "2026-09-15": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-16": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-17": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-18": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-19": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-20": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-21": {
+    "rate": "14000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   }
+  },
+  "428d744c-0c7d-4469-9002-f323d4bf8cbe": {
+   "2026-09-15": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-16": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-17": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-18": {
+    "rate": "15400.00",
+    "stop_sell": true,
+    "unavailable_reasons": []
+   },
+   "2026-09-19": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-20": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-21": {
+    "rate": "15400.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   }
+  },
+  "6ee98055-57cf-4831-a231-eba142307235": {
+   "2026-09-15": {
+    "rate": "21000.00",
+    "stop_sell": true,
+    "unavailable_reasons": []
+   },
+   "2026-09-16": {
+    "rate": "21000.00",
+    "stop_sell": true,
+    "unavailable_reasons": []
+   },
+   "2026-09-17": {
+    "rate": "21000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-18": {
+    "rate": "21000.00",
+    "stop_sell": true,
+    "unavailable_reasons": []
+   },
+   "2026-09-19": {
+    "rate": "21000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-20": {
+    "rate": "21000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-21": {
+    "rate": "21000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   }
+  },
+  "96d6b4fb-c209-45c2-9c01-668dc2e545d3": {
+   "2026-09-15": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-16": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-17": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-18": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-19": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-20": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-21": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   }
+  },
+  "ba25fbce-fee3-47de-82a4-13443e8e9a85": {
+   "2026-09-15": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-16": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-17": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-18": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-19": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-20": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   },
+   "2026-09-21": {
+    "rate": "9000.00",
+    "stop_sell": false,
+    "unavailable_reasons": []
+   }
+  }
+ }
+}

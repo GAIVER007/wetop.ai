@@ -71,6 +71,10 @@ export interface NewGuest {
 export interface NewReservation {
   confirmationNumber: string;
   source: ReservationSource;
+  /** Канал (OTA/сайт) текстом, например Booking.com; null для стойки */
+  channel?: string | null;
+  /** Номер брони на стороне канала (unique_id Channex) */
+  externalId?: string | null;
   status: ReservationStatus;
   arrivalDate: string;
   departureDate: string;
@@ -159,6 +163,9 @@ export interface ReservationsRepository {
       departureDate: string;
       status: ReservationStatus;
       totalAmountMinor: bigint;
+      externalId: string | null;
+      channel: string | null;
+      notes: string | null;
     }>,
   ): Promise<void>;
   deleteAllocation(id: string): Promise<void>;
@@ -288,6 +295,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         propertyId,
         confirmationNumber: input.confirmationNumber,
         source: input.source,
+        channel: input.channel ?? null,
+        externalId: input.externalId ?? null,
         status: input.status,
         bookedAt: new Date(),
         arrivalDate: asDate(input.arrivalDate),
@@ -413,6 +422,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       departureDate: string;
       status: ReservationStatus;
       totalAmountMinor: bigint;
+      externalId: string | null;
+      channel: string | null;
+      notes: string | null;
     }>,
   ): Promise<void> {
     await this.db.reservation.update({
@@ -424,6 +436,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           : {}),
         ...(patch.status !== undefined ? { status: patch.status } : {}),
         ...(patch.totalAmountMinor !== undefined ? { totalAmount: patch.totalAmountMinor } : {}),
+        ...(patch.externalId !== undefined ? { externalId: patch.externalId } : {}),
+        ...(patch.channel !== undefined ? { channel: patch.channel } : {}),
+        ...(patch.notes !== undefined ? { notes: patch.notes } : {}),
       },
     });
   }

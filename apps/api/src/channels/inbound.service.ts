@@ -147,40 +147,50 @@ export class InboundBookingsService {
       status: a.status,
       warnings: [] as string[],
     };
-    const outcome = await this.uow.run(async (repo): Promise<RevisionOutcome> => {
-      const ev = await repo.recordExternalEvent({
+    // Транзакция 1: журнал. UNIQUE(provider, revision) делает повтор безопасным (ADR-007).
+    const ev = await this.uow.run((repo) =>
+      repo.recordExternalEvent({
         provider: PROVIDER,
         externalEventId: rev.id,
         type: `booking_${a.status}`,
         payloadHash: payloadHash(sanitized),
         payload: sanitized,
-      });
-      if (ev.status === 'PROCESSED') {
-        const existing = await repo.reservationByExternalId(a.unique_id);
-        return {
-          ...base,
-          result: 'skipped_duplicate',
-          confirmationNumber: existing?.confirmationNumber ?? null,
-        };
-      }
-      await repo.updateExternalEvent(ev.id, { status: 'PROCESSING' });
+      }),
+    );
+    let outcome: RevisionOutcome;
+    if (ev.status === 'PROCESSED') {
+      const existing = await this.uow.run((repo) => repo.reservationByExternalId(a.unique_id));
+      outcome = {
+        ...base,
+        result: 'skipped_duplicate',
+        confirmationNumber: existing?.confirmationNumber ?? null,
+      };
+    } else {
       try {
-        const mappings = await repo.channelMappings(PROVIDER);
-        const r = await this.apply(repo, a, mappings, base.warnings);
-        await repo.updateExternalEvent(ev.id, {
-          status: 'PROCESSED',
-          lastError: null,
-          processedAt: new Date(),
+        // Транзакция 2: бронь + PROCESSED. Любая ошибка откатывает её целиком.
+        const r = await this.uow.run(async (repo) => {
+          await repo.updateExternalEvent(ev.id, { status: 'PROCESSING' });
+          const mappings = await repo.channelMappings(PROVIDER);
+          const applied = await this.apply(repo, a, mappings, base.warnings);
+          await repo.updateExternalEvent(ev.id, {
+            status: 'PROCESSED',
+            lastError: null,
+            processedAt: new Date(),
+          });
+          return applied;
         });
-        return { ...base, ...r };
+        outcome = { ...base, ...r };
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        await repo.updateExternalEvent(ev.id, { status: 'FAILED', lastError: message });
+        // Транзакция 3: FAILED пишется отдельно — внутри прерванной транзакции Postgres это невозможно (25P02).
+        await this.uow.run((repo) =>
+          repo.updateExternalEvent(ev.id, { status: 'FAILED', lastError: message }),
+        );
         if (e instanceof UnmappedRoomError)
           return { ...base, result: 'failed', confirmationNumber: null, error: message };
         throw e;
       }
-    });
+    }
     if (outcome.result !== 'failed')
       await this.viaChannex(() => this.gateway.ackBookingRevision(rev.id));
     return outcome;
@@ -192,7 +202,10 @@ export class InboundBookingsService {
     mappings: ChannelMappingRef[],
     warnings: string[],
   ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber'>> {
-    const existing = await repo.reservationByExternalId(a.unique_id);
+    // Ищем по внешнему ID, затем по номеру подтверждения (= unique_id): брони, созданные до заполнения externalId
+    const existing =
+      (await repo.reservationByExternalId(a.unique_id)) ??
+      (await repo.reservationByNumber(a.unique_id));
     if (a.status === 'cancelled') {
       if (!existing) {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
@@ -246,6 +259,8 @@ export class InboundBookingsService {
       const created = await repo.createReservation({
         confirmationNumber: a.unique_id,
         source: 'OTA',
+        channel: a.ota_name,
+        externalId: a.unique_id,
         status: 'CONFIRMED',
         ...header,
         adults: a.occupancy?.adults ?? items.length,
@@ -303,7 +318,13 @@ export class InboundBookingsService {
         `Бронь ${a.unique_id}: состав комнат изменился (${live.length} → ${items.length}) — назначения сняты`,
       );
     }
-    await repo.updateReservation(existing.id, { ...header, status: 'CONFIRMED' });
+    await repo.updateReservation(existing.id, {
+      ...header,
+      status: 'CONFIRMED',
+      externalId: a.unique_id,
+      channel: a.ota_name,
+      notes: a.notes ?? null,
+    });
     await repo.audit({
       entityType: 'Reservation',
       entityId: existing.id,

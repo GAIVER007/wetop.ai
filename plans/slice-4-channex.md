@@ -9,9 +9,9 @@ Sandbox = `https://staging.channex.io/api/v1`, ключ `CHANNEX_API_KEY` из `
 | # | Что | Доказательство |
 |---|---|---|
 | 4.1 ✅ | Клиент: `user-api-key`, JSON:API, пагинация, ошибки, 429 → пауза 1 мин, 5xx → backoff | unit на примерах документации |
-| 4.2 🟡 код | Объект, 5 категорий, тарифы на staging; `ChannelMapping` в БД (DATA_MODEL §7) | ответы sandbox в `tests/fixtures/channex/`, `channel_mappings` заполнена |
-| 4.3 🟡 код | ARI: доступность по категориям (свободные ячейки на ночь) и цены/ограничения из `daily_rates`; full sync = 2 вызова на объект (лимит 10/мин на эндпоинт) | staging показывает наши цифры; скриншот |
-| 4.4 🟡 код | Webhook → `ExternalEvent` (UNIQUE provider+event) → Booking Revision Feed → бронь → acknowledge; повтор webhook не даёт дубль | integration-тест |
+| 4.2 ✅ | Объект, 5 категорий, тарифы на staging; `ChannelMapping` в БД (DATA_MODEL §7) | ответы sandbox в `tests/fixtures/channex/`, `channel_mappings` заполнена |
+| 4.3 ✅ | ARI: доступность по категориям (свободные ячейки на ночь) и цены/ограничения из `daily_rates`; full sync = 2 вызова на объект (лимит 10/мин на эндпоинт) | staging показывает наши цифры; скриншот |
+| 4.4 ✅ | Webhook → `ExternalEvent` (UNIQUE provider+event) → Booking Revision Feed → бронь → acknowledge; повтор webhook не даёт дубль | integration-тест |
 | 4.5 | Сертификационные сценарии `pms-certification-tests.md` | протокол |
 
 ## Умолчания, принятые до ответа владельца (легко поменять)
@@ -31,8 +31,9 @@ Sandbox = `https://staging.channex.io/api/v1`, ключ `CHANNEX_API_KEY` из `
 ## Состояние 09.09.2026
 
 Весь код 4.1–4.4 написан и покрыт тестами на фальшивках и примерах документации (`apps/api/src/channels`,
-`packages/integrations/src/channex`). Живой staging не запускался: **`CHANNEX_API_KEY` в `.env` пуст**. Как только ключ
-вписан: `POST /channels/channex/setup` → `POST /channels/channex/sync` → тестовая бронь в staging → `POST /channels/channex/pull`.
+`packages/integrations/src/channex`). **Живой прогон 09.09.2026 (ключ вписан владельцем):** setup → sync → сверка diff 0 → тестовая бронь через Booking CRS API
+(`booking_crs` установлен на объект staging) → pull: new / modified / cancelled. Объект staging: `60fc6ef0-5cdc-4f53-a2ca-3f477964cb2a`.
+Дальше: 4.5 сценарии `pms-certification-tests.md`, кнопки sync/pull на стойке, webhook при появлении публичного URL.
 
 ## Что нужно от владельца
 

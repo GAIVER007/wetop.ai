@@ -1,0 +1,20 @@
+import 'reflect-metadata';
+import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { ChessboardService } from './chessboard.service';
+
+@Controller()
+export class ChessboardController {
+  constructor(@Inject(ChessboardService) private readonly service: ChessboardService) {}
+
+  /** Шахматка: ячейки × даты, только чтение. ?from=YYYY-MM-DD&to=YYYY-MM-DD (≤ 62 дней). */
+  @Get('chessboard')
+  board(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.board(from || undefined, to || undefined);
+  }
+
+  /** Карточка брони по номеру подтверждения (для перенесённых — номер Exely). */
+  @Get('reservations/:number')
+  reservation(@Param('number') number: string) {
+    return this.service.reservation(number);
+  }
+}

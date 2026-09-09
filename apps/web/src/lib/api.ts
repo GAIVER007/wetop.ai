@@ -41,6 +41,9 @@ async function getJson<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** Для страниц, которым нужен произвольный путь API (журнал). */
+export const getJsonPublic = getJson;
+
 export const api = {
   inventorySummary: () => getJson<InventorySummary>('/inventory/summary'),
   inventoryUnits: (category?: string) =>

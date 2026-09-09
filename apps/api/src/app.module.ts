@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
+import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
 import { GuestsModule } from './guests/guests.module';
@@ -17,6 +18,7 @@ import { UnitsModule } from './units/units.module';
     RatesModule,
     UnitsModule,
     GuestsModule,
+    AuditModule,
   ],
 })
 export class AppModule {}

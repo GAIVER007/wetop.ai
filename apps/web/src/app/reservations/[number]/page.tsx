@@ -34,8 +34,24 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   ]);
   return (
     <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <div style={{ fontSize: 13, marginBottom: 8 }}>
+      <div style={{ fontSize: 13, marginBottom: 8, display: 'flex', gap: 12 }}>
         <Link href="/chessboard">← шахматка</Link>
+        <span style={{ marginLeft: 'auto' }}>
+          печать:{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print?lang=ru`}
+            data-testid="print-ru"
+          >
+            регистрационная карта RU
+          </Link>{' '}
+          ·{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print?lang=kz`}
+            data-testid="print-kz"
+          >
+            KZ
+          </Link>
+        </span>
       </div>
       <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Бронь {r.confirmationNumber}</h1>
       <div style={{ color: '#666', marginBottom: 18 }}>

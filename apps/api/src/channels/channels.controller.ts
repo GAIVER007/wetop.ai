@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { Controller, Get, HttpCode, Inject, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Post, Query } from '@nestjs/common';
+import { InboundBookingsService } from './inbound.service';
 import { ChannexSyncService, PROVIDER } from './sync.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 
@@ -9,6 +10,7 @@ export class ChannelsController {
   constructor(
     @Inject(ChannexSyncService) private readonly sync: ChannexSyncService,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
+    @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
   ) {}
 
   @Get('mapping')
@@ -26,5 +28,22 @@ export class ChannelsController {
   @HttpCode(200)
   fullSync(@Query('days') days?: string) {
     return this.sync.fullSync(days ? Number(days) : undefined);
+  }
+
+  /** Webhook Channex: секрет в заголовке X-Channex-Webhook-Secret (webhook-collection.md → Security). */
+  @Post('webhook')
+  @HttpCode(200)
+  webhook(
+    @Headers('x-channex-webhook-secret') secret: string | undefined,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.inbound.handleWebhook(secret, body ?? {});
+  }
+
+  /** Забрать все неподтверждённые ревизии из ленты и обработать (для sandbox без публичного URL). */
+  @Post('pull')
+  @HttpCode(200)
+  pull(@Query('propertyId') propertyId?: string) {
+    return this.inbound.pull(propertyId || undefined);
   }
 }

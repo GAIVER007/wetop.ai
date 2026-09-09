@@ -48,6 +48,13 @@ function makeFakes() {
     async listProperties() {
       return [];
     },
+    async bookingRevisionsFeed() {
+      return [];
+    },
+    async getBookingRevision(): Promise<never> {
+      throw new Error('not in this test');
+    },
+    async ackBookingRevision() {},
   };
   const mappings: MappingRow[] = [];
   const audits: string[] = [];

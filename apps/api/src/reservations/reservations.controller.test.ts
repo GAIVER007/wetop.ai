@@ -165,6 +165,19 @@ function makeFake() {
       a.start = startDate;
       a.end = endDate;
     },
+    async reservationByExternalId() {
+      return null;
+    },
+    async addReservationItem() {
+      return 'x';
+    },
+    async channelMappings() {
+      return [];
+    },
+    async recordExternalEvent() {
+      return { id: 'e', status: 'RECEIVED', attemptCount: 0, isNew: true };
+    },
+    async updateExternalEvent() {},
     async audit(entry) {
       state.audits.push({ entityType: entry.entityType, action: entry.action });
     },

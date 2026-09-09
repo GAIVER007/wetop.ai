@@ -19,6 +19,9 @@ export type ChannexGateway = Pick<
   | 'updateAvailability'
   | 'updateRestrictions'
   | 'listProperties'
+  | 'bookingRevisionsFeed'
+  | 'getBookingRevision'
+  | 'ackBookingRevision'
 >;
 export const CHANNEX_GATEWAY = Symbol('CHANNEX_GATEWAY');
 
@@ -199,6 +202,9 @@ export function channexGatewayFromEnv(): ChannexGateway {
       updateAvailability: fail,
       updateRestrictions: fail,
       listProperties: fail,
+      bookingRevisionsFeed: fail,
+      getBookingRevision: fail,
+      ackBookingRevision: fail,
     };
   }
   return new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey });

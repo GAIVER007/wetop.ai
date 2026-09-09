@@ -181,4 +181,35 @@ describe('ChannexClient', () => {
       ],
     });
   });
+
+  it('booking revisions: feed ordered oldest first, get by id, ack by POST (bookings-collection.md)', async () => {
+    const rev = {
+      type: 'booking_revision',
+      id: '03dd7198-c5b7-493c-a889-74d0c2211de7',
+      attributes: {
+        id: '03dd7198-c5b7-493c-a889-74d0c2211de7',
+        unique_id: 'BDC-9996013801',
+        status: 'new',
+        rooms: [],
+      },
+    };
+    const f = fakeFetch((call) =>
+      call.url.includes('/ack')
+        ? { status: 200, body: { meta: { message: 'Success' } } }
+        : call.url.includes('/feed')
+          ? { status: 200, body: { data: [rev], meta: { total: 1, page: 1, limit: 100 } } }
+          : { status: 200, body: { data: rev } },
+    );
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    const feed = await c.bookingRevisionsFeed('716305c4-561a-4561-a187-7f5b8aeb5920');
+    expect(feed.map((r) => r.attributes.unique_id)).toEqual(['BDC-9996013801']);
+    const u = new URL(f.calls[0]!.url);
+    expect(u.pathname.endsWith('/booking_revisions/feed')).toBe(true);
+    expect(u.searchParams.get('filter[property_id]')).toBe('716305c4-561a-4561-a187-7f5b8aeb5920');
+    expect(u.searchParams.get('order[inserted_at]')).toBe('asc');
+    expect((await c.getBookingRevision(rev.id)).id).toBe(rev.id);
+    await c.ackBookingRevision(rev.id);
+    expect(f.calls[2]!.init.method).toBe('POST');
+    expect(f.calls[2]!.url.endsWith(`/booking_revisions/${rev.id}/ack`)).toBe(true);
+  });
 });

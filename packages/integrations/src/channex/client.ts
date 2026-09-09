@@ -128,6 +128,54 @@ export interface ChannexAvailabilityValue {
   date_to?: string;
   availability: number;
 }
+/** Ревизия брони (bookings-collection.md → Booking Revision). `guarantee` — данные карты: НЕ хранить (SECURITY.md). */
+export interface ChannexBookingRoom {
+  checkin_date: string;
+  checkout_date: string;
+  rate_plan_id: string | null;
+  room_type_id: string | null;
+  occupancy: { adults: number; children: number; infants: number; ages?: number[] };
+  guests?: Array<{ name?: string | null; surname?: string | null }>;
+  amount: string;
+  days?: Record<string, string>;
+  ota_unique_id?: string | null;
+  meta?: Record<string, unknown>;
+  [k: string]: unknown;
+}
+export interface ChannexBookingRevisionAttributes {
+  id: string;
+  property_id: string;
+  booking_id: string;
+  unique_id: string;
+  system_id?: string | null;
+  ota_reservation_code: string;
+  ota_name: string;
+  status: 'new' | 'modified' | 'cancelled';
+  rooms: ChannexBookingRoom[];
+  services?: unknown[];
+  guarantee?: unknown;
+  customer?: {
+    name?: string | null;
+    surname?: string | null;
+    mail?: string | null;
+    phone?: string | null;
+    country?: string | null;
+    language?: string | null;
+    [k: string]: unknown;
+  } | null;
+  occupancy: { adults: number; children: number; infants: number };
+  arrival_date: string;
+  departure_date: string;
+  arrival_hour?: string | null;
+  amount: string;
+  currency: string;
+  notes?: string | null;
+  payment_collect?: 'property' | 'ota' | null;
+  payment_type?: 'credit_card' | 'bank_transfer' | null;
+  inserted_at: string;
+  [k: string]: unknown;
+}
+
 export interface ChannexTaskResponse {
   data: Array<{ id: string; type: string }>;
   meta?: { message?: string; warnings?: unknown[] };
@@ -304,5 +352,29 @@ export class ChannexClient {
   }
   updateRestrictions(values: ChannexRestrictionValue[]): Promise<ChannexTaskResponse> {
     return this.request<ChannexTaskResponse>('POST', '/restrictions', { values });
+  }
+
+  // ── Bookings (bookings-collection.md): лента неподтверждённых ревизий → обработка → ack ──
+  bookingRevisionsFeed(
+    propertyId?: string,
+  ): Promise<ChannexResource<ChannexBookingRevisionAttributes>[]> {
+    const q: Record<string, string> = { 'order[inserted_at]': 'asc' };
+    if (propertyId) q['filter[property_id]'] = propertyId;
+    return this.listAll<ChannexBookingRevisionAttributes>('/booking_revisions/feed', q);
+  }
+  async getBookingRevision(id: string): Promise<ChannexResource<ChannexBookingRevisionAttributes>> {
+    return (
+      await this.request<OneResponse<ChannexBookingRevisionAttributes>>(
+        'GET',
+        `/booking_revisions/${encodeURIComponent(id)}`,
+      )
+    ).data;
+  }
+  /** Подтвердить получение: без ack ревизия возвращается в ленту 30 минут, потом письмо-предупреждение. */
+  async ackBookingRevision(id: string): Promise<void> {
+    await this.request<{ meta?: { message?: string } }>(
+      'POST',
+      `/booking_revisions/${encodeURIComponent(id)}/ack`,
+    );
   }
 }

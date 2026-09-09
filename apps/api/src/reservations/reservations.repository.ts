@@ -54,6 +54,7 @@ export interface ItemState {
 export interface ReservationState {
   id: string;
   confirmationNumber: string;
+  externalId?: string | null;
   status: ReservationStatus;
   arrivalDate: string;
   departureDate: string;
@@ -86,6 +87,27 @@ export interface NewReservation {
     priceMinor: bigint;
     status: ReservationStatus;
   }>;
+}
+export interface ChannelMappingRef {
+  localAccommodationTypeId: string | null;
+  localRatePlanId: string | null;
+  providerPropertyId: string;
+  providerRoomTypeId: string | null;
+  providerRatePlanId: string | null;
+}
+export type ExternalEventStatus = 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED';
+export interface NewExternalEvent {
+  provider: string;
+  externalEventId: string;
+  type: string;
+  payloadHash: string;
+  payload: unknown;
+}
+export interface ExternalEventRef {
+  id: string;
+  status: ExternalEventStatus;
+  attemptCount: number;
+  isNew: boolean;
 }
 export interface AuditEntry {
   entityType: string;
@@ -142,6 +164,18 @@ export interface ReservationsRepository {
   deleteAllocation(id: string): Promise<void>;
   shortenAllocation(id: string, endDate: string): Promise<void>;
   replaceAllocationDates(id: string, startDate: string, endDate: string): Promise<void>;
+  /** Бронь канала по внешнему ID (unique_id Channex) */
+  reservationByExternalId(externalId: string): Promise<ReservationState | null>;
+  /** Добавить проживание к существующей брони (модификация OTA-брони) */
+  addReservationItem(reservationId: string, item: NewReservation['items'][number]): Promise<string>;
+  /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
+  channelMappings(provider: string): Promise<ChannelMappingRef[]>;
+  /** Журнал входящих событий (ADR-007): вернуть существующее или создать новое */
+  recordExternalEvent(event: NewExternalEvent): Promise<ExternalEventRef>;
+  updateExternalEvent(
+    id: string,
+    patch: { status: ExternalEventStatus; lastError?: string | null; processedAt?: Date | null },
+  ): Promise<void>;
   audit(entry: AuditEntry): Promise<void>;
   card(confirmationNumber: string): Promise<ReservationCard | null>;
 }
@@ -328,6 +362,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return {
       id: r.id,
       confirmationNumber: r.confirmationNumber,
+      externalId: r.externalId,
       status: r.status,
       arrivalDate: iso(r.arrivalDate),
       departureDate: iso(r.departureDate),
@@ -415,6 +450,82 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       }
       throw e;
     }
+  }
+  async reservationByExternalId(externalId: string): Promise<ReservationState | null> {
+    const { id: propertyId } = await this.property();
+    const r = await this.db.reservation.findFirst({
+      where: { propertyId, externalId },
+      orderBy: { createdAt: 'desc' },
+      select: { confirmationNumber: true },
+    });
+    return r ? this.reservationByNumber(r.confirmationNumber) : null;
+  }
+  async addReservationItem(
+    reservationId: string,
+    it: NewReservation['items'][number],
+  ): Promise<string> {
+    const created = await this.db.reservationItem.create({
+      data: {
+        reservationId,
+        accommodationTypeId: it.accommodationTypeId,
+        arrivalDate: asDate(it.arrivalDate),
+        departureDate: asDate(it.departureDate),
+        price: it.priceMinor,
+        status: it.status,
+      },
+      select: { id: true },
+    });
+    return created.id;
+  }
+  async channelMappings(provider: string): Promise<ChannelMappingRef[]> {
+    const { id: propertyId } = await this.property();
+    return this.db.channelMapping.findMany({
+      where: { propertyId, provider },
+      select: {
+        localAccommodationTypeId: true,
+        localRatePlanId: true,
+        providerPropertyId: true,
+        providerRoomTypeId: true,
+        providerRatePlanId: true,
+      },
+    });
+  }
+  async recordExternalEvent(event: NewExternalEvent): Promise<ExternalEventRef> {
+    const existing = await this.db.externalEvent.findUnique({
+      where: {
+        provider_externalEventId: {
+          provider: event.provider,
+          externalEventId: event.externalEventId,
+        },
+      },
+      select: { id: true, status: true, attemptCount: true },
+    });
+    if (existing) return { ...existing, isNew: false };
+    const created = await this.db.externalEvent.create({
+      data: {
+        provider: event.provider,
+        externalEventId: event.externalEventId,
+        type: event.type,
+        payloadHash: event.payloadHash,
+        payload: json(event.payload),
+      },
+      select: { id: true, status: true, attemptCount: true },
+    });
+    return { ...created, isNew: true };
+  }
+  async updateExternalEvent(
+    id: string,
+    patch: { status: ExternalEventStatus; lastError?: string | null; processedAt?: Date | null },
+  ): Promise<void> {
+    await this.db.externalEvent.update({
+      where: { id },
+      data: {
+        status: patch.status,
+        attemptCount: { increment: 1 },
+        ...(patch.lastError !== undefined ? { lastError: patch.lastError } : {}),
+        ...(patch.processedAt !== undefined ? { processedAt: patch.processedAt } : {}),
+      },
+    });
   }
   async audit(entry: AuditEntry): Promise<void> {
     await this.db.auditLog.create({

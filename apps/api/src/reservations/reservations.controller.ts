@@ -28,6 +28,24 @@ export class ReservationsController {
     return this.service.cancel(number);
   }
 
+  @Post(':number/items/:itemId/check-in')
+  @HttpCode(200)
+  checkIn(@Param('number') number: string, @Param('itemId') itemId: string) {
+    return this.service.checkIn(number, itemId);
+  }
+
+  @Post(':number/items/:itemId/check-out')
+  @HttpCode(200)
+  checkOut(@Param('number') number: string, @Param('itemId') itemId: string) {
+    return this.service.checkOut(number, itemId);
+  }
+
+  @Post(':number/items/:itemId/no-show')
+  @HttpCode(200)
+  noShow(@Param('number') number: string, @Param('itemId') itemId: string) {
+    return this.service.noShow(number, itemId);
+  }
+
   @Post(':number/items/:itemId/assign')
   @HttpCode(200)
   assign(

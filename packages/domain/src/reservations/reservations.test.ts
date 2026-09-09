@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   assertCanAssign,
+  assertCanCheckIn,
+  assertCanCheckOut,
+  assertCanNoShow,
   assertCanCancel,
   assertCanChangeDates,
   confirmationNumber,
@@ -75,5 +78,20 @@ describe('confirmationNumber', () => {
     expect(confirmationNumber(new Date('2026-09-09T20:30:00Z'))).not.toBe(
       confirmationNumber(new Date('2026-09-09T20:30:00Z')),
     );
+  });
+});
+
+describe('check-in / check-out / no-show guards', () => {
+  it('check-in needs an expected guest AND an assigned unit', () => {
+    expect(() => assertCanCheckIn('CONFIRMED', true)).not.toThrow();
+    expect(() => assertCanCheckIn('CONFIRMED', false)).toThrow(/назначьте ячейку/);
+    expect(() => assertCanCheckIn('CHECKED_IN', true)).toThrow(/уже заселён/);
+    expect(() => assertCanCheckIn('CANCELLED', true)).toThrow(/CANCELLED/);
+  });
+  it('check-out only from CHECKED_IN; no-show only for expected guests', () => {
+    expect(() => assertCanCheckOut('CHECKED_IN')).not.toThrow();
+    expect(() => assertCanCheckOut('CONFIRMED')).toThrow(/не заселён/);
+    expect(() => assertCanNoShow('CONFIRMED')).not.toThrow();
+    expect(() => assertCanNoShow('CHECKED_IN')).toThrow(/CHECKED_IN/);
   });
 });

@@ -2,6 +2,7 @@
 import { useActionState, useState } from 'react';
 import {
   assignUnitAction,
+  stayAction,
   cancelReservationAction,
   changeDatesAction,
   type ActionResult,
@@ -61,9 +62,20 @@ export function ReservationActions(props: {
         </form>
       )}
       {props.items
-        .filter((it) => it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT')
+        .filter(
+          (it) =>
+            it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
+        )
         .map((it) => (
-          <AssignForm key={it.id} number={props.number} item={it} arrivalDate={props.arrivalDate} />
+          <div key={it.id} style={{ display: 'grid', gap: 8 }}>
+            <StayButtons number={props.number} item={it} />
+            {it.status !== 'CHECKED_IN' && (
+              <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
+            )}
+            {it.status === 'CHECKED_IN' && (
+              <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
+            )}
+          </div>
         ))}
       {canEdit && (
         <form
@@ -88,6 +100,65 @@ export function ReservationActions(props: {
         </form>
       )}
     </section>
+  );
+}
+
+function StayButtons(props: {
+  number: string;
+  item: { id: string; status: string; accommodationTypeName: string; unitCode: string | null };
+}) {
+  const [state, setState] = useState<ActionResult>({ error: null });
+  const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
+    if (action === 'no-show' && !window.confirm('Отметить незаезд? Назначение ячейки снимется.'))
+      return;
+    setState(await stayAction(props.number, props.item.id, action));
+  };
+  const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
+  return (
+    <div style={box}>
+      <b style={{ fontSize: 14 }}>
+        {props.item.accommodationTypeName} — {props.item.unitCode ?? 'ячейка не назначена'}
+      </b>
+      <div style={row}>
+        {expected && (
+          <button
+            type="button"
+            data-testid={`check-in-${props.item.id}`}
+            onClick={run('check-in')}
+            disabled={!props.item.unitCode}
+            title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
+            style={btn}
+          >
+            Заселить
+          </button>
+        )}
+        {props.item.status === 'CHECKED_IN' && (
+          <button
+            type="button"
+            data-testid={`check-out-${props.item.id}`}
+            onClick={run('check-out')}
+            style={btn}
+          >
+            Выселить
+          </button>
+        )}
+        {expected && (
+          <button
+            type="button"
+            data-testid={`no-show-${props.item.id}`}
+            onClick={run('no-show')}
+            style={{ ...btn, background: '#b45309' }}
+          >
+            Незаезд
+          </button>
+        )}
+      </div>
+      {state.error && (
+        <div role="alert" style={err}>
+          {state.error}
+        </div>
+      )}
+    </div>
   );
 }
 

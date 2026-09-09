@@ -99,3 +99,19 @@ export async function assignUnitAction(
   revalidatePath(`/reservations/${number}`);
   return { error: null };
 }
+
+/** Заезд / выезд / незаезд по проживанию. */
+export async function stayAction(
+  number: string,
+  itemId: string,
+  action: 'check-in' | 'check-out' | 'no-show',
+): Promise<ActionResult> {
+  try {
+    await reservationsApi.stay(number, itemId, action);
+  } catch (e) {
+    return { error: describe(e) };
+  }
+  revalidatePath('/chessboard');
+  revalidatePath(`/reservations/${number}`);
+  return { error: null };
+}

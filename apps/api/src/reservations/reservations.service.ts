@@ -13,6 +13,9 @@ import {
   assertCanAssign,
   assertCanCancel,
   assertCanChangeDates,
+  assertCanCheckIn,
+  assertCanCheckOut,
+  assertCanNoShow,
   confirmationNumber,
   deriveReservationStatus,
   priceStay,
@@ -366,6 +369,122 @@ export class ReservationsService {
         return after;
       }),
     );
+  }
+
+  /** Сегодня по часам объекта (Asia/Almaty, UTC+5). */
+  private today(): string {
+    return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  }
+
+  /** Заселить гостя в назначенную ячейку. */
+  async checkIn(number: string, itemId: string): Promise<ReservationCard> {
+    const card = await this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+        assertCanCheckIn(item.status, item.allocations.length > 0);
+        const before = await repo.card(number);
+        await repo.updateItem(item.id, { status: 'CHECKED_IN' });
+        await repo.updateReservation(state.id, {
+          status: deriveReservationStatus(
+            state.items.map((i) => (i.id === item.id ? 'CHECKED_IN' : i.status)),
+          ),
+        });
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.checkIn',
+          before,
+          after,
+        });
+        return after;
+      }),
+    );
+    return card;
+  }
+
+  /**
+   * Выселить. Ранний выезд: проживание и назначение заканчиваются сегодня — ячейка свободна с этой даты.
+   * Цена не пересчитывается (деньги — Folio, Q-091).
+   */
+  async checkOut(number: string, itemId: string): Promise<ReservationCard> {
+    const result = await this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+        assertCanCheckOut(item.status);
+        const before = await repo.card(number);
+        const today = this.today();
+        const early = today < item.departureDate && today > item.arrivalDate;
+        if (early) {
+          for (const a of item.allocations) {
+            if (a.endDate <= today) continue;
+            if (a.startDate < today) await repo.shortenAllocation(a.id, today);
+            else await repo.deleteAllocation(a.id);
+          }
+        }
+        await repo.updateItem(item.id, {
+          status: 'CHECKED_OUT',
+          ...(early ? { departureDate: today } : {}),
+        });
+        const others = state.items.filter((i) => i.id !== item.id && i.status !== 'CANCELLED');
+        const departure = [item.departureDate, ...others.map((i) => i.departureDate)].reduce(
+          (m, d) => (d > m ? d : m),
+          early ? today : item.departureDate,
+        );
+        await repo.updateReservation(state.id, {
+          status: deriveReservationStatus(
+            state.items.map((i) => (i.id === item.id ? 'CHECKED_OUT' : i.status)),
+          ),
+          ...(early ? { departureDate: departure } : {}),
+        });
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.checkOut',
+          before,
+          after,
+        });
+        return { before, after, early };
+      }),
+    );
+    if (result.early) await this.publish([result.before, result.after]);
+    return result.after;
+  }
+
+  /** Незаезд: гость не приехал — назначение снимается, проживание NO_SHOW. */
+  async noShow(number: string, itemId: string): Promise<ReservationCard> {
+    const result = await this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+        assertCanNoShow(item.status);
+        const before = await repo.card(number);
+        for (const a of item.allocations) await repo.deleteAllocation(a.id);
+        await repo.updateItem(item.id, { status: 'NO_SHOW' });
+        await repo.updateReservation(state.id, {
+          status: deriveReservationStatus(
+            state.items.map((i) => (i.id === item.id ? 'NO_SHOW' : i.status)),
+          ),
+        });
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.noShow',
+          before,
+          after,
+        });
+        return { before, after };
+      }),
+    );
+    await this.publish([result.before, result.after]);
+    return result.after;
   }
 
   private async load(repo: ReservationsRepository, number: string) {

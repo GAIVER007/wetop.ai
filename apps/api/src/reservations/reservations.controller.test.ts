@@ -438,4 +438,80 @@ describe('manual reservation API', () => {
     const res = await request(app.getHttpServer()).get('/rate-plans').expect(200);
     expect(res.body).toEqual([{ code: 'exely-800001', name: 'Тестовый базовый', currency: 'KZT' }]);
   });
+
+  it('check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(
+        body({
+          arrivalDate: '2026-09-15',
+          departureDate: '2026-09-18',
+          items: [
+            { accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 },
+          ],
+        }),
+      )
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    const noUnit = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-in`)
+      .send({})
+      .expect(422);
+    expect(noUnit.body.message).toMatch(/назначьте ячейку/);
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/assign`)
+      .send({ unitCode: '9001' })
+      .expect(200);
+    const checkedIn = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-in`)
+      .send({})
+      .expect(200);
+    expect(checkedIn.body.status).toBe('CHECKED_IN');
+    expect(checkedIn.body.items[0].status).toBe('CHECKED_IN');
+    await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(422); // заселённого не отменить
+    const out = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-out`)
+      .send({})
+      .expect(200);
+    expect(out.body.items[0].status).toBe('CHECKED_OUT');
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-out`)
+      .send({})
+      .expect(422);
+
+    const second = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(
+        body({
+          arrivalDate: '2026-09-15',
+          departureDate: '2026-09-16',
+          items: [
+            {
+              accommodationTypeCode: 'exely-900001',
+              ratePlanCode: 'exely-800001',
+              adults: 1,
+              unitCode: '9003',
+            },
+          ],
+        }),
+      )
+      .expect(409);
+    void second;
+    const third = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+      .expect(201);
+    const n3 = third.body.confirmationNumber as string;
+    const i3 = third.body.items[0].id as string;
+    const ns = await request(app.getHttpServer())
+      .post(`/reservations/${n3}/items/${i3}/no-show`)
+      .send({})
+      .expect(200);
+    expect(ns.body.status).toBe('NO_SHOW');
+    expect(fake.state.allocations.filter((a) => a.itemId === i3)).toHaveLength(0);
+    expect(fake.state.audits.map((a) => a.action)).toEqual(
+      expect.arrayContaining(['reservation.checkIn', 'reservation.checkOut', 'reservation.noShow']),
+    );
+  });
 });

@@ -98,6 +98,26 @@ export function assertCanAssign(status: ReservationStatus): void {
     throw new ReservationRuleError(`Назначение ячейки невозможно из статуса ${status}`);
 }
 
+/** Заселение: ожидаемый гость и назначенная ячейка (DATA_MODEL §2: проживание = одна ячейка). */
+export function assertCanCheckIn(status: ReservationStatus, hasUnit: boolean): void {
+  if (status === 'CHECKED_IN') throw new ReservationRuleError('Гость уже заселён');
+  if (status !== 'TENTATIVE' && status !== 'CONFIRMED')
+    throw new ReservationRuleError(`Заселение невозможно из статуса ${status}`);
+  if (!hasUnit) throw new ReservationRuleError('Сначала назначьте ячейку — заселить некуда');
+}
+
+/** Выезд только из заселённого проживания. */
+export function assertCanCheckOut(status: ReservationStatus): void {
+  if (status !== 'CHECKED_IN')
+    throw new ReservationRuleError(`Выезд невозможен из статуса ${status}: гость не заселён`);
+}
+
+/** Незаезд: ожидаемый гость, который не приехал. */
+export function assertCanNoShow(status: ReservationStatus): void {
+  if (status !== 'TENTATIVE' && status !== 'CONFIRMED')
+    throw new ReservationRuleError(`Незаезд невозможен из статуса ${status}`);
+}
+
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 /** `YYYYMMDD-XXXXXX`: дата создания в Asia/Almaty (UTC+5, без перехода на летнее время) + 6 символов. */

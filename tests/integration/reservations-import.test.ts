@@ -34,6 +34,8 @@ const booking = (
   stayId: string,
   room: string | null,
   guest: string,
+  toPay = 12000,
+  stayStatus: 'New' | 'Cancelled' = 'New',
 ): exely.UniBooking => ({
   id: n,
   number: n,
@@ -62,11 +64,11 @@ const booking = (
       checkOutDateTime: '2026-09-22T12:00',
       actualCheckInDateTime: null,
       actualCheckOutDateTime: null,
-      status: 'New',
-      bookingStatus: 'Confirmed',
+      status: stayStatus,
+      bookingStatus: stayStatus === 'Cancelled' ? 'Cancelled' : 'Confirmed',
       guestCountInfo: { adults: 1, children: 0 },
       guestsIds: [guest],
-      totalPrice: { amount: 12000, toPayAmount: 12000, toRefundAmount: 0 },
+      totalPrice: { amount: 12000, toPayAmount: toPay, toRefundAmount: 0 },
     },
   ],
 });
@@ -95,6 +97,8 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
     const records = [
       booking('T-1', 'S-1', 'R-9010', 'G-1'),
       booking('T-2', 'S-2', null, 'G-2'),
+      booking('T-3', 'S-3', 'R-9011', 'G-3', 4000), // оплачено 8 000 из 12 000
+      booking('T-4', 'S-4', 'R-9010', 'G-4', 12000, 'Cancelled'), // отменена, та же комната и даты, что T-1
     ].map((b) => normalizeExelyReservation(adaptUniBooking(b), ctx));
     await expect(
       db.$transaction(
@@ -105,21 +109,65 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             anonymizeSalt: 'test-salt',
           });
           expect(first).toMatchObject({
-            reservations: { created: 2, updated: 0 },
-            items: { created: 2, updated: 0 },
-            guests: { created: 2, updated: 0 },
-            allocations: { created: 1, updated: 0 },
+            reservations: { created: 4, updated: 0 },
+            items: { created: 4, updated: 0 },
+            guests: { created: 4, updated: 0 },
+            allocations: { created: 2, updated: 0 }, // отменённая T-4 ячейку не занимает
+            unassigned: 1,
+            paymentsImported: 1,
           });
           const second = await importReservations(tx, records, {
             propertyId: inv.propertyId,
             anonymizeSalt: 'test-salt',
           });
           expect(second).toMatchObject({
-            reservations: { created: 0, updated: 2 },
-            items: { created: 0, updated: 2 },
-            guests: { created: 0, updated: 2 },
-            allocations: { created: 0, updated: 1 },
+            reservations: { created: 0, updated: 4 },
+            items: { created: 0, updated: 4 },
+            guests: { created: 0, updated: 4 },
+            allocations: { created: 0, updated: 2 },
+            paymentsImported: 0, // повтор — без дубля платежа
           });
+          // DATA_MODEL §6: у каждого проживания ровно один счёт с одним начислением «проживание» = цене
+          const folios = await tx.folio.findMany({
+            where: { reservationItem: { exelyRoomStayId: { in: ['S-1', 'S-2', 'S-3'] } } },
+            include: { charges: true, allocations: true },
+          });
+          expect(folios).toHaveLength(3);
+          for (const f of folios) {
+            expect(f.currency).toBe('KZT');
+            expect(f.charges.filter((c) => c.voidedAt === null)).toHaveLength(1);
+            expect(f.charges[0]).toMatchObject({ kind: 'ACCOMMODATION', amount: 1200000n });
+          }
+          const paid = await tx.payment.findMany({
+            where: { propertyId: inv.propertyId },
+            include: { allocations: true },
+          });
+          expect(paid).toHaveLength(1);
+          expect(paid[0]).toMatchObject({
+            method: 'EXTERNAL',
+            amount: 800000n,
+            externalReference: 'exely:S-3',
+            status: 'COMPLETED',
+          });
+          expect(paid[0]!.allocations).toHaveLength(1);
+          expect(paid[0]!.allocations[0]!.amount).toBe(800000n);
+          // Цена изменилась в Exely → старое начисление сторнируется, новое = новой цене; платёж не трогаем
+          const changed = records.map((r) =>
+            r.confirmationNumber === records[2]!.confirmationNumber
+              ? { ...r, items: r.items.map((it) => ({ ...it, priceMinor: 1500000n })) }
+              : r,
+          );
+          await importReservations(tx, changed, {
+            propertyId: inv.propertyId,
+            anonymizeSalt: 'test-salt',
+          });
+          const f3 = await tx.folio.findFirstOrThrow({
+            where: { reservationItem: { exelyRoomStayId: 'S-3' } },
+            include: { charges: { orderBy: { createdAt: 'asc' } } },
+          });
+          expect(f3.charges).toHaveLength(2);
+          expect(f3.charges[0]!.voidedAt).not.toBeNull();
+          expect(f3.charges[1]).toMatchObject({ amount: 1500000n, voidedAt: null });
           const g = await tx.guest.findUniqueOrThrow({ where: { exelyPersonId: 'G-1' } });
           expect(g.firstName).toBe('Гость');
           expect(g.lastName).toMatch(/^Тест-/);
@@ -131,7 +179,9 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           expect(alloc).toHaveLength(1);
           expect(alloc[0]!.inventoryUnit.exelyRoomNumber).toBe('9010');
           expect(
-            await tx.allocation.count({ where: { reservationItem: { exelyRoomStayId: 'S-2' } } }),
+            await tx.allocation.count({
+              where: { reservationItem: { exelyRoomStayId: { in: ['S-2', 'S-4'] } } },
+            }),
           ).toBe(0);
           throw new Rollback('rollback');
         },

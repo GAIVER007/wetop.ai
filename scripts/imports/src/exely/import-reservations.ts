@@ -1,4 +1,4 @@
-import type { DbTx } from '@pms/database';
+import { ensureFolioWithAccommodation, recordImportedPayment, type DbTx } from '@pms/database';
 import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import type { EntityCounts } from './import-inventory';
 import type { GuestImportRecord, ReservationImportRecord } from './normalize-reservation';
@@ -12,10 +12,13 @@ export interface ReservationsImportReport {
   reservations: EntityCounts;
   items: EntityCounts;
   guests: EntityCounts;
-  allocations: EntityCounts;
+  /** released — назначения, снятые у отменённых / незаехавших проживаний */
+  allocations: EntityCounts & { released: number };
   stayGuests: { linked: number };
   /** Проживания без назначенной единицы (Exely: roomId = null) */
   unassigned: number;
+  /** Платежи EXTERNAL `exely:<roomStayId>`, созданные в этот прогон (повторы не считаются) */
+  paymentsImported: number;
 }
 const zero = (): EntityCounts => ({ created: 0, updated: 0 });
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -34,9 +37,10 @@ export async function importReservations(
     reservations: zero(),
     items: zero(),
     guests: zero(),
-    allocations: zero(),
+    allocations: { ...zero(), released: 0 },
     stayGuests: { linked: 0 },
     unassigned: 0,
+    paymentsImported: 0,
   };
   const types = await tx.accommodationType.findMany({
     where: { propertyId: opts.propertyId },
@@ -171,8 +175,33 @@ export async function importReservations(
           ).id;
       if (existingItem) report.items.updated += 1;
       else report.items.created += 1;
+      const holdsUnit = it.status !== 'CANCELLED' && it.status !== 'NO_SHOW';
+      // Счёт на проживание + начисление = цена (у отменённых / незаездов — сторнировано);
+      // оплаченное в Exely — платёж EXTERNAL (DATA_MODEL §6)
+      const { folioId } = await ensureFolioWithAccommodation(tx, {
+        reservationItemId: itemId,
+        currency: r.currency,
+        amountMinor: it.priceMinor,
+        description: `Проживание ${it.arrivalDate} → ${it.departureDate}`,
+        active: holdsUnit,
+      });
+      const paid = await recordImportedPayment(tx, {
+        propertyId: opts.propertyId,
+        folioId,
+        roomStayId: it.exelyRoomStayId,
+        paidMinor: it.paidMinor,
+        currency: r.currency,
+      });
+      if (paid === 'created') report.paymentsImported += 1;
 
-      if (it.exelyRoomNumber) {
+      // Отменённое / незаехавшее проживание ячейку не занимает (запрет пересечений в БД безусловный):
+      // назначение не создаём, а существующее снимаем — как делает команда отмены на стойке.
+
+      if (!holdsUnit) {
+        const removed = await tx.allocation.deleteMany({ where: { reservationItemId: itemId } });
+        report.allocations.released += removed.count;
+      }
+      if (it.exelyRoomNumber && holdsUnit) {
         const unitId = unitIdByExely.get(it.exelyRoomNumber);
         if (!unitId)
           throw new Error(
@@ -194,7 +223,7 @@ export async function importReservations(
           await tx.allocation.create({ data: { reservationItemId: itemId, ...allocData } });
           report.allocations.created += 1;
         }
-      } else {
+      } else if (holdsUnit) {
         report.unassigned += 1;
       }
 

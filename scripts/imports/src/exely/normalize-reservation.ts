@@ -69,6 +69,8 @@ export interface ReservationItemImportRecord {
   arrivalDate: string;
   departureDate: string;
   priceMinor: bigint;
+  /** Оплачено в Exely на момент переноса (minor units); 0 — не оплачено */
+  paidMinor: bigint;
   status: ReservationStatusCode;
   adults: number;
   children: number;
@@ -218,6 +220,10 @@ export function normalizeExelyReservation(
       arrivalDate: dateOf(s.checkInDateTime, where),
       departureDate: dateOf(s.checkOutDateTime, where),
       priceMinor: toMinorUnits(s.totalPrice.amount.value, where),
+      // оплачено в Exely = сумма − к оплате (перенос платежа, DATA_MODEL §6)
+      paidMinor:
+        toMinorUnits(s.totalPrice.amount.value, where) -
+        toMinorUnits(s.totalPrice.payAmount.value, where),
       status: mapStayStatus(s.status, where),
       adults: s.guestCount?.adults ?? 0,
       children: s.guestCount?.children ?? 0,

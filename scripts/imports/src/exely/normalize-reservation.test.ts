@@ -80,12 +80,14 @@ describe('normalizeExelyReservation', () => {
       accommodationTypeCode: 'exely-900001',
       exelyRoomNumber: '9001',
       priceMinor: 1284120n,
+      paidMinor: 1284120n, // к оплате 0 → оплачено полностью (DATA_MODEL §6, перенос платежа)
       status: 'CONFIRMED',
       guestExelyIds: ['P-1'],
     });
     expect(r.items[1]).toMatchObject({
       exelyRoomStayId: 'S-2',
       exelyRoomNumber: null,
+      paidMinor: 0n, // к оплате = сумма → не оплачено
       status: 'CHECKED_IN',
     });
     expect(r.customer).toMatchObject({

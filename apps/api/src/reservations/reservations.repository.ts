@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import { isOverlapViolation, type Db, type DbTx } from '@pms/database';
+import {
+  ensureFolioWithAccommodation,
+  isOverlapViolation,
+  type Db,
+  type DbTx,
+} from '@pms/database';
 import type { NightRate, ReservationSource, ReservationStatus } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
@@ -325,6 +330,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         select: { id: true },
       });
       itemIds.push(created.id);
+      await this.syncFolio(created.id);
     }
     return { id: r.id, itemIds };
   }
@@ -415,6 +421,30 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         ...(patch.status !== undefined ? { status: patch.status } : {}),
       },
     });
+    await this.syncFolio(itemId);
+  }
+  /**
+   * Счёт проживания (DATA_MODEL §6): создаётся вместе с проживанием, начисление «проживание» = цене,
+   * переписывается при изменении цены/дат, сторнируется при отмене и незаезде.
+   */
+  private async syncFolio(itemId: string): Promise<void> {
+    const it = await this.db.reservationItem.findUniqueOrThrow({
+      where: { id: itemId },
+      select: {
+        price: true,
+        status: true,
+        arrivalDate: true,
+        departureDate: true,
+        reservation: { select: { currency: true } },
+      },
+    });
+    await ensureFolioWithAccommodation(this.db, {
+      reservationItemId: itemId,
+      currency: it.reservation.currency,
+      amountMinor: it.price,
+      description: `Проживание ${iso(it.arrivalDate)} → ${iso(it.departureDate)}`,
+      active: it.status !== 'CANCELLED' && it.status !== 'NO_SHOW',
+    });
   }
   async updateReservation(
     id: string,
@@ -491,6 +521,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       },
       select: { id: true },
     });
+    await this.syncFolio(created.id);
     return created.id;
   }
   async channelMappings(provider: string): Promise<ChannelMappingRef[]> {

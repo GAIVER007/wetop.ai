@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
+import { FinanceModule } from './finance/finance.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { RatesModule } from './rates/rates.module';
@@ -19,6 +20,7 @@ import { UnitsModule } from './units/units.module';
     UnitsModule,
     GuestsModule,
     AuditModule,
+    FinanceModule,
   ],
 })
 export class AppModule {}

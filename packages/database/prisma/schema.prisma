@@ -1,7 +1,7 @@
 // Prisma schema — ТОЛЬКО утверждённые разделы DATA_MODEL.md v1.0 (07.09.2026):
 //   §1 Объект и физическая структура, §2 Бронирование, §3 Гости, §4 Housekeeping и блокировки,
-//   §5 Тарифы, §7 Channel Manager, §8 Внешние события, §10 Аудит. Плюс SQL вне Prisma: exclusion constraint на allocations (миграция 20260909000003).
-// Раздел 6 (Folio) не утверждён (Q-091) — сущностей финансов здесь нет и быть не должно.
+//   §5 Тарифы, §6 Folio, §7 Channel Manager, §8 Внешние события, §10 Аудит. Плюс SQL вне Prisma: exclusion constraint на allocations (миграция 20260909000003).
+// Раздел 6 (Folio) утверждён 09.09.2026 (ADR-014): счёт на проживание, миграция 20260909000006.
 // Любое изменение сущности/поля/связи — сначала правка DATA_MODEL.md (AGENTS.md §2).
 //
 // Соглашения: имена таблиц и колонок — snake_case через @map; id — uuid;
@@ -43,6 +43,8 @@ model Property {
   reservations       Reservation[]
   ratePlans          RatePlan[]
   channelMappings    ChannelMapping[]
+  payments           Payment[]
+  services           Service[]
 
   @@map("properties")
 }
@@ -247,6 +249,7 @@ model ReservationItem {
   accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
   allocations       Allocation[]
   stayGuests        StayGuest[]
+  folio             Folio?
 
   @@index([reservationId])
   @@index([accommodationTypeId, arrivalDate, departureDate])
@@ -568,4 +571,152 @@ model ChannelOutbox {
 
   @@index([provider, status, nextAttemptAt])
   @@map("channel_outbox")
+}
+
+// ───────────────────────── §6 Folio (финансы) ─────────────────────────
+
+enum FolioStatus {
+  OPEN
+  CLOSED
+}
+
+enum ChargeKind {
+  ACCOMMODATION
+  SERVICE
+  PENALTY
+  ADJUSTMENT
+}
+
+/// 9 способов оплаты из справочника Exely (spravochniki.md §9); дубль «Наличными через кассу» сведён в CASH (Q-083).
+enum PaymentMethod {
+  CASH
+  CARD_TERMINAL
+  BANK_TRANSFER_LEGAL
+  EXTERNAL
+  BANK_TRANSFER_PERSON
+  CARD_GUARANTEE
+  DEPOSIT
+  HALYK
+  KASPI
+}
+
+enum PaymentStatus {
+  COMPLETED
+  VOIDED
+}
+
+/// Счёт гостя — один на проживание (ADR-014). Создаётся вместе с проживанием.
+model Folio {
+  id                String      @id @default(uuid()) @db.Uuid
+  reservationItemId String      @unique @map("reservation_item_id") @db.Uuid
+  status            FolioStatus @default(OPEN)
+  currency          String      @db.Char(3)
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  closedAt          DateTime?   @map("closed_at") @db.Timestamptz(6)
+
+  reservationItem ReservationItem     @relation(fields: [reservationItemId], references: [id])
+  charges         Charge[]
+  allocations     PaymentAllocation[]
+  refunds         Refund[]
+
+  @@map("folios")
+}
+
+model Service {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  code       String
+  nameRu     String   @map("name_ru")
+  nameKz     String?  @map("name_kz")
+  /// integer minor units (тиын), ADR-008
+  price      BigInt
+  tax        Int?
+  group      String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property @relation(fields: [propertyId], references: [id])
+  charges  Charge[]
+
+  @@unique([propertyId, code])
+  @@map("services")
+}
+
+/// Начисление на счёт. Сторно — voided_at, строка не удаляется.
+model Charge {
+  id          String     @id @default(uuid()) @db.Uuid
+  folioId     String     @map("folio_id") @db.Uuid
+  kind        ChargeKind
+  serviceId   String?    @map("service_id") @db.Uuid
+  description String
+  quantity    Int        @default(1)
+  /// integer minor units (тиын), ADR-008
+  unitPrice   BigInt     @map("unit_price")
+  /// integer minor units; ADJUSTMENT может быть отрицательным
+  amount      BigInt
+  serviceDate DateTime?  @map("service_date") @db.Date
+  createdBy   String?    @map("created_by") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  voidedAt    DateTime?  @map("voided_at") @db.Timestamptz(6)
+
+  folio   Folio    @relation(fields: [folioId], references: [id])
+  service Service? @relation(fields: [serviceId], references: [id])
+
+  @@index([folioId])
+  @@map("charges")
+}
+
+/// Платёж. Распределяется по счетам через PaymentAllocation (Σ = amount).
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  propertyId        String        @map("property_id") @db.Uuid
+  method            PaymentMethod
+  /// integer minor units (тиын), ADR-008
+  amount            BigInt
+  currency          String        @db.Char(3)
+  status            PaymentStatus @default(COMPLETED)
+  /// exely:<roomStayId> для перенесённых платежей; ссылка банка/канала для живых
+  externalReference String?       @map("external_reference")
+  note              String?
+  paidAt            DateTime      @default(now()) @map("paid_at") @db.Timestamptz(6)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property    Property            @relation(fields: [propertyId], references: [id])
+  allocations PaymentAllocation[]
+  refunds     Refund[]
+
+  @@unique([propertyId, externalReference])
+  @@index([propertyId, paidAt])
+  @@map("payments")
+}
+
+model PaymentAllocation {
+  paymentId String @map("payment_id") @db.Uuid
+  folioId   String @map("folio_id") @db.Uuid
+  /// integer minor units (тиын), ADR-008
+  amount    BigInt
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+  folio   Folio   @relation(fields: [folioId], references: [id])
+
+  @@id([paymentId, folioId])
+  @@index([folioId])
+  @@map("payment_allocations")
+}
+
+model Refund {
+  id                String   @id @default(uuid()) @db.Uuid
+  paymentId         String   @map("payment_id") @db.Uuid
+  folioId           String   @map("folio_id") @db.Uuid
+  /// integer minor units (тиын), ADR-008
+  amount            BigInt
+  reason            String?
+  externalReference String?  @map("external_reference")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+  folio   Folio   @relation(fields: [folioId], references: [id])
+
+  @@index([folioId])
+  @@map("refunds")
 }

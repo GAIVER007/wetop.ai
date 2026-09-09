@@ -419,58 +419,64 @@ closed_to_departure
 
 ## 6. Folio (финансы)
 
-> **⚠ РАЗДЕЛ НЕ УТВЕРЖДАЕТСЯ — открыт Q-091.**
->
-> Черновик ниже привязывает `Folio` к `Reservation`. Exely создаёт счёт **на каждое
-> проживание**: бронь на 2 единицы → счета `…-01` и `…-02`. Это прямое расхождение.
-> Решение влияет на: разделение счёта между гостями, перенос будущих броней,
-> сверку с Exely на Gate 1 и Gate 8.
+> **Утверждён 09.09.2026 (Q-091 закрыт, ADR-014 принят): счёт — на проживание, как в Exely.**
+> Бронь на две единицы = два счёта; оплата одной суммой за оба — один `Payment` с двумя строками
+> `PaymentAllocation`. `Reservation.total_amount` — коммерческая сумма брони; баланс считается по счетам.
 
 ### Folio
 ```
 id
-reservation_id        → Reservation      ← или reservation_item_id, см. Q-091
-status
-currency              → KZT
+reservation_item_id   → ReservationItem   UNIQUE — один счёт на проживание, создаётся вместе с ним
+status                OPEN | CLOSED
+currency              → валюта тарифа проживания (KZT; USD-тариф — USD)
+created_at / closed_at
 ```
 
 ### Charge
 ```
 id
 folio_id              → Folio
-service_id            → Service
+kind                  ACCOMMODATION | SERVICE | PENALTY | ADJUSTMENT
+service_id            → Service (для SERVICE)
 description
 quantity
 unit_price            integer minor units
-amount                integer minor units
+amount                integer minor units (= quantity × unit_price; ADJUSTMENT может быть отрицательным)
 service_date
 created_by
+voided_at             ← сторно: начисление не удаляется, а аннулируется
 ```
 
-> **Сегодня начислений нет вообще.** Ни у одного из 1044 заездов августа нет привязанных
-> услуг, при этом по кассе прошло 170 600 ₸ услуг и 62 200 ₸ питания. Услуги проводятся
-> разовой строкой в кассе, минуя счёт гостя. Заставлять ли начислять — Q-090.
+> Начисление за проживание создаётся автоматически вместе с проживанием (цена = сумма ночей по календарю)
+> и **переписывается при изменении дат**. Услуги начисляются вручную (Q-090 — заставлять ли).
 
 ### Payment
 ```
 id
-folio_id              → Folio
-method                → Halyk Bank | Kaspi Bank | Наличные | Депозит | Внешняя система оплаты
+property_id           → Property
+method                CASH | CARD_TERMINAL | BANK_TRANSFER_LEGAL | EXTERNAL | BANK_TRANSFER_PERSON |
+                      CARD_GUARANTEE | DEPOSIT | HALYK | KASPI      ← 9 способов из справочника Exely (§9 spravochniki)
 amount                integer minor units
-currency              → KZT
-status
-external_reference
-paid_at
+currency
+status                COMPLETED | VOIDED
+external_reference    ← для перенесённых из Exely: `exely:<roomStayId>`
+note
+paid_at / created_at
 ```
 
-> Оплата частями — обычная практика: 1449 финансовых операций на 1044 заезда.
-> Модель обязана поддерживать несколько платежей на один счёт.
+### PaymentAllocation
+```
+payment_id            → Payment
+folio_id              → Folio
+amount                integer minor units       Σ по платежу = Payment.amount
+```
 
 ### Refund
 ```
 id
 payment_id            → Payment
-amount                integer minor units
+folio_id              → Folio                   ← счёт, по которому возвращаются деньги
+amount                integer minor units       ≤ распределено на этот счёт минус уже возвращено
 reason
 external_reference
 created_at
@@ -488,8 +494,21 @@ tax
 group                 → «Минибар», «Прачечная»
 active
 ```
-
 Фактически 9 услуг. Завтрака, трансфера, раннего заезда и позднего выезда как услуг нет.
+
+**Баланс счёта** = Σ активных начислений − Σ распределённых платежей + Σ возвратов по счёту.
+
+> **Отмена и незаезд (09.09.2026):** начисление за проживание сторнируется автоматически (`voided_at`),
+> счёт остаётся с платежами и возвратами. Штраф — ручное начисление `PENALTY` с карточки; политика
+> штрафов по каналам и тарифам — Q-103. Основание: в Exely у 392 из 404 отменённых проживаний августа сумма
+> сохранена и целиком «к оплате», то есть Exely не сторнирует и не взыскивает — переносить это как долг нельзя.
+> Начисление `ACCOMMODATION` руками не сторнируется: его ведёт система по проживанию (даты, цена, статус).
+Баланс брони = Σ по счетам её проживаний. Дубль «Наличными через кассу» в Exely (Q-083) при
+переносе сводится в `CASH`.
+
+> **Перенос из Exely:** оплаченная часть проживания (`totalPrice.amount − toPayAmount`) переносится
+> одним платежом `EXTERNAL` с `external_reference = exely:<roomStayId>` — так балансы 209 будущих
+> проживаний (96,5 % не оплачено) сходятся с Exely строка к строке. Фискальный чек — §9, провайдер не выбран (Q-050).
 
 > **Правило:** `Reservation.total_amount` и баланс folio — разные вещи, не смешивать.
 > На объекте это видно прямо: приход в кассу за август 17,6 млн ₸ против оборота

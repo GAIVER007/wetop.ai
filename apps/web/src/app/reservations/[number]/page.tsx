@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { chessboardApi, formatMinor, reservationsApi } from '../../../lib/api';
+import { chessboardApi, financeApi, formatMinor, reservationsApi } from '../../../lib/api';
 import { ReservationActions } from './actions-panel';
+import { FinancePanel } from './finance-panel';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -24,8 +25,10 @@ const SOURCE_RU: Record<string, string> = {
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number));
-  const [ratePlans, availabilities] = await Promise.all([
+  const [ratePlans, finance, services, availabilities] = await Promise.all([
     reservationsApi.ratePlans(),
+    financeApi.reservation(r.confirmationNumber),
+    financeApi.services(),
     Promise.all(
       r.items.map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
@@ -135,6 +138,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           <b>Заметки:</b> {r.notes}
         </p>
       )}
+      <h2 style={{ fontSize: 16, margin: '20px 0 8px' }}>Счета</h2>
+      <FinancePanel
+        number={r.confirmationNumber}
+        finance={finance}
+        services={services}
+        today={new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10)}
+      />
       <ReservationActions
         number={r.confirmationNumber}
         status={r.status}

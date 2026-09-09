@@ -55,16 +55,46 @@ try {
     where: { name: LUXX_APARTS_PROPERTY.name },
     select: { id: true },
   });
-  const report = await db.$transaction(
-    (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt }),
-    { timeout: 600_000, maxWait: 30_000 },
-  );
+  // Пачками по CHUNK броней, каждая в своей транзакции: импорт идемпотентен, а один запрос до Сингапура ~0,1 с,
+  // и полный набор (~1 700 карточек × ~10 запросов) в 10-минутный лимит одной транзакции не помещается.
+  const CHUNK = 50;
+  const total = {
+    reservations: { created: 0, updated: 0 },
+    items: { created: 0, updated: 0 },
+    guests: { created: 0, updated: 0 },
+    allocations: { created: 0, updated: 0, released: 0 },
+    stayGuests: { linked: 0 },
+    unassigned: 0,
+    paymentsImported: 0,
+  };
+  for (let i = 0; i < records.length; i += CHUNK) {
+    const part = records.slice(i, i + CHUNK);
+    const report = await db.$transaction(
+      (tx) => importReservations(tx, part, { propertyId: property.id, anonymizeSalt: salt }),
+      { timeout: 900_000, maxWait: 30_000 },
+    );
+    for (const k of ['reservations', 'items', 'guests'] as const) {
+      total[k].created += report[k].created;
+      total[k].updated += report[k].updated;
+    }
+    total.allocations.created += report.allocations.created;
+    total.allocations.updated += report.allocations.updated;
+    total.allocations.released += report.allocations.released;
+    total.stayGuests.linked += report.stayGuests.linked;
+    total.unassigned += report.unassigned;
+    total.paymentsImported += report.paymentsImported;
+    console.log(
+      `  пачка ${i / CHUNK + 1}/${Math.ceil(records.length / CHUNK)}: ${part.length} броней — ок`,
+    );
+  }
+  const report = total;
   console.log('Импорт завершён. Создано / обновлено:');
   for (const k of ['reservations', 'items', 'guests', 'allocations'] as const)
     console.log(`  ${k.padEnd(14)} ${report[k].created} / ${report[k].updated}`);
   console.log(
-    `  связей гость↔проживание: ${report.stayGuests.linked}; проживаний без единицы: ${report.unassigned}`,
+    `  связей гость↔проживание: ${report.stayGuests.linked}; проживаний без единицы: ${report.unassigned}; назначений снято (отмены/незаезды): ${report.allocations.released}`,
   );
+  console.log(`  платежей перенесено из Exely (EXTERNAL): ${report.paymentsImported}`);
 } finally {
   await db.$disconnect();
 }

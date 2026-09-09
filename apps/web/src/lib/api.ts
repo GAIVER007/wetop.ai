@@ -383,3 +383,94 @@ export const guestsApi = {
       `/guests/${encodeURIComponent(id)}/documents/${encodeURIComponent(documentId)}`,
     ),
 };
+
+// ── Счета (DATA_MODEL §6) ──
+export interface FinanceCharge {
+  id: string;
+  kind: 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
+  serviceCode: string | null;
+  description: string;
+  quantity: number;
+  unitPriceMinor: string;
+  amountMinor: string;
+  serviceDate: string | null;
+  createdAt: string;
+  voidedAt: string | null;
+}
+export interface FinancePaymentLine {
+  paymentId: string;
+  method: string;
+  status: 'COMPLETED' | 'VOIDED';
+  paidAt: string;
+  note: string | null;
+  externalReference: string | null;
+  paymentAmountMinor: string;
+  allocatedMinor: string;
+  refundedMinor: string;
+}
+export interface FinanceRefund {
+  id: string;
+  paymentId: string;
+  amountMinor: string;
+  reason: string | null;
+  createdAt: string;
+}
+export interface FinanceFolio {
+  id: string;
+  reservationItemId: string;
+  status: 'OPEN' | 'CLOSED';
+  currency: string;
+  stay: {
+    accommodationTypeName: string;
+    arrivalDate: string;
+    departureDate: string;
+    status: string;
+  };
+  charges: FinanceCharge[];
+  payments: FinancePaymentLine[];
+  refunds: FinanceRefund[];
+  chargedMinor: string;
+  paidMinor: string;
+  refundedMinor: string;
+  balanceMinor: string;
+}
+export interface ReservationFinance {
+  confirmationNumber: string;
+  currency: string;
+  folios: FinanceFolio[];
+  chargedMinor: string;
+  paidMinor: string;
+  refundedMinor: string;
+  balanceMinor: string;
+}
+export interface ServiceOption {
+  code: string;
+  nameRu: string;
+  nameKz: string | null;
+  priceMinor: string;
+  group: string | null;
+}
+export const financeApi = {
+  reservation: (number: string) =>
+    getJson<ReservationFinance>(`/finance/reservations/${encodeURIComponent(number)}`),
+  services: () => getJson<ServiceOption[]>('/finance/services'),
+  addCharge: (folioId: string, body: unknown) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/folios/${encodeURIComponent(folioId)}/charges`,
+      body,
+    ),
+  voidCharge: (chargeId: string) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/charges/${encodeURIComponent(chargeId)}/void`,
+      {},
+    ),
+  pay: (body: unknown) => sendJson<ReservationFinance>('POST', '/finance/payments', body),
+  refund: (paymentId: string, body: unknown) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/refunds`,
+      body,
+    ),
+};

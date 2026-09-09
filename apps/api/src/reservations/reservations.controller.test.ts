@@ -62,6 +62,9 @@ function makeFake() {
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
     },
+    async activeRatePlans() {
+      return plans.filter((p) => p.active);
+    },
     async ratePlanCoversType(planId, typeId) {
       return planId === 'p1' && ['t1', 't2'].includes(typeId);
     },
@@ -183,6 +186,7 @@ function makeFake() {
         primaryGuest: { label: 'Гость Тестовый', citizenship: null },
         items: r.items.map((it) => ({
           id: it.id,
+          accommodationTypeCode: types.find((t) => t.id === it.accommodationTypeId)!.code,
           accommodationTypeName: types.find((t) => t.id === it.accommodationTypeId)!.name,
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
@@ -218,6 +222,7 @@ const body = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('manual reservation API', () => {
+  // GET /rate-plans проверяется в конце файла
   let app: INestApplication;
   let fake: ReturnType<typeof makeFake>;
   beforeEach(() => {
@@ -397,5 +402,10 @@ describe('manual reservation API', () => {
     expect(fake.state.allocations).toEqual([
       expect.objectContaining({ unitId: 'u1', start: '2026-09-15', end: '2026-09-18' }),
     ]);
+  });
+
+  it('GET /rate-plans lists only active tariffs', async () => {
+    const res = await request(app.getHttpServer()).get('/rate-plans').expect(200);
+    expect(res.body).toEqual([{ code: 'exely-800001', name: 'Тестовый базовый', currency: 'KZT' }]);
   });
 });

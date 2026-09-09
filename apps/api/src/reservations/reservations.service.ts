@@ -87,6 +87,17 @@ function requireStayDates(
 export class ReservationsService {
   constructor(@Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork) {}
 
+  /** Активные тарифы (справочник для формы). */
+  ratePlans(): Promise<Array<{ code: string; name: string; currency: string }>> {
+    return this.uow.run(async (repo) =>
+      (await repo.activeRatePlans()).map((p) => ({
+        code: p.code,
+        name: p.name,
+        currency: p.currency,
+      })),
+    );
+  }
+
   /** Создать бронь со стойки: источник обязателен (Q-089), цена — из календаря, ячейка — по желанию. */
   async create(dto: CreateReservationDto): Promise<ReservationCard> {
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))

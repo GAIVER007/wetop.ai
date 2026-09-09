@@ -97,6 +97,7 @@ export interface ReservationCard {
   primaryGuest: { label: string; citizenship: string | null } | null;
   items: Array<{
     id: string;
+    accommodationTypeCode: string;
     accommodationTypeName: string;
     arrivalDate: string;
     departureDate: string;
@@ -124,3 +125,62 @@ export function formatMinor(minor: string, currency = 'KZT'): string {
   const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
 }
+
+export interface StayAvailability {
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  byCategory: Record<string, { units: number; available: number; availableUnitCodes: string[] }>;
+  total: { units: number; available: number };
+}
+export interface RatePlanOption {
+  code: string;
+  name: string;
+  currency: string;
+}
+/** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+async function sendJson<T>(method: 'POST' | 'PATCH', path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    method,
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const j = (await res.json()) as { message?: string | string[] };
+      if (j.message) message = Array.isArray(j.message) ? j.message.join('; ') : j.message;
+    } catch {
+      /* тело не JSON */
+    }
+    throw new ApiError(res.status, message);
+  }
+  return (await res.json()) as T;
+}
+export const reservationsApi = {
+  ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
+  availability: (arrival: string, departure: string) =>
+    getJson<StayAvailability>(
+      `/availability?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`,
+    ),
+  create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
+  changeDates: (number: string, body: unknown) =>
+    sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
+  cancel: (number: string) =>
+    sendJson<ReservationCard>('POST', `/reservations/${encodeURIComponent(number)}/cancel`, {}),
+  assign: (number: string, itemId: string, body: unknown) =>
+    sendJson<ReservationCard>(
+      'POST',
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/assign`,
+      body,
+    ),
+};

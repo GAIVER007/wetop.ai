@@ -2,6 +2,7 @@ import type { Db, DbTx } from '@pms/database';
 
 export interface ReservationCardItem {
   id: string;
+  accommodationTypeCode: string;
   accommodationTypeName: string;
   arrivalDate: string;
   departureDate: string;
@@ -44,7 +45,7 @@ export async function loadReservationCard(
       items: {
         orderBy: { createdAt: 'asc' },
         include: {
-          accommodationType: { select: { name: true } },
+          accommodationType: { select: { code: true, name: true } },
           allocations: {
             orderBy: { startDate: 'asc' },
             include: { inventoryUnit: { select: { code: true } } },
@@ -72,6 +73,7 @@ export async function loadReservationCard(
       : null,
     items: r.items.map((it) => ({
       id: it.id,
+      accommodationTypeCode: it.accommodationType.code,
       accommodationTypeName: it.accommodationType.name,
       arrivalDate: d(it.arrivalDate),
       departureDate: d(it.departureDate),

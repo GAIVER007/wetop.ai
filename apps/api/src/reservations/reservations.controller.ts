@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Body, Controller, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
 import {
   ReservationsService,
   type AssignUnitDto,
@@ -36,5 +36,16 @@ export class ReservationsController {
     @Body() dto: AssignUnitDto,
   ) {
     return this.service.assign(number, itemId, dto ?? {});
+  }
+}
+
+/** Справочник активных тарифов для формы брони. Отдельный префикс: /reservations/:number занят чтением карточки. */
+@Controller('rate-plans')
+export class RatePlansController {
+  constructor(@Inject(ReservationsService) private readonly service: ReservationsService) {}
+
+  @Get()
+  list() {
+    return this.service.ratePlans();
   }
 }

@@ -63,6 +63,7 @@ const fakeRepo: ChessboardRepository = {
       items: [
         {
           id: 'i1',
+          accommodationTypeCode: 'exely-900003',
           accommodationTypeName: 'Тестовый dorm',
           arrivalDate: '2026-09-10',
           departureDate: '2026-09-12',

@@ -39,6 +39,9 @@ export default async function ChessboardPage({
           <Link href="/chessboard">сегодня</Link>
           <Link href={shift(board.dates.length)}>позже →</Link>
           <Link href="/inventory">номерной фонд</Link>
+          <Link href="/reservations/new" style={{ fontWeight: 600 }}>
+            + новая бронь
+          </Link>
         </nav>
       </header>
       <div style={{ display: 'flex', gap: 14, fontSize: 12, color: '#555', marginBottom: 10 }}>

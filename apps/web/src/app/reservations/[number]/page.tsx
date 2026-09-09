@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { chessboardApi, formatMinor } from '../../../lib/api';
+import { chessboardApi, formatMinor, reservationsApi } from '../../../lib/api';
+import { ReservationActions } from './actions-panel';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -19,10 +20,18 @@ const SOURCE_RU: Record<string, string> = {
   WEBSITE: 'сайт',
 };
 
-/** Карточка брони: только чтение. */
+/** Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение. */
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number));
+  const [ratePlans, availabilities] = await Promise.all([
+    reservationsApi.ratePlans(),
+    Promise.all(
+      r.items.map((it) =>
+        reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+      ),
+    ),
+  ]);
   return (
     <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
       <div style={{ fontSize: 13, marginBottom: 8 }}>
@@ -99,6 +108,21 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           <b>Заметки:</b> {r.notes}
         </p>
       )}
+      <ReservationActions
+        number={r.confirmationNumber}
+        status={r.status}
+        arrivalDate={r.arrivalDate}
+        departureDate={r.departureDate}
+        ratePlans={ratePlans}
+        items={r.items.map((it, i) => ({
+          id: it.id,
+          status: it.status,
+          accommodationTypeName: it.accommodationTypeName,
+          unitCode: it.unitCode,
+          availableUnitCodes:
+            availabilities[i]?.byCategory[it.accommodationTypeCode]?.availableUnitCodes ?? [],
+        }))}
+      />
     </main>
   );
 }

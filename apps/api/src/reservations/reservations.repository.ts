@@ -100,6 +100,8 @@ export interface ReservationsRepository {
   property(): Promise<{ id: string; currency: string }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
   ratePlanByCode(code: string): Promise<RatePlanRef | null>;
+  /** Активные тарифы объекта — для формы брони */
+  activeRatePlans(): Promise<RatePlanRef[]>;
   ratePlanCoversType(ratePlanId: string, accommodationTypeId: string): Promise<boolean>;
   nightRates(
     accommodationTypeId: string,
@@ -182,6 +184,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const { id: propertyId } = await this.property();
     return this.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId, code } },
+      select: { id: true, code: true, name: true, currency: true, active: true },
+    });
+  }
+  async activeRatePlans(): Promise<RatePlanRef[]> {
+    const { id: propertyId } = await this.property();
+    return this.db.ratePlan.findMany({
+      where: { propertyId, active: true },
+      orderBy: { code: 'asc' },
       select: { id: true, code: true, name: true, currency: true, active: true },
     });
   }

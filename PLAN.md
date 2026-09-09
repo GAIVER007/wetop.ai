@@ -121,6 +121,8 @@ No-show                        9
 **Manual reservation:** создать; изменить; cancel; assign room; assign bed.
 
 **Gate 3 — Reservation.** Созданная бронь появляется в шахматке и изменяет availability.
+
+> ✅ **Пройден 09.09.2026** живьём на dev-БД: e2e `tests/e2e/manual-reservation.spec.ts` — бронь со стойки создана через форму, видна в шахматке, свободных ячеек на даты стало на 1 меньше, после отмены — столько же, сколько было. Скриншоты `reports/screenshots/manual-reservation-*.png`. Цены — из календаря Exely (8 640 строк, diff 0).
 Доказательство: тест + скриншот до/после.
 
 ---

@@ -60,6 +60,43 @@ export interface ChannelsRepository {
   dailyRates(ratePlanIds: string[], from: string, to: string): Promise<LocalDailyRate[]>;
   restrictions(ratePlanIds: string[], from: string, to: string): Promise<LocalRestriction[]>;
   audit(action: string, after: unknown): Promise<void>;
+  // ── доступность для каналов (DATA_MODEL §7): единицы − блокировки − проданные проживания ──
+  categoryUnits(): Promise<Array<{ code: string; active: number; capacityAdults: number }>>;
+  categoryBlocks(
+    from: string,
+    toExclusive: string,
+  ): Promise<Array<{ accommodationTypeCode: string; dateFrom: string; dateTo: string }>>;
+  soldItems(
+    from: string,
+    toExclusive: string,
+  ): Promise<Array<{ accommodationTypeCode: string; arrivalDate: string; departureDate: string }>>;
+  // ── очередь исходящих изменений (ChannelOutbox) ──
+  enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string>;
+  pendingOutbox(provider: string, kind: OutboxKind, now: Date): Promise<OutboxRow[]>;
+  markOutboxSent(ids: string[], taskId: string | null): Promise<void>;
+  markOutboxRetry(
+    ids: string[],
+    error: string,
+    nextAttemptAt: Date,
+    failed: boolean,
+  ): Promise<void>;
+  /** code → id тарифов объекта (для перевода изменений цен в маппинг) */
+  ratePlanIdsByCode(): Promise<Record<string, string>>;
+  outboxSummary(provider: string): Promise<{
+    pending: number;
+    failed: number;
+    sent: number;
+    lastSentAt: string | null;
+    lastTaskId: string | null;
+  }>;
+}
+export type OutboxKind = 'AVAILABILITY' | 'RESTRICTIONS';
+export interface OutboxRow {
+  id: string;
+  kind: OutboxKind;
+  payload: unknown[];
+  attempts: number;
+  createdAt: Date;
 }
 export const CHANNELS_REPOSITORY = Symbol('CHANNELS_REPOSITORY');
 
@@ -179,6 +216,128 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         after: JSON.parse(JSON.stringify(after)),
       },
     });
+  }
+  async categoryUnits(): Promise<Array<{ code: string; active: number; capacityAdults: number }>> {
+    const p = await this.prisma.db.property.findFirstOrThrow({
+      where: { name: LUXX_APARTS_PROPERTY.name },
+      select: { id: true },
+    });
+    const types = await this.prisma.db.accommodationType.findMany({
+      where: { propertyId: p.id, active: true },
+      select: {
+        code: true,
+        capacityAdults: true,
+        _count: { select: { units: { where: { active: true } } } },
+      },
+    });
+    return types.map((t) => ({
+      code: t.code,
+      active: t._count.units,
+      capacityAdults: t.capacityAdults,
+    }));
+  }
+  async categoryBlocks(from: string, toExclusive: string) {
+    const rows = await this.prisma.db.inventoryBlock.findMany({
+      where: { dateFrom: { lt: asDate(toExclusive) }, dateTo: { gt: asDate(from) } },
+      include: { inventoryUnit: { select: { accommodationType: { select: { code: true } } } } },
+    });
+    return rows.map((b) => ({
+      accommodationTypeCode: b.inventoryUnit.accommodationType.code,
+      dateFrom: iso(b.dateFrom),
+      dateTo: iso(b.dateTo),
+    }));
+  }
+  async soldItems(from: string, toExclusive: string) {
+    const rows = await this.prisma.db.reservationItem.findMany({
+      where: {
+        status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+        arrivalDate: { lt: asDate(toExclusive) },
+        departureDate: { gt: asDate(from) },
+      },
+      select: {
+        arrivalDate: true,
+        departureDate: true,
+        accommodationType: { select: { code: true } },
+      },
+    });
+    return rows.map((r) => ({
+      accommodationTypeCode: r.accommodationType.code,
+      arrivalDate: iso(r.arrivalDate),
+      departureDate: iso(r.departureDate),
+    }));
+  }
+  async enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string> {
+    const row = await this.prisma.db.channelOutbox.create({
+      data: { provider, kind, payload: JSON.parse(JSON.stringify(payload)) },
+      select: { id: true },
+    });
+    return row.id;
+  }
+  async pendingOutbox(provider: string, kind: OutboxKind, now: Date): Promise<OutboxRow[]> {
+    const rows = await this.prisma.db.channelOutbox.findMany({
+      where: { provider, kind, status: 'PENDING', nextAttemptAt: { lte: now } },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      payload: r.payload as unknown[],
+      attempts: r.attempts,
+      createdAt: r.createdAt,
+    }));
+  }
+  async markOutboxSent(ids: string[], taskId: string | null): Promise<void> {
+    await this.prisma.db.channelOutbox.updateMany({
+      where: { id: { in: ids } },
+      data: { status: 'SENT', taskId, sentAt: new Date(), lastError: null },
+    });
+  }
+  async markOutboxRetry(
+    ids: string[],
+    error: string,
+    nextAttemptAt: Date,
+    failed: boolean,
+  ): Promise<void> {
+    await this.prisma.db.channelOutbox.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        attempts: { increment: 1 },
+        lastError: error.slice(0, 1000),
+        nextAttemptAt,
+        ...(failed ? { status: 'FAILED' } : {}),
+      },
+    });
+  }
+  async ratePlanIdsByCode(): Promise<Record<string, string>> {
+    const p = await this.prisma.db.property.findFirstOrThrow({
+      where: { name: LUXX_APARTS_PROPERTY.name },
+      select: { id: true },
+    });
+    const rows = await this.prisma.db.ratePlan.findMany({
+      where: { propertyId: p.id },
+      select: { code: true, id: true },
+    });
+    return Object.fromEntries(rows.map((r) => [r.code, r.id]));
+  }
+  async outboxSummary(provider: string) {
+    const [pending, failed, sent, last] = await Promise.all([
+      this.prisma.db.channelOutbox.count({ where: { provider, status: 'PENDING' } }),
+      this.prisma.db.channelOutbox.count({ where: { provider, status: 'FAILED' } }),
+      this.prisma.db.channelOutbox.count({ where: { provider, status: 'SENT' } }),
+      this.prisma.db.channelOutbox.findFirst({
+        where: { provider, status: 'SENT' },
+        orderBy: { sentAt: 'desc' },
+        select: { sentAt: true, taskId: true },
+      }),
+    ]);
+    return {
+      pending,
+      failed,
+      sent,
+      lastSentAt: last?.sentAt?.toISOString() ?? null,
+      lastTaskId: last?.taskId ?? null,
+    };
   }
 }
 

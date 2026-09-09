@@ -94,6 +94,7 @@ export interface NewReservation {
 }
 export interface ChannelMappingRef {
   localAccommodationTypeId: string | null;
+  localAccommodationTypeCode: string | null;
   localRatePlanId: string | null;
   providerPropertyId: string;
   providerRoomTypeId: string | null;
@@ -494,16 +495,18 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   }
   async channelMappings(provider: string): Promise<ChannelMappingRef[]> {
     const { id: propertyId } = await this.property();
-    return this.db.channelMapping.findMany({
+    const rows = await this.db.channelMapping.findMany({
       where: { propertyId, provider },
-      select: {
-        localAccommodationTypeId: true,
-        localRatePlanId: true,
-        providerPropertyId: true,
-        providerRoomTypeId: true,
-        providerRatePlanId: true,
-      },
+      include: { accommodationType: { select: { code: true } } },
     });
+    return rows.map((r) => ({
+      localAccommodationTypeId: r.localAccommodationTypeId,
+      localAccommodationTypeCode: r.accommodationType?.code ?? null,
+      localRatePlanId: r.localRatePlanId,
+      providerPropertyId: r.providerPropertyId,
+      providerRoomTypeId: r.providerRoomTypeId,
+      providerRatePlanId: r.providerRatePlanId,
+    }));
   }
   async recordExternalEvent(event: NewExternalEvent): Promise<ExternalEventRef> {
     const existing = await this.db.externalEvent.findUnique({

@@ -7,11 +7,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
-import {
-  CHESSBOARD_REPOSITORY,
-  type ChessboardRepository,
-} from '../chessboard/chessboard.repository';
-import { buildAvailabilityValues, buildRestrictionValues, freeUnitsPerNight } from './ari';
+import { categoryAvailability } from '@pms/domain';
+import { buildAvailabilityValues, buildRestrictionValues } from './ari';
 import { buildChannexSetup } from './setup-plan';
 import {
   CHANNELS_REPOSITORY,
@@ -67,7 +64,6 @@ export class ChannexSyncService {
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
-    @Inject(CHESSBOARD_REPOSITORY) private readonly board: ChessboardRepository,
   ) {}
 
   /** Создать в Channex объект, категории и тарифы, которых ещё нет в маппинге. Повтор ничего не дублирует. */
@@ -169,12 +165,14 @@ export class ChannexSyncService {
     const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
     const from = today;
     const to = plusDays(today, days - 1);
-    const [units, allocations, blocks] = await Promise.all([
-      this.board.units(),
-      this.board.allocations(from, to),
-      this.board.blocks(from, to),
+    // Доступность для канала: единицы − блокировки − проданные проживания (DATA_MODEL §7)
+    const toExclusive = plusDays(to, 1);
+    const [units, blocks, items] = await Promise.all([
+      this.repo.categoryUnits(),
+      this.repo.categoryBlocks(from, toExclusive),
+      this.repo.soldItems(from, toExclusive),
     ]);
-    const free = freeUnitsPerNight({ from, to, units, allocations, blocks });
+    const free = categoryAvailability({ from, to, units, blocks, items });
     const roomTypes = [
       ...new Map(
         mappings.map((m) => [

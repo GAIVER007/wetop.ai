@@ -540,3 +540,32 @@ model ExternalEvent {
   @@index([status, receivedAt])
   @@map("external_events")
 }
+
+enum ChannelOutboxKind {
+  AVAILABILITY
+  RESTRICTIONS
+}
+
+enum ChannelOutboxStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+/// Очередь исходящих изменений ARI (DATA_MODEL §7, ChannelOutbox). Не бизнес-данные.
+model ChannelOutbox {
+  id            String              @id @default(uuid()) @db.Uuid
+  provider      String
+  kind          ChannelOutboxKind
+  payload       Json
+  status        ChannelOutboxStatus @default(PENDING)
+  attempts      Int                 @default(0)
+  nextAttemptAt DateTime            @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  taskId        String?             @map("task_id")
+  lastError     String?             @map("last_error")
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt        DateTime?           @map("sent_at") @db.Timestamptz(6)
+
+  @@index([provider, status, nextAttemptAt])
+  @@map("channel_outbox")
+}

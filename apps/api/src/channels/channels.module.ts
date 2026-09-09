@@ -1,12 +1,10 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
-import {
-  CHESSBOARD_REPOSITORY,
-  PrismaChessboardRepository,
-} from '../chessboard/chessboard.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { PrismaUnitOfWork, RESERVATIONS_UOW } from '../reservations/reservations.repository';
+import { ARI_PUBLISHER, OutboxAriPublisher } from './ari-publisher';
 import { InboundBookingsService } from './inbound.service';
+import { OutboxWorker } from './outbox.worker';
 import { ChannexSyncService } from './sync.service';
 import { ChannelsController } from './channels.controller';
 import {
@@ -24,8 +22,10 @@ import {
     InboundBookingsService,
     { provide: RESERVATIONS_UOW, useClass: PrismaUnitOfWork },
     { provide: CHANNELS_REPOSITORY, useClass: PrismaChannelsRepository },
-    { provide: CHESSBOARD_REPOSITORY, useClass: PrismaChessboardRepository },
     { provide: CHANNEX_GATEWAY, useFactory: channexGatewayFromEnv },
+    { provide: ARI_PUBLISHER, useClass: OutboxAriPublisher },
+    OutboxWorker,
   ],
+  exports: [ARI_PUBLISHER],
 })
 export class ChannelsModule {}

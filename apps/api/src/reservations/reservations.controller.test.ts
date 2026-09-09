@@ -3,6 +3,8 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
+import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from './reservations.module';
 import {
@@ -236,10 +238,12 @@ const body = (over: Record<string, unknown> = {}) => ({
 
 describe('manual reservation API', () => {
   // GET /rate-plans проверяется в конце файла
+  const published: unknown[] = [];
   let app: INestApplication;
   let fake: ReturnType<typeof makeFake>;
   beforeEach(() => {
     fake = makeFake();
+    published.length = 0;
   });
   beforeAll(async () => {
     const m = await Test.createTestingModule({ imports: [ReservationsModule] })
@@ -249,6 +253,15 @@ describe('manual reservation API', () => {
       })
       .overrideProvider(PrismaService)
       .useValue({})
+      .overrideProvider(CHANNELS_REPOSITORY)
+      .useValue({})
+      .overrideProvider(ARI_PUBLISHER)
+      .useFactory({
+        factory: (): AriPublisher => ({
+          reservationChanged: async (c) => void published.push(c),
+          ratesChanged: async () => {},
+        }),
+      })
       .compile();
     app = m.createNestApplication();
     await app.init();
@@ -265,6 +278,10 @@ describe('manual reservation API', () => {
     expect(res.body.items[0].unitCode).toBe('9001');
     expect(fake.state.audits).toEqual([
       { entityType: 'Reservation', action: 'reservation.create' },
+    ]);
+    // после коммита в каналы уходит дельта доступности по категории и ночам брони
+    expect(published).toEqual([
+      { categoryCodes: ['exely-900001'], from: '2026-09-15', toExclusive: '2026-09-17' },
     ]);
   });
   it('rejects a missing/unknown source with 400 — no default (Q-089)', async () => {

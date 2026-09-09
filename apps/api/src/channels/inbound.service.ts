@@ -17,6 +17,7 @@ import {
   type ReservationsRepository,
   type UnitOfWork,
 } from '../reservations/reservations.repository';
+import { ARI_PUBLISHER, type AriPublisher } from './ari-publisher';
 import { CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
 import { PROVIDER } from './sync.service';
 
@@ -28,6 +29,8 @@ export interface RevisionOutcome {
   confirmationNumber: string | null;
   error?: string;
   warnings: string[];
+  /** Затронутые категории и ночи — для дельты доступности */
+  affected?: { categoryCodes: string[]; from: string; toExclusive: string };
 }
 export interface PullResult {
   received: number;
@@ -65,6 +68,7 @@ export class InboundBookingsService {
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
+    @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
   /** Webhook Channex (webhook-collection.md): общий секрет в заголовке, затем pull ревизии по ID. */
@@ -193,6 +197,14 @@ export class InboundBookingsService {
     }
     if (outcome.result !== 'failed')
       await this.viaChannex(() => this.gateway.ackBookingRevision(rev.id));
+    if (outcome.affected && outcome.affected.categoryCodes.length) {
+      // Дельта доступности: категории и ночи ревизии (плюс прежние даты, если бронь уже была)
+      await this.publisher.reservationChanged({
+        categoryCodes: [...new Set(outcome.affected.categoryCodes)],
+        from: outcome.affected.from,
+        toExclusive: outcome.affected.toExclusive,
+      });
+    }
     return outcome;
   }
 
@@ -201,11 +213,28 @@ export class InboundBookingsService {
     a: channex.ChannexBookingRevisionAttributes,
     mappings: ChannelMappingRef[],
     warnings: string[],
-  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber'>> {
+  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected'>> {
     // Ищем по внешнему ID, затем по номеру подтверждения (= unique_id): брони, созданные до заполнения externalId
     const existing =
       (await repo.reservationByExternalId(a.unique_id)) ??
       (await repo.reservationByNumber(a.unique_id));
+    const codeById = new Map(
+      mappings
+        .filter((m) => m.localAccommodationTypeId && m.localAccommodationTypeCode)
+        .map((m) => [m.localAccommodationTypeId!, m.localAccommodationTypeCode!]),
+    );
+    type Span = { accommodationTypeId: string; arrivalDate: string; departureDate: string };
+    const affectedOf = (its: Span[]) => ({
+      categoryCodes: its.map((i) => codeById.get(i.accommodationTypeId) ?? i.accommodationTypeId),
+      from: its.reduce(
+        (m, i) => (i.arrivalDate < m ? i.arrivalDate : m),
+        its[0]?.arrivalDate ?? a.arrival_date,
+      ),
+      toExclusive: its.reduce(
+        (m, i) => (i.departureDate > m ? i.departureDate : m),
+        its[0]?.departureDate ?? a.departure_date,
+      ),
+    });
     if (a.status === 'cancelled') {
       if (!existing) {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
@@ -222,7 +251,11 @@ export class InboundBookingsService {
         action: 'channex.booking.cancelled',
         after: { uniqueId: a.unique_id },
       });
-      return { result: 'cancelled', confirmationNumber: existing.confirmationNumber };
+      return {
+        result: 'cancelled',
+        confirmationNumber: existing.confirmationNumber,
+        affected: affectedOf(existing.items),
+      };
     }
 
     const items = a.rooms.map((room, i) => {
@@ -278,7 +311,7 @@ export class InboundBookingsService {
         action: 'channex.booking.new',
         after: await repo.card(a.unique_id),
       });
-      return { result: 'created', confirmationNumber: a.unique_id };
+      return { result: 'created', confirmationNumber: a.unique_id, affected: affectedOf(items) };
     }
 
     // modified (или повторный new для уже известной брони)
@@ -332,6 +365,10 @@ export class InboundBookingsService {
       before,
       after: await repo.card(existing.confirmationNumber),
     });
-    return { result: 'modified', confirmationNumber: existing.confirmationNumber };
+    return {
+      result: 'modified',
+      confirmationNumber: existing.confirmationNumber,
+      affected: affectedOf([...existing.items, ...items]),
+    };
   }
 }

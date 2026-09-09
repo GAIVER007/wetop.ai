@@ -14,6 +14,7 @@ import {
   type ReservationsRepository,
 } from '../reservations/reservations.repository';
 import { ChannelsModule } from './channels.module';
+import { ARI_PUBLISHER, NoopAriPublisher } from './ari-publisher';
 import { CHANNELS_REPOSITORY, CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
 import { decimalToMinor, sanitizeRevision } from './inbound.service';
 
@@ -194,6 +195,7 @@ function makeFakes() {
       return [
         {
           localAccommodationTypeId: 't1',
+          localAccommodationTypeCode: 'exely-900001',
           localRatePlanId: 'p2',
           providerPropertyId: 'prop-1',
           providerRoomTypeId: 'rt-2',
@@ -325,6 +327,8 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       })
       .overrideProvider(CHANNELS_REPOSITORY)
       .useValue({})
+      .overrideProvider(ARI_PUBLISHER)
+      .useValue(new NoopAriPublisher())
       .overrideProvider(CHESSBOARD_REPOSITORY)
       .useValue({})
       .overrideProvider(PrismaService)

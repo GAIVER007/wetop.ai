@@ -1,0 +1,179 @@
+import 'reflect-metadata';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import { ARI_PUBLISHER, type AriPublisher, type LocalRateChange } from '../channels/ari-publisher';
+import { RATES_REPOSITORY, type RateChange, type RatesRepository } from './rates.repository';
+
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const DAYS = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'] as const;
+export interface RateChangeDto {
+  accommodationTypeCode?: string;
+  ratePlanCode?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  days?: string[];
+  /** Цена в основных единицах строкой, например "15400" или "456.23" */
+  price?: string | null;
+  occupancy?: number | null;
+  minStay?: number | null;
+  maxStay?: number | null;
+  stopSell?: boolean | null;
+  closedToArrival?: boolean | null;
+  closedToDeparture?: boolean | null;
+}
+
+/** "456.23" → 45623n; пустая строка — цена не меняется. */
+export function majorToMinor(value: string): bigint {
+  const m = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(value.trim());
+  if (!m)
+    throw new BadRequestException(
+      `price «${value}» — число с не более чем двумя знаками после запятой`,
+    );
+  return BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0'));
+}
+
+@Injectable()
+export class RatesService {
+  constructor(
+    @Inject(RATES_REPOSITORY) private readonly repo: RatesRepository,
+    @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
+  ) {}
+
+  async options() {
+    const [categories, ratePlans] = await Promise.all([
+      this.repo.categories(),
+      this.repo.ratePlans(),
+    ]);
+    return {
+      categories: categories.map((c) => ({
+        code: c.code,
+        name: c.name,
+        capacityAdults: c.capacityAdults,
+      })),
+      ratePlans: ratePlans.map((p) => ({
+        code: p.code,
+        name: p.name,
+        currency: p.currency,
+        active: p.active,
+      })),
+    };
+  }
+
+  async calendar(q: {
+    accommodationTypeCode?: string | undefined;
+    ratePlanCode?: string | undefined;
+    from?: string | undefined;
+    to?: string | undefined;
+  }) {
+    if (!q.accommodationTypeCode || !q.ratePlanCode)
+      throw new BadRequestException('accommodationTypeCode и ratePlanCode обязательны');
+    if (!ISO.test(q.from ?? '') || !ISO.test(q.to ?? '') || q.to! < q.from!)
+      throw new BadRequestException('from/to — даты YYYY-MM-DD, from ≤ to');
+    const { type, plan } = await this.resolve(q.accommodationTypeCode, q.ratePlanCode);
+    const days = await this.repo.calendar(type.id, plan.id, q.from!, q.to!);
+    return {
+      accommodationTypeCode: type.code,
+      ratePlanCode: plan.code,
+      currency: plan.currency,
+      capacityAdults: type.capacityAdults,
+      days,
+    };
+  }
+
+  /** Массовое изменение: все строки одной транзакцией и одним сообщением в канал (сертификация: «1 API call»). */
+  async bulk(dto: { changes?: RateChangeDto[] }) {
+    if (!Array.isArray(dto.changes) || dto.changes.length === 0)
+      throw new BadRequestException('changes: хотя бы одно изменение');
+    const prepared: Array<
+      RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
+    > = [];
+    for (const [i, c] of dto.changes.entries()) {
+      const where = `changes[${i}]`;
+      if (!c.accommodationTypeCode || !c.ratePlanCode)
+        throw new BadRequestException(`${where}: accommodationTypeCode и ratePlanCode обязательны`);
+      if (!ISO.test(c.dateFrom ?? '') || !ISO.test(c.dateTo ?? '') || c.dateTo! < c.dateFrom!)
+        throw new BadRequestException(
+          `${where}: dateFrom/dateTo — даты YYYY-MM-DD, dateFrom ≤ dateTo`,
+        );
+      const days = (c.days ?? []).filter((d) => d);
+      if (days.some((d) => !(DAYS as readonly string[]).includes(d)))
+        throw new BadRequestException(`${where}: days — из ${DAYS.join(', ')}`);
+      const { type, plan } = await this.resolve(c.accommodationTypeCode, c.ratePlanCode);
+      const change: RateChange & {
+        accommodationTypeId: string;
+        ratePlanId: string;
+        capacityAdults: number;
+      } = {
+        accommodationTypeCode: type.code,
+        ratePlanCode: plan.code,
+        accommodationTypeId: type.id,
+        ratePlanId: plan.id,
+        capacityAdults: type.capacityAdults,
+        dateFrom: c.dateFrom!,
+        dateTo: c.dateTo!,
+        ...(days.length ? { days: days as RateChange['days'] } : {}),
+      };
+      if (c.price !== undefined && c.price !== null && c.price !== '')
+        change.priceMinor = majorToMinor(c.price);
+      if (c.occupancy) {
+        if (!Number.isInteger(c.occupancy) || c.occupancy < 1 || c.occupancy > type.capacityAdults)
+          throw new BadRequestException(`${where}: occupancy 1…${type.capacityAdults}`);
+        change.occupancy = c.occupancy;
+      }
+      for (const k of ['minStay', 'maxStay'] as const) {
+        const v = c[k];
+        if (v === undefined) continue;
+        if (v !== null && (!Number.isInteger(v) || v < 0))
+          throw new BadRequestException(`${where}: ${k} — целое ≥ 0 или null`);
+        change[k] = v;
+      }
+      for (const k of ['stopSell', 'closedToArrival', 'closedToDeparture'] as const) {
+        const v = c[k];
+        if (v === undefined || v === null) continue;
+        if (typeof v !== 'boolean') throw new BadRequestException(`${where}: ${k} — true/false`);
+        change[k] = v;
+      }
+      const touches =
+        change.priceMinor !== undefined ||
+        ['minStay', 'maxStay', 'stopSell', 'closedToArrival', 'closedToDeparture'].some(
+          (k) => (change as unknown as Record<string, unknown>)[k] !== undefined,
+        );
+      if (!touches)
+        throw new BadRequestException(`${where}: нечего менять — укажите цену или ограничение`);
+      prepared.push(change);
+    }
+    const result = await this.repo.applyChanges(prepared);
+    await this.repo.audit('rates.bulk', {
+      changes: prepared.map((p) => ({ ...p, priceMinor: p.priceMinor?.toString() })),
+      ...result,
+    });
+    const local: LocalRateChange[] = prepared.map((p) => ({
+      accommodationTypeCode: p.accommodationTypeCode,
+      ratePlanCode: p.ratePlanCode,
+      dateFrom: p.dateFrom,
+      dateTo: p.dateTo,
+      ...(p.days ? { days: p.days } : {}),
+      ...(p.priceMinor !== undefined ? { priceMinor: p.priceMinor } : {}),
+      ...(p.minStay !== undefined ? { minStay: p.minStay } : {}),
+      ...(p.maxStay !== undefined ? { maxStay: p.maxStay } : {}),
+      ...(p.stopSell !== undefined ? { stopSell: p.stopSell } : {}),
+      ...(p.closedToArrival !== undefined ? { closedToArrival: p.closedToArrival } : {}),
+      ...(p.closedToDeparture !== undefined ? { closedToDeparture: p.closedToDeparture } : {}),
+    }));
+    await this.publisher.ratesChanged(local);
+    return { applied: prepared.length, ...result };
+  }
+
+  private async resolve(typeCode: string, planCode: string) {
+    const [categories, plans] = await Promise.all([this.repo.categories(), this.repo.ratePlans()]);
+    const type = categories.find((c) => c.code === typeCode);
+    if (!type) throw new UnprocessableEntityException(`Категория ${typeCode} не найдена`);
+    const plan = plans.find((p) => p.code === planCode);
+    if (!plan) throw new UnprocessableEntityException(`Тариф ${planCode} не найден`);
+    return { type, plan };
+  }
+}

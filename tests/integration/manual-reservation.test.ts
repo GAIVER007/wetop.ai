@@ -18,6 +18,7 @@ import {
 } from '@pms/imports';
 import { PrismaReservationsRepository } from '../../apps/api/src/reservations/reservations.repository';
 import { ReservationsService } from '../../apps/api/src/reservations/reservations.service';
+import { NoopAriPublisher } from '../../apps/api/src/channels/ari-publisher';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -108,9 +109,10 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
             },
           });
 
-          const service = new ReservationsService({
-            run: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)),
-          });
+          const service = new ReservationsService(
+            { run: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)) },
+            new NoopAriPublisher(),
+          );
           const body = (over: Record<string, unknown> = {}) => ({
             source: 'WALK_IN',
             arrivalDate: '2026-01-01',

@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { Body, Controller, Get, Headers, HttpCode, Inject, Post, Query } from '@nestjs/common';
 import { InboundBookingsService } from './inbound.service';
-import { ChannexSyncService, PROVIDER } from './sync.service';
+import { OutboxWorker } from './outbox.worker';
+import { PROVIDER } from './ari-publisher';
+import { ChannexSyncService } from './sync.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
@@ -11,6 +13,7 @@ export class ChannelsController {
     @Inject(ChannexSyncService) private readonly sync: ChannexSyncService,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
+    @Inject(OutboxWorker) private readonly outbox: OutboxWorker,
   ) {}
 
   @Get('mapping')
@@ -45,5 +48,18 @@ export class ChannelsController {
   @HttpCode(200)
   pull(@Query('propertyId') propertyId?: string) {
     return this.inbound.pull(propertyId || undefined);
+  }
+
+  /** Очередь исходящих изменений ARI: сколько ждёт, сколько ушло, последняя задача Channex. */
+  @Get('outbox')
+  outboxStatus() {
+    return this.repo.outboxSummary(PROVIDER);
+  }
+
+  /** Отправить накопившееся сейчас (без ожидания фонового цикла). */
+  @Post('outbox/flush')
+  @HttpCode(200)
+  flush() {
+    return this.outbox.flush(true);
   }
 }

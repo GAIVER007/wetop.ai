@@ -19,6 +19,7 @@ import {
   type ReservationSource,
   type ReservationStatus,
 } from '@pms/domain';
+import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
   AllocationOverlapError,
@@ -85,7 +86,24 @@ function requireStayDates(
 
 @Injectable()
 export class ReservationsService {
-  constructor(@Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork) {}
+  constructor(
+    @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
+    @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
+  ) {}
+
+  /** После коммита: дельта доступности в каналы по категориям и ночам карточки (и прежним, если были). */
+  private async publish(cards: Array<ReservationCard | null>): Promise<void> {
+    const items = cards.flatMap((c) => c?.items ?? []);
+    if (items.length === 0) return;
+    await this.publisher.reservationChanged({
+      categoryCodes: [...new Set(items.map((i) => i.accommodationTypeCode))],
+      from: items.reduce((m, i) => (i.arrivalDate < m ? i.arrivalDate : m), items[0]!.arrivalDate),
+      toExclusive: items.reduce(
+        (m, i) => (i.departureDate > m ? i.departureDate : m),
+        items[0]!.departureDate,
+      ),
+    });
+  }
 
   /** Активные тарифы (справочник для формы). */
   ratePlans(): Promise<Array<{ code: string; name: string; currency: string }>> {
@@ -117,7 +135,7 @@ export class ReservationsService {
     const guest = dto.guest;
     const status: ReservationStatus = 'CONFIRMED';
 
-    return this.uow.run((repo) =>
+    const created = await this.uow.run((repo) =>
       guarded(async () => {
         let currency: string | null = null;
         const prepared: Array<{
@@ -217,13 +235,15 @@ export class ReservationsService {
         return card;
       }),
     );
+    await this.publish([created]);
+    return created;
   }
 
   /** Изменить даты всей брони; тариф передаётся явно — на проживании он не хранится (Q-102). */
   async changeDates(number: string, dto: ChangeDatesDto): Promise<ReservationCard> {
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
     if (!dto.ratePlanCode) throw new BadRequestException('ratePlanCode обязателен для перерасчёта');
-    return this.uow.run((repo) =>
+    const changed = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const before = await repo.card(number);
@@ -269,14 +289,16 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { before, after };
       }),
     );
+    await this.publish([changed.before, changed.after]);
+    return changed.after;
   }
 
   /** Отменить бронь: проживания → CANCELLED, назначения сняты. Штрафы/возвраты — вне шага (Q-091, Q-093). */
   async cancel(number: string): Promise<ReservationCard> {
-    return this.uow.run((repo) =>
+    const cancelled = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const before = await repo.card(number);
@@ -301,6 +323,8 @@ export class ReservationsService {
         return after;
       }),
     );
+    await this.publish([cancelled]);
+    return cancelled;
   }
 
   /** Назначить ячейку или переселить с даты fromDate (ADR-006: закрыть старое назначение, открыть новое). */

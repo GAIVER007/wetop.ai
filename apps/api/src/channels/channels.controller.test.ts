@@ -57,6 +57,16 @@ function makeFakes() {
     async ackBookingRevision() {},
   };
   const mappings: MappingRow[] = [];
+  const outbox: Array<{
+    id: string;
+    kind: 'AVAILABILITY' | 'RESTRICTIONS';
+    payload: unknown[];
+    attempts: number;
+    createdAt: Date;
+    status: string;
+    taskId?: string | null;
+    lastError?: string;
+  }> = [];
   const audits: string[] = [];
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
   const d = (k: number) => {
@@ -149,6 +159,57 @@ function makeFakes() {
     async audit(action) {
       audits.push(action);
     },
+    async categoryUnits() {
+      return [
+        { code: 'exely-900001', active: 1, capacityAdults: 1 },
+        { code: 'exely-900003', active: 2, capacityAdults: 1 },
+      ];
+    },
+    async categoryBlocks() {
+      return [];
+    },
+    async soldItems() {
+      // одно проданное проживание в dorm на ночь d(1) — с ячейкой или без, для канала это занято
+      return [{ accommodationTypeCode: 'exely-900003', arrivalDate: d(1), departureDate: d(2) }];
+    },
+    async ratePlanIdsByCode() {
+      return { 'exely-800002': 'p2' };
+    },
+    async enqueueOutbox(_p, kind, payload) {
+      outbox.push({
+        id: `o${outbox.length + 1}`,
+        kind,
+        payload,
+        attempts: 0,
+        createdAt: new Date(),
+        status: 'PENDING',
+      });
+      return `o${outbox.length}`;
+    },
+    async pendingOutbox(_p, kind) {
+      return outbox.filter((o) => o.kind === kind && o.status === 'PENDING');
+    },
+    async markOutboxSent(ids, taskId) {
+      for (const o of outbox) if (ids.includes(o.id)) Object.assign(o, { status: 'SENT', taskId });
+    },
+    async markOutboxRetry(ids, error, _next, failed) {
+      for (const o of outbox)
+        if (ids.includes(o.id))
+          Object.assign(o, {
+            attempts: o.attempts + 1,
+            lastError: error,
+            status: failed ? 'FAILED' : 'PENDING',
+          });
+    },
+    async outboxSummary() {
+      return {
+        pending: outbox.filter((o) => o.status === 'PENDING').length,
+        failed: 0,
+        sent: outbox.filter((o) => o.status === 'SENT').length,
+        lastSentAt: null,
+        lastTaskId: null,
+      };
+    },
   };
   const board: ChessboardRepository = {
     async units() {
@@ -196,7 +257,7 @@ function makeFakes() {
       return null;
     },
   };
-  return { gateway, repo, board, calls, mappings, audits, today, d };
+  return { gateway, repo, board, calls, mappings, audits, outbox, today, d };
 }
 
 describe('Channex setup and full sync (contract on fakes)', () => {

@@ -105,9 +105,13 @@ export default async function ChessboardPage({
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <span style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 600 }}>
+                  <Link
+                    href={`/units/${encodeURIComponent(row.unit.code)}`}
+                    data-testid="unit-link"
+                    style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 600 }}
+                  >
                     {row.unit.code}
-                  </span>
+                  </Link>
                   <span style={{ color: '#777', marginLeft: 8 }}>
                     {row.unit.kind === 'BED' ? 'койка' : 'номер'} · {row.unit.accommodationTypeName}
                   </span>

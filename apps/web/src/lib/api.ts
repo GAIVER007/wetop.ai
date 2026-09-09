@@ -275,3 +275,55 @@ export const channelsApi = {
   flush: () =>
     sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
 };
+
+// ── Ячейки: блокировки и уборка ──
+export interface UnitCard {
+  id: string;
+  code: string;
+  kind: 'ROOM' | 'BED';
+  active: boolean;
+  housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';
+  accommodationTypeCode: string;
+  accommodationTypeName: string;
+  roomNumber: string;
+  blocks: Array<{
+    id: string;
+    dateFrom: string;
+    dateTo: string;
+    type: string;
+    reason: string | null;
+  }>;
+  stays: Array<{
+    confirmationNumber: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    guestLabel: string;
+  }>;
+  housekeepingHistory: Array<{ at: string; from: string; to: string }>;
+}
+async function deleteJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${API}${path}`, { method: 'DELETE', cache: 'no-store' });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const j = (await res.json()) as { message?: string };
+      if (j.message) message = j.message;
+    } catch {
+      /* не JSON */
+    }
+    throw new ApiError(res.status, message);
+  }
+  return (await res.json()) as T;
+}
+export const unitsApi = {
+  card: (code: string) => getJson<UnitCard>(`/units/${encodeURIComponent(code)}`),
+  block: (code: string, body: unknown) =>
+    sendJson<UnitCard>('POST', `/units/${encodeURIComponent(code)}/blocks`, body),
+  unblock: (code: string, blockId: string) =>
+    deleteJson<UnitCard>(
+      `/units/${encodeURIComponent(code)}/blocks/${encodeURIComponent(blockId)}`,
+    ),
+  housekeeping: (code: string, status: string) =>
+    sendJson<UnitCard>('POST', `/units/${encodeURIComponent(code)}/housekeeping`, { status }),
+};

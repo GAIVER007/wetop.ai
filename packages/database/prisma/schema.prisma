@@ -1,5 +1,6 @@
 // Prisma schema — ТОЛЬКО утверждённые разделы DATA_MODEL.md v1.0 (07.09.2026):
-//   §1 Объект и физическая структура, §2 Бронирование, §3 Гости, §4 Housekeeping и блокировки, §10 Аудит.
+//   §1 Объект и физическая структура, §2 Бронирование, §3 Гости, §4 Housekeeping и блокировки,
+//   §5 Тарифы, §10 Аудит. Плюс SQL вне Prisma: exclusion constraint на allocations (миграция 20260909000003).
 // Раздел 6 (Folio) не утверждён (Q-091) — сущностей финансов здесь нет и быть не должно.
 // Любое изменение сущности/поля/связи — сначала правка DATA_MODEL.md (AGENTS.md §2).
 //
@@ -40,6 +41,7 @@ model Property {
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
+  ratePlans          RatePlan[]
 
   @@map("properties")
 }
@@ -93,9 +95,12 @@ model AccommodationType {
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property Property          @relation(fields: [propertyId], references: [id])
-  units    InventoryUnit[]
-  items    ReservationItem[]
+  property      Property                    @relation(fields: [propertyId], references: [id])
+  units         InventoryUnit[]
+  items         ReservationItem[]
+  ratePlanLinks RatePlanAccommodationType[]
+  dailyRates    DailyRate[]
+  restrictions  Restriction[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -371,6 +376,85 @@ model InventoryBlock {
 
   @@index([inventoryUnitId, dateFrom, dateTo])
   @@map("inventory_blocks")
+}
+
+// ───────────────────────── §5 Тарифы ─────────────────────────
+
+/// Тарифный план. На объекте 6 (3 без продаж — Q-082: до ответа импортируются с active=false).
+/// Питания нет ни у одного; сезонов в модели нет (DailyRate покрывает).
+model RatePlan {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  code       String
+  name       String
+  currency   String   @db.Char(3)
+  mealPlan   String?  @map("meal_plan")
+  active     Boolean  @default(true)
+  /// ID тарифа в Exely (например 10157482) — внешняя ссылка, ADR-003
+  exelyId    String?  @map("exely_id")
+  /// Пометка импорта: каналы, к которым тариф привязан в Exely (справочно, не бизнес-логика)
+  note       String?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property     Property                    @relation(fields: [propertyId], references: [id])
+  types        RatePlanAccommodationType[]
+  dailyRates   DailyRate[]
+  restrictions Restriction[]
+
+  @@unique([propertyId, code])
+  @@unique([propertyId, exelyId])
+  @@map("rate_plans")
+}
+
+/// Тариф действует на категорию. На объекте — декартово произведение (тарифы на все категории).
+model RatePlanAccommodationType {
+  ratePlanId          String @map("rate_plan_id") @db.Uuid
+  accommodationTypeId String @map("accommodation_type_id") @db.Uuid
+
+  ratePlan          RatePlan          @relation(fields: [ratePlanId], references: [id])
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
+
+  @@id([ratePlanId, accommodationTypeId])
+  @@map("rate_plan_accommodation_types")
+}
+
+/// Цена за ночь на дату. occupancy — число гостей (1 или 2; отличается только у «Двухместной»).
+model DailyRate {
+  date                DateTime @db.Date
+  accommodationTypeId String   @map("accommodation_type_id") @db.Uuid
+  ratePlanId          String   @map("rate_plan_id") @db.Uuid
+  occupancy           Int      @default(1)
+  /// integer minor units (тиын), ADR-008
+  price               BigInt
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
+  ratePlan          RatePlan          @relation(fields: [ratePlanId], references: [id])
+
+  @@id([date, accommodationTypeId, ratePlanId, occupancy])
+  @@index([accommodationTypeId, date])
+  @@map("daily_rates")
+}
+
+/// Ограничения продаж на дату. На объекте сейчас ни одного, механизм обязателен для OTA.
+model Restriction {
+  date                DateTime @db.Date
+  accommodationTypeId String   @map("accommodation_type_id") @db.Uuid
+  ratePlanId          String   @map("rate_plan_id") @db.Uuid
+  minStay             Int?     @map("min_stay")
+  maxStay             Int?     @map("max_stay")
+  stopSell            Boolean  @default(false) @map("stop_sell")
+  closedToArrival     Boolean  @default(false) @map("closed_to_arrival")
+  closedToDeparture   Boolean  @default(false) @map("closed_to_departure")
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
+  ratePlan          RatePlan          @relation(fields: [ratePlanId], references: [id])
+
+  @@id([date, accommodationTypeId, ratePlanId])
+  @@index([accommodationTypeId, date])
+  @@map("restrictions")
 }
 
 // ───────────────────────── §10 Аудит ─────────────────────────

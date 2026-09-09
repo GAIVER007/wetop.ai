@@ -23,3 +23,9 @@ export type {
 export { anonymizeGuest, anonymizeReservationNotes, type GuestRecord } from './anonymize';
 export { adaptUniBooking } from './adapt-universal';
 export { importReservations, type ReservationsImportReport } from './import-reservations';
+export {
+  parseExelyRatePlans,
+  buildRatePlanImportPlan,
+  type RatePlanImportPlan,
+} from './rate-plans';
+export { importRatePlans } from './import-rate-plans';

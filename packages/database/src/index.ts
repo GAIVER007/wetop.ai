@@ -20,3 +20,17 @@ export type Db = PrismaClient;
 
 /** Клиент внутри `db.$transaction(async (tx) => …)`. Импортёры принимают именно его. */
 export type DbTx = Prisma.TransactionClient;
+
+/**
+ * Овербукинг остановила БАЗА (exclusion constraint `allocations_no_overlap_per_unit`, миграция
+ * 20260909000003). Prisma 7 + adapter-pg оборачивают PostgreSQL 23P01 в P2039 с исходным кодом
+ * внутри meta.driverAdapterError.cause. Домен и API опираются на эту проверку, а не на текст сообщения.
+ */
+export function isOverlapViolation(e: unknown): boolean {
+  const err = e as {
+    code?: string;
+    meta?: { driverAdapterError?: { cause?: { code?: string; originalCode?: string } } };
+  };
+  const cause = err?.meta?.driverAdapterError?.cause;
+  return cause?.code === '23P01' || cause?.originalCode === '23P01';
+}

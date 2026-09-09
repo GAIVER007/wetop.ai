@@ -43,6 +43,24 @@ export class ChannelsController {
     return this.inbound.handleWebhook(secret, body ?? {});
   }
 
+  /** Webhook в Channex: что зарегистрировано; регистрация/обновление; пробный вызов (webhook-collection.md). */
+  @Get('webhook/status')
+  webhookStatus() {
+    return this.sync.webhookStatus();
+  }
+
+  @Post('webhook/register')
+  @HttpCode(200)
+  registerWebhook(@Body() body: { callbackUrl?: string } | undefined) {
+    return this.sync.registerWebhook(body?.callbackUrl);
+  }
+
+  @Post('webhook/test')
+  @HttpCode(200)
+  testWebhook(@Body() body: { callbackUrl?: string } | undefined) {
+    return this.sync.testWebhook(body?.callbackUrl);
+  }
+
   /** Забрать все неподтверждённые ревизии из ленты и обработать (для sandbox без публичного URL). */
   @Post('pull')
   @HttpCode(200)

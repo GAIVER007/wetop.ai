@@ -16,7 +16,7 @@ import {
 import { ChannelsModule } from './channels.module';
 import { ARI_PUBLISHER, NoopAriPublisher } from './ari-publisher';
 import { CHANNELS_REPOSITORY, CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
-import { decimalToMinor, sanitizeRevision } from './inbound.service';
+import { InboundBookingsService, decimalToMinor, sanitizeRevision } from './inbound.service';
 
 /** Ревизия по примеру bookings-collection.md (Booking.com), гость вымышленный. */
 function revision(
@@ -308,6 +308,7 @@ function makeFakes() {
 
 describe('inbound bookings from Channex (contract on fakes)', () => {
   let app: INestApplication;
+  let inbound: InboundBookingsService;
   let fakes = makeFakes();
   beforeEach(() => {
     fakes = makeFakes();
@@ -335,6 +336,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .useValue({})
       .compile();
     app = m.createNestApplication();
+    inbound = m.get(InboundBookingsService);
     await app.init();
   });
   afterAll(async () => {
@@ -464,13 +466,23 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
         timestamp: '2026-09-09T00:00:00Z',
       })
       .expect(200);
-    expect(ok.body.outcome).toMatchObject({ result: 'created', revisionId: 'rev-7' });
+    // ответ сразу, обработка — в очереди (туннели и прокси рвут долгие ответы; Channex повторяет только 5xx)
+    expect(ok.body).toEqual({ ok: true, accepted: true });
+    await inbound.drain();
+    expect(fakes.events.has('channex|rev-7')).toBe(true);
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')
       .set('x-channex-webhook-secret', 'test-webhook-secret')
       .send({ event: 'sync_error', payload: { message: 'x' }, timestamp: 't1' })
       .expect(200);
+    await inbound.drain();
     expect([...fakes.events.keys()].some((k) => k.startsWith('channex|sync_error:'))).toBe(true);
+    // событие booking без revision_id отклоняется до постановки в очередь
+    await request(app.getHttpServer())
+      .post('/channels/channex/webhook')
+      .set('x-channex-webhook-secret', 'test-webhook-secret')
+      .send({ event: 'booking_new', payload: {} })
+      .expect(400);
     delete process.env.CHANNEX_WEBHOOK_SECRET;
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')

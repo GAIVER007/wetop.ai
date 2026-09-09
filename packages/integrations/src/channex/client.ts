@@ -186,6 +186,34 @@ const RATE_LIMIT_PAUSE_MS = 60_000; // rate-limits.md: «pause updates for the p
 const MAX_BACKOFF_MS = 60_000;
 const PAGE_LIMIT = 100;
 
+/** Webhook (webhook-collection.md): чтение — data.attributes */
+export interface ChannexWebhookAttributes {
+  callback_url: string;
+  /** '*' | 'booking' | 'booking_new;booking_modification;…' | 'ari' */
+  event_mask: string;
+  request_params: Record<string, string> | null;
+  headers: Record<string, string> | null;
+  is_active: boolean;
+  send_data: boolean;
+  protected: boolean;
+  is_global: boolean;
+}
+/** Webhook: запись — { webhook: … }; property_id null только для глобального */
+export interface ChannexWebhookInput {
+  callback_url: string;
+  event_mask: string;
+  property_id: string | null;
+  request_params?: Record<string, string> | null;
+  headers?: Record<string, string> | null;
+  is_active?: boolean;
+  send_data?: boolean;
+  is_global?: boolean;
+}
+export interface ChannexWebhookTestResult {
+  status_code: number;
+  body: string;
+}
+
 export class ChannexClient {
   private readonly base: string;
   private readonly fetchFn: typeof fetch;
@@ -376,5 +404,39 @@ export class ChannexClient {
       'POST',
       `/booking_revisions/${encodeURIComponent(id)}/ack`,
     );
+  }
+
+  // ── Webhooks (webhook-collection.md): секрет — свой заголовок, HMAC у Channex нет ──
+  listWebhooks(): Promise<ChannexResource<ChannexWebhookAttributes>[]> {
+    return this.listAll<ChannexWebhookAttributes>('/webhooks');
+  }
+  async createWebhook(
+    input: ChannexWebhookInput,
+  ): Promise<ChannexResource<ChannexWebhookAttributes>> {
+    const res = await this.request<OneResponse<ChannexWebhookAttributes>>('POST', '/webhooks', {
+      webhook: input,
+    });
+    return res.data;
+  }
+  async updateWebhook(
+    id: string,
+    input: ChannexWebhookInput,
+  ): Promise<ChannexResource<ChannexWebhookAttributes>> {
+    const res = await this.request<OneResponse<ChannexWebhookAttributes>>(
+      'PUT',
+      `/webhooks/${encodeURIComponent(id)}`,
+      { webhook: input },
+    );
+    return res.data;
+  }
+  async deleteWebhook(id: string): Promise<void> {
+    await this.request<{ meta?: { message?: string } }>(
+      'DELETE',
+      `/webhooks/${encodeURIComponent(id)}`,
+    );
+  }
+  /** Channex шлёт пробный POST на callback_url и возвращает, что ответил наш endpoint. */
+  testWebhook(input: ChannexWebhookInput): Promise<ChannexWebhookTestResult> {
+    return this.request<ChannexWebhookTestResult>('POST', '/webhooks/test', { webhook: input });
   }
 }

@@ -4,11 +4,13 @@ import { ChannelButtons } from './buttons';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
 export default async function ChannelsPage() {
-  const [mapping, outbox, summary] = await Promise.all([
+  const [mapping, outbox, summary, webhook] = await Promise.all([
     channelsApi.mapping(),
     channelsApi.outbox(),
     api.inventorySummary(),
+    channelsApi.webhookStatus().catch(() => null),
   ]);
+  const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
   const property = mapping.find((m) => !m.providerRoomTypeId);
   return (
@@ -40,8 +42,24 @@ export default async function ChannelsPage() {
           value={outbox.lastTaskId ?? '—'}
           testId="outbox-last-task"
         />
+        <Fact
+          label="Webhook в Channex"
+          value={
+            webhook?.registered
+              ? `${webhook.active ? 'активен' : 'выключен'} · ${webhook.eventMask}`
+              : webhook?.expectedUrl
+                ? 'не зарегистрирован'
+                : 'нет PUBLIC_API_URL'
+          }
+          testId="webhook-status"
+        />
       </section>
-      <ChannelButtons />
+      {webhook?.registered && (
+        <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>
+          адрес: {webhook.callbackUrl}
+        </div>
+      )}
+      <ChannelButtons webhookReady={webhookReady} />
       <h2 style={{ fontSize: 16, margin: '20px 0 8px' }}>Маппинг категорий и тарифов</h2>
       <table
         style={{

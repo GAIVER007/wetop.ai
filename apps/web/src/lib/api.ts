@@ -277,7 +277,32 @@ export const channelsApi = {
     ),
   flush: () =>
     sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
+  webhookStatus: () => getJson<WebhookStatus>('/channels/channex/webhook/status'),
+  registerWebhook: () =>
+    sendJson<{
+      id: string;
+      callbackUrl: string;
+      created: boolean;
+      eventMask: string;
+      active: boolean;
+    }>('POST', '/channels/channex/webhook/register', {}),
+  testWebhook: () =>
+    sendJson<{ callbackUrl: string; statusCode: number; body: string; verdict: string }>(
+      'POST',
+      '/channels/channex/webhook/test',
+      {},
+    ),
 };
+export interface WebhookStatus {
+  registered: boolean;
+  id: string | null;
+  callbackUrl: string | null;
+  eventMask: string | null;
+  active: boolean;
+  sendData: boolean;
+  expectedUrl: string | null;
+  secretConfigured: boolean;
+}
 
 // ── Ячейки: блокировки и уборка ──
 export interface UnitCard {

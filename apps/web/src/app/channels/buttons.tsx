@@ -2,10 +2,10 @@
 import { useState, useTransition } from 'react';
 import { channelAction, type ChannelActionResult } from './actions';
 
-export function ChannelButtons() {
+export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
-  const run = (kind: 'setup' | 'sync' | 'pull' | 'flush') =>
+  const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
     start(async () => setResult(await channelAction(kind)));
   return (
     <div style={{ display: 'grid', gap: 10 }}>
@@ -45,6 +45,25 @@ export function ChannelButtons() {
           style={btnSecondary}
         >
           Создать объект и категории на staging
+        </button>
+        <button
+          type="button"
+          data-testid="channel-webhook-register"
+          onClick={() => run('webhook-register')}
+          disabled={pending || !webhookReady}
+          title={webhookReady ? '' : 'нужны PUBLIC_API_URL (https) и CHANNEX_WEBHOOK_SECRET в .env'}
+          style={btnSecondary}
+        >
+          Зарегистрировать webhook
+        </button>
+        <button
+          type="button"
+          data-testid="channel-webhook-test"
+          onClick={() => run('webhook-test')}
+          disabled={pending || !webhookReady}
+          style={btnSecondary}
+        >
+          Проверить webhook
         </button>
       </div>
       {result?.error && (

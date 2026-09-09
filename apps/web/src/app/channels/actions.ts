@@ -10,7 +10,7 @@ const describe = (e: unknown) =>
   e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
 
 export async function channelAction(
-  kind: 'setup' | 'sync' | 'pull' | 'flush',
+  kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test',
 ): Promise<ChannelActionResult> {
   try {
     let message: string;
@@ -25,6 +25,12 @@ export async function channelAction(
     } else if (kind === 'pull') {
       const r = await channelsApi.pull();
       message = `Получено ревизий: ${r.received}, подтверждено: ${r.acknowledged}`;
+    } else if (kind === 'webhook-register') {
+      const r = await channelsApi.registerWebhook();
+      message = `Webhook ${r.created ? 'зарегистрирован' : 'обновлён'}: ${r.callbackUrl} (события ${r.eventMask}, ${r.active ? 'активен' : 'выключен'})`;
+    } else if (kind === 'webhook-test') {
+      const r = await channelsApi.testWebhook();
+      message = `Пробный вызов ${r.callbackUrl}: HTTP ${r.statusCode} — ${r.verdict}`;
     } else {
       const r = await channelsApi.flush();
       message = `Отправлено пакетов: ${r.sent.length}${r.errors.length ? `, ошибок: ${r.errors.length}` : ''}`;

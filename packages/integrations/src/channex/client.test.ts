@@ -213,3 +213,81 @@ describe('ChannexClient', () => {
     expect(f.calls[2]!.url.endsWith(`/booking_revisions/${rev.id}/ack`)).toBe(true);
   });
 });
+
+describe('ChannexClient webhooks (webhook-collection.md)', () => {
+  const attrs = {
+    callback_url: 'https://pms.example.kz/channels/channex/webhook',
+    event_mask: 'booking',
+    request_params: null,
+    headers: { 'x-channex-webhook-secret': 'SECRET-KEY-42' },
+    is_active: true,
+    send_data: true,
+    protected: false,
+    is_global: false,
+  };
+  it('creates a property webhook wrapped in { webhook }, lists them with pagination, updates and tests', async () => {
+    const f = fakeFetch((call) => {
+      if (call.init.method === 'POST' && call.url.endsWith('/webhooks/test'))
+        return { status: 200, body: { status_code: 200, body: '{"ok":true}' } };
+      if (call.init.method === 'POST')
+        return {
+          status: 201,
+          body: {
+            data: {
+              type: 'webhook',
+              id: 'wh-1',
+              attributes: attrs,
+              relationships: { property: { data: { type: 'property', id: 'prop-1' } } },
+            },
+          },
+        };
+      if (call.init.method === 'PUT')
+        return { status: 200, body: { data: { type: 'webhook', id: 'wh-1', attributes: attrs } } };
+      return {
+        status: 200,
+        body: {
+          data: [{ type: 'webhook', id: 'wh-1', attributes: attrs }],
+          meta: { page: 1, limit: 100, total: 1 },
+        },
+      };
+    });
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    const created = await c.createWebhook({
+      callback_url: attrs.callback_url,
+      event_mask: 'booking',
+      property_id: 'prop-1',
+      headers: attrs.headers,
+      is_active: true,
+      send_data: true,
+    });
+    expect(created.id).toBe('wh-1');
+    expect(f.calls[0]!.url).toBe('https://staging.channex.io/api/v1/webhooks');
+    expect(JSON.parse(f.calls[0]!.init.body as string)).toEqual({
+      webhook: {
+        callback_url: attrs.callback_url,
+        event_mask: 'booking',
+        property_id: 'prop-1',
+        headers: { 'x-channex-webhook-secret': 'SECRET-KEY-42' },
+        is_active: true,
+        send_data: true,
+      },
+    });
+    const list = await c.listWebhooks();
+    expect(list.map((w) => w.id)).toEqual(['wh-1']);
+    expect(f.calls[1]!.url).toContain('/webhooks?pagination%5Bpage%5D=1');
+    await c.updateWebhook('wh-1', {
+      callback_url: attrs.callback_url,
+      event_mask: 'booking',
+      property_id: 'prop-1',
+    });
+    expect(f.calls[2]!.init.method).toBe('PUT');
+    expect(f.calls[2]!.url).toBe('https://staging.channex.io/api/v1/webhooks/wh-1');
+    const t = await c.testWebhook({
+      callback_url: attrs.callback_url,
+      event_mask: 'booking',
+      property_id: 'prop-1',
+    });
+    expect(t).toEqual({ status_code: 200, body: '{"ok":true}' });
+    expect(f.calls[3]!.url).toBe('https://staging.channex.io/api/v1/webhooks/test');
+  });
+});

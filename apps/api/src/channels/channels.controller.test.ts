@@ -55,7 +55,65 @@ function makeFakes() {
       throw new Error('not in this test');
     },
     async ackBookingRevision() {},
+    async listWebhooks() {
+      return webhooks;
+    },
+    async createWebhook(input) {
+      calls.push({ op: 'createWebhook', body: input });
+      const w = {
+        type: 'webhook',
+        id: id('wh'),
+        attributes: {
+          callback_url: input.callback_url,
+          event_mask: input.event_mask,
+          request_params: input.request_params ?? null,
+          headers: input.headers ?? null,
+          is_active: input.is_active ?? false,
+          send_data: input.send_data ?? false,
+          protected: false,
+          is_global: input.is_global ?? false,
+        },
+        relationships: {
+          property: { data: { type: 'property', id: input.property_id ?? 'none' } },
+        },
+      };
+      webhooks.push(w);
+      return w;
+    },
+    async updateWebhook(whId, input) {
+      calls.push({ op: 'updateWebhook', body: { id: whId, ...input } });
+      const w = webhooks.find((x) => x.id === whId)!;
+      w.attributes = {
+        ...w.attributes,
+        ...input,
+        request_params: input.request_params ?? null,
+        headers: input.headers ?? null,
+        is_active: input.is_active ?? w.attributes.is_active,
+        send_data: input.send_data ?? w.attributes.send_data,
+        is_global: input.is_global ?? w.attributes.is_global,
+      };
+      return w;
+    },
+    async testWebhook(input) {
+      calls.push({ op: 'testWebhook', body: input });
+      return { status_code: 400, body: '{"message":"Нет поля event"}' };
+    },
   };
+  const webhooks: Array<{
+    type: string;
+    id: string;
+    attributes: {
+      callback_url: string;
+      event_mask: string;
+      request_params: Record<string, string> | null;
+      headers: Record<string, string> | null;
+      is_active: boolean;
+      send_data: boolean;
+      protected: boolean;
+      is_global: boolean;
+    };
+    relationships: { property: { data: { type: string; id: string } } };
+  }> = [];
   const mappings: MappingRow[] = [];
   const outbox: Array<{
     id: string;
@@ -257,7 +315,7 @@ function makeFakes() {
       return null;
     },
   };
-  return { gateway, repo, board, calls, mappings, audits, outbox, today, d };
+  return { gateway, repo, board, calls, mappings, audits, outbox, today, d, webhooks };
 }
 
 describe('Channex setup and full sync (contract on fakes)', () => {
@@ -419,5 +477,68 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     await request(app.getHttpServer())
       .post('/channels/channex/setup?ratePlanCode=nope')
       .expect(422);
+  });
+
+  it('webhook (webhook-collection.md): register needs the secret, an https address and the Channex property; creates once, then updates; status and test', async () => {
+    delete process.env.CHANNEX_WEBHOOK_SECRET;
+    delete process.env.PUBLIC_API_URL;
+    const post = (path: string, body: object = {}) =>
+      request(app.getHttpServer()).post(path).send(body);
+    await post('/channels/channex/webhook/register').expect(503); // секрета нет
+    process.env.CHANNEX_WEBHOOK_SECRET = 'test-webhook-secret';
+    await post('/channels/channex/webhook/register').expect(400); // адреса нет
+    await post('/channels/channex/webhook/register', {
+      callbackUrl: 'http://pms.example.kz/hook',
+    }).expect(400); // не https
+    await post('/channels/channex/webhook/register', {
+      callbackUrl: 'https://pms.example.kz/hook',
+    }).expect(422); // объекта в Channex нет
+    await post('/channels/channex/setup').expect(200);
+    const st0 = await request(app.getHttpServer())
+      .get('/channels/channex/webhook/status')
+      .expect(200);
+    expect(st0.body).toMatchObject({
+      registered: false,
+      secretConfigured: true,
+      expectedUrl: null,
+    });
+
+    process.env.PUBLIC_API_URL = 'https://pms.example.kz/';
+    const r1 = await post('/channels/channex/webhook/register').expect(200);
+    expect(r1.body).toMatchObject({
+      created: true,
+      callbackUrl: 'https://pms.example.kz/channels/channex/webhook',
+      eventMask: 'booking',
+      active: true,
+    });
+    expect(fakes.calls.find((c) => c.op === 'createWebhook')!.body).toMatchObject({
+      property_id: 'prop-1',
+      event_mask: 'booking',
+      send_data: true,
+      is_active: true,
+      is_global: false,
+      headers: { 'x-channex-webhook-secret': 'test-webhook-secret' },
+    });
+    const r2 = await post('/channels/channex/webhook/register').expect(200);
+    expect(r2.body.created).toBe(false);
+    expect(fakes.webhooks).toHaveLength(1); // один webhook на объект — повтор обновляет
+    expect(fakes.calls.filter((c) => c.op === 'updateWebhook')).toHaveLength(1);
+    const st = await request(app.getHttpServer())
+      .get('/channels/channex/webhook/status')
+      .expect(200);
+    expect(st.body).toMatchObject({
+      registered: true,
+      callbackUrl: 'https://pms.example.kz/channels/channex/webhook',
+      eventMask: 'booking',
+      active: true,
+      sendData: true,
+      expectedUrl: 'https://pms.example.kz/channels/channex/webhook',
+    });
+    const t = await post('/channels/channex/webhook/test').expect(200);
+    expect(t.body).toMatchObject({ statusCode: 400 });
+    expect(t.body.verdict).toContain('секрет принят');
+    expect(fakes.audits.filter((a) => a === 'channels.webhook.register')).toHaveLength(2);
+    delete process.env.PUBLIC_API_URL;
+    delete process.env.CHANNEX_WEBHOOK_SECRET;
   });
 });

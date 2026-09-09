@@ -5,6 +5,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -72,10 +73,22 @@ export class InboundBookingsService {
   ) {}
 
   /** Webhook Channex (webhook-collection.md): общий секрет в заголовке, затем pull ревизии по ID. */
+  /** Очередь фоновой обработки webhook: по одному, в порядке прихода. Тесты ждут через drain(). */
+  private queue: Promise<void> = Promise.resolve();
+  private readonly log = new Logger(InboundBookingsService.name);
+  drain(): Promise<void> {
+    return this.queue;
+  }
+
+  /**
+   * Webhook Channex: проверяем секрет и форму, отвечаем сразу (webhook-collection.md: событие — сигнал
+   * забрать ревизию; Channex повторяет только 5xx, а туннели/прокси рвут долгие ответы), обработку ставим в очередь.
+   * Ошибка обработки — в журнал; ревизия остаётся неподтверждённой в ленте, её доберёт pull.
+   */
   async handleWebhook(
     secretHeader: string | undefined,
     body: { event?: string; payload?: unknown; property_id?: string; timestamp?: string },
-  ): Promise<{ ok: true; outcome?: RevisionOutcome }> {
+  ): Promise<{ ok: true; accepted: true }> {
     const expected = process.env.CHANNEX_WEBHOOK_SECRET?.trim();
     if (!expected)
       throw new ServiceUnavailableException(
@@ -87,9 +100,27 @@ export class InboundBookingsService {
     if (body.event.startsWith('booking')) {
       const p = body.payload as { revision_id?: string } | undefined;
       if (!p?.revision_id) throw new BadRequestException('Нет payload.revision_id');
+    }
+    const event = body.event;
+    const run = () =>
+      this.processWebhookEvent(body).catch((e) =>
+        this.log.error(`webhook ${event}: ${(e as Error).message}`),
+      );
+    this.queue = this.queue.then(run, run);
+    return { ok: true, accepted: true };
+  }
+
+  private async processWebhookEvent(body: {
+    event?: string;
+    payload?: unknown;
+    property_id?: string;
+    timestamp?: string;
+  }): Promise<void> {
+    if (body.event!.startsWith('booking')) {
+      const p = body.payload as { revision_id: string };
       const rev = await this.fetchRevision(p.revision_id);
-      const outcome = await this.processRevision(rev);
-      return { ok: true, outcome };
+      await this.processRevision(rev);
+      return;
     }
     // Остальные события журналируем и считаем обработанными (sync_error и т.п. — для человека)
     await this.uow.run(async (repo) => {
@@ -103,7 +134,6 @@ export class InboundBookingsService {
       if (ev.isNew)
         await repo.updateExternalEvent(ev.id, { status: 'PROCESSED', processedAt: new Date() });
     });
-    return { ok: true };
   }
 
   /** Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook. */

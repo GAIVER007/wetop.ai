@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   BadGatewayException,
+  BadRequestException,
   Inject,
   Injectable,
   ServiceUnavailableException,
@@ -21,6 +22,14 @@ export const PROVIDER = 'channex';
 /** Тариф, который продаётся в OTA (plans/slice-4-channex.md, умолчание): «Тариф для ОТА +35%» */
 export const DEFAULT_OTA_RATE_PLAN_CODE = 'exely-10158310';
 const DEFAULT_SYNC_DAYS = 365;
+/** Входящий endpoint PMS (channels.controller) — Channex шлёт сюда POST с нашим секретом в заголовке */
+export const WEBHOOK_PATH = '/channels/channex/webhook';
+const WEBHOOK_EVENTS = 'booking';
+const SECRET_HEADER = 'x-channex-webhook-secret';
+const webhookProperty = (w: channex.ChannexResource<channex.ChannexWebhookAttributes>) => {
+  const d = w.relationships?.['property']?.data;
+  return d && !Array.isArray(d) ? d.id : null;
+};
 
 export interface SetupResult {
   providerPropertyId: string;
@@ -30,6 +39,30 @@ export interface SetupResult {
     providerRoomTypeId: string;
     providerRatePlanId: string;
   }>;
+}
+export interface WebhookStatus {
+  registered: boolean;
+  id: string | null;
+  callbackUrl: string | null;
+  eventMask: string | null;
+  active: boolean;
+  sendData: boolean;
+  /** Адрес, который PMS зарегистрирует: PUBLIC_API_URL + путь webhook; null — PUBLIC_API_URL не задан */
+  expectedUrl: string | null;
+  secretConfigured: boolean;
+}
+export interface WebhookRegisterResult {
+  id: string;
+  callbackUrl: string;
+  created: boolean;
+  eventMask: string;
+  active: boolean;
+}
+export interface WebhookTestResult {
+  callbackUrl: string;
+  statusCode: number;
+  body: string;
+  verdict: string;
 }
 export interface SyncResult {
   from: string;
@@ -146,6 +179,130 @@ export class ChannexSyncService {
   }
 
   /** Полная выгрузка ARI на N дней вперёд: 1 вызов доступности + 1 вызов цен/ограничений (ari.md, rate-limits.md). */
+  private async providerPropertyId(): Promise<string> {
+    const m = (await this.repo.mappings(PROVIDER)).find((x) => x.providerPropertyId);
+    if (!m)
+      throw new UnprocessableEntityException(
+        'Объект в Channex не создан — сначала POST /channels/channex/setup',
+      );
+    return m.providerPropertyId;
+  }
+  private expectedCallbackUrl(override?: string): string | null {
+    const base = override?.trim() || process.env.PUBLIC_API_URL?.trim();
+    if (!base) return null;
+    return override?.trim() ? base : `${base.replace(/\/+$/, '')}${WEBHOOK_PATH}`;
+  }
+  private webhookInput(callbackUrl?: string) {
+    const secret = process.env.CHANNEX_WEBHOOK_SECRET?.trim();
+    if (!secret)
+      throw new ServiceUnavailableException(
+        'CHANNEX_WEBHOOK_SECRET не задан в .env — вписывает владелец (SECURITY.md §3)',
+      );
+    const url = this.expectedCallbackUrl(callbackUrl);
+    if (!url)
+      throw new BadRequestException(
+        'Нет публичного адреса API: задайте PUBLIC_API_URL=https://… в .env или передайте callbackUrl',
+      );
+    if (!/^https:\/\/[^\s/]+/.test(url))
+      throw new BadRequestException(
+        `callback_url должен начинаться с https:// (webhook-collection.md → Security): ${url}`,
+      );
+    return { url, secret };
+  }
+
+  /** Что зарегистрировано в Channex для нашего объекта (секрет наружу не отдаётся). */
+  async webhookStatus(): Promise<WebhookStatus> {
+    const expectedUrl = this.expectedCallbackUrl();
+    const secretConfigured = !!process.env.CHANNEX_WEBHOOK_SECRET?.trim();
+    const none: WebhookStatus = {
+      registered: false,
+      id: null,
+      callbackUrl: null,
+      eventMask: null,
+      active: false,
+      sendData: false,
+      expectedUrl,
+      secretConfigured,
+    };
+    const m = (await this.repo.mappings(PROVIDER)).find((x) => x.providerPropertyId);
+    if (!m) return none;
+    const own = (await viaChannex(() => this.gateway.listWebhooks())).filter(
+      (w) => webhookProperty(w) === m.providerPropertyId,
+    );
+    const w = own[0];
+    if (!w) return none;
+    return {
+      ...none,
+      registered: true,
+      id: w.id,
+      callbackUrl: w.attributes.callback_url,
+      eventMask: w.attributes.event_mask,
+      active: w.attributes.is_active,
+      sendData: w.attributes.send_data,
+    };
+  }
+
+  /**
+   * Зарегистрировать (или обновить) webhook нашего объекта: события booking, секрет в заголовке
+   * X-Channex-Webhook-Secret, send_data = true (нужен payload.revision_id). Один webhook на объект — повтор обновляет.
+   */
+  async registerWebhook(callbackUrl?: string): Promise<WebhookRegisterResult> {
+    const { url, secret } = this.webhookInput(callbackUrl);
+    const propertyId = await this.providerPropertyId();
+    const input: channex.ChannexWebhookInput = {
+      callback_url: url,
+      event_mask: WEBHOOK_EVENTS,
+      property_id: propertyId,
+      headers: { [SECRET_HEADER]: secret },
+      is_active: true,
+      send_data: true,
+      is_global: false,
+    };
+    const existing = (await viaChannex(() => this.gateway.listWebhooks())).find(
+      (w) => webhookProperty(w) === propertyId,
+    );
+    const saved = existing
+      ? await viaChannex(() => this.gateway.updateWebhook(existing.id, input))
+      : await viaChannex(() => this.gateway.createWebhook(input));
+    await this.repo.audit('channels.webhook.register', {
+      webhookId: saved.id,
+      callbackUrl: url,
+      eventMask: WEBHOOK_EVENTS,
+      created: !existing,
+    });
+    return {
+      id: saved.id,
+      callbackUrl: url,
+      created: !existing,
+      eventMask: saved.attributes.event_mask,
+      active: saved.attributes.is_active,
+    };
+  }
+
+  /** Channex шлёт пробный POST на наш адрес с нашими заголовками и возвращает ответ endpoint'а. */
+  async testWebhook(callbackUrl?: string): Promise<WebhookTestResult> {
+    const { url, secret } = this.webhookInput(callbackUrl);
+    const propertyId = await this.providerPropertyId();
+    const t = await viaChannex(() =>
+      this.gateway.testWebhook({
+        callback_url: url,
+        event_mask: WEBHOOK_EVENTS,
+        property_id: propertyId,
+        headers: { [SECRET_HEADER]: secret },
+        send_data: true,
+      }),
+    );
+    const verdict =
+      t.status_code === 200 || t.status_code === 400
+        ? 'endpoint доступен, секрет принят'
+        : t.status_code === 401
+          ? 'endpoint доступен, но секрет не совпал — сверьте CHANNEX_WEBHOOK_SECRET'
+          : t.status_code === 503
+            ? 'endpoint доступен, но на стороне PMS секрет не задан'
+            : `endpoint недоступен или ответил ${t.status_code}`;
+    return { callbackUrl: url, statusCode: t.status_code, body: t.body.slice(0, 500), verdict };
+  }
+
   async fullSync(days = DEFAULT_SYNC_DAYS): Promise<SyncResult> {
     if (!Number.isInteger(days) || days < 1 || days > 730)
       throw new UnprocessableEntityException('days — целое от 1 до 730');

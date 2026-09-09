@@ -5,3 +5,10 @@ export {
   type InventoryComparison,
   type CompareRow,
 } from './inventory-compare';
+export {
+  compareRates,
+  renderRatesReport,
+  type RateRow,
+  type RatesComparison,
+  type RateGroupResult,
+} from './rates-compare';

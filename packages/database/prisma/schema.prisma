@@ -1,6 +1,6 @@
 // Prisma schema — ТОЛЬКО утверждённые разделы DATA_MODEL.md v1.0 (07.09.2026):
 //   §1 Объект и физическая структура, §2 Бронирование, §3 Гости, §4 Housekeeping и блокировки,
-//   §5 Тарифы, §10 Аудит. Плюс SQL вне Prisma: exclusion constraint на allocations (миграция 20260909000003).
+//   §5 Тарифы, §7 Channel Manager, §8 Внешние события, §10 Аудит. Плюс SQL вне Prisma: exclusion constraint на allocations (миграция 20260909000003).
 // Раздел 6 (Folio) не утверждён (Q-091) — сущностей финансов здесь нет и быть не должно.
 // Любое изменение сущности/поля/связи — сначала правка DATA_MODEL.md (AGENTS.md §2).
 //
@@ -42,6 +42,7 @@ model Property {
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
   ratePlans          RatePlan[]
+  channelMappings    ChannelMapping[]
 
   @@map("properties")
 }
@@ -95,12 +96,13 @@ model AccommodationType {
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property      Property                    @relation(fields: [propertyId], references: [id])
-  units         InventoryUnit[]
-  items         ReservationItem[]
-  ratePlanLinks RatePlanAccommodationType[]
-  dailyRates    DailyRate[]
-  restrictions  Restriction[]
+  property        Property                    @relation(fields: [propertyId], references: [id])
+  units           InventoryUnit[]
+  items           ReservationItem[]
+  ratePlanLinks   RatePlanAccommodationType[]
+  dailyRates      DailyRate[]
+  restrictions    Restriction[]
+  channelMappings ChannelMapping[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -397,10 +399,11 @@ model RatePlan {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  property     Property                    @relation(fields: [propertyId], references: [id])
-  types        RatePlanAccommodationType[]
-  dailyRates   DailyRate[]
-  restrictions Restriction[]
+  property        Property                    @relation(fields: [propertyId], references: [id])
+  types           RatePlanAccommodationType[]
+  dailyRates      DailyRate[]
+  restrictions    Restriction[]
+  channelMappings ChannelMapping[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -474,4 +477,66 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ───────────────────────── §7 Channel Manager ─────────────────────────
+
+/// Соответствие наших сущностей объектам Channex и каналов (DATA_MODEL §7). Vendor ID живут только здесь
+/// и в packages/integrations (ADR-004). Одна строка = одна пара (категория, тариф) у одного провайдера.
+model ChannelMapping {
+  id                       String   @id @default(uuid()) @db.Uuid
+  propertyId               String   @map("property_id") @db.Uuid
+  /// Провайдер: пока только `channex`
+  provider                 String
+  /// Канал (booking.com, agoda, …); null для сущностей уровня провайдера
+  channel                  String?
+  localAccommodationTypeId String?  @map("local_accommodation_type_id") @db.Uuid
+  localRatePlanId          String?  @map("local_rate_plan_id") @db.Uuid
+  providerPropertyId       String   @map("provider_property_id")
+  providerRoomTypeId       String?  @map("provider_room_type_id")
+  providerRatePlanId       String?  @map("provider_rate_plan_id")
+  channelPropertyId        String?  @map("channel_property_id")
+  channelRoomId            String?  @map("channel_room_id")
+  channelRateId            String?  @map("channel_rate_id")
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property          Property           @relation(fields: [propertyId], references: [id])
+  accommodationType AccommodationType? @relation(fields: [localAccommodationTypeId], references: [id])
+  ratePlan          RatePlan?          @relation(fields: [localRatePlanId], references: [id])
+
+  @@unique([provider, providerRatePlanId])
+  @@index([propertyId, provider])
+  @@index([localAccommodationTypeId])
+  @@index([localRatePlanId])
+  @@map("channel_mappings")
+}
+
+// ───────────────────────── §8 Внешние события ─────────────────────────
+
+enum ExternalEventStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+/// Журнал входящих событий (webhook, revision feed). UNIQUE(provider, external_event_id) —
+/// идемпотентность обязательна (ADR-007): сначала записано, потом обработано, повтор безопасен.
+model ExternalEvent {
+  id              String              @id @default(uuid()) @db.Uuid
+  provider        String
+  externalEventId String              @map("external_event_id")
+  type            String
+  receivedAt      DateTime            @default(now()) @map("received_at") @db.Timestamptz(6)
+  payloadHash     String              @map("payload_hash")
+  payload         Json?
+  status          ExternalEventStatus @default(RECEIVED)
+  attemptCount    Int                 @default(0) @map("attempt_count")
+  lastError       String?             @map("last_error")
+  processedAt     DateTime?           @map("processed_at") @db.Timestamptz(6)
+
+  @@unique([provider, externalEventId])
+  @@index([status, receivedAt])
+  @@map("external_events")
 }

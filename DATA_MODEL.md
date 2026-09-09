@@ -531,6 +531,10 @@ channel_rate_id
 
 Восемь каналов подлежат маппингу, ID объектов известны — см. [OBJECT.md](OBJECT.md) §4.
 
+> **09.09.2026, реализовано (миграция `20260909000004`):** таблица `channel_mappings` по схеме выше плюс `property_id`,
+> `created_at/updated_at`; UNIQUE(provider, provider_rate_plan_id). Строка без `provider_room_type_id` = маппинг самого объекта.
+> Клиент — `packages/integrations/src/channex`, оркестрация — `apps/api/src/channels` (домен Channex не видит).
+
 > **Ценообразование по каналам на объекте реализовано отдельным тарифом на канал,
 > а не наценкой.** Базовый тариф → сайт и PMS; «+35%» → все 8 OTA; отдельные тарифы
 > под Островок. Модель это поддерживает через `ChannelMapping.local_rate_plan_id`.
@@ -556,6 +560,9 @@ processed_at
 ```
 
 **UNIQUE (provider, external_event_id)** — обязательно, для идемпотентности (ADR-007).
+
+> **09.09.2026, реализовано (миграция `20260909000004`):** `external_events` с полями выше плюс `payload` (Json) и enum
+> статуса `RECEIVED | PROCESSING | PROCESSED | FAILED`. Обработка событий (webhook Channex) — шаг 4.4.
 
 ---
 

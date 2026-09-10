@@ -113,7 +113,15 @@ function StayButtons(props: {
   const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
     if (action === 'no-show' && !window.confirm('Отметить незаезд? Назначение ячейки снимется.'))
       return;
-    setState(await stayAction(props.number, props.item.id, action));
+    const r = await stayAction(props.number, props.item.id, action);
+    // T3: выселение с долгом — показать сумму и переспросить, затем выселить с подтверждением
+    if (action === 'check-out' && r.error && r.error.includes('долг')) {
+      if (window.confirm(`${r.error}. Выселить с долгом?`)) {
+        setState(await stayAction(props.number, props.item.id, action, true));
+        return;
+      }
+    }
+    setState(r);
   };
   const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
   return (

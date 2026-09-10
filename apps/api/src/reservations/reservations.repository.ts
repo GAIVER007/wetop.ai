@@ -6,6 +6,7 @@ import {
   type Db,
   type DbTx,
 } from '@pms/database';
+import { folioBalance } from '@pms/domain';
 import type { NightRate, ReservationSource, ReservationStatus } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
@@ -208,6 +209,8 @@ export interface ReservationsRepository {
   addReservationItem(reservationId: string, item: NewReservation['items'][number]): Promise<string>;
   /** Штраф при отмене/незаезде на счёт проживания (Q-103, DATA_MODEL §6) */
   addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void>;
+  /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
+  stayBalanceMinor(itemId: string): Promise<bigint>;
   /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
   channelMappings(provider: string): Promise<ChannelMappingRef[]>;
   /** Журнал входящих событий (ADR-007): вернуть существующее или создать новое */
@@ -610,6 +613,24 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { confirmationNumber: true },
     });
     return r ? this.reservationByNumber(r.confirmationNumber) : null;
+  }
+  async stayBalanceMinor(itemId: string): Promise<bigint> {
+    const folio = await this.db.folio.findUnique({
+      where: { reservationItemId: itemId },
+      select: {
+        charges: { select: { amount: true, voidedAt: true } },
+        allocations: { select: { amount: true, payment: { select: { status: true } } } },
+        refunds: { select: { amount: true } },
+      },
+    });
+    if (!folio) return 0n;
+    return folioBalance({
+      charges: folio.charges.map((c) => ({ amountMinor: c.amount, voided: c.voidedAt !== null })),
+      allocations: folio.allocations
+        .filter((a) => a.payment.status === 'COMPLETED')
+        .map((a) => ({ amountMinor: a.amount })),
+      refunds: folio.refunds.map((r) => ({ amountMinor: r.amount })),
+    }).balanceMinor;
   }
   /** Штраф — начисление PENALTY на счёт проживания; счёт уже создан вместе с проживанием (DATA_MODEL §6) */
   async addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void> {

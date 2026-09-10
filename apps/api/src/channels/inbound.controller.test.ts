@@ -117,6 +117,9 @@ function makeFakes() {
     async categoryById() {
       return null;
     },
+    async stayBalanceMinor() {
+      return 0n;
+    },
     async ratePlanByCode() {
       return null;
     },

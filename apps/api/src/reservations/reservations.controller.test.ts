@@ -52,6 +52,8 @@ function makeFake() {
     rates[`t2|p1|${d}|2`] = 1_500_000n;
   }
   const state = {
+    /** долг счёта по проживанию — для T3 (выселение с долгом) */
+    debts: new Map<string, bigint>(),
     reservations: new Map<string, ReservationState>(),
     allocations: [] as Array<{
       id: string;
@@ -79,6 +81,9 @@ function makeFake() {
     },
     async categoryById(id) {
       return types.find((t) => t.id === id) ?? null;
+    },
+    async stayBalanceMinor(itemId) {
+      return state.debts.get(itemId) ?? 0n;
     },
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
@@ -591,6 +596,33 @@ describe('manual reservation API', () => {
       .post(`/reservations/${n}/items/${itemId}/extend`)
       .send({ nights: 0 })
       .expect(400);
+  });
+
+  it('T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-in`)
+      .send({})
+      .expect(200);
+
+    fake.state.debts.set(itemId, 1_250_000n); // 12 500,00 ₸ долга
+    const refused = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-out`)
+      .send({})
+      .expect(409);
+    expect(refused.body.message).toContain('12 500,00 ₸');
+
+    const done = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/check-out`)
+      .send({ withDebt: true })
+      .expect(200);
+    expect(done.body.items[0].status).toBe('CHECKED_OUT');
+    expect(fake.state.audits.map((a) => a.action)).toContain('reservation.checkOut.withDebt');
   });
 
   it('GET /rate-plans lists only active tariffs', async () => {

@@ -180,11 +180,16 @@ export const reservationsApi = {
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
   cancel: (number: string) =>
     sendJson<ReservationCard>('POST', `/reservations/${encodeURIComponent(number)}/cancel`, {}),
-  stay: (number: string, itemId: string, action: 'check-in' | 'check-out' | 'no-show') =>
+  stay: (
+    number: string,
+    itemId: string,
+    action: 'check-in' | 'check-out' | 'no-show',
+    body: unknown = {},
+  ) =>
     sendJson<ReservationCard>(
       'POST',
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/${action}`,
-      {},
+      body,
     ),
   extend: (number: string, itemId: string, nights = 1) =>
     sendJson<ReservationCard>(

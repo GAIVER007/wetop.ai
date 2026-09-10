@@ -36,8 +36,12 @@ export class ReservationsController {
 
   @Post(':number/items/:itemId/check-out')
   @HttpCode(200)
-  checkOut(@Param('number') number: string, @Param('itemId') itemId: string) {
-    return this.service.checkOut(number, itemId);
+  checkOut(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: { withDebt?: boolean },
+  ) {
+    return this.service.checkOut(number, itemId, dto ?? {});
   }
 
   @Post(':number/items/:itemId/no-show')

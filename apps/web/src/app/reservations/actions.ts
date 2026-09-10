@@ -121,9 +121,11 @@ export async function stayAction(
   number: string,
   itemId: string,
   action: 'check-in' | 'check-out' | 'no-show',
+  /** T3: подтверждение выселения с непогашенным счётом */
+  withDebt = false,
 ): Promise<ActionResult> {
   try {
-    await reservationsApi.stay(number, itemId, action);
+    await reservationsApi.stay(number, itemId, action, withDebt ? { withDebt: true } : {});
   } catch (e) {
     return { error: describe(e) };
   }

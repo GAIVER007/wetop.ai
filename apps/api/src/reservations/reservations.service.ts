@@ -77,6 +77,14 @@ function addDays(date: string, n: number): string {
   return x.toISOString().slice(0, 10);
 }
 
+/** Сумма в тиынах → «12 000,00 ₸» для сообщения администратору. */
+function formatMinorRu(minor: bigint): string {
+  const neg = minor < 0n;
+  const d = (neg ? -minor : minor).toString().padStart(3, '0');
+  const int = d.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${neg ? '−' : ''}${int},${d.slice(-2)} ₸`;
+}
+
 async function guarded<T>(fn: () => Promise<T> | T): Promise<T> {
   try {
     return await fn();
@@ -640,7 +648,15 @@ export class ReservationsService {
    * Выселить. Ранний выезд: проживание и назначение заканчиваются сегодня — ячейка свободна с этой даты.
    * Цена не пересчитывается (деньги — Folio, Q-091).
    */
-  async checkOut(number: string, itemId: string): Promise<ReservationCard> {
+  /**
+   * T3 «Выселение с долгом»: выселить при непогашенном счёте можно, но администратор должен увидеть сумму
+   * и подтвердить (`withDebt`). Иначе 409 с суммой долга. Факт выселения с долгом попадает в журнал.
+   */
+  async checkOut(
+    number: string,
+    itemId: string,
+    dto: { withDebt?: boolean } = {},
+  ): Promise<ReservationCard> {
     const result = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
@@ -648,6 +664,11 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         assertCanCheckOut(item.status);
         const before = await repo.card(number);
+        const debtMinor = await repo.stayBalanceMinor(item.id);
+        if (debtMinor > 0n && !dto.withDebt)
+          throw new ConflictException(
+            `На счёте долг ${formatMinorRu(debtMinor)}. Примите оплату или подтвердите выселение с долгом`,
+          );
         const today = this.today();
         const early = today < item.departureDate && today > item.arrivalDate;
         if (early) {
@@ -676,9 +697,9 @@ export class ReservationsService {
         await repo.audit({
           entityType: 'Reservation',
           entityId: state.id,
-          action: 'reservation.checkOut',
+          action: debtMinor > 0n ? 'reservation.checkOut.withDebt' : 'reservation.checkOut',
           before,
-          after,
+          after: debtMinor > 0n ? { ...after, debtMinor: debtMinor.toString() } : after,
         });
         return { before, after, early };
       }),

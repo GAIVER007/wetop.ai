@@ -13,7 +13,7 @@ const plus = (n: number) => {
 };
 const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
 
-test('отмена: проживание сторнировано, начислен штраф за первые сутки, стойка может его снять', async ({
+test('отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять', async ({
   page,
 }) => {
   test.setTimeout(120_000);
@@ -34,17 +34,36 @@ test('отмена: проживание сторнировано, начисл�
   expect(await balance()).toBe(stayTotal);
 
   page.on('dialog', (d) => d.accept());
+  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
   await page.getByTestId('cancel-reservation').click();
   await expect(page.getByText('отменена').first()).toBeVisible();
-
-  // проживание сторнировано, вместо него — штраф; 3 ночи, штраф = одна ночь
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
   await expect(accommodation).toContainText('сторнировано');
-  const penalty = panel.getByTestId('charge-row').filter({ hasText: 'Штраф за отмену' });
+  await expect(panel.getByTestId('charge-row').filter({ hasText: 'Штраф' })).toHaveCount(0);
+  expect(await balance()).toBe(0n);
+
+  // Незаезд: штраф есть всегда, потому что место простояло
+  await page.goto(`/reservations/new?arrival=${plus(21)}&departure=${plus(24)}`);
+  const f2 = page.getByTestId('new-reservation-form');
+  await f2.locator('select[name="source"]').selectOption('PHONE');
+  await f2.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await f2.locator('select[name="ratePlanCode"]').selectOption('exely-10158310'); // тариф ОТА: штраф — первая ночь
+  const unit = f2.locator('select[name="unitCode"]');
+  await unit.selectOption((await unit.locator('option').nth(1).getAttribute('value'))!);
+  await f2.locator('input[name="firstName"]').fill('Гость');
+  await f2.locator('input[name="lastName"]').fill('Тест-незаезд-штраф');
+  await f2.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
+  const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  await page.locator('[data-testid^="no-show-"]').click();
+  await expect(page.getByText('незаезд').first()).toBeVisible();
+  const penalty = page
+    .getByTestId('folio-panel')
+    .getByTestId('charge-row')
+    .filter({ hasText: 'Штраф за незаезд' });
   await expect(penalty).toHaveCount(1);
   const penaltyMinor = minor(await penalty.locator('td').nth(3).innerText());
-  expect(penaltyMinor).toBeGreaterThan(0n);
-  expect(penaltyMinor * 3n).toBe(stayTotal); // цена ночи одинакова во все 3 ночи
+  expect(penaltyMinor * 3n).toBe(stay2); // одна ночь из трёх
   expect(await balance()).toBe(penaltyMinor);
   await page.screenshot({ path: 'reports/screenshots/cancellation-penalty.png', fullPage: true });
 

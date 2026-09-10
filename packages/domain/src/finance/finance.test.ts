@@ -5,6 +5,7 @@ import {
   assertRefundWithin,
   folioBalance,
   penaltyAmount,
+  penaltyDue,
   parseMoney,
 } from './finance';
 
@@ -84,5 +85,19 @@ describe('penaltyAmount (Q-103: правило Exely «первые сутки»
     expect(
       penaltyAmount('FIRST_NIGHT', { totalMinor: 500n, nights: 0, firstNightMinor: null }),
     ).toBe(0n);
+  });
+});
+
+describe('penaltyDue (Q-103: ответ управляющего 10.09.2026 — штраф только в день заезда)', () => {
+  const stay = { arrivalDate: '2026-10-10' };
+  it('отмена заранее — без штрафа, отмена в день заезда и позже — со штрафом', () => {
+    expect(penaltyDue({ ...stay, on: '2026-10-01', reason: 'cancel' })).toBe(false);
+    expect(penaltyDue({ ...stay, on: '2026-10-09', reason: 'cancel' })).toBe(false); // за день — бесплатно
+    expect(penaltyDue({ ...stay, on: '2026-10-10', reason: 'cancel' })).toBe(true); // день заезда
+    expect(penaltyDue({ ...stay, on: '2026-10-11', reason: 'cancel' })).toBe(true);
+  });
+  it('незаезд считается всегда: гость не приехал и место простояло', () => {
+    expect(penaltyDue({ ...stay, on: '2026-10-10', reason: 'no_show' })).toBe(true);
+    expect(penaltyDue({ ...stay, on: '2026-10-01', reason: 'no_show' })).toBe(true);
   });
 });

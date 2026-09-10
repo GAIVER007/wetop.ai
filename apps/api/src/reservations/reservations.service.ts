@@ -22,6 +22,7 @@ import {
   type ReservationSource,
   type ReservationStatus,
   penaltyAmount,
+  penaltyDue,
   assertCanExtend,
 } from '@pms/domain';
 import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
@@ -571,9 +572,18 @@ export class ReservationsService {
   private async chargePenalty(
     repo: ReservationsRepository,
     item: ItemState,
-    reason: string,
+    reason: 'отмену брони' | 'незаезд',
   ): Promise<void> {
     if (item.cancellationPenalty === 'NONE' || item.priceMinor <= 0n) return;
+    // Штраф появляется только в день заезда и позже; отмена заранее бесплатна на всех каналах (Q-103)
+    if (
+      !penaltyDue({
+        arrivalDate: item.arrivalDate,
+        on: this.today(),
+        reason: reason === 'незаезд' ? 'no_show' : 'cancel',
+      })
+    )
+      return;
     const nights = Math.round(
       (Date.parse(`${item.departureDate}T00:00:00Z`) -
         Date.parse(`${item.arrivalDate}T00:00:00Z`)) /

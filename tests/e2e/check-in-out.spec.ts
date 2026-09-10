@@ -11,6 +11,8 @@ const plus = (n: number) => {
 test('заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку', async ({
   page,
 }) => {
+  // сценарий длинный: бронь, карточка гостя, документ, заезд, шахматка, выезд, вторая бронь, незаезд
+  test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
   const form = page.getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
@@ -65,6 +67,7 @@ test('заселить → карточка и шахматка показыва
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   page.on('dialog', (d) => d.accept());
   await page.locator('[data-testid^="no-show-"]').click();
-  await expect(page.getByText('незаезд').first()).toBeVisible();
+  // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
+  await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');
   await expect(page.getByTestId('stay-row').first()).toContainText('не назначена');
 });

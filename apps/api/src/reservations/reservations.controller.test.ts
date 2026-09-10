@@ -439,7 +439,7 @@ describe('manual reservation API', () => {
       'reservation.create',
     ]);
   });
-  it('cancel and no-show charge the tariff penalty automatically (Q-103: Exely rule «first night»); dates change without repeating the tariff (Q-102)', async () => {
+  it('Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102)', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')
       .send(body())
@@ -451,31 +451,31 @@ describe('manual reservation API', () => {
       .send({ arrivalDate: '2026-09-16', departureDate: '2026-09-19' })
       .expect(200);
     expect(moved.body.totalAmountMinor).toBe('3300000');
-    // Q-103: отмена → штраф = стоимость первой ночи по календарю (1 100 000 тиын)
-    await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(200);
-    expect(fake.penalties).toEqual([
-      {
-        itemId: expect.any(String),
-        amountMinor: 1_100_000n,
-        description: 'Штраф за отмену брони (2026-09-16 → 2026-09-19)',
-      },
-    ]);
 
+    // отмена задолго до заезда — штрафа нет (ответ управляющего: бесплатно на всех каналах)
+    await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(200);
+    expect(fake.penalties).toEqual([]);
+
+    // незаезд — штраф есть всегда: место простояло. Сумма = первая ночь по календарю
     const second = await request(app.getHttpServer())
       .post('/reservations')
       .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' }))
       .expect(201);
     const n2 = second.body.confirmationNumber as string;
-    const itemId = second.body.items[0].id as string;
+    const item2 = second.body.items[0].id as string;
     await request(app.getHttpServer())
-      .post(`/reservations/${n2}/items/${itemId}/no-show`)
+      .post(`/reservations/${n2}/items/${item2}/no-show`)
       .send({})
       .expect(200);
-    expect(fake.penalties[1]).toMatchObject({
-      amountMinor: 1_100_000n,
-      description: 'Штраф за незаезд (2026-09-15 → 2026-09-18)',
-    });
+    expect(fake.penalties).toEqual([
+      {
+        itemId: item2,
+        amountMinor: 1_100_000n,
+        description: 'Штраф за незаезд (2026-09-15 → 2026-09-18)',
+      },
+    ]);
   });
+
   it('assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')

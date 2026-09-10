@@ -89,9 +89,10 @@ export class DeskService {
           .length,
         toCheckOut: departures.filter((d) => d.status === 'CHECKED_IN').length,
       },
+      // Только долги: переплата одного гостя не должна прятать долг другого
       debtMinor: departures
         .filter((d) => d.status === 'CHECKED_IN')
-        .reduce((s, d) => s + BigInt(d.balanceMinor), 0n)
+        .reduce((s, d) => s + (BigInt(d.balanceMinor) > 0n ? BigInt(d.balanceMinor) : 0n), 0n)
         .toString(),
     };
   }

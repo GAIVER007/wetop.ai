@@ -425,7 +425,18 @@ export class ReservationsService {
         });
         const price = { totalMinor: item.priceMinor + added.totalMinor };
         const last = item.allocations[item.allocations.length - 1];
-        if (last) await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
+        if (last) {
+          // Блокировки лежат в отдельной таблице, ограничение базы их не ловит — спрашиваем явно
+          if (await repo.hasBlockOverlap(last.unitId, item.departureDate, departureDate))
+            throw new ConflictException(
+              `Ячейка ${last.unitCode} заблокирована на ${item.departureDate} → ${departureDate}`,
+            );
+          if (
+            await repo.hasAllocationOverlap(last.unitId, item.departureDate, departureDate, item.id)
+          )
+            throw new ConflictException(`Ячейка ${last.unitCode} занята на новые ночи`);
+          await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
+        }
         await repo.updateItem(item.id, { departureDate, priceMinor: price.totalMinor });
         const fresh = await this.load(repo, number);
         const active = fresh.items.filter((i) => i.status !== 'CANCELLED');

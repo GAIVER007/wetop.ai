@@ -76,8 +76,10 @@ const checks: Array<{ what: string; ok: boolean; got: string; who: string }> = [
   },
   {
     what: 'Удобства (facilities)',
-    ok: true,
-    got: 'через API объекта не читаются — проверить в кабинете',
+    ok: Array.isArray(a['facilities']) && (a['facilities'] as unknown[]).length > 0,
+    got: Array.isArray(a['facilities'])
+      ? String((a['facilities'] as unknown[]).length)
+      : 'нет в ответе API',
     who: 'владелец: Wi-Fi, кухня, кондиционер — факты о доме',
   },
 ];

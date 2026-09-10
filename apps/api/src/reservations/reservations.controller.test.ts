@@ -121,6 +121,9 @@ function makeFake() {
     async hasBlockOverlap(unitId, from, toExclusive) {
       return blocked.some((b) => b.unitId === unitId && b.from < toExclusive && b.to > from);
     },
+    async hasAllocationOverlap(unitId, from, toExclusive, exceptItem) {
+      return overlaps(unitId, from, toExclusive, exceptItem);
+    },
     async firstFreeUnit() {
       return null; // ручная бронь ячейку выбирает сама; автоназначение — для каналов (Q-094)
     },

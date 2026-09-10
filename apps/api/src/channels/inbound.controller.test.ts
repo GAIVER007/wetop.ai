@@ -149,6 +149,11 @@ function makeFakes() {
     async hasBlockOverlap() {
       return false;
     },
+    async hasAllocationOverlap(unitId, from, to, exceptItemId) {
+      return allocations.some(
+        (x) => x.unitId === unitId && x.itemId !== exceptItemId && x.start < to && x.end > from,
+      );
+    },
     // одна ячейка категории: свободна, если ни одно назначение не пересекает период
     async firstFreeUnit(accommodationTypeId, from, to) {
       const busy = allocations.some((x) => x.unitId === 'u-9001' && x.start < to && x.end > from);

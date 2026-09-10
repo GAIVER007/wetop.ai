@@ -29,8 +29,11 @@ export interface CategoryRef {
   capacityAdults: number;
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
-/** Без тарифа политику взять неоткуда: умолчание объекта — правило Exely «стоимость первых суток» (Q-103) */
-export const DEFAULT_CANCELLATION_PENALTY: CancellationPenalty = 'FIRST_NIGHT';
+/**
+ * Без тарифа политику взять неоткуда — не штрафуем (Q-103). Так у всех перенесённых из Exely броней,
+ * где тариф проживания API не отдаёт: молча выставить им штраф значило бы придумать долг.
+ */
+export const DEFAULT_CANCELLATION_PENALTY: CancellationPenalty = 'NONE';
 export interface RatePlanRef {
   id: string;
   code: string;
@@ -162,6 +165,16 @@ export interface ReservationsRepository {
   ): Promise<NightRate[]>;
   unitByCode(code: string): Promise<UnitRef | null>;
   hasBlockOverlap(unitId: string, from: string, toExclusive: string): Promise<boolean>;
+  /**
+   * Занята ли ячейка активным проживанием в эти ночи. Проверять НАДО заранее: нарушение
+   * `allocations_no_overlap_per_unit` (23P01) обрывает всю транзакцию Postgres, и продолжать в ней нельзя.
+   */
+  hasAllocationOverlap(
+    unitId: string,
+    from: string,
+    toExclusive: string,
+    exceptItemId?: string,
+  ): Promise<boolean>;
   /** Первая свободная активная ячейка категории на весь период [from, toExclusive): без проживаний и блокировок (Q-094) */
   firstFreeUnit(
     accommodationTypeId: string,
@@ -250,6 +263,8 @@ export const RESERVATIONS_UOW = Symbol('RESERVATIONS_UOW');
 
 const asDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const iso = (x: Date) => x.toISOString().slice(0, 10);
+/** Сегодня по часам объекта (Asia/Almaty, UTC+5): ночная смена не должна писать вчерашнюю дату */
+const almatyToday = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 export class PrismaReservationsRepository implements ReservationsRepository {
@@ -377,6 +392,23 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
     return free[0] ?? null;
+  }
+  async hasAllocationOverlap(
+    unitId: string,
+    from: string,
+    toExclusive: string,
+    exceptItemId?: string,
+  ): Promise<boolean> {
+    const n = await this.db.allocation.count({
+      where: {
+        inventoryUnitId: unitId,
+        startDate: { lt: asDate(toExclusive) },
+        endDate: { gt: asDate(from) },
+        reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+        ...(exceptItemId ? { reservationItemId: { not: exceptItemId } } : {}),
+      },
+    });
+    return n > 0;
   }
   async hasBlockOverlap(unitId: string, from: string, toExclusive: string): Promise<boolean> {
     const n = await this.db.inventoryBlock.count({
@@ -688,7 +720,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         quantity: 1,
         unitPrice: amountMinor,
         amount: amountMinor,
-        serviceDate: new Date(),
+        serviceDate: new Date(`${almatyToday()}T00:00:00Z`),
       },
     });
   }

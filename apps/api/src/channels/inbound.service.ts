@@ -318,7 +318,12 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         const message = e instanceof Error ? e.message : String(e);
         // Транзакция 3: FAILED пишется отдельно — внутри прерванной транзакции Postgres это невозможно (25P02).
         await this.uow.run((repo) =>
-          repo.updateExternalEvent(ev.id, { status: 'FAILED', lastError: message }),
+          repo.updateExternalEvent(ev.id, {
+            status: 'FAILED',
+            lastError: message,
+            // транзакция с пометкой PROCESSING откатилась вместе с ошибкой — попытку считаем здесь
+            countAttempt: true,
+          }),
         );
         if (e instanceof UnmappedRoomError)
           return { ...base, result: 'failed', confirmationNumber: null, error: message };
@@ -473,6 +478,9 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
           departureDate: next.departureDate,
           priceMinor: next.priceMinor,
           status: 'CONFIRMED',
+          // Канал мог сменить тип комнаты и тариф — иначе ячейка окажется чужой категории
+          accommodationTypeId: next.accommodationTypeId,
+          ...(next.ratePlanId ? { ratePlanId: next.ratePlanId } : {}),
         });
         if (datesChanged) {
           for (const al of item.allocations) {

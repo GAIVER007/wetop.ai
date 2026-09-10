@@ -80,3 +80,21 @@ export function parseMoney(value: string): bigint {
   const minor = BigInt(m[2]!) * 100n + BigInt((m[3] ?? '').padEnd(2, '0'));
   return m[1] ? -minor : minor;
 }
+
+export type CancellationPenaltyPolicy = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+
+/**
+ * Штраф при отмене / незаезде по политике тарифа (Q-103; правило Exely «штраф = стоимость первых суток»
+ * привязано ко всем тарифам объекта). FIRST_NIGHT — цена первой ночи по календарю; календаря нет —
+ * средняя ночь (цена / ночей, остаток отбрасывается). FULL_STAY — вся цена проживания. Отрицательного штрафа нет.
+ */
+export function penaltyAmount(
+  policy: CancellationPenaltyPolicy,
+  stay: { totalMinor: bigint; nights: number; firstNightMinor: bigint | null },
+): bigint {
+  if (policy === 'NONE' || stay.totalMinor <= 0n) return 0n;
+  if (policy === 'FULL_STAY') return stay.totalMinor;
+  if (stay.firstNightMinor !== null && stay.firstNightMinor > 0n) return stay.firstNightMinor;
+  if (stay.nights <= 0) return 0n;
+  return stay.totalMinor / BigInt(stay.nights);
+}

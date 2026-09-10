@@ -162,6 +162,9 @@ export async function importReservations(
       const itemData = {
         reservationId,
         accommodationTypeId: typeId,
+        // Гости на проживании (Q-102); тариф Exely на проживании не отдаёт — остаётся null
+        adults: it.adults,
+        children: it.children,
         arrivalDate: asDate(it.arrivalDate),
         departureDate: asDate(it.departureDate),
         price: it.priceMinor,

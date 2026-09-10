@@ -21,6 +21,7 @@ import {
   priceStay,
   type ReservationSource,
   type ReservationStatus,
+  penaltyAmount,
 } from '@pms/domain';
 import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
@@ -143,6 +144,7 @@ export class ReservationsService {
         let currency: string | null = null;
         const prepared: Array<{
           typeId: string;
+          ratePlanId: string;
           adults: number;
           totalMinor: bigint;
           unitId: string | null;
@@ -194,7 +196,13 @@ export class ReservationsService {
               throw new ConflictException(`Ячейка ${it.unitCode} заблокирована на эти даты`);
             unitId = unit.id;
           }
-          prepared.push({ typeId: type.id, adults, totalMinor: price.totalMinor, unitId });
+          prepared.push({
+            typeId: type.id,
+            ratePlanId: plan.id,
+            adults,
+            totalMinor: price.totalMinor,
+            unitId,
+          });
         }
         const guestId = await repo.createGuest({
           firstName: guest.firstName!.trim(),
@@ -217,6 +225,9 @@ export class ReservationsService {
           notes: dto.notes ?? null,
           items: prepared.map((p) => ({
             accommodationTypeId: p.typeId,
+            ratePlanId: p.ratePlanId,
+            adults: p.adults,
+            children: 0,
             ...dates,
             priceMinor: p.totalMinor,
             status,
@@ -242,18 +253,30 @@ export class ReservationsService {
     return created;
   }
 
-  /** Изменить даты всей брони; тариф передаётся явно — на проживании он не хранится (Q-102). */
+  /**
+   * Изменить даты всей брони. Тариф берётся с проживания (Q-102: `ReservationItem.rate_plan_id`);
+   * `ratePlanCode` в запросе переопределяет его и обязателен, если тариф на проживании неизвестен
+   * (перенесённые из Exely брони).
+   */
   async changeDates(number: string, dto: ChangeDatesDto): Promise<ReservationCard> {
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
-    if (!dto.ratePlanCode) throw new BadRequestException('ratePlanCode обязателен для перерасчёта');
     const changed = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const before = await repo.card(number);
-        const plan = await repo.ratePlanByCode(dto.ratePlanCode!);
+        const ownPlanId = state.items.find(
+          (i) => i.status !== 'CANCELLED' && i.ratePlanId,
+        )?.ratePlanId;
+        if (!dto.ratePlanCode && !ownPlanId)
+          throw new BadRequestException(
+            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+          );
+        const plan = dto.ratePlanCode
+          ? await repo.ratePlanByCode(dto.ratePlanCode)
+          : await repo.ratePlanById(ownPlanId!);
         if (!plan || !plan.active)
           throw new UnprocessableEntityException(
-            `Тариф ${dto.ratePlanCode} не найден или неактивен`,
+            `Тариф ${dto.ratePlanCode ?? ownPlanId} не найден или неактивен`,
           );
         if (plan.currency !== state.currency)
           throw new UnprocessableEntityException(
@@ -273,14 +296,22 @@ export class ReservationsService {
             dates.arrivalDate,
             dates.departureDate,
           );
-          const price = priceStay({ ...dates, occupancy: Math.max(1, item.guestsCount), rates });
+          const price = priceStay({
+            ...dates,
+            occupancy: Math.max(1, item.adults || item.guestsCount),
+            rates,
+          });
           if (item.allocations.length > 1)
             throw new UnprocessableEntityException(
               'Проживание с переселением: измените даты назначений вручную',
             );
           const a = item.allocations[0];
           if (a) await repo.replaceAllocationDates(a.id, dates.arrivalDate, dates.departureDate);
-          await repo.updateItem(item.id, { ...dates, priceMinor: price.totalMinor });
+          await repo.updateItem(item.id, {
+            ...dates,
+            priceMinor: price.totalMinor,
+            ratePlanId: plan.id,
+          });
           total += price.totalMinor;
         }
         await repo.updateReservation(state.id, { ...dates, totalAmountMinor: total });
@@ -311,6 +342,7 @@ export class ReservationsService {
         for (const item of active) {
           for (const a of item.allocations) await repo.deleteAllocation(a.id);
           await repo.updateItem(item.id, { status: 'CANCELLED' });
+          await this.chargePenalty(repo, item, 'отмену брони');
         }
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(state.items.map(() => 'CANCELLED')),
@@ -369,6 +401,49 @@ export class ReservationsService {
         return after;
       }),
     );
+  }
+
+  /**
+   * Штраф при отмене и незаезде (Q-103) по политике тарифа проживания: начисление за проживание
+   * сторнируется автоматически, вместо него ставится `PENALTY`. Умолчание тарифов — правило Exely
+   * «стоимость первых суток»; сумма первой ночи берётся из календаря цен, иначе средняя ночь.
+   * Штраф — обычное начисление: стойка сторнирует его с карточки, если решила не взыскивать.
+   */
+  private async chargePenalty(
+    repo: ReservationsRepository,
+    item: ItemState,
+    reason: string,
+  ): Promise<void> {
+    if (item.cancellationPenalty === 'NONE' || item.priceMinor <= 0n) return;
+    const nights = Math.round(
+      (Date.parse(`${item.departureDate}T00:00:00Z`) -
+        Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
+        86_400_000,
+    );
+    let firstNightMinor: bigint | null = null;
+    if (item.cancellationPenalty === 'FIRST_NIGHT' && item.ratePlanId) {
+      const rates = await repo.nightRates(
+        item.accommodationTypeId,
+        item.ratePlanId,
+        item.arrivalDate,
+        item.departureDate,
+      );
+      const occupancy = Math.max(1, item.adults || item.guestsCount);
+      firstNightMinor =
+        rates.find((r) => r.date === item.arrivalDate && r.occupancy === occupancy)?.priceMinor ??
+        null;
+    }
+    const amount = penaltyAmount(item.cancellationPenalty, {
+      totalMinor: item.priceMinor,
+      nights,
+      firstNightMinor,
+    });
+    if (amount > 0n)
+      await repo.addPenaltyCharge(
+        item.id,
+        amount,
+        `Штраф за ${reason} (${item.arrivalDate} → ${item.departureDate})`,
+      );
   }
 
   /** Сегодня по часам объекта (Asia/Almaty, UTC+5). */
@@ -472,6 +547,7 @@ export class ReservationsService {
         const before = await repo.card(number);
         for (const a of item.allocations) await repo.deleteAllocation(a.id);
         await repo.updateItem(item.id, { status: 'NO_SHOW' });
+        await this.chargePenalty(repo, item, 'незаезд');
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(
             state.items.map((i) => (i.id === item.id ? 'NO_SHOW' : i.status)),

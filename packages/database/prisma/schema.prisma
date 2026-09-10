@@ -240,6 +240,11 @@ model ReservationItem {
   /// integer minor units (тиын), ADR-008
   price               BigInt
   status              ReservationStatus
+  /// Тариф проживания (Q-102); null — перенесено из Exely, где тариф на проживании не отдаётся
+  ratePlanId          String?           @map("rate_plan_id") @db.Uuid
+  /// Гостей на проживании (Q-102): occupancy для цены и штрафа
+  adults              Int               @default(1)
+  children            Int               @default(0)
   /// pmsRoomStayId в Exely — внешняя ссылка для идемпотентного импорта (ADR-003)
   exelyRoomStayId     String?           @unique @map("exely_room_stay_id")
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -247,11 +252,13 @@ model ReservationItem {
 
   reservation       Reservation       @relation(fields: [reservationId], references: [id])
   accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id])
+  ratePlan          RatePlan?         @relation(fields: [ratePlanId], references: [id])
   allocations       Allocation[]
   stayGuests        StayGuest[]
   folio             Folio?
 
   @@index([reservationId])
+  @@index([ratePlanId])
   @@index([accommodationTypeId, arrivalDate, departureDate])
   @@map("reservation_items")
 }
@@ -399,6 +406,8 @@ model RatePlan {
   exelyId    String?  @map("exely_id")
   /// Пометка импорта: каналы, к которым тариф привязан в Exely (справочно, не бизнес-логика)
   note       String?
+  /// Штраф при отмене/незаезде (Q-103); умолчание — правило Exely «стоимость первых суток»
+  cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -407,6 +416,7 @@ model RatePlan {
   dailyRates      DailyRate[]
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
+  items           ReservationItem[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -574,6 +584,13 @@ model ChannelOutbox {
 }
 
 // ───────────────────────── §6 Folio (финансы) ─────────────────────────
+
+/// Штраф при отмене и незаезде — политика тарифа (Q-103): правило Exely «первые сутки» для всех тарифов
+enum CancellationPenalty {
+  NONE
+  FIRST_NIGHT
+  FULL_STAY
+}
 
 enum FolioStatus {
   OPEN

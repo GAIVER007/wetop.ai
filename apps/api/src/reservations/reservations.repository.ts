@@ -26,12 +26,17 @@ export interface CategoryRef {
   active: boolean;
   capacityAdults: number;
 }
+export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+/** Без тарифа политику взять неоткуда: умолчание объекта — правило Exely «стоимость первых суток» (Q-103) */
+export const DEFAULT_CANCELLATION_PENALTY: CancellationPenalty = 'FIRST_NIGHT';
 export interface RatePlanRef {
   id: string;
   code: string;
   name: string;
   currency: string;
   active: boolean;
+  /** Политика штрафа при отмене/незаезде (Q-103) */
+  cancellationPenalty: CancellationPenalty;
 }
 export interface UnitRef {
   id: string;
@@ -54,6 +59,12 @@ export interface ItemState {
   status: ReservationStatus;
   priceMinor: bigint;
   guestsCount: number;
+  /** Тариф проживания (Q-102); null у перенесённых из Exely — там тариф на проживании не отдаётся */
+  ratePlanId: string | null;
+  adults: number;
+  children: number;
+  /** Политика штрафа тарифа; без тарифа — умолчание объекта (правило Exely «первые сутки») */
+  cancellationPenalty: CancellationPenalty;
   allocations: AllocationState[];
 }
 export interface ReservationState {
@@ -91,6 +102,10 @@ export interface NewReservation {
   notes: string | null;
   items: Array<{
     accommodationTypeId: string;
+    /** Тариф проживания (Q-102); null — неизвестен (перенос из Exely) */
+    ratePlanId?: string | null;
+    adults?: number;
+    children?: number;
     arrivalDate: string;
     departureDate: string;
     priceMinor: bigint;
@@ -132,6 +147,7 @@ export interface ReservationsRepository {
   property(): Promise<{ id: string; currency: string }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
   ratePlanByCode(code: string): Promise<RatePlanRef | null>;
+  ratePlanById(id: string): Promise<RatePlanRef | null>;
   /** Активные тарифы объекта — для формы брони */
   activeRatePlans(): Promise<RatePlanRef[]>;
   ratePlanCoversType(ratePlanId: string, accommodationTypeId: string): Promise<boolean>;
@@ -166,6 +182,7 @@ export interface ReservationsRepository {
       departureDate: string;
       priceMinor: bigint;
       status: ReservationStatus;
+      ratePlanId: string;
     }>,
   ): Promise<void>;
   updateReservation(
@@ -187,6 +204,8 @@ export interface ReservationsRepository {
   reservationByExternalId(externalId: string): Promise<ReservationState | null>;
   /** Добавить проживание к существующей брони (модификация OTA-брони) */
   addReservationItem(reservationId: string, item: NewReservation['items'][number]): Promise<string>;
+  /** Штраф при отмене/незаезде на счёт проживания (Q-103, DATA_MODEL §6) */
+  addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void>;
   /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
   channelMappings(provider: string): Promise<ChannelMappingRef[]>;
   /** Журнал входящих событий (ADR-007): вернуть существующее или создать новое */
@@ -237,7 +256,27 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const { id: propertyId } = await this.property();
     return this.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId, code } },
-      select: { id: true, code: true, name: true, currency: true, active: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        currency: true,
+        active: true,
+        cancellationPenalty: true,
+      },
+    });
+  }
+  async ratePlanById(id: string): Promise<RatePlanRef | null> {
+    return this.db.ratePlan.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        currency: true,
+        active: true,
+        cancellationPenalty: true,
+      },
     });
   }
   async activeRatePlans(): Promise<RatePlanRef[]> {
@@ -245,7 +284,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return this.db.ratePlan.findMany({
       where: { propertyId, active: true },
       orderBy: { code: 'asc' },
-      select: { id: true, code: true, name: true, currency: true, active: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        currency: true,
+        active: true,
+        cancellationPenalty: true,
+      },
     });
   }
   async ratePlanCoversType(ratePlanId: string, accommodationTypeId: string): Promise<boolean> {
@@ -353,6 +399,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         data: {
           reservationId: r.id,
           accommodationTypeId: it.accommodationTypeId,
+          ratePlanId: it.ratePlanId ?? null,
+          adults: it.adults ?? 1,
+          children: it.children ?? 0,
           arrivalDate: asDate(it.arrivalDate),
           departureDate: asDate(it.departureDate),
           price: it.priceMinor,
@@ -400,6 +449,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
               orderBy: { startDate: 'asc' },
               include: { inventoryUnit: { select: { code: true } } },
             },
+            ratePlan: { select: { cancellationPenalty: true } },
             _count: { select: { stayGuests: true } },
           },
         },
@@ -422,6 +472,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         status: it.status,
         priceMinor: it.price,
         guestsCount: it._count.stayGuests,
+        ratePlanId: it.ratePlanId,
+        adults: it.adults,
+        children: it.children,
+        cancellationPenalty: it.ratePlan?.cancellationPenalty ?? DEFAULT_CANCELLATION_PENALTY,
         allocations: it.allocations.map((a) => ({
           id: a.id,
           unitId: a.inventoryUnitId,
@@ -439,6 +493,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       departureDate: string;
       priceMinor: bigint;
       status: ReservationStatus;
+      ratePlanId: string;
     }>,
   ): Promise<void> {
     await this.db.reservationItem.update({
@@ -449,6 +504,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           ? { departureDate: asDate(patch.departureDate) }
           : {}),
         ...(patch.priceMinor !== undefined ? { price: patch.priceMinor } : {}),
+        ...(patch.ratePlanId !== undefined ? { ratePlanId: patch.ratePlanId } : {}),
         ...(patch.status !== undefined ? { status: patch.status } : {}),
       },
     });
@@ -537,6 +593,25 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
     return r ? this.reservationByNumber(r.confirmationNumber) : null;
   }
+  /** Штраф — начисление PENALTY на счёт проживания; счёт уже создан вместе с проживанием (DATA_MODEL §6) */
+  async addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void> {
+    const folio = await this.db.folio.findUnique({
+      where: { reservationItemId: itemId },
+      select: { id: true },
+    });
+    if (!folio) return;
+    await this.db.charge.create({
+      data: {
+        folioId: folio.id,
+        kind: 'PENALTY',
+        description,
+        quantity: 1,
+        unitPrice: amountMinor,
+        amount: amountMinor,
+        serviceDate: new Date(),
+      },
+    });
+  }
   async addReservationItem(
     reservationId: string,
     it: NewReservation['items'][number],
@@ -545,6 +620,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       data: {
         reservationId,
         accommodationTypeId: it.accommodationTypeId,
+        ratePlanId: it.ratePlanId ?? null,
+        adults: it.adults ?? 1,
+        children: it.children ?? 0,
         arrivalDate: asDate(it.arrivalDate),
         departureDate: asDate(it.departureDate),
         price: it.priceMinor,

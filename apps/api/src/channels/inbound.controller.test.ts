@@ -106,6 +106,7 @@ function makeFakes() {
     },
   };
   const state = (): ReservationState[] => [...reservations.values()];
+  const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const repo: ReservationsRepository = {
     async property() {
       return { id: 'P', currency: 'KZT' };
@@ -115,6 +116,12 @@ function makeFakes() {
     },
     async ratePlanByCode() {
       return null;
+    },
+    async ratePlanById() {
+      return null;
+    },
+    async addPenaltyCharge(itemId, amountMinor, description) {
+      penalties.push({ itemId, amountMinor, description });
     },
     async activeRatePlans() {
       return [];
@@ -149,6 +156,10 @@ function makeFakes() {
         status: it.status,
         priceMinor: it.priceMinor,
         guestsCount: 0,
+        ratePlanId: it.ratePlanId ?? null,
+        adults: it.adults ?? 1,
+        children: it.children ?? 0,
+        cancellationPenalty: 'FIRST_NIGHT' as const,
         allocations: [],
       }));
       reservations.set(input.confirmationNumber, {
@@ -192,6 +203,10 @@ function makeFakes() {
         status: it.status,
         priceMinor: it.priceMinor,
         guestsCount: 0,
+        ratePlanId: it.ratePlanId ?? null,
+        adults: it.adults ?? 1,
+        children: it.children ?? 0,
+        cancellationPenalty: 'FIRST_NIGHT' as const,
         allocations: [],
       });
       return iid;
@@ -301,6 +316,7 @@ function makeFakes() {
   return {
     gateway,
     repo,
+    penalties,
     events,
     reservations,
     allocations,

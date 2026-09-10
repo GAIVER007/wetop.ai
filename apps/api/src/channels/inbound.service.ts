@@ -371,6 +371,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         );
       return {
         accommodationTypeId: map.localAccommodationTypeId!,
+        // Тариф и гости на проживании (Q-102): тариф — из маппинга канала, гости — из occupancy комнаты
+        ratePlanId: map.localRatePlanId,
+        adults: room.occupancy?.adults ?? 1,
+        children: room.occupancy?.children ?? 0,
         arrivalDate: room.checkin_date,
         departureDate: room.checkout_date,
         priceMinor: decimalToMinor(room.amount, `бронь ${a.unique_id}, комната ${i + 1}`),

@@ -4,6 +4,7 @@ import {
   assertAllocationsMatch,
   assertRefundWithin,
   folioBalance,
+  penaltyAmount,
   parseMoney,
 } from './finance';
 
@@ -67,5 +68,21 @@ describe('parseMoney', () => {
     expect(parseMoney('-100.10')).toBe(-10_010n);
     expect(() => parseMoney('1e3')).toThrow(FinanceRuleError);
     expect(() => parseMoney('12.345')).toThrow(FinanceRuleError);
+  });
+});
+
+describe('penaltyAmount (Q-103: правило Exely «первые сутки»)', () => {
+  it('NONE → 0; FIRST_NIGHT → цена первой ночи из календаря, без календаря — средняя ночь; FULL_STAY → вся цена', () => {
+    const stay = { totalMinor: 2_700_000n, nights: 3, firstNightMinor: 1_000_000n };
+    expect(penaltyAmount('NONE', stay)).toBe(0n);
+    expect(penaltyAmount('FIRST_NIGHT', stay)).toBe(1_000_000n);
+    expect(penaltyAmount('FIRST_NIGHT', { ...stay, firstNightMinor: null })).toBe(900_000n);
+    expect(penaltyAmount('FULL_STAY', stay)).toBe(2_700_000n);
+    expect(penaltyAmount('FIRST_NIGHT', { totalMinor: 0n, nights: 1, firstNightMinor: null })).toBe(
+      0n,
+    );
+    expect(
+      penaltyAmount('FIRST_NIGHT', { totalMinor: 500n, nights: 0, firstNightMinor: null }),
+    ).toBe(0n);
   });
 });

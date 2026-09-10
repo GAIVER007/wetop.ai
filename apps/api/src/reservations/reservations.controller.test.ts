@@ -8,6 +8,7 @@ import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from './reservations.module';
 import {
+  type RatePlanRef,
   AllocationOverlapError,
   RESERVATIONS_UOW,
   type ReservationState,
@@ -21,9 +22,23 @@ function makeFake() {
     { id: 't1', code: 'exely-900001', name: 'Тестовая одиночная', active: true, capacityAdults: 1 },
     { id: 't2', code: 'exely-900002', name: 'Тестовая двойная', active: true, capacityAdults: 2 },
   ];
-  const plans = [
-    { id: 'p1', code: 'exely-800001', name: 'Тестовый базовый', currency: 'KZT', active: true },
-    { id: 'p3', code: 'exely-800003', name: 'Мёртвый', currency: 'KZT', active: false },
+  const plans: RatePlanRef[] = [
+    {
+      id: 'p1',
+      code: 'exely-800001',
+      name: 'Тестовый базовый',
+      currency: 'KZT',
+      active: true,
+      cancellationPenalty: 'FIRST_NIGHT', // правило Exely «первые сутки» (Q-103)
+    },
+    {
+      id: 'p3',
+      code: 'exely-800003',
+      name: 'Мёртвый',
+      currency: 'KZT',
+      active: false,
+      cancellationPenalty: 'NONE',
+    },
   ];
   const units = [
     { id: 'u1', code: '9001', accommodationTypeId: 't1', active: true },
@@ -54,6 +69,7 @@ function makeFake() {
     state.allocations.some(
       (a) => a.unitId === unitId && a.itemId !== exceptItem && a.start < end && a.end > start,
     );
+  const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const repo: ReservationsRepository = {
     async property() {
       return { id: 'prop', currency: 'KZT' };
@@ -63,6 +79,12 @@ function makeFake() {
     },
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
+    },
+    async ratePlanById(planId) {
+      return plans.find((p) => p.id === planId) ?? null;
+    },
+    async addPenaltyCharge(itemId, amountMinor, description) {
+      penalties.push({ itemId, amountMinor, description });
     },
     async activeRatePlans() {
       return plans.filter((p) => p.active);
@@ -103,6 +125,10 @@ function makeFake() {
         status: it.status,
         priceMinor: it.priceMinor,
         guestsCount: 0,
+        ratePlanId: it.ratePlanId ?? null,
+        adults: it.adults ?? 1,
+        children: it.children ?? 0,
+        cancellationPenalty: 'FIRST_NIGHT' as const,
         allocations: [],
       }));
       state.reservations.set(input.confirmationNumber, {
@@ -220,7 +246,7 @@ function makeFake() {
     },
   };
   const uow: UnitOfWork = { run: (fn) => fn(repo) };
-  return { uow, state };
+  return { uow, state, penalties };
 }
 
 const body = (over: Record<string, unknown> = {}) => ({
@@ -394,6 +420,43 @@ describe('manual reservation API', () => {
       'reservation.cancel',
       'reservation.create',
     ]);
+  });
+  it('cancel and no-show charge the tariff penalty automatically (Q-103: Exely rule «first night»); dates change without repeating the tariff (Q-102)', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    // Q-102: тариф лежит на проживании — ratePlanCode повторять не нужно
+    const moved = await request(app.getHttpServer())
+      .patch(`/reservations/${n}/dates`)
+      .send({ arrivalDate: '2026-09-16', departureDate: '2026-09-19' })
+      .expect(200);
+    expect(moved.body.totalAmountMinor).toBe('3300000');
+    // Q-103: отмена → штраф = стоимость первой ночи по календарю (1 100 000 тиын)
+    await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(200);
+    expect(fake.penalties).toEqual([
+      {
+        itemId: expect.any(String),
+        amountMinor: 1_100_000n,
+        description: 'Штраф за отмену брони (2026-09-16 → 2026-09-19)',
+      },
+    ]);
+
+    const second = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' }))
+      .expect(201);
+    const n2 = second.body.confirmationNumber as string;
+    const itemId = second.body.items[0].id as string;
+    await request(app.getHttpServer())
+      .post(`/reservations/${n2}/items/${itemId}/no-show`)
+      .send({})
+      .expect(200);
+    expect(fake.penalties[1]).toMatchObject({
+      amountMinor: 1_100_000n,
+      description: 'Штраф за незаезд (2026-09-15 → 2026-09-18)',
+    });
   });
   it('assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item', async () => {
     const created = await request(app.getHttpServer())

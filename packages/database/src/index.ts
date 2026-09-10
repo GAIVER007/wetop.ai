@@ -41,4 +41,8 @@ export function isOverlapViolation(e: unknown): boolean {
   return cause?.code === '23P01' || cause?.originalCode === '23P01';
 }
 
-export { ensureFolioWithAccommodation, recordImportedPayment } from './folio';
+export {
+  ensureFolioWithAccommodation,
+  recordExternalPayment,
+  recordImportedPayment,
+} from './folio';

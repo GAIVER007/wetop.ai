@@ -90,6 +90,7 @@ function makeFake() {
     async closeFolio(itemId) {
       state.closedFolios.push(itemId);
     },
+    async recordChannelPrepayment() {},
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
     },

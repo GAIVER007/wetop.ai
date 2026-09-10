@@ -57,7 +57,52 @@ export async function ensureFolioWithAccommodation(
   return { folioId: folio.id, chargeChanged: true };
 }
 
-/** Оплаченная в Exely часть проживания → один платёж EXTERNAL с внешней ссылкой exely:<roomStayId>; повтор — без дубля. */
+/**
+ * Платёж EXTERNAL: деньги, полученные вне кассы PMS — перенос из Exely или предоплата, собранная каналом.
+ * Ключ идемпотентности — `externalReference` в пределах объекта: повтор не создаёт дубль, а поправит сумму.
+ */
+export async function recordExternalPayment(
+  tx: Tx,
+  input: {
+    propertyId: string;
+    folioId: string;
+    externalReference: string;
+    amountMinor: bigint;
+    currency: string;
+    note: string;
+  },
+): Promise<'created' | 'updated' | 'skipped'> {
+  if (input.amountMinor <= 0n) return 'skipped';
+  const { propertyId, folioId, externalReference, amountMinor } = input;
+  const existing = await tx.payment.findUnique({
+    where: { propertyId_externalReference: { propertyId, externalReference } },
+    select: { id: true, amount: true },
+  });
+  if (existing) {
+    if (existing.amount === amountMinor) return 'skipped';
+    await tx.payment.update({ where: { id: existing.id }, data: { amount: amountMinor } });
+    await tx.paymentAllocation.upsert({
+      where: { paymentId_folioId: { paymentId: existing.id, folioId } },
+      create: { paymentId: existing.id, folioId, amount: amountMinor },
+      update: { amount: amountMinor },
+    });
+    return 'updated';
+  }
+  await tx.payment.create({
+    data: {
+      propertyId,
+      method: 'EXTERNAL',
+      amount: amountMinor,
+      currency: input.currency,
+      externalReference,
+      note: input.note,
+      allocations: { create: { folioId, amount: amountMinor } },
+    },
+  });
+  return 'created';
+}
+
+/** Оплаченная в Exely часть проживания → платёж EXTERNAL со ссылкой exely:<roomStayId>. */
 export async function recordImportedPayment(
   tx: Tx,
   input: {
@@ -68,32 +113,12 @@ export async function recordImportedPayment(
     currency: string;
   },
 ): Promise<'created' | 'updated' | 'skipped'> {
-  if (input.paidMinor <= 0n) return 'skipped';
-  const externalReference = `exely:${input.roomStayId}`;
-  const existing = await tx.payment.findUnique({
-    where: { propertyId_externalReference: { propertyId: input.propertyId, externalReference } },
-    select: { id: true, amount: true },
+  return recordExternalPayment(tx, {
+    propertyId: input.propertyId,
+    folioId: input.folioId,
+    externalReference: `exely:${input.roomStayId}`,
+    amountMinor: input.paidMinor,
+    currency: input.currency,
+    note: 'Перенос из Exely: оплачено на момент миграции',
   });
-  if (existing) {
-    if (existing.amount === input.paidMinor) return 'skipped';
-    await tx.payment.update({ where: { id: existing.id }, data: { amount: input.paidMinor } });
-    await tx.paymentAllocation.upsert({
-      where: { paymentId_folioId: { paymentId: existing.id, folioId: input.folioId } },
-      create: { paymentId: existing.id, folioId: input.folioId, amount: input.paidMinor },
-      update: { amount: input.paidMinor },
-    });
-    return 'updated';
-  }
-  await tx.payment.create({
-    data: {
-      propertyId: input.propertyId,
-      method: 'EXTERNAL',
-      amount: input.paidMinor,
-      currency: input.currency,
-      externalReference,
-      note: 'Перенос из Exely: оплачено на момент миграции',
-      allocations: { create: { folioId: input.folioId, amount: input.paidMinor } },
-    },
-  });
-  return 'created';
 }

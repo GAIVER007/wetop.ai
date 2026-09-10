@@ -107,6 +107,7 @@ function makeFakes() {
   };
   const state = (): ReservationState[] => [...reservations.values()];
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
+  const prepayments: Array<{ itemId: string; amountMinor: bigint; externalReference: string }> = [];
   const repo: ReservationsRepository = {
     async property() {
       return { id: 'P', currency: 'KZT' };
@@ -119,6 +120,9 @@ function makeFakes() {
     },
     async stayBalanceMinor() {
       return 0n;
+    },
+    async recordChannelPrepayment(itemId, amountMinor, externalReference) {
+      prepayments.push({ itemId, amountMinor, externalReference });
     },
     async closeFolio() {},
     async ratePlanByCode() {
@@ -324,6 +328,7 @@ function makeFakes() {
     gateway,
     repo,
     penalties,
+    prepayments,
     events,
     reservations,
     allocations,
@@ -522,6 +527,26 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     const can = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(can.body.outcomes[0]).toMatchObject({ result: 'cancelled' });
     expect(fakes.allocations).toHaveLength(0); // ячейка освободилась, а не осталась занятой
+  });
+
+  it('Q-086: бронь, оплаченную площадкой, счёт принимает предоплатой; оплату на месте — нет', async () => {
+    fakes.setFeed([revision({ id: 'rev-pay-1', payment_collect: 'ota', unique_id: 'BDC-PAID' })]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toEqual([
+      {
+        itemId: expect.any(String),
+        amountMinor: 3_080_000n,
+        externalReference: 'channex:BDC-PAID:0',
+      },
+    ]);
+
+    // деньги берут на месте (Booking) — предоплаты нет, гость платит при заселении
+    fakes.prepayments.length = 0;
+    fakes.setFeed([
+      revision({ id: 'rev-pay-2', payment_collect: 'property', unique_id: 'BDC-ONSITE' }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toEqual([]);
   });
 
   it('unmapped room type → event FAILED with a reason, no reservation, no ack', async () => {

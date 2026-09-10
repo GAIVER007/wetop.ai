@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   ensureFolioWithAccommodation,
+  recordExternalPayment,
   isOverlapViolation,
   type Db,
   type DbTx,
@@ -209,6 +210,16 @@ export interface ReservationsRepository {
   addReservationItem(reservationId: string, item: NewReservation['items'][number]): Promise<string>;
   /** Штраф при отмене/незаезде на счёт проживания (Q-103, DATA_MODEL §6) */
   addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void>;
+  /**
+   * Предоплата, собранная каналом (`payment_collect = ota`): гость уже заплатил OTA, на стойке не должен.
+   * Идемпотентно по внешней ссылке.
+   */
+  recordChannelPrepayment(
+    itemId: string,
+    amountMinor: bigint,
+    externalReference: string,
+    note: string,
+  ): Promise<void>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
   stayBalanceMinor(itemId: string): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
@@ -615,6 +626,27 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { confirmationNumber: true },
     });
     return r ? this.reservationByNumber(r.confirmationNumber) : null;
+  }
+  async recordChannelPrepayment(
+    itemId: string,
+    amountMinor: bigint,
+    externalReference: string,
+    note: string,
+  ): Promise<void> {
+    const folio = await this.db.folio.findUnique({
+      where: { reservationItemId: itemId },
+      select: { id: true, currency: true },
+    });
+    if (!folio) return;
+    const { id: propertyId } = await this.property();
+    await recordExternalPayment(this.db, {
+      propertyId,
+      folioId: folio.id,
+      externalReference,
+      amountMinor,
+      currency: folio.currency,
+      note,
+    });
   }
   async closeFolio(itemId: string): Promise<void> {
     await this.db.folio.updateMany({

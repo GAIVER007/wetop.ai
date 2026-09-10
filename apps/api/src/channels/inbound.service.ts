@@ -178,6 +178,31 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * Предоплата канала (Q-086). Channex сообщает, кто собрал деньги: `payment_collect = 'ota'` значит,
+   * что гость уже заплатил площадке, а отель получит их перечислением. Тогда на стойке гость ничего
+   * не должен, и счёт закрывается платежом EXTERNAL. Иначе счёт остаётся к оплате при заселении.
+   *
+   * Основание: за август 4,97 млн ₸ «неоплаченных» — это почти целиком Trip.com, Agoda, Expedia
+   * и Островок, где предоплата есть, а Exely её к проживанию не привязывал. Booking, где предоплаты
+   * нет, оплачен на 99% — деньги берут на месте. То есть это не долг гостей.
+   */
+  private async recordPrepayment(
+    repo: ReservationsRepository,
+    itemId: string,
+    index: number,
+    a: channex.ChannexBookingRevisionAttributes,
+    amountMinor: bigint,
+  ): Promise<void> {
+    if (a.payment_collect !== 'ota' || amountMinor <= 0n) return;
+    await repo.recordChannelPrepayment(
+      itemId,
+      amountMinor,
+      `channex:${a.unique_id}:${index}`,
+      `Предоплата канала ${a.ota_name}: деньги собраны площадкой`,
+    );
+  }
+
+  /**
    * Q-094 (умолчание как в Exely, 1043 из 1044 броней августа назначены сразу): бронь канала получает первую
    * свободную ячейку своей категории на весь период; свободной нет — остаётся без ячейки, стойка назначает вручную.
    */
@@ -424,6 +449,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       for (const [i, itemId] of created.itemIds.entries()) {
         await repo.addStayGuest(itemId, guestId, true);
         await this.autoAssign(repo, itemId, items[i]!, a.unique_id, warnings);
+        await this.recordPrepayment(repo, itemId, i, a, items[i]!.priceMinor);
       }
       await repo.audit({
         entityType: 'Reservation',

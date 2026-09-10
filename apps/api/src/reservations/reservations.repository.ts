@@ -16,8 +16,12 @@ import { loadReservationCard, type ReservationCard } from './reservation-card';
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
 export class AllocationOverlapError extends Error {
   override readonly name = 'AllocationOverlapError';
-  constructor(readonly unitId: string) {
-    super(`Ячейка ${unitId} уже занята на эти ночи`);
+  /** unitCode — номер ячейки как его знает администратор; unitId в сообщении читать невозможно */
+  constructor(
+    readonly unitId: string,
+    readonly unitCode?: string,
+  ) {
+    super(`Ячейка ${unitCode ?? unitId} уже занята на эти ночи`);
   }
 }
 
@@ -484,6 +488,12 @@ export class PrismaReservationsRepository implements ReservationsRepository {
    * (EXCLUDE USING gist по inventory_unit_id и daterange). Ограничение не смотрит на статус проживания,
    * поэтому прикладной `hasAllocationOverlap` (он отбрасывает отменённые) для предпроверки слишком мягкий.
    */
+  private async unitCode(unitId: string): Promise<string | undefined> {
+    const u = await this.db.inventoryUnit
+      .findUnique({ where: { id: unitId }, select: { code: true } })
+      .catch(() => null);
+    return u?.code;
+  }
   private async physicalOverlap(
     unitId: string,
     from: string,
@@ -510,7 +520,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     // Postgres: любой следующий запрос в ней падает с 25P02, и восстановиться внутри неё невозможно.
     // Поэтому вызывающий (autoAssign, переселение) должен получить ошибку на живой транзакции.
     if (await this.physicalOverlap(unitId, startDate, endDate))
-      throw new AllocationOverlapError(unitId);
+      throw new AllocationOverlapError(unitId, await this.unitCode(unitId));
     try {
       await this.db.allocation.create({
         data: {
@@ -523,7 +533,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     } catch (e) {
       // Сюда попадаем только на гонке двух транзакций: ограничение сработало, транзакция уже прервана,
       // вызывающему остаётся откат — продолжать в ней нельзя.
-      if (isOverlapViolation(e)) throw new AllocationOverlapError(unitId);
+      if (isOverlapViolation(e)) throw new AllocationOverlapError(unitId, await this.unitCode(unitId));
       throw e;
     }
   }
@@ -664,13 +674,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   async replaceAllocationDates(id: string, startDate: string, endDate: string): Promise<void> {
     const current = await this.db.allocation.findUnique({
       where: { id },
-      select: { inventoryUnitId: true },
+      select: { inventoryUnitId: true, inventoryUnit: { select: { code: true } } },
     });
     if (!current) throw new Error(`Назначение ${id} не найдено`);
+    const code = current.inventoryUnit.code;
     // Предпроверка до UPDATE — по той же причине, что и в createAllocation: после 23P01 транзакция мертва,
     // а вызывающий (модификация брони из канала) обязан суметь снять назначение и переселить в той же транзакции.
     if (await this.physicalOverlap(current.inventoryUnitId, startDate, endDate, id))
-      throw new AllocationOverlapError(current.inventoryUnitId);
+      throw new AllocationOverlapError(current.inventoryUnitId, code);
     try {
       await this.db.allocation.update({
         where: { id },
@@ -678,7 +689,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       });
     } catch (e) {
       // Гонка: транзакция прервана ограничением, продолжать в ней нельзя.
-      if (isOverlapViolation(e)) throw new AllocationOverlapError(current.inventoryUnitId);
+      if (isOverlapViolation(e)) throw new AllocationOverlapError(current.inventoryUnitId, code);
       throw e;
     }
   }

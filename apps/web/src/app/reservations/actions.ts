@@ -5,7 +5,27 @@ import { ApiError, reservationsApi } from '../../lib/api';
 
 export interface ActionResult {
   error: string | null;
+  /** Введённое администратором — форма не должна стираться вместе с отказом */
+  values?: Record<string, string>;
+  /** Номер попытки: React сбрасывает форму после server action, ключ по нему возвращает поля */
+  attempt?: number;
 }
+
+const KEPT = [
+  'source',
+  'accommodationTypeCode',
+  'ratePlanCode',
+  'adults',
+  'unitCode',
+  'firstName',
+  'lastName',
+  'phone',
+  'notes',
+];
+const kept = (fd: FormData): Record<string, string> =>
+  Object.fromEntries(
+    KEPT.map((k) => [k, fd.get(k)]).filter(([, v]) => typeof v === 'string'),
+  ) as Record<string, string>;
 
 const str = (fd: FormData, k: string) => {
   const v = fd.get(k);
@@ -45,7 +65,7 @@ export async function createReservationAction(
     });
     number = card.confirmationNumber;
   } catch (e) {
-    return { error: describe(e) };
+    return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };
   }
   revalidatePath('/chessboard');
   redirect(`/reservations/${encodeURIComponent(number)}`);

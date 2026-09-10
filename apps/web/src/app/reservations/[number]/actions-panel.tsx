@@ -35,7 +35,10 @@ export function ReservationActions(props: {
   return (
     <section data-testid="reservation-actions" style={{ marginTop: 20, display: 'grid', gap: 14 }}>
       {canEdit && (
-        <form action={datesAction} style={box}>
+        // Поля неконтролируемые: defaultValue применяется только при монтировании, поэтому после
+        // «+ 1 ночь» или переселения форма показывала бы прежние даты, а сохранение молча укоротило
+        // бы проживание. Ключ по текущим датам отрисовывает поля заново.
+        <form key={`${props.arrivalDate}-${props.departureDate}`} action={datesAction} style={box}>
           <b style={{ fontSize: 14 }}>Изменить даты</b>
           <div style={row}>
             <input type="date" name="arrivalDate" defaultValue={props.arrivalDate} style={inp} />
@@ -71,12 +74,7 @@ export function ReservationActions(props: {
         .map((it) => (
           <div key={it.id} style={{ display: 'grid', gap: 8 }}>
             <StayButtons number={props.number} item={it} />
-            {it.status !== 'CHECKED_IN' && (
-              <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
-            )}
-            {it.status === 'CHECKED_IN' && (
-              <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
-            )}
+            <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
           </div>
         ))}
       {canEdit && (
@@ -199,7 +197,12 @@ function AssignForm(props: {
     { error: null },
   );
   return (
-    <form action={action} style={box} data-testid="assign-form">
+    <form
+      key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}`}
+      action={action}
+      style={box}
+      data-testid="assign-form"
+    >
       <b style={{ fontSize: 14 }}>
         {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить ячейку'} —{' '}
         {props.item.accommodationTypeName}

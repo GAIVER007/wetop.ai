@@ -213,18 +213,31 @@ export function normalizeExelyReservation(
         );
       exelyRoomNumber = n;
     }
+    const status = mapStayStatus(s.status, where);
+    const arrivalDate = dateOf(s.checkInDateTime, where);
+    const plannedDeparture = dateOf(s.checkOutDateTime, where);
+    // Ранний выезд заканчивает проживание фактической датой (правило стойки): Exely оставляет плановую дату,
+    // из-за чего два проживания в одной комнате пересекаются. Выезд в день заезда и поздний выезд — плановая дата.
+    const actualDeparture =
+      status === 'CHECKED_OUT' && s.actualCheckOutDateTime
+        ? dateOf(s.actualCheckOutDateTime, where)
+        : null;
+    const departureDate =
+      actualDeparture && actualDeparture < plannedDeparture && actualDeparture > arrivalDate
+        ? actualDeparture
+        : plannedDeparture;
     return {
       exelyRoomStayId: s.pmsRoomStayId,
       accommodationTypeCode: typeCode,
       exelyRoomNumber,
-      arrivalDate: dateOf(s.checkInDateTime, where),
-      departureDate: dateOf(s.checkOutDateTime, where),
+      arrivalDate,
+      departureDate,
       priceMinor: toMinorUnits(s.totalPrice.amount.value, where),
       // оплачено в Exely = сумма − к оплате (перенос платежа, DATA_MODEL §6)
       paidMinor:
         toMinorUnits(s.totalPrice.amount.value, where) -
         toMinorUnits(s.totalPrice.payAmount.value, where),
-      status: mapStayStatus(s.status, where),
+      status,
       adults: s.guestCount?.adults ?? 0,
       children: s.guestCount?.children ?? 0,
       guestExelyIds: [...(s.guestsIds ?? [])],

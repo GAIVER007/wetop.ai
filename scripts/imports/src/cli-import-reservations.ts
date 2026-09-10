@@ -69,6 +69,15 @@ try {
     stayGuests: { linked: 0 },
     unassigned: 0,
     paymentsImported: 0,
+    conflicts: [] as Array<{
+      confirmationNumber: string;
+      exelyRoomNumber: string;
+      arrivalDate: string;
+      departureDate: string;
+      conflictsWith: string;
+      from: string;
+      to: string;
+    }>,
   };
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   for (let i = skip; i < records.length; i += CHUNK) {
@@ -101,6 +110,7 @@ try {
     total.stayGuests.linked += report.stayGuests.linked;
     total.unassigned += report.unassigned;
     total.paymentsImported += report.paymentsImported;
+    total.conflicts.push(...report.conflicts);
     console.log(
       `  пачка ${i / CHUNK + 1}/${Math.ceil(records.length / CHUNK)}: ${part.length} броней — ок`,
     );
@@ -113,6 +123,13 @@ try {
     `  связей гость↔проживание: ${report.stayGuests.linked}; проживаний без единицы: ${report.unassigned}; назначений снято (отмены/незаезды): ${report.allocations.released}`,
   );
   console.log(`  платежей перенесено из Exely (EXTERNAL): ${report.paymentsImported}`);
+  if (report.conflicts.length) {
+    console.log(`  КОНФЛИКТЫ ячеек (назначение пропущено): ${report.conflicts.length}`);
+    for (const c of report.conflicts)
+      console.log(
+        `    ${c.confirmationNumber} комната ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} пересекается с ${c.conflictsWith} (${c.from} → ${c.to})`,
+      );
+  }
 } finally {
   await db.$disconnect();
 }

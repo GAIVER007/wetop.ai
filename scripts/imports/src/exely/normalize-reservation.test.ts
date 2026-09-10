@@ -63,6 +63,32 @@ const typeMap = new Map([
 ]);
 
 describe('normalizeExelyReservation', () => {
+  it('early check-out ends the stay on the actual date; late check-out and other statuses keep the planned date', () => {
+    const early = structuredClone(fixture);
+    early.roomStays[0]!.status = 'CheckedOut';
+    early.roomStays[0]!.actualCheckOutDateTime = '2026-09-11T09:30';
+    expect(normalizeExelyReservation(early, { roomMap, typeMap }).items[0]!.departureDate).toBe(
+      '2026-09-11',
+    );
+    const late = structuredClone(fixture);
+    late.roomStays[0]!.status = 'CheckedOut';
+    late.roomStays[0]!.actualCheckOutDateTime = '2026-09-12T15:10';
+    expect(normalizeExelyReservation(late, { roomMap, typeMap }).items[0]!.departureDate).toBe(
+      '2026-09-12',
+    );
+    const sameDay = structuredClone(fixture);
+    sameDay.roomStays[0]!.status = 'CheckedOut';
+    sameDay.roomStays[0]!.actualCheckOutDateTime = '2026-09-10T20:00'; // выехал в день заезда — ночь остаётся плановой
+    expect(normalizeExelyReservation(sameDay, { roomMap, typeMap }).items[0]!.departureDate).toBe(
+      '2026-09-12',
+    );
+    const checkedIn = structuredClone(fixture);
+    checkedIn.roomStays[0]!.actualCheckOutDateTime = '2026-09-11T09:30'; // статус New — фактическая дата не учитывается
+    expect(normalizeExelyReservation(checkedIn, { roomMap, typeMap }).items[0]!.departureDate).toBe(
+      '2026-09-12',
+    );
+  });
+
   it('maps a reservation with two stays into the import record: dates, minor units, statuses, refs', () => {
     const r = normalizeExelyReservation(fixture, { roomMap, typeMap });
     expect(r.confirmationNumber).toBe('20260901-999999-70000001');

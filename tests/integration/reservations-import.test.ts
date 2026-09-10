@@ -99,6 +99,7 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
       booking('T-2', 'S-2', null, 'G-2'),
       booking('T-3', 'S-3', 'R-9011', 'G-3', 4000), // оплачено 8 000 из 12 000
       booking('T-4', 'S-4', 'R-9010', 'G-4', 12000, 'Cancelled'), // отменена, та же комната и даты, что T-1
+      booking('T-5', 'S-5', 'R-9011', 'G-5'), // активная, та же комната и даты, что T-3 → конфликт, без ячейки
     ].map((b) => normalizeExelyReservation(adaptUniBooking(b), ctx));
     await expect(
       db.$transaction(
@@ -109,11 +110,11 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             anonymizeSalt: 'test-salt',
           });
           expect(first).toMatchObject({
-            reservations: { created: 4, updated: 0 },
-            items: { created: 4, updated: 0 },
-            guests: { created: 4, updated: 0 },
-            allocations: { created: 2, updated: 0 }, // отменённая T-4 ячейку не занимает
-            unassigned: 1,
+            reservations: { created: 5, updated: 0 },
+            items: { created: 5, updated: 0 },
+            guests: { created: 5, updated: 0 },
+            allocations: { created: 2, updated: 0 }, // отменённая T-4 ячейку не занимает, T-5 конфликтует
+            unassigned: 2,
             paymentsImported: 1,
           });
           const second = await importReservations(tx, records, {
@@ -121,9 +122,9 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             anonymizeSalt: 'test-salt',
           });
           expect(second).toMatchObject({
-            reservations: { created: 0, updated: 4 },
-            items: { created: 0, updated: 4 },
-            guests: { created: 0, updated: 4 },
+            reservations: { created: 0, updated: 5 },
+            items: { created: 0, updated: 5 },
+            guests: { created: 0, updated: 5 },
             allocations: { created: 0, updated: 2 },
             paymentsImported: 0, // повтор — без дубля платежа
           });
@@ -168,6 +169,18 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           expect(f3.charges).toHaveLength(2);
           expect(f3.charges[0]!.voidedAt).not.toBeNull();
           expect(f3.charges[1]).toMatchObject({ amount: 1500000n, voidedAt: null });
+          expect(first.conflicts).toEqual([
+            {
+              confirmationNumber: records[4]!.confirmationNumber,
+              exelyRoomNumber: '9011',
+              arrivalDate: '2026-09-20',
+              departureDate: '2026-09-22',
+              conflictsWith: records[2]!.confirmationNumber,
+              from: '2026-09-20',
+              to: '2026-09-22',
+            },
+          ]);
+          expect(second.conflicts).toHaveLength(1);
           const g = await tx.guest.findUniqueOrThrow({ where: { exelyPersonId: 'G-1' } });
           expect(g.firstName).toBe('Гость');
           expect(g.lastName).toMatch(/^Тест-/);
@@ -180,7 +193,7 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           expect(alloc[0]!.inventoryUnit.exelyRoomNumber).toBe('9010');
           expect(
             await tx.allocation.count({
-              where: { reservationItem: { exelyRoomStayId: { in: ['S-2', 'S-4'] } } },
+              where: { reservationItem: { exelyRoomStayId: { in: ['S-2', 'S-4', 'S-5'] } } },
             }),
           ).toBe(0);
           throw new Rollback('rollback');

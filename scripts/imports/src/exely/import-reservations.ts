@@ -19,6 +19,17 @@ export interface ReservationsImportReport {
   unassigned: number;
   /** Платежи EXTERNAL `exely:<roomStayId>`, созданные в этот прогон (повторы не считаются) */
   paymentsImported: number;
+  /** Проживания, чья ячейка в эти даты уже занята другим активным проживанием: назначение пропущено */
+  conflicts: AllocationConflict[];
+}
+export interface AllocationConflict {
+  confirmationNumber: string;
+  exelyRoomNumber: string;
+  arrivalDate: string;
+  departureDate: string;
+  conflictsWith: string;
+  from: string;
+  to: string;
 }
 const zero = (): EntityCounts => ({ created: 0, updated: 0 });
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -41,6 +52,7 @@ export async function importReservations(
     stayGuests: { linked: 0 },
     unassigned: 0,
     paymentsImported: 0,
+    conflicts: [],
   };
   const types = await tx.accommodationType.findMany({
     where: { propertyId: opts.propertyId },
@@ -207,16 +219,43 @@ export async function importReservations(
           throw new Error(
             `Бронь ${r.confirmationNumber}: единица «${it.exelyRoomNumber}» не найдена в фонде`,
           );
-        const existingAlloc = await tx.allocation.findFirst({
-          where: { reservationItemId: itemId },
-          select: { id: true },
-        });
         const allocData = {
           inventoryUnitId: unitId,
           startDate: asDate(it.arrivalDate),
           endDate: asDate(it.departureDate),
         };
-        if (existingAlloc) {
+        // Пересечение с другим активным проживанием в той же ячейке (данные Exely): назначение не создаём,
+        // конфликт — в отчёт; запрет пересечений в БД остаётся последней линией защиты
+        const clash = await tx.allocation.findFirst({
+          where: {
+            inventoryUnitId: unitId,
+            reservationItemId: { not: itemId },
+            startDate: { lt: allocData.endDate },
+            endDate: { gt: allocData.startDate },
+            reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+          },
+          select: {
+            startDate: true,
+            endDate: true,
+            reservationItem: { select: { reservation: { select: { confirmationNumber: true } } } },
+          },
+        });
+        const existingAlloc = await tx.allocation.findFirst({
+          where: { reservationItemId: itemId },
+          select: { id: true },
+        });
+        if (clash) {
+          report.conflicts.push({
+            confirmationNumber: r.confirmationNumber,
+            exelyRoomNumber: it.exelyRoomNumber,
+            arrivalDate: it.arrivalDate,
+            departureDate: it.departureDate,
+            conflictsWith: clash.reservationItem.reservation.confirmationNumber,
+            from: clash.startDate.toISOString().slice(0, 10),
+            to: clash.endDate.toISOString().slice(0, 10),
+          });
+          report.unassigned += 1;
+        } else if (existingAlloc) {
           await tx.allocation.update({ where: { id: existingAlloc.id }, data: allocData });
           report.allocations.updated += 1;
         } else {

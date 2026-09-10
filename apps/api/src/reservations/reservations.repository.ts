@@ -233,6 +233,8 @@ export interface ReservationsRepository {
     externalReference: string,
     note: string,
   ): Promise<void>;
+  /** Канал перестал собирать деньги (payment_collect сменился на property) — снять платёж предоплаты */
+  voidChannelPrepayment(externalReference: string): Promise<void>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
   stayBalanceMinor(itemId: string): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
@@ -377,12 +379,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       where: {
         accommodationTypeId,
         active: true,
+        // Без фильтра по статусу: ограничение БД тоже его не знает. Ячейка, где по любой причине
+        // осталось назначение отменённого проживания, физически занята — предлагать её нельзя.
         allocations: {
-          none: {
-            startDate: { lt: asDate(toExclusive) },
-            endDate: { gt: asDate(from) },
-            reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
-          },
+          none: { startDate: { lt: asDate(toExclusive) }, endDate: { gt: asDate(from) } },
         },
         blocks: { none: { dateFrom: { lt: asDate(toExclusive) }, dateTo: { gt: asDate(from) } } },
       },
@@ -479,12 +479,38 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   async addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void> {
     await this.db.stayGuest.create({ data: { reservationItemId: itemId, guestId, isPrimary } });
   }
+  /**
+   * Физическое пересечение назначений на ячейке — ровно то, что запрещает `allocations_no_overlap_per_unit`
+   * (EXCLUDE USING gist по inventory_unit_id и daterange). Ограничение не смотрит на статус проживания,
+   * поэтому прикладной `hasAllocationOverlap` (он отбрасывает отменённые) для предпроверки слишком мягкий.
+   */
+  private async physicalOverlap(
+    unitId: string,
+    from: string,
+    toExclusive: string,
+    exceptAllocationId?: string,
+  ): Promise<boolean> {
+    const n = await this.db.allocation.count({
+      where: {
+        inventoryUnitId: unitId,
+        startDate: { lt: asDate(toExclusive) },
+        endDate: { gt: asDate(from) },
+        ...(exceptAllocationId ? { id: { not: exceptAllocationId } } : {}),
+      },
+    });
+    return n > 0;
+  }
   async createAllocation(
     itemId: string,
     unitId: string,
     startDate: string,
     endDate: string,
   ): Promise<void> {
+    // Пересечение проверяется ДО вставки. Нарушение GiST-ограничения (23P01) обрывает всю транзакцию
+    // Postgres: любой следующий запрос в ней падает с 25P02, и восстановиться внутри неё невозможно.
+    // Поэтому вызывающий (autoAssign, переселение) должен получить ошибку на живой транзакции.
+    if (await this.physicalOverlap(unitId, startDate, endDate))
+      throw new AllocationOverlapError(unitId);
     try {
       await this.db.allocation.create({
         data: {
@@ -495,6 +521,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         },
       });
     } catch (e) {
+      // Сюда попадаем только на гонке двух транзакций: ограничение сработало, транзакция уже прервана,
+      // вызывающему остаётся откат — продолжать в ней нельзя.
       if (isOverlapViolation(e)) throw new AllocationOverlapError(unitId);
       throw e;
     }
@@ -634,20 +662,23 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     await this.db.allocation.update({ where: { id }, data: { endDate: asDate(endDate) } });
   }
   async replaceAllocationDates(id: string, startDate: string, endDate: string): Promise<void> {
+    const current = await this.db.allocation.findUnique({
+      where: { id },
+      select: { inventoryUnitId: true },
+    });
+    if (!current) throw new Error(`Назначение ${id} не найдено`);
+    // Предпроверка до UPDATE — по той же причине, что и в createAllocation: после 23P01 транзакция мертва,
+    // а вызывающий (модификация брони из канала) обязан суметь снять назначение и переселить в той же транзакции.
+    if (await this.physicalOverlap(current.inventoryUnitId, startDate, endDate, id))
+      throw new AllocationOverlapError(current.inventoryUnitId);
     try {
-      const a = await this.db.allocation.update({
+      await this.db.allocation.update({
         where: { id },
         data: { startDate: asDate(startDate), endDate: asDate(endDate) },
-        select: { inventoryUnitId: true },
       });
-      void a;
     } catch (e) {
-      if (isOverlapViolation(e)) {
-        const a = await this.db.allocation
-          .findUnique({ where: { id }, select: { inventoryUnitId: true } })
-          .catch(() => null);
-        throw new AllocationOverlapError(a?.inventoryUnitId ?? id);
-      }
+      // Гонка: транзакция прервана ограничением, продолжать в ней нельзя.
+      if (isOverlapViolation(e)) throw new AllocationOverlapError(current.inventoryUnitId);
       throw e;
     }
   }
@@ -672,6 +703,19 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
     if (!folio) return;
     const { id: propertyId } = await this.property();
+    // Ревизия могла пересобрать состав комнат: тот же платёж канала теперь относится к другому счёту.
+    // Старые распределения снимаются, иначе одна сумма закрыла бы сразу два счёта.
+    const existing = await this.db.payment.findUnique({
+      where: { propertyId_externalReference: { propertyId, externalReference } },
+      select: { id: true, status: true },
+    });
+    if (existing) {
+      await this.db.paymentAllocation.deleteMany({
+        where: { paymentId: existing.id, folioId: { not: folio.id } },
+      });
+      if (existing.status === 'VOIDED')
+        await this.db.payment.update({ where: { id: existing.id }, data: { status: 'COMPLETED' } });
+    }
     await recordExternalPayment(this.db, {
       propertyId,
       folioId: folio.id,
@@ -680,6 +724,25 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       currency: folio.currency,
       note,
     });
+    // recordExternalPayment пропускает запись, если сумма не изменилась — распределение на новый счёт
+    // при этом не появилось бы. Досоздаём явно.
+    if (existing) {
+      await this.db.paymentAllocation.upsert({
+        where: { paymentId_folioId: { paymentId: existing.id, folioId: folio.id } },
+        create: { paymentId: existing.id, folioId: folio.id, amount: amountMinor },
+        update: { amount: amountMinor },
+      });
+    }
+  }
+  async voidChannelPrepayment(externalReference: string): Promise<void> {
+    const { id: propertyId } = await this.property();
+    const p = await this.db.payment.findUnique({
+      where: { propertyId_externalReference: { propertyId, externalReference } },
+      select: { id: true, status: true },
+    });
+    if (!p || p.status === 'VOIDED') return;
+    await this.db.paymentAllocation.deleteMany({ where: { paymentId: p.id } });
+    await this.db.payment.update({ where: { id: p.id }, data: { status: 'VOIDED' } });
   }
   async closeFolio(itemId: string): Promise<void> {
     await this.db.folio.updateMany({

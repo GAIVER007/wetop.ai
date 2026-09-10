@@ -43,14 +43,27 @@ test('заселить → карточка и шахматка показыва
   await page.screenshot({ path: 'reports/screenshots/guest-card.png', fullPage: true });
   await page.goto(`/reservations/${number}`);
   await page.locator('[data-testid^="check-in-"]').click();
-  await expect(page.getByText('заселён').first()).toBeVisible();
+  // статус читаем в строке проживания: слово встречается ещё и в заголовке брони
+  await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);
   const cell = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`).first();
   await expect(cell).toBeVisible();
   await page.screenshot({ path: 'reports/screenshots/check-in-chessboard.png' });
   await page.goto(`/reservations/${number}`);
+
+  // T3: на счёте есть начисление за проживание и нет оплаты, значит выселение должно быть остановлено.
+  // Диалог отклоняем — проверяем именно защиту, а не текст ошибки: статус обязан остаться «заселён».
+  page.once('dialog', (d) => d.dismiss());
   await page.locator('[data-testid^="check-out-"]').click();
-  await expect(page.getByText('выселен').first()).toBeVisible();
+  await expect(page.getByRole('alert').first()).toContainText('долг');
+  await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
+
+  // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
+  page.once('dialog', (d) => d.accept());
+  await page.locator('[data-testid^="check-out-"]').click();
+  await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
   await page.screenshot({ path: 'reports/screenshots/check-out-card.png', fullPage: true });
 
   // незаезд

@@ -122,7 +122,13 @@ function makeFakes() {
       return 0n;
     },
     async recordChannelPrepayment(itemId, amountMinor, externalReference) {
+      const i = prepayments.findIndex((p) => p.externalReference === externalReference);
+      if (i >= 0) prepayments.splice(i, 1);
       prepayments.push({ itemId, amountMinor, externalReference });
+    },
+    async voidChannelPrepayment(externalReference) {
+      const i = prepayments.findIndex((p) => p.externalReference === externalReference);
+      if (i >= 0) prepayments.splice(i, 1);
     },
     async closeFolio() {},
     async ratePlanByCode() {
@@ -549,6 +555,62 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     fakes.prepayments.length = 0;
     fakes.setFeed([
       revision({ id: 'rev-pay-2', payment_collect: 'property', unique_id: 'BDC-ONSITE' }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toEqual([]);
+  });
+
+  it('одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена', async () => {
+    // Первая ревизия падает не на UnmappedRoomError, а на непарсимой сумме — раньше такая ошибка
+    // выходила из pull() наружу, и остальная лента оставалась неразобранной и неподтверждённой.
+    fakes.setFeed([
+      revision({
+        id: 'rev-bad',
+        unique_id: 'BDC-BAD',
+        rooms: [{ ...revision().attributes.rooms[0]!, amount: '1e3' }],
+      }),
+      revision({ id: 'rev-good', unique_id: 'BDC-GOOD' }),
+    ]);
+    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(res.body).toMatchObject({ received: 2, acknowledged: 1 });
+    expect(res.body.outcomes[0]).toMatchObject({ revisionId: 'rev-bad', result: 'failed' });
+    expect(res.body.outcomes[0].error).toMatch(/не десятичное/);
+    expect(res.body.outcomes[1]).toMatchObject({ revisionId: 'rev-good', result: 'created' });
+    // подтверждена только здоровая: плохая вернётся в ленте и будет разобрана снова
+    expect(fakes.acks).toEqual(['rev-good']);
+    expect(fakes.state().map((r) => r.confirmationNumber)).toEqual(['BDC-GOOD']);
+    expect([...fakes.events.values()].find((e) => e.status === 'FAILED')).toBeDefined();
+  });
+
+  it('Q-086: модификация пересчитывает предоплату канала, а смена payment_collect её снимает', async () => {
+    const paid = (over = {}) =>
+      revision({ payment_collect: 'ota', unique_id: 'BDC-PREPAID', ...over });
+    fakes.setFeed([paid({ id: 'rev-p1' })]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toMatchObject([{ amountMinor: 3_080_000n }]);
+
+    // канал поднял цену — на стойке гость не должен остаться должником на разницу
+    fakes.setFeed([
+      paid({
+        id: 'rev-p2',
+        status: 'modified',
+        amount: '45000.00',
+        rooms: [{ ...revision().attributes.rooms[0]!, amount: '45000.00' }],
+      }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toMatchObject([
+      { amountMinor: 4_500_000n, externalReference: 'channex:BDC-PREPAID:0' },
+    ]);
+
+    // деньги теперь берёт объект — прежняя предоплата снимается, иначе гость «уже оплатил»
+    fakes.setFeed([
+      revision({
+        id: 'rev-p3',
+        status: 'modified',
+        unique_id: 'BDC-PREPAID',
+        payment_collect: 'property',
+      }),
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(fakes.prepayments).toEqual([]);

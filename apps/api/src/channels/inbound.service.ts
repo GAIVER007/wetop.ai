@@ -193,11 +193,17 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     a: channex.ChannexBookingRevisionAttributes,
     amountMinor: bigint,
   ): Promise<void> {
-    if (a.payment_collect !== 'ota' || amountMinor <= 0n) return;
+    const reference = `channex:${a.unique_id}:${index}`;
+    // Ревизия может отменить предоплату: канал сменил payment_collect на property либо обнулил сумму.
+    // Тогда прежний платёж снимается, иначе гость останется «оплатившим» на стойке.
+    if (a.payment_collect !== 'ota' || amountMinor <= 0n) {
+      await repo.voidChannelPrepayment(reference);
+      return;
+    }
     await repo.recordChannelPrepayment(
       itemId,
       amountMinor,
-      `channex:${a.unique_id}:${index}`,
+      reference,
       `Предоплата канала ${a.ota_name}: деньги собраны площадкой`,
     );
   }
@@ -242,7 +248,25 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     const outcomes: RevisionOutcome[] = [];
     let acknowledged = 0;
     for (const rev of feed) {
-      const o = await this.processRevision(rev);
+      // Одна плохая ревизия не должна обрывать ленту: без этого следующие брони не будут ни обработаны,
+      // ни подтверждены, а неподтверждённая ревизия останется во главе ленты и заблокирует каждый опрос.
+      // Событие уже помечено FAILED внутри processRevision, ack не отправляется — Channex вернёт её снова.
+      let o: RevisionOutcome;
+      try {
+        o = await this.processRevision(rev);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        this.log.error(`Ревизия ${rev.id}: ${message}`);
+        o = {
+          revisionId: rev.id,
+          uniqueId: rev.attributes.unique_id,
+          status: rev.attributes.status,
+          result: 'failed',
+          confirmationNumber: null,
+          error: message,
+          warnings: [],
+        };
+      }
       outcomes.push(o);
       if (o.result !== 'failed') acknowledged += 1;
     }
@@ -506,6 +530,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
           accommodationTypeId: next.accommodationTypeId,
           ...(next.ratePlanId ? { ratePlanId: next.ratePlanId } : {}),
         });
+        // Цена в ревизии могла измениться — предоплата канала пересчитывается вместе с ней (Q-086)
+        await this.recordPrepayment(repo, item.id, i, a, next.priceMinor);
         if (datesChanged) {
           for (const al of item.allocations) {
             try {
@@ -526,9 +552,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
         await repo.updateItem(item.id, { status: 'CANCELLED' });
       }
-      for (const next of items) {
+      for (const [i, next] of items.entries()) {
         const itemId = await repo.addReservationItem(existing.id, next);
         await this.autoAssign(repo, itemId, next, a.unique_id, warnings);
+        await this.recordPrepayment(repo, itemId, i, a, next.priceMinor);
       }
       warnings.push(
         `Бронь ${a.unique_id}: состав комнат изменился (${live.length} → ${items.length}) — назначения сняты`,

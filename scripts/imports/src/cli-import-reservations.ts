@@ -1,6 +1,7 @@
 /**
  * Импорт броней Exely в БД: из скачанных карточек (project-input/exely/api/<дата>/bookings) либо живьём.
- * Запуск: npx tsx scripts/imports/src/exely/cli-import-reservations.ts 2026-09-08 [--set=future|all]
+ * Запуск: npx tsx scripts/imports/src/cli-import-reservations.ts 2026-09-08 [--set=future|all] [--skip=N]
+ * --skip=N — пропустить первые N броней (продолжение после обрыва; импорт идемпотентен, пачки по 50)
  * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env либо dev-умолчание. Без анонимизации — запрещено.
  */
 import { readFileSync, readdirSync } from 'node:fs';
@@ -22,6 +23,8 @@ const set = (process.argv.find((a) => a.startsWith('--set='))?.split('=')[1] ?? 
   'future' | 'all';
 const DIR = resolve(ROOT, `project-input/exely/api/${day}`);
 const salt = process.env.ANONYMIZE_SALT || 'dev-salt-luxx-2026';
+const skip = Number(process.argv.find((a) => a.startsWith('--skip='))?.split('=')[1] ?? 0);
+if (!Number.isInteger(skip) || skip < 0) throw new Error('--skip=N — целое от 0');
 
 const rooms = JSON.parse(readFileSync(resolve(DIR, 'rooms.json'), 'utf-8')) as exely.UniRoom[];
 const roomMap = new Map(rooms.map((r) => [r.id, r.name]));
@@ -67,12 +70,27 @@ try {
     unassigned: 0,
     paymentsImported: 0,
   };
-  for (let i = 0; i < records.length; i += CHUNK) {
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  for (let i = skip; i < records.length; i += CHUNK) {
     const part = records.slice(i, i + CHUNK);
-    const report = await db.$transaction(
-      (tx) => importReservations(tx, part, { propertyId: property.id, anonymizeSalt: salt }),
-      { timeout: 900_000, maxWait: 30_000 },
-    );
+    let report: Awaited<ReturnType<typeof importReservations>> | undefined;
+    // Обрыв соединения до Supabase (Сингапур) — повторяем пачку: транзакция откатилась, импорт идемпотентен
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        report = await db.$transaction(
+          (tx) => importReservations(tx, part, { propertyId: property.id, anonymizeSalt: salt }),
+          { timeout: 900_000, maxWait: 30_000 },
+        );
+        break;
+      } catch (e) {
+        const msg = (e as Error).message ?? String(e);
+        if (attempt >= 3 || !/terminated|ECONNRESET|ETIMEDOUT|timeout|closed/i.test(msg)) throw e;
+        console.log(
+          `  пачка ${i / CHUNK + 1}: обрыв связи (${msg.slice(0, 60)}), повтор ${attempt + 1}/3 через 15 с`,
+        );
+        await sleep(15_000);
+      }
+    }
     for (const k of ['reservations', 'items', 'guests'] as const) {
       total[k].created += report[k].created;
       total[k].updated += report[k].updated;

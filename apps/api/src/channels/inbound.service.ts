@@ -12,7 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
-import type { ReservationStatus } from '@pms/domain';
+import { penaltyAmount, penaltyDue, type ReservationStatus } from '@pms/domain';
 import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
@@ -384,9 +384,33 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
         return { result: 'cancelled', confirmationNumber: null };
       }
+      const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
       for (const item of existing.items) {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
         if (item.status !== 'CANCELLED') await repo.updateItem(item.id, { status: 'CANCELLED' });
+        // Правило штрафа одно на всё: отмена в день заезда и позже (Q-103). Канал отменяет так же, как стойка
+        if (
+          item.cancellationPenalty !== 'NONE' &&
+          item.priceMinor > 0n &&
+          penaltyDue({ arrivalDate: item.arrivalDate, on: today, reason: 'cancel' })
+        ) {
+          const nights = Math.round(
+            (Date.parse(`${item.departureDate}T00:00:00Z`) -
+              Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
+              86_400_000,
+          );
+          const amount = penaltyAmount(item.cancellationPenalty, {
+            totalMinor: item.priceMinor,
+            nights,
+            firstNightMinor: null,
+          });
+          if (amount > 0n)
+            await repo.addPenaltyCharge(
+              item.id,
+              amount,
+              `Штраф за отмену из канала (${item.arrivalDate} → ${item.departureDate})`,
+            );
+        }
       }
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
       await repo.audit({

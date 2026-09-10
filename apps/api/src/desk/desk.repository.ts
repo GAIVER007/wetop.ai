@@ -62,7 +62,11 @@ export class PrismaDeskRepository implements DeskRepository {
         accommodationType: { select: { name: true } },
         allocations: {
           orderBy: { startDate: 'asc' },
-          select: { inventoryUnit: { select: { code: true } } },
+          select: {
+            startDate: true,
+            endDate: true,
+            inventoryUnit: { select: { code: true } },
+          },
         },
         reservation: {
           select: {
@@ -99,7 +103,11 @@ export class PrismaDeskRepository implements DeskRepository {
         confirmationNumber: r.reservation.confirmationNumber,
         guestLabel: g ? `${g.firstName} ${g.lastName}`.trim() : '',
         guestPhone: g?.phone ?? null,
-        unitCode: r.allocations.at(-1)?.inventoryUnit.code ?? null,
+        // Ячейка на ЗАПРОШЕННУЮ ночь: после переселения у проживания их несколько, и последняя —
+        // не та, где гость сегодня. Для выезжающих ночи уже нет, поэтому берём последнюю.
+        unitCode:
+          (r.allocations.find((x) => x.startDate <= d && d < x.endDate) ?? r.allocations.at(-1))
+            ?.inventoryUnit.code ?? null,
         accommodationTypeName: r.accommodationType.name,
         arrivalDate: iso(r.arrivalDate),
         departureDate: iso(r.departureDate),

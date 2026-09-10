@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
@@ -296,6 +296,16 @@ describe('manual reservation API', () => {
     fake = makeFake();
     published.length = 0;
   });
+  // Даты в фикстурах фиксированные (сентябрь 2026), а правило штрафа смотрит на сегодняшний день.
+  // Без заморозки времени тест сам покраснеет, когда календарь дойдёт до этих дат.
+  beforeAll(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
+  });
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   beforeAll(async () => {
     const m = await Test.createTestingModule({ imports: [ReservationsModule] })
       .overrideProvider(RESERVATIONS_UOW)

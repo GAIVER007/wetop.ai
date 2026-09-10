@@ -48,4 +48,6 @@ Sandbox = `https://staging.channex.io/api/v1`, ключ `CHANNEX_API_KEY` из `
 Кнопки на `/channels`: «Зарегистрировать webhook» (один webhook на объект, события `booking`, `send_data` вкл.;
 повтор обновляет адрес) и «Проверить webhook» (Channex шлёт пробный POST и возвращает ответ PMS: 200/400 — адрес
 доступен и секрет принят, 401 — секрет не совпал). Обработчик отвечает сразу, ревизии обрабатывает в очереди; что не
-дошло — доберёт «Забрать брони» (лента ревизий). Диагностика БД без ПД: `scripts/reconciliation/src/cli-db-activity.ts`.
+дошло — доберёт «Забрать брони» (лента ревизий) и **периодический опрос ленты** каждые 5 минут (`CHANNEX_PULL_INTERVAL_MS`,
+выключить `CHANNEX_PULL=off`; в тестах выключен). Диагностика без ПД: `cli-db-activity.ts`, `cli-webhook-check.ts`, `cli-channex-feed.ts`;
+тестовая бронь на staging: `cli-channex-test-booking.ts` (только staging).

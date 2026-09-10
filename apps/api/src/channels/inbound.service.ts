@@ -6,6 +6,8 @@ import {
   Inject,
   Injectable,
   Logger,
+  type OnModuleDestroy,
+  type OnModuleInit,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -64,8 +66,42 @@ function payloadHash(payload: unknown): string {
   return createHash('sha256').update(JSON.stringify(payload)).digest('hex');
 }
 
+/** Периодический опрос ленты ревизий — страховка, если webhook не дошёл (туннель, сеть, простой PMS). */
+export const DEFAULT_PULL_INTERVAL_MS = 5 * 60_000;
+
 @Injectable()
-export class InboundBookingsService {
+export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
+  private pullTimer: NodeJS.Timeout | undefined;
+  private pulling = false;
+  /** Фоновый опрос только в живом процессе с ключом; в тестах (NODE_ENV=test) и без ключа — выключен. */
+  onModuleInit(): void {
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.CHANNEX_PULL === 'off' ||
+      !process.env.CHANNEX_API_KEY?.trim()
+    )
+      return;
+    const every = Number(process.env.CHANNEX_PULL_INTERVAL_MS) || DEFAULT_PULL_INTERVAL_MS;
+    this.pullTimer = setInterval(() => void this.scheduledPull(), every);
+    this.pullTimer.unref();
+  }
+  onModuleDestroy(): void {
+    if (this.pullTimer) clearInterval(this.pullTimer);
+  }
+  private async scheduledPull(): Promise<void> {
+    if (this.pulling) return;
+    this.pulling = true;
+    try {
+      const r = await this.pull();
+      if (r.received > 0)
+        this.log.log(`опрос ленты: получено ${r.received}, подтверждено ${r.acknowledged}`);
+    } catch (e) {
+      this.log.warn(`опрос ленты Channex не удался: ${(e as Error).message}`);
+    } finally {
+      this.pulling = false;
+    }
+  }
+
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,

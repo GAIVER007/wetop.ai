@@ -38,6 +38,7 @@ export default async function ChessboardPage({
           <Link href={shift(-board.dates.length)}>← раньше</Link>
           <Link href="/chessboard">сегодня</Link>
           <Link href={shift(board.dates.length)}>позже →</Link>
+          <Link href="/today">сегодня</Link>
           <Link href="/inventory">номерной фонд</Link>
           <Link href="/rates">цены</Link>
           <Link href="/channels">каналы</Link>

@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
+import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
@@ -21,6 +22,7 @@ import { UnitsModule } from './units/units.module';
     GuestsModule,
     AuditModule,
     FinanceModule,
+    DeskModule,
   ],
 })
 export class AppModule {}

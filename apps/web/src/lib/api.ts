@@ -548,3 +548,37 @@ export const financeApi = {
       body,
     ),
 };
+
+// ── Рабочий день стойки ──
+export interface DeskRow {
+  itemId: string;
+  confirmationNumber: string;
+  guestLabel: string;
+  guestPhone: string | null;
+  unitCode: string | null;
+  accommodationTypeName: string;
+  arrivalDate: string;
+  departureDate: string;
+  status: string;
+  balanceMinor: string;
+  citizenship: string | null;
+  blockedReason: string | null;
+}
+export interface DeskDay {
+  date: string;
+  arrivals: DeskRow[];
+  departures: DeskRow[];
+  inHouse: DeskRow[];
+  counts: {
+    arrivals: number;
+    departures: number;
+    inHouse: number;
+    toCheckIn: number;
+    toCheckOut: number;
+  };
+  debtMinor: string;
+}
+export const deskApi = {
+  today: (date?: string) =>
+    getJson<DeskDay>(`/desk/today${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+};

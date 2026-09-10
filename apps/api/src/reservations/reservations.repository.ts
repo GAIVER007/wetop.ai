@@ -146,6 +146,7 @@ export interface AuditEntry {
 export interface ReservationsRepository {
   property(): Promise<{ id: string; currency: string }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
+  categoryById(id: string): Promise<CategoryRef | null>;
   ratePlanByCode(code: string): Promise<RatePlanRef | null>;
   ratePlanById(id: string): Promise<RatePlanRef | null>;
   /** Активные тарифы объекта — для формы брони */
@@ -183,6 +184,7 @@ export interface ReservationsRepository {
       priceMinor: bigint;
       status: ReservationStatus;
       ratePlanId: string;
+      accommodationTypeId: string;
     }>,
   ): Promise<void>;
   updateReservation(
@@ -255,6 +257,12 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const { id: propertyId } = await this.property();
     return this.db.accommodationType.findUnique({
       where: { propertyId_code: { propertyId, code } },
+      select: { id: true, code: true, name: true, active: true, capacityAdults: true },
+    });
+  }
+  async categoryById(id: string): Promise<CategoryRef | null> {
+    return this.db.accommodationType.findUnique({
+      where: { id },
       select: { id: true, code: true, name: true, active: true, capacityAdults: true },
     });
   }
@@ -500,6 +508,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       priceMinor: bigint;
       status: ReservationStatus;
       ratePlanId: string;
+      accommodationTypeId: string;
     }>,
   ): Promise<void> {
     await this.db.reservationItem.update({
@@ -511,6 +520,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           : {}),
         ...(patch.priceMinor !== undefined ? { price: patch.priceMinor } : {}),
         ...(patch.ratePlanId !== undefined ? { ratePlanId: patch.ratePlanId } : {}),
+        ...(patch.accommodationTypeId !== undefined
+          ? { accommodationTypeId: patch.accommodationTypeId }
+          : {}),
         ...(patch.status !== undefined ? { status: patch.status } : {}),
       },
     });

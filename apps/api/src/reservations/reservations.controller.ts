@@ -46,6 +46,16 @@ export class ReservationsController {
     return this.service.noShow(number, itemId);
   }
 
+  @Post(':number/items/:itemId/extend')
+  @HttpCode(200)
+  extend(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: { nights?: number; ratePlanCode?: string },
+  ) {
+    return this.service.extend(number, itemId, dto ?? {});
+  }
+
   @Post(':number/items/:itemId/assign')
   @HttpCode(200)
   assign(

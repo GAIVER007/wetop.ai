@@ -131,3 +131,12 @@ export function confirmationNumber(now: Date, random: () => number = Math.random
     suffix += ALPHABET[Math.floor(random() * ALPHABET.length) % ALPHABET.length];
   return `${almaty}-${suffix}`;
 }
+
+/**
+ * Продление проживания (T2). Заселённого продлевать можно: гость стоит у стойки и просит ещё ночь.
+ * Выселенного, отменённого и незаезд — нет: там проживание уже закончено.
+ */
+export function assertCanExtend(status: ReservationStatus): void {
+  if (status !== 'TENTATIVE' && status !== 'CONFIRMED' && status !== 'CHECKED_IN')
+    throw new ReservationRuleError(`Продление невозможно из статуса ${status}`);
+}

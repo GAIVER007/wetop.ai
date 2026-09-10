@@ -22,6 +22,7 @@ import {
   type ReservationSource,
   type ReservationStatus,
   penaltyAmount,
+  assertCanExtend,
 } from '@pms/domain';
 import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
@@ -60,6 +61,8 @@ export interface ChangeDatesDto {
 export interface AssignUnitDto {
   unitCode?: string;
   fromDate?: string;
+  /** Тариф для пересчёта при переселении в другую категорию; по умолчанию тариф проживания (Q-102) */
+  ratePlanCode?: string;
 }
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -67,6 +70,13 @@ const isIso = (s: unknown): s is string =>
   typeof s === 'string' && ISO.test(s) && !Number.isNaN(Date.parse(s));
 
 /** Нарушение правила брони (домен) → 422; пересечение ячеек (база) → 409. */
+/** Дата + n суток, YYYY-MM-DD в часах объекта (даты проживания — DATE, без времени). */
+function addDays(date: string, n: number): string {
+  const x = new Date(`${date}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + n);
+  return x.toISOString().slice(0, 10);
+}
+
 async function guarded<T>(fn: () => Promise<T> | T): Promise<T> {
   try {
     return await fn();
@@ -362,12 +372,86 @@ export class ReservationsService {
     return cancelled;
   }
 
-  /** Назначить ячейку или переселить с даты fromDate (ADR-006: закрыть старое назначение, открыть новое). */
+  /**
+   * T2 «Быстрое продление след дня»: одна кнопка добавляет ночи к проживанию.
+   * Дата выезда сдвигается, цена пересчитывается по календарю тарифа проживания, назначение продлевается.
+   * Ячейка на новые ночи занята — база не даст пересечение, администратор увидит 409 и переселит.
+   */
+  async extend(
+    number: string,
+    itemId: string,
+    dto: { nights?: number; ratePlanCode?: string },
+  ): Promise<ReservationCard> {
+    const nights = dto.nights === undefined ? 1 : Number(dto.nights);
+    if (!Number.isInteger(nights) || nights < 1 || nights > 30)
+      throw new BadRequestException('nights — целое от 1 до 30');
+    const card = await this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+        assertCanExtend(item.status);
+        const before = await repo.card(number);
+        const departureDate = addDays(item.departureDate, nights);
+        const planId = dto.ratePlanCode
+          ? (await repo.ratePlanByCode(dto.ratePlanCode))?.id
+          : item.ratePlanId;
+        if (!planId)
+          throw new BadRequestException(
+            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+          );
+        const rates = await repo.nightRates(
+          item.accommodationTypeId,
+          planId,
+          item.arrivalDate,
+          departureDate,
+        );
+        const price = priceStay({
+          arrivalDate: item.arrivalDate,
+          departureDate,
+          occupancy: Math.max(1, item.adults || item.guestsCount),
+          rates,
+        });
+        const last = item.allocations[item.allocations.length - 1];
+        if (last) await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
+        await repo.updateItem(item.id, { departureDate, priceMinor: price.totalMinor });
+        const fresh = await this.load(repo, number);
+        const active = fresh.items.filter((i) => i.status !== 'CANCELLED');
+        await repo.updateReservation(state.id, {
+          departureDate: active.reduce(
+            (m, i) => (i.departureDate > m ? i.departureDate : m),
+            active[0]!.departureDate,
+          ),
+          totalAmountMinor: active.reduce((s, i) => s + i.priceMinor, 0n),
+        });
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.extend',
+          before,
+          after,
+        });
+        return after;
+      }),
+    );
+    await this.publish([card]);
+    return card;
+  }
+
+  /**
+   * Назначить ячейку или переселить с даты fromDate (ADR-006: закрыть старое назначение, открыть новое).
+   * Переселение в ДРУГУЮ категорию (T1 «быстрое переселение с пересчётом дней») допускается только на всё
+   * проживание целиком: у проживания одна категория, и половину срока в другой категории модель не выражает.
+   * Цена пересчитывается по календарю новой категории и тарифу проживания, начисление за проживание —
+   * следом автоматически (DATA_MODEL §6). Дельта уходит в каналы по обеим категориям.
+   */
   async assign(number: string, itemId: string, dto: AssignUnitDto): Promise<ReservationCard> {
     if (!dto.unitCode) throw new BadRequestException('unitCode обязателен');
     if (dto.fromDate !== undefined && !isIso(dto.fromDate))
       throw new BadRequestException('fromDate — дата YYYY-MM-DD');
-    return this.uow.run((repo) =>
+    let movedFromCategory: string | null = null;
+    const card = await this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const item = state.items.find((i) => i.id === itemId);
@@ -377,19 +461,72 @@ export class ReservationsService {
         const unit = await repo.unitByCode(dto.unitCode!);
         if (!unit || !unit.active)
           throw new UnprocessableEntityException(`Ячейка ${dto.unitCode} не найдена или неактивна`);
-        if (unit.accommodationTypeId !== item.accommodationTypeId)
-          throw new UnprocessableEntityException(
-            `Ячейка ${dto.unitCode} принадлежит другой категории`,
-          );
+        const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
+        if (changesCategory)
+          movedFromCategory =
+            before?.items.find((i) => i.id === item.id)?.accommodationTypeCode ?? null;
         const fromDate = dto.fromDate ?? item.arrivalDate;
         if (fromDate < item.arrivalDate || fromDate >= item.departureDate)
           throw new UnprocessableEntityException(
             `fromDate должна быть внутри проживания [${item.arrivalDate}, ${item.departureDate})`,
           );
+        if (changesCategory && fromDate !== item.arrivalDate)
+          throw new UnprocessableEntityException(
+            'Переселение в другую категорию возможно только на всё проживание: у проживания одна категория',
+          );
         if (await repo.hasBlockOverlap(unit.id, fromDate, item.departureDate))
           throw new ConflictException(`Ячейка ${dto.unitCode} заблокирована на эти даты`);
+
+        let repriced: bigint | null = null;
+        if (changesCategory) {
+          const target = await repo.categoryById(unit.accommodationTypeId);
+          if (!target || !target.active)
+            throw new UnprocessableEntityException(`Категория ячейки ${dto.unitCode} неактивна`);
+          const adults = Math.max(1, item.adults || item.guestsCount);
+          if (adults > target.capacityAdults)
+            throw new UnprocessableEntityException(
+              `Категория ${target.name}: вместимость ${target.capacityAdults}, а гостей ${adults}`,
+            );
+          const planId = dto.ratePlanCode
+            ? (await repo.ratePlanByCode(dto.ratePlanCode))?.id
+            : item.ratePlanId;
+          if (!planId)
+            throw new BadRequestException(
+              'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+            );
+          if (!(await repo.ratePlanCoversType(planId, target.id)))
+            throw new UnprocessableEntityException(
+              `Тариф не действует на категорию ${target.name}`,
+            );
+          const rates = await repo.nightRates(
+            target.id,
+            planId,
+            item.arrivalDate,
+            item.departureDate,
+          );
+          const price = priceStay({
+            arrivalDate: item.arrivalDate,
+            departureDate: item.departureDate,
+            occupancy: adults,
+            rates,
+          });
+          repriced = price.totalMinor;
+          await repo.updateItem(item.id, {
+            accommodationTypeId: target.id,
+            ratePlanId: planId,
+            priceMinor: price.totalMinor,
+          });
+        }
         await this.releaseFrom(repo, item, fromDate);
         await repo.createAllocation(item.id, unit.id, fromDate, item.departureDate);
+        if (repriced !== null) {
+          const fresh = await this.load(repo, number);
+          await repo.updateReservation(state.id, {
+            totalAmountMinor: fresh.items
+              .filter((i) => i.status !== 'CANCELLED')
+              .reduce((s, i) => s + i.priceMinor, 0n),
+          });
+        }
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
@@ -401,6 +538,20 @@ export class ReservationsService {
         return after;
       }),
     );
+    await this.publishMove(card, movedFromCategory);
+    return card;
+  }
+
+  /** Дельта в каналы после переселения между категориями: освободилась старая, занялась новая. */
+  private async publishMove(card: ReservationCard, fromCategory: string | null): Promise<void> {
+    if (!fromCategory) return;
+    await this.publisher.reservationChanged({
+      categoryCodes: [
+        ...new Set([fromCategory, ...card.items.map((i) => i.accommodationTypeCode)]),
+      ],
+      from: card.arrivalDate,
+      toExclusive: card.departureDate,
+    });
   }
 
   /**

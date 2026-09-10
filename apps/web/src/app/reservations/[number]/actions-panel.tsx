@@ -2,6 +2,7 @@
 import { useActionState, useState } from 'react';
 import {
   assignUnitAction,
+  extendStayAction,
   stayAction,
   cancelReservationAction,
   changeDatesAction,
@@ -19,9 +20,10 @@ export function ReservationActions(props: {
   items: Array<{
     id: string;
     status: string;
+    accommodationTypeCode: string;
     accommodationTypeName: string;
     unitCode: string | null;
-    availableUnitCodes: string[];
+    availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
   const [cancelState, setCancelState] = useState<ActionResult>({ error: null });
@@ -142,6 +144,17 @@ function StayButtons(props: {
             Выселить
           </button>
         )}
+        {(expected || props.item.status === 'CHECKED_IN') && (
+          <button
+            type="button"
+            data-testid={`extend-${props.item.id}`}
+            onClick={async () => setState(await extendStayAction(props.number, props.item.id))}
+            title="Выезд на сутки позже, цена пересчитается по календарю"
+            style={{ ...btn, background: '#0f766e' }}
+          >
+            + 1 ночь
+          </button>
+        )}
         {expected && (
           <button
             type="button"
@@ -167,9 +180,10 @@ function AssignForm(props: {
   arrivalDate: string;
   item: {
     id: string;
+    accommodationTypeCode: string;
     accommodationTypeName: string;
     unitCode: string | null;
-    availableUnitCodes: string[];
+    availableGroups: Array<{ code: string; name: string; units: string[] }>;
   };
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(
@@ -187,10 +201,21 @@ function AssignForm(props: {
           <option value="" disabled>
             — свободная ячейка —
           </option>
-          {props.item.availableUnitCodes.map((u) => (
-            <option key={u} value={u}>
-              {u}
-            </option>
+          {props.item.availableGroups.map((g) => (
+            <optgroup
+              key={g.code}
+              label={
+                g.code === props.item.accommodationTypeCode
+                  ? g.name
+                  : `${g.name} — с пересчётом цены`
+              }
+            >
+              {g.units.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <label
@@ -202,6 +227,10 @@ function AssignForm(props: {
         <button type="submit" disabled={pending} style={btn}>
           {props.item.unitCode ? 'Переселить' : 'Назначить'}
         </button>
+      </div>
+      <div style={{ fontSize: 12, color: '#666' }}>
+        Ячейка другой категории пересчитает цену по её календарю; такое переселение возможно только
+        на всё проживание целиком.
       </div>
       {state.error && (
         <div role="alert" style={err}>

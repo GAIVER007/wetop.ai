@@ -101,6 +101,22 @@ export async function assignUnitAction(
 }
 
 /** Заезд / выезд / незаезд по проживанию. */
+/** T2: продлить проживание на ночь одной кнопкой. */
+export async function extendStayAction(
+  number: string,
+  itemId: string,
+  nights = 1,
+): Promise<ActionResult> {
+  try {
+    await reservationsApi.extend(number, itemId, nights);
+  } catch (e) {
+    return { error: describe(e) };
+  }
+  revalidatePath('/chessboard');
+  revalidatePath(`/reservations/${number}`);
+  return { error: null };
+}
+
 export async function stayAction(
   number: string,
   itemId: string,

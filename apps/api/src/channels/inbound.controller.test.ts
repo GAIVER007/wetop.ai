@@ -114,6 +114,9 @@ function makeFakes() {
     async categoryByCode() {
       return null;
     },
+    async categoryById() {
+      return null;
+    },
     async ratePlanByCode() {
       return null;
     },

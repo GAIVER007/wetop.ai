@@ -77,6 +77,9 @@ function makeFake() {
     async categoryByCode(code) {
       return types.find((t) => t.code === code) ?? null;
     },
+    async categoryById(id) {
+      return types.find((t) => t.id === id) ?? null;
+    },
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
     },
@@ -498,6 +501,96 @@ describe('manual reservation API', () => {
     expect(fake.state.allocations).toEqual([
       expect.objectContaining({ unitId: 'u1', start: '2026-09-15', end: '2026-09-18' }),
     ]);
+  });
+
+  it('T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    expect(created.body.items[0].priceMinor).toBe('2200000'); // 2 ночи × 1 100 000 в одиночной
+    published.length = 0;
+
+    // частичное переселение в другую категорию — не выражается моделью, честный отказ
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/assign`)
+      .send({ unitCode: '9002', fromDate: '2026-09-16' })
+      .expect(422);
+
+    const moved = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/assign`)
+      .send({ unitCode: '9002' })
+      .expect(200);
+    expect(moved.body.items[0]).toMatchObject({
+      unitCode: '9002',
+      accommodationTypeCode: 'exely-900002',
+      priceMinor: '3000000', // 2 ночи × 1 500 000 в двойной
+    });
+    expect(moved.body.totalAmountMinor).toBe('3000000');
+    // канал должен узнать: в одиночной освободилось, в двойной занялось
+    expect(published).toEqual([
+      {
+        categoryCodes: ['exely-900001', 'exely-900002'],
+        from: '2026-09-15',
+        toExclusive: '2026-09-17',
+      },
+    ]);
+  });
+
+  it('T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    published.length = 0;
+
+    const ext = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/extend`)
+      .send({})
+      .expect(200);
+    expect(ext.body).toMatchObject({ departureDate: '2026-09-18', totalAmountMinor: '3300000' });
+    expect(ext.body.items[0]).toMatchObject({
+      departureDate: '2026-09-18',
+      priceMinor: '3300000', // 3 ночи × 1 100 000
+      unitCode: '9001',
+    });
+    expect(fake.state.allocations[0]).toMatchObject({ start: '2026-09-15', end: '2026-09-18' });
+    expect(published).toHaveLength(1);
+
+    // чужая бронь занимает ту же койку на следующую ночь → продлить нельзя
+    const other = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+      .expect(201);
+    const otherItem = other.body.items[0].id as string;
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/extend`)
+      .send({})
+      .expect(409);
+
+    // нельзя продлить выселенного
+    await request(app.getHttpServer())
+      .post(`/reservations/${other.body.confirmationNumber}/items/${otherItem}/check-in`)
+      .send({})
+      .expect(200);
+    await request(app.getHttpServer())
+      .post(`/reservations/${other.body.confirmationNumber}/items/${otherItem}/check-out`)
+      .send({})
+      .expect(200);
+    await request(app.getHttpServer())
+      .post(`/reservations/${other.body.confirmationNumber}/items/${otherItem}/extend`)
+      .send({})
+      .expect(422);
+
+    // некорректное число ночей
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/extend`)
+      .send({ nights: 0 })
+      .expect(400);
   });
 
   it('GET /rate-plans lists only active tariffs', async () => {

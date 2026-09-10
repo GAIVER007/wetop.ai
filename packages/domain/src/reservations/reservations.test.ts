@@ -6,6 +6,7 @@ import {
   assertCanNoShow,
   assertCanCancel,
   assertCanChangeDates,
+  assertCanExtend,
   confirmationNumber,
   deriveReservationStatus,
   priceStay,
@@ -93,5 +94,16 @@ describe('check-in / check-out / no-show guards', () => {
     expect(() => assertCanCheckOut('CONFIRMED')).toThrow(/не заселён/);
     expect(() => assertCanNoShow('CONFIRMED')).not.toThrow();
     expect(() => assertCanNoShow('CHECKED_IN')).toThrow(/CHECKED_IN/);
+  });
+});
+
+describe('assertCanExtend (T2: продление на ночь)', () => {
+  it('продлить можно подтверждённое и заселённого гостя, но не выселенного, отменённого и незаезд', () => {
+    expect(() => assertCanExtend('CONFIRMED')).not.toThrow();
+    expect(() => assertCanExtend('TENTATIVE')).not.toThrow();
+    expect(() => assertCanExtend('CHECKED_IN')).not.toThrow(); // гость у стойки просит ещё ночь
+    expect(() => assertCanExtend('CHECKED_OUT')).toThrow(/CHECKED_OUT/);
+    expect(() => assertCanExtend('CANCELLED')).toThrow(/CANCELLED/);
+    expect(() => assertCanExtend('NO_SHOW')).toThrow(/NO_SHOW/);
   });
 });

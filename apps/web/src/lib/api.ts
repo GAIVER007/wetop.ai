@@ -186,6 +186,12 @@ export const reservationsApi = {
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/${action}`,
       {},
     ),
+  extend: (number: string, itemId: string, nights = 1) =>
+    sendJson<ReservationCard>(
+      'POST',
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend`,
+      { nights },
+    ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(
       'POST',

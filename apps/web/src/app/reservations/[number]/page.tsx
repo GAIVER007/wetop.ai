@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { chessboardApi, financeApi, formatMinor, reservationsApi } from '../../../lib/api';
+import { api, chessboardApi, financeApi, formatMinor, reservationsApi } from '../../../lib/api';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 
@@ -25,10 +25,11 @@ const SOURCE_RU: Record<string, string> = {
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number));
-  const [ratePlans, finance, services, availabilities] = await Promise.all([
+  const [ratePlans, finance, services, summary, availabilities] = await Promise.all([
     reservationsApi.ratePlans(),
     financeApi.reservation(r.confirmationNumber),
     financeApi.services(),
+    api.inventorySummary(),
     Promise.all(
       r.items.map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
@@ -151,14 +152,34 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         arrivalDate={r.arrivalDate}
         departureDate={r.departureDate}
         ratePlans={ratePlans}
-        items={r.items.map((it, i) => ({
-          id: it.id,
-          status: it.status,
-          accommodationTypeName: it.accommodationTypeName,
-          unitCode: it.unitCode,
-          availableUnitCodes:
-            availabilities[i]?.byCategory[it.accommodationTypeCode]?.availableUnitCodes ?? [],
-        }))}
+        items={r.items.map((it, i) => {
+          const byCategory = availabilities[i]?.byCategory ?? {};
+          const names = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+          // Переселять можно и в другую категорию (T1): предлагаем свободные ячейки всех категорий,
+          // своя — первой; цену система пересчитает по календарю выбранной категории
+          const groups = Object.entries(byCategory)
+            .map(([code, v]) => ({
+              code,
+              name: names.get(code) ?? code,
+              units: v.availableUnitCodes,
+            }))
+            .filter((g) => g.units.length > 0)
+            .sort((a, b) =>
+              a.code === it.accommodationTypeCode
+                ? -1
+                : b.code === it.accommodationTypeCode
+                  ? 1
+                  : 0,
+            );
+          return {
+            id: it.id,
+            status: it.status,
+            accommodationTypeCode: it.accommodationTypeCode,
+            accommodationTypeName: it.accommodationTypeName,
+            unitCode: it.unitCode,
+            availableGroups: groups,
+          };
+        })}
       />
     </main>
   );

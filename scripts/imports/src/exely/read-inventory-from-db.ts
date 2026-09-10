@@ -5,6 +5,8 @@ import type { InventoryImportPlan } from '@pms/domain';
 export async function readInventoryPlanFromDb(
   db: Db | DbTx,
   propertyName: string,
+  /** Дата, на которую считаются действующие блокировки (YYYY-MM-DD); по умолчанию сегодня в Алматы */
+  blocksOnDate: string = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10),
 ): Promise<{ plan: InventoryImportPlan; blocks: number } | null> {
   const property = await db.property.findFirst({
     where: { name: propertyName },
@@ -30,8 +32,15 @@ export async function readInventoryPlanFromDb(
       isDorm: room.isDorm,
     })),
   );
+  // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату: Exely в сверке даёт «заблокировано на дату»,
+  // а не «сколько записей о блокировках было за всю историю» (иначе Gate 1 сломается после первой блокировки)
+  const onDate = new Date(`${blocksOnDate}T00:00:00Z`);
   const blocks = await db.inventoryBlock.count({
-    where: { inventoryUnit: { accommodationType: { propertyId: property.id } } },
+    where: {
+      inventoryUnit: { accommodationType: { propertyId: property.id } },
+      dateFrom: { lte: onDate },
+      dateTo: { gt: onDate },
+    },
   });
   return {
     plan: {

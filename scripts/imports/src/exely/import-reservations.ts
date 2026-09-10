@@ -248,6 +248,12 @@ export async function importReservations(
           select: { id: true },
         });
         if (clash) {
+          // Даты проживания изменились и новые пересекаются с чужим назначением: старое назначение
+          // снимаем, иначе ячейка осталась бы закреплённой на прежние, уже неверные даты
+          if (existingAlloc) {
+            await tx.allocation.delete({ where: { id: existingAlloc.id } });
+            report.allocations.released += 1;
+          }
           report.conflicts.push({
             confirmationNumber: r.confirmationNumber,
             exelyRoomNumber: it.exelyRoomNumber,

@@ -169,7 +169,11 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         payload: body.payload,
       });
       if (ev.isNew)
-        await repo.updateExternalEvent(ev.id, { status: 'PROCESSED', processedAt: new Date() });
+        await repo.updateExternalEvent(ev.id, {
+          status: 'PROCESSED',
+          processedAt: new Date(),
+          countAttempt: true,
+        });
     });
   }
 
@@ -274,7 +278,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       try {
         // Транзакция 2: бронь + PROCESSED. Любая ошибка откатывает её целиком.
         const r = await this.uow.run(async (repo) => {
-          await repo.updateExternalEvent(ev.id, { status: 'PROCESSING' });
+          await repo.updateExternalEvent(ev.id, { status: 'PROCESSING', countAttempt: true });
           const mappings = await repo.channelMappings(PROVIDER);
           const applied = await this.apply(repo, a, mappings, base.warnings);
           await repo.updateExternalEvent(ev.id, {

@@ -56,7 +56,9 @@ test('заселить → карточка и шахматка показыва
   const f2 = page.getByTestId('new-reservation-form');
   await f2.locator('select[name="source"]').selectOption('PHONE');
   await f2.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
-  await f2.locator('select[name="unitCode"]').selectOption(unitCode);
+  const freeUnit = f2.locator('select[name="unitCode"]');
+  await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
+  await freeUnit.selectOption((await freeUnit.locator('option').nth(1).getAttribute('value'))!);
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд');
   await f2.getByRole('button', { name: 'Создать бронь' }).click();

@@ -40,6 +40,8 @@ const numbers = await client.searchBookings({
   affectsPeriodTo: `${plus(DATE, 1)}T00:00`,
 });
 const ex = empty();
+/** Номера броней Exely, занимающих эту ночь — для поимённого разбора расхождений */
+const exOccupying = new Set<string>();
 const roomTypeNames = new Map<string, string>();
 for (const n of numbers) {
   const b = await client.booking(n);
@@ -51,6 +53,7 @@ for (const n of numbers) {
     if (co === DATE) ex.departures += 1;
     if (ci <= DATE && DATE < co) {
       ex.occupied += 1;
+      exOccupying.add(b.number);
       ex.byCategory[rs.roomTypeId] = (ex.byCategory[rs.roomTypeId] ?? 0) + 1;
     }
   }
@@ -59,6 +62,8 @@ for (const n of numbers) {
 // ── PMS ──
 const db = createPrismaClient();
 const pms = empty();
+/** Проживания PMS, занимающие ночь — для поимённого разбора расхождений */
+const pmsOccupying: Array<{ number: string; category: string; stay: string }> = [];
 try {
   const property = await db.property.findFirstOrThrow({
     where: { name: LUXX_APARTS_PROPERTY.name },
@@ -79,7 +84,8 @@ try {
     select: {
       arrivalDate: true,
       departureDate: true,
-      accommodationType: { select: { exelyId: true, id: true } },
+      accommodationType: { select: { exelyId: true, id: true, name: true } },
+      reservation: { select: { confirmationNumber: true } },
     },
   });
   for (const it of items) {
@@ -91,6 +97,11 @@ try {
       pms.occupied += 1;
       const k = it.accommodationType.exelyId ?? it.accommodationType.id;
       pms.byCategory[k] = (pms.byCategory[k] ?? 0) + 1;
+      pmsOccupying.push({
+        number: it.reservation.confirmationNumber,
+        category: it.accommodationType.name,
+        stay: `${ci} → ${co}`,
+      });
     }
   }
 } finally {
@@ -120,9 +131,44 @@ const ok =
   [...cats].every((c) => (pms.byCategory[c] ?? 0) === (ex.byCategory[c] ?? 0));
 lines.push(
   '',
-  `RESULT: ${ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения (пока PMS не ведётся параллельно, расхождение ожидаемо: брони после 08.09 в PMS нет)'}`,
+  `RESULT: ${ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения, поимённый разбор ниже'}`,
   '',
 );
+
+// ── Поимённый разбор: какие именно брони расходятся (Gate 8: расхождение должно быть названо) ──
+if (!ok) {
+  const onlyPms = pmsOccupying.filter((p) => !exOccupying.has(p.number));
+  const pmsNumbers = new Set(pmsOccupying.map((p) => p.number));
+  const onlyExely = [...exOccupying].filter((n) => !pmsNumbers.has(n));
+  lines.push(
+    '## Разбор расхождения',
+    '',
+    `Занимают ночь только в PMS: **${onlyPms.length}**. Занимают ночь только в Exely: **${onlyExely.length}**.`,
+    '',
+  );
+  if (onlyPms.length) {
+    lines.push(
+      'Только в PMS — брони, которые в Exely на эти сутки уже не активны (сокращены, отменены или переселены',
+      'после последнего переноса). При параллельном ведении такие строки означают, что PMS отстала от Exely.',
+      '',
+      '| Бронь | Категория | Проживание |',
+      '|---|---|---|',
+      ...onlyPms.slice(0, 40).map((p) => `| ${p.number} | ${p.category} | ${p.stay} |`),
+      '',
+    );
+    if (onlyPms.length > 40) lines.push(`…и ещё ${onlyPms.length - 40} строк.`, '');
+  }
+  if (onlyExely.length) {
+    lines.push(
+      'Только в Exely — брони, которых нет в PMS (созданы после переноса). Подтянуть:',
+      '`npx tsx scripts/imports/src/cli-sync-day.ts ' + DATE + '`',
+      '',
+      ...onlyExely.slice(0, 40).map((n) => `- ${n}`),
+      '',
+    );
+    if (onlyExely.length > 40) lines.push(`…и ещё ${onlyExely.length - 40} строк.`, '');
+  }
+}
 mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
 const out = resolve(ROOT, `reports/double-entry-${DATE}.md`);
 writeFileSync(out, lines.join('\n'));

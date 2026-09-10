@@ -212,7 +212,13 @@ export interface ReservationsRepository {
   recordExternalEvent(event: NewExternalEvent): Promise<ExternalEventRef>;
   updateExternalEvent(
     id: string,
-    patch: { status: ExternalEventStatus; lastError?: string | null; processedAt?: Date | null },
+    patch: {
+      status: ExternalEventStatus;
+      lastError?: string | null;
+      processedAt?: Date | null;
+      /** true — это начало новой попытки обработки: увеличить счётчик попыток */
+      countAttempt?: boolean;
+    },
   ): Promise<void>;
   audit(entry: AuditEntry): Promise<void>;
   card(confirmationNumber: string): Promise<ReservationCard | null>;
@@ -673,13 +679,19 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   }
   async updateExternalEvent(
     id: string,
-    patch: { status: ExternalEventStatus; lastError?: string | null; processedAt?: Date | null },
+    patch: {
+      status: ExternalEventStatus;
+      lastError?: string | null;
+      processedAt?: Date | null;
+      countAttempt?: boolean;
+    },
   ): Promise<void> {
     await this.db.externalEvent.update({
       where: { id },
       data: {
         status: patch.status,
-        attemptCount: { increment: 1 },
+        // Попытка считается один раз на обработку (ADR-007), а не на каждую смену статуса
+        ...(patch.countAttempt ? { attemptCount: { increment: 1 } } : {}),
         ...(patch.lastError !== undefined ? { lastError: patch.lastError } : {}),
         ...(patch.processedAt !== undefined ? { processedAt: patch.processedAt } : {}),
       },

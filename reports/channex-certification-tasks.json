@@ -1,47 +1,47 @@
 [
   {
     "scenario": "2. Single Date Update for Single Rate",
-    "taskId": "92c91bb4-ef86-4340-a570-ffb7e0ce0330",
-    "sent": "2026-09-09T15:03:24.380Z"
+    "taskId": "4220d531-3c6c-40cb-b4d5-7acb3acda19c",
+    "sent": "2026-09-10T10:03:19.048Z"
   },
   {
     "scenario": "3. Single Date Update for Multiple Rates",
-    "taskId": "ffd432f9-8aaa-470d-a2de-7f210407c027",
-    "sent": "2026-09-09T15:03:34.488Z"
+    "taskId": "d43f39b4-d028-49c6-9f65-42aeb1b66e3d",
+    "sent": "2026-09-10T10:03:33.437Z"
   },
   {
     "scenario": "4. Multiple Date Update for Multiple Rates",
-    "taskId": "a79cbdb0-ab13-48fc-a23b-98ff41ba1a03",
-    "sent": "2026-09-09T15:03:44.596Z"
+    "taskId": "6c086d77-7b5b-405f-9531-2fefa5f2b19b",
+    "sent": "2026-09-10T10:03:48.198Z"
   },
   {
     "scenario": "5. Min Stay Update",
-    "taskId": "7080faad-3369-4e61-be63-096d28125775",
-    "sent": "2026-09-09T15:03:54.573Z"
+    "taskId": "515bb52b-0544-4241-a9be-55c960b4a402",
+    "sent": "2026-09-10T10:04:02.138Z"
   },
   {
     "scenario": "6. Stop Sell Update",
-    "taskId": "d49ff230-fbb5-461a-a93f-abad7c288271",
-    "sent": "2026-09-09T15:04:07.227Z"
+    "taskId": "fa7f450d-7df6-40a9-9ba5-d42abdde8c7d",
+    "sent": "2026-09-10T10:04:24.066Z"
   },
   {
     "scenario": "7. Multiple Restrictions Update",
-    "taskId": "d86b9f35-d70b-4841-9d1a-74ee725a5bdc",
-    "sent": "2026-09-09T15:04:16.635Z"
+    "taskId": "252f9b97-9482-4a8a-adb1-2fc20f9f7910",
+    "sent": "2026-09-10T10:04:34.759Z"
   },
   {
     "scenario": "8. Half-year Update",
-    "taskId": "f9865a8b-e31d-4026-bd03-376fa21845e9",
-    "sent": "2026-09-09T15:04:26.409Z"
+    "taskId": "e0b65469-c941-48a3-961d-4be61c11dc14",
+    "sent": "2026-09-10T10:04:46.301Z"
   },
   {
     "scenario": "9. Single Date Availability Update (booking created in PMS UI)",
-    "taskId": "79d88ac2-7ba1-4667-b733-07bf0c6760bc",
-    "sent": "2026-09-09T15:04:40.478Z"
+    "taskId": "3bd056c1-1224-46bb-bf57-f0ee3ce6fdf9",
+    "sent": "2026-09-10T10:04:59.550Z"
   },
   {
     "scenario": "10. Availability Update (booking cancelled in PMS UI)",
-    "taskId": "82193ba5-cc56-48f2-9cee-d55f4ed2e7b7",
-    "sent": "2026-09-09T15:04:53.680Z"
+    "taskId": "183f3688-0b3e-4442-9b4d-a35b85dea062",
+    "sent": "2026-09-10T10:05:19.718Z"
   }
 ]

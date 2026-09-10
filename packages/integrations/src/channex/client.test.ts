@@ -377,3 +377,45 @@ describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.m
     });
   });
 });
+
+describe('ChannexClient photos (photos-collection.md)', () => {
+  it('uploads a file as multipart without a JSON content-type, then creates the photo record by url', async () => {
+    const f = fakeFetch((call) => {
+      if (call.url.endsWith('/photos/upload'))
+        return { status: 200, body: { url: 'https://temp.example/abc.jpg' } };
+      return {
+        status: 201,
+        body: {
+          data: { type: 'photo', id: 'ph-1', attributes: { url: 'https://img.channex.io/x/' } },
+        },
+      };
+    });
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+
+    const url = await c.uploadPhoto(new Blob([new Uint8Array([1, 2, 3])]), 'reception.jpg');
+    expect(url).toBe('https://temp.example/abc.jpg');
+    const init = f.calls[0]!.init;
+    expect(init.method).toBe('POST');
+    expect(init.body).toBeInstanceOf(FormData);
+    const headers = init.headers as Record<string, string>;
+    expect(headers['user-api-key']).toBe('k');
+    // content-type ставит FormData сам, вместе с разделителем — руками его задавать нельзя
+    expect(headers['content-type']).toBeUndefined();
+
+    const photo = await c.createPhoto({
+      property_id: 'prop-1',
+      url,
+      description: 'Стойка регистрации',
+      position: 0,
+    });
+    expect(photo.id).toBe('ph-1');
+    expect(JSON.parse(f.calls[1]!.init.body as string)).toEqual({
+      photo: {
+        property_id: 'prop-1',
+        url: 'https://temp.example/abc.jpg',
+        description: 'Стойка регистрации',
+        position: 0,
+      },
+    });
+  });
+});

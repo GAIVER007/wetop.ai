@@ -480,6 +480,46 @@ export class ChannexClient {
     return res.data;
   }
 
+  /**
+   * Загрузка файла фотографии (photos-collection.md → Upload Photo). Возвращает временную ссылку,
+   * которую затем передают в createPhoto. Заголовок content-type не ставим: его формирует FormData
+   * вместе с разделителем частей, иначе сервер не разберёт тело.
+   */
+  async uploadPhoto(file: Blob, filename: string): Promise<string> {
+    const form = new FormData();
+    form.append('photo', file, filename);
+    const res = await this.fetchFn(`${this.base}/photos/upload`, {
+      method: 'POST',
+      headers: { 'user-api-key': this.opts.apiKey, accept: 'application/json' },
+      body: form,
+    });
+    if (!res.ok)
+      throw new ChannexApiError(
+        `Channex /photos/upload: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`,
+        res.status,
+        '/photos/upload',
+      );
+    const body = (await res.json()) as { url?: string };
+    if (!body.url)
+      throw new ChannexApiError('Channex /photos/upload: в ответе нет url', 502, '/photos/upload');
+    return body.url;
+  }
+
+  /** Привязка загруженной фотографии к объекту или категории (photos-collection.md → Create Photo). */
+  async createPhoto(input: {
+    property_id: string;
+    url: string;
+    description?: string;
+    position?: number;
+    room_type_id?: string | null;
+    kind?: string;
+  }): Promise<ChannexResource<Record<string, unknown>>> {
+    const res = await this.request<OneResponse<Record<string, unknown>>>('POST', '/photos', {
+      photo: input,
+    });
+    return res.data;
+  }
+
   /** Справочник удобств объекта (facilities-collection.md) — id выбираются из него, а не выдумываются. */
   listPropertyFacilities(): Promise<ChannexResource<Record<string, unknown>>[]> {
     return this.listAll<Record<string, unknown>>('/property_facilities');

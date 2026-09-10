@@ -60,7 +60,7 @@ const checks: Array<{ what: string; ok: boolean; got: string; who: string }> = [
     what: 'Правила объекта (hotel policy)',
     ok: nonEmpty(a['hotel_policy_id']),
     got: nonEmpty(a['hotel_policy_id']) ? 'задана' : 'нет',
-    who: 'владелец: интернет, парковка, животные, курение — фактов о доме у системы нет',
+    who: 'создана 10.09.2026 по фактам владельца и странице объекта',
   },
   {
     what: 'Политика отмены',
@@ -72,7 +72,7 @@ const checks: Array<{ what: string; ok: boolean; got: string; who: string }> = [
     what: 'Фотографии',
     ok: photosInContent > 0 || photos.length > 0,
     got: String(photosInContent || photos.length),
-    who: 'владелец: файлов фотографий у системы нет',
+    who: 'загружены 10.09.2026 со страницы объекта по распоряжению владельца',
   },
   {
     what: 'Удобства (facilities)',

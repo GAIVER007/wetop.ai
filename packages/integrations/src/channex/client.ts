@@ -428,6 +428,50 @@ export class ChannexClient {
     return res.data;
   }
 
+  /**
+   * Контент объекта (hotels-collection.md → Update Property). Меняем только переданные поля:
+   * Channex принимает частичный объект внутри { property }.
+   */
+  async updateProperty(
+    id: string,
+    patch: Partial<{
+      phone: string;
+      email: string;
+      facilities: string[];
+      content: { description?: string };
+    }>,
+  ): Promise<ChannexResource<ChannexPropertyAttributes>> {
+    const res = await this.request<OneResponse<ChannexPropertyAttributes>>(
+      'PUT',
+      `/properties/${encodeURIComponent(id)}`,
+      { property: patch },
+    );
+    return res.data;
+  }
+
+  /** Правила объекта (hotel-policy-collection.md → Create Hotel Policy): время заезда и выезда, валюта. */
+  async createHotelPolicy(input: {
+    property_id: string;
+    title: string;
+    currency: string;
+    checkin_time: string;
+    checkout_time: string;
+  }): Promise<ChannexResource<Record<string, unknown>>> {
+    const res = await this.request<OneResponse<Record<string, unknown>>>(
+      'POST',
+      '/hotel_policies',
+      {
+        hotel_policy: input,
+      },
+    );
+    return res.data;
+  }
+
+  /** Справочник удобств объекта (facilities-collection.md) — id выбираются из него, а не выдумываются. */
+  listPropertyFacilities(): Promise<ChannexResource<Record<string, unknown>>[]> {
+    return this.listAll<Record<string, unknown>>('/property_facilities');
+  }
+
   // ── Webhooks (webhook-collection.md): секрет — свой заголовок, HMAC у Channex нет ──
   listWebhooks(): Promise<ChannexResource<ChannexWebhookAttributes>[]> {
     return this.listAll<ChannexWebhookAttributes>('/webhooks');

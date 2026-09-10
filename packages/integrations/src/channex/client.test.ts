@@ -323,3 +323,57 @@ describe('ChannexClient.getAvailability (ari.md → Get the Availability per Roo
     );
   });
 });
+
+describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.md)', () => {
+  it('updates a property wrapped in { property } and creates a hotel policy wrapped in { hotel_policy }', async () => {
+    const f = fakeFetch((call) => {
+      if (call.url.endsWith('/hotel_policies'))
+        return {
+          status: 201,
+          body: {
+            data: { type: 'hotel_policy', id: 'hp-1', attributes: { checkin_time: '14:00' } },
+          },
+        };
+      return {
+        status: 200,
+        body: { data: { type: 'property', id: 'prop-1', attributes: { title: 'Luxx' } } },
+      };
+    });
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+
+    const updated = await c.updateProperty('prop-1', {
+      phone: '+7 777 187 77 65',
+      email: 'luxxaparts@gmail.com',
+      content: { description: 'Хостел в центре Алматы' },
+    });
+    expect(updated.id).toBe('prop-1');
+    expect(f.calls[0]!.init.method).toBe('PUT');
+    expect(f.calls[0]!.url).toBe('https://staging.channex.io/api/v1/properties/prop-1');
+    expect(JSON.parse(f.calls[0]!.init.body as string)).toEqual({
+      property: {
+        phone: '+7 777 187 77 65',
+        email: 'luxxaparts@gmail.com',
+        content: { description: 'Хостел в центре Алматы' },
+      },
+    });
+
+    const policy = await c.createHotelPolicy({
+      property_id: 'prop-1',
+      title: 'Основные правила',
+      currency: 'KZT',
+      checkin_time: '14:00',
+      checkout_time: '12:00',
+    });
+    expect(policy.id).toBe('hp-1');
+    expect(f.calls[1]!.init.method).toBe('POST');
+    expect(JSON.parse(f.calls[1]!.init.body as string)).toEqual({
+      hotel_policy: {
+        property_id: 'prop-1',
+        title: 'Основные правила',
+        currency: 'KZT',
+        checkin_time: '14:00',
+        checkout_time: '12:00',
+      },
+    });
+  });
+});

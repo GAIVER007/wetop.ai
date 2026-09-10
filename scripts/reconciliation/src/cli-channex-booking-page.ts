@@ -37,30 +37,49 @@ const nonEmpty = (v: unknown) =>
   v !== null && v !== undefined && String(v).trim() !== '' && String(v) !== 'null';
 const list = (v: unknown) => (Array.isArray(v) ? v.length : 0);
 
-const checks: Array<{ what: string; ok: boolean; got: string }> = [
-  { what: 'Страна', ok: nonEmpty(a['country']), got: String(a['country'] ?? '—') },
-  { what: 'Город', ok: nonEmpty(a['city']), got: String(a['city'] ?? '—') },
-  { what: 'Адрес', ok: nonEmpty(a['address']), got: String(a['address'] ?? '—') },
-  { what: 'Широта', ok: nonEmpty(a['latitude']), got: String(a['latitude'] ?? '—') },
-  { what: 'Долгота', ok: nonEmpty(a['longitude']), got: String(a['longitude'] ?? '—') },
-  { what: 'Часовой пояс', ok: nonEmpty(a['timezone']), got: String(a['timezone'] ?? '—') },
-  { what: 'Телефон', ok: nonEmpty(a['phone']), got: String(a['phone'] ?? '—') },
-  { what: 'Почта', ok: nonEmpty(a['email']), got: String(a['email'] ?? '—') },
+const content = (a['content'] ?? {}) as Record<string, unknown>;
+const photosInContent = Array.isArray(content['photos'])
+  ? (content['photos'] as unknown[]).length
+  : 0;
+
+const checks: Array<{ what: string; ok: boolean; got: string; who: string }> = [
+  { what: 'Страна', ok: nonEmpty(a['country']), got: String(a['country'] ?? '—'), who: '' },
+  { what: 'Город', ok: nonEmpty(a['city']), got: String(a['city'] ?? '—'), who: '' },
+  { what: 'Адрес', ok: nonEmpty(a['address']), got: String(a['address'] ?? '—'), who: '' },
+  { what: 'Широта', ok: nonEmpty(a['latitude']), got: String(a['latitude'] ?? '—'), who: '' },
+  { what: 'Долгота', ok: nonEmpty(a['longitude']), got: String(a['longitude'] ?? '—'), who: '' },
+  { what: 'Часовой пояс', ok: nonEmpty(a['timezone']), got: String(a['timezone'] ?? '—'), who: '' },
+  { what: 'Телефон', ok: nonEmpty(a['phone']), got: String(a['phone'] ?? '—'), who: '' },
+  { what: 'Почта', ok: nonEmpty(a['email']), got: String(a['email'] ?? '—'), who: '' },
+  {
+    what: 'Описание объекта',
+    ok: nonEmpty(content['description']),
+    got: nonEmpty(content['description']) ? 'есть' : 'нет',
+    who: '',
+  },
   {
     what: 'Правила объекта (hotel policy)',
     ok: nonEmpty(a['hotel_policy_id']),
     got: nonEmpty(a['hotel_policy_id']) ? 'задана' : 'нет',
+    who: 'владелец: интернет, парковка, животные, курение — фактов о доме у системы нет',
+  },
+  {
+    what: 'Политика отмены',
+    ok: nonEmpty(a['default_cancellation_policy_id']),
+    got: nonEmpty(a['default_cancellation_policy_id']) ? 'задана' : 'нет',
+    who: 'владелец: это правило про деньги (Q-103)',
+  },
+  {
+    what: 'Фотографии',
+    ok: photosInContent > 0 || photos.length > 0,
+    got: String(photosInContent || photos.length),
+    who: 'владелец: файлов фотографий у системы нет',
   },
   {
     what: 'Удобства (facilities)',
-    ok: list(a['facilities']) > 0,
-    got: String(list(a['facilities'])),
-  },
-  { what: 'Фотографии', ok: photos.length > 0, got: String(photos.length) },
-  {
-    what: 'Описание объекта',
-    ok: list(a['property_descriptions']) > 0 || nonEmpty(a['description']),
-    got: nonEmpty(a['description']) ? 'есть' : String(list(a['property_descriptions'])),
+    ok: true,
+    got: 'через API объекта не читаются — проверить в кабинете',
+    who: 'владелец: Wi-Fi, кухня, кондиционер — факты о доме',
   },
 ];
 const missing = checks.filter((c) => !c.ok);
@@ -74,9 +93,9 @@ const md = [
   'Брони с неё приходят тем же путём, что и из агрегаторов, а остаток общий: продажа на странице',
   'сразу уменьшает доступность в Booking, Agoda и остальных. Именно это и нужно от «зелёной кнопки».',
   '',
-  '| Что требует Channex | Состояние | Значение |',
-  '|---|---|---|',
-  ...checks.map((c) => `| ${c.what} | ${c.ok ? 'есть' : '**нет**'} | ${c.got} |`),
+  '| Что требует Channex | Состояние | Значение | Кто заполняет |',
+  '|---|---|---|---|',
+  ...checks.map((c) => `| ${c.what} | ${c.ok ? 'есть' : '**нет**'} | ${c.got} | ${c.who} |`),
   '',
   missing.length === 0
     ? '**RESULT: OK** — контента достаточно, канал можно подключать.'

@@ -211,6 +211,8 @@ export interface ReservationsRepository {
   addPenaltyCharge(itemId: string, amountMinor: bigint, description: string): Promise<void>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
   stayBalanceMinor(itemId: string): Promise<bigint>;
+  /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
+  closeFolio(itemId: string): Promise<void>;
   /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
   channelMappings(provider: string): Promise<ChannelMappingRef[]>;
   /** Журнал входящих событий (ADR-007): вернуть существующее или создать новое */
@@ -613,6 +615,12 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { confirmationNumber: true },
     });
     return r ? this.reservationByNumber(r.confirmationNumber) : null;
+  }
+  async closeFolio(itemId: string): Promise<void> {
+    await this.db.folio.updateMany({
+      where: { reservationItemId: itemId, status: 'OPEN' },
+      data: { status: 'CLOSED', closedAt: new Date() },
+    });
   }
   async stayBalanceMinor(itemId: string): Promise<bigint> {
     const folio = await this.db.folio.findUnique({

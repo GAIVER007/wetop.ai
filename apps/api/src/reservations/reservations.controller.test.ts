@@ -54,6 +54,8 @@ function makeFake() {
   const state = {
     /** долг счёта по проживанию — для T3 (выселение с долгом) */
     debts: new Map<string, bigint>(),
+    /** проживания, у которых счёт закрыт при выезде */
+    closedFolios: [] as string[],
     reservations: new Map<string, ReservationState>(),
     allocations: [] as Array<{
       id: string;
@@ -84,6 +86,9 @@ function makeFake() {
     },
     async stayBalanceMinor(itemId) {
       return state.debts.get(itemId) ?? 0n;
+    },
+    async closeFolio(itemId) {
+      state.closedFolios.push(itemId);
     },
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
@@ -628,6 +633,23 @@ describe('manual reservation API', () => {
       .expect(200);
     expect(done.body.items[0].status).toBe('CHECKED_OUT');
     expect(fake.state.audits.map((a) => a.action)).toContain('reservation.checkOut.withDebt');
+    expect(fake.state.closedFolios).toEqual([]); // счёт с долгом остаётся открытым
+
+    // а когда рассчитались — счёт закрывается при выезде
+    const clean = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+      .expect(201);
+    const cleanItem = clean.body.items[0].id as string;
+    await request(app.getHttpServer())
+      .post(`/reservations/${clean.body.confirmationNumber}/items/${cleanItem}/check-in`)
+      .send({})
+      .expect(200);
+    await request(app.getHttpServer())
+      .post(`/reservations/${clean.body.confirmationNumber}/items/${cleanItem}/check-out`)
+      .send({})
+      .expect(200);
+    expect(fake.state.closedFolios).toEqual([cleanItem]);
   });
 
   it('GET /rate-plans lists only active tariffs', async () => {

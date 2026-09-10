@@ -319,9 +319,18 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     mappings: ChannelMappingRef[],
     warnings: string[],
   ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected'>> {
-    // Ищем по внешнему ID, затем по номеру подтверждения (= unique_id): брони, созданные до заполнения externalId
+    // Порядок поиска важен для переезда с Exely (CUTOVER §1, Q-034):
+    // 1) unique_id — брони, которые PMS уже приняла от Channex;
+    // 2) ota_reservation_code — брони, перенесённые из Exely: у них externalId — номер брони НА СТОРОНЕ КАНАЛА,
+    //    а unique_id Channex мы никогда не видели. Без этого шага модификация создала бы дубль с второй ячейкой,
+    //    а отмена не нашла бы бронь и оставила бы койку занятой;
+    // 3) номер подтверждения — брони, созданные до заполнения externalId.
+    // Найденной по каналу броне externalId переписывается на unique_id ниже, поэтому шаг 2 нужен один раз.
     const existing =
       (await repo.reservationByExternalId(a.unique_id)) ??
+      (a.ota_reservation_code
+        ? await repo.reservationByExternalId(a.ota_reservation_code)
+        : null) ??
       (await repo.reservationByNumber(a.unique_id));
     const codeById = new Map(
       mappings

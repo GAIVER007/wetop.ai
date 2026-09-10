@@ -693,6 +693,9 @@ export class ReservationsService {
           ),
           ...(early ? { departureDate: departure } : {}),
         });
+        // Счёт закрывается только если по нему рассчитались: с долгом он остаётся открытым,
+        // иначе деньги «уедут» вместе с гостем и их некуда будет принять (DATA_MODEL §6)
+        if (debtMinor === 0n) await repo.closeFolio(item.id);
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',

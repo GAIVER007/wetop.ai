@@ -259,6 +259,9 @@ function makeFakes() {
             status: failed ? 'FAILED' : 'PENDING',
           });
     },
+    async recentEvents() {
+      return [];
+    },
     async outboxSummary() {
       return {
         pending: outbox.filter((o) => o.status === 'PENDING').length,

@@ -68,6 +68,13 @@ export class ChannelsController {
     return this.inbound.pull(propertyId || undefined);
   }
 
+  /** Журнал входящих событий: что прислал Channex и обработали ли мы это (ADR-007). */
+  @Get('events')
+  events(@Query('limit') limit?: string) {
+    const n = Number(limit ?? 30);
+    return this.repo.recentEvents(PROVIDER, Number.isInteger(n) && n > 0 && n <= 200 ? n : 30);
+  }
+
   /** Очередь исходящих изменений ARI: сколько ждёт, сколько ушло, последняя задача Channex. */
   @Get('outbox')
   outboxStatus() {

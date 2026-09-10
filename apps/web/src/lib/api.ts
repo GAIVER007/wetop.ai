@@ -309,6 +309,7 @@ export const channelsApi = {
     ),
   flush: () =>
     sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
+  events: (limit = 30) => getJson<InboundEvent[]>(`/channels/channex/events?limit=${limit}`),
   webhookStatus: () => getJson<WebhookStatus>('/channels/channex/webhook/status'),
   registerWebhook: () =>
     sendJson<{
@@ -325,6 +326,15 @@ export const channelsApi = {
       {},
     ),
 };
+export interface InboundEvent {
+  externalEventId: string;
+  type: string;
+  status: string;
+  attempts: number;
+  receivedAt: string;
+  processedAt: string | null;
+  lastError: string | null;
+}
 export interface WebhookStatus {
   registered: boolean;
   id: string | null;

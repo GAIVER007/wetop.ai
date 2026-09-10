@@ -95,6 +95,17 @@ export interface ChannelsRepository {
     /** Когда поставлена самая старая неотправленная дельта: если давно — канал не знает об изменениях (T6) */
     oldestPendingAt: string | null;
   }>;
+  /** Журнал входящих событий канала (ADR-007): что пришло, обработалось ли, сколько попыток, ошибка */
+  recentEvents(provider: string, limit: number): Promise<InboundEventRow[]>;
+}
+export interface InboundEventRow {
+  externalEventId: string;
+  type: string;
+  status: string;
+  attempts: number;
+  receivedAt: string;
+  processedAt: string | null;
+  lastError: string | null;
 }
 export type OutboxKind = 'AVAILABILITY' | 'RESTRICTIONS';
 export interface OutboxRow {
@@ -325,6 +336,31 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       select: { code: true, id: true },
     });
     return Object.fromEntries(rows.map((r) => [r.code, r.id]));
+  }
+  async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
+    const rows = await this.prisma.db.externalEvent.findMany({
+      where: { provider },
+      orderBy: { receivedAt: 'desc' },
+      take: limit,
+      select: {
+        externalEventId: true,
+        type: true,
+        status: true,
+        attemptCount: true,
+        receivedAt: true,
+        processedAt: true,
+        lastError: true,
+      },
+    });
+    return rows.map((r) => ({
+      externalEventId: r.externalEventId,
+      type: r.type,
+      status: r.status,
+      attempts: r.attemptCount,
+      receivedAt: r.receivedAt.toISOString(),
+      processedAt: r.processedAt?.toISOString() ?? null,
+      lastError: r.lastError,
+    }));
   }
   async outboxSummary(provider: string) {
     const [pending, failed, sent, last, oldest] = await Promise.all([

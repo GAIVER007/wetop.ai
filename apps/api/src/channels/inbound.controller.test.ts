@@ -120,6 +120,7 @@ function makeFakes() {
     async stayBalanceMinor() {
       return 0n;
     },
+    async closeFolio() {},
     async ratePlanByCode() {
       return null;
     },
@@ -171,7 +172,7 @@ function makeFakes() {
       reservations.set(input.confirmationNumber, {
         id: rid,
         confirmationNumber: input.confirmationNumber,
-        externalId: input.confirmationNumber,
+        externalId: input.externalId ?? input.confirmationNumber,
         status: input.status,
         arrivalDate: input.arrivalDate,
         departureDate: input.departureDate,
@@ -478,6 +479,49 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(fakes.state()[0]!.status).toBe('CANCELLED');
     expect(fakes.allocations).toHaveLength(0);
     expect(fakes.acks).toEqual(['rev-1', 'rev-2', 'rev-3']);
+  });
+
+  it('перенесённая из Exely бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку', async () => {
+    // так выглядит бронь после переноса: номер — из Exely, внешний ID — номер на стороне канала
+    const seeded = await fakes.repo.createReservation({
+      confirmationNumber: '20260901-513903-1262128988',
+      source: 'OTA',
+      channel: 'Booking.com',
+      externalId: '9996013801', // = ota_reservation_code у Channex, а не unique_id
+      status: 'CONFIRMED',
+      arrivalDate: '2026-11-10',
+      departureDate: '2026-11-12',
+      adults: 1,
+      children: 0,
+      currency: 'KZT',
+      totalAmountMinor: 3_080_000n,
+      primaryGuestId: 'g-imported',
+      notes: null,
+      items: [
+        {
+          accommodationTypeId: 't1',
+          arrivalDate: '2026-11-10',
+          departureDate: '2026-11-12',
+          priceMinor: 3_080_000n,
+          status: 'CONFIRMED',
+        },
+      ],
+    });
+    await fakes.repo.createAllocation(seeded.itemIds[0]!, 'u-9001', '2026-11-10', '2026-11-12');
+    const before = fakes.state().length;
+
+    fakes.setFeed([revision({ id: 'rev-ota-1', status: 'modified' })]);
+    const mod = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(mod.body.outcomes[0]).toMatchObject({
+      result: 'modified',
+      confirmationNumber: '20260901-513903-1262128988',
+    });
+    expect(fakes.state()).toHaveLength(before); // дубля не появилось
+
+    fakes.setFeed([revision({ id: 'rev-ota-2', status: 'cancelled' })]);
+    const can = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(can.body.outcomes[0]).toMatchObject({ result: 'cancelled' });
+    expect(fakes.allocations).toHaveLength(0); // ячейка освободилась, а не осталась занятой
   });
 
   it('unmapped room type → event FAILED with a reason, no reservation, no ack', async () => {

@@ -228,7 +228,10 @@ describe('ChannexClient webhooks (webhook-collection.md)', () => {
   it('creates a property webhook wrapped in { webhook }, lists them with pagination, updates and tests', async () => {
     const f = fakeFetch((call) => {
       if (call.init.method === 'POST' && call.url.endsWith('/webhooks/test'))
-        return { status: 200, body: { status_code: 200, body: '{"ok":true}' } };
+        return {
+          status: 200,
+          body: { status: 200, body: '{"ok":true}', headers: {}, request_url: 'x' },
+        }; // живой staging: `status`
       if (call.init.method === 'POST')
         return {
           status: 201,

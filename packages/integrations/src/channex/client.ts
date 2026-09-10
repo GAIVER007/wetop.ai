@@ -435,8 +435,16 @@ export class ChannexClient {
       `/webhooks/${encodeURIComponent(id)}`,
     );
   }
-  /** Channex шлёт пробный POST на callback_url и возвращает, что ответил наш endpoint. */
-  testWebhook(input: ChannexWebhookInput): Promise<ChannexWebhookTestResult> {
-    return this.request<ChannexWebhookTestResult>('POST', '/webhooks/test', { webhook: input });
+  /**
+   * Channex шлёт пробный POST на callback_url и возвращает, что ответил наш endpoint.
+   * Живой staging отвечает `{ status, body, headers, request_url }`, документация — `status_code`; принимаем оба.
+   */
+  async testWebhook(input: ChannexWebhookInput): Promise<ChannexWebhookTestResult> {
+    const raw = await this.request<{ status_code?: number; status?: number; body?: string }>(
+      'POST',
+      '/webhooks/test',
+      { webhook: input },
+    );
+    return { status_code: raw.status_code ?? raw.status ?? 0, body: raw.body ?? '' };
   }
 }

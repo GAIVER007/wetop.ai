@@ -32,7 +32,7 @@ try {
     `daily_rates: создано ${r.dailyRates.created} / обновлено ${r.dailyRates.updated} / без изменений ${r.dailyRates.unchanged}`,
   );
   console.log(
-    `restrictions: создано ${r.restrictions.created} / обновлено ${r.restrictions.updated} / без изменений ${r.restrictions.unchanged}`,
+    `restrictions: создано ${r.restrictions.created} / обновлено ${r.restrictions.updated} / без изменений ${r.restrictions.unchanged} / снято ${r.restrictions.removed}`,
   );
   for (const c of r.currencyChanged) console.log(`  валюта ${c.code}: ${c.from} → ${c.to}`);
 } finally {

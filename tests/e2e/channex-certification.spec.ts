@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -80,13 +81,34 @@ test.describe.serial('Channex certification from the PMS UI', () => {
   test.afterAll(() => {
     mkdirSync('reports', { recursive: true });
     writeFileSync('reports/channex-certification-tasks.json', JSON.stringify(tasks, null, 2));
+    // Сертификация намеренно пишет в календарь тестовые цены (333, 241, 456…). Если их не убрать,
+    // они останутся ценой продажи и уедут в каналы: после прогона 09.09 так и вышло — 486 строк
+    // тарифа ОТА за ноябрь 2026 — май 2027 стояли по 241–456 ₸. Календарь восстанавливается из
+    // снимка Exely, и сверка цен пересчитывается, чтобы расхождение было названо сразу.
+    for (const script of [
+      'scripts/imports/src/cli-import-price-calendar.ts',
+      'scripts/reconciliation/src/cli-rates.ts',
+    ]) {
+      try {
+        const out = execFileSync('npx', ['tsx', script], { encoding: 'utf-8' });
+        process.stdout.write(`[после сертификации] ${script}\n${out.trim()}\n`);
+      } catch (e) {
+        process.stdout.write(`[после сертификации] ${script} — ОШИБКА: ${(e as Error).message}\n`);
+      }
+    }
   });
 
-  test('2. одна дата, один тариф: цена 22.11.2026 → 333', async ({ page }) => {
+  test('2. одна дата, один тариф: цена 22.11.2026 меняется', async ({ page }) => {
     await page.goto(`/rates?category=${SINGLE}&ratePlan=${OTA}&month=2026-11`);
-    await addChange(page, { category: SINGLE, dateFrom: '2026-11-22', price: '333' });
+    // Цена берётся не из константы: с зашитым «333» второй прогон проходил бы и при сломанном
+    // сохранении — в ячейке уже стояло бы 333 с прошлого раза.
+    const cell = page.getByTestId('price-2026-11-22-1');
+    const before = (await cell.textContent())!.trim();
+    const price = before.startsWith('333,') ? '334' : '333';
+    await addChange(page, { category: SINGLE, dateFrom: '2026-11-22', price });
     await save(page);
-    await expect(page.getByTestId('price-2026-11-22-1')).toHaveText(/333,00/);
+    await expect(cell).toHaveText(new RegExp(`${price},00`));
+    expect((await cell.textContent())!.trim()).not.toBe(before);
     await flush(page, '2. Single Date Update for Single Rate');
   });
 

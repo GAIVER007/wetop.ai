@@ -10,7 +10,10 @@ export interface UpsertCounts {
 export interface PriceCalendarImportReport {
   period: { from: string; to: string };
   dailyRates: UpsertCounts;
-  restrictions: UpsertCounts;
+  restrictions: UpsertCounts & {
+    /** Ограничения, которых в снимке Exely нет: сняты, иначе остались бы закрытыми продажи */
+    removed: number;
+  };
   /** Тарифы, у которых валюта в календаре Exely отличалась от сохранённой (например USD) */
   currencyChanged: Array<{ code: string; from: string; to: string }>;
 }
@@ -33,7 +36,7 @@ export async function importPriceCalendar(
   const report: PriceCalendarImportReport = {
     period: plan.period,
     dailyRates: { created: 0, updated: 0, unchanged: 0 },
-    restrictions: { created: 0, updated: 0, unchanged: 0 },
+    restrictions: { created: 0, updated: 0, unchanged: 0, removed: 0 },
     currencyChanged: [],
   };
 
@@ -192,5 +195,28 @@ export async function importPriceCalendar(
     const res = await tx.restriction.createMany({ data: newRestrictions });
     report.restrictions.created = res.count;
   }
+  // Календарь Exely — источник истины на импортируемый период. Ограничение, которого в снимке нет,
+  // в PMS появиться не должно: после прогонов сертификации так осталось 324 строки (stop sell,
+  // closed to arrival, min stay), а на объекте ограничений нет ни одного — продажи были бы закрыты.
+  const keep = new Set(
+    plan.restrictions.map((r) =>
+      restrKey(r.date, typeByExely.get(r.accommodationTypeExelyId)!, planByExely.get(r.ratePlanExelyId)!.id),
+    ),
+  );
+  const stale = existingRestrictions.filter(
+    (r) => !keep.has(restrKey(isoDay(r.date), r.accommodationTypeId, r.ratePlanId)),
+  );
+  for (const r of stale) {
+    await tx.restriction.delete({
+      where: {
+        date_accommodationTypeId_ratePlanId: {
+          date: r.date,
+          accommodationTypeId: r.accommodationTypeId,
+          ratePlanId: r.ratePlanId,
+        },
+      },
+    });
+  }
+  report.restrictions.removed = stale.length;
   return report;
 }

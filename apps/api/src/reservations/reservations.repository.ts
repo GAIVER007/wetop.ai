@@ -143,6 +143,12 @@ export interface ReservationsRepository {
   ): Promise<NightRate[]>;
   unitByCode(code: string): Promise<UnitRef | null>;
   hasBlockOverlap(unitId: string, from: string, toExclusive: string): Promise<boolean>;
+  /** Первая свободная активная ячейка категории на весь период [from, toExclusive): без проживаний и блокировок (Q-094) */
+  firstFreeUnit(
+    accommodationTypeId: string,
+    from: string,
+    toExclusive: string,
+  ): Promise<UnitRef | null>;
   createGuest(guest: NewGuest): Promise<string>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
@@ -270,6 +276,31 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       where: { code },
       select: { id: true, code: true, accommodationTypeId: true, active: true },
     });
+  }
+  async firstFreeUnit(
+    accommodationTypeId: string,
+    from: string,
+    toExclusive: string,
+  ): Promise<UnitRef | null> {
+    const free = await this.db.inventoryUnit.findMany({
+      where: {
+        accommodationTypeId,
+        active: true,
+        allocations: {
+          none: {
+            startDate: { lt: asDate(toExclusive) },
+            endDate: { gt: asDate(from) },
+            reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+          },
+        },
+        blocks: { none: { dateFrom: { lt: asDate(toExclusive) }, dateTo: { gt: asDate(from) } } },
+      },
+      select: { id: true, code: true, accommodationTypeId: true, active: true },
+    });
+    // «Первая» — по номеру ячейки как числу (1, 5, 41…), иначе по строке; ничего не выводится из номера
+    const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
+    free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
+    return free[0] ?? null;
   }
   async hasBlockOverlap(unitId: string, from: string, toExclusive: string): Promise<boolean> {
     const n = await this.db.inventoryBlock.count({

@@ -131,6 +131,11 @@ function makeFakes() {
     async hasBlockOverlap() {
       return false;
     },
+    // одна ячейка категории: свободна, если ни одно назначение не пересекает период
+    async firstFreeUnit(accommodationTypeId, from, to) {
+      const busy = allocations.some((x) => x.unitId === 'u-9001' && x.start < to && x.end > from);
+      return busy ? null : { id: 'u-9001', code: '9001', accommodationTypeId, active: true };
+    },
     async createGuest() {
       return id('g');
     },
@@ -270,7 +275,7 @@ function makeFakes() {
           departureDate: it.departureDate,
           status: it.status,
           priceMinor: it.priceMinor.toString(),
-          unitCode: null,
+          unitCode: allocations.find((a) => a.itemId === it.id)?.unitId ?? null,
           guests: [],
         })),
       };
@@ -350,7 +355,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(() => decimalToMinor('1e3', 'x')).toThrow(/не десятичное/);
   });
 
-  it('pull: new revision → reservation without unit, event PROCESSED without card data, ack; same revision again → duplicate skipped but acked', async () => {
+  it('pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning', async () => {
     fakes.setFeed([revision()]);
     const first = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(first.body).toMatchObject({ received: 1, acknowledged: 1 });
@@ -371,8 +376,17 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       accommodationTypeId: 't1',
       priceMinor: 3_080_000n,
       status: 'CONFIRMED',
-      allocations: [],
     });
+    // Q-094: первая свободная ячейка категории на весь период — назначена сразу, как в Exely
+    expect(fakes.allocations).toEqual([
+      {
+        id: expect.any(String),
+        itemId: r.items[0]!.id,
+        unitId: 'u-9001',
+        start: '2026-11-10',
+        end: '2026-11-12',
+      },
+    ]);
     const ev = [...fakes.events.values()][0]!;
     expect(ev).toMatchObject({ status: 'PROCESSED', type: 'booking_new' });
     expect(JSON.stringify(ev.payload)).not.toContain('411111');
@@ -386,6 +400,16 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     });
     expect(fakes.state()).toHaveLength(1);
     expect(fakes.acks).toEqual(['rev-1', 'rev-1']);
+
+    // вторая бронь на те же даты: единственная ячейка занята → без ячейки, предупреждение, бронь создана
+    fakes.setFeed([revision({ id: 'rev-1b', booking_id: 'bk-2', unique_id: 'BDC-2' })]);
+    const third = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(third.body.outcomes[0]).toMatchObject({
+      result: 'created',
+      confirmationNumber: 'BDC-2',
+    });
+    expect(fakes.allocations).toHaveLength(1);
+    expect(JSON.stringify(third.body)).toContain('свободной ячейки');
   });
 
   it('modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels', async () => {

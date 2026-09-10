@@ -14,6 +14,7 @@ import {
 import { channex } from '@pms/integrations';
 import type { ReservationStatus } from '@pms/domain';
 import {
+  AllocationOverlapError,
   RESERVATIONS_UOW,
   type ChannelMappingRef,
   type NewReservation,
@@ -170,6 +171,40 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       if (ev.isNew)
         await repo.updateExternalEvent(ev.id, { status: 'PROCESSED', processedAt: new Date() });
     });
+  }
+
+  /**
+   * Q-094 (умолчание как в Exely, 1043 из 1044 броней августа назначены сразу): бронь канала получает первую
+   * свободную ячейку своей категории на весь период; свободной нет — остаётся без ячейки, стойка назначает вручную.
+   */
+  private async autoAssign(
+    repo: ReservationsRepository,
+    itemId: string,
+    item: { accommodationTypeId: string; arrivalDate: string; departureDate: string },
+    uniqueId: string,
+    warnings: string[],
+  ): Promise<boolean> {
+    const unit = await repo.firstFreeUnit(
+      item.accommodationTypeId,
+      item.arrivalDate,
+      item.departureDate,
+    );
+    if (!unit) {
+      warnings.push(
+        `Бронь ${uniqueId}: свободной ячейки категории на ${item.arrivalDate} → ${item.departureDate} нет — без ячейки`,
+      );
+      return false;
+    }
+    try {
+      await repo.createAllocation(itemId, unit.id, item.arrivalDate, item.departureDate);
+      return true;
+    } catch (e) {
+      if (e instanceof AllocationOverlapError) {
+        warnings.push(`Бронь ${uniqueId}: ячейка ${unit.code} занята (гонка) — без ячейки`);
+        return false;
+      }
+      throw e;
+    }
   }
 
   /** Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook. */
@@ -369,8 +404,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         notes: a.notes ?? null,
         items,
       } satisfies NewReservation);
-      for (const itemId of created.itemIds) await repo.addStayGuest(itemId, guestId, true);
-      // Ячейка не назначается: умолчание до ответа Q-094 (plans/slice-4-channex.md)
+      for (const [i, itemId] of created.itemIds.entries()) {
+        await repo.addStayGuest(itemId, guestId, true);
+        await this.autoAssign(repo, itemId, items[i]!, a.unique_id, warnings);
+      }
       await repo.audit({
         entityType: 'Reservation',
         entityId: created.id,
@@ -400,9 +437,11 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
               await repo.replaceAllocationDates(al.id, next.arrivalDate, next.departureDate);
             } catch {
               await repo.deleteAllocation(al.id);
-              warnings.push(
-                `Бронь ${a.unique_id}: ячейка ${al.unitCode} занята на новые даты — назначение снято, нужно назначить заново`,
-              );
+              const moved = await this.autoAssign(repo, item.id, next, a.unique_id, warnings);
+              if (!moved)
+                warnings.push(
+                  `Бронь ${a.unique_id}: ячейка ${al.unitCode} занята на новые даты — назначение снято, свободной ячейки нет`,
+                );
             }
           }
         }
@@ -412,7 +451,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
         await repo.updateItem(item.id, { status: 'CANCELLED' });
       }
-      for (const next of items) await repo.addReservationItem(existing.id, next);
+      for (const next of items) {
+        const itemId = await repo.addReservationItem(existing.id, next);
+        await this.autoAssign(repo, itemId, next, a.unique_id, warnings);
+      }
       warnings.push(
         `Бронь ${a.unique_id}: состав комнат изменился (${live.length} → ${items.length}) — назначения сняты`,
       );

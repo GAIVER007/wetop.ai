@@ -85,6 +85,9 @@ function makeFake() {
     async hasBlockOverlap(unitId, from, toExclusive) {
       return blocked.some((b) => b.unitId === unitId && b.from < toExclusive && b.to > from);
     },
+    async firstFreeUnit() {
+      return null; // ручная бронь ячейку выбирает сама; автоназначение — для каналов (Q-094)
+    },
     async createGuest() {
       state.guests += 1;
       return `g${state.guests}`;

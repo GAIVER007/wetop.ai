@@ -46,6 +46,8 @@ export interface ChessboardCell {
   itemStatus?: StayStatus;
   confirmationNumber?: string;
   guestLabel?: string;
+  /** Телефон заказчика для перехода в мессенджер из шахматки (T5) */
+  guestPhone?: string | null;
   /** дата = дата заезда проживания / дата = последняя ночь */
   isArrival?: boolean;
   isLastNight?: boolean;

@@ -80,6 +80,20 @@ export interface ReservationFinanceView {
   refundedMinor: string;
   balanceMinor: string;
 }
+export interface PeriodReportView {
+  from: string;
+  to: string;
+  currency: string;
+  chargesByKind: Array<{ kind: string; count: number; amountMinor: string }>;
+  paymentsByMethod: Array<{ method: string; count: number; amountMinor: string }>;
+  refunds: { count: number; amountMinor: string };
+  accommodationByCategory: Array<{ category: string; count: number; amountMinor: string }>;
+  chargedMinor: string;
+  paidMinor: string;
+  refundedMinor: string;
+  /** начислено − оплачено + возвращено за период: сколько ещё не собрано */
+  balanceMinor: string;
+}
 export interface ServiceView {
   code: string;
   nameRu: string;
@@ -182,6 +196,42 @@ export class FinanceService {
       paidMinor: sum('paidMinor'),
       refundedMinor: sum('refundedMinor'),
       balanceMinor: sum('balanceMinor'),
+    };
+  }
+
+  /** T4 «Финансовый учёт период»: начисления, оплаты и возвраты за период в разрезах. */
+  async periodReport(from?: string, to?: string): Promise<PeriodReportView> {
+    if (!from || !ISO.test(from) || !to || !ISO.test(to))
+      throw new BadRequestException('from и to — даты YYYY-MM-DD');
+    if (to < from) throw new BadRequestException('to не может быть раньше from');
+    const r = await this.repo.periodReport(from, to);
+    const sum = (xs: Array<{ amountMinor: bigint }>) => xs.reduce((a, x) => a + x.amountMinor, 0n);
+    const charged = sum(r.chargesByKind);
+    const paid = sum(r.paymentsByMethod);
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      chargesByKind: r.chargesByKind.map((x) => ({
+        kind: x.kind,
+        count: x.count,
+        amountMinor: s(x.amountMinor),
+      })),
+      paymentsByMethod: r.paymentsByMethod.map((x) => ({
+        method: x.method,
+        count: x.count,
+        amountMinor: s(x.amountMinor),
+      })),
+      refunds: { count: r.refunds.count, amountMinor: s(r.refunds.amountMinor) },
+      accommodationByCategory: r.accommodationByCategory.map((x) => ({
+        category: x.category,
+        count: x.count,
+        amountMinor: s(x.amountMinor),
+      })),
+      chargedMinor: s(charged),
+      paidMinor: s(paid),
+      refundedMinor: s(r.refunds.amountMinor),
+      balanceMinor: s(charged - paid + r.refunds.amountMinor),
     };
   }
 

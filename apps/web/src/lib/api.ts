@@ -60,6 +60,7 @@ export interface ChessboardCell {
   itemStatus?: string;
   confirmationNumber?: string;
   guestLabel?: string;
+  guestPhone?: string | null;
   isArrival?: boolean;
   isLastNight?: boolean;
   blockType?: string;
@@ -97,7 +98,12 @@ export interface ReservationCard {
   currency: string;
   totalAmountMinor: string;
   notes: string | null;
-  primaryGuest: { id: string; label: string; citizenship: string | null } | null;
+  primaryGuest: {
+    id: string;
+    label: string;
+    citizenship: string | null;
+    phone: string | null;
+  } | null;
   items: Array<{
     id: string;
     accommodationTypeCode: string;
@@ -122,6 +128,19 @@ export const chessboardApi = {
     getJson<ReservationCard>(`/reservations/${encodeURIComponent(number)}`),
 };
 /** Тиыны → строка в тенге с разделителями, без float-арифметики. */
+/**
+ * T5: ссылки в мессенджеры по телефону гостя. Телефон приводим к цифрам — оба сервиса ждут
+ * международный формат без плюса и разделителей. Пустой или слишком короткий номер ссылок не даёт.
+ */
+export function messengerLinks(phone: string | null | undefined): {
+  whatsapp: string;
+  telegram: string;
+} | null {
+  const digits = (phone ?? '').replace(/\D/g, '');
+  if (digits.length < 10) return null;
+  return { whatsapp: `https://wa.me/${digits}`, telegram: `https://t.me/+${digits}` };
+}
+
 export function formatMinor(minor: string, currency = 'KZT'): string {
   const neg = minor.startsWith('-');
   const digits = minor.replace('-', '').padStart(3, '0');
@@ -486,7 +505,24 @@ export interface ServiceOption {
   priceMinor: string;
   group: string | null;
 }
+export interface PeriodReport {
+  from: string;
+  to: string;
+  currency: string;
+  chargesByKind: Array<{ kind: string; count: number; amountMinor: string }>;
+  paymentsByMethod: Array<{ method: string; count: number; amountMinor: string }>;
+  refunds: { count: number; amountMinor: string };
+  accommodationByCategory: Array<{ category: string; count: number; amountMinor: string }>;
+  chargedMinor: string;
+  paidMinor: string;
+  refundedMinor: string;
+  balanceMinor: string;
+}
 export const financeApi = {
+  report: (from: string, to: string) =>
+    getJson<PeriodReport>(
+      `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
   reservation: (number: string) =>
     getJson<ReservationFinance>(`/finance/reservations/${encodeURIComponent(number)}`),
   services: () => getJson<ServiceOption[]>('/finance/services'),

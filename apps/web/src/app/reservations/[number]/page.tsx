@@ -1,5 +1,12 @@
 import Link from 'next/link';
-import { api, chessboardApi, financeApi, formatMinor, reservationsApi } from '../../../lib/api';
+import {
+  api,
+  chessboardApi,
+  financeApi,
+  formatMinor,
+  messengerLinks,
+  reservationsApi,
+} from '../../../lib/api';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 
@@ -76,6 +83,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         <Fact label="Сумма" value={formatMinor(r.totalAmountMinor, r.currency)} />
         <Fact
           label="Заказчик"
+          messengers={messengerLinks(r.primaryGuest?.phone)}
           value={r.primaryGuest?.label ?? '—'}
           href={r.primaryGuest ? `/guests/${r.primaryGuest.id}` : undefined}
           hint={
@@ -189,11 +197,13 @@ function Fact({
   value,
   href,
   hint,
+  messengers,
 }: {
   label: string;
   value: string;
   href?: string | undefined;
   hint?: string | undefined;
+  messengers?: { whatsapp: string; telegram: string } | null;
 }) {
   return (
     <div
@@ -217,6 +227,26 @@ function Fact({
       {hint && (
         <div style={{ fontSize: 12, color: hint.includes('не указано') ? '#b45309' : '#666' }}>
           {hint}
+        </div>
+      )}
+      {messengers && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 12 }}>
+          <a
+            href={messengers.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            data-testid="guest-whatsapp"
+          >
+            WhatsApp
+          </a>
+          <a
+            href={messengers.telegram}
+            target="_blank"
+            rel="noreferrer"
+            data-testid="guest-telegram"
+          >
+            Telegram
+          </a>
         </div>
       )}
     </div>

@@ -56,6 +56,31 @@ function makeFakes() {
     async folioById(id) {
       return folios.find((f) => f.id === id) ?? null;
     },
+    async periodReport(from, to) {
+      // фальшивка: период 2026-10-01..2026-10-31 — одно проживание, одна услуга, одна оплата, один возврат
+      const inRange = from <= '2026-10-02' && to >= '2026-10-02';
+      return inRange
+        ? {
+            chargesByKind: [
+              { kind: 'ACCOMMODATION' as const, count: 2, amountMinor: 2_000_000n },
+              { kind: 'SERVICE' as const, count: 1, amountMinor: 100_000n },
+            ],
+            paymentsByMethod: [
+              { method: 'KASPI' as const, count: 1, amountMinor: 1_500_000n },
+              { method: 'CASH' as const, count: 1, amountMinor: 200_000n },
+            ],
+            refunds: { count: 1, amountMinor: 50_000n },
+            accommodationByCategory: [
+              { category: 'Одноместная', count: 2, amountMinor: 2_000_000n },
+            ],
+          }
+        : {
+            chargesByKind: [],
+            paymentsByMethod: [],
+            refunds: { count: 0, amountMinor: 0n },
+            accommodationByCategory: [],
+          };
+    },
     async services() {
       return [
         {
@@ -201,6 +226,42 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(services.body).toEqual([
       expect.objectContaining({ code: 'Стирка (1 загрузка)', priceMinor: '50000' }),
     ]);
+  });
+
+  it('T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400', async () => {
+    await request(app.getHttpServer()).get('/finance/report').expect(400);
+    await request(app.getHttpServer()).get('/finance/report?from=2026-10-01').expect(400);
+    await request(app.getHttpServer())
+      .get('/finance/report?from=2026-10-31&to=2026-10-01')
+      .expect(400);
+
+    const r = await request(app.getHttpServer())
+      .get('/finance/report?from=2026-10-01&to=2026-10-31')
+      .expect(200);
+    expect(r.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      chargedMinor: '2100000',
+      paidMinor: '1700000',
+      refundedMinor: '50000',
+      balanceMinor: '450000', // начислено − оплачено + возвращено
+    });
+    expect(r.body.chargesByKind).toEqual([
+      { kind: 'ACCOMMODATION', count: 2, amountMinor: '2000000' },
+      { kind: 'SERVICE', count: 1, amountMinor: '100000' },
+    ]);
+    expect(r.body.paymentsByMethod).toEqual([
+      { method: 'KASPI', count: 1, amountMinor: '1500000' },
+      { method: 'CASH', count: 1, amountMinor: '200000' },
+    ]);
+    expect(r.body.accommodationByCategory).toEqual([
+      { category: 'Одноместная', count: 2, amountMinor: '2000000' },
+    ]);
+
+    const empty = await request(app.getHttpServer())
+      .get('/finance/report?from=2026-01-01&to=2026-01-31')
+      .expect(200);
+    expect(empty.body).toMatchObject({ chargedMinor: '0', paidMinor: '0', balanceMinor: '0' });
   });
 
   it('charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price', async () => {

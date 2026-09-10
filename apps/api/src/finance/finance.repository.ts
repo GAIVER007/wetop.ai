@@ -119,12 +119,22 @@ export interface NewRefund {
   reason: string | null;
 }
 
+/** Сводка за период (T4): деньги считаются по датам события — начисление по дате услуги, платёж по дате оплаты. */
+export interface PeriodReport {
+  chargesByKind: Array<{ kind: ChargeKind; count: number; amountMinor: bigint }>;
+  paymentsByMethod: Array<{ method: PaymentMethod; count: number; amountMinor: bigint }>;
+  refunds: { count: number; amountMinor: bigint };
+  accommodationByCategory: Array<{ category: string; count: number; amountMinor: bigint }>;
+}
+
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
 export interface FinanceRepository {
   /** null — брони с таким номером нет */
   foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null>;
   folioById(id: string): Promise<FolioRecord | null>;
   services(): Promise<ServiceRef[]>;
+  /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
+  periodReport(from: string, to: string): Promise<PeriodReport>;
   addCharge(folioId: string, c: NewCharge): Promise<string>;
   chargeById(id: string): Promise<ChargeRecord | null>;
   voidCharge(id: string): Promise<void>;
@@ -143,6 +153,12 @@ export interface FinanceRepository {
 export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
+/** Следующие сутки — для полуинтервала по timestamptz (платежи и возвраты со временем) */
+const asDateNext = (d: string) => {
+  const x = new Date(`${d}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + 1);
+  return x;
+};
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 const folioInclude = {
   reservationItem: {
@@ -250,6 +266,62 @@ export class PrismaFinanceRepository implements FinanceRepository {
       priceMinor: s.price,
       group: s.group,
     }));
+  }
+  async periodReport(from: string, to: string): Promise<PeriodReport> {
+    const { id: propertyId } = await this.property();
+    const dateRange = { gte: asDate(from), lte: asDate(to) };
+    const charges = await this.prisma.db.charge.findMany({
+      where: {
+        voidedAt: null,
+        serviceDate: dateRange,
+        folio: { reservationItem: { reservation: { propertyId } } },
+      },
+      select: {
+        kind: true,
+        amount: true,
+        folio: {
+          select: {
+            reservationItem: { select: { accommodationType: { select: { name: true } } } },
+          },
+        },
+      },
+    });
+    const byKind = new Map<ChargeKind, { count: number; amountMinor: bigint }>();
+    const byCategory = new Map<string, { count: number; amountMinor: bigint }>();
+    for (const c of charges) {
+      const k = byKind.get(c.kind) ?? { count: 0, amountMinor: 0n };
+      byKind.set(c.kind, { count: k.count + 1, amountMinor: k.amountMinor + c.amount });
+      if (c.kind === 'ACCOMMODATION') {
+        const name = c.folio.reservationItem.accommodationType.name;
+        const v = byCategory.get(name) ?? { count: 0, amountMinor: 0n };
+        byCategory.set(name, { count: v.count + 1, amountMinor: v.amountMinor + c.amount });
+      }
+    }
+    const payments = await this.prisma.db.payment.findMany({
+      where: { propertyId, status: 'COMPLETED', paidAt: { gte: asDate(from), lt: asDateNext(to) } },
+      select: { method: true, amount: true },
+    });
+    const byMethod = new Map<PaymentMethod, { count: number; amountMinor: bigint }>();
+    for (const p of payments) {
+      const v = byMethod.get(p.method) ?? { count: 0, amountMinor: 0n };
+      byMethod.set(p.method, { count: v.count + 1, amountMinor: v.amountMinor + p.amount });
+    }
+    const refunds = await this.prisma.db.refund.findMany({
+      where: {
+        createdAt: { gte: asDate(from), lt: asDateNext(to) },
+        folio: { reservationItem: { reservation: { propertyId } } },
+      },
+      select: { amount: true },
+    });
+    return {
+      chargesByKind: [...byKind].map(([kind, v]) => ({ kind, ...v })),
+      paymentsByMethod: [...byMethod].map(([method, v]) => ({ method, ...v })),
+      refunds: {
+        count: refunds.length,
+        amountMinor: refunds.reduce((s, r) => s + r.amount, 0n),
+      },
+      accommodationByCategory: [...byCategory].map(([category, v]) => ({ category, ...v })),
+    };
   }
   async addCharge(folioId: string, c: NewCharge): Promise<string> {
     const row = await this.prisma.db.charge.create({

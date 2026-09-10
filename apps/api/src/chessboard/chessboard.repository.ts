@@ -61,7 +61,9 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         reservationItem: {
           include: {
             reservation: {
-              include: { primaryGuest: { select: { firstName: true, lastName: true } } },
+              include: {
+                primaryGuest: { select: { firstName: true, lastName: true, phone: true } },
+              },
             },
           },
         },
@@ -75,6 +77,7 @@ export class PrismaChessboardRepository implements ChessboardRepository {
       itemStatus: a.reservationItem.status,
       confirmationNumber: a.reservationItem.reservation.confirmationNumber,
       guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
+      guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
     }));
   }
 

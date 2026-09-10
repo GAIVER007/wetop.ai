@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { chessboardApi, type ChessboardCell } from '../../lib/api';
+import { messengerLinks, chessboardApi, type ChessboardCell } from '../../lib/api';
 
 /** Slice 2, шаг 2.7: шахматка только для чтения — 88 ячеек × даты. */
 export default async function ChessboardPage({
@@ -42,6 +42,7 @@ export default async function ChessboardPage({
           <Link href="/rates">цены</Link>
           <Link href="/channels">каналы</Link>
           <Link href="/guests">гости</Link>
+          <Link href="/finance">деньги</Link>
           <Link href="/journal">журнал</Link>
           <Link href="/reservations/new" style={{ fontWeight: 600 }}>
             + новая бронь
@@ -149,26 +150,44 @@ function Cell({ cell }: { cell: ChessboardCell }) {
         : '';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   return (
-    <td style={{ ...td, padding: 2, minWidth: 44 }} data-state={cell.state} title={title}>
+    <td
+      style={{ ...td, padding: 2, minWidth: 44, position: 'relative' }}
+      data-state={cell.state}
+      title={title}
+    >
       {cell.state === 'OCCUPIED' ? (
-        <Link
-          href={`/reservations/${encodeURIComponent(cell.confirmationNumber!)}`}
-          style={{
-            display: 'block',
-            background: bg,
-            borderRadius: radius,
-            height: 22,
-            lineHeight: '22px',
-            paddingLeft: cell.isArrival ? 6 : 2,
-            color: '#111',
-            textDecoration: 'none',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            fontSize: 11,
-          }}
-        >
-          {cell.isArrival ? cell.guestLabel : ''}
-        </Link>
+        <>
+          <Link
+            href={`/reservations/${encodeURIComponent(cell.confirmationNumber!)}`}
+            style={{
+              display: 'block',
+              background: bg,
+              borderRadius: radius,
+              height: 22,
+              lineHeight: '22px',
+              paddingLeft: cell.isArrival ? 6 : 2,
+              color: '#111',
+              textDecoration: 'none',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              fontSize: 11,
+            }}
+          >
+            {cell.isArrival ? cell.guestLabel : ''}
+          </Link>
+          {cell.isArrival && messengerLinks(cell.guestPhone) && (
+            <a
+              href={messengerLinks(cell.guestPhone)!.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cell-whatsapp"
+              title="Написать гостю в WhatsApp"
+              style={{ position: 'absolute', right: 2, top: 3, fontSize: 10, lineHeight: '10px' }}
+            >
+              💬
+            </a>
+          )}
+        </>
       ) : (
         <div style={{ background: bg, height: 22, borderRadius: 4 }} />
       )}

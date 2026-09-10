@@ -235,7 +235,12 @@ function makeFake() {
         currency: r.currency,
         totalAmountMinor: r.items.reduce((s, i) => s + i.priceMinor, 0n).toString(),
         notes: null,
-        primaryGuest: { id: 'g1', label: 'Гость Тестовый', citizenship: 'KAZ' },
+        primaryGuest: {
+          id: 'g1',
+          label: 'Гость Тестовый',
+          citizenship: 'KAZ',
+          phone: '+70000000000',
+        },
         items: r.items.map((it) => ({
           id: it.id,
           accommodationTypeCode: types.find((t) => t.id === it.accommodationTypeId)!.code,

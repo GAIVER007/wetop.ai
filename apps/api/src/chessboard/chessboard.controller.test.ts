@@ -59,7 +59,12 @@ const fakeRepo: ChessboardRepository = {
       currency: 'KZT',
       totalAmountMinor: '1200000',
       notes: null,
-      primaryGuest: { id: 'g1', label: 'Гость Тест-abc', citizenship: 'KAZ' },
+      primaryGuest: {
+        id: 'g1',
+        label: 'Гость Тест-abc',
+        citizenship: 'KAZ',
+        phone: '+70000000001',
+      },
       items: [
         {
           id: 'i1',

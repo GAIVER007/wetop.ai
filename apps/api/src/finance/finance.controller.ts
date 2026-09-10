@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 
 /** Счета гостя: начисления, платежи, возвраты (DATA_MODEL §6). Суммы в теле — десятичные строки, наружу — minor units. */
@@ -10,6 +10,11 @@ export class FinanceController {
   @Get('reservations/:number')
   reservation(@Param('number') number: string) {
     return this.service.reservation(number);
+  }
+
+  @Get('report')
+  report(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodReport(from, to);
   }
 
   @Get('services')

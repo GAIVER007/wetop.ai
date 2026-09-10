@@ -5,7 +5,7 @@
  */
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
-import { decryptPii, encryptPii } from '@pms/shared';
+import { decryptPii, encryptPii, pseudonymSalt, realPiiAllowed } from '@pms/shared';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -36,6 +36,22 @@ for (const name of [
   }
   if (/["']/.test(v)) facts.push('есть кавычки (dotenv их снимает, но лучше без них)');
   console.log(`${name}: задан, ${facts.join(', ')}`);
+}
+// Псевдонимы гостей и режим хранения ПД (ADR-009, ADR-018) — значения не печатаются
+try {
+  const salt = pseudonymSalt();
+  const source = process.env['ANONYMIZE_SALT'] ? 'ANONYMIZE_SALT' : 'PII_ENCRYPTION_KEY (запасной)';
+  console.log(`Соль псевдонимов: ${source}, длина ${salt.length}`);
+} catch (e) {
+  console.log(`Соль псевдонимов: ${(e as Error).message}`);
+  problems += 1;
+}
+if (realPiiAllowed()) {
+  console.log(
+    'PII_STORAGE=real — в базу пойдут НАСТОЯЩИЕ ФИО и телефоны. Допустимо только для production-БД в РК (Q-070)',
+  );
+} else {
+  console.log('PII_STORAGE: не задан — гости каналов записываются псевдонимами (ADR-018)');
 }
 try {
   const token = encryptPii('проверка 0001');

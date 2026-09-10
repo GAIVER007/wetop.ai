@@ -107,6 +107,7 @@ function makeFakes() {
   };
   const state = (): ReservationState[] => [...reservations.values()];
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
+  const guests: Array<{ firstName: string; lastName: string; phone?: string | null }> = [];
   const prepayments: Array<{ itemId: string; amountMinor: bigint; externalReference: string }> = [];
   const repo: ReservationsRepository = {
     async property() {
@@ -165,7 +166,8 @@ function makeFakes() {
       const busy = allocations.some((x) => x.unitId === 'u-9001' && x.start < to && x.end > from);
       return busy ? null : { id: 'u-9001', code: '9001', accommodationTypeId, active: true };
     },
-    async createGuest() {
+    async createGuest(g) {
+      guests.push(g);
       return id('g');
     },
     async createReservation(input) {
@@ -336,6 +338,7 @@ function makeFakes() {
     };
   }
   return {
+    guests,
     gateway,
     repo,
     penalties,
@@ -357,6 +360,9 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
   beforeEach(() => {
     fakes = makeFakes();
     process.env.CHANNEX_WEBHOOK_SECRET = 'test-webhook-secret';
+    // ADR-018: без соли гость канала не запишется вовсе — режим хранения ПД задаётся окружением
+    process.env.ANONYMIZE_SALT = 'test-salt';
+    delete process.env.PII_STORAGE;
   });
   beforeAll(async () => {
     const proxy = (get: () => object) =>
@@ -558,6 +564,21 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(fakes.prepayments).toEqual([]);
+  });
+
+  it('ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают', async () => {
+    fakes.setFeed([revision({ id: 'rev-pii', unique_id: 'BDC-PII' })]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    const stored = fakes.guests[0]!;
+    const customer = revision().attributes.customer!;
+    expect(fakes.guests).toHaveLength(1);
+    expect(stored.lastName).not.toBe(customer.surname);
+    expect(stored.firstName).not.toBe(customer.name);
+    expect(stored.phone).not.toBe(customer.phone);
+    // псевдоним детерминирован: повторная ревизия той же брони не заведёт второго гостя
+    const again = await request(app.getHttpServer()).post('/channels/channex/pull');
+    expect(again.status).toBe(200);
+    expect(fakes.guests).toHaveLength(1);
   });
 
   it('одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена', async () => {

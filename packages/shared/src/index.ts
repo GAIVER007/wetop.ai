@@ -10,3 +10,11 @@ export function assertNever(value: never, context = 'assertNever'): never {
 
 export { findMarkdownTable, parseMarkdownTable, type MarkdownTable } from './markdown-table';
 export { encryptPii, decryptPii, maskNumber, PiiKeyMissingError } from './pii-crypto';
+export {
+  guestForStorage,
+  pseudonymizeGuest,
+  realPiiAllowed,
+  pseudonymSalt,
+  AnonymizeSaltMissingError,
+  type GuestIdentity,
+} from './pii-residency';

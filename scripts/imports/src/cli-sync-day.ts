@@ -6,6 +6,7 @@
  *   --since — добавить все брони, ИЗМЕНЁННЫЕ с этой даты (активные и отменённые). Без него PMS не увидит
  *   отмену и перенос дат: такая бронь перестаёт затрагивать сутки и в выборку по периоду не попадает.
  */
+import { pseudonymSalt } from '@pms/shared';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
@@ -29,7 +30,8 @@ const TO = next.toISOString().slice(0, 10);
 
 const key = process.env.EXELY_API_KEY;
 if (!key) throw new Error('EXELY_API_KEY пуст');
-const salt = process.env.ANONYMIZE_SALT || 'dev-salt-luxx-2026';
+// соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю
+const salt = pseudonymSalt();
 
 const since = process.argv.find((a) => a.startsWith('--since='))?.split('=')[1];
 if (since !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(since))

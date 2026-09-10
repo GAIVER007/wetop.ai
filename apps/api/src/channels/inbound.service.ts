@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { guestForStorage } from '@pms/shared';
 import { createHash } from 'node:crypto';
 import {
   BadGatewayException,
@@ -479,12 +480,19 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     };
 
     if (!existing) {
-      const guestId = await repo.createGuest({
-        firstName: (a.customer?.name ?? '').trim() || 'Гость',
-        lastName: (a.customer?.surname ?? '').trim() || a.ota_name,
-        phone: a.customer?.phone ?? null,
-        email: a.customer?.mail ?? null,
-      });
+      // ADR-009/ADR-018: настоящие ФИО и контакты допустимы только в production-БД в Казахстане.
+      // Пока Q-070 открыт и база в Сингапуре, гость канала записывается псевдонимом.
+      const guestId = await repo.createGuest(
+        guestForStorage(
+          {
+            firstName: (a.customer?.name ?? '').trim() || 'Гость',
+            lastName: (a.customer?.surname ?? '').trim() || a.ota_name,
+            phone: a.customer?.phone ?? null,
+            email: a.customer?.mail ?? null,
+          },
+          a.unique_id,
+        ),
+      );
       const created = await repo.createReservation({
         confirmationNumber: a.unique_id,
         source: 'OTA',

@@ -2,8 +2,9 @@
  * Импорт броней Exely в БД: из скачанных карточек (project-input/exely/api/<дата>/bookings) либо живьём.
  * Запуск: npx tsx scripts/imports/src/cli-import-reservations.ts 2026-09-08 [--set=future|all] [--skip=N]
  * --skip=N — пропустить первые N броней (продолжение после обрыва; импорт идемпотентен, пачки по 50)
- * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env либо dev-умолчание. Без анонимизации — запрещено.
+ * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env (запасной вариант — PII_ENCRYPTION_KEY).
  */
+import { pseudonymSalt } from '@pms/shared';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
@@ -22,7 +23,8 @@ const day = process.argv[2] ?? new Date().toISOString().slice(0, 10);
 const set = (process.argv.find((a) => a.startsWith('--set='))?.split('=')[1] ?? 'future') as
   'future' | 'all';
 const DIR = resolve(ROOT, `project-input/exely/api/${day}`);
-const salt = process.env.ANONYMIZE_SALT || 'dev-salt-luxx-2026';
+// соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю
+const salt = pseudonymSalt();
 const skip = Number(process.argv.find((a) => a.startsWith('--skip='))?.split('=')[1] ?? 0);
 if (!Number.isInteger(skip) || skip < 0) throw new Error('--skip=N — целое от 0');
 

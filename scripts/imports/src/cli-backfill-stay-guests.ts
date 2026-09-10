@@ -35,7 +35,7 @@ try {
   for (let i = 0; i < rows.length; i += CHUNK) {
     const part = rows.slice(i, i + CHUNK);
     const values = part
-      .map((r) => `(${JSON.stringify(r.stayId)}, ${r.adults}, ${r.children})`)
+      .map((r) => `('${r.stayId.replace(/'/g, "''")}', ${r.adults}, ${r.children})`)
       .join(',');
     const n = await db.$executeRawUnsafe(
       `UPDATE reservation_items AS ri

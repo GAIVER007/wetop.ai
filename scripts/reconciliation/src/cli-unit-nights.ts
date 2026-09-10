@@ -51,11 +51,15 @@ try {
       startDate: true,
       endDate: true,
       inventoryUnit: { select: { accommodationType: { select: { code: true } } } },
-      reservationItem: { select: { accommodationType: { select: { code: true } } } },
+      reservationItem: {
+        select: { status: true, accommodationType: { select: { code: true } } },
+      },
     },
   });
   const byUnit: Record<string, number> = {};
   const byBooked: Record<string, number> = {};
+  /** Разбивка ночей по статусу проживания — объясняет расхождение с отчётом Exely */
+  const byStatus: Record<string, Record<string, number>> = {};
   let stays = 0;
   for (const a of allocs) {
     const s = Math.max(a.startDate.getTime(), from.getTime());
@@ -67,6 +71,8 @@ try {
     const b = a.reservationItem.accommodationType.code;
     byUnit[u] = (byUnit[u] ?? 0) + nights;
     byBooked[b] = (byBooked[b] ?? 0) + nights;
+    const st = a.reservationItem.status;
+    (byStatus[u] ??= {})[st] = (byStatus[u][st] ?? 0) + nights;
   }
   const unitsTotal = types.reduce((x, t) => x + t._count.units, 0);
   const capacity = unitsTotal * daysInMonth;
@@ -100,8 +106,29 @@ try {
     '',
     mismatch === 0
       ? '**Расхождение 0.** Gate 2 по единице-суткам закрыт.'
-      : `**Расхождение есть (${mismatch} строк).** Разбор — в тексте ниже / QUESTIONS.`,
+      : `**Расхождение есть (${mismatch} строк).** Разбор по статусам проживания ниже.`,
     '',
+    ...(mismatch === 0
+      ? []
+      : [
+          '## Разбор расходящихся категорий по статусу проживания',
+          '',
+          'Отчёт загрузки Exely считает фактически прожитые ночи. Ночи проживаний, которые так и остались',
+          'в статусе «подтверждено» в прошедшем месяце (гость не заезжал, бронь не отменяли), в загрузку Exely не попадают.',
+          '',
+          '| Категория | Статус | Ночей |',
+          '|---|---|---|',
+          ...types
+            .filter(
+              (t) => control && byUnit[t.code] !== undefined && byUnit[t.code] !== control[t.code],
+            )
+            .flatMap((t) =>
+              Object.entries(byStatus[t.code] ?? {})
+                .sort((a, b) => b[1] - a[1])
+                .map(([st, n]) => `| ${t.name} | ${st} | ${n} |`),
+            ),
+          '',
+        ]),
   ].join('\n');
   mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
   const out = resolve(ROOT, `reports/unit-nights-${MONTH}.md`);

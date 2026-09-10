@@ -16,7 +16,7 @@
 | 3 | [OBJECT.md](OBJECT.md) | Реальный объект: фонд, тарифы, каналы, деньги |
 | 4 | [FINDINGS.md](FINDINGS.md) | Что данные объекта означают для проекта |
 | 5 | [DATA_MODEL.md](DATA_MODEL.md) | Модель данных. **Статус DRAFT** |
-| 6 | [DECISIONS.md](DECISIONS.md) | ADR-001…012 приняты, ADR-013…017 — нет |
+| 6 | [DECISIONS.md](DECISIONS.md) | ADR-001…015, 018, 019 приняты; ADR-016, 017 — предложены, не приняты |
 | 7 | [QUESTIONS.md](QUESTIONS.md) | Открытые вопросы. Гадать запрещено |
 | 8 | [PLAN.md](PLAN.md) | 8 недель, 11 гейтов, контрольные числа |
 

@@ -60,3 +60,19 @@ Webhook объекта зарегистрирован в Channex staging (адр
 `booking_new` (ревизия `7313d2a5-1a49-47ee-8d3c-128b5796c3ef`) получено PMS в 09:02:40, обработано 09:02:48 (бронь создана,
 ревизия подтверждена ack); событие `ari` получено 09:02:53. Периодический опрос ленты в это окно не запускался.
 Обработчик отвечает Channex сразу и обрабатывает ревизии в очереди; при недоступности webhook брони добирает опрос ленты каждые 5 минут.
+
+## Актуальные ID задач Channex (повторный прогон 10.09.2026)
+
+Таблица выше снята 09.09. Сценарии прогонялись повторно 10.09 (после правок цен и календаря), и Channex выдал новые ID задач. Источник истины — `reports/channex-certification-tasks.json`; прогон сам восстанавливает календарь из снимка Exely после завершения.
+
+| Сценарий | Task ID | Отправлено (UTC) |
+|---|---|---|
+| 2. Single Date Update for Single Rate | `78ee9500-3239-4f08-ae60-ff9933662282` | 2026-09-10T15:14:19 |
+| 3. Single Date Update for Multiple Rates | `77f3965e-9a39-4958-b4c2-e8586c013a54` | 2026-09-10T15:14:34 |
+| 4. Multiple Date Update for Multiple Rates | `ed60ef2d-d837-4323-9a94-0fcd685756fd` | 2026-09-10T15:15:01 |
+| 5. Min Stay Update | `4581b220-ff2f-479f-96e5-74d986e03a78` | 2026-09-10T15:15:16 |
+| 6. Stop Sell Update | `06faae3a-0dda-4ecd-a4bd-fa545bf1cd19` | 2026-09-10T15:15:32 |
+| 7. Multiple Restrictions Update | `4c4fb438-0687-48ef-b50b-4888db5fb364` | 2026-09-10T15:15:46 |
+| 8. Half-year Update | `639392b1-76e1-41ba-b1a6-7c0ba952455c` | 2026-09-10T15:16:03 |
+| 9. Single Date Availability Update (booking created in PMS UI) | `0067cfbb-e59e-4b27-9eda-44d1b5bc7ea6` | 2026-09-10T15:16:17 |
+| 10. Availability Update (booking cancelled in PMS UI) | `49359aae-a2ec-4693-9724-a1e78316ce40` | 2026-09-10T15:16:33 |

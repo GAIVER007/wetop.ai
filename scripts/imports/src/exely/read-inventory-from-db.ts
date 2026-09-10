@@ -20,18 +20,24 @@ export async function readInventoryPlanFromDb(
   if (!property) return null;
   const building = property.buildings[0];
   const floor = building?.floors[0];
-  const units = (floor?.physicalRooms ?? []).flatMap((room) =>
-    room.units.map((u) => ({
-      code: u.code,
-      exelyRoomNumber: u.exelyRoomNumber,
-      kind: u.kind,
-      accommodationTypeCode:
-        property.accommodationTypes.find((t) => t.id === u.accommodationTypeId)?.code ?? '?',
-      roomNumber: room.roomNumber,
-      roomCapacity: room.capacity,
-      isDorm: room.isDorm,
-    })),
-  );
+  // Читаем ВСЕ здания и этажи, а не первое из каждого. Иначе единица, заведённая под другим зданием
+  // или этажом, невидима и для экрана фонда, и для сверки Gate 1 — а отчёт всё равно печатает
+  // «88 / 88 / 0», потому что обе стороны считаются одной и той же функцией.
+  const units = property.buildings
+    .flatMap((b) => b.floors)
+    .flatMap((f) => f.physicalRooms)
+    .flatMap((room) =>
+      room.units.map((u) => ({
+        code: u.code,
+        exelyRoomNumber: u.exelyRoomNumber,
+        kind: u.kind,
+        accommodationTypeCode:
+          property.accommodationTypes.find((t) => t.id === u.accommodationTypeId)?.code ?? '?',
+        roomNumber: room.roomNumber,
+        roomCapacity: room.capacity,
+        isDorm: room.isDorm,
+      })),
+    );
   // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату: Exely в сверке даёт «заблокировано на дату»,
   // а не «сколько записей о блокировках было за всю историю» (иначе Gate 1 сломается после первой блокировки)
   const onDate = new Date(`${blocksOnDate}T00:00:00Z`);

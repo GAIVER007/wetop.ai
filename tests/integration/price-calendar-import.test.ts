@@ -99,8 +99,9 @@ describe.skipIf(!url)('importPriceCalendar (integration, DATABASE_URL required)'
             ['2026-01-01', 3_700n],
             ['2026-01-02', 3_700n],
           ]);
+          // только объект этого теста: в общей dev-БД есть stop sell и у боевого объекта (сертификация Channex)
           const stop = await tx.restriction.findMany({
-            where: { stopSell: true },
+            where: { stopSell: true, ratePlan: { propertyId: property.id } },
             orderBy: { date: 'asc' },
           });
           expect(stop.map((r) => r.date.toISOString().slice(0, 10))).toEqual([

@@ -103,6 +103,8 @@ export interface InboundEventRow {
   type: string;
   status: string;
   attempts: number;
+  /** Пришло по webhook, подобрал опрос ленты или разобрано вручную */
+  receivedVia: 'WEBHOOK' | 'PULL' | 'MANUAL';
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
@@ -347,6 +349,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         type: true,
         status: true,
         attemptCount: true,
+        receivedVia: true,
         receivedAt: true,
         processedAt: true,
         lastError: true,
@@ -357,6 +360,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       type: r.type,
       status: r.status,
       attempts: r.attemptCount,
+      receivedVia: r.receivedVia,
       receivedAt: r.receivedAt.toISOString(),
       processedAt: r.processedAt?.toISOString() ?? null,
       lastError: r.lastError,

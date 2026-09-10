@@ -130,17 +130,22 @@ export interface ChannelMappingRef {
   providerRatePlanId: string | null;
 }
 export type ExternalEventStatus = 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED';
+/** Путь доставки входящего события: webhook, опрос ленты, кнопка «Обработать заново» */
+export type ExternalEventVia = 'WEBHOOK' | 'PULL' | 'MANUAL';
 export interface NewExternalEvent {
   provider: string;
   externalEventId: string;
   type: string;
   payloadHash: string;
   payload: unknown;
+  /** Каким путём событие дошло: webhook, опрос ленты или кнопка «Обработать заново» */
+  receivedVia?: ExternalEventVia | undefined;
 }
 export interface ExternalEventRef {
   id: string;
   status: ExternalEventStatus;
   attemptCount: number;
+  lastError: string | null;
   isNew: boolean;
 }
 export interface AuditEntry {
@@ -247,6 +252,8 @@ export interface ReservationsRepository {
   channelMappings(provider: string): Promise<ChannelMappingRef[]>;
   /** Журнал входящих событий (ADR-007): вернуть существующее или создать новое */
   recordExternalEvent(event: NewExternalEvent): Promise<ExternalEventRef>;
+  /** Снять потолок попыток у входящего события — по кнопке «Обработать заново» */
+  resetExternalEventAttempts(provider: string, externalEventId: string): Promise<void>;
   updateExternalEvent(
     id: string,
     patch: {
@@ -533,7 +540,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     } catch (e) {
       // Сюда попадаем только на гонке двух транзакций: ограничение сработало, транзакция уже прервана,
       // вызывающему остаётся откат — продолжать в ней нельзя.
-      if (isOverlapViolation(e)) throw new AllocationOverlapError(unitId, await this.unitCode(unitId));
+      if (isOverlapViolation(e))
+        throw new AllocationOverlapError(unitId, await this.unitCode(unitId));
       throw e;
     }
   }
@@ -842,7 +850,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           externalEventId: event.externalEventId,
         },
       },
-      select: { id: true, status: true, attemptCount: true },
+      select: { id: true, status: true, attemptCount: true, lastError: true },
     });
     if (existing) return { ...existing, isNew: false };
     const created = await this.db.externalEvent.create({
@@ -852,10 +860,17 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         type: event.type,
         payloadHash: event.payloadHash,
         payload: json(event.payload),
+        ...(event.receivedVia ? { receivedVia: event.receivedVia } : {}),
       },
-      select: { id: true, status: true, attemptCount: true },
+      select: { id: true, status: true, attemptCount: true, lastError: true },
     });
     return { ...created, isNew: true };
+  }
+  async resetExternalEventAttempts(provider: string, externalEventId: string): Promise<void> {
+    await this.db.externalEvent.updateMany({
+      where: { provider, externalEventId },
+      data: { attemptCount: 0, status: 'RECEIVED', lastError: null },
+    });
   }
   async updateExternalEvent(
     id: string,

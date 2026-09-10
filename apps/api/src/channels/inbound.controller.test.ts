@@ -251,22 +251,44 @@ function makeFakes() {
       const key = `${ev.provider}|${ev.externalEventId}`;
       const have = events.get(key);
       if (have)
-        return { id: have.id, status: have.status, attemptCount: have.attemptCount, isNew: false };
+        return {
+          id: have.id,
+          status: have.status,
+          attemptCount: have.attemptCount,
+          lastError: have.lastError ?? null,
+          isNew: false,
+        };
       const created = {
         id: key,
         status: 'RECEIVED' as const,
         attemptCount: 0,
+        lastError: null as string | null,
         isNew: true,
         type: ev.type,
         payload: ev.payload,
       };
       events.set(key, created);
-      return { id: created.id, status: created.status, attemptCount: 0, isNew: true };
+      return {
+        id: created.id,
+        status: created.status,
+        attemptCount: 0,
+        lastError: null,
+        isNew: true,
+      };
+    },
+    async resetExternalEventAttempts(provider, externalEventId) {
+      const e = events.get(`${provider}|${externalEventId}`);
+      if (e) {
+        e.attemptCount = 0;
+        e.status = 'RECEIVED';
+        e.lastError = null;
+      }
     },
     async updateExternalEvent(evId, patch) {
       const e = events.get(evId)!;
       e.status = patch.status;
-      e.attemptCount += 1;
+      // счётчик растёт только когда сервис прямо об этом просит — как в настоящем хранилище
+      if (patch.countAttempt) e.attemptCount += 1;
       if (patch.lastError !== undefined) e.lastError = patch.lastError;
     },
     async updateItem(itemId, patch) {
@@ -564,6 +586,36 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(fakes.prepayments).toEqual([]);
+  });
+
+  it('после шести неудач ревизия ждёт человека, а «Обработать заново» разбирает её', async () => {
+    const bad = (over = {}) =>
+      revision({
+        id: 'rev-ceiling',
+        unique_id: 'BDC-CEIL',
+        rooms: [{ ...revision().attributes.rooms[0]!, amount: '1e3' }],
+        ...over,
+      });
+    fakes.setFeed([bad()]);
+    for (let i = 0; i < 6; i += 1)
+      await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-ceiling'))!;
+    expect(ev.attemptCount).toBe(6);
+    expect(ev.status).toBe('FAILED');
+
+    // седьмой опрос ревизию уже не трогает: счётчик не растёт, в ошибке — что делать человеку
+    const seventh = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(seventh.body.outcomes[0].error).toMatch(/Обработать заново/);
+    expect(ev.attemptCount).toBe(6);
+    expect(fakes.state()).toHaveLength(0);
+
+    // причину устранили (канал прислал ту же ревизию с нормальной суммой) — кнопка разбирает её
+    fakes.setFeed([bad({ rooms: [revision().attributes.rooms[0]!] })]);
+    const retried = await request(app.getHttpServer())
+      .post('/channels/channex/events/rev-ceiling/retry')
+      .expect(200);
+    expect(retried.body).toMatchObject({ result: 'created', confirmationNumber: 'BDC-CEIL' });
+    expect(fakes.acks).toContain('rev-ceiling');
   });
 
   it('ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают', async () => {

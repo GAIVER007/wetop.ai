@@ -547,11 +547,20 @@ model ExternalEvent {
   status          ExternalEventStatus @default(RECEIVED)
   attemptCount    Int                 @default(0) @map("attempt_count")
   lastError       String?             @map("last_error")
+  /// Каким путём дошло: webhook, опрос ленты или кнопка «Обработать заново». Без этого поля
+  /// «бронь пришла сама» и «подобрал опрос через пять минут» в журнале неразличимы.
+  receivedVia     ExternalEventVia    @default(PULL) @map("received_via")
   processedAt     DateTime?           @map("processed_at") @db.Timestamptz(6)
 
   @@unique([provider, externalEventId])
   @@index([status, receivedAt])
   @@map("external_events")
+}
+
+enum ExternalEventVia {
+  WEBHOOK
+  PULL
+  MANUAL
 }
 
 enum ChannelOutboxKind {

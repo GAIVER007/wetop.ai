@@ -1,5 +1,15 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Headers, HttpCode, Inject, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { PROVIDER } from './ari-publisher';
@@ -73,6 +83,16 @@ export class ChannelsController {
   events(@Query('limit') limit?: string) {
     const n = Number(limit ?? 30);
     return this.repo.recentEvents(PROVIDER, Number.isInteger(n) && n > 0 && n <= 200 ? n : 30);
+  }
+
+  /**
+   * Разобрать событие заново после потолка попыток. Без этой команды ревизия, которую PMS не смогла
+   * разобрать шесть раз, оставалась бы необработанной до тех пор, пока Channex не пришлёт её снова.
+   */
+  @Post('events/:revisionId/retry')
+  @HttpCode(200)
+  retryEvent(@Param('revisionId') revisionId: string) {
+    return this.inbound.retryEvent(revisionId);
   }
 
   /** Очередь исходящих изменений ARI: сколько ждёт, сколько ушло, последняя задача Channex. */

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { channelAction, type ChannelActionResult } from './actions';
+import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
 
 export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
@@ -77,6 +77,33 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+/**
+ * Кнопка у неудачного события. После шести попыток PMS сама больше не пробует — иначе ревизия,
+ * которую мы не умеем разобрать, падала бы на каждом опросе, а человек ничего бы не заметил.
+ */
+export function RetryEventButton({ revisionId }: { revisionId: string }) {
+  const [result, setResult] = useState<ChannelActionResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+      <button
+        type="button"
+        data-testid={`retry-event-${revisionId}`}
+        onClick={() => start(async () => setResult(await retryEventAction(revisionId)))}
+        disabled={pending}
+        style={{ ...btnSecondary, padding: '3px 8px', fontSize: 12 }}
+      >
+        Обработать заново
+      </button>
+      {result?.message && <span style={{ color: '#166534', fontSize: 11 }}>{result.message}</span>}
+      {result?.error && (
+        <span role="alert" style={{ color: '#b91c1c', fontSize: 11 }}>
+          {result.error}
+        </span>
+      )}
+    </span>
   );
 }
 const btn: React.CSSProperties = {

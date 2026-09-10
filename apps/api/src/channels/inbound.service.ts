@@ -18,6 +18,7 @@ import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
   type ChannelMappingRef,
+  type ExternalEventVia,
   type NewReservation,
   type ReservationsRepository,
   type UnitOfWork,
@@ -42,6 +43,9 @@ export interface PullResult {
   outcomes: RevisionOutcome[];
   acknowledged: number;
 }
+
+/** Сколько раз пробуем разобрать одну ревизию, прежде чем позвать человека (у исходящих — столько же) */
+export const MAX_INBOUND_ATTEMPTS = 6;
 
 /** Ревизия целиком, кроме `guarantee` (данные карты — не хранить, SECURITY.md §4) и `services` мусора. */
 export function sanitizeRevision(
@@ -157,7 +161,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     if (body.event!.startsWith('booking')) {
       const p = body.payload as { revision_id: string };
       const rev = await this.fetchRevision(p.revision_id);
-      await this.processRevision(rev);
+      await this.processRevision(rev, 'WEBHOOK');
       return;
     }
     // Остальные события журналируем и считаем обработанными (sync_error и т.п. — для человека)
@@ -168,6 +172,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         type: body.event!,
         payloadHash: payloadHash(body.payload),
         payload: body.payload,
+        receivedVia: 'WEBHOOK',
       });
       if (ev.isNew)
         await repo.updateExternalEvent(ev.id, {
@@ -274,6 +279,13 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     return { received: feed.length, outcomes, acknowledged };
   }
 
+  /** Снять потолок попыток и разобрать ревизию заново — по кнопке администратора */
+  async retryEvent(revisionId: string): Promise<RevisionOutcome> {
+    await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
+    const rev = await this.fetchRevision(revisionId);
+    return this.processRevision(rev, 'MANUAL');
+  }
+
   private fetchRevision(id: string) {
     return this.viaChannex(() => this.gateway.getBookingRevision(id));
   }
@@ -297,6 +309,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
    */
   async processRevision(
     rev: channex.ChannexResource<channex.ChannexBookingRevisionAttributes>,
+    via: ExternalEventVia = 'PULL',
   ): Promise<RevisionOutcome> {
     const a = rev.attributes;
     const sanitized = sanitizeRevision(a);
@@ -314,9 +327,21 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         type: `booking_${a.status}`,
         payloadHash: payloadHash(sanitized),
         payload: sanitized,
+        receivedVia: via,
       }),
     );
     let outcome: RevisionOutcome;
+    if (ev.status === 'FAILED' && ev.attemptCount >= MAX_INBOUND_ATTEMPTS) {
+      // Потолок попыток. Без него ревизия, которую мы не умеем разобрать, возвращается в ленте
+      // на каждом опросе и молча падает снова и снова: в журнале растёт счётчик, а человек ничего
+      // не замечает. Событие ждёт кнопки «Обработать заново» на /channels.
+      return {
+        ...base,
+        result: 'failed',
+        confirmationNumber: null,
+        error: `${ev.attemptCount} неудачных попыток — разберите событие вручную и нажмите «Обработать заново». Последняя ошибка: ${ev.lastError ?? 'не записана'}`,
+      };
+    }
     if (ev.status === 'PROCESSED') {
       const existing = await this.uow.run((repo) => repo.reservationByExternalId(a.unique_id));
       outcome = {

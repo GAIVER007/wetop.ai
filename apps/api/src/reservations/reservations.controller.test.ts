@@ -224,8 +224,9 @@ function makeFake() {
       return [];
     },
     async recordExternalEvent() {
-      return { id: 'e', status: 'RECEIVED', attemptCount: 0, isNew: true };
+      return { id: 'e', status: 'RECEIVED', attemptCount: 0, lastError: null, isNew: true };
     },
+    async resetExternalEventAttempts() {},
     async updateExternalEvent() {},
     async audit(entry) {
       state.audits.push({ entityType: entry.entityType, action: entry.action });

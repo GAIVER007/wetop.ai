@@ -645,14 +645,23 @@ payload_hash
 status
 attempt_count
 last_error
+received_via           WEBHOOK | PULL | MANUAL
 
 processed_at
 ```
 
 **UNIQUE (provider, external_event_id)** — обязательно, для идемпотентности (ADR-007).
 
+`received_via` — каким путём событие дошло. Один и тот же вызов `processRevision` работает и по
+webhook, и по опросу ленты каждые 5 минут, поэтому без этого поля нельзя доказать, что бронь
+пришла сама: в журнале обе записи выглядят одинаково, а «приходит сама» и «подобрал опрос через
+пять минут» — разные утверждения. `MANUAL` — разбор по кнопке «Обработать заново».
+
 > **09.09.2026, реализовано (миграция `20260909000004`):** `external_events` с полями выше плюс `payload` (Json) и enum
 > статуса `RECEIVED | PROCESSING | PROCESSED | FAILED`. Обработка событий (webhook Channex) — шаг 4.4.
+>
+> **10.09.2026, реализовано (миграция `20260910000008`):** добавлено `received_via`
+> (`WEBHOOK | PULL | MANUAL`, по умолчанию `PULL`) — путь доставки события.
 
 ---
 

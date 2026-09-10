@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import { type OutboxSummary, api, channelsApi } from '../../lib/api';
-import { ChannelButtons } from './buttons';
+import { ChannelButtons, RetryEventButton } from './buttons';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
+const VIA_RU: Record<string, string> = {
+  WEBHOOK: 'сама (webhook)',
+  PULL: 'опрос ленты',
+  MANUAL: 'вручную',
+};
+
 export default async function ChannelsPage() {
   const [mapping, outbox, summary, webhook, events] = await Promise.all([
     channelsApi.mapping(),
@@ -66,22 +72,25 @@ export default async function ChannelsPage() {
       <p style={{ fontSize: 12, color: '#666', margin: '0 0 8px' }}>
         Каждое сообщение от Channex сначала записывается, потом обрабатывается: так бронь не
         теряется при сбое, а неудачную попытку видно (ADR-007). Строка со статусом FAILED — бронь в
-        PMS не попала.
+        PMS не попала. После шести неудачных попыток PMS перестаёт пробовать сама и ждёт кнопки
+        «Обработать заново» — иначе ревизия падала бы на каждом опросе незаметно для человека.
       </p>
       <table style={{ ...tableStyle, marginBottom: 8 }} data-testid="events-table">
         <thead>
           <tr>
-            {['Событие', 'Тип', 'Статус', 'Попыток', 'Получено', 'Ошибка'].map((h) => (
-              <th key={h} style={th}>
-                {h}
-              </th>
-            ))}
+            {['Событие', 'Тип', 'Как дошло', 'Статус', 'Попыток', 'Получено', 'Ошибка', ''].map(
+              (h) => (
+                <th key={h} style={th}>
+                  {h}
+                </th>
+              ),
+            )}
           </tr>
         </thead>
         <tbody>
           {events.length === 0 && (
             <tr>
-              <td style={td} colSpan={6}>
+              <td style={td} colSpan={8}>
                 событий пока нет
               </td>
             </tr>
@@ -92,12 +101,16 @@ export default async function ChannelsPage() {
                 {e.externalEventId.slice(0, 36)}
               </td>
               <td style={td}>{e.type}</td>
+              <td style={td}>{VIA_RU[e.receivedVia ?? 'PULL'] ?? e.receivedVia}</td>
               <td style={{ ...td, color: e.status === 'FAILED' ? '#b91c1c' : '#166534' }}>
                 {e.status}
               </td>
               <td style={{ ...td, textAlign: 'right' }}>{e.attempts}</td>
               <td style={td}>{e.receivedAt.slice(0, 16).replace('T', ' ')}</td>
               <td style={{ ...td, color: '#b91c1c' }}>{e.lastError?.slice(0, 80) ?? ''}</td>
+              <td style={td}>
+                {e.status === 'FAILED' && <RetryEventButton revisionId={e.externalEventId} />}
+              </td>
             </tr>
           ))}
         </tbody>

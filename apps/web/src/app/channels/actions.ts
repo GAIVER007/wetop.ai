@@ -42,3 +42,20 @@ export async function channelAction(
     return { error: describe(e), message: null };
   }
 }
+
+/** Разобрать входящее событие заново: после шести неудач PMS сама больше не пробует. */
+export async function retryEventAction(revisionId: string): Promise<ChannelActionResult> {
+  try {
+    const r = await channelsApi.retryEvent(revisionId);
+    revalidatePath('/channels');
+    revalidatePath('/chessboard');
+    return {
+      error: r.error ?? null,
+      message: r.error
+        ? null
+        : `Событие ${revisionId}: ${r.result}${r.confirmationNumber ? ` — бронь ${r.confirmationNumber}` : ''}`,
+    };
+  } catch (e) {
+    return { error: describe(e), message: null };
+  }
+}

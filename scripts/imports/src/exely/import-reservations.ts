@@ -256,9 +256,43 @@ export async function importReservations(
         });
         const existingAlloc = await tx.allocation.findFirst({
           where: { reservationItemId: itemId },
-          select: { id: true },
+          select: { id: true, inventoryUnitId: true, inventoryUnit: { select: { code: true } } },
         });
+        let keptSeat = false;
         if (clash) {
+          // Проживание уже пересадили прошлым импортом: если та ячейка всё ещё свободна на эти
+          // даты, оставляем её. Иначе каждый повтор импорта снимал бы и заводил назначение заново.
+          if (existingAlloc && existingAlloc.inventoryUnitId !== unitId) {
+            const stillTaken = await tx.allocation.findFirst({
+              where: {
+                inventoryUnitId: existingAlloc.inventoryUnitId,
+                id: { not: existingAlloc.id },
+                startDate: { lt: allocData.endDate },
+                endDate: { gt: allocData.startDate },
+              },
+              select: { id: true },
+            });
+            if (!stillTaken) {
+              await tx.allocation.update({
+                where: { id: existingAlloc.id },
+                data: { startDate: allocData.startDate, endDate: allocData.endDate },
+              });
+              report.allocations.updated += 1;
+              report.conflicts.push({
+                confirmationNumber: r.confirmationNumber,
+                exelyRoomNumber: it.exelyRoomNumber,
+                arrivalDate: it.arrivalDate,
+                departureDate: it.departureDate,
+                conflictsWith: clash.reservationItem.reservation.confirmationNumber,
+                from: clash.startDate.toISOString().slice(0, 10),
+                to: clash.endDate.toISOString().slice(0, 10),
+                movedTo: existingAlloc.inventoryUnit.code,
+              });
+              keptSeat = true;
+            }
+          }
+        }
+        if (clash && !keptSeat) {
           // Даты проживания изменились и новые пересекаются с чужим назначением: старое назначение
           // снимаем, иначе ячейка осталась бы закреплённой на прежние, уже неверные даты
           if (existingAlloc) {
@@ -287,6 +321,8 @@ export async function importReservations(
             movedTo: null,
           });
           report.unassigned += 1;
+        } else if (keptSeat) {
+          // ячейка уже правильная (пересадка прошлого импорта) — трогать нечего
         } else if (existingAlloc) {
           await tx.allocation.update({ where: { id: existingAlloc.id }, data: allocData });
           report.allocations.updated += 1;

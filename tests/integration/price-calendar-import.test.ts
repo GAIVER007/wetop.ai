@@ -72,12 +72,12 @@ describe.skipIf(!url)('importPriceCalendar (integration, DATABASE_URL required)'
 
           const first = await importPriceCalendar(tx, calendar, property.id);
           expect(first.dailyRates).toEqual({ created: 17, updated: 0, unchanged: 0 });
-          expect(first.restrictions).toEqual({ created: 5, updated: 0, unchanged: 0 });
+          expect(first.restrictions).toEqual({ created: 5, updated: 0, unchanged: 0, removed: 0 });
           expect(first.currencyChanged).toEqual([{ code: 'exely-800002', from: 'KZT', to: 'USD' }]);
 
           const second = await importPriceCalendar(tx, calendar, property.id);
           expect(second.dailyRates).toEqual({ created: 0, updated: 0, unchanged: 17 });
-          expect(second.restrictions).toEqual({ created: 0, updated: 0, unchanged: 5 });
+          expect(second.restrictions).toEqual({ created: 0, updated: 0, unchanged: 5, removed: 0 });
           expect(second.currencyChanged).toEqual([]);
 
           // изменённая цена → ровно одна строка обновлена, остальные без изменений

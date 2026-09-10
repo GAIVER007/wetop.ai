@@ -113,8 +113,10 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             reservations: { created: 5, updated: 0 },
             items: { created: 5, updated: 0 },
             guests: { created: 5, updated: 0 },
-            allocations: { created: 2, updated: 0 }, // отменённая T-4 ячейку не занимает, T-5 конфликтует
-            unassigned: 2,
+            // отменённая T-4 ячейку не занимает; T-5 конфликтует по комнате Exely и пересаживается
+            // на свободную ячейку той же категории — без ячейки её не видно на шахматке
+            allocations: { created: 3, updated: 0 },
+            unassigned: 1, // только T-2: в Exely комната не назначена вовсе
             paymentsImported: 1,
           });
           const second = await importReservations(tx, records, {
@@ -125,7 +127,8 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             reservations: { created: 0, updated: 5 },
             items: { created: 0, updated: 5 },
             guests: { created: 0, updated: 5 },
-            allocations: { created: 0, updated: 2 },
+            // повтор не пересаживает заново: пересаженная ячейка остаётся за проживанием
+            allocations: { created: 0, updated: 3, released: 0 },
             paymentsImported: 0, // повтор — без дубля платежа
           });
           // DATA_MODEL §6: у каждого проживания ровно один счёт с одним начислением «проживание» = цене
@@ -178,6 +181,7 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
               conflictsWith: records[2]!.confirmationNumber,
               from: '2026-09-20',
               to: '2026-09-22',
+              movedTo: expect.any(String), // куда пересадили: рассадка идёт проходом после импорта
             },
           ]);
           expect(second.conflicts).toHaveLength(1);
@@ -191,11 +195,19 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           });
           expect(alloc).toHaveLength(1);
           expect(alloc[0]!.inventoryUnit.exelyRoomNumber).toBe('9010');
+          // T-2 без комнаты в Exely и отменённая T-4 ячейку не занимают
           expect(
             await tx.allocation.count({
-              where: { reservationItem: { exelyRoomStayId: { in: ['S-2', 'S-4', 'S-5'] } } },
+              where: { reservationItem: { exelyRoomStayId: { in: ['S-2', 'S-4'] } } },
             }),
           ).toBe(0);
+          // T-5 пересажена: ячейка есть, и это НЕ занятая комната 9011 из Exely
+          const moved = await tx.allocation.findMany({
+            where: { reservationItem: { exelyRoomStayId: 'S-5' } },
+            include: { inventoryUnit: true },
+          });
+          expect(moved).toHaveLength(1);
+          expect(moved[0]!.inventoryUnit.exelyRoomNumber).not.toBe('9011');
           throw new Rollback('rollback');
         },
         { timeout: 120_000, maxWait: 30_000 },

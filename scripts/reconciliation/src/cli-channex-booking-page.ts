@@ -35,7 +35,6 @@ const photos = await client.listAll<Record<string, unknown>>('/photos', {
 
 const nonEmpty = (v: unknown) =>
   v !== null && v !== undefined && String(v).trim() !== '' && String(v) !== 'null';
-const list = (v: unknown) => (Array.isArray(v) ? v.length : 0);
 
 const content = (a['content'] ?? {}) as Record<string, unknown>;
 const photosInContent = Array.isArray(content['photos'])

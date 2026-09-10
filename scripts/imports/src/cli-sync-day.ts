@@ -93,7 +93,8 @@ try {
   );
   for (const c of report.conflicts)
     console.log(
-      `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}`,
+      `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
+        (c.movedTo ? ` → посажен на ${c.movedTo}` : ' → свободной ячейки в категории нет'),
     );
   // Массовый перенос меняет остатки мимо очереди дельт: каналы об этом не узнают, пока не сделать
   // полную выгрузку. Пока она не сделана, канал продаёт по старому остатку — прямой риск овербукинга.

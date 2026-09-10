@@ -30,6 +30,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-сутки');
+  await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
@@ -85,4 +86,6 @@ test('сутки гостя целиком: заезд, услуга на счё
   const paid = minor(await panel.getByTestId('payment-row').locator('td').nth(2).innerText());
   expect(paid).toBe(withService);
   await expect(page.getByTestId('folio-balance')).toContainText('оплачено');
+  // счёт закрыт и это подписано: иначе администратор видит счёт без форм и не понимает почему
+  await expect(page.getByTestId('folio-closed')).toContainText('счёт закрыт');
 });

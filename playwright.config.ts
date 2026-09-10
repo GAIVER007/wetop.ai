@@ -6,6 +6,8 @@ import { defineConfig } from '@playwright/test';
  */
 export default defineConfig({
   testDir: 'tests/e2e',
+  // брони автотестов занимают настоящие ячейки — после прогона они отменяются
+  globalTeardown: './tests/e2e-teardown.ts',
   timeout: 90_000,
   expect: { timeout: 30_000 },
   retries: 0,

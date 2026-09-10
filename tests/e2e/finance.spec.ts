@@ -28,6 +28,7 @@ test('счёт на проживание: начисления, оплата, в
   await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-счёт');
+  await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 

@@ -37,6 +37,7 @@ test('стойка: занятую койку не продать дважды, 
     await f.locator('select[name="unitCode"]').selectOption(unitCode);
     await f.locator('input[name="firstName"]').fill('Гость');
     await f.locator('input[name="lastName"]').fill(lastName);
+    await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
     await f.getByRole('button', { name: 'Создать бронь' }).click();
   };
 

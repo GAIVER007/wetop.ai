@@ -31,6 +31,12 @@ interface Counts {
   byCategory: Record<string, number>;
 }
 const empty = (): Counts => ({ arrivals: 0, departures: 0, occupied: 0, byCategory: {} });
+/** Метка автотестов: такие брони есть только в PMS и в сверку с Exely не идут */
+const E2E_NOTE = 'E2E-АВТОТЕСТ';
+let e2eSkipped = 0;
+/** Сколько занятых клеток на сетке: проживание без назначенной ячейки шахматка не рисует */
+let cellsOnGrid = 0;
+const withoutUnit: Array<{ number: string; category: string; stay: string }> = [];
 
 // ── Exely: активные брони, затрагивающие сутки ──
 const client = new exely.ExelyUniversalClient({ apiKey: key });
@@ -85,10 +91,25 @@ try {
       arrivalDate: true,
       departureDate: true,
       accommodationType: { select: { exelyId: true, id: true, name: true } },
-      reservation: { select: { confirmationNumber: true } },
+      reservation: { select: { confirmationNumber: true, notes: true } },
+      // Шахматка рисует НАЗНАЧЕНИЯ, а не проживания: проживание без ячейки на сетке не видно вовсе.
+      // Поэтому в отчёт идёт и то, и другое — иначе сверка проходит по данным, которых нет на экране.
+      allocations: {
+        where: {
+          startDate: { lte: new Date(`${DATE}T00:00:00Z`) },
+          endDate: { gt: new Date(`${DATE}T00:00:00Z`) },
+        },
+        select: { inventoryUnit: { select: { code: true } } },
+      },
     },
   });
   for (const it of items) {
+    // Брони, созданные автотестами, живут в той же базе. Они не существуют в Exely и сдвинули бы
+    // сверку на ровно своё количество, поэтому исключаются явно и пересчитываются в отчёт.
+    if (it.reservation.notes === E2E_NOTE) {
+      e2eSkipped += 1;
+      continue;
+    }
     const ci = it.arrivalDate.toISOString().slice(0, 10);
     const co = it.departureDate.toISOString().slice(0, 10);
     if (ci === DATE) pms.arrivals += 1;
@@ -97,6 +118,13 @@ try {
       pms.occupied += 1;
       const k = it.accommodationType.exelyId ?? it.accommodationType.id;
       pms.byCategory[k] = (pms.byCategory[k] ?? 0) + 1;
+      if (it.allocations.length) cellsOnGrid += 1;
+      else
+        withoutUnit.push({
+          number: it.reservation.confirmationNumber,
+          category: it.accommodationType.name,
+          stay: `${ci} → ${co}`,
+        });
       pmsOccupying.push({
         number: it.reservation.confirmationNumber,
         category: it.accommodationType.name,
@@ -111,13 +139,16 @@ try {
 const lines = [
   `# Double entry — ${DATE}`,
   '',
-  `CONTROL: ${new Date().toISOString().slice(0, 16)} UTC · Exely активных броней за сутки: ${numbers.length} (только чтение, без ПД)`,
+  `CONTROL: ${new Date().toISOString().slice(0, 16)} UTC · Exely активных броней за сутки: ${numbers.length} (только чтение, без ПД)` +
+    (e2eSkipped ? ` · исключено проживаний автотестов: ${e2eSkipped}` : ''),
   '',
   '| Metric | PMS | EXELY | DIFF |',
   '|---|---:|---:|---:|',
   `| arrivals | ${pms.arrivals} | ${ex.arrivals} | ${pms.arrivals - ex.arrivals} |`,
   `| departures | ${pms.departures} | ${ex.departures} | ${pms.departures - ex.departures} |`,
   `| occupied units (night) | ${pms.occupied} | ${ex.occupied} | ${pms.occupied - ex.occupied} |`,
+  // строка про сетку: столько занятых клеток увидит администратор на шахматке
+  `| из них видно на шахматке (есть ячейка) | ${cellsOnGrid} | — | ${cellsOnGrid - pms.occupied} |`,
 ];
 const cats = new Set([...Object.keys(pms.byCategory), ...Object.keys(ex.byCategory)]);
 for (const c of [...cats].sort())
@@ -125,6 +156,7 @@ for (const c of [...cats].sort())
     `| ${roomTypeNames.get(c) ?? c} | ${pms.byCategory[c] ?? 0} | ${ex.byCategory[c] ?? 0} | ${(pms.byCategory[c] ?? 0) - (ex.byCategory[c] ?? 0)} |`,
   );
 const ok =
+  withoutUnit.length === 0 &&
   pms.arrivals === ex.arrivals &&
   pms.departures === ex.departures &&
   pms.occupied === ex.occupied &&
@@ -134,6 +166,16 @@ lines.push(
   `RESULT: ${ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения, поимённый разбор ниже'}`,
   '',
 );
+if (withoutUnit.length) {
+  lines.push(
+    `## Проживания без ячейки — ${withoutUnit.length} (на шахматке их не видно)`,
+    '',
+    '| Бронь | Категория | Проживание |',
+    '|---|---|---|',
+    ...withoutUnit.map((p) => `| ${p.number} | ${p.category} | ${p.stay} |`),
+    '',
+  );
+}
 
 // ── Поимённый разбор: какие именно брони расходятся (Gate 8: расхождение должно быть названо) ──
 if (!ok) {

@@ -110,6 +110,22 @@ function FolioPanel({
           Счёт: {folio.stay.accommodationTypeName}, {folio.stay.arrivalDate} →{' '}
           {folio.stay.departureDate}
         </b>
+        {!open && (
+          // Без подписи закрытый счёт выглядел просто как счёт без форм: администратор не понимал,
+          // почему нельзя ни начислить, ни принять оплату
+          <span
+            data-testid="folio-closed"
+            style={{
+              fontSize: 12,
+              color: '#374151',
+              background: '#e5e7eb',
+              borderRadius: 4,
+              padding: '2px 8px',
+            }}
+          >
+            счёт закрыт — гость рассчитался и выехал
+          </span>
+        )}
         <span style={{ color: '#666', fontSize: 13 }}>
           начислено {formatMinor(folio.chargedMinor, folio.currency)} · оплачено{' '}
           {formatMinor(folio.paidMinor, folio.currency)}

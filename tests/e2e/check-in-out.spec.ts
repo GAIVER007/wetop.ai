@@ -22,6 +22,7 @@ test('заселить → карточка и шахматка показыва
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-заезд');
+  await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
@@ -76,6 +77,7 @@ test('заселить → карточка и шахматка показыва
   await freeUnit.selectOption((await freeUnit.locator('option').nth(1).getAttribute('value'))!);
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд');
+  await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   page.on('dialog', (d) => d.accept());

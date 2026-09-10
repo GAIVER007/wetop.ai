@@ -23,6 +23,7 @@ test('отмена заранее — без штрафа, незаезд — с
   await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-штраф');
+  await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
@@ -52,6 +53,7 @@ test('отмена заранее — без штрафа, незаезд — с
   await unit.selectOption((await unit.locator('option').nth(1).getAttribute('value'))!);
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд-штраф');
+  await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());

@@ -30,6 +30,8 @@ export interface AllocationConflict {
   conflictsWith: string;
   from: string;
   to: string;
+  /** Куда посадили вместо занятой ячейки; null — свободной в категории не нашлось */
+  movedTo: string | null;
 }
 const zero = (): EntityCounts => ({ created: 0, updated: 0 });
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -59,6 +61,14 @@ export async function importReservations(
     select: { id: true, code: true },
   });
   const typeIdByCode = new Map(types.map((t) => [t.code, t.id]));
+  /** Проживания, чью ячейку из Exely занять не удалось: рассаживаются после основного прохода */
+  const displaced: Array<{
+    itemId: string;
+    typeId: string;
+    start: Date;
+    end: Date;
+    conflictIndex: number;
+  }> = [];
   const units = await tx.inventoryUnit.findMany({
     where: { accommodationType: { propertyId: opts.propertyId } },
     select: { id: true, exelyRoomNumber: true },
@@ -255,6 +265,17 @@ export async function importReservations(
             await tx.allocation.delete({ where: { id: existingAlloc.id } });
             report.allocations.released += 1;
           }
+          // Ячейку из Exely занять нельзя. Сажать на первую свободную прямо здесь нельзя тоже:
+          // эта ячейка может быть «родной» для брони, которая ещё не обработана, и тогда вытеснение
+          // пойдёт по цепочке. Поэтому конфликтные проживания собираются и рассаживаются
+          // отдельным проходом, когда все назначения из Exely уже сделаны.
+          displaced.push({
+            itemId,
+            typeId,
+            start: allocData.startDate,
+            end: allocData.endDate,
+            conflictIndex: report.conflicts.length,
+          });
           report.conflicts.push({
             confirmationNumber: r.confirmationNumber,
             exelyRoomNumber: it.exelyRoomNumber,
@@ -263,6 +284,7 @@ export async function importReservations(
             conflictsWith: clash.reservationItem.reservation.confirmationNumber,
             from: clash.startDate.toISOString().slice(0, 10),
             to: clash.endDate.toISOString().slice(0, 10),
+            movedTo: null,
           });
           report.unassigned += 1;
         } else if (existingAlloc) {
@@ -306,5 +328,36 @@ export async function importReservations(
       ),
     },
   });
+
+  // ── Рассадка вытесненных: все назначения из Exely уже сделаны, свободное — действительно свободно ──
+  // Гость без ячейки не виден на шахматке вовсе, поэтому пустая ячейка той же категории лучше, чем
+  // ничего; исходная комната названа в отчёте, стойка переселит, если нужна именно она.
+  const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
+  for (const d of displaced) {
+    const free = await tx.inventoryUnit.findMany({
+      where: {
+        accommodationTypeId: d.typeId,
+        active: true,
+        allocations: { none: { startDate: { lt: d.end }, endDate: { gt: d.start } } },
+        blocks: { none: { dateFrom: { lt: d.end }, dateTo: { gt: d.start } } },
+      },
+      select: { id: true, code: true },
+    });
+    free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
+    const unit = free[0];
+    if (!unit) continue;
+    await tx.allocation.create({
+      data: {
+        reservationItemId: d.itemId,
+        inventoryUnitId: unit.id,
+        startDate: d.start,
+        endDate: d.end,
+      },
+    });
+    report.allocations.created += 1;
+    report.unassigned -= 1;
+    report.conflicts[d.conflictIndex]!.movedTo = unit.code;
+  }
+
   return report;
 }

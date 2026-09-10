@@ -24,6 +24,7 @@ test('создать бронь с ячейкой → видна в шахмат
   await unitSelect.selectOption(unitCode!);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-e2e');
+  await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.locator('input[name="phone"]').fill('+70000000000');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
 

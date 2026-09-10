@@ -77,6 +77,7 @@ try {
       arrivalDate: string;
       departureDate: string;
       conflictsWith: string;
+      movedTo: string | null;
       from: string;
       to: string;
     }>,
@@ -129,7 +130,8 @@ try {
     console.log(`  КОНФЛИКТЫ ячеек (назначение пропущено): ${report.conflicts.length}`);
     for (const c of report.conflicts)
       console.log(
-        `    ${c.confirmationNumber} комната ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} пересекается с ${c.conflictsWith} (${c.from} → ${c.to})`,
+        `    ${c.confirmationNumber} комната ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} пересекается с ${c.conflictsWith} (${c.from} → ${c.to})` +
+          (c.movedTo ? ` → посажен на ${c.movedTo}` : ' → свободной ячейки в категории нет'),
       );
   }
   // Массовый перенос меняет остатки мимо очереди дельт: каналы об этом не узнают, пока не сделать

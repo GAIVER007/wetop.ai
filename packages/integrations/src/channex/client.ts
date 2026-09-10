@@ -406,6 +406,28 @@ export class ChannexClient {
     );
   }
 
+  /**
+   * Остатки по категориям за период (ari.md → Get the Availability per Room Type).
+   * Ответ: { room_type_id: { 'YYYY-MM-DD': остаток } }. Нужен для сверки: канал обязан видеть ноль,
+   * когда мест нет, иначе продаст сверх фонда.
+   */
+  async getAvailability(
+    propertyId: string,
+    from: string,
+    to: string,
+  ): Promise<Record<string, Record<string, number>>> {
+    const q = new URLSearchParams({
+      'filter[date][gte]': from,
+      'filter[date][lte]': to,
+      'filter[property_id]': propertyId,
+    });
+    const res = await this.request<{ data: Record<string, Record<string, number>> }>(
+      'GET',
+      `/availability?${q.toString()}`,
+    );
+    return res.data;
+  }
+
   // ── Webhooks (webhook-collection.md): секрет — свой заголовок, HMAC у Channex нет ──
   listWebhooks(): Promise<ChannexResource<ChannexWebhookAttributes>[]> {
     return this.listAll<ChannexWebhookAttributes>('/webhooks');

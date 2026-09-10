@@ -294,3 +294,32 @@ describe('ChannexClient webhooks (webhook-collection.md)', () => {
     expect(f.calls[3]!.url).toBe('https://staging.channex.io/api/v1/webhooks/test');
   });
 });
+
+describe('ChannexClient.getAvailability (ari.md → Get the Availability per Room Type)', () => {
+  it('asks for a date range and one property, returns availability per room type per date', async () => {
+    const f = fakeFetch(() => ({
+      status: 200,
+      body: {
+        data: {
+          '994d1375-dbbd-4072-8724-b2ab32ce781b': { '2026-02-01': 20, '2026-02-02': 0 },
+        },
+      },
+    }));
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    const got = await c.getAvailability(
+      '716305c4-561a-4561-a187-7f5b8aeb5920',
+      '2026-02-01',
+      '2026-02-02',
+    );
+    expect(got).toEqual({
+      '994d1375-dbbd-4072-8724-b2ab32ce781b': { '2026-02-01': 20, '2026-02-02': 0 },
+    });
+    const url = f.calls[0]!.url;
+    expect(url).toContain('/availability?');
+    expect(decodeURIComponent(url)).toContain('filter[date][gte]=2026-02-01');
+    expect(decodeURIComponent(url)).toContain('filter[date][lte]=2026-02-02');
+    expect(decodeURIComponent(url)).toContain(
+      'filter[property_id]=716305c4-561a-4561-a187-7f5b8aeb5920',
+    );
+  });
+});

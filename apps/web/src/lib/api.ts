@@ -283,6 +283,8 @@ export interface ChannelMappingRow {
   providerRatePlanId: string | null;
 }
 export interface OutboxSummary {
+  /** ISO-время самой старой неотправленной дельты (T6) */
+  oldestPendingAt?: string | null;
   pending: number;
   failed: number;
   sent: number;

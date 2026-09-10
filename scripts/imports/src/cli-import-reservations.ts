@@ -130,6 +130,13 @@ try {
         `    ${c.confirmationNumber} комната ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} пересекается с ${c.conflictsWith} (${c.from} → ${c.to})`,
       );
   }
+  // Массовый перенос меняет остатки мимо очереди дельт: каналы об этом не узнают, пока не сделать
+  // полную выгрузку. Пока она не сделана, канал продаёт по старому остатку — прямой риск овербукинга.
+  console.log(
+    '\nВНИМАНИЕ: остатки в каналах устарели. Выполните полную выгрузку:\n' +
+      "  curl -s -X POST 'http://localhost:3001/channels/channex/sync?days=365'\n" +
+      '  npx tsx scripts/reconciliation/src/cli-channex-ari.ts 30\n',
+  );
 } finally {
   await db.$disconnect();
 }

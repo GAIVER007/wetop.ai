@@ -266,6 +266,7 @@ function makeFakes() {
         sent: outbox.filter((o) => o.status === 'SENT').length,
         lastSentAt: null,
         lastTaskId: null,
+        oldestPendingAt: null,
       };
     },
   };

@@ -92,6 +92,8 @@ export interface ChannelsRepository {
     sent: number;
     lastSentAt: string | null;
     lastTaskId: string | null;
+    /** Когда поставлена самая старая неотправленная дельта: если давно — канал не знает об изменениях (T6) */
+    oldestPendingAt: string | null;
   }>;
 }
 export type OutboxKind = 'AVAILABILITY' | 'RESTRICTIONS';
@@ -325,7 +327,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     return Object.fromEntries(rows.map((r) => [r.code, r.id]));
   }
   async outboxSummary(provider: string) {
-    const [pending, failed, sent, last] = await Promise.all([
+    const [pending, failed, sent, last, oldest] = await Promise.all([
       this.prisma.db.channelOutbox.count({ where: { provider, status: 'PENDING' } }),
       this.prisma.db.channelOutbox.count({ where: { provider, status: 'FAILED' } }),
       this.prisma.db.channelOutbox.count({ where: { provider, status: 'SENT' } }),
@@ -334,6 +336,11 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         orderBy: { sentAt: 'desc' },
         select: { sentAt: true, taskId: true },
       }),
+      this.prisma.db.channelOutbox.findFirst({
+        where: { provider, status: 'PENDING' },
+        orderBy: { createdAt: 'asc' },
+        select: { createdAt: true },
+      }),
     ]);
     return {
       pending,
@@ -341,6 +348,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       sent,
       lastSentAt: last?.sentAt?.toISOString() ?? null,
       lastTaskId: last?.taskId ?? null,
+      oldestPendingAt: oldest?.createdAt?.toISOString() ?? null,
     };
   }
 }

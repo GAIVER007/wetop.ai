@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { api, channelsApi } from '../../lib/api';
+import { type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { ChannelButtons } from './buttons';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
@@ -59,6 +59,7 @@ export default async function ChannelsPage() {
           адрес: {webhook.callbackUrl}
         </div>
       )}
+      <OverbookingAlarm outbox={outbox} />
       <ChannelButtons webhookReady={webhookReady} />
       <h2 style={{ fontSize: 16, margin: '20px 0 8px' }}>Маппинг категорий и тарифов</h2>
       <table
@@ -97,6 +98,40 @@ export default async function ChannelsPage() {
     </main>
   );
 }
+/**
+ * T6: канал обязан узнать, что мест нет. Изменения уходят дельтами через очередь; если очередь встала
+ * или дала ошибку, каналы продолжают продавать по старому остатку — это прямая дорога к овербукингу.
+ * Порог 10 минут: воркер отправляет каждые 5 секунд, лимит Channex — не чаще 6 секунд на вид сообщения.
+ */
+function OverbookingAlarm({ outbox }: { outbox: OutboxSummary }) {
+  const staleMinutes = outbox.oldestPendingAt
+    ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60000)
+    : 0;
+  const stuck = staleMinutes >= 10;
+  if (outbox.failed === 0 && !stuck) return null;
+  return (
+    <div
+      role="alert"
+      data-testid="overbooking-alarm"
+      style={{
+        background: '#fef2f2',
+        border: '1px solid #fecaca',
+        color: '#991b1b',
+        borderRadius: 8,
+        padding: '10px 12px',
+        marginBottom: 12,
+        fontSize: 14,
+      }}
+    >
+      <b>Каналы могут не знать об остатках.</b>{' '}
+      {outbox.failed > 0 && `Ошибок отправки: ${outbox.failed}. `}
+      {stuck && `Самая старая неотправленная дельта ждёт ${staleMinutes} мин. `}
+      Пока очередь не разошлась, каналы продают по старому остатку — возможен овербукинг. Нажмите
+      «Отправить очередь сейчас» и проверьте ключ Channex.
+    </div>
+  );
+}
+
 function Fact({ label, value, testId }: { label: string; value: string; testId?: string }) {
   return (
     <div

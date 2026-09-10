@@ -450,19 +450,32 @@ export class ChannexClient {
   }
 
   /** Правила объекта (hotel-policy-collection.md → Create Hotel Policy): время заезда и выезда, валюта. */
-  async createHotelPolicy(input: {
-    property_id: string;
-    title: string;
-    currency: string;
-    checkin_time: string;
-    checkout_time: string;
-  }): Promise<ChannexResource<Record<string, unknown>>> {
+  async createHotelPolicy(
+    input: {
+      property_id: string;
+      title: string;
+      currency: string;
+    } & Record<string, unknown>,
+  ): Promise<ChannexResource<Record<string, unknown>>> {
     const res = await this.request<OneResponse<Record<string, unknown>>>(
       'POST',
       '/hotel_policies',
       {
         hotel_policy: input,
       },
+    );
+    return res.data;
+  }
+
+  /** Правка правил объекта (hotel-policy-collection.md → Update Hotel Policy). */
+  async updateHotelPolicy(
+    id: string,
+    patch: Record<string, unknown>,
+  ): Promise<ChannexResource<Record<string, unknown>>> {
+    const res = await this.request<OneResponse<Record<string, unknown>>>(
+      'PUT',
+      `/hotel_policies/${encodeURIComponent(id)}`,
+      { hotel_policy: patch },
     );
     return res.data;
   }

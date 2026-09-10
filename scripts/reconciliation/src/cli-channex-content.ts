@@ -59,16 +59,30 @@ console.log(
   `обновлено: телефон ${now['phone'] ?? '—'}, почта ${now['email'] ?? '—'}, удобств ${Array.isArray(now['facilities']) ? (now['facilities'] as unknown[]).length : 0}`,
 );
 
+// Правила объекта. Время выезда — из Exely; окно заезда и «нельзя с животными» подтверждает страница
+// объекта на Booking; интернет, парковку и курение подтвердил владелец 10.09.2026. Ничего не выдумано.
 const policy = await client.createHotelPolicy({
   property_id: propertyId,
   title: 'Основные правила',
   currency: 'KZT',
-  checkin_time: TIMES.checkin,
-  checkout_time: TIMES.checkout,
+  is_adults_only: false,
+  max_count_of_guests: 92,
+  checkin_from_time: TIMES.checkin,
+  checkin_to_time: '23:30',
+  checkout_from_time: '00:00',
+  checkout_to_time: TIMES.checkout,
+  internet_access_type: 'wifi',
+  internet_access_cost: null,
+  internet_access_coverage: 'public_areas',
+  parking_type: 'on_site',
+  parking_reservation: 'not_needed',
+  parking_is_private: true,
+  pets_policy: 'not_allowed',
+  // Channex принимает только «можно»/«нельзя»: у объекта номера для некурящих (страница Booking),
+  // а отдельное место для курения описано словами в important_information
+  smoking_policy: 'no_smoking',
 });
-console.log(
-  `правила объекта созданы: ${policy.id} (заезд ${TIMES.checkin}, выезд ${TIMES.checkout})`,
-);
-console.log(
-  '\nОсталось владельцу: фотографии и остальные удобства (Wi-Fi, кухня, кондиционер и т.п.).',
-);
+console.log(`правила объекта созданы: ${policy.id}`);
+await client.updateProperty(propertyId, { hotel_policy_id: policy.id } as never);
+console.log('правила привязаны к объекту');
+console.log('\nОсталось владельцу: фотографии и политика отмены (правило про деньги, Q-103).');

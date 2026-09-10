@@ -409,18 +409,21 @@ export class ReservationsService {
           throw new BadRequestException(
             'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
           );
+        // Считаем только ДОБАВЛЕННЫЕ ночи: цена уже проданных ночей согласована с гостем и каналом,
+        // переоценивать её по сегодняшнему календарю нельзя. Перецена всего проживания — это changeDates.
         const rates = await repo.nightRates(
           item.accommodationTypeId,
           planId,
-          item.arrivalDate,
+          item.departureDate,
           departureDate,
         );
-        const price = priceStay({
-          arrivalDate: item.arrivalDate,
+        const added = priceStay({
+          arrivalDate: item.departureDate,
           departureDate,
           occupancy: Math.max(1, item.adults || item.guestsCount),
           rates,
         });
+        const price = { totalMinor: item.priceMinor + added.totalMinor };
         const last = item.allocations[item.allocations.length - 1];
         if (last) await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
         await repo.updateItem(item.id, { departureDate, priceMinor: price.totalMinor });

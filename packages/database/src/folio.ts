@@ -12,6 +12,8 @@ export interface EnsureFolioInput {
   /** integer minor units */
   amountMinor: bigint;
   description: string;
+  /** Дата услуги (YYYY-MM-DD) — дата заезда: по ней проживание попадает в отчёт за период */
+  serviceDate: string;
   /** false — проживание отменено / незаезд: начисление сторнируется, новое не создаётся (штраф — вручную, Q-103) */
   active?: boolean | undefined;
 }
@@ -52,6 +54,7 @@ export async function ensureFolioWithAccommodation(
       quantity: 1,
       unitPrice: input.amountMinor,
       amount: input.amountMinor,
+      serviceDate: new Date(`${input.serviceDate}T00:00:00Z`),
     },
   });
   return { folioId: folio.id, chargeChanged: true };

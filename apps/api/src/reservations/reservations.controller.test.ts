@@ -564,14 +564,20 @@ describe('manual reservation API', () => {
     const itemId = created.body.items[0].id as string;
     published.length = 0;
 
+    // Цена проживания согласована с каналом и не совпадает с календарём PMS: так приходят брони OTA.
+    // Продление обязано добавить только новую ночь, а не переоценить уже проданные.
+    const seeded = fake.state.reservations.get(n)!;
+    seeded.items[0]!.priceMinor = 3_600_000n;
+
     const ext = await request(app.getHttpServer())
       .post(`/reservations/${n}/items/${itemId}/extend`)
       .send({})
       .expect(200);
-    expect(ext.body).toMatchObject({ departureDate: '2026-09-18', totalAmountMinor: '3300000' });
+    // 3 600 000 согласованных + одна добавленная ночь по календарю 1 100 000
+    expect(ext.body).toMatchObject({ departureDate: '2026-09-18', totalAmountMinor: '4700000' });
     expect(ext.body.items[0]).toMatchObject({
       departureDate: '2026-09-18',
-      priceMinor: '3300000', // 3 ночи × 1 100 000
+      priceMinor: '4700000',
       unitCode: '9001',
     });
     expect(fake.state.allocations[0]).toMatchObject({ start: '2026-09-15', end: '2026-09-18' });

@@ -198,6 +198,7 @@ export async function importReservations(
         currency: r.currency,
         amountMinor: it.priceMinor,
         description: `Проживание ${it.arrivalDate} → ${it.departureDate}`,
+        serviceDate: it.arrivalDate,
         active: holdsUnit,
       });
       const paid = await recordImportedPayment(tx, {

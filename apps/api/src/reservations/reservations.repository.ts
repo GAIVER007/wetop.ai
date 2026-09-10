@@ -564,6 +564,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       currency: it.reservation.currency,
       amountMinor: it.price,
       description: `Проживание ${iso(it.arrivalDate)} → ${iso(it.departureDate)}`,
+      serviceDate: iso(it.arrivalDate),
       active: it.status !== 'CANCELLED' && it.status !== 'NO_SHOW',
     });
   }

@@ -153,9 +153,15 @@ export interface FinanceRepository {
 export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
-/** Следующие сутки — для полуинтервала по timestamptz (платежи и возвраты со временем) */
-const asDateNext = (d: string) => {
-  const x = new Date(`${d}T00:00:00Z`);
+/**
+ * Границы суток для событий со временем (платежи, возвраты). Объект живёт в Asia/Almaty (UTC+5),
+ * стойка работает круглосуточно: платёж в 02:00 по Алматы — это 21:00 предыдущего дня по UTC,
+ * и по UTC-границам он ушёл бы в соседний период.
+ */
+const ALMATY_OFFSET = '+05:00';
+const localStart = (d: string) => new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
+const localEndExclusive = (d: string) => {
+  const x = new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
   x.setUTCDate(x.getUTCDate() + 1);
   return x;
 };
@@ -298,7 +304,11 @@ export class PrismaFinanceRepository implements FinanceRepository {
       }
     }
     const payments = await this.prisma.db.payment.findMany({
-      where: { propertyId, status: 'COMPLETED', paidAt: { gte: asDate(from), lt: asDateNext(to) } },
+      where: {
+        propertyId,
+        status: 'COMPLETED',
+        paidAt: { gte: localStart(from), lt: localEndExclusive(to) },
+      },
       select: { method: true, amount: true },
     });
     const byMethod = new Map<PaymentMethod, { count: number; amountMinor: bigint }>();
@@ -308,7 +318,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
     }
     const refunds = await this.prisma.db.refund.findMany({
       where: {
-        createdAt: { gte: asDate(from), lt: asDateNext(to) },
+        createdAt: { gte: localStart(from), lt: localEndExclusive(to) },
         folio: { reservationItem: { reservation: { propertyId } } },
       },
       select: { amount: true },

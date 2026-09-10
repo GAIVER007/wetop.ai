@@ -20,6 +20,8 @@ const stay = (over: Partial<DeskStay>): DeskStay => ({
   status: 'CONFIRMED',
   balanceMinor: 0n,
   citizenship: 'KAZ',
+  adults: 1,
+  guestsRecorded: 1,
   ...over,
 });
 
@@ -30,6 +32,8 @@ const repo: DeskRepository = {
       stay({ itemId: 'i1', confirmationNumber: 'B-1', unitCode: null }),
       stay({ itemId: 'i2', confirmationNumber: 'B-2', citizenship: null }),
       stay({ itemId: 'i3', confirmationNumber: 'B-3' }),
+      // заявлено двое, карточка одна — для eQonaq нужен каждый гость (Q-098)
+      stay({ itemId: 'i6', confirmationNumber: 'B-6', adults: 2, guestsRecorded: 1 }),
       stay({
         itemId: 'i4',
         confirmationNumber: 'B-4',
@@ -68,19 +72,20 @@ describe('desk day API', () => {
   it('делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих', async () => {
     const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
     expect(r.body.counts).toEqual({
-      arrivals: 3,
+      arrivals: 4,
       departures: 1,
       inHouse: 1,
-      toCheckIn: 3,
+      toCheckIn: 4,
       toCheckOut: 1,
     });
     expect(
       r.body.arrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
-    ).toEqual(['B-1', 'B-2', 'B-3']);
+    ).toEqual(['B-1', 'B-2', 'B-3', 'B-6']);
     // стойка сразу видит, почему нельзя заселить
     expect(r.body.arrivals[0]).toMatchObject({ blockedReason: 'нет ячейки' });
     expect(r.body.arrivals[1]).toMatchObject({ blockedReason: 'нет гражданства' });
     expect(r.body.arrivals[2]).toMatchObject({ blockedReason: null });
+    expect(r.body.arrivals[3]).toMatchObject({ blockedReason: 'карточек 1 из 2' });
     // выезжающий с долгом, и долг просуммирован
     expect(r.body.departures[0]).toMatchObject({
       confirmationNumber: 'B-4',

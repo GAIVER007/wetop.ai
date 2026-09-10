@@ -17,6 +17,9 @@ export interface DeskStay {
   /** integer minor units; > 0 — гость должен */
   balanceMinor: bigint;
   citizenship: string | null;
+  /** Сколько гостей заявлено в брони и на скольких заведены карточки (Q-098: за август 1103 против 1048) */
+  adults: number;
+  guestsRecorded: number;
 }
 /** Рабочий день стойки: кто заезжает, кто выезжает, кто живёт (SPEC §6). */
 export interface DeskRepository {
@@ -54,6 +57,8 @@ export class PrismaDeskRepository implements DeskRepository {
         arrivalDate: true,
         departureDate: true,
         status: true,
+        adults: true,
+        _count: { select: { stayGuests: true } },
         accommodationType: { select: { name: true } },
         allocations: {
           orderBy: { startDate: 'asc' },
@@ -101,6 +106,8 @@ export class PrismaDeskRepository implements DeskRepository {
         status: r.status,
         balanceMinor: balance,
         citizenship: g?.citizenship ?? null,
+        adults: r.adults,
+        guestsRecorded: r._count.stayGuests,
       };
     });
   }

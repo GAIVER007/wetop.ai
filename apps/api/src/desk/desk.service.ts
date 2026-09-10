@@ -14,7 +14,9 @@ export interface DeskRow {
   status: string;
   balanceMinor: string;
   citizenship: string | null;
-  /** Чего не хватает, чтобы заселить: гражданства или ячейки (DATA_MODEL §3, ADR-006) */
+  adults: number;
+  guestsRecorded: number;
+  /** Чего не хватает, чтобы заселить: ячейки, гражданства или карточек гостей */
   blockedReason: string | null;
 }
 export interface DeskDay {
@@ -55,13 +57,18 @@ export class DeskService {
       status: s.status,
       balanceMinor: s.balanceMinor.toString(),
       citizenship: s.citizenship,
+      adults: s.adults,
+      guestsRecorded: s.guestsRecorded,
+      // Порядок важен: сначала то, без чего вообще нельзя заселить, потом то, что нужно для eQonaq
       blockedReason:
         s.status === 'CONFIRMED' || s.status === 'TENTATIVE'
           ? !s.unitCode
             ? 'нет ячейки'
             : !s.citizenship
               ? 'нет гражданства'
-              : null
+              : s.guestsRecorded < s.adults
+                ? `карточек ${s.guestsRecorded} из ${s.adults}`
+                : null
           : null,
     });
     const arrivals = stays.filter((s) => s.arrivalDate === day).map(row);

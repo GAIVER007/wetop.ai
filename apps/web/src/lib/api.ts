@@ -572,6 +572,8 @@ export interface DeskRow {
   status: string;
   balanceMinor: string;
   citizenship: string | null;
+  adults: number;
+  guestsRecorded: number;
   blockedReason: string | null;
 }
 export interface DeskDay {

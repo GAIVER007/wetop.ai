@@ -146,6 +146,12 @@ function Group({
                   {showBlocked && r.blockedReason && (
                     <span style={{ color: '#b45309' }}> · {r.blockedReason}</span>
                   )}
+                  {showBlocked && r.guestsRecorded < r.adults && !r.blockedReason && (
+                    <span style={{ color: '#b45309' }}>
+                      {' '}
+                      · карточек {r.guestsRecorded} из {r.adults}
+                    </span>
+                  )}
                 </td>
                 {showDebt && (
                   <td style={{ ...td, textAlign: 'right' }}>

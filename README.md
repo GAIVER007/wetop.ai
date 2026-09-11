@@ -7,27 +7,45 @@
 ## Объект
 
 **Luxx Aparts**, Алматы. Хостел: **88 единиц продажи = 16 отдельных номеров + 72 койко-места**,
-максимум 92 гостя. Загрузка августа 2026 — 79,7%, ~1044 заезда в месяц,
+максимум 92 гостя. Загрузка августа 2026 — 80,8% (2203 из 2728 единице-суток), 1044 заезда в месяц,
 оборот проживания 15,7 млн ₸. Восемь OTA через Exely Channel Manager,
 прямые продажи — 37,4% заездов.
 
 Полная фактура: [OBJECT.md](OBJECT.md). Что из этого следует: [FINDINGS.md](FINDINGS.md).
 
-## Статус
+## Статус на 11.09.2026
 
-**Неделя 1. Аудит действующей PMS сдан 07.09.2026. Production feature code = 0 строк.**
+Срезы 1–7 (фонд, шахматка, тарифы и ручная бронь, Channex, стойка, финансы, печатные формы) сделаны
+и доказаны сверками с Exely. Хронология по дням и что ждёт владельца — [CLAUDE.md](CLAUDE.md) §2,
+что делать прямо сейчас — [ONBOARDING.md](ONBOARDING.md).
 
-[DATA_MODEL.md](DATA_MODEL.md) **утверждён 07.09.2026**, кроме раздела Folio.
-План первого среза — [plans/slice-1-inventory.md](plans/slice-1-inventory.md). Открыто:
-
-| Вопрос | О чём |
+| Гейт | Состояние |
 |---|---|
-| ~~Q-080~~ | **Закрыт 07.09.2026:** койка = единица продажи, каждая из 88 единиц — ячейка (ADR-013) |
-| **Q-091** | Folio привязан к брони или к проживанию |
-| ~~Q-092~~ | **Отложен 07.09.2026:** загрузка считается по 88, как в Exely |
+| 1 Inventory | ✅ 88/88 против живого Exely — `reports/inventory-2026-09-10.md` |
+| 2 Chessboard | ✅ сутки сходятся в ноль на 08.09, 09.09, 10.09 — `reports/double-entry-*.md` |
+| 3 Reservation | ✅ бронь со стойки меняет остаток — `tests/e2e/manual-reservation.spec.ts` |
+| 4 Front Desk | ✅ полный день гостя — `tests/e2e/full-day.spec.ts`, `desk-tasks.spec.ts` |
+| 5 Channex Sandbox | 🟡 обе стороны живьём, шесть каналов, webhook — `reports/channex-day-2026-09-11.md`; форма сертификации за владельцем |
+| 6 Finance | ✅ 1449 из 1449 балансов до тиына — `reports/balances-2026-09-08.md` |
+| 7 Kazakhstan | ❌ не начат: провайдер ККМ не выбран (Q-050), eQonaq отложен владельцем; в коде только порты |
+| 8 Parallel Day | 🟡 механизм сошёлся, смена людьми назначена на 17.09 — `plans/parallel-day-2026-09-17.md` |
+| 9–10 OTA | ❌ до сертификации Channex и базы в Казахстане — `CUTOVER.md`, условие допуска |
 
-Параллельно нужен заполненный опросник администраторов — он закрывает то,
-чего в Exely физически нет.
+[DATA_MODEL.md](DATA_MODEL.md) v1.0 утверждён полностью (§6 Folio — 09.09.2026, ADR-014).
+
+## Запуск
+
+```bash
+npm install                                    # Node 24 (.nvmrc); ключи владелец вписывает в .env по .env.example
+npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте; значения не печатает
+npm run dev -w apps/api                        # API на 127.0.0.1:3001
+npm run dev -w apps/web                        # стойка на 127.0.0.1:3000
+scripts/ops/channex-tunnel.sh                  # публичный адрес для webhook Channex на время разработки
+npm test                                       # vitest: модульные параллельно, интеграционные (живая dev-БД) по одному
+npm run e2e                                    # Playwright, 16 сценариев; брони автотестов убираются сами
+npm run morning                                # утренний отчёт в reports/morning/
+npm run reconcile:day -- 2026-09-17            # двойной ввод: сутки против живого Exely
+```
 
 ## Навигация
 
@@ -35,36 +53,39 @@
 |---|---|
 | [AGENTS.md](AGENTS.md) | Правила для AI-агентов. Читать первым. |
 | [SPEC.md](SPEC.md) | Что строим и что НЕ строим |
-| [DATA_MODEL.md](DATA_MODEL.md) | Модель данных (DRAFT, не утверждена) |
+| [DATA_MODEL.md](DATA_MODEL.md) | Модель данных v1.0, утверждена полностью 09.09.2026 |
 | [DECISIONS.md](DECISIONS.md) | ADR — принятые архитектурные решения |
 | [QUESTIONS.md](QUESTIONS.md) | Открытые вопросы. Агент не имеет права гадать. |
 | [GLOSSARY.md](GLOSSARY.md) | Термины |
 | [PLAN.md](PLAN.md) | План на 8 недель + гейты |
-| [CUTOVER.md](CUTOVER.md) | Переезд с Exely на Channex по каналам |
+| [CUTOVER.md](CUTOVER.md) | Переезд с Exely на Channex по каналам, условие допуска по ПД |
 | [SECURITY.md](SECURITY.md) | Персональные данные, секреты, доступы |
 | [OBJECT.md](OBJECT.md) | **Паспорт объекта.** Факты из Exely: фонд, тарифы, каналы, деньги |
 | [FINDINGS.md](FINDINGS.md) | **Находки аудита.** Улики ручной работы, дефекты данных, приоритеты |
 | [ONBOARDING.md](ONBOARDING.md) | Что делать прямо сейчас, по шагам |
-| [HANDOFF.md](HANDOFF.md) | **Передача проекта.** Промпты для AI-сессии, чеклист для разработчика |
-| [TZ-EXELY-AUDIT.md](TZ-EXELY-AUDIT.md) | **ТЗ на аудит текущей PMS.** Отдаётся исполнителю. Блокирует всё остальное |
+| [HANDOFF.md](HANDOFF.md) | **Передача проекта.** Промпты для AI-сессии, точки входа в код, чеклист приёмки |
+| [TZ-EXELY-AUDIT.md](TZ-EXELY-AUDIT.md) | ТЗ на аудит текущей PMS. Аудит сдан 07.09.2026 |
 
 ## Директории
 
 ```
-docs/                vendor-документация (Channex, eQonaq, fiscal, Exely)
-project-input/       реальные данные объекта
-  exely/audit-2026-09-07/   ← сданный аудит: ответы, инвентарь, справочники
-templates/           опросник администраторов, гид по съёмке экранов, шаблоны выгрузок
-outbox/              письма провайдерам (Exely, Channex, eQonaq)
-apps/web             Next.js frontend        (пусто до Gate 0)
-apps/api             NestJS backend          (пусто до Gate 0)
-packages/database    Prisma schema/миграции  (пусто до утверждения DATA_MODEL)
-packages/domain      бизнес-логика
-packages/integrations адаптеры Channex/eQonaq/fiscal
-packages/shared      общие типы и утилиты
-tests/               unit / integration / e2e
-scripts/imports      импорт выгрузок Exely
-scripts/reconciliation сверка новой PMS с Exely
+docs/                  vendor-документация: Channex (сайт целиком), Exely (API 1.5.0); eQonaq и fiscal — исследования без документации
+project-input/         реальные данные объекта (не коммитятся, кроме аудита без ПД)
+  exely/audit-2026-09-07/   сданный аудит: ответы, инвентарь, справочники
+templates/             опросник администраторов, гид по съёмке экранов, шаблоны выгрузок
+outbox/                письма провайдерам и их статус
+plans/                 планы срезов и дней, пакет сертификации Channex
+reports/               доказательства: сверки, отчёты дней, скриншоты, утренние отчёты
+apps/web               Next.js стойка: «Сегодня», шахматка, брони, гости, счета, тарифы, каналы, журнал, печать RU/KZ
+apps/api               NestJS API (localhost:3001): inventory, units, chessboard, reservations, guests, desk, finance, rates, channels
+packages/database      Prisma schema, 8 миграций
+packages/domain        бизнес-правила: доступность, ограничения, финансы, штрафы, шахматка
+packages/integrations  Exely (импорт по API), Channex (клиент, ARI, webhook), порты eQonaq и fiscal без реализации (ADR-004)
+packages/shared        общие типы и утилиты
+tests/                 unit / integration (живая dev-БД) / e2e (Playwright)
+scripts/imports        импорт из Exely: фонд, тарифы, календарь цен, брони, услуги; синхронизация суток
+scripts/reconciliation сверки с Exely и Channex, утренний отчёт, уборка броней автотестов
+scripts/ops            туннель и регистрация webhook Channex на время разработки
 ```
 
 ## Definition of Done всего MVP

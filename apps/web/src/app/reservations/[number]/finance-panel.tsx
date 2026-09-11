@@ -332,11 +332,18 @@ function FolioPanel({
                 key={extra}
                 type="button"
                 data-testid={`${testId}-${folio.id}`}
-                title="Услуга на счёт: половина цены ночи этого проживания"
+                title="Услуга на счёт по правилу объекта: доля ночи зависит от времени"
                 onClick={async () => {
-                  if (!window.confirm(`Начислить «${label}»: половина цены ночи этого проживания?`))
-                    return;
-                  setOther(await stayExtraAction(number, folio.id, extra));
+                  // правило объекта из Exely: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
+                  // с 12:00 бесплатно; поздний выезд 12:01–17:59 — половина, с 18:00 — вся ночь
+                  const time = window.prompt(
+                    `${label}: во сколько? (ЧЧ:ММ). Пусто — половина ночи`,
+                    '',
+                  );
+                  if (time === null) return;
+                  setOther(
+                    await stayExtraAction(number, folio.id, extra, time.trim() || undefined),
+                  );
                 }}
                 style={{ ...btnSecondary }}
               >

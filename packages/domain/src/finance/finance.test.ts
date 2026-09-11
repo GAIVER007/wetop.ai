@@ -9,6 +9,7 @@ import {
   parseMoney,
   stayExtraDefaultMinor,
   channelPrepaymentToKeep,
+  stayExtraPercent,
 } from './finance';
 
 describe('folioBalance', () => {
@@ -130,5 +131,27 @@ describe('предоплата канала после отмены (ADR-022, Q-
     expect(channelPrepaymentToKeep({ prepaidMinor: 300_000n, penaltyMinor: 450_000n })).toBe(
       300_000n,
     );
+  });
+});
+
+describe('доля ночи за ранний заезд и поздний выезд по времени — правило объекта из Exely (ADR-021)', () => {
+  it('ранний заезд: до 06:00 — вся ночь, 06:00–11:59 — половина, с 12:00 до расчётного часа 14:00 — бесплатно', () => {
+    expect(stayExtraPercent('EARLY_CHECK_IN', '03:30')).toBe(100);
+    expect(stayExtraPercent('EARLY_CHECK_IN', '05:59')).toBe(100);
+    expect(stayExtraPercent('EARLY_CHECK_IN', '06:00')).toBe(50);
+    expect(stayExtraPercent('EARLY_CHECK_IN', '11:59')).toBe(50);
+    expect(stayExtraPercent('EARLY_CHECK_IN', '12:00')).toBe(0);
+    expect(stayExtraPercent('EARLY_CHECK_IN', '13:59')).toBe(0);
+  });
+  it('поздний выезд: 12:01–17:59 — половина, с 18:00 — вся ночь, до расчётного часа 12:00 — бесплатно', () => {
+    expect(stayExtraPercent('LATE_CHECK_OUT', '12:00')).toBe(0);
+    expect(stayExtraPercent('LATE_CHECK_OUT', '12:01')).toBe(50);
+    expect(stayExtraPercent('LATE_CHECK_OUT', '17:59')).toBe(50);
+    expect(stayExtraPercent('LATE_CHECK_OUT', '18:00')).toBe(100);
+    expect(stayExtraPercent('LATE_CHECK_OUT', '23:59')).toBe(100);
+  });
+  it('кривое время — ошибка, а не тихий ноль', () => {
+    expect(() => stayExtraPercent('LATE_CHECK_OUT', '25:00')).toThrow(/время/);
+    expect(() => stayExtraPercent('EARLY_CHECK_IN', '7am')).toThrow(/время/);
   });
 });

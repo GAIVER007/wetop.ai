@@ -104,9 +104,10 @@ export async function stayExtraAction(
   number: string,
   folioId: string,
   extra: 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT',
+  time?: string,
 ): Promise<FinanceActionResult> {
   try {
-    await financeApi.addStayExtra(folioId, extra);
+    await financeApi.addStayExtra(folioId, extra, time);
   } catch (e) {
     return { error: describe(e), ok: 0 };
   }

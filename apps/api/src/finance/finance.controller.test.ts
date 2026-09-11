@@ -449,6 +449,19 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .post('/finance/folios/f1/stay-extras')
       .send({ extra: 'BREAKFAST' })
       .expect(400);
+    // правило объекта по времени: выезд в 19:00 — вся ночь 6 000 ₸; в 11:30 — бесплатно, начислять нечего
+    const night = await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
+      .expect(201);
+    const full = night.body.folios
+      .find((f: { id: string }) => f.id === 'f1')
+      .charges.filter((c: { description: string }) => c.description === 'Поздний выезд');
+    expect(full.at(-1)).toMatchObject({ amountMinor: '600000' });
+    await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT', time: '11:30' })
+      .expect(400);
   });
 
   it('void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand', async () => {

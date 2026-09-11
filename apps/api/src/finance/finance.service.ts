@@ -13,6 +13,7 @@ import {
   folioBalance,
   parseMoney,
   stayExtraDefaultMinor,
+  stayExtraPercent,
 } from '@pms/domain';
 import {
   FINANCE_REPOSITORY,
@@ -363,7 +364,7 @@ export class FinanceService {
    */
   async addStayExtra(
     folioId: string,
-    dto: { extra?: string; unitPrice?: string | number },
+    dto: { extra?: string; unitPrice?: string | number; time?: string },
   ): Promise<ReservationFinanceView> {
     const EXTRAS = {
       EARLY_CHECK_IN: {
@@ -386,10 +387,22 @@ export class FinanceService {
     const accommodation = folio.charges
       .filter((c) => c.kind === 'ACCOMMODATION' && c.voidedAt === null)
       .reduce((sum, c) => sum + c.amountMinor, 0n);
-    const unitPriceMinor =
-      dto.unitPrice === undefined
-        ? stayExtraDefaultMinor(accommodation, nights)
-        : money(dto.unitPrice, 'unitPrice');
+    // Правило объекта из Exely: доля ночи зависит от времени; без времени — половина ночи
+    let percent: 0 | 50 | 100 = 50;
+    if (dto.time !== undefined) {
+      try {
+        percent = stayExtraPercent(dto.extra as 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT', dto.time);
+      } catch (e) {
+        throw new BadRequestException((e as Error).message);
+      }
+      if (percent === 0 && dto.unitPrice === undefined)
+        throw new BadRequestException(
+          `${spec.description} в ${dto.time} по правилу объекта бесплатен — начислять нечего`,
+        );
+    }
+    const halfNight = stayExtraDefaultMinor(accommodation, nights);
+    const byRule = percent === 100 ? halfNight * 2n : percent === 50 ? halfNight : 0n;
+    const unitPriceMinor = dto.unitPrice === undefined ? byRule : money(dto.unitPrice, 'unitPrice');
     if (unitPriceMinor <= 0n)
       throw new BadRequestException(
         'Сумма должна быть больше нуля: у проживания нет цены, задайте сумму услуги',
@@ -407,6 +420,8 @@ export class FinanceService {
     await this.repo.audit('Folio', folioId, 'finance.stayExtra', null, {
       chargeId: id,
       extra: dto.extra,
+      time: dto.time ?? null,
+      percent,
       amountMinor: s(unitPriceMinor),
       serviceDate,
       defaultUsed: dto.unitPrice === undefined,

@@ -83,6 +83,31 @@ try {
       failed.push(`${r.confirmationNumber} (${r.status}): API недоступен — погашена в базе`);
   }
   if (!dry) console.log(`Освобождено броней: ${freed}`);
+  // Блоки соседних ночей от раннего заезда / позднего выезда (ADR-021) остаются, если тестовую бронь
+  // погасили в базе, а не отменой через API. Снимаем их по всем тестовым броням, включая уже отменённые.
+  const testNumbers = (
+    await db.reservation.findMany({
+      where: {
+        OR: [{ notes: E2E_NOTE }, { primaryGuest: { lastName: { startsWith: 'Тест-' } } }],
+      },
+      select: { confirmationNumber: true, notes: true },
+    })
+  )
+    .filter((r) => r.notes === E2E_NOTE || ownNumber.test(r.confirmationNumber))
+    .map((r) => r.confirmationNumber);
+  const staleBlocks = await db.inventoryBlock.findMany({
+    where: {
+      type: 'OTHER',
+      OR: testNumbers.map((n) => ({ reason: { endsWith: `, бронь ${n}` } })),
+    },
+    select: { id: true },
+  });
+  if (staleBlocks.length && !dry)
+    await db.inventoryBlock.deleteMany({ where: { id: { in: staleBlocks.map((b) => b.id) } } });
+  console.log(
+    `Блоков соседних ночей от тестовых броней: ${staleBlocks.length}${dry ? '' : ' — сняты'}`,
+  );
+  if (staleBlocks.length && freed === 0 && !dry) freed = 1; // чтобы ниже ушла полная выгрузка остатков
   // Гашение в базе идёт мимо очереди дельт, и канал об этом не узнаёт до полной выгрузки (найдено
   // сверкой 11.09: мужской дом 19 против 18 в Channex). Поэтому после уборки просим полную выгрузку сами;
   // если API недоступен — её сделает ночная выгрузка после 03:00 по Алматы.

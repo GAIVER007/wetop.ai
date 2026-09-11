@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { UnitsService } from '../units/units.service';
 import {
   BadRequestException,
   ConflictException,
@@ -14,6 +15,7 @@ import {
   parseMoney,
   stayExtraDefaultMinor,
   stayExtraPercent,
+  adjacentNight,
 } from '@pms/domain';
 import {
   FINANCE_REPOSITORY,
@@ -189,7 +191,10 @@ export function folioView(f: FolioRecord): FolioView {
  */
 @Injectable()
 export class FinanceService {
-  constructor(@Inject(FINANCE_REPOSITORY) private readonly repo: FinanceRepository) {}
+  constructor(
+    @Inject(FINANCE_REPOSITORY) private readonly repo: FinanceRepository,
+    @Inject(UnitsService) private readonly units: UnitsService,
+  ) {}
 
   async reservation(confirmationNumber: string): Promise<ReservationFinanceView> {
     const folios = await this.repo.foliosByReservation(confirmationNumber);
@@ -408,6 +413,30 @@ export class FinanceService {
         'Сумма должна быть больше нуля: у проживания нет цены, задайте сумму услуги',
       );
     const serviceDate = spec.date(folio.stay);
+    // Как в Exely («выделять доступность: да»): соседняя ночь на этой койке не продаётся. Блок ставится
+    // командой ячейки — она сама откажет, если на ту ночь уже есть проживание, и разошлёт остаток в канал.
+    const unit = await this.repo.stayUnitCode(folio.reservationItemId);
+    if (unit) {
+      const night = adjacentNight(
+        dto.extra as 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT',
+        folio.stay.arrivalDate,
+        folio.stay.departureDate,
+      );
+      try {
+        await this.units.block(unit.code, {
+          dateFrom: night.from,
+          dateTo: night.toExclusive,
+          type: 'OTHER',
+          reason: `${spec.description}, бронь ${folio.confirmationNumber}`,
+        });
+      } catch (e) {
+        if (e instanceof ConflictException)
+          throw new ConflictException(
+            `${spec.description} невозможен: койка ${unit.code} занята в ночь ${night.from}. ${e.message}`,
+          );
+        throw e;
+      }
+    }
     const id = await this.repo.addCharge(folioId, {
       kind: 'SERVICE',
       serviceId: null,

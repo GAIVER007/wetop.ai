@@ -464,6 +464,13 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         // ADR-022 (Q-108): от предоплаты канала остаётся только штраф, остальное площадка возвращает гостю
         await repo.settleChannelPrepaymentAfterCancel(item.id);
       }
+      // ADR-021: блоки соседних ночей этой брони снимаются вместе с ней
+      for (const b of await repo.releaseStayExtraBlocks(existing.confirmationNumber))
+        await this.publisher.reservationChanged({
+          categoryCodes: [b.categoryCode],
+          from: b.from,
+          toExclusive: b.toExclusive,
+        });
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
       await repo.audit({
         entityType: 'Reservation',

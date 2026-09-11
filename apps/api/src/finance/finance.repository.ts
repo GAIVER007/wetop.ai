@@ -62,6 +62,10 @@ export interface RefundRecord {
   reason: string | null;
   createdAt: string;
 }
+/** Ячейка проживания (первое назначение) — для блокировки соседней ночи при раннем заезде / позднем выезде */
+export interface StayUnitRef {
+  code: string;
+}
 export interface FolioRecord {
   id: string;
   reservationItemId: string;
@@ -129,6 +133,8 @@ export interface PeriodReport {
 
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
 export interface FinanceRepository {
+  /** Ячейка проживания по счёту; null — ячейка не назначена */
+  stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null>;
   /** null — брони с таким номером нет */
   foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null>;
   folioById(id: string): Promise<FolioRecord | null>;
@@ -255,6 +261,14 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     if (!r) return null;
     return r.items.flatMap((i) => (i.folio ? [toFolio(i.folio)] : []));
+  }
+  async stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null> {
+    const a = await this.prisma.db.allocation.findFirst({
+      where: { reservationItemId },
+      orderBy: { startDate: 'asc' },
+      select: { inventoryUnit: { select: { code: true } } },
+    });
+    return a ? { code: a.inventoryUnit.code } : null;
   }
   async folioById(id: string): Promise<FolioRecord | null> {
     const f = await this.prisma.db.folio.findUnique({ where: { id }, include: folioInclude });

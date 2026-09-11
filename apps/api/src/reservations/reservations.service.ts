@@ -441,6 +441,8 @@ export class ReservationsService {
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(state.items.map(() => 'CANCELLED')),
         });
+        // ADR-021: блоки соседних ночей от раннего заезда / позднего выезда уходят вместе с бронью
+        const released = await repo.releaseStayExtraBlocks(number);
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
@@ -449,11 +451,12 @@ export class ReservationsService {
           before,
           after,
         });
-        return after;
+        return { after, released };
       }),
     );
-    await this.publish([cancelled]);
-    return cancelled;
+    await this.publish([cancelled.after]);
+    await this.publishReleased(cancelled.released);
+    return cancelled.after;
   }
 
   /**
@@ -968,6 +971,7 @@ export class ReservationsService {
             state.items.map((i) => (i.id === item.id ? 'NO_SHOW' : i.status)),
           ),
         });
+        const released = await repo.releaseStayExtraBlocks(number);
         const after = (await repo.card(number))!;
         await repo.audit({
           entityType: 'Reservation',
@@ -976,11 +980,24 @@ export class ReservationsService {
           before,
           after,
         });
-        return { before, after };
+        return { before, after, released };
       }),
     );
     await this.publish([result.before, result.after]);
+    await this.publishReleased(result.released);
     return result.after;
+  }
+
+  /** Снятые блоки соседних ночей — дельта остатка в канал на эти ночи */
+  private async publishReleased(
+    released: Array<{ categoryCode: string; from: string; toExclusive: string }>,
+  ): Promise<void> {
+    for (const b of released)
+      await this.publisher.reservationChanged({
+        categoryCodes: [b.categoryCode],
+        from: b.from,
+        toExclusive: b.toExclusive,
+      });
   }
 
   private async load(repo: ReservationsRepository, number: string) {

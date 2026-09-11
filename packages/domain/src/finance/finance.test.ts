@@ -10,6 +10,7 @@ import {
   stayExtraDefaultMinor,
   channelPrepaymentToKeep,
   stayExtraPercent,
+  adjacentNight,
 } from './finance';
 
 describe('folioBalance', () => {
@@ -153,5 +154,21 @@ describe('доля ночи за ранний заезд и поздний вы�
   it('кривое время — ошибка, а не тихий ноль', () => {
     expect(() => stayExtraPercent('LATE_CHECK_OUT', '25:00')).toThrow(/время/);
     expect(() => stayExtraPercent('EARLY_CHECK_IN', '7am')).toThrow(/время/);
+  });
+});
+
+describe('соседняя ночь для раннего заезда и позднего выезда (ADR-021, «выделять доступность» как в Exely)', () => {
+  it('ранний заезд занимает ночь перед заездом, поздний выезд — ночь после выезда', () => {
+    expect(adjacentNight('EARLY_CHECK_IN', '2026-10-05', '2026-10-07')).toEqual({
+      from: '2026-10-04',
+      toExclusive: '2026-10-05',
+    });
+    expect(adjacentNight('LATE_CHECK_OUT', '2026-10-05', '2026-10-07')).toEqual({
+      from: '2026-10-07',
+      toExclusive: '2026-10-08',
+    });
+  });
+  it('граница месяца и года считается по календарю', () => {
+    expect(adjacentNight('EARLY_CHECK_IN', '2027-01-01', '2027-01-03').from).toBe('2026-12-31');
   });
 });

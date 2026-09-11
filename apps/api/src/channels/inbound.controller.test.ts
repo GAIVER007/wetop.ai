@@ -127,6 +127,9 @@ function makeFakes() {
       if (i >= 0) prepayments.splice(i, 1);
       prepayments.push({ itemId, amountMinor, externalReference });
     },
+    async releaseStayExtraBlocks() {
+      return [];
+    },
     async settleChannelPrepaymentAfterCancel(itemId) {
       // как в Prisma: остаётся ровно сумма штрафов проживания, без штрафа предоплата снимается
       const penalty = penalties

@@ -155,6 +155,25 @@ export function stayExtraPercent(
 }
 
 /**
+ * Соседняя ночь, которую занимает доплата: ранний заезд — ночь перед заездом, поздний выезд — ночь после
+ * выезда. В Exely у обеих доплат стоит «выделять доступность: да», то есть койка на эту ночь не продаётся.
+ */
+export function adjacentNight(
+  extra: 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT',
+  arrivalDate: string,
+  departureDate: string,
+): { from: string; toExclusive: string } {
+  const shift = (d: string, days: number) => {
+    const x = new Date(`${d}T00:00:00Z`);
+    x.setUTCDate(x.getUTCDate() + days);
+    return x.toISOString().slice(0, 10);
+  };
+  return extra === 'EARLY_CHECK_IN'
+    ? { from: shift(arrivalDate, -1), toExclusive: arrivalDate }
+    : { from: departureDate, toExclusive: shift(departureDate, 1) };
+}
+
+/**
  * ADR-022 (Q-108): предоплата канала после отмены или незаезда. Деньги гостя держит площадка, поэтому
  * в PMS остаётся ровно та часть предоплаты, которая покрывает начисленный штраф, — её площадка
  * перечислит объекту. Остальное площадка возвращает гостю сама; без штрафа предоплата снимается целиком.

@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
-import type { INestApplication } from '@nestjs/common';
+import { ConflictException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
+import { UnitsService } from '../units/units.service';
 import { FinanceModule } from './finance.module';
 import {
   FINANCE_REPOSITORY,
@@ -180,8 +181,47 @@ function makeFakes() {
     async audit(_t, _id, action) {
       audits.push(action);
     },
+    async stayUnitCode(itemId) {
+      return itemId === 'S-1' ? { code: '9001' } : null;
+    },
   };
-  return { repo, audits };
+  // ADR-021: блок соседней ночи ставится командой ячейки; фальшивка записывает блоки и умеет отказать
+  const blocks: Array<{
+    code: string;
+    dateFrom: string;
+    dateTo: string;
+    type: string;
+    reason: string | null;
+  }> = [];
+  const state = { blockConflict: null as string | null };
+  const units = {
+    async block(
+      code: string,
+      dto: { dateFrom?: string; dateTo?: string; type?: string; reason?: string | null },
+    ) {
+      if (state.blockConflict) throw new ConflictException(state.blockConflict);
+      blocks.push({
+        code,
+        dateFrom: dto.dateFrom!,
+        dateTo: dto.dateTo!,
+        type: dto.type!,
+        reason: dto.reason ?? null,
+      });
+      return {} as never;
+    },
+  };
+  return {
+    repo,
+    audits,
+    blocks,
+    units,
+    get blockConflict() {
+      return state.blockConflict;
+    },
+    set blockConflict(v: string | null) {
+      state.blockConflict = v;
+    },
+  };
 }
 
 describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014)', () => {
@@ -196,6 +236,8 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     const m = await Test.createTestingModule({ imports: [FinanceModule] })
       .overrideProvider(FINANCE_REPOSITORY)
       .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
       .overrideProvider(PrismaService)
       .useValue({})
       .compile();
@@ -462,6 +504,46 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .post('/finance/folios/f1/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '11:30' })
       .expect(400);
+  });
+
+  it('ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления', async () => {
+    // счёт f1: проживание 01→03.10 в ячейке 9001 (фальшивка stayUnitCode)
+    fakes.blocks.length = 0;
+    await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
+      .expect(201);
+    expect(fakes.blocks).toEqual([
+      {
+        code: '9001',
+        dateFrom: '2026-10-03',
+        dateTo: '2026-10-04',
+        type: 'OTHER',
+        reason: expect.stringMatching(/Поздний выезд/),
+      },
+    ]);
+    // ранний заезд: ночь перед заездом
+    await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'EARLY_CHECK_IN', time: '07:00' })
+      .expect(201);
+    expect(fakes.blocks[1]).toMatchObject({ dateFrom: '2026-09-30', dateTo: '2026-10-01' });
+    // койка в соседнюю ночь занята другим гостем — услугу не начисляем, отвечаем 409 словами блокировки
+    fakes.blockConflict =
+      'В ячейке 9001 есть проживание: X-1 (2026-10-03 → 2026-10-05) — сначала переселите';
+    const before = (
+      await request(app.getHttpServer()).get('/finance/reservations/B-1')
+    ).body.folios.find((f: { id: string }) => f.id === 'f1').charges.length;
+    const refused = await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT', time: '19:00' });
+    expect(refused.status).toBe(409);
+    expect(refused.body.message).toMatch(/занята|проживание/);
+    const after = (
+      await request(app.getHttpServer()).get('/finance/reservations/B-1')
+    ).body.folios.find((f: { id: string }) => f.id === 'f1').charges.length;
+    expect(after).toBe(before);
+    fakes.blockConflict = null;
   });
 
   it('void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand', async () => {

@@ -97,7 +97,9 @@ function makeFake() {
     guests: 0,
     seq: 0,
   };
-  const blocked = [{ unitId: 'u3', from: '2026-09-15', to: '2026-09-20' }];
+  const blocked: Array<{ unitId: string; from: string; to: string; reason?: string }> = [
+    { unitId: 'u3', from: '2026-09-15', to: '2026-09-20' },
+  ];
   const overlaps = (unitId: string, start: string, end: string, exceptItem?: string) =>
     state.allocations.some(
       (a) => a.unitId === unitId && a.itemId !== exceptItem && a.start < end && a.end > start,
@@ -122,6 +124,15 @@ function makeFake() {
     async recordChannelPrepayment() {},
     async voidChannelPrepayment() {},
     async settleChannelPrepaymentAfterCancel() {},
+    async releaseStayExtraBlocks(confirmationNumber) {
+      const mine = blocked.filter((b) => b.reason?.endsWith(`, бронь ${confirmationNumber}`));
+      for (const b of mine) blocked.splice(blocked.indexOf(b), 1);
+      return mine.map((b) => ({
+        categoryCode: units.find((u) => u.id === b.unitId)?.accommodationTypeId ?? '',
+        from: b.from,
+        toExclusive: b.to,
+      }));
+    },
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
     },
@@ -334,7 +345,7 @@ function makeFake() {
     },
   };
   const uow: UnitOfWork = { run: (fn) => fn(repo) };
-  return { uow, state, penalties };
+  return { uow, state, penalties, blocked };
 }
 
 const body = (over: Record<string, unknown> = {}) => ({
@@ -395,6 +406,25 @@ describe('manual reservation API', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const number = created.body.confirmationNumber as string;
+    // как ставит финансовый модуль: блок на койку с причиной «…, бронь N»
+    fake.blocked.push({
+      unitId: 'u1',
+      from: '2026-11-12',
+      to: '2026-11-13',
+      reason: `Поздний выезд, бронь ${number}`,
+    });
+    await request(app.getHttpServer()).post(`/reservations/${number}/cancel`).expect(200);
+    expect(fake.blocked.some((b) => b.reason?.endsWith(`, бронь ${number}`))).toBe(false);
+    // чужой блок не тронут
+    expect(fake.blocked.some((b) => b.unitId === 'u3')).toBe(true);
   });
 
   it('Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала', async () => {

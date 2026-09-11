@@ -35,7 +35,9 @@ test('заблокировать свободную койку на 2 ночи �
   await form.locator('select[name="type"]').selectOption('MAINTENANCE');
   await form.locator('input[name="reason"]').fill('тест: замена матраса');
   await form.getByRole('button', { name: 'Заблокировать' }).click();
-  await expect(page.getByTestId('block-row')).toHaveCount(1);
+  // на койке могут лежать чужие блоки (другие тесты, стойка) — считаем только свой, по причине
+  const ownBlock = page.getByTestId('block-row').filter({ hasText: 'тест: замена матраса' });
+  await expect(ownBlock).toHaveCount(1);
   await page.screenshot({ path: 'reports/screenshots/unit-block-card.png', fullPage: true });
 
   await page.goto(`/chessboard?from=${FROM}&to=${TO}`);
@@ -52,7 +54,7 @@ test('заблокировать свободную койку на 2 ночи �
 
   await page.goto(`/units/${unitCode}`);
   await page.getByRole('button', { name: 'снять' }).click();
-  await expect(page.getByTestId('block-row')).toHaveCount(0);
+  await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   expect(
     Number(

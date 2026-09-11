@@ -275,6 +275,13 @@ export interface ReservationsRepository {
    * штрафов на счёте проживания; остальное площадка возвращает гостю сама. Без штрафа платёж снимается.
    */
   settleChannelPrepaymentAfterCancel(itemId: string): Promise<void>;
+  /**
+   * ADR-021: снять блоки соседних ночей, поставленные доплатой за ранний заезд / поздний выезд этой брони
+   * (причина блока заканчивается на «, бронь <номер>»). Возвращает снятые ночи для дельты остатка в канал.
+   */
+  releaseStayExtraBlocks(
+    confirmationNumber: string,
+  ): Promise<Array<{ categoryCode: string; from: string; toExclusive: string }>>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
   stayBalanceMinor(itemId: string): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
@@ -876,6 +883,27 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       d = next.toISOString().slice(0, 10);
     }
     return Number.isFinite(left) ? Math.max(0, left) : units;
+  }
+  async releaseStayExtraBlocks(
+    confirmationNumber: string,
+  ): Promise<Array<{ categoryCode: string; from: string; toExclusive: string }>> {
+    const blocks = await this.db.inventoryBlock.findMany({
+      where: { type: 'OTHER', reason: { endsWith: `, бронь ${confirmationNumber}` } },
+      select: {
+        id: true,
+        dateFrom: true,
+        dateTo: true,
+        inventoryUnit: { select: { accommodationType: { select: { code: true } } } },
+      },
+    });
+    if (!blocks.length) return [];
+    await this.db.inventoryBlock.deleteMany({ where: { id: { in: blocks.map((b) => b.id) } } });
+    const iso = (x: Date) => x.toISOString().slice(0, 10);
+    return blocks.map((b) => ({
+      categoryCode: b.inventoryUnit.accommodationType.code,
+      from: iso(b.dateFrom),
+      toExclusive: iso(b.dateTo),
+    }));
   }
   async settleChannelPrepaymentAfterCancel(itemId: string): Promise<void> {
     const folio = await this.db.folio.findUnique({

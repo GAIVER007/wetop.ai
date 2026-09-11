@@ -9,6 +9,7 @@ import { UnitsService } from './units.service';
 @Module({
   imports: [ChannelsModule],
   controllers: [UnitsController],
+  exports: [UnitsService],
   providers: [
     PrismaService,
     UnitsService,

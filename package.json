@@ -22,7 +22,10 @@
     "check": "npm run lint && npm run typecheck && npm run typecheck:api && npm run typecheck:web && npm test",
     "e2e": "playwright test",
     "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit",
-    "typecheck:api": "tsc -p apps/api/tsconfig.json --noEmit"
+    "typecheck:api": "tsc -p apps/api/tsconfig.json --noEmit",
+    "morning": "tsx scripts/reconciliation/src/cli-morning-report.ts",
+    "e2e:cleanup": "tsx scripts/reconciliation/src/cli-e2e-cleanup.ts",
+    "reconcile:day": "tsx scripts/reconciliation/src/cli-double-entry.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

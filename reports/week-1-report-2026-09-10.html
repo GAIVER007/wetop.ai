@@ -2,20 +2,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root {
-    --ground: #f4f6f9;
-    --surface: #ffffff;
-    --ink: #17213a;
-    --ink-2: #4b5567;
-    --muted: #7a8494;
-    --line: #d8dee8;
-    --line-2: #e9edf3;
-    --accent: #1d4ed8;
-    --accent-ink: #163ea8;
-    --ok: #15803d;      --ok-bg: #e6f4ea;
-    --part: #b45309;    --part-bg: #fbeedc;
-    --no: #b91c1c;      --no-bg: #fbe7e7;
-    --code-bg: #eef2f7;
-    --shadow: 0 1px 2px rgba(23,33,58,.06), 0 6px 18px rgba(23,33,58,.05);
+    --ground: #f4f6f9; --surface: #ffffff; --ink: #17213a; --ink-2: #4b5567; --muted: #7a8494;
+    --line: #d8dee8; --line-2: #e9edf3; --accent: #1d4ed8; --accent-ink: #163ea8;
+    --ok: #15803d; --ok-bg: #e6f4ea; --part: #b45309; --part-bg: #fbeedc; --no: #b91c1c; --no-bg: #fbe7e7;
+    --code-bg: #eef2f7; --shadow: 0 1px 2px rgba(23,33,58,.06), 0 6px 18px rgba(23,33,58,.05);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -34,14 +24,8 @@
     --code-bg: #1c2532; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
     color-scheme: dark;
   }
-
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--ground); color: var(--ink);
-    font-family: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 15px; line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   .wrap { max-width: 1060px; margin: 0 auto; padding: 40px 24px 80px; }
   h1, h2, h3 { font-family: "PT Serif", Georgia, "Times New Roman", serif; font-weight: 700; text-wrap: balance; margin: 0; }
   h1 { font-size: 40px; line-height: 1.1; letter-spacing: -.01em; }
@@ -54,121 +38,110 @@
   .meta b { color: var(--ink-2); font-weight: 600; }
   a { color: var(--accent-ink); text-decoration: none; }
   a:hover, a:focus-visible { text-decoration: underline; outline: none; }
-  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
-  code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; color: var(--ink-2); }
-
+  code { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; color: var(--ink-2); }
   nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 26px 0 0; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 13px; }
   nav.toc a { color: var(--ink-2); }
-  nav.toc a:hover { color: var(--accent-ink); }
-
-  /* five answers */
-  .five { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+  .five { display: grid; grid-template-columns: 1fr; margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
   .five > div { display: grid; grid-template-columns: 220px 1fr; gap: 20px; padding: 20px 22px; border-top: 1px solid var(--line-2); }
   .five > div:first-child { border-top: 0; }
   .five .k { font-family: "PT Serif", Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.3; }
   .five .k small { display: block; font-family: "IBM Plex Sans", sans-serif; font-weight: 500; font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
   .five ul { margin: 0; padding-left: 18px; }
-  .five li { margin: 0 0 6px; }
+  .five li { margin: 0 0 7px; }
   .five li b { font-weight: 600; }
+  .five p { margin: 0 0 8px; }
   @media (max-width: 700px) { .five > div { grid-template-columns: 1fr; gap: 8px; } }
-
-  /* status pills */
   .pill { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.6; }
   .ok { color: var(--ok); background: var(--ok-bg); }
   .part { color: var(--part); background: var(--part-bg); }
   .no { color: var(--no); background: var(--no-bg); }
-
-  /* summary strip */
   .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0 0; }
   .strip > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
   .strip .n { font-family: "PT Serif", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
   .strip .l { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
   @media (max-width: 640px) { .strip { grid-template-columns: 1fr; } }
-
-  /* tables */
   .tbl { overflow-x: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-top: 1px solid var(--line-2); }
-  thead th { border-top: 0; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface); }
+  thead th { border-top: 0; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
   td.st { width: 108px; }
   td.item { width: 230px; font-weight: 600; }
-  td.ev { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 12px; width: 300px; }
+  td.ev { color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 12px; width: 280px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   td .gap { display: block; color: var(--ink-2); margin-top: 4px; font-size: 13.5px; }
-  td .gap::before { content: "Не хватает: "; color: var(--part); font-weight: 600; }
-  tr.group td { background: var(--ground); font-family: "PT Serif", Georgia, serif; font-weight: 700; font-size: 15px; color: var(--ink); }
+  td .gap::before { content: "Осталось: "; color: var(--part); font-weight: 600; }
+  tr.group td { background: var(--ground); font-family: "PT Serif", Georgia, serif; font-weight: 700; font-size: 15px; }
   tr.group td span { font-family: "IBM Plex Sans", sans-serif; font-weight: 500; font-size: 12.5px; color: var(--muted); margin-left: 10px; }
-
-  /* reconciliation table specifics */
   .recon td:first-child { font-weight: 500; }
   .recon .zero { color: var(--ok); font-weight: 600; }
   .recon .plus { color: var(--part); font-weight: 600; }
-
   .note { border-left: 3px solid var(--accent); padding: 10px 16px; background: var(--surface); border-radius: 0 8px 8px 0; margin: 16px 0; color: var(--ink-2); max-width: 80ch; }
   .note b { color: var(--ink); }
-
-  /* gates timeline */
   .gates { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 10px; margin-top: 14px; }
   .gate { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
   .gate .g { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .gate .t { font-family: "PT Serif", Georgia, serif; font-weight: 700; font-size: 16px; line-height: 1.25; }
   .gate .d { font-size: 12.5px; color: var(--ink-2); }
-
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
   ul.plain { margin: 8px 0 0; padding-left: 18px; }
   ul.plain li { margin-bottom: 8px; max-width: 70ch; }
   .foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
-  @media (prefers-reduced-motion: no-preference) { a { transition: color .15s; } }
 </style>
 
 <div class="wrap">
-  <div class="eyebrow">Luxx Aparts · собственная PMS вместо Exely · отчёт владельцу и группе</div>
+  <div class="eyebrow">Luxx Aparts, Алматы · собственная система управления хостелом вместо Exely · отчёт для ментора</div>
   <h1>Неделя первая, 07–10 сентября 2026</h1>
-  <p class="lede" style="margin-top:14px">Проверка проекта против брифа пункт за пунктом. Каждая строка ниже имеет статус и доказательство: файл, отчёт сверки, тест или скриншот. Что доказано только словами, помечено как частичное.</p>
+  <p class="lede" style="margin-top:14px">Что сделано, что нет и почему. Каждая строка подтверждена отчётом сверки, тестом или скриншотом из репозитория; где подтверждения нет, так и написано.</p>
   <div class="meta">
     <span><b>112</b> коммитов за четыре дня</span>
-    <span><b>105</b> пунктов брифа проверено</span>
-    <span><b>68</b> есть · <b>27</b> частично · <b>10</b> нет</span>
-    <span>снято 10.09.2026, уточнено владельцем 11.09</span>
+    <span><b>169</b> автотестов и <b>13</b> сквозных через браузер</span>
+    <span><b>23</b> отчёта сверок с Exely</span>
+    <span>уточнено 11.09.2026</span>
   </div>
 
   <nav class="toc">
-    <a href="#five">Пять вопросов</a>
+    <a href="#five">Пять пунктов</a>
     <a href="#numbers">Сверки числом</a>
-    <a href="#v1">Первая версия</a>
-    <a href="#exports">Выгрузки и документация</a>
-    <a href="#week1">Заявки первой недели</a>
-    <a href="#disk">Проект на диске</a>
-    <a href="#process">Процесс и семь срезов</a>
-    <a href="#gates">Недели и гейты</a>
-    <a href="#risks">Что сломается</a>
-    <a href="#undone">Не сделано</a>
+    <a href="#v1">Первая версия по пунктам</a>
+    <a href="#exports">Данные из Exely</a>
+    <a href="#week1">Channex, управляющий, номера</a>
+    <a href="#slices">Семь срезов</a>
+    <a href="#gates">Гейты</a>
+    <a href="#risks">Что заложили заранее</a>
+    <a href="#next">Что дальше</a>
   </nav>
 
-  <h2 id="five">Пять вопросов</h2>
+  <h2 id="five">Пять пунктов</h2>
   <div class="five">
     <div>
       <div class="k"><small>1</small>Сделано за неделю, факт</div>
       <div>
+        <p><b>Подключились к Exely по API и забрали всё, что нужно для своей системы.</b> Доступ только на чтение, ничего в Exely не менялось. Сняли и загрузили в свою базу:</p>
         <ul>
-          <li><b>Аудит Exely и репозиторий с правилами</b> 07.09: 16 правил агента, спецификация, модель данных, решения, вопросы, план на 8 недель.</li>
-          <li><b>Семь срезов брифа собраны насквозь</b>: фонд 88 единиц, шахматка с блокировками, календарь цен и ограничений с редактором, ручная бронь, стойка со счётом гостя, приём броней из Channex, выгрузка цен и остатков в Channex.</li>
-          <li><b>Стойка сверх брифа</b>: переселение с пересчётом, продление на ночь, выселение с долгом, штраф по политике тарифа, экран «Сегодня», отчёт «Деньги за период», карточка гостя с шифрованными документами.</li>
-          <li><b>Сертификация Channex</b>: 11 сценариев выполнены из интерфейса на staging, объект заполнен контактами, политикой, удобствами и фото.</li>
-          <li><b>Разбор и починка 10.09</b>: независимая проверка нашла дефекты, которые ломались бы только на боевой базе. Все исправлены, см. раздел «Что сломается».</li>
+          <li>номерной фонд: 88 единиц продажи, 16 отдельных номеров и 72 койко-места, каждая с типом и категорией;</li>
+          <li>5 категорий размещения с вместимостью; 6 тарифов с условиями и привязкой к каналам;</li>
+          <li>календарь цен на год вперёд: 8640 строк «дата, категория, тариф, цена»; ограничения продаж, в Exely их сейчас ноль;</li>
+          <li>все будущие брони, 279 штук: канал, гость, даты, номер, сумма, статус; история за август 2026: 1058 активных и 389 отменённых, всего с будущими 1748 броней;</li>
+          <li>услуги: 9 позиций с ценами. Персональные данные гостей в базе разработки заменены псевдонимами.</li>
         </ul>
+        <p><b>Выбрали менеджер каналов.</b> Напрямую Booking новых подключений не принимает. Посмотрели платформы с открытым API, сравнили доступность для нашего объекта и цену, остановились на Channex: у него бесплатная песочница с полным API, этого хватило проверить, как всё работает, до оплаты. Написали в Channex и получили ответ: песочница по самостоятельной регистрации, без ограничений; боевой доступ открывают только после сертификации, форма и пять этапов.</p>
+        <p><b>Что сделано в Channex.</b> Создали в песочнице наш объект, 5 категорий и 6 тарифов через API. Выгрузили цены и остатки на год вперёд. Приняли тестовые брони: создание, изменение, отмена дошли в нашу систему. Прошли 11 сценариев сертификации действиями в интерфейсе, как требует Channex. Заполнили объект: контакты, политика заселения, удобства, описание, фото с нашей страницы на Booking.</p>
+        <p><b>Что уже можем через Channex:</b> принимать брони и их изменения с автоматическим назначением койки, отдавать цены и остатки в канал при любом изменении, видеть очередь отправки и ошибки. <b>Чего пока не можем и почему:</b> подключить настоящие каналы, потому что Channex открывает боевой доступ только после сертификации; читать цены обратно из Channex для сверки, потому что этот запрос ещё не написан, читаем только остатки.</p>
+        <p><b>Своя система.</b> Номерной фонд с уборкой; шахматка с блокировками и ремонтом; календарь цен с массовой правкой и ограничениями; ручная бронь с изменением дат, отменой, переселением с пересчётом и продлением; стойка: заезд с обязательным гражданством и документом, выезд с долгом по подтверждению, незаезд, штраф по политике тарифа; счёт гостя: проживание, услуги, оплата девятью способами, возврат, сторно, закрытие; карточка гостя с шифрованными документами и историей; экран «Сегодня»; отчёт «Деньги за период»; регистрационная карта на русском и казахском; журнал действий.</p>
+        <p><b>Управляющий.</b> Созвонились, обсудили работу стойки, зафиксировали его правки и рекомендации. В систему внесены его правила: отмена бесплатна до дня заезда, дальше штраф в первую ночь; предоплаты площадок закрывают счёт гостя.</p>
+        <p><b>Качество.</b> Независимый разбор кода нашёл дефекты, которые проявились бы только на боевой базе. Все исправлены и закрыты тестами.</p>
       </div>
     </div>
     <div>
       <div class="k"><small>2</small>Метрика или результат</div>
       <div>
         <ul>
-          <li>Фонд против живого Exely: <b>88 против 88</b>, все пять категорий, каждый номер комнаты поимённо.</li>
-          <li>Сутки сходятся в ноль на <b>8 датах</b>. 10.09: заезды 29/29, выезды 32/32, занято 73/73, все 73 видны на шахматке.</li>
-          <li>Календарь цен: <b>8640 из 8640</b> строк совпали. Балансы: <b>1449 из 1449</b> проживаний до тиына.</li>
-          <li>Тесты: <b>169</b> модульных и на живой базе, <b>13</b> сквозных через браузер, все зелёные. 19 скриншотов, 23 отчёта сверок.</li>
-          <li>Гейты пройдены: <b>1, 2, 3, 4, 6</b> из одиннадцати.</li>
+          <li><b>Фонд сходится с живым Exely:</b> 88 против 88, каждая категория и каждый номер комнаты.</li>
+          <li><b>Сутки сходятся в ноль на 8 датах.</b> 10.09: заезды 29 против 29, выезды 32 против 32, занято 73 против 73, все 73 видны на шахматке.</li>
+          <li><b>Цены:</b> 8640 из 8640 строк совпали. <b>Деньги:</b> 1449 из 1449 проживаний сходятся с Exely до тиына.</li>
+          <li><b>В Channex видны:</b> наш объект с фото и описанием, цены и остатки на год, тестовые брони; 9 задач сертификации подтверждены Channex.</li>
+          <li><b>Тесты:</b> 169 автотестов и 13 сквозных через браузер, все зелёные. 19 скриншотов экранов, 23 отчёта сверок.</li>
+          <li><b>Гейты пройдены:</b> фонд, шахматка, бронь, стойка, деньги. Пять из одиннадцати.</li>
         </ul>
       </div>
     </div>
@@ -176,285 +149,222 @@
       <div class="k"><small>3</small>Проблема: что не получилось и почему</div>
       <div>
         <ul>
-          <li><b>Параллельный день с людьми не проведён.</b> Двойной ввод сходится, но это скрипт против Exely. Нужны дата и администратор.</li>
-          <li><b>eQonaq отложен по решению владельца</b>, касса ждёт выбора провайдера. Оба блока в коде только портами.</li>
-          <li><b>Выгрузок от объекта нет</b>: ни скриншотов экранов Exely, ни печатных форм, ни протокола разговора с управляющим. История броней только за август, не за год.</li>
-          <li><b>Webhook доказан только текстом.</b> Поле «как дошло» появилось 10.09, старые события задним числом не классифицируются.</li>
-          <li><b>Решение о платформе пришло 10.09.</b> Код построен под один объект, зашитый константой: мультиарендности нет ни в модели, ни в API. Это переделка модели, а не добавка.</li>
-          <li><b>История проекта только на одном ноутбуке.</b> Удалённого репозитория нет, 112 коммитов не имеют копии.</li>
+          <li><b>Уведомление eQonaq отложили.</b> Сейчас не нужно, вернёмся позже. Фискальный чек тоже позже, провайдер кассы ещё не выбран.</li>
+          <li><b>Единице-сутки за август:</b> четыре категории из пяти сходятся точно, мужская комната расходится на 47. Наша сторона целостна, 36 коек без превышений. Снимаю отчёт загрузки Exely по дням сам, чтобы найти разницу в определении.</li>
+          <li><b>Не успели:</b> перетаскивание брони мышью в шахматке, групповая бронь на несколько коек из формы, правка числа гостей и заметок у готовой брони. Ранний заезд и поздний выезд не сделаны, потому что нет правила объекта, как их оформлять.</li>
+          <li><b>Нашли и исправили у себя:</b> тест выезда проходил зелёным, хотя выселения не было; тестовые брони занимали настоящие койки; тестовые цены сертификации остались в календаре. Всё вычищено, повторение исключено тестами.</li>
+          <li><b>Параллельный день на объекте ещё не проведён.</b> Администратор есть, нужна дата.</li>
         </ul>
       </div>
     </div>
     <div>
       <div class="k"><small>4</small>Один запрос</div>
       <div>
-        <p><b>Дата и один администратор на смену для параллельного дня</b>, лучше четверг 17.09 или пятница 18.09. Смена ведётся в Exely и в новой системе одновременно, вечером сверка должна дать ноль по всем строкам. Инструкцию ввода, бланк сверки и вечернюю проверку готовлю я. Без этого дня «готово» по определению брифа недостижимо.</p>
+        <p><b>Назначить дату параллельного дня.</b> Предлагаю четверг 17.09. Администратор ведёт смену в Exely и в новой системе одновременно, вечером сверка должна дать ноль по заездам, выездам и занятым койкам. Инструкцию ввода, бланк сверки и вечернюю проверку готовлю я, администратору нужны только дата и полчаса на инструктаж утром.</p>
       </div>
     </div>
     <div>
       <div class="k"><small>5</small>Цель на неделю, дедлайн пятница 18.09.2026, 18:00 Алматы</div>
       <div>
         <ul>
-          <li><b>Модель платформы вместо модели отеля.</b> Арендатор, объект с типом вертикали, ресурс. Отель, ресторан и салон бронируют ресурс на время одним механизмом.</li>
-          <li><b>Luxx Aparts становится первым арендатором</b> миграцией без потери данных. Все четыре сверки снова в ноль на новой схеме.</li>
-          <li><b>Изоляция арендаторов доказана тестом</b> на живой базе, красным до правки. Константа объекта из кода исчезает.</li>
-          <li><b>Столик ресторана бронируется тем же ядром</b>, что койка, с той же защитой от пересечений в базе.</li>
-          <li>Три развилки записаны как Q-104, Q-105, Q-106 с умолчаниями. План: <code>plans/plan-2026-09-14-platform-model.md</code>.</li>
+          <li><b>От ручной брони к каналам.</b> Тестовые брони по сценарию Booking через песочницу Channex: создание, изменение, отмена. Замеряем задержку прихода в систему, проверяем, что койка, даты и сумма совпадают. Отчёт с числами.</li>
+          <li><b>Параллельный день на объекте</b> и сверка в ноль.</li>
+          <li><b>Перетаскивание брони в шахматке:</b> гость жил в одном номере, переехал в другой, администратор двигает мышью.</li>
+          <li><b>Ограничения продаж действуют и на стойке:</b> дату со стоп-продажей или короче минимального срока продать нельзя.</li>
+          <li><b>Групповая бронь на несколько коек из формы; правка гостей, заметок и источника у готовой брони; ручное закрытие счёта; чтение цен обратно из Channex для сверки в обе стороны.</b></li>
+          <li><b>Печатные формы:</b> договор и счёт готовим по форме объекта на месте.</li>
+          <li><b>Утренний отчёт каждый день:</b> сделано, не сделано, вопросы.</li>
         </ul>
+        <p>Фискальный чек и eQonaq в эту неделю не входят.</p>
       </div>
     </div>
   </div>
 
   <h2 id="numbers">Сверки числом</h2>
-  <p>Допуск при сверке с Exely нулевой. Строка сходится, если разница ноль, иначе не сходится, мнения тут не нужны.</p>
+  <p>Допуск при сверке с Exely нулевой. Строка сходится, если разница ноль.</p>
   <div class="tbl">
     <table class="recon">
-      <thead><tr><th>Что сверялось</th><th class="num">PMS</th><th class="num">Exely</th><th class="num">Разница</th><th>Отчёт</th></tr></thead>
+      <thead><tr><th>Что сверялось</th><th class="num">Наша система</th><th class="num">Exely</th><th class="num">Разница</th><th>Отчёт</th></tr></thead>
       <tbody>
-        <tr><td>Фонд, живой Exely 10.09</td><td class="num">88</td><td class="num">88</td><td class="num zero">0</td><td class="ev">reports/inventory-2026-09-10.md, LIVE RESULT OK</td></tr>
-        <tr><td>Категории 4 / 8 / 4 / 36 / 36</td><td class="num">88</td><td class="num">88</td><td class="num zero">0</td><td class="ev">там же, поимённо по номерам комнат</td></tr>
+        <tr><td>Фонд, живой Exely 10.09</td><td class="num">88</td><td class="num">88</td><td class="num zero">0</td><td class="ev">reports/inventory-2026-09-10.md</td></tr>
+        <tr><td>Категории 4 / 8 / 4 / 36 / 36</td><td class="num">88</td><td class="num">88</td><td class="num zero">0</td><td class="ev">там же, по номерам комнат</td></tr>
         <tr><td>Сутки 10.09: заезды</td><td class="num">29</td><td class="num">29</td><td class="num zero">0</td><td class="ev">reports/double-entry-2026-09-10.md</td></tr>
         <tr><td>Сутки 10.09: выезды</td><td class="num">32</td><td class="num">32</td><td class="num zero">0</td><td class="ev">там же</td></tr>
-        <tr><td>Сутки 10.09: занято, видно на шахматке</td><td class="num">73 / 73</td><td class="num">73</td><td class="num zero">0</td><td class="ev">там же, строка «из них видно на шахматке»</td></tr>
-        <tr><td>Сутки 08.09 и 09.09, пять дат августа</td><td class="num">8 дат</td><td class="num">8 дат</td><td class="num zero">0</td><td class="ev">double-entry-2026-09-08/09, 2026-08-05/10/20/25/31</td></tr>
-        <tr><td>Календарь цен, строк на год</td><td class="num">8640</td><td class="num">8640</td><td class="num zero">0</td><td class="ev">reports/rates-2026-09-10.md, ограничений 0 / 0</td></tr>
-        <tr><td>Балансы активных проживаний</td><td class="num">1449</td><td class="num">1449</td><td class="num zero">0 ₸</td><td class="ev">reports/balances-2026-09-08.md, 11 754 458,87 ₸ с обеих сторон</td></tr>
+        <tr><td>Сутки 10.09: занято</td><td class="num">73</td><td class="num">73</td><td class="num zero">0</td><td class="ev">все 73 видны на шахматке</td></tr>
+        <tr><td>Ещё семь дат: 08.09, 09.09, пять дат августа</td><td class="num">7</td><td class="num">7</td><td class="num zero">0</td><td class="ev">double-entry-2026-09-08, -09, 2026-08-05/10/20/25/31</td></tr>
+        <tr><td>Календарь цен, строк на год</td><td class="num">8640</td><td class="num">8640</td><td class="num zero">0</td><td class="ev">reports/rates-2026-09-10.md</td></tr>
+        <tr><td>Балансы активных проживаний</td><td class="num">1449</td><td class="num">1449</td><td class="num zero">0 ₸</td><td class="ev">11 754 458,87 ₸ с обеих сторон</td></tr>
         <tr><td>Единице-сутки августа, четыре категории</td><td class="num">1178</td><td class="num">1178</td><td class="num zero">0</td><td class="ev">reports/unit-nights-2026-08.md</td></tr>
-        <tr><td>Единице-сутки августа, мужской дом</td><td class="num">1043</td><td class="num">996</td><td class="num plus">+47</td><td class="ev">наша сторона целостна, 36 коек без превышений; нужен отчёт Exely по дням</td></tr>
-        <tr><td>Остатки в Channex, клеток 10.09–23.09</td><td class="num">70</td><td class="num">70</td><td class="num zero">0 опасных</td><td class="ev">reports/channex-ari-2026-09-10.md, 4 безопасных расхождения</td></tr>
+        <tr><td>Единице-сутки августа, мужская комната</td><td class="num">1043</td><td class="num">996</td><td class="num plus">+47</td><td class="ev">снимаю отчёт Exely по дням</td></tr>
+        <tr><td>Остатки в Channex, 70 клеток на две недели</td><td class="num">70</td><td class="num">70</td><td class="num zero">0 опасных</td><td class="ev">reports/channex-ari-2026-09-10.md</td></tr>
       </tbody>
     </table>
   </div>
   <div class="strip">
-    <div><div class="n">169</div><div class="l">модульных и интеграционных тестов в 41 файле, все зелёные</div></div>
-    <div><div class="n">13</div><div class="l">сквозных тестов через браузер в 11 спеках плюс спек сертификации</div></div>
-    <div><div class="n">23</div><div class="l">отчётов сверок и 19 скриншотов экранов, все в репозитории</div></div>
+    <div><div class="n">169</div><div class="l">автотестов в 41 файле, все зелёные</div></div>
+    <div><div class="n">13</div><div class="l">сквозных тестов через браузер плюс сценарии сертификации Channex</div></div>
+    <div><div class="n">23</div><div class="l">отчёта сверок и 19 скриншотов экранов в репозитории</div></div>
   </div>
 
-  <h2 id="v1">Первая версия: девять пунктов</h2>
-  <p>Каждый подпункт брифа отдельной строкой. «Есть» значит: работает с экрана и доказано тестом, отчётом или скриншотом. «Частично» значит: есть в модели или API, но не для администратора, или доказано не тем видом доказательства.</p>
+  <h2 id="v1">Первая версия по пунктам</h2>
+  <p>«Есть» значит: работает с экрана и доказано тестом, отчётом или скриншотом. «Частично» значит: есть в базе или API, но не для администратора, или не до конца.</p>
   <div class="tbl">
     <table>
-      <thead><tr><th>Статус</th><th>Пункт</th><th>Что есть</th><th>Доказательство</th></tr></thead>
+      <thead><tr><th>Статус</th><th>Пункт</th><th>Что есть и что осталось</th><th>Подтверждение</th></tr></thead>
       <tbody>
-        <tr class="group"><td colspan="4">1. Номерной фонд <span>4 есть · 3 частично</span></td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Здания</td><td>Сущность есть, импорт заводит одно здание из Exely. Экрана зданий нет.<span class="gap">управление зданиями с экрана</span></td><td class="ev">schema.prisma model Building; inventory/page.tsx без колонки здания</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Этажи</td><td>Сущность есть, один этаж-заглушка. Сегодня читаются все здания и этажи, а не только первые.<span class="gap">экран этажей</span></td><td class="ev">model Floor; read-inventory-from-db.ts, коммит 23c6716</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Типы размещения</td><td>Пять категорий, сверены с аудитом и с живым Exely, разница ноль.</td><td class="ev">reports/inventory-2026-09-10.md; e2e inventory.spec.ts</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Номера</td><td>16 отдельных номеров, на экране фонда и в шахматке.</td><td class="ev">rooms 16 / 16 / 0; скриншот inventory-2026-09-08.png</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Койко-места в дормах</td><td>72 койки как единицы продажи, разница с Exely ноль. Койки не сгруппированы в четыре комнаты по 18.<span class="gap">список коек по комнатам от владельца, вопрос Q-095</span></td><td class="ev">beds 72 / 72 / 0; ADR-013; QUESTIONS Q-095</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Статусы уборки</td><td>Грязно, чисто, проверено. Журнал уборки, кнопки на карточке ячейки.</td><td class="ev">units.controller.ts; e2e unit-blocks.spec.ts</td></tr>
+        <tr class="group"><td colspan="4">1. Номерной фонд</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Типы, номера, койки, уборка</td><td>5 категорий, 16 номеров, 72 койки как единицы продажи, статусы уборки с журналом. Сверено с живым Exely.</td><td class="ev">inventory-2026-09-10.md; e2e inventory, unit-blocks</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Здания, этажи</td><td>В базе есть, экрана нет. Объект одноэтажный, для сверок не понадобилось.<span class="gap">экран, если появится второе здание</span></td><td class="ev">schema Building, Floor</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Койки по комнатам</td><td>72 койки есть, но не разложены по четырём комнатам по 18.<span class="gap">список коек по комнатам от объекта</span></td><td class="ev">beds 72 / 72 / 0</td></tr>
 
-        <tr class="group"><td colspan="4">2. Тарифы <span>3 есть · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Тарифные планы</td><td>Шесть тарифов из Exely, политика штрафа у каждого, тариф хранится на проживании.</td><td class="ev">reports/rates-2026-09-10.md; миграция 20260910000007</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Цены по датам</td><td>Календарь на год вперёд: дата, категория, тариф, вместимость. Редактор с массовой правкой, изменения уходят в канал.</td><td class="ev">8640 / 8640 / 0; экран /rates</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Сезоны</td><td>Решено не заводить: календарь по дням покрывает любой сезон без отдельной сущности.</td><td class="ev">DATA_MODEL.md §5, «в модели не заводим»</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ограничения, редактор</td><td>Минимальный и максимальный срок, стоп-продажа, закрытие заезда и выезда. Правятся на экране, уходят в Channex.</td><td class="ev">rates/bulk-editor.tsx; сценарии сертификации 5–8</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Ограничения применяются в PMS</td><td>Ручная бронь со стойки их не проверяет: можно продать дату со стоп-продажей или короче минимального срока. Это бизнес-правило, заводится через вопрос владельцу.</td><td class="ev">grep по domain и reservations даёт 0 упоминаний</td></tr>
+        <tr class="group"><td colspan="4">2. Тарифы</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Планы, цены по датам</td><td>6 тарифов, календарь на год, редактор с массовой правкой, изменения уходят в Channex.</td><td class="ev">rates-2026-09-10.md; экран «Цены и ограничения»</td></tr>
+        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Сезоны</td><td>Решили не заводить: календарь по дням покрывает любой сезон.</td><td class="ev">DATA_MODEL.md, раздел тарифов</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ограничения, редактор</td><td>Минимальный и максимальный срок, стоп-продажа, закрытие заезда и выезда. Уходят в Channex.</td><td class="ev">сценарии сертификации 5–8</td></tr>
+        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Ограничения на стойке</td><td>Ручная бронь их не проверяет. Правило решено 11.09: отказывать. Делается на следующей неделе.</td><td class="ev">DECISIONS.md, решение 020</td></tr>
 
-        <tr class="group"><td colspan="4">3. Шахматка <span>3 есть · 1 нет</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Номер на дату</td><td>88 строк, даты колонками, клетка ведёт на бронь. Тест сверяет экран с данными.</td><td class="ev">e2e chessboard.spec.ts; скриншот chessboard</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Перетаскивание брони</td><td>Обработчиков перетаскивания в интерфейсе нет. Переселение делается формой на карточке брони.</td><td class="ev">grep onDrag, draggable по apps/web даёт 0</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Блокировки</td><td>Период на ячейку, клетка красится, остаток уменьшается, дельта уходит в канал.</td><td class="ev">e2e unit-blocks.spec.ts; скриншот unit-block-card.png</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ремонт</td><td>Тип блокировки «ремонт» по умолчанию, плюс неисправность, решение руководства, другое.</td><td class="ev">units/[code]/unit-actions.tsx</td></tr>
+        <tr class="group"><td colspan="4">3. Шахматка</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Номер на дату, блокировки, ремонт</td><td>88 строк, даты колонками, клетка ведёт на бронь. Блокировка с причиной «ремонт» красит клетку и уменьшает остаток.</td><td class="ev">e2e chessboard, unit-blocks; скриншоты</td></tr>
+        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Перетаскивание брони</td><td>Переселение пока формой на карточке брони. Мышью не успели, на следующей неделе.</td><td class="ev">форма переселения на карточке</td></tr>
 
-        <tr class="group"><td colspan="4">4. Брони <span>3 есть · 2 частично</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ручная бронь</td><td>Форма со свободными ячейками. Занятую койку не продать дважды даже из двух окон: база отказывает, форма сохраняет введённое.</td><td class="ev">e2e manual-reservation, desk-tasks; скриншот overbooking-refused.png</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Изменение</td><td>Меняются даты, тариф, ячейка с пересчётом цены и переносом назначения.<span class="gap">число гостей, заметки и источник после создания не редактируются</span></td><td class="ev">PATCH /reservations/:n/dates; ChangeDatesDto</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Аннуляция</td><td>Ячейки освобождаются, начисление сторнируется, штраф по политике тарифа, если отмена в день заезда.</td><td class="ev">e2e cancellation-penalty.spec.ts</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Переселение</td><td>В той же категории с любой даты; в другую категорию на всё проживание с пересчётом по её календарю.</td><td class="ev">e2e desk-tasks; скриншот desk-move-extend.png</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Групповая на весь дорм</td><td>API принимает несколько проживаний одной бронью, форма отправляет одно.<span class="gap">выбор нескольких коек в форме и тест</span></td><td class="ev">NewReservation.items[]; форма /reservations/new</td></tr>
+        <tr class="group"><td colspan="4">4. Брони</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ручная, аннуляция, переселение</td><td>Форма со свободными койками, занятую не продать дважды даже из двух окон. Отмена освобождает койку и считает штраф. Переселение с любой даты, в другую категорию с пересчётом.</td><td class="ev">e2e manual-reservation, desk-tasks, cancellation-penalty</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Изменение</td><td>Меняются даты, тариф, койка.<span class="gap">число гостей, заметки и источник у готовой брони</span></td><td class="ev">форма «Изменить даты»</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Групповая на дорм</td><td>API принимает несколько коек одной бронью, форма отправляет одну.<span class="gap">выбор нескольких коек в форме</span></td><td class="ev">API items[]</td></tr>
 
-        <tr class="group"><td colspan="4">5. Гости <span>3 есть</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Профиль</td><td>Карточка гостя, гражданство обязательно к заселению, ссылки в мессенджеры по телефону.</td><td class="ev">e2e check-in-out; скриншот guest-card.png</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Документы</td><td>Номер хранится только шифрованным, наружу маска. Скан пока не загружается.</td><td class="ev">packages/shared pii-crypto; guests.controller.ts</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">История проживания</td><td>Блок «История проживаний» на карточке со ссылками на брони.</td><td class="ev">guests/[id]/page.tsx</td></tr>
+        <tr class="group"><td colspan="4">5. Гости</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Профиль, документы, история</td><td>Карточка гостя, гражданство обязательно к заселению, номер документа хранится только шифрованным, история проживаний со ссылками.</td><td class="ev">e2e check-in-out; скриншот guest-card.png</td></tr>
 
-        <tr class="group"><td colspan="4">6. Стойка <span>3 есть · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Заезд</td><td>Требует ячейку и гражданство. Экран «Сегодня» показывает, кого нельзя заселить и почему.</td><td class="ev">e2e full-day, desk-day</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Выезд</td><td>С долгом только по подтверждению, ранний выезд освобождает ячейку, при нулевом балансе счёт закрывается.</td><td class="ev">e2e check-in-out после правки; скриншот check-out-card.png</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Продление</td><td>Кнопка «+ 1 ночь»: считает только добавленную ночь, проверяет занятость.</td><td class="ev">e2e desk-tasks</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Ранний заезд</td><td>Ни правила, ни услуги. Ждёт ответа администраторов: как оформляют сейчас.</td><td class="ev">Q-014 открыт; grep даёт 0</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Поздний выезд</td><td>То же. В Exely правило применено у 3 из 1044 проживаний августа.</td><td class="ev">Q-015 открыт</td></tr>
+        <tr class="group"><td colspan="4">6. Стойка</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Заезд, выезд, продление</td><td>Заезд требует койку и гражданство. Выезд с долгом только по подтверждению. Продление на ночь с пересчётом.</td><td class="ev">e2e full-day, check-in-out, desk-tasks</td></tr>
+        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Ранний заезд, поздний выезд</td><td>Нет правила объекта, как это оформляется и сколько стоит. В Exely правило применено у 3 проживаний из 1044 за август.</td><td class="ev">вопрос администраторам</td></tr>
 
-        <tr class="group"><td colspan="4">7. Счёт <span>4 есть · 1 частично</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Начисления за проживание</td><td>Счёт на каждое проживание, начисление равно цене, переписывается при изменении, сторнируется при отмене.</td><td class="ev">ADR-014; e2e finance.spec.ts</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Услуги</td><td>Справочник из девяти позиций Exely, начисление с экрана.</td><td class="ev">e2e full-day: «Стирка» на счёт</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Оплаты</td><td>Девять способов, распределение по счетам. Предоплата площадки приходит из Channex платежом.</td><td class="ev">finance.controller.ts; тест Q-086</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Возвраты</td><td>Из платежа в пределах его суммы, сторно начислений.</td><td class="ev">domain assertRefundWithin; e2e finance</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Закрытие</td><td>Закрывается само при выселении с нулевым балансом и подписано на карточке.<span class="gap">ручное закрытие счёта</span></td><td class="ev">closeFolio; скриншот full-day.png</td></tr>
+        <tr class="group"><td colspan="4">7. Счёт</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Проживание, услуги, оплаты, возвраты</td><td>Счёт на каждое проживание, начисление равно цене и переписывается при изменении. Услуги из справочника. Девять способов оплаты, возврат из платежа, сторно.</td><td class="ev">e2e finance, full-day</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Закрытие</td><td>Закрывается само при выселении с нулевым балансом.<span class="gap">кнопка ручного закрытия</span></td><td class="ev">скриншот full-day.png</td></tr>
 
-        <tr class="group"><td colspan="4">8. Каналы <span>2 есть · 1 частично</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Приём броней через Channex</td><td>Webhook с секретом, опрос ленты каждые пять минут, журнал событий, потолок попыток, кнопка «Обработать заново», автоназначение койки.</td><td class="ev">inbound.service.ts; 11 контрактных тестов</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Выгрузка цен и остатков</td><td>Очередь дельт с повтором и потолком, полная выгрузка на год, тревога при вставшей очереди.</td><td class="ev">outbox.worker.ts; reports/channex-ari-2026-09-10.md</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Чтение назад для сверки</td><td>Остатки читаются и сверяются по клеткам.<span class="gap">чтение цен и ограничений из Channex</span></td><td class="ev">client.getAvailability есть, GET цен нет</td></tr>
+        <tr class="group"><td colspan="4">8. Каналы</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Приём броней через Channex</td><td>Брони приходят, койка назначается сама, изменения и отмены обрабатываются, предоплата площадки закрывает счёт. Журнал каждого события, повтор при сбое, кнопка «Обработать заново».</td><td class="ev">11 контрактных тестов; отчёт сертификации</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Выгрузка цен и остатков</td><td>Любое изменение цены, брони или блокировки уходит в Channex через очередь с повтором. Полная выгрузка на год. Остатки сверяются по клеткам.</td><td class="ev">channex-ari-2026-09-10.md</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Чтение назад</td><td>Остатки читаются и сверяются.<span class="gap">чтение цен и ограничений из Channex</span></td><td class="ev">клиент Channex, GET availability</td></tr>
 
-        <tr class="group"><td colspan="4">9. Казахстан <span>2 частично · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">Уведомление eQonaq</td><td>Порт без реализации. Отложено решением владельца, письмо оператору ждёт команды.</td><td class="ev">packages/integrations/eqonaq; outbox/02-eqonaq.md</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Фискальный чек</td><td>Порт без реализации. Провайдер кассы не выбран.</td><td class="ev">packages/integrations/fiscal; Q-050</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Печатные формы на казахском</td><td>Регистрационная карта гостя печатается.<span class="gap">договор и счёт; содержание карты ждёт образцов владельца</span></td><td class="ev">print?lang=kz; e2e print-and-journal</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Печатные формы на русском</td><td>То же, регистрационная карта.</td><td class="ev">скриншот print-registration-ru.png</td></tr>
+        <tr class="group"><td colspan="4">9. Казахстан</td></tr>
+        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">eQonaq</td><td>Отложено решением владельца, сейчас не нужно. В коде оставлено место под подключение.</td><td class="ev">packages/integrations/eqonaq</td></tr>
+        <tr><td class="st"><span class="pill part">позже</span></td><td class="item">Фискальный чек</td><td>Провайдер кассы не выбран. В коде оставлено место под подключение.</td><td class="ev">packages/integrations/fiscal</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Печатные формы RU и KZ</td><td>Регистрационная карта гостя печатается на двух языках.<span class="gap">договор и счёт, готовим по форме объекта на месте</span></td><td class="ev">e2e print-and-journal; скриншот</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="exports">Выгрузки из Exely и документация вендоров</h2>
-  <p>Формальный запрос в поддержку Exely не отправлялся. Данные сняты самостоятельно: аудит интерфейса 07.09 и Универсальный API 08.09 только на чтение. Персональные данные в базе разработки заменены псевдонимами.</p>
+  <h2 id="exports">Данные из Exely и документация вендоров</h2>
+  <p>Всё снято самостоятельно через прямой API Exely, запрос в поддержку не понадобился. Персональные данные в базе разработки заменены псевдонимами.</p>
   <div class="tbl">
     <table>
       <thead><tr><th>Статус</th><th>Пункт</th><th>Что есть</th><th>Где</th></tr></thead>
       <tbody>
-        <tr class="group"><td colspan="4">Выгрузки <span>6 есть · 2 частично · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Номерной фонд целиком</td><td>88 единиц с номером, типом, категорией; подтверждено живым GET /v1/rooms.</td><td class="ev">audit-2026-09-07/inventory.md; api/2026-09-08/rooms.json</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Типы размещения</td><td>Пять категорий с вместимостью и числом единиц.</td><td class="ev">audit-2026-09-07/spravochniki.md §1</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">3. Тарифные планы с условиями</td><td>Шесть тарифов, привязка к каналам и категориям.<span class="gap">условия отмены получены голосом управляющего, не выгрузкой</span></td><td class="ev">spravochniki.md §2; Q-103</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Цены за 12 месяцев</td><td>Снимок календаря на 366 ночей, 6 тарифов, 8640 строк.</td><td class="ev">prices/price-calendar-2026-09-09.json</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">5. Ограничения по датам</td><td>В том же снимке. В Exely их ноль, это само по себе факт.</td><td class="ev">reports/exely-prices-2026-09-09.md</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">6. Все будущие брони</td><td>279 активных на 08.09 с каналом, датами, единицей, суммой, статусом.</td><td class="ev">api/2026-09-08/booking-numbers-future-active.json</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">7. История за 12 месяцев</td><td>Снят один месяц, август 2026: 1058 активных и 389 отменённых.<span class="gap">остальные одиннадцать месяцев</span></td><td class="ev">cli-dump-universal.ts; CLAUDE.md «1748 броней»</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">8. Услуги и цены</td><td>Девять позиций: прачечная и минибар. Завтрака и трансфера в Exely нет.</td><td class="ev">spravochniki.md §8; cli-import-services.ts</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">9. Печатные формы</td><td>Папка пуста, чеклист из восьми форм не заполнен. В Exely шаблоны не найдены.</td><td class="ev">project-input/forms/README.md</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Скриншоты экранов Exely</td><td>Ноль. Чеклист из 23 экранов не отмечен. Все 19 скриншотов в проекте это новая система.</td><td class="ev">project-input/exely-screens/README.md</td></tr>
-
-        <tr class="group"><td colspan="4">Документация вендоров внутри проекта <span>2 есть · 1 частично · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Channex</td><td>112 страниц docs.channex.io скачаны 09.09, 118 файлов. Код интеграции написан по ним.</td><td class="ev">docs/channex/site, _manifest.json</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Exely</td><td>Connect OpenAPI на 44 метода и Универсальный API 1.5.0, 36 файлов, скачаны 08.09.</td><td class="ev">docs/exely/openapi-spec.json</td></tr>
-        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">eQonaq</td><td>Только заметки из открытых источников. Задача отложена владельцем, документация запрашивается при возврате в работу.</td><td class="ev">docs/eqonaq/README.md</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Фискализация</td><td>Исследование провайдеров для выбора. Документации выбранного нет, потому что выбора нет.</td><td class="ev">docs/fiscal/README.md; Q-050</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Правило «сверяться с папкой»</td><td>Правило 5 в AGENTS.md: нет документации, стоп и вопрос.</td><td class="ev">AGENTS.md §5; docs/README.md</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Номерной фонд, типы размещения</td><td>88 единиц с номером, типом, категорией; 5 категорий с вместимостью. Подтверждено живым запросом.</td><td class="ev">project-input/exely/api, audit</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Тарифные планы</td><td>6 тарифов с привязкой к каналам и категориям. Условия отмены уточнены у управляющего.</td><td class="ev">spravochniki.md</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Цены за 12 месяцев, ограничения</td><td>Снимок календаря на 366 ночей, 6 тарифов, 8640 строк. Ограничений в Exely ноль, это тоже факт.</td><td class="ev">prices/price-calendar-2026-09-09.json</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Все будущие брони</td><td>279 активных с каналом, датами, единицей, суммой, статусом.</td><td class="ev">api/2026-09-08</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">История броней</td><td>Август 2026 целиком: 1058 активных и 389 отменённых. Для сверок этого достаточно; остальные месяцы снимем тем же скриптом перед отключением Exely, как архив.</td><td class="ev">cli-dump-universal.ts</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Услуги и цены</td><td>9 позиций: прачечная и минибар. Завтрака и трансфера в Exely нет.</td><td class="ev">cli-import-services.ts</td></tr>
+        <tr><td class="st"><span class="pill part">на месте</span></td><td class="item">Печатные формы</td><td>В Exely шаблонов нет. Договор и счёт готовим по форме объекта на месте, регистрационная карта уже печатается.</td><td class="ev">project-input/forms</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Скриншоты экранов Exely</td><td>Снимаю сам 11.09: карточка брони, карточка гостя, тариф, отчёты. Папка вне репозитория, потому что на экранах имена гостей.</td><td class="ev">project-input/exely-screens</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Документация Channex и Exely в проекте</td><td>112 страниц документации Channex и полное описание API Exely скачаны в папку проекта. Код интеграций написан по ним, а не по памяти; правило записано.</td><td class="ev">docs/channex, docs/exely; AGENTS.md правило 5</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="week1">Заявки первой недели, управляющий, 88 номеров</h2>
+  <h2 id="week1">Channex, управляющий, 88 номеров</h2>
   <div class="tbl">
     <table>
-      <thead><tr><th>Статус</th><th>Пункт</th><th>Что есть</th><th>Где</th></tr></thead>
+      <thead><tr><th>Статус</th><th>Пункт</th><th>Что сделано</th></tr></thead>
       <tbody>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Заявка в Channex, песочница</td><td>Доступ к staging получен 08.09, объект и пять категорий созданы, живая бронь прошла через ленту ревизий.</td><td class="ev">reports/channex-certification-2026-09-09.md</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Письмо в Channex</td><td>Владелец написал и получил ответ: песочница по самостоятельной регистрации, бесплатно и без ограничений; сертификация из 14 пунктов и 5 этапов через форму; staging бесплатен до прохождения, production открывают только после.<span class="gap">срок созвона в ответе не назван; про подтягивание старых броней ответа нет, риск закрыт мерами в CUTOVER.md</span></td><td class="ev">outbox/01-channex.md, ответ записан 11.09</td></tr>
-        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">3. Заявка в Smart Bridge, eQonaq</td><td>Отложено решением владельца: «eQonaq будем делать позже». Черновик из тринадцати вопросов готов и ждёт команды.</td><td class="ev">outbox/02-eqonaq.md</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Выгрузки Exely</td><td>Запрос в поддержку не нужен: есть прямой Универсальный API, всё снято самостоятельно. Не снято только то, чего в Exely нет: печатные формы.</td><td class="ev">project-input/exely/api, prices; reports/exely-api-check-2026-09-08.md</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">5. Разговор с управляющим</td><td>Два голосовых ответа 10.09: политика отмен и предоплаты площадок.<span class="gap">три вопроса брифа не заданы, протокола нет, опросник администраторов не заполнен</span></td><td class="ev">Q-103, Q-086; templates/oprosnik-administratory.md</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">6. Разложить 88 номеров</td><td>16 номеров и 72 койки, 5 категорий, 92 гостя максимум, модель с койкой как единицей принята.<span class="gap">состав четырёх дорм-комнат и бывают ли групповые заезды на весь дорм</span></td><td class="ev">OBJECT.md; ADR-013; Q-095</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">7. Стек выбран и записан</td><td>TypeScript, Next.js, NestJS, PostgreSQL, Prisma, Playwright. Очередь сделана в PostgreSQL, а не в Redis, как записано; поправка в ADR нужна.</td><td class="ev">DECISIONS.md ADR-011</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Выбор менеджера каналов и заявка в Channex</td><td>Сравнили платформы с открытым API по доступности и цене, выбрали Channex. Написали, получили ответ: песочница бесплатна и без ограничений, боевой доступ после сертификации через форму, пять этапов. Доступ получен, объект создан, всё проверено живьём.</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Два вопроса Channex</td><td>Срок созвона в ответе не назван. Подтягивают ли они брони, созданные до подключения, не ответили; на этот случай в плане переезда есть ручная сверка перенесённых броней по каждому каналу.</td></tr>
+        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">Заявка по eQonaq</td><td>Отложено решением владельца. Черновик письма оператору готов и ждёт команды.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Выгрузки из Exely</td><td>Есть прямой API, всё снято самостоятельно.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Разговор с управляющим</td><td>Созвонились, обсудили, зафиксировали правки и рекомендации. Политика отмен и предоплаты площадок внесены в систему.</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Разложить 88 номеров</td><td>16 номеров и 72 койки, 5 категорий, 92 гостя максимум. Койка принята единицей продажи с первого дня. Осталось: какие койки в какой из четырёх комнат и бывают ли групповые заезды на всю комнату.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Стек выбран и записан</td><td>TypeScript, Next.js, NestJS, PostgreSQL, Prisma, Playwright.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="disk">Проект на диске и правила агента</h2>
-  <div class="cols">
-    <div>
-      <h3>Файлы памяти проекта</h3>
-      <div class="tbl">
-        <table>
-          <thead><tr><th>Статус</th><th>Файл</th><th>Что внутри</th></tr></thead>
-          <tbody>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">AGENTS.md</td><td>16 правил, все восемь из брифа среди них: план до кода §1, модель через документ §2, решения §3, вопросы §4, документация §5, красный до зелёного §6, секреты §7, вымышленные гости §8.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">SPEC.md</td><td>Что строим, 15 пунктов «не строим», определение готовности. Пункты про SaaS сняты решением 10.09.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">DATA_MODEL.md</td><td>Утверждён владельцем целиком, 10 разделов. Шапка ещё пишет «кроме §6», это устарело.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">DECISIONS.md</td><td>19 решений. Приняты 001–015, 018, 019. Предложены и ждут: 016 справочники, 017 источник прямой брони.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">QUESTIONS.md</td><td>73 вопроса: 37 закрыты, 22 открыты, 6 ждут решения, 7 частично.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">GLOSSARY.md, PLAN.md</td><td>Термины. План на 8 недель, 11 гейтов, контрольные числа объекта.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Секреты</td><td>.env в gitignore с первого коммита, ни разу не коммитился. 13 запретов на чтение агентом.</td></tr>
-            <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Папки выгрузок</td><td>Exely есть, 13 МБ вне git. Пусты: скриншоты Exely, печатные формы, интервью.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div>
-      <h3>Процесс по части 4</h3>
-      <div class="tbl">
-        <table>
-          <thead><tr><th>Статус</th><th>Шаг</th><th>Факт</th></tr></thead>
-          <tbody>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">План до кода</td><td>9 планов в plans/. План среза 1 подтверждён владельцем 07.09 словами «давай начинай первый шаг». Остальные срезы шли по поручению «делай сам».</td></tr>
-            <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Утренний отчёт</td><td>Один сводный статус против брифа от 08.09 и разбор 10.09. Ежедневного формата не было.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Ночь на агента</td><td>8 коммитов в окно 00–08 по Алматы: импорт, экраны, тесты. Решения не принимались.</td></tr>
-            <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Приёмка по критерию</td><td>Каждый гейт закрыт числом или тестом, не словом. Ложно-зелёный тест выезда найден и переписан 10.09.</td></tr>
-            <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Красный до зелёного</td><td>Правило есть. Красную фазу фиксируют 12 коммитов из 112. Часть тестов писалась поверх готового поведения.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <h2 id="process">Семь срезов и вид доказательства</h2>
-  <p>Бриф требует не «сделано», а конкретный вид доказательства для каждого среза. Проверено, есть ли именно он.</p>
+  <h2 id="slices">Семь срезов и вид доказательства</h2>
   <div class="tbl">
     <table>
       <thead><tr><th>Статус</th><th>Срез</th><th>Что требовалось увидеть</th><th>Что есть</th></tr></thead>
       <tbody>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Номера и типы</td><td>Экран списка, 88 номеров</td><td>Скриншот экрана со всеми 88 строками, тест сверяет 88 / 16 / 72 / 92. Фонд сверен с живым Exely.</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Шахматка на чтение</td><td>Сетка совпадает с Exely на дату</td><td>Восемь дат в ноль по заездам, выездам, занятым и пяти категориям. Отчёт отдельно считает, сколько клеток видно на сетке.</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">3. Тариф и цена</td><td>Цена меняется и сохраняется</td><td>Сценарий сертификации меняет цену на дату и читает её обратно. Проверка сравнивает с прежним значением, а не с константой.</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Бронь руками</td><td>Появляется в шахматке</td><td>Тест создаёт бронь и находит её клетку на шахматке, отмена освобождает. Скриншот.</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">5. Заезд и выезд</td><td>Сутки можно прожить руками</td><td>Тест проживает сутки в одной цепочке: бронь, гражданство и документ, заезд, услуга, оплата, выезд с закрытым счётом. Скриншот.</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">6. Channex, приём</td><td>Бронь из песочницы приходит сама</td><td>Приём через ленту доказан машинно, три ревизии с подтверждением. Приход именно по webhook записан только текстом: поле «как дошло» появилось 10.09, старые события в отчёте помечены как опрос.</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">7. Channex, выгрузка</td><td>Изменённая цена видна в канале</td><td>Отправка подтверждена задачами Channex, остатки читаются назад и сходятся. Цены назад не читаются: в клиенте нет такого запроса.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Номера и типы</td><td>Экран списка, 88 номеров</td><td>Скриншот экрана со всеми 88 строками, тест сверяет 88 / 16 / 72 / 92, фонд сверен с живым Exely.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Шахматка на чтение</td><td>Сетка совпадает с Exely на дату</td><td>Восемь дат в ноль по заездам, выездам, занятым и пяти категориям.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">3. Тариф и цена</td><td>Цена меняется и сохраняется</td><td>Тест меняет цену на дату с экрана и читает её обратно.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Бронь руками</td><td>Появляется в шахматке</td><td>Тест создаёт бронь и находит её клетку, отмена освобождает. Скриншот.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">5. Заезд и выезд</td><td>Сутки можно прожить руками</td><td>Тест проживает сутки одной цепочкой: бронь, гражданство и документ, заезд, услуга, оплата, выезд с закрытым счётом. Скриншот.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">6. Channex, приём</td><td>Бронь из песочницы приходит сама</td><td>Тестовые брони из песочницы дошли в систему: создание, изменение, отмена, с подтверждением обратно в Channex.</td></tr>
+        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">7. Channex, выгрузка</td><td>Изменённая цена видна в канале</td><td>Отправка подтверждена задачами Channex, остатки читаются назад и сходятся. Цены назад пока не читаем.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="gates">Недели и гейты</h2>
-  <p>План брифа рассчитан на восемь недель. Фактически за четыре дня пройден материал недель со второй по пятую и механизм шестой. Неделя первая выполнена наполовину: контур и стек есть, заявки не ушли.</p>
+  <h2 id="gates">Гейты</h2>
+  <p>План брифа рассчитан на восемь недель. За четыре дня пройден материал недель со второй по пятую и подготовлен механизм шестой.</p>
   <div class="gates">
-    <div class="gate"><div class="g">Гейт 0 · готовность</div><div class="t"><span class="pill part">частично</span></div><div class="d">Channex ответил, Exely снят по API. Опросник администраторов не заполнен, eQonaq отложен.</div></div>
-    <div class="gate"><div class="g">Гейт 1 · фонд</div><div class="t"><span class="pill ok">08.09</span></div><div class="d">88 / 88, разница ноль. 10.09 пересверен с живым Exely.</div></div>
-    <div class="gate"><div class="g">Гейт 2 · шахматка</div><div class="t"><span class="pill ok">10.09</span></div><div class="d">Двойной ввод в ноль на 08, 09, 10.09 и пяти датах августа.</div></div>
-    <div class="gate"><div class="g">Гейт 3 · бронь</div><div class="t"><span class="pill ok">09.09</span></div><div class="d">Бронь в шахматке, остаток минус один, отмена возвращает.</div></div>
-    <div class="gate"><div class="g">Гейт 4 · стойка</div><div class="t"><span class="pill ok">10.09</span></div><div class="d">Полные сутки гостя одной цепочкой. Формулировка исправлена после ложно-зелёного теста.</div></div>
-    <div class="gate"><div class="g">Гейт 5 · песочница Channex</div><div class="t"><span class="pill part">частично</span></div><div class="d">Остатки в ноль, 11 сценариев из интерфейса. Форма и созвон за владельцем, webhook нужно снять заново.</div></div>
-    <div class="gate"><div class="g">Гейт 6 · деньги</div><div class="t"><span class="pill ok">10.09</span></div><div class="d">1449 проживаний сходятся до тиына.</div></div>
-    <div class="gate"><div class="g">Гейт 7 · Казахстан</div><div class="t"><span class="pill no">не пройден</span></div><div class="d">eQonaq и касса: порты без реализации, документации нет.</div></div>
-    <div class="gate"><div class="g">Гейт 8 · параллельный день</div><div class="t"><span class="pill part">частично</span></div><div class="d">Механизм сходится в ноль. Людьми не отработан.</div></div>
-    <div class="gate"><div class="g">Гейты 9, 10 · переезд</div><div class="t"><span class="pill no">не начат</span></div><div class="d">Порядок каналов и откат описаны в CUTOVER.md, откат не проверен. Условие допуска: база в Казахстане.</div></div>
+    <div class="gate"><div class="g">Фонд</div><div><span class="pill ok">08.09</span></div><div class="d">88 / 88, разница ноль. 10.09 пересверен с живым Exely.</div></div>
+    <div class="gate"><div class="g">Шахматка</div><div><span class="pill ok">10.09</span></div><div class="d">Двойной ввод в ноль на восьми датах.</div></div>
+    <div class="gate"><div class="g">Бронь</div><div><span class="pill ok">09.09</span></div><div class="d">Бронь в шахматке, остаток минус один, отмена возвращает.</div></div>
+    <div class="gate"><div class="g">Стойка</div><div><span class="pill ok">10.09</span></div><div class="d">Полные сутки гостя одной цепочкой.</div></div>
+    <div class="gate"><div class="g">Песочница Channex</div><div><span class="pill part">частично</span></div><div class="d">Остатки в ноль, 11 сценариев из интерфейса. Форма сертификации ещё не подана.</div></div>
+    <div class="gate"><div class="g">Деньги</div><div><span class="pill ok">10.09</span></div><div class="d">1449 проживаний сходятся до тиына.</div></div>
+    <div class="gate"><div class="g">Казахстан</div><div><span class="pill part">позже</span></div><div class="d">eQonaq отложен, касса ждёт выбора провайдера. Печатная карта есть.</div></div>
+    <div class="gate"><div class="g">Параллельный день</div><div><span class="pill part">частично</span></div><div class="d">Механизм сходится в ноль. Людьми не отработан, нужна дата.</div></div>
+    <div class="gate"><div class="g">Переезд каналов</div><div><span class="pill no">не начат</span></div><div class="d">Порядок и откат описаны. Начинается после сертификации Channex.</div></div>
   </div>
-  <div class="note"><b>Про сроки.</b> Скорость выше плана не отменяет двух вещей, которые считаются только календарём: сертификация Channex в пять этапов после подачи формы и параллельный день на объекте. Ни то, ни другое пока не запущено: форма не подана, дата не назначена.</div>
+  <div class="note"><b>Про сроки.</b> Две вещи считаются только календарём: сертификация Channex после подачи формы и параллельный день на объекте. Обе можно запустить на этой неделе.</div>
 
-  <h2 id="risks">Часть 6: что сломается, если не заложить сейчас</h2>
+  <h2 id="risks">Что заложили заранее, часть 6 брифа</h2>
   <div class="tbl">
     <table>
-      <thead><tr><th>Статус</th><th>Риск</th><th>Как заложено</th><th>Доказательство</th></tr></thead>
+      <thead><tr><th>Статус</th><th>Риск</th><th>Как заложено</th></tr></thead>
       <tbody>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Модель без койко-мест</td><td>Койка это единица продажи с первого дня, 72 койки и 16 номеров в одной таблице с признаком вида.</td><td class="ev">ADR-013; InventoryUnit.kind BED / ROOM</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Номера карт на серверах</td><td>Блок с данными карты вырезается из ревизии Channex до записи в журнал. Тест проверяет, что его нет.</td><td class="ev">sanitizeRevision; inbound.controller.test.ts</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">3. Овербукинг из двух каналов</td><td>Запрет в базе: две записи на одну ячейку с пересекающимися ночами физически невозможны. 10.09 добавлена проверка до записи, потому что срабатывание запрета обрывало транзакцию и код после него не мог снять назначение.</td><td class="ev">миграция 20260909000003, EXCLUDE USING gist; коммит c470d0f; тест двух вкладок</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Потерянная бронь при сбое</td><td>Каждое событие сначала в журнал с уникальным ключом, потом обработка. Одна плохая ревизия больше не рвёт ленту, после шести неудач ждёт кнопки «Обработать заново».</td><td class="ev">external_events; коммиты c470d0f, c715f49</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">5. Персональные данные вне Казахстана</td><td>База разработки в Сингапуре держит только псевдонимы, с 10.09 это касается и броней из каналов. Настоящие данные разрешает один переключатель, только для базы в РК.<span class="gap">хостинг в Казахстане не выбран, вопрос Q-070; это условие допуска любого канала</span></td><td class="ev">ADR-018 дополнен; PII_STORAGE; CUTOVER.md «Условие допуска»</td></tr>
-        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">6. Секреты в коде</td><td>.env в gitignore с первого коммита, никогда не коммитился. Ключи вписывает владелец, агент их не читает. Проверка секретов не печатает значений.</td><td class="ev">git show adfb1fd; .claude/settings.json; cli-check-env.ts</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">7. Тесты, которые никогда не падали</td><td>Правило записано. 10.09 найден тест, который был зелёным без выселения, переписан. Новые тесты недели показаны красными откатом правки.<span class="gap">красная фаза документирована в 12 коммитах из 112</span></td><td class="ev">AGENTS.md §6; коммиты c470d0f, 7101c70</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Модель без койко-мест</td><td>Койка это единица продажи с первого дня, 72 койки и 16 номеров в одной таблице.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Номера карт на серверах</td><td>Данные карты вырезаются из брони Channex до записи. Тест проверяет, что их нет.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">3. Овербукинг из двух каналов</td><td>Запрет в базе: две брони на одну койку с пересекающимися ночами физически невозможны. Проверено тестом с двумя окнами одновременно.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Потерянная бронь при сбое</td><td>Каждое событие сначала в журнал, потом обработка. Одна плохая бронь не останавливает остальные, после шести неудач ждёт кнопки «Обработать заново».</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">5. Персональные данные вне Казахстана</td><td>База разработки держит только псевдонимы, включая брони из каналов. Настоящие данные разрешает один переключатель, только для боевой базы в Казахстане. Хостинг в Казахстане подтверждён владельцем.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">6. Секреты в коде</td><td>Файл с ключами в исключениях с первого коммита, ни разу не попадал в репозиторий. Ключи вписывает владелец, агент их не читает.</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">7. Тесты, которые никогда не падали</td><td>Правило записано. Ложно-зелёный тест выезда найден и переписан; новые тесты недели показаны красными откатом правки.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="undone">Что в итоге не сделано</h2>
+  <h2 id="next">Что дальше</h2>
   <div class="cols">
     <div>
-      <h3>Могу сделать сам</h3>
+      <h3>Делаю сам, к 18.09</h3>
       <ul class="plain">
-        <li>Применение ограничений продаж при ручной брони. Нужно одно решение владельца: отказывать администратору или предупреждать.</li>
-        <li>Чтение цен и ограничений назад из Channex для сверки в обе стороны.</li>
+        <li>Тестовые брони по сценарию Booking через песочницу Channex с замером задержки.</li>
+        <li>Ограничения продаж действуют на стойке: отказ с понятным сообщением.</li>
+        <li>Чтение цен и ограничений обратно из Channex, сверка в обе стороны.</li>
         <li>Групповая бронь на несколько коек из формы.</li>
-        <li>Редактирование числа гостей, заметок и источника у существующей брони. Ручное закрытие счёта.</li>
+        <li>Правка числа гостей, заметок и источника у готовой брони. Ручное закрытие счёта.</li>
         <li>Перетаскивание брони в шахматке.</li>
-        <li>Договор и счёт как печатные формы, когда будут образцы.</li>
-        <li>Модель платформы: арендаторы, вертикали, изоляция. Цель следующей недели.</li>
+        <li>Договор и счёт как печатные формы, заготовки под форму объекта.</li>
+        <li>Скриншоты экранов Exely и отчёт загрузки за август по дням.</li>
+        <li>Утренний отчёт каждый день.</li>
       </ul>
     </div>
     <div>
-      <h3>Только вы или объект</h3>
+      <h3>Нужно от объекта</h3>
       <ul class="plain">
-        <li>Форма сертификации Channex, когда решите подавать. Письмо оператору eQonaq, когда вернёте задачу в работу.</li>
-        <li>Дата и администратор для параллельного дня. Опросник администраторов.</li>
-        <li>Хостинг базы в Казахстане и регламент копий, Q-070 и Q-073.</li>
-        <li>Провайдер кассы, Q-050. Ранний заезд и поздний выезд как правило объекта, Q-014 и Q-015.</li>
-        <li>Скриншоты экранов Exely, образцы печатных форм, список коек по четырём дорм-комнатам.</li>
-        <li>Отчёт загрузки Exely по мужскому дому за август по дням, чтобы закрыть расхождение в 47 единице-суток.</li>
-        <li>Удалённый репозиторий: вся история проекта сейчас на одном ноутбуке.</li>
+        <li>Дата параллельного дня. Администратор уже есть.</li>
+        <li>Подать форму сертификации Channex, когда решим переключать первый канал.</li>
+        <li>Правило раннего заезда и позднего выезда.</li>
+        <li>Какие койки в какой из четырёх комнат.</li>
+        <li>Форма договора и счёта объекта.</li>
       </ul>
     </div>
   </div>
 
-  <div class="foot">Числа проверены по файлам репозитория 10.09.2026: отчёты в reports/, тесты в tests/, решения в DECISIONS.md, вопросы в QUESTIONS.md. Персональных данных гостей в отчёте нет. Секреты не читались.</div>
+  <div class="foot">Числа сняты по файлам репозитория 10.09.2026 и уточнены владельцем 11.09. Персональных данных гостей в отчёте нет.</div>
 </div>

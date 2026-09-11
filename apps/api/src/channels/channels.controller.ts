@@ -14,6 +14,7 @@ import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { PROVIDER } from './ari-publisher';
 import { ChannexSyncService } from './sync.service';
+import { WebhookHealthService } from './webhook-health.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
@@ -24,6 +25,7 @@ export class ChannelsController {
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
     @Inject(OutboxWorker) private readonly outbox: OutboxWorker,
+    @Inject(WebhookHealthService) private readonly health: WebhookHealthService,
   ) {}
 
   @Get('mapping')
@@ -39,8 +41,18 @@ export class ChannelsController {
 
   @Post('sync')
   @HttpCode(200)
-  fullSync(@Query('days') days?: string) {
-    return this.sync.fullSync(days ? Number(days) : undefined);
+  fullSync(@Query('days') days?: string, @Query('trigger') trigger?: string) {
+    return this.sync.fullSync(
+      days ? Number(days) : undefined,
+      trigger === 'import' ? 'import' : 'manual',
+    );
+  }
+
+  /** Полная выгрузка по расписанию (раз в сутки после CHANNEX_FULL_SYNC_HOUR); ?force=1 — прямо сейчас. */
+  @Post('sync/scheduled')
+  @HttpCode(200)
+  scheduledSync(@Query('force') force?: string) {
+    return this.sync.runScheduledFullSyncIfDue(new Date(), force === '1' || force === 'true');
   }
 
   /** Webhook Channex: секрет в заголовке X-Channex-Webhook-Secret (webhook-collection.md → Security). */
@@ -55,8 +67,10 @@ export class ChannelsController {
 
   /** Webhook в Channex: что зарегистрировано; регистрация/обновление; пробный вызов (webhook-collection.md). */
   @Get('webhook/status')
-  webhookStatus() {
-    return this.sync.webhookStatus();
+  async webhookStatus() {
+    // Регистрация в Channex + сторож: когда webhook доставлял последний раз и не под подозрением ли он
+    const status = await this.sync.webhookStatus();
+    return { ...status, ...this.health.snapshot() };
   }
 
   @Post('webhook/register')

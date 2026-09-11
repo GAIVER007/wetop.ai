@@ -97,6 +97,14 @@ export interface ChannelsRepository {
   }>;
   /** Журнал входящих событий канала (ADR-007): что пришло, обработалось ли, сколько попыток, ошибка */
   recentEvents(provider: string, limit: number): Promise<InboundEventRow[]>;
+  /** Когда последний раз событие пришло этим путём (сторож webhook); typePrefix — например 'booking' */
+  lastEventAt(
+    provider: string,
+    via: 'WEBHOOK' | 'PULL' | 'MANUAL',
+    typePrefix?: string,
+  ): Promise<Date | null>;
+  /** Когда последний раз выполнялось действие из журнала аудита (расписание полной выгрузки) */
+  lastAuditAt(action: string): Promise<Date | null>;
 }
 export interface InboundEventRow {
   externalEventId: string;
@@ -338,6 +346,30 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       select: { code: true, id: true },
     });
     return Object.fromEntries(rows.map((r) => [r.code, r.id]));
+  }
+  async lastEventAt(
+    provider: string,
+    via: 'WEBHOOK' | 'PULL' | 'MANUAL',
+    typePrefix?: string,
+  ): Promise<Date | null> {
+    const row = await this.prisma.db.externalEvent.findFirst({
+      where: {
+        provider,
+        receivedVia: via,
+        ...(typePrefix ? { type: { startsWith: typePrefix } } : {}),
+      },
+      orderBy: { receivedAt: 'desc' },
+      select: { receivedAt: true },
+    });
+    return row?.receivedAt ?? null;
+  }
+  async lastAuditAt(action: string): Promise<Date | null> {
+    const row = await this.prisma.db.auditLog.findFirst({
+      where: { action },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    });
+    return row?.createdAt ?? null;
   }
   async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
     const rows = await this.prisma.db.externalEvent.findMany({

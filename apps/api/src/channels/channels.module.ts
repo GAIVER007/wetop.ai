@@ -5,6 +5,7 @@ import { PrismaUnitOfWork, RESERVATIONS_UOW } from '../reservations/reservations
 import { ARI_PUBLISHER, OutboxAriPublisher } from './ari-publisher';
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
+import { WebhookHealthService } from './webhook-health.service';
 import { ChannexSyncService } from './sync.service';
 import { ChannelsController } from './channels.controller';
 import {
@@ -25,6 +26,7 @@ import {
     { provide: CHANNEX_GATEWAY, useFactory: channexGatewayFromEnv },
     { provide: ARI_PUBLISHER, useClass: OutboxAriPublisher },
     OutboxWorker,
+    WebhookHealthService,
   ],
   exports: [ARI_PUBLISHER],
 })

@@ -133,6 +133,12 @@ function makeFakes() {
     return x.toISOString().slice(0, 10);
   };
   const repo: ChannelsRepository = {
+    async lastEventAt() {
+      return null;
+    },
+    async lastAuditAt() {
+      return null;
+    },
     async localSetup() {
       return {
         property: {

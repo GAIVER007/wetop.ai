@@ -4,6 +4,7 @@
 |---|---|
 | `imports/` | Импорт выгрузок Exely в PMS |
 | `reconciliation/` | Сверка новой PMS с Exely, отчёты для гейтов |
+| `ops/` | Эксплуатация на время разработки: публичный адрес для webhook Channex |
 
 ## imports
 
@@ -49,3 +50,12 @@ future              ---      ---      0
 CLI: `npx tsx scripts/imports/src/cli-import-inventory.ts`.
 `@pms/reconciliation` — `compareInventory`/`renderInventoryReport` (Gate 1), CLI
 `npx tsx scripts/reconciliation/src/cli-inventory.ts` → `reports/inventory-YYYY-MM-DD.md`, exit 1 при diff.
+
+## ops
+
+`ops/channex-tunnel.sh` — быстрый туннель Cloudflare до локального API + регистрация webhook в Channex через
+`POST /channels/channex/webhook/register` + пробный вызов + сторож: раз в 30 с проверяет туннель и при смерти поднимает
+новый и перерегистрирует webhook. Нужен `cloudflared` (официальный релиз в `~/.local/bin` или в PATH) и запущенный API.
+Быстрые туннели умирают молча (11.09.2026 — трижды за день); пока туннеля нет, PMS добирает брони опросом ленты раз
+в 5 минут, а сторож в API (`channels/webhook-health.service.ts`) переводит webhook в «под подозрением» и опрашивает
+ленту каждую минуту — статус виден в `GET /channels/channex/webhook/status`. Постоянный адрес — Q-070.

@@ -6,11 +6,15 @@ import {
   Injectable,
   ServiceUnavailableException,
   UnprocessableEntityException,
+  Logger,
+  type OnModuleDestroy,
+  type OnModuleInit,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { categoryAvailability } from '@pms/domain';
 import { buildAvailabilityValues, buildRestrictionValues } from './ari';
 import { buildChannexSetup } from './setup-plan';
+import { DEFAULT_FULL_SYNC_HOUR, isFullSyncDue } from './schedule';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -92,12 +96,78 @@ async function viaChannex<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+export type SyncTrigger = 'manual' | 'scheduled' | 'import';
+export interface ScheduledSyncResult {
+  ran: boolean;
+  reason: string;
+  lastRunAt: string | null;
+  hourLocal: number;
+  result?: SyncResult;
+}
+/** Как часто проверяем, не пора ли делать полную выгрузку (сама выгрузка — раз в сутки) */
+const SCHEDULE_CHECK_MS = 10 * 60_000;
+
 @Injectable()
-export class ChannexSyncService {
+export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
+  private readonly log = new Logger(ChannexSyncService.name);
+  private scheduleTimer: NodeJS.Timeout | null = null;
+  private syncing = false;
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
   ) {}
+
+  /** Расписание только в живом процессе с ключом; в тестах и при CHANNEX_FULL_SYNC=off — выключено. */
+  onModuleInit(): void {
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.CHANNEX_FULL_SYNC === 'off' ||
+      !process.env.CHANNEX_API_KEY?.trim()
+    )
+      return;
+    this.scheduleTimer = setInterval(
+      () =>
+        void this.runScheduledFullSyncIfDue().catch((e: unknown) =>
+          this.log.warn(`полная выгрузка по расписанию не удалась: ${(e as Error).message}`),
+        ),
+      SCHEDULE_CHECK_MS,
+    );
+    this.scheduleTimer.unref();
+  }
+  onModuleDestroy(): void {
+    if (this.scheduleTimer) clearInterval(this.scheduleTimer);
+  }
+
+  /**
+   * Полная выгрузка раз в сутки после CHANNEX_FULL_SYNC_HOUR (по умолчанию 03:00 Алматы), если сегодня её ещё
+   * не было (по журналу аудита `channex.fullSync` — ручной прогон тоже считается). Нужна, потому что дельты
+   * уходят только по событиям PMS, а импорт из Exely и правки в базе остатки в канале не обновляют.
+   */
+  async runScheduledFullSyncIfDue(now = new Date(), force = false): Promise<ScheduledSyncResult> {
+    const raw = Number(process.env.CHANNEX_FULL_SYNC_HOUR ?? DEFAULT_FULL_SYNC_HOUR);
+    const hourLocal = Number.isInteger(raw) && raw >= 0 && raw <= 23 ? raw : DEFAULT_FULL_SYNC_HOUR;
+    const lastRunAt = await this.repo.lastAuditAt('channex.fullSync');
+    const base = { lastRunAt: lastRunAt?.toISOString() ?? null, hourLocal };
+    if (!force && !isFullSyncDue({ lastRunAt, now, hourLocal }))
+      return {
+        ran: false,
+        reason: lastRunAt
+          ? 'сегодня полная выгрузка уже была'
+          : `час выгрузки (${hourLocal}:00 Алматы) ещё не наступил`,
+        ...base,
+      };
+    if (this.syncing) return { ran: false, reason: 'полная выгрузка уже идёт', ...base };
+    this.syncing = true;
+    try {
+      const result = await this.fullSync(undefined, force ? 'manual' : 'scheduled');
+      this.log.log(
+        `полная выгрузка ${force ? 'вручную' : 'по расписанию'}: остатков ${result.availabilityValues}, ограничений ${result.restrictionValues}, задачи ${result.tasks.join(', ')}`,
+      );
+      return { ran: true, reason: force ? 'принудительно' : 'по расписанию', result, ...base };
+    } finally {
+      this.syncing = false;
+    }
+  }
 
   /** Создать в Channex объект, категории и тарифы, которых ещё нет в маппинге. Повтор ничего не дублирует. */
   async setup(ratePlanCode = DEFAULT_OTA_RATE_PLAN_CODE): Promise<SetupResult> {
@@ -303,7 +373,7 @@ export class ChannexSyncService {
     return { callbackUrl: url, statusCode: t.status_code, body: t.body.slice(0, 500), verdict };
   }
 
-  async fullSync(days = DEFAULT_SYNC_DAYS): Promise<SyncResult> {
+  async fullSync(days = DEFAULT_SYNC_DAYS, trigger: SyncTrigger = 'manual'): Promise<SyncResult> {
     if (!Number.isInteger(days) || days < 1 || days > 730)
       throw new UnprocessableEntityException('days — целое от 1 до 730');
     const mappings = (await this.repo.mappings(PROVIDER)).filter(
@@ -378,7 +448,7 @@ export class ChannexSyncService {
       tasks: [...a.data, ...r.data].map((t) => t.id),
       warnings: [...(a.meta?.warnings ?? []), ...(r.meta?.warnings ?? [])],
     };
-    await this.repo.audit('channex.fullSync', result);
+    await this.repo.audit('channex.fullSync', { ...result, trigger });
     return result;
   }
 }

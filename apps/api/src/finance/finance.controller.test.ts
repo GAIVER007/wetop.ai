@@ -173,6 +173,10 @@ function makeFakes() {
         });
       return id;
     },
+    async closeFolio(id) {
+      const f = folios.find((x) => x.id === id);
+      if (f) f.status = 'CLOSED';
+    },
     async audit(_t, _id, action) {
       audits.push(action);
     },
@@ -380,6 +384,41 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     await post({ folioId: 'f1', amount: '9000.01' }).expect(400); // остаток 9 000
     expect(fakes.audits).toEqual(['finance.payment', 'finance.refund']);
+  });
+
+  it('ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей', async () => {
+    const close = (id: string) => request(app.getHttpServer()).post(`/finance/folios/${id}/close`);
+    await close('nope').expect(404);
+    // гость должен 12 000 ₸ — закрыть нельзя, сумма в сообщении
+    const debt = await close('f1').expect(409);
+    expect(debt.body.message).toContain('12 000,00 ₸');
+    expect(debt.body.message).toMatch(/закрыть нельзя/);
+    // переплата — тоже не ноль
+    await request(app.getHttpServer())
+      .post('/finance/payments')
+      .send({ method: 'CASH', amount: '12500', allocations: [{ folioId: 'f1', amount: '12500' }] })
+      .expect(201);
+    const over = await close('f1').expect(409);
+    expect(over.body.message).toContain('−500,00 ₸');
+    // возврат переплаты → баланс 0 → закрывается, счёт CLOSED, в журнале
+    const paymentId: string = (await get()).body.folios[0].payments[0].paymentId;
+    await request(app.getHttpServer())
+      .post(`/finance/payments/${paymentId}/refunds`)
+      .send({ folioId: 'f1', amount: '500', reason: 'переплата' })
+      .expect(201);
+    const closed = await close('f1').expect(200);
+    expect(closed.body.folios[0]).toMatchObject({ id: 'f1', status: 'CLOSED', balanceMinor: '0' });
+    expect(closed.body.folios[1]).toMatchObject({ id: 'f2', status: 'OPEN' });
+    await close('f1').expect(409); // уже закрыт
+    await request(app.getHttpServer())
+      .post('/finance/folios/f1/charges')
+      .send({ kind: 'PENALTY', description: 'Штраф', unitPrice: '1000' })
+      .expect(409);
+    await request(app.getHttpServer())
+      .post('/finance/payments')
+      .send({ method: 'CASH', amount: '10', allocations: [{ folioId: 'f1', amount: '10' }] })
+      .expect(409);
+    expect(fakes.audits).toEqual(['finance.payment', 'finance.refund', 'finance.folio.close']);
   });
 
   it('void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand', async () => {

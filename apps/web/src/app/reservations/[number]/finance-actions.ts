@@ -49,6 +49,18 @@ export async function voidChargeAction(
   }
   return done(number);
 }
+/** Ручное закрытие счёта — API откажет, если баланс не нулевой. */
+export async function closeFolioAction(
+  number: string,
+  folioId: string,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.closeFolio(folioId);
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  return done(number);
+}
 export async function payAction(
   number: string,
   folioId: string,

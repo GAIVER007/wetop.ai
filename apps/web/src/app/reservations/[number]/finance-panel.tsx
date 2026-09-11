@@ -8,6 +8,7 @@ import {
 } from '../../../lib/api';
 import {
   addChargeAction,
+  closeFolioAction,
   payAction,
   refundAction,
   voidChargeAction,
@@ -318,6 +319,30 @@ function FolioPanel({
               Принять оплату
             </button>
           </form>
+          {balance === 0n && (
+            // Закрыть вручную можно только рассчитанный счёт; с долгом или переплатой API откажет
+            <div style={row}>
+              <button
+                type="button"
+                data-testid={`close-folio-${folio.id}`}
+                onClick={async () => {
+                  if (
+                    !window.confirm(
+                      'Закрыть счёт? Начислять и принимать оплату по нему будет нельзя.',
+                    )
+                  )
+                    return;
+                  setOther(await closeFolioAction(number, folio.id));
+                }}
+                style={btnSecondary}
+              >
+                Закрыть счёт
+              </button>
+              <span style={{ fontSize: 12, color: '#666' }}>
+                баланс нулевой — счёт можно закрыть, если начислений больше не будет
+              </span>
+            </div>
+          )}
         </div>
       )}
       {error && (

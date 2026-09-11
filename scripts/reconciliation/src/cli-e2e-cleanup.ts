@@ -22,7 +22,9 @@ try {
   const marked = await db.reservation.findMany({
     where: {
       status: { notIn: ['CANCELLED'] },
-      items: { some: { allocations: { some: {} } } },
+      // Брони без ячейки тоже нужны: для канала они «проданы» (categoryAvailability считает проживания,
+      // а не ячейки) и занижают остаток в Channex — найдено сверкой 11.09.2026.
+      items: { some: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } } },
       OR: [
         { notes: E2E_NOTE },
         // Прогоны до появления метки: номер выдан самой PMS. У броней из Exely номер другого вида
@@ -37,7 +39,7 @@ try {
   const ownNumber = /^\d{8}-[A-Z0-9]{6}$/;
   const mine = marked.filter((r) => r.notes === E2E_NOTE || ownNumber.test(r.confirmationNumber));
   console.log(
-    `Броней автотестов с занятыми ячейками: ${mine.length} (кандидатов по фамилии было ${marked.length})`,
+    `Броней автотестов с активными проживаниями: ${mine.length} (кандидатов по фамилии было ${marked.length})`,
   );
   let freed = 0;
   const failed: string[] = [];
@@ -48,25 +50,42 @@ try {
       );
       continue;
     }
-    const res = await fetch(`${API}/reservations/${encodeURIComponent(r.confirmationNumber)}/cancel`, {
-      method: 'POST',
-    });
-    if (res.ok) {
+    // Playwright останавливает свой API до globalTeardown, поэтому API может быть недоступен:
+    // тогда снимаем назначения прямо в базе — койки освобождаются, сверка их всё равно исключает по метке.
+    const res = await fetch(
+      `${API}/reservations/${encodeURIComponent(r.confirmationNumber)}/cancel`,
+      {
+        method: 'POST',
+      },
+    ).catch(() => null);
+    if (res?.ok) {
       freed += 1;
       continue;
     }
-    // Выселенную бронь отменить нельзя — снимаем только назначение, ночь уже состоялась
-    const removed = await db.allocation.deleteMany({
-      where: { reservationItem: { reservation: { confirmationNumber: r.confirmationNumber } } },
+    // Выселенную бронь через API отменить нельзя (422), а API может быть недоступен. Это тестовые данные
+    // с меткой или номером PMS и фамилией «Тест-», поэтому гасим прямо в базе: назначения снимаем,
+    // проживания и бронь помечаем отменёнными — иначе они считаются проданными и занижают остаток в канале.
+    await db.$transaction(async (tx) => {
+      await tx.allocation.deleteMany({
+        where: { reservationItem: { reservation: { confirmationNumber: r.confirmationNumber } } },
+      });
+      await tx.reservationItem.updateMany({
+        where: { reservation: { confirmationNumber: r.confirmationNumber } },
+        data: { status: 'CANCELLED' },
+      });
+      await tx.reservation.updateMany({
+        where: { confirmationNumber: r.confirmationNumber },
+        data: { status: 'CANCELLED' },
+      });
     });
-    if (removed.count) freed += 1;
-    else failed.push(`${r.confirmationNumber} (${r.status}): HTTP ${res.status}`);
+    freed += 1;
+    if (!res)
+      failed.push(`${r.confirmationNumber} (${r.status}): API недоступен — погашена в базе`);
   }
   if (!dry) console.log(`Освобождено броней: ${freed}`);
   if (failed.length) {
-    console.log('Не удалось убрать:');
+    console.log('Погашено без API:');
     for (const f of failed) console.log(`  ${f}`);
-    process.exitCode = 1;
   }
 } finally {
   await db.$disconnect();

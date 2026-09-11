@@ -142,6 +142,8 @@ export interface FinanceRepository {
   createPayment(p: NewPayment): Promise<string>;
   paymentById(id: string): Promise<PaymentRecord | null>;
   createRefund(r: NewRefund): Promise<string>;
+  /** Закрыть счёт вручную (DATA_MODEL §6, Folio.status): гость рассчитался, начислений больше не будет */
+  closeFolio(id: string): Promise<void>;
   audit(
     entityType: string,
     entityId: string,
@@ -405,6 +407,12 @@ export class PrismaFinanceRepository implements FinanceRepository {
       select: { id: true },
     });
     return row.id;
+  }
+  async closeFolio(id: string): Promise<void> {
+    await this.prisma.db.folio.update({
+      where: { id },
+      data: { status: 'CLOSED', closedAt: new Date() },
+    });
   }
   async audit(
     entityType: string,

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ReservationRuleError,
+  RestrictionViolationError,
   assertCanAssign,
+  assertRestrictionsAllow,
   assertCanCheckIn,
   assertCanCheckOut,
   assertCanNoShow,
@@ -10,6 +13,7 @@ import {
   confirmationNumber,
   deriveReservationStatus,
   priceStay,
+  type StayRestriction,
 } from './reservations';
 
 describe('priceStay', () => {
@@ -105,5 +109,109 @@ describe('assertCanExtend (T2: продление на ночь)', () => {
     expect(() => assertCanExtend('CHECKED_OUT')).toThrow(/CHECKED_OUT/);
     expect(() => assertCanExtend('CANCELLED')).toThrow(/CANCELLED/);
     expect(() => assertCanExtend('NO_SHOW')).toThrow(/NO_SHOW/);
+  });
+});
+
+describe('assertRestrictionsAllow (ADR-020: ограничения продаж действуют и на стойке)', () => {
+  const base = {
+    arrivalDate: '2026-11-14',
+    departureDate: '2026-11-16',
+    categoryName: 'Общая мужская комната',
+  };
+  const r = (date: string, over: Partial<StayRestriction> = {}): StayRestriction => ({
+    date,
+    minStay: null,
+    maxStay: null,
+    stopSell: false,
+    closedToArrival: false,
+    closedToDeparture: false,
+    ...over,
+  });
+  it('без ограничений и с пустыми строками — проходит', () => {
+    expect(() => assertRestrictionsAllow({ ...base, restrictions: [] })).not.toThrow();
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-14'), r('2026-11-15')] }),
+    ).not.toThrow();
+  });
+  it('стоп-продажа на любую ночь проживания — отказ с датой и категорией; ночь выезда не продаётся и не мешает', () => {
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-15', { stopSell: true })] }),
+    ).toThrow('Стоп-продажа на 2026-11-15, Общая мужская комната');
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-16', { stopSell: true })] }),
+    ).not.toThrow();
+  });
+  it('закрыт заезд — только на дату заезда; закрыт выезд — только на дату выезда', () => {
+    expect(() =>
+      assertRestrictionsAllow({
+        ...base,
+        restrictions: [r('2026-11-14', { closedToArrival: true })],
+      }),
+    ).toThrow('Закрыт заезд на 2026-11-14, Общая мужская комната');
+    expect(() =>
+      assertRestrictionsAllow({
+        ...base,
+        restrictions: [r('2026-11-15', { closedToArrival: true })],
+      }),
+    ).not.toThrow();
+    expect(() =>
+      assertRestrictionsAllow({
+        ...base,
+        restrictions: [r('2026-11-16', { closedToDeparture: true })],
+      }),
+    ).toThrow('Закрыт выезд на 2026-11-16, Общая мужская комната');
+    expect(() =>
+      assertRestrictionsAllow({
+        ...base,
+        restrictions: [r('2026-11-15', { closedToDeparture: true })],
+      }),
+    ).not.toThrow();
+  });
+  it('минимальный и максимальный срок смотрят на дату заезда и длину проживания', () => {
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-14', { minStay: 3 })] }),
+    ).toThrow('Минимальный срок 3 ноч. на 2026-11-14, Общая мужская комната: запрошено 2 ноч.');
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-14', { minStay: 2 })] }),
+    ).not.toThrow();
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-14', { maxStay: 1 })] }),
+    ).toThrow('Максимальный срок 1 ноч. на 2026-11-14, Общая мужская комната: запрошено 2 ноч.');
+    // ограничение на другую ночь на срок не влияет
+    expect(() =>
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-15', { minStay: 5 })] }),
+    ).not.toThrow();
+  });
+  it('продление: уже проданные ночи не перепроверяются, добавленные — да; закрытый выезд и максимум срока — тоже', () => {
+    const ext = { ...base, departureDate: '2026-11-18', soldUntil: '2026-11-16' };
+    // стоп-продажа и закрытый заезд на уже проданные ночи — не повод отказать в продлении
+    expect(() =>
+      assertRestrictionsAllow({
+        ...ext,
+        restrictions: [r('2026-11-14', { stopSell: true, closedToArrival: true, minStay: 9 })],
+      }),
+    ).not.toThrow();
+    expect(() =>
+      assertRestrictionsAllow({ ...ext, restrictions: [r('2026-11-17', { stopSell: true })] }),
+    ).toThrow('Стоп-продажа на 2026-11-17, Общая мужская комната');
+    expect(() =>
+      assertRestrictionsAllow({
+        ...ext,
+        restrictions: [r('2026-11-18', { closedToDeparture: true })],
+      }),
+    ).toThrow('Закрыт выезд на 2026-11-18');
+    expect(() =>
+      assertRestrictionsAllow({ ...ext, restrictions: [r('2026-11-14', { maxStay: 3 })] }),
+    ).toThrow('Максимальный срок 3 ноч. на 2026-11-14, Общая мужская комната: запрошено 4 ноч.');
+  });
+  it('нарушение — RestrictionViolationError, подкласс ReservationRuleError (в API — 409)', () => {
+    let caught: unknown;
+    try {
+      assertRestrictionsAllow({ ...base, restrictions: [r('2026-11-14', { stopSell: true })] });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(RestrictionViolationError);
+    expect(caught).toBeInstanceOf(ReservationRuleError);
   });
 });

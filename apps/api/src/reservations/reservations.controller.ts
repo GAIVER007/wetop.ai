@@ -5,6 +5,8 @@ import {
   type AssignUnitDto,
   type ChangeDatesDto,
   type CreateReservationDto,
+  type UpdateItemDto,
+  type UpdateReservationDto,
 } from './reservations.service';
 
 /** Команды ручной брони (стойка). Чтение — в ChessboardController (GET /reservations/:number). */
@@ -20,6 +22,22 @@ export class ReservationsController {
   @Patch(':number/dates')
   changeDates(@Param('number') number: string, @Body() dto: ChangeDatesDto) {
     return this.service.changeDates(number, dto ?? {});
+  }
+
+  /** Правка шапки готовой брони: заметки и источник (даты и ячейки — отдельными командами) */
+  @Patch(':number')
+  update(@Param('number') number: string, @Body() dto: UpdateReservationDto) {
+    return this.service.update(number, dto ?? {});
+  }
+
+  /** Гостей на проживании (Q-102): вместимость категории проверяется как при создании */
+  @Patch(':number/items/:itemId')
+  updateItem(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Body() dto: UpdateItemDto,
+  ) {
+    return this.service.updateItem(number, itemId, dto ?? {});
   }
 
   @Post(':number/cancel')

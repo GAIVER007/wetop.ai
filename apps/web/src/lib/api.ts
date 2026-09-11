@@ -112,6 +112,9 @@ export interface ReservationCard {
     departureDate: string;
     status: string;
     priceMinor: string;
+    /** Гостей на проживании — правится с карточки */
+    adults: number;
+    children: number;
     unitCode: string | null;
     guests: Array<{ label: string; isPrimary: boolean }>;
   }>;
@@ -197,6 +200,16 @@ export const reservationsApi = {
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
+  /** Правка готовой брони: заметки и источник */
+  update: (number: string, body: unknown) =>
+    sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}`, body),
+  /** Гостей на проживании */
+  updateItem: (number: string, itemId: string, body: unknown) =>
+    sendJson<ReservationCard>(
+      'PATCH',
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}`,
+      body,
+    ),
   cancel: (number: string) =>
     sendJson<ReservationCard>('POST', `/reservations/${encodeURIComponent(number)}/cancel`, {}),
   stay: (
@@ -558,6 +571,13 @@ export const financeApi = {
       {},
     ),
   pay: (body: unknown) => sendJson<ReservationFinance>('POST', '/finance/payments', body),
+  /** Ручное закрытие счёта — только при нулевом балансе */
+  closeFolio: (folioId: string) =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/folios/${encodeURIComponent(folioId)}/close`,
+      {},
+    ),
   refund: (paymentId: string, body: unknown) =>
     sendJson<ReservationFinance>(
       'POST',

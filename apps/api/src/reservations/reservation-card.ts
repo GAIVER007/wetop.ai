@@ -8,6 +8,9 @@ export interface ReservationCardItem {
   departureDate: string;
   status: string;
   priceMinor: string;
+  /** Гостей на проживании (Q-102) — правится с карточки */
+  adults: number;
+  children: number;
   unitCode: string | null;
   guests: Array<{ label: string; isPrimary: boolean }>;
 }
@@ -92,6 +95,8 @@ export async function loadReservationCard(
       departureDate: d(it.departureDate),
       status: it.status,
       priceMinor: it.price.toString(),
+      adults: it.adults,
+      children: it.children,
       unitCode: it.allocations.at(-1)?.inventoryUnit.code ?? null,
       guests: it.stayGuests.map((sg) => ({ label: guestLabel(sg.guest), isPrimary: sg.isPrimary })),
     })),

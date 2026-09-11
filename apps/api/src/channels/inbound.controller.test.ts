@@ -162,6 +162,12 @@ function makeFakes() {
       );
     },
     // одна ячейка категории: свободна, если ни одно назначение не пересекает период
+    async freeUnits() {
+      return [];
+    },
+    async restrictionsFor() {
+      return [];
+    },
     async firstFreeUnit(accommodationTypeId, from, to) {
       const busy = allocations.some((x) => x.unitId === 'u-9001' && x.start < to && x.end > from);
       return busy ? null : { id: 'u-9001', code: '9001', accommodationTypeId, active: true };
@@ -338,6 +344,8 @@ function makeFakes() {
           priceMinor: it.priceMinor.toString(),
           unitCode: allocations.find((a) => a.itemId === it.id)?.unitId ?? null,
           guests: [],
+          adults: 1,
+          children: 0,
         })),
       };
     },

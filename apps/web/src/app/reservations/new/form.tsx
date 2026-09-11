@@ -1,16 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
 import { createReservationAction, type ActionResult } from '../actions';
-
-const SOURCES: Array<[string, string]> = [
-  ['DESK', 'стойка'],
-  ['PHONE', 'телефон'],
-  ['WHATSAPP', 'WhatsApp'],
-  ['WALK_IN', 'с улицы'],
-  ['INSTAGRAM', 'Instagram'],
-  ['WEBSITE', 'сайт'],
-  ['OTA', 'OTA (вручную)'],
-];
+import { SOURCES } from '../sources';
 
 export function NewReservationForm(props: {
   arrival: string;
@@ -34,6 +25,9 @@ export function NewReservationForm(props: {
     if (back) setCategory(back);
   }
   const units = props.categories.find((c) => c.code === category)?.availableUnitCodes ?? [];
+  // Групповая бронь: при N > 1 конкретная ячейка не выбирается — система назначит первые N свободных по номеру
+  const [quantity, setQuantity] = useState(kept['quantity'] ?? '1');
+  const group = Number(quantity) > 1;
   return (
     <form
       // React сбрасывает поля формы после server action, и управляемый select остаётся на первом
@@ -103,16 +97,36 @@ export function NewReservationForm(props: {
           />
         </label>
         <label style={lbl}>
-          Ячейка
-          <select name="unitCode" defaultValue={kept['unitCode'] ?? ''} style={inp}>
-            <option value="">— назначить позже —</option>
-            {units.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
+          Количество мест
+          <input
+            type="number"
+            name="quantity"
+            min={1}
+            max={Math.max(1, units.length)}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            title={`свободно ${units.length} в категории; при 2 и больше ячейки назначит система`}
+            style={inp}
+          />
         </label>
+        {group ? (
+          <div style={{ ...lbl, justifyContent: 'end' }} data-testid="group-hint">
+            {Number(quantity)} проживания на первых свободных ячейках по номеру
+            {Number(quantity) > units.length ? ` — свободно только ${units.length}` : ''}
+          </div>
+        ) : (
+          <label style={lbl}>
+            Ячейка
+            <select name="unitCode" defaultValue={kept['unitCode'] ?? ''} style={inp}>
+              <option value="">— назначить позже —</option>
+              {units.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
       <div style={grid}>
         <label style={lbl}>

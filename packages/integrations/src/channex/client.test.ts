@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ChannexApiError, ChannexClient } from './client';
+import { ChannexApiError, ChannexClient, channexDecimalToMinor } from './client';
 
 /** Ответы — из docs/channex/site/api-v.1-documentation (примеры документации, не живой sandbox). */
 type Call = { url: string; init: RequestInit };
@@ -417,5 +417,128 @@ describe('ChannexClient photos (photos-collection.md)', () => {
         position: 0,
       },
     });
+  });
+});
+
+describe('ChannexClient.getRestrictions (ari.md → Get Availability Or Restrictions Per Rate Plan)', () => {
+  /**
+   * Форма ответа — ari.md (Restriction Object: тариф → дата → { ограничение: значение }); значения —
+   * как у живого staging (tests/fixtures/channex/readback-restrictions-2026-09-09.json): rate строкой,
+   * stop_sell булевым, плюс недокументированный unavailable_reasons.
+   */
+  const body = {
+    data: {
+      '2d1bc399-5857-4f98-a929-bffb8e16bcb9': {
+        '2026-09-15': {
+          rate: '14000.00',
+          min_stay_arrival: 1,
+          stop_sell: false,
+          closed_to_arrival: false,
+          closed_to_departure: false,
+          unavailable_reasons: [],
+        },
+        '2026-09-16': {
+          rate: '14000.00',
+          min_stay_arrival: 2,
+          stop_sell: true,
+          closed_to_arrival: true,
+          closed_to_departure: false,
+          unavailable_reasons: [],
+        },
+      },
+      '428d744c-0c7d-4469-9002-f323d4bf8cbe': {
+        '2026-09-15': {
+          rate: '15400.00',
+          min_stay_arrival: 1,
+          stop_sell: false,
+          closed_to_arrival: false,
+          closed_to_departure: false,
+          unavailable_reasons: [],
+        },
+      },
+    },
+  };
+
+  it('asks one property for a date range and a comma-separated restriction list; returns plan → date → cell', async () => {
+    const f = fakeFetch(() => ({ status: 200, body }));
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    const got = await c.getRestrictions(
+      '716305c4-561a-4561-a187-7f5b8aeb5920',
+      '2026-09-15',
+      '2026-09-16',
+    );
+    expect(got).toEqual(body.data);
+    expect(got['2d1bc399-5857-4f98-a929-bffb8e16bcb9']!['2026-09-16']).toMatchObject({
+      rate: '14000.00',
+      min_stay_arrival: 2,
+      stop_sell: true,
+      closed_to_arrival: true,
+    });
+    expect(f.calls).toHaveLength(1);
+    const u = new URL(f.calls[0]!.url);
+    expect(u.pathname.endsWith('/restrictions')).toBe(true);
+    expect(f.calls[0]!.init.method).toBe('GET');
+    expect(u.searchParams.get('filter[property_id]')).toBe('716305c4-561a-4561-a187-7f5b8aeb5920');
+    expect(u.searchParams.get('filter[date][gte]')).toBe('2026-09-15');
+    expect(u.searchParams.get('filter[date][lte]')).toBe('2026-09-16');
+    // набор по умолчанию — то, что мы сами шлём в POST /restrictions и сверяем назад
+    expect(u.searchParams.get('filter[restrictions]')).toBe(
+      'rate,min_stay_arrival,stop_sell,closed_to_arrival,closed_to_departure',
+    );
+  });
+
+  it('filters by rate plan ids on our side (ari.md documents no rate plan filter) and accepts a custom restriction list', async () => {
+    const f = fakeFetch(() => ({ status: 200, body }));
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    const got = await c.getRestrictions(
+      '716305c4-561a-4561-a187-7f5b8aeb5920',
+      '2026-09-15',
+      '2026-09-16',
+      ['428d744c-0c7d-4469-9002-f323d4bf8cbe'],
+      ['rate', 'max_stay', 'min_stay_through'],
+    );
+    expect(Object.keys(got)).toEqual(['428d744c-0c7d-4469-9002-f323d4bf8cbe']);
+    const u = new URL(f.calls[0]!.url);
+    expect(u.searchParams.get('filter[restrictions]')).toBe('rate,max_stay,min_stay_through');
+    expect(u.searchParams.has('filter[rate_plan_id]')).toBe(false);
+    // пустой ответ (нет данных за период) — пустой объект, не исключение
+    const empty = fakeFetch(() => ({ status: 200, body: { data: {} } }));
+    const c2 = new ChannexClient({ apiKey: 'k', fetch: empty.fn, sleep: noSleep.sleep });
+    expect(await c2.getRestrictions('p', '2026-09-15', '2026-09-16')).toEqual({});
+  });
+
+  it('surfaces the documented 400 «restrictions is required» as ChannexApiError with details', async () => {
+    const f = fakeFetch(() => ({
+      status: 400,
+      body: {
+        errors: {
+          code: 'bad_request',
+          title: 'Bad Request',
+          details: ['restrictions is required'],
+        },
+      },
+    }));
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    await expect(c.getRestrictions('p', '2026-09-15', '2026-09-16')).rejects.toMatchObject({
+      status: 400,
+      code: 'bad_request',
+      details: ['restrictions is required'],
+    });
+  });
+});
+
+describe('channexDecimalToMinor — цена Channex "14000.00" → тиыны без float', () => {
+  it('parses two-, one- and zero-decimal strings; tolerates a numeric value; rejects anything else', () => {
+    expect(channexDecimalToMinor('14000.00')).toBe(1_400_000n);
+    expect(channexDecimalToMinor('15400.00')).toBe(1_540_000n);
+    expect(channexDecimalToMinor('76.5')).toBe(7_650n);
+    expect(channexDecimalToMinor('200')).toBe(20_000n);
+    expect(channexDecimalToMinor('0.00')).toBe(0n);
+    // integer minor units, которые мы сами шлём (ari.md → rate: 20000 = 200.00), назад приходят строкой;
+    // число принимаем на всякий случай, но через String, не через арифметику с плавающей точкой
+    expect(channexDecimalToMinor(14000)).toBe(1_400_000n);
+    expect(() => channexDecimalToMinor('1e3')).toThrow(/не десятичное/);
+    expect(() => channexDecimalToMinor('12.345')).toThrow(/не десятичное/);
+    expect(() => channexDecimalToMinor('')).toThrow(/не десятичное/);
   });
 });

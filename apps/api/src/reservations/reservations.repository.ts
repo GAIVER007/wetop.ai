@@ -8,7 +8,7 @@ import {
   type DbTx,
 } from '@pms/database';
 import { folioBalance } from '@pms/domain';
-import type { NightRate, ReservationSource, ReservationStatus } from '@pms/domain';
+import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
@@ -31,6 +31,8 @@ export interface CategoryRef {
   name: string;
   active: boolean;
   capacityAdults: number;
+  /** На объекте у всех 0: детское размещение выключено — гостей-детей на проживании быть не может */
+  capacityChildren: number;
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 /**
@@ -190,6 +192,15 @@ export interface ReservationsRepository {
     from: string,
     toExclusive: string,
   ): Promise<UnitRef | null>;
+  /** Все свободные активные ячейки категории на период, по номеру ячейки — для групповой брони на N мест */
+  freeUnits(accommodationTypeId: string, from: string, toExclusive: string): Promise<UnitRef[]>;
+  /** Ограничения продаж (ADR-020) по датам [from, toExclusive) для категории × тарифа; нет строки — нет ограничений */
+  restrictionsFor(
+    accommodationTypeId: string,
+    ratePlanId: string,
+    from: string,
+    toExclusive: string,
+  ): Promise<StayRestriction[]>;
   createGuest(guest: NewGuest): Promise<string>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
@@ -209,6 +220,8 @@ export interface ReservationsRepository {
       status: ReservationStatus;
       ratePlanId: string;
       accommodationTypeId: string;
+      adults: number;
+      children: number;
     }>,
   ): Promise<void>;
   updateReservation(
@@ -221,6 +234,9 @@ export interface ReservationsRepository {
       externalId: string | null;
       channel: string | null;
       notes: string | null;
+      source: ReservationSource;
+      adults: number;
+      children: number;
     }>,
   ): Promise<void>;
   deleteAllocation(id: string): Promise<void>;
@@ -301,13 +317,27 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const { id: propertyId } = await this.property();
     return this.db.accommodationType.findUnique({
       where: { propertyId_code: { propertyId, code } },
-      select: { id: true, code: true, name: true, active: true, capacityAdults: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        active: true,
+        capacityAdults: true,
+        capacityChildren: true,
+      },
     });
   }
   async categoryById(id: string): Promise<CategoryRef | null> {
     return this.db.accommodationType.findUnique({
       where: { id },
-      select: { id: true, code: true, name: true, active: true, capacityAdults: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        active: true,
+        capacityAdults: true,
+        capacityChildren: true,
+      },
     });
   }
   async ratePlanByCode(code: string): Promise<RatePlanRef | null> {
@@ -386,6 +416,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     from: string,
     toExclusive: string,
   ): Promise<UnitRef | null> {
+    return (await this.freeUnits(accommodationTypeId, from, toExclusive))[0] ?? null;
+  }
+  async freeUnits(
+    accommodationTypeId: string,
+    from: string,
+    toExclusive: string,
+  ): Promise<UnitRef[]> {
     const free = await this.db.inventoryUnit.findMany({
       where: {
         accommodationTypeId,
@@ -402,7 +439,30 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     // «Первая» — по номеру ячейки как числу (1, 5, 41…), иначе по строке; ничего не выводится из номера
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
-    return free[0] ?? null;
+    return free;
+  }
+  async restrictionsFor(
+    accommodationTypeId: string,
+    ratePlanId: string,
+    from: string,
+    toExclusive: string,
+  ): Promise<StayRestriction[]> {
+    const rows = await this.db.restriction.findMany({
+      where: {
+        accommodationTypeId,
+        ratePlanId,
+        date: { gte: asDate(from), lt: asDate(toExclusive) },
+      },
+      select: {
+        date: true,
+        minStay: true,
+        maxStay: true,
+        stopSell: true,
+        closedToArrival: true,
+        closedToDeparture: true,
+      },
+    });
+    return rows.map((r) => ({ ...r, date: iso(r.date) }));
   }
   async hasAllocationOverlap(
     unitId: string,
@@ -603,6 +663,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       status: ReservationStatus;
       ratePlanId: string;
       accommodationTypeId: string;
+      adults: number;
+      children: number;
     }>,
   ): Promise<void> {
     await this.db.reservationItem.update({
@@ -618,6 +680,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
           ? { accommodationTypeId: patch.accommodationTypeId }
           : {}),
         ...(patch.status !== undefined ? { status: patch.status } : {}),
+        ...(patch.adults !== undefined ? { adults: patch.adults } : {}),
+        ...(patch.children !== undefined ? { children: patch.children } : {}),
       },
     });
     await this.syncFolio(itemId);
@@ -656,6 +720,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       externalId: string | null;
       channel: string | null;
       notes: string | null;
+      source: ReservationSource;
+      adults: number;
+      children: number;
     }>,
   ): Promise<void> {
     await this.db.reservation.update({
@@ -670,6 +737,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         ...(patch.externalId !== undefined ? { externalId: patch.externalId } : {}),
         ...(patch.channel !== undefined ? { channel: patch.channel } : {}),
         ...(patch.notes !== undefined ? { notes: patch.notes } : {}),
+        ...(patch.source !== undefined ? { source: patch.source } : {}),
+        ...(patch.adults !== undefined ? { adults: patch.adults } : {}),
+        ...(patch.children !== undefined ? { children: patch.children } : {}),
       },
     });
   }

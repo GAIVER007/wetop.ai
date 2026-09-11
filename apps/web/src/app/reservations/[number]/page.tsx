@@ -62,6 +62,34 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           >
             KZ
           </Link>
+          {/* заготовки печатных форм — содержание заменит образец владельца */} · договор{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/contract?lang=ru`}
+            data-testid="print-contract-ru"
+          >
+            RU
+          </Link>{' '}
+          ·{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/contract?lang=kz`}
+            data-testid="print-contract-kz"
+          >
+            KZ
+          </Link>{' '}
+          · счёт{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/invoice?lang=ru`}
+            data-testid="print-invoice-ru"
+          >
+            RU
+          </Link>{' '}
+          ·{' '}
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/invoice?lang=kz`}
+            data-testid="print-invoice-kz"
+          >
+            KZ
+          </Link>
         </span>
       </div>
       <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Бронь {r.confirmationNumber}</h1>
@@ -137,13 +165,20 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
               <td style={{ ...cell, textAlign: 'right' }}>
                 {formatMinor(it.priceMinor, r.currency)}
               </td>
-              <td style={cell}>{it.guests.map((g) => g.label).join(', ') || '—'}</td>
+              <td style={cell}>
+                {it.guests.map((g) => g.label).join(', ') || '—'}
+                <span style={{ color: '#666', fontSize: 12 }} data-testid="stay-guests-count">
+                  {' '}
+                  · {it.adults}
+                  {it.children ? ` + ${it.children} дет.` : ''}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
       {r.notes && (
-        <p style={{ marginTop: 16, color: '#444' }}>
+        <p style={{ marginTop: 16, color: '#444' }} data-testid="reservation-notes">
           <b>Заметки:</b> {r.notes}
         </p>
       )}
@@ -157,6 +192,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
       <ReservationActions
         number={r.confirmationNumber}
         status={r.status}
+        source={r.source}
+        notes={r.notes}
         arrivalDate={r.arrivalDate}
         departureDate={r.departureDate}
         ratePlans={ratePlans}
@@ -185,6 +222,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             accommodationTypeCode: it.accommodationTypeCode,
             accommodationTypeName: it.accommodationTypeName,
             unitCode: it.unitCode,
+            adults: it.adults,
             availableGroups: groups,
           };
         })}

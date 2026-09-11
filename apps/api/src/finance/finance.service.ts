@@ -105,6 +105,13 @@ export interface ServiceView {
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const today = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 const s = (x: bigint) => x.toString();
+/** Тиыны → «12 000,00 ₸» для сообщения администратору; без float. */
+const formatMinorRu = (minor: bigint): string => {
+  const neg = minor < 0n;
+  const d = (neg ? -minor : minor).toString().padStart(3, '0');
+  const int = d.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${neg ? '−' : ''}${int},${d.slice(-2)} ₸`;
+};
 
 /** Сумма из запроса: «12000», «456.50», «-300,10» → minor units; иначе 400 */
 function money(value: unknown, field: string): bigint {
@@ -250,6 +257,34 @@ export class FinanceService {
     if (!f) throw new NotFoundException(`Счёт ${id} не найден`);
     if (f.status !== 'OPEN') throw new ConflictException(`Счёт ${id} закрыт`);
     return f;
+  }
+
+  /**
+   * Закрыть счёт вручную — например, гость рассчитался до выезда или после выселения с долгом.
+   * Только при нулевом балансе: долг или переплата должны быть закрыты оплатой или возвратом, иначе деньги
+   * повиснут на закрытом счёте. При выезде без долга счёт закрывается сам (reservations.checkOut).
+   */
+  async closeFolio(folioId: string): Promise<ReservationFinanceView> {
+    const folio = await this.openFolio(folioId);
+    const balance = BigInt(folioView(folio).balanceMinor);
+    if (balance !== 0n)
+      throw new ConflictException(
+        `На счёте баланс ${formatMinorRu(balance)} — закрыть нельзя: ${
+          balance > 0n ? 'примите оплату' : 'оформите возврат переплаты'
+        }`,
+      );
+    await this.repo.closeFolio(folioId);
+    await this.repo.audit(
+      'Folio',
+      folioId,
+      'finance.folio.close',
+      { status: 'OPEN' },
+      {
+        status: 'CLOSED',
+        balanceMinor: '0',
+      },
+    );
+    return this.reservation(folio.confirmationNumber);
   }
 
   /** Ручное начисление: услуга (цена и название из справочника), штраф, корректировка (может быть отрицательной). */

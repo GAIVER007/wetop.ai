@@ -16,6 +16,7 @@ const KEPT = [
   'accommodationTypeCode',
   'ratePlanCode',
   'adults',
+  'quantity',
   'unitCode',
   'firstName',
   'lastName',
@@ -43,6 +44,7 @@ export async function createReservationAction(
   fd: FormData,
 ): Promise<ActionResult> {
   let number: string;
+  const quantity = Number(str(fd, 'quantity') ?? '1');
   try {
     const card = await reservationsApi.create({
       source: str(fd, 'source'),
@@ -59,7 +61,9 @@ export async function createReservationAction(
           accommodationTypeCode: str(fd, 'accommodationTypeCode'),
           ratePlanCode: str(fd, 'ratePlanCode'),
           adults: Number(str(fd, 'adults') ?? '1'),
-          unitCode: str(fd, 'unitCode') ?? null,
+          // Групповая бронь: N мест → N проживаний, ячейки назначит система по номеру; при 1 — как раньше
+          quantity,
+          unitCode: quantity > 1 ? null : (str(fd, 'unitCode') ?? null),
         },
       ],
     });
@@ -69,6 +73,41 @@ export async function createReservationAction(
   }
   revalidatePath('/chessboard');
   redirect(`/reservations/${encodeURIComponent(number)}`);
+}
+
+/** Правка готовой брони: заметки и источник. Пустая заметка стирает прежнюю. */
+export async function updateReservationAction(
+  number: string,
+  _prev: ActionResult,
+  fd: FormData,
+): Promise<ActionResult> {
+  try {
+    await reservationsApi.update(number, {
+      notes: str(fd, 'notes') ?? null,
+      source: str(fd, 'source'),
+    });
+  } catch (e) {
+    return { error: describe(e) };
+  }
+  revalidatePath('/chessboard');
+  revalidatePath(`/reservations/${number}`);
+  return { error: null };
+}
+
+/** Гостей на проживании (Q-102): вместимость категории проверит API. */
+export async function updateStayGuestsAction(
+  number: string,
+  itemId: string,
+  _prev: ActionResult,
+  fd: FormData,
+): Promise<ActionResult> {
+  try {
+    await reservationsApi.updateItem(number, itemId, { adults: Number(str(fd, 'adults')) });
+  } catch (e) {
+    return { error: describe(e) };
+  }
+  revalidatePath(`/reservations/${number}`);
+  return { error: null };
 }
 
 export async function cancelReservationAction(number: string): Promise<ActionResult> {

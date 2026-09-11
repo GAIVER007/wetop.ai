@@ -22,7 +22,13 @@ export const RESERVATION_SOURCES: readonly ReservationSource[] = [
 ];
 
 export class ReservationRuleError extends Error {
-  override readonly name = 'ReservationRuleError';
+  // тип string, а не литерал: подклассам нужно своё имя в логах
+  override readonly name: string = 'ReservationRuleError';
+}
+
+/** Нарушение ограничения продаж (ADR-020): отдельный класс, чтобы API отдавал 409, а не 422. */
+export class RestrictionViolationError extends ReservationRuleError {
+  override readonly name: string = 'RestrictionViolationError';
 }
 
 export interface NightRate {
@@ -139,4 +145,59 @@ export function confirmationNumber(now: Date, random: () => number = Math.random
 export function assertCanExtend(status: ReservationStatus): void {
   if (status !== 'TENTATIVE' && status !== 'CONFIRMED' && status !== 'CHECKED_IN')
     throw new ReservationRuleError(`Продление невозможно из статуса ${status}`);
+}
+
+/** Строка Restriction на дату × категория × тариф (DATA_MODEL §4). Нет строки = нет ограничений. */
+export interface StayRestriction {
+  date: string;
+  minStay: number | null;
+  maxStay: number | null;
+  stopSell: boolean;
+  closedToArrival: boolean;
+  closedToDeparture: boolean;
+}
+
+/**
+ * ADR-020: ограничения продаж действуют и на стойке, отказ — с названием ограничения, датой и категорией.
+ *  — стоп-продажа на любую ночь проживания [arrival, departure);
+ *  — закрыт заезд — на дату заезда; закрыт выезд — на дату выезда;
+ *  — минимальный и максимальный срок — по дате заезда, сравнивается с длиной проживания.
+ * `soldUntil` — продление: ночи до этой даты уже проданы, стоп-продажу, закрытый заезд и минимум срока
+ * на них не перепроверяем (гость уже живёт), а добавленные ночи, выезд и максимум срока — да.
+ */
+export function assertRestrictionsAllow(input: {
+  arrivalDate: string;
+  departureDate: string;
+  categoryName: string;
+  restrictions: readonly StayRestriction[];
+  soldUntil?: string | undefined;
+}): void {
+  if (input.departureDate <= input.arrivalDate)
+    throw new ReservationRuleError(
+      `Проживание должно содержать хотя бы одну ночь: заезд ${input.arrivalDate}, выезд ${input.departureDate}`,
+    );
+  const byDate = new Map(input.restrictions.map((r) => [r.date, r]));
+  const where = (date: string) => `на ${date}, ${input.categoryName}`;
+  const nights = dateRange(input.arrivalDate, addDays(input.departureDate, -1)).length;
+  const newStay = input.soldUntil === undefined;
+  const firstUnsold =
+    input.soldUntil && input.soldUntil > input.arrivalDate ? input.soldUntil : input.arrivalDate;
+
+  const arrival = byDate.get(input.arrivalDate);
+  if (newStay && arrival?.closedToArrival)
+    throw new RestrictionViolationError(`Закрыт заезд ${where(input.arrivalDate)}`);
+  if (newStay && arrival?.minStay != null && nights < arrival.minStay)
+    throw new RestrictionViolationError(
+      `Минимальный срок ${arrival.minStay} ноч. ${where(input.arrivalDate)}: запрошено ${nights} ноч.`,
+    );
+  if (arrival?.maxStay != null && nights > arrival.maxStay)
+    throw new RestrictionViolationError(
+      `Максимальный срок ${arrival.maxStay} ноч. ${where(input.arrivalDate)}: запрошено ${nights} ноч.`,
+    );
+  if (firstUnsold < input.departureDate)
+    for (const date of dateRange(firstUnsold, addDays(input.departureDate, -1)))
+      if (byDate.get(date)?.stopSell)
+        throw new RestrictionViolationError(`Стоп-продажа ${where(date)}`);
+  if (byDate.get(input.departureDate)?.closedToDeparture)
+    throw new RestrictionViolationError(`Закрыт выезд ${where(input.departureDate)}`);
 }

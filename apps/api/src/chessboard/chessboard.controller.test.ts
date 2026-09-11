@@ -75,6 +75,8 @@ const fakeRepo: ChessboardRepository = {
           status: 'CONFIRMED',
           priceMinor: '1200000',
           unitCode: '9010',
+          adults: 1,
+          children: 0,
           guests: [{ label: 'Гость Тест-abc', isPrimary: true }],
         },
       ],

@@ -27,6 +27,12 @@ export class FinanceController {
     return this.service.addCharge(id, dto ?? {});
   }
 
+  @Post('folios/:id/close')
+  @HttpCode(200)
+  closeFolio(@Param('id') id: string) {
+    return this.service.closeFolio(id);
+  }
+
   @Post('charges/:id/void')
   @HttpCode(200)
   voidCharge(@Param('id') id: string) {

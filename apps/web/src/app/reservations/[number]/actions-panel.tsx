@@ -6,14 +6,19 @@ import {
   stayAction,
   cancelReservationAction,
   changeDatesAction,
+  updateReservationAction,
+  updateStayGuestsAction,
   type ActionResult,
 } from '../actions';
+import { SOURCES } from '../sources';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
 
 export function ReservationActions(props: {
   number: string;
   status: string;
+  source: string;
+  notes: string | null;
   arrivalDate: string;
   departureDate: string;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
@@ -23,6 +28,7 @@ export function ReservationActions(props: {
     accommodationTypeCode: string;
     accommodationTypeName: string;
     unitCode: string | null;
+    adults: number;
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
@@ -34,6 +40,7 @@ export function ReservationActions(props: {
   const canEdit = OPEN.has(props.status);
   return (
     <section data-testid="reservation-actions" style={{ marginTop: 20, display: 'grid', gap: 14 }}>
+      <EditForm number={props.number} source={props.source} notes={props.notes} />
       {canEdit && (
         // Поля неконтролируемые: defaultValue применяется только при монтировании, поэтому после
         // «+ 1 ночь» или переселения форма показывала бы прежние даты, а сохранение молча укоротило
@@ -74,6 +81,7 @@ export function ReservationActions(props: {
         .map((it) => (
           <div key={it.id} style={{ display: 'grid', gap: 8 }}>
             <StayButtons number={props.number} item={it} />
+            <GuestsForm number={props.number} item={it} />
             <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
           </div>
         ))}
@@ -100,6 +108,98 @@ export function ReservationActions(props: {
         </form>
       )}
     </section>
+  );
+}
+
+/** Правка готовой брони: заметки и источник. Ключ по текущим значениям — после сохранения поля перерисовываются. */
+function EditForm(props: { number: string; source: string; notes: string | null }) {
+  const [state, action, pending] = useActionState<ActionResult, FormData>(
+    updateReservationAction.bind(null, props.number),
+    { error: null },
+  );
+  return (
+    <form
+      key={`${props.source}|${props.notes ?? ''}`}
+      action={action}
+      style={box}
+      data-testid="edit-reservation-form"
+    >
+      <b style={{ fontSize: 14 }}>Заметки и источник</b>
+      <div style={row}>
+        <label
+          style={{ fontSize: 12, color: '#555', display: 'flex', gap: 6, alignItems: 'center' }}
+        >
+          Источник
+          <select name="source" defaultValue={props.source} style={inp}>
+            {SOURCES.map(([v, t]) => (
+              <option key={v} value={v}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </label>
+        <textarea
+          name="notes"
+          rows={2}
+          placeholder="Заметки"
+          defaultValue={props.notes ?? ''}
+          style={{ ...inp, flex: 1, minWidth: 220 }}
+        />
+        <button type="submit" disabled={pending} style={btn}>
+          Сохранить
+        </button>
+      </div>
+      {state.error && (
+        <div role="alert" style={err}>
+          {state.error}
+        </div>
+      )}
+    </form>
+  );
+}
+
+/** Гостей на проживании (Q-102). Цена не меняется: перецена по календарю — «Изменить даты». */
+function GuestsForm(props: {
+  number: string;
+  item: { id: string; adults: number; accommodationTypeName: string };
+}) {
+  const [state, action, pending] = useActionState<ActionResult, FormData>(
+    updateStayGuestsAction.bind(null, props.number, props.item.id),
+    { error: null },
+  );
+  return (
+    <form
+      key={props.item.adults}
+      action={action}
+      style={{ ...box, gap: 6 }}
+      data-testid={`guests-form-${props.item.id}`}
+    >
+      <div style={row}>
+        <label
+          style={{ fontSize: 12, color: '#555', display: 'flex', gap: 6, alignItems: 'center' }}
+        >
+          Гостей
+          <input
+            type="number"
+            name="adults"
+            min={1}
+            defaultValue={props.item.adults}
+            style={{ ...inp, width: 64 }}
+          />
+        </label>
+        <button type="submit" disabled={pending} style={btnSecondary}>
+          Сохранить
+        </button>
+        <span style={{ fontSize: 12, color: '#666' }}>
+          цена не меняется; пересчитать по календарю — «Изменить даты»
+        </span>
+      </div>
+      {state.error && (
+        <div role="alert" style={err}>
+          {state.error}
+        </div>
+      )}
+    </form>
   );
 }
 
@@ -278,6 +378,14 @@ const btn: React.CSSProperties = {
   background: '#1d4ed8',
   color: '#fff',
   fontSize: 14,
+  cursor: 'pointer',
+};
+const btnSecondary: React.CSSProperties = {
+  padding: '6px 10px',
+  border: '1px solid #cbd0d6',
+  borderRadius: 6,
+  background: '#fff',
+  fontSize: 13,
   cursor: 'pointer',
 };
 const err: React.CSSProperties = { color: '#b91c1c', fontSize: 13 };

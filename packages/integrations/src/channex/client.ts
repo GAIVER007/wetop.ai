@@ -128,6 +128,52 @@ export interface ChannexAvailabilityValue {
   date_to?: string;
   availability: number;
 }
+/**
+ * Имена ограничений для чтения (ari.md → Get Availability Or Restrictions Per Rate Plan →
+ * «restrictions … Supported values»). availability_offset и max_availability — только чтение.
+ */
+export type ChannexRestrictionName =
+  | 'availability'
+  | 'rate'
+  | 'min_stay_arrival'
+  | 'min_stay_through'
+  | 'min_stay'
+  | 'closed_to_arrival'
+  | 'closed_to_departure'
+  | 'stop_sell'
+  | 'max_stay'
+  | 'availability_offset'
+  | 'max_availability';
+/**
+ * Клетка ответа GET /restrictions (ari.md → Restriction Object): только запрошенные ключи.
+ * Цена приходит строкой с двумя знаками ("200.00" в документации, "14000.00" на живом staging —
+ * tests/fixtures/channex/readback-restrictions-2026-09-09.json), хотя шлём мы её integer minor units.
+ */
+export interface ChannexRestrictionCell {
+  availability?: number;
+  rate?: string;
+  min_stay_arrival?: number;
+  min_stay_through?: number;
+  min_stay?: number;
+  max_stay?: number;
+  closed_to_arrival?: boolean;
+  closed_to_departure?: boolean;
+  stop_sell?: boolean;
+  availability_offset?: number;
+  max_availability?: number;
+  /** В документации нет; живой staging добавляет к каждой дате (см. фикстуру выше) */
+  unavailable_reasons?: unknown[];
+}
+/** Ответ GET /restrictions: тариф Channex → дата YYYY-MM-DD → клетка */
+export type ChannexRestrictionsByPlan = Record<string, Record<string, ChannexRestrictionCell>>;
+/** То, что мы сами публикуем в POST /restrictions и хотим сверить назад */
+export const DEFAULT_READBACK_RESTRICTIONS: readonly ChannexRestrictionName[] = [
+  'rate',
+  'min_stay_arrival',
+  'stop_sell',
+  'closed_to_arrival',
+  'closed_to_departure',
+];
 /** Ревизия брони (bookings-collection.md → Booking Revision). `guarantee` — данные карты: НЕ хранить (SECURITY.md). */
 export interface ChannexBookingRoom {
   checkin_date: string;
@@ -185,6 +231,19 @@ export const CHANNEX_STAGING_URL = 'https://staging.channex.io/api/v1';
 const RATE_LIMIT_PAUSE_MS = 60_000; // rate-limits.md: «pause updates for the property for 1 minute»
 const MAX_BACKOFF_MS = 60_000;
 const PAGE_LIMIT = 100;
+
+/**
+ * Цена из ответа Channex ("14000.00") → integer minor units (1400000n, тиыны) без плавающей точки
+ * (ADR-008). Мы отправляем rate как integer minor units (ari.md: 20000 = 200.00), назад Channex
+ * отдаёт десятичную строку — это единственное место перевода. Число принимаем через String, чтобы
+ * не заниматься арифметикой над float; всё, что не «целое[.до двух знаков]», — ошибка.
+ */
+export function channexDecimalToMinor(value: string | number): bigint {
+  const m = /^(-)?(\d+)(?:\.(\d{1,2}))?$/.exec(String(value).trim());
+  if (!m) throw new Error(`Channex rate «${String(value)}» не десятичное число`);
+  const minor = BigInt(m[2]!) * 100n + BigInt((m[3] ?? '').padEnd(2, '0'));
+  return m[1] ? -minor : minor;
+}
 
 /** Webhook (webhook-collection.md): чтение — data.attributes */
 export interface ChannexWebhookAttributes {
@@ -426,6 +485,37 @@ export class ChannexClient {
       `/availability?${q.toString()}`,
     );
     return res.data;
+  }
+
+  /**
+   * Цены и ограничения по тарифам за период (ari.md → Get Availability Or Restrictions Per Rate Plan).
+   * Запрос требует ровно три аргумента: filter[property_id] (один объект), filter[date][gte|lte]
+   * и filter[restrictions] — список через запятую; без него Channex отвечает 400 «restrictions is required».
+   * Ответ: { rate_plan_id: { 'YYYY-MM-DD': { ограничение: значение } } } — только запрошенные ключи.
+   * Фильтра по тарифу в документации нет, поэтому ratePlanIds сужают ответ уже у нас.
+   * Нужен для сверки в обе стороны: то, что мы опубликовали, обязано совпасть с тем, что канал видит.
+   */
+  async getRestrictions(
+    propertyId: string,
+    from: string,
+    to: string,
+    ratePlanIds?: readonly string[],
+    restrictions: readonly ChannexRestrictionName[] = DEFAULT_READBACK_RESTRICTIONS,
+  ): Promise<ChannexRestrictionsByPlan> {
+    const q = new URLSearchParams({
+      'filter[property_id]': propertyId,
+      'filter[date][gte]': from,
+      'filter[date][lte]': to,
+      'filter[restrictions]': restrictions.join(','),
+    });
+    const res = await this.request<{ data?: ChannexRestrictionsByPlan }>(
+      'GET',
+      `/restrictions?${q.toString()}`,
+    );
+    const data = res.data ?? {};
+    if (!ratePlanIds) return data;
+    const wanted = new Set(ratePlanIds);
+    return Object.fromEntries(Object.entries(data).filter(([id]) => wanted.has(id)));
   }
 
   /**

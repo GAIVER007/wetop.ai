@@ -10,7 +10,9 @@ import {
 import {
   RESERVATION_SOURCES,
   ReservationRuleError,
+  RestrictionViolationError,
   assertCanAssign,
+  assertRestrictionsAllow,
   assertCanCancel,
   assertCanChangeDates,
   assertCanCheckIn,
@@ -52,7 +54,22 @@ export interface CreateReservationDto {
     ratePlanCode?: string;
     adults?: number;
     unitCode?: string | null;
+    /**
+     * Групповая бронь: N мест в категории → N проживаний, первые N свободных ячеек по номеру.
+     * По умолчанию 1; вместе с `unitCode` не сочетается (при N>1 ячейки назначает система).
+     */
+    quantity?: number;
   }>;
+}
+/** Правка шапки готовой брони: заметки и источник. Оба поля необязательны, но хотя бы одно нужно. */
+export interface UpdateReservationDto {
+  notes?: string | null;
+  source?: string;
+}
+/** Гостей на проживании (Q-102). Цена не пересчитывается: перецена — через «Изменить даты». */
+export interface UpdateItemDto {
+  adults?: number;
+  children?: number;
 }
 export interface ChangeDatesDto {
   arrivalDate?: string;
@@ -90,10 +107,30 @@ async function guarded<T>(fn: () => Promise<T> | T): Promise<T> {
   try {
     return await fn();
   } catch (e) {
+    // Ограничение продаж (ADR-020) — конфликт с календарём, как занятая ячейка: 409, не 422
+    if (e instanceof RestrictionViolationError) throw new ConflictException(e.message);
     if (e instanceof ReservationRuleError) throw new UnprocessableEntityException(e.message);
     if (e instanceof AllocationOverlapError) throw new ConflictException(e.message);
     throw e;
   }
+}
+
+/** Гостей на проживании против вместимости категории — одна проверка для создания и правки. */
+function assertFits(
+  type: { name: string; capacityAdults: number; capacityChildren: number },
+  adults: number,
+  children: number,
+): void {
+  if (adults > type.capacityAdults)
+    throw new UnprocessableEntityException(
+      `Категория ${type.name}: вместимость ${type.capacityAdults}, запрошено ${adults}`,
+    );
+  if (children > type.capacityChildren)
+    throw new UnprocessableEntityException(
+      type.capacityChildren === 0
+        ? `Категория ${type.name}: детское размещение не предусмотрено`
+        : `Категория ${type.name}: детей не больше ${type.capacityChildren}, запрошено ${children}`,
+    );
 }
 
 function requireStayDates(
@@ -154,6 +191,12 @@ export class ReservationsService {
         throw new BadRequestException('items[].accommodationTypeCode и ratePlanCode обязательны');
       if (!Number.isInteger(it.adults) || (it.adults as number) < 1)
         throw new BadRequestException('items[].adults — целое ≥ 1');
+      if (it.quantity !== undefined && (!Number.isInteger(it.quantity) || it.quantity < 1))
+        throw new BadRequestException('items[].quantity — целое ≥ 1 (число мест в категории)');
+      if ((it.quantity ?? 1) > 1 && it.unitCode)
+        throw new BadRequestException(
+          'items[].unitCode задаётся только для одного места: при quantity > 1 ячейки назначает система',
+        );
     }
     const guest = dto.guest;
     const status: ReservationStatus = 'CONFIRMED';
@@ -175,10 +218,7 @@ export class ReservationsService {
               `Категория ${it.accommodationTypeCode} не найдена или неактивна`,
             );
           const adults = it.adults as number;
-          if (adults > type.capacityAdults)
-            throw new UnprocessableEntityException(
-              `Категория ${type.name}: вместимость ${type.capacityAdults}, запрошено ${adults}`,
-            );
+          assertFits(type, adults, 0);
           const plan = await repo.ratePlanByCode(it.ratePlanCode!);
           if (!plan || !plan.active)
             throw new UnprocessableEntityException(
@@ -193,6 +233,7 @@ export class ReservationsService {
               'Все проживания одной брони должны быть в одной валюте',
             );
           currency = plan.currency;
+          await this.assertRestrictions(repo, type, plan.id, dates);
           const rates = await repo.nightRates(
             type.id,
             plan.id,
@@ -200,6 +241,24 @@ export class ReservationsService {
             dates.departureDate,
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
+          const quantity = it.quantity ?? 1;
+          if (quantity > 1) {
+            // Групповая бронь: N мест → N проживаний, ячейки — первые свободные по номеру (как firstFreeUnit)
+            const free = await repo.freeUnits(type.id, dates.arrivalDate, dates.departureDate);
+            if (free.length < quantity)
+              throw new ConflictException(
+                `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} свободно только ${free.length} из ${quantity} мест`,
+              );
+            for (const unit of free.slice(0, quantity))
+              prepared.push({
+                typeId: type.id,
+                ratePlanId: plan.id,
+                adults,
+                totalMinor: price.totalMinor,
+                unitId: unit.id,
+              });
+            continue;
+          }
           let unitId: string | null = null;
           if (it.unitCode) {
             const unit = await repo.unitByCode(it.unitCode);
@@ -309,6 +368,12 @@ export class ReservationsService {
             throw new UnprocessableEntityException(
               `Тариф ${plan.name} не действует на категорию проживания`,
             );
+          await this.assertRestrictions(
+            repo,
+            await repo.categoryById(item.accommodationTypeId),
+            plan.id,
+            dates,
+          );
           const rates = await repo.nightRates(
             item.accommodationTypeId,
             plan.id,
@@ -409,6 +474,14 @@ export class ReservationsService {
           throw new BadRequestException(
             'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
           );
+        // Ограничения (ADR-020) — на добавленные ночи и новый выезд; уже проданные ночи не перепроверяются
+        await this.assertRestrictions(
+          repo,
+          await repo.categoryById(item.accommodationTypeId),
+          planId,
+          { arrivalDate: item.arrivalDate, departureDate },
+          item.departureDate,
+        );
         // Считаем только ДОБАВЛЕННЫЕ ночи: цена уже проданных ночей согласована с гостем и каналом,
         // переоценивать её по сегодняшнему календарю нельзя. Перецена всего проживания — это changeDates.
         const rates = await repo.nightRates(
@@ -506,10 +579,7 @@ export class ReservationsService {
           if (!target || !target.active)
             throw new UnprocessableEntityException(`Категория ячейки ${dto.unitCode} неактивна`);
           const adults = Math.max(1, item.adults || item.guestsCount);
-          if (adults > target.capacityAdults)
-            throw new UnprocessableEntityException(
-              `Категория ${target.name}: вместимость ${target.capacityAdults}, а гостей ${adults}`,
-            );
+          assertFits(target, adults, item.children);
           const planId = dto.ratePlanCode
             ? (await repo.ratePlanByCode(dto.ratePlanCode))?.id
             : item.ratePlanId;
@@ -563,6 +633,107 @@ export class ReservationsService {
     );
     await this.publishMove(card, movedFromCategory);
     return card;
+  }
+
+  /**
+   * ADR-020: ограничения продаж (стоп-продажа, закрытие заезда/выезда, срок) действуют и на стойке.
+   * Брони каналов сюда не попадают — канал сам отвечает за свои ограничения (inbound.service).
+   * Выезд — граница диапазона: строка на дату выезда нужна ради closed_to_departure, поэтому +1 день.
+   */
+  private async assertRestrictions(
+    repo: ReservationsRepository,
+    type: { name: string; id: string } | null,
+    ratePlanId: string,
+    dates: { arrivalDate: string; departureDate: string },
+    soldUntil?: string,
+  ): Promise<void> {
+    if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
+    const restrictions = await repo.restrictionsFor(
+      type.id,
+      ratePlanId,
+      dates.arrivalDate,
+      addDays(dates.departureDate, 1),
+    );
+    assertRestrictionsAllow({ ...dates, categoryName: type.name, restrictions, soldUntil });
+  }
+
+  /** Правка шапки готовой брони: заметки и источник (Q-089: источник — только из справочника). */
+  async update(number: string, dto: UpdateReservationDto): Promise<ReservationCard> {
+    const patch: { notes?: string | null; source?: ReservationSource } = {};
+    if (dto.notes !== undefined) {
+      if (dto.notes !== null && typeof dto.notes !== 'string')
+        throw new BadRequestException('notes — строка или null');
+      patch.notes = dto.notes === null ? null : dto.notes.trim() || null;
+    }
+    if (dto.source !== undefined) {
+      if (!(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
+        throw new BadRequestException(`source — один из ${RESERVATION_SOURCES.join(', ')}`);
+      patch.source = dto.source as ReservationSource;
+    }
+    if (Object.keys(patch).length === 0)
+      throw new BadRequestException('Нечего менять: укажите notes и/или source');
+    return this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const before = await repo.card(number);
+        await repo.updateReservation(state.id, patch);
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.update',
+          before,
+          after,
+        });
+        return after;
+      }),
+    );
+  }
+
+  /**
+   * Гостей на проживании (Q-102): вместимость категории — как при создании. Цена не пересчитывается:
+   * согласованную с гостем сумму менять молча нельзя, перецена по календарю — командой «Изменить даты».
+   */
+  async updateItem(number: string, itemId: string, dto: UpdateItemDto): Promise<ReservationCard> {
+    if (dto.adults !== undefined && (!Number.isInteger(dto.adults) || dto.adults < 1))
+      throw new BadRequestException('adults — целое ≥ 1');
+    if (dto.children !== undefined && (!Number.isInteger(dto.children) || dto.children < 0))
+      throw new BadRequestException('children — целое ≥ 0');
+    if (dto.adults === undefined && dto.children === undefined)
+      throw new BadRequestException('Нечего менять: укажите adults и/или children');
+    return this.uow.run((repo) =>
+      guarded(async () => {
+        const state = await this.load(repo, number);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+        if (item.status === 'CANCELLED' || item.status === 'NO_SHOW')
+          throw new UnprocessableEntityException(
+            `Проживание в статусе ${item.status}: гостей не изменить`,
+          );
+        const type = await repo.categoryById(item.accommodationTypeId);
+        if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
+        const adults = dto.adults ?? item.adults;
+        const children = dto.children ?? item.children;
+        assertFits(type, adults, children);
+        const before = await repo.card(number);
+        await repo.updateItem(item.id, { adults, children });
+        // Шапка брони производна от проживаний: гостей — сумма по неотменённым
+        const active = state.items.filter((i) => i.status !== 'CANCELLED');
+        await repo.updateReservation(state.id, {
+          adults: active.reduce((s, i) => s + (i.id === item.id ? adults : i.adults), 0),
+          children: active.reduce((s, i) => s + (i.id === item.id ? children : i.children), 0),
+        });
+        const after = (await repo.card(number))!;
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: state.id,
+          action: 'reservation.updateItem',
+          before,
+          after,
+        });
+        return after;
+      }),
+    );
   }
 
   /** Дельта в каналы после переселения между категориями: освободилась старая, занялась новая. */

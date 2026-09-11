@@ -7,6 +7,7 @@ import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from './reservations.module';
+import type { StayRestriction } from '@pms/domain';
 import {
   type RatePlanRef,
   AllocationOverlapError,
@@ -16,11 +17,33 @@ import {
   type UnitOfWork,
 } from './reservations.repository';
 
+/** Фальшивка хранит и то, чего в ReservationState нет, но что отдаёт карточка: источник, заметки, гостей */
+type StoredReservation = ReservationState & {
+  source?: string;
+  notes?: string | null;
+  adults?: number;
+  children?: number;
+};
+
 /** Фальшивое хранилище в памяти: 2 категории, тариф, ячейки, цены. Вымышленные данные. */
 function makeFake() {
   const types = [
-    { id: 't1', code: 'exely-900001', name: 'Тестовая одиночная', active: true, capacityAdults: 1 },
-    { id: 't2', code: 'exely-900002', name: 'Тестовая двойная', active: true, capacityAdults: 2 },
+    {
+      id: 't1',
+      code: 'exely-900001',
+      name: 'Тестовая одиночная',
+      active: true,
+      capacityAdults: 1,
+      capacityChildren: 0, // как на объекте: детское размещение выключено
+    },
+    {
+      id: 't2',
+      code: 'exely-900002',
+      name: 'Тестовая двойная',
+      active: true,
+      capacityAdults: 2,
+      capacityChildren: 0,
+    },
   ];
   const plans: RatePlanRef[] = [
     {
@@ -44,6 +67,9 @@ function makeFake() {
     { id: 'u1', code: '9001', accommodationTypeId: 't1', active: true },
     { id: 'u2', code: '9002', accommodationTypeId: 't2', active: true },
     { id: 'u3', code: '9003', accommodationTypeId: 't1', active: true },
+    // ещё две койки одиночной категории — для групповой брони на несколько мест
+    { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true },
+    { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true },
   ];
   const rates: Record<string, bigint> = {};
   for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
@@ -56,7 +82,9 @@ function makeFake() {
     debts: new Map<string, bigint>(),
     /** проживания, у которых счёт закрыт при выезде */
     closedFolios: [] as string[],
-    reservations: new Map<string, ReservationState>(),
+    reservations: new Map<string, StoredReservation>(),
+    /** ограничения продаж (ADR-020): дата × категория × тариф */
+    restrictions: [] as Array<StayRestriction & { typeId: string; planId: string }>,
     allocations: [] as Array<{
       id: string;
       itemId: string;
@@ -128,6 +156,25 @@ function makeFake() {
     async firstFreeUnit() {
       return null; // ручная бронь ячейку выбирает сама; автоназначение — для каналов (Q-094)
     },
+    async freeUnits(typeId, from, toExclusive) {
+      return units
+        .filter(
+          (u) =>
+            u.accommodationTypeId === typeId &&
+            u.active &&
+            !overlaps(u.id, from, toExclusive) &&
+            !blocked.some((b) => b.unitId === u.id && b.from < toExclusive && b.to > from),
+        )
+        .sort((a, b) => Number(a.code) - Number(b.code));
+    },
+    async restrictionsFor(typeId, planId, from, toExclusive) {
+      return state.restrictions
+        .filter(
+          (r) =>
+            r.typeId === typeId && r.planId === planId && r.date >= from && r.date < toExclusive,
+        )
+        .map(({ typeId: _t, planId: _p, ...r }) => r);
+    },
     async createGuest() {
       state.guests += 1;
       return `g${state.guests}`;
@@ -157,6 +204,10 @@ function makeFake() {
         departureDate: input.departureDate,
         currency: input.currency,
         items,
+        source: input.source,
+        notes: input.notes,
+        adults: input.adults,
+        children: input.children,
       });
       return { id, itemIds: items.map((i) => i.id) };
     },
@@ -236,16 +287,16 @@ function makeFake() {
       if (!r) return null;
       return {
         confirmationNumber: r.confirmationNumber,
-        source: 'DESK',
+        source: r.source ?? 'DESK',
         channel: null,
         status: r.status,
         arrivalDate: r.arrivalDate,
         departureDate: r.departureDate,
-        adults: 1,
-        children: 0,
+        adults: r.adults ?? 1,
+        children: r.children ?? 0,
         currency: r.currency,
         totalAmountMinor: r.items.reduce((s, i) => s + i.priceMinor, 0n).toString(),
-        notes: null,
+        notes: r.notes ?? null,
         primaryGuest: {
           id: 'g1',
           label: 'Гость Тестовый',
@@ -260,11 +311,17 @@ function makeFake() {
           departureDate: it.departureDate,
           status: it.status,
           priceMinor: it.priceMinor.toString(),
+          adults: it.adults,
+          children: it.children,
           unitCode: state.allocations.find((a) => a.itemId === it.id)?.unitId
             ? units.find((u) => u.id === state.allocations.find((a) => a.itemId === it.id)!.unitId)!
                 .code
             : null,
-          guests: [],
+          // как loadReservationCard: гости проживания из StayGuest (заказчик записан на каждое)
+          guests: Array.from({ length: it.guestsCount }, () => ({
+            label: 'Гость Тестовый',
+            isPrimary: true,
+          })),
         })),
       };
     },
@@ -672,6 +729,243 @@ describe('manual reservation API', () => {
       .send({})
       .expect(200);
     expect(fake.state.closedFolios).toEqual([cleanItem]);
+  });
+
+  it('ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты', async () => {
+    const post = (b: object) => request(app.getHttpServer()).post('/reservations').send(b);
+    const rule = (date: string, over: Partial<StayRestriction>) => ({
+      typeId: 't1',
+      planId: 'p1',
+      date,
+      minStay: null,
+      maxStay: null,
+      stopSell: false,
+      closedToArrival: false,
+      closedToDeparture: false,
+      ...over,
+    });
+
+    // стоп-продажа на вторую ночь — бронь 15→17 не проходит, сообщение читается на стойке
+    fake.state.restrictions.push(rule('2026-09-16', { stopSell: true }));
+    const stop = await post(body()).expect(409);
+    expect(stop.body.message).toBe('Стоп-продажа на 2026-09-16, Тестовая одиночная');
+    // другая категория той же датой — без ограничений, продаётся
+    await post(
+      body({
+        items: [
+          {
+            accommodationTypeCode: 'exely-900002',
+            ratePlanCode: 'exely-800001',
+            adults: 1,
+            unitCode: '9002',
+          },
+        ],
+      }),
+    ).expect(201);
+    // ночь выезда не продаётся: стоп-продажа на 17-е брони 15→17 не мешает
+    fake.state.restrictions.length = 0;
+    fake.state.restrictions.push(rule('2026-09-17', { stopSell: true }));
+    const created = await post(body()).expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+
+    // продление «+1 ночь» упирается в стоп-продажу на добавленную ночь
+    const ext = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/extend`)
+      .send({})
+      .expect(409);
+    expect(ext.body.message).toBe('Стоп-продажа на 2026-09-17, Тестовая одиночная');
+
+    // максимальный срок по дате заезда: 15→17 = 2 ночи, продление до 3 — отказ
+    fake.state.restrictions.length = 0;
+    fake.state.restrictions.push(rule('2026-09-15', { maxStay: 2 }));
+    const max = await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/extend`)
+      .send({})
+      .expect(409);
+    expect(max.body.message).toBe(
+      'Максимальный срок 2 ноч. на 2026-09-15, Тестовая одиночная: запрошено 3 ноч.',
+    );
+
+    // закрытый заезд на 16-е: перенос дат 16→18 — отказ, 15→18 проходит
+    fake.state.restrictions.length = 0;
+    fake.state.restrictions.push(rule('2026-09-16', { closedToArrival: true }));
+    const cta = await request(app.getHttpServer())
+      .patch(`/reservations/${n}/dates`)
+      .send({ arrivalDate: '2026-09-16', departureDate: '2026-09-18' })
+      .expect(409);
+    expect(cta.body.message).toBe('Закрыт заезд на 2026-09-16, Тестовая одиночная');
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}/dates`)
+      .send({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' })
+      .expect(200);
+
+    // закрытый выезд на 18-е ловится при переносе, минимальный срок — при создании
+    fake.state.restrictions.length = 0;
+    fake.state.restrictions.push(rule('2026-09-18', { closedToDeparture: true }));
+    const ctd = await request(app.getHttpServer())
+      .patch(`/reservations/${n}/dates`)
+      .send({ arrivalDate: '2026-09-16', departureDate: '2026-09-18' })
+      .expect(409);
+    expect(ctd.body.message).toBe('Закрыт выезд на 2026-09-18, Тестовая одиночная');
+    fake.state.restrictions.length = 0;
+    fake.state.restrictions.push(rule('2026-09-15', { minStay: 3 }));
+    const min = await post(
+      body({
+        items: [{ accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 }],
+      }),
+    ).expect(409);
+    expect(min.body.message).toBe(
+      'Минимальный срок 3 ноч. на 2026-09-15, Тестовая одиночная: запрошено 2 ноч.',
+    );
+    // отказ по ограничению ничего не записал: журнал только с успешных команд
+    expect(fake.state.audits.map((a) => a.action)).toEqual([
+      'reservation.create',
+      'reservation.create',
+      'reservation.changeDates',
+    ]);
+  });
+
+  it('правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ notes: 'первая заметка' }))
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    expect(created.body).toMatchObject({ source: 'PHONE', notes: 'первая заметка' });
+
+    const patched = await request(app.getHttpServer())
+      .patch(`/reservations/${n}`)
+      .send({ notes: 'поздний заезд, ключ у соседа', source: 'WHATSAPP' })
+      .expect(200);
+    expect(patched.body).toMatchObject({
+      source: 'WHATSAPP',
+      notes: 'поздний заезд, ключ у соседа',
+    });
+    // заметку можно стереть, источник — только из справочника, пустой запрос — ошибка
+    const cleared = await request(app.getHttpServer())
+      .patch(`/reservations/${n}`)
+      .send({ notes: null })
+      .expect(200);
+    expect(cleared.body).toMatchObject({ source: 'WHATSAPP', notes: null });
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}`)
+      .send({ source: 'FROM_MARS' })
+      .expect(400);
+    await request(app.getHttpServer()).patch(`/reservations/${n}`).send({}).expect(400);
+    await request(app.getHttpServer()).patch('/reservations/nope').send({ notes: 'x' }).expect(404);
+
+    // гостей на проживании: одиночная вмещает одного взрослого, детей на объекте нет
+    const over = await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/${itemId}`)
+      .send({ adults: 2 })
+      .expect(422);
+    expect(over.body.message).toMatch(/вместимость 1/);
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/${itemId}`)
+      .send({ adults: 0 })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/${itemId}`)
+      .send({ adults: 1, children: 1 })
+      .expect(422);
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}/items/zzz`)
+      .send({ adults: 1 })
+      .expect(404);
+
+    // двойная вмещает двоих: гостей 1 → 2, шапка брони пересчитана
+    const two = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(
+        body({
+          items: [
+            {
+              accommodationTypeCode: 'exely-900002',
+              ratePlanCode: 'exely-800001',
+              adults: 1,
+              unitCode: '9002',
+            },
+          ],
+        }),
+      )
+      .expect(201);
+    const n2 = two.body.confirmationNumber as string;
+    const item2 = two.body.items[0].id as string;
+    const guests = await request(app.getHttpServer())
+      .patch(`/reservations/${n2}/items/${item2}`)
+      .send({ adults: 2 })
+      .expect(200);
+    expect(guests.body.items[0]).toMatchObject({ adults: 2, children: 0 });
+    expect(guests.body.adults).toBe(2);
+
+    expect(fake.state.audits.map((a) => a.action)).toEqual([
+      'reservation.create',
+      'reservation.update',
+      'reservation.update',
+      'reservation.create',
+      'reservation.updateItem',
+    ]);
+  });
+
+  it('групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K»', async () => {
+    const post = (b: object) => request(app.getHttpServer()).post('/reservations').send(b);
+    const group = (quantity: number, over: Record<string, unknown> = {}) =>
+      body({
+        items: [
+          {
+            accommodationTypeCode: 'exely-900001',
+            ratePlanCode: 'exely-800001',
+            adults: 1,
+            quantity,
+          },
+        ],
+        ...over,
+      });
+    // конкретная ячейка вместе с количеством — противоречие, а не выбор
+    await post(
+      body({
+        items: [
+          {
+            accommodationTypeCode: 'exely-900001',
+            ratePlanCode: 'exely-800001',
+            adults: 1,
+            quantity: 2,
+            unitCode: '9001',
+          },
+        ],
+      }),
+    ).expect(400);
+    await post(group(0)).expect(400);
+
+    const res = await post(group(3)).expect(201);
+    expect(res.body.items).toHaveLength(3);
+    // 9003 заблокирована на эти даты — пропущена; порядок по номеру ячейки, не по порядку в списке
+    expect(res.body.items.map((i: { unitCode: string }) => i.unitCode)).toEqual([
+      '9001',
+      '9004',
+      '9005',
+    ]);
+    expect(res.body.totalAmountMinor).toBe('6600000'); // 3 койки × 2 ночи × 11 000 ₸
+    expect(res.body.adults).toBe(3);
+    // заказчик записан гостем на каждое проживание — регистрационная карта печатается с каждого
+    for (const it of res.body.items) expect(it.guests).toHaveLength(1);
+    expect(fake.state.allocations.map((a) => a.unitId).sort()).toEqual(['u1', 'u4', 'u5']);
+
+    // на пересекающиеся даты свободна только одна койка — просьба на две отклоняется с числом
+    const refused = await post(
+      group(2, { arrivalDate: '2026-09-16', departureDate: '2026-09-18' }),
+    ).expect(409);
+    expect(refused.body.message).toContain('свободно только 0');
+    const later = await post(
+      group(2, { arrivalDate: '2026-09-17', departureDate: '2026-09-18' }),
+    ).expect(201);
+    expect(later.body.items.map((i: { unitCode: string }) => i.unitCode)).toEqual(['9001', '9004']);
+    expect(fake.state.audits.map((a) => a.action)).toEqual([
+      'reservation.create',
+      'reservation.create',
+    ]);
   });
 
   it('GET /rate-plans lists only active tariffs', async () => {

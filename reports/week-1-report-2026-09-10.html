@@ -129,8 +129,8 @@
   <div class="meta">
     <span><b>112</b> коммитов за четыре дня</span>
     <span><b>105</b> пунктов брифа проверено</span>
-    <span><b>66</b> есть · <b>27</b> частично · <b>12</b> нет</span>
-    <span>снято 10.09.2026, 18:00 UTC</span>
+    <span><b>68</b> есть · <b>27</b> частично · <b>10</b> нет</span>
+    <span>снято 10.09.2026, уточнено владельцем 11.09</span>
   </div>
 
   <nav class="toc">
@@ -177,7 +177,7 @@
       <div>
         <ul>
           <li><b>Параллельный день с людьми не проведён.</b> Двойной ввод сходится, но это скрипт против Exely. Нужны дата и администратор.</li>
-          <li><b>Три письма первой недели не отправлены</b>: в Channex, оператору eQonaq, в поддержку Exely. Черновики лежат с 07.09. Данные Exely сняты через API самостоятельно, а eQonaq и касса без ответов вендоров не начинаются.</li>
+          <li><b>eQonaq отложен по решению владельца</b>, касса ждёт выбора провайдера. Оба блока в коде только портами.</li>
           <li><b>Выгрузок от объекта нет</b>: ни скриншотов экранов Exely, ни печатных форм, ни протокола разговора с управляющим. История броней только за август, не за год.</li>
           <li><b>Webhook доказан только текстом.</b> Поле «как дошло» появилось 10.09, старые события задним числом не классифицируются.</li>
           <li><b>Решение о платформе пришло 10.09.</b> Код построен под один объект, зашитый константой: мультиарендности нет ни в модели, ни в API. Это переделка модели, а не добавка.</li>
@@ -290,7 +290,7 @@
         <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Чтение назад для сверки</td><td>Остатки читаются и сверяются по клеткам.<span class="gap">чтение цен и ограничений из Channex</span></td><td class="ev">client.getAvailability есть, GET цен нет</td></tr>
 
         <tr class="group"><td colspan="4">9. Казахстан <span>2 частично · 2 нет</span></td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Уведомление eQonaq</td><td>Порт без реализации. Документации оператора нет, письмо не отправлено.</td><td class="ev">packages/integrations/eqonaq; outbox/02-eqonaq.md</td></tr>
+        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">Уведомление eQonaq</td><td>Порт без реализации. Отложено решением владельца, письмо оператору ждёт команды.</td><td class="ev">packages/integrations/eqonaq; outbox/02-eqonaq.md</td></tr>
         <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Фискальный чек</td><td>Порт без реализации. Провайдер кассы не выбран.</td><td class="ev">packages/integrations/fiscal; Q-050</td></tr>
         <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Печатные формы на казахском</td><td>Регистрационная карта гостя печатается.<span class="gap">договор и счёт; содержание карты ждёт образцов владельца</span></td><td class="ev">print?lang=kz; e2e print-and-journal</td></tr>
         <tr><td class="st"><span class="pill part">частично</span></td><td class="item">Печатные формы на русском</td><td>То же, регистрационная карта.</td><td class="ev">скриншот print-registration-ru.png</td></tr>
@@ -319,7 +319,7 @@
         <tr class="group"><td colspan="4">Документация вендоров внутри проекта <span>2 есть · 1 частично · 2 нет</span></td></tr>
         <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Channex</td><td>112 страниц docs.channex.io скачаны 09.09, 118 файлов. Код интеграции написан по ним.</td><td class="ev">docs/channex/site, _manifest.json</td></tr>
         <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Exely</td><td>Connect OpenAPI на 44 метода и Универсальный API 1.5.0, 36 файлов, скачаны 08.09.</td><td class="ev">docs/exely/openapi-spec.json</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">eQonaq</td><td>Только заметки из открытых источников. Документация оператора не запрошена.</td><td class="ev">docs/eqonaq/README.md</td></tr>
+        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">eQonaq</td><td>Только заметки из открытых источников. Задача отложена владельцем, документация запрашивается при возврате в работу.</td><td class="ev">docs/eqonaq/README.md</td></tr>
         <tr><td class="st"><span class="pill no">нет</span></td><td class="item">Фискализация</td><td>Исследование провайдеров для выбора. Документации выбранного нет, потому что выбора нет.</td><td class="ev">docs/fiscal/README.md; Q-050</td></tr>
         <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">Правило «сверяться с папкой»</td><td>Правило 5 в AGENTS.md: нет документации, стоп и вопрос.</td><td class="ev">AGENTS.md §5; docs/README.md</td></tr>
       </tbody>
@@ -332,9 +332,9 @@
       <thead><tr><th>Статус</th><th>Пункт</th><th>Что есть</th><th>Где</th></tr></thead>
       <tbody>
         <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">1. Заявка в Channex, песочница</td><td>Доступ к staging получен 08.09, объект и пять категорий созданы, живая бронь прошла через ленту ревизий.</td><td class="ev">reports/channex-certification-2026-09-09.md</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">2. Письмо в Channex</td><td>Черновик из десяти вопросов, включая срок созвона и подтягивание старых броней, лежит с 07.09.<span class="gap">письмо не отправлено; риск по старым броням закрыт мерами в CUTOVER.md</span></td><td class="ev">outbox/01-channex.md, статус «не отправлено»</td></tr>
-        <tr><td class="st"><span class="pill no">нет</span></td><td class="item">3. Заявка в Smart Bridge, eQonaq</td><td>Черновик из тринадцати вопросов не отправлен. Есть ли программный интерфейс и нужна ли подпись, неизвестно.</td><td class="ev">outbox/02-eqonaq.md</td></tr>
-        <tr><td class="st"><span class="pill part">частично</span></td><td class="item">4. Запрос в поддержку Exely</td><td>Не отправлен. Данные сняты самостоятельно через аудит и API, 9 позиций из 10 закрыты.<span class="gap">печатные формы</span></td><td class="ev">outbox/03-exely.md; reports/exely-api-check-2026-09-08.md</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">2. Письмо в Channex</td><td>Владелец написал и получил ответ: песочница по самостоятельной регистрации, бесплатно и без ограничений; сертификация из 14 пунктов и 5 этапов через форму; staging бесплатен до прохождения, production открывают только после.<span class="gap">срок созвона в ответе не назван; про подтягивание старых броней ответа нет, риск закрыт мерами в CUTOVER.md</span></td><td class="ev">outbox/01-channex.md, ответ записан 11.09</td></tr>
+        <tr><td class="st"><span class="pill part">отложено</span></td><td class="item">3. Заявка в Smart Bridge, eQonaq</td><td>Отложено решением владельца: «eQonaq будем делать позже». Черновик из тринадцати вопросов готов и ждёт команды.</td><td class="ev">outbox/02-eqonaq.md</td></tr>
+        <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">4. Выгрузки Exely</td><td>Запрос в поддержку не нужен: есть прямой Универсальный API, всё снято самостоятельно. Не снято только то, чего в Exely нет: печатные формы.</td><td class="ev">project-input/exely/api, prices; reports/exely-api-check-2026-09-08.md</td></tr>
         <tr><td class="st"><span class="pill part">частично</span></td><td class="item">5. Разговор с управляющим</td><td>Два голосовых ответа 10.09: политика отмен и предоплаты площадок.<span class="gap">три вопроса брифа не заданы, протокола нет, опросник администраторов не заполнен</span></td><td class="ev">Q-103, Q-086; templates/oprosnik-administratory.md</td></tr>
         <tr><td class="st"><span class="pill part">частично</span></td><td class="item">6. Разложить 88 номеров</td><td>16 номеров и 72 койки, 5 категорий, 92 гостя максимум, модель с койкой как единицей принята.<span class="gap">состав четырёх дорм-комнат и бывают ли групповые заезды на весь дорм</span></td><td class="ev">OBJECT.md; ADR-013; Q-095</td></tr>
         <tr><td class="st"><span class="pill ok">есть</span></td><td class="item">7. Стек выбран и записан</td><td>TypeScript, Next.js, NestJS, PostgreSQL, Prisma, Playwright. Очередь сделана в PostgreSQL, а не в Redis, как записано; поправка в ADR нужна.</td><td class="ev">DECISIONS.md ADR-011</td></tr>
@@ -399,7 +399,7 @@
   <h2 id="gates">Недели и гейты</h2>
   <p>План брифа рассчитан на восемь недель. Фактически за четыре дня пройден материал недель со второй по пятую и механизм шестой. Неделя первая выполнена наполовину: контур и стек есть, заявки не ушли.</p>
   <div class="gates">
-    <div class="gate"><div class="g">Гейт 0 · готовность</div><div class="t"><span class="pill no">не пройден</span></div><div class="d">Опросник администраторов не заполнен, письма не отправлены.</div></div>
+    <div class="gate"><div class="g">Гейт 0 · готовность</div><div class="t"><span class="pill part">частично</span></div><div class="d">Channex ответил, Exely снят по API. Опросник администраторов не заполнен, eQonaq отложен.</div></div>
     <div class="gate"><div class="g">Гейт 1 · фонд</div><div class="t"><span class="pill ok">08.09</span></div><div class="d">88 / 88, разница ноль. 10.09 пересверен с живым Exely.</div></div>
     <div class="gate"><div class="g">Гейт 2 · шахматка</div><div class="t"><span class="pill ok">10.09</span></div><div class="d">Двойной ввод в ноль на 08, 09, 10.09 и пяти датах августа.</div></div>
     <div class="gate"><div class="g">Гейт 3 · бронь</div><div class="t"><span class="pill ok">09.09</span></div><div class="d">Бронь в шахматке, остаток минус один, отмена возвращает.</div></div>
@@ -410,7 +410,7 @@
     <div class="gate"><div class="g">Гейт 8 · параллельный день</div><div class="t"><span class="pill part">частично</span></div><div class="d">Механизм сходится в ноль. Людьми не отработан.</div></div>
     <div class="gate"><div class="g">Гейты 9, 10 · переезд</div><div class="t"><span class="pill no">не начат</span></div><div class="d">Порядок каналов и откат описаны в CUTOVER.md, откат не проверен. Условие допуска: база в Казахстане.</div></div>
   </div>
-  <div class="note"><b>Про сроки.</b> Скорость выше плана не отменяет трёх вещей, которые считаются только календарём: ответ Channex по созвону, ответ оператора eQonaq и параллельный день на объекте. Все три пока не запущены, потому что письма не ушли, а дата не назначена.</div>
+  <div class="note"><b>Про сроки.</b> Скорость выше плана не отменяет двух вещей, которые считаются только календарём: сертификация Channex в пять этапов после подачи формы и параллельный день на объекте. Ни то, ни другое пока не запущено: форма не подана, дата не назначена.</div>
 
   <h2 id="risks">Часть 6: что сломается, если не заложить сейчас</h2>
   <div class="tbl">
@@ -445,7 +445,7 @@
     <div>
       <h3>Только вы или объект</h3>
       <ul class="plain">
-        <li>Отправить три письма из папки outbox: Channex, оператор eQonaq, поддержка Exely. Черновики готовы с 07.09.</li>
+        <li>Форма сертификации Channex, когда решите подавать. Письмо оператору eQonaq, когда вернёте задачу в работу.</li>
         <li>Дата и администратор для параллельного дня. Опросник администраторов.</li>
         <li>Хостинг базы в Казахстане и регламент копий, Q-070 и Q-073.</li>
         <li>Провайдер кассы, Q-050. Ранний заезд и поздний выезд как правило объекта, Q-014 и Q-015.</li>

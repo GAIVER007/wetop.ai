@@ -191,7 +191,14 @@ function makeFake() {
           (r) =>
             r.typeId === typeId && r.planId === planId && r.date >= from && r.date < toExclusive,
         )
-        .map(({ typeId: _t, planId: _p, ...r }) => r);
+        .map((r): StayRestriction => ({
+          date: r.date,
+          minStay: r.minStay,
+          maxStay: r.maxStay,
+          stopSell: r.stopSell,
+          closedToArrival: r.closedToArrival,
+          closedToDeparture: r.closedToDeparture,
+        }));
     },
     async createGuest() {
       state.guests += 1;

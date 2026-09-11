@@ -436,6 +436,7 @@ export class ReservationsService {
           for (const a of item.allocations) await repo.deleteAllocation(a.id);
           await repo.updateItem(item.id, { status: 'CANCELLED' });
           await this.chargePenalty(repo, item, 'отмену брони');
+          await repo.settleChannelPrepaymentAfterCancel(item.id); // ADR-022: предоплата канала
         }
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(state.items.map(() => 'CANCELLED')),
@@ -961,6 +962,7 @@ export class ReservationsService {
         for (const a of item.allocations) await repo.deleteAllocation(a.id);
         await repo.updateItem(item.id, { status: 'NO_SHOW' });
         await this.chargePenalty(repo, item, 'незаезд');
+        await repo.settleChannelPrepaymentAfterCancel(item.id); // ADR-022: предоплата канала
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(
             state.items.map((i) => (i.id === item.id ? 'NO_SHOW' : i.status)),

@@ -127,6 +127,19 @@ function makeFakes() {
       if (i >= 0) prepayments.splice(i, 1);
       prepayments.push({ itemId, amountMinor, externalReference });
     },
+    async settleChannelPrepaymentAfterCancel(itemId) {
+      // как в Prisma: остаётся ровно сумма штрафов проживания, без штрафа предоплата снимается
+      const penalty = penalties
+        .filter((p) => p.itemId === itemId)
+        .reduce((s, p) => s + p.amountMinor, 0n);
+      for (let i = prepayments.length - 1; i >= 0; i -= 1) {
+        const p = prepayments[i]!;
+        if (p.itemId !== itemId) continue;
+        const keep = penalty < p.amountMinor ? penalty : p.amountMinor;
+        if (keep === 0n) prepayments.splice(i, 1);
+        else p.amountMinor = keep;
+      }
+    },
     async voidChannelPrepayment(externalReference) {
       const i = prepayments.findIndex((p) => p.externalReference === externalReference);
       if (i >= 0) prepayments.splice(i, 1);
@@ -642,6 +655,19 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     const again = await request(app.getHttpServer()).post('/channels/channex/pull');
     expect(again.status).toBe(200);
     expect(fakes.guests).toHaveLength(1);
+  });
+
+  it('Q-108: отмена предоплаченной OTA-брони снимает платёж канала — на счёте не остаётся минуса', async () => {
+    fakes.setFeed([revision({ id: 'rev-pp1', payment_collect: 'ota', unique_id: 'BDC-PP' })]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(fakes.prepayments).toHaveLength(1);
+    // отмена заранее: штрафа нет (Q-103), значит площадка возвращает гостю всё, предоплата в PMS снимается
+    fakes.setFeed([
+      revision({ id: 'rev-pp2', status: 'cancelled', payment_collect: 'ota', unique_id: 'BDC-PP' }),
+    ]);
+    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(res.body.outcomes[0]).toMatchObject({ result: 'cancelled' });
+    expect(fakes.prepayments).toEqual([]);
   });
 
   it('одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена', async () => {

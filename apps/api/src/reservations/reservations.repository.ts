@@ -7,7 +7,7 @@ import {
   type Db,
   type DbTx,
 } from '@pms/database';
-import { folioBalance } from '@pms/domain';
+import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
 import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
@@ -270,6 +270,11 @@ export interface ReservationsRepository {
   ): Promise<number>;
   /** Канал перестал собирать деньги (payment_collect сменился на property) — снять платёж предоплаты */
   voidChannelPrepayment(externalReference: string): Promise<void>;
+  /**
+   * ADR-022 (Q-108): после отмены или незаезда оставить от предоплаты канала ровно сумму начисленных
+   * штрафов на счёте проживания; остальное площадка возвращает гостю сама. Без штрафа платёж снимается.
+   */
+  settleChannelPrepaymentAfterCancel(itemId: string): Promise<void>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
   stayBalanceMinor(itemId: string): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
@@ -871,6 +876,38 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       d = next.toISOString().slice(0, 10);
     }
     return Number.isFinite(left) ? Math.max(0, left) : units;
+  }
+  async settleChannelPrepaymentAfterCancel(itemId: string): Promise<void> {
+    const folio = await this.db.folio.findUnique({
+      where: { reservationItemId: itemId },
+      select: {
+        id: true,
+        charges: { where: { kind: 'PENALTY', voidedAt: null }, select: { amount: true } },
+        allocations: {
+          where: { payment: { method: 'EXTERNAL', status: 'COMPLETED' } },
+          select: {
+            amount: true,
+            paymentId: true,
+            payment: { select: { externalReference: true } },
+          },
+        },
+      },
+    });
+    if (!folio) return;
+    const penalty = folio.charges.reduce((s, c) => s + c.amount, 0n);
+    for (const a of folio.allocations) {
+      if (!a.payment.externalReference?.startsWith('channex:')) continue;
+      const keep = channelPrepaymentToKeep({ prepaidMinor: a.amount, penaltyMinor: penalty });
+      if (keep === a.amount) continue;
+      const key = { paymentId_folioId: { paymentId: a.paymentId, folioId: folio.id } };
+      if (keep === 0n) {
+        await this.db.paymentAllocation.delete({ where: key });
+        await this.db.payment.update({ where: { id: a.paymentId }, data: { status: 'VOIDED' } });
+      } else {
+        await this.db.paymentAllocation.update({ where: key, data: { amount: keep } });
+        await this.db.payment.update({ where: { id: a.paymentId }, data: { amount: keep } });
+      }
+    }
   }
   async voidChannelPrepayment(externalReference: string): Promise<void> {
     const { id: propertyId } = await this.property();

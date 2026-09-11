@@ -572,6 +572,12 @@ export const financeApi = {
     ),
   pay: (body: unknown) => sendJson<ReservationFinance>('POST', '/finance/payments', body),
   /** Ручное закрытие счёта — только при нулевом балансе */
+  addStayExtra: (folioId: string, extra: 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT') =>
+    sendJson<ReservationFinance>(
+      'POST',
+      `/finance/folios/${encodeURIComponent(folioId)}/stay-extras`,
+      { extra },
+    ),
   closeFolio: (folioId: string) =>
     sendJson<ReservationFinance>(
       'POST',

@@ -461,6 +461,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
               `Штраф за отмену из канала (${item.arrivalDate} → ${item.departureDate})`,
             );
         }
+        // ADR-022 (Q-108): от предоплаты канала остаётся только штраф, остальное площадка возвращает гостю
+        await repo.settleChannelPrepaymentAfterCancel(item.id);
       }
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
       await repo.audit({

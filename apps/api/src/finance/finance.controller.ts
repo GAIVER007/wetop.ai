@@ -27,6 +27,14 @@ export class FinanceController {
     return this.service.addCharge(id, dto ?? {});
   }
 
+  @Post('folios/:id/stay-extras')
+  addStayExtra(
+    @Param('id') id: string,
+    @Body() dto: Parameters<FinanceService['addStayExtra']>[1],
+  ) {
+    return this.service.addStayExtra(id, dto ?? {});
+  }
+
   @Post('folios/:id/close')
   @HttpCode(200)
   closeFolio(@Param('id') id: string) {

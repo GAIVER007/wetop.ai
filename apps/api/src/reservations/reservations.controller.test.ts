@@ -121,6 +121,7 @@ function makeFake() {
     },
     async recordChannelPrepayment() {},
     async voidChannelPrepayment() {},
+    async settleChannelPrepaymentAfterCancel() {},
     async ratePlanByCode(code) {
       return plans.find((p) => p.code === code) ?? null;
     },

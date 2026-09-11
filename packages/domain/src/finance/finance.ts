@@ -119,3 +119,27 @@ export function penaltyDue(input: {
   if (input.reason === 'no_show') return true;
   return input.on >= input.arrivalDate;
 }
+
+/**
+ * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте проживания. Сумма по умолчанию —
+ * половина цены одной ночи этого проживания, округление вниз до целого тенге (тиыны в сумме услуги
+ * не нужны). Нет ночей или цены — 0: администратор задаёт сумму сам.
+ */
+export function stayExtraDefaultMinor(totalMinor: bigint, nights: number): bigint {
+  if (nights <= 0 || totalMinor <= 0n) return 0n;
+  const halfNight = totalMinor / BigInt(nights) / 2n;
+  return (halfNight / 100n) * 100n;
+}
+
+/**
+ * ADR-022 (Q-108): предоплата канала после отмены или незаезда. Деньги гостя держит площадка, поэтому
+ * в PMS остаётся ровно та часть предоплаты, которая покрывает начисленный штраф, — её площадка
+ * перечислит объекту. Остальное площадка возвращает гостю сама; без штрафа предоплата снимается целиком.
+ */
+export function channelPrepaymentToKeep(input: {
+  prepaidMinor: bigint;
+  penaltyMinor: bigint;
+}): bigint {
+  const penalty = input.penaltyMinor < 0n ? 0n : input.penaltyMinor;
+  return penalty < input.prepaidMinor ? penalty : input.prepaidMinor;
+}

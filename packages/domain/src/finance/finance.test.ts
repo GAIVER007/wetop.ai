@@ -7,6 +7,8 @@ import {
   penaltyAmount,
   penaltyDue,
   parseMoney,
+  stayExtraDefaultMinor,
+  channelPrepaymentToKeep,
 } from './finance';
 
 describe('folioBalance', () => {
@@ -99,5 +101,34 @@ describe('penaltyDue (Q-103: ответ управляющего 10.09.2026 — 
   it('незаезд считается всегда: гость не приехал и место простояло', () => {
     expect(penaltyDue({ ...stay, on: '2026-10-10', reason: 'no_show' })).toBe(true);
     expect(penaltyDue({ ...stay, on: '2026-10-01', reason: 'no_show' })).toBe(true);
+  });
+});
+
+describe('ранний заезд и поздний выезд — половина ночи по умолчанию (ADR-021)', () => {
+  it('половина цены одной ночи, округление вниз до целого тенге', () => {
+    // 12 000 ₸ за 2 ночи → ночь 6 000 → половина 3 000 ₸ = 300 000 тиын
+    expect(stayExtraDefaultMinor(1_200_000n, 2)).toBe(300_000n);
+    // 12 345 ₸ за 3 ночи → ночь 4115 → половина 2057,5 → 2057 ₸ ровно, без тиынов
+    expect(stayExtraDefaultMinor(1_234_500n, 3)).toBe(205_700n);
+  });
+  it('нет ночей или цены — нуль, а не деление на ноль', () => {
+    expect(stayExtraDefaultMinor(1_200_000n, 0)).toBe(0n);
+    expect(stayExtraDefaultMinor(0n, 2)).toBe(0n);
+  });
+});
+
+describe('предоплата канала после отмены (ADR-022, Q-108)', () => {
+  it('без штрафа предоплата снимается целиком: деньги гостю возвращает площадка', () => {
+    expect(channelPrepaymentToKeep({ prepaidMinor: 900_000n, penaltyMinor: 0n })).toBe(0n);
+  });
+  it('со штрафом остаётся ровно штраф, остальное площадка возвращает', () => {
+    expect(channelPrepaymentToKeep({ prepaidMinor: 900_000n, penaltyMinor: 450_000n })).toBe(
+      450_000n,
+    );
+  });
+  it('штраф больше предоплаты — остаётся вся предоплата, долг остаётся на счёте', () => {
+    expect(channelPrepaymentToKeep({ prepaidMinor: 300_000n, penaltyMinor: 450_000n })).toBe(
+      300_000n,
+    );
   });
 });

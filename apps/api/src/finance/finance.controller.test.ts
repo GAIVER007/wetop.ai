@@ -421,6 +421,36 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(fakes.audits).toEqual(['finance.payment', 'finance.refund', 'finance.folio.close']);
   });
 
+  it('ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать', async () => {
+    // счёт f1: проживание 12 000 ₸ за 2 ночи (01→03.10) → половина ночи 3 000 ₸
+    const late = await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT' })
+      .expect(201);
+    const f1 = late.body.folios.find((f: { id: string }) => f.id === 'f1');
+    const charge = f1.charges.find(
+      (c: { description: string }) => c.description === 'Поздний выезд',
+    );
+    expect(charge).toMatchObject({
+      kind: 'SERVICE',
+      amountMinor: '300000',
+      serviceDate: '2026-10-03',
+    });
+    // ранний заезд с заданной суммой и датой заезда
+    const early = await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'EARLY_CHECK_IN', unitPrice: '2500' })
+      .expect(201);
+    const e = early.body.folios
+      .find((f: { id: string }) => f.id === 'f1')
+      .charges.find((c: { description: string }) => c.description === 'Ранний заезд');
+    expect(e).toMatchObject({ amountMinor: '250000', serviceDate: '2026-10-01' });
+    await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'BREAKFAST' })
+      .expect(400);
+  });
+
   it('void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand', async () => {
     const c = await request(app.getHttpServer())
       .post('/finance/folios/f1/charges')

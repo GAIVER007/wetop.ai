@@ -98,3 +98,17 @@ export async function refundAction(
   }
   return done(number);
 }
+
+/** ADR-021: ранний заезд / поздний выезд — услуга на счёте, половина ночи по умолчанию */
+export async function stayExtraAction(
+  number: string,
+  folioId: string,
+  extra: 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT',
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.addStayExtra(folioId, extra);
+  } catch (e) {
+    return { error: describe(e), ok: 0 };
+  }
+  return done(number);
+}

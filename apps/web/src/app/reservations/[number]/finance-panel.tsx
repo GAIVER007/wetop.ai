@@ -13,6 +13,7 @@ import {
   refundAction,
   voidChargeAction,
   type FinanceActionResult,
+  stayExtraAction,
 } from './finance-actions';
 
 const KIND_RU: Record<string, string> = {
@@ -319,6 +320,30 @@ function FolioPanel({
               Принять оплату
             </button>
           </form>
+          {/* ADR-021: ранний заезд и поздний выезд — услуга одной кнопкой, половина ночи по умолчанию */}
+          <div style={row}>
+            {(
+              [
+                ['EARLY_CHECK_IN', 'Ранний заезд', 'early-check-in'],
+                ['LATE_CHECK_OUT', 'Поздний выезд', 'late-check-out'],
+              ] as const
+            ).map(([extra, label, testId]) => (
+              <button
+                key={extra}
+                type="button"
+                data-testid={`${testId}-${folio.id}`}
+                title="Услуга на счёт: половина цены ночи этого проживания"
+                onClick={async () => {
+                  if (!window.confirm(`Начислить «${label}»: половина цены ночи этого проживания?`))
+                    return;
+                  setOther(await stayExtraAction(number, folio.id, extra));
+                }}
+                style={{ ...btnSecondary }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           {balance === 0n && (
             // Закрыть вручную можно только рассчитанный счёт; с долгом или переплатой API откажет
             <div style={row}>

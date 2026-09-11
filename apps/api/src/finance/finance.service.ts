@@ -12,6 +12,7 @@ import {
   assertRefundWithin,
   folioBalance,
   parseMoney,
+  stayExtraDefaultMinor,
 } from '@pms/domain';
 import {
   FINANCE_REPOSITORY,
@@ -351,6 +352,64 @@ export class FinanceService {
       unitPriceMinor: s(unitPriceMinor),
       amountMinor: s(amountMinor),
       serviceDate,
+    });
+    return this.reservation(folio.confirmationNumber);
+  }
+
+  /**
+   * ADR-021: ранний заезд и поздний выезд — услуга на счёте одной командой. Сумма по умолчанию — половина
+   * цены ночи этого проживания (цена берётся из действующего начисления за проживание), можно задать свою.
+   * Даты и ячейка не меняются: гость занимает ту же койку.
+   */
+  async addStayExtra(
+    folioId: string,
+    dto: { extra?: string; unitPrice?: string | number },
+  ): Promise<ReservationFinanceView> {
+    const EXTRAS = {
+      EARLY_CHECK_IN: {
+        description: 'Ранний заезд',
+        date: (st: FolioRecord['stay']) => st.arrivalDate,
+      },
+      LATE_CHECK_OUT: {
+        description: 'Поздний выезд',
+        date: (st: FolioRecord['stay']) => st.departureDate,
+      },
+    } as const;
+    const spec = EXTRAS[dto.extra as keyof typeof EXTRAS];
+    if (!spec) throw new BadRequestException('extra — EARLY_CHECK_IN или LATE_CHECK_OUT');
+    const folio = await this.openFolio(folioId);
+    const nights = Math.round(
+      (Date.parse(`${folio.stay.departureDate}T00:00:00Z`) -
+        Date.parse(`${folio.stay.arrivalDate}T00:00:00Z`)) /
+        86_400_000,
+    );
+    const accommodation = folio.charges
+      .filter((c) => c.kind === 'ACCOMMODATION' && c.voidedAt === null)
+      .reduce((sum, c) => sum + c.amountMinor, 0n);
+    const unitPriceMinor =
+      dto.unitPrice === undefined
+        ? stayExtraDefaultMinor(accommodation, nights)
+        : money(dto.unitPrice, 'unitPrice');
+    if (unitPriceMinor <= 0n)
+      throw new BadRequestException(
+        'Сумма должна быть больше нуля: у проживания нет цены, задайте сумму услуги',
+      );
+    const serviceDate = spec.date(folio.stay);
+    const id = await this.repo.addCharge(folioId, {
+      kind: 'SERVICE',
+      serviceId: null,
+      description: spec.description,
+      quantity: 1,
+      unitPriceMinor,
+      amountMinor: unitPriceMinor,
+      serviceDate,
+    });
+    await this.repo.audit('Folio', folioId, 'finance.stayExtra', null, {
+      chargeId: id,
+      extra: dto.extra,
+      amountMinor: s(unitPriceMinor),
+      serviceDate,
+      defaultUsed: dto.unitPrice === undefined,
     });
     return this.reservation(folio.confirmationNumber);
   }

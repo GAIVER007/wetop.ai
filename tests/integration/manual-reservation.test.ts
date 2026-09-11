@@ -192,8 +192,20 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
             ['9001', '2026-01-02', '2026-01-03'],
             ['9901', '2026-01-03', '2026-01-04'],
           ]);
+          // База общая: параллельно идут e2e и стойка, поэтому журнал берём только по своим двум броням,
+          // иначе в выборку попадает чужой reservation.checkIn (найдено 11.09.2026)
+          const mine = await tx.reservation.findMany({
+            where: {
+              confirmationNumber: { in: [first.confirmationNumber, second.confirmationNumber] },
+            },
+            select: { id: true },
+          });
           const audits = await tx.auditLog.findMany({
-            where: { entityType: 'Reservation', createdAt: { gte: startedAt } },
+            where: {
+              entityType: 'Reservation',
+              entityId: { in: mine.map((r) => r.id) },
+              createdAt: { gte: startedAt },
+            },
             orderBy: { createdAt: 'asc' },
           });
           expect(audits.map((a) => a.action)).toEqual([

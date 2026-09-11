@@ -45,6 +45,18 @@ const fakeRepo: ChessboardRepository = {
   async blocks() {
     return [];
   },
+  // Q-107: проживание dorm без ячейки на 2026-09-20 → для канала занято, стойка обязана это видеть
+  async soldStays(from, toExclusive) {
+    return from <= '2026-09-20' && toExclusive > '2026-09-20'
+      ? [
+          {
+            accommodationTypeCode: 'exely-900003',
+            arrivalDate: '2026-09-20',
+            departureDate: '2026-09-21',
+          },
+        ]
+      : [];
+  },
   async reservation(number) {
     if (number !== 'B-1') return null;
     return {
@@ -98,6 +110,16 @@ describe('GET /chessboard, GET /reservations/:number', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('Q-107: остаток категории на стойке учитывает брони без ячейки — как канал', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/availability?arrival=2026-09-20&departure=2026-09-21')
+      .expect(200);
+    // в dorm две койки физически свободны, но одно проживание без ячейки уже продано
+    // в фальшивке у dorm одна койка (u2), она свободна на 20.09, но проживание без ячейки уже продано
+    expect(res.body.byCategory['exely-900003']).toMatchObject({ units: 1, available: 0 });
+    expect(res.body.byCategory['exely-900003'].availableUnitCodes).toHaveLength(1);
   });
 
   it('returns rows × dates with states and per-day summary', async () => {

@@ -78,6 +78,7 @@ function makeFake() {
     rates[`t2|p1|${d}|2`] = 1_500_000n;
   }
   const state = {
+    categoryAvailabilityOverride: null as number | null,
     /** долг счёта по проживанию — для T3 (выселение с долгом) */
     debts: new Map<string, bigint>(),
     /** проживания, у которых счёт закрыт при выезде */
@@ -155,6 +156,11 @@ function makeFake() {
     },
     async firstFreeUnit() {
       return null; // ручная бронь ячейку выбирает сама; автоназначение — для каналов (Q-094)
+    },
+    async categoryAvailability(typeId, from, toExclusive) {
+      // Q-107: по умолчанию как у канала = свободные ячейки; тест может занизить остаток «бронями без ячейки»
+      if (state.categoryAvailabilityOverride !== null) return state.categoryAvailabilityOverride;
+      return (await this.freeUnits(typeId, from, toExclusive)).length;
     },
     async freeUnits(typeId, from, toExclusive) {
       return units
@@ -388,6 +394,14 @@ describe('manual reservation API', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала', async () => {
+    fake.state.categoryAvailabilityOverride = 0;
+    const res = await request(app.getHttpServer()).post('/reservations').send(body());
+    expect(res.status).toBe(409);
+    expect(res.body.message).toMatch(/мест нет|свободно только/);
+    fake.state.categoryAvailabilityOverride = null;
   });
 
   it('POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit', async () => {

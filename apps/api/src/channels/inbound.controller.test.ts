@@ -165,6 +165,9 @@ function makeFakes() {
     async freeUnits() {
       return [];
     },
+    async categoryAvailability() {
+      return 99;
+    },
     async restrictionsFor() {
       return [];
     },

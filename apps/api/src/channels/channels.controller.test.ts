@@ -312,6 +312,9 @@ function makeFakes() {
         },
       ];
     },
+    async soldStays() {
+      return [];
+    },
     async blocks() {
       return [];
     },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ChessboardInput } from '../chessboard/index';
-import { availableUnitsForStay } from './index';
+import { availableUnitsForStay, capStayAvailability, categoryAvailability } from './index';
 
 /** Вымышленный фонд: 2 койки dorm и 1 номер. */
 const base: Omit<ChessboardInput, 'from' | 'to'> = {
@@ -77,5 +77,41 @@ describe('availableUnitsForStay (заезд from, выезд to — ночи [fr
     expect(() =>
       availableUnitsForStay({ ...base, arrivalDate: '2026-09-12', departureDate: '2026-09-12' }),
     ).toThrow(/ночь/);
+  });
+});
+
+describe('capStayAvailability — остаток стойки не больше остатка канала (Q-107)', () => {
+  it('бронь без ячейки уже продана: свободных ячеек две, а продать можно одну', () => {
+    const stay = availableUnitsForStay({
+      ...base,
+      allocations: [],
+      blocks: [],
+      arrivalDate: '2026-09-20',
+      departureDate: '2026-09-22',
+    });
+    expect(stay.byCategory['exely-900003']!.available).toBe(2);
+    const perNight = categoryAvailability({
+      from: '2026-09-20',
+      to: '2026-09-21',
+      units: [
+        { code: 'exely-900001', active: 1 },
+        { code: 'exely-900003', active: 2 },
+      ],
+      blocks: [],
+      // проживание без назначенной ячейки в dorm — для канала оно занято
+      items: [
+        {
+          accommodationTypeCode: 'exely-900003',
+          arrivalDate: '2026-09-21',
+          departureDate: '2026-09-22',
+        },
+      ],
+    });
+    const capped = capStayAvailability(stay, perNight);
+    expect(capped.byCategory['exely-900003']!.available).toBe(1);
+    // список ячеек для размещения не режется: посадить можно на любую из двух
+    expect(capped.byCategory['exely-900003']!.availableUnitCodes).toHaveLength(2);
+    expect(capped.byCategory['exely-900001']!.available).toBe(1);
+    expect(capped.total.available).toBe(2);
   });
 });

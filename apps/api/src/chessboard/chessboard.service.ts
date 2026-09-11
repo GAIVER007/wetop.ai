@@ -3,6 +3,8 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import {
   MAX_CHESSBOARD_DAYS,
   availableUnitsForStay,
+  capStayAvailability,
+  categoryAvailability,
   buildChessboard,
   dateRange,
   type Chessboard,
@@ -68,18 +70,36 @@ export class ChessboardService {
     const lastNight = plusDays(departure, -1);
     if (dateRange(arrival, lastNight).length > MAX_CHESSBOARD_DAYS)
       throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} ночей`);
-    const [units, allocations, blocks] = await Promise.all([
+    const [units, allocations, blocks, sold] = await Promise.all([
       this.repo.units(),
       this.repo.allocations(arrival, lastNight),
       this.repo.blocks(arrival, lastNight),
+      this.repo.soldStays(arrival, departure),
     ]);
-    return availableUnitsForStay({
+    const stay = availableUnitsForStay({
       arrivalDate: arrival,
       departureDate: departure,
       units,
       allocations,
       blocks,
     });
+    // Q-107: остаток стойки не больше остатка канала — проживания без ячейки уже проданы
+    const unitCategory = new Map(units.map((u) => [u.id, u.accommodationTypeCode]));
+    const byCategory = new Map<string, number>();
+    for (const u of units)
+      byCategory.set(u.accommodationTypeCode, (byCategory.get(u.accommodationTypeCode) ?? 0) + 1);
+    const perNight = categoryAvailability({
+      from: arrival,
+      to: lastNight,
+      units: [...byCategory].map(([code, active]) => ({ code, active })),
+      blocks: blocks.map((b) => ({
+        accommodationTypeCode: unitCategory.get(b.unitId) ?? '',
+        dateFrom: b.dateFrom,
+        dateTo: b.dateTo,
+      })),
+      items: sold,
+    });
+    return capStayAvailability(stay, perNight);
   }
 
   async reservation(number: string): Promise<ReservationCard> {

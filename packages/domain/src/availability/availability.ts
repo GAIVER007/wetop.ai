@@ -28,6 +28,29 @@ const addDays = (d: string, n: number) => {
   return x.toISOString().slice(0, 10);
 };
 
+/**
+ * Q-107 (11.09.2026): остаток категории на стойке не может быть больше, чем у канала.
+ * Канал считает проданные проживания, включая брони без ячейки (`categoryAvailability`); шахматка —
+ * свободные ячейки. Бронь без ячейки для канала уже продана, а стойка её не видела и показывала мест
+ * больше, чем можно продать. Поэтому «свободно» = min(свободных ячеек, остаток канала за худшую ночь).
+ * Список ячеек не режется: это выбор места, а не право продать.
+ */
+export function capStayAvailability(
+  stay: StayAvailability,
+  perNightByCategory: Map<string, Map<string, number>>,
+): StayAvailability {
+  const byCategory: Record<string, CategoryAvailability> = {};
+  let available = 0;
+  for (const [code, cat] of Object.entries(stay.byCategory)) {
+    const nights = perNightByCategory.get(code);
+    const channel = nights && nights.size ? Math.min(...nights.values()) : cat.available;
+    const capped = { ...cat, available: Math.min(cat.available, Math.max(0, channel)) };
+    byCategory[code] = capped;
+    available += capped.available;
+  }
+  return { ...stay, total: { ...stay.total, available }, byCategory };
+}
+
 export function availableUnitsForStay(input: StayAvailabilityInput): StayAvailability {
   if (input.departureDate <= input.arrivalDate) {
     throw new Error(

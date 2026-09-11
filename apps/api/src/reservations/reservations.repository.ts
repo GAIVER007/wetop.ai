@@ -258,6 +258,16 @@ export interface ReservationsRepository {
     externalReference: string,
     note: string,
   ): Promise<void>;
+  /**
+   * Остаток категории за худшую ночь [from, toExclusive): активные ячейки − блокировки − проданные
+   * проживания, включая брони без ячейки (Q-107, как считает канал). exceptItemId — не считать своё проживание.
+   */
+  categoryAvailability(
+    typeId: string,
+    from: string,
+    toExclusive: string,
+    exceptItemId?: string,
+  ): Promise<number>;
   /** Канал перестал собирать деньги (payment_collect сменился на property) — снять платёж предоплаты */
   voidChannelPrepayment(externalReference: string): Promise<void>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
@@ -822,6 +832,45 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         update: { amount: amountMinor },
       });
     }
+  }
+  async categoryAvailability(
+    typeId: string,
+    from: string,
+    toExclusive: string,
+    exceptItemId?: string,
+  ): Promise<number> {
+    const iso = (x: Date) => x.toISOString().slice(0, 10);
+    const [units, blocks, sold] = await Promise.all([
+      this.db.inventoryUnit.count({ where: { accommodationTypeId: typeId, active: true } }),
+      this.db.inventoryBlock.findMany({
+        where: {
+          inventoryUnit: { accommodationTypeId: typeId },
+          dateFrom: { lt: asDate(toExclusive) },
+          dateTo: { gt: asDate(from) },
+        },
+        select: { dateFrom: true, dateTo: true },
+      }),
+      this.db.reservationItem.findMany({
+        where: {
+          accommodationTypeId: typeId,
+          status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+          arrivalDate: { lt: asDate(toExclusive) },
+          departureDate: { gt: asDate(from) },
+          ...(exceptItemId ? { id: { not: exceptItemId } } : {}),
+        },
+        select: { arrivalDate: true, departureDate: true },
+      }),
+    ]);
+    let left = Number.POSITIVE_INFINITY;
+    for (let d = from; d < toExclusive;) {
+      const blocked = blocks.filter((b) => iso(b.dateFrom) <= d && d < iso(b.dateTo)).length;
+      const taken = sold.filter((s) => iso(s.arrivalDate) <= d && d < iso(s.departureDate)).length;
+      left = Math.min(left, units - blocked - taken);
+      const next = new Date(`${d}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 1);
+      d = next.toISOString().slice(0, 10);
+    }
+    return Number.isFinite(left) ? Math.max(0, left) : units;
   }
   async voidChannelPrepayment(externalReference: string): Promise<void> {
     const { id: propertyId } = await this.property();

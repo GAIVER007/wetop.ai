@@ -242,6 +242,8 @@ export class ReservationsService {
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
+          // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы
+          await this.assertCategoryCapacity(repo, type, dates, quantity);
           if (quantity > 1) {
             // Групповая бронь: N мест → N проживаний, ячейки — первые свободные по номеру (как firstFreeUnit)
             const free = await repo.freeUnits(type.id, dates.arrivalDate, dates.departureDate);
@@ -374,6 +376,13 @@ export class ReservationsService {
             plan.id,
             dates,
           );
+          await this.assertCategoryCapacity(
+            repo,
+            await repo.categoryById(item.accommodationTypeId),
+            dates,
+            1,
+            item.id,
+          );
           const rates = await repo.nightRates(
             item.accommodationTypeId,
             plan.id,
@@ -481,6 +490,13 @@ export class ReservationsService {
           planId,
           { arrivalDate: item.arrivalDate, departureDate },
           item.departureDate,
+        );
+        await this.assertCategoryCapacity(
+          repo,
+          await repo.categoryById(item.accommodationTypeId),
+          { arrivalDate: item.departureDate, departureDate },
+          1,
+          item.id,
         );
         // Считаем только ДОБАВЛЕННЫЕ ночи: цена уже проданных ночей согласована с гостем и каналом,
         // переоценивать её по сегодняшнему календарю нельзя. Перецена всего проживания — это changeDates.
@@ -640,6 +656,33 @@ export class ReservationsService {
    * Брони каналов сюда не попадают — канал сам отвечает за свои ограничения (inbound.service).
    * Выезд — граница диапазона: строка на дату выезда нужна ради closed_to_departure, поэтому +1 день.
    */
+  /**
+   * Q-107: остаток категории считается как у канала — активные ячейки минус блокировки минус проданные
+   * проживания, включая брони без ячейки. Иначе стойка видит мест больше, чем можно продать, а запрет
+   * пересечений в базе на брони без ячейки не действует.
+   */
+  private async assertCategoryCapacity(
+    repo: ReservationsRepository,
+    type: { name: string; id: string } | null,
+    dates: { arrivalDate: string; departureDate: string },
+    need: number,
+    exceptItemId?: string,
+  ): Promise<void> {
+    if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
+    const left = await repo.categoryAvailability(
+      type.id,
+      dates.arrivalDate,
+      dates.departureDate,
+      exceptItemId,
+    );
+    if (left < need)
+      throw new ConflictException(
+        need > 1
+          ? `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} свободно только ${left} из ${need} мест`
+          : `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} мест нет: всё продано, часть броней канала ещё без ячейки`,
+      );
+  }
+
   private async assertRestrictions(
     repo: ReservationsRepository,
     type: { name: string; id: string } | null,

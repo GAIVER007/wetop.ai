@@ -8,10 +8,18 @@ import { loadReservationCard, type ReservationCard } from '../reservations/reser
 export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
 /** Порт чтения шахматки. В тестах подменяется фальшивкой. */
+/** Проданное проживание категории, с ячейкой или без — так считает остаток канал (Q-107) */
+export interface SoldStay {
+  accommodationTypeCode: string;
+  arrivalDate: string;
+  departureDate: string;
+}
 export interface ChessboardRepository {
   units(): Promise<ChessboardUnit[]>;
   allocations(from: string, to: string): Promise<ChessboardAllocation[]>;
   blocks(from: string, to: string): Promise<ChessboardBlock[]>;
+  /** Активные проживания, задевающие ночи [from, toExclusive) — включая брони без ячейки */
+  soldStays(from: string, toExclusive: string): Promise<SoldStay[]>;
   reservation(confirmationNumber: string): Promise<ReservationCard | null>;
 }
 export const CHESSBOARD_REPOSITORY = Symbol('CHESSBOARD_REPOSITORY');
@@ -50,6 +58,26 @@ export class PrismaChessboardRepository implements ChessboardRepository {
   }
 
   /** Назначения, пересекающие [from, to]: start < to+1 и end > from. */
+  async soldStays(from: string, toExclusive: string): Promise<SoldStay[]> {
+    const rows = await this.prisma.db.reservationItem.findMany({
+      where: {
+        status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+        arrivalDate: { lt: new Date(`${toExclusive}T00:00:00Z`) },
+        departureDate: { gt: new Date(`${from}T00:00:00Z`) },
+        reservation: { property: { name: LUXX_APARTS_PROPERTY.name } },
+      },
+      select: {
+        arrivalDate: true,
+        departureDate: true,
+        accommodationType: { select: { code: true } },
+      },
+    });
+    return rows.map((r) => ({
+      accommodationTypeCode: r.accommodationType.code,
+      arrivalDate: d(r.arrivalDate),
+      departureDate: d(r.departureDate),
+    }));
+  }
   async allocations(from: string, to: string): Promise<ChessboardAllocation[]> {
     const rows = await this.prisma.db.allocation.findMany({
       where: {

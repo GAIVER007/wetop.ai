@@ -56,3 +56,10 @@ curl -s http://localhost:3001/channels/channex/webhook/status
 curl -s -X POST 'http://localhost:3001/channels/channex/sync/scheduled?force=1'
 ```
 Переменные: `CHANNEX_FULL_SYNC_HOUR` (час по Алматы, по умолчанию 3), `CHANNEX_FULL_SYNC=off`, `CHANNEX_WEBHOOK_HEALTH=off`.
+
+## Контрольная сверка после всех правок дня (15:20 UTC)
+
+После Q-107 в HEAD (стойка считает остаток как канал) и полной выгрузки `sync/scheduled?force=1`:
+**450 клеток (5 категорий × 90 дней), расхождений 0** — остатки PMS и Channex совпадают клетка в клетку
+(`reports/channex-ari-2026-09-11.md`). Два расхождения, которые оставались до выгрузки (мужской дорм 14.09 и 07.10, по единице),
+были следом прямого гашения тестовых проживаний в базе мимо очереди дельт — ровно тот случай, который закрывает ночная выгрузка.

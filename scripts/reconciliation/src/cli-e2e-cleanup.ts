@@ -83,6 +83,19 @@ try {
       failed.push(`${r.confirmationNumber} (${r.status}): API недоступен — погашена в базе`);
   }
   if (!dry) console.log(`Освобождено броней: ${freed}`);
+  // Гашение в базе идёт мимо очереди дельт, и канал об этом не узнаёт до полной выгрузки (найдено
+  // сверкой 11.09: мужской дом 19 против 18 в Channex). Поэтому после уборки просим полную выгрузку сами;
+  // если API недоступен — её сделает ночная выгрузка после 03:00 по Алматы.
+  if (!dry && freed > 0) {
+    const sync = await fetch(`${API}/channels/channex/sync?days=365&trigger=import`, {
+      method: 'POST',
+    }).catch(() => null);
+    console.log(
+      sync?.ok
+        ? 'Остатки в канале: полная выгрузка запущена'
+        : `Остатки в канале: полная выгрузка не запущена (${sync ? `HTTP ${sync.status}` : 'API недоступен'}) — подберёт ночная выгрузка`,
+    );
+  }
   if (failed.length) {
     console.log('Погашено без API:');
     for (const f of failed) console.log(`  ${f}`);

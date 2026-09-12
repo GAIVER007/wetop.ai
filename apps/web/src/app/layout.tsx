@@ -1,18 +1,13 @@
 import type { ReactNode } from 'react';
-import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
+import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import { TopNav } from '../components/top-nav';
 import './globals.css';
 
 /*
- * Шрифты дизайна стойки (направление A, 12.09.2026): Manrope — заголовки и числа, IBM Plex Sans — текст,
- * IBM Plex Mono — номера броней. next/font кладёт файлы в сборку: стойка не ходит за шрифтами в интернет.
+ * Шрифты стойки: IBM Plex Sans — весь интерфейс, включая заголовки (две гарнитуры на плотных экранах
+ * читаются как склейка), IBM Plex Mono — номера броней и ячеек. next/font кладёт файлы в сборку:
+ * стойка не ходит за шрифтами в интернет.
  */
-const head = Manrope({
-  subsets: ['cyrillic', 'latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-head',
-  display: 'swap',
-});
 const body = IBM_Plex_Sans({
   subsets: ['cyrillic', 'latin'],
   weight: ['400', '500', '600'],
@@ -31,7 +26,7 @@ export const metadata = { title: 'PMS Luxx Aparts' };
 /** Общий каркас стойки: верхняя навигация + страница. Стили — `globals.css` (срез 10, ADR-027). */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ru" className={`${head.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="ru" className={`${body.variable} ${mono.variable}`}>
       <body>
         <TopNav />
         {children}

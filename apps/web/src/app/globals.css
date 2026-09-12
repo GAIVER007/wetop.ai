@@ -1,45 +1,52 @@
 /*
- * Базовый слой интерфейса стойки (срез 10, ADR-027).
- * Значения токенов — те же, что раньше были разбросаны инлайн-стилями по страницам.
- * Дизайн (шрифты, палитра, макеты) меняется здесь и в components/, страницы не трогаются.
+ * Базовый слой интерфейса стойки (срез 10, ADR-027) и визуальный дизайн направления A
+ * («спокойная стойка», 12.09.2026, макеты — artifact «Luxx PMS, дизайн стойки»).
+ * Дизайн меняется здесь и в components/, страницы не трогаются.
+ * Правила: светлый холодно-нейтральный фон, тёмно-синий текст, один акцент; цвет — только для статусов
+ * и там, где нужно действие (жёлтое «не сделано», красный «долг»); границы в 1 px вместо теней.
  */
 :root {
-  --bg: #f6f7f9;
+  --bg: #f4f5f8;
   --surface: #fff;
-  --surface-muted: #f9fafb;
+  --surface-muted: #fafbfc;
   --border: #e3e5e8;
-  --border-soft: #f0f1f3;
+  --border-soft: #eef0f3;
   --border-input: #cbd0d6;
-  --text: #1a1a1a;
-  --text-2: #444;
-  --muted: #666;
-  --muted-2: #888;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --primary-soft: #eef4ff;
-  --success: #15803d;
-  --success-2: #166534;
-  --success-soft: #dcfce7;
-  --warning: #b45309;
-  --warning-soft: #fef3c7;
-  --danger: #b91c1c;
-  --danger-2: #991b1b;
-  --danger-soft: #fef2f2;
-  --danger-border: #fecaca;
+  --text: #16213a;
+  --text-2: #3d4656;
+  --muted: #6b7280;
+  --muted-2: #8b93a1;
+  --primary: #1f4bd8;
+  --primary-hover: #17399f;
+  --primary-soft: #e8eefc;
+  --success: #176b3f;
+  --success-2: #14532d;
+  --success-soft: #dff5e7;
+  --warning: #9a5205;
+  --warning-soft: #fff1d6;
+  --warning-bg: #fff8e8;
+  --warning-border: #f3d99a;
+  --danger: #b4232c;
+  --danger-2: #9b1c1c;
+  --danger-soft: #fdecec;
+  --danger-border: #f5b8b8;
   --info: #0f766e;
-  --chip-bg: #e5e7eb;
-  --chip-fg: #374151;
-  /* статусы проживаний на шахматке — те же цвета, что в легенде */
-  --st-confirmed: #dbeafe;
-  --st-checked-in: #bbf7d0;
-  --st-checked-out: #e5e7eb;
-  --st-tentative: #fde68a;
-  --st-blocked: #fecaca;
+  --chip-bg: #e9ebef;
+  --chip-fg: #4b5563;
+  /* статусы проживаний на шахматке — те же цвета, что в легенде и бейджах */
+  --st-confirmed: #d7e6ff;
+  --st-checked-in: #c3efd2;
+  --st-checked-out: #e6e8ec;
+  --st-tentative: #fbe7a3;
+  --st-blocked: #f8c9c9;
+  --row-hover: #f7f9fc;
   --radius: 8px;
   --radius-sm: 6px;
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --topbar-h: 48px;
+  --control-h: 34px;
+  --font-head: var(--font-head, 'Manrope'), 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --font: var(--font-body, 'IBM Plex Sans'), 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: var(--font-mono, 'IBM Plex Mono'), 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --topbar-h: 52px;
 }
 
 *,
@@ -56,7 +63,8 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-size: 14px;
-  line-height: 1.35;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 a {
   color: var(--primary);
@@ -75,8 +83,10 @@ textarea {
 h1,
 h2,
 h3 {
-  font-weight: 600;
+  font-family: var(--font-head);
+  font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.005em;
 }
 :focus-visible {
   outline: 2px solid var(--primary);
@@ -94,24 +104,35 @@ h3 {
 .topbar__inner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   min-height: var(--topbar-h);
   padding: 6px 20px;
   flex-wrap: wrap;
 }
 .topbar__brand {
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 800;
   color: var(--text);
   white-space: nowrap;
   letter-spacing: 0.01em;
+}
+.topbar__mark {
+  color: var(--text);
+  flex: none;
 }
 .topbar__brand:hover {
   text-decoration: none;
 }
 .topbar__brand span {
   color: var(--muted);
+  font-family: var(--font);
+  font-size: 12px;
   font-weight: 500;
-  margin-left: 6px;
+  margin-left: -2px;
 }
 .topbar__nav {
   display: flex;
@@ -178,7 +199,10 @@ h3 {
   margin-bottom: 14px;
 }
 .page__title {
-  font-size: 24px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   margin: 0;
 }
 .page__subtitle {
@@ -193,8 +217,8 @@ h3 {
   font-size: 14px;
 }
 .section-title {
-  font-size: 16px;
-  margin: 20px 0 8px;
+  font-size: 17px;
+  margin: 22px 0 10px;
 }
 .section-title--first {
   margin-top: 0;
@@ -219,16 +243,18 @@ h3 {
   color: var(--muted);
 }
 .stat__value {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.25;
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .stat--big .stat__value {
-  font-size: 26px;
+  font-size: 30px;
 }
 .stat--compact .stat__value {
-  font-size: 16px;
+  font-size: 18px;
 }
 .stat__hint {
   font-size: 12px;
@@ -245,9 +271,21 @@ h3 {
   border-color: var(--danger-border);
   background: var(--danger-soft);
 }
+.stat--alarm .stat__label,
+.stat--alarm .stat__value {
+  color: var(--danger);
+}
+.stat--alarm .stat__value {
+  font-size: 22px;
+  white-space: nowrap;
+}
 .stat--warn {
-  border-color: #fde68a;
-  background: var(--warning-soft);
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+.stat--warn .stat__label,
+.stat--warn .stat__value {
+  color: var(--warning);
 }
 
 /* ---------- панель (белый блок) ---------- */
@@ -301,20 +339,26 @@ h3 {
 }
 .tbl th {
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
+  background: var(--surface-muted);
+  font-size: 11.5px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--muted);
   white-space: nowrap;
 }
 .tbl td {
-  padding: 7px 10px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border-soft);
   vertical-align: top;
 }
 .tbl tbody tr:last-child td {
   border-bottom: 0;
+}
+.tbl tbody tr:hover td {
+  background: var(--row-hover);
 }
 .tbl--sm {
   font-size: 13px;
@@ -359,10 +403,12 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 7px 14px;
+  min-height: var(--control-h);
+  padding: 6px 14px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size: 14px;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
   white-space: nowrap;
@@ -403,17 +449,21 @@ h3 {
   padding: 0 4px;
 }
 .btn--sm {
-  padding: 4px 10px;
+  min-height: 28px;
+  padding: 3px 10px;
   font-size: 13px;
 }
 .btn--xs {
-  padding: 3px 8px;
+  min-height: 24px;
+  padding: 2px 8px;
   font-size: 12px;
+  font-weight: 500;
 }
 
 /* ---------- поля ---------- */
 .inp {
-  padding: 6px 8px;
+  min-height: var(--control-h);
+  padding: 5px 10px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -422,11 +472,12 @@ h3 {
 }
 .inp:focus-visible {
   border-color: var(--primary);
-  outline: 2px solid var(--primary-soft);
-  outline-offset: 0;
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
 }
 textarea.inp {
   resize: vertical;
+  padding: 8px 10px;
 }
 .inp--sm {
   font-size: 13px;
@@ -457,8 +508,9 @@ textarea.inp {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
-  color: #555;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
 }
 .field--inline {
   flex-direction: row;
@@ -512,7 +564,8 @@ textarea.inp {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
   line-height: 18px;
   background: var(--chip-bg);
   color: var(--chip-fg);
@@ -528,7 +581,7 @@ textarea.inp {
 }
 .badge--warn {
   background: var(--warning-soft);
-  color: #92400e;
+  color: var(--warning);
 }
 .badge--danger {
   background: var(--danger-soft);
@@ -591,8 +644,8 @@ textarea.inp {
 .legend {
   display: flex;
   gap: 14px;
-  font-size: 12px;
-  color: #555;
+  font-size: 12.5px;
+  color: var(--text-2);
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
@@ -665,8 +718,10 @@ textarea.inp {
 .board th {
   padding: 6px 4px;
   border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  color: #555;
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
   text-align: center;
   background: var(--surface-muted);
 }
@@ -682,8 +737,8 @@ textarea.inp {
   color: var(--muted-2);
 }
 .board__occ {
-  font-weight: 600;
-  color: #111;
+  font-weight: 700;
+  color: var(--text);
 }
 .board td {
   padding: 3px 6px;

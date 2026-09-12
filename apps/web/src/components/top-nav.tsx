@@ -29,6 +29,23 @@ export function TopNav() {
     <header className="topbar">
       <div className="topbar__inner">
         <Link href="/today" className="topbar__brand">
+          <svg
+            className="topbar__mark"
+            width="24"
+            height="24"
+            viewBox="0 0 26 26"
+            aria-hidden="true"
+          >
+            <rect x="1" y="1" width="24" height="24" rx="6" fill="currentColor" />
+            <path
+              d="M8 6.5v13h10"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           Luxx Aparts<span>PMS</span>
         </Link>
         <nav className="topbar__nav" aria-label="Разделы">

@@ -112,6 +112,9 @@ function makeFake() {
     async categoryByCode(code) {
       return types.find((t) => t.code === code) ?? null;
     },
+    async activeCategories() {
+      return types.filter((t) => t.active);
+    },
     async categoryById(id) {
       return types.find((t) => t.id === id) ?? null;
     },

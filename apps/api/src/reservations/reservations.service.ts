@@ -59,6 +59,11 @@ export interface CreateReservationDto {
      * По умолчанию 1; вместе с `unitCode` не сочетается (при N>1 ячейки назначает система).
      */
     quantity?: number;
+    /**
+     * Виджет сайта (срез 9): без выбора ячейки назначить первую свободную, как у канала (Q-094);
+     * нет свободной — бронь без ячейки, стойка назначит. Вместе с `unitCode` не сочетается.
+     */
+    autoAssign?: boolean;
   }>;
 }
 /** Правка шапки готовой брони: заметки и источник. Оба поля необязательны, но хотя бы одно нужно. */
@@ -197,6 +202,8 @@ export class ReservationsService {
         throw new BadRequestException(
           'items[].unitCode задаётся только для одного места: при quantity > 1 ячейки назначает система',
         );
+      if (it.autoAssign && it.unitCode)
+        throw new BadRequestException('items[].autoAssign и unitCode не сочетаются');
     }
     const guest = dto.guest;
     const status: ReservationStatus = 'CONFIRMED';
@@ -275,6 +282,10 @@ export class ReservationsService {
             if (await repo.hasBlockOverlap(unit.id, dates.arrivalDate, dates.departureDate))
               throw new ConflictException(`Ячейка ${it.unitCode} заблокирована на эти даты`);
             unitId = unit.id;
+          } else if (it.autoAssign) {
+            // как у канала (Q-094): первая свободная ячейка категории, иначе без ячейки
+            const unit = await repo.firstFreeUnit(type.id, dates.arrivalDate, dates.departureDate);
+            unitId = unit?.id ?? null;
           }
           prepared.push({
             typeId: type.id,

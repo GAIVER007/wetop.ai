@@ -25,6 +25,7 @@ export default async function TodayPage({
           <Link href="/finance">деньги</Link>
           <Link href="/guests">гости</Link>
           <Link href="/journal">журнал</Link>
+          <Link href="/analytics">аналитика</Link>
         </nav>
       </header>
 

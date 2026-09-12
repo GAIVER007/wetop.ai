@@ -14,5 +14,7 @@ import { ReservationsService } from './reservations.service';
     ReservationsService,
     { provide: RESERVATIONS_UOW, useClass: PrismaUnitOfWork },
   ],
+  // Виджет сайта (срез 9) создаёт брони тем же сервисом и читает доступность тем же репозиторием
+  exports: [ReservationsService, RESERVATIONS_UOW],
 })
 export class ReservationsModule {}

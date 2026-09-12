@@ -15,6 +15,32 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    // Скрипт счётчика (срез 8): браузерный ES5 для старых WebView, отдаётся как есть с /a/pms.js.
+    // Правила Node/TS к нему не относятся: браузерные глобалы и пустые catch — намеренно.
+    files: ['apps/api/src/analytics/tracker.js', 'apps/api/src/web-booking/widget.js'],
+    languageOptions: {
+      globals: Object.fromEntries(
+        [
+          'window',
+          'document',
+          'navigator',
+          'location',
+          'history',
+          'fetch',
+          'crypto',
+          'sessionStorage',
+          'localStorage',
+          'screen',
+          'setInterval',
+        ].map((g) => [g, 'readonly']),
+      ),
+    },
+    rules: {
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'none' }],
+    },
+  },
+  {
     // ADR-004: домен и приложения не знают про Channex. Vendor SDK — только в packages/integrations.
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['packages/integrations/**'],

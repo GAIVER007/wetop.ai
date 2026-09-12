@@ -45,6 +45,7 @@ model Property {
   channelMappings    ChannelMapping[]
   payments           Payment[]
   services           Service[]
+  trackedSites       TrackedSite[]
 
   @@map("properties")
 }
@@ -221,6 +222,7 @@ model Reservation {
   property     Property          @relation(fields: [propertyId], references: [id])
   primaryGuest Guest?            @relation("primaryGuest", fields: [primaryGuestId], references: [id])
   items        ReservationItem[]
+  webSessions  WebSession[]
 
   @@unique([propertyId, confirmationNumber])
   @@index([propertyId, arrivalDate])
@@ -395,21 +397,21 @@ model InventoryBlock {
 /// Тарифный план. На объекте 6 (3 без продаж — Q-082: до ответа импортируются с active=false).
 /// Питания нет ни у одного; сезонов в модели нет (DailyRate покрывает).
 model RatePlan {
-  id         String   @id @default(uuid()) @db.Uuid
-  propertyId String   @map("property_id") @db.Uuid
-  code       String
-  name       String
-  currency   String   @db.Char(3)
-  mealPlan   String?  @map("meal_plan")
-  active     Boolean  @default(true)
+  id                  String              @id @default(uuid()) @db.Uuid
+  propertyId          String              @map("property_id") @db.Uuid
+  code                String
+  name                String
+  currency            String              @db.Char(3)
+  mealPlan            String?             @map("meal_plan")
+  active              Boolean             @default(true)
   /// ID тарифа в Exely (например 10157482) — внешняя ссылка, ADR-003
-  exelyId    String?  @map("exely_id")
+  exelyId             String?             @map("exely_id")
   /// Пометка импорта: каналы, к которым тариф привязан в Exely (справочно, не бизнес-логика)
-  note       String?
+  note                String?
   /// Штраф при отмене/незаезде (Q-103); умолчание — правило Exely «стоимость первых суток»
   cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property        Property                    @relation(fields: [propertyId], references: [id])
   types           RatePlanAccommodationType[]
@@ -417,6 +419,7 @@ model RatePlan {
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
   items           ReservationItem[]
+  trackedSites    TrackedSite[]
 
   @@unique([propertyId, code])
   @@unique([propertyId, exelyId])
@@ -745,4 +748,119 @@ model Refund {
 
   @@index([folioId])
   @@map("refunds")
+}
+
+// ───────────────────────── §11 Аналитика сайта ─────────────────────────
+// Срез 8 (план plans/slice-8-web-analytics.md, принят владельцем 12.09.2026). Персональных данных нет по
+// построению: IP и полный User-Agent не сохраняются, visitor_key — случайное число из браузера (ADR-018).
+
+enum TrackedSiteStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum WebSourceKind {
+  DIRECT
+  SEARCH
+  SOCIAL
+  PAID
+  EMAIL
+  REFERRAL
+}
+
+enum WebDevice {
+  DESKTOP
+  MOBILE
+  TABLET
+}
+
+/// Сайт объекта со счётчиком. Ключ стоит в HTML сайта — не секрет; домены ограничивают приёмник.
+model TrackedSite {
+  id                String            @id @default(uuid()) @db.Uuid
+  propertyId        String            @map("property_id") @db.Uuid
+  name              String
+  /// Домены сайта; Origin/Referer приёмника должны совпадать (сам домен или поддомен)
+  hosts             String[]
+  /// pms_ + 12 hex — ключ в атрибуте data-site
+  publicKey         String            @unique @map("public_key")
+  status            TrackedSiteStatus @default(ACTIVE)
+  /// Виджет бронирования на сайте (срез 9): выключен, пока владелец не включит на карточке сайта
+  bookingEnabled    Boolean           @default(false) @map("booking_enabled")
+  /// Тариф, по которому виджет считает цену и создаёт бронь; null — бронирование не настроено
+  bookingRatePlanId String?           @map("booking_rate_plan_id") @db.Uuid
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property        Property     @relation(fields: [propertyId], references: [id])
+  bookingRatePlan RatePlan?    @relation(fields: [bookingRatePlanId], references: [id])
+  sessions        WebSession[]
+
+  @@index([propertyId])
+  @@map("tracked_sites")
+}
+
+/// Сессия посетителя (GA4: рвётся после 30 минут бездействия). Источник и устройство — на первом просмотре.
+model WebSession {
+  id              String        @id @default(uuid()) @db.Uuid
+  siteId          String        @map("site_id") @db.Uuid
+  visitorKey      String        @map("visitor_key")
+  sessionKey      String        @map("session_key")
+  startedAt       DateTime      @map("started_at") @db.Timestamptz(6)
+  lastSeenAt      DateTime      @map("last_seen_at") @db.Timestamptz(6)
+  pageviews       Int           @default(0)
+  /// last_seen_at − started_at, обновляется приёмником
+  durationSeconds Int           @default(0) @map("duration_seconds")
+  landingPath     String?       @map("landing_path")
+  referrerHost    String?       @map("referrer_host")
+  sourceKind      WebSourceKind @default(DIRECT) @map("source_kind")
+  source          String?
+  medium          String?
+  campaign        String?
+  content         String?
+  term            String?
+  device          WebDevice     @default(DESKTOP)
+  browser         String?
+  os              String?
+  language        String?
+  /// Бронь, сделанная виджетом в этой сессии (срез 9): конверсия по источникам
+  reservationId   String?       @map("reservation_id") @db.Uuid
+
+  site         TrackedSite   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  reservation  Reservation?  @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  pageviewRows WebPageview[]
+  events       WebEvent[]
+
+  @@unique([siteId, sessionKey])
+  @@index([siteId, startedAt])
+  @@map("web_sessions")
+}
+
+model WebPageview {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  at        DateTime @db.Timestamptz(6)
+  path      String
+  title     String?
+
+  session WebSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([at])
+  @@map("web_pageviews")
+}
+
+/// Событие с сайта: search (даты заезда → календарь спроса), booking_step, phone_click, whatsapp_click, custom.
+/// props — только ключи из allow-list домена (arrival, departure, adults, children, category, rate, step).
+model WebEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  at        DateTime @db.Timestamptz(6)
+  name      String
+  props     Json?
+
+  session WebSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([at])
+  @@map("web_events")
 }

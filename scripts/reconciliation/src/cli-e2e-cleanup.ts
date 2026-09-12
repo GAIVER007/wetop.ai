@@ -4,7 +4,7 @@
  * Скрипт отменяет их через API — той же командой, что и стойка, поэтому ячейки освобождаются,
  * начисления сторнируются, а журнал действий видит настоящую отмену.
  *
- * Метка — заметка брони `E2E-АВТОТЕСТ`, её ставят сами тесты. Ничего другого скрипт не трогает.
+ * Метка — заметка брони `E2E-АВТОТЕСТ` (или комментарий гостя в брони с сайта, срез 9), её ставят сами тесты. Ничего другого скрипт не трогает.
  * Запуск: npx tsx scripts/reconciliation/src/cli-e2e-cleanup.ts [--dry]
  */
 import { resolve } from 'node:path';
@@ -26,7 +26,7 @@ try {
       // а не ячейки) и занижают остаток в Channex — найдено сверкой 11.09.2026.
       items: { some: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } } },
       OR: [
-        { notes: E2E_NOTE },
+        { notes: { contains: E2E_NOTE } },
         // Прогоны до появления метки: номер выдан самой PMS. У броней из Exely номер другого вида
         // (`…-513903-…`), и их гости тоже анонимизированы в «Тест-» — по фамилии их различить нельзя.
         { primaryGuest: { lastName: { startsWith: 'Тест-' } } },
@@ -37,7 +37,9 @@ try {
   });
   // Номер, выданный PMS: ГГГГММДД + шесть знаков. У Exely и каналов формат другой — они не попадут.
   const ownNumber = /^\d{8}-[A-Z0-9]{6}$/;
-  const mine = marked.filter((r) => r.notes === E2E_NOTE || ownNumber.test(r.confirmationNumber));
+  const mine = marked.filter(
+    (r) => r.notes?.includes(E2E_NOTE) || ownNumber.test(r.confirmationNumber),
+  );
   console.log(
     `Броней автотестов с активными проживаниями: ${mine.length} (кандидатов по фамилии было ${marked.length})`,
   );
@@ -46,7 +48,7 @@ try {
   for (const r of mine) {
     if (dry) {
       console.log(
-        `  ${r.confirmationNumber} (${r.status}) — ${r.notes === E2E_NOTE ? 'метка' : 'фамилия Тест-'}`,
+        `  ${r.confirmationNumber} (${r.status}) — ${r.notes?.includes(E2E_NOTE) ? 'метка' : 'фамилия Тест-'}`,
       );
       continue;
     }
@@ -88,12 +90,15 @@ try {
   const testNumbers = (
     await db.reservation.findMany({
       where: {
-        OR: [{ notes: E2E_NOTE }, { primaryGuest: { lastName: { startsWith: 'Тест-' } } }],
+        OR: [
+          { notes: { contains: E2E_NOTE } },
+          { primaryGuest: { lastName: { startsWith: 'Тест-' } } },
+        ],
       },
       select: { confirmationNumber: true, notes: true },
     })
   )
-    .filter((r) => r.notes === E2E_NOTE || ownNumber.test(r.confirmationNumber))
+    .filter((r) => r.notes?.includes(E2E_NOTE) || ownNumber.test(r.confirmationNumber))
     .map((r) => r.confirmationNumber);
   const staleBlocks = await db.inventoryBlock.findMany({
     where: {
@@ -125,6 +130,21 @@ try {
     console.log('Погашено без API:');
     for (const f of failed) console.log(`  ${f}`);
   }
+  // Сайты со счётчиком, заведённые автотестами (срез 8): e2e и интеграционный тест удаляют их сами,
+  // но сорванный прогон оставляет сайт со статистикой. Каскадом уходят сессии, просмотры и события.
+  const testSites = await db.trackedSite.findMany({
+    where: {
+      OR: [
+        { name: { startsWith: E2E_NOTE } },
+        { name: 'ИНТЕГРАЦИОННЫЙ ТЕСТ' },
+        { publicKey: 'pms_e2e000000000' },
+      ],
+    },
+    select: { id: true, name: true },
+  });
+  if (testSites.length && !dry)
+    await db.trackedSite.deleteMany({ where: { id: { in: testSites.map((s) => s.id) } } });
+  console.log(`Сайтов со счётчиком от автотестов: ${testSites.length}${dry ? '' : ' — удалены'}`);
 } finally {
   await db.$disconnect();
 }

@@ -16,6 +16,8 @@
 > затем повторное утверждение затронутого раздела.
 
 Версия: 1.0 (утверждена 07.09.2026, кроме §6)
+v1.1 (12.09.2026): §11 «Аналитика сайта» — принят владельцем 12.09.2026 («давай внедряй»), реализован: миграция `20260912000009_web_analytics`
+v1.2 (12.09.2026, вечер): §11 дополнен бронированием с сайта (срез 9, ADR-026) — миграция `20260912000010_web_booking`
 Дата: 2026-09-07
 
 ---
@@ -731,6 +733,101 @@ created_at
 
 Обязательно логируется: изменение дат; изменение цены; room move; cancellation;
 payment; refund; manual availability; изменение guest document.
+
+---
+
+## 11. Аналитика сайта (v1.1 — принят 12.09.2026 по поручению владельца «давай внедряй»; срез 8, `plans/slice-8-web-analytics.md`)
+
+Собственный счётчик посещений сайта объекта: код на сайте → публичный приёмник → эти таблицы → экран
+`/analytics`. Существующие сущности не меняются. Персональных данных здесь нет по построению: IP-адрес и
+полный User-Agent не сохраняются, ID посетителя — случайное число из браузера, к `Guest` и `Reservation`
+не привязан (ADR-018). Определения метрик — GA4, как в «Эффективности сайта» Exely
+(`docs/exely/analytics-2026-09-12.md`).
+
+### TrackedSite
+
+```
+id
+property_id           → Property
+name
+hosts                 text[]     ← домены сайта; Origin/Referer приёмника должны совпадать
+public_key            ← ключ в коде счётчика: pms_ + 12 hex; не секрет, стоит в HTML сайта
+status                ACTIVE | PAUSED
+booking_enabled       bool     ← v1.2: виджет бронирования на сайте включён (срез 9)
+booking_rate_plan_id  → RatePlan ← v1.2: тариф, по которому виджет считает цену и создаёт бронь; null — не настроено
+created_at
+updated_at
+```
+
+**UNIQUE (public_key).**
+
+### WebSession
+
+```
+id
+site_id               → TrackedSite
+visitor_key           ← случайный UUID из localStorage браузера; не ПД
+session_key           ← ID сессии браузера; новая после 30 мин бездействия
+started_at            timestamptz
+last_seen_at          timestamptz
+pageviews             integer
+duration_seconds      integer    ← last_seen_at − started_at
+
+landing_path
+referrer_host
+source_kind           DIRECT | SEARCH | SOCIAL | PAID | EMAIL | REFERRAL
+source                ← utm_source, иначе хост реферера (google.com, instagram.com)
+medium                ← utm_medium
+campaign              ← utm_campaign
+content               ← utm_content
+term                  ← utm_term
+
+device                DESKTOP | MOBILE | TABLET
+browser
+os
+language
+```
+
+**UNIQUE (site_id, session_key).** Индекс `(site_id, started_at)` — все отчёты режут по нему.
+
+```
+reservation_id        → Reservation (nullable) ← v1.2: бронь, сделанная виджетом в этой сессии; конверсия по источникам
+```
+
+### WebPageview
+
+```
+id
+session_id            → WebSession
+at                    timestamptz
+path
+title
+```
+
+### WebEvent
+
+```
+id
+session_id            → WebSession
+at                    timestamptz
+name                  ← search | booking_step | phone_click | whatsapp_click | custom
+props                 jsonb ≤ 2 КБ, ключи только из allow-list (arrival, departure, adults, children, category, rate, step)
+```
+
+`search` с `props.arrival` — источник «Календаря спроса» (даты, на которые посетители ищут заезд).
+
+> **12.09.2026, реализовано (миграция `20260912000009_web_analytics`):** четыре таблицы `tracked_sites`, `web_sessions`,
+> `web_pageviews`, `web_events` и три enum ровно по описанию выше; `hosts` — `text[]`, `props` — `jsonb`. SQL получен
+> `prisma migrate diff` против dev-БД, существующие таблицы не тронуты. Код: `packages/domain/src/web-analytics`,
+> `apps/api/src/analytics`, экраны `/analytics` и `/analytics/setup`.
+>
+> **12.09.2026, вечер, реализовано (миграция `20260912000010_web_booking`, срез 9):** `tracked_sites.booking_enabled`,
+> `tracked_sites.booking_rate_plan_id → rate_plans`, `web_sessions.reservation_id → reservations` (ON DELETE SET NULL).
+> Бронь с сайта создаётся тем же `ReservationsService.create`, что и со стойки: новых сущностей брони нет.
+> Код: `packages/domain/src/web-booking`, `apps/api/src/web-booking`, виджет `/w/widget.js`.
+
+Чего здесь нет и почему: IP и геолокация (ПД, не храним); суточные агрегаты (на объёме хостела не нужны,
+добавятся при хранении дольше 13 месяцев); cookies (ID живёт в localStorage).
 
 ---
 

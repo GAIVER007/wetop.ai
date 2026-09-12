@@ -125,6 +125,9 @@ function makeFakes() {
     async categoryByCode() {
       return null;
     },
+    async activeCategories() {
+      return [];
+    },
     async categoryById() {
       return null;
     },

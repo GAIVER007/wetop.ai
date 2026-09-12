@@ -176,6 +176,8 @@ export interface AuditEntry {
 export interface ReservationsRepository {
   property(): Promise<{ id: string; currency: string }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
+  /** Активные категории объекта по имени — виджет сайта показывает их все (срез 9) */
+  activeCategories(): Promise<CategoryRef[]>;
   categoryById(id: string): Promise<CategoryRef | null>;
   ratePlanByCode(code: string): Promise<RatePlanRef | null>;
   ratePlanById(id: string): Promise<RatePlanRef | null>;
@@ -359,6 +361,21 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       });
     }
     return this.propertyCache;
+  }
+  async activeCategories(): Promise<CategoryRef[]> {
+    const { id: propertyId } = await this.property();
+    return this.db.accommodationType.findMany({
+      where: { propertyId, active: true },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        active: true,
+        capacityAdults: true,
+        capacityChildren: true,
+      },
+    });
   }
   async categoryByCode(code: string): Promise<CategoryRef | null> {
     const { id: propertyId } = await this.property();

@@ -183,7 +183,11 @@ export class ApiError extends Error {
     super(message);
   }
 }
-async function sendJson<T>(method: 'POST' | 'PATCH', path: string, body: unknown): Promise<T> {
+async function sendJson<T>(
+  method: 'POST' | 'PATCH' | 'DELETE',
+  path: string,
+  body: unknown,
+): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     method,
     headers: { 'content-type': 'application/json' },
@@ -637,4 +641,100 @@ export interface DeskDay {
 export const deskApi = {
   today: (date?: string) =>
     getJson<DeskDay>(`/desk/today${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+};
+
+// ───────────── Аналитика сайта (срез 8) ─────────────
+export interface TrackedSite {
+  id: string;
+  name: string;
+  hosts: string[];
+  publicKey: string;
+  status: 'ACTIVE' | 'PAUSED';
+  createdAt: string;
+  timezone: string;
+  checkInTime: string;
+  checkOutTime: string;
+  /** Виджет бронирования (срез 9) */
+  bookingEnabled: boolean;
+  bookingRatePlan: { id: string; code: string; name: string } | null;
+}
+export interface TrackedSiteCard {
+  site: TrackedSite;
+  status: { lastEventAt: string | null; sessionsToday: number; pageviewsToday: number };
+  snippet: {
+    key: string;
+    scriptUrl: string;
+    code: string;
+    demoUrl: string;
+    bookingCode: string;
+    bookingDemoUrl: string;
+  };
+}
+export interface SiteReport {
+  site: { id: string; name: string };
+  period: { from: string; to: string; timezone: string };
+  summary: {
+    sessions: number;
+    visitors: number;
+    pageviews: number;
+    pagesPerSession: number;
+    avgDurationSeconds: number;
+    mobileSessions: number;
+    mobileShare: number;
+    bounces: number;
+    bounceRate: number;
+    bookings: number;
+  };
+  daily: Array<{
+    date: string;
+    sessions: number;
+    visitors: number;
+    pageviews: number;
+    mobile: number;
+  }>;
+  sources: Array<{
+    kind: 'DIRECT' | 'SEARCH' | 'SOCIAL' | 'PAID' | 'EMAIL' | 'REFERRAL';
+    source: string | null;
+    sessions: number;
+    visitors: number;
+    pageviews: number;
+    avgDurationSeconds: number;
+    share: number;
+    bookings: number;
+  }>;
+  pages: Array<{ path: string; views: number; share: number }>;
+  demand: Array<{ arrival: string; searches: number }>;
+  events: Array<{ name: string; count: number; sessions: number }>;
+  devices: {
+    devices: Array<{ key: string | null; sessions: number; share: number }>;
+    browsers: Array<{ key: string | null; sessions: number; share: number }>;
+    os: Array<{ key: string | null; sessions: number; share: number }>;
+  };
+}
+export const analyticsApi = {
+  sites: () => getJson<TrackedSite[]>('/analytics/sites'),
+  card: (id: string) => getJson<TrackedSiteCard>(`/analytics/sites/${encodeURIComponent(id)}`),
+  create: (body: { name: string; hosts: string[] }) =>
+    sendJson<TrackedSiteCard>('POST', '/analytics/sites', body),
+  update: (
+    id: string,
+    body: {
+      name?: string;
+      hosts?: string[];
+      status?: 'ACTIVE' | 'PAUSED';
+      bookingEnabled?: boolean;
+      bookingRatePlanCode?: string | null;
+    },
+  ) => sendJson<TrackedSiteCard>('PATCH', `/analytics/sites/${encodeURIComponent(id)}`, body),
+  remove: (id: string) =>
+    sendJson<{ deleted: true }>('DELETE', `/analytics/sites/${encodeURIComponent(id)}`, {}),
+  report: (id: string, from?: string, to?: string) => {
+    const q = new URLSearchParams();
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    const qs = q.toString();
+    return getJson<SiteReport>(
+      `/analytics/sites/${encodeURIComponent(id)}/report${qs ? `?${qs}` : ''}`,
+    );
+  },
 };

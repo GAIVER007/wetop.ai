@@ -30,6 +30,9 @@ const ACTION_RU: Record<string, string> = {
   'guest.document.add': 'документ гостя добавлен',
   'guest.document.delete': 'документ гостя удалён',
   'reservations.import': 'импорт броней из Exely',
+  'analytics.site.create': 'сайт со счётчиком добавлен',
+  'analytics.site.update': 'сайт со счётчиком изменён',
+  'analytics.site.delete': 'сайт со счётчиком удалён',
 };
 
 /** Журнал действий администратора и интеграций (SECURITY §6). Без ПД. */
@@ -52,6 +55,7 @@ export default async function JournalPage({
           <Link href="/journal?type=InventoryUnit">ячейки</Link>
           <Link href="/journal?type=Guest">гости</Link>
           <Link href="/journal?type=Property">объект и каналы</Link>
+          <Link href="/journal?type=TrackedSite">сайт</Link>
           <Link href="/chessboard">шахматка</Link>
         </nav>
       </header>

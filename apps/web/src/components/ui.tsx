@@ -144,6 +144,26 @@ export function Stat({
   );
 }
 
+/** Подпись и значение внутри панели, без карточки: ключ сайта, «последнее событие» и подобное. */
+export function Fact({
+  label,
+  value,
+  testId,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  testId?: string | undefined;
+}) {
+  return (
+    <div>
+      <div className="fact__label">{label}</div>
+      <div className="fact__value" data-testid={testId}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
 export function Table({
   size,
   dense,

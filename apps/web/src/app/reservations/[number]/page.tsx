@@ -7,6 +7,8 @@ import {
   messengerLinks,
   reservationsApi,
 } from '../../../lib/api';
+import { Page } from '../../../components/page';
+import { SectionTitle, Stat, Stats, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 
@@ -43,77 +45,73 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
       ),
     ),
   ]);
+  const print = (path: string) =>
+    `/reservations/${encodeURIComponent(r.confirmationNumber)}/print${path}`;
+  const guestMessengers = messengerLinks(r.primaryGuest?.phone);
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <div style={{ fontSize: 13, marginBottom: 8, display: 'flex', gap: 12 }}>
-        <Link href="/chessboard">← шахматка</Link>
-        <span style={{ marginLeft: 'auto' }}>
-          печать:{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print?lang=ru`}
-            data-testid="print-ru"
-          >
-            регистрационная карта RU
-          </Link>{' '}
-          ·{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print?lang=kz`}
-            data-testid="print-kz"
-          >
-            KZ
-          </Link>
-          {/* заготовки печатных форм — содержание заменит образец владельца */} · договор{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/contract?lang=ru`}
-            data-testid="print-contract-ru"
-          >
-            RU
-          </Link>{' '}
-          ·{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/contract?lang=kz`}
-            data-testid="print-contract-kz"
-          >
-            KZ
-          </Link>{' '}
-          · счёт{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/invoice?lang=ru`}
-            data-testid="print-invoice-ru"
-          >
-            RU
-          </Link>{' '}
-          ·{' '}
-          <Link
-            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}/print/invoice?lang=kz`}
-            data-testid="print-invoice-kz"
-          >
-            KZ
-          </Link>
-        </span>
-      </div>
-      <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Бронь {r.confirmationNumber}</h1>
-      <div style={{ color: '#666', marginBottom: 18 }}>
-        {STATUS_RU[r.status] ?? r.status} · {SOURCE_RU[r.source] ?? r.source}
-        {r.channel ? ` · ${r.channel}` : ''}
-      </div>
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: 12,
-          marginBottom: 20,
-        }}
-      >
-        <Fact label="Заезд" value={r.arrivalDate} />
-        <Fact label="Выезд" value={r.departureDate} />
-        <Fact label="Гостей" value={`${r.adults}${r.children ? ` + ${r.children} дет.` : ''}`} />
-        <Fact label="Сумма" value={formatMinor(r.totalAmountMinor, r.currency)} />
-        <Fact
+    <Page
+      width="medium"
+      crumbs={
+        <>
+          <Link href="/chessboard">← шахматка</Link>
+          <span className="ml-auto">
+            печать:{' '}
+            <Link href={print('?lang=ru')} data-testid="print-ru">
+              регистрационная карта RU
+            </Link>{' '}
+            ·{' '}
+            <Link href={print('?lang=kz')} data-testid="print-kz">
+              KZ
+            </Link>
+            {/* заготовки печатных форм — содержание заменит образец владельца */} · договор{' '}
+            <Link href={print('/contract?lang=ru')} data-testid="print-contract-ru">
+              RU
+            </Link>{' '}
+            ·{' '}
+            <Link href={print('/contract?lang=kz')} data-testid="print-contract-kz">
+              KZ
+            </Link>{' '}
+            · счёт{' '}
+            <Link href={print('/invoice?lang=ru')} data-testid="print-invoice-ru">
+              RU
+            </Link>{' '}
+            ·{' '}
+            <Link href={print('/invoice?lang=kz')} data-testid="print-invoice-kz">
+              KZ
+            </Link>
+          </span>
+        </>
+      }
+      title={`Бронь ${r.confirmationNumber}`}
+      subtitle={
+        <>
+          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} /> ·{' '}
+          {SOURCE_RU[r.source] ?? r.source}
+          {r.channel ? ` · ${r.channel}` : ''}
+        </>
+      }
+    >
+      <Stats min={160}>
+        <Stat label="Заезд" size="compact" value={r.arrivalDate} />
+        <Stat label="Выезд" size="compact" value={r.departureDate} />
+        <Stat
+          label="Гостей"
+          size="compact"
+          value={`${r.adults}${r.children ? ` + ${r.children} дет.` : ''}`}
+        />
+        <Stat label="Сумма" size="compact" value={formatMinor(r.totalAmountMinor, r.currency)} />
+        <Stat
           label="Заказчик"
-          messengers={messengerLinks(r.primaryGuest?.phone)}
-          value={r.primaryGuest?.label ?? '—'}
-          href={r.primaryGuest ? `/guests/${r.primaryGuest.id}` : undefined}
+          size="compact"
+          value={
+            r.primaryGuest ? (
+              <Link href={`/guests/${r.primaryGuest.id}`} data-testid="guest-link">
+                {r.primaryGuest.label}
+              </Link>
+            ) : (
+              '—'
+            )
+          }
           hint={
             r.primaryGuest
               ? r.primaryGuest.citizenship
@@ -121,32 +119,36 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                 : 'гражданство не указано'
               : undefined
           }
-        />
-      </section>
-      <h2 style={{ fontSize: 16, margin: '0 0 8px' }}>Проживания</h2>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          background: '#fff',
-          border: '1px solid #e3e5e8',
-          borderRadius: 8,
-          fontSize: 14,
-        }}
-      >
+          hintTone={r.primaryGuest && !r.primaryGuest.citizenship ? 'warn' : undefined}
+        >
+          {guestMessengers && (
+            <div className="stat__extra">
+              <a
+                href={guestMessengers.whatsapp}
+                target="_blank"
+                rel="noreferrer"
+                data-testid="guest-whatsapp"
+              >
+                WhatsApp
+              </a>
+              <a
+                href={guestMessengers.telegram}
+                target="_blank"
+                rel="noreferrer"
+                data-testid="guest-telegram"
+              >
+                Telegram
+              </a>
+            </div>
+          )}
+        </Stat>
+      </Stats>
+      <SectionTitle first>Проживания</SectionTitle>
+      <Table>
         <thead>
           <tr>
             {['Ячейка', 'Категория', 'Заезд', 'Выезд', 'Статус', 'Цена', 'Гости'].map((h) => (
-              <th
-                key={h}
-                style={{
-                  textAlign: 'left',
-                  padding: '8px 10px',
-                  borderBottom: '1px solid #e3e5e8',
-                  fontSize: 12,
-                  color: '#666',
-                }}
-              >
+              <th key={h} className={h === 'Цена' ? 'num' : undefined}>
                 {h}
               </th>
             ))}
@@ -155,19 +157,19 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         <tbody>
           {r.items.map((it) => (
             <tr key={it.id} data-testid="stay-row">
-              <td style={cell}>
-                {it.unitCode ?? <span style={{ color: '#b45309' }}>не назначена</span>}
+              <td className="mono">
+                {it.unitCode ?? <span className="warn-text">не назначена</span>}
               </td>
-              <td style={cell}>{it.accommodationTypeName}</td>
-              <td style={cell}>{it.arrivalDate}</td>
-              <td style={cell}>{it.departureDate}</td>
-              <td style={cell}>{STATUS_RU[it.status] ?? it.status}</td>
-              <td style={{ ...cell, textAlign: 'right' }}>
-                {formatMinor(it.priceMinor, r.currency)}
+              <td>{it.accommodationTypeName}</td>
+              <td>{it.arrivalDate}</td>
+              <td>{it.departureDate}</td>
+              <td>
+                <StatusBadge status={it.status} label={STATUS_RU[it.status] ?? it.status} />
               </td>
-              <td style={cell}>
+              <td className="num">{formatMinor(it.priceMinor, r.currency)}</td>
+              <td>
                 {it.guests.map((g) => g.label).join(', ') || '—'}
-                <span style={{ color: '#666', fontSize: 12 }} data-testid="stay-guests-count">
+                <span className="hint" data-testid="stay-guests-count">
                   {' '}
                   · {it.adults}
                   {it.children ? ` + ${it.children} дет.` : ''}
@@ -176,13 +178,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
       {r.notes && (
-        <p style={{ marginTop: 16, color: '#444' }} data-testid="reservation-notes">
+        <p className="note note--lg" data-testid="reservation-notes">
           <b>Заметки:</b> {r.notes}
         </p>
       )}
-      <h2 style={{ fontSize: 16, margin: '20px 0 8px' }}>Счета</h2>
+      <SectionTitle>Счета</SectionTitle>
       <FinancePanel
         number={r.confirmationNumber}
         finance={finance}
@@ -227,67 +229,6 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           };
         })}
       />
-    </main>
+    </Page>
   );
 }
-function Fact({
-  label,
-  value,
-  href,
-  hint,
-  messengers,
-}: {
-  label: string;
-  value: string;
-  href?: string | undefined;
-  hint?: string | undefined;
-  messengers?: { whatsapp: string; telegram: string } | null;
-}) {
-  return (
-    <div
-      style={{
-        background: '#fff',
-        border: '1px solid #e3e5e8',
-        borderRadius: 8,
-        padding: '10px 12px',
-      }}
-    >
-      <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>
-        {href ? (
-          <Link href={href} data-testid="guest-link">
-            {value}
-          </Link>
-        ) : (
-          value
-        )}
-      </div>
-      {hint && (
-        <div style={{ fontSize: 12, color: hint.includes('не указано') ? '#b45309' : '#666' }}>
-          {hint}
-        </div>
-      )}
-      {messengers && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 12 }}>
-          <a
-            href={messengers.whatsapp}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="guest-whatsapp"
-          >
-            WhatsApp
-          </a>
-          <a
-            href={messengers.telegram}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="guest-telegram"
-          >
-            Telegram
-          </a>
-        </div>
-      )}
-    </div>
-  );
-}
-const cell: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #f0f1f3' };

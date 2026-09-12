@@ -7,6 +7,7 @@ import {
   type ChessboardCell,
   type ChessboardRow,
 } from '../../lib/api';
+import { Alert } from '../../components/ui';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 
@@ -65,41 +66,18 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
 
   return (
     <>
-      <div
-        style={{
-          overflowX: 'auto',
-          background: '#fff',
-          border: '1px solid #e3e5e8',
-          borderRadius: 8,
-          opacity: pending ? 0.6 : 1,
-        }}
-      >
-        <table
-          data-testid="chessboard"
-          style={{ borderCollapse: 'separate', borderSpacing: 0, fontSize: 12, minWidth: 700 }}
-        >
+      <div className="tbl-wrap" style={{ opacity: pending ? 0.6 : 1 }}>
+        <table data-testid="chessboard" className="board">
           <thead>
             <tr>
-              <th
-                style={{
-                  ...th,
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 2,
-                  background: '#f9fafb',
-                  minWidth: 190,
-                  textAlign: 'left',
-                }}
-              >
-                Ячейка
-              </th>
+              <th className="board__unit-head">Ячейка</th>
               {board.dates.map((d) => (
-                <th key={d} style={th} data-testid="date-col">
+                <th key={d} data-testid="date-col">
                   <div>
                     {d.slice(8)}.{d.slice(5, 7)}
                   </div>
-                  <div style={{ fontWeight: 400, color: '#888' }}>{weekday(d)}</div>
-                  <div data-testid={`occupied-${d}`} style={{ fontWeight: 600, color: '#111' }}>
+                  <div className="board__wd">{weekday(d)}</div>
+                  <div className="board__occ" data-testid={`occupied-${d}`}>
                     {board.summary[d]!.occupied}
                   </div>
                 </th>
@@ -114,25 +92,17 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
                 data-unit-code={row.unit.code}
                 onDragOver={onDragOver(row)}
                 onDrop={onDrop(row)}
-                style={overUnit === row.unit.code ? { background: '#dbeafe' } : undefined}
+                className={overUnit === row.unit.code ? 'is-over' : undefined}
               >
-                <td
-                  style={{
-                    ...td,
-                    position: 'sticky',
-                    left: 0,
-                    background: overUnit === row.unit.code ? '#dbeafe' : '#fff',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <td className="board__unit">
                   <Link
                     href={`/units/${encodeURIComponent(row.unit.code)}`}
                     data-testid="unit-link"
-                    style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 600 }}
+                    className="mono bold"
                   >
                     {row.unit.code}
-                  </Link>
-                  <span style={{ color: '#777', marginLeft: 8 }}>
+                  </Link>{' '}
+                  <span className="muted-2">
                     {row.unit.kind === 'BED' ? 'койка' : 'номер'} · {row.unit.accommodationTypeName}
                   </span>
                 </td>
@@ -151,19 +121,11 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
         </table>
       </div>
       {pending && (
-        <p style={{ color: '#555', fontSize: 12, marginTop: 8 }} data-testid="drag-pending">
+        <p className="hint" data-testid="drag-pending">
           Переселяем…
         </p>
       )}
-      {error && (
-        <div
-          role="alert"
-          data-testid="drag-error"
-          style={{ color: '#b91c1c', fontSize: 13, marginTop: 8 }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <Alert data-testid="drag-error">{error}</Alert>}
     </>
   );
 }
@@ -179,12 +141,13 @@ function Cell({
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
   onDragEnd: () => void;
 }) {
+  // цвет клетки зависит от данных — единственный инлайн-стиль сетки; значения из токенов globals.css
   const bg =
     cell.state === 'BLOCKED'
-      ? '#fecaca'
+      ? 'var(--st-blocked)'
       : cell.state === 'FREE'
-        ? '#fff'
-        : (STATUS_BG[cell.itemStatus ?? ''] ?? '#dbeafe');
+        ? 'var(--surface)'
+        : (STATUS_BG[cell.itemStatus ?? ''] ?? 'var(--st-confirmed)');
   const title =
     cell.state === 'OCCUPIED'
       ? `${cell.confirmationNumber} · ${cell.guestLabel} · ${cell.itemStatus}`
@@ -198,12 +161,7 @@ function Cell({
     !!cell.itemId &&
     DRAGGABLE.has(cell.itemStatus ?? '');
   return (
-    <td
-      style={{ ...td, padding: 2, minWidth: 44, position: 'relative' }}
-      data-state={cell.state}
-      data-date={cell.date}
-      title={title}
-    >
+    <td className="board__cell" data-state={cell.state} data-date={cell.date} title={title}>
       {cell.state === 'OCCUPIED' ? (
         <>
           <Link
@@ -225,18 +183,11 @@ function Cell({
                 : undefined
             }
             onDragEnd={onDragEnd}
+            className="board__stay"
             style={{
-              display: 'block',
               background: bg,
               borderRadius: radius,
-              height: 22,
-              lineHeight: '22px',
               paddingLeft: cell.isArrival ? 6 : 2,
-              color: '#111',
-              textDecoration: 'none',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              fontSize: 11,
               cursor: draggable ? 'grab' : undefined,
             }}
           >
@@ -249,14 +200,14 @@ function Cell({
               rel="noreferrer"
               data-testid="cell-whatsapp"
               title="Написать гостю в WhatsApp"
-              style={{ position: 'absolute', right: 2, top: 3, fontSize: 10, lineHeight: '10px' }}
+              className="board__wa"
             >
               💬
             </a>
           )}
         </>
       ) : (
-        <div style={{ background: bg, height: 22, borderRadius: 4 }} />
+        <div className="board__free" style={{ background: bg }} />
       )}
     </td>
   );
@@ -265,17 +216,8 @@ function Cell({
 const weekday = (d: string) =>
   ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(`${d}T00:00:00Z`).getUTCDay()];
 const STATUS_BG: Record<string, string> = {
-  CONFIRMED: '#dbeafe',
-  CHECKED_IN: '#bbf7d0',
-  CHECKED_OUT: '#e5e7eb',
-  TENTATIVE: '#fde68a',
+  CONFIRMED: 'var(--st-confirmed)',
+  CHECKED_IN: 'var(--st-checked-in)',
+  CHECKED_OUT: 'var(--st-checked-out)',
+  TENTATIVE: 'var(--st-tentative)',
 };
-const th: React.CSSProperties = {
-  padding: '6px 4px',
-  borderBottom: '1px solid #e3e5e8',
-  fontSize: 11,
-  color: '#555',
-  textAlign: 'center',
-  background: '#f9fafb',
-};
-const td: React.CSSProperties = { padding: '3px 6px', borderBottom: '1px solid #f0f1f3' };

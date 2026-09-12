@@ -1,5 +1,6 @@
-import Link from 'next/link';
 import { financeApi, formatMinor } from '../../lib/api';
+import { Page } from '../../components/page';
+import { Button, Field, Input, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 
 const KIND_RU: Record<string, string> = {
   ACCOMMODATION: 'проживание',
@@ -41,41 +42,30 @@ export default async function FinanceReportPage({
   const r = await financeApi.report(from, to);
   const cur = r.currency;
   return (
-    <main style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <header style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 14 }}>
-        <h1 style={{ fontSize: 24, margin: 0 }}>Деньги за период</h1>
-        <nav style={{ display: 'flex', gap: 10, marginLeft: 'auto', fontSize: 14 }}>
-          <Link href="/chessboard">шахматка</Link>
-          <Link href="/rates">цены</Link>
-          <Link href="/journal">журнал</Link>
-        </nav>
-      </header>
-
-      <form method="get" style={row} data-testid="period-form">
-        <label style={lbl}>
-          с <input type="date" name="from" defaultValue={from} style={inp} />
-        </label>
-        <label style={lbl}>
-          по <input type="date" name="to" defaultValue={to} style={inp} />
-        </label>
-        <button type="submit" style={btn}>
-          Показать
-        </button>
+    <Page title="Деньги за период">
+      <form method="get" className="row row--lg toolbar" data-testid="period-form">
+        <Field inline label="с">
+          <Input type="date" name="from" defaultValue={from} />
+        </Field>
+        <Field inline label="по">
+          <Input type="date" name="to" defaultValue={to} />
+        </Field>
+        <Button type="submit">Показать</Button>
       </form>
 
-      <section style={cards}>
-        <Card label="Начислено" value={formatMinor(r.chargedMinor, cur)} testId="charged" />
-        <Card label="Оплачено" value={formatMinor(r.paidMinor, cur)} testId="paid" />
-        <Card label="Возвращено" value={formatMinor(r.refundedMinor, cur)} testId="refunded" />
-        <Card
+      <Stats min={170}>
+        <Stat label="Начислено" value={formatMinor(r.chargedMinor, cur)} testId="charged" />
+        <Stat label="Оплачено" value={formatMinor(r.paidMinor, cur)} testId="paid" />
+        <Stat label="Возвращено" value={formatMinor(r.refundedMinor, cur)} testId="refunded" />
+        <Stat
           label="Не собрано"
           value={formatMinor(r.balanceMinor, cur)}
           testId="balance"
           hint="начислено − оплачено + возвращено"
         />
-      </section>
+      </Stats>
 
-      <Table
+      <Report
         title="Начисления по видам"
         testId="charges-table"
         head={['Вид', 'Штук', 'Сумма']}
@@ -85,7 +75,7 @@ export default async function FinanceReportPage({
           formatMinor(x.amountMinor, cur),
         ])}
       />
-      <Table
+      <Report
         title="Оплаты по способам"
         testId="payments-table"
         head={['Способ', 'Штук', 'Сумма']}
@@ -95,7 +85,7 @@ export default async function FinanceReportPage({
           formatMinor(x.amountMinor, cur),
         ])}
       />
-      <Table
+      <Report
         title="Проживание по категориям"
         testId="category-table"
         head={['Категория', 'Начислений', 'Сумма']}
@@ -105,7 +95,7 @@ export default async function FinanceReportPage({
           formatMinor(x.amountMinor, cur),
         ])}
       />
-      <p style={{ fontSize: 12, color: '#666', marginTop: 18 }}>
+      <p className="note" style={{ marginTop: 18 }}>
         Начисления считаются по дате услуги, оплаты и возвраты — по дате операции. Это разные базы:
         сумма оплат за период не обязана совпадать с начислениями, потому что платят и авансом, и
         позже.
@@ -114,33 +104,11 @@ export default async function FinanceReportPage({
         (Trip.com, Agoda, Expedia, Островок), Exely к проживанию не привязывал. У новых броней из
         каналов это учитывается автоматически. Разбор — reports/unpaid-by-channel-2026-08.md.
       </p>
-    </main>
+    </Page>
   );
 }
 
-function Card({
-  label,
-  value,
-  testId,
-  hint,
-}: {
-  label: string;
-  value: string;
-  testId: string;
-  hint?: string;
-}) {
-  return (
-    <div style={card}>
-      <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 600 }} data-testid={testId}>
-        {value}
-      </div>
-      {hint && <div style={{ fontSize: 11, color: '#888' }}>{hint}</div>}
-    </div>
-  );
-}
-
-function Table({
+function Report({
   title,
   head,
   rows,
@@ -153,12 +121,12 @@ function Table({
 }) {
   return (
     <>
-      <h2 style={{ fontSize: 16, margin: '20px 0 8px' }}>{title}</h2>
-      <table style={table} data-testid={testId}>
+      <SectionTitle>{title}</SectionTitle>
+      <Table data-testid={testId}>
         <thead>
           <tr>
-            {head.map((h) => (
-              <th key={h} style={th}>
+            {head.map((h, i) => (
+              <th key={h} className={i === 0 ? undefined : 'num'}>
                 {h}
               </th>
             ))}
@@ -167,7 +135,7 @@ function Table({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td style={td} colSpan={head.length}>
+              <td colSpan={head.length} className="muted">
                 за период пусто
               </td>
             </tr>
@@ -175,70 +143,14 @@ function Table({
           {rows.map((cells) => (
             <tr key={cells[0]} data-testid="report-row">
               {cells.map((c, i) => (
-                <td key={i} style={{ ...td, textAlign: i === 0 ? 'left' : 'right' }}>
+                <td key={i} className={i === 0 ? undefined : 'num'}>
                   {c}
                 </td>
               ))}
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </>
   );
 }
-
-const row: React.CSSProperties = {
-  display: 'flex',
-  gap: 10,
-  alignItems: 'center',
-  marginBottom: 16,
-};
-const lbl: React.CSSProperties = {
-  fontSize: 13,
-  color: '#555',
-  display: 'flex',
-  gap: 6,
-  alignItems: 'center',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '7px 14px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const cards: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-  gap: 12,
-};
-const card: React.CSSProperties = {
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  padding: '10px 12px',
-};
-const table: React.CSSProperties = {
-  width: '100%',
-  borderCollapse: 'collapse',
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  fontSize: 14,
-};
-const th: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '8px 10px',
-  borderBottom: '1px solid #e3e5e8',
-  fontSize: 12,
-  color: '#666',
-};
-const td: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #f0f1f3' };

@@ -3,6 +3,7 @@ import { useActionState, useState, useTransition } from 'react';
 import {
   bookingSettingsAction,
   createSiteAction,
+  hostsAction,
   siteAction,
   type SiteActionResult,
 } from '../actions';
@@ -173,6 +174,47 @@ export function BookingSettings({
       )}
       {result?.message && (
         <div data-testid="booking-result" style={{ color: '#166534', fontSize: 13 }}>
+          {result.message}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function HostsForm({ id, hosts }: { id: string; hosts: string[] }) {
+  const [value, setValue] = useState(hosts.join('\n'));
+  const [result, setResult] = useState<SiteActionResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <div style={{ display: 'grid', gap: 6, maxWidth: 520 }} data-testid="hosts-form">
+      <label style={lbl}>
+        Домены сайта (по одному в строке; поддомены и www подходят сами)
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          rows={2}
+          style={inp}
+          data-testid="hosts-input"
+        />
+      </label>
+      <div>
+        <button
+          type="button"
+          onClick={() => start(async () => setResult(await hostsAction(id, value)))}
+          disabled={pending}
+          style={btnSecondary}
+          data-testid="hosts-save"
+        >
+          Сохранить домены
+        </button>
+      </div>
+      {result?.error && (
+        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
+          {result.error}
+        </div>
+      )}
+      {result?.message && (
+        <div data-testid="hosts-result" style={{ color: '#166534', fontSize: 13 }}>
           {result.message}
         </div>
       )}

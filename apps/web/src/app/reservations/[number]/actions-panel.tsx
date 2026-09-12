@@ -1,6 +1,17 @@
 'use client';
 import { useActionState, useState } from 'react';
 import {
+  Alert,
+  Button,
+  Field,
+  Input,
+  PanelTitle,
+  Row,
+  Select,
+  Stack,
+  Textarea,
+} from '../../../components/ui';
+import {
   assignUnitAction,
   extendStayAction,
   stayAction,
@@ -39,38 +50,33 @@ export function ReservationActions(props: {
   );
   const canEdit = OPEN.has(props.status);
   return (
-    <section data-testid="reservation-actions" style={{ marginTop: 20, display: 'grid', gap: 14 }}>
+    <section data-testid="reservation-actions" className="stack stack--mt">
       <EditForm number={props.number} source={props.source} notes={props.notes} />
       {canEdit && (
         // Поля неконтролируемые: defaultValue применяется только при монтировании, поэтому после
         // «+ 1 ночь» или переселения форма показывала бы прежние даты, а сохранение молча укоротило
         // бы проживание. Ключ по текущим датам отрисовывает поля заново.
-        <form key={`${props.arrivalDate}-${props.departureDate}`} action={datesAction} style={box}>
-          <b style={{ fontSize: 14 }}>Изменить даты</b>
-          <div style={row}>
-            <input type="date" name="arrivalDate" defaultValue={props.arrivalDate} style={inp} />
-            <input
-              type="date"
-              name="departureDate"
-              defaultValue={props.departureDate}
-              style={inp}
-            />
-            <select name="ratePlanCode" style={inp}>
+        <form
+          key={`${props.arrivalDate}-${props.departureDate}`}
+          action={datesAction}
+          className="panel"
+        >
+          <PanelTitle>Изменить даты</PanelTitle>
+          <Row>
+            <Input type="date" name="arrivalDate" defaultValue={props.arrivalDate} />
+            <Input type="date" name="departureDate" defaultValue={props.departureDate} />
+            <Select name="ratePlanCode">
               {props.ratePlans.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
                 </option>
               ))}
-            </select>
-            <button type="submit" disabled={datesPending} style={btn}>
+            </Select>
+            <Button type="submit" disabled={datesPending}>
               Пересчитать и сохранить
-            </button>
-          </div>
-          {datesState.error && (
-            <div role="alert" style={err}>
-              {datesState.error}
-            </div>
-          )}
+            </Button>
+          </Row>
+          {datesState.error && <Alert>{datesState.error}</Alert>}
         </form>
       )}
       {props.items
@@ -79,11 +85,11 @@ export function ReservationActions(props: {
             it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
         )
         .map((it) => (
-          <div key={it.id} style={{ display: 'grid', gap: 8 }}>
+          <Stack key={it.id} gap="sm">
             <StayButtons number={props.number} item={it} />
             <GuestsForm number={props.number} item={it} />
             <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
-          </div>
+          </Stack>
         ))}
       {canEdit && (
         <form
@@ -91,20 +97,14 @@ export function ReservationActions(props: {
             if (!window.confirm('Отменить бронь? Ячейки освободятся.')) return;
             setCancelState(await cancelReservationAction(props.number));
           }}
-          style={box}
+          className="panel"
         >
-          <button
-            type="submit"
-            data-testid="cancel-reservation"
-            style={{ ...btn, background: '#b91c1c' }}
-          >
-            Отменить бронь
-          </button>
-          {cancelState.error && (
-            <div role="alert" style={err}>
-              {cancelState.error}
-            </div>
-          )}
+          <div>
+            <Button type="submit" tone="danger" data-testid="cancel-reservation">
+              Отменить бронь
+            </Button>
+          </div>
+          {cancelState.error && <Alert>{cancelState.error}</Alert>}
         </form>
       )}
     </section>
@@ -121,39 +121,32 @@ function EditForm(props: { number: string; source: string; notes: string | null 
     <form
       key={`${props.source}|${props.notes ?? ''}`}
       action={action}
-      style={box}
+      className="panel"
       data-testid="edit-reservation-form"
     >
-      <b style={{ fontSize: 14 }}>Заметки и источник</b>
-      <div style={row}>
-        <label
-          style={{ fontSize: 12, color: '#555', display: 'flex', gap: 6, alignItems: 'center' }}
-        >
-          Источник
-          <select name="source" defaultValue={props.source} style={inp}>
+      <PanelTitle>Заметки и источник</PanelTitle>
+      <Row>
+        <Field inline label="Источник">
+          <Select name="source" defaultValue={props.source}>
             {SOURCES.map(([v, t]) => (
               <option key={v} value={v}>
                 {t}
               </option>
             ))}
-          </select>
-        </label>
-        <textarea
+          </Select>
+        </Field>
+        <Textarea
           name="notes"
           rows={2}
           placeholder="Заметки"
           defaultValue={props.notes ?? ''}
-          style={{ ...inp, flex: 1, minWidth: 220 }}
+          className="inp--grow"
         />
-        <button type="submit" disabled={pending} style={btn}>
+        <Button type="submit" disabled={pending}>
           Сохранить
-        </button>
-      </div>
-      {state.error && (
-        <div role="alert" style={err}>
-          {state.error}
-        </div>
-      )}
+        </Button>
+      </Row>
+      {state.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }
@@ -171,34 +164,25 @@ function GuestsForm(props: {
     <form
       key={props.item.adults}
       action={action}
-      style={{ ...box, gap: 6 }}
+      className="panel"
       data-testid={`guests-form-${props.item.id}`}
     >
-      <div style={row}>
-        <label
-          style={{ fontSize: 12, color: '#555', display: 'flex', gap: 6, alignItems: 'center' }}
-        >
-          Гостей
-          <input
+      <Row>
+        <Field inline label="Гостей">
+          <Input
             type="number"
             name="adults"
             min={1}
             defaultValue={props.item.adults}
-            style={{ ...inp, width: 64 }}
+            className="inp--w64"
           />
-        </label>
-        <button type="submit" disabled={pending} style={btnSecondary}>
+        </Field>
+        <Button type="submit" tone="secondary" size="sm" disabled={pending}>
           Сохранить
-        </button>
-        <span style={{ fontSize: 12, color: '#666' }}>
-          цена не меняется; пересчитать по календарю — «Изменить даты»
-        </span>
-      </div>
-      {state.error && (
-        <div role="alert" style={err}>
-          {state.error}
-        </div>
-      )}
+        </Button>
+        <span className="hint">цена не меняется; пересчитать по календарю — «Изменить даты»</span>
+      </Row>
+      {state.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }
@@ -223,60 +207,54 @@ function StayButtons(props: {
   };
   const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
   return (
-    <div style={box}>
-      <b style={{ fontSize: 14 }}>
+    <div className="panel">
+      <PanelTitle>
         {props.item.accommodationTypeName} — {props.item.unitCode ?? 'ячейка не назначена'}
-      </b>
-      <div style={row}>
+      </PanelTitle>
+      <Row>
         {expected && (
-          <button
+          <Button
             type="button"
             data-testid={`check-in-${props.item.id}`}
             onClick={run('check-in')}
             disabled={!props.item.unitCode}
             title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
-            style={btn}
           >
             Заселить
-          </button>
+          </Button>
         )}
         {props.item.status === 'CHECKED_IN' && (
-          <button
+          <Button
             type="button"
             data-testid={`check-out-${props.item.id}`}
             onClick={run('check-out')}
-            style={btn}
           >
             Выселить
-          </button>
+          </Button>
         )}
         {(expected || props.item.status === 'CHECKED_IN') && (
-          <button
+          <Button
             type="button"
+            tone="info"
             data-testid={`extend-${props.item.id}`}
             onClick={async () => setState(await extendStayAction(props.number, props.item.id))}
             title="Выезд на сутки позже, цена пересчитается по календарю"
-            style={{ ...btn, background: '#0f766e' }}
           >
             + 1 ночь
-          </button>
+          </Button>
         )}
         {expected && (
-          <button
+          <Button
             type="button"
+            tone="warning"
             data-testid={`no-show-${props.item.id}`}
             onClick={run('no-show')}
-            style={{ ...btn, background: '#b45309' }}
           >
             Незаезд
-          </button>
+          </Button>
         )}
-      </div>
-      {state.error && (
-        <div role="alert" style={err}>
-          {state.error}
-        </div>
-      )}
+      </Row>
+      {state.error && <Alert>{state.error}</Alert>}
     </div>
   );
 }
@@ -300,15 +278,15 @@ function AssignForm(props: {
     <form
       key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}`}
       action={action}
-      style={box}
+      className="panel"
       data-testid="assign-form"
     >
-      <b style={{ fontSize: 14 }}>
+      <PanelTitle>
         {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить ячейку'} —{' '}
         {props.item.accommodationTypeName}
-      </b>
-      <div style={row}>
-        <select name="unitCode" required defaultValue="" style={inp}>
+      </PanelTitle>
+      <Row>
+        <Select name="unitCode" required defaultValue="">
           <option value="" disabled>
             — свободная ячейка —
           </option>
@@ -328,64 +306,19 @@ function AssignForm(props: {
               ))}
             </optgroup>
           ))}
-        </select>
-        <label
-          style={{ fontSize: 12, color: '#555', display: 'flex', gap: 6, alignItems: 'center' }}
-        >
-          с даты
-          <input type="date" name="fromDate" defaultValue={props.arrivalDate} style={inp} />
-        </label>
-        <button type="submit" disabled={pending} style={btn}>
+        </Select>
+        <Field inline label="с даты">
+          <Input type="date" name="fromDate" defaultValue={props.arrivalDate} />
+        </Field>
+        <Button type="submit" disabled={pending}>
           {props.item.unitCode ? 'Переселить' : 'Назначить'}
-        </button>
-      </div>
-      <div style={{ fontSize: 12, color: '#666' }}>
+        </Button>
+      </Row>
+      <div className="hint">
         Ячейка другой категории пересчитает цену по её календарю; такое переселение возможно только
         на всё проживание целиком.
       </div>
-      {state.error && (
-        <div role="alert" style={err}>
-          {state.error}
-        </div>
-      )}
+      {state.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }
-const box: React.CSSProperties = {
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  padding: 12,
-  display: 'grid',
-  gap: 8,
-};
-const row: React.CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  flexWrap: 'wrap',
-  alignItems: 'center',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '7px 12px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '6px 10px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  fontSize: 13,
-  cursor: 'pointer',
-};
-const err: React.CSSProperties = { color: '#b91c1c', fontSize: 13 };

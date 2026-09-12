@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import type { RateChangeInput } from '../../lib/api';
+import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
 import { bulkRatesAction } from './actions';
 
 const DAYS: Array<[string, string]> = [
@@ -79,90 +80,58 @@ export function BulkEditor(props: {
   const name = (code: string, list: Array<{ code: string; name: string }>) =>
     list.find((x) => x.code === code)?.name ?? code;
   return (
-    <section
-      data-testid="bulk-editor"
-      style={{
-        background: '#fff',
-        border: '1px solid #e3e5e8',
-        borderRadius: 8,
-        padding: 14,
-        display: 'grid',
-        gap: 10,
-      }}
-    >
-      <b style={{ fontSize: 15 }}>Массовое изменение</b>
-      <form onSubmit={add} style={{ display: 'grid', gap: 8 }}>
-        <div style={grid}>
-          <label style={lbl}>
-            Категория
-            <select
+    <Panel size="lg" title="Массовое изменение" data-testid="bulk-editor">
+      <form onSubmit={add} className="stack stack--sm">
+        <Grid min={140} gap="sm">
+          <Field label="Категория">
+            <Select
               name="accommodationTypeCode"
               defaultValue={props.defaults.accommodationTypeCode}
-              style={inp}
             >
               {props.categories.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <label style={lbl}>
-            Тариф
-            <select name="ratePlanCode" defaultValue={props.defaults.ratePlanCode} style={inp}>
+            </Select>
+          </Field>
+          <Field label="Тариф">
+            <Select name="ratePlanCode" defaultValue={props.defaults.ratePlanCode}>
               {props.ratePlans.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <label style={lbl}>
-            С даты
-            <input
-              type="date"
-              name="dateFrom"
-              defaultValue={props.defaults.dateFrom}
-              required
-              style={inp}
-            />
-          </label>
-          <label style={lbl}>
-            По дату
-            <input
-              type="date"
-              name="dateTo"
-              defaultValue={props.defaults.dateTo}
-              required
-              style={inp}
-            />
-          </label>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 12, color: '#555' }}>
+            </Select>
+          </Field>
+          <Field label="С даты">
+            <Input type="date" name="dateFrom" defaultValue={props.defaults.dateFrom} required />
+          </Field>
+          <Field label="По дату">
+            <Input type="date" name="dateTo" defaultValue={props.defaults.dateTo} required />
+          </Field>
+        </Grid>
+        <div className="row hint">
           дни:
           {DAYS.map(([d, t]) => (
-            <label key={d} style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+            <label key={d} className="check">
               <input type="checkbox" name={`day-${d}`} defaultChecked /> {t}
             </label>
           ))}
         </div>
-        <div style={grid}>
-          <label style={lbl}>
-            Цена за ночь
-            <input name="price" placeholder="напр. 15400" inputMode="decimal" style={inp} />
-          </label>
-          <label style={lbl}>
-            Гостей (occupancy)
-            <input name="occupancy" type="number" min={1} max={2} placeholder="все" style={inp} />
-          </label>
-          <label style={lbl}>
-            Min stay
-            <input name="minStay" type="number" min={0} style={inp} />
-          </label>
-          <label style={lbl}>
-            Max stay
-            <input name="maxStay" type="number" min={0} style={inp} />
-          </label>
+        <Grid min={140} gap="sm">
+          <Field label="Цена за ночь">
+            <Input name="price" placeholder="напр. 15400" inputMode="decimal" />
+          </Field>
+          <Field label="Гостей (occupancy)">
+            <Input name="occupancy" type="number" min={1} max={2} placeholder="все" />
+          </Field>
+          <Field label="Min stay">
+            <Input name="minStay" type="number" min={0} />
+          </Field>
+          <Field label="Max stay">
+            <Input name="maxStay" type="number" min={0} />
+          </Field>
           {(
             [
               ['stopSell', 'Stop sell'],
@@ -170,29 +139,25 @@ export function BulkEditor(props: {
               ['closedToDeparture', 'Закрыт выезд (CTD)'],
             ] as const
           ).map(([k, t]) => (
-            <label key={k} style={lbl}>
-              {t}
-              <select name={k} defaultValue="" style={inp}>
+            <Field key={k} label={t}>
+              <Select name={k} defaultValue="">
                 {TRI.map(([v, l]) => (
                   <option key={v} value={v}>
                     {l}
                   </option>
                 ))}
-              </select>
-            </label>
+              </Select>
+            </Field>
           ))}
-        </div>
+        </Grid>
         <div>
-          <button type="submit" style={btnSecondary}>
+          <Button type="submit" tone="secondary">
             + Добавить в список
-          </button>
+          </Button>
         </div>
       </form>
       {rows.length > 0 && (
-        <ul
-          data-testid="pending-changes"
-          style={{ margin: 0, paddingLeft: 18, fontSize: 13, display: 'grid', gap: 4 }}
-        >
+        <ul data-testid="pending-changes" className="list list--gap hint--lg">
           {rows.map((r, i) => (
             <li key={i}>
               {name(r.accommodationTypeCode, props.categories)} ·{' '}
@@ -208,72 +173,29 @@ export function BulkEditor(props: {
               {r.closedToDeparture !== undefined
                 ? ` · CTD ${r.closedToDeparture ? 'да' : 'нет'}`
                 : ''}{' '}
-              <button
+              <Button
                 type="button"
+                tone="ghost"
                 onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
-                style={{ border: 0, background: 'none', color: '#b91c1c', cursor: 'pointer' }}
               >
                 ×
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
       )}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button
+      <Row gap="lg">
+        <Button
           type="button"
           data-testid="apply-changes"
           onClick={submit}
           disabled={pending || rows.length === 0}
-          style={btn}
         >
           {pending ? 'Сохраняю…' : `Сохранить (${rows.length})`}
-        </button>
-        {error && (
-          <span role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-            {error}
-          </span>
-        )}
-        {done && (
-          <span data-testid="bulk-done" style={{ color: '#166534', fontSize: 13 }}>
-            {done}
-          </span>
-        )}
-      </div>
-    </section>
+        </Button>
+        {error && <Alert>{error}</Alert>}
+        {done && <Notice data-testid="bulk-done">{done}</Notice>}
+      </Row>
+    </Panel>
   );
 }
-const grid: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-  gap: 8,
-};
-const lbl: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  fontSize: 12,
-  color: '#555',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '8px 14px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '7px 12px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  cursor: 'pointer',
-};

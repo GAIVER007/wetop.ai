@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useState } from 'react';
+import { Alert, Button, Field, Grid, Input, Select, Textarea } from '../../../components/ui';
 import { createReservationAction, type ActionResult } from '../actions';
 import { SOURCES } from '../sources';
 
@@ -35,21 +36,13 @@ export function NewReservationForm(props: {
       key={state.attempt ?? 0}
       action={action}
       data-testid="new-reservation-form"
-      style={{
-        display: 'grid',
-        gap: 12,
-        background: '#fff',
-        border: '1px solid #e3e5e8',
-        borderRadius: 8,
-        padding: 16,
-      }}
+      className="panel panel--lg"
     >
       <input type="hidden" name="arrivalDate" value={props.arrival} />
       <input type="hidden" name="departureDate" value={props.departure} />
-      <div style={grid}>
-        <label style={lbl}>
-          Источник *
-          <select name="source" required defaultValue={kept['source'] ?? ''} style={inp}>
+      <Grid>
+        <Field label="Источник *">
+          <Select name="source" required defaultValue={kept['source'] ?? ''}>
             <option value="" disabled>
               — выбрать —
             </option>
@@ -58,47 +51,35 @@ export function NewReservationForm(props: {
                 {t}
               </option>
             ))}
-          </select>
-        </label>
-        <label style={lbl}>
-          Категория *
-          <select
+          </Select>
+        </Field>
+        <Field label="Категория *">
+          <Select
             name="accommodationTypeCode"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            style={inp}
           >
             {props.categories.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.name} (свободно {c.availableUnitCodes.length})
               </option>
             ))}
-          </select>
-        </label>
-        <label style={lbl}>
-          Тариф *
-          <select name="ratePlanCode" required defaultValue={kept['ratePlanCode']} style={inp}>
+          </Select>
+        </Field>
+        <Field label="Тариф *">
+          <Select name="ratePlanCode" required defaultValue={kept['ratePlanCode']}>
             {props.ratePlans.map((p) => (
               <option key={p.code} value={p.code}>
                 {p.name} ({p.currency})
               </option>
             ))}
-          </select>
-        </label>
-        <label style={lbl}>
-          Гостей в проживании
-          <input
-            type="number"
-            name="adults"
-            min={1}
-            max={2}
-            defaultValue={kept['adults'] ?? 1}
-            style={inp}
-          />
-        </label>
-        <label style={lbl}>
-          Количество мест
-          <input
+          </Select>
+        </Field>
+        <Field label="Гостей в проживании">
+          <Input type="number" name="adults" min={1} max={2} defaultValue={kept['adults'] ?? 1} />
+        </Field>
+        <Field label="Количество мест">
+          <Input
             type="number"
             name="quantity"
             min={1}
@@ -106,83 +87,46 @@ export function NewReservationForm(props: {
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             title={`свободно ${units.length} в категории; при 2 и больше ячейки назначит система`}
-            style={inp}
           />
-        </label>
+        </Field>
         {group ? (
-          <div style={{ ...lbl, justifyContent: 'end' }} data-testid="group-hint">
+          <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
             {Number(quantity)} проживания на первых свободных ячейках по номеру
             {Number(quantity) > units.length ? ` — свободно только ${units.length}` : ''}
           </div>
         ) : (
-          <label style={lbl}>
-            Ячейка
-            <select name="unitCode" defaultValue={kept['unitCode'] ?? ''} style={inp}>
+          <Field label="Ячейка">
+            <Select name="unitCode" defaultValue={kept['unitCode'] ?? ''}>
               <option value="">— назначить позже —</option>
               {units.map((u) => (
                 <option key={u} value={u}>
                   {u}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
         )}
-      </div>
-      <div style={grid}>
-        <label style={lbl}>
-          Имя *
-          <input name="firstName" required defaultValue={kept['firstName'] ?? ''} style={inp} />
-        </label>
-        <label style={lbl}>
-          Фамилия *
-          <input name="lastName" required defaultValue={kept['lastName'] ?? ''} style={inp} />
-        </label>
-        <label style={lbl}>
-          Телефон
-          <input name="phone" defaultValue={kept['phone'] ?? ''} style={inp} />
-        </label>
-      </div>
-      <label style={lbl}>
-        Заметки
-        <textarea name="notes" rows={2} style={inp} />
-      </label>
-      {state.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 14 }}>
-          {state.error}
-        </div>
-      )}
+      </Grid>
+      <Grid>
+        <Field label="Имя *">
+          <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
+        </Field>
+        <Field label="Фамилия *">
+          <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
+        </Field>
+        <Field label="Телефон">
+          <Input name="phone" defaultValue={kept['phone'] ?? ''} />
+        </Field>
+      </Grid>
+      <Field label="Заметки">
+        <Textarea name="notes" rows={2} />
+      </Field>
+      {state.error && <Alert style={{ fontSize: 14 }}>{state.error}</Alert>}
       <div>
-        <button type="submit" disabled={pending} style={btn}>
+        <Button type="submit" disabled={pending}>
           {pending ? 'Сохраняю…' : 'Создать бронь'}
-        </button>
+        </Button>
       </div>
     </form>
   );
 }
-const grid: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-  gap: 12,
-};
-const lbl: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  fontSize: 12,
-  color: '#555',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '8px 14px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};

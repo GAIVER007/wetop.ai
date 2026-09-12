@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { api, reservationsApi } from '../../../lib/api';
+import { Page } from '../../../components/page';
+import { Button, Field, Input } from '../../../components/ui';
 import { NewReservationForm } from './form';
 
 const plusDays = (iso: string, n: number) => {
@@ -24,26 +26,20 @@ export default async function NewReservationPage({
     reservationsApi.availability(arrival, departure).catch(() => null),
   ]);
   return (
-    <main style={{ maxWidth: 760, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <div style={{ fontSize: 13, marginBottom: 8 }}>
-        <Link href="/chessboard">← шахматка</Link>
-      </div>
-      <h1 style={{ fontSize: 22, margin: '0 0 12px' }}>Новая бронь</h1>
-      <form method="get" style={{ display: 'flex', gap: 10, alignItems: 'end', marginBottom: 16 }}>
-        <label style={lbl}>
-          Заезд
-          <input type="date" name="arrival" defaultValue={arrival} style={inp} />
-        </label>
-        <label style={lbl}>
-          Выезд
-          <input type="date" name="departure" defaultValue={departure} style={inp} />
-        </label>
-        <button type="submit" style={btnSecondary}>
+    <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
+      <form method="get" className="row row--end row--lg toolbar">
+        <Field label="Заезд">
+          <Input type="date" name="arrival" defaultValue={arrival} />
+        </Field>
+        <Field label="Выезд">
+          <Input type="date" name="departure" defaultValue={departure} />
+        </Field>
+        <Button type="submit" tone="secondary">
           Проверить доступность
-        </button>
+        </Button>
       </form>
       {availability ? (
-        <div data-testid="availability" style={{ fontSize: 13, color: '#444', marginBottom: 16 }}>
+        <div data-testid="availability" className="hint--lg toolbar">
           {availability.nights} ноч. · свободно {availability.total.available} из{' '}
           {availability.total.units} ячеек:{' '}
           {summary.byCategory
@@ -51,9 +47,7 @@ export default async function NewReservationPage({
             .join(' · ')}
         </div>
       ) : (
-        <div style={{ color: '#b91c1c', marginBottom: 16 }}>
-          Даты некорректны: выезд должен быть позже заезда.
-        </div>
+        <div className="danger-text toolbar">Даты некорректны: выезд должен быть позже заезда.</div>
       )}
       <NewReservationForm
         arrival={arrival}
@@ -65,26 +59,6 @@ export default async function NewReservationPage({
         }))}
         ratePlans={ratePlans}
       />
-    </main>
+    </Page>
   );
 }
-const lbl: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  fontSize: 12,
-  color: '#555',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '7px 12px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  cursor: 'pointer',
-};

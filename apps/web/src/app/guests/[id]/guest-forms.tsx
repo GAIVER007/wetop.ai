@@ -2,6 +2,19 @@
 import { useActionState, useState } from 'react';
 import type { GuestCard } from '../../../lib/api';
 import {
+  Alert,
+  Button,
+  Field,
+  Grid,
+  Input,
+  Panel,
+  PanelTitle,
+  Row,
+  Select,
+  Stack,
+  Textarea,
+} from '../../../components/ui';
+import {
   addDocumentAction,
   deleteDocumentAction,
   updateGuestAction,
@@ -27,158 +40,98 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
   );
   const [delState, setDel] = useState<GuestActionResult>({ error: null });
   return (
-    <div style={{ display: 'grid', gap: 14 }}>
-      <form action={pAction} data-testid="guest-form" style={box}>
-        <b style={{ fontSize: 14 }}>Профиль</b>
-        <div style={grid}>
-          <L t="Фамилия *">
-            <input name="lastName" defaultValue={guest.lastName} required style={inp} />
-          </L>
-          <L t="Имя *">
-            <input name="firstName" defaultValue={guest.firstName} required style={inp} />
-          </L>
-          <L t="Отчество">
-            <input name="middleName" defaultValue={guest.middleName ?? ''} style={inp} />
-          </L>
-          <L t="Дата рождения">
-            <input type="date" name="birthDate" defaultValue={guest.birthDate ?? ''} style={inp} />
-          </L>
-          <L t="Гражданство (ISO alpha-3, напр. KAZ) *для заселения">
-            <input
+    <Stack>
+      <form action={pAction} data-testid="guest-form" className="panel">
+        <PanelTitle>Профиль</PanelTitle>
+        <Grid gap="sm">
+          <Field label="Фамилия *">
+            <Input name="lastName" defaultValue={guest.lastName} required />
+          </Field>
+          <Field label="Имя *">
+            <Input name="firstName" defaultValue={guest.firstName} required />
+          </Field>
+          <Field label="Отчество">
+            <Input name="middleName" defaultValue={guest.middleName ?? ''} />
+          </Field>
+          <Field label="Дата рождения">
+            <Input type="date" name="birthDate" defaultValue={guest.birthDate ?? ''} />
+          </Field>
+          <Field label="Гражданство (ISO alpha-3, напр. KAZ) *для заселения">
+            <Input
               name="citizenship"
               defaultValue={guest.citizenship ?? ''}
               maxLength={3}
               placeholder="KAZ"
-              style={{ ...inp, textTransform: 'uppercase' }}
+              className="inp--upper"
             />
-          </L>
-          <L t="Пол">
-            <select name="gender" defaultValue={guest.gender} style={inp}>
+          </Field>
+          <Field label="Пол">
+            <Select name="gender" defaultValue={guest.gender}>
               <option value="UNKNOWN">не указан</option>
               <option value="MALE">мужской</option>
               <option value="FEMALE">женский</option>
-            </select>
-          </L>
-          <L t="Телефон">
-            <input name="phone" defaultValue={guest.phone ?? ''} style={inp} />
-          </L>
-          <L t="Email">
-            <input name="email" defaultValue={guest.email ?? ''} style={inp} />
-          </L>
-        </div>
-        <L t="Заметки о госте">
-          <textarea name="notes" defaultValue={guest.notes ?? ''} rows={2} style={inp} />
-        </L>
-        <div style={row}>
-          <button type="submit" disabled={pPending} style={btn}>
+            </Select>
+          </Field>
+          <Field label="Телефон">
+            <Input name="phone" defaultValue={guest.phone ?? ''} />
+          </Field>
+          <Field label="Email">
+            <Input name="email" defaultValue={guest.email ?? ''} />
+          </Field>
+        </Grid>
+        <Field label="Заметки о госте">
+          <Textarea name="notes" defaultValue={guest.notes ?? ''} rows={2} />
+        </Field>
+        <Row>
+          <Button type="submit" disabled={pPending}>
             Сохранить
-          </button>
-          {pState.error && (
-            <span role="alert" style={err}>
-              {pState.error}
-            </span>
-          )}
-        </div>
+          </Button>
+          {pState.error && <Alert>{pState.error}</Alert>}
+        </Row>
       </form>
-      <section style={box}>
-        <b style={{ fontSize: 14 }}>Документы</b>
-        {guest.documents.length === 0 && <span style={{ color: '#666', fontSize: 13 }}>нет</span>}
+      <Panel title="Документы">
+        {guest.documents.length === 0 && <span className="sub">нет</span>}
         {guest.documents.map((d) => (
-          <div key={d.id} data-testid="document-row" style={{ ...row, fontSize: 13 }}>
+          <Row key={d.id} data-testid="document-row" className="hint--lg">
             <span>
               {DOC_TYPES.find(([k]) => k === d.type)?.[1] ?? d.type}{' '}
-              <b style={{ fontFamily: 'ui-monospace, monospace' }}>{d.numberMasked}</b>
+              <b className="mono">{d.numberMasked}</b>
               {d.issueCountry ? ` · ${d.issueCountry}` : ''}
               {d.expiresAt ? ` · до ${d.expiresAt}` : ''}
             </span>
-            <button
+            <Button
               type="button"
+              tone="secondary"
+              size="sm"
+              className="is-danger"
               onClick={async () => setDel(await deleteDocumentAction(guest.id, d.id))}
-              style={{ ...btnSecondary, color: '#b91c1c' }}
             >
               удалить
-            </button>
-          </div>
+            </Button>
+          </Row>
         ))}
-        <form action={dAction} data-testid="document-form" style={row}>
-          <select name="type" defaultValue="PASSPORT" style={inp}>
+        <form action={dAction} data-testid="document-form" className="row">
+          <Select name="type" defaultValue="PASSPORT">
             {DOC_TYPES.map(([k, t]) => (
               <option key={k} value={k}>
                 {t}
               </option>
             ))}
-          </select>
-          <input name="number" placeholder="номер (хранится зашифрованным)" required style={inp} />
-          <input
+          </Select>
+          <Input name="number" placeholder="номер (хранится зашифрованным)" required />
+          <Input
             name="issueCountry"
             placeholder="страна, KAZ"
             maxLength={3}
-            style={{ ...inp, width: 90, textTransform: 'uppercase' }}
+            className="inp--w90 inp--upper"
           />
-          <input type="date" name="expiresAt" style={inp} title="действителен до" />
-          <button type="submit" disabled={dPending} style={btn}>
+          <Input type="date" name="expiresAt" title="действителен до" />
+          <Button type="submit" disabled={dPending}>
             Добавить
-          </button>
+          </Button>
         </form>
-        {(dState.error || delState.error) && (
-          <div role="alert" style={err}>
-            {dState.error ?? delState.error}
-          </div>
-        )}
-      </section>
-    </div>
+        {(dState.error || delState.error) && <Alert>{dState.error ?? delState.error}</Alert>}
+      </Panel>
+    </Stack>
   );
 }
-function L({ t, children }: { t: string; children: React.ReactNode }) {
-  return (
-    <label
-      style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#555' }}
-    >
-      {t}
-      {children}
-    </label>
-  );
-}
-const box: React.CSSProperties = {
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  padding: 12,
-  display: 'grid',
-  gap: 8,
-};
-const grid: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-  gap: 8,
-};
-const row: React.CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  flexWrap: 'wrap',
-  alignItems: 'center',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '7px 12px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '6px 10px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  fontSize: 13,
-  cursor: 'pointer',
-};
-const err: React.CSSProperties = { color: '#b91c1c', fontSize: 13 };

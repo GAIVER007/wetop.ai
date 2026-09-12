@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { guestsApi } from '../../lib/api';
+import { Page } from '../../components/page';
+import { Button, Input, Table } from '../../components/ui';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
@@ -11,59 +13,23 @@ export default async function GuestsPage({
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <header style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 12 }}>
-        <h1 style={{ fontSize: 22, margin: 0 }}>Гости</h1>
-        <nav style={{ marginLeft: 'auto' }}>
-          <Link href="/chessboard">шахматка</Link>
-        </nav>
-      </header>
-      <form method="get" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        <input
+    <Page title="Гости" width="medium">
+      <form method="get" className="row toolbar">
+        <Input
           name="q"
           defaultValue={query}
           placeholder="фамилия, имя, телефон или email"
-          style={{
-            flex: 1,
-            padding: '8px 10px',
-            border: '1px solid #cbd0d6',
-            borderRadius: 6,
-            fontSize: 14,
-          }}
+          className="inp--grow"
         />
-        <button
-          type="submit"
-          style={{
-            padding: '8px 14px',
-            border: 0,
-            borderRadius: 6,
-            background: '#1d4ed8',
-            color: '#fff',
-            cursor: 'pointer',
-          }}
-        >
-          Найти
-        </button>
+        <Button type="submit">Найти</Button>
       </form>
       {query.length >= 2 && (
-        <table
-          data-testid="guests-table"
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            background: '#fff',
-            border: '1px solid #e3e5e8',
-            borderRadius: 8,
-            fontSize: 14,
-          }}
-        >
+        <Table data-testid="guests-table">
           <thead>
             <tr>
               {['Гость', 'Телефон', 'Email', 'Гражданство', 'Проживаний', 'Последний заезд'].map(
                 (h) => (
-                  <th key={h} style={th}>
-                    {h}
-                  </th>
+                  <th key={h}>{h}</th>
                 ),
               )}
             </tr>
@@ -71,36 +37,28 @@ export default async function GuestsPage({
           <tbody>
             {guests.length === 0 && (
               <tr>
-                <td style={td} colSpan={6}>
+                <td colSpan={6} className="muted">
                   не найдено
                 </td>
               </tr>
             )}
             {guests.map((g) => (
               <tr key={g.id}>
-                <td style={td}>
+                <td>
                   <Link href={`/guests/${g.id}`}>
                     {g.lastName} {g.firstName} {g.middleName ?? ''}
                   </Link>
                 </td>
-                <td style={td}>{g.phone ?? '—'}</td>
-                <td style={td}>{g.email ?? '—'}</td>
-                <td style={td}>{g.citizenship ?? <span style={{ color: '#b45309' }}>нет</span>}</td>
-                <td style={td}>{g.staysCount}</td>
-                <td style={td}>{g.lastStay ?? '—'}</td>
+                <td>{g.phone ?? '—'}</td>
+                <td>{g.email ?? '—'}</td>
+                <td>{g.citizenship ?? <span className="warn-text">нет</span>}</td>
+                <td className="num">{g.staysCount}</td>
+                <td>{g.lastStay ?? '—'}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       )}
-    </main>
+    </Page>
   );
 }
-const th: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '8px 10px',
-  borderBottom: '1px solid #e3e5e8',
-  fontSize: 12,
-  color: '#666',
-};
-const td: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #f0f1f3' };

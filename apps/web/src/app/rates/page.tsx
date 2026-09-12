@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { formatMinor, ratesApi } from '../../lib/api';
+import { Page } from '../../components/page';
+import { Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
 
 const monthRange = (ym: string) => {
@@ -29,78 +31,40 @@ export default async function RatesPage({
     return `/rates?category=${category}&ratePlan=${ratePlan}&month=${d}`;
   };
   return (
-    <main style={{ padding: '20px 20px 48px', maxWidth: 1400, margin: '0 auto' }}>
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 16,
-          marginBottom: 12,
-          flexWrap: 'wrap',
-        }}
-      >
-        <h1 style={{ fontSize: 24, margin: 0 }}>Цены и ограничения</h1>
-        <nav style={{ display: 'flex', gap: 10, marginLeft: 'auto' }}>
-          <Link href="/chessboard">шахматка</Link>
-          <Link href="/channels">каналы</Link>
-        </nav>
-      </header>
-      <form
-        method="get"
-        style={{ display: 'flex', gap: 10, alignItems: 'end', marginBottom: 14, flexWrap: 'wrap' }}
-      >
-        <label style={lbl}>
-          Категория
-          <select name="category" defaultValue={category} style={inp}>
+    <Page width="wide" title="Цены и ограничения">
+      <form method="get" className="row row--end row--lg toolbar">
+        <Field label="Категория">
+          <Select name="category" defaultValue={category}>
             {options.categories.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.name}
               </option>
             ))}
-          </select>
-        </label>
-        <label style={lbl}>
-          Тариф
-          <select name="ratePlan" defaultValue={ratePlan} style={inp}>
+          </Select>
+        </Field>
+        <Field label="Тариф">
+          <Select name="ratePlan" defaultValue={ratePlan}>
             {options.ratePlans.map((p) => (
               <option key={p.code} value={p.code}>
                 {p.name} ({p.currency}){p.active ? '' : ' — неактивен'}
               </option>
             ))}
-          </select>
-        </label>
-        <label style={lbl}>
-          Месяц
-          <input type="month" name="month" defaultValue={month} style={inp} />
-        </label>
-        <button type="submit" style={btnSecondary}>
+          </Select>
+        </Field>
+        <Field label="Месяц">
+          <Input type="month" name="month" defaultValue={month} />
+        </Field>
+        <Button type="submit" tone="secondary">
           Показать
-        </button>
+        </Button>
         <span style={{ marginLeft: 8 }}>
           <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
         </span>
       </form>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(520px, 2fr) minmax(320px, 1fr)',
-          gap: 16,
-          alignItems: 'start',
-        }}
-      >
-        <div
-          style={{
-            overflowX: 'auto',
-            background: '#fff',
-            border: '1px solid #e3e5e8',
-            borderRadius: 8,
-          }}
-        >
+      <div className="split">
+        <div className="tbl-wrap">
           {cal ? (
-            <table
-              data-testid="rates-table"
-              style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}
-            >
+            <Table size="sm" dense nowrap data-testid="rates-table">
               <thead>
                 <tr>
                   {[
@@ -112,9 +76,7 @@ export default async function RatesPage({
                     'CTA',
                     'CTD',
                   ].map((h) => (
-                    <th key={h} style={th}>
-                      {h}
-                    </th>
+                    <th key={h}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -126,38 +88,35 @@ export default async function RatesPage({
                     <tr
                       key={d.date}
                       data-testid={`rate-row-${d.date}`}
-                      style={{
-                        background: d.stopSell ? '#fee2e2' : weekend ? '#f8fafc' : undefined,
-                      }}
+                      className={cx(
+                        d.stopSell && 'is-stop',
+                        !d.stopSell && weekend && 'is-weekend',
+                      )}
                     >
-                      <td style={td}>
-                        {d.date} <span style={{ color: '#888' }}>{WD[wd]}</span>
+                      <td>
+                        {d.date} <span className="muted-2">{WD[wd]}</span>
                       </td>
                       {Array.from({ length: cal.capacityAdults }, (_, i) => (
-                        <td
-                          key={i}
-                          style={{ ...td, textAlign: 'right' }}
-                          data-testid={`price-${d.date}-${i + 1}`}
-                        >
+                        <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
                           {d.prices[String(i + 1)] ? (
                             formatMinor(d.prices[String(i + 1)]!, cal.currency)
                           ) : (
-                            <span style={{ color: '#b45309' }}>нет</span>
+                            <span className="warn-text">нет</span>
                           )}
                         </td>
                       ))}
-                      <td style={td}>{d.minStay ?? '—'}</td>
-                      <td style={td}>{d.maxStay ?? '—'}</td>
-                      <td style={td}>{d.stopSell ? 'да' : '—'}</td>
-                      <td style={td}>{d.closedToArrival ? 'да' : '—'}</td>
-                      <td style={td}>{d.closedToDeparture ? 'да' : '—'}</td>
+                      <td>{d.minStay ?? '—'}</td>
+                      <td>{d.maxStay ?? '—'}</td>
+                      <td>{d.stopSell ? 'да' : '—'}</td>
+                      <td>{d.closedToArrival ? 'да' : '—'}</td>
+                      <td>{d.closedToDeparture ? 'да' : '—'}</td>
                     </tr>
                   );
                 })}
               </tbody>
-            </table>
+            </Table>
           ) : (
-            <p style={{ padding: 16 }}>Нет категорий или тарифов.</p>
+            <p className="empty">Нет категорий или тарифов.</p>
           )}
         </div>
         <BulkEditor
@@ -171,39 +130,6 @@ export default async function RatesPage({
           }}
         />
       </div>
-    </main>
+    </Page>
   );
 }
-const lbl: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  fontSize: 12,
-  color: '#555',
-};
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '7px 12px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  cursor: 'pointer',
-};
-const th: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '6px 8px',
-  borderBottom: '1px solid #e3e5e8',
-  fontSize: 12,
-  color: '#666',
-  whiteSpace: 'nowrap',
-};
-const td: React.CSSProperties = {
-  padding: '4px 8px',
-  borderBottom: '1px solid #f0f1f3',
-  whiteSpace: 'nowrap',
-};

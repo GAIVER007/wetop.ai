@@ -68,6 +68,7 @@ npm run reconcile:day -- 2026-09-17            # двойной ввод: сут
 | [ONBOARDING.md](ONBOARDING.md) | Что делать прямо сейчас, по шагам |
 | [HANDOFF.md](HANDOFF.md) | **Передача проекта.** Промпты для AI-сессии, точки входа в код, чеклист приёмки |
 | [TZ-EXELY-AUDIT.md](TZ-EXELY-AUDIT.md) | ТЗ на аудит текущей PMS. Аудит сдан 07.09.2026 |
+| [docs/site/install-2026-09-12.md](docs/site/install-2026-09-12.md) | **Установка на сайт:** код счётчика и виджета бронирования, куда вставлять, проверка, постоянный адрес |
 
 ## Директории
 
@@ -79,7 +80,7 @@ templates/             опросник администраторов, гид �
 outbox/                письма провайдерам и их статус
 plans/                 планы срезов и дней, пакет сертификации Channex
 reports/               доказательства: сверки, отчёты дней, скриншоты, утренние отчёты
-apps/web               Next.js стойка: «Сегодня», шахматка, брони, гости, счета, тарифы, каналы, журнал, печать RU/KZ
+apps/web               Next.js стойка: «Сегодня», шахматка, брони, гости, счета, тарифы, каналы, журнал, печать RU/KZ; общая навигация, токены `app/globals.css` и компоненты `src/components` (ADR-027)
 apps/api               NestJS API (localhost:3001): inventory, units, chessboard, reservations, guests, desk, finance, rates, channels
 packages/database      Prisma schema, 8 миграций
 packages/domain        бизнес-правила: доступность, ограничения, финансы, штрафы, шахматка

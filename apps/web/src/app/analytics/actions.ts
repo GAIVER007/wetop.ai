@@ -83,3 +83,18 @@ export async function bookingSettingsAction(
     return { error: describe(e), message: null };
   }
 }
+
+/** Домены сайта (по одному в строке или через запятую): приёмник и виджет принимают запросы только с них. */
+export async function hostsAction(id: string, raw: string): Promise<SiteActionResult> {
+  const hosts = raw
+    .split(/[\s,]+/)
+    .map((h) => h.trim())
+    .filter(Boolean);
+  try {
+    const card = await analyticsApi.update(id, { hosts });
+    revalidatePath('/analytics/setup');
+    return { error: null, message: `Домены сохранены: ${card.site.hosts.join(', ')}`, card };
+  } catch (e) {
+    return { error: describe(e), message: null };
+  }
+}

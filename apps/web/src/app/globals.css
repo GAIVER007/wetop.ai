@@ -33,12 +33,17 @@
   --info: #0f766e;
   --chip-bg: #e9ebef;
   --chip-fg: #4b5563;
-  /* статусы проживаний на шахматке — те же цвета, что в легенде и бейджах */
-  --st-confirmed: #d7e6ff;
-  --st-checked-in: #c3efd2;
-  --st-checked-out: #e6e8ec;
-  --st-tentative: #fbe7a3;
-  --st-blocked: #f8c9c9;
+  /*
+   * Заливки клеток шахматки. Намеренно бледные: занятых клеток на сетке 80 %, и насыщенный цвет
+   * превращает экран в сплошное полотно, где не видно ни заездов, ни блокировок. Цвет здесь —
+   * подсказка о статусе, читают строку по имени гостя. Точки статусов в таблицах берут насыщенные
+   * --success / --primary / --warning, там цветного мало.
+   */
+  --st-confirmed: #e4edfd;
+  --st-checked-in: #e2f3e9;
+  --st-checked-out: #edeff2;
+  --st-tentative: #fcf0d3;
+  --st-blocked: #fbe3e3;
   --row-hover: #f7f9fc;
   /* графики и доли (срез 8: аналитика сайта). Серии — один синий интерфейса в двух тонах:
      второй цвет различал бы смыслы, а графики стоят порознь и названы заголовками;
@@ -51,8 +56,9 @@
   --radius: 8px;
   --radius-sm: 6px;
   --control-h: 34px;
-  --font-head: var(--font-head, 'Manrope'), 'Manrope', 'Segoe UI', system-ui, sans-serif;
   --font: var(--font-body, 'IBM Plex Sans'), 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  /* заголовки той же гарнитурой: две семьи на плотных экранах читаются как склейка */
+  --font-head: var(--font);
   --mono: var(--font-mono, 'IBM Plex Mono'), 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --topbar-h: 52px;
 }
@@ -194,6 +200,7 @@ h3 {
 }
 .page__crumbs {
   font-size: 13px;
+  color: var(--muted);
   margin-bottom: 8px;
   display: flex;
   gap: 12px;
@@ -251,9 +258,8 @@ h3 {
   color: var(--muted);
 }
 .stat__value {
-  font-family: var(--font-head);
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
@@ -265,9 +271,9 @@ h3 {
   font-size: 18px;
 }
 .stat__hint {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .stat__extra {
   display: flex;
@@ -275,23 +281,11 @@ h3 {
   margin-top: 4px;
   font-size: 12px;
 }
-.stat--alarm {
-  border-color: var(--danger-border);
-  background: var(--danger-soft);
-}
-.stat--alarm .stat__label,
 .stat--alarm .stat__value {
   color: var(--danger);
-}
-.stat--alarm .stat__value {
   font-size: 22px;
   white-space: nowrap;
 }
-.stat--warn {
-  border-color: var(--warning-border);
-  background: var(--warning-bg);
-}
-.stat--warn .stat__label,
 .stat--warn .stat__value {
   color: var(--warning);
 }
@@ -347,18 +341,15 @@ h3 {
 }
 .tbl th {
   text-align: left;
-  padding: 9px 12px;
+  padding: 10px 12px 8px;
   border-bottom: 1px solid var(--border);
-  background: var(--surface-muted);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: var(--muted);
   white-space: nowrap;
 }
 .tbl td {
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-soft);
   vertical-align: top;
 }
@@ -439,17 +430,35 @@ h3 {
 .btn--secondary.is-danger {
   color: var(--danger);
 }
+/*
+ * Залита только главная кнопка (`.btn` — синяя). Остальные тона — белые с цветной подписью: пять
+ * сплошных цветных кнопок в одном ряду читаются как пестрота, а не как разные по смыслу действия.
+ */
+.btn--danger,
+.btn--warning,
+.btn--success,
+.btn--info {
+  background: var(--surface);
+  border-color: var(--border-input);
+}
+.btn--danger:hover,
+.btn--warning:hover,
+.btn--success:hover,
+.btn--info:hover {
+  filter: none;
+  border-color: currentColor;
+}
 .btn--danger {
-  background: var(--danger);
+  color: var(--danger);
 }
 .btn--warning {
-  background: var(--warning);
+  color: var(--warning);
 }
 .btn--success {
-  background: var(--success);
+  color: var(--success);
 }
 .btn--info {
-  background: var(--info);
+  color: var(--primary);
 }
 .btn--ghost {
   background: transparent;
@@ -569,31 +578,36 @@ textarea.inp {
 
 /* ---------- бейджи, сообщения, подписи ---------- */
 .badge {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
   line-height: 18px;
-  background: var(--chip-bg);
-  color: var(--chip-fg);
+  color: var(--text-2);
   white-space: nowrap;
+  --dot: var(--muted-2);
+}
+.badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  flex: none;
 }
 .badge--info {
-  background: var(--st-confirmed);
-  color: #1e3a8a;
+  --dot: var(--primary);
 }
 .badge--ok {
-  background: var(--success-soft);
-  color: var(--success-2);
+  --dot: var(--success);
 }
 .badge--warn {
-  background: var(--warning-soft);
+  --dot: var(--warning);
   color: var(--warning);
 }
 .badge--danger {
-  background: var(--danger-soft);
-  color: var(--danger-2);
+  --dot: var(--danger);
+  color: var(--danger);
 }
 .alert {
   font-size: 13px;
@@ -830,6 +844,25 @@ textarea.inp {
   gap: 12px;
   margin: 10px 0;
 }
+.facts a {
+  color: inherit;
+}
+.facts a:hover,
+.facts a:focus-visible {
+  color: var(--primary);
+}
+/* Шапка карточки брони: факты в одну строку, а не сеткой в пол-экрана */
+.facts--card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 0 0 18px;
+}
 .fact__label {
   font-size: 12px;
   color: var(--muted);
@@ -954,6 +987,44 @@ textarea.inp {
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 8px;
+}
+
+/*
+ * Внутри таблицы почти всё — ссылки (гость, ячейка, мессенджер). Синими их делать нельзя: строка
+ * превращается в россыпь цветных слов. Ссылка в таблице цвета текста, подчёркивание и цвет — при наведении.
+ */
+.tbl a {
+  color: inherit;
+}
+.tbl a:hover,
+.tbl a:focus-visible {
+  color: var(--primary);
+}
+/* с клавиатуры ссылку в таблице иначе не отличить от ячейки: к рамке фокуса добавляем подчёркивание */
+.tbl a:focus-visible,
+.facts a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.tbl .small {
+  color: var(--muted);
+}
+.cell-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.unit {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.facts--card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 0 0 18px;
 }
 
 @media print {

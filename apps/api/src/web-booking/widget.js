@@ -138,20 +138,28 @@
       headers: body ? { 'Content-Type': 'application/json' } : {},
       body: body ? JSON.stringify(body) : undefined,
       credentials: 'omit',
-    }).then(function (r) {
-      return r
-        .json()
-        .catch(function () {
-          return {};
-        })
-        .then(function (j) {
-          if (!r.ok) {
-            var m = j && j.message;
-            throw new Error(Array.isArray(m) ? m.join('; ') : m || 'Ошибка ' + r.status);
-          }
-          return j;
-        });
-    });
+    })
+      .catch(function () {
+        // сеть недоступна или домен сайта не в списке разрешённых: гостю нельзя показывать
+        // «Failed to fetch» — это ничего ему не говорит и выглядит поломкой
+        throw new Error(
+          'Не удалось связаться с системой бронирования. Обновите страницу или свяжитесь с нами.',
+        );
+      })
+      .then(function (r) {
+        return r
+          .json()
+          .catch(function () {
+            return {};
+          })
+          .then(function (j) {
+            if (!r.ok) {
+              var m = j && j.message;
+              throw new Error(Array.isArray(m) ? m.join('; ') : m || 'Ошибка ' + r.status);
+            }
+            return j;
+          });
+      });
   }
 
   ready(function () {

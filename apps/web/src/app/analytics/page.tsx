@@ -135,7 +135,7 @@ function Report({ report }: { report: SiteReport }) {
       <div className="hint block--bottom" data-testid="an-period">
         Период {report.period.from} — {report.period.to}, даты по {report.period.timezone}
       </div>
-      <Stats min={150} data-testid="an-summary">
+      <Stats min={230} data-testid="an-summary">
         <Stat label="Сессии" value={String(s.sessions)} testId="an-sessions" />
         <Stat label="Уникальные посетители" value={String(s.visitors)} testId="an-visitors" />
         <Stat label="Просмотры страниц" value={String(s.pageviews)} testId="an-pageviews" />

@@ -18,6 +18,7 @@ export default async function TodayPage({
 }) {
   const sp = await searchParams;
   const day = await deskApi.today(sp.date);
+  const debt = day.debtMinor !== '0';
   return (
     <Page
       title={`Сегодня, ${day.date}`}
@@ -30,25 +31,43 @@ export default async function TodayPage({
         </form>
       }
     >
-      <Stats min={140}>
-        <Stat label="Заезды" value={String(day.counts.arrivals)} testId="c-arrivals" />
+      {/*
+       * Четыре числа вместо шести: «из них не заселены» — не отдельный показатель, а хвост заезда,
+       * поэтому он подписью внутри плитки. Плитки всегда белые; цветом выделено только то, что требует
+       * действия — незакрытые заезды/выезды и долг.
+       */}
+      <Stats min={190}>
         <Stat
-          label="Из них не заселены"
-          value={String(day.counts.toCheckIn)}
-          testId="c-tocheckin"
+          label="Заезды"
+          value={String(day.counts.arrivals)}
+          testId="c-arrivals"
+          hint={
+            <>
+              <span data-testid="c-tocheckin">{day.counts.toCheckIn}</span> ещё не заселены
+            </>
+          }
+          hintTone={day.counts.toCheckIn > 0 ? 'warn' : undefined}
         />
-        <Stat label="Выезды" value={String(day.counts.departures)} testId="c-departures" />
         <Stat
-          label="Из них не выселены"
-          value={String(day.counts.toCheckOut)}
-          testId="c-tocheckout"
+          label="Выезды"
+          value={String(day.counts.departures)}
+          testId="c-departures"
+          hint={
+            <>
+              <span data-testid="c-tocheckout">{day.counts.toCheckOut}</span> ещё не выселены
+            </>
+          }
+          hintTone={day.counts.toCheckOut > 0 ? 'warn' : undefined}
         />
-        <Stat label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" />
+        <Stat label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" hint="в доме" />
         <Stat
           label="Долг уезжающих"
-          value={formatMinor(day.debtMinor)}
-          testId="c-debt"
-          tone={day.debtMinor !== '0' ? 'alarm' : undefined}
+          value={
+            <span className={debt ? 'danger-text' : undefined} data-testid="c-debt">
+              {formatMinor(day.debtMinor)}
+            </span>
+          }
+          hint={debt ? 'спросить при выезде' : 'все рассчитались'}
         />
       </Stats>
 
@@ -72,7 +91,7 @@ function Group({
   showBlocked?: boolean;
   showDebt?: boolean;
 }) {
-  const head = ['Гость', 'Бронь', 'Ячейка', 'Категория', 'Проживание', 'Статус'];
+  const head = ['Гость', 'Ячейка', 'Категория', 'Проживание', 'Статус'];
   if (showDebt) head.push('Счёт');
   return (
     <>
@@ -92,7 +111,7 @@ function Group({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={7} className="muted">
+              <td colSpan={head.length} className="muted">
                 никого
               </td>
             </tr>
@@ -101,8 +120,17 @@ function Group({
             const m = messengerLinks(r.guestPhone);
             return (
               <tr key={r.itemId} data-testid={`row-${testId}`}>
+                {/*
+                 * Имя — ссылка на бронь: администратор ищет глазами гостя, а не номер. Сам номер
+                 * второй строкой мелким моноширинным: он нужен, когда его диктуют по телефону.
+                 */}
                 <td>
-                  {r.guestLabel || '—'}
+                  <Link
+                    href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+                    className="bold"
+                  >
+                    {r.guestLabel || 'без имени'}
+                  </Link>
                   {m && (
                     <>
                       {' '}
@@ -111,15 +139,11 @@ function Group({
                       </a>
                     </>
                   )}
-                </td>
-                <td>
-                  <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
-                    {r.confirmationNumber}
-                  </Link>
+                  <div className="cell-sub mono">{r.confirmationNumber}</div>
                 </td>
                 <td>
                   {r.unitCode ? (
-                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="mono">
+                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="unit">
                       {r.unitCode}
                     </Link>
                   ) : (
@@ -133,18 +157,17 @@ function Group({
                 <td>
                   <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />
                   {showBlocked && r.blockedReason && (
-                    <span className="warn-text"> · {r.blockedReason}</span>
+                    <div className="cell-sub warn-text">{r.blockedReason}</div>
                   )}
                   {showBlocked && r.guestsRecorded < r.adults && !r.blockedReason && (
-                    <span className="warn-text">
-                      {' '}
-                      · карточек {r.guestsRecorded} из {r.adults}
-                    </span>
+                    <div className="cell-sub warn-text">
+                      карточек {r.guestsRecorded} из {r.adults}
+                    </div>
                   )}
                 </td>
                 {showDebt && (
                   <td className="num">
-                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text' : 'ok-text'}>
+                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text bold' : 'muted'}>
                       {formatMinor(r.balanceMinor)}
                     </span>
                   </td>

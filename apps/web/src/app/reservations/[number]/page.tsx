@@ -8,7 +8,7 @@ import {
   reservationsApi,
 } from '../../../lib/api';
 import { Page } from '../../../components/page';
-import { SectionTitle, Stat, Stats, StatusBadge, Table } from '../../../components/ui';
+import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 
@@ -91,58 +91,62 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         </>
       }
     >
-      <Stats min={160}>
-        <Stat label="Заезд" size="compact" value={r.arrivalDate} />
-        <Stat label="Выезд" size="compact" value={r.departureDate} />
-        <Stat
-          label="Гостей"
-          size="compact"
-          value={`${r.adults}${r.children ? ` + ${r.children} дет.` : ''}`}
-        />
-        <Stat label="Сумма" size="compact" value={formatMinor(r.totalAmountMinor, r.currency)} />
-        <Stat
-          label="Заказчик"
-          size="compact"
-          value={
-            r.primaryGuest ? (
+      {/*
+       * Даты, гости и заказчик — факты, а не показатели: строка «подпись — значение» вместо плиток.
+       * Плитками остаются только числа, которые требуют действия (см. экран «Сегодня»).
+       */}
+      <div className="facts facts--card">
+        <div>
+          <div className="fact__label">Заезд</div>
+          <div className="fact__value">{r.arrivalDate}</div>
+        </div>
+        <div>
+          <div className="fact__label">Выезд</div>
+          <div className="fact__value">{r.departureDate}</div>
+        </div>
+        <div>
+          <div className="fact__label">Гостей</div>
+          <div className="fact__value">
+            {r.adults}
+            {r.children ? ` + ${r.children} дет.` : ''}
+          </div>
+        </div>
+        <div>
+          <div className="fact__label">Сумма</div>
+          <div className="fact__value">{formatMinor(r.totalAmountMinor, r.currency)}</div>
+        </div>
+        <div>
+          <div className="fact__label">Заказчик</div>
+          <div className="fact__value">
+            {r.primaryGuest ? (
               <Link href={`/guests/${r.primaryGuest.id}`} data-testid="guest-link">
                 {r.primaryGuest.label}
               </Link>
             ) : (
               '—'
-            )
-          }
-          hint={
-            r.primaryGuest
-              ? r.primaryGuest.citizenship
+            )}
+          </div>
+          {r.primaryGuest && (
+            <div className={r.primaryGuest.citizenship ? 'cell-sub' : 'cell-sub warn-text'}>
+              {r.primaryGuest.citizenship
                 ? `гражданство ${r.primaryGuest.citizenship}`
-                : 'гражданство не указано'
-              : undefined
-          }
-          hintTone={r.primaryGuest && !r.primaryGuest.citizenship ? 'warn' : undefined}
-        >
-          {guestMessengers && (
-            <div className="stat__extra">
-              <a
-                href={guestMessengers.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                data-testid="guest-whatsapp"
-              >
-                WhatsApp
-              </a>
-              <a
-                href={guestMessengers.telegram}
-                target="_blank"
-                rel="noreferrer"
-                data-testid="guest-telegram"
-              >
-                Telegram
-              </a>
+                : 'гражданство не указано'}
+              {guestMessengers && (
+                <>
+                  {' · '}
+                  <a href={guestMessengers.whatsapp} target="_blank" rel="noreferrer">
+                    WhatsApp
+                  </a>
+                  {' · '}
+                  <a href={guestMessengers.telegram} target="_blank" rel="noreferrer">
+                    Telegram
+                  </a>
+                </>
+              )}
             </div>
           )}
-        </Stat>
-      </Stats>
+        </div>
+      </div>
       <SectionTitle first>Проживания</SectionTitle>
       <Table>
         <thead>

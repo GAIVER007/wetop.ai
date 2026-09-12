@@ -1,0 +1,35 @@
+<!--
+  PMS Luxx Aparts — код для сайта. Сайт в PMS: «Сайт Luxx Aparts», ключ pms_5724b8e298e4.
+  Дата выдачи: 12.09.2026. Адрес API ниже — ВРЕМЕННЫЙ (быстрый туннель Cloudflare), он меняется при
+  перезапуске туннеля. Перед установкой на настоящий сайт см. docs/site/install-2026-09-12.md, раздел 6:
+  нужен постоянный адрес, и тогда в двух строках ниже меняется только хост.
+-->
+
+<!-- ═══ БЛОК 1. Счётчик посещений — в <head> КАЖДОЙ страницы сайта ═══ -->
+<!-- PMS: счётчик посещений -->
+<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/a/pms.js" data-site="pms_5724b8e298e4"></script>
+
+
+<!-- ═══ БЛОК 2. Виджет бронирования — один раз, там, где на странице должна быть форма бронирования ═══ -->
+<!-- PMS: виджет бронирования -->
+<div id="pms-booking"></div>
+<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/w/widget.js" data-site="pms_5724b8e298e4"></script>
+
+
+<!-- ═══ НЕОБЯЗАТЕЛЬНО. События для аналитики на своих кнопках сайта ═══
+     Виджет сам отправляет «поиск дат» и «шаг бронирования». Если на сайте есть свои кнопки
+     «Позвонить» и «WhatsApp», добавьте к ним вызов — в отчёте появятся клики по источникам.
+     window.pms есть только после загрузки счётчика, поэтому проверка на typeof. -->
+<!--
+<a href="tel:+77012345678" onclick="typeof pms==='function'&&pms('event','phone_click')">Позвонить</a>
+<a href="https://wa.me/77012345678" onclick="typeof pms==='function'&&pms('event','whatsapp_click')">WhatsApp</a>
+-->
+
+<!-- ═══ НЕОБЯЗАТЕЛЬНО. Баннер согласия ═══
+     Если на сайте показывается баннер про cookies/аналитику, поставьте счётчику атрибут data-consent="wait"
+     и после согласия вызовите pms('consent'). Без атрибута счётчик работает сразу: он не ставит cookies
+     и не собирает персональные данные. -->
+<!--
+<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/a/pms.js" data-site="pms_5724b8e298e4" data-consent="wait"></script>
+<script>document.getElementById('cookie-ok').addEventListener('click', function () { pms('consent'); });</script>
+-->

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
-import { BookingSettings, CopyButton, CreateSiteForm, SiteButtons } from './forms';
+import { BookingSettings, CopyButton, CreateSiteForm, HostsForm, SiteButtons } from './forms';
 
 /** Подключение счётчика: сайты, код для вставки, статус. Постоянный публичный адрес API — Q-112. */
 export default async function AnalyticsSetupPage() {
@@ -161,6 +161,13 @@ function SiteCard({
         />
         <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
       </div>
+      {site.hosts.some((h) => h.endsWith('.example')) && (
+        <div role="alert" style={{ color: '#b45309', fontSize: 13, margin: '4px 0' }}>
+          Домен-заглушка: впишите настоящий адрес сайта, иначе приёмник и виджет не примут запросы с
+          него.
+        </div>
+      )}
+      <HostsForm id={site.id} hosts={site.hosts} />
       <div style={{ fontSize: 13, color: '#444', margin: '10px 0 4px' }}>
         Код для вставки в &lt;head&gt; сайта:
       </div>

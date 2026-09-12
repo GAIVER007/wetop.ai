@@ -293,6 +293,9 @@ function makeFake() {
     async reservationByExternalId() {
       return null;
     },
+    async importedOtaCandidates() {
+      return [];
+    },
     async addReservationItem() {
       return 'x';
     },

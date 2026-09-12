@@ -13,13 +13,20 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
-import { penaltyAmount, penaltyDue, type ReservationStatus } from '@pms/domain';
+import {
+  matchImportedReservation,
+  penaltyAmount,
+  penaltyDue,
+  sameStaySet,
+  type ReservationStatus,
+} from '@pms/domain';
 import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
   type ChannelMappingRef,
   type ExternalEventVia,
   type NewReservation,
+  type ReservationState,
   type ReservationsRepository,
   type UnitOfWork,
 } from '../reservations/reservations.repository';
@@ -31,7 +38,8 @@ export interface RevisionOutcome {
   revisionId: string;
   uniqueId: string;
   status: channex.ChannexBookingRevisionAttributes['status'];
-  result: 'created' | 'modified' | 'cancelled' | 'skipped_duplicate' | 'failed';
+  /** `linked` — ревизия сопоставлена с перенесённой из Exely бронью (ADR-024), новой брони нет */
+  result: 'created' | 'linked' | 'modified' | 'cancelled' | 'skipped_duplicate' | 'failed';
   confirmationNumber: string | null;
   error?: string;
   warnings: string[];
@@ -46,6 +54,9 @@ export interface PullResult {
 
 /** Сколько раз пробуем разобрать одну ревизию, прежде чем позвать человека (у исходящих — столько же) */
 export const MAX_INBOUND_ATTEMPTS = 6;
+
+/** Метка броней автотестов в заметке (ставят сами тесты, снимает `cli-e2e-cleanup.ts`) — с ними ревизии не сопоставляются */
+const E2E_NOTE = 'E2E-АВТОТЕСТ';
 
 /** Ревизия целиком, кроме `guarantee` (данные карты — не хранить, SECURITY.md §4) и `services` мусора. */
 export function sanitizeRevision(
@@ -66,6 +77,14 @@ export function decimalToMinor(value: string, where: string): bigint {
 
 class UnmappedRoomError extends Error {
   override readonly name = 'UnmappedRoomError';
+}
+/**
+ * ADR-024: ревизию нельзя ни связать с перенесённой бронью, ни создать без риска дубля — PMS не выбирает сама.
+ * Событие остаётся FAILED с объяснением (видно на /channels, кнопка «Обработать заново»), ревизия не
+ * подтверждается, бронь не создаётся и ячейку не занимает; перенесённая копия брони в PMS уже есть.
+ */
+class ImportLinkAmbiguousError extends Error {
+  override readonly name = 'ImportLinkAmbiguousError';
 }
 
 function payloadHash(payload: unknown): string {
@@ -248,6 +267,70 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /**
+   * ADR-024 (Q-034). При подключении канала Channex подтягивает уже существующие будущие брони
+   * Booking.com, Expedia и Trip.com и присылает каждую как booking_new (`CHANNEX_PULLS_EXISTING_BOOKINGS`;
+   * для Agoda, Hostelworld и Ostrovok подтяжки нет). Те же брони уже перенесены из Exely — без номера на
+   * стороне канала, поэтому поиски по ID пусты, и без этого шага каждая заняла бы вторую койку.
+   * Кандидат: бронь OTA без внешнего ID, не отменена, не автотест, живые проживания совпадают с комнатами
+   * ревизии 1:1 по (категория, заезд, выезд); суммы и валюта не участвуют.
+   * - ключ канала ревизии — по коду из `unique_id` (BDC, EXP, CTP…; channel-codes.md велит сопоставлять по коду,
+   *   имена у Channex плавают: «Booking.com»/«BookingCom», «Expedia»/«A-Expedia»), имя `ota_name` — запасной путь;
+   *   у перенесённой из Exely брони ключ — по её имени канала (`otaChannelKey`);
+   * - канал с подтяжкой, ровно один кандидат того же канала → связать;
+   * - канал с подтяжкой, кандидатов того же канала несколько → PMS не выбирает сама: ревизия отклоняется
+   *   с номерами кандидатов (FAILED, без ack, ничего не создано) — решение владельца (QUESTIONS.md);
+   * - имя канала PMS не знает, а перенесённая бронь с тем же составом есть → тоже отклонить: скорее всего
+   *   это Trip.com/Expedia под другим написанием `ota_name`, и создать её значило бы занять вторую койку молча;
+   * - известный канал без подтяжки (Agoda, Hostelworld, Ostrovok) или кандидатов нет → null, создать как обычно.
+   */
+  private async linkImported(
+    repo: ReservationsRepository,
+    a: channex.ChannexBookingRevisionAttributes,
+    items: Array<{ accommodationTypeId: string; arrivalDate: string; departureDate: string }>,
+  ): Promise<ReservationState | null> {
+    if (items.length === 0) return null;
+    const key = channex.channelKey(a.unique_id, a.ota_name);
+    const pulled = channex.CHANNEX_PULLS_EXISTING_BOOKINGS.has(key);
+    if (!pulled && channex.KNOWN_CHANNEL_KEYS.has(key)) return null;
+    const from = items.reduce(
+      (m, i) => (i.arrivalDate < m ? i.arrivalDate : m),
+      items[0]!.arrivalDate,
+    );
+    const toExclusive = items.reduce(
+      (m, i) => (i.departureDate > m ? i.departureDate : m),
+      items[0]!.departureDate,
+    );
+    const sameStays = (await repo.importedOtaCandidates({ from, toExclusive }))
+      .filter((c) => !(c.notes ?? '').includes(E2E_NOTE))
+      .map((c) => ({
+        id: c.id,
+        confirmationNumber: c.confirmationNumber,
+        channel: c.channel,
+        items: c.items.filter((i) => i.status !== 'CANCELLED'),
+      }))
+      .filter((c) => sameStaySet(items, c.items));
+    if (!pulled) {
+      if (sameStays.length === 0) return null;
+      const listed = sameStays
+        .map((c) => `${c.confirmationNumber} (${c.channel ?? 'канал не указан'})`)
+        .join(', ');
+      throw new ImportLinkAmbiguousError(
+        `Бронь ${a.unique_id}: канал «${a.ota_name}» PMS не знает, а перенесённая из Exely бронь с тем же составом проживаний есть — ${listed}. Если это тот же канал под другим именем — добавьте имя в соответствия каналов (ADR-024) и нажмите «Обработать заново»; если другой — разберите вручную`,
+      );
+    }
+    const match = matchImportedReservation(
+      items,
+      sameStays.filter((c) => !!c.channel && channex.otaChannelKey(c.channel) === key),
+    );
+    if (match.kind === 'none') return null;
+    if (match.kind === 'many')
+      throw new ImportLinkAmbiguousError(
+        `Бронь ${a.unique_id} (${a.ota_name}): перенесённых из Exely броней с таким же составом проживаний несколько — ${match.confirmationNumbers.join(', ')}; PMS не выбирает сама (ADR-024). Разберите вручную по CUTOVER.md и нажмите «Обработать заново»`,
+      );
+    return repo.reservationByNumber(match.confirmationNumber);
+  }
+
   /** Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook. */
   async pull(propertyId?: string): Promise<PullResult> {
     const feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
@@ -358,7 +441,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
           const applied = await this.apply(repo, a, mappings, base.warnings);
           await repo.updateExternalEvent(ev.id, {
             status: 'PROCESSED',
-            lastError: null,
+            // Предупреждения разбора («без ячейки», «предоплата не записана») сохраняются вместе с событием:
+            // webhook и фоновый опрос результат никому не показывают, а на /channels колонка видна.
+            // Отдельного поля у события нет — заявка на `warnings` в DATA_MODEL.md (ADR-024).
+            lastError: base.warnings.length ? `Предупреждение: ${base.warnings.join('; ')}` : null,
             processedAt: new Date(),
           });
           return applied;
@@ -375,11 +461,15 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
             countAttempt: true,
           }),
         );
-        if (e instanceof UnmappedRoomError)
+        if (e instanceof UnmappedRoomError || e instanceof ImportLinkAmbiguousError) {
+          this.log.warn(`ревизия ${rev.id} (${a.unique_id}) отклонена: ${message}`);
           return { ...base, result: 'failed', confirmationNumber: null, error: message };
+        }
         throw e;
       }
     }
+    // Результат ревизии на webhook и фоновом опросе никто не читает — предупреждения хотя бы в журнал процесса
+    for (const w of outcome.warnings) this.log.warn(`ревизия ${rev.id} (${a.unique_id}): ${w}`);
     if (outcome.result !== 'failed')
       await this.viaChannex(() => this.gateway.ackBookingRevision(rev.id));
     if (outcome.affected && outcome.affected.categoryCodes.length) {
@@ -401,11 +491,16 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
   ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected'>> {
     // Порядок поиска важен для переезда с Exely (CUTOVER §1, Q-034):
     // 1) unique_id — брони, которые PMS уже приняла от Channex;
-    // 2) ota_reservation_code — брони, перенесённые из Exely: у них externalId — номер брони НА СТОРОНЕ КАНАЛА,
-    //    а unique_id Channex мы никогда не видели. Без этого шага модификация создала бы дубль с второй ячейкой,
+    // 2) ota_reservation_code — брони, у которых externalId — номер брони НА СТОРОНЕ КАНАЛА, а unique_id
+    //    Channex мы никогда не видели. Без этого шага модификация создала бы дубль с второй ячейкой,
     //    а отмена не нашла бы бронь и оставила бы койку занятой;
-    // 3) номер подтверждения — брони, созданные до заполнения externalId.
-    // Найденной по каналу броне externalId переписывается на unique_id ниже, поэтому шаг 2 нужен один раз.
+    // 3) номер подтверждения — брони, созданные до заполнения externalId;
+    // 4) ADR-024, только для ревизии, которую иначе пришлось бы создать (и не отмены): перенесённые из Exely
+    //    брони канала — у них НЕТ ни того, ни другого (Универсальный API Exely номер брони канала не отдаёт),
+    //    пара ищется по каналу и составу проживаний — см. linkImported(). Неоднозначность (несколько
+    //    кандидатов, незнакомое имя канала) ревизию отклоняет: дубль с занятой второй койкой хуже, чем событие
+    //    FAILED с объяснением и кнопкой «Обработать заново».
+    // Найденной броне externalId переписывается на unique_id ниже, поэтому шаги 2 и 4 нужны один раз.
     const existing =
       (await repo.reservationByExternalId(a.unique_id)) ??
       (a.ota_reservation_code
@@ -514,6 +609,63 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     };
 
     if (!existing) {
+      // Шаг 4 (ADR-024): подтянутая каналом бронь, которая уже лежит в PMS после переноса из Exely.
+      const linked = await this.linkImported(repo, a, items);
+      if (linked) {
+        const before = await repo.card(linked.confirmationNumber);
+        const live = linked.items.filter((i) => i.status !== 'CANCELLED');
+        // Сумма ревизии — в валюте канала (Expedia, Trip.com могут слать не KZT), перенесённая бронь — в тиынах.
+        // Курс PMS не считает: при несовпадении сумма шапки и предоплата не переносятся, человек проверяет счёт.
+        const sameCurrency = a.currency === linked.currency;
+        if (!sameCurrency)
+          warnings.push(
+            `Бронь ${a.unique_id}: валюта ревизии ${a.currency} ≠ ${linked.currency} перенесённой брони — сумма и предоплата канала не перенесены, проверьте счёт вручную`,
+          );
+        // Проживания и ячейки из Exely не трогаем — ячейка назначена стойкой и сходится с Exely.
+        // Предоплата канала — на счёт каждого проживания, как на модификации (Q-086); комната ревизии
+        // подбирается к проживанию по (категория, заезд, выезд), а не по порядку в ревизии.
+        const pool = [...items];
+        for (const [i, item] of live.entries()) {
+          const k = pool.findIndex((room) => sameStaySet([room], [item]));
+          const room = k >= 0 ? pool.splice(k, 1)[0]! : items[i]!;
+          if (!sameCurrency) continue;
+          // Счёт перенесённого проживания мог быть оплачен ещё в Exely (платёж EXTERNAL exely:…): вторая
+          // оплата от канала сделала бы счёт отрицательным. Что-то уже оплачено → платёж не пишем, зовём человека.
+          if (a.payment_collect === 'ota' && room.priceMinor > 0n) {
+            const balance = await repo.stayBalanceMinor(item.id);
+            if (balance < room.priceMinor) {
+              warnings.push(
+                `Бронь ${a.unique_id}: счёт проживания ${item.arrivalDate} → ${item.departureDate} уже оплачен (перенос из Exely) — предоплата канала не записана, проверьте счёт вручную`,
+              );
+              continue;
+            }
+          }
+          await this.recordPrepayment(repo, item.id, i, a, room.priceMinor);
+        }
+        // Шапка как на модификации, кроме статуса: он выводится из проживаний, а их мы не трогали
+        // (перенесённый гость мог быть уже заселён — сбрасывать его в CONFIRMED нельзя).
+        // Заметка Exely остаётся, если канал заметки не прислал (обычно так и есть).
+        await repo.updateReservation(linked.id, {
+          arrivalDate: header.arrivalDate,
+          departureDate: header.departureDate,
+          ...(sameCurrency ? { totalAmountMinor: header.totalAmountMinor } : {}),
+          externalId: a.unique_id,
+          channel: a.ota_name,
+          ...(a.notes != null ? { notes: a.notes } : {}),
+        });
+        await repo.audit({
+          entityType: 'Reservation',
+          entityId: linked.id,
+          action: 'channex.booking.linked',
+          before,
+          after: await repo.card(linked.confirmationNumber),
+        });
+        return {
+          result: 'linked',
+          confirmationNumber: linked.confirmationNumber,
+          affected: affectedOf(live),
+        };
+      }
       // ADR-009/ADR-018: настоящие ФИО и контакты допустимы только в production-БД в Казахстане.
       // Пока Q-070 открыт и база в Сингапуре, гость канала записывается псевдонимом.
       const guestId = await repo.createGuest(

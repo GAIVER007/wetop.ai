@@ -280,6 +280,9 @@ function makeFakes() {
     },
   };
   const board: ChessboardRepository = {
+    async unassignedStays() {
+      return [];
+    },
     async units() {
       return [
         {

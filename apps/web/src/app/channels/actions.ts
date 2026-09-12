@@ -24,7 +24,22 @@ export async function channelAction(
       message = `Полная выгрузка ${r.from} → ${r.to}; задачи Channex: ${r.tasks.join(', ')}`;
     } else if (kind === 'pull') {
       const r = await channelsApi.pull();
-      message = `Получено ревизий: ${r.received}, подтверждено: ${r.acknowledged}`;
+      // Отклонённые ревизии и предупреждения (ADR-024: «несколько кандидатов», «без ячейки», «предоплата не
+      // записана») администратор должен увидеть здесь же, а не только в журнале событий ниже
+      const outcomes = r.outcomes as Array<{
+        uniqueId?: string;
+        result?: string;
+        error?: string;
+        warnings?: string[];
+      }>;
+      const rejected = outcomes.filter((o) => o.result === 'failed');
+      const warnings = outcomes.flatMap((o) => o.warnings ?? []);
+      message =
+        `Получено ревизий: ${r.received}, подтверждено: ${r.acknowledged}` +
+        (rejected.length
+          ? `; отклонено: ${rejected.length} — ${rejected.map((o) => o.error ?? o.uniqueId ?? '?').join(' | ')}`
+          : '') +
+        (warnings.length ? `; предупреждений: ${warnings.length} — ${warnings.join(' | ')}` : '');
     } else if (kind === 'webhook-register') {
       const r = await channelsApi.registerWebhook();
       message = `Webhook ${r.created ? 'зарегистрирован' : 'обновлён'}: ${r.callbackUrl} (события ${r.eventMask}, ${r.active ? 'активен' : 'выключен'})`;
@@ -43,6 +58,16 @@ export async function channelAction(
   }
 }
 
+/** Результат разбора ревизии (RevisionOutcome.result в API) — подпись для администратора */
+const RESULT_RU: Record<string, string> = {
+  created: 'бронь создана',
+  linked: 'сопоставлена с перенесённой',
+  modified: 'бронь изменена',
+  cancelled: 'бронь отменена',
+  skipped_duplicate: 'повтор, пропущено',
+  failed: 'ошибка',
+};
+
 /** Разобрать входящее событие заново: после шести неудач PMS сама больше не пробует. */
 export async function retryEventAction(revisionId: string): Promise<ChannelActionResult> {
   try {
@@ -53,7 +78,7 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
       error: r.error ?? null,
       message: r.error
         ? null
-        : `Событие ${revisionId}: ${r.result}${r.confirmationNumber ? ` — бронь ${r.confirmationNumber}` : ''}`,
+        : `Событие ${revisionId}: ${RESULT_RU[r.result] ?? r.result}${r.confirmationNumber ? ` — бронь ${r.confirmationNumber}` : ''}`,
     };
   } catch (e) {
     return { error: describe(e), message: null };

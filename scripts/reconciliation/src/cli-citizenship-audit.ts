@@ -13,6 +13,10 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
 import { normalizeCitizenship } from '@pms/domain';
+import { chunk } from './chunk';
+
+/** Сколько гостей чистим одной транзакцией: 401 за раз не уложился в таймаут Prisma через пулер */
+const BATCH = 100;
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -150,23 +154,42 @@ try {
     if (!ids.length) {
       lines.push('`--apply`: чистить нечего.');
     } else {
-      const done = await db.$transaction(async (tx) => {
-        const res = await tx.guest.updateMany({
-          where: { id: { in: ids } },
-          data: { citizenship: null },
-        });
-        await tx.auditLog.createMany({
-          data: ids.map((id) => ({
-            entityType: 'Guest',
-            entityId: id,
-            action: 'guest.citizenship.blank-cleanup',
-            after: { fields: ['citizenship'], reason: 'Q-117: CHAR(3) padding → NULL' },
-          })),
-        });
-        return res.count;
-      });
+      // Пачками: одной транзакцией на 401 гостя чистка 12.09 не уложилась в таймаут Prisma (5 с)
+      // и упала с P2028 уже на коммите — при том, что база работу выполнила. Короткие транзакции
+      // укладываются, и каждая пачка коммитится сама по себе.
+      let done = 0;
+      for (const batch of chunk(ids, BATCH)) {
+        done += await db.$transaction(
+          async (tx) => {
+            const res = await tx.guest.updateMany({
+              where: { id: { in: batch } },
+              data: { citizenship: null },
+            });
+            await tx.auditLog.createMany({
+              data: batch.map((id) => ({
+                entityType: 'Guest',
+                entityId: id,
+                action: 'guest.citizenship.blank-cleanup',
+                after: { fields: ['citizenship'], reason: 'Q-117: CHAR(3) padding → NULL' },
+              })),
+            });
+            return res.count;
+          },
+          { timeout: 60_000, maxWait: 30_000 },
+        );
+      }
+      // Контроль после записи: отчёт не должен утверждать «чисто», не спросив базу заново
+      const left = await db.$queryRaw<Array<{ n: bigint }>>`
+        SELECT count(*)::bigint AS n FROM guests WHERE citizenship IS NOT NULL AND btrim(citizenship) = ''`;
+      const rest = Number(left[0]?.n ?? 0);
       lines.push(
         `## Чистка выполнена (\`--apply\`): гражданство «пробелами» → NULL у ${done} гостей, журнал записан`,
+      );
+      lines.push('');
+      lines.push(
+        rest === 0
+          ? '- контрольный запрос после записи: строк с пробелами не осталось'
+          : `- **осталось строк с пробелами: ${rest}** — запустить чистку ещё раз`,
       );
     }
   } else {

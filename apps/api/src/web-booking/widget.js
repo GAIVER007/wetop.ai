@@ -13,13 +13,56 @@
   if (!key) return;
   var api = script.src.replace(/\/w\/widget\.js(\?.*)?$/, '');
   var targetSel = script.getAttribute('data-target') || '#pms-booking';
-  var css =
-    '.pmsw{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;max-width:640px;color:#1a1a1a;background:#fff;border:1px solid #e3e5e8;border-radius:12px;padding:16px;box-sizing:border-box}' +
-    '.pmsw *{box-sizing:border-box}.pmsw h3{margin:0 0 12px;font-size:18px}.pmsw .row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}' +
-    '.pmsw label{display:grid;gap:4px;font-size:12px;color:#52514e;flex:1 1 140px}.pmsw input,.pmsw select,.pmsw textarea{padding:8px;border:1px solid #cfd3d8;border-radius:8px;font-size:15px;font-family:inherit;width:100%}' +
-    '.pmsw button{padding:10px 14px;border-radius:8px;border:1px solid #2a78d6;background:#2a78d6;color:#fff;font-size:15px;cursor:pointer}.pmsw button.sec{background:#fff;color:#2a78d6}.pmsw button:disabled{opacity:.6;cursor:default}' +
-    '.pmsw .cat{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #f0f1f3;padding:10px 0}.pmsw .cat .n{font-weight:600}.pmsw .cat .s{font-size:13px;color:#52514e}.pmsw .cat .p{font-size:17px;font-weight:600;white-space:nowrap}' +
-    '.pmsw .msg{margin-top:10px;font-size:14px}.pmsw .err{color:#b91c1c}.pmsw .ok{color:#166534}.pmsw .note{font-size:12px;color:#898781;margin-top:10px}.pmsw .hp{position:absolute;left:-9999px;top:-9999px}';
+  /*
+   * Оформление (дизайн «спокойная стойка», 12.09.2026). Виджет стоит на чужом сайте, поэтому:
+   * все селекторы под `.pmsw`, свои переменные (владелец сайта может переопределить их своим CSS),
+   * системные шрифты — не тянем гарнитуру на чужую страницу, `color-scheme: light` — чтобы поля дат
+   * не почернели на тёмной теме сайта. Поля и кнопки 44 px: гость бронирует с телефона.
+   */
+  var css = [
+    '.pmsw{--pmsw-accent:#1f4bd8;--pmsw-accent-dark:#17399f;--pmsw-ink:#16213a;--pmsw-ink-2:#3d4656;',
+    '--pmsw-muted:#6b7280;--pmsw-line:#e3e5e8;--pmsw-line-soft:#eef0f3;--pmsw-field:#cbd0d6;',
+    '--pmsw-ok:#176b3f;--pmsw-ok-bg:#dff5e7;--pmsw-err:#b4232c;--pmsw-radius:12px;',
+    'color-scheme:light;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45;',
+    'max-width:680px;color:var(--pmsw-ink);background:#fff;border:1px solid var(--pmsw-line);',
+    'border-radius:16px;padding:20px;box-sizing:border-box;text-align:left}',
+    '.pmsw *{box-sizing:border-box}',
+    '.pmsw h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.01em;color:var(--pmsw-ink)}',
+    '.pmsw .lede{margin:4px 0 16px;font-size:14px;color:var(--pmsw-muted)}',
+    '.pmsw .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}',
+    '.pmsw .search{background:#fafbfc;border:1px solid var(--pmsw-line);border-radius:var(--pmsw-radius);padding:12px}',
+    '.pmsw label{display:grid;gap:5px;font-size:13px;font-weight:500;color:var(--pmsw-ink-2);flex:1 1 150px;min-width:0}',
+    '.pmsw input,.pmsw select,.pmsw textarea{min-height:44px;padding:10px 12px;border:1px solid var(--pmsw-field);',
+    'border-radius:10px;font-size:15px;font-family:inherit;color:var(--pmsw-ink);background:#fff;width:100%}',
+    '.pmsw textarea{min-height:64px;resize:vertical}',
+    '.pmsw input:focus-visible,.pmsw select:focus-visible,.pmsw textarea:focus-visible{outline:2px solid var(--pmsw-accent);outline-offset:-1px;border-color:var(--pmsw-accent)}',
+    '.pmsw button{min-height:44px;padding:11px 18px;border-radius:10px;border:1px solid var(--pmsw-accent);',
+    'background:var(--pmsw-accent);color:#fff;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}',
+    '.pmsw button:hover{background:var(--pmsw-accent-dark);border-color:var(--pmsw-accent-dark)}',
+    '.pmsw button.sec{background:#fff;color:var(--pmsw-accent)}',
+    '.pmsw button.sec:hover{background:#f4f6fd}',
+    '.pmsw button:disabled{opacity:.55;cursor:default}',
+    '.pmsw button:focus-visible{outline:2px solid var(--pmsw-ink);outline-offset:2px}',
+    '.pmsw .found{margin:16px 0 2px;font-size:14px;color:var(--pmsw-ink-2);font-weight:500}',
+    '.pmsw .cat{display:flex;justify-content:space-between;gap:14px;align-items:center;',
+    'border-top:1px solid var(--pmsw-line-soft);padding:14px 0}',
+    '.pmsw .cat .n{font-weight:600;font-size:16px}',
+    '.pmsw .cat .s{font-size:13px;color:var(--pmsw-muted);margin-top:2px}',
+    '.pmsw .cat .p{font-size:20px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto}',
+    '.pmsw .cat--off{opacity:.55}.pmsw .cat--off .p{font-weight:600;color:var(--pmsw-muted)}',
+    '.pmsw .chosen{border-top:0;background:#fafbfc;border:1px solid var(--pmsw-line);border-radius:var(--pmsw-radius);padding:14px;margin-bottom:14px}',
+    '.pmsw .msg{margin-top:12px;font-size:14px}',
+    '.pmsw .err{color:var(--pmsw-err)}',
+    '.pmsw .ok{color:var(--pmsw-ok)}',
+    '.pmsw .done{background:var(--pmsw-ok-bg);border-radius:var(--pmsw-radius);padding:16px;margin-top:4px}',
+    '.pmsw .done .n{font-size:17px;font-weight:700;color:var(--pmsw-ok);margin-bottom:4px}',
+    '.pmsw .done .num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;font-weight:600;color:var(--pmsw-ink);letter-spacing:.02em;display:block;margin:6px 0}',
+    '.pmsw .done .s{font-size:14px;color:var(--pmsw-ink-2)}',
+    '.pmsw .note{font-size:12.5px;color:var(--pmsw-muted);margin-top:14px;padding-top:12px;border-top:1px solid var(--pmsw-line-soft)}',
+    '.pmsw .hp{position:absolute;left:-9999px;top:-9999px}',
+    '@media (max-width:460px){.pmsw{padding:16px;border-radius:12px}.pmsw label{flex:1 1 100%}',
+    '.pmsw .row>button{width:100%}.pmsw .cat{flex-wrap:wrap}.pmsw .cat .p{margin-left:0}.pmsw .cat>button{width:100%}}',
+  ].join('');
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -153,11 +196,19 @@
     });
     root.appendChild(el('h3', { text: 'Забронировать' }));
     root.appendChild(
-      el('div', { class: 'row' }, [
-        el('label', { text: 'Заезд' }, [arrival]),
-        el('label', { text: 'Выезд' }, [departure]),
-        el('label', { text: 'Гостей' }, [adults]),
-        quoteBtn,
+      el('div', {
+        class: 'lede',
+        text: 'Выберите даты — покажем свободные категории и цену за весь период.',
+      }),
+    );
+    root.appendChild(
+      el('div', { class: 'search' }, [
+        el('div', { class: 'row' }, [
+          el('label', { text: 'Заезд' }, [arrival]),
+          el('label', { text: 'Выезд' }, [departure]),
+          el('label', { text: 'Гостей' }, [adults]),
+          quoteBtn,
+        ]),
       ]),
     );
     root.appendChild(list);
@@ -208,7 +259,7 @@
     function renderQuote(r) {
       list.textContent = '';
       var head = el('div', {
-        class: 's',
+        class: 'found',
         text:
           ru(r.arrivalDate) +
           ' → ' +
@@ -239,7 +290,7 @@
         var row = el(
           'div',
           {
-            class: 'cat',
+            class: can ? 'cat' : 'cat cat--off',
             'data-pmsw': 'cat',
             'data-code': c.code,
             'data-available': String(c.available),
@@ -324,7 +375,7 @@
         },
       });
       var form = el('form', { 'data-pmsw': 'form' }, [
-        el('div', { class: 'cat' }, [
+        el('div', { class: 'cat chosen' }, [
           el('div', {}, [
             el('div', { class: 'n', text: c.name }),
             el('div', {
@@ -380,25 +431,30 @@
             track('booking_step', { step: 'done', category: c.code });
             list.textContent = '';
             list.appendChild(
-              el('div', { class: 'ok', 'data-pmsw': 'done', 'data-number': b.confirmationNumber }, [
-                el('div', { class: 'n', text: 'Бронь принята. Номер: ' + b.confirmationNumber }),
-                el('div', {
-                  class: 's',
-                  text:
-                    b.categoryName +
-                    ', ' +
-                    ru(b.arrivalDate) +
-                    ' → ' +
-                    ru(b.departureDate) +
-                    ', ' +
-                    nightsWord(b.nights) +
-                    '. К оплате при заселении: ' +
-                    money(b.totalMinor, b.currency) +
-                    '. Заезд с ' +
-                    b.checkInTime +
-                    '.',
-                }),
-              ]),
+              el(
+                'div',
+                { class: 'done', 'data-pmsw': 'done', 'data-number': b.confirmationNumber },
+                [
+                  el('div', { class: 'n', text: 'Бронь принята' }),
+                  el('span', { class: 'num', text: b.confirmationNumber }),
+                  el('div', {
+                    class: 's',
+                    text:
+                      b.categoryName +
+                      ', ' +
+                      ru(b.arrivalDate) +
+                      ' → ' +
+                      ru(b.departureDate) +
+                      ', ' +
+                      nightsWord(b.nights) +
+                      '. К оплате при заселении: ' +
+                      money(b.totalMinor, b.currency) +
+                      '. Заезд с ' +
+                      b.checkInTime +
+                      '.',
+                  }),
+                ],
+              ),
             );
             say('Сохраните номер брони — его спросят при заселении.', 'ok');
           })

@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react';
+import { TopNav } from '../components/top-nav';
+import './globals.css';
 
 export const metadata = { title: 'PMS Luxx Aparts' };
 
+/** Общий каркас стойки: верхняя навигация + страница. Стили — `globals.css` (срез 10, ADR-027). */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru">
-      <body
-        style={{
-          fontFamily: 'system-ui, sans-serif',
-          margin: 0,
-          background: '#f6f7f9',
-          color: '#1a1a1a',
-        }}
-      >
+      <body>
+        <TopNav />
         {children}
       </body>
     </html>

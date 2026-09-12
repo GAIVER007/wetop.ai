@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { chessboardApi, type UnassignedStay } from '../../lib/api';
+import { Page } from '../../components/page';
+import { Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
 
 const STATUS_RU: Record<string, string> = {
@@ -31,52 +33,36 @@ export default async function ChessboardPage({
   };
 
   return (
-    <main style={{ padding: '20px 20px 48px', maxWidth: '100%' }}>
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 16,
-          marginBottom: 12,
-          flexWrap: 'wrap',
-        }}
-      >
-        <h1 style={{ fontSize: 24, margin: 0 }}>Шахматка</h1>
-        <span style={{ color: '#666' }}>
-          {board.from} — {board.to} · {board.rows.length} ячеек
-        </span>
-        <nav style={{ display: 'flex', gap: 10, marginLeft: 'auto' }}>
+    <Page
+      width="full"
+      title="Шахматка"
+      subtitle={`${board.from} — ${board.to} · ${board.rows.length} ячеек`}
+      actions={
+        <>
           <Link href={shift(-board.dates.length)}>← раньше</Link>
           <Link href="/chessboard">сегодня</Link>
           <Link href={shift(board.dates.length)}>позже →</Link>
-          <Link href="/today">сегодня</Link>
-          <Link href="/inventory">номерной фонд</Link>
-          <Link href="/rates">цены</Link>
-          <Link href="/channels">каналы</Link>
-          <Link href="/guests">гости</Link>
-          <Link href="/finance">деньги</Link>
-          <Link href="/journal">журнал</Link>
-          <Link href="/reservations/new" style={{ fontWeight: 600 }}>
-            + новая бронь
-          </Link>
-        </nav>
-      </header>
-      <div style={{ display: 'flex', gap: 14, fontSize: 12, color: '#555', marginBottom: 10 }}>
-        <Legend color="#dbeafe" label="подтверждена" />
-        <Legend color="#bbf7d0" label="заселён" />
-        <Legend color="#e5e7eb" label="выселен" />
-        <Legend color="#fde68a" label="предварительная" />
-        <Legend color="#fecaca" label="блокировка" />
-      </div>
+        </>
+      }
+    >
+      <Legend
+        items={[
+          { color: 'var(--st-confirmed)', label: 'подтверждена' },
+          { color: 'var(--st-checked-in)', label: 'заселён' },
+          { color: 'var(--st-checked-out)', label: 'выселен' },
+          { color: 'var(--st-tentative)', label: 'предварительная' },
+          { color: 'var(--st-blocked)', label: 'блокировка' },
+        ]}
+      />
       <UnassignedStays stays={board.unassigned ?? []} />
       <ChessboardGrid board={board} />
-      <p style={{ color: '#666', fontSize: 12, marginTop: 10 }}>
+      <p className="note">
         Число под датой — занятых ячеек на эту ночь. Ночь выезда не занимает ячейку. Клик по клетке
         открывает бронь. Перетащите клетку на другую строку — бронь переселится в ту ячейку с даты
         взятой клетки (в другую категорию — только на всё проживание). Брони без ячейки на сетке не
         видны — они в списке над сеткой; ячейка назначается с карточки брони.
       </p>
-    </main>
+    </Page>
   );
 }
 
@@ -96,22 +82,16 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
     <section
       data-testid="unassigned-stays"
       data-count={stays.length}
-      style={{
-        background: '#fff',
-        border: '1px solid #e3e5e8',
-        borderRadius: 8,
-        padding: '8px 12px',
-        marginBottom: 10,
-        fontSize: 12,
-      }}
+      className="panel small"
+      style={{ marginBottom: 10, gap: 4 }}
     >
-      <div style={{ fontWeight: 600, color: stays.length ? '#b45309' : '#555' }}>
+      <div className={cx('bold', stays.length ? 'warn-text' : 'muted')}>
         Без ячейки: {stays.length}
       </div>
       {groups.map((g) => (
-        <div key={g.code} style={{ marginTop: 6 }}>
-          <span style={{ color: '#777' }}>{g.name}</span>
-          <ul style={{ margin: '2px 0 0', paddingLeft: 18 }}>
+        <div key={g.code}>
+          <span className="muted-2">{g.name}</span>
+          <ul className="list">
             {g.items.map((s) => (
               <li
                 key={`${s.confirmationNumber}-${s.arrivalDate}`}
@@ -121,11 +101,11 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
               >
                 <Link
                   href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
-                  style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 600 }}
+                  className="mono bold"
                 >
                   {s.confirmationNumber}
-                </Link>
-                <span style={{ color: '#555', marginLeft: 8 }}>
+                </Link>{' '}
+                <span className="muted">
                   {s.arrivalDate} → {s.departureDate} · {STATUS_RU[s.status] ?? s.status}
                 </span>
               </li>
@@ -134,24 +114,5 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
         </div>
       ))}
     </section>
-  );
-}
-
-function Legend({ color, label }: { color: string; label: string }) {
-  return (
-    <span>
-      <span
-        style={{
-          display: 'inline-block',
-          width: 12,
-          height: 12,
-          background: color,
-          borderRadius: 3,
-          marginRight: 4,
-          verticalAlign: -1,
-        }}
-      />
-      {label}
-    </span>
   );
 }

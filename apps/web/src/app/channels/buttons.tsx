@@ -1,5 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
+import { Alert, Button, Notice, Row, Stack } from '../../components/ui';
 import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
 
 export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
@@ -8,75 +9,65 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
   const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
     start(async () => setResult(await channelAction(kind)));
   return (
-    <div style={{ display: 'grid', gap: 10 }}>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button
+    <Stack gap="sm">
+      <Row>
+        <Button
           type="button"
           data-testid="channel-pull"
           onClick={() => run('pull')}
           disabled={pending}
-          style={btn}
         >
           Забрать брони из Channex
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           data-testid="channel-flush"
           onClick={() => run('flush')}
           disabled={pending}
-          style={btn}
         >
           Отправить очередь сейчас
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
           data-testid="channel-sync"
           onClick={() => run('sync')}
           disabled={pending}
-          style={btnSecondary}
         >
           Полная выгрузка (365 дней)
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
           data-testid="channel-setup"
           onClick={() => run('setup')}
           disabled={pending}
-          style={btnSecondary}
         >
           Создать объект и категории на staging
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
           data-testid="channel-webhook-register"
           onClick={() => run('webhook-register')}
           disabled={pending || !webhookReady}
           title={webhookReady ? '' : 'нужны PUBLIC_API_URL (https) и CHANNEX_WEBHOOK_SECRET в .env'}
-          style={btnSecondary}
         >
           Зарегистрировать webhook
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
           data-testid="channel-webhook-test"
           onClick={() => run('webhook-test')}
           disabled={pending || !webhookReady}
-          style={btnSecondary}
         >
           Проверить webhook
-        </button>
-      </div>
-      {result?.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-          {result.error}
-        </div>
-      )}
-      {result?.message && (
-        <div data-testid="channel-result" style={{ color: '#166534', fontSize: 13 }}>
-          {result.message}
-        </div>
-      )}
-    </div>
+        </Button>
+      </Row>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="channel-result">{result.message}</Notice>}
+    </Stack>
   );
 }
 /**
@@ -87,39 +78,19 @@ export function RetryEventButton({ revisionId }: { revisionId: string }) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
-    <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-      <button
+    <div className="row row--inline row--xs">
+      <Button
         type="button"
+        tone="secondary"
+        size="xs"
         data-testid={`retry-event-${revisionId}`}
         onClick={() => start(async () => setResult(await retryEventAction(revisionId)))}
         disabled={pending}
-        style={{ ...btnSecondary, padding: '3px 8px', fontSize: 12 }}
       >
         Обработать заново
-      </button>
-      {result?.message && <span style={{ color: '#166534', fontSize: 11 }}>{result.message}</span>}
-      {result?.error && (
-        <span role="alert" style={{ color: '#b91c1c', fontSize: 11 }}>
-          {result.error}
-        </span>
-      )}
-    </span>
+      </Button>
+      {result?.message && <Notice className="small">{result.message}</Notice>}
+      {result?.error && <Alert className="small">{result.error}</Alert>}
+    </div>
   );
 }
-const btn: React.CSSProperties = {
-  padding: '8px 14px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const btnSecondary: React.CSSProperties = {
-  padding: '8px 14px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  background: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};

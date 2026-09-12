@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { deskApi, formatMinor, messengerLinks, type DeskRow } from '../../lib/api';
+import { Page } from '../../components/page';
+import { Button, Input, SectionTitle, Stat, Stats, StatusBadge, Table } from '../../components/ui';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -17,51 +19,43 @@ export default async function TodayPage({
   const sp = await searchParams;
   const day = await deskApi.today(sp.date);
   return (
-    <main style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 48px' }}>
-      <header style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 12 }}>
-        <h1 style={{ fontSize: 24, margin: 0 }}>Сегодня, {day.date}</h1>
-        <nav style={{ display: 'flex', gap: 10, marginLeft: 'auto', fontSize: 14 }}>
-          <Link href="/chessboard">шахматка</Link>
-          <Link href="/finance">деньги</Link>
-          <Link href="/guests">гости</Link>
-          <Link href="/journal">журнал</Link>
-          <Link href="/analytics">аналитика</Link>
-        </nav>
-      </header>
-
-      <form method="get" style={{ marginBottom: 16 }}>
-        <input type="date" name="date" defaultValue={day.date} style={inp} />{' '}
-        <button type="submit" style={btn}>
-          Показать
-        </button>
-      </form>
-
-      <section style={cards}>
-        <Card label="Заезды" value={String(day.counts.arrivals)} testId="c-arrivals" />
-        <Card
+    <Page
+      title={`Сегодня, ${day.date}`}
+      actions={
+        <form method="get" className="row">
+          <Input type="date" name="date" defaultValue={day.date} />
+          <Button type="submit" tone="secondary">
+            Показать
+          </Button>
+        </form>
+      }
+    >
+      <Stats min={140}>
+        <Stat label="Заезды" value={String(day.counts.arrivals)} testId="c-arrivals" />
+        <Stat
           label="Из них не заселены"
           value={String(day.counts.toCheckIn)}
           testId="c-tocheckin"
         />
-        <Card label="Выезды" value={String(day.counts.departures)} testId="c-departures" />
-        <Card
+        <Stat label="Выезды" value={String(day.counts.departures)} testId="c-departures" />
+        <Stat
           label="Из них не выселены"
           value={String(day.counts.toCheckOut)}
           testId="c-tocheckout"
         />
-        <Card label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" />
-        <Card
+        <Stat label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" />
+        <Stat
           label="Долг уезжающих"
           value={formatMinor(day.debtMinor)}
           testId="c-debt"
-          alarm={day.debtMinor !== '0'}
+          tone={day.debtMinor !== '0' ? 'alarm' : undefined}
         />
-      </section>
+      </Stats>
 
       <Group title="Заезжают" rows={day.arrivals} testId="arrivals" showBlocked />
       <Group title="Выезжают" rows={day.departures} testId="departures" showDebt />
       <Group title="Живут" rows={day.inHouse} testId="inhouse" />
-    </main>
+    </Page>
   );
 }
 
@@ -78,35 +72,27 @@ function Group({
   showBlocked?: boolean;
   showDebt?: boolean;
 }) {
+  const head = ['Гость', 'Бронь', 'Ячейка', 'Категория', 'Проживание', 'Статус'];
+  if (showDebt) head.push('Счёт');
   return (
     <>
-      <h2 style={{ fontSize: 16, margin: '22px 0 8px' }}>
+      <SectionTitle>
         {title} — {rows.length}
-      </h2>
-      <table style={table} data-testid={`group-${testId}`}>
+      </SectionTitle>
+      <Table data-testid={`group-${testId}`}>
         <thead>
           <tr>
-            {[
-              'Гость',
-              'Бронь',
-              'Ячейка',
-              'Категория',
-              'Проживание',
-              'Статус',
-              showDebt ? 'Счёт' : '',
-            ]
-              .filter(Boolean)
-              .map((h) => (
-                <th key={h} style={th}>
-                  {h}
-                </th>
-              ))}
+            {head.map((h) => (
+              <th key={h} className={h === 'Счёт' ? 'num' : undefined}>
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td style={td} colSpan={7}>
+              <td colSpan={7} className="muted">
                 никого
               </td>
             </tr>
@@ -115,48 +101,50 @@ function Group({
             const m = messengerLinks(r.guestPhone);
             return (
               <tr key={r.itemId} data-testid={`row-${testId}`}>
-                <td style={td}>
+                <td>
                   {r.guestLabel || '—'}
                   {m && (
                     <>
                       {' '}
-                      <a href={m.whatsapp} target="_blank" rel="noreferrer" style={link}>
+                      <a href={m.whatsapp} target="_blank" rel="noreferrer" className="small">
                         WA
                       </a>
                     </>
                   )}
                 </td>
-                <td style={td}>
+                <td>
                   <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
                     {r.confirmationNumber}
                   </Link>
                 </td>
-                <td style={td}>
+                <td>
                   {r.unitCode ? (
-                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`}>{r.unitCode}</Link>
+                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="mono">
+                      {r.unitCode}
+                    </Link>
                   ) : (
-                    <span style={{ color: '#b45309' }}>нет</span>
+                    <span className="warn-text">нет</span>
                   )}
                 </td>
-                <td style={td}>{r.accommodationTypeName}</td>
-                <td style={td}>
+                <td>{r.accommodationTypeName}</td>
+                <td className="nowrap">
                   {r.arrivalDate} → {r.departureDate}
                 </td>
-                <td style={td}>
-                  {STATUS_RU[r.status] ?? r.status}
+                <td>
+                  <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />
                   {showBlocked && r.blockedReason && (
-                    <span style={{ color: '#b45309' }}> · {r.blockedReason}</span>
+                    <span className="warn-text"> · {r.blockedReason}</span>
                   )}
                   {showBlocked && r.guestsRecorded < r.adults && !r.blockedReason && (
-                    <span style={{ color: '#b45309' }}>
+                    <span className="warn-text">
                       {' '}
                       · карточек {r.guestsRecorded} из {r.adults}
                     </span>
                   )}
                 </td>
                 {showDebt && (
-                  <td style={{ ...td, textAlign: 'right' }}>
-                    <span style={{ color: BigInt(r.balanceMinor) > 0n ? '#b91c1c' : '#15803d' }}>
+                  <td className="num">
+                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text' : 'ok-text'}>
                       {formatMinor(r.balanceMinor)}
                     </span>
                   </td>
@@ -165,72 +153,7 @@ function Group({
             );
           })}
         </tbody>
-      </table>
+      </Table>
     </>
   );
 }
-
-function Card({
-  label,
-  value,
-  testId,
-  alarm,
-}: {
-  label: string;
-  value: string;
-  testId: string;
-  alarm?: boolean;
-}) {
-  return (
-    <div style={{ ...card, ...(alarm ? { borderColor: '#fecaca', background: '#fef2f2' } : {}) }}>
-      <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 600 }} data-testid={testId}>
-        {value}
-      </div>
-    </div>
-  );
-}
-
-const cards: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-  gap: 12,
-};
-const card: React.CSSProperties = {
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  padding: '10px 12px',
-};
-const table: React.CSSProperties = {
-  width: '100%',
-  borderCollapse: 'collapse',
-  background: '#fff',
-  border: '1px solid #e3e5e8',
-  borderRadius: 8,
-  fontSize: 14,
-};
-const th: React.CSSProperties = {
-  textAlign: 'left',
-  padding: '8px 10px',
-  borderBottom: '1px solid #e3e5e8',
-  fontSize: 12,
-  color: '#666',
-};
-const td: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #f0f1f3' };
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cbd0d6',
-  borderRadius: 6,
-  fontSize: 14,
-};
-const btn: React.CSSProperties = {
-  padding: '7px 14px',
-  border: 0,
-  borderRadius: 6,
-  background: '#1d4ed8',
-  color: '#fff',
-  fontSize: 14,
-  cursor: 'pointer',
-};
-const link: React.CSSProperties = { fontSize: 11 };

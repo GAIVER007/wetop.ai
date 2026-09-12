@@ -75,6 +75,15 @@ export interface ChessboardRow {
   };
   cells: ChessboardCell[];
 }
+/** Проживание без ячейки в диапазоне доски (строка «Без ячейки», паритет с «Без номера» в Exely). Без гостей — ПД. */
+export interface UnassignedStay {
+  confirmationNumber: string;
+  categoryCode: string;
+  categoryName: string;
+  arrivalDate: string;
+  departureDate: string;
+  status: string;
+}
 export interface Chessboard {
   from: string;
   to: string;
@@ -85,6 +94,8 @@ export interface Chessboard {
     string,
     Record<string, { units: number; occupied: number; blocked: number; free: number }>
   >;
+  /** По категории, затем по заезду; ячеек не занимают, в summary не входят */
+  unassigned: UnassignedStay[];
 }
 export interface ReservationCard {
   confirmationNumber: string;

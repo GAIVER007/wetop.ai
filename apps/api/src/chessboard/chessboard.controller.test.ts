@@ -57,6 +57,21 @@ const fakeRepo: ChessboardRepository = {
         ]
       : [];
   },
+  // Строка «Без ячейки»: проживание без назначения на 2026-09-20 → 21, на сетке его нет, в списке — есть
+  async unassignedStays(from, toExclusive) {
+    return from <= '2026-09-20' && toExclusive > '2026-09-20'
+      ? [
+          {
+            confirmationNumber: 'U-1',
+            categoryCode: 'exely-900003',
+            categoryName: 'Тестовый dorm',
+            arrivalDate: '2026-09-20',
+            departureDate: '2026-09-21',
+            status: 'CONFIRMED',
+          },
+        ]
+      : [];
+  },
   async reservation(number) {
     if (number !== 'B-1') return null;
     return {
@@ -134,6 +149,28 @@ describe('GET /chessboard, GET /reservations/:number', () => {
       'FREE',
     ]);
     expect(res.body.summary['2026-09-10']).toEqual({ occupied: 1, blocked: 0, free: 1 });
+  });
+  it('шахматка отдаёт проживания без ячейки в диапазоне доски отдельным списком (строка «Без ячейки»)', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/chessboard?from=2026-09-19&to=2026-09-21')
+      .expect(200);
+    expect(res.body.unassigned).toEqual([
+      {
+        confirmationNumber: 'U-1',
+        categoryCode: 'exely-900003',
+        categoryName: 'Тестовый dorm',
+        arrivalDate: '2026-09-20',
+        departureDate: '2026-09-21',
+        status: 'CONFIRMED',
+      },
+    ]);
+    // на сетке ячейки этой брони нет: она без ячейки, и сводка её не считает
+    expect(res.body.summary['2026-09-20']).toEqual({ occupied: 0, blocked: 0, free: 2 });
+    // доска до 19.09 включительно ночь 20.09 не задевает → список пуст, но это список, не undefined
+    const before = await request(app.getHttpServer())
+      .get('/chessboard?from=2026-09-18&to=2026-09-19')
+      .expect(200);
+    expect(before.body.unassigned).toEqual([]);
   });
   it('defaults to today + 14 days when no range is given', async () => {
     const res = await request(app.getHttpServer()).get('/chessboard').expect(200);

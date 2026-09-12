@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { ChessboardAllocation, ChessboardBlock, ChessboardUnit } from '@pms/domain';
+import type {
+  ChessboardAllocation,
+  ChessboardBlock,
+  ChessboardUnit,
+  UnassignedStay,
+} from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
@@ -20,6 +25,8 @@ export interface ChessboardRepository {
   blocks(from: string, to: string): Promise<ChessboardBlock[]>;
   /** Активные проживания, задевающие ночи [from, toExclusive) — включая брони без ячейки */
   soldStays(from: string, toExclusive: string): Promise<SoldStay[]>;
+  /** Активные проживания БЕЗ единого назначения, задевающие ночи [from, toExclusive) — строка «Без ячейки» */
+  unassignedStays(from: string, toExclusive: string): Promise<UnassignedStay[]>;
   reservation(confirmationNumber: string): Promise<ReservationCard | null>;
 }
 export const CHESSBOARD_REPOSITORY = Symbol('CHESSBOARD_REPOSITORY');
@@ -78,6 +85,38 @@ export class PrismaChessboardRepository implements ChessboardRepository {
       departureDate: d(r.departureDate),
     }));
   }
+  /**
+   * Проживания без ячейки: живой статус (не отменено, не незаезд, не выселено — выселенному ячейка
+   * больше не нужна), ни одного назначения, ночи пересекают [from, toExclusive). Фильтр `allocations: { none: {} }` — «нет ни одной связанной записи»;
+   * `some: {}` в Prisma пустой фильтр не применяет, поэтому здесь не годится.
+   */
+  async unassignedStays(from: string, toExclusive: string): Promise<UnassignedStay[]> {
+    const rows = await this.prisma.db.reservationItem.findMany({
+      where: {
+        status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+        arrivalDate: { lt: new Date(`${toExclusive}T00:00:00Z`) },
+        departureDate: { gt: new Date(`${from}T00:00:00Z`) },
+        reservation: { property: { name: LUXX_APARTS_PROPERTY.name } },
+        allocations: { none: {} },
+      },
+      select: {
+        arrivalDate: true,
+        departureDate: true,
+        status: true,
+        reservation: { select: { confirmationNumber: true } },
+        accommodationType: { select: { code: true, name: true } },
+      },
+    });
+    return rows.map((r) => ({
+      confirmationNumber: r.reservation.confirmationNumber,
+      categoryCode: r.accommodationType.code,
+      categoryName: r.accommodationType.name,
+      arrivalDate: d(r.arrivalDate),
+      departureDate: d(r.departureDate),
+      status: r.status,
+    }));
+  }
+
   async allocations(from: string, to: string): Promise<ChessboardAllocation[]> {
     const rows = await this.prisma.db.allocation.findMany({
       where: {

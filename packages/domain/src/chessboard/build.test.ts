@@ -133,3 +133,51 @@ describe('buildChessboard', () => {
     expect(() => buildChessboard({ ...input, to: '2026-12-31' })).toThrow(/62/);
   });
 });
+
+describe('buildChessboard: проживания без ячейки (паритет со строкой «Без номера» в Exely)', () => {
+  it('без входного списка на доске пустой список — не undefined', () => {
+    expect(buildChessboard(input).unassigned).toEqual([]);
+  });
+  it('пропускает проживания без ячейки на доску, отсортировав по категории, затем по заезду', () => {
+    const b = buildChessboard({
+      ...input,
+      unassigned: [
+        {
+          confirmationNumber: 'U-3',
+          categoryCode: 'exely-900003',
+          categoryName: 'Тестовый dorm',
+          arrivalDate: '2026-09-12',
+          departureDate: '2026-09-13',
+          status: 'CONFIRMED',
+        },
+        {
+          confirmationNumber: 'U-1',
+          categoryCode: 'exely-900001',
+          categoryName: 'Тестовая одиночная',
+          arrivalDate: '2026-09-11',
+          departureDate: '2026-09-12',
+          status: 'TENTATIVE',
+        },
+        {
+          confirmationNumber: 'U-2',
+          categoryCode: 'exely-900003',
+          categoryName: 'Тестовый dorm',
+          arrivalDate: '2026-09-10',
+          departureDate: '2026-09-11',
+          status: 'CONFIRMED',
+        },
+      ],
+    });
+    expect(b.unassigned.map((u) => u.confirmationNumber)).toEqual(['U-1', 'U-2', 'U-3']);
+    expect(b.unassigned[0]).toEqual({
+      confirmationNumber: 'U-1',
+      categoryCode: 'exely-900001',
+      categoryName: 'Тестовая одиночная',
+      arrivalDate: '2026-09-11',
+      departureDate: '2026-09-12',
+      status: 'TENTATIVE',
+    });
+    // сетка и сводка от броней без ячейки не меняются: ячейки они не занимают
+    expect(b.summary['2026-09-11']).toEqual({ occupied: 1, blocked: 0, free: 2 });
+  });
+});

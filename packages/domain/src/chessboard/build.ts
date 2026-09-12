@@ -32,12 +32,26 @@ export interface ChessboardBlock {
   type: string;
   reason?: string | null;
 }
+/**
+ * Проживание без ячейки в диапазоне доски: бронь канала, которой не хватило места (Q-107), или бронь,
+ * у которой назначение сняли. В Exely это строка «Без номера» под категорией. Гостей здесь нет — ПД.
+ */
+export interface UnassignedStay {
+  confirmationNumber: string;
+  categoryCode: string;
+  categoryName: string;
+  arrivalDate: string;
+  departureDate: string;
+  status: StayStatus;
+}
 export interface ChessboardInput {
   from: string;
   to: string;
   units: ChessboardUnit[];
   allocations: ChessboardAllocation[];
   blocks: ChessboardBlock[];
+  /** Проживания без ячейки, пересекающие ночи доски; по умолчанию — ни одного */
+  unassigned?: UnassignedStay[];
 }
 export interface ChessboardCell {
   date: string;
@@ -73,6 +87,8 @@ export interface Chessboard {
   rows: ChessboardRow[];
   summary: Record<string, DaySummary>;
   byCategory: Record<string, Record<string, CategoryDaySummary>>;
+  /** Проживания без ячейки — по категории, затем по заезду; ячеек не занимают и в сводку не входят */
+  unassigned: UnassignedStay[];
 }
 
 export const MAX_CHESSBOARD_DAYS = 62;
@@ -171,5 +187,11 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
     summary[date] = day;
     byCategory[date] = cats;
   }
-  return { from: input.from, to: input.to, dates, rows, summary, byCategory };
+  const unassigned = [...(input.unassigned ?? [])].sort(
+    (a, b) =>
+      a.categoryCode.localeCompare(b.categoryCode) ||
+      a.arrivalDate.localeCompare(b.arrivalDate) ||
+      a.confirmationNumber.localeCompare(b.confirmationNumber),
+  );
+  return { from: input.from, to: input.to, dates, rows, summary, byCategory, unassigned };
 }

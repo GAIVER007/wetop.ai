@@ -43,12 +43,14 @@ export class ChessboardService {
     }
     if (dateRange(from, to).length > MAX_CHESSBOARD_DAYS)
       throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} дней за запрос`);
-    const [units, allocations, blocks] = await Promise.all([
+    // Строка «Без ячейки»: ночи доски — [from, to], т.е. полуинтервал [from, to + 1)
+    const [units, allocations, blocks, unassigned] = await Promise.all([
       this.repo.units(),
       this.repo.allocations(from, to),
       this.repo.blocks(from, to),
+      this.repo.unassignedStays(from, plusDays(to, 1)),
     ]);
-    return buildChessboard({ from, to, units, allocations, blocks });
+    return buildChessboard({ from, to, units, allocations, blocks, unassigned });
   }
 
   /** Доступность ячеек по категориям для проживания [arrival, departure). */

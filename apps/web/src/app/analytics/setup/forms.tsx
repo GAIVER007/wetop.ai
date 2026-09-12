@@ -1,6 +1,17 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
 import {
+  Alert,
+  Button,
+  Field,
+  Input,
+  Notice,
+  Row,
+  Select,
+  Stack,
+  Textarea,
+} from '../../../components/ui';
+import {
   bookingSettingsAction,
   createSiteAction,
   hostsAction,
@@ -14,47 +25,26 @@ export function CreateSiteForm() {
     null,
   );
   return (
-    <form
-      action={action}
-      style={{ display: 'grid', gap: 8, maxWidth: 520 }}
-      data-testid="site-form"
-    >
-      <label style={lbl}>
-        Название
-        <input
-          name="name"
-          required
-          placeholder="Сайт хостела"
-          style={inp}
-          data-testid="site-name"
-        />
-      </label>
-      <label style={lbl}>
-        Домены сайта (по одному в строке или через запятую, без https://)
-        <textarea
+    <form action={action} className="stack stack--sm form-narrow" data-testid="site-form">
+      <Field label="Название">
+        <Input name="name" required placeholder="Сайт хостела" data-testid="site-name" />
+      </Field>
+      <Field label="Домены сайта (по одному в строке или через запятую, без https://)">
+        <Textarea
           name="hosts"
           required
           rows={2}
           placeholder={'luxx-aparts.kz\nwww.luxx-aparts.kz'}
-          style={inp}
           data-testid="site-hosts"
         />
-      </label>
+      </Field>
       <div>
-        <button type="submit" disabled={pending} style={btn} data-testid="site-create">
+        <Button type="submit" disabled={pending} data-testid="site-create">
           Добавить сайт и получить код
-        </button>
+        </Button>
       </div>
-      {state?.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-          {state.error}
-        </div>
-      )}
-      {state?.message && (
-        <div data-testid="site-result" style={{ color: '#166534', fontSize: 13 }}>
-          {state.message}
-        </div>
-      )}
+      {state?.error && <Alert>{state.error}</Alert>}
+      {state?.message && <Notice data-testid="site-result">{state.message}</Notice>}
     </form>
   );
 }
@@ -65,49 +55,41 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
   const run = (kind: 'pause' | 'resume' | 'delete' | 'check') =>
     start(async () => setResult(await siteAction(id, kind)));
   return (
-    <div style={{ display: 'grid', gap: 6 }}>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button
+    <Stack gap="sm">
+      <Row>
+        <Button
           type="button"
           onClick={() => run('check')}
           disabled={pending}
-          style={btn}
           data-testid="site-check"
         >
           Проверить счётчик
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
           onClick={() => run(status === 'ACTIVE' ? 'pause' : 'resume')}
           disabled={pending}
-          style={btnSecondary}
           data-testid="site-toggle"
         >
           {status === 'ACTIVE' ? 'Поставить на паузу' : 'Включить'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          tone="secondary"
+          className="is-danger"
           onClick={() => {
             if (window.confirm('Удалить сайт и всю накопленную статистику?')) run('delete');
           }}
           disabled={pending}
-          style={btnDanger}
           data-testid="site-delete"
         >
           Удалить
-        </button>
-      </div>
-      {result?.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-          {result.error}
-        </div>
-      )}
-      {result?.message && (
-        <div data-testid="site-check-result" style={{ color: '#166534', fontSize: 13 }}>
-          {result.message}
-        </div>
-      )}
-    </div>
+        </Button>
+      </Row>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
+    </Stack>
   );
 }
 
@@ -127,9 +109,9 @@ export function BookingSettings({
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
-    <div style={{ display: 'grid', gap: 8 }} data-testid="booking-settings">
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14 }}>
+    <Stack gap="sm" data-testid="booking-settings">
+      <Row gap="lg">
+        <label className="check">
           <input
             type="checkbox"
             checked={on}
@@ -138,12 +120,10 @@ export function BookingSettings({
           />
           Принимать брони с сайта
         </label>
-        <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14 }}>
-          Тариф
-          <select
+        <Field inline label="Тариф">
+          <Select
             value={plan}
             onChange={(e) => setPlan(e.target.value)}
-            style={inp}
             data-testid="booking-rate-plan"
           >
             {plans.map((p) => (
@@ -151,9 +131,9 @@ export function BookingSettings({
                 {p.name}
               </option>
             ))}
-          </select>
-        </label>
-        <button
+          </Select>
+        </Field>
+        <Button
           type="button"
           onClick={() =>
             start(async () =>
@@ -161,23 +141,14 @@ export function BookingSettings({
             )
           }
           disabled={pending}
-          style={btn}
           data-testid="booking-save"
         >
           Сохранить
-        </button>
-      </div>
-      {result?.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-          {result.error}
-        </div>
-      )}
-      {result?.message && (
-        <div data-testid="booking-result" style={{ color: '#166534', fontSize: 13 }}>
-          {result.message}
-        </div>
-      )}
-    </div>
+        </Button>
+      </Row>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="booking-result">{result.message}</Notice>}
+    </Stack>
   );
 }
 
@@ -186,48 +157,38 @@ export function HostsForm({ id, hosts }: { id: string; hosts: string[] }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
-    <div style={{ display: 'grid', gap: 6, maxWidth: 520 }} data-testid="hosts-form">
-      <label style={lbl}>
-        Домены сайта (по одному в строке; поддомены и www подходят сами)
-        <textarea
+    <Stack gap="sm" className="form-narrow" data-testid="hosts-form">
+      <Field label="Домены сайта (по одному в строке; поддомены и www подходят сами)">
+        <Textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
           rows={2}
-          style={inp}
           data-testid="hosts-input"
         />
-      </label>
+      </Field>
       <div>
-        <button
+        <Button
           type="button"
+          tone="secondary"
           onClick={() => start(async () => setResult(await hostsAction(id, value)))}
           disabled={pending}
-          style={btnSecondary}
           data-testid="hosts-save"
         >
           Сохранить домены
-        </button>
+        </Button>
       </div>
-      {result?.error && (
-        <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
-          {result.error}
-        </div>
-      )}
-      {result?.message && (
-        <div data-testid="hosts-result" style={{ color: '#166534', fontSize: 13 }}>
-          {result.message}
-        </div>
-      )}
-    </div>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="hosts-result">{result.message}</Notice>}
+    </Stack>
   );
 }
 
 export function CopyButton({ text }: { text: string }) {
   const [done, setDone] = useState(false);
   return (
-    <button
+    <Button
       type="button"
-      style={btnSecondary}
+      tone="secondary"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -239,35 +200,6 @@ export function CopyButton({ text }: { text: string }) {
       }}
     >
       {done ? 'Скопировано' : 'Скопировать код'}
-    </button>
+    </Button>
   );
 }
-
-const lbl: React.CSSProperties = { display: 'grid', gap: 4, fontSize: 13, color: '#444' };
-const inp: React.CSSProperties = {
-  padding: '6px 8px',
-  border: '1px solid #cfd3d8',
-  borderRadius: 6,
-  fontSize: 14,
-  fontFamily: 'inherit',
-};
-const btn: React.CSSProperties = {
-  padding: '6px 12px',
-  border: '1px solid #2a78d6',
-  background: '#2a78d6',
-  color: '#fff',
-  borderRadius: 6,
-  cursor: 'pointer',
-  fontSize: 14,
-};
-const btnSecondary: React.CSSProperties = {
-  ...btn,
-  background: '#fff',
-  color: '#2a78d6',
-};
-const btnDanger: React.CSSProperties = {
-  ...btn,
-  background: '#fff',
-  color: '#b91c1c',
-  border: '1px solid #b91c1c',
-};

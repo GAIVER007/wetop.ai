@@ -79,6 +79,8 @@ function makeFake() {
   }
   const state = {
     categoryAvailabilityOverride: null as number | null,
+    /** гражданство заказчика, как его отдаёт карточка — для правила заселения (DATA_MODEL §3) */
+    citizenship: 'KAZ' as string | null,
     /** долг счёта по проживанию — для T3 (выселение с долгом) */
     debts: new Map<string, bigint>(),
     /** проживания, у которых счёт закрыт при выезде */
@@ -331,7 +333,7 @@ function makeFake() {
         primaryGuest: {
           id: 'g1',
           label: 'Гость Тестовый',
-          citizenship: 'KAZ',
+          citizenship: state.citizenship,
           phone: '+70000000000',
         },
         items: r.items.map((it) => ({
@@ -1105,5 +1107,30 @@ describe('manual reservation API', () => {
     expect(fake.state.audits.map((a) => a.action)).toEqual(
       expect.arrayContaining(['reservation.checkIn', 'reservation.checkOut', 'reservation.noShow']),
     );
+  });
+  it('заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    const checkIn = () =>
+      request(app.getHttpServer()).post(`/reservations/${n}/items/${itemId}/check-in`).send({});
+
+    fake.state.citizenship = null;
+    const missing = await checkIn().expect(422);
+    expect(missing.body.message).toMatch(/гражданство/);
+
+    // CHAR(3) в Postgres дополняет пустую строку пробелами: '' → '   '. Строка из пробелов истинна в JS,
+    // и проверка «есть/нет» её пропускала — гость заселялся без гражданства (наблюдение 12.09.2026).
+    fake.state.citizenship = '   ';
+    const blank = await checkIn().expect(422);
+    expect(blank.body.message).toBe(missing.body.message);
+    expect(fake.state.audits.map((a) => a.action)).not.toContain('reservation.checkIn');
+
+    fake.state.citizenship = 'KAZ';
+    const ok = await checkIn().expect(200);
+    expect(ok.body.items[0].status).toBe('CHECKED_IN');
   });
 });

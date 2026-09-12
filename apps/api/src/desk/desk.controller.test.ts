@@ -31,6 +31,8 @@ const repo: DeskRepository = {
     return [
       stay({ itemId: 'i1', confirmationNumber: 'B-1', unitCode: null }),
       stay({ itemId: 'i2', confirmationNumber: 'B-2', citizenship: null }),
+      // пустая строка в CHAR(3) хранится как три пробела — для стойки это тоже «нет гражданства»
+      stay({ itemId: 'i7', confirmationNumber: 'B-7', citizenship: '   ' }),
       stay({ itemId: 'i3', confirmationNumber: 'B-3' }),
       // заявлено двое, карточка одна — для eQonaq нужен каждый гость (Q-098)
       stay({ itemId: 'i6', confirmationNumber: 'B-6', adults: 2, guestsRecorded: 1 }),
@@ -72,20 +74,24 @@ describe('desk day API', () => {
   it('делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих', async () => {
     const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
     expect(r.body.counts).toEqual({
-      arrivals: 4,
+      arrivals: 5,
       departures: 1,
       inHouse: 1,
-      toCheckIn: 4,
+      toCheckIn: 5,
       toCheckOut: 1,
     });
     expect(
       r.body.arrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
-    ).toEqual(['B-1', 'B-2', 'B-3', 'B-6']);
+    ).toEqual(['B-1', 'B-2', 'B-7', 'B-3', 'B-6']);
     // стойка сразу видит, почему нельзя заселить
     expect(r.body.arrivals[0]).toMatchObject({ blockedReason: 'нет ячейки' });
     expect(r.body.arrivals[1]).toMatchObject({ blockedReason: 'нет гражданства' });
-    expect(r.body.arrivals[2]).toMatchObject({ blockedReason: null });
-    expect(r.body.arrivals[3]).toMatchObject({ blockedReason: 'карточек 1 из 2' });
+    expect(r.body.arrivals[2]).toMatchObject({
+      blockedReason: 'нет гражданства',
+      citizenship: null,
+    });
+    expect(r.body.arrivals[3]).toMatchObject({ blockedReason: null });
+    expect(r.body.arrivals[4]).toMatchObject({ blockedReason: 'карточек 1 из 2' });
     // выезжающий с долгом, и долг просуммирован
     expect(r.body.departures[0]).toMatchObject({
       confirmationNumber: 'B-4',

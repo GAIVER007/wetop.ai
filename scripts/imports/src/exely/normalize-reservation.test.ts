@@ -126,6 +126,19 @@ describe('normalizeExelyReservation', () => {
       phone: '+70000000001',
     });
   });
+  it('customer citizenship from Exely: blank → null, padded code → trimmed upper-case (CHAR(3) would keep the spaces)', () => {
+    const blank = structuredClone(fixture);
+    blank.customer.citizenship = '   ';
+    expect(normalizeExelyReservation(blank, { roomMap, typeMap }).customer.citizenship).toBeNull();
+    const empty = structuredClone(fixture);
+    empty.customer.citizenship = '';
+    expect(normalizeExelyReservation(empty, { roomMap, typeMap }).customer.citizenship).toBeNull();
+    const padded = structuredClone(fixture);
+    padded.customer.citizenship = ' kaz ';
+    expect(normalizeExelyReservation(padded, { roomMap, typeMap }).customer.citizenship).toBe(
+      'KAZ',
+    );
+  });
   it('OTA bookings: channelInformation present → source OTA and channel name', () => {
     const r = normalizeExelyReservation(
       {

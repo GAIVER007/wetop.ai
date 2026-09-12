@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { hasCitizenship, normalizeCitizenship } from '@pms/domain';
 import { DESK_REPOSITORY, type DeskRepository, type DeskStay } from './desk.repository';
 
 export interface DeskRow {
@@ -56,7 +57,7 @@ export class DeskService {
       departureDate: s.departureDate,
       status: s.status,
       balanceMinor: s.balanceMinor.toString(),
-      citizenship: s.citizenship,
+      citizenship: normalizeCitizenship(s.citizenship),
       adults: s.adults,
       guestsRecorded: s.guestsRecorded,
       // Порядок важен: сначала то, без чего вообще нельзя заселить, потом то, что нужно для eQonaq
@@ -64,7 +65,7 @@ export class DeskService {
         s.status === 'CONFIRMED' || s.status === 'TENTATIVE'
           ? !s.unitCode
             ? 'нет ячейки'
-            : !s.citizenship
+            : !hasCitizenship(s.citizenship)
               ? 'нет гражданства'
               : s.guestsRecorded < s.adults
                 ? `карточек ${s.guestsRecorded} из ${s.adults}`

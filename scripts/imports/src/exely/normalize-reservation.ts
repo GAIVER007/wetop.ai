@@ -4,6 +4,7 @@
  * Правила: деньги — integer minor units без float-арифметики; неизвестные значения — ошибка, не догадка;
  * из идентификаторов комнат ничего не выводится — только явная карта roomId → № единицы Exely.
  */
+import { normalizeCitizenship } from '@pms/domain';
 import { ExelyImportError } from './errors';
 
 export interface ExelyMoney {
@@ -265,7 +266,8 @@ export function normalizeExelyReservation(
       lastName: c.personName?.lastName ?? '',
       middleName: c.personName?.middleName ?? null,
       birthDate: c.birthDate ?? null,
-      citizenship: c.citizenship ?? null,
+      // Exely отдаёт пустой citizenshipCode строкой; в CHAR(3) она стала бы '   ' (наблюдение 12.09.2026)
+      citizenship: normalizeCitizenship(c.citizenship),
       gender: mapGender(c.gender),
       email: c.emails?.[0]?.address ?? null,
       phone: c.phones?.[0]?.number ?? null,

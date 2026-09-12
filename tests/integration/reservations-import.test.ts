@@ -214,4 +214,48 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
       ),
     ).rejects.toBeInstanceOf(Rollback);
   }, 180_000);
+  it('Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет', async () => {
+    const plan = buildInventoryImportPlan(
+      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
+      parseExelyAccommodationTypes(readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8')),
+    );
+    const ctx = {
+      roomMap: new Map([['R-9010', '9010']]),
+      typeMap: new Map([['900003', 'exely-900003']]),
+    };
+    // как у броней каналов в Exely: гражданства нет вовсе
+    const noCitizenship = booking('T-9', 'S-9', 'R-9010', 'G-9');
+    noCitizenship.customer.citizenshipCode = null;
+    const records = [normalizeExelyReservation(adaptUniBooking(noCitizenship), ctx)];
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
+          const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt' };
+          await importReservations(tx, records, opts);
+          const imported = await tx.guest.findUniqueOrThrow({ where: { exelyPersonId: 'G-9' } });
+          expect(imported.citizenship).toBeNull();
+
+          // стойка вписала код с паспорта перед заселением
+          await tx.guest.update({ where: { id: imported.id }, data: { citizenship: 'KAZ' } });
+          // ночная синхронизация суток тянет ту же бронь ещё раз
+          await importReservations(tx, records, opts);
+          const afterSync = await tx.guest.findUniqueOrThrow({ where: { exelyPersonId: 'G-9' } });
+          expect(afterSync.citizenship?.trim()).toBe('KAZ');
+
+          // а когда в Exely гражданство есть, а в PMS пусто — импорт его заполняет
+          const withCode = booking('T-10', 'S-10', null, 'G-10');
+          await importReservations(
+            tx,
+            [normalizeExelyReservation(adaptUniBooking(withCode), ctx)],
+            opts,
+          );
+          const filled = await tx.guest.findUniqueOrThrow({ where: { exelyPersonId: 'G-10' } });
+          expect(filled.citizenship?.trim()).toBe('KAZ');
+          throw new Rollback('rollback');
+        },
+        { timeout: 120_000, maxWait: 30_000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+  }, 180_000);
 });

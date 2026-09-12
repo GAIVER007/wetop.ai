@@ -1,4 +1,5 @@
 import type { Db, DbTx } from '@pms/database';
+import { normalizeCitizenship } from '@pms/domain';
 
 export interface ReservationCardItem {
   id: string;
@@ -83,7 +84,7 @@ export async function loadReservationCard(
       ? {
           id: r.primaryGuest.id,
           label: guestLabel(r.primaryGuest),
-          citizenship: r.primaryGuest.citizenship,
+          citizenship: normalizeCitizenship(r.primaryGuest.citizenship), // CHAR(3): '' хранится как '   '
           phone: r.primaryGuest.phone,
         }
       : null,

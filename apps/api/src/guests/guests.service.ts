@@ -6,6 +6,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { normalizeCitizenship } from '@pms/domain';
 import { PiiKeyMissingError, decryptPii, encryptPii, maskNumber } from '@pms/shared';
 import { GUESTS_REPOSITORY, type GuestPatch, type GuestsRepository } from './guests.repository';
 
@@ -28,11 +29,12 @@ export interface GuestDocumentView {
 export class GuestsService {
   constructor(@Inject(GUESTS_REPOSITORY) private readonly repo: GuestsRepository) {}
 
-  search(q?: string) {
+  async search(q?: string) {
     const query = (q ?? '').trim();
     if (query.length < 2)
       throw new BadRequestException('q — минимум 2 символа (фамилия, имя, телефон или email)');
-    return this.repo.search(query, 50);
+    const rows = await this.repo.search(query, 50);
+    return rows.map((g) => ({ ...g, citizenship: normalizeCitizenship(g.citizenship) }));
   }
 
   async card(id: string) {
@@ -56,7 +58,8 @@ export class GuestsService {
     });
     const { documents: _raw, ...profile } = g;
     void _raw;
-    return { ...profile, documents };
+    // CHAR(3) в базе: пустое гражданство приходит как '   ' — наружу только null или код
+    return { ...profile, citizenship: normalizeCitizenship(profile.citizenship), documents };
   }
 
   async update(id: string, dto: Record<string, unknown>) {
@@ -84,10 +87,8 @@ export class GuestsService {
       patch.birthDate = dto.birthDate ? String(dto.birthDate) : null;
     }
     if (dto.citizenship !== undefined) {
-      const c =
-        dto.citizenship === null || dto.citizenship === ''
-          ? null
-          : String(dto.citizenship).toUpperCase();
+      // trim, пустое → null: иначе '   ' ушло бы в CHAR(3) и читалось бы как «гражданство есть»
+      const c = dto.citizenship === null ? null : normalizeCitizenship(String(dto.citizenship));
       if (c !== null && !ALPHA3.test(c))
         throw new BadRequestException('citizenship — код страны ISO 3166-1 alpha-3, например KAZ');
       patch.citizenship = c;

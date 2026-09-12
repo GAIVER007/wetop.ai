@@ -1,5 +1,6 @@
 import { ensureFolioWithAccommodation, recordImportedPayment, type DbTx } from '@pms/database';
 import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
+import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
 import type { GuestImportRecord, ReservationImportRecord } from './normalize-reservation';
 
@@ -88,19 +89,23 @@ export async function importReservations(
       lastName: data.lastName,
       middleName: data.middleName,
       birthDate: data.birthDate ? asDate(data.birthDate) : null,
-      citizenship: data.citizenship,
       gender: data.gender,
       email: data.email,
       phone: data.phone,
       notes: data.notes,
     };
+    // Q-118: гражданство вводит стойка перед заселением; пустое из Exely его не затирает (undefined = не писать)
+    const citizenship = guestCitizenshipOnUpdate(data.citizenship);
     if (existing) {
-      await tx.guest.update({ where: { id: existing.id }, data: fields });
+      await tx.guest.update({
+        where: { id: existing.id },
+        data: citizenship === undefined ? fields : { ...fields, citizenship },
+      });
       report.guests.updated += 1;
       return existing.id;
     }
     const created = await tx.guest.create({
-      data: { exelyPersonId: g.exelyPersonId, ...fields },
+      data: { exelyPersonId: g.exelyPersonId, ...fields, citizenship: citizenship ?? null },
       select: { id: true },
     });
     report.guests.created += 1;

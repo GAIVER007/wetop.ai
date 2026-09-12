@@ -136,6 +136,28 @@ describe('guests API', () => {
     expect(fakes.audits).toEqual(['guest.update']);
     await request(app.getHttpServer()).patch('/guests/nope').send({ phone: '1' }).expect(404);
   });
+  it('citizenship is trimmed: spaces around the code are dropped, blank-only is null on save and on read', async () => {
+    const padded = await request(app.getHttpServer())
+      .patch('/guests/g1')
+      .send({ citizenship: ' kaz ' })
+      .expect(200);
+    expect(padded.body.citizenship).toBe('KAZ');
+    // Postgres CHAR(3) дополняет '' до '   '; такое значение — «нет гражданства», а не код страны
+    const blank = await request(app.getHttpServer())
+      .patch('/guests/g1')
+      .send({ citizenship: '   ' })
+      .expect(200);
+    expect(blank.body.citizenship).toBeNull();
+    expect(fakes.guests.get('g1')!.citizenship).toBeNull();
+    // и то, что уже лежит в базе пробелами, наружу уходит как null — карточка, список, печать
+    fakes.guests.get('g1')!.citizenship = '   ';
+    expect(
+      (await request(app.getHttpServer()).get('/guests/g1').expect(200)).body.citizenship,
+    ).toBeNull();
+    expect(
+      (await request(app.getHttpServer()).get('/guests?q=тест').expect(200)).body[0].citizenship,
+    ).toBeNull();
+  });
   it('documents: stored encrypted, shown masked; 503 without the encryption key; delete', async () => {
     const r = await request(app.getHttpServer())
       .post('/guests/g1/documents')

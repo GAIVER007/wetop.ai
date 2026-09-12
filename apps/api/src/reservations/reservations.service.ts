@@ -26,6 +26,7 @@ import {
   penaltyAmount,
   penaltyDue,
   assertCanExtend,
+  hasCitizenship,
 } from '@pms/domain';
 import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
@@ -872,8 +873,9 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         assertCanCheckIn(item.status, item.allocations.length > 0);
         const before = await repo.card(number);
-        // DATA_MODEL §3: гражданство обязательно на check-in (eQonaq) — заполняется в карточке гостя
-        if (!before?.primaryGuest?.citizenship)
+        // DATA_MODEL §3: гражданство обязательно на check-in (eQonaq) — заполняется в карточке гостя.
+        // Через hasCitizenship: CHAR(3) в базе отдаёт пустое значение как '   ', и голая проверка его пропускала
+        if (!hasCitizenship(before?.primaryGuest?.citizenship))
           throw new UnprocessableEntityException(
             'Укажите гражданство в карточке гостя — без него заселение невозможно (eQonaq)',
           );

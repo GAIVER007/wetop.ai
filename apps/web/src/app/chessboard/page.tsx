@@ -24,6 +24,13 @@ export default async function ChessboardPage({
 }) {
   const { from, to } = await searchParams;
   const board = await chessboardApi.board(from, to);
+  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  /** Окно на N суток от сегодня — смена смотрит вперёд на неделю, две или месяц */
+  const window = (days: number) => {
+    const t = new Date(`${today}T00:00:00Z`);
+    t.setUTCDate(t.getUTCDate() + days - 1);
+    return `/chessboard?from=${today}&to=${t.toISOString().slice(0, 10)}`;
+  };
   const shift = (days: number) => {
     const f = new Date(`${board.from}T00:00:00Z`);
     f.setUTCDate(f.getUTCDate() + days);
@@ -39,6 +46,17 @@ export default async function ChessboardPage({
       subtitle={`${board.from} — ${board.to} · ${board.rows.length} ячеек`}
       actions={
         <>
+          <span className="seg">
+            <Link href={window(7)} className={cx(board.dates.length === 7 && 'is-on')}>
+              7 дней
+            </Link>
+            <Link href={window(14)} className={cx(board.dates.length === 14 && 'is-on')}>
+              14
+            </Link>
+            <Link href={window(30)} className={cx(board.dates.length === 30 && 'is-on')}>
+              30
+            </Link>
+          </span>
           <Link href={shift(-board.dates.length)}>← раньше</Link>
           <Link href="/chessboard">сегодня</Link>
           <Link href={shift(board.dates.length)}>позже →</Link>
@@ -55,12 +73,13 @@ export default async function ChessboardPage({
         ]}
       />
       <UnassignedStays stays={board.unassigned ?? []} />
-      <ChessboardGrid board={board} />
+      <ChessboardGrid board={board} today={today} />
       <p className="note">
-        Число под датой — занятых ячеек на эту ночь. Ночь выезда не занимает ячейку. Клик по клетке
-        открывает бронь. Перетащите клетку на другую строку — бронь переселится в ту ячейку с даты
-        взятой клетки (в другую категорию — только на всё проживание). Брони без ячейки на сетке не
-        видны — они в списке над сеткой; ячейка назначается с карточки брони.
+        В строке категории — сколько мест свободно на эту ночь, под датой в шапке — сколько занято
+        из 88. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой —
+        форму новой брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
+        ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Брони без
+        ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
       </p>
     </Page>
   );

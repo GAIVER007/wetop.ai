@@ -1027,6 +1027,102 @@ textarea.inp {
   margin: 0 0 18px;
 }
 
+/* ---------- шахматка: группы, липкая шапка, сегодня и выходные ---------- */
+.board-wrap {
+  max-height: calc(100vh - var(--topbar-h) - 190px);
+  overflow: auto;
+}
+.board thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--surface);
+}
+.board th.board__unit-head {
+  z-index: 4;
+}
+.board__d {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+}
+.board__occ {
+  font-weight: 600;
+  color: var(--text-2);
+}
+/* сегодняшняя колонка: в две недели её иначе приходится искать счётом */
+.board th.is-today {
+  background: var(--primary-soft);
+}
+.board th.is-today .board__d {
+  color: var(--primary);
+}
+.board td.is-today {
+  box-shadow:
+    inset 1px 0 0 var(--primary-soft),
+    inset -1px 0 0 var(--primary-soft);
+}
+.board th.is-we:not(.is-today),
+.board td.is-we:not(.is-today) {
+  background: #f7f8fb;
+}
+/* строка категории: сколько мест ещё можно продать */
+.board tr.board__group td {
+  background: var(--surface-muted);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 6px;
+}
+.board td.board__group-name {
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--surface-muted);
+}
+.board td.board__group-free {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.board td.board__group-free.is-full {
+  color: var(--danger);
+}
+.board__free--link {
+  display: block;
+  height: 22px;
+  border-radius: 4px;
+}
+.board__free--link:hover {
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+/* переключатель окна: 7 / 14 / 30 дней */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.seg a {
+  padding: 4px 10px;
+  color: var(--text-2);
+  border-left: 1px solid var(--border-input);
+  font-size: 13px;
+}
+.seg a:first-child {
+  border-left: 0;
+}
+.seg a:hover {
+  background: var(--surface-muted);
+  text-decoration: none;
+}
+.seg a.is-on {
+  background: var(--primary);
+  color: #fff;
+}
+
 @media print {
   .topbar {
     display: none;

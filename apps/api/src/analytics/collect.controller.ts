@@ -86,9 +86,10 @@ function demoPage(siteName: string, key: string, second: boolean): string {
   const title = second ? 'Вторая страница' : 'Проверка счётчика PMS';
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title>
 <script async src="/a/pms.js" data-site="${key}"></script>
-<style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;max-width:560px;color:#1a1a1a;background:#f6f7f9}h1{font-size:20px}p,li{font-size:15px;line-height:1.5}button{display:block;width:100%;margin:8px 0;padding:12px;font-size:16px;border-radius:8px;border:1px solid #2a78d6;background:#fff;color:#2a78d6}a.btn{display:block;margin:8px 0;padding:12px;text-align:center;border-radius:8px;background:#2a78d6;color:#fff;text-decoration:none}code{background:#eef0f3;padding:2px 4px;border-radius:4px}#log{font-size:13px;color:#166534;min-height:1.5em}</style></head>
-<body><h1>${esc(title)}</h1>
-<p>Сайт: <b>${esc(siteName)}</b>, ключ <code>${key}</code>.</p>
+<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin:0;padding:28px 20px 48px;color:#16213a;background:#f4f5f8;line-height:1.45;color-scheme:light}.wrap{max-width:640px;margin:0 auto}h1{font-size:23px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}.sub{font-size:13px;color:#6b7280;margin:0 0 18px}p,li{font-size:15px;color:#3d4656}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:#e8eefc;color:#17399f;padding:2px 6px;border-radius:4px}.card{background:#fff;border:1px solid #e3e5e8;border-radius:14px;padding:18px}button{display:block;width:100%;min-height:48px;margin:8px 0;padding:12px 16px;font-size:16px;font-weight:600;font-family:inherit;border-radius:10px;border:1px solid #cbd0d6;background:#fff;color:#16213a;cursor:pointer;text-align:left}button:hover{border-color:#1f4bd8;color:#1f4bd8}button:focus-visible,a:focus-visible{outline:2px solid #1f4bd8;outline-offset:2px}a.btn{display:block;min-height:48px;margin:14px 0 0;padding:13px 16px;text-align:center;border-radius:10px;background:#1f4bd8;color:#fff;text-decoration:none;font-weight:600}a.btn:hover{background:#17399f}#log{font-size:13.5px;font-weight:500;color:#176b3f;min-height:1.5em;margin-top:12px}.foot{color:#6b7280;font-size:12.5px;margin-top:20px;padding-top:14px;border-top:1px solid #e3e5e8}</style></head>
+<body><div class="wrap"><h1>${esc(title)}</h1>
+<p class="sub">Сайт: <b>${esc(siteName)}</b>, ключ <code>${key}</code></p>
+<div class="card">
 <p>${
     second
       ? 'Это второй просмотр в той же сессии. Вернитесь назад или нажмите кнопки — события уйдут в PMS.'
@@ -99,7 +100,8 @@ function demoPage(siteName: string, key: string, second: boolean): string {
 <button type="button" onclick="pms('event', 'whatsapp_click'); log('клик по WhatsApp')">Клик по WhatsApp (whatsapp_click)</button>
 <a class="btn" href="/a/demo?k=${key}&amp;p=${second ? '1' : '2'}">${second ? 'Назад на первую страницу' : 'Вторая страница (ещё один просмотр)'}</a>
 <div id="log"></div>
-<p style="color:#666;font-size:13px">Счётчик не собирает персональные данные: без cookies, IP и имён. Источник у этой страницы — «прямой заход», если вы открыли её по ссылке из мессенджера — «соцсети».</p>
+</div>
+<p class="foot">Счётчик не собирает персональные данные: без cookies, IP и имён. Источник у этой страницы — «прямой заход», если вы открыли её по ссылке из мессенджера — «соцсети».</p></div>
 <script>function log(t){document.getElementById('log').textContent='Отправлено: '+t+' — '+new Date().toLocaleTimeString('ru-RU')}</script>
 </body></html>`;
 }

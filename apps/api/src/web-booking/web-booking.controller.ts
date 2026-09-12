@@ -97,10 +97,10 @@ const esc = (s: string) =>
 function demoPage(siteName: string, key: string): string {
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Проверка бронирования с сайта</title>
 <script async src="/a/pms.js" data-site="${key}"></script>
-<style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;max-width:640px;color:#1a1a1a;background:#f6f7f9}h1{font-size:20px}p{font-size:14px;color:#52514e;line-height:1.5}</style></head>
-<body><h1>Проверка бронирования с сайта</h1>
-<p>Сайт: <b>${esc(siteName)}</b>. Ниже — тот же виджет, что встанет на сайт по коду с карточки сайта. Бронь отсюда — настоящая: она появится на шахматке и в «Сегодня» с источником «сайт».</p>
+<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin:0;padding:28px 20px 48px;color:#16213a;background:#f4f5f8;line-height:1.45;color-scheme:light}.wrap{max-width:640px;margin:0 auto}h1{font-size:23px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}.sub{font-size:13px;color:#6b7280;margin:0 0 18px}p,li{font-size:15px;color:#3d4656}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:#e8eefc;color:#17399f;padding:2px 6px;border-radius:4px}.card{background:#fff;border:1px solid #e3e5e8;border-radius:14px;padding:18px}</style></head>
+<body><div class="wrap"><h1>Проверка бронирования с сайта</h1>
+<p class="sub">Сайт: <b>${esc(siteName)}</b> — ниже тот же виджет, что встанет на сайт по коду с карточки сайта. Бронь отсюда настоящая: она появится на шахматке и в «Сегодня» с источником «сайт».</p>
 <div id="pms-booking"></div>
 <script async src="/w/widget.js" data-site="${key}"></script>
-</body></html>`;
+</div></body></html>`;
 }

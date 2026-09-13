@@ -135,3 +135,9 @@
 | 13.09.2026 19:59 | lint | ✅ без ошибок | 35 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-lint-9eb5.log) |  |
 | 13.09.2026 19:59 | typecheck | ✅ без ошибок | 40 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-typecheck-b996.log) |  |
 | 13.09.2026 20:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 25 из 25 | 1 мин 46 с | c538741 +32 | [лог](logs/2026-09-13T15-00-27Z-e2e-5898.log) | Final UI after bounded network error handling and successful production build without API |
+| 13.09.2026 21:23 | unit (частично: apps/api/src/guard packages/domain/src/incidents) | ❌ упало 4 из 58 | 7 с | a3abd32 +3 | [лог](logs/2026-09-13T16-23-35Z-unit-fc37.log) | ложные тревоги после слияния PR #1: красный до исправления |
+| 13.09.2026 21:24 | unit (частично: apps/api/src/guard packages/domain/src/incidents apps/api/src/app.module.test.ts) | ❌ упало 2 из 59 | 10 с | a3abd32 +6 | [лог](logs/2026-09-13T16-24-15Z-unit-d7ff.log) | ложные тревоги после слияния PR #1 |
+| 13.09.2026 21:25 | unit (частично: apps/api/src/guard packages/domain/src/incidents apps/api/src/app.module.test.ts) | ✅ 59 из 59 | 13 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-30Z-unit-ab63.log) | ложные тревоги после слияния PR #1: зелёный |
+| 13.09.2026 21:25 | unit | ✅ 591 из 591 | 12 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-45Z-unit-0e30.log) | полный unit после исправления ложных тревог |
+| 13.09.2026 21:26 | typecheck | ✅ без ошибок | 42 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-09Z-typecheck-758d.log) | ложные тревоги |
+| 13.09.2026 21:26 | lint | ✅ без ошибок | 51 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-53Z-lint-d076.log) | ложные тревоги |

@@ -61,8 +61,11 @@ const ARI_DAYS = 30;
 /** Проверке не с чем сверять (нет маппинга) — не ошибка и не «всё хорошо»: неисправности вида не закрываются */
 class SkipCheck extends Error {}
 const RETENTION_MS = 90 * 24 * 60 * MIN;
-/** Ошибка на этих маршрутах может означать потерянную бронь — срочно */
-const BOOKING_ROUTES = /^\/(?:w\/book|channels\/channex\/webhook)\b/;
+/**
+ * Ошибка на этих маршрутах может означать потерянную бронь — срочно. Ровно метод и путь: 13.09.2026 правило «начинается с
+ * /channels/channex/webhook» зацепило GET …/webhook/status, и сбой связи с базой на странице статуса разбудил группу.
+ */
+const BOOKING_ROUTES = new Set(['POST /w/book', 'POST /channels/channex/webhook']);
 
 const almatyDay = (d: Date) => new Date(d.getTime() + 5 * 60 * MIN).toISOString().slice(0, 10);
 const addDays = (day: string, n: number) => {
@@ -238,7 +241,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       await this.beat(summary, {
         at: now.toISOString(),
         open: openNow.length,
-        critical: openNow.filter((i) => i.severity === 'CRITICAL').length,
+        // Срочные, которые уже ждут человека и ещё не приняты: то, что сторож чинит сам, сервер не дублирует
+        critical: openNow.filter((i) => i.severity === 'CRITICAL' && i.status === 'ESCALATED')
+          .length,
         escalated: openNow.filter((i) => i.status === 'ESCALATED').length,
         checksFailed: summary.checkErrors.length,
       });
@@ -258,12 +263,15 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
   ): Promise<void> {
     const subjectId = `${input.method} ${input.route}`;
     const e = input.error;
+    // Обрыв связи (база не ответила, сеть) — не ошибка кода: дежурному агенту чинить нечего, а базу и Channex
+    // сторож проверяет своими проверками. 13.09.2026 так записался таймаут входа в Supabase (08006, EAUTHTIMEOUT).
+    if (classifyError(e instanceof Error ? e.message : String(e)) === 'transient') return;
     const o: Observation = {
       kind: 'api.error',
       title: `Ошибка программы (HTTP ${input.status}) на ${subjectId}`,
       subjectType: 'route',
       subjectId,
-      severity: BOOKING_ROUTES.test(input.route) ? 'CRITICAL' : 'WARNING',
+      severity: BOOKING_ROUTES.has(subjectId) ? 'CRITICAL' : 'WARNING',
       details: {
         status: input.status,
         error: e instanceof Error ? `${e.name}: ${e.message}` : String(e),

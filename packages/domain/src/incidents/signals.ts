@@ -18,6 +18,7 @@ const TRANSIENT = [
   /\bE(?:CONNRESET|CONNREFUSED|TIMEDOUT|NOTFOUND|AI_AGAIN|PIPE)\b/,
   /time(?:d)? ?out|aborted/i,
   /\bP(?:1001|1002|1017|2024)\b|Can't reach database|Connection terminated|terminating connection/i,
+  /\b08006\b|\b08001\b|EAUTHTIMEOUT|Database error\. Code: `08/i,
 ];
 
 export function classifyError(text: string | null | undefined): 'transient' | 'permanent' {

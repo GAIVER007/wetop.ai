@@ -117,11 +117,12 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
   // Закрываются, когда последний отчёт вида или последний полный прогон набора перестал быть красным
   'reconciliation.fail': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
   'tests.failing': { class: 'C', severity: 'WARNING', close: { by: 'recheck' } },
-  // Стойка не отвечает: launchd поднимает упавший процесс, но не зависший — перезапуск после 2 минут тишины
+  // Стойка не отвечает: launchd поднимает упавший процесс, но не зависший — перезапуск после 5 минут тишины
+  // (сборка страниц после крупного слияния шла 5,5 минуты — 13.09.2026)
   'web.down': {
     class: 'A',
     severity: 'CRITICAL',
-    fix: { maxAttempts: 2, minIntervalMs: 5 * MIN, afterMs: 2 * MIN },
+    fix: { maxAttempts: 2, minIntervalMs: 5 * MIN, afterMs: 5 * MIN },
     close: { by: 'recheck' },
   },
   // На время двойного ввода брони приходят из Exely синхронизацией суток; её запускают люди — сторож не импортирует сам

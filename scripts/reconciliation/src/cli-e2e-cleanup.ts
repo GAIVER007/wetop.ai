@@ -13,6 +13,7 @@ import { createPrismaClient } from '@pms/database';
 import {
   E2E_NOTE,
   STALE_AFTER_MINUTES,
+  blocksToDelete,
   isStale,
   isTestReservation,
   reservationsToCancel,
@@ -127,10 +128,14 @@ try {
   // Блокировки, которые ставит сам спек unit-blocks. Если прогон сорвался между «заблокировать» и
   // «снять», блок остаётся навсегда и койка перестаёт продаваться: 13.09 так нашлись три блока на
   // койке 5 на шесть ночей. Метка та же, что у броней, — по ней и убираем.
-  const ownBlocks = await db.inventoryBlock.findMany({
-    where: { reason: { startsWith: E2E_NOTE } },
-    select: { id: true },
-  });
+  // Свежую не снимаем: спек блокировок в другой сессии в эту минуту проверяет, что койка закрыта.
+  const ownBlocks = blocksToDelete(
+    await db.inventoryBlock.findMany({
+      where: { reason: { startsWith: E2E_NOTE } },
+      select: { id: true, reason: true, createdAt: true },
+    }),
+    now,
+  ) as Array<{ id: string; reason: string | null; createdAt: Date }>;
   if (ownBlocks.length && !dry)
     await db.inventoryBlock.deleteMany({ where: { id: { in: ownBlocks.map((b) => b.id) } } });
   console.log(`Блокировок от автотестов: ${ownBlocks.length}${dry ? '' : ' — сняты'}`);

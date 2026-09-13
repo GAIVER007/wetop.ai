@@ -313,8 +313,10 @@ model Guest {
   lastName      String    @map("last_name")
   middleName    String?   @map("middle_name")
   birthDate     DateTime? @map("birth_date") @db.Date
-  /// ISO 3166-1 alpha-3; обязательно на check-in, не на импорте (DATA_MODEL §3)
-  citizenship   String?   @db.Char(3)
+  /// ISO 3166-1 alpha-3 либо NULL; обязательно на check-in, не на импорте (DATA_MODEL §3).
+  /// VARCHAR, не CHAR: тип фиксированной длины дополнял пустую строку пробелами, и '   ' читалось
+  /// как заполненное гражданство. Формат стережёт CHECK guests_citizenship_alpha3 (Q-117).
+  citizenship   String?   @db.VarChar(3)
   gender        Gender    @default(UNKNOWN)
   phone         String?
   email         String?
@@ -339,7 +341,8 @@ model GuestDocument {
   guestId         String    @map("guest_id") @db.Uuid
   type            String
   numberEncrypted String    @map("number_encrypted")
-  issueCountry    String?   @map("issue_country") @db.Char(3)
+  /// ISO 3166-1 alpha-3 либо NULL; CHECK guest_documents_issue_country_alpha3 (Q-117)
+  issueCountry    String?   @map("issue_country") @db.VarChar(3)
   issuedAt        DateTime? @map("issued_at") @db.Date
   expiresAt       DateTime? @map("expires_at") @db.Date
   documentFileId  String?   @map("document_file_id")

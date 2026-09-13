@@ -13,6 +13,8 @@
     "scripts/*"
   ],
   "scripts": {
+    "dev": "tsx scripts/preview/start-real.ts",
+    "check:connection": "tsx scripts/preview/start-real.ts --check",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:record": "tsx tests/tools/cli-record.ts",

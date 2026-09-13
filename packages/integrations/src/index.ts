@@ -3,3 +3,4 @@ export * as exely from './exely/index';
 export * as channex from './channex/index';
 export * as eqonaq from './eqonaq/index';
 export * as fiscal from './fiscal/index';
+export * as telegram from './telegram/index';

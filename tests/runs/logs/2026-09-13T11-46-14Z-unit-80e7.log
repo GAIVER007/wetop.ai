@@ -1,0 +1,66 @@
+# Модульные (unit) · 13.09.2026 16:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 49199ea (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-46-14Z-unit-80e7.json' 'packages/domain/src/incidents'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| packages/domain/src/incidents/redact.test.ts (0 test)
+ ❯ |unit| packages/domain/src/incidents/incidents.test.ts (0 test)
+ ❯ |unit| packages/domain/src/incidents/signals.test.ts (0 test)
+ ❯ |unit| packages/domain/src/incidents/alerts.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/incidents/alerts.test.ts [ packages/domain/src/incidents/alerts.test.ts ]
+Error: Cannot find module './alerts' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/packages/domain/src/incidents/alerts.test.ts
+ ❯ packages/domain/src/incidents/alerts.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { alertDue, formatAlert, type AlertCandidate } from './alerts';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/incidents.test.ts [ packages/domain/src/incidents/incidents.test.ts ]
+Error: Cannot find module './incidents' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/packages/domain/src/incidents/incidents.test.ts
+ ❯ packages/domain/src/incidents/incidents.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   POLICY,
+      4|   decideAction,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/redact.test.ts [ packages/domain/src/incidents/redact.test.ts ]
+Error: Cannot find module './redact' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/packages/domain/src/incidents/redact.test.ts
+ ❯ packages/domain/src/incidents/redact.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { redactDetails, redactText } from './redact';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/signals.test.ts [ packages/domain/src/incidents/signals.test.ts ]
+Error: Cannot find module './signals' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/packages/domain/src/incidents/signals.test.ts
+ ❯ packages/domain/src/incidents/signals.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { classifyError, failingSuites, latestReportResults, overbooked…
+       | ^
+      3|
+      4| /** Сигналы, из которых сторож собирает неисправности: текст ошибки, о…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  no tests
+   Start at  04:46:15
+   Duration  106ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-46-14Z-unit-80e7.json
+
+# код выхода 1 · 1 с

@@ -2,11 +2,23 @@ import { expect, test } from '@playwright/test';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+/*
+ * Свой отрезок будущих суток. Два спека на одних ночях дерутся за одни и те же койки:
+ * прогон в два воркера падал то на одном тесте, то на другом, а поодиночке был зелёным.
+ * Карта отрезков — tests/README.md, раздел «Окна дат». Новый спек — новый отрезок.
+ */
+const BASE = 18;
 const plus = (n: number) => {
   const x = new Date(`${today}T00:00:00Z`);
-  x.setUTCDate(x.getUTCDate() + n);
+  x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
+/*
+ * Метка своя на каждый прогон: если прошлый прогон сорвался между «заблокировать» и «снять», его блок
+ * остался на койке, и счёт по общему тексту причины давал два вместо одного. Уборка снимает всё, что
+ * начинается с этой метки (cli-e2e-cleanup).
+ */
+const REASON = `${'E2E-АВТОТЕСТ'}: замена матраса ${Date.now().toString(36)}`;
 const FROM = plus(40);
 const TO = plus(42);
 
@@ -33,10 +45,10 @@ test('заблокировать свободную койку на 2 ночи �
   await form.locator('input[name="dateFrom"]').fill(FROM);
   await form.locator('input[name="dateTo"]').fill(TO);
   await form.locator('select[name="type"]').selectOption('MAINTENANCE');
-  await form.locator('input[name="reason"]').fill('тест: замена матраса');
+  await form.locator('input[name="reason"]').fill(REASON);
   await form.getByRole('button', { name: 'Заблокировать' }).click();
   // на койке могут лежать чужие блоки (другие тесты, стойка) — считаем только свой, по причине
-  const ownBlock = page.getByTestId('block-row').filter({ hasText: 'тест: замена матраса' });
+  const ownBlock = page.getByTestId('block-row').filter({ hasText: REASON });
   await expect(ownBlock).toHaveCount(1);
   await page.screenshot({ path: 'reports/screenshots/unit-block-card.png', fullPage: true });
 
@@ -53,7 +65,9 @@ test('заблокировать свободную койку на 2 ночи �
   ).toBe(freeBefore - 1);
 
   await page.goto(`/units/${unitCode}`);
-  await page.getByRole('button', { name: 'снять' }).click();
+  // именно свою строку: на той же койке может лежать блок другого спека (даты разные, койка одна),
+  // и тогда кнопок «снять» на странице две — клик по роли падал бы на strict mode
+  await ownBlock.getByRole('button', { name: 'снять' }).click();
   await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   expect(

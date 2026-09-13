@@ -17,3 +17,23 @@
 | 13.09.2026 16:55 | unit (частично: apps/web/src/lib/channels-sync.test.ts) | ✅ 2 из 2 | 0 с | 1a51a81 +3 | [лог](logs/2026-09-13T11-55-11Z-unit-30cc.log) | кнопка 500 дней: зелёный после правки |
 | 13.09.2026 16:55 | integration | ✅ 13 из 13 | 2 мин 51 с | 1a51a81 | [лог](logs/2026-09-13T11-55-10Z-integration-21b4.log) | первая запись набора в журнал |
 | 13.09.2026 16:59 | unit (частично: apps/api/src/guard) | ❌ код выхода 1 | 1 с | e6bb41b +8 | [лог](logs/2026-09-13T11-59-00Z-unit-77c2.log) | срез 11: сторож в API, красный до кода |
+| 13.09.2026 17:34 | unit | ✅ 502 из 502 | 7 с | 34883f7 | [лог](logs/2026-09-13T12-34-05Z-unit-2f52.log) |  |
+| 13.09.2026 17:42 | typecheck | ❌ ошибок: 2 | 9 с | 34883f7 +8 | [лог](logs/2026-09-13T12-42-14Z-typecheck-4542.log) | TS2375 |
+| 13.09.2026 17:43 | typecheck | ✅ без ошибок | 7 с | 34883f7 +9 | [лог](logs/2026-09-13T12-43-10Z-typecheck-d749.log) |  |
+| 13.09.2026 17:46 | unit (частично: apps/web/src/app/chessboard/stay-labels.test.ts apps/web/src/app/reservations/actions.test.ts) | ❌ упало 3 из 3 | 1 с | 34883f7 +16 | [лог](logs/2026-09-13T12-46-28Z-unit-0baf.log) | (файл не выполнился) |
+| 13.09.2026 17:47 | unit (частично: apps/web/src/app/chessboard/stay-labels.test.ts apps/web/src/app/reservations/actions.test.ts) | ✅ 6 из 6 | 1 с | 34883f7 +19 | [лог](logs/2026-09-13T12-47-58Z-unit-e140.log) |  |
+| 13.09.2026 17:51 | typecheck | ✅ без ошибок | 9 с | 34883f7 +25 | [лог](logs/2026-09-13T12-51-42Z-typecheck-ce20.log) |  |
+| 13.09.2026 17:51 | lint | ✅ без ошибок | 6 с | 34883f7 +25 | [лог](logs/2026-09-13T12-51-51Z-lint-5abd.log) |  |
+| 13.09.2026 18:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 6 | 41 с | 34883f7 +26 | [лог](logs/2026-09-13T13-01-29Z-e2e-28f6.log) | Изолированный UI: Next.js и синтетический API, без БД и провайдеров |
+| 13.09.2026 18:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 6 | 25 с | 34883f7 +25 | [лог](logs/2026-09-13T13-03-43Z-e2e-f6f3.log) | После исправления адаптивных колонок аналитики; API синтетический |
+| 13.09.2026 18:05 | unit (частично: apps/web/src/app/reservations/actions.test.ts) | ❌ упало 1 из 4 | 1 с | 34883f7 +25 | [лог](logs/2026-09-13T13-05-16Z-unit-f3ca.log) | Red: группа из разных категорий |
+| 13.09.2026 18:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep неверная дата) | ❌ упало 1 из 1 | 23 с | 34883f7 +25 | [лог](logs/2026-09-13T13-05-24Z-e2e-ea5b.log) | Red: некорректная дата в ссылке на создание |
+| 13.09.2026 18:07 | unit (частично: apps/web/src/app/reservations/actions.test.ts) | ✅ 4 из 4 | 1 с | 34883f7 +26 | [лог](logs/2026-09-13T13-07-02Z-unit-6f38.log) | Green: все размещения группы передаются в существующий CreateReservationDto |
+| 13.09.2026 18:08 | unit (частично: apps/web/src/app/reservations/[number]/finance-actions.test.ts) | ❌ упало 1 из 1 | 1 с | 34883f7 +27 | [лог](logs/2026-09-13T13-08-01Z-unit-2c52.log) | Red: существующее распределение платежа из формы группы |
+| 13.09.2026 18:09 | unit (частично: apps/web/src/app/reservations/[number]/finance-actions.test.ts) | ✅ 1 из 1 | 1 с | 34883f7 +30 | [лог](logs/2026-09-13T13-09-01Z-unit-9127.log) | Green: группы платежей передают десятичные строки и сохраняют ошибочный ввод |
+| 13.09.2026 18:10 | typecheck | ❌ ошибок: 2 | 9 с | 34883f7 +33 | [лог](logs/2026-09-13T13-10-31Z-typecheck-f0ce.log) | TS2584 |
+| 13.09.2026 18:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 9 из 9 | 30 с | 34883f7 +30 | [лог](logs/2026-09-13T13-11-02Z-e2e-1790.log) | Все экраны и сценарии нового фронтенда; API изолирован, без живой БД |
+| 13.09.2026 18:12 | unit (частично: apps/web/src/lib/api.test.ts) | ❌ упало 1 из 1 | 1 с | 34883f7 +31 | [лог](logs/2026-09-13T13-12-40Z-unit-b5ed.log) | Red: отсутствующая запись должна отличаться от сбоя системы |
+| 13.09.2026 18:13 | unit | ✅ 511 из 511 | 5 с | 34883f7 +35 | [лог](logs/2026-09-13T13-13-36Z-unit-f381.log) |  |
+| 13.09.2026 18:13 | typecheck | ✅ без ошибок | 7 с | 34883f7 +38 | [лог](logs/2026-09-13T13-13-41Z-typecheck-f9a4.log) |  |
+| 13.09.2026 18:13 | lint | ✅ без ошибок | 5 с | 34883f7 +38 | [лог](logs/2026-09-13T13-13-49Z-lint-4303.log) |  |

@@ -1,0 +1,109 @@
+# Модульные (unit) · 13.09.2026 17:46 Алматы · MacBook-Air-Urij.local
+# коммит 34883f7 (codex/hostel-frontend), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T12-46-28Z-unit-0baf.json' 'apps/web/src/app/chessboard/stay-labels.test.ts' 'apps/web/src/app/reservations/actions.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (0 test)
+ ❯ |unit| apps/web/src/app/reservations/actions.test.ts (3 tests | 3 failed) 20ms
+   ❯ поля существующего API из форм стойки (3)
+     × передаёт email и отчество, сохраняя их при отказе вместе с заметкой 18ms
+     × передаёт выбранный тариф при переселении в другую категорию 1ms
+     × сохраняет число детей по поддержанному UpdateItemDto 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/stay-labels.test.ts [ apps/web/src/app/chessboard/stay-labels.test.ts ]
+Error: Cannot find module './stay-labels' imported from /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/src/app/chessboard/stay-labels.test.ts
+ ❯ apps/web/src/app/chessboard/stay-labels.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { ChessboardCell } from '../../lib/api';
+      3| import { stayLabels } from './stay-labels';
+       | ^
+      4|
+      5| const occupied = (date: string, itemId: string, isArrival = false): Ch…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/actions.test.ts > поля существующего API из форм стойки > передаёт email и отчество, сохраняя их при отказе вместе с заметкой
+AssertionError: expected { source: undefined, …(5) } to match object { guest: { …(2) } }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "guest": {
+-     "email": "<email>",
+-     "middleName": "Тестович",
++     "firstName": "Тест",
++     "lastName": "Пример",
++     "phone": null,
+    },
+  }
+
+ ❯ apps/web/src/app/reservations/actions.test.ts:16:39
+     14|     const create = vi.spyOn(reservationsApi, 'create').mockRejectedVal…
+     15|     const result = await createReservationAction({ error: null }, form…
+     16|     expect(create.mock.calls[0]?.[0]).toMatchObject({ guest: { middleN…
+       |                                       ^
+     17|     expect(result.values).toMatchObject({ middleName: 'Тестович', emai…
+     18|     expect(result.error).toBe('Место занято');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/actions.test.ts > поля существующего API из форм стойки > передаёт выбранный тариф при переселении в другую категорию
+AssertionError: expected { unitCode: 'R2', …(1) } to match object { unitCode: 'R2', …(2) }
+
+- Expected
++ Received
+
+  {
+    "fromDate": "2026-09-13",
+-   "ratePlanCode": "BASE",
+    "unitCode": "R2",
+  }
+
+ ❯ apps/web/src/app/reservations/actions.test.ts:23:39
+     21|     const assign = vi.spyOn(reservationsApi, 'assign').mockRejectedVal…
+     22|     await assignUnitAction('TEST', 'item', { error: null }, form({ uni…
+     23|     expect(assign.mock.calls[0]?.[2]).toMatchObject({ unitCode: 'R2', …
+       |                                       ^
+     24|   });
+     25|   it('сохраняет число детей по поддержанному UpdateItemDto', async () …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/actions.test.ts > поля существующего API из форм стойки > сохраняет число детей по поддержанному UpdateItemDto
+AssertionError: expected { adults: 1 } to deeply equal { adults: 1, children: 1 }
+
+- Expected
++ Received
+
+  {
+    "adults": 1,
+-   "children": 1,
+  }
+
+ ❯ apps/web/src/app/reservations/actions.test.ts:28:39
+     26|     const update = vi.spyOn(reservationsApi, 'updateItem').mockRejecte…
+     27|     await updateStayGuestsAction('TEST', 'item', { error: null }, form…
+     28|     expect(update.mock.calls[0]?.[2]).toEqual({ adults: 1, children: 1…
+       |                                       ^
+     29|   });
+     30| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed (3)
+   Start at  16:46:29
+   Duration  172ms (transform 50%, tests 27%, import 17%, worker 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T12-46-28Z-unit-0baf.json
+
+# код выхода 1 · 1 с

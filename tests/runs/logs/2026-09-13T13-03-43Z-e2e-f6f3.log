@@ -1,0 +1,94 @@
+# Сквозные (e2e) · 13.09.2026 18:03 Алматы · MacBook-Air-Urij.local
+# коммит 34883f7 (codex/hostel-frontend), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:66280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:66357) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/workspace.spec.ts:20:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (8.3s)
+(node:66388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/workspace.spec.ts:69:1 › поиск и списки дня; мобильное меню и возврат фокуса (1.9s)
+  ✓  3 tests/ui/workspace.spec.ts:95:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (1.2s)
+  ✓  4 tests/ui/workspace.spec.ts:109:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (1.0s)
+[WebServer] (node:66410) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:66416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/workspace.spec.ts:139:1 › карточка: профиль гостя и заселение проходят через server actions (1.2s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:39:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:28)
+[WebServer]   37 |   const res = await fetch(`${API}${path}`, { cache: 'no-store' });
+[WebServer]   38 |   if (!res.ok) {
+[WebServer] > 39 |     throw new Error(`API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   40 |   }
+[WebServer]   41 |   return (await res.json()) as T;
+[WebServer]   42 | } {
+[WebServer]   digest: '1608824039'
+[WebServer] }
+  ✓  6 tests/ui/workspace.spec.ts:161:1 › сбой API показывает ошибку, повтор восстанавливает страницу (765ms)
+
+
+  1) tests/ui/workspace.spec.ts:20:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    + ]
+
+      64 |   await expect(page.locator('h1')).toContainText('Регистрационная карта');
+      65 |   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+    > 66 |   expect(errors).toEqual([]);
+         |                  ^
+      67 | });
+      68 |
+      69 | test('поиск и списки дня; мобильное меню и возврат фокуса', async ({ page }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/workspace.spec.ts:66:18
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:20:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+  5 passed (24.0s)
+
+# код выхода 1 · 25 с

@@ -61,3 +61,35 @@ it('не перехватывает служебные сигналы ренде
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(renderSignal));
   await expect(getJsonPublic('/inventory/summary')).rejects.toBe(renderSignal);
 });
+
+it('деморежим разрешён только явно и только на локальном dev-источнике', async () => {
+  vi.stubEnv('NODE_ENV', 'development');
+  vi.stubEnv('APP_DEMO_MODE', '1');
+  vi.stubEnv('APP_API_URL', 'http://127.0.0.1:4312');
+  const fetch = vi
+    .fn()
+    .mockResolvedValue(new Response('[]', { headers: { 'x-wetop-data-source': 'demo' } }));
+  vi.stubGlobal('fetch', fetch);
+  await expect(getJsonPublic('/guests')).resolves.toEqual([]);
+  expect(fetch).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({ headers: expect.objectContaining({ 'x-wetop-demo-client': '1' }) }),
+  );
+});
+it('production не принимает demo даже с флагом и не отправляет команды', async () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('APP_DEMO_MODE', '1');
+  vi.stubEnv('APP_API_URL', 'http://127.0.0.1:4312');
+  const fetch = vi.fn().mockResolvedValue(new Response('{}'));
+  vi.stubGlobal('fetch', fetch);
+  await expect(reservationsApi.create({})).rejects.toMatchObject({ status: 503 });
+  expect(fetch).not.toHaveBeenCalled();
+});
+it('обычный режим отвергает demo-заголовок с любого адреса', async () => {
+  vi.stubEnv('APP_DEMO_MODE', '');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(new Response('{}', { headers: { 'x-wetop-data-source': 'demo' } })),
+  );
+  await expect(getJsonPublic('/inventory/summary')).rejects.toMatchObject({ status: 503 });
+});

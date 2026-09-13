@@ -60,3 +60,6 @@ yarn-error.log*
 
 # --- Prisma generated client (создаётся prisma generate) ---
 packages/database/src/generated/
+
+# Isolated UI test build, separate from the interactive preview
+.next-ui/

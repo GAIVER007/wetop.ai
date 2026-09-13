@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { chessboardApi, type UnassignedStay } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Legend, cx } from '../../components/ui';
+import { Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
 import { displayDate } from '../../lib/display-date';
 import { Icon } from '../../components/icon';
@@ -48,6 +48,10 @@ export default async function ChessboardPage({
       subtitle={`${displayDate(board.from)} — ${displayDate(board.to)} · Номера и койки · ${board.rows.length} мест`}
       actions={
         <div className="board-period">
+          <Link className="btn" href="/reservations/new">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
           <span className="seg">
             <Link href={window(7)} className={cx(board.dates.length === 7 && 'is-on')}>
               7 дней
@@ -81,6 +85,18 @@ export default async function ChessboardPage({
         </div>
       }
     >
+      <form method="get" className="board-range-form">
+        <label className="field field--inline">
+          Период
+          <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
+        </label>
+        <span className="muted">—</span>
+        <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+        <Button tone="secondary" type="submit">
+          Применить
+        </Button>
+        <span className="muted small">Статусы фильтруются на {displayDate(board.from)}</span>
+      </form>
       <Legend
         items={[
           { color: 'var(--st-confirmed)', label: 'подтверждена' },

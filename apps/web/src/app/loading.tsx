@@ -3,7 +3,7 @@ export default function Loading() {
     <main id="main-content" className="page" aria-busy="true" aria-label="Загрузка страницы">
       <div className="skeleton skeleton-title" />
       <div className="stats">
-        {[1, 2, 3, 4].map((n) => (
+        {[1, 2, 3, 4, 5].map((n) => (
           <div key={n} className="skeleton skeleton-stat" />
         ))}
       </div>

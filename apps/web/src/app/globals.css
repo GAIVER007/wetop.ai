@@ -5,63 +5,7 @@
  * Правила: светлый холодно-нейтральный фон, тёмно-синий текст, один акцент; цвет — только для статусов
  * и там, где нужно действие (жёлтое «не сделано», красный «долг»); границы в 1 px вместо теней.
  */
-:root {
-  --bg: #f5f6f4;
-  --surface: #fff;
-  --surface-muted: #f8faf8;
-  --border: #e2e7e2;
-  --border-soft: #eef1ec;
-  --border-input: #cbd0d6;
-  --text: #23312c;
-  --text-2: #48554f;
-  --muted: #637168;
-  --muted-2: #67756b;
-  --primary: #28654c;
-  --primary-hover: #1d4e3a;
-  --primary-soft: #e7f1eb;
-  --success: #176b3f;
-  --success-2: #14532d;
-  --success-soft: #dff5e7;
-  --warning: #9a5205;
-  --warning-soft: #fff1d6;
-  --warning-bg: #fff8e8;
-  --warning-border: #f3d99a;
-  --danger: #b4232c;
-  --danger-2: #9b1c1c;
-  --danger-soft: #fdecec;
-  --danger-border: #f5b8b8;
-  --info: #0f766e;
-  --chip-bg: #e9ebef;
-  --chip-fg: #4b5563;
-  /*
-   * Заливки клеток шахматки. Намеренно бледные: занятых клеток на сетке 80 %, и насыщенный цвет
-   * превращает экран в сплошное полотно, где не видно ни заездов, ни блокировок. Цвет здесь —
-   * подсказка о статусе, читают строку по имени гостя. Точки статусов в таблицах берут насыщенные
-   * --success / --primary / --warning, там цветного мало.
-   */
-  --st-confirmed: #dce7fa;
-  --st-checked-in: #cce7d9;
-  --st-checked-out: #e9ece9;
-  --st-tentative: #f8e8c3;
-  --st-blocked: #f4dad8;
-  --row-hover: #f6f9f6;
-  /* графики и доли (срез 8: аналитика сайта). Серии — один синий интерфейса в двух тонах:
-     второй цвет различал бы смыслы, а графики стоят порознь и названы заголовками;
-     тёплый тон в палитре занят предупреждением и рядом с жёлтым читался бы как тревога */
-  --chart-1: var(--primary);
-  --chart-1-soft: #d7e2fa;
-  --chart-2: #7fa0e8;
-  --grid-line: #e7e9ee;
-  --axis-line: #cfd4dd;
-  --radius: 8px;
-  --radius-sm: 6px;
-  --control-h: 34px;
-  --font: var(--font-body, 'IBM Plex Sans'), 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
-  /* заголовки той же гарнитурой: две семьи на плотных экранах читаются как склейка */
-  --font-head: var(--font);
-  --mono: var(--font-mono, 'IBM Plex Mono'), 'IBM Plex Mono', ui-monospace, Menlo, monospace;
-  --topbar-h: 52px;
-}
+
 
 *,
 *::before,
@@ -172,7 +116,7 @@ h3 {
 .topbar__link--accent {
   margin-left: 8px;
   background: var(--primary);
-  color: #fff;
+  color: var(--muted);
   font-weight: 600;
 }
 .topbar__link--accent:hover {
@@ -376,14 +320,14 @@ h3 {
   background: var(--primary-soft);
 }
 .tbl tr.is-void {
-  color: #999;
+  color: var(--muted);
   text-decoration: line-through;
 }
 .tbl tr.is-stop {
-  background: #fee2e2;
+  background: var(--danger-soft);
 }
 .tbl tr.is-weekend {
-  background: #f8fafc;
+  background: var(--primary-soft);
 }
 .num {
   text-align: right;
@@ -412,7 +356,7 @@ h3 {
   cursor: pointer;
   white-space: nowrap;
   background: var(--primary);
-  color: #fff;
+  color: var(--muted);
 }
 .btn:hover {
   filter: brightness(0.94);
@@ -791,7 +735,7 @@ textarea.inp {
   display: block;
   height: 22px;
   line-height: 22px;
-  color: #111;
+  color: var(--text);
   text-decoration: none;
   overflow: hidden;
   white-space: nowrap;
@@ -944,7 +888,7 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px rgb(22 33 58 / 10%);
+  box-shadow: 0 2px 8px var(--overlay);
   padding: 6px 10px;
   font-size: 12px;
   color: var(--text-2);
@@ -1064,7 +1008,7 @@ textarea.inp {
 }
 .board th.is-we:not(.is-today),
 .board td.is-we:not(.is-today) {
-  background: #f7f8fb;
+  background: var(--primary-soft);
 }
 /* строка категории: сколько мест ещё можно продать */
 .board tr.board__group td {
@@ -1120,7 +1064,7 @@ textarea.inp {
 }
 .seg a.is-on {
   background: var(--primary);
-  color: #fff;
+  color: var(--muted);
 }
 
 @media print {
@@ -1128,6 +1072,6 @@ textarea.inp {
     display: none;
   }
   body {
-    background: #fff;
+    background: var(--surface);
   }
 }

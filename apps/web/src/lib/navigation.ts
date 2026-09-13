@@ -3,6 +3,7 @@ import type { IconName } from '../components/icon';
 export interface NavigationItem {
   href: string;
   label: string;
+  shortLabel?: string;
   icon: IconName;
   description: string;
   pending?: boolean;
@@ -14,7 +15,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/today',
-        label: 'Сегодня',
+        label: 'Главная',
         icon: 'today',
         description: 'Заезды, выезды и задачи смены.',
       },
@@ -23,6 +24,12 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Шахматка',
         icon: 'board',
         description: 'Размещение по номерам, койкам и датам.',
+      },
+      {
+        href: '/reservations',
+        label: 'Брони',
+        icon: 'booking',
+        description: 'Брони и проживания за выбранный день.',
       },
       {
         href: '/guests',
@@ -38,6 +45,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/rooms',
         label: 'Управление номерами',
+        shortLabel: 'Номера',
         icon: 'bed',
         description: 'Номерной фонд, свободные места и условия продажи.',
         children: [
@@ -77,6 +85,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/hotel-settings',
         label: 'Настройка гостиницы',
+        shortLabel: 'Настройки',
         icon: 'settings',
         description: 'Правила проживания, услуги и информация об объекте.',
         children: [
@@ -148,7 +157,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/finance',
-        label: 'Финансовый учёт',
+        label: 'Оплаты',
         icon: 'money',
         description: 'Начисления, оплаты, возвраты и остатки за период.',
       },
@@ -189,8 +198,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Система',
     items: [
       {
+        href: '/messages',
+        label: 'Сообщения',
+        icon: 'messages',
+        description: 'Связь с гостями и история переписки.',
+      },
+      {
         href: '/connections',
-        label: 'Подключения API',
+        label: 'Интеграции',
         icon: 'channels',
         description: 'Подключение каналов, счётчика и модуля бронирования.',
       },

@@ -12,6 +12,15 @@
 # Исправлено: у каждого туннеля свой журнал, старый процесс дожидается завершения, журнал читается с `grep -a`,
 # адрес проверяется по форме до записи и регистрации.
 #
+# 13.09.2026, учения сторожа (API остановлен на 7 минут) — два отказа, воспроизведены `channex-tunnel-drill.ts`:
+# (1) новый туннель поднялся, пока API лежал, шесть регистраций отвергнуты, скрипт сдался, а когда API вернулся, проверка
+# «туннель жив» проходила и регистрацию больше никто не повторял: webhook в Channex пять минут указывал на мёртвый адрес.
+# (2) проверка ходит через туннель в API, поэтому лежащий API выглядел как мёртвый туннель, и скрипт пересоздавал здоровые
+# туннели, каждый раз меняя адрес. Исправлено: сначала проверяется сам API (локально); пока он лежит, туннель не трогается.
+# Неудачная регистрация отличается от неудачного туннеля и повторяется на следующей проверке. Кроме того, раз в несколько
+# проверок скрипт сверяет адрес, зарегистрированный в Channex, с адресом туннеля и перерегистрирует при расхождении;
+# недоступный статус расхождением не считается.
+#
 # Запуск:  scripts/ops/channex-tunnel.sh            (API на http://localhost:3001; иначе API_URL=... )
 # Остановка: Ctrl+C — туннель гасится, регистрация в Channex остаётся (укажет на мёртвый адрес — до следующего запуска
 # PMS доберёт брони опросом ленты и покажет «webhook под подозрением» в /channels).
@@ -24,6 +33,12 @@ mkdir -p "$STATE_DIR"
 LOG=""
 URL_FILE="$STATE_DIR/url"
 PID=""
+CHECK_EVERY="${CHECK_EVERY:-30}"        # секунд между проверками
+REGISTER_TRIES="${REGISTER_TRIES:-6}"   # попыток регистрации подряд
+REGISTER_PAUSE="${REGISTER_PAUSE:-10}"  # секунд между попытками
+VERIFY_EVERY="${VERIFY_EVERY:-4}"       # сверять регистрацию в Channex каждые N успешных проверок (~2 мин)
+# Путь, который отвечает без обращения к Channex: проверка API и туннеля не должна зависеть от чужого сервиса
+HEALTH_PATH="${HEALTH_PATH:-/inventory/summary}"
 
 say() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*"; }
 cleanup() { [ -n "$PID" ] && kill "$PID" 2>/dev/null; say "туннель остановлен"; exit 0; }
@@ -66,13 +81,14 @@ start_tunnel() {
     if dig +short @1.1.1.1 "$host" 2>/dev/null | grep -q '^[0-9]'; then break; fi
     sleep 5
   done
-  register "$url"
+  # 0 — туннель поднят и webhook зарегистрирован; 2 — туннель поднят, регистрация не прошла (повторит главный цикл)
+  register "$url" || return 2
 }
 
 register() {
   local url=$1 body
   body=$(printf '{"callbackUrl":"%s/channels/channex/webhook"}' "$url")
-  for _ in $(seq 1 6); do
+  for _ in $(seq 1 "$REGISTER_TRIES"); do
     local reg
     reg=$(curl -s -m 30 -X POST -H 'content-type: application/json' -d "$body" "$API_URL/channels/channex/webhook/register")
     if printf '%s' "$reg" | grep -q '"active":true'; then
@@ -84,7 +100,7 @@ register() {
     else
       say "регистрация не прошла: $reg"
     fi
-    sleep 10
+    sleep "$REGISTER_PAUSE"
   done
   return 1
 }
@@ -97,20 +113,81 @@ alive() {
   url=$(cat "$URL_FILE" 2>/dev/null) || return 1
   case "$url" in https://*.trycloudflare.com) ;; *) return 1 ;; esac
   host=${url#https://}
-  code=$(curl -s -m 15 -o /dev/null -w '%{http_code}' --resolve "$host:443:104.16.230.132" "$url/channels/channex/webhook/status")
+  code=$(curl -s -m 15 -o /dev/null -w '%{http_code}' --resolve "$host:443:104.16.230.132" "$url$HEALTH_PATH")
   [ "$code" = "200" ]
 }
 
+api_up() {
+  # API отвечает напрямую, без туннеля. Если нет — туннель ни при чём, пересоздавать его бессмысленно
+  [ "$(curl -s -m 10 -o /dev/null -w '%{http_code}' "$API_URL$HEALTH_PATH")" = "200" ]
+}
+
+registered_url() {
+  # Адрес webhook, зарегистрированный в Channex сейчас (пусто — не зарегистрирован).
+  # Код 1 — статус недоступен (API или Channex не ответили): сравнивать не с чем, это не расхождение.
+  local resp code body
+  resp=$(curl -s -m 30 -w '\n%{http_code}' "$API_URL/channels/channex/webhook/status") || return 1
+  code=$(printf '%s' "$resp" | tail -n 1)
+  [ "$code" = "200" ] || return 1
+  body=$(printf '%s' "$resp" | sed '$d')
+  printf '%s' "$body" | grep -a -q '"registered":' || return 1
+  printf '%s' "$body" | grep -a -o -E '"callbackUrl":"https://[^"]*"' | head -1 | sed -E 's/^"callbackUrl":"(.*)"$/\1/'
+  return 0
+}
+
+ensure_registered() {
+  local url have
+  url=$(cat "$URL_FILE" 2>/dev/null)
+  case "$url" in https://*.trycloudflare.com) ;; *) return 1 ;; esac
+  if ! have=$(registered_url); then
+    say "статус webhook недоступен — сверю регистрацию на следующей проверке"
+    return 1
+  fi
+  [ "$have" = "$url/channels/channex/webhook" ] && return 0
+  say "в Channex webhook указывает на «${have:-не зарегистрирован}», туннель — $url: перерегистрирую"
+  register "$url"
+}
+
+need_register=0
 start_tunnel
+case $? in
+  0) ;;
+  2) say "туннель поднят, но webhook не зарегистрирован — повторю на следующей проверке"; need_register=1 ;;
+  *) say "не удалось поднять туннель — повторю через ${CHECK_EVERY} с" ;;
+esac
 fails=0
+checks=0
+api_was_down=0
 while true; do
-  sleep 30
-  if alive; then fails=0; continue; fi
+  sleep "$CHECK_EVERY"
+  if ! api_up; then
+    if [ "$api_was_down" -eq 0 ]; then say "API не отвечает — туннель не трогаю, жду API"; api_was_down=1; fi
+    fails=0
+    continue
+  fi
+  if [ "$api_was_down" -eq 1 ]; then
+    say "API снова отвечает — сверяю регистрацию webhook"
+    api_was_down=0
+    need_register=1
+  fi
+  if alive; then
+    fails=0
+    checks=$((checks + 1))
+    if [ "$need_register" -eq 1 ] || [ $((checks % VERIFY_EVERY)) -eq 0 ]; then
+      if ensure_registered; then need_register=0; else need_register=1; fi
+    fi
+    continue
+  fi
   fails=$((fails + 1))
   say "проверка не прошла ($fails)"
   if [ "$fails" -ge 2 ] || tunnel_revoked; then
     say "туннель умер — поднимаю новый"
-    start_tunnel || say "не удалось поднять туннель, попробую через 30 с"
+    start_tunnel
+    case $? in
+      0) need_register=0 ;;
+      2) say "туннель поднят, но webhook не зарегистрирован — повторю на следующей проверке"; need_register=1 ;;
+      *) say "не удалось поднять туннель — повторю через ${CHECK_EVERY} с" ;;
+    esac
     fails=0
   fi
 done

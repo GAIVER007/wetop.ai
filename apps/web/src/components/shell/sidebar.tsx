@@ -1,10 +1,15 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { navigation, activeNavigation, type NavigationItem } from '../../lib/navigation';
 import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { cx } from '../ui';
+/** Server-rendered text slots keep late metadata independent of the interactive shell. */
+export interface PropertyIdentity {
+  name: ReactNode;
+  address: ReactNode;
+}
 function Entry({
   item,
   active,
@@ -72,12 +77,14 @@ export function Sidebar({
   onAssistant,
   collapsed,
   onCollapse,
+  property,
 }: {
   path: string;
   close?: () => void;
   onAssistant: () => void;
   collapsed?: boolean;
   onCollapse?: () => void;
+  property?: PropertyIdentity | null;
 }) {
   const active = activeNavigation(path)?.href;
   return (
@@ -113,8 +120,8 @@ export function Sidebar({
           <Icon name="inventory" />
         </span>
         <div>
-          <strong>Luxx Aparts</strong>
-          <span>Алматы, Казахстан</span>
+          <strong>{property?.name ?? 'Объект не загружен'}</strong>
+          <span>{property?.address ?? 'Настройки гостиницы'}</span>
         </div>
         <Icon name="down" width={14} />
       </Link>

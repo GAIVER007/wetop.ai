@@ -14,7 +14,7 @@ import type { Chessboard, DeskDay } from '../../lib/api';
 import { Icon, type IconName } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { ShellAssistant } from '../../components/shell/assistant';
-export function HotelClock() {
+export function HotelClock({ timezone }: { timezone: string }) {
   const [time, setTime] = useState('');
   useEffect(() => {
     const update = () =>
@@ -22,17 +22,17 @@ export function HotelClock() {
         new Intl.DateTimeFormat('ru', {
           hour: '2-digit',
           minute: '2-digit',
-          timeZone: 'Asia/Almaty',
+          timeZone: timezone,
         }).format(new Date()),
       );
     update();
     const timer = setInterval(update, 30_000);
     return () => clearInterval(timer);
-  }, []);
+  }, [timezone]);
   return (
     <span className="hotel-clock">
       <Icon name="clock" width={14} />
-      {time || '—'} <span>Алматы</span>
+      {time || '—'} <span>Время гостиницы</span>
     </span>
   );
 }

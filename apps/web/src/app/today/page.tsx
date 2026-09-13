@@ -1,6 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { deskApi, chessboardApi, formatMinor } from '../../lib/api';
+import { deskApi, chessboardApi, formatMinor, ApiError } from '../../lib/api';
+import { hotelApi } from '../../lib/hotel-api';
 import { DayWorkspace } from './day-workspace';
 import { DayAttention } from './day-attention';
 import { Icon, type IconName } from '../../components/icon';
@@ -12,7 +13,13 @@ import { displayDate } from '../../lib/display-date';
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
-  const day = await deskApi.today(sp.date);
+  const [day, hotel] = await Promise.all([
+    deskApi.today(sp.date),
+    hotelApi.settings().catch((error: unknown) => {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }),
+  ]);
   const end = new Date(`${day.date}T00:00:00Z`);
   end.setUTCDate(end.getUTCDate() + 6);
   const board = await chessboardApi
@@ -77,11 +84,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   return (
     <Page
       title="Обзор дня"
-      crumbs={
-        <span className="eyebrow">
-          Luxx Aparts <span className="property-separator">/</span> Алматы
-        </span>
-      }
+      crumbs={<span className="eyebrow">{hotel?.property.name ?? 'Гостиница'}</span>}
       subtitle={
         <>
           <span>Всё важное для спокойной смены.</span>
@@ -89,7 +92,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       }
       actions={
         <form method="get" className="row day-date-picker">
-          <HotelClock />
+          <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
           <Input type="date" name="date" aria-label="Дата рабочего дня" defaultValue={day.date} />
           <Button type="submit" tone="secondary">
             Показать

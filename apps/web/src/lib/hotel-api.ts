@@ -1,4 +1,6 @@
 import { getJsonPublic } from './api';
+import type { DataConnection } from '@pms/shared';
+import { cache } from 'react';
 
 export interface HotelSettings {
   property: {
@@ -65,7 +67,9 @@ export interface HotelContent {
   photos: Array<{ url: string; description: string | null; forRoomType: boolean }>;
 }
 export const hotelApi = {
-  settings: () => getJsonPublic<HotelSettings>('/hotel/settings'),
+  connection: () => getJsonPublic<DataConnection>('/system/connection'),
+  // Shared only within one server render. New requests always read the current backend.
+  settings: cache(() => getJsonPublic<HotelSettings>('/hotel/settings')),
   /** refresh — прочитать из Channex заново, минуя кэш API на 10 минут */
   content: (refresh = false) =>
     getJsonPublic<HotelContent>(`/channels/channex/content${refresh ? '?refresh=1' : ''}`),

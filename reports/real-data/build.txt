@@ -1,0 +1,59 @@
+
+> @pms/web@0.0.0 build
+> next build
+
+▲ Next.js 16.3.4 (Turbopack)
+✓ Running next.config.ts took 121ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.6s
+  Running TypeScript ...
+  Finished TypeScript in 3.5s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/24) ...
+  Generating static pages using 7 workers (6/24) 
+  Generating static pages using 7 workers (12/24) 
+  Generating static pages using 7 workers (18/24) 
+✓ Generating static pages using 7 workers (24/24) in 582ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /(.)reservations/[number]
+├ ƒ /(.)reservations/new
+├ ƒ /[...catchAll]
+├ ƒ /analytics
+├ ƒ /analytics/setup
+├ ƒ /channel-manager
+├ ƒ /channels
+├ ƒ /chessboard
+├ ƒ /connections
+├ ƒ /finance
+├ ƒ /guests
+├ ƒ /guests/[id]
+├ ƒ /hotel-settings/[[...section]]
+├ ○ /icon.svg
+├ ƒ /incidents
+├ ƒ /inventory
+├ ƒ /journal
+├ ƒ /login
+├ ƒ /management/[[...section]]
+├ ƒ /marketing
+├ ƒ /messages
+├ ƒ /profile
+├ ƒ /rates
+├ ƒ /reservations
+├ ƒ /reservations/[number]
+├ ƒ /reservations/[number]/print
+├ ƒ /reservations/[number]/print/contract
+├ ƒ /reservations/[number]/print/invoice
+├ ƒ /reservations/new
+├ ƒ /rooms/[[...section]]
+├ ƒ /today
+└ ƒ /units/[code]
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

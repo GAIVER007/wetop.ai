@@ -3,7 +3,7 @@ import type { ChannexGateway } from './channels.repository';
 import { AriStoppedError, guardAriGateway, isAriStopped } from './ari-switch';
 
 /**
- * Единый выключатель исходящего ARI (Q-126, ADR-038): CHANNEX_ARI=off. Проверка стоит в шлюзе перед отправкой
+ * Единый выключатель исходящего ARI (Q-126, ADR-039): CHANNEX_ARI=off. Проверка стоит в шлюзе перед отправкой
  * остатков и ограничений, поэтому её не обходит ни очередь, ни кнопки, ни сторож. Остальные вызовы Channex
  * (лента броней, webhook) выключатель не трогает — при откате брони должны продолжать приходить.
  */

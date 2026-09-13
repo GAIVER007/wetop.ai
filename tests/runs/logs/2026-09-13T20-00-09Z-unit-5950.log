@@ -1,0 +1,17 @@
+# Модульные (unit) · 14.09.2026 01:00 Алматы · MacBook-Air-Urij.local
+# коммит 0f05d21 (codex/connect-real-data), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T20-00-09Z-unit-5950.json' 'apps/api/src/database/connection.test.ts' 'apps/api/src/app.module.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 81ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (6 tests) 128ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  00:00:09
+   Duration  1.62s (transform 48%, import 45%, tests 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T20-00-09Z-unit-5950.json
+
+# код выхода 0 · 3 с

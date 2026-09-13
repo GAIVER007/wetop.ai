@@ -15,9 +15,11 @@ import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UnitsModule } from './units/units.module';
 import { WebBookingModule } from './web-booking/web-booking.module';
+import { DataConnectionModule } from './database/connection';
 
 @Module({
   imports: [
+    DataConnectionModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,

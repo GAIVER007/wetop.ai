@@ -1,0 +1,306 @@
+[
+  {
+    "route": "/today",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/chessboard",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/reservations",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/reservations/new?unit=M03",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/reservations/20260913-TESTAA",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/guests",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/guests?q=Тест",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/guests/ui-guest",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/rooms",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/rooms/categories",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/rooms/availability",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/rooms/promotions",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/inventory",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/units/R01",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/rates",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/finance",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/check-in",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/penalties",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/services",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/description",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/photos",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/hotel-settings/amenities",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/management",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/management/statistics",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/management/reports",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/management/analytics",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/channel-manager",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/channels",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/connections",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/analytics",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/analytics/setup",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/marketing",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/messages",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/profile",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/login",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/incidents",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/journal",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  }
+]

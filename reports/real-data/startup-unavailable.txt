@@ -1,0 +1,120 @@
+
+> pms-lux@0.0.0 dev
+> tsx scripts/preview/start-real.ts
+
+Запуск backend проекта. Фоновые синхронизации и автоисправления отключены.
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] AppModule dependencies initialized +20ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] DataConnectionModule dependencies initialized +2ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] HotelModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] AuditModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] InventoryModule dependencies initialized +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] ChessboardModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] GuestsModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] DeskModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] AnalyticsModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] ReservationsModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] RatesModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] UnitsModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] ChannelsModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] WebBookingModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] FinanceModule dependencies initialized +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [InstanceLoader] GuardModule dependencies initialized +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] DataConnectionController {/system}: +6ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/system/connection, GET} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] InventoryController {/inventory}: +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/inventory/summary, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/inventory/units, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] HotelController {/hotel}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/hotel/settings, GET} route +4ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/hotel/channel-report, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] ReservationDirectoryController {/hotel/reservations}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/hotel/reservations, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] ChessboardController {/}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/chessboard, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/availability, GET} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] ReservationsController {/reservations}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations, POST} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/dates, PATCH} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number, PATCH} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId, PATCH} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/cancel, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId/check-in, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId/check-out, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId/no-show, POST} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId/extend, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/reservations/:number/items/:itemId/assign, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] RatePlansController {/rate-plans}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/rate-plans, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] ChannelsController {/channels/channex}: +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/mapping, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/setup, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/sync, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/sync/scheduled, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/webhook, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/webhook/status, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/webhook/register, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/webhook/test, POST} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/pull, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/events, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/events/:revisionId/retry, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/outbox, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/outbox/flush, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] ChannelConnectionController {/channels/channex}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/channels/channex/connection, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] RatesController {/rates}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/rates/options, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/rates, GET} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/rates/bulk, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] UnitsController {/units}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/units/:code, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/units/:code/blocks, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/units/:code/blocks/:blockId, DELETE} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/units/:code/housekeeping, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] GuestsController {/guests}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guests, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guests/:id, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guests/:id, PATCH} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guests/:id/documents, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guests/:id/documents/:documentId, DELETE} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] AuditController {/audit}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/audit, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] FinanceController {/finance}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/reservations/:number, GET} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/report, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/services, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/folios/:id/charges, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/folios/:id/stay-extras, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/folios/:id/close, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/charges/:id/void, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/payments, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/finance/payments/:id/refunds, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] DeskController {/desk}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/desk/today, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] CollectController {/a}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/a/pms.js, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/a/hit, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/a/demo, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] AnalyticsController {/analytics}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites/:id, GET} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites/:id, PATCH} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites/:id, DELETE} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/analytics/sites/:id/report, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] WebBookingController {/w}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/w/widget.js, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/w/availability, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/w/book, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/w/demo, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RoutesResolver] GuardController {/guard}: +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/status, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/incidents, GET} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/incidents/:id/acknowledge, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/incidents/:id/resolve, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/tick, POST} route +0ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [RouterExplorer] Mapped {/guard/alert/test, POST} route +1ms
+[Nest] 72567  - 09/14/2026, 12:09:44 AM     LOG [NestApplication] Nest application successfully started +1ms
+PMS API: http://127.0.0.1:3001/inventory/summary
+Backend запущен, но база проекта недоступна.

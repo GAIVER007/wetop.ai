@@ -124,6 +124,27 @@ describe('units API: blocks and housekeeping', () => {
     });
     await request(app.getHttpServer()).get('/units/nope').expect(404);
   });
+  it('код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500', async () => {
+    // Найдено сторожем системы 13.09.2026 (неисправность api.error на GET /units/:code): Postgres отвергает NUL в
+    // тексте («invalid byte sequence for encoding "UTF8": 0x00») — подделка репозитория ведёт себя так же
+    const pg = (code: string) => {
+      if ([...code].some((ch) => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127))
+        throw new Error('invalid byte sequence for encoding "UTF8": 0x00');
+    };
+    const { card, unitByCode } = fakes.repo;
+    fakes.repo.card = async (code, from, to) => (pg(code), card(code, from, to));
+    fakes.repo.unitByCode = async (code) => (pg(code), unitByCode(code));
+    await request(app.getHttpServer()).get('/units/%00').expect(404);
+    await request(app.getHttpServer())
+      .post('/units/%00/housekeeping')
+      .send({ status: 'CLEAN' })
+      .expect(404);
+    await request(app.getHttpServer())
+      .post('/units/90%0A01/blocks')
+      .send({ dateFrom: '2026-10-08', dateTo: '2026-10-10', type: 'MAINTENANCE' })
+      .expect(404);
+    await request(app.getHttpServer()).delete('/units/%7F/blocks/blk1').expect(404);
+  });
   it('block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes', async () => {
     const busy = await request(app.getHttpServer())
       .post('/units/9001/blocks')

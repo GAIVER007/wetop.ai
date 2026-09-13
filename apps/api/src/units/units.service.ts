@@ -32,7 +32,17 @@ export class UnitsService {
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
+  /**
+   * Код ячейки с управляющим символом не существует, а Postgres на NUL в тексте падает («invalid byte sequence»),
+   * и вместо «не найдена» стойка получала 500. Отсекаем до запроса к базе (найдено сторожем системы 13.09.2026).
+   */
+  private assertCode(code: string): void {
+    if ([...code].some((ch) => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127))
+      throw new NotFoundException('Ячейка не найдена: в коде недопустимый символ');
+  }
+
   async card(code: string): Promise<UnitCard> {
+    this.assertCode(code);
     const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
     const card = await this.repo.card(code, today, plusDays(today, 60));
     if (!card) throw new NotFoundException(`Ячейка ${code} не найдена`);
@@ -54,6 +64,7 @@ export class UnitsService {
       );
     if (!dto.type || !BLOCK_TYPES.includes(dto.type as BlockType))
       throw new BadRequestException(`type — один из ${BLOCK_TYPES.join(', ')}`);
+    this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
     if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
     const busy = await this.repo.staysOverlapping(unit.id, dto.dateFrom!, dto.dateTo!);
@@ -79,6 +90,7 @@ export class UnitsService {
   }
 
   async unblock(code: string, blockId: string): Promise<UnitCard> {
+    this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
     if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
     const b = await this.repo.blockById(blockId);
@@ -98,6 +110,7 @@ export class UnitsService {
   async housekeeping(code: string, dto: { status?: string }): Promise<UnitCard> {
     if (!dto.status || !HK.includes(dto.status as HousekeepingStatus))
       throw new BadRequestException(`status — один из ${HK.join(', ')}`);
+    this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
     if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
     if (unit.housekeepingStatus !== dto.status) {

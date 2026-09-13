@@ -7,7 +7,7 @@
  * Только чтение. Без ПД: номера броней, каналы, даты, суммы.
  *
  * Запуск: npx tsx scripts/reconciliation/src/cli-rollback-window.ts --from=2026-09-13T13:00:00Z [--to=…] [--channel=Booking.com]
- * Пишет reports/rollback-window-<дата from>.md. Код выхода: 0 — всё принято и разобрано; 1 — есть потери или неразобранные.
+ * Пишет reports/rollback-window-<начало окна, ГГГГ-ММ-ДДTЧЧММZ>.md. Код выхода: 0 — всё принято и разобрано; 1 — есть потери или неразобранные.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -202,7 +202,11 @@ try {
   ];
   const outDir = resolve(ROOT, 'reports');
   mkdirSync(outDir, { recursive: true });
-  const file = resolve(outDir, `rollback-window-${iso(from)}.md`);
+  // Время в имени: окон за одни сутки бывает несколько, и отчёт одного окна не должен затирать другой
+  const file = resolve(
+    outDir,
+    `rollback-window-${from.toISOString().slice(0, 16).replace(':', '')}Z.md`,
+  );
   writeFileSync(file, lines.join('\n'));
   console.log(lines.slice(0, 16).join('\n'));
   console.log(`→ ${file}`);

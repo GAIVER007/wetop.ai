@@ -1,0 +1,25 @@
+# Модульные (unit) · 13.09.2026 22:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4f8089b (main), незакоммиченных файлов набора: 35
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-55-44Z-unit-837c.json' 'apps/api/src/channels/ari-switch.test.ts' 'apps/api/src/channels/outbox.test.ts' 'apps/api/src/channels/sync-schedule.test.ts' 'apps/api/src/guard/guard.service.test.ts' 'scripts/reconciliation/src/rollback-window.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 4ms
+ ✓ |unit| scripts/reconciliation/src/rollback-window.test.ts (10 tests) 5ms
+[Nest] 402  - 09/13/2026, 10:55:45 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 402  - 09/13/2026, 10:55:45 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 402  - 09/13/2026, 10:55:45 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (23 tests) 14ms
+[Nest] 410  - 09/13/2026, 10:55:45 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 410  - 09/13/2026, 10:55:45 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (6 tests) 6ms
+
+ Test Files  5 passed (5)
+      Tests  48 passed (48)
+   Start at  10:55:45
+   Duration  498ms (transform 51%, import 46%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-55-44Z-unit-837c.json
+
+# код выхода 0 · 1 с

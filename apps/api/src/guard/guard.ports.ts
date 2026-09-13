@@ -61,7 +61,10 @@ export interface GuardProbes {
   /** Фоновые части Channex работают только с ключом (как у outbox/опроса/сторожа webhook) */
   channexEnabled(): boolean;
   /** Выключатели фоновых задач из .env: проверять то, что выключено, — плодить ложные неисправности */
-  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari'): boolean;
+  /** ariOut — исходящий ARI не остановлен выключателем CHANNEX_ARI (Q-126) */
+  enabled(
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
+  ): boolean;
   dbPing(): Promise<void>;
   webhook(): WebhookSignal;
   pullHealth(): { startedAt: Date; okAt: Date | null; failedAt: Date | null; error: string | null };

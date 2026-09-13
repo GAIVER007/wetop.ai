@@ -286,3 +286,37 @@ describe('OutboxWorker', () => {
     expect(rows[0]).toMatchObject({ status: 'FAILED', attempts: 6 });
   });
 });
+
+describe('OutboxWorker при остановленном ARI (CHANNEX_ARI=off, план отката)', () => {
+  const pending = (id: string, kind: OutboxRow['kind']): Row => ({
+    id,
+    kind,
+    payload: [{ room_type_id: 'RT1', date: '2026-11-21', availability: 7 }],
+    attempts: 0,
+    createdAt: new Date(),
+    status: 'PENDING',
+    nextAttemptAt: new Date(0),
+  });
+  it('даже принудительная отправка (кнопка, сторож) ничего не шлёт и не тратит попытки; изменения ждут в очереди и уходят после включения', async () => {
+    const { repo, rows } = makeRepo([pending('o1', 'AVAILABILITY'), pending('o2', 'RESTRICTIONS')]);
+    const { gateway, calls } = makeGateway();
+    const w = new OutboxWorker(gateway, repo);
+    process.env.CHANNEX_ARI = 'off';
+    try {
+      const stopped = await w.flush(true);
+      expect(calls).toEqual([]);
+      expect(stopped.skipped.map((x) => x.reason)).toEqual(['ari-stopped', 'ari-stopped']);
+      expect(stopped.errors).toEqual([]);
+      expect(rows.map((r) => [r.status, r.attempts])).toEqual([
+        ['PENDING', 0],
+        ['PENDING', 0],
+      ]);
+    } finally {
+      delete process.env.CHANNEX_ARI;
+    }
+    const resumed = await w.flush(true);
+    expect(calls.map((c) => c.op)).toEqual(['availability', 'restrictions']);
+    expect(resumed.sent).toHaveLength(2);
+    expect(rows.every((r) => r.status === 'SENT')).toBe(true);
+  });
+});

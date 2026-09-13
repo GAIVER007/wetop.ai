@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { channex } from '@pms/integrations';
+import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import type { LocalDailyRate, LocalRestriction } from './ari';
@@ -454,5 +455,6 @@ export function channexGatewayFromEnv(): ChannexGateway {
       testWebhook: fail,
     };
   }
-  return new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey });
+  // Остатки и ограничения — только через выключатель ARI (Q-126, ADR-035)
+  return guardAriGateway(new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey }));
 }

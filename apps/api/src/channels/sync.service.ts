@@ -15,6 +15,7 @@ import { categoryAvailability } from '@pms/domain';
 import { buildAvailabilityValues, buildRestrictionValues } from './ari';
 import { buildChannexSetup } from './setup-plan';
 import { DEFAULT_FULL_SYNC_HOUR, isFullSyncDue } from './schedule';
+import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -154,6 +155,12 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const hourLocal = Number.isInteger(raw) && raw >= 0 && raw <= 23 ? raw : DEFAULT_FULL_SYNC_HOUR;
     const lastRunAt = await this.repo.lastAuditAt('channex.fullSync');
     const base = { lastRunAt: lastRunAt?.toISOString() ?? null, hourLocal };
+    if (isAriStopped())
+      return {
+        ran: false,
+        reason: 'исходящий ARI остановлен (CHANNEX_ARI=off, план отката)',
+        ...base,
+      };
     if (!force && !isFullSyncDue({ lastRunAt, now, hourLocal }))
       return {
         ran: false,
@@ -380,6 +387,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   }
 
   async fullSync(days = DEFAULT_SYNC_DAYS, trigger: SyncTrigger = 'manual'): Promise<SyncResult> {
+    if (isAriStopped()) throw new ServiceUnavailableException(ARI_STOPPED_MESSAGE);
     if (!Number.isInteger(days) || days < 1 || days > 730)
       throw new UnprocessableEntityException('days — целое от 1 до 730');
     const mappings = (await this.repo.mappings(PROVIDER)).filter(

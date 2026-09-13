@@ -15,6 +15,7 @@ import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PROVIDER } from '../channels/ari-publisher';
+import { isAriStopped } from '../channels/ari-switch';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -70,7 +71,10 @@ export class NestGuardProbes implements GuardProbes {
     return !!process.env.CHANNEX_API_KEY?.trim();
   }
 
-  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari'): boolean {
+  enabled(
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
+  ): boolean {
+    if (what === 'ariOut') return !isAriStopped();
     const flag = {
       pull: 'CHANNEX_PULL',
       webhookHealth: 'CHANNEX_WEBHOOK_HEALTH',

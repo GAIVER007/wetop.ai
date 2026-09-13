@@ -286,13 +286,29 @@ Responsible:
 
 Rollback не означает «разберёмся, как вернуть». Он записан заранее.
 
+Два сценария (ADR-035). Шаги пронумерованы как в исходном плане, чтобы таблица проверки ниже не менялась.
+
+**Откат одного канала** — канал вернулся к Exely, остальные остаются на Channex. Исходящий ARI **не останавливать**:
+остальные каналы останутся без остатков.
+
 ```
-1. STOP outgoing ARI worker.
-2. Disable Channex channel.
-3. Restore Exely as OTA connectivity provider.
-4. Restore last verified Exely ARI.
-5. Confirm connectivity.
-6. Reconcile reservations received during migration window.
+2. Отключить этот канал в Channex (channel-api.md: POST /channels/{id}/deactivate или кабинет Channex).
+3. В экстранете OTA вернуть Exely провайдером подключения (владелец).
+4. В Exely отправить в канал актуальные остатки и цены.
+5. Подтвердить подключение в Exely и в экстранете.
+6. Сверить брони канала за окно:
+   npx tsx scripts/reconciliation/src/cli-rollback-window.ts --from=<начало окна UTC> --channel=<имя в Channex>
+   и повторить в Exely то, что велит отчёт (создать / изменить / отменить / сверить перенесённую).
+```
+
+**Полный откат** — PMS отказала целиком, все каналы возвращаются к Exely.
+
+```
+1. scripts/ops/ari.sh stop      — исходящий ARI остановлен всеми путями, брони продолжают приходить.
+2. Отключить в Channex все каналы.
+3–5. Как выше, по каждому каналу.
+6. npx tsx scripts/reconciliation/src/cli-rollback-window.ts --from=<начало окна UTC>  — все каналы сразу.
+   Перед возвратом каналов на PMS: scripts/ops/ari.sh start и полная выгрузка (POST /channels/channex/sync).
 ```
 
 **Для каждого OTA отдельно проверить, действительно ли эти шаги технически возможны
@@ -312,11 +328,11 @@ Rollback не означает «разберёмся, как вернуть». 
 Rollback считается верифицированным только после реальной проверки шагов,
 а не после их прочтения.
 
-**Учения 13.09.2026** (`plans/plan-2026-09-13-rollback-drill.md`):
-- **шаг 6 проверен**: `npx tsx scripts/reconciliation/src/cli-rollback-window.ts --from=<UTC> [--to=<UTC>] [--channel=<имя>]` —
-  сверяет ревизии Channex за окно с журналом PMS и печатает, что повторить в Exely; работает без API PMS. Прогоны на staging: 8 из 8 и
-  5 из 5 ревизий приняты, потерь 0 (`reports/rollback-window-2026-09-13.md`, `reports/rollback-window-2026-09-11.md`);
-- **шаг 1 не работает как один шаг**: `CHANNEX_OUTBOX_WORKER=off` обходят сторож (починка «очередь застряла» и полной выгрузкой)
-  и кнопки «Отправить сейчас» и «Полная выгрузка». Для отката одного канала ARI останавливать нельзя — остальные каналы останутся
-  без остатков; начинать со шага 2. Правка выключателя ждёт решения Q-126;
+**Учения 13.09.2026** (`plans/plan-2026-09-13-rollback-drill.md`, ADR-035):
+- **шаг 6 проверен**: `cli-rollback-window.ts` сверяет ревизии Channex за окно с журналом PMS и печатает, что повторить в Exely;
+  работает без API PMS. Прогоны на staging: 8 из 8, 5 из 5 и 2 из 2 ревизий приняты, потерь 0
+  (`reports/rollback-window-2026-09-13.md`, `reports/rollback-window-2026-09-11.md`, `reports/rollback-window-2026-09-13T1745Z.md`);
+- **шаг 1 проверен** после исправления: `scripts/ops/ari.sh stop` за 13 с; бронь со стойки в Channex не ушла, кнопки и
+  сторож отправку не обошли, бронь из канала пришла; `start` за 10 с, накопленное ушло одной отправкой, остатки на 90 дней — 0
+  расхождений. До исправления `CHANNEX_OUTBOX_WORKER=off` обходили сторож и кнопки;
 - **шаги 2–5** на staging не проверяемы (OTA-каналов нет, экстранет и Exely — владелец): проверяются на первом настоящем канале, Hostelworld.

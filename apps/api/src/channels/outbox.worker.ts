@@ -1,6 +1,13 @@
 import 'reflect-metadata';
-import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  type OnModuleDestroy,
+  type OnModuleInit,
+} from '@nestjs/common';
 import { PROVIDER } from './ari-publisher';
+import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
 import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
@@ -34,6 +41,8 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
 
   /** Фоновый цикл только в живом процессе с ключом; в тестах (NODE_ENV=test) и без ключа — выключен. */
   onModuleInit(): void {
+    // Про остановленный ARI должно быть видно сразу в журнале API, а не через 15 минут по тревоге сторожа
+    if (isAriStopped()) new Logger(OutboxWorker.name).warn(ARI_STOPPED_MESSAGE);
     if (
       process.env.NODE_ENV === 'test' ||
       process.env.CHANNEX_OUTBOX_WORKER === 'off' ||
@@ -54,6 +63,11 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
     this.running = true;
     try {
       for (const kind of ['AVAILABILITY', 'RESTRICTIONS'] as const) {
+        // Выключатель ARI (Q-126): даже принудительная отправка ничего не шлёт и не тратит попытки — строки ждут включения
+        if (isAriStopped()) {
+          result.skipped.push({ kind, reason: 'ari-stopped' });
+          continue;
+        }
         const nowMs = this.now();
         if (!force && nowMs - this.lastSentAt[kind] < MIN_INTERVAL_MS) {
           result.skipped.push({ kind, reason: 'throttled' });

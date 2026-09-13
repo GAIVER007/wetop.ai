@@ -50,6 +50,8 @@ const MIN = 60_000;
 const FEED_STALE_MS = 15 * MIN;
 /** Дельта ждёт отправки дольше — воркер не работает или Channex не принимает */
 const OUTBOX_STUCK_MS = 15 * MIN;
+/** Виды, которые чинятся отправкой в Channex: при остановленном ARI сторож их не чинит (Q-126) */
+const ARI_KINDS = new Set(['outbox.failed', 'outbox.stuck', 'sync.missing', 'ari.oversell']);
 /** Полная выгрузка раз в сутки после 03:00; 26 часов — сутки плюс запас на час выгрузки */
 const SYNC_MISSING_MS = 26 * 60 * MIN;
 /** Синхронизация суток из Exely на время двойного ввода — раз в сутки; 26 часов — сутки плюс запас */
@@ -208,7 +210,12 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         if (action === 'fix') {
           const fix = this.fixFor(inc);
           if (!fix) {
-            await this.repo.escalate(inc.id, 'починки для этого вида нет');
+            await this.repo.escalate(
+              inc.id,
+              ARI_KINDS.has(inc.kind) && !this.probes.enabled('ariOut')
+                ? 'исходящий ARI остановлен вручную (CHANNEX_ARI=off, план отката): сторож не отправляет, включить — scripts/ops/ari.sh start'
+                : 'починки для этого вида нет',
+            );
             summary.escalated++;
             continue;
           }
@@ -349,27 +356,34 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
             ];
       });
 
+    // Выключатель ARI (Q-126): пока исходящий ARI остановлен вручную, упавшая отправка — не неисправность, а следствие;
+    // стоящая очередь остаётся видна (про включение нельзя забыть), но сторож её не отправляет
+    const ariOut = this.probes.enabled('ariOut');
     if (channex)
-      await run('channex.outbox', ['outbox.failed', 'outbox.stuck'], async () => {
-        const o = await this.probes.outbox();
-        const out: Observation[] = [];
-        if (o.failedSinceSync > 0)
-          out.push({
-            kind: 'outbox.failed',
-            title: `В Channex не ушли изменения остатков или ограничений: ${o.failedSinceSync} после последней полной выгрузки`,
-            details: {
-              lastFullSyncAt: o.lastFullSyncAt?.toISOString() ?? null,
-              lastError: o.lastFailedError,
-            },
-          });
-        if (o.oldestPendingAt && now.getTime() - o.oldestPendingAt.getTime() >= OUTBOX_STUCK_MS)
-          out.push({
-            kind: 'outbox.stuck',
-            title: `Очередь в Channex стоит: изменение ждёт отправки ${minutes(now.getTime() - o.oldestPendingAt.getTime())} мин`,
-            details: { oldestPendingAt: o.oldestPendingAt.toISOString() },
-          });
-        return out;
-      });
+      await run(
+        'channex.outbox',
+        ariOut ? ['outbox.failed', 'outbox.stuck'] : ['outbox.stuck'],
+        async () => {
+          const o = await this.probes.outbox();
+          const out: Observation[] = [];
+          if (ariOut && o.failedSinceSync > 0)
+            out.push({
+              kind: 'outbox.failed',
+              title: `В Channex не ушли изменения остатков или ограничений: ${o.failedSinceSync} после последней полной выгрузки`,
+              details: {
+                lastFullSyncAt: o.lastFullSyncAt?.toISOString() ?? null,
+                lastError: o.lastFailedError,
+              },
+            });
+          if (o.oldestPendingAt && now.getTime() - o.oldestPendingAt.getTime() >= OUTBOX_STUCK_MS)
+            out.push({
+              kind: 'outbox.stuck',
+              title: `Очередь в Channex стоит: изменение ждёт отправки ${minutes(now.getTime() - o.oldestPendingAt.getTime())} мин${ariOut ? '' : ' — исходящий ARI остановлен вручную (CHANNEX_ARI=off)'}`,
+              details: { oldestPendingAt: o.oldestPendingAt.toISOString() },
+            });
+          return out;
+        },
+      );
 
     await run('channex.events', ['event.failed', 'event.rejected'], async () =>
       (await this.probes.failedEvents()).map((ev): Observation => {
@@ -391,7 +405,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       }),
     );
 
-    if (channex && this.probes.enabled('fullSync'))
+    if (channex && ariOut && this.probes.enabled('fullSync'))
       await run('channex.sync', ['sync.missing'], async () => {
         const { lastFullSyncAt } = await this.probes.outbox();
         if (lastFullSyncAt && now.getTime() - lastFullSyncAt.getTime() < SYNC_MISSING_MS) return [];
@@ -491,7 +505,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
 
     const ariDue =
       !this.ariCheckedAt || now.getTime() - this.ariCheckedAt.getTime() >= ARI_EVERY_MS;
-    if (channex && this.probes.enabled('ari') && ariDue)
+    if (channex && ariOut && this.probes.enabled('ari') && ariDue)
       await run('channex.ari', ['ari.oversell'], async () => {
         this.ariCheckedAt = now;
         const today = almatyDay(now);
@@ -542,9 +556,11 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       case 'outbox.failed':
       case 'sync.missing':
       case 'ari.oversell':
+        if (!this.probes.enabled('ariOut')) return null;
         // Не повтор старой дельты, а полная выгрузка: свежий остаток нельзя перезаписать устаревшим (ADR-028)
         return { key: 'fullSync', run: safe(() => this.fixes.fullSync()) };
       case 'outbox.stuck':
+        if (!this.probes.enabled('ariOut')) return null;
         return { key: 'flush', run: safe(() => this.fixes.flushOutbox()) };
       case 'event.failed':
         return inc.subjectId

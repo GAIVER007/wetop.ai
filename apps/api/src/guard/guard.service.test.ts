@@ -125,6 +125,7 @@ function setup(
     stays: StaySignal;
     notifier: boolean;
     events: Awaited<ReturnType<GuardProbes['failedEvents']>>;
+    enabled: GuardProbes['enabled'];
   }> = {},
 ) {
   const state = {
@@ -149,7 +150,7 @@ function setup(
   };
   const probes: GuardProbes = {
     channexEnabled: () => true,
-    enabled: () => true,
+    enabled: over.enabled ?? (() => true),
     dbPing: async () => {
       if (state.dbDown) throw new Error("P1001: Can't reach database server");
     },
@@ -596,5 +597,26 @@ describe('GuardService.recordApiError', () => {
       NIGHT,
     );
     expect(t.repo.rows[0]!.severity).toBe('CRITICAL');
+  });
+});
+
+describe('GuardService при остановленном ARI (CHANNEX_ARI=off, план отката)', () => {
+  it('упавшую отправку и выгрузку не «чинит»; стоящую очередь показывает с причиной и будит, но не отправляет', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -30 * 60),
+        failedSinceSync: 2,
+        lastFailedError: 'Исходящий ARI остановлен',
+        oldestPendingAt: plus(NIGHT, -20),
+      },
+      enabled: (what) => what !== 'ariOut',
+    });
+    const s = await t.guard.tick(NIGHT);
+    expect(t.calls).toEqual([]);
+    expect(s.fixes).toEqual([]);
+    expect(t.repo.rows.map((r) => r.kind)).toEqual(['outbox.stuck']);
+    expect(t.repo.rows[0]).toMatchObject({ status: 'ESCALATED' });
+    expect(t.repo.rows[0]!.title).toMatch(/CHANNEX_ARI=off/);
+    expect(t.repo.rows[0]!.lastFixResult).toMatch(/ARI остановлен вручную/);
   });
 });

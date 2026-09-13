@@ -46,3 +46,28 @@ describe('ChannexSyncService — полная выгрузка раз в сут�
     expect(calls).toEqual(['500:manual']);
   });
 });
+
+describe('ChannexSyncService при остановленном ARI (CHANNEX_ARI=off, план отката)', () => {
+  it('расписание и принудительный запуск (кнопка, сторож) не выгружают и объясняют почему', async () => {
+    const { svc, calls } = make(utc('2026-09-10T23:10:00Z'));
+    process.env.CHANNEX_ARI = 'off';
+    try {
+      const scheduled = await svc.runScheduledFullSyncIfDue(utc('2026-09-11T22:30:00Z'));
+      const forced = await svc.runScheduledFullSyncIfDue(utc('2026-09-11T22:30:00Z'), true);
+      expect([scheduled.ran, forced.ran]).toEqual([false, false]);
+      expect(forced.reason).toMatch(/ARI остановлен/);
+      expect(calls).toEqual([]);
+    } finally {
+      delete process.env.CHANNEX_ARI;
+    }
+  });
+  it('кнопка «Полная выгрузка» отвечает понятной ошибкой до обращения к базе и Channex', async () => {
+    const svc = new ChannexSyncService({} as ChannexGateway, {} as ChannelsRepository);
+    process.env.CHANNEX_ARI = 'off';
+    try {
+      await expect(svc.fullSync()).rejects.toThrow(/CHANNEX_ARI=off/);
+    } finally {
+      delete process.env.CHANNEX_ARI;
+    }
+  });
+});

@@ -243,7 +243,9 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(new RegExp(`/reservations/${booking}$`));
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  await expect(page.getByTestId('stay-row')).toContainText('M03');
+  await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
   const commands = await response.json();
   expect(commands).toHaveLength(2);

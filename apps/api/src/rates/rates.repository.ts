@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { mergeRestrictions } from './restriction-merge';
 
 export interface RateCalendarDay {
   date: string;
@@ -164,22 +165,18 @@ export class PrismaRatesRepository implements RatesRepository {
             });
             const byDate = new Map(existing.map((r) => [iso(r.date), r]));
             await tx.restriction.deleteMany({ where: { ...key, date: { in: dateValues } } });
-            const res = await tx.restriction.createMany({
-              data: dates.map((d) => {
-                const cur = byDate.get(d);
-                return {
+            // даты, где после правки ничего не закрыто, строку не получают (restriction-merge.ts)
+            const rows = mergeRestrictions(dates, byDate, patch);
+            if (rows.length) {
+              const res = await tx.restriction.createMany({
+                data: rows.map(({ date, ...fields }) => ({
                   ...key,
-                  date: asDate(d),
-                  minStay: cur?.minStay ?? null,
-                  maxStay: cur?.maxStay ?? null,
-                  stopSell: cur?.stopSell ?? false,
-                  closedToArrival: cur?.closedToArrival ?? false,
-                  closedToDeparture: cur?.closedToDeparture ?? false,
-                  ...patch,
-                };
-              }),
-            });
-            restrictionRows += res.count;
+                  date: asDate(date),
+                  ...fields,
+                })),
+              });
+              restrictionRows += res.count;
+            }
           }
         }
         return { rateRows, restrictionRows };

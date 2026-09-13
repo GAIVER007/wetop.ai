@@ -1,0 +1,112 @@
+# Модульные (unit) · 13.09.2026 18:27 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6f9c6d2 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-27-03Z-unit-d2fc.json' 'packages/domain/src/incidents'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 3ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 2ms
+ ❯ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests | 2 failed) 7ms
+   ✓ fingerprintOf (1)
+     ✓ вид плюс объект; без объекта — только вид 1ms
+   ✓ reconcileIncidents (5)
+     ✓ новая неисправность записывается, повтор той же — тоже (база увеличит счётчик, а не создаст строку) 0ms
+     ✓ проверка отработала и неисправности больше не видит — закрыть 0ms
+     ✓ проверка этого вида не отработала (Channex или база недоступны) — не закрывать 0ms
+     ✓ ошибка API не перепроверяется — закрывается после суток тишины 0ms
+     ✓ упавшую сверку сторож не закрывает, пока не прочитал новый отчёт этого вида 0ms
+   ❯ decideAction (11)
+     ✓ техника (класс А) с починкой — чинить 0ms
+     ✓ починка выключена (GUARD_AUTOFIX=off) — не чинить, а будить 0ms
+     ✓ между попытками выдерживается пауза 0ms
+     ✓ попытки кончились — будить, а не чинить дальше 0ms
+     × починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 2 минуты 2ms
+     × новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно) 2ms
+     ✓ данные (класс Б) — сразу будить, ничего не чинить 0ms
+     ✓ код (класс В) — сразу передать дежурному агенту 0ms
+     ✓ webhook под подозрением: починка уже идёт (частый опрос), будить только если не прошло за 15 минут 0ms
+     ✓ уже разбудили или человек принял — повторно не эскалировать 0ms
+     ✓ у каждого вида записаны класс и важность 0ms
+ ❯ |unit| packages/domain/src/incidents/signals.test.ts (7 tests | 2 failed) 5ms
+   ✓ classifyError (2)
+     ✓ сеть, таймаут, 5xx и 429 Channex, обрыв соединения с базой — временная ошибка, повтор имеет смысл 1ms
+     ✓ правило, валидация, 4xx и неизвестное — постоянная: повторять бессмысленно, будить человека 0ms
+   ✓ latestReportResults (1)
+     ✓ берёт последний отчёт каждого вида и его RESULT 0ms
+   ✓ failingSuites (1)
+     ✓ набор падает, если его последний ПОЛНЫЙ прогон красный 0ms
+   ✓ overbookedNights (1)
+     ✓ продано больше, чем свободных ячеек категории на ночь — овербукинг; ровно столько — нет 1ms
+   ❯ channelOversold (2)
+     × опасно только там, где у канала мест больше, чем у PMS; меньше — недопродажа, не неисправность 2ms
+     × даты, которых канал не вернул, не считаются расхождением (не видно — не значит продаёт) 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/incidents/incidents.test.ts > decideAction > починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 2 минуты
+TypeError: Cannot read properties of undefined (reading 'fix')
+ ❯ packages/domain/src/incidents/incidents.test.ts:145:34
+    143|
+    144|   it('починка с выдержкой: стойку не перезапускать на первом медленном…
+    145|     const p = POLICY['web.down'].fix!;
+       |                                  ^
+    146|     expect(p.afterMs).toBeGreaterThan(0);
+    147|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/incidents.test.ts > decideAction > новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно)
+AssertionError: expected undefined to match object { class: 'A', severity: 'CRITICAL' }
+
+- Expected:
+{
+  "class": "A",
+  "severity": "CRITICAL",
+}
+
++ Received:
+undefined
+
+ ❯ packages/domain/src/incidents/incidents.test.ts:164:32
+    162|
+    163|   it('новые виды записаны: стойка (техника), синхронизация с Exely (да…
+    164|     expect(POLICY['web.down']).toMatchObject({ class: 'A', severity: '…
+       |                                ^
+    165|     expect(POLICY['exely.stale']).toMatchObject({ class: 'B', severity…
+    166|     expect(POLICY['ari.oversell']).toMatchObject({ class: 'A', severit…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/signals.test.ts > channelOversold > опасно только там, где у канала мест больше, чем у PMS; меньше — недопродажа, не неисправность
+TypeError: channelOversold is not a function
+ ❯ packages/domain/src/incidents/signals.test.ts:120:15
+    118|     new Map(Object.entries(o).map(([k, v]) => [k, new Map(Object.entri…
+    119|   it('опасно только там, где у канала мест больше, чем у PMS; меньше —…
+    120|     const r = channelOversold({
+       |               ^
+    121|       pms: m({ MALE: { '2026-09-14': 0, '2026-09-15': 3 }, SGL: { '202…
+    122|       channel: m({ MALE: { '2026-09-14': 2, '2026-09-15': 1 }, SGL: { …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/signals.test.ts > channelOversold > даты, которых канал не вернул, не считаются расхождением (не видно — не значит продаёт)
+TypeError: channelOversold is not a function
+ ❯ packages/domain/src/incidents/signals.test.ts:128:7
+    126|   it('даты, которых канал не вернул, не считаются расхождением (не вид…
+    127|     expect(
+    128|       channelOversold({ pms: m({ MALE: { '2026-09-14': 0 } }), channel…
+       |       ^
+    129|     ).toEqual([]);
+    130|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  4 failed | 32 passed (36)
+   Start at  06:27:04
+   Duration  133ms (transform 66%, import 16%, tests 10%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-27-03Z-unit-d2fc.json
+
+# код выхода 1 · 1 с

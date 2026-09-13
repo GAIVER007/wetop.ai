@@ -10,6 +10,7 @@ import {
   POLICY,
   REALERT_MS,
   alertDue,
+  channelOversold,
   classifyError,
   decideAction,
   fingerprintOf,
@@ -47,6 +48,14 @@ const FEED_STALE_MS = 15 * MIN;
 const OUTBOX_STUCK_MS = 15 * MIN;
 /** Полная выгрузка раз в сутки после 03:00; 26 часов — сутки плюс запас на час выгрузки */
 const SYNC_MISSING_MS = 26 * 60 * MIN;
+/** Синхронизация суток из Exely на время двойного ввода — раз в сутки; 26 часов — сутки плюс запас */
+const EXELY_STALE_MS = 26 * 60 * MIN;
+/** Сверка остатков с каналом: один запрос чтения на месяц дат, раз в час и сразу после полной выгрузки */
+const ARI_EVERY_MS = 60 * MIN;
+const ARI_DAYS = 30;
+
+/** Проверке не с чем сверять (нет маппинга) — не ошибка и не «всё хорошо»: неисправности вида не закрываются */
+class SkipCheck extends Error {}
 const RETENTION_MS = 90 * 24 * 60 * MIN;
 /** Ошибка на этих маршрутах может означать потерянную бронь — срочно */
 const BOOKING_ROUTES = /^\/(?:w\/book|channels\/channex\/webhook)\b/;
@@ -93,6 +102,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
   private last: GuardTickSummary | null = null;
   private dbDown: { since: Date; alertedAt: Date | null; error: string } | null = null;
   private purgedDay: string | null = null;
+  private ariCheckedAt: Date | null = null;
   /** GUARD_AUTOFIX=off — только запись и будильник */
   autofix = process.env.GUARD_AUTOFIX !== 'off';
   /**
@@ -187,6 +197,8 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           // Две неисправности с одной починкой (выгрузка) в одном проходе — один вызов Channex
           if (!ran.has(fix.key)) ran.set(fix.key, fix.run());
           const outcome = await ran.get(fix.key)!;
+          // После полной выгрузки остатки в канале свежие — пересверить на следующем проходе, а не через час
+          if (fix.key === 'fullSync') this.ariCheckedAt = null;
           await this.repo.markFixAttempt(inc.id, outcome.text, now);
           summary.fixes.push({
             kind: inc.kind,
@@ -259,6 +271,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         observed.push(...(await fn()));
         checked.push(...kinds);
       } catch (e) {
+        if (e instanceof SkipCheck) return;
         errors.push({ check: name, error: errText(e) });
       }
     };
@@ -421,6 +434,50 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         })),
       );
 
+    if (this.probes.enabled('web'))
+      await run('web', ['web.down'], async () => {
+        const w = await this.probes.webHealth();
+        return w.ok
+          ? []
+          : [{ kind: 'web.down', title: 'Стойка PMS не отвечает', details: { error: w.error } }];
+      });
+
+    // Пока объект работает в Exely, брони в PMS свежие только после синхронизации суток; после переключения — не нужна
+    if (!this.propertyLive && this.probes.enabled('exelySync'))
+      await run('exely.sync', ['exely.stale'], async () => {
+        const last = await this.probes.lastExelySyncAt();
+        if (last && now.getTime() - last.getTime() < EXELY_STALE_MS) return [];
+        return [
+          {
+            kind: 'exely.stale',
+            title: last
+              ? `Синхронизации суток из Exely не было ${Math.floor((now.getTime() - last.getTime()) / (60 * MIN))} ч — брони в PMS устаревают`
+              : 'Синхронизации суток из Exely не было ни разу',
+            details: { lastSyncAt: last?.toISOString() ?? null },
+          },
+        ];
+      });
+
+    const ariDue =
+      !this.ariCheckedAt || now.getTime() - this.ariCheckedAt.getTime() >= ARI_EVERY_MS;
+    if (channex && this.probes.enabled('ari') && ariDue)
+      await run('channex.ari', ['ari.oversell'], async () => {
+        this.ariCheckedAt = now;
+        const today = almatyDay(now);
+        const av = await this.probes.channelAvailability(today, addDays(today, ARI_DAYS - 1));
+        if (!av) throw new SkipCheck();
+        const bad = channelOversold(av);
+        if (bad.length === 0) return [];
+        const first = bad[0]!;
+        return [
+          {
+            kind: 'ari.oversell',
+            title: `Канал видит больше мест, чем есть: ночей ${bad.length}, первая — ${first.code} ${ddmm(first.date)} (PMS ${first.pms}, канал ${first.channel})`,
+            details: { nights: bad.slice(0, 20) },
+          },
+        ];
+      });
+
     return { observed, checked, errors };
   }
 
@@ -453,6 +510,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         };
       case 'outbox.failed':
       case 'sync.missing':
+      case 'ari.oversell':
         // Не повтор старой дельты, а полная выгрузка: свежий остаток нельзя перезаписать устаревшим (ADR-028)
         return { key: 'fullSync', run: safe(() => this.fixes.fullSync()) };
       case 'outbox.stuck':
@@ -464,6 +522,8 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
               run: safe(() => this.fixes.retryEvent(inc.subjectId!)),
             }
           : null;
+      case 'web.down':
+        return { key: 'restartWeb', run: safe(() => this.fixes.restartWeb()) };
       default:
         return null;
     }

@@ -21,13 +21,18 @@ export type IncidentKind =
   | 'stay.unassigned'
   | 'api.error'
   | 'reconciliation.fail'
-  | 'tests.failing';
+  | 'tests.failing'
+  | 'web.down'
+  | 'exely.stale'
+  | 'ari.oversell';
 
 export interface FixPolicy {
   /** Сколько раз сторож пробует сам, дальше — будит */
   maxAttempts: number;
   /** Пауза между попытками: не долбить Channex и не чинить быстрее, чем починка успевает подействовать */
   minIntervalMs: number;
+  /** Выдержка до первой попытки: не чинить на первом медленном ответе (стойку не перезапускать из-за одной сборки) */
+  afterMs?: number;
 }
 
 export interface KindPolicy {
@@ -112,6 +117,22 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
   // Закрываются, когда последний отчёт вида или последний полный прогон набора перестал быть красным
   'reconciliation.fail': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
   'tests.failing': { class: 'C', severity: 'WARNING', close: { by: 'recheck' } },
+  // Стойка не отвечает: launchd поднимает упавший процесс, но не зависший — перезапуск после 2 минут тишины
+  'web.down': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 2, minIntervalMs: 5 * MIN, afterMs: 2 * MIN },
+    close: { by: 'recheck' },
+  },
+  // На время двойного ввода брони приходят из Exely синхронизацией суток; её запускают люди — сторож не импортирует сам
+  'exely.stale': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
+  // Канал видит мест больше, чем есть в PMS: полная выгрузка, потом пересверка; не помогло — к человеку
+  'ari.oversell': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 1, minIntervalMs: HOUR },
+    close: { by: 'recheck' },
+  },
 };
 
 /** Что заметила проверка. Без ФИО, телефонов и секретов — только номера и коды. */
@@ -191,6 +212,8 @@ export function decideAction(inc: OpenIncident, now: Date, autofix: boolean): Gu
   if (p.class !== 'A') return 'escalate';
   if (p.fix) {
     if (!autofix || inc.fixAttempts >= p.fix.maxAttempts) return 'escalate';
+    if (inc.fixAttempts === 0 && now.getTime() - inc.firstSeenAt.getTime() < (p.fix.afterMs ?? 0))
+      return 'wait';
     if (inc.lastFixAt && now.getTime() - inc.lastFixAt.getTime() < p.fix.minIntervalMs)
       return 'wait';
     return 'fix';

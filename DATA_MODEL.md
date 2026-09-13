@@ -853,7 +853,8 @@ props                 jsonb ≤ 2 КБ, ключи только из allow-list 
 id
 kind              вид неисправности: webhook.suspect | webhook.unreachable | feed.stale |
                   outbox.failed | outbox.stuck | event.failed | event.rejected | sync.missing | db.down |
-                  stay.overbooked | stay.unassigned | api.error | reconciliation.fail | tests.failing
+                  stay.overbooked | stay.unassigned | api.error | reconciliation.fail | tests.failing |
+                  web.down | exely.stale | ari.oversell
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката
 severity          CRITICAL | WARNING

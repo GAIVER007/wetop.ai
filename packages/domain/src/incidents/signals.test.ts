@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { classifyError, failingSuites, latestReportResults, overbookedNights } from './signals';
+import {
+  channelOversold,
+  classifyError,
+  failingSuites,
+  latestReportResults,
+  overbookedNights,
+} from './signals';
 
 /** Сигналы, из которых сторож собирает неисправности: текст ошибки, отчёты сверок, журнал тестов, овербукинг. */
 
@@ -104,5 +110,22 @@ describe('overbookedNights', () => {
       { code: 'MALE', date: '2026-09-12', capacity: 2, sold: 3 },
       { code: 'SGL', date: '2026-09-13', capacity: 0, sold: 1 },
     ]);
+  });
+});
+
+describe('channelOversold', () => {
+  const m = (o: Record<string, Record<string, number>>) =>
+    new Map(Object.entries(o).map(([k, v]) => [k, new Map(Object.entries(v))]));
+  it('опасно только там, где у канала мест больше, чем у PMS; меньше — недопродажа, не неисправность', () => {
+    const r = channelOversold({
+      pms: m({ MALE: { '2026-09-14': 0, '2026-09-15': 3 }, SGL: { '2026-09-14': 1 } }),
+      channel: m({ MALE: { '2026-09-14': 2, '2026-09-15': 1 }, SGL: { '2026-09-14': 1 } }),
+    });
+    expect(r).toEqual([{ code: 'MALE', date: '2026-09-14', pms: 0, channel: 2 }]);
+  });
+  it('даты, которых канал не вернул, не считаются расхождением (не видно — не значит продаёт)', () => {
+    expect(
+      channelOversold({ pms: m({ MALE: { '2026-09-14': 0 } }), channel: m({ MALE: {} }) }),
+    ).toEqual([]);
   });
 });

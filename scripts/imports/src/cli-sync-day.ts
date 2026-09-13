@@ -109,7 +109,9 @@ async function fullSyncChannels(): Promise<void> {
   if (!process.env.CHANNEX_API_KEY?.trim()) return;
   const api = process.env.APP_API_URL ?? 'http://localhost:3001';
   try {
-    const res = await fetch(`${api}/channels/channex/sync?days=365&trigger=import`, {
+    // Глубину решает API (500 дней, сертификация Channex §1); 365 оставалось здесь с 12.09, как и в кнопке стойки.
+    // По этой выгрузке с trigger=import сторож видит, когда была последняя синхронизация из Exely (exely.stale)
+    const res = await fetch(`${api}/channels/channex/sync?trigger=import`, {
       method: 'POST',
     });
     const body = (await res.json()) as {
@@ -124,7 +126,7 @@ async function fullSyncChannels(): Promise<void> {
   } catch (e) {
     console.log(
       `\nВНИМАНИЕ: полная выгрузка в Channex не выполнена (${(e as Error).message}) — остатки в каналах устарели. Выполните руками:\n` +
-        "  curl -s -X POST 'http://localhost:3001/channels/channex/sync?days=365'\n" +
+        "  curl -s -X POST 'http://localhost:3001/channels/channex/sync'\n" +
         '  npx tsx scripts/reconciliation/src/cli-channex-ari.ts 30\n',
     );
   }

@@ -27,6 +27,7 @@
     "e2e:cleanup": "tsx scripts/reconciliation/src/cli-e2e-cleanup.ts",
     "analytics:retention": "tsx scripts/reconciliation/src/cli-analytics-retention.ts",
     "cutover:channel": "tsx scripts/reconciliation/src/cli-cutover-channel.ts",
+    "cutover:ambiguous": "tsx scripts/reconciliation/src/cli-cutover-ambiguous.ts",
     "reconcile:day": "tsx scripts/reconciliation/src/cli-double-entry.ts",
     "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
     "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts"

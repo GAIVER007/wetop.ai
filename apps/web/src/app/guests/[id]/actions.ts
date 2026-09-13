@@ -1,9 +1,12 @@
 'use server';
+import { formValues } from '../../../lib/form-values';
 import { revalidatePath } from 'next/cache';
 import { ApiError, guestsApi } from '../../../lib/api';
 
 export interface GuestActionResult {
   error: string | null;
+  values?: Record<string, string>;
+  attempt?: number;
 }
 const describe = (e: unknown) =>
   e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
@@ -30,7 +33,21 @@ export async function updateGuestAction(
       notes: s(fd, 'notes') || null,
     });
   } catch (e) {
-    return { error: describe(e) };
+    return {
+      error: describe(e),
+      values: formValues(fd, [
+        'firstName',
+        'lastName',
+        'middleName',
+        'birthDate',
+        'citizenship',
+        'gender',
+        'phone',
+        'email',
+        'notes',
+      ]),
+      attempt: (_prev?.attempt ?? 0) + 1,
+    };
   }
   revalidatePath(`/guests/${id}`);
   return { error: null };
@@ -49,7 +66,11 @@ export async function addDocumentAction(
       expiresAt: s(fd, 'expiresAt') || null,
     });
   } catch (e) {
-    return { error: describe(e) };
+    return {
+      error: describe(e),
+      values: formValues(fd, ['type', 'number', 'issueCountry', 'issuedAt', 'expiresAt']),
+      attempt: (_prev?.attempt ?? 0) + 1,
+    };
   }
   revalidatePath(`/guests/${id}`);
   return { error: null };

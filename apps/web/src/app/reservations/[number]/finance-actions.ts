@@ -15,6 +15,19 @@ const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
   return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
 };
+const rejected = (
+  error: unknown,
+  prev: FinanceActionResult,
+  fd: FormData,
+  keys: string[],
+): FinanceActionResult => ({
+  error: describe(error),
+  ok: prev.ok,
+  attempt: (prev.attempt ?? 0) + 1,
+  values: Object.fromEntries(
+    keys.map((key) => [key, typeof fd.get(key) === 'string' ? (fd.get(key) as string) : '']),
+  ),
+});
 const done = (number: string): FinanceActionResult => {
   revalidatePath(`/reservations/${number}`);
   return { error: null, ok: Date.now() };
@@ -36,7 +49,14 @@ export async function addChargeAction(
       serviceDate: s(fd, 'serviceDate'),
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return rejected(e, _prev, fd, [
+      'kind',
+      'serviceCode',
+      'description',
+      'quantity',
+      'unitPrice',
+      'serviceDate',
+    ]);
   }
   return done(number);
 }
@@ -78,7 +98,7 @@ export async function payAction(
       allocations: [{ folioId, amount }],
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return rejected(e, _prev, fd, ['method', 'amount', 'note']);
   }
   return done(number);
 }
@@ -121,7 +141,7 @@ export async function refundAction(
       reason: s(fd, 'reason') ?? null,
     });
   } catch (e) {
-    return { error: describe(e), ok: _prev.ok };
+    return rejected(e, _prev, fd, ['amount', 'reason']);
   }
   return done(number);
 }

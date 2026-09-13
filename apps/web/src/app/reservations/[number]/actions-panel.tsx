@@ -1,5 +1,6 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
+import { useCommand } from '../../../lib/use-command';
 import {
   Alert,
   Button,
@@ -44,7 +45,11 @@ export function ReservationActions(props: {
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
-  const [cancelState, setCancelState] = useState<ActionResult>({ error: null });
+  const {
+    state: cancelState,
+    run: cancel,
+    pending: cancelPending,
+  } = useCommand<ActionResult>({ error: null });
   const [datesState, datesAction, datesPending] = useActionState<ActionResult, FormData>(
     changeDatesAction.bind(null, props.number),
     { error: null },
@@ -58,15 +63,31 @@ export function ReservationActions(props: {
         // «+ 1 ночь» или переселения форма показывала бы прежние даты, а сохранение молча укоротило
         // бы проживание. Ключ по текущим датам отрисовывает поля заново.
         <form
-          key={`${props.arrivalDate}-${props.departureDate}`}
+          key={`${props.arrivalDate}-${props.departureDate}-${datesState.attempt ?? 0}`}
           action={datesAction}
           className="panel"
         >
           <PanelTitle>Изменить даты</PanelTitle>
           <Row>
-            <Input type="date" name="arrivalDate" defaultValue={props.arrivalDate} />
-            <Input type="date" name="departureDate" defaultValue={props.departureDate} />
-            <Select name="ratePlanCode">
+            <Field label="Заезд">
+              <Input
+                type="date"
+                name="arrivalDate"
+                defaultValue={datesState.values?.arrivalDate ?? props.arrivalDate}
+              />
+            </Field>
+            <Field label="Выезд">
+              <Input
+                type="date"
+                name="departureDate"
+                defaultValue={datesState.values?.departureDate ?? props.departureDate}
+              />
+            </Field>
+            <Select
+              name="ratePlanCode"
+              aria-label="Тариф для пересчёта"
+              defaultValue={datesState.values?.ratePlanCode}
+            >
               {props.ratePlans.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -101,12 +122,17 @@ export function ReservationActions(props: {
         <form
           action={async () => {
             if (!window.confirm('Отменить бронь? Ячейки освободятся.')) return;
-            setCancelState(await cancelReservationAction(props.number));
+            await cancel(() => cancelReservationAction(props.number));
           }}
           className="panel"
         >
           <div>
-            <Button type="submit" tone="danger" data-testid="cancel-reservation">
+            <Button
+              type="submit"
+              tone="danger"
+              disabled={cancelPending}
+              data-testid="cancel-reservation"
+            >
               Отменить бронь
             </Button>
           </div>
@@ -125,7 +151,7 @@ function EditForm(props: { number: string; source: string; notes: string | null 
   );
   return (
     <form
-      key={`${props.source}|${props.notes ?? ''}`}
+      key={`${props.source}|${props.notes ?? ''}|${state.attempt ?? 0}`}
       action={action}
       className="panel"
       data-testid="edit-reservation-form"
@@ -133,7 +159,7 @@ function EditForm(props: { number: string; source: string; notes: string | null 
       <PanelTitle>Заметки и источник</PanelTitle>
       <Row>
         <Field inline label="Источник">
-          <Select name="source" defaultValue={props.source}>
+          <Select name="source" defaultValue={state.values?.source ?? props.source}>
             {SOURCES.map(([v, t]) => (
               <option key={v} value={v}>
                 {t}
@@ -145,7 +171,7 @@ function EditForm(props: { number: string; source: string; notes: string | null 
           name="notes"
           rows={2}
           placeholder="Заметки"
-          defaultValue={props.notes ?? ''}
+          defaultValue={state.values?.notes ?? props.notes ?? ''}
           className="inp--grow"
         />
         <Button type="submit" disabled={pending}>
@@ -168,7 +194,7 @@ function GuestsForm(props: {
   );
   return (
     <form
-      key={`${props.item.adults}-${props.item.children}`}
+      key={`${props.item.adults}-${props.item.children}-${state.attempt ?? 0}`}
       action={action}
       className="panel"
       data-testid={`guests-form-${props.item.id}`}
@@ -179,7 +205,7 @@ function GuestsForm(props: {
             type="number"
             name="adults"
             min={1}
-            defaultValue={props.item.adults}
+            defaultValue={state.values?.adults ?? props.item.adults}
             className="inp--w64"
           />
         </Field>
@@ -188,7 +214,7 @@ function GuestsForm(props: {
             type="number"
             name="children"
             min={0}
-            defaultValue={props.item.children}
+            defaultValue={state.values?.children ?? props.item.children}
             className="inp--w64"
           />
         </Field>
@@ -206,19 +232,20 @@ function StayButtons(props: {
   number: string;
   item: { id: string; status: string; accommodationTypeName: string; unitCode: string | null };
 }) {
-  const [state, setState] = useState<ActionResult>({ error: null });
+  const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
     if (action === 'no-show' && !window.confirm('Отметить незаезд? Назначение ячейки снимется.'))
       return;
-    const r = await stayAction(props.number, props.item.id, action);
-    // T3: выселение с долгом — показать сумму и переспросить, затем выселить с подтверждением
-    if (action === 'check-out' && r.error && r.error.includes('долг')) {
-      if (window.confirm(`${r.error}. Выселить с долгом?`)) {
-        setState(await stayAction(props.number, props.item.id, action, true));
-        return;
+    await command(async () => {
+      const r = await stayAction(props.number, props.item.id, action);
+      // T3: выселение с долгом — показать сумму и переспросить, затем выселить с подтверждением
+      if (action === 'check-out' && r.error && r.error.includes('долг')) {
+        if (window.confirm(`${r.error}. Выселить с долгом?`)) {
+          return stayAction(props.number, props.item.id, action, true);
+        }
       }
-    }
-    setState(r);
+      return r;
+    });
   };
   const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
   return (
@@ -232,7 +259,7 @@ function StayButtons(props: {
             type="button"
             data-testid={`check-in-${props.item.id}`}
             onClick={run('check-in')}
-            disabled={!props.item.unitCode}
+            disabled={pending || !props.item.unitCode}
             title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
           >
             Заселить
@@ -242,6 +269,7 @@ function StayButtons(props: {
           <Button
             type="button"
             data-testid={`check-out-${props.item.id}`}
+            disabled={pending}
             onClick={run('check-out')}
           >
             Выселить
@@ -252,7 +280,8 @@ function StayButtons(props: {
             type="button"
             tone="info"
             data-testid={`extend-${props.item.id}`}
-            onClick={async () => setState(await extendStayAction(props.number, props.item.id))}
+            disabled={pending}
+            onClick={() => command(() => extendStayAction(props.number, props.item.id))}
             title="Выезд на сутки позже, цена пересчитается по календарю"
           >
             + 1 ночь
@@ -263,6 +292,7 @@ function StayButtons(props: {
             type="button"
             tone="warning"
             data-testid={`no-show-${props.item.id}`}
+            disabled={pending}
             onClick={run('no-show')}
           >
             Незаезд
@@ -292,7 +322,7 @@ function AssignForm(props: {
   );
   return (
     <form
-      key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}`}
+      key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}-${state.attempt ?? 0}`}
       action={action}
       className="panel"
       data-testid="assign-form"
@@ -302,7 +332,12 @@ function AssignForm(props: {
         {props.item.accommodationTypeName}
       </PanelTitle>
       <Row>
-        <Select name="unitCode" required defaultValue="">
+        <Select
+          name="unitCode"
+          aria-label="Свободная ячейка"
+          required
+          defaultValue={state.values?.unitCode ?? ''}
+        >
           <option value="" disabled>
             — свободная ячейка —
           </option>
@@ -324,7 +359,7 @@ function AssignForm(props: {
           ))}
         </Select>
         <Field label="Тариф при смене категории">
-          <Select name="ratePlanCode" defaultValue="">
+          <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
             <option value="">Тариф проживания</option>
             {props.ratePlans.map((plan) => (
               <option key={plan.code} value={plan.code}>
@@ -334,7 +369,11 @@ function AssignForm(props: {
           </Select>
         </Field>
         <Field inline label="с даты">
-          <Input type="date" name="fromDate" defaultValue={props.arrivalDate} />
+          <Input
+            type="date"
+            name="fromDate"
+            defaultValue={state.values?.fromDate ?? props.arrivalDate}
+          />
         </Field>
         <Button type="submit" disabled={pending}>
           {props.item.unitCode ? 'Переселить' : 'Назначить'}

@@ -1,9 +1,12 @@
 'use server';
+import { formValues } from '../../lib/form-values';
 import { revalidatePath } from 'next/cache';
 import { ApiError, analyticsApi, type TrackedSiteCard } from '../../lib/api';
 
 export interface SiteActionResult {
   error: string | null;
+  values?: Record<string, string>;
+  attempt?: number;
   message: string | null;
   card?: TrackedSiteCard | undefined;
 }
@@ -29,7 +32,12 @@ export async function createSiteAction(
       card,
     };
   } catch (e) {
-    return { error: describe(e), message: null };
+    return {
+      error: describe(e),
+      message: null,
+      values: formValues(form, ['name', 'hosts']),
+      attempt: (_prev?.attempt ?? 0) + 1,
+    };
   }
 }
 

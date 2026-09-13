@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   E2E_NOTE,
   INTEGRATION_SITE_NAME,
+  blocksToDelete,
   reservationsToCancel,
   sitesToDelete,
+  type CleanupBlock,
   type CleanupReservation,
   type CleanupSite,
 } from './e2e-cleanup-rules';
@@ -44,6 +46,25 @@ describe('reservationsToCancel', () => {
         [res({ confirmationNumber: '20260913-513903-1263592109', notes: null })],
         now,
       ),
+    ).toHaveLength(0);
+  });
+});
+
+describe('blocksToDelete', () => {
+  const block = (over: Partial<CleanupBlock>): CleanupBlock => ({
+    reason: `${E2E_NOTE}: блокировка койки`,
+    createdAt: minutesAgo(120),
+    ...over,
+  });
+  it('давнюю блокировку автотеста снимает — сорванный прогон не должен навсегда закрыть койку', () => {
+    expect(blocksToDelete([block({})], now)).toHaveLength(1);
+  });
+  it('свежую не снимает: спек блокировок другой сессии как раз проверяет, что койка закрыта', () => {
+    expect(blocksToDelete([block({ createdAt: minutesAgo(1) })], now)).toHaveLength(0);
+  });
+  it('блокировку администратора без метки не трогает', () => {
+    expect(
+      blocksToDelete([block({ reason: 'ремонт' }), block({ reason: null })], now),
     ).toHaveLength(0);
   });
 });

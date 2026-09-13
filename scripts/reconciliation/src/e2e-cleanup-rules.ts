@@ -62,6 +62,19 @@ export function reservationsToCancel(
   return rows.filter((r) => isTestReservation(r) && isStale(r.createdAt, now));
 }
 
+export interface CleanupBlock {
+  reason: string | null;
+  createdAt: Date;
+}
+
+/**
+ * Блокировки, которые уборка снимает: поставленные спеком блокировок (метка в причине) и давние.
+ * Свежую не трогаем: спек в другой сессии в эту минуту проверяет, что койка закрыта.
+ */
+export function blocksToDelete(rows: readonly CleanupBlock[], now: Date): CleanupBlock[] {
+  return rows.filter((b) => (b.reason?.startsWith(E2E_NOTE) ?? false) && isStale(b.createdAt, now));
+}
+
 /** Сайты, которые уборка удаляет: сайты автотестов, созданные дольше порога назад */
 export function sitesToDelete(rows: readonly CleanupSite[], now: Date): CleanupSite[] {
   return rows.filter((s) => isTestSite(s) && isStale(s.createdAt, now));

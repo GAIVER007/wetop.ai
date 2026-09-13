@@ -44,6 +44,34 @@ describe('где можно хранить настоящие данные го�
     expect(stored.email).toBeNull();
   });
 
+  it('контакт из пробелов — это «нет контакта»: псевдоним не выдумывает телефон и почту', () => {
+    // Channex и Exely присылают пустые поля строкой; '   ' истинна в JS — ровно дефект гражданства 12.09
+    const stored = guestForStorage(
+      { firstName: 'A', lastName: 'B', phone: '   ', email: ' ' },
+      'BDC-4',
+      env(),
+    );
+    expect(stored.phone).toBeNull();
+    expect(stored.email).toBeNull();
+  });
+
+  it('в боевом режиме пустой контакт хранится как NULL, а не пустой строкой; края обрезаются', () => {
+    const real = env({ PII_STORAGE: 'real' });
+    const blank = guestForStorage(
+      { firstName: 'A', lastName: 'B', phone: '', email: '  ' },
+      'X',
+      real,
+    );
+    expect(blank.phone).toBeNull();
+    expect(blank.email).toBeNull();
+    const padded = guestForStorage(
+      { firstName: 'A', lastName: 'B', phone: ' +77011234567 ', email: ' ivan@example.invalid ' },
+      'X',
+      real,
+    );
+    expect(padded).toMatchObject({ phone: '+77011234567', email: 'ivan@example.invalid' });
+  });
+
   it('настоящие данные проходят только при PII_STORAGE=real', () => {
     expect(realPiiAllowed(env())).toBe(false);
     const stored = guestForStorage(guest, 'BDC-1', env({ PII_STORAGE: 'real' }));

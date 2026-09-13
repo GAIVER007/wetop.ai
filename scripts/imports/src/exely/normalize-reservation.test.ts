@@ -139,6 +139,19 @@ describe('normalizeExelyReservation', () => {
       'KAZ',
     );
   });
+  it('customer contacts from Exely: blank email and phone → null, padded → trimmed (matters with PII_STORAGE=real)', () => {
+    const blank = structuredClone(fixture);
+    blank.customer.emails = [{ address: '  ' }];
+    blank.customer.phones = [{ number: '' }];
+    const b = normalizeExelyReservation(blank, { roomMap, typeMap }).customer;
+    expect(b.email).toBeNull();
+    expect(b.phone).toBeNull();
+    const padded = structuredClone(fixture);
+    padded.customer.emails = [{ address: ' ivan@example.invalid ' }];
+    padded.customer.phones = [{ number: ' +70000000001 ' }];
+    const p = normalizeExelyReservation(padded, { roomMap, typeMap }).customer;
+    expect(p).toMatchObject({ email: 'ivan@example.invalid', phone: '+70000000001' });
+  });
   it('OTA bookings: channelInformation present → source OTA and channel name', () => {
     const r = normalizeExelyReservation(
       {

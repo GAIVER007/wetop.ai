@@ -158,6 +158,19 @@ describe('guests API', () => {
       (await request(app.getHttpServer()).get('/guests?q=тест').expect(200)).body[0].citizenship,
     ).toBeNull();
   });
+  it('text fields: blank-only is null for optional ones and 400 for required names — never an empty string', async () => {
+    // пробелы проверялись до обрезки: имя '   ' обходило «обязательно» и сохранялось пустым
+    await request(app.getHttpServer()).patch('/guests/g1').send({ firstName: '   ' }).expect(400);
+    await request(app.getHttpServer()).patch('/guests/g1').send({ lastName: ' ' }).expect(400);
+    expect(fakes.guests.get('g1')!.firstName).toBe('Гость');
+    const r = await request(app.getHttpServer())
+      .patch('/guests/g1')
+      .send({ phone: '   ', email: ' ', middleName: '\t', notes: '  ' })
+      .expect(200);
+    expect(r.body).toMatchObject({ phone: null, email: null, middleName: null, notes: null });
+    const g = fakes.guests.get('g1')!;
+    expect([g.phone, g.email, g.middleName, g.notes]).toEqual([null, null, null, null]);
+  });
   it('documents: stored encrypted, shown masked; 503 without the encryption key; delete', async () => {
     const r = await request(app.getHttpServer())
       .post('/guests/g1/documents')

@@ -15,18 +15,13 @@ export const metadata = {
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 
-async function ProjectShell({ children }: { children: ReactNode }) {
+async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
   });
   return (
-    <TopNav
-      property={hotel?.property ?? null}
-      demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-    >
-      {children}
-    </TopNav>
+    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки гостиницы')
   );
 }
 
@@ -45,17 +40,23 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <Suspense
-            fallback={
-              <TopNav
-                demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-              >
-                {children}
-              </TopNav>
-            }
+          <TopNav
+            demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+            property={{
+              name: (
+                <Suspense fallback="Объект не загружен">
+                  <ProjectProperty field="name" />
+                </Suspense>
+              ),
+              address: (
+                <Suspense fallback="Настройки гостиницы">
+                  <ProjectProperty field="address" />
+                </Suspense>
+              ),
+            }}
           >
-            <ProjectShell>{children}</ProjectShell>
-          </Suspense>
+            {children}
+          </TopNav>
           {drawer}
         </ThemeProvider>
       </body>

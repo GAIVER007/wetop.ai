@@ -7,7 +7,7 @@ export function DataConnectionPanel({ connection }: { connection: DataConnection
   return (
     <Panel title="Данные проекта" data-testid="data-connection">
       {!connection ? (
-        <Alert>Нет связи с backend. Данные проекта не загружены.</Alert>
+        <Alert>Нет связи с рабочим API. Данные проекта не загружены.</Alert>
       ) : (
         <>
           <div className="row">

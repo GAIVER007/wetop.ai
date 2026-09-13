@@ -47,9 +47,36 @@ test('название гостиницы в каркасе и обзоре по
 test('недоступный API не скрывается за демо или выдуманным объектом', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
-  await expect(page.getByTestId('data-connection')).toContainText('Нет связи с backend');
+  await expect(page.getByTestId('data-connection')).toContainText('Нет связи с рабочим API');
   await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
     'Объект не загружен',
   );
   await expect(page.getByTestId('database-units')).toHaveCount(0);
+});
+
+test('поздняя загрузка гостиницы сохраняет ввод формы и открытое меню', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { holdHotel: true, propertyName: 'Поздний ответ гостиницы' },
+  });
+  try {
+    await page.goto('/reservations/new', { waitUntil: 'commit' });
+    await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
+    const menu = page.getByRole('button', { name: 'Меню администратора' });
+    await menu.click();
+    await expect(menu).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+      'Объект не загружен',
+    );
+    await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
+    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+      'Поздний ответ гостиницы',
+    );
+    await expect(page.getByLabel('Имя *', { exact: true })).toHaveValue('Тестовый ввод');
+    await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  } finally {
+    await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
+  }
 });

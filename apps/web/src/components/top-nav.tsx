@@ -3,14 +3,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
-import { Sidebar } from './shell/sidebar';
+import { Sidebar, type PropertyIdentity } from './shell/sidebar';
 import { GlobalSearch } from './shell/search';
 import { ShellAssistant } from './shell/assistant';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
 import { activeNavigation } from '../lib/navigation';
-import type { HotelSettings } from '../lib/hotel-api';
 export function TopNav({
   children,
   demo = false,
@@ -18,7 +17,7 @@ export function TopNav({
 }: {
   children: ReactNode;
   demo?: boolean;
-  property?: HotelSettings['property'] | null;
+  property?: PropertyIdentity | null;
 }) {
   const path = usePathname() ?? '';
   const [search, setSearch] = useState(false);

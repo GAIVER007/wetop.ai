@@ -19,6 +19,15 @@ import type {
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
+let holdHotel = false;
+const hotelWaiters = new Set<() => void>();
+function setHotelHold(value: boolean) {
+  holdHotel = value;
+  if (!value) {
+    for (const resolve of hotelWaiters) resolve();
+    hotelWaiters.clear();
+  }
+}
 const port = demo ? 4312 : 4311;
 const names = [
   'Daniel Kim',
@@ -847,6 +856,7 @@ createServer(async (req, res) => {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
     if (path === '/__test/reset') {
+      setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
       // A long browser run can cross midnight in the property's timezone.
@@ -870,6 +880,7 @@ createServer(async (req, res) => {
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
       if (
         ['READY', 'PROPERTY_MISSING', 'DATABASE_UNAVAILABLE'].includes(
@@ -886,6 +897,8 @@ createServer(async (req, res) => {
     if (path === '/__test/commands') return send(200, commands);
     if (path === failPath || failPath === '*')
       return send(503, { message: 'Синтетический сбой API' });
+    if (path === '/hotel/settings' && holdHotel)
+      await new Promise<void>((resolve) => hotelWaiters.add(resolve));
     if (path === '/hotel/reservations' && req.method === 'GET') {
       const from = url.searchParams.get('from') || today,
         to = url.searchParams.get('to') || from;

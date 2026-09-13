@@ -1,10 +1,14 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { navigation, activeNavigation, type NavigationItem } from '../../lib/navigation';
 import { Icon } from '../icon';
 import { cx } from '../ui';
-import type { HotelSettings } from '../../lib/hotel-api';
+/** Server-rendered text slots keep late metadata independent of the interactive shell. */
+export interface PropertyIdentity {
+  name: ReactNode;
+  address: ReactNode;
+}
 function Entry({
   item,
   active,
@@ -79,7 +83,7 @@ export function Sidebar({
   onAssistant: () => void;
   collapsed?: boolean;
   onCollapse?: () => void;
-  property?: HotelSettings['property'] | null;
+  property?: PropertyIdentity | null;
 }) {
   const active = activeNavigation(path)?.href;
   return (

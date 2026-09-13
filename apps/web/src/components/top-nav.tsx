@@ -13,6 +13,7 @@ const SECTIONS: ReadonlyArray<readonly [href: string, label: string]> = [
   ['/finance', 'Деньги'],
   ['/inventory', 'Номерной фонд'],
   ['/journal', 'Журнал'],
+  ['/incidents', 'Неисправности'],
   ['/analytics', 'Аналитика'],
 ];
 

@@ -12,6 +12,7 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
     <Stack gap="sm">
       <Row>
         <Button
+          tone="secondary"
           type="button"
           data-testid="channel-pull"
           onClick={() => run('pull')}

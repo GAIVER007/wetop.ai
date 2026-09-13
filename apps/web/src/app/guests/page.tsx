@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { guestsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Input, Table } from '../../components/ui';
+import { Button, Input, Panel, Table } from '../../components/ui';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
@@ -58,6 +58,20 @@ export default async function GuestsPage({
             ))}
           </tbody>
         </Table>
+      )}
+      {query.length < 2 && (
+        /* Пустой экран без подсказки выглядит как незагрузившаяся страница: говорим, что искать и зачем */
+        <Panel size="lg">
+          <p className="hint--lg">
+            Найдите гостя по фамилии, имени, телефону или почте — хватит двух букв. В карточке гостя
+            видно гражданство, документ и все его проживания: удобно, когда гость звонит и просит
+            «как в прошлый раз».
+          </p>
+          <p className="hint">
+            Гость заводится сам при заселении и при брони из канала — отдельно создавать его не
+            нужно.
+          </p>
+        </Panel>
       )}
     </Page>
   );

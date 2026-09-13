@@ -1,26 +1,40 @@
 'use client';
 import Link from 'next/link';
-import { useRef, useState, useTransition } from 'react';
+import { Fragment, useRef, useState, useTransition } from 'react';
 import {
   messengerLinks,
   type Chessboard,
   type ChessboardCell,
   type ChessboardRow,
 } from '../../lib/api';
-import { Alert } from '../../components/ui';
+import { Alert, cx } from '../../components/ui';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
+const STATUS_RU: Record<string, string> = {
+  TENTATIVE: 'предварительная',
+  CONFIRMED: 'подтверждена, ждём',
+  CHECKED_IN: 'заселён',
+  CHECKED_OUT: 'выселен',
+};
+const BLOCK_RU: Record<string, string> = {
+  MAINTENANCE: 'ремонт',
+  CLEANING: 'уборка',
+  OTHER: 'блокировка',
+};
 
 /**
- * Сетка шахматки — клиентская часть: занятую клетку можно перетащить на другую строку-ячейку.
- * Бросок → вопрос администратору → существующий server action переселения (unitCode + fromDate).
- * Отказ сервера (ячейка занята, другая категория не на всё проживание и т.п.) показывается рядом
- * с сеткой его же словами. Форма переселения на карточке брони остаётся.
+ * Сетка шахматки — клиентская часть.
+ *
+ * Что делает экран удобным (правка 12.09.2026 по замечанию владельца «шахматка должна быть максимально
+ * удобная»): строки сгруппированы по категориям, у группы по каждой дате — сколько мест свободно (это
+ * число продают); шапка дат и колонка ячеек прилипают при прокрутке (88 строк не влезают в экран);
+ * сегодняшняя колонка выделена, выходные подсвечены; пустая клетка — ссылка «создать бронь на эту дату»;
+ * занятую клетку можно перетащить на другую строку — переселение через существующий server action.
  */
-export function ChessboardGrid({ board }: { board: Chessboard }) {
+export function ChessboardGrid({ board, today }: { board: Chessboard; today: string }) {
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -64,20 +78,29 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
     setOverUnit(null);
   };
 
+  const groups = groupByCategory(board.rows);
   return (
     <>
-      <div className="tbl-wrap" style={{ opacity: pending ? 0.6 : 1 }}>
+      <div className="tbl-wrap board-wrap" style={{ opacity: pending ? 0.6 : 1 }}>
         <table data-testid="chessboard" className="board">
           <thead>
             <tr>
               <th className="board__unit-head">Ячейка</th>
               {board.dates.map((d) => (
-                <th key={d} data-testid="date-col">
-                  <div>
+                <th
+                  key={d}
+                  data-testid="date-col"
+                  className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
+                >
+                  <div className="board__d">
                     {d.slice(8)}.{d.slice(5, 7)}
                   </div>
                   <div className="board__wd">{weekday(d)}</div>
-                  <div className="board__occ" data-testid={`occupied-${d}`}>
+                  <div
+                    className="board__occ"
+                    data-testid={`occupied-${d}`}
+                    title={`занято ${board.summary[d]!.occupied} из 88`}
+                  >
                     {board.summary[d]!.occupied}
                   </div>
                 </th>
@@ -85,37 +108,63 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
             </tr>
           </thead>
           <tbody>
-            {board.rows.map((row) => (
-              <tr
-                key={row.unit.id}
-                data-testid="unit-row"
-                data-unit-code={row.unit.code}
-                onDragOver={onDragOver(row)}
-                onDrop={onDrop(row)}
-                className={overUnit === row.unit.code ? 'is-over' : undefined}
-              >
-                <td className="board__unit">
-                  <Link
-                    href={`/units/${encodeURIComponent(row.unit.code)}`}
-                    data-testid="unit-link"
-                    className="mono bold"
+            {groups.map((g) => (
+              <Fragment key={g.code}>
+                {/* Строка категории: главное число смены — сколько мест ещё можно продать на эту ночь */}
+                <tr data-testid="category-row" data-category={g.code} className="board__group">
+                  <td className="board__unit board__group-name">
+                    {g.name} <span className="muted-2">· {g.rows.length}</span>
+                  </td>
+                  {board.dates.map((d) => {
+                    const free = board.byCategory[d]?.[g.code]?.free;
+                    return (
+                      <td
+                        key={d}
+                        className={cx(
+                          'board__group-free',
+                          d === today && 'is-today',
+                          isWeekend(d) && 'is-we',
+                          free === 0 && 'is-full',
+                        )}
+                        title={free === 0 ? 'мест нет' : `свободно ${free ?? '—'}`}
+                      >
+                        {free ?? '—'}
+                      </td>
+                    );
+                  })}
+                </tr>
+                {g.rows.map((row) => (
+                  <tr
+                    key={row.unit.id}
+                    data-testid="unit-row"
+                    data-unit-code={row.unit.code}
+                    onDragOver={onDragOver(row)}
+                    onDrop={onDrop(row)}
+                    className={overUnit === row.unit.code ? 'is-over' : undefined}
                   >
-                    {row.unit.code}
-                  </Link>{' '}
-                  <span className="muted-2">
-                    {row.unit.kind === 'BED' ? 'койка' : 'номер'} · {row.unit.accommodationTypeName}
-                  </span>
-                </td>
-                {row.cells.map((c) => (
-                  <Cell
-                    key={c.date}
-                    cell={c}
-                    unitCode={row.unit.code}
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                  />
+                    <td className="board__unit">
+                      <Link
+                        href={`/units/${encodeURIComponent(row.unit.code)}`}
+                        data-testid="unit-link"
+                        className="unit"
+                      >
+                        {row.unit.code}
+                      </Link>{' '}
+                      <span className="muted-2">{row.unit.kind === 'BED' ? 'койка' : 'номер'}</span>
+                    </td>
+                    {row.cells.map((c) => (
+                      <Cell
+                        key={c.date}
+                        cell={c}
+                        unitCode={row.unit.code}
+                        today={today}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                      />
+                    ))}
+                  </tr>
                 ))}
-              </tr>
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -133,11 +182,13 @@ export function ChessboardGrid({ board }: { board: Chessboard }) {
 function Cell({
   cell,
   unitCode,
+  today,
   onDragStart,
   onDragEnd,
 }: {
   cell: ChessboardCell;
   unitCode: string;
+  today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
   onDragEnd: () => void;
 }) {
@@ -150,10 +201,14 @@ function Cell({
         : (STATUS_BG[cell.itemStatus ?? ''] ?? 'var(--st-confirmed)');
   const title =
     cell.state === 'OCCUPIED'
-      ? `${cell.confirmationNumber} · ${cell.guestLabel} · ${cell.itemStatus}`
+      ? `${cell.guestLabel ?? 'без имени'} · ${cell.confirmationNumber} · ${
+          STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
+        }`
       : cell.state === 'BLOCKED'
-        ? `блок: ${cell.blockType}`
-        : '';
+        ? `${BLOCK_RU[cell.blockType ?? ''] ?? cell.blockType}${
+            cell.blockReason ? `: ${cell.blockReason}` : ''
+          }`
+        : 'Свободно — создать бронь на эту дату';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   const draggable =
     cell.state === 'OCCUPIED' &&
@@ -161,7 +216,16 @@ function Cell({
     !!cell.itemId &&
     DRAGGABLE.has(cell.itemStatus ?? '');
   return (
-    <td className="board__cell" data-state={cell.state} data-date={cell.date} title={title}>
+    <td
+      className={cx(
+        'board__cell',
+        cell.date === today && 'is-today',
+        isWeekend(cell.date) && 'is-we',
+      )}
+      data-state={cell.state}
+      data-date={cell.date}
+      title={title}
+    >
       {cell.state === 'OCCUPIED' ? (
         <>
           <Link
@@ -206,6 +270,19 @@ function Cell({
             </a>
           )}
         </>
+      ) : cell.state === 'FREE' ? (
+        /*
+         * Пустая клетка — короткий путь «щёлкнул по дате и койке → форма брони с этими датами».
+         * Из обхода по Tab исключена намеренно: таких клеток на доске больше тысячи, и они забили бы
+         * клавиатурную навигацию; то же действие есть кнопкой «+ Новая бронь» в верхней навигации.
+         */
+        <Link
+          href={`/reservations/new?arrival=${cell.date}&departure=${nextDay(cell.date)}`}
+          className="board__free board__free--link"
+          data-testid="free-cell"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
       ) : (
         <div className="board__free" style={{ background: bg }} />
       )}
@@ -213,8 +290,34 @@ function Cell({
   );
 }
 
+/** Строки в порядке категорий: в Exely нумерация не сплошная, и подряд идут разные категории. */
+function groupByCategory(rows: ChessboardRow[]) {
+  const order: string[] = [];
+  const byCode = new Map<string, { code: string; name: string; rows: ChessboardRow[] }>();
+  for (const row of rows) {
+    const code = row.unit.accommodationTypeCode;
+    let g = byCode.get(code);
+    if (!g) {
+      g = { code, name: row.unit.accommodationTypeName, rows: [] };
+      byCode.set(code, g);
+      order.push(code);
+    }
+    g.rows.push(row);
+  }
+  return order.map((c) => byCode.get(c)!);
+}
+
 const weekday = (d: string) =>
   ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(`${d}T00:00:00Z`).getUTCDay()];
+const isWeekend = (d: string) => {
+  const n = new Date(`${d}T00:00:00Z`).getUTCDay();
+  return n === 0 || n === 6;
+};
+const nextDay = (d: string) => {
+  const x = new Date(`${d}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + 1);
+  return x.toISOString().slice(0, 10);
+};
 const STATUS_BG: Record<string, string> = {
   CONFIRMED: 'var(--st-confirmed)',
   CHECKED_IN: 'var(--st-checked-in)',

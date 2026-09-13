@@ -64,6 +64,8 @@ export interface ChessboardCell {
   isArrival?: boolean;
   isLastNight?: boolean;
   blockType?: string;
+  /** причина блокировки («ремонт: кондиционер») — показывается подсказкой на клетке */
+  blockReason?: string | null;
 }
 export interface ChessboardRow {
   unit: {
@@ -90,6 +92,7 @@ export interface Chessboard {
   dates: string[];
   rows: ChessboardRow[];
   summary: Record<string, { occupied: number; blocked: number; free: number }>;
+  /** дата → код категории → сколько единиц, занято, заблокировано, свободно */
   byCategory: Record<
     string,
     Record<string, { units: number; occupied: number; blocked: number; free: number }>

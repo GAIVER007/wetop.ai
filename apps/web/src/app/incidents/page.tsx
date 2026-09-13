@@ -55,8 +55,10 @@ export default async function IncidentsPage() {
     <Page title="Неисправности" subtitle="сторож системы" actions={<GuardTickButton />}>
       {!status && (
         <Alert boxed>
-          API не отвечает — сторож работает внутри API, поэтому сейчас не проверяет ничего.
-          Поднимите API (<span className="mono">npm run start -w apps/api</span>).
+          API не отвечает — сторож работает внутри API, поэтому сейчас не проверяет ничего. API
+          держит launchd и поднимает сам за 15 секунд; если не поднялся — смотрите{' '}
+          <span className="mono">scripts/ops/launchd/status.sh</span> и журнал{' '}
+          <span className="mono">~/Library/Logs/pms-lux/api.log</span>.
         </Alert>
       )}
       {status && !status.notifier.configured && (
@@ -161,7 +163,21 @@ export default async function IncidentsPage() {
               </td>
               <td className="nowrap">
                 {at(i.firstSeenAt)}
-                {i.occurrences > 1 && <div className="cell-sub">замечена {i.occurrences} раз</div>}
+                {/* Счётчик растёт на каждом проходе сторожа: у ошибки API это повторы, у остального — минуты,
+                    пока неисправность держится. «Замечена 47 раз» у брони без ячейки читалось бы как 47 случаев */}
+                {i.kind === 'api.error'
+                  ? i.occurrences > 1 && (
+                      <div className="cell-sub">повторилась {i.occurrences} раз</div>
+                    )
+                  : Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt) >= 60_000 && (
+                      <div className="cell-sub">
+                        держится{' '}
+                        {Math.round(
+                          (Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt)) / 60_000,
+                        )}{' '}
+                        мин
+                      </div>
+                    )}
               </td>
               <td>
                 {i.fixAttempts > 0 ? `${i.fixAttempts} попыт. — ` : ''}

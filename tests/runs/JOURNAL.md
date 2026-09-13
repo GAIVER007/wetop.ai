@@ -235,3 +235,6 @@
 | 14.09.2026 00:49 | typecheck | ✅ без ошибок | 25 с | 8f7527a +3 | [лог](logs/2026-09-13T19-49-23Z-typecheck-cc79.log) |  |
 | 14.09.2026 01:14 | typecheck | ❌ ошибок: 11 | 6 с | 1db751b +50 | [лог](logs/2026-09-13T20-14-51Z-typecheck-feb0.log) | merge of origin/main (PR #2-#4) into local main: conflicts resolved |
 | 14.09.2026 01:14 | lint | ✅ без ошибок | 7 с | 1db751b +50 | [лог](logs/2026-09-13T20-14-57Z-lint-79ec.log) | merge of origin/main (PR #2-#4) into local main: conflicts resolved |
+| 14.09.2026 01:17 | typecheck | ✅ без ошибок | 6 с | b748448 | [лог](logs/2026-09-13T20-17-49Z-typecheck-4d3d.log) | after merge b748448 and npm ci |
+| 14.09.2026 01:17 | lint | ✅ без ошибок | 8 с | b748448 | [лог](logs/2026-09-13T20-17-56Z-lint-5e26.log) | after merge b748448 and npm ci |
+| 14.09.2026 01:18 | unit | ✅ 660 из 660 | 14 с | b748448 | [лог](logs/2026-09-13T20-18-22Z-unit-ada5.log) | full unit suite after merge b748448 (PR #2-#4 + live data/Channex) |

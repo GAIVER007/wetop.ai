@@ -27,6 +27,8 @@ const STATIC = [
   '/management', '/management/statistics', '/management/reports', '/management/analytics', '/finance',
   '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup', '/marketing',
   '/journal', '/incidents',
+  // экраны premium UI (PR #2, ADR-035): справочник броней, сообщения, профиль, вход
+  '/reservations', '/messages', '/profile', '/login',
 ];
 
 const day = await json<{ arrivals: Array<{ confirmationNumber: string }>; inHouse: Array<{ confirmationNumber: string }> }>('/desk/today');

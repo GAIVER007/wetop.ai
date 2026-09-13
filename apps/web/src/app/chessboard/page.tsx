@@ -9,6 +9,7 @@ import { displayDate } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
+import { weekPeriod } from './week-period';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -30,12 +31,12 @@ export default async function ChessboardPage({
 }) {
   const query = normalizeSearchParams(await searchParams);
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
-  const currentMonth = monthPeriod(today);
-  const from = query.from || currentMonth.from;
+  const currentWeek = weekPeriod(today);
+  const from = query.from || currentWeek.from;
   const to =
     query.to ||
     (!query.from
-      ? currentMonth.to
+      ? currentWeek.to
       : validDate(from)
         ? new Date(Date.parse(`${from}T00:00:00Z`) + 13 * 86400000).toISOString().slice(0, 10)
         : '');
@@ -62,6 +63,12 @@ export default async function ChessboardPage({
   const board = await chessboardApi.board(from, to);
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
+  const week = weekPeriod(from);
+  const isWeek = from === week.from && to === week.to;
+  const weekHref = (offset = 0) => {
+    const period = weekPeriod(from, offset);
+    return `/chessboard?from=${period.from}&to=${period.to}`;
+  };
   const monthHref = (offset = 0) => {
     const period = monthPeriod(from, offset);
     return `/chessboard?from=${period.from}&to=${period.to}`;
@@ -71,7 +78,7 @@ export default async function ChessboardPage({
     year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${from}T00:00:00Z`));
-  /** Подробное окно на 7/14 суток от сегодня. Месяц всегда начинается с первого числа. */
+  /** Произвольное окно от сегодня; календарные режимы сохраняют границы недели/месяца. */
   const window = (days: number) => {
     const t = new Date(`${today}T00:00:00Z`);
     t.setUTCDate(t.getUTCDate() + days - 1);
@@ -97,8 +104,12 @@ export default async function ChessboardPage({
             Новая бронь
           </Link>
           <span className="seg">
-            <Link href={window(7)} className={cx(board.dates.length === 7 && 'is-on')}>
-              7 дней
+            <Link
+              href={weekHref()}
+              className={cx(isWeek && 'is-on')}
+              aria-current={isWeek ? 'true' : undefined}
+            >
+              Неделя
             </Link>
             <Link href={window(14)} className={cx(board.dates.length === 14 && 'is-on')}>
               14 дней
@@ -113,9 +124,11 @@ export default async function ChessboardPage({
           </span>
           <span className="board-date-nav">
             <Link
-              href={isMonth ? monthHref(-1) : shift(-board.dates.length)}
+              href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
               className="icon-button"
-              aria-label={isMonth ? 'Предыдущий месяц' : 'Предыдущий период'}
+              aria-label={
+                isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
+              }
             >
               <Icon name="chevron" className="rotate-left" />
             </Link>
@@ -123,9 +136,11 @@ export default async function ChessboardPage({
               Сегодня
             </Link>
             <Link
-              href={isMonth ? monthHref(1) : shift(board.dates.length)}
+              href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
               className="icon-button"
-              aria-label={isMonth ? 'Следующий месяц' : 'Следующий период'}
+              aria-label={
+                isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
+              }
             >
               <Icon name="chevron" />
             </Link>

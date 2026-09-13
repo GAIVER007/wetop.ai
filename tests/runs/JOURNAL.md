@@ -212,3 +212,13 @@
 | 14.09.2026 01:31 | unit | ✅ 641 из 641 | 17 с | c76c0b0 +6 | [лог](logs/2026-09-13T20-31-18Z-unit-3e71.log) | Финальный код: база, конфигурация, API и доменные правила |
 | 14.09.2026 01:31 | lint | ✅ без ошибок | 23 с | c76c0b0 +7 | [лог](logs/2026-09-13T20-31-18Z-lint-ef7c.log) | Финальная проверка изменений подключения |
 | 14.09.2026 01:31 | typecheck | ✅ без ошибок | 26 с | c76c0b0 +7 | [лог](logs/2026-09-13T20-31-18Z-typecheck-d58d.log) | Финальный код: серверные слоты метаданных и все workspace |
+| 14.09.2026 01:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts --workers=1) | ❌ упало 1 из 1 | 27 с | fc05d03 +2 | [лог](logs/2026-09-13T20-46-30Z-e2e-9a64.log) | RED: requested calendar week is still a month |
+| 14.09.2026 01:50 | unit (частично: apps/web/src/app/chessboard) | ✅ 24 из 24 | 1 с | fc05d03 +6 | [лог](logs/2026-09-13T20-50-03Z-unit-c623.log) | Calendar week and existing month/date/drag behavior |
+| 14.09.2026 01:51 | typecheck | ✅ без ошибок | 34 с | fc05d03 +10 | [лог](logs/2026-09-13T20-51-23Z-typecheck-286e.log) | Weekly view types across root, API and frontend |
+| 14.09.2026 01:51 | lint | ✅ без ошибок | 14 с | fc05d03 +10 | [лог](logs/2026-09-13T20-51-59Z-lint-97d8.log) | Weekly view lint |
+| 14.09.2026 01:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts --workers=1) | ❌ упало 4 из 17 | 7 мин 19 с | fc05d03 +10 | [лог](logs/2026-09-13T20-50-05Z-e2e-001c.log) | Weekly default, responsive seven columns, controls and retained month |
+| 14.09.2026 01:58 | lint | ✅ без ошибок | 26 с | fc05d03 +10 | [лог](logs/2026-09-13T20-58-39Z-lint-e233.log) | Final weekly calendar review |
+| 14.09.2026 01:58 | typecheck | ✅ без ошибок | 31 с | fc05d03 +10 | [лог](logs/2026-09-13T20-58-39Z-typecheck-b6c2.log) | Final weekly calendar and browser regression types |
+| 14.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests/ui/premium.spec.ts tests/ui/works | ✅ 19 из 19 | 2 мин 33 с | fc05d03 +10 | [лог](logs/2026-09-13T20-58-14Z-e2e-b090.log) | Calendar UI regression with hydrated history and desktop sidebar controls |
+| 14.09.2026 02:02 | unit (частично: apps/web/src/app/chessboard) | ✅ 24 из 24 | 1 с | fc05d03 +5 | [лог](logs/2026-09-13T21-02-11Z-unit-601e.log) | Final calendar date arithmetic and drag regression |
+| 14.09.2026 02:02 | typecheck | ✅ без ошибок | 12 с | fc05d03 +9 | [лог](logs/2026-09-13T21-02-12Z-typecheck-fcfb.log) | Final generated route declarations after production build |

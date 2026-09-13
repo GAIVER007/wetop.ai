@@ -1,0 +1,19 @@
+# Модульные (unit) · 14.09.2026 02:02 Алматы · MacBook-Air-Urij.local
+# коммит fc05d03 (codex/chessboard-week-view), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T21-02-11Z-unit-601e.json' 'apps/web/src/app/chessboard'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 3ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 5ms
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  01:02:11
+   Duration  137ms (transform 62%, import 19%, tests 12%, worker 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T21-02-11Z-unit-601e.json
+
+# код выхода 0 · 1 с

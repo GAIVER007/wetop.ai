@@ -261,13 +261,23 @@ export async function importReservations(
         });
         const existingAlloc = await tx.allocation.findFirst({
           where: { reservationItemId: itemId },
-          select: { id: true, inventoryUnitId: true, inventoryUnit: { select: { code: true } } },
+          select: {
+            id: true,
+            inventoryUnitId: true,
+            inventoryUnit: { select: { code: true, accommodationTypeId: true } },
+          },
         });
         let keptSeat = false;
         if (clash) {
           // Проживание уже пересадили прошлым импортом: если та ячейка всё ещё свободна на эти
           // даты, оставляем её. Иначе каждый повтор импорта снимал бы и заводил назначение заново.
-          if (existingAlloc && existingAlloc.inventoryUnitId !== unitId) {
+          // Только в своей категории: сменилась категория в Exely — прежняя пересадка чужая, рассаживаем заново
+          // (13.09.2026: «женская общая» стояла на мужской койке 35, стойка и канал считали остаток по-разному)
+          if (
+            existingAlloc &&
+            existingAlloc.inventoryUnitId !== unitId &&
+            existingAlloc.inventoryUnit.accommodationTypeId === typeId
+          ) {
             const stillTaken = await tx.allocation.findFirst({
               where: {
                 inventoryUnitId: existingAlloc.inventoryUnitId,

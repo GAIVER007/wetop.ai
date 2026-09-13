@@ -214,6 +214,74 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
       ),
     ).rejects.toBeInstanceOf(Rollback);
   }, 180_000);
+  it('проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется', async () => {
+    // 13.09.2026: бронь Trip.com категории «женская общая» стояла на мужской койке 35 — ночной импорт 12.09 пересадил
+    // её туда, пока она была «мужской», а после смены категории импорт сохранял ту же пересадку («ячейка ещё
+    // свободна»). Стойка считала койку занятой, канал — нет: сверка T6 «PMS 5, Channex 6».
+    const plan = buildInventoryImportPlan(
+      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
+      parseExelyAccommodationTypes(readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8')),
+    );
+    const ctx = {
+      roomMap: new Map([
+        ['R-9001', '9001'],
+        ['R-9003', '9003'],
+        ['R-9010', '9010'],
+      ]),
+      typeMap: new Map([
+        ['900001', 'exely-900001'],
+        ['900003', 'exely-900003'],
+      ]),
+    };
+    const ofType = (b: exely.UniBooking, roomTypeId: string) => ({
+      ...b,
+      roomStays: b.roomStays.map((s) => ({ ...s, roomTypeId })),
+    });
+    const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), ctx);
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
+          const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt' };
+          // A и B — dorm, Exely дал обоим койку 9010: B пересаживается на свободную койку dorm
+          // C и D занимают оба одиночных номера на те же даты
+          await importReservations(
+            tx,
+            [
+              norm(booking('T-30', 'S-30', 'R-9010', 'G-30')),
+              norm(booking('T-31', 'S-31', 'R-9010', 'G-31')),
+              norm(ofType(booking('T-32', 'S-32', 'R-9001', 'G-32'), '900001')),
+              norm(ofType(booking('T-33', 'S-33', 'R-9003', 'G-33'), '900001')),
+            ],
+            opts,
+          );
+          const seatedB = await tx.allocation.findFirstOrThrow({
+            where: { reservationItem: { exelyRoomStayId: 'S-31' } },
+            include: { inventoryUnit: { include: { accommodationType: true } } },
+          });
+          expect(seatedB.inventoryUnit.accommodationType.code).toBe('exely-900003');
+
+          // В Exely B стал одиночным номером 9001 (занят C): прежняя койка dorm свободна, но это чужая категория
+          await importReservations(tx, [norm(ofType(booking('T-31', 'S-31', 'R-9001', 'G-31'), '900001'))], opts);
+          const item = await tx.reservationItem.findUniqueOrThrow({
+            where: { exelyRoomStayId: 'S-31' },
+            include: {
+              accommodationType: true,
+              allocations: { include: { inventoryUnit: { include: { accommodationType: true } } } },
+            },
+          });
+          expect(item.accommodationType.code).toBe('exely-900001');
+          // одиночных свободных нет — без ячейки, но не на койке dorm
+          expect(
+            item.allocations.map((a) => a.inventoryUnit.accommodationType.code),
+          ).not.toContain('exely-900003');
+          throw new Rollback('rollback');
+        },
+        { timeout: 120_000, maxWait: 30_000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+  }, 180_000);
+
   it('Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет', async () => {
     const plan = buildInventoryImportPlan(
       parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),

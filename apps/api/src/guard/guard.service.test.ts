@@ -423,15 +423,15 @@ describe('GuardService: стойка, синхронизация с Exely, ос�
   const grid = (o: Record<string, Record<string, number>>) =>
     new Map(Object.entries(o).map(([k, v]) => [k, new Map(Object.entries(v))]));
 
-  it('стойка не отвечает: 2 минуты ждём, потом перезапуск; ответила — закрыта сторожем', async () => {
+  it('стойка не отвечает: 5 минут ждём (сборка после слияния бывает долгой), потом перезапуск; ответила — закрыта', async () => {
     const t = setup();
     t.state.webOk = false;
     await t.guard.tick(NIGHT);
-    await t.guard.tick(plus(NIGHT, 1));
+    await t.guard.tick(plus(NIGHT, 4));
     expect(t.calls).not.toContain('restartWeb');
-    await t.guard.tick(plus(NIGHT, 2));
+    await t.guard.tick(plus(NIGHT, 5));
     expect(t.calls).toContain('restartWeb');
-    await t.guard.tick(plus(NIGHT, 3));
+    await t.guard.tick(plus(NIGHT, 6));
     expect(t.repo.rows.find((r) => r.kind === 'web.down')).toMatchObject({
       status: 'RESOLVED',
       resolvedBy: 'GUARD',
@@ -518,6 +518,51 @@ describe('GuardService: сигнал на сервер «сторож сторо
     t.heartbeat.fail = true;
     const s = await t.guard.tick(NIGHT);
     expect(s.heartbeatError).toMatch(/недоступен/);
+  });
+});
+
+describe('GuardService: ложные тревоги 13.09.2026 (после слияния PR #1)', () => {
+  it('статус webhook — не приём брони: его 500 не срочный; срочен только сам POST webhook и бронь с сайта', async () => {
+    const t = setup();
+    const err = new Error('TypeError: boom');
+    await t.guard.recordApiError(
+      { method: 'GET', route: '/channels/channex/webhook/status', status: 500, error: err },
+      NIGHT,
+    );
+    await t.guard.recordApiError(
+      { method: 'POST', route: '/channels/channex/webhook', status: 500, error: err },
+      NIGHT,
+    );
+    expect(t.repo.rows.map((r) => [r.subjectId, r.severity])).toEqual([
+      ['GET /channels/channex/webhook/status', 'WARNING'],
+      ['POST /channels/channex/webhook', 'CRITICAL'],
+    ]);
+  });
+
+  it('500 из-за обрыва связи с базой — не ошибка кода: дежурному агенту чинить нечего, база проверяется отдельно', async () => {
+    const t = setup();
+    const dbBlip = new Error(
+      'Invalid `this.prisma.db.channelMapping.findMany()` invocation: Database error. Code: `08006`. Message: `(EAUTHTIMEOUT) timeout`',
+    );
+    await t.guard.recordApiError(
+      { method: 'GET', route: '/channels/channex/mapping', status: 500, error: dbBlip },
+      NIGHT,
+    );
+    expect(t.repo.rows).toEqual([]);
+  });
+
+  it('в сигнал на сервер идут только срочные, которые уже ждут человека; то, что сторож ещё чинит, сервер не дублирует', async () => {
+    const t = setup({ webhook: { ...QUIET_WEBHOOK, callbackReachable: false } });
+    await t.guard.tick(NIGHT);
+    expect(t.beats.at(-1)).toMatchObject({ open: 1, critical: 0, escalated: 0 });
+    // лента в подделке читается вовремя — иначе через 15 минут законно появилась бы ещё одна неисправность
+    t.state.pullOkAt = plus(NIGHT, 15);
+    await t.guard.tick(plus(NIGHT, 16));
+    expect(t.beats.at(-1)).toMatchObject({ open: 1, critical: 1, escalated: 1 });
+    await t.repo.acknowledge(t.repo.rows[0]!.id, plus(NIGHT, 17));
+    t.state.pullOkAt = plus(NIGHT, 17);
+    await t.guard.tick(plus(NIGHT, 18));
+    expect(t.beats.at(-1)).toMatchObject({ critical: 0 });
   });
 });
 

@@ -1,0 +1,187 @@
+# Модульные (unit) · 13.09.2026 21:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит a3abd32 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T16-23-35Z-unit-fc37.json' 'apps/api/src/guard' 'packages/domain/src/incidents'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 3ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 7ms
+ ❯ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests | 1 failed) 28ms
+   ✓ fingerprintOf (1)
+     ✓ вид плюс объект; без объекта — только вид 3ms
+   ✓ reconcileIncidents (5)
+     ✓ новая неисправность записывается, повтор той же — тоже (база увеличит счётчик, а не создаст строку) 1ms
+     ✓ проверка отработала и неисправности больше не видит — закрыть 1ms
+     ✓ проверка этого вида не отработала (Channex или база недоступны) — не закрывать 0ms
+     ✓ ошибка API не перепроверяется — закрывается после суток тишины 3ms
+     ✓ упавшую сверку сторож не закрывает, пока не прочитал новый отчёт этого вида 3ms
+   ❯ decideAction (11)
+     ✓ техника (класс А) с починкой — чинить 2ms
+     ✓ починка выключена (GUARD_AUTOFIX=off) — не чинить, а будить 0ms
+     ✓ между попытками выдерживается пауза 0ms
+     ✓ попытки кончились — будить, а не чинить дальше 0ms
+     × починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 5 минут 9ms
+     ✓ новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно) 1ms
+     ✓ данные (класс Б) — сразу будить, ничего не чинить 0ms
+     ✓ код (класс В) — сразу передать дежурному агенту 0ms
+     ✓ webhook под подозрением: починка уже идёт (частый опрос), будить только если не прошло за 15 минут 0ms
+     ✓ уже разбудили или человек принял — повторно не эскалировать 0ms
+     ✓ у каждого вида записаны класс и важность 1ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (7 tests) 9ms
+[Nest] 67533  - 09/13/2026, 9:23:39 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 67533  - 09/13/2026, 9:23:39 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 67533  - 09/13/2026, 9:23:39 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+ ❯ |unit| apps/api/src/guard/guard.service.test.ts (22 tests | 3 failed) 64ms
+   ✓ GuardService.tick (10)
+     ✓ упавшая отправка ARI: запись → полная выгрузка → на следующем проходе закрыта сторожем 10ms
+     ✓ проверка упала — её неисправность остаётся открытой, ошибка проверки видна в итоге прохода 2ms
+     ✓ бронь отклонена правилом: не повторять, сразу эскалировать и разбудить (CRITICAL ночью) 2ms
+     ✓ временная ошибка события — повтор, после исчерпания попыток — к человеку 1ms
+     ✓ лента не читается, а сторож webhook уже опрашивает её каждую минуту — второй опрос не запускать 1ms
+     ✓ GUARD_AUTOFIX=off — ничего не чинит, эскалирует 0ms
+     ✓ овербукинг: к человеку без починки; пока объект на Exely — предупреждение, ночью не будит 0ms
+     ✓ человек нажал «Принято» — CRITICAL больше не будит 0ms
+     ✓ база легла: будит напрямую, не чаще раза в 30 минут; поднялась — остаётся запись в истории 8ms
+     ✓ будильник не настроен — неисправности пишутся, сообщение не уходит, итог прохода это говорит 2ms
+   ✓ GuardService: стойка, синхронизация с Exely, остатки в канале (4)
+     ✓ стойка не отвечает: 2 минуты ждём, потом перезапуск; ответила — закрыта сторожем 1ms
+     ✓ синхронизации из Exely больше суток: к человеку, сам не импортирует; после переключения объекта проверка не нужна 0ms
+     ✓ канал видит больше мест, чем есть: полная выгрузка и пересверка сразу, а не через час 1ms
+     ✓ сверять не с чем (нет маппинга) — не ошибка проверки и не повод закрыть 0ms
+   ✓ GuardService: сигнал на сервер «сторож сторожа» (3)
+     ✓ раз в проход — только числа: открыто, срочных, ждут человека, не отработавших проверок 1ms
+     ✓ база легла — сигнал всё равно уходит и говорит «срочно»: сервер продублирует тревогу 0ms
+     ✓ сервер сторожа недоступен — проход не ломается, ошибка видна в итоге 1ms
+   ❯ GuardService: ложные тревоги 13.09.2026 (после слияния PR #1) (3)
+     × статус webhook — не приём брони: его 500 не срочный; срочен только сам POST webhook и бронь с сайта 21ms
+     × 500 из-за обрыва связи с базой — не ошибка кода: дежурному агенту чинить нечего, база проверяется отдельно 4ms
+     × в сигнал на сервер идут только срочные, которые уже ждут человека; то, что сторож ещё чинит, сервер не дублирует 6ms
+   ✓ GuardService.recordApiError (2)
+     ✓ 500 от кода пишется одной неисправностью на маршрут, без тела запроса и секретов 0ms
+     ✓ ошибка на приёме брони (webhook, сайт) — срочная 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.service.test.ts > GuardService: ложные тревоги 13.09.2026 (после слияния PR #1) > статус webhook — не приём брони: его 500 не срочный; срочен только сам POST webhook и бронь с сайта
+AssertionError: expected [ [ …(2) ], [ …(2) ] ] to deeply equal [ [ …(2) ], [ …(2) ] ]
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  [
+    [
+      "GET /channels/channex/webhook/status",
+-     "WARNING",
++     "CRITICAL",
+    ],
+    [
+      "POST /channels/channex/webhook",
+      "CRITICAL",
+    ],
+
+ ❯ apps/api/src/guard/guard.service.test.ts:536:63
+    534|       NIGHT,
+    535|     );
+    536|     expect(t.repo.rows.map((r) => [r.subjectId, r.severity])).toEqual([
+       |                                                               ^
+    537|       ['GET /channels/channex/webhook/status', 'WARNING'],
+    538|       ['POST /channels/channex/webhook', 'CRITICAL'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.service.test.ts > GuardService: ложные тревоги 13.09.2026 (после слияния PR #1) > 500 из-за обрыва связи с базой — не ошибка кода: дежурному агенту чинить нечего, база проверяется отдельно
+AssertionError: expected [ { id: 'i-1', …(19) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "acknowledgedAt": null,
++     "alertedAt": null,
++     "class": "C",
++     "details": {
++       "at": [
++         "at /Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/guard/guard.service.test.ts:544:20",
++         "at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:1628:35",
++         "at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:26",
++       ],
++       "error": "Error: Invalid `this.prisma.db.channelMapping.findMany()` invocation: Database error. Code: `08006`. Message: `(EAUTHTIMEOUT) timeout`",
++       "status": 500,
++     },
++     "fingerprint": "api.error:GET /channels/channex/mapping",
++     "firstSeenAt": 2026-09-13T21:00:00.000Z,
++     "fixAttempts": 0,
++     "id": "i-1",
++     "kind": "api.error",
++     "lastFixAt": null,
++     "lastFixResult": null,
++     "lastSeenAt": 2026-09-13T21:00:00.000Z,
++     "occurrences": 1,
++     "resolvedAt": null,
++     "resolvedBy": null,
++     "severity": "WARNING",
++     "status": "OPEN",
++     "subjectId": "GET /channels/channex/mapping",
++     "subjectType": "route",
++     "title": "Ошибка программы (HTTP 500) на GET /channels/channex/mapping",
++   },
++ ]
+
+ ❯ apps/api/src/guard/guard.service.test.ts:551:25
+    549|       NIGHT,
+    550|     );
+    551|     expect(t.repo.rows).toEqual([]);
+       |                         ^
+    552|   });
+    553|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.service.test.ts > GuardService: ложные тревоги 13.09.2026 (после слияния PR #1) > в сигнал на сервер идут только срочные, которые уже ждут человека; то, что сторож ещё чинит, сервер не дублирует
+AssertionError: expected { Object (at, open, ...) } to match object { Object (open, critical, ...) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "critical": 0,
++   "critical": 1,
+    "escalated": 0,
+    "open": 1,
+  }
+
+ ❯ apps/api/src/guard/guard.service.test.ts:557:28
+    555|     const t = setup({ webhook: { ...QUIET_WEBHOOK, callbackReachable: …
+    556|     await t.guard.tick(NIGHT);
+    557|     expect(t.beats.at(-1)).toMatchObject({ open: 1, critical: 0, escal…
+       |                            ^
+    558|     await t.guard.tick(plus(NIGHT, 16));
+    559|     expect(t.beats.at(-1)).toMatchObject({ open: 1, critical: 1, escal…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/incidents.test.ts > decideAction > починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 5 минут
+AssertionError: expected 120000 to be greater than or equal to 300000
+ ❯ packages/domain/src/incidents/incidents.test.ts:147:23
+    145|     const p = POLICY['web.down'].fix!;
+    146|     // 13.09.2026 после слияния PR #1 стойка собирала страницы 5,5 мин…
+    147|     expect(p.afterMs).toBeGreaterThanOrEqual(5 * 60_000);
+       |                       ^
+    148|     expect(
+    149|       decideAction(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  4 failed | 54 passed (58)
+   Start at  09:23:38
+   Duration  3.03s (transform 50%, import 43%, tests 6%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T16-23-35Z-unit-fc37.json
+
+# код выхода 1 · 7 с

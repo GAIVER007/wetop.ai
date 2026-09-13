@@ -94,6 +94,22 @@ try {
     (f) => `${f}=${process.env[f] ?? '(по умолчанию)'}`,
   );
   console.log(`Сторож: ${flags.join(', ')}`);
+  // Сигнал на сервер «сторож сторожа» (plans/slice-12-guard-server.md): адрес не секрет, секрет — только длина
+  const beatUrl = process.env['GUARD_HEARTBEAT_URL']?.trim();
+  const beatSecret = process.env['GUARD_HEARTBEAT_SECRET']?.trim();
+  if (!beatUrl && !beatSecret) {
+    console.log('Сигнал на сервер сторожа: не настроен — если Mac замолчит, никто не узнает');
+  } else {
+    const urlOk = !!beatUrl && /^https:\/\/.+\/heartbeat$/.test(beatUrl);
+    const secretOk = !!beatSecret && beatSecret.length >= 32 && !/\s/.test(beatSecret);
+    console.log(
+      `GUARD_HEARTBEAT_URL: ${beatUrl ? (urlOk ? beatUrl : `${beatUrl} — нужен https://…/heartbeat`) : 'НЕ ЗАДАН'}`,
+    );
+    console.log(
+      `GUARD_HEARTBEAT_SECRET: ${beatSecret ? (secretOk ? `задан, длина ${beatSecret.length}` : 'задан, КОРОЧЕ 32 знаков или с пробелами') : 'НЕ ЗАДАН'}`,
+    );
+    if (!urlOk || !secretOk) problems += 1;
+  }
 }
 console.log(problems ? `Проблем: ${problems}` : 'Всё на месте.');
 process.exitCode = problems ? 1 : 0;

@@ -104,6 +104,7 @@
 | 13.09.2026 18:49 | unit (частично: apps/api/src/guard apps/api/src/app.module.test.ts) | ✅ 20 из 20 | 2 с | 809ac0b +11 | [лог](logs/2026-09-13T13-49-30Z-unit-c024.log) | сигнал на сервер сторожа |
 | 13.09.2026 18:49 | typecheck | ✅ без ошибок | 5 с | 809ac0b +11 | [лог](logs/2026-09-13T13-49-32Z-typecheck-cdc1.log) | сигнал на сервер сторожа |
 | 13.09.2026 18:49 | lint | ✅ без ошибок | 7 с | 809ac0b +11 | [лог](logs/2026-09-13T13-49-58Z-lint-946e.log) | сторож сторожа |
+| 13.09.2026 19:06 | typecheck | ✅ без ошибок | 4 с | faf4237 +3 | [лог](logs/2026-09-13T14-06-36Z-typecheck-7d95.log) | проверка ключей сигнала |
 | 13.09.2026 19:21 | unit | ✅ 569 из 569 | 8 с | 0c85467 | [лог](logs/2026-09-13T14-21-36Z-unit-c96b.log) |  |
 | 13.09.2026 19:21 | typecheck | ❌ ошибок: 1 | 20 с | 0c85467 | [лог](logs/2026-09-13T14-21-36Z-typecheck-3571.log) | TS18048 |
 | 13.09.2026 19:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 17 | 1 мин 6 с | 0c85467 | [лог](logs/2026-09-13T14-21-36Z-e2e-1435.log) | Объединено с main faf4237; разделы гостиницы; synthetic API без БД |
@@ -138,3 +139,9 @@
 | 13.09.2026 22:23 | unit | ✅ 595 из 595 | 20 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-16Z-unit-e55f.log) | Final premium UI: query validation and demo isolation regression coverage |
 | 13.09.2026 22:23 | lint | ❌ код выхода 2 | 11 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-27Z-lint-4d50.log) | Premium UI final lint |
 | 13.09.2026 22:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 31 | 7 мин 9 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-27Z-e2e-c902.log) | Premium UI: full isolated browser regression, themes, drawers and responsive states |
+| 13.09.2026 21:23 | unit (частично: apps/api/src/guard packages/domain/src/incidents) | ❌ упало 4 из 58 | 7 с | a3abd32 +3 | [лог](logs/2026-09-13T16-23-35Z-unit-fc37.log) | ложные тревоги после слияния PR #1: красный до исправления |
+| 13.09.2026 21:24 | unit (частично: apps/api/src/guard packages/domain/src/incidents apps/api/src/app.module.test.ts) | ❌ упало 2 из 59 | 10 с | a3abd32 +6 | [лог](logs/2026-09-13T16-24-15Z-unit-d7ff.log) | ложные тревоги после слияния PR #1 |
+| 13.09.2026 21:25 | unit (частично: apps/api/src/guard packages/domain/src/incidents apps/api/src/app.module.test.ts) | ✅ 59 из 59 | 13 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-30Z-unit-ab63.log) | ложные тревоги после слияния PR #1: зелёный |
+| 13.09.2026 21:25 | unit | ✅ 591 из 591 | 12 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-45Z-unit-0e30.log) | полный unit после исправления ложных тревог |
+| 13.09.2026 21:26 | typecheck | ✅ без ошибок | 42 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-09Z-typecheck-758d.log) | ложные тревоги |
+| 13.09.2026 21:26 | lint | ✅ без ошибок | 51 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-53Z-lint-d076.log) | ложные тревоги |

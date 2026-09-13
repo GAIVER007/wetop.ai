@@ -141,9 +141,10 @@ describe('decideAction', () => {
     expect(decideAction(tired, NOW, true)).toBe('escalate');
   });
 
-  it('починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 2 минуты', () => {
+  it('починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 5 минут', () => {
     const p = POLICY['web.down'].fix!;
-    expect(p.afterMs).toBeGreaterThan(0);
+    // 13.09.2026 после слияния PR #1 стойка собирала страницы 5,5 минуты — перезапуск в это время только мешает
+    expect(p.afterMs).toBeGreaterThanOrEqual(5 * 60_000);
     expect(
       decideAction(
         open({ kind: 'web.down', firstSeenAt: new Date(NOW.getTime() - p.afterMs! + 1000) }),

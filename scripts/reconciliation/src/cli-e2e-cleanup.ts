@@ -145,7 +145,7 @@ try {
   // сверкой 11.09: мужской дом 19 против 18 в Channex). Поэтому после уборки просим полную выгрузку сами;
   // если API недоступен — её сделает ночная выгрузка после 03:00 по Алматы.
   if (!dry && freed > 0) {
-    const sync = await fetch(`${API}/channels/channex/sync?days=365&trigger=import`, {
+    const sync = await fetch(`${API}/channels/channex/sync?days=500&trigger=import`, {
       method: 'POST',
     }).catch(() => null);
     console.log(

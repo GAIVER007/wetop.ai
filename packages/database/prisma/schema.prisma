@@ -867,3 +867,62 @@ model WebEvent {
   @@index([at])
   @@map("web_events")
 }
+
+// ───────────────────────── §12 Неисправности системы ─────────────────────────
+// Одно место для всего, что сломалось (ADR-028, срез 11). Техническая таблица, бизнес-данных не хранит.
+
+enum IncidentClass {
+  A
+  B
+  C
+}
+
+enum IncidentSeverity {
+  CRITICAL
+  WARNING
+}
+
+enum IncidentStatus {
+  OPEN
+  FIXING
+  ESCALATED
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum IncidentResolvedBy {
+  GUARD
+  AGENT
+  STAFF
+}
+
+/// Одна строка на неисправность: пока не закрыта, повтор с тем же fingerprint только увеличивает occurrences
+/// (частичный уникальный индекс WHERE status <> 'RESOLVED' — в миграции, Prisma такой не описывает).
+/// В subject_id и details нет ФИО, телефонов, тел запросов и секретов (DATA_MODEL §12).
+model SystemIncident {
+  id             String              @id @default(uuid()) @db.Uuid
+  kind           String
+  class          IncidentClass
+  severity       IncidentSeverity
+  fingerprint    String
+  status         IncidentStatus      @default(OPEN)
+  title          String
+  subjectType    String?             @map("subject_type")
+  subjectId      String?             @map("subject_id")
+  details        Json?
+  occurrences    Int                 @default(1)
+  firstSeenAt    DateTime            @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt     DateTime            @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  fixAttempts    Int                 @default(0) @map("fix_attempts")
+  lastFixAt      DateTime?           @map("last_fix_at") @db.Timestamptz(6)
+  lastFixResult  String?             @map("last_fix_result")
+  alertedAt      DateTime?           @map("alerted_at") @db.Timestamptz(6)
+  acknowledgedAt DateTime?           @map("acknowledged_at") @db.Timestamptz(6)
+  resolvedAt     DateTime?           @map("resolved_at") @db.Timestamptz(6)
+  resolvedBy     IncidentResolvedBy? @map("resolved_by")
+
+  @@index([status, severity])
+  @@index([kind, firstSeenAt])
+  @@index([resolvedAt])
+  @@map("system_incidents")
+}

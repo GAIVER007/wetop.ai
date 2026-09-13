@@ -326,10 +326,11 @@ export const channelsApi = {
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
-  sync: (days = 365) =>
+  /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
+  sync: (days?: number) =>
     sendJson<{ from: string; to: string; tasks: string[] }>(
       'POST',
-      `/channels/channex/sync?days=${days}`,
+      days ? `/channels/channex/sync?days=${days}` : '/channels/channex/sync',
       {},
     ),
   pull: () =>
@@ -743,4 +744,56 @@ export const analyticsApi = {
       `/analytics/sites/${encodeURIComponent(id)}/report${qs ? `?${qs}` : ''}`,
     );
   },
+};
+
+// ───────────────────────── Сторож системы (срез 11, ADR-028) ─────────────────────────
+
+export type IncidentClass = 'A' | 'B' | 'C';
+export type IncidentStatus = 'OPEN' | 'FIXING' | 'ESCALATED' | 'ACKNOWLEDGED' | 'RESOLVED';
+/** Неисправность из одного места (DATA_MODEL §12). Без ФИО и телефонов — только номера и коды. */
+export interface Incident {
+  id: string;
+  kind: string;
+  class: IncidentClass;
+  severity: 'CRITICAL' | 'WARNING';
+  status: IncidentStatus;
+  title: string;
+  subjectType: string | null;
+  subjectId: string | null;
+  occurrences: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  fixAttempts: number;
+  lastFixAt: string | null;
+  lastFixResult: string | null;
+  alertedAt: string | null;
+  acknowledgedAt: string | null;
+  resolvedAt: string | null;
+  resolvedBy: 'GUARD' | 'AGENT' | 'STAFF' | null;
+}
+export interface GuardStatus {
+  running: boolean;
+  autofix: boolean;
+  propertyLive: boolean;
+  notifier: { configured: boolean; recipients: number };
+  dbDownSince: string | null;
+  lastTick: {
+    at: string;
+    durationMs: number;
+    dbOk: boolean;
+    checked: string[];
+    checkErrors: Array<{ check: string; error: string }>;
+    alertError: string | null;
+  } | null;
+  open: { total: number; critical: number; escalated: number };
+}
+export const guardApi = {
+  status: () => getJson<GuardStatus>('/guard/status'),
+  incidents: (status: 'open' | 'all', limit = 100) =>
+    getJson<Incident[]>(`/guard/incidents?status=${status}&limit=${limit}`),
+  acknowledge: (id: string) =>
+    sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/acknowledge`, {}),
+  resolve: (id: string) =>
+    sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/resolve`, {}),
+  tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
 };

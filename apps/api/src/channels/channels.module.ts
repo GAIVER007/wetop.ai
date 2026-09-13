@@ -28,6 +28,14 @@ import {
     OutboxWorker,
     WebhookHealthService,
   ],
-  exports: [ARI_PUBLISHER],
+  // Сторож системы (срез 11) чинит технику теми же путями, что кнопки на /channels
+  exports: [
+    ARI_PUBLISHER,
+    CHANNELS_REPOSITORY,
+    InboundBookingsService,
+    OutboxWorker,
+    ChannexSyncService,
+    WebhookHealthService,
+  ],
 })
 export class ChannelsModule {}

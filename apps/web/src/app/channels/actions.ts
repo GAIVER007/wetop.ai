@@ -20,7 +20,7 @@ export async function channelAction(
       };
       message = `Объект ${r.created.property ? 'создан' : 'уже был'}, категорий создано ${r.created.roomTypes}, тарифов ${r.created.ratePlans}`;
     } else if (kind === 'sync') {
-      const r = await channelsApi.sync(365);
+      const r = await channelsApi.sync();
       message = `Полная выгрузка ${r.from} → ${r.to}; задачи Channex: ${r.tasks.join(', ')}`;
     } else if (kind === 'pull') {
       const r = await channelsApi.pull();

@@ -35,7 +35,7 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           onClick={() => run('sync')}
           disabled={pending}
         >
-          Полная выгрузка (365 дней)
+          Полная выгрузка (500 дней)
         </Button>
         <Button
           type="button"

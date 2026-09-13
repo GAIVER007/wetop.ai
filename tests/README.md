@@ -7,6 +7,8 @@
 | `e2e/`         | Playwright, критичные сценарии стойки            |
 
 Инструменты: Vitest (unit, integration), Playwright (e2e). Запуск: `npm test`, полная проверка: `npm run check`.
+Прогоны с записью в журнал, что уже доказано на текущем коде и известные грабли — [`TESTING.md`](../TESTING.md):
+`npm run test:status`, `npm run test:record -- <unit|integration|e2e|typecheck|lint>`.
 Первый тест — `unit/scaffold.test.ts`: пакеты `@pms/*` резолвятся по имени.
 
 ## Правила
@@ -78,7 +80,8 @@
 не укладываются в 30 с ожидания — срывы «Сохраняю…» без ошибки в интерфейсе. Полный прогон гонять так:
 
 ```bash
-npx playwright test --workers=2
+npm run test:record -- e2e
 ```
 
-31/31 за 13 минут; в четыре воркера тот же код дал 9 срывов по таймауту.
+Внутри то же `npx playwright test --workers=2`, плюс лог и строка журнала. 31/31 за 13 минут; в четыре воркера
+тот же код дал 9 срывов по таймауту.

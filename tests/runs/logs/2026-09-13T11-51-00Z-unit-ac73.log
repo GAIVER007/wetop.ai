@@ -1,0 +1,30 @@
+# Модульные (unit) · 13.09.2026 16:51 Алматы · Noutbuk-Vyacheslav.local
+# коммит 59f145e (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-51-00Z-unit-ac73.json' 'packages/integrations/src/telegram'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| packages/integrations/src/telegram/client.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/telegram/client.test.ts [ packages/integrations/src/telegram/client.test.ts ]
+Error: Cannot find module './client' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/packages/integrations/src/telegram/client.test.ts
+ ❯ packages/integrations/src/telegram/client.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { TelegramApiError, TelegramClient, telegramConfigFromEnv } fro…
+       | ^
+      3|
+      4| /** Будильник сторожа (срез 11). Форма запросов и ответов — docs/teleg…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:51:01
+   Duration  81ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-51-00Z-unit-ac73.json
+
+# код выхода 1 · 1 с

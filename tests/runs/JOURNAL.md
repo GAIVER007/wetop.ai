@@ -134,3 +134,7 @@
 | 13.09.2026 19:59 | lint | ✅ без ошибок | 35 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-lint-9eb5.log) |  |
 | 13.09.2026 19:59 | typecheck | ✅ без ошибок | 40 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-typecheck-b996.log) |  |
 | 13.09.2026 20:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 25 из 25 | 1 мин 46 с | c538741 +32 | [лог](logs/2026-09-13T15-00-27Z-e2e-5898.log) | Final UI after bounded network error handling and successful production build without API |
+| 13.09.2026 22:18 | unit | ✅ 594 из 594 | 30 с | 2579006 +50 | [лог](logs/2026-09-13T17-18-16Z-unit-d5e9.log) | WETOP premium UI: темы, server API и обратная совместимость |
+| 13.09.2026 22:23 | unit | ✅ 595 из 595 | 20 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-16Z-unit-e55f.log) | Final premium UI: query validation and demo isolation regression coverage |
+| 13.09.2026 22:23 | lint | ❌ код выхода 2 | 11 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-27Z-lint-4d50.log) | Premium UI final lint |
+| 13.09.2026 22:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 31 | 7 мин 9 с | 2579006 +50 | [лог](logs/2026-09-13T17-23-27Z-e2e-c902.log) | Premium UI: full isolated browser regression, themes, drawers and responsive states |

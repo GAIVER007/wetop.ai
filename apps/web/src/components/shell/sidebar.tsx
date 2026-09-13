@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { navigation, activeNavigation, type NavigationItem } from '../../lib/navigation';
 import { Icon } from '../icon';
 import { cx } from '../ui';
+import type { HotelSettings } from '../../lib/hotel-api';
 function Entry({
   item,
   active,
@@ -71,12 +72,14 @@ export function Sidebar({
   onAssistant,
   collapsed,
   onCollapse,
+  property,
 }: {
   path: string;
   close?: () => void;
   onAssistant: () => void;
   collapsed?: boolean;
   onCollapse?: () => void;
+  property?: HotelSettings['property'] | null;
 }) {
   const active = activeNavigation(path)?.href;
   return (
@@ -112,8 +115,8 @@ export function Sidebar({
           <Icon name="inventory" />
         </span>
         <div>
-          <strong>Luxx Aparts</strong>
-          <span>Алматы, Казахстан</span>
+          <strong>{property?.name ?? 'Объект не загружен'}</strong>
+          <span>{property?.address ?? 'Настройки гостиницы'}</span>
         </div>
         <Icon name="down" width={14} />
       </Link>

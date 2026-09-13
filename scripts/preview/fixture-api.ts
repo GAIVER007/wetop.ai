@@ -1,6 +1,7 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { createServer } from 'node:http';
 import { parseMoney, assertAllocationsMatch } from '@pms/domain';
+import type { DataConnection } from '@pms/shared';
 import type {
   Chessboard,
   DeskDay,
@@ -16,6 +17,8 @@ import type {
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
+let propertyName = 'Luxx Aparts';
+let connectionState: DataConnection['state'] = 'READY';
 const port = demo ? 4312 : 4311;
 const names = [
   'Daniel Kim',
@@ -512,6 +515,27 @@ function report(): SiteReport {
   };
 }
 function read(path: string, q: URLSearchParams): unknown {
+  if (path === '/system/connection') {
+    const ready = connectionState === 'READY';
+    return {
+      source: demo ? 'demo' : 'synthetic',
+      state: connectionState,
+      message: ready ? 'Изолированные данные интерфейса' : 'База данных недоступна',
+      checkedAt: new Date().toISOString(),
+      database: { connected: false, provider: 'unknown' },
+      property: ready ? { name: propertyName, timezone: 'Asia/Almaty', currency: 'KZT' } : null,
+      counts: ready
+        ? {
+            units: emptyFixture ? 0 : units.length,
+            categories: emptyFixture ? 0 : categories.length,
+            reservations: emptyFixture ? 0 : allCards().length,
+            ratePlans: emptyFixture ? 0 : plans.length,
+            services: emptyFixture ? 0 : 1,
+            sites: emptyFixture || siteDeleted ? 0 : 1,
+          }
+        : null,
+    } satisfies DataConnection;
+  }
   if (emptyFixture) {
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
@@ -556,7 +580,7 @@ function read(path: string, q: URLSearchParams): unknown {
     return {
       property: {
         id: 'test-property',
-        name: 'Luxx Aparts',
+        name: propertyName,
         legalName: null,
         address: 'Тестовый адрес, 1',
         timezone: 'Asia/Almaty',
@@ -823,6 +847,8 @@ createServer(async (req, res) => {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
     if (path === '/__test/reset') {
+      propertyName = 'Luxx Aparts';
+      connectionState = 'READY';
       // A long browser run can cross midnight in the property's timezone.
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
       incident = structuredClone(incidentSeed);
@@ -844,6 +870,13 @@ createServer(async (req, res) => {
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
+      if (
+        ['READY', 'PROPERTY_MISSING', 'DATABASE_UNAVAILABLE'].includes(
+          String(body['connectionState']),
+        )
+      )
+        connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;

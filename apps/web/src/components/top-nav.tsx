@@ -10,7 +10,16 @@ import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
 import { activeNavigation } from '../lib/navigation';
-export function TopNav({ children, demo = false }: { children: ReactNode; demo?: boolean }) {
+import type { HotelSettings } from '../lib/hotel-api';
+export function TopNav({
+  children,
+  demo = false,
+  property = null,
+}: {
+  children: ReactNode;
+  demo?: boolean;
+  property?: HotelSettings['property'] | null;
+}) {
   const path = usePathname() ?? '';
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -62,6 +71,7 @@ export function TopNav({ children, demo = false }: { children: ReactNode; demo?:
       </a>
       <aside className="workspace-sidebar">
         <Sidebar
+          property={property}
           path={path}
           onAssistant={() => setAssistant(true)}
           collapsed={collapsed}
@@ -124,7 +134,7 @@ export function TopNav({ children, demo = false }: { children: ReactNode; demo?:
                 <span className="desk-avatar">АД</span>
                 <span className="profile-caption">
                   <strong>Администратор</strong>
-                  <small>Luxx Aparts</small>
+                  <small>{property?.name ?? 'Объект не загружен'}</small>
                 </span>
                 <Icon name="down" width={14} />
               </button>
@@ -194,7 +204,12 @@ export function TopNav({ children, demo = false }: { children: ReactNode; demo?:
         title="Навигация"
         className="mobile-navigation"
       >
-        <Sidebar path={path} close={() => setMenu(false)} onAssistant={() => setAssistant(true)} />
+        <Sidebar
+          property={property}
+          path={path}
+          close={() => setMenu(false)}
+          onAssistant={() => setAssistant(true)}
+        />
       </Overlay>
       <GlobalSearch open={search} close={() => setSearch(false)} />
       <ShellAssistant open={assistant} close={() => setAssistant(false)} />

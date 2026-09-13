@@ -198,3 +198,6 @@
 | 14.09.2026 00:49 | typecheck | ✅ без ошибок | 25 с | 8f7527a +3 | [лог](logs/2026-09-13T19-49-23Z-typecheck-cc79.log) |  |
 | 14.09.2026 00:59 | unit (частично: apps/api/src/database/connection.test.ts) | ❌ упало 6 из 6 | 4 с | 0f05d21 +1 | [лог](logs/2026-09-13T19-59-16Z-unit-9bcb.log) | RED: отсутствует проверка базы и источника данных |
 | 14.09.2026 01:00 | unit (частично: apps/api/src/database/connection.test.ts apps/api/src/app.module.test.ts) | ✅ 7 из 7 | 3 с | 0f05d21 +5 | [лог](logs/2026-09-13T20-00-09Z-unit-5950.log) | GREEN: проверка базы без побочных действий и утечки секретов |
+| 14.09.2026 01:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/real-data.spec.ts --workers=1 --max-failures=1) | ❌ упало 1 из 4, пропущено 3 | 27 с | 4a4aa53 +3 | [лог](logs/2026-09-13T20-02-06Z-e2e-0483.log) | RED: интерфейс не показывает источник базы и использует название из макета |
+| 14.09.2026 01:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/real-data.spec.ts --workers=1) | ✅ 4 из 4 | 17 с | 4a4aa53 +11 | [лог](logs/2026-09-13T20-03-48Z-e2e-2611.log) | GREEN: статус источника, ошибки базы и название гостиницы из API |
+| 14.09.2026 01:04 | typecheck | ✅ без ошибок | 13 с | 4a4aa53 +10 | [лог](logs/2026-09-13T20-04-39Z-typecheck-8b62.log) | Проверка контракта состояния базы и серверного каркаса |

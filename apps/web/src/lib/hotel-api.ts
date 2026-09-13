@@ -1,4 +1,5 @@
 import { getJsonPublic } from './api';
+import type { DataConnection } from '@pms/shared';
 
 export interface HotelSettings {
   property: {
@@ -35,6 +36,7 @@ export interface ChannelReport {
   }>;
 }
 export const hotelApi = {
+  connection: () => getJsonPublic<DataConnection>('/system/connection'),
   settings: () => getJsonPublic<HotelSettings>('/hotel/settings'),
   channelReport: (from: string, to: string, status: string) =>
     getJsonPublic<ChannelReport>(

@@ -62,5 +62,38 @@ try {
   console.log(`PII шифрование: ОШИБКА — ${(e as Error).message}`);
   problems += 1;
 }
+// Будильник сторожа (срез 11, docs/telegram/README.md) — необязателен: без него сторож пишет, но не будит
+{
+  const token = process.env['TELEGRAM_BOT_TOKEN']?.trim();
+  const chats = (process.env['TELEGRAM_CHAT_ID'] ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!token && chats.length === 0) {
+    console.log(
+      'Будильник Telegram: не настроен — сторож записывает неисправности, но никого не будит',
+    );
+  } else {
+    const tokenOk = !!token && /^\d+:[\w-]{20,}$/.test(token);
+    const chatsOk = chats.length > 0 && chats.every((id) => /^-?\d+$/.test(id));
+    const tokenText = !token
+      ? 'НЕ ЗАДАН'
+      : tokenOk
+        ? `задан, длина ${token.length}`
+        : 'задан, НЕ ПОХОЖ на токен (цифры:буквы, без пробелов и кавычек)';
+    const chatText = !chats.length
+      ? 'НЕ ЗАДАН — номер покажет npm run telegram:chats'
+      : chatsOk
+        ? `задан, чатов ${chats.length}${chats.some((id) => id.startsWith('-')) ? ' (есть группа)' : ''}`
+        : 'задан, НЕ ЧИСЛО — номер покажет npm run telegram:chats';
+    console.log(`TELEGRAM_BOT_TOKEN: ${tokenText}`);
+    console.log(`TELEGRAM_CHAT_ID: ${chatText}`);
+    if (!tokenOk || !chatsOk) problems += 1;
+  }
+  const flags = ['GUARD', 'GUARD_AUTOFIX', 'GUARD_PROPERTY_LIVE'].map(
+    (f) => `${f}=${process.env[f] ?? '(по умолчанию)'}`,
+  );
+  console.log(`Сторож: ${flags.join(', ')}`);
+}
 console.log(problems ? `Проблем: ${problems}` : 'Всё на месте.');
 process.exitCode = problems ? 1 : 0;

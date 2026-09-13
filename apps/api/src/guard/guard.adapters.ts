@@ -1,8 +1,11 @@
 import 'reflect-metadata';
+import { execFile } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { promisify } from 'node:util';
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  categoryAvailability,
   failingSuites,
   latestReportResults,
   type FailingSuite,
@@ -12,7 +15,12 @@ import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PROVIDER } from '../channels/ari-publisher';
-import { CHANNELS_REPOSITORY, type ChannelsRepository } from '../channels/channels.repository';
+import {
+  CHANNELS_REPOSITORY,
+  CHANNEX_GATEWAY,
+  type ChannelsRepository,
+  type ChannexGateway,
+} from '../channels/channels.repository';
 import { InboundBookingsService } from '../channels/inbound.service';
 import { OutboxWorker } from '../channels/outbox.worker';
 import { ChannexSyncService } from '../channels/sync.service';
@@ -22,7 +30,9 @@ import type {
   FailedEvent,
   FixOutcome,
   GuardFixes,
+  GuardHeartbeat,
   GuardProbes,
+  HeartbeatBeat,
   OutboxSignal,
   StaySignal,
   WebhookSignal,
@@ -32,6 +42,19 @@ import type {
 const ROOT = resolve(import.meta.dirname, '../../../..');
 /** Те же виды, что в утреннем отчёте (`scripts/reconciliation/src/cli-morning-report.ts`) */
 const REPORT_KINDS = ['inventory', 'double-entry', 'rates', 'balances', 'channex-ari'];
+const execFileAsync = promisify(execFile); // без оболочки: команда и аргументы — массивом
+/** Стойку держит launchd (scripts/ops/launchd/install.sh): ей и перезапускать */
+const WEB_LAUNCHD_LABEL = 'kz.luxx.pms.web';
+const WEB_URL = process.env.GUARD_WEB_URL ?? 'http://127.0.0.1:3000';
+const WEB_TIMEOUT_MS = 10_000;
+/** Остатки канала читает тот же клиент Channex, что пишет; в типе шлюза чтения нет — проверяем по факту */
+interface AvailabilityReader {
+  getAvailability(
+    propertyId: string,
+    from: string,
+    to: string,
+  ): Promise<Record<string, Record<string, number>>>;
+}
 
 @Injectable()
 export class NestGuardProbes implements GuardProbes {
@@ -40,17 +63,21 @@ export class NestGuardProbes implements GuardProbes {
     @Inject(CHANNELS_REPOSITORY) private readonly channels: ChannelsRepository,
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
     @Inject(WebhookHealthService) private readonly webhookHealth: WebhookHealthService,
+    @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
   ) {}
 
   channexEnabled(): boolean {
     return !!process.env.CHANNEX_API_KEY?.trim();
   }
 
-  enabled(what: 'pull' | 'webhookHealth' | 'fullSync'): boolean {
+  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari'): boolean {
     const flag = {
       pull: 'CHANNEX_PULL',
       webhookHealth: 'CHANNEX_WEBHOOK_HEALTH',
       fullSync: 'CHANNEX_FULL_SYNC',
+      exelySync: 'GUARD_EXELY_SYNC',
+      web: 'GUARD_WEB',
+      ari: 'GUARD_ARI',
     }[what];
     return process.env[flag] !== 'off';
   }
@@ -171,6 +198,56 @@ export class NestGuardProbes implements GuardProbes {
     const file = resolve(ROOT, 'tests/runs/journal.jsonl');
     return existsSync(file) ? failingSuites(readFileSync(file, 'utf8')) : null;
   }
+
+  /** Любой ответ сервера ниже 500 (и 404 на favicon) — стойка жива; отказ сети или молчание 10 с — нет */
+  async webHealth(): Promise<{ ok: boolean; error: string | null }> {
+    try {
+      const res = await fetch(`${WEB_URL}/favicon.ico`, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(WEB_TIMEOUT_MS),
+      });
+      return res.status < 500
+        ? { ok: true, error: null }
+        : { ok: false, error: `HTTP ${res.status}` };
+    } catch (e) {
+      return { ok: false, error: (e as Error).message };
+    }
+  }
+
+  /** Синхронизация суток (`cli-sync-day.ts`) завершается полной выгрузкой с trigger=import — по ней и видно, когда была */
+  async lastExelySyncAt(): Promise<Date | null> {
+    const row = await this.prisma.db.auditLog.findFirst({
+      where: { action: 'channex.fullSync', after: { path: ['trigger'], equals: 'import' } },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    });
+    return row?.createdAt ?? null;
+  }
+
+  async channelAvailability(from: string, to: string) {
+    const reader = this.gateway as unknown as Partial<AvailabilityReader>;
+    if (typeof reader.getAvailability !== 'function') return null;
+    const mapped = (await this.channels.mappings(PROVIDER)).filter(
+      (m) => m.providerRoomTypeId && m.localAccommodationTypeCode,
+    );
+    if (mapped.length === 0) return null;
+    const next = new Date(`${to}T00:00:00Z`);
+    next.setUTCDate(next.getUTCDate() + 1);
+    const toExclusive = next.toISOString().slice(0, 10);
+    const [units, blocks, items, remote] = await Promise.all([
+      this.channels.categoryUnits(),
+      this.channels.categoryBlocks(from, toExclusive),
+      this.channels.soldItems(from, toExclusive),
+      reader.getAvailability.call(this.gateway, mapped[0]!.providerPropertyId, from, to),
+    ]);
+    const pms = categoryAvailability({ from, to, units, blocks, items });
+    const channel = new Map<string, Map<string, number>>();
+    for (const m of mapped) {
+      const perDate = remote[m.providerRoomTypeId!];
+      if (perDate) channel.set(m.localAccommodationTypeCode!, new Map(Object.entries(perDate)));
+    }
+    return { pms, channel };
+  }
 }
 
 /** Починка техники — ровно те вызовы, что делают кнопки на /channels. Ничего своего сторож в базу не пишет. */
@@ -209,6 +286,23 @@ export class NestGuardFixes implements GuardFixes {
     };
   }
 
+  /** Зависшую стойку перезапускает её хозяин launchd; на машине без задачи — честно «не настроено», к человеку */
+  async restartWeb(): Promise<FixOutcome> {
+    if (process.platform !== 'darwin')
+      return { ok: false, text: 'перезапуск стойки на этой машине не настроен (нет launchd)' };
+    const target = `gui/${process.getuid?.() ?? 0}/${WEB_LAUNCHD_LABEL}`;
+    try {
+      await execFileAsync('launchctl', ['print', target]);
+    } catch {
+      return {
+        ok: false,
+        text: `стойку держит не launchd (${WEB_LAUNCHD_LABEL} не загружен) — перезапустить некому`,
+      };
+    }
+    await execFileAsync('launchctl', ['kickstart', '-k', target]);
+    return { ok: true, text: `стойка перезапущена: launchctl kickstart -k ${WEB_LAUNCHD_LABEL}` };
+  }
+
   async retryEvent(revisionId: string): Promise<FixOutcome> {
     const r = await this.inbound.retryEvent(revisionId);
     return {
@@ -228,5 +322,29 @@ export function notifierFromEnv(): AlertNotifier {
     configured: true,
     recipients: cfg.chatIds.length,
     send: (text) => client.sendMessage(text),
+  };
+}
+
+/**
+ * Сигнал на сервер «сторож сторожа» (plans/slice-12-guard-server.md, шаг 12.2). Адрес и секрет вписывает владелец в .env;
+ * без них сигнал не шлётся. Только https (или локальный адрес для проверки): секрет в заголовке по открытому
+ * каналу не отправляем. Секрет — в заголовке, не в адресе: адреса попадают в журналы прокси.
+ */
+export function heartbeatFromEnv(): GuardHeartbeat {
+  const url = process.env.GUARD_HEARTBEAT_URL?.trim() ?? '';
+  const secret = process.env.GUARD_HEARTBEAT_SECRET?.trim() ?? '';
+  const safe = /^https:\/\//.test(url) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\//.test(url);
+  if (!url || !secret || !safe) return { configured: false, send: async () => undefined };
+  return {
+    configured: true,
+    async send(beat: HeartbeatBeat) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${secret}` },
+        body: JSON.stringify(beat),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`сервер сторожа ответил HTTP ${res.status}`);
+    },
   };
 }

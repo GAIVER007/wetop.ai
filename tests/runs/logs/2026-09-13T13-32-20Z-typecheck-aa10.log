@@ -1,0 +1,21 @@
+# Типы (typecheck) · 13.09.2026 18:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6f9c6d2 (main), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/guard/guard.adapters.ts(37,14): error TS2420: Class 'NestGuardProbes' incorrectly implements interface 'GuardProbes'.
+  Type 'NestGuardProbes' is missing the following properties from type 'GuardProbes': webHealth, lastExelySyncAt, channelAvailability
+apps/api/src/guard/guard.adapters.ts(178,14): error TS2420: Class 'NestGuardFixes' incorrectly implements interface 'GuardFixes'.
+  Property 'restartWeb' is missing in type 'NestGuardFixes' but required in type 'GuardFixes'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 6 с

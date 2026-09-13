@@ -151,3 +151,27 @@ export function overbookedNights(input: {
     }
   return out;
 }
+
+export interface OversoldNight {
+  code: string;
+  date: string;
+  pms: number;
+  channel: number;
+}
+
+/**
+ * Где канал видит мест больше, чем есть в PMS (T6: такой канал продаст лишнее). Меньше — недопродажа, не авария.
+ * Дата, которой канал не вернул, не считается: «не видно» — это не «продаёт».
+ */
+export function channelOversold(input: {
+  pms: Map<string, Map<string, number>>;
+  channel: Map<string, Map<string, number>>;
+}): OversoldNight[] {
+  const out: OversoldNight[] = [];
+  for (const [code, perDate] of input.pms)
+    for (const [date, pms] of perDate) {
+      const channel = input.channel.get(code)?.get(date);
+      if (channel !== undefined && channel > pms) out.push({ code, date, pms, channel });
+    }
+  return out;
+}

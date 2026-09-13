@@ -141,6 +141,31 @@ describe('decideAction', () => {
     expect(decideAction(tired, NOW, true)).toBe('escalate');
   });
 
+  it('починка с выдержкой: стойку не перезапускать на первом медленном ответе, а только если не отвечает 2 минуты', () => {
+    const p = POLICY['web.down'].fix!;
+    expect(p.afterMs).toBeGreaterThan(0);
+    expect(
+      decideAction(
+        open({ kind: 'web.down', firstSeenAt: new Date(NOW.getTime() - p.afterMs! + 1000) }),
+        NOW,
+        true,
+      ),
+    ).toBe('wait');
+    expect(
+      decideAction(
+        open({ kind: 'web.down', firstSeenAt: new Date(NOW.getTime() - p.afterMs!) }),
+        NOW,
+        true,
+      ),
+    ).toBe('fix');
+  });
+
+  it('новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно)', () => {
+    expect(POLICY['web.down']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
+    expect(POLICY['exely.stale']).toMatchObject({ class: 'B', severity: 'WARNING' });
+    expect(POLICY['ari.oversell']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
+  });
+
   it('данные (класс Б) — сразу будить, ничего не чинить', () => {
     expect(decideAction(open({ kind: 'stay.overbooked' }), NOW, true)).toBe('escalate');
   });

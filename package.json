@@ -26,6 +26,7 @@
     "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit",
     "typecheck:api": "tsc -p apps/api/tsconfig.json --noEmit",
     "morning": "tsx scripts/reconciliation/src/cli-morning-report.ts",
+    "telegram:chats": "tsx scripts/ops/telegram-chats.ts",
     "e2e:cleanup": "tsx scripts/reconciliation/src/cli-e2e-cleanup.ts",
     "analytics:retention": "tsx scripts/reconciliation/src/cli-analytics-retention.ts",
     "cutover:channel": "tsx scripts/reconciliation/src/cli-cutover-channel.ts",

@@ -32,7 +32,7 @@
    в отчёт, `launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api` один раз. Дальше не чинить — отчёт.
 2. Свежий проход и список:
    ```bash
-   curl -s -X POST http://127.0.0.1:3001/guard/tick
+   curl -s -X POST "http://127.0.0.1:3001/guard/tick?all=1"
    curl -s "http://127.0.0.1:3001/guard/incidents?status=open"
    ```
 3. По каждой открытой неисправности со статусом `ESCALATED` — по классу (§3). `OPEN`/`FIXING` — сторож ещё

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.09.2026 18:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8824974 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-13-51Z-unit-2537.json' 'packages/integrations/src/telegram'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 14ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  06:13:51
+   Duration  105ms (transform 47%, tests 35%, import 13%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-13-51Z-unit-2537.json
+
+# код выхода 0 · 1 с

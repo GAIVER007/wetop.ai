@@ -140,6 +140,12 @@ function setup(
     dbDown: false,
     outboxThrows: false,
     pullOkAt: plus(NIGHT, -2),
+    webOk: true,
+    exelySyncAt: plus(NIGHT, -60) as Date | null,
+    avail: null as {
+      pms: Map<string, Map<string, number>>;
+      channel: Map<string, Map<string, number>>;
+    } | null,
   };
   const probes: GuardProbes = {
     channexEnabled: () => true,
@@ -162,6 +168,9 @@ function setup(
     stays: async () => state.stays,
     reports: () => [],
     failingSuites: () => [],
+    webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
+    lastExelySyncAt: async () => state.exelySyncAt,
+    channelAvailability: async () => state.avail,
   };
   const calls: string[] = [];
   const ok = (text: string): FixOutcome => ({ ok: true, text });
@@ -174,6 +183,11 @@ function setup(
       return ok('полная выгрузка: задачи t1, t2');
     },
     retryEvent: async (id) => (calls.push(`retry:${id}`), { ok: false, text: 'HTTP 503' }),
+    restartWeb: async () => {
+      calls.push('restartWeb');
+      state.webOk = true;
+      return ok('стойка перезапущена');
+    },
   };
   const sent: string[] = [];
   const notifier: AlertNotifier = {
@@ -181,9 +195,18 @@ function setup(
     recipients: 1,
     send: async (text) => (sent.push(text), { delivered: 1, failed: [] }),
   };
+  const beats: unknown[] = [];
+  const heartbeat = {
+    configured: true,
+    fail: false,
+    send: async (b: unknown) => {
+      if (heartbeat.fail) throw new Error('сервер сторожа недоступен');
+      beats.push(b);
+    },
+  };
   const repo = new MemoryIncidents();
-  const guard = new GuardService(repo, probes, fixes, notifier);
-  return { guard, repo, state, calls, sent };
+  const guard = new GuardService(repo, probes, fixes, notifier, heartbeat);
+  return { guard, repo, state, calls, sent, beats, heartbeat };
 }
 
 describe('GuardService.tick', () => {
@@ -393,6 +416,108 @@ describe('GuardService.tick', () => {
     expect(t.repo.rows[0]!.status).toBe('ESCALATED');
     expect(s.alerted).toBe(0);
     expect(s.alertError).toMatch(/не настроен/);
+  });
+});
+
+describe('GuardService: стойка, синхронизация с Exely, остатки в канале', () => {
+  const grid = (o: Record<string, Record<string, number>>) =>
+    new Map(Object.entries(o).map(([k, v]) => [k, new Map(Object.entries(v))]));
+
+  it('стойка не отвечает: 2 минуты ждём, потом перезапуск; ответила — закрыта сторожем', async () => {
+    const t = setup();
+    t.state.webOk = false;
+    await t.guard.tick(NIGHT);
+    await t.guard.tick(plus(NIGHT, 1));
+    expect(t.calls).not.toContain('restartWeb');
+    await t.guard.tick(plus(NIGHT, 2));
+    expect(t.calls).toContain('restartWeb');
+    await t.guard.tick(plus(NIGHT, 3));
+    expect(t.repo.rows.find((r) => r.kind === 'web.down')).toMatchObject({
+      status: 'RESOLVED',
+      resolvedBy: 'GUARD',
+    });
+  });
+
+  it('синхронизации из Exely больше суток: к человеку, сам не импортирует; после переключения объекта проверка не нужна', async () => {
+    const t = setup();
+    t.state.exelySyncAt = plus(NIGHT, -30 * 60);
+    t.guard.propertyLive = false;
+    await t.guard.tick(NIGHT);
+    const inc = t.repo.rows.find((r) => r.kind === 'exely.stale');
+    expect(inc).toMatchObject({ status: 'ESCALATED', class: 'B' });
+    expect(inc!.title).toContain('30 ч');
+    expect(t.calls).toEqual([]);
+    const live = setup();
+    live.state.exelySyncAt = null;
+    live.guard.propertyLive = true;
+    const s = await live.guard.tick(NIGHT);
+    expect(s.checked).not.toContain('exely.stale');
+    expect(live.repo.rows).toEqual([]);
+  });
+
+  it('канал видит больше мест, чем есть: полная выгрузка и пересверка сразу, а не через час', async () => {
+    const t = setup();
+    t.state.avail = {
+      pms: grid({ MALE: { '2026-09-14': 0 } }),
+      channel: grid({ MALE: { '2026-09-14': 2 } }),
+    };
+    await t.guard.tick(NIGHT);
+    expect(t.calls).toEqual(['fullSync']);
+    const inc = t.repo.rows.find((r) => r.kind === 'ari.oversell')!;
+    expect(inc.title).toContain('PMS 0, канал 2');
+    t.state.avail = {
+      pms: grid({ MALE: { '2026-09-14': 0 } }),
+      channel: grid({ MALE: { '2026-09-14': 0 } }),
+    };
+    await t.guard.tick(plus(NIGHT, 1));
+    expect(t.repo.rows.find((r) => r.kind === 'ari.oversell')).toMatchObject({
+      status: 'RESOLVED',
+      resolvedBy: 'GUARD',
+    });
+  });
+
+  it('сверять не с чем (нет маппинга) — не ошибка проверки и не повод закрыть', async () => {
+    const t = setup();
+    const s = await t.guard.tick(NIGHT);
+    expect(s.checked).not.toContain('ari.oversell');
+    expect(s.checkErrors).toEqual([]);
+  });
+});
+
+describe('GuardService: сигнал на сервер «сторож сторожа»', () => {
+  it('раз в проход — только числа: открыто, срочных, ждут человека, не отработавших проверок', async () => {
+    const t = setup({
+      events: [
+        {
+          externalEventId: 'rev-9',
+          type: 'booking_new',
+          attempts: 6,
+          receivedAt: NIGHT,
+          lastError: 'PMS не выбирает сама (ADR-024)',
+        },
+      ],
+    });
+    await t.guard.tick(NIGHT);
+    expect(t.beats).toEqual([
+      { at: NIGHT.toISOString(), open: 1, critical: 1, escalated: 1, checksFailed: 0 },
+    ]);
+    expect(JSON.stringify(t.beats)).not.toContain('rev-9');
+  });
+
+  it('база легла — сигнал всё равно уходит и говорит «срочно»: сервер продублирует тревогу', async () => {
+    const t = setup();
+    t.state.dbDown = true;
+    await t.guard.tick(NIGHT);
+    expect(t.beats).toEqual([
+      { at: NIGHT.toISOString(), open: 1, critical: 1, escalated: 1, checksFailed: 1 },
+    ]);
+  });
+
+  it('сервер сторожа недоступен — проход не ломается, ошибка видна в итоге', async () => {
+    const t = setup();
+    t.heartbeat.fail = true;
+    const s = await t.guard.tick(NIGHT);
+    expect(s.heartbeatError).toMatch(/недоступен/);
   });
 });
 

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.09.2026 18:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 809ac0b (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-47-11Z-unit-a33c.json' 'scripts/ops/watch'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 53ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  06:47:12
+   Duration  138ms (tests 67%, transform 21%, import 10%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-47-11Z-unit-a33c.json
+
+# код выхода 0 · 1 с

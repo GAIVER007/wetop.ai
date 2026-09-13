@@ -1,0 +1,43 @@
+# Модульные (unit) · 13.09.2026 18:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 17a69ab (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-37-34Z-unit-b94a.json' 'apps/api/src/app.module.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/app.module.test.ts (1 test | 1 failed) 10ms
+   ❯ AppModule (1)
+     × все модули API собираются: зависимости сходятся 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/app.module.test.ts > AppModule > все модули API собираются: зависимости сходятся
+Error: Nest can't resolve dependencies of the NestGuardProbes (PrismaService, Symbol(CHANNELS_REPOSITORY), InboundBookingsService, WebhookHealthService, ?). Please make sure that the argument Symbol(CHANNEX_GATEWAY) at index [4] is available in the GuardModule module.
+
+Potential solutions:
+- Is GuardModule a valid NestJS module?
+- If Symbol(CHANNEX_GATEWAY) is a provider, is it part of the current GuardModule?
+- If Symbol(CHANNEX_GATEWAY) is exported from a separate @Module, is that module imported within GuardModule?
+  @Module({
+    imports: [ /* the Module containing Symbol(CHANNEX_GATEWAY) */ ]
+  })
+
+For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
+ ❯ TestingInjector.lookupComponentInParentModules ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/injector.js:313:19
+ ❯ TestingInjector.resolveComponentWrapper ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/testing/testing-injector.js:16:45
+ ❯ resolveParam ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/injector.js:149:38
+ ❯ TestingInjector.resolveConstructorParams ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/injector.js:181:27
+ ❯ TestingInjector.loadInstance ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/injector.js:75:13
+ ❯ TestingInjector.loadProvider ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/injector.js:109:9
+ ❯ ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  06:37:35
+   Duration  641ms (import 50%, transform 48%, tests 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T13-37-34Z-unit-b94a.json
+
+# код выхода 1 · 1 с

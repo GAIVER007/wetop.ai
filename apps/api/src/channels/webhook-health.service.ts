@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  Optional,
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { PROVIDER } from './ari-publisher';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { InboundBookingsService } from './inbound.service';
 import { assessWebhook, type WebhookHealth } from './schedule';
+import { ChannexSyncService } from './sync.service';
 
 export interface WebhookHealthSnapshot {
   webhookSuspect: boolean;
@@ -18,6 +20,35 @@ export interface WebhookHealthSnapshot {
   lastWebhookAt: string | null;
   lastPullBookingAt: string | null;
   checkedAt: string | null;
+  /** Адрес, который проверял сторож, и результат последней пробы: null — не проверяли */
+  callbackProbedUrl: string | null;
+  callbackReachable: boolean | null;
+  callbackCheckedAt: string | null;
+}
+
+/** Проба адреса. Подменяется в тестах; в бою — обычный запрос. */
+export type CallbackProbe = (url: string, timeoutMs: number) => Promise<boolean>;
+export const CALLBACK_PROBE = Symbol('CALLBACK_PROBE');
+/** Как часто дёргать Channex за адресом и проверять его: чаще незачем, страховочный опрос и так раз в 5 минут */
+export const PROBE_EVERY_MS = 5 * 60_000;
+export const PROBE_TIMEOUT_MS = 5_000;
+
+/**
+ * Адрес считается живым при любом ответе сервера, даже 404: webhook принимает только POST,
+ * и 404 на GET означает, что запрос дошёл до нас. Провал — это отказ сети: хост не резолвится,
+ * соединение не встаёт, ответа нет за отведённое время. Ровно так умирает быстрый туннель.
+ */
+async function httpProbe(url: string, timeoutMs: number): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      redirect: 'manual',
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    return res.status > 0;
+  } catch {
+    return false;
+  }
 }
 
 /** Раз в минуту: не пропал ли webhook. Признак — бронь пришла опросом ленты, а webhook её не доставил. */
@@ -44,10 +75,45 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     lastPullBookingAt: null,
     checkedAt: null,
   };
+  private callback: { url: string | null; reachable: boolean | null; checkedAt: Date | null } = {
+    url: null,
+    reachable: null,
+    checkedAt: null,
+  };
+  private readonly probe: CallbackProbe;
   constructor(
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
-  ) {}
+    @Optional() @Inject(ChannexSyncService) private readonly sync?: ChannexSyncService,
+    @Optional() @Inject(CALLBACK_PROBE) probe?: CallbackProbe,
+  ) {
+    this.probe = probe ?? httpProbe;
+  }
+
+  /**
+   * Раз в PROBE_EVERY_MS спрашиваем у Channex зарегистрированный адрес и стучимся в него.
+   * Если Channex недоступен, результат — «не проверяли»: подозрение из чужого сбоя не выдумываем.
+   */
+  private async probeCallback(now: Date): Promise<void> {
+    if (!this.sync) return;
+    const last = this.callback.checkedAt;
+    if (last && now.getTime() - last.getTime() < PROBE_EVERY_MS) return;
+    try {
+      const status = await this.sync.webhookStatus();
+      const url = status.callbackUrl ?? null;
+      if (!url) {
+        this.callback = { url: null, reachable: null, checkedAt: now };
+        return;
+      }
+      const reachable = await this.probe(url, PROBE_TIMEOUT_MS);
+      if (reachable !== this.callback.reachable)
+        this.log.log(`адрес webhook ${url}: ${reachable ? 'отвечает' : 'НЕ отвечает'}`);
+      this.callback = { url, reachable, checkedAt: now };
+    } catch (e) {
+      this.callback = { ...this.callback, reachable: null };
+      this.log.warn(`адрес webhook не проверен: ${(e as Error).message}`);
+    }
+  }
 
   onModuleInit(): void {
     if (
@@ -77,7 +143,14 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
         this.repo.lastEventAt(PROVIDER, 'WEBHOOK'),
         this.repo.lastEventAt(PROVIDER, 'PULL', 'booking'),
       ]);
-      const next = assessWebhook({ lastWebhookAt, lastPullBookingAt, now, previous: this.state });
+      await this.probeCallback(now);
+      const next = assessWebhook({
+        lastWebhookAt,
+        lastPullBookingAt,
+        now,
+        previous: this.state,
+        callbackReachable: this.callback.reachable,
+      });
       if (next.suspect && !this.state.suspect)
         this.log.warn(
           `webhook Channex под подозрением: ${next.reason}. Опрашиваю ленту каждую минуту; ` +
@@ -108,6 +181,9 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
       lastWebhookAt: this.seen.lastWebhookAt?.toISOString() ?? null,
       lastPullBookingAt: this.seen.lastPullBookingAt?.toISOString() ?? null,
       checkedAt: this.seen.checkedAt?.toISOString() ?? null,
+      callbackProbedUrl: this.callback.url,
+      callbackReachable: this.callback.reachable,
+      callbackCheckedAt: this.callback.checkedAt?.toISOString() ?? null,
     };
   }
 }

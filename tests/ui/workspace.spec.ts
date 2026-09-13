@@ -31,7 +31,7 @@ test('все разделы, карточки и печать открывают
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
   });
-  const routes = [
+  const routes: Array<[string, string]> = [
     ['/today', 'Обзор дня'],
     ['/chessboard', 'Шахматка'],
     ['/guests?q=Тест', 'Гости'],
@@ -127,7 +127,9 @@ test('доступность переносит даты и свободное �
   await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
   await expect(page.locator('h1')).toHaveText('Новая бронь');
   await page.goto('/rooms/availability?arrival=2026-10-04&departure=2026-10-01');
-  await expect(page.getByRole('alert')).toContainText('Выезд должен быть позже заезда');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'Выезд должен быть позже заезда',
+  );
   await expect(page.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveCount(0);
 });
 
@@ -160,7 +162,9 @@ test('подключения показывают частичный сбой, �
     data: { failPath: '/channels/channex/webhook/status' },
   });
   await page.goto('/connections');
-  await expect(page.getByRole('alert')).toContainText('Не удалось проверить webhook');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'Не удалось проверить webhook',
+  );
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
   for (const path of ['/rooms/promotions', '/hotel-settings/photos', '/hotel-settings/amenities']) {
     await page.goto(path);
@@ -291,7 +295,10 @@ test('сбой списка неисправностей не выдаётся �
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/incidents' } });
   await page.goto('/incidents');
   await expect(
-    page.getByRole('alert').filter({ hasText: 'Список неисправностей не загрузился' }),
+    page
+      .getByRole('main')
+      .getByRole('alert')
+      .filter({ hasText: 'Список неисправностей не загрузился' }),
   ).toBeVisible();
   await expect(page.getByText('за сутки ничего не закрывалось', { exact: true })).toHaveCount(0);
 });

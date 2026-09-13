@@ -44,6 +44,7 @@ test('все разделы, карточки и печать открывают
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
     ['/journal', 'Журнал действий'],
+    ['/incidents', 'Неисправности'],
     ['/analytics', 'Аналитика сайта'],
     ['/analytics/setup', 'Подключение счётчика'],
   ];
@@ -172,6 +173,29 @@ test('сбой API показывает ошибку, повтор восста�
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.getByRole('button', { name: 'Повторить загрузку' }).click();
   await expect(page.locator('h1')).toHaveText('Номерной фонд');
+});
+
+test('неисправности из обновлённого main: принятие и закрытие работают в новом каркасе', async ({
+  page,
+}) => {
+  await page.goto('/today');
+  await page.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  await page.getByTestId('incident-acknowledge').click();
+  await expect(page.getByTestId('incident-status')).toHaveText('принято');
+  await page.getByTestId('incident-resolve').click();
+  await expect(page.getByTestId('incident-row')).toHaveCount(0);
+  await expect(page.getByTestId('incidents-closed')).toContainText(
+    'Тестовая бронь без назначенной ячейки',
+  );
+});
+
+test('сбой списка неисправностей не выдаётся за отсутствие проблем', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/incidents' } });
+  await page.goto('/incidents');
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Список неисправностей не загрузился' }),
+  ).toBeVisible();
+  await expect(page.getByText('за сутки ничего не закрывалось', { exact: true })).toHaveCount(0);
 });
 
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {

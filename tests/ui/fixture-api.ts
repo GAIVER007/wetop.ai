@@ -12,6 +12,7 @@ import type {
   UnitCard,
   TrackedSite,
   SiteReport,
+  Incident,
 } from '../../apps/web/src/lib/api';
 
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
@@ -104,6 +105,27 @@ let failPath = '';
 let groupFixture = false;
 let paid = new Map<string, bigint>();
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+const incidentSeed: Incident = {
+  id: 'ui-incident',
+  kind: 'booking.unassigned',
+  class: 'B',
+  severity: 'WARNING',
+  status: 'OPEN',
+  title: 'Тестовая бронь без назначенной ячейки',
+  subjectType: 'Reservation',
+  subjectId: 'ui-item',
+  occurrences: 1,
+  firstSeenAt: `${today}T07:00:00Z`,
+  lastSeenAt: `${today}T07:00:00Z`,
+  fixAttempts: 0,
+  lastFixAt: null,
+  lastFixResult: null,
+  alertedAt: null,
+  acknowledgedAt: null,
+  resolvedAt: null,
+  resolvedBy: null,
+};
+let incident = structuredClone(incidentSeed);
 
 function desk(date: string): DeskDay {
   const row = (i: number, status: string): DeskRow => ({
@@ -308,6 +330,18 @@ function report(): SiteReport {
 }
 function read(path: string, q: URLSearchParams): unknown {
   if (path.endsWith('/MISSING')) return undefined;
+  if (path === '/guard/status')
+    return {
+      running: true,
+      autofix: false,
+      propertyLive: true,
+      notifier: { configured: true, recipients: 1 },
+      dbDownSince: null,
+      lastTick: null,
+      open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
+    };
+  if (path === '/guard/incidents')
+    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -451,6 +485,7 @@ createServer(async (req, res) => {
     res.end(JSON.stringify(data));
   };
   if (path === '/__test/reset') {
+    incident = structuredClone(incidentSeed);
     card = cardSeed();
     guest = structuredClone(guestSeed);
     commands = [];
@@ -476,6 +511,17 @@ createServer(async (req, res) => {
     );
   }
   commands.push({ method: req.method || '', path, body });
+  if (path === '/guard/incidents/ui-incident/acknowledge') {
+    incident.status = 'ACKNOWLEDGED';
+    incident.acknowledgedAt = new Date().toISOString();
+    return send(200, incident);
+  }
+  if (path === '/guard/incidents/ui-incident/resolve') {
+    incident.status = 'RESOLVED';
+    incident.resolvedBy = 'STAFF';
+    incident.resolvedAt = new Date().toISOString();
+    return send(200, incident);
+  }
   if (path === '/finance/payments') {
     try {
       const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;

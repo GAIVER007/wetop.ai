@@ -44,10 +44,10 @@ export default async function IncidentsPage() {
   const [status, open, all] = await Promise.all([
     guardApi.status().catch(() => null),
     guardApi.incidents('open').catch(() => null),
-    guardApi.incidents('all', 60).catch(() => []),
+    guardApi.incidents('all', 60).catch(() => null),
   ]);
   const dayAgo = Date.now() - 24 * 3_600_000;
-  const closed = all.filter(
+  const closed = all?.filter(
     (i) => i.status === 'RESOLVED' && Date.parse(i.resolvedAt ?? '') > dayAgo,
   );
   const tick = status?.lastTick ?? null;
@@ -130,6 +130,11 @@ export default async function IncidentsPage() {
       )}
 
       <SectionTitle>Открытые</SectionTitle>
+      {open === null && (
+        <Alert boxed>
+          Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.
+        </Alert>
+      )}
       <Table size="sm" data-testid="incidents-table">
         <thead>
           <tr>
@@ -192,6 +197,11 @@ export default async function IncidentsPage() {
       </Table>
 
       <SectionTitle>Закрыты за сутки</SectionTitle>
+      {all === null && (
+        <Alert boxed>
+          История неисправностей не загрузилась. Это не означает, что закрытых записей нет.
+        </Alert>
+      )}
       <Table size="sm" data-testid="incidents-closed">
         <thead>
           <tr>
@@ -201,14 +211,14 @@ export default async function IncidentsPage() {
           </tr>
         </thead>
         <tbody>
-          {closed.length === 0 && (
+          {closed?.length === 0 && (
             <tr>
               <td colSpan={4} className="muted">
                 за сутки ничего не закрывалось
               </td>
             </tr>
           )}
-          {closed.map((i) => (
+          {closed?.map((i) => (
             <tr key={i.id}>
               <td>
                 {i.title}

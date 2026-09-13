@@ -41,6 +41,15 @@ export default tseslint.config(
     },
   },
   {
+    // Обёртки launchd (ADR-034): чистый Node без сборки и tsx — launchd запускает их node напрямую.
+    files: ['scripts/ops/launchd/*.mjs', 'scripts/ops/launchd/*.cjs'],
+    languageOptions: {
+      globals: Object.fromEntries(
+        ['process', 'console', 'setInterval', 'setTimeout'].map((g) => [g, 'readonly']),
+      ),
+    },
+  },
+  {
     // ADR-004: домен и приложения не знают про Channex. Vendor SDK — только в packages/integrations.
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['packages/integrations/**'],

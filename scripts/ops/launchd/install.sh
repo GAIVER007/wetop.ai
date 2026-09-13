@@ -13,6 +13,8 @@
 # процесс, системные настройки энергосбережения не меняются; снимается uninstall.sh awake.
 # Перезапуск API после правки кода: `launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api` или просто убить процесс —
 # launchd поднимет его на новом коде через 15 с. Журналы: ~/Library/Logs/pms-lux/<имя>.log
+# Стойка идёт на production-сборке `next start` (ADR-034, память Mac): правка в apps/web видна только после
+# `npm run build -w apps/web && launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.web`.
 #
 # Доступ к папке проекта. macOS не даёт процессам launchd читать ~/Desktop, ~/Documents и ~/Downloads без
 # разрешения (проверено 13.09.2026: `ls` видит имена, `head` и `bash script.sh` получают «Operation not permitted»,
@@ -80,7 +82,8 @@ PL
 command_for() {
   case "$1" in
     api) CMD=("$NODE" "$NPM_CLI" run start -w apps/api) ;;
-    web) CMD=("$NODE" "$NPM_CLI" run dev -w apps/web) ;;
+    # production-сборка (ADR-034): обёртка на node собирает, если сборки нет, и запускает next start
+    web) CMD=("$NODE" scripts/ops/launchd/web-start.mjs) ;;
     # bash не читает файл сам (запрет macOS) — текст скрипта ему отдаёт node через stdin
     tunnel) CMD=(/bin/bash -c "\"$NODE\" -e \"process.stdout.write(require('fs').readFileSync('scripts/ops/channex-tunnel.sh'))\" | /bin/bash -s") ;;
     awake) CMD=(/usr/bin/caffeinate -is) ;;
@@ -96,8 +99,10 @@ can_read_repo() {
     "\"$NODE\" -e \"require('fs').readFileSync('apps/api/package.json'); process.stdout.write('echo preflight-ok')\" | /bin/bash -s"
   launchctl bootout "gui/$UID_N/$label" 2>/dev/null || true
   launchctl bootstrap "gui/$UID_N" "$dir/$label.plist"
-  for _ in 1 2 3 4 5 6 7 8 9 10; do
-    grep -a -q 'preflight-ok\|Operation not permitted\|EPERM' "$log" && break
+  # Ждём ответа node: `preflight-ok` или его отказ EPERM. Строку bash «getcwd … Operation not permitted»
+  # не считаем отказом — bash в папку не пускают всегда, а node при свопе отвечает через несколько секунд
+  for _ in $(seq 1 30); do
+    grep -a -q 'preflight-ok\|EPERM' "$log" && break
     sleep 1
   done
   launchctl bootout "gui/$UID_N/$label" 2>/dev/null || true
@@ -131,7 +136,16 @@ for n in "${NAMES[@]}"; do
   label="kz.luxx.pms.$n"
   echo "• $n"
   if [ "$n" != awake ] && [ "$REPO_OK" -eq 0 ]; then echo "  пропущен: нет доступа к папке проекта"; continue; fi
-  launchctl print "gui/$UID_N/$label" >/dev/null 2>&1 && launchctl bootout "gui/$UID_N/$label" 2>/dev/null
+  # Сухой прогон загруженную задачу не снимает. После bootout ждём, пока launchd снимет задачу
+  # (иначе bootstrap: «5: Input/output error») и старый процесс отпустит порт (иначе он принимается
+  # за «запущенный вручную») — в обоих случаях задача оставалась снятой
+  if [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/$label" >/dev/null 2>&1; then
+    launchctl bootout "gui/$UID_N/$label" 2>/dev/null
+    for _ in $(seq 1 20); do
+      launchctl print "gui/$UID_N/$label" >/dev/null 2>&1 || [ -n "$(occupied_by "$n")" ] || break
+      sleep 1
+    done
+  fi
   pids="$( [ "$DRY" -eq 1 ] || occupied_by "$n" | tr '\n' ' ')"
   if [ -n "${pids// /}" ]; then
     if [ "$TAKEOVER" -eq 0 ]; then
@@ -144,5 +158,14 @@ for n in "${NAMES[@]}"; do
   command_for "$n"
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" true "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
-  launchctl bootstrap "gui/$UID_N" "$AGENTS/$label.plist" && echo "  загружен, журнал $LOGS/$n.log"
+  loaded=0
+  for _ in 1 2 3 4 5; do
+    launchctl bootstrap "gui/$UID_N" "$AGENTS/$label.plist" 2>/dev/null && { loaded=1; break; }
+    sleep 2
+  done
+  if [ "$loaded" -eq 1 ]; then
+    echo "  загружен, журнал $LOGS/$n.log"
+  else
+    echo "  ✗ НЕ ЗАГРУЖЕН — служба стоит. Повторить: launchctl bootstrap gui/$UID_N $AGENTS/$label.plist"
+  fi
 done

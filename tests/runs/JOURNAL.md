@@ -141,3 +141,11 @@
 | 13.09.2026 21:25 | unit | ✅ 591 из 591 | 12 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-45Z-unit-0e30.log) | полный unit после исправления ложных тревог |
 | 13.09.2026 21:26 | typecheck | ✅ без ошибок | 42 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-09Z-typecheck-758d.log) | ложные тревоги |
 | 13.09.2026 21:26 | lint | ✅ без ошибок | 51 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-53Z-lint-d076.log) | ложные тревоги |
+| 13.09.2026 22:10 | unit (частично: tests/unit/launchd-install.test.ts) | ❌ упало 3 из 3 | 6 с | eae92ba +5 | [лог](logs/2026-09-13T17-10-48Z-unit-4c83.log) | red: install.sh --dry boots out live job, preflight gives up on bash getcwd line, reinstall of running job skips |
+| 13.09.2026 22:11 | unit (частично: tests/unit/launchd-install.test.ts) | ✅ 3 из 3 | 9 с | eae92ba +5 | [лог](logs/2026-09-13T17-11-32Z-unit-ccc4.log) | green: dry keeps live job, preflight waits for node, reinstall waits for port release |
+| 13.09.2026 22:11 | lint | ❌ ошибок: 11 | 10 с | eae92ba +5 | [лог](logs/2026-09-13T17-11-47Z-lint-9aa6.log) | no-undef |
+| 13.09.2026 22:16 | unit (частично: tests/unit/launchd-web-start.test.ts) | ❌ упало 1 из 1 | 8 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-16-13Z-unit-0320.log) | red: child of a SIGKILLed launchd wrapper survives as orphan (no parent watchdog) |
+| 13.09.2026 22:17 | unit (частично: tests/unit/launchd-web-start.test.ts tests/unit/launchd-install.test.ts) | ✅ 4 из 4 | 9 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-17-12Z-unit-8ca4.log) | green: next-server exits with its SIGKILLed parent; install.sh fixes still green |
+| 13.09.2026 22:17 | lint | ✅ без ошибок | 8 с | 34ee1ca +6 | [лог](logs/2026-09-13T17-17-21Z-lint-1668.log) | after launchd node globals block for web-start.mjs / exit-with-parent.cjs |
+| 13.09.2026 22:22 | unit (частично: tests/unit/launchd-install.test.ts) | ❌ упало 1 из 4 | 10 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-22-05Z-unit-e658.log) | red: bootstrap right after bootout fails with 5 while launchd still unloads the job |
+| 13.09.2026 22:22 | unit (частично: tests/unit/launchd-install.test.ts tests/unit/launchd-web-start.test.ts) | ✅ 5 из 5 | 12 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-22-52Z-unit-656d.log) | green: install waits for launchd to unload the job and retries bootstrap |

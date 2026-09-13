@@ -85,6 +85,8 @@ Markdown внутри кода входит — тесты импорта чит
 | 10.09 | Тест броней мог «протухнуть» со временем | Зависел от текущей даты | Часы в тесте заморожены | `apps/api/src/reservations/reservations.controller.test.ts` |
 | 11.09 | API отвечал на старом коде (до миграции `received_via`) | Процесс API сам не перезагружается, а Playwright с `reuseExistingServer: true` берёт уже запущенный | С 13.09 API, стойку и туннель держит launchd. После правок `apps/api` или миграций, до прогона `e2e`: `launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api`. `npm run start -w apps/api` вручную не запускать — проиграет launchd гонку за порт (EADDRINUSE). Журналы серверов — `~/Library/Logs/pms-lux/` | `playwright.config.ts`, `scripts/ops/launchd/status.sh` |
 | 12.09 | Уборка после полного прогона упала молча | `execFileSync` кладёт stderr в объект ошибки, а не в `message` | Уборка печатает stderr, сигнал и код | `tests/e2e-teardown.ts` |
+| 13.09 | Модульные тесты зелёные, а API под launchd три минуты падает по кругу («Nest can't resolve dependencies») | Новый модуль попросил провайдера, которого соседний модуль не экспортирует; тесты модуля собирают его на подделках, настоящий `AppModule` никто не собирал | Тест собирает весь `AppModule` без базы и сети (PrismaService — пустышка); после правок модулей — перезапуск API и `curl /guard/status` | `apps/api/src/app.module.test.ts` |
+| 13.09 | Цепочка `… && grep -c … && launchctl kickstart …` «перезапустила» API, а он остался на старом коде | `grep -c` без совпадений завершается с кодом 1, и `&&` обрывает цепочку молча | Не ставить `grep -c` в цепочку `&&`; после перезапуска сверять PID в `scripts/ops/launchd/status.sh` | — |
 
 Нашли новые грабли — строка сюда, в тот же день, со сторожем, если он есть.
 

@@ -149,3 +149,5 @@
 | 13.09.2026 22:17 | lint | ✅ без ошибок | 8 с | 34ee1ca +6 | [лог](logs/2026-09-13T17-17-21Z-lint-1668.log) | after launchd node globals block for web-start.mjs / exit-with-parent.cjs |
 | 13.09.2026 22:22 | unit (частично: tests/unit/launchd-install.test.ts) | ❌ упало 1 из 4 | 10 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-22-05Z-unit-e658.log) | red: bootstrap right after bootout fails with 5 while launchd still unloads the job |
 | 13.09.2026 22:22 | unit (частично: tests/unit/launchd-install.test.ts tests/unit/launchd-web-start.test.ts) | ✅ 5 из 5 | 12 с | 34ee1ca +5 | [лог](logs/2026-09-13T17-22-52Z-unit-656d.log) | green: install waits for launchd to unload the job and retries bootstrap |
+| 13.09.2026 22:27 | unit (частично: scripts/reconciliation/src/rollback-window.test.ts) | ❌ код выхода 1 | 1 с | 87d7940 +1 | [лог](logs/2026-09-13T17-27-45Z-unit-cd78.log) | red: rollback window reconciliation rules before implementation |
+| 13.09.2026 22:28 | unit (частично: scripts/reconciliation/src/rollback-window.test.ts) | ✅ 10 из 10 | 2 с | 87d7940 +2 | [лог](logs/2026-09-13T17-28-25Z-unit-1aec.log) | green: rollback window reconciliation rules |

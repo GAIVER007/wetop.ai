@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.09.2026 22:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 87d7940 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-28-25Z-unit-1aec.json' 'scripts/reconciliation/src/rollback-window.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| scripts/reconciliation/src/rollback-window.test.ts (10 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  10:28:27
+   Duration  215ms (transform 64%, tests 15%, import 13%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-28-25Z-unit-1aec.json
+
+# код выхода 0 · 2 с

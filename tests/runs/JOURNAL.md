@@ -13,3 +13,5 @@
 | 13.09.2026 16:47 | unit (частично: packages/domain/src/incidents) | ✅ 32 из 32 | 1 с | 49199ea +10 | [лог](logs/2026-09-13T11-47-57Z-unit-9f6c.log) | срез 11: домен неисправностей |
 | 13.09.2026 16:51 | unit (частично: packages/integrations/src/telegram) | ❌ код выхода 1 | 1 с | 59f145e +11 | [лог](logs/2026-09-13T11-51-00Z-unit-ac73.log) | срез 11: адаптер Telegram, красный до кода |
 | 13.09.2026 16:51 | unit (частично: packages/integrations/src/telegram) | ✅ 6 из 6 | 1 с | 59f145e +14 | [лог](logs/2026-09-13T11-51-27Z-unit-b1f3.log) | срез 11: адаптер Telegram |
+| 13.09.2026 16:55 | unit (частично: apps/web/src/lib/channels-sync.test.ts) | ❌ упало 2 из 2 | 1 с | 1a51a81 +1 | [лог](logs/2026-09-13T11-55-10Z-unit-d3fb.log) | кнопка 500 дней слала 365: красный на старом коде |
+| 13.09.2026 16:55 | unit (частично: apps/web/src/lib/channels-sync.test.ts) | ✅ 2 из 2 | 0 с | 1a51a81 +3 | [лог](logs/2026-09-13T11-55-11Z-unit-30cc.log) | кнопка 500 дней: зелёный после правки |

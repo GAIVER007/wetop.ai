@@ -1,4 +1,43 @@
-'use server';
+# Модульные (unit) · 13.09.2026 16:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a51a81 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-55-10Z-unit-d3fb.json' 'apps/web/src/lib/channels-sync.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests | 2 failed) 19ms
+   ❯ полная выгрузка со стойки (2)
+     × без явной глубины запрос идёт без ?days — API берёт свои 500 дней 18ms
+     × кнопка стойки не передаёт свою глубину 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/channels-sync.test.ts > полная выгрузка со стойки > без явной глубины запрос идёт без ?days — API берёт свои 500 дней
+AssertionError: expected 'http://127.0.0.1:3001/channels/channe…' to match /\/channels\/channex\/sync$/channels\
+
+- Expected:
+/\/channels\/channex\/sync$/
+
++ Received:
+"http://127.0.0.1:3001/channels/channex/sync?days=365"
+
+ ❯ apps/web/src/lib/channels-sync.test.ts:22:22
+     20|     await channelsApi.sync();
+     21|     expect(calls).toHaveLength(1);
+     22|     expect(calls[0]).toMatch(/\/channels\/channex\/sync$/);
+       |                      ^
+     23|   });
+     24|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/channels-sync.test.ts > полная выгрузка со стойки > кнопка стойки не передаёт свою глубину
+AssertionError: expected '\'use server\';\nimport { revalidateP…' to match /channelsApi\.sync\(\)/
+
+- Expected:
+/channelsApi\.sync\(\)/
+
++ Received:
+"'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, channelsApi } from '../../lib/api';
 
@@ -20,7 +59,7 @@ export async function channelAction(
       };
       message = `Объект ${r.created.property ? 'создан' : 'уже был'}, категорий создано ${r.created.roomTypes}, тарифов ${r.created.ratePlans}`;
     } else if (kind === 'sync') {
-      const r = await channelsApi.sync();
+      const r = await channelsApi.sync(365);
       message = `Полная выгрузка ${r.from} → ${r.to}; задачи Channex: ${r.tasks.join(', ')}`;
     } else if (kind === 'pull') {
       const r = await channelsApi.pull();
@@ -84,3 +123,24 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
     return { error: describe(e), message: null };
   }
 }
+"
+
+ ❯ apps/web/src/lib/channels-sync.test.ts:27:17
+     25|   it('кнопка стойки не передаёт свою глубину', () => {
+     26|     const src = readFileSync(resolve(import.meta.dirname, '../app/chan…
+     27|     expect(src).toMatch(/channelsApi\.sync\(\)/);
+       |                 ^
+     28|     expect(src).not.toMatch(/channelsApi\.sync\(\s*\d/);
+     29|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  04:55:11
+   Duration  128ms (transform 49%, tests 35%, import 12%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T11-55-10Z-unit-d3fb.json
+
+# код выхода 1 · 1 с

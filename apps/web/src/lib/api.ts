@@ -326,10 +326,11 @@ export const channelsApi = {
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
-  sync: (days = 365) =>
+  /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
+  sync: (days?: number) =>
     sendJson<{ from: string; to: string; tasks: string[] }>(
       'POST',
-      `/channels/channex/sync?days=${days}`,
+      days ? `/channels/channex/sync?days=${days}` : '/channels/channex/sync',
       {},
     ),
   pull: () =>

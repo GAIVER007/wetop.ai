@@ -22,6 +22,48 @@ function make(events: { webhook: Date | null; pullBooking: Date | null }) {
   return { svc: new WebhookHealthService(repo, inbound), pulls, events };
 }
 
+/** Сторож с проверкой зарегистрированного адреса: поддельный Channex и поддельная проба. */
+function makeWithProbe(opts: {
+  webhook: Date | null;
+  pullBooking: Date | null;
+  callbackUrl: string | null;
+  reachable: boolean;
+}) {
+  const pulls: number[] = [];
+  const repo = {
+    async lastEventAt(_p: string, via: 'WEBHOOK' | 'PULL' | 'MANUAL', typePrefix?: string) {
+      if (via === 'WEBHOOK') return opts.webhook;
+      if (via === 'PULL' && typePrefix === 'booking') return opts.pullBooking;
+      return null;
+    },
+  } as unknown as ChannelsRepository;
+  const inbound = {
+    async pull() {
+      pulls.push(Date.now());
+      return { received: 0, outcomes: [], acknowledged: 0 };
+    },
+  } as unknown as InboundBookingsService;
+  const statusCalls: number[] = [];
+  const sync = {
+    async webhookStatus() {
+      statusCalls.push(Date.now());
+      return { registered: opts.callbackUrl !== null, callbackUrl: opts.callbackUrl };
+    },
+  } as unknown as ConstructorParameters<typeof WebhookHealthService>[2];
+  const probed: string[] = [];
+  const probe = async (url: string) => {
+    probed.push(url);
+    return opts.reachable;
+  };
+  return {
+    svc: new WebhookHealthService(repo, inbound, sync, probe),
+    pulls,
+    probed,
+    statusCalls,
+    opts,
+  };
+}
+
 describe('WebhookHealthService', () => {
   it('спокойствие: бронь опросом не приходила — ленту сверх расписания не дёргаем', async () => {
     const { svc, pulls } = make({ webhook: utc('2026-09-11T10:11:00Z'), pullBooking: null });
@@ -55,5 +97,98 @@ describe('WebhookHealthService', () => {
     const h = await st.svc.tick(utc('2026-09-11T14:23:00Z'));
     expect(h.suspect).toBe(false);
     expect(st.pulls).toHaveLength(1);
+  });
+});
+
+describe('WebhookHealthService — проба зарегистрированного адреса', () => {
+  it('адрес не отвечает — подозрение и опрос ленты, хотя броней опросом не было', async () => {
+    const { svc, pulls, probed } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://tunnel.example/channels/channex/webhook',
+      reachable: false,
+    });
+    const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(true);
+    expect(h.kind).toBe('unreachable');
+    expect(probed).toEqual(['https://tunnel.example/channels/channex/webhook']);
+    expect(pulls).toHaveLength(1);
+    const s = svc.snapshot();
+    expect(s.callbackReachable).toBe(false);
+    expect(s.callbackProbedUrl).toBe('https://tunnel.example/channels/channex/webhook');
+    expect(s.callbackCheckedAt).toBe('2026-09-13T09:00:00.000Z');
+  });
+
+  it('адрес отвечает — тишина', async () => {
+    const { svc, pulls } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://tunnel.example/channels/channex/webhook',
+      reachable: true,
+    });
+    const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(false);
+    expect(pulls).toHaveLength(0);
+    expect(svc.snapshot().callbackReachable).toBe(true);
+  });
+
+  it('адрес дёргается не чаще раза в интервал', async () => {
+    const { svc, probed, statusCalls } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://tunnel.example/channels/channex/webhook',
+      reachable: true,
+    });
+    await svc.tick(utc('2026-09-13T09:00:00Z'));
+    await svc.tick(utc('2026-09-13T09:01:00Z'));
+    await svc.tick(utc('2026-09-13T09:02:00Z'));
+    expect(probed).toHaveLength(1);
+    expect(statusCalls).toHaveLength(1);
+    await svc.tick(utc('2026-09-13T09:06:00Z'));
+    expect(probed).toHaveLength(2);
+  });
+
+  it('webhook не зарегистрирован — пробовать нечего, подозрения нет', async () => {
+    const { svc, probed } = makeWithProbe({
+      webhook: null,
+      pullBooking: null,
+      callbackUrl: null,
+      reachable: false,
+    });
+    const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(false);
+    expect(probed).toHaveLength(0);
+    expect(svc.snapshot().callbackReachable).toBeNull();
+  });
+
+  it('Channex не ответил на запрос статуса — сторож не падает и подозрения не выдумывает', async () => {
+    const { svc } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://tunnel.example/channels/channex/webhook',
+      reachable: true,
+    });
+    const broken = new WebhookHealthService(
+      {
+        async lastEventAt() {
+          return null;
+        },
+      } as unknown as ChannelsRepository,
+      {
+        async pull() {
+          return { received: 0, outcomes: [], acknowledged: 0 };
+        },
+      } as unknown as InboundBookingsService,
+      {
+        async webhookStatus() {
+          throw new Error('Channex 502');
+        },
+      } as unknown as ConstructorParameters<typeof WebhookHealthService>[2],
+      async () => true,
+    );
+    const h = await broken.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(false);
+    expect(broken.snapshot().callbackReachable).toBeNull();
+    expect(svc).toBeDefined();
   });
 });

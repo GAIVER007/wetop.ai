@@ -119,6 +119,106 @@ describe('assessWebhook — webhook под подозрением, если бр
   });
 });
 
+describe('assessWebhook — зарегистрированный адрес не отвечает', () => {
+  const calm: WebhookHealth = { suspect: false, since: null, reason: null };
+
+  it('адрес не отвечает — подозрение, даже когда броней опросом не было', () => {
+    const h = assessWebhook({
+      lastWebhookAt: utc('2026-09-13T07:18:00Z'),
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:00:00Z'),
+      previous: calm,
+      callbackReachable: false,
+    });
+    expect(h.suspect).toBe(true);
+    expect(h.kind).toBe('unreachable');
+    expect(h.since?.toISOString()).toBe('2026-09-13T09:00:00.000Z');
+    expect(h.reason).toMatch(/адрес/i);
+  });
+
+  it('адрес не проверяли — правило молчит', () => {
+    const h = assessWebhook({
+      lastWebhookAt: utc('2026-09-13T07:18:00Z'),
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:00:00Z'),
+      previous: calm,
+      callbackReachable: null,
+    });
+    expect(h.suspect).toBe(false);
+  });
+
+  it('адрес снова отвечает — подозрение по адресу снимается', () => {
+    const suspect: WebhookHealth = {
+      suspect: true,
+      since: utc('2026-09-13T09:00:00Z'),
+      reason: 'адрес не отвечает',
+      kind: 'unreachable',
+    };
+    const h = assessWebhook({
+      lastWebhookAt: utc('2026-09-13T07:18:00Z'),
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:05:00Z'),
+      previous: suspect,
+      callbackReachable: true,
+    });
+    expect(h.suspect).toBe(false);
+    expect(h.since).toBeNull();
+  });
+
+  it('ожившый адрес не снимает подозрение по пропущенной броне', () => {
+    const suspect: WebhookHealth = {
+      suspect: true,
+      since: utc('2026-09-13T08:00:00Z'),
+      reason: 'бронь пришла опросом',
+      kind: 'missed',
+    };
+    const h = assessWebhook({
+      lastWebhookAt: utc('2026-09-13T07:18:00Z'),
+      lastPullBookingAt: utc('2026-09-13T08:00:00Z'),
+      now: utc('2026-09-13T09:05:00Z'),
+      previous: suspect,
+      callbackReachable: true,
+    });
+    expect(h.suspect).toBe(true);
+    expect(h.since?.toISOString()).toBe('2026-09-13T08:00:00.000Z');
+  });
+
+  it('доставленное событие снимает подозрение и по адресу', () => {
+    const suspect: WebhookHealth = {
+      suspect: true,
+      since: utc('2026-09-13T09:00:00Z'),
+      reason: 'адрес не отвечает',
+      kind: 'unreachable',
+    };
+    const h = assessWebhook({
+      lastWebhookAt: utc('2026-09-13T09:30:00Z'),
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:31:00Z'),
+      previous: suspect,
+      callbackReachable: false,
+    });
+    expect(h.suspect).toBe(false);
+  });
+
+  it('мёртвый адрес держит подозрение с первого раза, а не переставляет начало', () => {
+    const first = assessWebhook({
+      lastWebhookAt: null,
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:00:00Z'),
+      previous: { suspect: false, since: null, reason: null },
+      callbackReachable: false,
+    });
+    const later = assessWebhook({
+      lastWebhookAt: null,
+      lastPullBookingAt: null,
+      now: utc('2026-09-13T09:40:00Z'),
+      previous: first,
+      callbackReachable: false,
+    });
+    expect(later.since?.toISOString()).toBe('2026-09-13T09:00:00.000Z');
+  });
+});
+
 describe('pullDelayMs', () => {
   it('под подозрением опрашиваем чаще', () => {
     expect(pullDelayMs({ suspect: false, baseMs: 300_000, fastMs: 60_000 })).toBe(300_000);

@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -21,15 +22,18 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
   let repo: PrismaAnalyticsRepository;
   let service: AnalyticsService;
   let siteId: string;
-  const key = `pms_${'e2e'.padEnd(12, '0')}`; // pms_e2e000000000
+  // Свой ключ на каждый прогон. Раньше ключ был общий (pms_e2e000000000), и прогон этого теста
+  // в соседней сессии на той же базе удалял сайт посреди нашего — вместе с сессиями (13.09.2026).
+  const run = randomBytes(6).toString('hex');
+  const key = `pms_${run}`;
 
   beforeAll(async () => {
     db = createPrismaClient(url);
     repo = new PrismaAnalyticsRepository({ db } as never);
     service = new AnalyticsService(repo);
-    await db.trackedSite.deleteMany({ where: { publicKey: key } });
     const site = await repo.createSite({
-      name: 'ИНТЕГРАЦИОННЫЙ ТЕСТ',
+      // префикс узнаёт уборка автотестов; суффикс не даёт прогонам путать сайты друг друга
+      name: `ИНТЕГРАЦИОННЫЙ ТЕСТ ${run}`,
       hosts: ['test-site.local'],
       publicKey: key,
     });

@@ -10,12 +10,21 @@
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
+import {
+  E2E_NOTE,
+  STALE_AFTER_MINUTES,
+  isStale,
+  isTestReservation,
+  reservationsToCancel,
+  sitesToDelete,
+} from './e2e-cleanup-rules';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
-const E2E_NOTE = 'E2E-АВТОТЕСТ';
 const API = process.env['E2E_API_URL'] ?? 'http://127.0.0.1:3001';
 const dry = process.argv.includes('--dry');
+// Одна точка отсчёта на весь прогон уборки: брони, блоки и сайты режутся одним порогом давности
+const now = new Date();
 
 const db = createPrismaClient();
 try {
@@ -32,17 +41,19 @@ try {
         { primaryGuest: { lastName: { startsWith: 'Тест-' } } },
       ],
     },
-    select: { confirmationNumber: true, status: true, notes: true },
+    select: { confirmationNumber: true, status: true, notes: true, createdAt: true },
     orderBy: { createdAt: 'asc' },
   });
-  // Номер, выданный PMS: ГГГГММДД + шесть знаков. У Exely и каналов формат другой — они не попадут.
-  const ownNumber = /^\d{8}-[A-Z0-9]{6}$/;
-  const mine = marked.filter(
-    (r) => r.notes?.includes(E2E_NOTE) || ownNumber.test(r.confirmationNumber),
-  );
+  // Свежие брони не трогаем: в эту минуту их может использовать тест другой сессии на той же базе
+  const mine = reservationsToCancel(marked, now) as typeof marked;
+  const fresh = marked.filter(isTestReservation).length - mine.length;
   console.log(
     `Броней автотестов с активными проживаниями: ${mine.length} (кандидатов по фамилии было ${marked.length})`,
   );
+  if (fresh > 0)
+    console.log(
+      `  свежих, моложе ${STALE_AFTER_MINUTES} мин, оставлено: ${fresh} — уберёт следующая уборка`,
+    );
   let freed = 0;
   const failed: string[] = [];
   for (const r of mine) {
@@ -95,10 +106,11 @@ try {
           { primaryGuest: { lastName: { startsWith: 'Тест-' } } },
         ],
       },
-      select: { confirmationNumber: true, notes: true },
+      select: { confirmationNumber: true, notes: true, createdAt: true },
     })
   )
-    .filter((r) => r.notes?.includes(E2E_NOTE) || ownNumber.test(r.confirmationNumber))
+    // блок раннего заезда у свежей брони нужен идущему тесту — снимаем только у давних
+    .filter((r) => isTestReservation(r) && isStale(r.createdAt, now))
     .map((r) => r.confirmationNumber);
   const staleBlocks = await db.inventoryBlock.findMany({
     where: {
@@ -132,16 +144,20 @@ try {
   }
   // Сайты со счётчиком, заведённые автотестами (срез 8): e2e и интеграционный тест удаляют их сами,
   // но сорванный прогон оставляет сайт со статистикой. Каскадом уходят сессии, просмотры и события.
-  const testSites = await db.trackedSite.findMany({
-    where: {
-      OR: [
-        { name: { startsWith: E2E_NOTE } },
-        { name: 'ИНТЕГРАЦИОННЫЙ ТЕСТ' },
-        { publicKey: 'pms_e2e000000000' },
-      ],
-    },
-    select: { id: true, name: true },
-  });
+  // Свежий сайт не удаляем: посреди теста каскадом ушли бы его сессии и счётчики разъехались бы
+  const testSites = sitesToDelete(
+    await db.trackedSite.findMany({
+      where: {
+        OR: [
+          { name: { startsWith: E2E_NOTE } },
+          { name: { startsWith: 'ИНТЕГРАЦИОННЫЙ ТЕСТ' } },
+          { publicKey: 'pms_e2e000000000' },
+        ],
+      },
+      select: { id: true, name: true, publicKey: true, createdAt: true },
+    }),
+    now,
+  ) as Array<{ id: string; name: string; publicKey: string; createdAt: Date }>;
   if (testSites.length && !dry)
     await db.trackedSite.deleteMany({ where: { id: { in: testSites.map((s) => s.id) } } });
   console.log(`Сайтов со счётчиком от автотестов: ${testSites.length}${dry ? '' : ' — удалены'}`);

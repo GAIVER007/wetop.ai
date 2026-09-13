@@ -254,3 +254,7 @@
 | 14.09.2026 01:31 | unit | ✅ 641 из 641 | 17 с | c76c0b0 +6 | [лог](logs/2026-09-13T20-31-18Z-unit-3e71.log) | Финальный код: база, конфигурация, API и доменные правила |
 | 14.09.2026 01:31 | lint | ✅ без ошибок | 23 с | c76c0b0 +7 | [лог](logs/2026-09-13T20-31-18Z-lint-ef7c.log) | Финальная проверка изменений подключения |
 | 14.09.2026 01:31 | typecheck | ✅ без ошибок | 26 с | c76c0b0 +7 | [лог](logs/2026-09-13T20-31-18Z-typecheck-d58d.log) | Финальный код: серверные слоты метаданных и все workspace |
+| 14.09.2026 01:23 | unit (частично: tests/unit/launchd-install.test.ts -t exely-sync) | ❌ упало 1 из 5, пропущено 4 | 1 с | b748448 +3 | [лог](logs/2026-09-13T20-23-30Z-unit-e6d9.log) | red: exely-sync every 5 minutes (owner 13.09.2026) |
+| 14.09.2026 01:24 | unit (частично: tests/unit/launchd-install.test.ts tests/unit/auto-sync.test.ts scripts/imports/src/exely/auto-sync.test.ts) | ✅ 16 из 16 | 13 с | b748448 +5 | [лог](logs/2026-09-13T20-24-16Z-unit-ceee.log) | green: exely-sync every 5 minutes (owner 13.09.2026) |
+| 14.09.2026 01:32 | unit (частично: scripts/reconciliation/src/test-data-purge-rules.test.ts) | ❌ код выхода 1 | 1 с | b748448 +6 | [лог](logs/2026-09-13T20-32-16Z-unit-8fe0.log) | red: test-data purge rules (plan live-db-clean, step A) |
+| 14.09.2026 01:33 | unit (частично: scripts/reconciliation/src/test-data-purge-rules.test.ts) | ✅ 11 из 11 | 1 с | b748448 +7 | [лог](logs/2026-09-13T20-33-07Z-unit-c237.log) | green: test-data purge rules (plan live-db-clean, step A) |

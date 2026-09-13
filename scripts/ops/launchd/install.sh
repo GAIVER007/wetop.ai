@@ -4,7 +4,7 @@
 # Mac перезагрузился → всё поднимается при входе пользователя.
 #
 #   scripts/ops/launchd/install.sh [api] [web] [tunnel] [awake]   без аргументов — все четыре
-#   scripts/ops/launchd/install.sh exely-sync                      автосинхронизация из Exely раз в 15 мин (ADR-032);
+#   scripts/ops/launchd/install.sh exely-sync                      автосинхронизация из Exely раз в 5 мин (ADR-032);
 #                                                                  только явно: на день двойного ввода — uninstall.sh exely-sync
 #   scripts/ops/launchd/install.sh --takeover ...                  остановить уже запущенные вручную процессы
 #   scripts/ops/launchd/install.sh --dry ...                       только собрать и проверить plist во временной папке
@@ -162,9 +162,10 @@ for n in "${NAMES[@]}"; do
     kill $pids 2>/dev/null; sleep 3
   fi
   command_for "$n"
-  # службы держатся постоянно; exely-sync — прогон раз в 15 минут, между прогонами процесса нет
+  # службы держатся постоянно; exely-sync — прогон раз в 5 минут (владелец 13.09.2026), между прогонами процесса нет;
+  # прогон, не успевший закончиться к следующему старту, launchd второй раз не запускает
   START_INTERVAL=""; keep=true
-  [ "$n" = exely-sync ] && { START_INTERVAL=900; keep=false; }
+  [ "$n" = exely-sync ] && { START_INTERVAL=300; keep=false; }
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
   loaded=0

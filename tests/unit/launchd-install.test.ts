@@ -111,13 +111,13 @@ describe('launchd install.sh', () => {
     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.web\.plist/);
   }, 60_000);
 
-  it('exely-sync (ADR-032): раз в 15 минут, без KeepAlive, одним процессом node --import tsx', () => {
+  it('exely-sync (ADR-032, владелец 13.09.2026): раз в 5 минут, без KeepAlive, одним процессом node --import tsx', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
     const { out } = install(sb, ['--dry', 'exely-sync']);
     const plistPath = out.match(/(\/\S+kz\.luxx\.pms\.exely-sync\.plist) собран и проверен/)?.[1];
     expect(plistPath, out).toBeTruthy();
     const plist = readFileSync(plistPath!, 'utf8');
-    expect(plist).toMatch(/<key>StartInterval<\/key><integer>900<\/integer>/);
+    expect(plist).toMatch(/<key>StartInterval<\/key><integer>300<\/integer>/);
     expect(plist).toMatch(/<key>KeepAlive<\/key><false\/>/);
     expect(plist).toContain('<string>--import</string>');
     expect(plist).toContain('<string>scripts/imports/src/cli-sync-day.ts</string>');

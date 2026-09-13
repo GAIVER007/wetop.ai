@@ -1,0 +1,70 @@
+# Модульные (unit) · 14.09.2026 01:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит b748448 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-23-30Z-unit-e6d9.json' 'tests/unit/launchd-install.test.ts' '-t' 'exely-sync'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| tests/unit/launchd-install.test.ts (5 tests | 1 failed | 4 skipped) 45ms
+   ❯ launchd install.sh (5)
+     ↓ --dry не снимает загруженную задачу
+     ↓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted»
+     ↓ переустановка работающей задачи ждёт, пока старый процесс освободит порт
+     × exely-sync (ADR-032, владелец 13.09.2026): раз в 5 минут, без KeepAlive, одним процессом node --import tsx 44ms
+     ↓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/launchd-install.test.ts > launchd install.sh > exely-sync (ADR-032, владелец 13.09.2026): раз в 5 минут, без KeepAlive, одним процессом node --import tsx
+AssertionError: expected '<?xml version="1.0" encoding="UTF-8"?…' to match /<key>StartInterval<…/key><integer>300<\
+
+- Expected:
+/<key>StartInterval<\/key><integer>300<\/integer>/
+
++ Received:
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+  <key>Label</key><string>kz.luxx.pms.exely-sync</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/launchd-install-e1UGYH/home/.local/bin/node</string>
+    <string>--import</string>
+    <string>tsx</string>
+    <string>scripts/imports/src/cli-sync-day.ts</string>
+    <string>--auto</string>
+  </array>
+  <key>WorkingDirectory</key><string>/Users/vyacheslav/Desktop/Проекты/Pms Lux</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/launchd-install-e1UGYH/home/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><false/>
+  <key>ThrottleInterval</key><integer>15</integer>
+  <key>StartInterval</key><integer>900</integer>
+  <key>StandardOutPath</key><string>/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/launchd-install-e1UGYH/home/Library/Logs/pms-lux/exely-sync.log</string>
+  <key>StandardErrorPath</key><string>/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/launchd-install-e1UGYH/home/Library/Logs/pms-lux/exely-sync.log</string>
+</dict>
+</plist>
+"
+
+ ❯ tests/unit/launchd-install.test.ts:120:19
+    118|     expect(plistPath, out).toBeTruthy();
+    119|     const plist = readFileSync(plistPath!, 'utf8');
+    120|     expect(plist).toMatch(/<key>StartInterval<\/key><integer>300<\/int…
+       |                   ^
+    121|     expect(plist).toMatch(/<key>KeepAlive<\/key><false\/>/);
+    122|     expect(plist).toContain('<string>--import</string>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  13:23:30
+   Duration  130ms (tests 66%, transform 20%, import 9%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-23-30Z-unit-e6d9.json
+
+# код выхода 1 · 1 с

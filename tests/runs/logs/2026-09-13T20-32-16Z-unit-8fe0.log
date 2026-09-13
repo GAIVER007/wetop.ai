@@ -1,0 +1,31 @@
+# Модульные (unit) · 14.09.2026 01:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит b748448 (main), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-32-16Z-unit-8fe0.json' 'scripts/reconciliation/src/test-data-purge-rules.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| scripts/reconciliation/src/test-data-purge-rules.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/reconciliation/src/test-data-purge-rules.test.ts [ scripts/reconciliation/src/test-data-purge-rules.test.ts ]
+Error: Cannot find module './test-data-purge-rules' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/scripts/reconciliation/src/test-data-purge-rules.test.ts
+ ❯ scripts/reconciliation/src/test-data-purge-rules.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { E2E_NOTE } from './e2e-cleanup-rules';
+      3| import {
+       | ^
+      4|   PURGE_MIN_AGE_MINUTES,
+      5|   decodeTyped,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  13:32:17
+   Duration  88ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-32-16Z-unit-8fe0.json
+
+# код выхода 1 · 1 с

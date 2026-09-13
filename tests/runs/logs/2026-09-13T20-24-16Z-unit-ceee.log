@@ -1,0 +1,21 @@
+# Модульные (unit) · 14.09.2026 01:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит b748448 (main), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-24-16Z-unit-ceee.json' 'tests/unit/launchd-install.test.ts' 'tests/unit/auto-sync.test.ts' 'scripts/imports/src/exely/auto-sync.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (11 tests) 3ms
+ ✓ |unit| tests/unit/launchd-install.test.ts (5 tests) 11839ms
+   ✓ launchd install.sh (5)
+     ✓ проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 4164ms
+     ✓ переустановка работающей задачи ждёт, пока старый процесс освободит порт 3841ms
+     ✓ переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 3727ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  13:24:16
+   Duration  11.94s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T20-24-16Z-unit-ceee.json
+
+# код выхода 0 · 13 с

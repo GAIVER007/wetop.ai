@@ -257,7 +257,16 @@ test('карточка: профиль гостя и заселение прох
     .getByRole('button', { name: 'Сохранить', exact: true })
     .click();
   await expect
-    .poll(async () => (await (await request.get(`${fixture}/guests/ui-guest`)).json()).middleName)
+    .poll(
+      async () =>
+        (
+          await (
+            await request.get(`${fixture}/guests/ui-guest`, {
+              headers: { 'x-wetop-test-client': '1' },
+            })
+          ).json()
+        ).middleName,
+    )
     .toBe('Проверенный');
   await page.goto(`/reservations/${booking}`);
   await page.getByTestId('check-in-ui-item').click();
@@ -361,7 +370,11 @@ test('общий платёж: ошибка не стирает распреде
   await form.getByRole('button', { name: 'Принять общий платёж' }).click();
   await expect(form.getByRole('status')).toContainText('Платёж принят');
   await expect(page.getByTestId('finance-total')).toContainText('30 000,00');
-  const result = await (await request.get(`${fixture}/finance/reservations/${booking}`)).json();
+  const result = await (
+    await request.get(`${fixture}/finance/reservations/${booking}`, {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json();
   expect(result.balanceMinor).toBe('3000000');
 });
 
@@ -394,4 +407,172 @@ test('обзор: задачи ведут к счетам, фильтр не м�
   await tasks.getByRole('link', { name: /К оплате/ }).click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
+});
+
+test('ошибка буфера обмена видна, код остаётся доступен', async ({ page }) => {
+  await page.addInitScript(() => {
+    const browser = globalThis as unknown as { navigator: object };
+    Object.defineProperty(browser.navigator, 'clipboard', {
+      value: { writeText: () => Promise.reject(new Error('denied')) },
+      configurable: true,
+    });
+  });
+  await page.goto('/analytics/setup');
+  await page.getByRole('button', { name: 'Скопировать код' }).first().click();
+  await expect(
+    page.getByRole('main').getByRole('alert').filter({ hasText: 'Не удалось скопировать' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('site-card-snippet')).toContainText('public-ui-fixture');
+});
+
+test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
+  await page.goto('/finance?from=2026-09-30&to=2026-09-01');
+  await expect(page.locator('h1')).toHaveText('Деньги за период');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
+  await expect(page.getByTestId('charged')).toHaveCount(0);
+  await page.locator('input[name="to"]').fill('2026-09-30');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(page.getByTestId('charged')).toBeVisible();
+});
+
+test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
+  await page.goto('/analytics/setup');
+  await expect(
+    page.getByRole('main').getByRole('alert').filter({ hasText: 'Не удалось загрузить тарифы' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('booking-save')).toHaveCount(0);
+});
+
+test('номера: статус уборки, блокировка и снятие сохраняются', async ({ page, request }) => {
+  await page.goto('/units/R01');
+  await page.getByTestId('hk-DIRTY').click();
+  await expect(page.getByText('Статус уборки: грязно')).toBeVisible();
+  await page.getByTestId('hk-INSPECTED').click();
+  await expect(page.getByText('Статус уборки: проверено')).toBeVisible();
+  await page.getByLabel('Блокировка с').fill('2026-10-01');
+  await page.getByLabel('До (не включая)').fill('2026-10-03');
+  await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
+  await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await expect(page.getByTestId('block-row')).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
+    'POST /units/R01/housekeeping',
+    'POST /units/R01/housekeeping',
+    'POST /units/R01/blocks',
+    'DELETE /units/R01/blocks/ui-block',
+  ]);
+});
+
+test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/rates?month=2026-10');
+  const editor = page.getByTestId('bulk-editor');
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await expect(page.getByTestId('pending-changes')).toContainText('9100');
+  await editor.getByRole('button', { name: '×', exact: true }).click();
+  await expect(page.getByTestId('apply-changes')).toBeDisabled();
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rates/bulk' } });
+  await page.getByTestId('apply-changes').click();
+  await expect(editor.getByRole('alert')).toBeVisible();
+  await expect(page.getByTestId('pending-changes')).toContainText('9100');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.getByTestId('apply-changes').click();
+  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
+  await expect(page.getByTestId('price-2026-10-01-1')).toContainText('9 100');
+});
+
+test('сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные', async ({
+  page,
+}) => {
+  await page.goto('/analytics/setup');
+  await page.getByTestId('site-check').click();
+  await expect(page.getByTestId('site-check-result')).toBeVisible();
+  await page.getByTestId('hosts-input').fill('updated.example.invalid');
+  await page.getByTestId('hosts-save').click();
+  await expect(page.getByTestId('hosts-result')).toContainText('updated.example.invalid');
+  await page.getByTestId('site-toggle').click();
+  await expect(page.getByTestId('site-card-status')).toHaveText('на паузе');
+  await page.getByTestId('site-toggle').click();
+  await expect(page.getByTestId('site-card-status')).toHaveText('включён');
+  await page.getByTestId('booking-enabled').uncheck();
+  await page.getByTestId('booking-save').click();
+  await expect(page.getByTestId('booking-result')).toContainText('выключено');
+  await page.goto('/marketing');
+  await expect(page.getByRole('main')).toContainText('updated.example.invalid');
+  await page.goto('/analytics/setup');
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByTestId('site-delete').click();
+  await expect(page.getByTestId('site-card')).toHaveCount(0);
+  await page.getByTestId('site-name').fill('Новый тестовый сайт');
+  await page.getByTestId('site-hosts').fill('new.example.invalid');
+  await page.getByTestId('site-create').click();
+  await expect(page.getByTestId('site-card-name')).toHaveText('Новый тестовый сайт');
+});
+
+test('кнопки Channex отправляют команды один раз и показывают результат; проверка только читает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/connections');
+  await page.getByRole('button', { name: 'Проверить соединение' }).click();
+  await expect(page.getByText('Соединение установлено')).toBeVisible();
+  expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
+  await page.goto('/channels');
+  for (const id of ['channel-pull', 'channel-flush', 'channel-sync', 'channel-setup']) {
+    await page.getByTestId(id).click();
+    await expect(page.getByTestId('channel-result')).toBeVisible();
+    await expect(page.getByTestId(id)).toBeEnabled();
+    await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  }
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.map((c: { path: string }) => c.path)).toEqual([
+    '/channels/channex/pull',
+    '/channels/channex/outbox/flush',
+    '/channels/channex/sync',
+    '/channels/channex/setup',
+  ]);
+  await expect(page.getByTestId('channel-webhook-register')).toBeDisabled();
+  await expect(
+    page.getByText('Для webhook укажите публичный HTTPS-адрес и секрет на сервере.'),
+  ).toBeVisible();
+});
+
+test('пустые ответы дают нули; сбой API не выдаётся за пустую базу', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/channel-manager');
+  await expect(page.getByTestId('channel-bookings')).toHaveText('0');
+  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await page.goto('/finance');
+  for (const id of ['charged', 'paid', 'refunded', 'balance'])
+    await expect(page.getByTestId(id)).toHaveText('0,00 ₸');
+  await page.goto('/rooms');
+  for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
+  await page.goto('/marketing');
+  for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
+  for (const route of [
+    '/today',
+    '/chessboard',
+    '/rooms',
+    '/finance',
+    '/channel-manager',
+    '/marketing',
+  ]) {
+    await page.goto(route);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+    await expect(page.locator('.stat__value:visible')).toHaveCount(0);
+  }
+  await page.goto('/connections');
+  await expect(
+    page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),
+  ).toBeVisible();
+  await expect(page.getByText('Соединение установлено')).toHaveCount(0);
 });

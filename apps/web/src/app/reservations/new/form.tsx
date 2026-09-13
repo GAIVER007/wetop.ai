@@ -34,7 +34,6 @@ export function NewReservationForm(props: {
         <span>01</span>
         <div>
           <h2>Размещение</h2>
-          <p>Категория, тариф и количество мест на выбранные даты.</p>
         </div>
       </div>
       {props.selectedUnit &&
@@ -100,7 +99,6 @@ export function NewReservationForm(props: {
         <span>02</span>
         <div>
           <h2>Гость</h2>
-          <p>Контактное лицо брони. Документы можно заполнить в карточке гостя.</p>
         </div>
       </div>
       <Grid>

@@ -102,6 +102,11 @@ let card = cardSeed();
 let guest = structuredClone(guestSeed);
 let rejectCreate = false;
 let failPath = '';
+let emptyFixture = false;
+let hkStatus: UnitCard['housekeepingStatus'] = 'CLEAN';
+let unitBlocks: UnitCard['blocks'] = [];
+let priceChanges: Array<{ dateFrom: string; dateTo: string; price?: string }> = [];
+let siteDeleted = false;
 let groupFixture = false;
 let paid = new Map<string, bigint>();
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
@@ -274,7 +279,7 @@ function finance(): ReservationFinance {
   return result;
 }
 
-const site: TrackedSite = {
+const siteSeed: TrackedSite = {
   id: 'ui-site',
   name: 'Учебный сайт',
   hosts: ['example.invalid'],
@@ -287,6 +292,7 @@ const site: TrackedSite = {
   bookingEnabled: true,
   bookingRatePlan: { id: 'ui-rate', code: 'BASE', name: 'Стандартный' },
 };
+let site = structuredClone(siteSeed);
 function report(): SiteReport {
   return {
     site: { id: site.id, name: site.name },
@@ -329,6 +335,33 @@ function report(): SiteReport {
   };
 }
 function read(path: string, q: URLSearchParams): unknown {
+  if (emptyFixture) {
+    if (path === '/hotel/channel-report')
+      return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
+    if (['/guests', '/analytics/sites', '/inventory/units'].includes(path)) return [];
+    if (path === '/inventory/summary')
+      return {
+        property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
+        totalUnits: 0,
+        rooms: 0,
+        beds: 0,
+        maxGuests: 0,
+        physicalRooms: 0,
+        blocks: 0,
+        byCategory: [],
+      };
+    if (path === '/finance/report')
+      return {
+        currency: 'KZT',
+        chargedMinor: '0',
+        paidMinor: '0',
+        refundedMinor: '0',
+        balanceMinor: '0',
+        chargesByKind: [],
+        paymentsByMethod: [],
+        accommodationByCategory: [],
+      };
+  }
   if (path.endsWith('/MISSING')) return undefined;
   if (path === '/guard/status')
     return {
@@ -455,8 +488,8 @@ function read(path: string, q: URLSearchParams): unknown {
       ...u,
       id: u.code,
       active: true,
-      housekeepingStatus: 'CLEAN',
-      blocks: [],
+      housekeepingStatus: hkStatus,
+      blocks: unitBlocks,
       stays: [
         {
           confirmationNumber: card.confirmationNumber,
@@ -478,7 +511,13 @@ function read(path: string, q: URLSearchParams): unknown {
       capacityAdults: 2,
       days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date) => ({
         date,
-        prices: { '1': '800000', '2': '1000000' },
+        prices: {
+          '1': parseMoney(
+            [...priceChanges].reverse().find((c) => c.dateFrom <= date && c.dateTo >= date)
+              ?.price || '8000',
+          ).toString(),
+          '2': '1000000',
+        },
         minStay: 1,
         maxStay: null,
         stopSell: false,
@@ -501,6 +540,20 @@ function read(path: string, q: URLSearchParams): unknown {
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
+  if (path === '/channels/channex/connection')
+    return {
+      checkedAt: new Date().toISOString(),
+      environment: 'staging',
+      apiConfigured: true,
+      propertyId: 'ui-property',
+      propertyAccessible: true,
+      mappedCategories: 3,
+      mappedRatePlans: 3,
+      lastWebhookAt: null,
+      lastPullAt: null,
+      state: 'READY',
+      message: 'Соединение установлено',
+    };
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
@@ -518,7 +571,7 @@ function read(path: string, q: URLSearchParams): unknown {
         subject: card.confirmationNumber,
       },
     ];
-  if (path === '/analytics/sites') return [site];
+  if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
   if (path === '/analytics/sites/ui-site')
     return {
@@ -545,9 +598,16 @@ createServer(async (req, res) => {
     ? (JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>)
     : {};
   const send = (status: number, data: unknown) => {
-    res.writeHead(status, { 'content-type': 'application/json' });
+    res.writeHead(status, {
+      'content-type': 'application/json',
+      'x-wetop-data-source': 'synthetic',
+    });
     res.end(JSON.stringify(data));
   };
+  if (path === '/__test/health') return send(200, { testOnly: true });
+  if (!path.startsWith('/__test/') && req.headers['x-wetop-test-client'] !== '1') {
+    return send(403, { message: 'Fixture API is available only to the test runner' });
+  }
   if (path === '/__test/reset') {
     incident = structuredClone(incidentSeed);
     card = cardSeed();
@@ -555,18 +615,26 @@ createServer(async (req, res) => {
     commands = [];
     rejectCreate = false;
     failPath = '';
+    emptyFixture = false;
+    hkStatus = 'CLEAN';
+    unitBlocks = [];
+    priceChanges = [];
+    site = structuredClone(siteSeed);
+    siteDeleted = false;
     groupFixture = false;
     paid = new Map();
     return send(200, {});
   }
   if (path === '/__test/control') {
+    emptyFixture = body['empty'] === true;
     groupFixture = body['group'] === true;
     rejectCreate = body['rejectCreate'] === true;
     failPath = String(body['failPath'] || '');
     return send(200, {});
   }
   if (path === '/__test/commands') return send(200, commands);
-  if (path === failPath) return send(503, { message: 'Синтетический сбой API' });
+  if (path === failPath || failPath === '*')
+    return send(503, { message: 'Синтетический сбой API' });
   if (req.method === 'GET') {
     const result = read(path, url.searchParams);
     return send(
@@ -575,6 +643,53 @@ createServer(async (req, res) => {
     );
   }
   commands.push({ method: req.method || '', path, body });
+  if (path === '/units/R01/housekeeping') {
+    hkStatus = body['status'] as UnitCard['housekeepingStatus'];
+    return send(200, read('/units/R01', url.searchParams));
+  }
+  if (path === '/units/R01/blocks') {
+    unitBlocks.push({
+      id: 'ui-block',
+      dateFrom: String(body['dateFrom']),
+      dateTo: String(body['dateTo']),
+      type: String(body['type']),
+      reason: String(body['reason'] ?? ''),
+    });
+    return send(201, read('/units/R01', url.searchParams));
+  }
+  if (path === '/units/R01/blocks/ui-block' && req.method === 'DELETE') {
+    unitBlocks = [];
+    return send(200, read('/units/R01', url.searchParams));
+  }
+  if (path === '/rates/bulk') {
+    priceChanges.push(...(body['changes'] as typeof priceChanges));
+    return send(200, {
+      applied: (body['changes'] as unknown[]).length,
+      rateRows: 1,
+      restrictionRows: 0,
+    });
+  }
+  if (path === '/analytics/sites' && req.method === 'POST') {
+    site = { ...site, name: String(body['name']), hosts: body['hosts'] as string[] };
+    siteDeleted = false;
+    return send(201, read('/analytics/sites/ui-site', url.searchParams));
+  }
+  if (path === '/analytics/sites/ui-site') {
+    if (req.method === 'DELETE') {
+      siteDeleted = true;
+      return send(200, { deleted: true });
+    }
+    site = { ...site, ...body };
+    return send(200, read(path, url.searchParams));
+  }
+  if (path === '/channels/channex/pull')
+    return send(200, { received: 0, acknowledged: 0, outcomes: [] });
+  if (path === '/channels/channex/outbox/flush') return send(200, { sent: [], errors: [] });
+  if (path === '/channels/channex/sync')
+    return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
+  if (path === '/channels/channex/setup')
+    return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
+  if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
   if (path === '/guard/incidents/ui-incident/acknowledge') {
     incident.status = 'ACKNOWLEDGED';
     incident.acknowledgedAt = new Date().toISOString();

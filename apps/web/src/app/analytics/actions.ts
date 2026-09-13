@@ -22,8 +22,7 @@ export async function createSiteAction(
     .filter(Boolean);
   try {
     const card = await analyticsApi.create({ name, hosts });
-    revalidatePath('/analytics/setup');
-    revalidatePath('/analytics');
+    refreshSiteViews();
     return {
       error: null,
       message: `Сайт «${card.site.name}» добавлен, ключ ${card.site.publicKey}`,
@@ -53,8 +52,7 @@ export async function siteAction(
       card = await analyticsApi.update(id, { status: kind === 'pause' ? 'PAUSED' : 'ACTIVE' });
       message = kind === 'pause' ? 'Счётчик на паузе: события не сохраняются' : 'Счётчик включён';
     }
-    revalidatePath('/analytics/setup');
-    revalidatePath('/analytics');
+    refreshSiteViews();
     return { error: null, message, card };
   } catch (e) {
     return { error: describe(e), message: null };
@@ -71,7 +69,7 @@ export async function bookingSettingsAction(
       bookingEnabled: input.enabled,
       ...(input.ratePlanCode ? { bookingRatePlanCode: input.ratePlanCode } : {}),
     });
-    revalidatePath('/analytics/setup');
+    refreshSiteViews();
     return {
       error: null,
       message: card.site.bookingEnabled
@@ -92,9 +90,14 @@ export async function hostsAction(id: string, raw: string): Promise<SiteActionRe
     .filter(Boolean);
   try {
     const card = await analyticsApi.update(id, { hosts });
-    revalidatePath('/analytics/setup');
+    refreshSiteViews();
     return { error: null, message: `Домены сохранены: ${card.site.hosts.join(', ')}`, card };
   } catch (e) {
     return { error: describe(e), message: null };
   }
+}
+
+function refreshSiteViews() {
+  for (const path of ['/analytics/setup', '/analytics', '/marketing', '/connections'])
+    revalidatePath(path);
 }

@@ -52,20 +52,11 @@ export default async function IncidentsPage() {
   );
   const tick = status?.lastTick ?? null;
   return (
-    <Page title="Неисправности" subtitle="сторож системы" actions={<GuardTickButton />}>
-      {!status && (
-        <Alert boxed>
-          API не отвечает — сторож работает внутри API, поэтому сейчас не проверяет ничего. API
-          держит launchd и поднимает сам за 15 секунд; если не поднялся — смотрите{' '}
-          <span className="mono">scripts/ops/launchd/status.sh</span> и журнал{' '}
-          <span className="mono">~/Library/Logs/pms-lux/api.log</span>.
-        </Alert>
-      )}
+    <Page title="Неисправности" actions={<GuardTickButton />}>
+      {!status && <Alert boxed>API не отвечает. Подключение к системе недоступно.</Alert>}
       {status && !status.notifier.configured && (
         <Alert boxed tone="warning" data-testid="notifier-missing">
-          Будильник не настроен: сторож записывает неисправности, но никого не будит. Владельцу —
-          вписать в <span className="mono">.env</span> TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID
-          (docs/telegram/README.md) и перезапустить API.
+          Уведомления не настроены. Неисправности доступны только здесь.
         </Alert>
       )}
       <Stats min={150}>

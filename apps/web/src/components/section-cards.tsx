@@ -13,7 +13,6 @@ export function SectionCards({ items }: { items: NavigationItem[] }) {
           </span>
           <div>
             <div className="section-card-title">{item.label}</div>
-            <p>{item.description}</p>
             {item.pending && <Badge>Ещё не подключено</Badge>}
           </div>
           <Icon name="arrow" className="section-card-arrow" />
@@ -29,7 +28,6 @@ export function FeaturePending({ icon, text }: { icon: IconName; text: string })
         <Icon name={icon} />
       </span>
       <Badge>Ещё не подключено</Badge>
-      <h2>Раздел подготовлен</h2>
       <p>{text}</p>
     </section>
   );

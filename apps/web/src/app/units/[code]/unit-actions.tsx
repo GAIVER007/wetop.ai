@@ -1,7 +1,7 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import type { UnitCard } from '../../../lib/api';
-import { Alert, Button, Input, Panel, Row, Select, Stack } from '../../../components/ui';
+import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
 import {
   blockUnitAction,
   housekeepingAction,
@@ -27,8 +27,10 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
     { error: null },
   );
   const [other, setOther] = useState<UnitActionResult>({ error: null });
+  const [pending, start] = useTransition();
   return (
     <Stack>
+      {other.error && <Alert>{other.error}</Alert>}
       <Panel title={`Статус уборки: ${HK.find(([k]) => k === unit.housekeepingStatus)?.[1]}`}>
         <Row>
           {HK.filter(([k]) => k !== unit.housekeepingStatus).map(([k, t]) => (
@@ -37,7 +39,8 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               type="button"
               tone="secondary"
               data-testid={`hk-${k}`}
-              onClick={async () => setOther(await housekeepingAction(unit.code, k))}
+              disabled={pending || blockPending}
+              onClick={() => start(async () => setOther(await housekeepingAction(unit.code, k)))}
             >
               → {t}
             </Button>
@@ -57,28 +60,37 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               tone="secondary"
               size="sm"
               className="is-danger"
-              onClick={async () => setOther(await unblockUnitAction(unit.code, b.id))}
+              disabled={pending || blockPending}
+              onClick={() => start(async () => setOther(await unblockUnitAction(unit.code, b.id)))}
             >
               снять
             </Button>
           </Row>
         ))}
-        <form action={blockAction} data-testid="block-form" className="row">
-          <Input type="date" name="dateFrom" defaultValue={today} required />
-          <Input type="date" name="dateTo" required title="ночь выезда не блокируется" />
-          <Select name="type" defaultValue="MAINTENANCE">
-            {TYPES.map(([k, t]) => (
-              <option key={k} value={k}>
-                {t}
-              </option>
-            ))}
-          </Select>
-          <Input name="reason" placeholder="причина" />
-          <Button type="submit" disabled={blockPending}>
+        <form action={blockAction} data-testid="block-form" className="row unit-block-form">
+          <Field label="Блокировка с">
+            <Input type="date" name="dateFrom" defaultValue={today} required />
+          </Field>
+          <Field label="До (не включая)">
+            <Input type="date" name="dateTo" required />
+          </Field>
+          <Field label="Тип блокировки">
+            <Select name="type" defaultValue="MAINTENANCE">
+              {TYPES.map(([k, t]) => (
+                <option key={k} value={k}>
+                  {t}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Причина">
+            <Input name="reason" />
+          </Field>
+          <Button type="submit" disabled={blockPending || pending}>
             Заблокировать
           </Button>
         </form>
-        {(blockState.error || other.error) && <Alert>{blockState.error ?? other.error}</Alert>}
+        {blockState.error && <Alert>{blockState.error}</Alert>}
       </Panel>
     </Stack>
   );

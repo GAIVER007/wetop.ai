@@ -32,12 +32,7 @@ export default async function NewReservationPage({
     validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
   ]);
   return (
-    <Page
-      width="narrow"
-      crumbs={<Link href="/chessboard">← шахматка</Link>}
-      title="Новая бронь"
-      subtitle="Выберите размещение и заполните данные гостя"
-    >
+    <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
       <form method="get" className="row row--end row--lg toolbar">
         {q.unit && <input type="hidden" name="unit" value={q.unit} />}
         <Field label="Заезд">

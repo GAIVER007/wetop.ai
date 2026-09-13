@@ -9,7 +9,6 @@ export default async function MarketingPage() {
   return (
     <Page
       title="Маркетинг"
-      subtitle="Прямые бронирования, сайты гостиницы и эффективность привлечения."
       actions={
         <Link href="/analytics/setup" className="btn">
           Подключить сайт
@@ -22,11 +21,7 @@ export default async function MarketingPage() {
           label="Активных счётчиков"
           value={sites.filter((s) => s.status === 'ACTIVE').length}
         />
-        <Stat
-          label="Виджет бронирования включён"
-          value={sites.filter((s) => s.bookingEnabled).length}
-          hint="сайтов с включённой настройкой"
-        />
+        <Stat label="Виджет включён" value={sites.filter((s) => s.bookingEnabled).length} />
       </Stats>
       <Panel title="Сайты и прямые продажи">
         <Table>

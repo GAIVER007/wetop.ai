@@ -69,7 +69,6 @@ export default async function TodayPage({
       subtitle={
         <>
           <span className="day-date">{displayDate(day.date, 'full')}</span>
-          <span className="day-date-divider">/</span>Всё для вашей смены
         </>
       }
       actions={
@@ -104,27 +103,8 @@ export default async function TodayPage({
         <aside className="desk-aside" aria-label="Задачи и размещение">
           <DayAttention day={day} />
           <section className="desk-board-card">
-            <span className="eyebrow">НОМЕРА И КОЙКИ</span>
-            <h2>
-              Каждое место
-              <br />
-              под контролем
-            </h2>
-            <p>Проверьте свободные места и спланируйте размещение гостей.</p>
-            <div className="mini-board" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
+            <h2>Размещение</h2>
+
             <Link href={`/chessboard?from=${day.date}`} className="btn btn--secondary">
               Открыть шахматку <Icon name="arrow" />
             </Link>

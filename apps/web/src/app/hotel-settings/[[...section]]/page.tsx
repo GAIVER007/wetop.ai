@@ -19,7 +19,6 @@ export default async function HotelSettingsPage({
   return (
     <Page
       title={item.label}
-      subtitle={item.description}
       crumbs={section.length ? <Link href="/hotel-settings">Настройка гостиницы</Link> : undefined}
     >
       {!section.length && <SectionCards items={item.children ?? []} />}
@@ -28,16 +27,10 @@ export default async function HotelSettingsPage({
       )}
       {section[0] === 'services' && <Services />}
       {section[0] === 'photos' && (
-        <FeaturePending
-          icon="inventory"
-          text="Загрузка фотографий пока недоступна. Здесь будут фотографии гостиницы и категорий номеров: обложка, порядок снимков и подписи."
-        />
+        <FeaturePending icon="inventory" text="Загрузка фотографий пока недоступна." />
       )}
       {section[0] === 'amenities' && (
-        <FeaturePending
-          icon="check"
-          text="Редактирование удобств пока недоступно. Здесь будет оснащение объекта, отдельных категорий и общих зон."
-        />
+        <FeaturePending icon="check" text="Редактирование удобств пока недоступно." />
       )}
     </Page>
   );
@@ -59,9 +52,6 @@ async function StoredSettings({ view }: { view: string }) {
             <Stat label="Часовой пояс" value={p.timezone} size="compact" />
           </Stats>
           <Panel title="Операции стойки">
-            <p>
-              Откройте список дня, чтобы зарегистрировать заезд, оформить выезд или найти гостя.
-            </p>
             <Link className="btn btn--secondary" href="/today">
               Заезды и выезды сегодня
             </Link>
@@ -119,15 +109,7 @@ async function StoredSettings({ view }: { view: string }) {
           </p>
         </>
       )}
-      <p className="note">
-        Данные доступны для просмотра. Изменение{' '}
-        {view === 'description'
-          ? 'описания и реквизитов'
-          : view === 'penalties'
-            ? 'политики штрафов'
-            : 'расчётного часа'}{' '}
-        в интерфейсе ещё не подключено.
-      </p>
+      <p className="note">Только просмотр. Редактирование пока недоступно.</p>
     </>
   );
 }
@@ -173,10 +155,7 @@ async function Services() {
           Найти проживающего гостя
         </Link>
       </Panel>
-      <p className="note">
-        Каталог доступен для просмотра и начислений в брони. Добавление услуг и изменение их цен
-        пока не подключены.
-      </p>
+      <p className="note">Добавление услуг и изменение цен пока недоступны.</p>
     </>
   );
 }

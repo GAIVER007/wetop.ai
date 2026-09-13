@@ -13,6 +13,7 @@ import {
   Button,
   Field,
   Input,
+  Help,
   Panel,
   Select,
   Stat,
@@ -51,7 +52,7 @@ export default async function ChannelManagerPage({
   return (
     <Page
       title="Менеджер каналов"
-      subtitle="Бронирования и их стоимость по каналам продаж. Период — по дате заезда."
+      subtitle="По дате заезда"
       actions={
         <Link href="/channels" className="btn btn--secondary">
           Настроить синхронизацию
@@ -82,12 +83,7 @@ export default async function ChannelManagerPage({
       {report && totals && (
         <>
           <Stats>
-            <Stat
-              label="Бронирований"
-              value={totals.count}
-              testId="channel-bookings"
-              hint="в выбранном периоде и статусе"
-            />
+            <Stat label="Бронирований" value={totals.count} testId="channel-bookings" />
             <Stat label="Отмен" value={totals.cancelled} />
             <Stat label="Незаездов" value={totals.noShow} />
             <Stat
@@ -102,11 +98,8 @@ export default async function ChannelManagerPage({
               ))}
               {!money.size && <span className="muted">За этот период бронирований нет</span>}
             </div>
-            <p className="note">
-              Сохранённая стоимость бронирований. При выборе всех статусов включает отмены и
-              незаезды. Валюты считаются отдельно. Фактические оплаты — в{' '}
-              <Link href={`/finance?from=${from}&to=${to}`}>финансовом учёте</Link>.
-            </p>
+            {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
+            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты →</Link>
           </Panel>
           <Table data-testid="channel-report">
             <thead>
@@ -165,11 +158,11 @@ export default async function ChannelManagerPage({
               )}
             </tbody>
           </Table>
-          <p className="note">
+          <Help title="Как считаются показатели">
             Одна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники
             появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает,
-            что канал сейчас подключён.
-          </p>
+            что канал сейчас подключён. Валюты считаются отдельно.
+          </Help>
         </>
       )}
     </Page>

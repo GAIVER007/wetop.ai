@@ -111,3 +111,26 @@
 | 13.09.2026 19:23 | unit | ✅ 569 из 569 | 9 с | 0c85467 | [лог](logs/2026-09-13T14-23-24Z-unit-e427.log) |  |
 | 13.09.2026 19:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 17 из 17 | 59 с | 0c85467 | [лог](logs/2026-09-13T14-23-23Z-e2e-fd9a.log) | Объединённая версия; сообщения ошибок ограничены main, проверка 33 маршрутов |
 | 13.09.2026 19:24 | lint | ✅ без ошибок | 6 с | 0c85467 +1 | [лог](logs/2026-09-13T14-24-38Z-lint-f88a.log) |  |
+| 13.09.2026 19:33 | unit (частично: apps/web/src/lib/api.test.ts) | ❌ упало 4 из 5 | 1 с | c538741 +1 | [лог](logs/2026-09-13T14-33-19Z-unit-0e22.log) | обычный запуск не принимает демонстрационные данные |
+| 13.09.2026 19:34 | unit (частично: apps/web/src/lib/api.test.ts) | ✅ 5 из 5 | 1 с | c538741 +2 | [лог](logs/2026-09-13T14-34-20Z-unit-e967.log) |  |
+| 13.09.2026 19:35 | unit (частично: apps/api/src/channels/connection.test.ts) | ❌ код выхода 1 | 3 с | c538741 +3 | [лог](logs/2026-09-13T14-35-48Z-unit-c7e9.log) | (файл не выполнился) |
+| 13.09.2026 19:36 | unit (частично: apps/api/src/channels/connection.test.ts) | ✅ 9 из 9 | 4 с | c538741 +5 | [лог](logs/2026-09-13T14-36-58Z-unit-bfe4.log) |  |
+| 13.09.2026 19:43 | unit (частично: apps/web/src/app/channels/actions.test.ts apps/web/src/app/analytics/actions.test.ts) | ❌ упало 5 из 5 | 1 с | c538741 +12 | [лог](logs/2026-09-13T14-43-55Z-unit-c0e5.log) | обновляет маркетинг и подключения после pause |
+| 13.09.2026 19:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep ошибка буфера\|финансы: неверные\|ошибка загрузки тарифов) | ❌ упало 3 из 3 | 1 мин 2 с | c538741 +23 | [лог](logs/2026-09-13T14-45-44Z-e2e-49ac.log) | Red: clipboard feedback, invalid finance period, unavailable widget plans |
+| 13.09.2026 19:47 | typecheck | ❌ ошибок: 1 | 11 с | c538741 +31 | [лог](logs/2026-09-13T14-47-02Z-typecheck-3476.log) | TS2345 |
+| 13.09.2026 19:48 | unit (частично: apps/web/src/app/channels/actions.test.ts apps/web/src/app/analytics/actions.test.ts) | ✅ 5 из 5 | 1 с | c538741 +32 | [лог](logs/2026-09-13T14-48-02Z-unit-da45.log) |  |
+| 13.09.2026 19:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 20 из 20 | 1 мин 4 с | c538741 +32 | [лог](logs/2026-09-13T14-48-15Z-e2e-f966.log) | Section matrix and corrected error handling, isolated API only |
+| 13.09.2026 19:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep номера: статус\|тарифы: добавить\|сайты: проверка\|кнопки Channex\|пустые ответы) | ❌ упало 2 из 5 | 42 с | c538741 +32 | [лог](logs/2026-09-13T14-51-32Z-e2e-6eb4.log) | Extended command and empty/offline coverage, synthetic isolated API |
+| 13.09.2026 19:52 | typecheck | ❌ ошибок: 2 | 30 с | c538741 +35 | [лог](logs/2026-09-13T14-52-49Z-typecheck-a5ab.log) | TS2550 |
+| 13.09.2026 19:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep кнопки Channex\|пустые ответы) | ✅ 2 из 2 | 34 с | c538741 +32 | [лог](logs/2026-09-13T14-52-48Z-e2e-a4b6.log) | Correct fixture pull route; assert visible error UI with Next Activity preservation |
+| 13.09.2026 19:53 | unit | ✅ 587 из 587 | 23 с | c538741 +32 | [лог](logs/2026-09-13T14-53-00Z-unit-5801.log) |  |
+| 13.09.2026 19:54 | typecheck | ✅ без ошибок | 11 с | c538741 +35 | [лог](logs/2026-09-13T14-54-38Z-typecheck-7dc3.log) |  |
+| 13.09.2026 19:54 | lint | ✅ без ошибок | 7 с | c538741 +35 | [лог](logs/2026-09-13T14-54-49Z-lint-a201.log) |  |
+| 13.09.2026 19:55 | unit | ✅ 587 из 587 | 12 с | c538741 +32 | [лог](logs/2026-09-13T14-55-12Z-unit-d3cf.log) |  |
+| 13.09.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 25 из 25 | 1 мин 38 с | c538741 +32 | [лог](logs/2026-09-13T14-55-12Z-e2e-8b4a.log) | Final 33-route desktop/mobile matrix and 25 scenarios; no DB or provider calls |
+| 13.09.2026 19:58 | unit (частично: apps/web/src/lib/api.test.ts) | ❌ упало 1 из 6 | 1 с | c538741 +33 | [лог](logs/2026-09-13T14-58-43Z-unit-355e.log) | не перехватывает служебные сигналы рендера как сетевой сбой |
+| 13.09.2026 19:58 | unit (частично: apps/web/src/lib/api.test.ts) | ✅ 6 из 6 | 1 с | c538741 +33 | [лог](logs/2026-09-13T14-58-59Z-unit-0086.log) |  |
+| 13.09.2026 19:59 | unit | ✅ 588 из 588 | 23 с | c538741 +32 | [лог](logs/2026-09-13T14-59-28Z-unit-4d61.log) |  |
+| 13.09.2026 19:59 | lint | ✅ без ошибок | 35 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-lint-9eb5.log) |  |
+| 13.09.2026 19:59 | typecheck | ✅ без ошибок | 40 с | c538741 +35 | [лог](logs/2026-09-13T14-59-28Z-typecheck-b996.log) |  |
+| 13.09.2026 20:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 25 из 25 | 1 мин 46 с | c538741 +32 | [лог](logs/2026-09-13T15-00-27Z-e2e-5898.log) | Final UI after bounded network error handling and successful production build without API |

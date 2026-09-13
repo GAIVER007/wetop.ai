@@ -22,7 +22,6 @@ export default async function RoomsPage({
   return (
     <Page
       title={item.label}
-      subtitle={item.description}
       crumbs={section.length ? <Link href="/rooms">Управление номерами</Link> : undefined}
     >
       {!section.length && (
@@ -39,7 +38,7 @@ export default async function RoomsPage({
         <>
           <FeaturePending
             icon="rates"
-            text="Создание акций, промокодов и правил скидок пока недоступно. Для изменения цен на выбранные даты используйте календарь тарифов."
+            text="Акции и промокоды пока недоступны. Цены можно изменить в тарифах."
           />
           <Link className="btn btn--secondary" href="/rates">
             Открыть тарифы
@@ -99,10 +98,7 @@ async function Categories() {
           )}
         </tbody>
       </Table>
-      <p className="note">
-        Состав категорий загружен из номерного фонда. Создание и редактирование категорий в
-        интерфейсе пока недоступно.
-      </p>
+      <p className="note">Категории доступны только для просмотра.</p>
     </>
   );
 }
@@ -176,8 +172,7 @@ async function Availability({
             </tbody>
           </Table>
           <p className="note">
-            Свободные места рассчитаны на весь период; день выезда не входит. Окончательная
-            доступность повторно проверяется при создании брони.
+            День выезда не входит. При сохранении брони доступность проверяется повторно.
           </p>
           <Link href={`/chessboard?from=${arrival}&to=${departure}`} className="btn btn--secondary">
             Посмотреть на шахматке

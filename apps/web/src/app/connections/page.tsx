@@ -1,64 +1,90 @@
 import Link from 'next/link';
 import { analyticsApi, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Alert, Badge, Panel } from '../../components/ui';
+import { RefreshButton } from '../../components/refresh-button';
+import { Alert, Badge, Fact, Grid, Help, Panel } from '../../components/ui';
+
+const time = (value: string | null) =>
+  value ? new Date(value).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) : 'Нет событий';
 
 export default async function ConnectionsPage() {
-  // Independent integrations fail independently: no false "disconnected" state on an API error.
-  const [webhook, mapping, sites] = await Promise.allSettled([
+  const [connection, webhook, sites] = await Promise.allSettled([
+    channelsApi.connection(),
     channelsApi.webhookStatus(),
-    channelsApi.mapping(),
     analyticsApi.sites(),
   ]);
+  const status = connection.status === 'fulfilled' ? connection.value : null;
   return (
-    <Page title="Подключения API" subtitle="Каналы продаж, сайт и модуль прямого бронирования.">
+    <Page title="Подключения API" actions={<RefreshButton label="Проверить соединение" />}>
+      {!status && <Alert boxed>Нет связи с рабочим API. Данные не загружены.</Alert>}
       <div className="connection-grid">
-        <Panel title="Channex · каналы продаж">
+        <Panel title="Channex">
+          <Badge tone={status?.propertyAccessible ? 'ok' : 'warn'}>
+            {status?.message ?? 'Не проверено'}
+          </Badge>
+          {status && (
+            <Grid min={180}>
+              <Fact
+                label="Среда"
+                value={
+                  status.environment === 'production'
+                    ? 'Рабочая'
+                    : status.environment === 'staging'
+                      ? 'Тестовая'
+                      : 'Свой сервер'
+                }
+              />
+              <Fact
+                label="Сопоставлено"
+                value={`${status.mappedCategories} категорий · ${status.mappedRatePlans} тарифов`}
+              />
+              <Fact label="Последний webhook · Алматы" value={time(status.lastWebhookAt)} />
+              <Fact label="Последний импорт · Алматы" value={time(status.lastPullAt)} />
+            </Grid>
+          )}
           {webhook.status === 'fulfilled' ? (
             <Badge tone={webhook.value.registered && webhook.value.active ? 'ok' : 'warn'}>
               {webhook.value.registered && webhook.value.active
-                ? 'Webhook зарегистрирован и включён'
+                ? 'Webhook включён'
                 : 'Webhook не включён'}
             </Badge>
           ) : (
             <Alert>Не удалось проверить webhook.</Alert>
           )}
-          <p>Получение бронирований из OTA и обмен доступностью, ценами и ограничениями.</p>
-          {mapping.status === 'fulfilled' ? (
-            <p className="note">Сопоставлений с объектом: {mapping.value.length}</p>
-          ) : (
-            <Alert>Не удалось загрузить сопоставления.</Alert>
-          )}
           <Link className="btn btn--secondary" href="/channels">
-            Управлять подключением
+            Настроить Channex
           </Link>
         </Panel>
-        <Panel title="Сайт и модуль бронирования">
+        <Panel title="Сайт и бронирования">
           {sites.status === 'fulfilled' ? (
-            <Badge tone={sites.value.length ? 'ok' : 'neutral'}>
-              Сайтов в системе: {sites.value.length}
-            </Badge>
+            <>
+              <Badge tone={sites.value.length ? 'ok' : 'neutral'}>
+                Сайтов в системе: {sites.value.length}
+              </Badge>
+              <Fact
+                label="Виджет включён"
+                value={sites.value.filter((site) => site.bookingEnabled).length}
+              />
+            </>
           ) : (
             <Alert>Не удалось загрузить сайты.</Alert>
           )}
-          <p>Подключение счётчика, разрешённых доменов и виджета прямого бронирования.</p>
           <Link className="btn btn--secondary" href="/analytics/setup">
             Настроить сайт
           </Link>
         </Panel>
-        <Panel title="Другие API">
-          <Badge>Ещё не подключено</Badge>
-          <p>
-            Самостоятельное добавление произвольного API, выдача ключей и настройка новых
-            провайдеров пока недоступны.
-          </p>
-          <Link href="/incidents">Проверить неисправности системы</Link>
-        </Panel>
       </div>
-      <p className="note">
-        Статус регистрации webhook показывает конфигурацию. Доставку событий и ошибки синхронизации
-        проверяйте в журнале канала.
-      </p>
+      <Help title="Что требуется для подключения">
+        <p>
+          Рабочий API с базой данных, ключ Channex, сопоставления объекта, категорий и тарифов,
+          входящий webhook. Ключ хранится только на сервере.
+        </p>
+        <p>
+          Проверка соединения читает объект в Channex. Она не запускает импорт броней и отправку
+          тарифов. Время событий показывает поступление данных в PMS.
+        </p>
+        <Link href="/incidents">Проверить неисправности</Link>
+      </Help>
     </Page>
   );
 }

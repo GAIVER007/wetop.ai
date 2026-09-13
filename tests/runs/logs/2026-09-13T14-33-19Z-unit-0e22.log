@@ -1,0 +1,123 @@
+# Модульные (unit) · 13.09.2026 19:33 Алматы · MacBook-Air-Urij.local
+# коммит c538741 (codex/hostel-frontend), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-33-19Z-unit-0e22.json' 'apps/web/src/lib/api.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/lib/api.test.ts (5 tests | 4 failed) 28ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 20ms
+   × обычный запуск не принимает демонстрационные данные 5ms
+   × production не разрешает тестовый сервер даже с флагом 1ms
+   × test opt-in добавляет явный заголовок, пустые реальные ответы остаются пустыми 1ms
+   × сетевой отказ не превращается в нулевые показатели и не повторяет команду 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/api.test.ts > обычный запуск не принимает демонстрационные данные
+AssertionError: promise resolved "{ count: 48 }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "count": 48,
+  }
+
+ ❯ apps/web/src/lib/api.test.ts:16:55
+     14|     headers: { 'x-wetop-data-source': 'synthetic' },
+     15|   })));
+     16|   await expect(getJsonPublic('/hotel/channel-report')).rejects.toMatch…
+       |                                                       ^
+     17| });
+     18|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/api.test.ts > production не разрешает тестовый сервер даже с флагом
+AssertionError: expected TypeError: Cannot read properties of unde… to match object { status: 503 }
+
+- Expected
++ Received
+
+- {
+-   "status": 503,
++ TypeError {
++   "message": "Cannot read properties of undefined (reading 'ok')",
+  }
+
+ ❯ apps/web/src/lib/api.test.ts:24:43
+     22|   vi.stubEnv('APP_API_URL', 'http://127.0.0.1:4311');
+     23|   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
+     24|   await expect(reservationsApi.create({})).rejects.toMatchObject({ sta…
+       |                                           ^
+     25|   expect(fetch).not.toHaveBeenCalled();
+     26| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/api.test.ts > test opt-in добавляет явный заголовок, пустые реальные ответы остаются пустыми
+AssertionError: expected "vi.fn()" to be called with arguments: [ Any<String>, ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   Any<String>,
+-   ObjectContaining {
+-     "headers": ObjectContaining {
+-       "x-wetop-test-client": "1",
+-     },
+-     "signal": Any<AbortSignal>,
++   "http://127.0.0.1:3001/guests",
++   {
++     "cache": "no-store",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ apps/web/src/lib/api.test.ts:33:17
+     31|   vi.stubGlobal('fetch', fetch);
+     32|   await expect(getJsonPublic('/guests')).resolves.toEqual([]);
+     33|   expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.object…
+       |                 ^
+     34|     headers: expect.objectContaining({ 'x-wetop-test-client': '1' }), …
+     35|   }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/api.test.ts > сетевой отказ не превращается в нулевые показатели и не повторяет команду
+AssertionError: expected TypeError: fetch failed to match object { status: 503 }
+
+- Expected
++ Received
+
+- {
+-   "status": 503,
++ TypeError {
++   "message": "fetch failed",
+  }
+
+ ❯ apps/web/src/lib/api.test.ts:41:43
+     39|   const fetch = vi.fn().mockRejectedValue(new TypeError('fetch failed'…
+     40|   vi.stubGlobal('fetch', fetch);
+     41|   await expect(reservationsApi.create({})).rejects.toMatchObject({ sta…
+       |                                           ^
+     42|   expect(fetch).toHaveBeenCalledTimes(1);
+     43| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  18:33:20
+   Duration  195ms (transform 44%, tests 40%, import 12%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-33-19Z-unit-0e22.json
+
+# код выхода 1 · 1 с

@@ -1,0 +1,126 @@
+# Модульные (unit) · 13.09.2026 19:53 Алматы · MacBook-Air-Urij.local
+# коммит c538741 (codex/hostel-frontend), незакоммиченных файлов набора: 32
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-53-00Z-unit-5801.json'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (5 tests) 822ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (10 tests) 998ms
+   ✓ сайты и отчёты /analytics (10)
+     ✓ создание сайта: ключ pms_ + 12 hex, домены нормализованы, код для вставки содержит ключ 357ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 1704ms
+   ✓ приёмник счётчика POST /a/hit и скрипт GET /a/pms.js (15)
+     ✓ лимит 60 событий в минуту на посетителя: 61-е не записывается 948ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (4 tests) 1465ms
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 422ms
+   ✓ запуск без сборки (1)
+     ✓ Node 24 загружает модуль как есть (в контейнер едут .ts файлы без компиляции) 402ms
+[Nest] 96278  - 09/13/2026, 6:53:11 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 96278  - 09/13/2026, 6:53:11 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 96278  - 09/13/2026, 6:53:11 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 96278  - 09/13/2026, 6:53:11 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (9 tests) 2013ms
+   ✓ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (9)
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 338ms
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 2114ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (18 tests) 2157ms
+   ✓ manual reservation API (18)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 315ms
+ ✓ |unit| packages/integrations/src/exely/universal.test.ts (4 tests) 101ms
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (4 tests) 677ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 189ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (10 tests) 816ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (6 tests) 30ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 1087ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (2 tests) 1223ms
+   ✓ desk day API (2)
+     ✓ делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих 306ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (4 tests) 1610ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (10 tests) 1303ms
+ ✓ |unit| tests/unit/test-journal.test.ts (21 tests) 56ms
+ ✓ |unit| scripts/reconciliation/src/cutover-compare.test.ts (14 tests) 78ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (4 tests) 65ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 103ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (14 tests) 411ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 1184ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 142ms
+ ✓ |unit| packages/integrations/src/exely/client.test.ts (7 tests) 148ms
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (13 tests) 173ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 110ms
+[Nest] 96346  - 09/13/2026, 6:53:17 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 96346  - 09/13/2026, 6:53:17 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 96346  - 09/13/2026, 6:53:17 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (8 tests) 254ms
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (19 tests) 249ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (5 tests) 213ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 12ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 33ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 102ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (1 test) 289ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 753ms
+   ✓ AppModule (1)
+     ✓ все модули API собираются: зависимости сходятся 743ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 21ms
+ ✓ |unit| scripts/imports/src/exely/price-calendar.test.ts (4 tests) 28ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (7 tests) 92ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 134ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (9 tests) 120ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 30ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 165ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (7 tests) 115ms
+ ✓ |unit| scripts/imports/src/exely/rate-plans.test.ts (3 tests) 16ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (9 tests) 195ms
+[Nest] 96362  - 09/13/2026, 6:53:20 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 96362  - 09/13/2026, 6:53:20 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 96362  - 09/13/2026, 6:53:20 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 96362  - 09/13/2026, 6:53:20 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 96362  - 09/13/2026, 6:53:20 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 96362  - 09/13/2026, 6:53:20 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 96362  - 09/13/2026, 6:53:20 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 96362  - 09/13/2026, 6:53:20 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (8 tests) 360ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (17 tests) 426ms
+ ✓ |unit| scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 389ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 82ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (21 tests) 36ms
+ ✓ |unit| scripts/imports/src/exely/parse-services.test.ts (2 tests) 10ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 125ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 111ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 58ms
+ ✓ |unit| scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 24ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 28ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 15ms
+ ✓ |unit| scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 53ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (9 tests) 35ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (25 tests) 53ms
+ ✓ |unit| scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 10ms
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (5 tests) 16ms
+ ✓ |unit| scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 16ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 25ms
+ ✓ |unit| scripts/imports/src/exely/anonymize.test.ts (3 tests) 17ms
+[Nest] 96454  - 09/13/2026, 6:53:23 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 8ms
+ ✓ |unit| scripts/imports/src/exely/guest-fields.test.ts (4 tests) 19ms
+[Nest] 96454  - 09/13/2026, 6:53:23 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (3 tests) 34ms
+ ✓ |unit| scripts/reconciliation/src/cutover-ambiguous.test.ts (9 tests) 11ms
+ ✓ |unit| scripts/reconciliation/src/rates-compare.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 9ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 8ms
+ ✓ |unit| packages/shared/src/markdown-table.test.ts (3 tests) 8ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 8ms
+ ✓ |unit| scripts/reconciliation/src/inventory-compare.test.ts (3 tests) 12ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 6ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 9ms
+ ✓ |unit| packages/domain/src/reservations/cutover-match.test.ts (6 tests) 8ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 8ms
+
+ Test Files  80 passed (80)
+      Tests  587 passed (587)
+   Start at  18:53:03
+   Duration  19.91s (import 48%, tests 28%, transform 22%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-53-00Z-unit-5801.json
+
+# код выхода 0 · 23 с

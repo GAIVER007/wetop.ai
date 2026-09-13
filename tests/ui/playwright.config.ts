@@ -18,13 +18,13 @@ export default defineConfig({
     {
       command: 'npx tsx tests/ui/fixture-api.ts',
       cwd: '../..',
-      url: 'http://127.0.0.1:4311/inventory/summary',
+      url: 'http://127.0.0.1:4311/__test/health',
       reuseExistingServer: false,
     },
     {
       command: 'npm exec -w apps/web -- next dev --port 3100 --hostname 127.0.0.1',
       cwd: '../..',
-      env: { APP_API_URL: 'http://127.0.0.1:4311' },
+      env: { APP_API_URL: 'http://127.0.0.1:4311', APP_ALLOW_TEST_DATA: '1' },
       url: 'http://127.0.0.1:3100/today',
       reuseExistingServer: false,
       timeout: 120_000,

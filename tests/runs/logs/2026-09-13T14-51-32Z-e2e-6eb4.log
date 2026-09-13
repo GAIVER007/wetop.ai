@@ -1,0 +1,153 @@
+# Сквозные (e2e) · 13.09.2026 19:51 Алматы · MacBook-Air-Urij.local
+# коммит c538741 (codex/hostel-frontend), незакоммиченных файлов набора: 32
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'номера: статус|тарифы: добавить|сайты: проверка|кнопки Channex|пустые ответы'
+[WebServer] (node:95276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:95376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/workspace.spec.ts:429:1 › номера: статус уборки, блокировка и снятие сохраняются (3.4s)
+[WebServer] (node:95442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/workspace.spec.ts:448:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.1s)
+  ✓  3 tests/ui/workspace.spec.ts:468:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (4.7s)
+  ✘  4 tests/ui/workspace.spec.ts:494:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (16.6s)
+(node:95548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:67:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:17:15)
+[WebServer]   65 |   const res = await backendFetch(path);
+[WebServer]   66 |   if (!res.ok) {
+[WebServer] > 67 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   68 |   }
+[WebServer]   69 |   return (await res.json()) as T;
+[WebServer]   70 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3124001046'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:67:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:28:17)
+[WebServer]   65 |   const res = await backendFetch(path);
+[WebServer]   66 |   if (!res.ok) {
+[WebServer] > 67 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   68 |   }
+[WebServer]   69 |   return (await res.json()) as T;
+[WebServer]   70 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3286514669'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:67:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:52:13)
+[WebServer]   65 |   const res = await backendFetch(path);
+[WebServer]   66 |   if (!res.ok) {
+[WebServer] > 67 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   68 |   }
+[WebServer]   69 |   return (await res.json()) as T;
+[WebServer]   70 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2994564789'
+[WebServer] }
+[WebServer] (node:95579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/ui/workspace.spec.ts:514:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (4.2s)
+
+
+  1) tests/ui/workspace.spec.ts:494:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('channel-result')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('channel-result') with timeout 15000ms
+      - waiting for getByTestId('channel-result')
+
+
+      500 |   for (const id of ['channel-pull', 'channel-flush', 'channel-sync', 'channel-setup']) {
+      501 |     await page.getByTestId(id).click();
+    > 502 |     await expect(page.getByTestId('channel-result')).toBeVisible();
+          |                                                      ^
+      503 |     await expect(page.getByTestId(id)).toBeEnabled();
+      504 |     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+      505 |   }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/workspace.spec.ts:502:54
+
+    Error Context: test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/workspace.spec.ts:514:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('h1')
+    Expected: "Не удалось загрузить данные"
+    Error: strict mode violation: locator('h1') resolved to 2 elements:
+        1) <h1 class="page__title">Не удалось загрузить данные</h1> aka getByRole('heading', { name: 'Не удалось загрузить данные' })
+        2) <h1 class="page__title">Управление номерами</h1> aka locator('h1').filter({ hasText: 'Управление номерами' })
+
+    Call log:
+      - Expect "toHaveText" locator('h1') with timeout 15000ms
+      - waiting for locator('h1')
+        2 × locator resolved to <h1 class="page__title">Управление номерами</h1>
+          - unexpected value "Управление номерами"
+
+
+      526 |   for (const route of ['/today', '/chessboard', '/rooms', '/finance', '/channel-manager', '/marketing']) {
+      527 |     await page.goto(route);
+    > 528 |     await expect(page.locator('h1')).toHaveText('Не удалось загрузить данные');
+          |                                      ^
+      529 |     await expect(page.locator('.stat__value')).toHaveCount(0);
+      530 |   }
+      531 |   await page.goto('/connections');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/workspace.spec.ts:528:38
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/workspace.spec.ts:494:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+    tests/ui/workspace.spec.ts:514:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+  3 passed (40.2s)
+
+# код выхода 1 · 42 с

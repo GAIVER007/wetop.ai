@@ -29,7 +29,7 @@ export function CreateSiteForm() {
       <Field label="Название">
         <Input name="name" required placeholder="Сайт хостела" data-testid="site-name" />
       </Field>
-      <Field label="Домены сайта (по одному в строке или через запятую, без https://)">
+      <Field label="Домены без https://, через запятую">
         <Textarea
           name="hosts"
           required
@@ -40,7 +40,7 @@ export function CreateSiteForm() {
       </Field>
       <div>
         <Button type="submit" disabled={pending} data-testid="site-create">
-          Добавить сайт и получить код
+          Добавить сайт
         </Button>
       </div>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -140,13 +140,14 @@ export function BookingSettings({
               setResult(await bookingSettingsAction(id, { enabled: on, ratePlanCode: plan })),
             )
           }
-          disabled={pending}
+          disabled={pending || (on && !plans.some((p) => p.code === plan))}
           data-testid="booking-save"
         >
           Сохранить
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
+      {on && !plans.length && <Alert>Нет доступных тарифов для виджета.</Alert>}
       {result?.message && <Notice data-testid="booking-result">{result.message}</Notice>}
     </Stack>
   );
@@ -185,21 +186,26 @@ export function HostsForm({ id, hosts }: { id: string; hosts: string[] }) {
 
 export function CopyButton({ text }: { text: string }) {
   const [done, setDone] = useState(false);
+  const [error, setError] = useState(false);
   return (
-    <Button
-      type="button"
-      tone="secondary"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setDone(true);
-          setTimeout(() => setDone(false), 2000);
-        } catch {
-          /* буфер недоступен — код можно выделить руками */
-        }
-      }}
-    >
-      {done ? 'Скопировано' : 'Скопировать код'}
-    </Button>
+    <div className="stack stack--sm">
+      <Button
+        type="button"
+        tone="secondary"
+        onClick={async () => {
+          setError(false);
+          try {
+            await navigator.clipboard.writeText(text);
+            setDone(true);
+            setTimeout(() => setDone(false), 2000);
+          } catch {
+            setError(true);
+          }
+        }}
+      >
+        {done ? 'Скопировано' : 'Скопировать код'}
+      </Button>
+      {error && <Alert>Не удалось скопировать. Выделите код вручную.</Alert>}
+    </div>
   );
 }

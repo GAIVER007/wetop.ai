@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Alert, Badge, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Alert, Badge, Help, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { ChannelButtons, RetryEventButton } from './buttons';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
@@ -25,18 +26,26 @@ const VIA_RU: Record<string, string> = {
 };
 
 export default async function ChannelsPage() {
-  const [mapping, outbox, summary, webhook, events] = await Promise.all([
+  const [mapping, outbox, summary, webhook, events, connection] = await Promise.all([
     channelsApi.mapping(),
     channelsApi.outbox(),
     api.inventorySummary(),
     channelsApi.webhookStatus().catch(() => null),
     channelsApi.events(20).catch(() => null),
+    channelsApi.connection().catch(() => null),
   ]);
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
   const property = mapping.find((m) => !m.providerRoomTypeId);
   return (
-    <Page title="Каналы продаж — Channex">
+    <Page
+      title="Каналы продаж — Channex"
+      actions={
+        <Link href="/connections" className="btn btn--secondary">
+          Проверить соединение
+        </Link>
+      }
+    >
       {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
       <Stats min={150}>
         <Stat label="В очереди" value={String(outbox.pending)} testId="outbox-pending" />
@@ -52,7 +61,7 @@ export default async function ChannelsPage() {
       </Stats>
       <div className="facts facts--card">
         <div>
-          <div className="fact__label">Объект на staging</div>
+          <div className="fact__label">Объект Channex</div>
           <div className="fact__value mono">
             {property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}
           </div>
@@ -95,14 +104,22 @@ export default async function ChannelsPage() {
           настройкой.
         </Alert>
       )}
-      <ChannelButtons webhookReady={webhookReady} />
+      <ChannelButtons
+        webhookReady={webhookReady}
+        configured={!!connection?.apiConfigured}
+        connected={!!connection?.propertyAccessible}
+      />
+      {!connection?.propertyAccessible && (
+        <Alert boxed>
+          {connection?.message ?? 'Не удалось проверить соединение'}.{' '}
+          <Link href="/connections">Подключения API</Link>
+        </Alert>
+      )}
       <SectionTitle>Входящие события канала</SectionTitle>
-      <p className="hint">
-        Каждое сообщение от Channex сначала записывается, потом обрабатывается: так бронь не
-        теряется при сбое, а неудачную попытку видно (ADR-007). Строка со статусом FAILED — бронь в
-        PMS не попала. После шести неудачных попыток PMS перестаёт пробовать сама и ждёт кнопки
-        «Обработать заново» — иначе ревизия падала бы на каждом опросе незаметно для человека.
-      </p>
+      <Help title="Обработка событий">
+        Ошибка означает, что ревизия не обработана. После шести неудачных попыток исправьте причину
+        и нажмите «Обработать заново».
+      </Help>
       {events === null && (
         <Alert boxed>
           Не удалось загрузить входящие события. Это не означает, что событий нет.

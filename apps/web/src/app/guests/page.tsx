@@ -13,7 +13,7 @@ export default async function GuestsPage({
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
-    <Page title="Гости" width="medium" subtitle="Контакты, документы и история проживаний">
+    <Page title="Гости" width="medium">
       <form method="get" className="row toolbar">
         <Input
           name="q"
@@ -69,8 +69,7 @@ export default async function GuestsPage({
             «как в прошлый раз».
           </p>
           <p className="hint">
-            Гость создаётся при оформлении брони — отдельно создавать его не
-            нужно.
+            Гость создаётся при оформлении брони — отдельно создавать его не нужно.
           </p>
         </Panel>
       )}

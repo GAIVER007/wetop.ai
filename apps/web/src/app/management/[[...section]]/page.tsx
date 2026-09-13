@@ -5,7 +5,7 @@ import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
 import { SectionCards } from '../../../components/section-cards';
-import { Alert, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
+import { Alert, Help, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
 
 export default async function ManagementPage({
   params,
@@ -22,7 +22,6 @@ export default async function ManagementPage({
   return (
     <Page
       title={item.label}
-      subtitle={item.description}
       crumbs={section.length ? <Link href="/management">Управление отелем</Link> : undefined}
     >
       {!section.length && <SectionCards items={item.children ?? []} />}
@@ -126,10 +125,10 @@ async function Statistics({ date }: { date: string }) {
           )}
         </tbody>
       </Table>
-      <p className="note">
+      <Help title="Расчёт загрузки">
         Загрузка = занятые единицы / весь фонд категории, включая блокировки. Номер считается одной
         единицей, койка — одной. Неназначенные проживания не занимают ячейки шахматки.
-      </p>
+      </Help>
       <Link className="btn btn--secondary" href={`/chessboard?from=${date}&to=${date}`}>
         Открыть размещение на этот день
       </Link>

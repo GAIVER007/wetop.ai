@@ -21,6 +21,15 @@ import type {
 export const cx = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ');
 
+export function Help({ children, title = 'Подробнее' }: { children: ReactNode; title?: string }) {
+  return (
+    <details className="context-help">
+      <summary>{title}</summary>
+      <div>{children}</div>
+    </details>
+  );
+}
+
 export type ButtonTone =
   'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info' | 'ghost';
 

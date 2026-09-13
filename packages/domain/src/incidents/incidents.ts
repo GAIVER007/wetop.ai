@@ -14,6 +14,7 @@ export type IncidentKind =
   | 'outbox.failed'
   | 'outbox.stuck'
   | 'event.failed'
+  | 'event.rejected'
   | 'sync.missing'
   | 'db.down'
   | 'stay.overbooked'
@@ -53,21 +54,64 @@ const HOUR = 60 * MIN;
  */
 export const POLICY: Record<IncidentKind, KindPolicy> = {
   // Починка уже идёт в сторожe webhook (опрос ленты раз в минуту) — сторож системы только будит, если затянулось
-  'webhook.suspect': { class: 'A', severity: 'WARNING', escalateAfterMs: 15 * MIN, close: { by: 'recheck' } },
+  'webhook.suspect': {
+    class: 'A',
+    severity: 'WARNING',
+    escalateAfterMs: 15 * MIN,
+    close: { by: 'recheck' },
+  },
   // Туннель поднимает его собственный сторож (scripts/ops/channex-tunnel.sh), после Q-112 адрес постоянный
-  'webhook.unreachable': { class: 'A', severity: 'CRITICAL', escalateAfterMs: 15 * MIN, close: { by: 'recheck' } },
-  'feed.stale': { class: 'A', severity: 'CRITICAL', fix: { maxAttempts: 3, minIntervalMs: 5 * MIN }, close: { by: 'recheck' } },
+  'webhook.unreachable': {
+    class: 'A',
+    severity: 'CRITICAL',
+    escalateAfterMs: 15 * MIN,
+    close: { by: 'recheck' },
+  },
+  'feed.stale': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 3, minIntervalMs: 5 * MIN },
+    close: { by: 'recheck' },
+  },
   // Починка — полная выгрузка, а не повтор старой дельты (ADR-028): лимиты Channex, раз в час
-  'outbox.failed': { class: 'A', severity: 'CRITICAL', fix: { maxAttempts: 2, minIntervalMs: HOUR }, close: { by: 'recheck' } },
-  'outbox.stuck': { class: 'A', severity: 'CRITICAL', fix: { maxAttempts: 3, minIntervalMs: 2 * MIN }, close: { by: 'recheck' } },
-  'event.failed': { class: 'A', severity: 'CRITICAL', fix: { maxAttempts: 3, minIntervalMs: 10 * MIN }, close: { by: 'recheck' } },
-  'sync.missing': { class: 'A', severity: 'WARNING', fix: { maxAttempts: 2, minIntervalMs: 6 * HOUR }, close: { by: 'recheck' } },
-  'db.down': { class: 'A', severity: 'CRITICAL', escalateAfterMs: 3 * MIN, close: { by: 'recheck' } },
+  'outbox.failed': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 2, minIntervalMs: HOUR },
+    close: { by: 'recheck' },
+  },
+  'outbox.stuck': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 3, minIntervalMs: 2 * MIN },
+    close: { by: 'recheck' },
+  },
+  // Временная ошибка (сеть, 5xx) — повторить; отказ по правилу (ADR-024, валидация) — `event.rejected`, к человеку
+  'event.failed': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 3, minIntervalMs: 10 * MIN },
+    close: { by: 'recheck' },
+  },
+  'event.rejected': { class: 'B', severity: 'CRITICAL', close: { by: 'recheck' } },
+  'sync.missing': {
+    class: 'A',
+    severity: 'WARNING',
+    fix: { maxAttempts: 2, minIntervalMs: 6 * HOUR },
+    close: { by: 'recheck' },
+  },
+  'db.down': {
+    class: 'A',
+    severity: 'CRITICAL',
+    escalateAfterMs: 3 * MIN,
+    close: { by: 'recheck' },
+  },
   'stay.overbooked': { class: 'B', severity: 'CRITICAL', close: { by: 'recheck' } },
   'stay.unassigned': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
   'api.error': { class: 'C', severity: 'WARNING', close: { by: 'quiet', afterMs: 24 * HOUR } },
-  'reconciliation.fail': { class: 'B', severity: 'WARNING', close: { by: 'manual' } },
-  'tests.failing': { class: 'C', severity: 'WARNING', close: { by: 'manual' } },
+  // Закрываются, когда последний отчёт вида или последний полный прогон набора перестал быть красным
+  'reconciliation.fail': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
+  'tests.failing': { class: 'C', severity: 'WARNING', close: { by: 'recheck' } },
 };
 
 /** Что заметила проверка. Без ФИО, телефонов и секретов — только номера и коды. */
@@ -147,7 +191,8 @@ export function decideAction(inc: OpenIncident, now: Date, autofix: boolean): Gu
   if (p.class !== 'A') return 'escalate';
   if (p.fix) {
     if (!autofix || inc.fixAttempts >= p.fix.maxAttempts) return 'escalate';
-    if (inc.lastFixAt && now.getTime() - inc.lastFixAt.getTime() < p.fix.minIntervalMs) return 'wait';
+    if (inc.lastFixAt && now.getTime() - inc.lastFixAt.getTime() < p.fix.minIntervalMs)
+      return 'wait';
     return 'fix';
   }
   const waited = now.getTime() - inc.firstSeenAt.getTime();

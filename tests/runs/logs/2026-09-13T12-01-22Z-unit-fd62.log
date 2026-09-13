@@ -1,0 +1,57 @@
+# Модульные (unit) · 13.09.2026 17:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 34883f7 (main), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-01-22Z-unit-fd62.json' 'apps/api/src/guard'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+[Nest] 24101  - 09/13/2026, 5:01:23 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 24101  - 09/13/2026, 5:01:23 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+ ❯ |unit| apps/api/src/guard/guard.service.test.ts (11 tests | 1 failed) 11ms
+   ❯ GuardService.tick (9)
+     ✓ упавшая отправка ARI: запись → полная выгрузка → на следующем проходе закрыта сторожем 2ms
+     ✓ проверка упала — её неисправность остаётся открытой, ошибка проверки видна в итоге прохода 1ms
+     ✓ бронь отклонена правилом: не повторять, сразу эскалировать и разбудить (CRITICAL ночью) 0ms
+     × временная ошибка события — повтор, после исчерпания попыток — к человеку 3ms
+     ✓ GUARD_AUTOFIX=off — ничего не чинит, эскалирует 0ms
+     ✓ овербукинг: к человеку без починки; пока объект на Exely — предупреждение, ночью не будит 0ms
+     ✓ человек нажал «Принято» — CRITICAL больше не будит 0ms
+     ✓ база легла: будит напрямую, не чаще раза в 30 минут; поднялась — остаётся запись в истории 1ms
+     ✓ будильник не настроен — неисправности пишутся, сообщение не уходит, итог прохода это говорит 0ms
+   ✓ GuardService.recordApiError (2)
+     ✓ 500 от кода пишется одной неисправностью на маршрут, без тела запроса и секретов 0ms
+     ✓ ошибка на приёме брони (webhook, сайт) — срочная 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.service.test.ts > GuardService.tick > временная ошибка события — повтор, после исчерпания попыток — к человеку
+AssertionError: expected [ 'retry:rev-7', 'retry:rev-7', …(2) ] to deeply equal [ 'retry:rev-7', 'retry:rev-7', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "retry:rev-7",
+    "retry:rev-7",
+    "retry:rev-7",
++   "pull",
+  ]
+
+ ❯ apps/api/src/guard/guard.service.test.ts:201:21
+    199|       now = new Date(now.getTime() + every.minIntervalMs);
+    200|     }
+    201|     expect(t.calls).toEqual(['retry:rev-7', 'retry:rev-7', 'retry:rev-…
+       |                     ^
+    202|     await t.guard.tick(now);
+    203|     expect(t.calls).toHaveLength(3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  05:01:22
+   Duration  332ms (import 49%, transform 46%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-01-22Z-unit-fd62.json
+
+# код выхода 1 · 1 с

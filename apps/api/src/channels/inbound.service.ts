@@ -331,9 +331,32 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     return repo.reservationByNumber(match.confirmationNumber);
   }
 
+  /** Когда процесс поднялся и когда лента последний раз прочиталась — для сторожа системы (feed.stale, ADR-028) */
+  private readonly startedAt = new Date();
+  private pullState: { okAt: Date | null; failedAt: Date | null; error: string | null } = {
+    okAt: null,
+    failedAt: null,
+    error: null,
+  };
+  pullHealth(): {
+    startedAt: Date;
+    okAt: Date | null;
+    failedAt: Date | null;
+    error: string | null;
+  } {
+    return { startedAt: this.startedAt, ...this.pullState };
+  }
+
   /** Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook. */
   async pull(propertyId?: string): Promise<PullResult> {
-    const feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
+    let feed: Awaited<ReturnType<ChannexGateway['bookingRevisionsFeed']>>;
+    try {
+      feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
+    } catch (e) {
+      this.pullState = { ...this.pullState, failedAt: new Date(), error: (e as Error).message };
+      throw e;
+    }
+    this.pullState = { okAt: new Date(), failedAt: null, error: null };
     const outcomes: RevisionOutcome[] = [];
     let acknowledged = 0;
     for (const rev of feed) {

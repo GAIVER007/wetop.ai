@@ -1,0 +1,411 @@
+import { describe, expect, it } from 'vitest';
+import { POLICY, type Observation } from '@pms/domain';
+import type { IncidentRow, IncidentsRepository, ResolvedBy } from './incidents.repository';
+import type {
+  AlertNotifier,
+  FixOutcome,
+  GuardFixes,
+  GuardProbes,
+  OutboxSignal,
+  StaySignal,
+  WebhookSignal,
+} from './guard.ports';
+import { GuardService } from './guard.service';
+
+/**
+ * Сторож системы целиком на подделках (ADR-028, план среза 11 §5): наблюдение → запись → починка техники →
+ * закрытие; данные — к человеку без починки; упавшая проверка ничего не закрывает; будильник по правилам.
+ */
+const NIGHT = new Date('2026-09-13T21:00:00Z'); // 03:00 Алматы
+const plus = (d: Date, min: number) => new Date(d.getTime() + min * 60_000);
+
+class MemoryIncidents implements IncidentsRepository {
+  rows: IncidentRow[] = [];
+  private n = 0;
+  async open() {
+    return this.rows.filter((r) => r.status !== 'RESOLVED').map((r) => ({ ...r }));
+  }
+  async record(o: Observation & { fingerprint: string }, now: Date) {
+    const cur = this.rows.find((r) => r.fingerprint === o.fingerprint && r.status !== 'RESOLVED');
+    if (cur) {
+      cur.occurrences += 1;
+      cur.lastSeenAt = now;
+      cur.title = o.title;
+      cur.severity = o.severity ?? POLICY[o.kind].severity;
+      return { ...cur };
+    }
+    const row: IncidentRow = {
+      id: `i-${++this.n}`,
+      kind: o.kind,
+      class: POLICY[o.kind].class,
+      severity: o.severity ?? POLICY[o.kind].severity,
+      fingerprint: o.fingerprint,
+      status: 'OPEN',
+      title: o.title,
+      subjectType: o.subjectType ?? null,
+      subjectId: o.subjectId ?? null,
+      details: o.details ?? null,
+      occurrences: 1,
+      firstSeenAt: now,
+      lastSeenAt: now,
+      fixAttempts: 0,
+      lastFixAt: null,
+      lastFixResult: null,
+      alertedAt: null,
+      acknowledgedAt: null,
+      resolvedAt: null,
+      resolvedBy: null,
+    };
+    this.rows.push(row);
+    return { ...row };
+  }
+  async resolve(ids: string[], by: ResolvedBy, now: Date) {
+    let n = 0;
+    for (const r of this.rows)
+      if (ids.includes(r.id) && r.status !== 'RESOLVED') {
+        Object.assign(r, { status: 'RESOLVED', resolvedAt: now, resolvedBy: by });
+        n++;
+      }
+    return n;
+  }
+  async markFixAttempt(id: string, result: string, now: Date) {
+    const r = this.rows.find((x) => x.id === id)!;
+    Object.assign(r, {
+      status: 'FIXING',
+      fixAttempts: r.fixAttempts + 1,
+      lastFixAt: now,
+      lastFixResult: result,
+    });
+  }
+  async escalate(id: string, reason: string | null) {
+    const r = this.rows.find((x) => x.id === id)!;
+    if (r.status === 'OPEN' || r.status === 'FIXING')
+      Object.assign(r, { status: 'ESCALATED', ...(reason ? { lastFixResult: reason } : {}) });
+  }
+  async markAlerted(ids: string[], now: Date) {
+    for (const r of this.rows) if (ids.includes(r.id)) r.alertedAt = now;
+  }
+  async acknowledge(id: string, now: Date) {
+    const r = this.rows.find((x) => x.id === id) ?? null;
+    if (r) Object.assign(r, { status: 'ACKNOWLEDGED', acknowledgedAt: now });
+    return r;
+  }
+  async get(id: string) {
+    return this.rows.find((x) => x.id === id) ?? null;
+  }
+  async list() {
+    return this.rows;
+  }
+  async purgeResolvedBefore() {
+    return 0;
+  }
+}
+
+const QUIET_WEBHOOK: WebhookSignal = {
+  checkedAt: NIGHT.toISOString(),
+  suspect: false,
+  suspectSince: null,
+  suspectReason: null,
+  callbackUrl: 'https://pms.example/channels/channex/webhook',
+  callbackReachable: true,
+  callbackCheckedAt: NIGHT.toISOString(),
+};
+const NO_STAYS: StaySignal = {
+  units: [],
+  blocks: [],
+  items: [],
+  unassigned: [],
+  categoryNames: {},
+};
+
+function setup(
+  over: Partial<{
+    outbox: OutboxSignal;
+    webhook: WebhookSignal;
+    stays: StaySignal;
+    notifier: boolean;
+    events: Awaited<ReturnType<GuardProbes['failedEvents']>>;
+  }> = {},
+) {
+  const state = {
+    outbox: over.outbox ?? {
+      lastFullSyncAt: plus(NIGHT, -60),
+      failedSinceSync: 0,
+      lastFailedError: null,
+      oldestPendingAt: null,
+    },
+    webhook: over.webhook ?? QUIET_WEBHOOK,
+    stays: over.stays ?? NO_STAYS,
+    events: over.events ?? [],
+    dbDown: false,
+    outboxThrows: false,
+  };
+  const probes: GuardProbes = {
+    channexEnabled: () => true,
+    enabled: () => true,
+    dbPing: async () => {
+      if (state.dbDown) throw new Error("P1001: Can't reach database server");
+    },
+    webhook: () => state.webhook,
+    pullHealth: () => ({
+      startedAt: plus(NIGHT, -120),
+      okAt: plus(NIGHT, -2),
+      failedAt: null,
+      error: null,
+    }),
+    outbox: async () => {
+      if (state.outboxThrows) throw new Error('Channex недоступен');
+      return state.outbox;
+    },
+    failedEvents: async () => state.events,
+    stays: async () => state.stays,
+    reports: () => [],
+    failingSuites: () => [],
+  };
+  const calls: string[] = [];
+  const ok = (text: string): FixOutcome => ({ ok: true, text });
+  const fixes: GuardFixes = {
+    pull: async () => (calls.push('pull'), ok('опрос')),
+    flushOutbox: async () => (calls.push('flush'), ok('очередь')),
+    fullSync: async () => {
+      calls.push('fullSync');
+      state.outbox = { ...state.outbox, failedSinceSync: 0, lastFullSyncAt: NIGHT };
+      return ok('полная выгрузка: задачи t1, t2');
+    },
+    retryEvent: async (id) => (calls.push(`retry:${id}`), { ok: false, text: 'HTTP 503' }),
+  };
+  const sent: string[] = [];
+  const notifier: AlertNotifier = {
+    configured: over.notifier ?? true,
+    recipients: 1,
+    send: async (text) => (sent.push(text), { delivered: 1, failed: [] }),
+  };
+  const repo = new MemoryIncidents();
+  const guard = new GuardService(repo, probes, fixes, notifier);
+  return { guard, repo, state, calls, sent };
+}
+
+describe('GuardService.tick', () => {
+  it('упавшая отправка ARI: запись → полная выгрузка → на следующем проходе закрыта сторожем', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -600),
+        failedSinceSync: 3,
+        lastFailedError: 'Channex POST /availability: HTTP 503',
+        oldestPendingAt: null,
+      },
+    });
+    const first = await t.guard.tick(NIGHT);
+    expect(t.calls).toEqual(['fullSync']);
+    expect(first.fixes).toEqual([
+      { kind: 'outbox.failed', subjectId: null, ok: true, text: 'полная выгрузка: задачи t1, t2' },
+    ]);
+    expect(t.repo.rows[0]).toMatchObject({
+      kind: 'outbox.failed',
+      status: 'FIXING',
+      fixAttempts: 1,
+    });
+    await t.guard.tick(plus(NIGHT, 1));
+    expect(t.repo.rows[0]).toMatchObject({ status: 'RESOLVED', resolvedBy: 'GUARD' });
+    expect(t.sent).toEqual([]);
+  });
+
+  it('проверка упала — её неисправность остаётся открытой, ошибка проверки видна в итоге прохода', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -600),
+        failedSinceSync: 1,
+        lastFailedError: 'HTTP 503',
+        oldestPendingAt: null,
+      },
+    });
+    t.guard.autofix = false;
+    await t.guard.tick(NIGHT);
+    t.state.outboxThrows = true;
+    const s = await t.guard.tick(plus(NIGHT, 1));
+    expect(s.checkErrors.map((e) => e.check)).toContain('channex.outbox');
+    expect(t.repo.rows[0]!.status).not.toBe('RESOLVED');
+  });
+
+  it('бронь отклонена правилом: не повторять, сразу эскалировать и разбудить (CRITICAL ночью)', async () => {
+    const t = setup({
+      events: [
+        {
+          externalEventId: 'rev-9',
+          type: 'booking_new',
+          attempts: 6,
+          receivedAt: NIGHT,
+          lastError:
+            'Бронь BDC-1: перенесённых из Exely броней с таким же составом несколько — PMS не выбирает сама (ADR-024)',
+        },
+      ],
+    });
+    await t.guard.tick(NIGHT);
+    expect(t.calls).toEqual([]);
+    expect(t.repo.rows[0]).toMatchObject({
+      kind: 'event.rejected',
+      status: 'ESCALATED',
+      subjectId: 'rev-9',
+    });
+    expect(t.sent).toHaveLength(1);
+    expect(t.sent[0]).toContain('отклонена');
+    expect(t.repo.rows[0]!.alertedAt).toEqual(NIGHT);
+  });
+
+  it('временная ошибка события — повтор, после исчерпания попыток — к человеку', async () => {
+    const t = setup({
+      events: [
+        {
+          externalEventId: 'rev-7',
+          type: 'booking_new',
+          attempts: 6,
+          receivedAt: NIGHT,
+          lastError: 'Channex GET /booking_revisions/rev-7: сеть — fetch failed',
+        },
+      ],
+    });
+    const every = POLICY['event.failed'].fix!;
+    let now = NIGHT;
+    for (let i = 0; i < every.maxAttempts; i++) {
+      await t.guard.tick(now);
+      now = new Date(now.getTime() + every.minIntervalMs);
+    }
+    // лента в подделке стоит на месте, и через 15 минут сторож законно зовёт опрос — считаем только повторы события
+    const retries = () => t.calls.filter((c) => c.startsWith('retry:'));
+    expect(retries()).toEqual(['retry:rev-7', 'retry:rev-7', 'retry:rev-7']);
+    await t.guard.tick(now);
+    expect(retries()).toHaveLength(3);
+    expect(t.repo.rows.find((r) => r.kind === 'event.failed')).toMatchObject({
+      status: 'ESCALATED',
+      fixAttempts: 3,
+    });
+    expect(t.sent).toHaveLength(1);
+    expect(t.sent[0]).toContain('ревизия rev-7');
+  });
+
+  it('GUARD_AUTOFIX=off — ничего не чинит, эскалирует', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -600),
+        failedSinceSync: 2,
+        lastFailedError: 'HTTP 503',
+        oldestPendingAt: null,
+      },
+    });
+    t.guard.autofix = false;
+    await t.guard.tick(NIGHT);
+    expect(t.calls).toEqual([]);
+    expect(t.repo.rows[0]!.status).toBe('ESCALATED');
+  });
+
+  it('овербукинг: к человеку без починки; пока объект на Exely — предупреждение, ночью не будит', async () => {
+    const t = setup({
+      stays: {
+        units: [{ code: 'MALE', active: 1 }],
+        blocks: [],
+        items: [
+          { accommodationTypeCode: 'MALE', arrivalDate: '2026-09-13', departureDate: '2026-09-15' },
+          { accommodationTypeCode: 'MALE', arrivalDate: '2026-09-14', departureDate: '2026-09-15' },
+        ],
+        unassigned: [],
+        categoryNames: { MALE: 'Общая мужская комната' },
+      },
+    });
+    t.guard.propertyLive = false;
+    await t.guard.tick(NIGHT); // 03:00 14.09 по Алматы
+    expect(t.repo.rows).toHaveLength(1);
+    expect(t.repo.rows[0]).toMatchObject({
+      kind: 'stay.overbooked',
+      severity: 'WARNING',
+      status: 'ESCALATED',
+      subjectId: 'MALE:2026-09-14',
+    });
+    expect(t.repo.rows[0]!.title).toContain('Общая мужская комната');
+    expect(t.sent).toEqual([]);
+    t.guard.propertyLive = true;
+    await t.guard.tick(plus(NIGHT, 1));
+    expect(t.repo.rows[0]!.severity).toBe('CRITICAL');
+    expect(t.sent).toHaveLength(1);
+  });
+
+  it('человек нажал «Принято» — CRITICAL больше не будит', async () => {
+    const t = setup({ webhook: { ...QUIET_WEBHOOK, callbackReachable: false } });
+    await t.guard.tick(NIGHT);
+    await t.guard.tick(plus(NIGHT, 16)); // после 15 минут без починки — к человеку
+    expect(t.sent).toHaveLength(1);
+    await t.repo.acknowledge(t.repo.rows[0]!.id, plus(NIGHT, 17));
+    await t.guard.tick(plus(NIGHT, 60));
+    expect(t.sent).toHaveLength(1);
+  });
+
+  it('база легла: будит напрямую, не чаще раза в 30 минут; поднялась — остаётся запись в истории', async () => {
+    const t = setup();
+    t.state.dbDown = true;
+    const s = await t.guard.tick(NIGHT);
+    expect(s.dbOk).toBe(false);
+    await t.guard.tick(plus(NIGHT, 5));
+    expect(t.sent).toHaveLength(1);
+    expect(t.sent[0]).toContain('база');
+    await t.guard.tick(plus(NIGHT, 20));
+    expect(t.sent).toHaveLength(1);
+    await t.guard.tick(plus(NIGHT, 36));
+    expect(t.sent).toHaveLength(2);
+    t.state.dbDown = false;
+    await t.guard.tick(plus(NIGHT, 40));
+    expect(t.repo.rows[0]).toMatchObject({
+      kind: 'db.down',
+      status: 'RESOLVED',
+      resolvedBy: 'GUARD',
+    });
+  });
+
+  it('будильник не настроен — неисправности пишутся, сообщение не уходит, итог прохода это говорит', async () => {
+    const t = setup({
+      notifier: false,
+      webhook: {
+        ...QUIET_WEBHOOK,
+        suspect: true,
+        suspectReason: 'бронь пришла опросом',
+        suspectSince: NIGHT.toISOString(),
+      },
+    });
+    await t.guard.tick(NIGHT);
+    const s = await t.guard.tick(plus(NIGHT, 16));
+    expect(t.repo.rows[0]!.status).toBe('ESCALATED');
+    expect(s.alerted).toBe(0);
+    expect(s.alertError).toMatch(/не настроен/);
+  });
+});
+
+describe('GuardService.recordApiError', () => {
+  it('500 от кода пишется одной неисправностью на маршрут, без тела запроса и секретов', async () => {
+    const t = setup();
+    const err = new Error(
+      'Cannot read properties of undefined (reading "id") postgresql://app:pw-not-real@db.example.com/pms',
+    );
+    await t.guard.recordApiError(
+      { method: 'POST', route: '/reservations/:number/check-in', status: 500, error: err },
+      NIGHT,
+    );
+    await t.guard.recordApiError(
+      { method: 'POST', route: '/reservations/:number/check-in', status: 500, error: err },
+      plus(NIGHT, 1),
+    );
+    expect(t.repo.rows).toHaveLength(1);
+    expect(t.repo.rows[0]).toMatchObject({
+      kind: 'api.error',
+      subjectId: 'POST /reservations/:number/check-in',
+      occurrences: 2,
+      severity: 'WARNING',
+    });
+  });
+
+  it('ошибка на приёме брони (webhook, сайт) — срочная', async () => {
+    const t = setup();
+    await t.guard.recordApiError(
+      { method: 'POST', route: '/w/book', status: 500, error: new Error('boom') },
+      NIGHT,
+    );
+    expect(t.repo.rows[0]!.severity).toBe('CRITICAL');
+  });
+});

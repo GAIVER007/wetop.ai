@@ -39,7 +39,15 @@ describe('TelegramClient', () => {
     waits.length = 0;
     const f = fakeFetch((_, n) =>
       n === 1
-        ? { status: 429, body: { ok: false, error_code: 429, description: 'Too Many Requests', parameters: { retry_after: 3 } } }
+        ? {
+            status: 429,
+            body: {
+              ok: false,
+              error_code: 429,
+              description: 'Too Many Requests',
+              parameters: { retry_after: 3 },
+            },
+          }
         : { status: 200, body: { ok: true, result: {} } },
     );
     const c = new TelegramClient({ token: TOKEN, chatIds: ['111'], fetch: f.fn, sleep });
@@ -50,13 +58,22 @@ describe('TelegramClient', () => {
   it('отказ одному чату не мешает другим; в тексте ошибки нет токена', async () => {
     const f = fakeFetch((call) =>
       String(call.init.body).includes('"111"')
-        ? { status: 403, body: { ok: false, error_code: 403, description: "Forbidden: bot can't initiate conversation with a user" } }
+        ? {
+            status: 403,
+            body: {
+              ok: false,
+              error_code: 403,
+              description: "Forbidden: bot can't initiate conversation with a user",
+            },
+          }
         : { status: 200, body: { ok: true, result: {} } },
     );
     const c = new TelegramClient({ token: TOKEN, chatIds: ['111', '333'], fetch: f.fn, sleep });
     const r = await c.sendMessage('x');
     expect(r.delivered).toBe(1);
-    expect(r.failed).toEqual([{ chatId: '111', error: "HTTP 403: Forbidden: bot can't initiate conversation with a user" }]);
+    expect(r.failed).toEqual([
+      { chatId: '111', error: "HTTP 403: Forbidden: bot can't initiate conversation with a user" },
+    ]);
     expect(JSON.stringify(r)).not.toContain(TOKEN);
   });
 
@@ -83,7 +100,9 @@ describe('telegramConfigFromEnv', () => {
   it('нет токена или чата — будильник не настроен (null), чаты через запятую', () => {
     expect(telegramConfigFromEnv({})).toBeNull();
     expect(telegramConfigFromEnv({ TELEGRAM_BOT_TOKEN: TOKEN })).toBeNull();
-    expect(telegramConfigFromEnv({ TELEGRAM_BOT_TOKEN: ` ${TOKEN} `, TELEGRAM_CHAT_ID: '111, -222 ,' })).toEqual({
+    expect(
+      telegramConfigFromEnv({ TELEGRAM_BOT_TOKEN: ` ${TOKEN} `, TELEGRAM_CHAT_ID: '111, -222 ,' }),
+    ).toEqual({
       token: TOKEN,
       chatIds: ['111', '-222'],
     });

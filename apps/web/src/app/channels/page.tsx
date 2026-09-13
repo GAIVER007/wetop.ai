@@ -1,9 +1,20 @@
 import { type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Alert, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Alert, Badge, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { ChannelButtons, RetryEventButton } from './buttons';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
+const EVENT_RU: Record<string, string> = {
+  PROCESSED: 'обработано',
+  FAILED: 'ошибка',
+  RECEIVED: 'получено',
+  SKIPPED: 'пропущено',
+};
+const EVENT_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
+  PROCESSED: 'ok',
+  FAILED: 'danger',
+  RECEIVED: 'info',
+};
 const VIA_RU: Record<string, string> = {
   WEBHOOK: 'сама (webhook)',
   PULL: 'опрос ленты',
@@ -23,44 +34,48 @@ export default async function ChannelsPage() {
   const property = mapping.find((m) => !m.providerRoomTypeId);
   return (
     <Page title="Каналы продаж — Channex">
-      <Stats min={160} style={{ marginBottom: 12 }}>
+      {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
+      <Stats min={150}>
+        <Stat label="В очереди" value={String(outbox.pending)} testId="outbox-pending" />
+        <Stat label="Отправлено" value={String(outbox.sent)} testId="outbox-sent" />
         <Stat
-          label="Объект на staging"
-          size="compact"
-          value={property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}
-        />
-        <Stat
-          label="В очереди"
-          size="compact"
-          value={String(outbox.pending)}
-          testId="outbox-pending"
-        />
-        <Stat label="Отправлено" size="compact" value={String(outbox.sent)} testId="outbox-sent" />
-        <Stat label="Ошибок" size="compact" value={String(outbox.failed)} />
-        <Stat
-          label="Последняя задача Channex"
-          size="compact"
-          value={outbox.lastTaskId ?? '—'}
-          testId="outbox-last-task"
-        />
-        <Stat
-          label="Webhook в Channex"
-          size="compact"
+          label="Ошибок"
           value={
-            webhook?.registered
+            <span className={outbox.failed > 0 ? 'danger-text' : undefined}>
+              {String(outbox.failed)}
+            </span>
+          }
+        />
+      </Stats>
+      <div className="facts facts--card">
+        <div>
+          <div className="fact__label">Объект на staging</div>
+          <div className="fact__value mono">
+            {property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}
+          </div>
+        </div>
+        <div>
+          <div className="fact__label">Webhook в Channex</div>
+          <div className="fact__value" data-testid="webhook-status">
+            {webhook?.registered
               ? `${webhook.active ? 'активен' : 'выключен'} · ${webhook.eventMask}`
               : webhook?.expectedUrl
                 ? 'не зарегистрирован'
-                : 'нет PUBLIC_API_URL'
-          }
-          testId="webhook-status"
-        />
-      </Stats>
-      {webhook?.registered && <p className="hint">адрес: {webhook.callbackUrl}</p>}
+                : 'нет PUBLIC_API_URL'}
+          </div>
+          {webhook?.registered && <div className="cell-sub break-all">{webhook.callbackUrl}</div>}
+        </div>
+        <div>
+          <div className="fact__label">Последняя задача Channex</div>
+          <div className="fact__value mono break-all" data-testid="outbox-last-task">
+            {outbox.lastTaskId ?? '—'}
+          </div>
+        </div>
+      </div>
       <OverbookingAlarm outbox={outbox} />
       <ChannelButtons webhookReady={webhookReady} />
       <SectionTitle>Входящие события канала</SectionTitle>
-      <p className="hint" style={{ margin: '0 0 8px' }}>
+      <p className="hint">
         Каждое сообщение от Channex сначала записывается, потом обрабатывается: так бронь не
         теряется при сбое, а неудачную попытку видно (ADR-007). Строка со статусом FAILED — бронь в
         PMS не попала. После шести неудачных попыток PMS перестаёт пробовать сама и ждёт кнопки
@@ -91,7 +106,11 @@ export default async function ChannelsPage() {
               </td>
               <td>{e.type}</td>
               <td>{VIA_RU[e.receivedVia ?? 'PULL'] ?? e.receivedVia}</td>
-              <td className={e.status === 'FAILED' ? 'danger-text' : 'ok-text'}>{e.status}</td>
+              <td>
+                <Badge tone={EVENT_TONE[e.status] ?? 'neutral'}>
+                  {EVENT_RU[e.status] ?? e.status}
+                </Badge>
+              </td>
               <td className="num">{e.attempts}</td>
               <td className="nowrap">{e.receivedAt.slice(0, 16).replace('T', ' ')}</td>
               <td className="danger-text">{e.lastError?.slice(0, 80) ?? ''}</td>

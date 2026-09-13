@@ -15,6 +15,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:record": "tsx tests/tools/cli-record.ts",
+    "test:status": "tsx tests/tools/cli-status.ts",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "prettier --check \"**/*.{ts,tsx,js,json}\"",

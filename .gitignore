@@ -6,6 +6,12 @@
 *.key
 .n8n_token
 
+# --- Claude Code: личное не едет в репозиторий ---
+# settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,
+# туда пишутся абсолютные пути и команды целиком; worktrees — рабочие копии сессий.
+.claude/settings.local.json
+.claude/worktrees/
+
 # --- Персональные данные: реальные выгрузки НЕ коммитим (SECURITY.md §4) ---
 project-input/exely/*
 !project-input/exely/README.md
@@ -46,6 +52,8 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+# логи прогонов тестов — знание, едут в репозиторий; секреты вычищаются при записи (TESTING.md §7)
+!tests/runs/logs/*.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-error.log*

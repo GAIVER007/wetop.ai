@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.09.2026 23:10 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0917d91 (main), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T18-10-11Z-unit-23a0.json' 'apps/api/src/freshness/freshness.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (2 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  11:10:13
+   Duration  903ms (import 53%, transform 45%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T18-10-11Z-unit-23a0.json
+
+# код выхода 0 · 3 с

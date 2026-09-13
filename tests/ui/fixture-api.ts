@@ -554,6 +554,12 @@ function read(path: string, q: URLSearchParams): unknown {
       state: 'READY',
       message: 'Соединение установлено',
     };
+  if (path === '/system/freshness')
+    return {
+      checkedAt: new Date().toISOString(),
+      exely: { lastSyncAt: new Date().toISOString(), mode: 'auto' },
+      channex: { lastEventAt: null, outboxPending: 0, outboxFailed: 0, oldestPendingAt: null },
+    };
   if (path === '/channels/channex/content')
     return {
       checkedAt: new Date().toISOString(),

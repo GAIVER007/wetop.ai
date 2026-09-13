@@ -1,0 +1,56 @@
+# Модульные (unit) · 13.09.2026 23:03 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0917d91 (main), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T18-03-14Z-unit-3054.json' 'apps/api/src/channels/content.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/channels/content.test.ts (3 tests | 1 failed) 8ms
+   ❯ ChannelContentService (ADR-033) (3)
+     × описание, контакты, правила, выбранные удобства и фото по порядку — без id провайдера 7ms
+     ✓ кэш на 10 минут; ?refresh читает заново 0ms
+     ✓ нет ключа, нет сопоставления, 404 и отказ сети — понятное состояние; ошибки не кэшируются 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/content.test.ts > ChannelContentService (ADR-033) > описание, контакты, правила, выбранные удобства и фото по порядку — без id провайдера
+AssertionError: expected { …(9) } to match object { source: 'channex', …(5) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -20,12 +20,12 @@
+        "forRoomType": false,
+        "url": "https://img.channex.io/b/",
+      },
+    ],
+    "policy": {
+-     "checkInTime": "14:00",
+-     "checkOutTime": "12:00",
++     "checkInTime": null,
++     "checkOutTime": null,
+      "maxGuests": 92,
+      "pets": "not_allowed",
+    },
+    "property": {
+      "city": "Алматы",
+
+ ❯ apps/api/src/channels/content.test.ts:81:15
+     79|     const { reader } = fakeReader();
+     80|     const c = await new ChannelContentService(repo(PROPERTY), reader).…
+     81|     expect(c).toMatchObject({
+       |               ^
+     82|       source: 'channex',
+     83|       state: 'READY',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  11:03:15
+   Duration  464ms (transform 49%, import 49%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T18-03-14Z-unit-3054.json
+
+# код выхода 1 · 2 с

@@ -163,3 +163,8 @@
 | 13.09.2026 22:58 | unit (частично: apps/web/src/lib/api.test.ts) | ✅ 7 из 7 | 1 с | e4299ea +25 | [лог](logs/2026-09-13T17-58-49Z-unit-8f0f.log) | green: reads and commands both wait 60 s |
 | 13.09.2026 22:58 | typecheck | ✅ без ошибок | 7 с | e4299ea +27 | [лог](logs/2026-09-13T17-58-50Z-typecheck-b608.log) | WETOP live data: availability/changed, Channex content, auto-sync, read timeout, chessboard testid |
 | 13.09.2026 22:59 | lint | ✅ без ошибок | 12 с | e4299ea +27 | [лог](logs/2026-09-13T17-59-09Z-lint-44e2.log) | WETOP live data changes |
+| 13.09.2026 23:03 | unit (частично: apps/api/src/channels/content.test.ts) | ❌ упало 1 из 3 | 2 с | 0917d91 +5 | [лог](logs/2026-09-13T18-03-14Z-unit-3054.log) | red: live staging policy uses checkin_from_time/checkout_to_time, not the docs example checkin_time |
+| 13.09.2026 23:03 | unit (частично: apps/api/src/channels/content.test.ts) | ✅ 3 из 3 | 1 с | 0917d91 +6 | [лог](logs/2026-09-13T18-03-29Z-unit-bab0.log) | green: policy times read from checkin_from_time/checkout_to_time with docs fallback |
+| 13.09.2026 23:10 | unit (частично: apps/api/src/freshness/freshness.test.ts) | ✅ 2 из 2 | 3 с | 0917d91 +14 | [лог](logs/2026-09-13T18-10-11Z-unit-23a0.log) | new spec: system/freshness (Exely sync, Channex last event, ARI queue) |
+| 13.09.2026 23:10 | typecheck | ✅ без ошибок | 8 с | 0917d91 +16 | [лог](logs/2026-09-13T18-10-15Z-typecheck-590f.log) | freshness module, data-freshness badge, content policy fields |
+| 13.09.2026 23:10 | lint | ✅ без ошибок | 9 с | 0917d91 +16 | [лог](logs/2026-09-13T18-10-23Z-lint-0585.log) | freshness module, data-freshness badge |

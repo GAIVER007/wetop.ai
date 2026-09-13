@@ -150,8 +150,10 @@ export class ChannelContentService {
           country: text(a['country']),
         },
         policy: p && {
-          checkInTime: text(p['checkin_time']),
-          checkOutTime: text(p['checkout_time']),
+          // Правила на staging созданы полями checkin_from_time / checkout_to_time (cli-channex-content.ts,
+          // API их принял 10.09.2026); в примере hotel-policy-collection.md — checkin_time / checkout_time
+          checkInTime: text(p['checkin_from_time']) ?? text(p['checkin_time']),
+          checkOutTime: text(p['checkout_to_time']) ?? text(p['checkout_time']),
           maxGuests: typeof p['max_count_of_guests'] === 'number' ? p['max_count_of_guests'] : null,
           pets: text(p['pets_policy']),
           smoking: text(p['smoking_policy']),

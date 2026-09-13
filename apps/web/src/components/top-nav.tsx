@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { DataFreshness } from './data-freshness';
 import { Icon } from './icon';
 import { navigation, activeNavigation, type NavigationItem } from '../lib/navigation';
 import { cx } from './ui';
@@ -123,6 +124,7 @@ function Navigation({ path, close }: { path: string; close?: () => void }) {
         <div>
           <strong>Стойка регистрации</strong>
           <span>Luxx Aparts · Алматы</span>
+          <DataFreshness />
         </div>
       </div>
     </>

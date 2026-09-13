@@ -48,9 +48,13 @@ function fakeReader(fail?: Error) {
           {
             id: 'hp-1',
             type: 'hotel_policy',
+            // поля, которыми правила созданы на staging (cli-channex-content.ts, 10.09.2026);
+            // в примере hotel-policy-collection.md — устаревшие checkin_time / checkout_time
             attributes: {
-              checkin_time: '14:00',
-              checkout_time: '12:00',
+              checkin_from_time: '14:00',
+              checkin_to_time: '23:30',
+              checkout_from_time: '00:00',
+              checkout_to_time: '12:00',
               max_count_of_guests: 92,
               pets_policy: 'not_allowed',
               smoking_policy: 'no_smoking',

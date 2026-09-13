@@ -6,6 +6,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
 import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
+import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
@@ -31,6 +32,7 @@ import { WebBookingModule } from './web-booking/web-booking.module';
     AnalyticsModule,
     WebBookingModule,
     GuardModule,
+    FreshnessModule,
   ],
 })
 export class AppModule {}

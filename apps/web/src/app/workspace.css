@@ -185,6 +185,13 @@ svg {
   color: #a8b9b1;
   font-size: 11px;
 }
+/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */
+.workspace-footer div > .freshness {
+  font-variant-numeric: tabular-nums;
+}
+.workspace-footer div > .freshness--warn {
+  color: #f2c46d;
+}
 .desk-avatar {
   display: grid;
   place-items: center;

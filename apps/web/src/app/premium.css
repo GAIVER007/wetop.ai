@@ -292,7 +292,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .board-group-toggle { color: var(--text-2); font-size: 10px; font-weight: 550; }
 .board__group-free.is-full { color: var(--danger); }
 .board .is-today { background: var(--primary-soft); }
-.board th.is-today .board__d { color: var(--primary); }
+.board th.is-today .board__d { color: var(--on-primary); }
 .board__d { font-size: 16px; font-weight: 600; }
 .board__wd { color: var(--muted); font-size: 10px; font-weight: 400; }
 .board__occ { color: var(--muted); font-size: 9px; }
@@ -399,3 +399,5 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .operations-grid > aside { min-width: 0; }.operations-grid > aside > .attention-card { height: 100%; }
 @media(min-width:761px) and (max-width:1279px) { .operations-grid > aside { grid-column: span 2; } }
 .nav-group { margin-top: 16px; }.workspace-link { min-height: 36px; }.workspace-link.is-active::before { top: 10px; }.sidebar-bottom { padding-top: 16px; }
+
+.workspace-link.is-active svg { color: var(--primary); }

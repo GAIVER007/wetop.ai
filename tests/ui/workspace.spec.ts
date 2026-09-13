@@ -78,7 +78,6 @@ test('все разделы, карточки и печать открывают
         caret: 'initial',
         path: `${screenshots}/${route.slice(1)}-desktop.png`,
         fullPage: false,
-        caret: 'initial',
       });
     }
     await page.setViewportSize({ width: 390, height: 844 });
@@ -87,7 +86,6 @@ test('все разделы, карточки и печать открывают
       await page.screenshot({
         caret: 'initial',
         path: `${screenshots}/today-mobile.png`,
-        caret: 'initial',
       });
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);

@@ -79,7 +79,7 @@ export function LoginForm({ demo }: { demo: boolean }) {
                   type={show ? 'text' : 'password'}
                   autoComplete="current-password"
                   name="password"
-                    aria-label="Пароль"
+                  aria-label="Пароль"
                   required
                   minLength={6}
                   placeholder="Введите пароль"

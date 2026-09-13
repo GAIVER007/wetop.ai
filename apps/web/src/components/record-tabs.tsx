@@ -20,7 +20,8 @@ export function RecordTabs({
   }, [tabs]);
   const select = (id: string) => {
     setActive(id);
-    history.replaceState(history.state, '', `${location.pathname}${location.search}#${id}`);
+    // Next copies its internal state and synchronizes the router when data is null.
+    history.replaceState(null, '', `${location.pathname}${location.search}#${id}`);
   };
   return (
     <div

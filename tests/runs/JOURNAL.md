@@ -145,3 +145,11 @@
 | 13.09.2026 21:25 | unit | ✅ 591 из 591 | 12 с | a3abd32 +6 | [лог](logs/2026-09-13T16-25-45Z-unit-0e30.log) | полный unit после исправления ложных тревог |
 | 13.09.2026 21:26 | typecheck | ✅ без ошибок | 42 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-09Z-typecheck-758d.log) | ложные тревоги |
 | 13.09.2026 21:26 | lint | ✅ без ошибок | 51 с | a3abd32 +6 | [лог](logs/2026-09-13T16-26-53Z-lint-d076.log) | ложные тревоги |
+| 13.09.2026 22:34 | unit | ✅ 598 из 598 | 1 мин 7 с | 510aca4 +1 | [лог](logs/2026-09-13T17-34-59Z-unit-68fa.log) | Merged main and premium UI: final unit regression |
+| 13.09.2026 22:34 | typecheck | ❌ ошибок: 2 | 2 мин 13 с | 510aca4 +1 | [лог](logs/2026-09-13T17-34-59Z-typecheck-7ef4.log) | Merged premium UI: root, API and Next frontend types |
+| 13.09.2026 22:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 31 | 7 мин 43 с | 510aca4 | [лог](logs/2026-09-13T17-34-29Z-e2e-7ee1.log) | Final merged UI: all 31 browser scenarios, drawer payment, shortcuts, themes, errors and responsive layouts |
+| 13.09.2026 22:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep drawer:) | ✅ 1 из 1 | 24 с | 510aca4 +3 | [лог](logs/2026-09-13T17-42-28Z-e2e-beea.log) | Regression: tab shortcuts and paid balance preserve one-step drawer close through Next history synchronization |
+| 13.09.2026 22:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 31 из 31 | 6 мин 2 с | 510aca4 +3 | [лог](logs/2026-09-13T17-43-05Z-e2e-ef45.log) | Final regression after drawer history fix: all 31 real-browser UI scenarios on merged main |
+| 13.09.2026 22:50 | unit | ✅ 598 из 598 | 18 с | 510aca4 +4 | [лог](logs/2026-09-13T17-50-08Z-unit-6412.log) | Final unit verification after UI history fix and merged guard changes |
+| 13.09.2026 22:50 | typecheck | ✅ без ошибок | 28 с | 510aca4 +5 | [лог](logs/2026-09-13T17-50-26Z-typecheck-b51c.log) | Final root, API and web type checks after UI review |
+| 13.09.2026 22:50 | lint | ✅ без ошибок | 12 с | 510aca4 +5 | [лог](logs/2026-09-13T17-50-56Z-lint-45a4.log) | Final lint after browser runner cleanup; preview output excluded |

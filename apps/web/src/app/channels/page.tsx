@@ -15,6 +15,9 @@ const EVENT_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
   FAILED: 'danger',
   RECEIVED: 'info',
 };
+/** «, проверено 14:22» — время последней пробы адреса webhook; без пробы подпись не нужна */
+const checkedAt = (iso: string | null | undefined) =>
+  iso ? `, проверено ${new Date(iso).toLocaleTimeString('ru-RU', { timeStyle: 'short' })}` : '';
 const VIA_RU: Record<string, string> = {
   WEBHOOK: 'сама (webhook)',
   PULL: 'опрос ленты',
@@ -64,6 +67,17 @@ export default async function ChannelsPage() {
                 : 'нет PUBLIC_API_URL'}
           </div>
           {webhook?.registered && <div className="cell-sub break-all">{webhook.callbackUrl}</div>}
+          {webhook?.registered && webhook.callbackReachable === false && (
+            <div className="cell-sub danger-text">
+              адрес не отвечает{checkedAt(webhook.callbackCheckedAt)} — брони подберёт опрос ленты,
+              но webhook надо поднять
+            </div>
+          )}
+          {webhook?.registered && webhook.callbackReachable === true && (
+            <div className="cell-sub ok-text">
+              адрес отвечает{checkedAt(webhook.callbackCheckedAt)}
+            </div>
+          )}
         </div>
         <div>
           <div className="fact__label">Последняя задача Channex</div>

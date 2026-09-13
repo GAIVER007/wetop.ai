@@ -382,6 +382,9 @@ export interface WebhookStatus {
   sendData: boolean;
   expectedUrl: string | null;
   secretConfigured: boolean;
+  /** Проба зарегистрированного адреса: true — ответил, false — не отвечает, null — не проверяли */
+  callbackReachable?: boolean | null;
+  callbackCheckedAt?: string | null;
 }
 
 // ── Ячейки: блокировки и уборка ──

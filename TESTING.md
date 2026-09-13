@@ -83,7 +83,7 @@ Markdown внутри кода входит — тесты импорта чит
 | 11.09 | После уборки канал до ночи видит освобождённые койки занятыми | Брони отменялись прямо в базе, мимо очереди ARI | Уборка запрашивает полную выгрузку ARI в Channex | `scripts/reconciliation/src/cli-e2e-cleanup.ts` |
 | 10–11.09 | Тест падает из-за чужих данных в общей базе | Проверка смотрела на всю базу: стоп-продажи, журнал действий | Проверять только то, что создал сам тест | `tests/integration/price-calendar-import.test.ts`, `manual-reservation.test.ts` |
 | 10.09 | Тест броней мог «протухнуть» со временем | Зависел от текущей даты | Часы в тесте заморожены | `apps/api/src/reservations/reservations.controller.test.ts` |
-| 11.09 | API отвечал на старом коде (до миграции `received_via`) | API запущен `tsx` без перезагрузки, а Playwright с `reuseExistingServer: true` берёт уже запущенный | После правок `apps/api` или миграций перезапустить API до прогона `e2e` | `playwright.config.ts` |
+| 11.09 | API отвечал на старом коде (до миграции `received_via`) | Процесс API сам не перезагружается, а Playwright с `reuseExistingServer: true` берёт уже запущенный | С 13.09 API, стойку и туннель держит launchd. После правок `apps/api` или миграций, до прогона `e2e`: `launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api`. `npm run start -w apps/api` вручную не запускать — проиграет launchd гонку за порт (EADDRINUSE). Журналы серверов — `~/Library/Logs/pms-lux/` | `playwright.config.ts`, `scripts/ops/launchd/status.sh` |
 | 12.09 | Уборка после полного прогона упала молча | `execFileSync` кладёт stderr в объект ошибки, а не в `message` | Уборка печатает stderr, сигнал и код | `tests/e2e-teardown.ts` |
 
 Нашли новые грабли — строка сюда, в тот же день, со сторожем, если он есть.

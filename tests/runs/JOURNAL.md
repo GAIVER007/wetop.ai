@@ -53,3 +53,5 @@
 | 13.09.2026 18:34 | typecheck | ✅ без ошибок | 4 с | 6f9c6d2 +10 | [лог](logs/2026-09-13T13-34-17Z-typecheck-7679.log) | сторож: три проверки, sync-day без 365 |
 | 13.09.2026 18:37 | unit (частично: apps/api/src/app.module.test.ts) | ❌ упало 1 из 1 | 1 с | 17a69ab +1 | [лог](logs/2026-09-13T13-37-34Z-unit-b94a.log) | сборка API: красный без экспорта шлюза |
 | 13.09.2026 18:37 | unit (частично: apps/api/src/app.module.test.ts) | ✅ 1 из 1 | 1 с | 17a69ab +2 | [лог](logs/2026-09-13T13-37-35Z-unit-27f5.log) | сборка API: зелёный |
+| 13.09.2026 18:38 | unit (частично: apps/api/src/guard apps/api/src/app.module.test.ts) | ✅ 17 из 17 | 1 с | 4a2a5f8 +3 | [лог](logs/2026-09-13T13-38-47Z-unit-b1d4.log) | проход сторожа со всеми проверками |
+| 13.09.2026 18:38 | typecheck | ✅ без ошибок | 4 с | 4a2a5f8 +3 | [лог](logs/2026-09-13T13-38-49Z-typecheck-a74e.log) | tick ?all=1 |

@@ -67,7 +67,10 @@ export interface GuardProbes {
   channelAvailability(
     from: string,
     to: string,
-  ): Promise<{ pms: Map<string, Map<string, number>>; channel: Map<string, Map<string, number>> } | null>;
+  ): Promise<{
+    pms: Map<string, Map<string, number>>;
+    channel: Map<string, Map<string, number>>;
+  } | null>;
 }
 
 export interface FixOutcome {

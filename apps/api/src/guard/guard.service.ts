@@ -146,7 +146,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  async tick(now = new Date()): Promise<GuardTickSummary> {
+  /** `all` — не ждать расписания редких проверок (сверка остатков с каналом раз в час): для учений и агента */
+  async tick(now = new Date(), opts: { all?: boolean } = {}): Promise<GuardTickSummary> {
+    if (opts.all) this.ariCheckedAt = null;
     if (this.ticking && this.last) return this.last;
     this.ticking = true;
     const started = Date.now();

@@ -70,11 +70,11 @@ export class GuardController {
     return r;
   }
 
-  /** Проход сторожа прямо сейчас — для учений и дежурного агента */
+  /** Проход сторожа прямо сейчас — для учений и дежурного агента; `?all=1` — и редкие проверки (сверка с каналом) */
   @Post('tick')
   @HttpCode(200)
-  tick() {
-    return this.guard.tick();
+  tick(@Query('all') all?: string) {
+    return this.guard.tick(new Date(), { all: all === '1' || all === 'true' });
   }
 
   /** Пробное сообщение будильника: проверить токен и чат, не дожидаясь аварии */

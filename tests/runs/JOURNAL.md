@@ -56,3 +56,11 @@
 | 13.09.2026 18:22 | typecheck | ✅ без ошибок | 8 с | 422e5f2 +3 | [лог](logs/2026-09-13T13-22-59Z-typecheck-5133.log) | Финальная проверка объединённой версии |
 | 13.09.2026 18:23 | lint | ✅ без ошибок | 5 с | 422e5f2 +3 | [лог](logs/2026-09-13T13-23-07Z-lint-eb63.log) | Финальная проверка объединённой версии |
 | 13.09.2026 18:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 12 из 12 | 29 с | 422e5f2 +1 | [лог](logs/2026-09-13T13-23-12Z-e2e-6a45.log) | 15 экранов, шахматка 88x30, формы и неисправности; синтетический API, без БД |
+| 13.09.2026 18:42 | typecheck | ✅ без ошибок | 7 с | 3995ae2 +14 | [лог](logs/2026-09-13T13-42-14Z-typecheck-bb60.log) |  |
+| 13.09.2026 18:43 | lint | ✅ без ошибок | 5 с | 3995ae2 +14 | [лог](logs/2026-09-13T13-43-58Z-lint-aab5.log) |  |
+| 13.09.2026 18:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 13 | 30 с | 3995ae2 +13 | [лог](logs/2026-09-13T13-44-37Z-e2e-cd7d.log) | Visual redesign: isolated UI and responsive checks, no DB |
+| 13.09.2026 18:47 | unit | ✅ 536 из 536 | 10 с | 3995ae2 +12 | [лог](logs/2026-09-13T13-47-58Z-unit-b3af.log) |  |
+| 13.09.2026 18:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 13 из 13 | 36 с | 3995ae2 +13 | [лог](logs/2026-09-13T13-47-32Z-e2e-ac96.log) | Redesign: fixed hidden table heading overflow; check all routes and 320-1440px |
+| 13.09.2026 18:47 | typecheck | ✅ без ошибок | 16 с | 3995ae2 +14 | [лог](logs/2026-09-13T13-47-56Z-typecheck-ac02.log) |  |
+| 13.09.2026 18:48 | lint | ✅ без ошибок | 10 с | 3995ae2 +14 | [лог](logs/2026-09-13T13-48-30Z-lint-a6bd.log) |  |
+| 13.09.2026 18:49 | lint | ✅ без ошибок | 6 с | 3995ae2 +14 | [лог](logs/2026-09-13T13-49-04Z-lint-b391.log) |  |

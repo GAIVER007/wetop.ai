@@ -1,4 +1,6 @@
 import { getJsonPublic } from './api';
+import type { DataConnection } from '@pms/shared';
+import { cache } from 'react';
 
 export interface HotelSettings {
   property: {
@@ -35,7 +37,9 @@ export interface ChannelReport {
   }>;
 }
 export const hotelApi = {
-  settings: () => getJsonPublic<HotelSettings>('/hotel/settings'),
+  connection: () => getJsonPublic<DataConnection>('/system/connection'),
+  // Shared only within one server render. New requests always read the current backend.
+  settings: cache(() => getJsonPublic<HotelSettings>('/hotel/settings')),
   channelReport: (from: string, to: string, status: string) =>
     getJsonPublic<ChannelReport>(
       `/hotel/channel-report?${new URLSearchParams({ from, to, status })}`,

@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 14.09.2026 01:02 Алматы · MacBook-Air-Urij.local
+# коммит 4a4aa53 (codex/connect-real-data), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/real-data.spec.ts' '--workers=1' '--max-failures=1'
+[WebServer] (node:70220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:70308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (17.3s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex ────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('data-connection')
+    Expected substring: "Данные проекта"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('data-connection') with timeout 15000ms
+      - waiting for getByTestId('data-connection')
+
+
+       9 |   await page.goto('/connections');
+      10 |   const panel = page.getByTestId('data-connection');
+    > 11 |   await expect(panel).toContainText('Данные проекта');
+         |                       ^
+      12 |   await expect(panel).toContainText('Тестовые данные');
+      13 |   await expect(panel.getByTestId('database-units')).toHaveText('88');
+      14 |   await expect(panel).not.toContainText('Supabase подключён');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/real-data.spec.ts:11:23
+
+    Error Context: test-results/real-data-источник-и-агрег-cc079-а-видны-отдельно-от-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-источник-и-агрег-cc079-а-видны-отдельно-от-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-источник-и-агрег-cc079-а-видны-отдельно-от-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex ─────────
+  3 did not run
+  1 error was not a part of any test, see above for details
+
+# код выхода 1 · 27 с

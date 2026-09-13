@@ -3,20 +3,24 @@ import { analyticsApi, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { RefreshButton } from '../../components/refresh-button';
 import { Alert, Badge, Fact, Grid, Help, Panel } from '../../components/ui';
+import { hotelApi } from '../../lib/hotel-api';
+import { DataConnectionPanel } from './data-connection';
 
 const time = (value: string | null) =>
   value ? new Date(value).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) : 'Нет событий';
 
 export default async function ConnectionsPage() {
-  const [connection, webhook, sites] = await Promise.allSettled([
+  const [connection, webhook, sites, database] = await Promise.allSettled([
     channelsApi.connection(),
     channelsApi.webhookStatus(),
     analyticsApi.sites(),
+    hotelApi.connection(),
   ]);
   const status = connection.status === 'fulfilled' ? connection.value : null;
   return (
     <Page title="Подключения API" actions={<RefreshButton label="Проверить соединение" />}>
-      {!status && <Alert boxed>Нет связи с рабочим API. Данные не загружены.</Alert>}
+      <DataConnectionPanel connection={database.status === 'fulfilled' ? database.value : null} />
+      {!status && <Alert boxed>Не удалось проверить подключение Channex.</Alert>}
       <div className="connection-grid">
         <Panel title="Channex">
           <Badge tone={status?.propertyAccessible ? 'ok' : 'warn'}>

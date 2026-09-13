@@ -168,3 +168,6 @@
 | 13.09.2026 23:10 | unit (частично: apps/api/src/freshness/freshness.test.ts) | ✅ 2 из 2 | 3 с | 0917d91 +14 | [лог](logs/2026-09-13T18-10-11Z-unit-23a0.log) | new spec: system/freshness (Exely sync, Channex last event, ARI queue) |
 | 13.09.2026 23:10 | typecheck | ✅ без ошибок | 8 с | 0917d91 +16 | [лог](logs/2026-09-13T18-10-15Z-typecheck-590f.log) | freshness module, data-freshness badge, content policy fields |
 | 13.09.2026 23:10 | lint | ✅ без ошибок | 9 с | 0917d91 +16 | [лог](logs/2026-09-13T18-10-23Z-lint-0585.log) | freshness module, data-freshness badge |
+| 13.09.2026 23:27 | unit (частично: scripts/reconciliation/src/ui-smoke.test.ts) | ✅ 3 из 3 | 1 с | 869aa3a +8 | [лог](logs/2026-09-13T18-27-50Z-unit-c0d5.log) | new spec: WETOP screens smoke pass (plan wetop-live-data step 5) |
+| 13.09.2026 23:33 | typecheck | ✅ без ошибок | 8 с | 869aa3a +9 | [лог](logs/2026-09-13T18-33-41Z-typecheck-0295.log) | ui-smoke and channex-wetop-cycle scripts |
+| 13.09.2026 23:33 | lint | ✅ без ошибок | 9 с | 869aa3a +9 | [лог](logs/2026-09-13T18-33-49Z-lint-dd62.log) | ui-smoke and channex-wetop-cycle scripts |

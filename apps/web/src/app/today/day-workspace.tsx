@@ -2,14 +2,15 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatMinor, messengerLinks, type DeskDay, type DeskRow } from '../../lib/api';
-import { Input, SectionTitle, StatusBadge, Table, cx } from '../../components/ui';
+import { displayDate } from '../../lib/display-date';
+import { Input, StatusBadge, Table, cx } from '../../components/ui';
 import { Icon } from '../../components/icon';
 
 const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'ждём',
-  CHECKED_IN: 'живёт',
-  CHECKED_OUT: 'выселен',
+  TENTATIVE: 'Предварительная',
+  CONFIRMED: 'Ожидает заезда',
+  CHECKED_IN: 'Проживает',
+  CHECKED_OUT: 'Выехал',
 };
 export function DayWorkspace({ day }: { day: DeskDay }) {
   const [view, setView] = useState('all');
@@ -21,13 +22,25 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
       ),
     );
   const tabs = [
-    ['all', 'Весь день', day.arrivals.length + day.departures.length + day.inHouse.length],
+    ['all', 'Весь день', null],
     ['arrivals', 'Заезды', day.arrivals.length],
     ['departures', 'Выезды', day.departures.length],
     ['inhouse', 'Живут', day.inHouse.length],
   ] as const;
   return (
     <section className="day-workspace">
+      <div className="day-section-head">
+        <h2>Работа с гостями</h2>
+        <label className="day-search">
+          <Icon name="search" />
+          <Input
+            aria-label="Поиск в рабочем дне"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Гость, бронь или место"
+          />
+        </label>
+      </div>
       <div className="day-toolbar">
         <div className="day-tabs" aria-label="Списки рабочего дня">
           {tabs.map(([id, title, count]) => (
@@ -39,19 +52,10 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
               onClick={() => setView(id)}
             >
               {title}
-              {id !== 'all' && <span>{count}</span>}
+              {count !== null && <span>{count}</span>}
             </button>
           ))}
         </div>
-        <label className="day-search">
-          <Icon name="search" />
-          <Input
-            aria-label="Поиск в рабочем дне"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Гость, бронь или ячейка"
-          />
-        </label>
       </div>
       {(view === 'all' || view === 'arrivals') && (
         <Group title="Заезжают" rows={filter(day.arrivals)} testId="arrivals" showBlocked />
@@ -62,6 +66,9 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
       {(view === 'all' || view === 'inhouse') && (
         <Group title="Живут" rows={filter(day.inHouse)} testId="inhouse" />
       )}
+      <div className="day-table-footer">
+        <Icon name="check" /> Выберите гостя, чтобы открыть бронирование
+      </div>
     </section>
   );
 }
@@ -79,68 +86,91 @@ function Group({
   showBlocked?: boolean;
   showDebt?: boolean;
 }) {
-  const head = ['Гость', 'Ячейка', 'Категория', 'Проживание', 'Статус'];
-  if (showDebt) head.push('Счёт');
   return (
-    <>
-      <SectionTitle>
-        {title} — {rows.length}
-      </SectionTitle>
-      <Table data-testid={`group-${testId}`}>
+    <section className="day-group">
+      <h3 className="day-group-title">
+        <span className={`day-group-dot day-group-dot--${testId}`} />
+        {title}
+        <span>{rows.length}</span>
+      </h3>
+      <Table data-testid={`group-${testId}`} className="day-table">
         <thead>
           <tr>
-            {head.map((h) => (
-              <th key={h} className={h === 'Счёт' ? 'num' : undefined}>
-                {h}
-              </th>
-            ))}
+            <th>Гость</th>
+            <th>Размещение</th>
+            <th>Проживание</th>
+            <th>{showDebt ? 'Статус / счёт' : 'Статус'}</th>
+            <th>
+              <span className="sr-only">Действие</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={head.length} className="muted">
-                никого
+              <td colSpan={5} className="day-empty">
+                В этом списке пока никого нет
               </td>
             </tr>
           )}
           {rows.map((r) => {
             const m = messengerLinks(r.guestPhone);
+            const url = `/reservations/${encodeURIComponent(r.confirmationNumber)}`;
             return (
               <tr key={r.itemId} data-testid={`row-${testId}`}>
-                {/*
-                 * Имя — ссылка на бронь: администратор ищет глазами гостя, а не номер. Сам номер
-                 * второй строкой мелким моноширинным: он нужен, когда его диктуют по телефону.
-                 */}
                 <td>
-                  <Link
-                    href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                    className="bold"
-                  >
-                    {r.guestLabel || 'без имени'}
-                  </Link>
-                  {m && (
-                    <>
-                      {' '}
-                      <a href={m.whatsapp} target="_blank" rel="noreferrer" className="small">
-                        WA
-                      </a>
-                    </>
-                  )}
-                  <div className="cell-sub mono">{r.confirmationNumber}</div>
+                  <div className="day-guest">
+                    <span
+                      className={`day-guest-avatar day-guest-avatar--${testId}`}
+                      aria-hidden="true"
+                    >
+                      {r.guestLabel
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((n) => n[0])
+                        .join('') || '—'}
+                    </span>
+                    <div>
+                      <Link href={url} className="day-guest-name">
+                        {r.guestLabel || 'Гость без имени'}
+                      </Link>
+                      <div className="cell-sub">
+                        <span className="booking-number">{r.confirmationNumber}</span>
+                        {m && (
+                          <>
+                            {' '}
+                            ·{' '}
+                            <a
+                              href={m.whatsapp}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`WhatsApp: ${r.guestLabel}`}
+                            >
+                              WA
+                            </a>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </td>
                 <td>
                   {r.unitCode ? (
-                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="unit">
+                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="day-unit">
+                      <Icon name="bed" />
                       {r.unitCode}
                     </Link>
                   ) : (
-                    <span className="warn-text">нет</span>
+                    <span className="warn-text">Не назначено</span>
                   )}
+                  <div className="cell-sub day-category">{r.accommodationTypeName}</div>
                 </td>
-                <td>{r.accommodationTypeName}</td>
                 <td className="nowrap">
-                  {r.arrivalDate} → {r.departureDate}
+                  <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                  <span className="day-stay-arrow"> → </span>
+                  <br />
+                  <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
                 </td>
                 <td>
                   <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />
@@ -149,22 +179,34 @@ function Group({
                   )}
                   {showBlocked && r.guestsRecorded < r.adults && !r.blockedReason && (
                     <div className="cell-sub warn-text">
-                      карточек {r.guestsRecorded} из {r.adults}
+                      Карточки: {r.guestsRecorded} из {r.adults}
+                    </div>
+                  )}
+                  {showDebt && (
+                    <div
+                      className={cx(
+                        'cell-sub',
+                        BigInt(r.balanceMinor) > 0n ? 'danger-text bold' : 'muted',
+                      )}
+                    >
+                      {formatMinor(r.balanceMinor)}
                     </div>
                   )}
                 </td>
-                {showDebt && (
-                  <td className="num">
-                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text bold' : 'muted'}>
-                      {formatMinor(r.balanceMinor)}
-                    </span>
-                  </td>
-                )}
+                <td className="day-row-action">
+                  <Link
+                    href={`${url}#${showDebt ? 'booking-finance' : 'booking-actions'}`}
+                    className="icon-button"
+                    aria-label={`Открыть бронь ${r.confirmationNumber}`}
+                  >
+                    <Icon name="arrow" />
+                  </Link>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </Table>
-    </>
+    </section>
   );
 }

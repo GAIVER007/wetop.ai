@@ -32,13 +32,25 @@ function Navigation({ path, close }: { path: string; close?: () => void }) {
         onClick={() => close?.()}
         aria-label="WETOP — Сегодня"
       >
-        <span className="workspace-mark">w</span>
+        <span className="workspace-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path
+              d="m5 9 5 15 6-11 6 11 5-15"
+              stroke="currentColor"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
         <span>
           wetop<span className="brand-dot">.</span>
         </span>
       </Link>
       <div className="workspace-property">
-        <span className="property-mark">L</span>
+        <span className="property-mark">
+          <Icon name="inventory" />
+        </span>
         <div>
           <strong>Luxx Aparts</strong>
           <span>Хостел · Алматы</span>
@@ -61,8 +73,13 @@ function Navigation({ path, close }: { path: string; close?: () => void }) {
         ))}
       </nav>
       <div className="workspace-footer">
-        <span className="footer-line" />
-        Всё для вашей смены<span>Номера, койки и гости — в одном месте</span>
+        <span className="desk-avatar">
+          <Icon name="bed" />
+        </span>
+        <div>
+          <strong>Стойка регистрации</strong>
+          <span>Luxx Aparts · Алматы</span>
+        </div>
       </div>
     </>
   );
@@ -106,7 +123,7 @@ export function TopNav({ children }: { children: ReactNode }) {
             <Icon name="menu" />
           </button>
           <div className="workspace-breadcrumb">
-            Рабочее пространство<span>/</span>
+            Luxx Aparts<span>/</span>
             <strong>{section?.label ?? 'Бронирование'}</strong>
           </div>
           <button

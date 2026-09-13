@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { deskApi, formatMinor } from '../../lib/api';
 import { DayWorkspace } from './day-workspace';
-import { Icon } from '../../components/icon';
+import { DayAttention } from './day-attention';
+import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
-import { Button, Input, Stat, Stats } from '../../components/ui';
+import { Button, Input } from '../../components/ui';
+import { displayDate } from '../../lib/display-date';
 
-/** Рабочий день стойки: что делать сегодня (SPEC §6). Первое, что открывает администратор утром. */
+/** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
 export default async function TodayPage({
   searchParams,
 }: {
@@ -13,13 +15,65 @@ export default async function TodayPage({
 }) {
   const sp = await searchParams;
   const day = await deskApi.today(sp.date);
-  const debt = day.debtMinor !== '0';
+  const debt = BigInt(day.debtMinor) > 0n;
+  const metrics: Array<{
+    label: string;
+    value: string;
+    id: string;
+    icon: IconName;
+    tone: string;
+    hint: string;
+    count?: number;
+    countId?: string;
+  }> = [
+    {
+      label: 'Проживают',
+      value: String(day.counts.inHouse),
+      id: 'c-inhouse',
+      icon: 'bed',
+      tone: 'home',
+      hint: 'Размещений на выбранную дату',
+    },
+    {
+      label: 'Заезды',
+      value: String(day.counts.arrivals),
+      id: 'c-arrivals',
+      icon: 'arrival',
+      tone: 'arrival',
+      hint: 'ожидают заселения',
+      count: day.counts.toCheckIn,
+      countId: 'c-tocheckin',
+    },
+    {
+      label: 'Выезды',
+      value: String(day.counts.departures),
+      id: 'c-departures',
+      icon: 'departure',
+      tone: 'departure',
+      hint: 'ожидают выезда',
+      count: day.counts.toCheckOut,
+      countId: 'c-tocheckout',
+    },
+    {
+      label: 'Долг уезжающих',
+      value: formatMinor(day.debtMinor),
+      id: 'c-debt',
+      icon: 'money',
+      tone: debt ? 'debt' : 'paid',
+      hint: debt ? 'Проверьте расчёт перед выездом' : 'Все счета оплачены',
+    },
+  ];
   return (
     <Page
-      title={`Сегодня, ${day.date}`}
-      subtitle="Рабочий день хостела — заезды, выезды и всё, что требует внимания"
+      title="Обзор дня"
+      subtitle={
+        <>
+          <span className="day-date">{displayDate(day.date, 'full')}</span>
+          <span className="day-date-divider">/</span>Всё для вашей смены
+        </>
+      }
       actions={
-        <form method="get" className="row">
+        <form method="get" className="row day-date-picker">
           <Input type="date" name="date" aria-label="Дата рабочего дня" defaultValue={day.date} />
           <Button type="submit" tone="secondary">
             Показать
@@ -27,61 +81,56 @@ export default async function TodayPage({
         </form>
       }
     >
-      {/*
-       * Четыре числа вместо шести: «из них не заселены» — не отдельный показатель, а хвост заезда,
-       * поэтому он подписью внутри плитки. Плитки всегда белые; цветом выделено только то, что требует
-       * действия — незакрытые заезды/выезды и долг.
-       */}
-      <Stats min={190}>
-        <Stat
-          label="Заезды"
-          value={String(day.counts.arrivals)}
-          testId="c-arrivals"
-          hint={
-            <>
-              <span data-testid="c-tocheckin">{day.counts.toCheckIn}</span> ещё не заселены
-            </>
-          }
-          hintTone={day.counts.toCheckIn > 0 ? 'warn' : undefined}
-        />
-        <Stat
-          label="Выезды"
-          value={String(day.counts.departures)}
-          testId="c-departures"
-          hint={
-            <>
-              <span data-testid="c-tocheckout">{day.counts.toCheckOut}</span> ещё не выселены
-            </>
-          }
-          hintTone={day.counts.toCheckOut > 0 ? 'warn' : undefined}
-        />
-        <Stat label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" hint="в доме" />
-        <Stat
-          label="Долг уезжающих"
-          value={
-            <span className={debt ? 'danger-text' : undefined} data-testid="c-debt">
-              {formatMinor(day.debtMinor)}
-            </span>
-          }
-          hint={debt ? 'спросить при выезде' : 'все рассчитались'}
-        />
-      </Stats>
-
-      <div className="day-shortcuts">
-        <div>
-          <span className="shortcut-icon">
-            <Icon name="board" />
-          </span>
-          <div>
-            <strong>Всё размещение — на шахматке</strong>
-            <p>Свободные места, переселения и брони без назначенной ячейки.</p>
-          </div>
-        </div>
-        <Link href={`/chessboard?from=${day.date}`} className="btn btn--secondary">
-          Открыть шахматку <Icon name="arrow" />
-        </Link>
+      <section className="desk-metrics" aria-label="Сводка рабочего дня">
+        {metrics.map((m) => (
+          <article key={m.id} className={`desk-metric desk-metric--${m.tone}`}>
+            <div className="desk-metric-top">
+              <span>{m.label}</span>
+              <span className="desk-metric-icon">
+                <Icon name={m.icon} />
+              </span>
+            </div>
+            <strong className="desk-metric-value" data-testid={m.id}>
+              {m.value}
+            </strong>
+            <div className="desk-metric-hint">
+              {m.count !== undefined && <span data-testid={m.countId}>{m.count}</span>} {m.hint}
+            </div>
+          </article>
+        ))}
+      </section>
+      <div className="desk-layout">
+        <DayWorkspace day={day} />
+        <aside className="desk-aside" aria-label="Задачи и размещение">
+          <DayAttention day={day} />
+          <section className="desk-board-card">
+            <span className="eyebrow">НОМЕРА И КОЙКИ</span>
+            <h2>
+              Каждое место
+              <br />
+              под контролем
+            </h2>
+            <p>Проверьте свободные места и спланируйте размещение гостей.</p>
+            <div className="mini-board" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <Link href={`/chessboard?from=${day.date}`} className="btn btn--secondary">
+              Открыть шахматку <Icon name="arrow" />
+            </Link>
+          </section>
+        </aside>
       </div>
-      <DayWorkspace day={day} />
     </Page>
   );
 }

@@ -11,6 +11,7 @@ import { Alert, Input, Select, cx } from '../../components/ui';
 import { stayLabels } from './stay-labels';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
+import { Icon } from '../../components/icon';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -159,16 +160,16 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
           </colgroup>
           <thead>
             <tr>
-              <th className="board__unit-head">Ячейка</th>
+              <th className="board__unit-head">
+                Номер / койка<div className="board__wd">Занято по дням →</div>
+              </th>
               {board.dates.map((d) => (
                 <th
                   key={d}
                   data-testid="date-col"
                   className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                 >
-                  <div className="board__d">
-                    {d.slice(8)}.{d.slice(5, 7)}
-                  </div>
+                  <div className="board__d">{d.slice(8)}</div>
                   <div className="board__wd">{weekday(d)}</div>
                   <div
                     className="board__occ"
@@ -176,6 +177,7 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                     title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
                   >
                     {board.summary[d]!.occupied}
+                    <span className="board-occ-total"> / {board.rows.length}</span>
                   </div>
                 </th>
               ))}
@@ -237,8 +239,9 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                         <Link
                           href={`/units/${encodeURIComponent(row.unit.code)}`}
                           data-testid="unit-link"
-                          className="unit"
+                          className="unit board-unit-link"
                         >
+                          <Icon name={row.unit.kind === 'BED' ? 'bed' : 'inventory'} />
                           {row.unit.code}
                         </Link>{' '}
                         <span className="muted-2">
@@ -322,6 +325,7 @@ function Cell({
         isWeekend(cell.date) && 'is-we',
       )}
       data-state={cell.state}
+      data-status={cell.itemStatus}
       data-date={cell.date}
       title={title}
     >

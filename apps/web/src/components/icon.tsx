@@ -1,6 +1,12 @@
 import type { SVGProps } from 'react';
 
 const paths = {
+  arrival: 'M14 4h6v16h-6 M3 12h12 M10 7l5 5-5 5',
+  departure: 'M10 4H4v16h6 M10 12h11 M16 7l5 5-5 5',
+  bed: 'M3 18v3 M21 18v3 M3 18h18V9H3z M3 9V4h18v5 M7 9V6h4v3 M13 9V6h4v3',
+  check: 'M5 12l4 4L19 6',
+  clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7v5l3 2',
+  chevron: 'm9 5 7 7-7 7',
   today: 'M4 5h16v15H4z M8 3v4 M16 3v4 M4 10h16 M8 14h3 M8 17h6',
   board: 'M3 4h18v16H3z M3 9h18 M8 4v16 M14 4v16 M3 14h18',
   guests:

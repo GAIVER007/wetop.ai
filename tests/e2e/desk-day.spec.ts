@@ -17,7 +17,7 @@ const plus = (n: number) => {
 test('экран «Сегодня» открывается с корня и показывает три списка на дату', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByRole('heading', { name: /Сегодня/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор дня' })).toBeVisible();
 
   // три группы всегда на месте, даже если пусто
   for (const g of ['arrivals', 'departures', 'inhouse'])
@@ -57,6 +57,7 @@ test('экран «Сегодня» открывается с корня и по
 
   // на дату из прошлого списки тоже строятся
   await page.goto('/today?date=2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Сегодня, 2026-08-15' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Обзор дня' })).toBeVisible();
+  await expect(page.getByLabel('Дата рабочего дня')).toHaveValue('2026-08-15');
   expect(await card('c-arrivals')).toBe(await rows('arrivals'));
 });

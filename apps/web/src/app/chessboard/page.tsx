@@ -3,6 +3,8 @@ import { chessboardApi, type UnassignedStay } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
+import { displayDate } from '../../lib/display-date';
+import { Icon } from '../../components/icon';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -43,9 +45,9 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Шахматка"
-      subtitle={`${board.from} — ${board.to} · ${board.rows.length} ячеек`}
+      subtitle={`${displayDate(board.from)} — ${displayDate(board.to)} · Номера и койки · ${board.rows.length} мест`}
       actions={
-        <>
+        <div className="board-period">
           <span className="seg">
             <Link href={window(7)} className={cx(board.dates.length === 7 && 'is-on')}>
               7 дней
@@ -57,10 +59,26 @@ export default async function ChessboardPage({
               30
             </Link>
           </span>
-          <Link href={shift(-board.dates.length)}>← раньше</Link>
-          <Link href="/chessboard">сегодня</Link>
-          <Link href={shift(board.dates.length)}>позже →</Link>
-        </>
+          <span className="board-date-nav">
+            <Link
+              href={shift(-board.dates.length)}
+              className="icon-button"
+              aria-label="Предыдущий период"
+            >
+              <Icon name="chevron" className="rotate-left" />
+            </Link>
+            <Link href="/chessboard" className="btn btn--secondary">
+              Сегодня
+            </Link>
+            <Link
+              href={shift(board.dates.length)}
+              className="icon-button"
+              aria-label="Следующий период"
+            >
+              <Icon name="chevron" />
+            </Link>
+          </span>
+        </div>
       }
     >
       <Legend
@@ -74,13 +92,17 @@ export default async function ChessboardPage({
       />
       <UnassignedStays stays={board.unassigned ?? []} />
       <ChessboardGrid board={board} today={today} />
-      <p className="note">
-        В строке категории — сколько мест свободно на эту ночь, под датой в шапке — сколько занято
-        из 88. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой —
-        форму новой брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
-        ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Брони без
-        ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
-      </p>
+      <details className="board-help">
+        <summary>Как работать с шахматкой</summary>
+        <p className="note">
+          В строке категории — сколько мест свободно на эту ночь, под датой в шапке — сколько занято
+          из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает
+          бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую строку —
+          бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только на всё
+          проживание). Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка
+          назначается с карточки брони.
+        </p>
+      </details>
     </Page>
   );
 }
@@ -98,19 +120,14 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
     else groups.push({ code: s.categoryCode, name: s.categoryName, items: [s] });
   }
   return (
-    <section
-      data-testid="unassigned-stays"
-      data-count={stays.length}
-      className="panel small"
-      style={{ marginBottom: 10, gap: 4 }}
-    >
-      <div className={cx('bold', stays.length ? 'warn-text' : 'muted')}>
-        Без ячейки: {stays.length}
+    <section data-testid="unassigned-stays" data-count={stays.length} className="board-unassigned">
+      <div className={cx('board-unassigned-title', stays.length ? 'warn-text' : 'muted')}>
+        <Icon name={stays.length ? 'incidents' : 'check'} /> Без ячейки: {stays.length}
       </div>
       {groups.map((g) => (
         <div key={g.code}>
           <span className="muted-2">{g.name}</span>
-          <ul className="list">
+          <ul className="board-unassigned-list">
             {g.items.map((s) => (
               <li
                 key={`${s.confirmationNumber}-${s.arrivalDate}`}

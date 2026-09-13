@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import { TopNav } from '../components/top-nav';
 import './globals.css';
 import './workspace.css';
+import './today/desk.css';
 
 /*
  * Шрифты стойки: IBM Plex Sans — весь интерфейс, включая заголовки (две гарнитуры на плотных экранах

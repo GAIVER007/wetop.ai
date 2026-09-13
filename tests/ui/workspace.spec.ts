@@ -32,7 +32,7 @@ test('все разделы, карточки и печать открывают
     if (message.type() === 'error') errors.push(message.text());
   });
   const routes = [
-    ['/today', 'Сегодня,'],
+    ['/today', 'Обзор дня'],
     ['/chessboard', 'Шахматка'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
@@ -258,4 +258,35 @@ test('общий платёж: ошибка не стирает распреде
   await expect(page.getByTestId('finance-total')).toContainText('30 000,00');
   const result = await (await request.get(`${fixture}/finance/reservations/${booking}`)).json();
   expect(result.balanceMinor).toBe('3000000');
+});
+
+test('обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия', async ({
+  page,
+}) => {
+  await page.goto('/today');
+  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
+  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  await expect(tasks.getByRole('link', { name: /К оплате/ })).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TEST4#booking-finance',
+  );
+  const debt = await page.getByTestId('c-debt').innerText();
+  await page.getByLabel('Поиск в рабочем дне').fill('несуществующий гость');
+  await expect(page.getByTestId('row-arrivals')).toHaveCount(0);
+  await expect(page.getByTestId('c-debt')).toHaveText(debt);
+  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  await page.getByLabel('Поиск в рабочем дне').fill('R01');
+  await expect(
+    page.getByRole('link', { name: `Открыть бронь ${booking}`, exact: true }),
+  ).toHaveAttribute('href', `/reservations/${booking}#booking-actions`);
+  for (const width of [320, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    await noPageOverflow(page);
+    await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await tasks.getByRole('link', { name: /К оплате/ }).click();
+  await expect(page).toHaveURL(/#booking-finance$/);
+  await expect(page.locator('#booking-finance')).toBeInViewport();
 });

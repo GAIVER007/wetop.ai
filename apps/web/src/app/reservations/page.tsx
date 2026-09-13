@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
@@ -13,28 +14,29 @@ import {
 export default async function ReservationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    from?: string;
-    to?: string;
-    date?: string;
-    status?: string;
-    q?: string;
-    page?: string;
-  }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   const from = sp.from || sp.date || hotelToday(),
     to = sp.to || from,
     status = sp.status || 'ALL',
     q = sp.q || '';
+  const page = sp.page || '1';
   const valid =
     validDate(from) &&
     validDate(to) &&
     from <= to &&
     Date.parse(to) - Date.parse(from) <= 365 * 86400000;
-  const result = valid
-    ? await reservationDirectory({ from, to, status, q, page: sp.page || '1' })
-    : null;
+  const error = !valid
+    ? 'Выберите корректный период до 366 дней.'
+    : !Object.hasOwn(reservationStatuses, status)
+      ? 'Неизвестный статус брони.'
+      : !/^\d+$/.test(page) || Number(page) < 1 || Number(page) > 10000
+        ? 'Номер страницы должен быть от 1 до 10000.'
+        : q.length > 120
+          ? 'Поиск: не более 120 символов.'
+          : null;
+  const result = !error ? await reservationDirectory({ from, to, status, q, page }) : null;
   const href = (values: Record<string, string>) =>
     `/reservations?${new URLSearchParams({ from, to, status, q, ...values })}`;
   return (
@@ -75,7 +77,11 @@ export default async function ReservationsPage({
           </Link>
         ))}
       </nav>
-      {!valid && <Alert boxed>Выберите корректный период до 366 дней.</Alert>}
+      {error && (
+        <Alert boxed>
+          {error} <Link href="/reservations">Сбросить фильтры</Link>
+        </Alert>
+      )}
       {result && (
         <>
           <div className="directory-meta">

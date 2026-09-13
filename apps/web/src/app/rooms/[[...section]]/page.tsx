@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { RoomGrid } from '../room-grid';
 import { notFound } from 'next/navigation';
@@ -13,13 +14,13 @@ export default async function RoomsPage({
   searchParams,
 }: {
   params: Promise<{ section?: string[] }>;
-  searchParams: Promise<{ arrival?: string; departure?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { section = [] } = await params;
   const path = `/rooms${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
   if (!item) notFound();
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   return (
     <Page
       title={item.label}

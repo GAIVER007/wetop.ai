@@ -130,6 +130,7 @@ export const SUITES: Record<SuiteName, SuiteDef> = {
       'packages',
       'scripts',
       'tests/e2e',
+      'tests/ui',
       'tests/e2e-teardown.ts',
       'playwright.config.ts',
       ...DEPS,

@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { getJsonPublic } from '../../lib/api';
 import { Page } from '../../components/page';
@@ -49,9 +50,9 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
 export default async function JournalPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; q?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { type, q } = await searchParams;
+  const { type, q } = normalizeSearchParams(await searchParams);
   const rows = await getJsonPublic<AuditRow[]>(
     `/audit?limit=200${type ? `&entityType=${encodeURIComponent(type)}` : ''}`,
   );
@@ -61,7 +62,7 @@ export default async function JournalPage({
       actions={FILTERS.map(([t, label]) => (
         <Link
           key={label}
-          href={t ? `/journal?type=${t}` : '/journal'}
+          href={`/journal?${new URLSearchParams({ ...(t ? { type: t } : {}), ...(q ? { q } : {}) })}`}
           className={(t ?? undefined) === type ? 'bold' : undefined}
         >
           {label}

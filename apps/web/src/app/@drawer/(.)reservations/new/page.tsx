@@ -1,9 +1,10 @@
+import { type SearchParams } from '../../../../lib/search-params';
 import NewReservationPage from '../../../reservations/new/page';
 import { RouteDrawer } from '../../../../components/route-drawer';
 export default function NewBookingDrawer({
   searchParams,
 }: {
-  searchParams: Promise<{ arrival?: string; departure?: string; unit?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   return (
     <RouteDrawer title="Новая бронь">

@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
 import { api, chessboardApi, financeApi, formatMinor } from '../../../../../lib/api';
 import { PrintButton } from '../print-button';
 import {
@@ -20,10 +21,10 @@ export default async function PrintInvoice({
   searchParams,
 }: {
   params: Promise<{ number: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { number } = await params;
-  const { lang } = await searchParams;
+  const { lang } = normalizeSearchParams(await searchParams);
   const l = pickLang(lang);
   const t = INVOICE_T[l];
   const r = await chessboardApi.reservation(decodeURIComponent(number));

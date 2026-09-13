@@ -67,15 +67,30 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
             </Button>
           </Row>
         ))}
-        <form action={blockAction} data-testid="block-form" className="row unit-block-form">
+        <form
+          key={blockState.attempt ?? 0}
+          action={blockAction}
+          data-testid="block-form"
+          className="row unit-block-form"
+        >
           <Field label="Блокировка с">
-            <Input type="date" name="dateFrom" defaultValue={today} required />
+            <Input
+              type="date"
+              name="dateFrom"
+              defaultValue={blockState.values?.dateFrom ?? today}
+              required
+            />
           </Field>
           <Field label="До (не включая)">
-            <Input type="date" name="dateTo" required />
+            <Input
+              type="date"
+              name="dateTo"
+              defaultValue={blockState.values?.dateTo ?? ''}
+              required
+            />
           </Field>
           <Field label="Тип блокировки">
-            <Select name="type" defaultValue="MAINTENANCE">
+            <Select name="type" defaultValue={blockState.values?.type ?? 'MAINTENANCE'}>
               {TYPES.map(([k, t]) => (
                 <option key={k} value={k}>
                   {t}
@@ -84,7 +99,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
             </Select>
           </Field>
           <Field label="Причина">
-            <Input name="reason" />
+            <Input name="reason" defaultValue={blockState.values?.reason ?? ''} />
           </Field>
           <Button type="submit" disabled={blockPending || pending}>
             Заблокировать

@@ -1,0 +1,481 @@
+# Сквозные (e2e) · 13.09.2026 22:59 Алматы · MacBook-Air-Urij.local
+# коммит 130f0d1 (codex/ui-quality-audit), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'доступность всех разделов: light|неверные параметры списка|короткий поиск|повторяющиеся параметры|длинный черновик'
+[WebServer] (node:32192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:32275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/accessibility.spec.ts:47:3 › доступность всех разделов: light (25.6s)
+(node:32349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (16.3s)
+(node:32402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (16.5s)
+(node:32439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ TypeError: (q ?? "").trim is not a function
+[WebServer]     at GuestsPage (src/app/guests/page.tsx:15:27)
+[WebServer]   13 | }) {
+[WebServer]   14 |   const { q, status } = await searchParams;
+[WebServer] > 15 |   const query = (q ?? '').trim();
+[WebServer]      |                           ^
+[WebServer]   16 |   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
+[WebServer]   17 |   return (
+[WebServer]   18 |     <Page {
+[WebServer]   digest: '2841939938'
+[WebServer] }
+  ✘  4 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (17.1s)
+(node:32485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/quality.spec.ts:30:1 › длинный черновик на телефоне переносится внутри панели (2.1s)
+
+
+  1) tests/ui/accessibility.spec.ts:47:3 › доступность всех разделов: light ────────────────────────
+
+    Error: /today
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Главная\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: /chessboard
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Шахматка\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: /reservations
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Брони\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: /reservations/new?unit=M03
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Брони\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: /reservations/20260913-TESTAA
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Брони\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: /guests
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 30
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.28 (foreground color: #1479e2, background color: #fefeff, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".brand-name > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.88 (foreground color: #1479e2, background color: #eaf4ff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           "a[title=\"Гости\"] > span",
+    +         ],
+    +       },
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #65758b, background color: #f6f8fc, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "target": Array [
+    +           ".assistant-launch > span:nth-child(2) > small",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      69 |           route,
+      70 |         )
+    > 71 |         .toEqual([]);
+         |          ^
+      72 |     }
+      73 |     mkdirSync('reports/ui-quality', { recursive: true });
+      74 |     writeFileSync(
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:71:10
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('h1')
+    Expected: visible
+    Error: strict mode violation: locator('h1') resolved to 2 elements:
+        1) <h1 class="page__title">Гости</h1> aka getByRole('heading', { name: 'Гости' })
+        2) <h1 class="page__title">Гости</h1> aka getByText('Гости').nth(4)
+
+    Call log:
+      - Expect "toBeVisible" locator('h1') with timeout 15000ms
+      - waiting for locator('h1')
+        3 × locator resolved to <h1 class="page__title">Гости</h1>
+          - unexpected value "hidden"
+
+
+      52 |     for (const route of routes) {
+      53 |       await page.goto(route);
+    > 54 |       await expect(page.locator('h1')).toBeVisible();
+         |                                        ^
+      55 |       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      56 |       const result = await new AxeBuilder({ page })
+      57 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:54:40
+
+    Error Context: test-results/accessibility-доступность-всех-разделов-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-всех-разделов-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-всех-разделов-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected pattern: /статус|страниц/i
+    Received string:  ""
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('alert')
+        32 × locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+           - unexpected value ""
+
+
+      11 |     await page.goto(`/reservations?${query}`);
+      12 |     await expect(page.getByRole('heading', { name: 'Брони', exact: true })).toBeVisible();
+    > 13 |     await expect(page.getByRole('alert')).toContainText(/статус|страниц/i);
+         |                                           ^
+      14 |     await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeEnabled();
+      15 |   }
+      16 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:13:43
+
+    Error Context: test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов ──────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Введите не менее 2 символов для поиска.')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Введите не менее 2 символов для поиска.') with timeout 15000ms
+      - waiting for getByText('Введите не менее 2 символов для поиска.')
+
+
+      18 | test('короткий поиск гостей объясняет минимум символов', async ({ page }) => {
+      19 |   await page.goto('/guests?q=А');
+    > 20 |   await expect(page.getByText('Введите не менее 2 символов для поиска.')).toBeVisible();
+         |                                                                           ^
+      21 | });
+      22 |
+      23 | test('повторяющиеся параметры поиска не обрушивают гости и журнал', async ({ page }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:20:75
+
+    Error Context: test-results/quality-короткий-поиск-гостей-объясняет-минимум-символов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-короткий-поиск-гостей-объясняет-минимум-символов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-короткий-поиск-гостей-объясняет-минимум-символов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Гости', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Гости', exact: true }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Гости', exact: true })
+
+
+      23 | test('повторяющиеся параметры поиска не обрушивают гости и журнал', async ({ page }) => {
+      24 |   await page.goto('/guests?q=Тест&q=Другой');
+    > 25 |   await expect(page.getByRole('heading', { name: 'Гости', exact: true })).toBeVisible();
+         |                                                                           ^
+      26 |   await page.goto('/journal?q=TEST&q=OTHER');
+      27 |   await expect(page.getByRole('heading', { name: 'Журнал действий', exact: true })).toBeVisible();
+      28 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:25:75
+
+    Error Context: test-results/quality-повторяющиеся-пара-6e1e2-е-обрушивают-гости-и-журнал/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-повторяющиеся-пара-6e1e2-е-обрушивают-гости-и-журнал/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-повторяющиеся-пара-6e1e2-е-обрушивают-гости-и-журнал/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/accessibility.spec.ts:47:3 › доступность всех разделов: light ─────────────────────────
+    tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку 
+    tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов ───────────────
+    tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал ────
+  1 passed (1.6m)
+
+# код выхода 1 · 1 мин 37 с

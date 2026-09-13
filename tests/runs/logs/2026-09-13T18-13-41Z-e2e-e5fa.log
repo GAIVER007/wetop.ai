@@ -1,0 +1,233 @@
+# Сквозные (e2e) · 13.09.2026 23:13 Алматы · MacBook-Air-Urij.local
+# коммит 130f0d1 (codex/ui-quality-audit), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'открытых форм|параметры списка|короткий поиск|повторяющиеся параметры|операция проживания|отказ оплаты|ошибочные даты'
+[WebServer] (node:35330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:35413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35461) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/accessibility.spec.ts:87:3 › доступность открытых форм и drawer: light (15.4s)
+(node:35477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/accessibility.spec.ts:87:3 › доступность открытых форм и drawer: dark (13.5s)
+  ✘  3 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (2.4s)
+(node:35534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (2.6s)
+  ✓  5 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (4.6s)
+[WebServer] (node:35624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/quality.spec.ts:49:1 › операция проживания блокирует повторное нажатие до ответа сервера (5.7s)
+[WebServer] (node:35642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/ui/quality.spec.ts:71:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.7s)
+[WebServer] (node:35649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] /Users/urijzapojnov/Documents/ChatGPT/WETOP/scripts/preview/fixture-api.ts:34
+[WebServer]   return d.toISOString().slice(0, 10);
+[WebServer]            ^
+[WebServer] 
+[WebServer] RangeError: Invalid time value
+[WebServer]     at Date.toISOString (<anonymous>)
+[WebServer]     at add (/Users/urijzapojnov/Documents/ChatGPT/WETOP/scripts/preview/fixture-api.ts:34:12)
+[WebServer]     at dates (/Users/urijzapojnov/Documents/ChatGPT/WETOP/scripts/preview/fixture-api.ts:38:58)
+[WebServer]     at read (/Users/urijzapojnov/Documents/ChatGPT/WETOP/scripts/preview/fixture-api.ts:530:13)
+[WebServer]     at Server.<anonymous> (/Users/urijzapojnov/Documents/ChatGPT/WETOP/scripts/preview/fixture-api.ts:702:20)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer] 
+[WebServer] Node.js v24.15.0
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:68:11)
+[WebServer]     at async getJson (src/lib/api.ts:84:15)
+[WebServer]     at async RatesPage (src/app/rates/page.tsx:24:38)
+[WebServer]   66 |       throw error;
+[WebServer]   67 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 68 |     throw new ApiError(
+[WebServer]      |           ^
+[WebServer]   69 |       503,
+[WebServer]   70 |       options.method && options.method !== 'GET'
+[WebServer]   71 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: '3472966828'
+[WebServer] }
+  ✘  8 tests/ui/quality.spec.ts:86:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (17.1s)
+
+
+  1) tests/ui/accessibility.spec.ts:87:3 › доступность открытых форм и drawer: light ───────────────
+
+    Error: Обзор
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 19
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[data-testid=\"print-contract-ru\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-contract-kz\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-invoice-ru\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-invoice-kz\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      107 |           tab,
+      108 |         )
+    > 109 |         .toEqual([]);
+          |          ^
+      110 |     }
+      111 |   });
+      112 | }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:109:10
+
+    Error: Счета
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 19
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "a[data-testid=\"print-contract-ru\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-contract-kz\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-invoice-ru\"]",
+    +       ],
+    +       Array [
+    +         "a[data-testid=\"print-invoice-kz\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      107 |           tab,
+      108 |         )
+    > 109 |         .toEqual([]);
+          |          ^
+      110 |     }
+      111 |   });
+      112 | }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/accessibility.spec.ts:109:10
+
+    Error Context: test-results/accessibility-доступность-открытых-форм-и-drawer-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-открытых-форм-и-drawer-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-открытых-форм-и-drawer-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected pattern: /статус|страниц/i
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <div role="alert" class="alert alert--boxed">…</div> aka getByText('Неизвестный статус брони. Сбросить фильтры')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('alert')
+
+
+      11 |     await page.goto(`/reservations?${query}`);
+      12 |     await expect(page.getByRole('heading', { name: 'Брони', exact: true })).toBeVisible();
+    > 13 |     await expect(page.getByRole('alert')).toContainText(/статус|страниц/i);
+         |                                           ^
+      14 |     await expect(page.getByRole('button', { name: 'Показать', exact: true })).toBeEnabled();
+      15 |   }
+      16 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:13:43
+
+    Error Context: test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-неверные-параметры-dab03-е-фильтры-и-понятную-ошибку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/quality.spec.ts:86:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /Цены и ограничения|Шахматка/ })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /Цены и ограничения|Шахматка/ }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: /Цены и ограничения|Шахматка/ })
+
+
+      91 |   ]) {
+      92 |     await page.goto(route);
+    > 93 |     await expect(page.getByRole('heading', { name: /Цены и ограничения|Шахматка/ })).toBeVisible();
+         |                                                                                      ^
+      94 |     await expect(page.getByRole('alert')).toContainText(/период|месяц/i);
+      95 |     await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
+      96 |   }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:93:86
+
+    Error Context: test-results/quality-ошибочные-даты-шах-89cea-оставляют-форму-исправления/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-ошибочные-даты-шах-89cea-оставляют-форму-исправления/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-ошибочные-даты-шах-89cea-оставляют-форму-исправления/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/accessibility.spec.ts:87:3 › доступность открытых форм и drawer: light ────────────────
+    tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку 
+    tests/ui/quality.spec.ts:86:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления 
+  5 passed (1.5m)
+
+# код выхода 1 · 1 мин 29 с

@@ -12,6 +12,10 @@ export interface ActionResult {
 }
 
 const KEPT = [
+  'arrivalDate',
+  'departureDate',
+  'fromDate',
+  'children',
   'source',
   'accommodationTypeCode',
   'ratePlanCode',
@@ -107,7 +111,7 @@ export async function updateReservationAction(
       source: str(fd, 'source'),
     });
   } catch (e) {
-    return { error: describe(e) };
+    return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };
   }
   revalidatePath('/chessboard');
   revalidatePath(`/reservations/${number}`);
@@ -127,7 +131,7 @@ export async function updateStayGuestsAction(
       ...(fd.has('children') ? { children: Number(str(fd, 'children') ?? '0') } : {}),
     });
   } catch (e) {
-    return { error: describe(e) };
+    return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };
   }
   revalidatePath(`/reservations/${number}`);
   return { error: null };
@@ -156,7 +160,7 @@ export async function changeDatesAction(
       ratePlanCode: str(fd, 'ratePlanCode'),
     });
   } catch (e) {
-    return { error: describe(e) };
+    return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };
   }
   revalidatePath('/chessboard');
   revalidatePath(`/reservations/${number}`);
@@ -176,7 +180,7 @@ export async function assignUnitAction(
       ratePlanCode: str(fd, 'ratePlanCode'),
     });
   } catch (e) {
-    return { error: describe(e) };
+    return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };
   }
   revalidatePath('/chessboard');
   revalidatePath(`/reservations/${number}`);

@@ -187,7 +187,12 @@ export function Table({
   plain?: boolean | undefined;
 }) {
   return (
-    <div className="table-scroll">
+    <div
+      className="table-scroll"
+      tabIndex={0}
+      role="region"
+      aria-label={rest['aria-label'] || 'Таблица, прокрутка по горизонтали'}
+    >
       <table
         className={cx(
           'tbl',

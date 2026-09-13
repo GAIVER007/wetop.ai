@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { api, chessboardApi, formatMinor, guestsApi } from '../../../../lib/api';
 import { PrintButton } from './print-button';
 
@@ -70,10 +71,10 @@ export default async function PrintRegistrationCard({
   searchParams,
 }: {
   params: Promise<{ number: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { number } = await params;
-  const { lang } = await searchParams;
+  const { lang } = normalizeSearchParams(await searchParams);
   const t = lang === 'kz' ? T.kz : T.ru;
   const r = await chessboardApi.reservation(decodeURIComponent(number));
   const [summary, guest] = await Promise.all([

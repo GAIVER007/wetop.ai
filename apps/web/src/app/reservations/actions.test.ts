@@ -91,3 +91,17 @@ describe('поля существующего API из форм стойки', (
     expect(update.mock.calls[0]?.[2]).toEqual({ adults: 1, children: 1 });
   });
 });
+
+it('возвращает заметку и источник при отказе редактирования брони', async () => {
+  const { updateReservationAction } = await import('./actions');
+  vi.spyOn(reservationsApi, 'update').mockRejectedValueOnce(new Error('Отказ'));
+  const fd = new FormData();
+  fd.set('notes', 'Введённая заметка');
+  fd.set('source', 'PHONE');
+  const result = await updateReservationAction('TEST', { error: null }, fd);
+  expect(result).toMatchObject({
+    error: 'Отказ',
+    attempt: 1,
+    values: { notes: 'Введённая заметка', source: 'PHONE' },
+  });
+});

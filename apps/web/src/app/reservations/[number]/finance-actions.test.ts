@@ -33,3 +33,24 @@ it('отправляет один платёж с распределениями
     values: { amount: '10000.25', 'allocation.f2': '2000' },
   });
 });
+
+it('сохраняет поля отдельной оплаты после отказа и сбрасывает их только после успеха', async () => {
+  const { payAction } = await import('./finance-actions');
+  const pay = vi.spyOn(financeApi, 'pay').mockRejectedValueOnce(new ApiError(503, 'Недоступно'));
+  const fd = new FormData();
+  fd.set('amount', '3456.78');
+  fd.set('method', 'KASPI');
+  fd.set('note', 'Сохранить ввод');
+  fd.set('unexpected', 'Не возвращать');
+  const failed = await payAction('TEST', 'folio', { error: null, ok: 0 }, fd);
+  expect(failed).toMatchObject({
+    error: 'Недоступно',
+    attempt: 1,
+    values: { amount: '3456.78', method: 'KASPI', note: 'Сохранить ввод' },
+  });
+  expect(failed.values).not.toHaveProperty('unexpected');
+  pay.mockResolvedValueOnce({} as Awaited<ReturnType<typeof financeApi.pay>>);
+  const success = await payAction('TEST', 'folio', failed, fd);
+  expect(success).toMatchObject({ error: null });
+  expect(success.values).toBeUndefined();
+});

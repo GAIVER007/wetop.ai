@@ -27,7 +27,7 @@ const names = [
   'James Wilson',
   'София Павлова',
 ];
-const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+let today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (date: string, n: number) => {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
@@ -112,15 +112,91 @@ function cardSeed(): ReservationCard {
 }
 let card = cardSeed();
 let guest = structuredClone(guestSeed);
+const extraCards = new Map<string, ReservationCard>();
+const extraGuests = new Map<string, GuestCard>();
+function initializeRecords() {
+  extraCards.clear();
+  extraGuests.clear();
+  if (demo) {
+    const [firstName, lastName] = names[0]!.split(' ');
+    guest.firstName = firstName!;
+    guest.lastName = lastName!;
+    card.primaryGuest!.label = `${lastName} ${firstName}`;
+    card.items[0]!.guests[0]!.label = card.primaryGuest!.label;
+  }
+  for (let i = 1; i < 8; i++) {
+    const r = cardSeed();
+    const g = structuredClone(guestSeed);
+    const label = demo ? names[i]! : ['Посетитель Демо', 'Клиент Пример', 'Гость Учебный'][i % 3]!;
+    const words = label.split(' ');
+    g.id = `ui-guest-${i}`;
+    g.firstName = words.slice(1).join(' ');
+    g.lastName = words[0]!;
+    r.confirmationNumber = `20260913-TEST${i}`;
+    r.status = i === 1 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    r.arrivalDate = i < 3 ? today : add(today, -2);
+    r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
+    r.source = i % 2 ? 'OTA' : 'PHONE';
+    r.channel = i % 2 ? 'Booking.com' : null;
+    r.primaryGuest = { id: g.id, label, citizenship: g.citizenship, phone: g.phone };
+    const unit = units.find(
+      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01'][i],
+    )!;
+    r.items[0] = {
+      ...r.items[0]!,
+      id: `ui-item-${i}`,
+      status: r.status,
+      arrivalDate: r.arrivalDate,
+      departureDate: r.departureDate,
+      unitCode: unit.code,
+      accommodationTypeCode: unit.accommodationTypeCode,
+      accommodationTypeName: unit.accommodationTypeName,
+      guests: [{ label, isPrimary: true }],
+    };
+    extraCards.set(r.confirmationNumber, r);
+    extraGuests.set(g.id, g);
+  }
+}
+initializeRecords();
+const allCards = () => [card, ...extraCards.values()];
+const getCard = (number: string) =>
+  number === card.confirmationNumber ? card : extraCards.get(number);
+function getGuest(id: string) {
+  const g = id === guest.id ? guest : extraGuests.get(id);
+  if (!g) return undefined;
+  return {
+    ...g,
+    stays: allCards()
+      .filter((r) => r.primaryGuest?.id === id)
+      .flatMap((r) =>
+        r.items.map((it) => ({
+          confirmationNumber: r.confirmationNumber,
+          accommodationTypeName: it.accommodationTypeName,
+          arrivalDate: it.arrivalDate,
+          departureDate: it.departureDate,
+          status: it.status,
+          unitCode: it.unitCode,
+        })),
+      ),
+  };
+}
 let rejectCreate = false;
 let failPath = '';
 let emptyFixture = false;
-let hkStatus: UnitCard['housekeepingStatus'] = 'CLEAN';
-let unitBlocks: UnitCard['blocks'] = [];
+const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
+const blocks = new Map<string, UnitCard['blocks']>();
+const blocksFor = (code: string) => blocks.get(code) ?? [];
 let priceChanges: Array<{ dateFrom: string; dateTo: string; price?: string }> = [];
 let siteDeleted = false;
 let groupFixture = false;
 let paid = new Map<string, bigint>();
+let paymentLines: Array<{
+  folioId: string;
+  amountMinor: string;
+  method: string;
+  note: string | null;
+  id: string;
+}> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 const incidentSeed: Incident = {
   id: 'ui-incident',
@@ -145,60 +221,84 @@ const incidentSeed: Incident = {
 let incident = structuredClone(incidentSeed);
 
 function desk(date: string): DeskDay {
-  const row = (i: number, status: string): DeskRow => ({
-    itemId: `desk-${i}`,
-    confirmationNumber: i === 0 ? card.confirmationNumber : `20260913-TEST${i}`,
-    guestLabel: (demo
-      ? names
-      : ['Гость Тестовый', 'Посетитель Демо', 'Клиент Пример', 'Гость Учебный'])[
-      i % (demo ? names.length : 4)
-    ]!,
-    guestPhone: null,
-    unitCode: units[i]!.code,
-    accommodationTypeName: units[i]!.accommodationTypeName,
-    arrivalDate: status === 'CONFIRMED' ? date : add(date, -2),
-    departureDate: status === 'CONFIRMED' ? add(date, 3) : date,
-    status,
-    balanceMinor: i % 2 ? '0' : '800000',
-    citizenship: 'KAZ',
-    adults: 1,
-    guestsRecorded: 1,
-    blockedReason: null,
-  });
+  const rows = allCards().flatMap((r) =>
+    r.items.map(
+      (it) =>
+        ({
+          itemId: it.id,
+          confirmationNumber: r.confirmationNumber,
+          guestLabel: r.primaryGuest?.label ?? 'Гость',
+          guestPhone: r.primaryGuest?.phone ?? null,
+          unitCode: it.unitCode,
+          accommodationTypeName: it.accommodationTypeName,
+          arrivalDate: it.arrivalDate,
+          departureDate: it.departureDate,
+          status: it.status,
+          balanceMinor: finance(r).balanceMinor,
+          citizenship: r.primaryGuest?.citizenship ?? null,
+          adults: it.adults,
+          guestsRecorded: it.guests.length,
+          blockedReason: null,
+        }) satisfies DeskRow,
+    ),
+  );
+  const active = rows.filter((r) => r.status !== 'CANCELLED' && r.status !== 'NO_SHOW');
+  const arrivals = active.filter((r) => r.arrivalDate === date);
+  const departures = active.filter((r) => r.departureDate === date);
+  const inHouse = active.filter(
+    (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
+  );
   return {
     date,
-    arrivals: [row(0, 'CONFIRMED'), row(1, 'CONFIRMED'), row(2, 'CHECKED_IN')],
-    departures: [row(3, 'CHECKED_IN'), row(4, 'CHECKED_OUT')],
-    inHouse: [row(5, 'CHECKED_IN'), row(6, 'CHECKED_IN'), row(7, 'CHECKED_IN')],
-    counts: { arrivals: 3, departures: 2, inHouse: 3, toCheckIn: 2, toCheckOut: 1 },
-    debtMinor: '2400000',
+    arrivals,
+    departures,
+    inHouse,
+    counts: {
+      arrivals: arrivals.length,
+      departures: departures.length,
+      inHouse: inHouse.length,
+      toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
+      toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
+    },
+    debtMinor: departures
+      .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
+      .reduce((sum, r) => sum + BigInt(r.balanceMinor), 0n)
+      .toString(),
   };
 }
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
-  const rows = units.map((u, i) => ({
+  const rows = units.map((u) => ({
     unit: { id: u.code, ...u },
-    cells: days.map((date, j) => {
-      if (i === 3 && j < 4)
+    cells: days.map((date) => {
+      const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
+      if (block)
         return {
           date,
           state: 'BLOCKED' as const,
-          blockType: 'MAINTENANCE',
-          blockReason: 'Проверка комнаты',
+          blockType: block.type,
+          blockReason: block.reason,
         };
-      if (i % 3 !== 2 && (j + i) % 9 < 5)
-        return {
-          date,
-          state: 'OCCUPIED' as const,
-          itemId: `board-${i}-${Math.floor((j + i) / 9)}`,
-          confirmationNumber: card.confirmationNumber,
-          guestLabel: (demo ? names : ['Гость Тестовый', 'Посетитель Демо', 'Клиент Пример'])[
-            i % (demo ? names.length : 3)
-          ]!,
-          itemStatus: i % 2 ? 'CHECKED_IN' : 'CONFIRMED',
-          isArrival: (j + i) % 9 === 0,
-          isLastNight: (j + i) % 9 === 4,
-        };
+      for (const r of allCards()) {
+        const it = r.items.find(
+          (it) =>
+            it.unitCode === u.code &&
+            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+            it.arrivalDate <= date &&
+            it.departureDate > date,
+        );
+        if (it)
+          return {
+            date,
+            state: 'OCCUPIED' as const,
+            itemId: it.id,
+            confirmationNumber: r.confirmationNumber,
+            guestLabel: r.primaryGuest?.label ?? 'Гость',
+            itemStatus: it.status,
+            isArrival: date === it.arrivalDate,
+            isLastNight: date === add(it.departureDate, -1),
+          };
+      }
       return { date, state: 'FREE' as const };
     }),
   }));
@@ -236,65 +336,124 @@ function board(from: string, to: string): Chessboard {
       ),
     ]),
   );
-  return { from, to, dates: days, rows, byCategory, summary, unassigned: [] };
-}
-function finance(): ReservationFinance {
-  const result: ReservationFinance = {
-    confirmationNumber: card.confirmationNumber,
-    currency: 'KZT',
-    chargedMinor: '2400000',
-    paidMinor: '800000',
-    refundedMinor: '0',
-    balanceMinor: '1600000',
-    folios: [
-      {
-        id: 'ui-folio',
-        reservationItemId: 'ui-item',
-        status: 'OPEN',
-        currency: 'KZT',
-        stay: {
-          accommodationTypeName: categories[0]!.name,
-          arrivalDate: today,
-          departureDate: add(today, 3),
-          status: card.items[0]!.status,
-        },
-        charges: [
-          {
-            id: 'ui-charge',
-            kind: 'ACCOMMODATION',
-            serviceCode: null,
-            description: 'Проживание · 3 ночи',
-            quantity: 3,
-            unitPriceMinor: '800000',
-            amountMinor: '2400000',
-            serviceDate: today,
-            createdAt: `${today}T07:00:00Z`,
-            voidedAt: null,
-          },
-        ],
-        payments: [],
-        refunds: [],
-        chargedMinor: '2400000',
-        paidMinor: '800000',
-        refundedMinor: '0',
-        balanceMinor: '1600000',
-      },
-    ],
+  return {
+    from,
+    to,
+    dates: days,
+    rows,
+    byCategory,
+    summary,
+    unassigned: allCards().flatMap((r) =>
+      r.items
+        .filter(
+          (it) =>
+            !it.unitCode &&
+            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+            it.arrivalDate <= to &&
+            it.departureDate > from,
+        )
+        .map((it) => ({
+          confirmationNumber: r.confirmationNumber,
+          categoryCode: it.accommodationTypeCode,
+          categoryName: it.accommodationTypeName,
+          arrivalDate: it.arrivalDate,
+          departureDate: it.departureDate,
+          status: it.status,
+        })),
+    ),
   };
-  if (groupFixture)
-    result.folios.push({
-      ...structuredClone(result.folios[0]!),
-      id: 'ui-folio-2',
-      reservationItemId: 'ui-item-2',
-    });
-  for (const f of result.folios) {
-    f.paidMinor = (BigInt(f.paidMinor) + (paid.get(f.id) ?? 0n)).toString();
+}
+function finance(reservation: ReservationCard = card): ReservationFinance {
+  const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
+    const id =
+      reservation === card ? (index ? `ui-folio-${index + 1}` : 'ui-folio') : `folio-${it.id}`;
+    const nights = Math.max(
+      1,
+      Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000),
+    );
+    const prepaid = reservation.confirmationNumber.includes('-NEW')
+      ? 0n
+      : /TEST[1357]$/.test(reservation.confirmationNumber)
+        ? BigInt(it.priceMinor)
+        : 800000n;
+    const amount = BigInt(it.priceMinor);
+    const payments = paymentLines
+      .filter((p) => p.folioId === id)
+      .map((p) => ({
+        paymentId: p.id,
+        method: p.method,
+        status: 'COMPLETED' as const,
+        paidAt: `${today}T10:00:00Z`,
+        note: p.note,
+        externalReference: null,
+        paymentAmountMinor: p.amountMinor,
+        allocatedMinor: p.amountMinor,
+        refundedMinor: '0',
+      }));
+    if (prepaid)
+      payments.unshift({
+        paymentId: `prepaid-${id}`,
+        method: 'CASH',
+        status: 'COMPLETED',
+        paidAt: `${today}T07:00:00Z`,
+        note: null,
+        externalReference: null,
+        paymentAmountMinor: prepaid.toString(),
+        allocatedMinor: prepaid.toString(),
+        refundedMinor: '0',
+      });
+    return {
+      id,
+      reservationItemId: it.id,
+      status: 'OPEN',
+      currency: reservation.currency,
+      stay: {
+        accommodationTypeName: it.accommodationTypeName,
+        arrivalDate: it.arrivalDate,
+        departureDate: it.departureDate,
+        status: it.status,
+      },
+      charges: [
+        {
+          id: `charge-${it.id}`,
+          kind: 'ACCOMMODATION',
+          serviceCode: null,
+          description: `Проживание · ${nights} ноч.`,
+          quantity: nights,
+          unitPriceMinor: (amount / BigInt(nights)).toString(),
+          amountMinor: amount.toString(),
+          serviceDate: it.arrivalDate,
+          createdAt: `${today}T07:00:00Z`,
+          voidedAt: null,
+        },
+      ],
+      payments,
+      refunds: [],
+      chargedMinor: amount.toString(),
+      paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
+      refundedMinor: '0',
+      balanceMinor: (amount - prepaid - (paid.get(id) ?? 0n)).toString(),
+    };
+  });
+  if (groupFixture && reservation === card) {
+    const f = structuredClone(folios[0]!);
+    f.id = 'ui-folio-2';
+    f.reservationItemId = 'ui-item-2';
+    f.paidMinor = (800000n + (paid.get(f.id) ?? 0n)).toString();
     f.balanceMinor = (BigInt(f.chargedMinor) - BigInt(f.paidMinor)).toString();
+    folios.push(f);
   }
-  for (const key of ['chargedMinor', 'paidMinor', 'balanceMinor'] as const) {
-    result[key] = result.folios.reduce((sum, f) => sum + BigInt(f[key]), 0n).toString();
-  }
-  return result;
+  const sum = (key: 'chargedMinor' | 'paidMinor' | 'refundedMinor' | 'balanceMinor') =>
+    folios.reduce((total, f) => total + BigInt(f[key]), 0n).toString();
+  return {
+    confirmationNumber: reservation.confirmationNumber,
+    currency: reservation.currency,
+    folios,
+    chargedMinor: sum('chargedMinor'),
+    paidMinor: sum('paidMinor'),
+    refundedMinor: sum('refundedMinor'),
+    balanceMinor: sum('balanceMinor'),
+  };
 }
 
 const siteSeed: TrackedSite = {
@@ -478,45 +637,72 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/desk/today') return desk(q.get('date') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return plans;
-  if (path === '/availability')
+  if (path === '/availability') {
+    const arrival = q.get('arrival') || today,
+      departure = q.get('departure') || add(arrival, 1);
+    const available = units.filter(
+      (u) =>
+        !allCards().some((r) =>
+          r.items.some(
+            (it) =>
+              it.unitCode === u.code &&
+              !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+              it.arrivalDate < departure &&
+              it.departureDate > arrival,
+          ),
+        ) && !blocksFor(u.code).some((b) => b.dateFrom < departure && b.dateTo >= arrival),
+    );
     return {
-      arrivalDate: q.get('arrival'),
-      departureDate: q.get('departure'),
-      nights: 3,
+      arrivalDate: arrival,
+      departureDate: departure,
+      nights: Math.round((Date.parse(departure) - Date.parse(arrival)) / 86400000),
       byCategory: Object.fromEntries(
-        categories.map((c) => [
-          c.code,
-          {
-            units: c.count,
-            available: c.count,
-            availableUnitCodes: units
-              .filter((u) => u.accommodationTypeCode === c.code)
-              .map((u) => u.code),
-          },
-        ]),
+        categories.map((c) => {
+          const free = available.filter((u) => u.accommodationTypeCode === c.code);
+          return [
+            c.code,
+            { units: c.count, available: free.length, availableUnitCodes: free.map((u) => u.code) },
+          ];
+        }),
       ),
-      total: { units: 88, available: 88 },
+      total: { units: 88, available: available.length },
     };
-  if (path.startsWith('/reservations/')) return card;
-  if (path === '/guests') return [{ ...guest, staysCount: guest.stays.length, lastStay: today }];
-  if (path === '/guests/ui-guest') return guest;
+  }
+  if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
+  if (path === '/guests')
+    return [guest, ...extraGuests.values()]
+      .map((g) => getGuest(g.id)!)
+      .filter((g) =>
+        `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+          .toLocaleLowerCase('ru')
+          .includes((q.get('q') || '').toLocaleLowerCase('ru')),
+      )
+      .map((g) => ({
+        ...g,
+        staysCount: g.stays.length,
+        lastStay: g.stays[0]?.arrivalDate ?? null,
+      }));
+  if (path.startsWith('/guests/')) return getGuest(decodeURIComponent(path.split('/')[2]!));
   if (path.startsWith('/units/')) {
-    const u = units.find((u) => u.code === decodeURIComponent(path.split('/')[2]!)) ?? units[0]!;
+    const u = units.find((u) => u.code === decodeURIComponent(path.split('/')[2]!));
+    if (!u) return undefined;
     return {
       ...u,
       id: u.code,
       active: true,
-      housekeepingStatus: hkStatus,
-      blocks: unitBlocks,
-      stays: [
-        {
-          confirmationNumber: card.confirmationNumber,
-          startDate: today,
-          endDate: add(today, 3),
-          status: 'CONFIRMED',
-          guestLabel: 'Гость Тестовый',
-        },
-      ],
+      housekeepingStatus: housekeeping.get(u.code) ?? 'CLEAN',
+      blocks: blocksFor(u.code),
+      stays: allCards().flatMap((r) =>
+        r.items
+          .filter((it) => it.unitCode === u.code)
+          .map((it) => ({
+            confirmationNumber: r.confirmationNumber,
+            startDate: it.arrivalDate,
+            endDate: it.departureDate,
+            status: it.status,
+            guestLabel: r.primaryGuest?.label ?? 'Гость',
+          })),
+      ),
       housekeepingHistory: [],
     } satisfies UnitCard;
   }
@@ -526,7 +712,8 @@ function read(path: string, q: URLSearchParams): unknown {
       accommodationTypeCode: q.get('accommodationTypeCode'),
       ratePlanCode: 'BASE',
       currency: 'KZT',
-      capacityAdults: 2,
+      capacityAdults:
+        categories.find((c) => c.code === q.get('accommodationTypeCode'))?.capacityAdults ?? 1,
       days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date) => ({
         date,
         prices: {
@@ -543,7 +730,10 @@ function read(path: string, q: URLSearchParams): unknown {
         closedToDeparture: false,
       })),
     };
-  if (path.startsWith('/finance/reservations/')) return finance();
+  if (path.startsWith('/finance/reservations/')) {
+    const r = getCard(decodeURIComponent(path.split('/')[3]!));
+    return r ? finance(r) : undefined;
+  }
   if (path === '/finance/services')
     return [{ code: 'LAUNDRY', nameRu: 'Стирка', nameKz: null, priceMinor: '150000', group: null }];
   if (path === '/finance/report')
@@ -608,194 +798,285 @@ function read(path: string, q: URLSearchParams): unknown {
 }
 
 createServer(async (req, res) => {
-  const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
-  const path = url.pathname;
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(Buffer.from(chunk));
-  const body = chunks.length
-    ? (JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>)
-    : {};
-  const send = (status: number, data: unknown) => {
-    res.writeHead(status, {
-      'content-type': 'application/json',
-      'x-wetop-data-source': demo ? 'demo' : 'synthetic',
-    });
-    res.end(JSON.stringify(data));
-  };
-  if (path === '/health' && demo) return send(200, { demo: true });
-  if (demo && path.startsWith('/__test/')) return send(404, {});
-  if (path === '/__test/health') return send(200, { testOnly: true });
-  if (
-    !path.startsWith('/__test/') &&
-    req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
-  ) {
-    return send(403, { message: 'Fixture API is available only to the test runner' });
-  }
-  if (path === '/__test/reset') {
-    incident = structuredClone(incidentSeed);
-    card = cardSeed();
-    guest = structuredClone(guestSeed);
-    commands = [];
-    rejectCreate = false;
-    failPath = '';
-    emptyFixture = false;
-    hkStatus = 'CLEAN';
-    unitBlocks = [];
-    priceChanges = [];
-    site = structuredClone(siteSeed);
-    siteDeleted = false;
-    groupFixture = false;
-    paid = new Map();
-    return send(200, {});
-  }
-  if (path === '/__test/control') {
-    emptyFixture = body['empty'] === true;
-    groupFixture = body['group'] === true;
-    rejectCreate = body['rejectCreate'] === true;
-    failPath = String(body['failPath'] || '');
-    return send(200, {});
-  }
-  if (path === '/__test/commands') return send(200, commands);
-  if (path === failPath || failPath === '*')
-    return send(503, { message: 'Синтетический сбой API' });
-  if (path === '/hotel/reservations' && req.method === 'GET') {
-    const selected = desk(url.searchParams.get('from') || today);
-    const allRows = [...selected.arrivals, ...selected.departures, ...selected.inHouse];
-    const status = url.searchParams.get('status') || 'ALL';
-    const q = (url.searchParams.get('q') || '').toLocaleLowerCase('ru');
-    const rows = allRows
-      .filter(
-        (r) =>
-          (status === 'ALL' || r.status === status) &&
-          `${r.guestLabel} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
-      )
-      .map((r, i) => ({
-        confirmationNumber: r.confirmationNumber,
-        status: r.status,
-        source: i % 2 ? 'OTA' : 'DESK',
-        channel: i % 2 ? 'Booking.com' : null,
-        arrivalDate: r.arrivalDate,
-        departureDate: r.departureDate,
-        currency: 'KZT',
-        totalAmountMinor: '2400000',
-        paidMinor: '1600000',
-        balanceMinor: r.balanceMinor,
-        hasFolios: true,
-        unitCodes: r.unitCode ? [r.unitCode] : [],
-        primaryGuest: {
-          id: 'ui-guest',
-          label: r.guestLabel,
-          phone: null,
-          email: 'guest@example.invalid',
-        },
-      }));
-    return send(200, {
-      from: selected.date,
-      to: url.searchParams.get('to') || selected.date,
-      total: emptyFixture ? 0 : rows.length,
-      page: 1,
-      pageSize: 25,
-      rows: emptyFixture ? [] : rows,
-    });
-  }
-  if (req.method === 'GET') {
-    const result = read(path, url.searchParams);
-    return send(
-      result === undefined ? 404 : 200,
-      result ?? { message: `No UI fixture for ${path}` },
-    );
-  }
-  commands.push({ method: req.method || '', path, body });
-  if (path === '/units/R01/housekeeping') {
-    hkStatus = body['status'] as UnitCard['housekeepingStatus'];
-    return send(200, read('/units/R01', url.searchParams));
-  }
-  if (path === '/units/R01/blocks') {
-    unitBlocks.push({
-      id: 'ui-block',
-      dateFrom: String(body['dateFrom']),
-      dateTo: String(body['dateTo']),
-      type: String(body['type']),
-      reason: String(body['reason'] ?? ''),
-    });
-    return send(201, read('/units/R01', url.searchParams));
-  }
-  if (path === '/units/R01/blocks/ui-block' && req.method === 'DELETE') {
-    unitBlocks = [];
-    return send(200, read('/units/R01', url.searchParams));
-  }
-  if (path === '/rates/bulk') {
-    priceChanges.push(...(body['changes'] as typeof priceChanges));
-    return send(200, {
-      applied: (body['changes'] as unknown[]).length,
-      rateRows: 1,
-      restrictionRows: 0,
-    });
-  }
-  if (path === '/analytics/sites' && req.method === 'POST') {
-    site = { ...site, name: String(body['name']), hosts: body['hosts'] as string[] };
-    siteDeleted = false;
-    return send(201, read('/analytics/sites/ui-site', url.searchParams));
-  }
-  if (path === '/analytics/sites/ui-site') {
-    if (req.method === 'DELETE') {
-      siteDeleted = true;
-      return send(200, { deleted: true });
+  try {
+    const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
+    const path = url.pathname;
+    const chunks: Buffer[] = [];
+    for await (const chunk of req) chunks.push(Buffer.from(chunk));
+    const body = chunks.length
+      ? (JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>)
+      : {};
+    const send = (status: number, data: unknown) => {
+      res.writeHead(status, {
+        'content-type': 'application/json',
+        'x-wetop-data-source': demo ? 'demo' : 'synthetic',
+      });
+      res.end(JSON.stringify(data));
+    };
+    if (path === '/health' && demo) return send(200, { demo: true });
+    if (demo && path.startsWith('/__test/')) return send(404, {});
+    if (path === '/__test/health') return send(200, { testOnly: true });
+    if (
+      !path.startsWith('/__test/') &&
+      req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
+    ) {
+      return send(403, { message: 'Fixture API is available only to the test runner' });
     }
-    site = { ...site, ...body };
-    return send(200, read(path, url.searchParams));
-  }
-  if (path === '/channels/channex/pull')
-    return send(200, { received: 0, acknowledged: 0, outcomes: [] });
-  if (path === '/channels/channex/outbox/flush') return send(200, { sent: [], errors: [] });
-  if (path === '/channels/channex/sync')
-    return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
-  if (path === '/channels/channex/setup')
-    return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
-  if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
-  if (path === '/guard/incidents/ui-incident/acknowledge') {
-    incident.status = 'ACKNOWLEDGED';
-    incident.acknowledgedAt = new Date().toISOString();
-    return send(200, incident);
-  }
-  if (path === '/guard/incidents/ui-incident/resolve') {
-    incident.status = 'RESOLVED';
-    incident.resolvedBy = 'STAFF';
-    incident.resolvedAt = new Date().toISOString();
-    return send(200, incident);
-  }
-  if (path === '/finance/payments') {
-    try {
-      const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;
-      const allocations = rows.map((a) => ({
-        folioId: a.folioId,
-        amountMinor: parseMoney(a.amount),
-      }));
-      assertAllocationsMatch(parseMoney(String(body['amount'])), allocations);
-      for (const a of allocations) paid.set(a.folioId, (paid.get(a.folioId) ?? 0n) + a.amountMinor);
-      return send(201, finance());
-    } catch {
-      return send(422, { message: 'Сумма платежа и распределения должны совпадать' });
+    if (path === '/__test/reset') {
+      // A long browser run can cross midnight in the property's timezone.
+      today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+      incident = structuredClone(incidentSeed);
+      card = cardSeed();
+      guest = structuredClone(guestSeed);
+      commands = [];
+      rejectCreate = false;
+      failPath = '';
+      emptyFixture = false;
+      housekeeping.clear();
+      blocks.clear();
+      initializeRecords();
+      priceChanges = [];
+      site = structuredClone(siteSeed);
+      siteDeleted = false;
+      groupFixture = false;
+      paid = new Map();
+      paymentLines = [];
+      return send(200, {});
     }
+    if (path === '/__test/control') {
+      emptyFixture = body['empty'] === true;
+      groupFixture = body['group'] === true;
+      rejectCreate = body['rejectCreate'] === true;
+      failPath = String(body['failPath'] || '');
+      return send(200, {});
+    }
+    if (path === '/__test/commands') return send(200, commands);
+    if (path === failPath || failPath === '*')
+      return send(503, { message: 'Синтетический сбой API' });
+    if (path === '/hotel/reservations' && req.method === 'GET') {
+      const from = url.searchParams.get('from') || today,
+        to = url.searchParams.get('to') || from;
+      const status = url.searchParams.get('status') || 'ALL';
+      const q = (url.searchParams.get('q') || '').toLocaleLowerCase('ru');
+      const rows = allCards()
+        .filter(
+          (r) =>
+            r.arrivalDate <= to &&
+            r.departureDate >= from &&
+            (status === 'ALL' || r.status === status) &&
+            `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
+        )
+        .map((r) => ({
+          confirmationNumber: r.confirmationNumber,
+          status: r.status,
+          source: r.source,
+          channel: r.channel,
+          arrivalDate: r.arrivalDate,
+          departureDate: r.departureDate,
+          currency: r.currency,
+          totalAmountMinor: r.totalAmountMinor,
+          paidMinor: finance(r).paidMinor,
+          balanceMinor: finance(r).balanceMinor,
+          hasFolios: true,
+          unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
+          primaryGuest: r.primaryGuest
+            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+            : null,
+        }));
+      return send(200, {
+        from,
+        to,
+        total: emptyFixture ? 0 : rows.length,
+        page: 1,
+        pageSize: 25,
+        rows: emptyFixture ? [] : rows,
+      });
+    }
+    if (req.method === 'GET') {
+      const result = read(path, url.searchParams);
+      return send(
+        result === undefined ? 404 : 200,
+        result ?? { message: `No UI fixture for ${path}` },
+      );
+    }
+    commands.push({ method: req.method || '', path, body });
+    if (path.startsWith('/units/')) {
+      const [, , code, command, blockId] = path.split('/');
+      if (!units.some((u) => u.code === code)) return send(404, { message: 'Ячейка не найдена' });
+      if (command === 'housekeeping')
+        housekeeping.set(code!, body['status'] as UnitCard['housekeepingStatus']);
+      else if (command === 'blocks' && req.method === 'DELETE')
+        blocks.set(
+          code!,
+          blocksFor(code!).filter((b) => b.id !== blockId),
+        );
+      else if (command === 'blocks')
+        blocks.set(code!, [
+          ...blocksFor(code!),
+          {
+            id: blocksFor(code!).length ? `ui-block-${commands.length}` : 'ui-block',
+            dateFrom: String(body['dateFrom']),
+            dateTo: String(body['dateTo']),
+            type: String(body['type']),
+            reason: String(body['reason'] ?? ''),
+          },
+        ]);
+      else return send(404, { message: 'Операция не найдена' });
+      return send(200, read(`/units/${code}`, url.searchParams));
+    }
+    if (path === '/rates/bulk') {
+      priceChanges.push(...(body['changes'] as typeof priceChanges));
+      return send(200, {
+        applied: (body['changes'] as unknown[]).length,
+        rateRows: 1,
+        restrictionRows: 0,
+      });
+    }
+    if (path === '/analytics/sites' && req.method === 'POST') {
+      site = { ...site, name: String(body['name']), hosts: body['hosts'] as string[] };
+      siteDeleted = false;
+      return send(201, read('/analytics/sites/ui-site', url.searchParams));
+    }
+    if (path === '/analytics/sites/ui-site') {
+      if (req.method === 'DELETE') {
+        siteDeleted = true;
+        return send(200, { deleted: true });
+      }
+      site = { ...site, ...body };
+      return send(200, read(path, url.searchParams));
+    }
+    if (path === '/channels/channex/pull')
+      return send(200, { received: 0, acknowledged: 0, outcomes: [] });
+    if (path === '/channels/channex/outbox/flush') return send(200, { sent: [], errors: [] });
+    if (path === '/channels/channex/sync')
+      return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
+    if (path === '/channels/channex/setup')
+      return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
+    if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
+    if (path === '/guard/incidents/ui-incident/acknowledge') {
+      incident.status = 'ACKNOWLEDGED';
+      incident.acknowledgedAt = new Date().toISOString();
+      return send(200, incident);
+    }
+    if (path === '/guard/incidents/ui-incident/resolve') {
+      incident.status = 'RESOLVED';
+      incident.resolvedBy = 'STAFF';
+      incident.resolvedAt = new Date().toISOString();
+      return send(200, incident);
+    }
+    if (path === '/finance/payments') {
+      try {
+        const rows = body['allocations'] as Array<{ folioId: string; amount: string }>;
+        const allocations = rows.map((a) => ({
+          folioId: a.folioId,
+          amountMinor: parseMoney(a.amount),
+        }));
+        assertAllocationsMatch(parseMoney(String(body['amount'])), allocations);
+        for (const a of allocations) {
+          paid.set(a.folioId, (paid.get(a.folioId) ?? 0n) + a.amountMinor);
+          paymentLines.push({
+            folioId: a.folioId,
+            amountMinor: a.amountMinor.toString(),
+            method: String(body['method']),
+            note: typeof body['note'] === 'string' ? body['note'] : null,
+            id: `ui-payment-${commands.length}`,
+          });
+        }
+        return send(201, finance());
+      } catch {
+        return send(422, { message: 'Сумма платежа и распределения должны совпадать' });
+      }
+    }
+    if (path === '/reservations') {
+      if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
+      const r = cardSeed();
+      const g = {
+        ...structuredClone(guestSeed),
+        ...(body['guest'] as Record<string, unknown>),
+      } as GuestCard;
+      g.id = `ui-new-guest-${commands.length}`;
+      r.confirmationNumber = `20260913-NEW${commands.length}`;
+      r.arrivalDate = String(body['arrivalDate']);
+      r.departureDate = String(body['departureDate']);
+      r.source = String(body['source']);
+      r.notes = typeof body['notes'] === 'string' ? body['notes'] : null;
+      r.primaryGuest = {
+        id: g.id,
+        label: `${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim(),
+        citizenship: g.citizenship,
+        phone: g.phone,
+      };
+      const nights = Math.round(
+        (Date.parse(r.departureDate) - Date.parse(r.arrivalDate)) / 86400000,
+      );
+      const items = body['items'] as Array<{
+        accommodationTypeCode: string;
+        quantity: number;
+        adults: number;
+        unitCode: string | null;
+      }>;
+      r.items = items.flatMap((item, index) =>
+        Array.from({ length: item.quantity || 1 }, (_, position) => {
+          const category = categories.find((c) => c.code === item.accommodationTypeCode)!;
+          return {
+            ...cardSeed().items[0]!,
+            id: `${r.confirmationNumber}-${index}-${position}`,
+            accommodationTypeCode: category.code,
+            accommodationTypeName: category.name,
+            arrivalDate: r.arrivalDate,
+            departureDate: r.departureDate,
+            unitCode: item.unitCode,
+            adults: item.adults,
+            guests: [{ label: r.primaryGuest!.label, isPrimary: true }],
+            priceMinor: (800000n * BigInt(nights)).toString(),
+          };
+        }),
+      );
+      r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
+      r.adults = r.items.reduce((sum, it) => sum + it.adults, 0);
+      extraCards.set(r.confirmationNumber, r);
+      extraGuests.set(g.id, g);
+      return send(201, r);
+    }
+    if (path.startsWith('/guests/') && req.method === 'PATCH') {
+      const id = decodeURIComponent(path.split('/')[2]!);
+      const g = id === guest.id ? guest : extraGuests.get(id);
+      if (!g) return send(404, { message: 'Гость не найден' });
+      Object.assign(g, body);
+      for (const r of allCards().filter((r) => r.primaryGuest?.id === id)) {
+        const label = `${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim();
+        r.primaryGuest = { id, label, phone: g.phone, citizenship: g.citizenship };
+        for (const it of r.items) it.guests = [{ label, isPrimary: true }];
+      }
+      return send(200, getGuest(id));
+    }
+    if (path.startsWith('/reservations/')) {
+      const [, , number, , itemId, action] = path.split('/');
+      const r = getCard(decodeURIComponent(number!));
+      if (!r) return send(404, { message: 'Бронь не найдена' });
+      const item = r.items.find((it) => it.id === itemId);
+      if (item && action === 'check-in') {
+        item.status = 'CHECKED_IN';
+        r.status = 'CHECKED_IN';
+        return send(200, r);
+      }
+      if (item && req.method === 'PATCH') {
+        Object.assign(item, body);
+        return send(200, r);
+      }
+      if (req.method === 'PATCH' && !itemId && path.split('/').length === 3) {
+        Object.assign(r, body);
+        return send(200, r);
+      }
+    }
+    return send(501, {
+      message:
+        'Эта операция пока недоступна в демонстрации. Для работы с ней подключите основной API.',
+    });
+  } catch {
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Некорректный запрос к демонстрационному API' }));
   }
-  if (path === '/reservations') {
-    if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
-    return send(201, card);
-  }
-  if (path === '/guests/ui-guest' && req.method === 'PATCH') {
-    guest = { ...guest, ...body };
-    return send(200, guest);
-  }
-  if (path.startsWith('/reservations/') && path.endsWith('/check-in')) {
-    card.items[0]!.status = 'CHECKED_IN';
-    card.status = 'CHECKED_IN';
-    return send(200, card);
-  }
-  if (path.endsWith('/items/ui-item') && req.method === 'PATCH') {
-    card.items[0] = { ...card.items[0]!, ...body };
-    return send(200, card);
-  }
-  return send(501, { message: `Unsupported fixture command: ${req.method} ${path}` });
 }).listen(port, '127.0.0.1', () =>
   console.log(`WETOP ${demo ? 'demo' : 'test'} API on 127.0.0.1:${port} (no DB/providers)`),
 );

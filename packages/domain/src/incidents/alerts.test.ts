@@ -34,7 +34,9 @@ describe('alertDue', () => {
   });
 
   it('человек принял — больше не будить', () => {
-    expect(alertDue(c({ alertedAt: at(3), acknowledgedAt: at(3, 5), status: 'ACKNOWLEDGED' }), at(4))).toBe(false);
+    expect(
+      alertDue(c({ alertedAt: at(3), acknowledgedAt: at(3, 5), status: 'ACKNOWLEDGED' }), at(4)),
+    ).toBe(false);
   });
 
   it('WARNING ночью ждёт утра, днём уходит сразу и один раз', () => {
@@ -58,7 +60,14 @@ describe('formatAlert', () => {
     const text = formatAlert(
       [
         c(),
-        c({ id: 'i-2', kind: 'outbox.failed', severity: 'CRITICAL', title: 'Остатки не ушли в Channex', fixAttempts: 2, lastFixResult: 'полная выгрузка: HTTP 503' }),
+        c({
+          id: 'i-2',
+          kind: 'outbox.failed',
+          severity: 'CRITICAL',
+          title: 'Остатки не ушли в Channex',
+          fixAttempts: 2,
+          lastFixResult: 'полная выгрузка: HTTP 503',
+        }),
       ],
       at(3),
     );
@@ -69,7 +78,9 @@ describe('formatAlert', () => {
   });
 
   it('длинный список обрезается, чтобы уложиться в одно сообщение', () => {
-    const many = Array.from({ length: 40 }, (_, i) => c({ id: `i-${i}`, title: `Неисправность номер ${i} `.repeat(10) }));
+    const many = Array.from({ length: 40 }, (_, i) =>
+      c({ id: `i-${i}`, title: `Неисправность номер ${i} `.repeat(10) }),
+    );
     const text = formatAlert(many, at(3));
     expect(text.length).toBeLessThanOrEqual(4000);
     expect(text).toMatch(/ещё \d+/);

@@ -96,6 +96,36 @@ export function assessWebhook(input: {
   return { suspect: false, since: null, reason: null, kind: null };
 }
 
+/**
+ * Дошёл ли запрос до нашего API, по коду ответа на пробу адреса webhook.
+ *
+ * Код ниже 500 отдаёт наше приложение: на GET по пути webhook это 404, и он означает, что адрес жив.
+ * Коды 5xx на быстром туннеле отдаёт сам Cloudflare, когда до приложения запрос не дошёл: 530 — туннель
+ * за адресом мёртв (ошибка 1033), 502–504 и 520–527 — источник не отвечает. Проверено 13.09.2026:
+ * старый адрес после перезапуска туннеля отвечал 530, пока DNS-запись ещё не удалена. Раньше правило
+ * считало живым любой ответ и такой адрес пропускало — ровно тот случай, ради которого проба делалась.
+ */
+export function callbackAnswered(status: number): boolean {
+  return status > 0 && status < 500;
+}
+
+/**
+ * Результат пробы говорит о зарегистрированном адресе, только если пробовали именно его.
+ *
+ * Сторож спрашивает адрес у Channex раз в пять минут, а туннель перезапускается когда угодно и сразу
+ * перерегистрирует webhook. 13.09.2026 так и вышло: проба в 12:21:23 застала старый адрес живым, через
+ * десять секунд в Channex стоял уже новый, а старый отвечал 530. Статус показывал бы «отвечает» рядом с
+ * чужим адресом — поэтому до следующей пробы результат для нового адреса неизвестен.
+ */
+export function reachabilityForRegistered(input: {
+  registeredUrl: string | null;
+  probedUrl: string | null;
+  reachable: boolean | null;
+}): boolean | null {
+  if (!input.registeredUrl || !input.probedUrl) return null;
+  return input.registeredUrl === input.probedUrl ? input.reachable : null;
+}
+
 /** Под подозрением ленту опрашиваем чаще, чем страховочные 5 минут */
 export function pullDelayMs(input: { suspect: boolean; baseMs: number; fastMs: number }): number {
   return input.suspect ? input.fastMs : input.baseMs;

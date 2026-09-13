@@ -14,6 +14,7 @@ const sections: Array<{ href: string; label: string; icon: IconName; group: stri
   { href: '/inventory', label: 'Номерной фонд', icon: 'inventory', group: 'Управление' },
   { href: '/channels', label: 'Каналы', icon: 'channels', group: 'Управление' },
   { href: '/analytics', label: 'Аналитика', icon: 'analytics', group: 'Управление' },
+  { href: '/incidents', label: 'Неисправности', icon: 'incidents', group: 'Система' },
   { href: '/journal', label: 'Журнал', icon: 'journal', group: 'Система' },
   { href: '/analytics/setup', label: 'Настройки сайта', icon: 'settings', group: 'Система' },
 ];

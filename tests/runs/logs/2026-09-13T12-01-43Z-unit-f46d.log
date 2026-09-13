@@ -1,0 +1,18 @@
+# Модульные (unit) · 13.09.2026 17:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 34883f7 (main), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-01-43Z-unit-f46d.json' 'apps/api/src/guard'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+[Nest] 24292  - 09/13/2026, 5:01:44 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 24292  - 09/13/2026, 5:01:44 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (11 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  05:01:44
+   Duration  343ms (transform 50%, import 46%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-01-43Z-unit-f46d.json
+
+# код выхода 0 · 1 с

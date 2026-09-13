@@ -30,14 +30,28 @@ describe('classifyError', () => {
 
 describe('latestReportResults', () => {
   it('берёт последний отчёт каждого вида и его RESULT', () => {
-    const files = ['double-entry-2026-09-12.md', 'double-entry-2026-09-13.md', 'rates-2026-09-09.md', 'readme.md'];
+    const files = [
+      'double-entry-2026-09-12.md',
+      'double-entry-2026-09-13.md',
+      'rates-2026-09-09.md',
+      'readme.md',
+    ];
     const text: Record<string, string> = {
       'double-entry-2026-09-13.md': 'заезды 23/23\n**RESULT: FAIL** — три проживания без ячейки',
       'rates-2026-09-09.md': 'RESULT: PASS',
     };
-    const r = latestReportResults(files, ['double-entry', 'rates', 'balances'], (f) => text[f] ?? '');
+    const r = latestReportResults(
+      files,
+      ['double-entry', 'rates', 'balances'],
+      (f) => text[f] ?? '',
+    );
     expect(r).toEqual([
-      { kind: 'double-entry', file: 'double-entry-2026-09-13.md', result: 'FAIL', line: '**RESULT: FAIL** — три проживания без ячейки' },
+      {
+        kind: 'double-entry',
+        file: 'double-entry-2026-09-13.md',
+        result: 'FAIL',
+        line: '**RESULT: FAIL** — три проживания без ячейки',
+      },
       { kind: 'rates', file: 'rates-2026-09-09.md', result: 'PASS', line: 'RESULT: PASS' },
     ]);
   });
@@ -45,7 +59,13 @@ describe('latestReportResults', () => {
 
 describe('failingSuites', () => {
   const row = (suite: string, status: string, startedAt: string, args: string[] = []) =>
-    JSON.stringify({ suite, status, startedAt, args, failures: status === 'failed' ? [{ name: 't', file: 'a.test.ts', message: 'boom' }] : [] });
+    JSON.stringify({
+      suite,
+      status,
+      startedAt,
+      args,
+      failures: status === 'failed' ? [{ name: 't', file: 'a.test.ts', message: 'boom' }] : [],
+    });
 
   it('набор падает, если его последний ПОЛНЫЙ прогон красный', () => {
     const jsonl = [

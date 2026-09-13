@@ -10,6 +10,7 @@ const paths = {
   inventory: 'M3 21V3h12v18 M15 9h6v12 M7 7h4 M7 11h4 M7 15h4 M7 21v-3h4v3',
   channels: 'M12 3v6 M5 15v-3h14v3 M12 9v3 M2 15h6v6H2z M16 15h6v6h-6z M9 3h6',
   journal: 'M6 3h14v18H6z M3 7h5 M3 12h5 M3 17h5 M11 8h5 M11 12h5 M11 16h3',
+  incidents: 'M12 3 2 21h20L12 3z M12 9v5 M12 17h.01',
   analytics: 'M4 3v18h17 M8 16v-5 M13 16V6 M18 16v-8',
   search: 'M10.5 3a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15 M16 16l5 5',
   plus: 'M12 5v14 M5 12h14',

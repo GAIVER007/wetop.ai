@@ -22,7 +22,9 @@ describe('redactText', () => {
   });
 
   it('UUID и номера броней оставляет — по ним разбирают неисправность', () => {
-    const t = redactText('ревизия 69a1b03d-7518-45fc-b890-0a6bbc7760b2, бронь 20260912-513903-1263604791');
+    const t = redactText(
+      'ревизия 69a1b03d-7518-45fc-b890-0a6bbc7760b2, бронь 20260912-513903-1263604791',
+    );
     expect(t).toContain('69a1b03d-7518-45fc-b890-0a6bbc7760b2');
     expect(t).toContain('20260912-513903-1263604791');
   });
@@ -49,7 +51,10 @@ describe('redactDetails', () => {
   });
 
   it('глубокие и длинные структуры обрезаются', () => {
-    const deep = { a: { b: { c: { d: { e: { f: 1 } } } } }, list: Array.from({ length: 100 }, (_, i) => i) };
+    const deep = {
+      a: { b: { c: { d: { e: { f: 1 } } } } },
+      list: Array.from({ length: 100 }, (_, i) => i),
+    };
     const d = redactDetails(deep) as { list: unknown[] };
     expect(d.list.length).toBeLessThanOrEqual(21);
     expect(JSON.stringify(d)).not.toContain('"f":1');

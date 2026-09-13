@@ -40,10 +40,19 @@ export function latestReportResults(
 ): ReportResult[] {
   const out: ReportResult[] = [];
   for (const kind of kinds) {
-    const re = new RegExp(`^${kind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-\\d{4}-\\d{2}-\\d{2}\\.md$`);
-    const file = files.filter((f) => re.test(f)).sort().at(-1);
+    const re = new RegExp(
+      `^${kind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-\\d{4}-\\d{2}-\\d{2}\\.md$`,
+    );
+    const file = files
+      .filter((f) => re.test(f))
+      .sort()
+      .at(-1);
     if (!file) continue;
-    const line = read(file).split('\n').find((l) => /RESULT/.test(l))?.trim() ?? null;
+    const line =
+      read(file)
+        .split('\n')
+        .find((l) => /RESULT/.test(l))
+        ?.trim() ?? null;
     const result = line ? (/FAIL/.test(line) ? 'FAIL' : /PASS/.test(line) ? 'PASS' : null) : null;
     out.push({ kind, file, result, line });
   }
@@ -62,15 +71,35 @@ export interface FailingSuite {
  * Частичный (с аргументами) и прерванный прогоны набор не доказывают — ни в плюс, ни в минус.
  */
 export function failingSuites(jsonl: string): FailingSuite[] {
-  const last = new Map<string, { status: string; startedAt: string; failures: Array<{ file?: string | null; message?: string }> }>();
+  const last = new Map<
+    string,
+    {
+      status: string;
+      startedAt: string;
+      failures: Array<{ file?: string | null; message?: string }>;
+    }
+  >();
   for (const raw of jsonl.split('\n')) {
-    let r: { suite?: string; status?: string; startedAt?: string; args?: unknown[]; failures?: Array<{ file?: string | null; message?: string }> };
+    let r: {
+      suite?: string;
+      status?: string;
+      startedAt?: string;
+      args?: unknown[];
+      failures?: Array<{ file?: string | null; message?: string }>;
+    };
     try {
       r = JSON.parse(raw);
     } catch {
       continue;
     }
-    if (!r.suite || !r.startedAt || !r.status || (r.args?.length ?? 0) > 0 || r.status === 'interrupted') continue;
+    if (
+      !r.suite ||
+      !r.startedAt ||
+      !r.status ||
+      (r.args?.length ?? 0) > 0 ||
+      r.status === 'interrupted'
+    )
+      continue;
     const prev = last.get(r.suite);
     if (!prev || r.startedAt >= prev.startedAt)
       last.set(r.suite, { status: r.status, startedAt: r.startedAt, failures: r.failures ?? [] });
@@ -81,7 +110,9 @@ export function failingSuites(jsonl: string): FailingSuite[] {
       suite,
       startedAt: r.startedAt,
       failures: r.failures.length,
-      first: r.failures[0] ? `${r.failures[0].file ?? '?'}: ${r.failures[0].message ?? ''}`.trim() : null,
+      first: r.failures[0]
+        ? `${r.failures[0].file ?? '?'}: ${r.failures[0].message ?? ''}`.trim()
+        : null,
     }));
 }
 
@@ -112,7 +143,8 @@ export function overbookedNights(input: {
         (b) => b.accommodationTypeCode === u.code && b.dateFrom <= date && date < b.dateTo,
       ).length;
       const sold = input.items.filter(
-        (i) => i.accommodationTypeCode === u.code && i.arrivalDate <= date && date < i.departureDate,
+        (i) =>
+          i.accommodationTypeCode === u.code && i.arrivalDate <= date && date < i.departureDate,
       ).length;
       const capacity = Math.max(0, u.active - blocked);
       if (sold > capacity) out.push({ code: u.code, date, capacity, sold });

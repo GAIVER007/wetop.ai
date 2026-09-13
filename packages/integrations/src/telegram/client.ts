@@ -13,7 +13,10 @@ const TIMEOUT_MS = 10_000;
 const MAX_RETRY_AFTER_S = 30;
 
 export class TelegramApiError extends Error {
-  constructor(message: string, readonly status: number) {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
     super(message);
     this.name = 'TelegramApiError';
   }
@@ -42,7 +45,9 @@ interface TelegramResponse {
 }
 
 /** Будильник настроен, только если владелец вписал и токен, и хотя бы один чат (SECURITY.md §3). */
-export function telegramConfigFromEnv(env: Record<string, string | undefined>): TelegramConfig | null {
+export function telegramConfigFromEnv(
+  env: Record<string, string | undefined>,
+): TelegramConfig | null {
   const token = env.TELEGRAM_BOT_TOKEN?.trim();
   const chatIds = (env.TELEGRAM_CHAT_ID ?? '')
     .split(',')
@@ -94,7 +99,10 @@ export class TelegramClient {
       await this.sleep(wait * 1000);
       return this.send(chatId, text, true);
     }
-    throw new TelegramApiError(`HTTP ${res.status}: ${json.description ?? 'без описания'}`, res.status);
+    throw new TelegramApiError(
+      `HTTP ${res.status}: ${json.description ?? 'без описания'}`,
+      res.status,
+    );
   }
 
   private hideToken(message: string): string {

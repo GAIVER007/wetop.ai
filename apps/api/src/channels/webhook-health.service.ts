@@ -10,7 +10,7 @@ import {
 import { PROVIDER } from './ari-publisher';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { InboundBookingsService } from './inbound.service';
-import { assessWebhook, type WebhookHealth } from './schedule';
+import { assessWebhook, callbackAnswered, type WebhookHealth } from './schedule';
 import { ChannexSyncService } from './sync.service';
 
 export interface WebhookHealthSnapshot {
@@ -34,9 +34,9 @@ export const PROBE_EVERY_MS = 5 * 60_000;
 export const PROBE_TIMEOUT_MS = 5_000;
 
 /**
- * Адрес считается живым при любом ответе сервера, даже 404: webhook принимает только POST,
- * и 404 на GET означает, что запрос дошёл до нас. Провал — это отказ сети: хост не резолвится,
- * соединение не встаёт, ответа нет за отведённое время. Ровно так умирает быстрый туннель.
+ * Живой адрес — это ответ нашего приложения: webhook принимает только POST, и 404 на GET означает,
+ * что запрос дошёл до нас. Мёртвый — отказ сети (хост не резолвится, соединение не встаёт, ответа нет
+ * за отведённое время) или ответ самого Cloudflare с кодом 5xx, когда туннель за адресом уже умер.
  */
 async function httpProbe(url: string, timeoutMs: number): Promise<boolean> {
   try {
@@ -45,7 +45,7 @@ async function httpProbe(url: string, timeoutMs: number): Promise<boolean> {
       redirect: 'manual',
       signal: AbortSignal.timeout(timeoutMs),
     });
-    return res.status > 0;
+    return callbackAnswered(res.status);
   } catch {
     return false;
   }

@@ -18,6 +18,7 @@
 Версия: 1.0 (утверждена 07.09.2026, кроме §6)
 v1.1 (12.09.2026): §11 «Аналитика сайта» — принят владельцем 12.09.2026 («давай внедряй»), реализован: миграция `20260912000009_web_analytics`
 v1.2 (12.09.2026, вечер): §11 дополнен бронированием с сайта (срез 9, ADR-026) — миграция `20260912000010_web_booking`
+v1.3 (13.09.2026): §3 `citizenship` и `GuestDocument.issue_country` — `VARCHAR(3)` + CHECK alpha-3 вместо `CHAR(3)` (Q-117, поручение владельца «делай сам»; миграцию применил владелец) — миграция `20260913000011_citizenship_alpha3`
 v1.4 (13.09.2026): §12 «Неисправности системы» — принят владельцем 13.09.2026 («делай» на план `plans/slice-11-guardian.md`, развилка D1 — таблица), ADR-028 — миграция `20260913000012_system_incidents`
 Дата: 2026-09-07
 
@@ -851,7 +852,7 @@ props                 jsonb ≤ 2 КБ, ключи только из allow-list 
 ```
 id
 kind              вид неисправности: webhook.suspect | webhook.unreachable | feed.stale |
-                  outbox.failed | outbox.stuck | event.failed | sync.missing | db.down |
+                  outbox.failed | outbox.stuck | event.failed | event.rejected | sync.missing | db.down |
                   stay.overbooked | stay.unassigned | api.error | reconciliation.fail | tests.failing
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката

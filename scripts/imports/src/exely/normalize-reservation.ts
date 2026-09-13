@@ -5,6 +5,7 @@
  * из идентификаторов комнат ничего не выводится — только явная карта roomId → № единицы Exely.
  */
 import { normalizeCitizenship } from '@pms/domain';
+import { blankToNull } from '@pms/shared';
 import { ExelyImportError } from './errors';
 
 export interface ExelyMoney {
@@ -269,8 +270,9 @@ export function normalizeExelyReservation(
       // Exely отдаёт пустой citizenshipCode строкой; в CHAR(3) она стала бы '   ' (наблюдение 12.09.2026)
       citizenship: normalizeCitizenship(c.citizenship),
       gender: mapGender(c.gender),
-      email: c.emails?.[0]?.address ?? null,
-      phone: c.phones?.[0]?.number ?? null,
+      // пустые контакты Exely отдаёт строкой; на dev их скрывает анонимизация, в боевом режиме легли бы как ''
+      email: blankToNull(c.emails?.[0]?.address),
+      phone: blankToNull(c.phones?.[0]?.number),
       notes: null,
     },
     items,

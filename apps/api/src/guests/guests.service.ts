@@ -7,7 +7,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { normalizeCitizenship } from '@pms/domain';
-import { PiiKeyMissingError, decryptPii, encryptPii, maskNumber } from '@pms/shared';
+import { PiiKeyMissingError, blankToNull, decryptPii, encryptPii, maskNumber } from '@pms/shared';
 import { GUESTS_REPOSITORY, type GuestPatch, type GuestsRepository } from './guests.repository';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -67,13 +67,12 @@ export class GuestsService {
     const str = (k: keyof GuestPatch, required = false) => {
       const v = dto[k];
       if (v === undefined) return;
-      if (v === null || v === '') {
-        if (required) throw new BadRequestException(`${k} обязательно`);
-        (patch as Record<string, unknown>)[k] = null;
-        return;
-      }
-      if (typeof v !== 'string') throw new BadRequestException(`${k} — строка`);
-      (patch as Record<string, unknown>)[k] = v.trim();
+      if (v !== null && typeof v !== 'string') throw new BadRequestException(`${k} — строка`);
+      // Пустоту проверяем ПОСЛЕ обрезки: иначе имя '   ' обходило «обязательно» и сохранялось пустым,
+      // а необязательное поле ложилось пустой строкой вместо NULL
+      const value = blankToNull(v);
+      if (value === null && required) throw new BadRequestException(`${k} обязательно`);
+      (patch as Record<string, unknown>)[k] = value;
     };
     str('firstName', true);
     str('lastName', true);

@@ -14,6 +14,7 @@
  * а исходные ФИО и телефон никуда не записываются.
  */
 import { createHmac } from 'node:crypto';
+import { blankToNull } from './text';
 
 export interface GuestIdentity {
   firstName: string;
@@ -75,7 +76,9 @@ export function guestForStorage(
   key: string,
   env: NodeJS.ProcessEnv = process.env,
 ): GuestIdentity & { phone: string | null; email: string | null } {
-  if (realPiiAllowed(env))
-    return { ...guest, phone: guest.phone ?? null, email: guest.email ?? null };
-  return pseudonymizeGuest(guest, key, pseudonymSalt(env));
+  // До выбора режима: пустой контакт от канала не должен ни лечь пустой строкой (real),
+  // ни превратиться в выдуманный номер у псевдонима — '   ' истинна в JS
+  const contacts = { ...guest, phone: blankToNull(guest.phone), email: blankToNull(guest.email) };
+  if (realPiiAllowed(env)) return contacts;
+  return pseudonymizeGuest(contacts, key, pseudonymSalt(env));
 }

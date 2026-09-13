@@ -15,7 +15,9 @@ describe('полная выгрузка со стойки', () => {
     const calls: string[] = [];
     vi.stubGlobal('fetch', async (url: string) => {
       calls.push(String(url));
-      return new Response(JSON.stringify({ from: '2026-09-13', to: '2028-01-25', tasks: [] }), { status: 200 });
+      return new Response(JSON.stringify({ from: '2026-09-13', to: '2028-01-25', tasks: [] }), {
+        status: 200,
+      });
     });
     await channelsApi.sync();
     expect(calls).toHaveLength(1);

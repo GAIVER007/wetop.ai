@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { assessWebhook, isFullSyncDue, pullDelayMs, type WebhookHealth } from './schedule';
+import {
+  assessWebhook,
+  callbackAnswered,
+  isFullSyncDue,
+  reachabilityForRegistered,
+  pullDelayMs,
+  type WebhookHealth,
+} from './schedule';
 
 const utc = (s: string) => new Date(s);
 const calm: WebhookHealth = { suspect: false, since: null, reason: null };
@@ -216,6 +223,54 @@ describe('assessWebhook — зарегистрированный адрес не
       callbackReachable: false,
     });
     expect(later.since?.toISOString()).toBe('2026-09-13T09:00:00.000Z');
+  });
+});
+
+describe('callbackAnswered — дошёл ли запрос до нашего API', () => {
+  it('ответ нашего приложения — адрес жив: 404 на GET, 405, 401', () => {
+    expect(callbackAnswered(404)).toBe(true);
+    expect(callbackAnswered(405)).toBe(true);
+    expect(callbackAnswered(401)).toBe(true);
+    expect(callbackAnswered(200)).toBe(true);
+  });
+  it('530 — Cloudflare отвечает сам, туннель за адресом мёртв', () => {
+    expect(callbackAnswered(530)).toBe(false);
+  });
+  it('502, 503, 504 и 52x — запрос до приложения не дошёл', () => {
+    for (const code of [502, 503, 504, 520, 521, 522, 523, 524])
+      expect(callbackAnswered(code)).toBe(false);
+  });
+  it('нет ответа вовсе — мёртв', () => {
+    expect(callbackAnswered(0)).toBe(false);
+  });
+});
+
+describe('reachabilityForRegistered — результат пробы относится к зарегистрированному адресу', () => {
+  const url = 'https://hockey.trycloudflare.com/channels/channex/webhook';
+  it('пробовали тот же адрес — отдаём результат пробы', () => {
+    expect(reachabilityForRegistered({ registeredUrl: url, probedUrl: url, reachable: true })).toBe(
+      true,
+    );
+    expect(
+      reachabilityForRegistered({ registeredUrl: url, probedUrl: url, reachable: false }),
+    ).toBe(false);
+  });
+  it('туннель перезапустили, в Channex уже новый адрес — прежняя проба про него ничего не знает', () => {
+    expect(
+      reachabilityForRegistered({
+        registeredUrl: url,
+        probedUrl: 'https://doom.trycloudflare.com/channels/channex/webhook',
+        reachable: true,
+      }),
+    ).toBeNull();
+  });
+  it('ещё не пробовали или webhook не зарегистрирован — неизвестно', () => {
+    expect(
+      reachabilityForRegistered({ registeredUrl: url, probedUrl: null, reachable: null }),
+    ).toBeNull();
+    expect(
+      reachabilityForRegistered({ registeredUrl: null, probedUrl: url, reachable: true }),
+    ).toBeNull();
   });
 });
 

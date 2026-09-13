@@ -14,6 +14,7 @@ import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { PROVIDER } from './ari-publisher';
 import { ChannexSyncService } from './sync.service';
+import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 
@@ -70,7 +71,17 @@ export class ChannelsController {
   async webhookStatus() {
     // Регистрация в Channex + сторож: когда webhook доставлял последний раз и не под подозрением ли он
     const status = await this.sync.webhookStatus();
-    return { ...status, ...this.health.snapshot() };
+    const health = this.health.snapshot();
+    return {
+      ...status,
+      ...health,
+      // проба могла застать прежний адрес туннеля — тогда о текущем она ничего не говорит
+      callbackReachable: reachabilityForRegistered({
+        registeredUrl: status.callbackUrl,
+        probedUrl: health.callbackProbedUrl,
+        reachable: health.callbackReachable,
+      }),
+    };
   }
 
   @Post('webhook/register')

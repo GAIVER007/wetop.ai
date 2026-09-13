@@ -5,9 +5,15 @@ import { expect, test } from '@playwright/test';
  * по умолчанию. Гость вымышленный, бронь помечена для уборки.
  */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+/*
+ * Свой отрезок будущих суток. Два спека на одних ночях дерутся за одни и те же койки:
+ * прогон в два воркера падал то на одном тесте, то на другом, а поодиночке был зелёным.
+ * Карта отрезков — tests/README.md, раздел «Окна дат». Новый спек — новый отрезок.
+ */
+const BASE = 10;
 const plus = (n: number) => {
   const x = new Date(`${today}T00:00:00Z`);
-  x.setUTCDate(x.getUTCDate() + n);
+  x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
 const money = (s: string) => Number(s.replace(/[^\d,]/g, '').replace(',', '.'));

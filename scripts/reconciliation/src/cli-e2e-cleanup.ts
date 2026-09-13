@@ -112,6 +112,17 @@ try {
   console.log(
     `Блоков соседних ночей от тестовых броней: ${staleBlocks.length}${dry ? '' : ' — сняты'}`,
   );
+  // Блокировки, которые ставит сам спек unit-blocks. Если прогон сорвался между «заблокировать» и
+  // «снять», блок остаётся навсегда и койка перестаёт продаваться: 13.09 так нашлись три блока на
+  // койке 5 на шесть ночей. Метка та же, что у броней, — по ней и убираем.
+  const ownBlocks = await db.inventoryBlock.findMany({
+    where: { reason: { startsWith: E2E_NOTE } },
+    select: { id: true },
+  });
+  if (ownBlocks.length && !dry)
+    await db.inventoryBlock.deleteMany({ where: { id: { in: ownBlocks.map((b) => b.id) } } });
+  console.log(`Блокировок от автотестов: ${ownBlocks.length}${dry ? '' : ' — сняты'}`);
+  if (ownBlocks.length && freed === 0 && !dry) freed = 1;
   if (staleBlocks.length && freed === 0 && !dry) freed = 1; // чтобы ниже ушла полная выгрузка остатков
   // Гашение в базе идёт мимо очереди дельт, и канал об этом не узнаёт до полной выгрузки (найдено
   // сверкой 11.09: мужской дом 19 против 18 в Channex). Поэтому после уборки просим полную выгрузку сами;

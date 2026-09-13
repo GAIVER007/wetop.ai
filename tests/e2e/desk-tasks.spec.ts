@@ -8,9 +8,15 @@ import { expect, test } from '@playwright/test';
  *  — переселение в другую категорию пересчитывает проживание по календарю новой категории.
  */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+/*
+ * Свой отрезок будущих суток. Два спека на одних ночях дерутся за одни и те же койки:
+ * прогон в два воркера падал то на одном тесте, то на другом, а поодиночке был зелёным.
+ * Карта отрезков — tests/README.md, раздел «Окна дат». Новый спек — новый отрезок.
+ */
+const BASE = 6;
 const plus = (n: number) => {
   const x = new Date(`${today}T00:00:00Z`);
-  x.setUTCDate(x.getUTCDate() + n);
+  x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
 const DORM = 'exely-5074688';
@@ -50,7 +56,9 @@ test('стойка: занятую койку не продать дважды, 
   // вторая вкладка выбирает ту же койку: её список составлен до создания первой брони
   const secondForm = second.getByTestId('new-reservation-form');
   await secondForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
-  await expect(secondForm.locator(`select[name="unitCode"] option[value="${unit}"]`)).toHaveCount(1);
+  await expect(secondForm.locator(`select[name="unitCode"] option[value="${unit}"]`)).toHaveCount(
+    1,
+  );
 
   await fill(page, 'Тест-первый', unit);
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

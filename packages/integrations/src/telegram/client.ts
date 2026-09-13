@@ -109,3 +109,74 @@ export class TelegramClient {
     return message.split(this.opts.token).join('<токен>');
   }
 }
+
+/** Чат, в который можно слать будильник: номер для TELEGRAM_CHAT_ID, тип и название. Текст сообщений не нужен. */
+export interface TelegramChatRef {
+  id: string;
+  type: string;
+  title: string;
+}
+
+interface UpdateChat {
+  id: number | string;
+  type?: string;
+  title?: string;
+}
+type Update = {
+  update_id?: number;
+  message?: { chat?: UpdateChat };
+  edited_message?: { chat?: UpdateChat };
+  channel_post?: { chat?: UpdateChat };
+  my_chat_member?: { chat?: UpdateChat; new_chat_member?: { status?: string } };
+};
+
+/**
+ * Какие чаты видит бот (docs/telegram/README.md: `getUpdates` → `message.chat.id`; добавление бота в группу
+ * приходит как `my_chat_member`). Порядок — по первому появлению; группа, откуда бота удалили, не предлагается.
+ */
+export function chatsFromUpdates(updates: unknown[]): TelegramChatRef[] {
+  const byId = new Map<string, TelegramChatRef | null>();
+  for (const raw of updates as Update[]) {
+    const member = raw.my_chat_member;
+    const chat =
+      member?.chat ?? raw.message?.chat ?? raw.edited_message?.chat ?? raw.channel_post?.chat;
+    if (!chat || chat.id === undefined) continue;
+    const id = String(chat.id);
+    const gone = member && ['left', 'kicked'].includes(member.new_chat_member?.status ?? '');
+    byId.set(
+      id,
+      gone
+        ? null
+        : {
+            id,
+            type: chat.type ?? '?',
+            title: chat.type === 'private' ? 'личный чат' : (chat.title ?? '—'),
+          },
+    );
+  }
+  return [...byId.values()].filter((c): c is TelegramChatRef => c !== null);
+}
+
+/** Последние обновления бота — только чтобы найти номер чата (не работает, если у бота настроен webhook). */
+export async function telegramGetUpdates(
+  token: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<unknown[]> {
+  let res: Response;
+  try {
+    res = await fetchFn(`${BASE}/bot${token}/getUpdates`, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (e) {
+    throw new TelegramApiError(`сеть — ${(e as Error).message.split(token).join('<токен>')}`, 0);
+  }
+  const json = (await res.json().catch(() => ({ ok: false }))) as TelegramResponse & {
+    result?: unknown[];
+  };
+  if (!res.ok || !json.ok)
+    throw new TelegramApiError(
+      `HTTP ${res.status}: ${json.description ?? 'без описания'}`,
+      res.status,
+    );
+  return json.result ?? [];
+}

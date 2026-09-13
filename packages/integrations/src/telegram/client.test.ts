@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { TelegramApiError, TelegramClient, telegramConfigFromEnv } from './client';
+import {
+  TelegramApiError,
+  TelegramClient,
+  chatsFromUpdates,
+  telegramConfigFromEnv,
+} from './client';
 
 /** Будильник сторожа (срез 11). Форма запросов и ответов — docs/telegram/README.md. */
 type Call = { url: string; init: RequestInit };
@@ -106,5 +111,57 @@ describe('telegramConfigFromEnv', () => {
       token: TOKEN,
       chatIds: ['111', '-222'],
     });
+  });
+});
+
+describe('chatsFromUpdates — где взять TELEGRAM_CHAT_ID', () => {
+  it('группа, куда добавили бота, и личный чат — номер, тип и название, без текста сообщений', () => {
+    const updates = [
+      {
+        update_id: 1,
+        my_chat_member: {
+          chat: { id: -1001234567890, type: 'supergroup', title: 'Luxx дежурные' },
+          new_chat_member: { status: 'member' },
+        },
+      },
+      {
+        update_id: 2,
+        message: {
+          chat: { id: 111, type: 'private', first_name: 'Тест' },
+          text: 'секретный текст',
+        },
+      },
+      {
+        update_id: 3,
+        message: {
+          chat: { id: -1001234567890, type: 'supergroup', title: 'Luxx дежурные' },
+          text: '/start',
+        },
+      },
+      {
+        update_id: 4,
+        edited_message: { chat: { id: -42, type: 'group', title: 'Старая группа' } },
+      },
+    ];
+    const chats = chatsFromUpdates(updates);
+    expect(chats).toEqual([
+      { id: '-1001234567890', type: 'supergroup', title: 'Luxx дежурные' },
+      { id: '111', type: 'private', title: 'личный чат' },
+      { id: '-42', type: 'group', title: 'Старая группа' },
+    ]);
+    expect(JSON.stringify(chats)).not.toContain('секретный');
+  });
+
+  it('бота удалили из группы — группа не предлагается', () => {
+    const chats = chatsFromUpdates([
+      {
+        update_id: 1,
+        my_chat_member: {
+          chat: { id: -5, type: 'group', title: 'Ушёл' },
+          new_chat_member: { status: 'left' },
+        },
+      },
+    ]);
+    expect(chats).toEqual([]);
   });
 });

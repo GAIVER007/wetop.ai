@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1440,
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    },
+    "violations": []
+  },
+  {
+    "width": 1024,
+    "layout": {
+      "viewport": 1024,
+      "content": 1024
+    },
+    "violations": []
+  },
+  {
+    "width": 768,
+    "layout": {
+      "viewport": 768,
+      "content": 768
+    },
+    "violations": []
+  },
+  {
+    "width": 390,
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    },
+    "violations": []
+  },
+  {
+    "width": 320,
+    "layout": {
+      "viewport": 320,
+      "content": 320
+    },
+    "violations": []
+  }
+]

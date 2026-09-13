@@ -178,3 +178,15 @@
 | 14.09.2026 00:11 | unit | ✅ 604 из 604 | 11 с | 130f0d1 +43 | [лог](logs/2026-09-13T19-11-49Z-unit-89b4.log) | Final complete unit suite after UI audit and form recovery fixes |
 | 14.09.2026 00:12 | typecheck | ✅ без ошибок | 15 с | 130f0d1 +46 | [лог](logs/2026-09-13T19-12-20Z-typecheck-b97f.log) | Final TypeScript checks for root, API and frontend including preview fixtures |
 | 14.09.2026 00:12 | lint | ✅ без ошибок | 9 с | 130f0d1 +46 | [лог](logs/2026-09-13T19-12-53Z-lint-15ef.log) | Final lint after the complete UI audit |
+| 14.09.2026 00:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts --workers=1) | ❌ упало 2 из 2 | 35 с | f46a020 +1 | [лог](logs/2026-09-13T19-22-27Z-e2e-5881.log) | месяц по умолчанию: с первого по последнее число, включая прошлые дни |
+| 14.09.2026 00:23 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts --workers=1) | ❌ упало 2 из 2 | 31 с | f46a020 +2 | [лог](logs/2026-09-13T19-23-12Z-e2e-1fd7.log) | месяц по умолчанию: с первого по последнее число, включая прошлые дни |
+| 14.09.2026 00:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts --workers=1) | ✅ 2 из 2 | 18 с | f46a020 +6 | [лог](logs/2026-09-13T19-24-49Z-e2e-ca43.log) |  |
+| 14.09.2026 00:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spe | ❌ упало 3 из 14 | 1 мин 32 с | f46a020 +9 | [лог](logs/2026-09-13T19-27-12Z-e2e-8845.log) | все 31 день помещаются по ширине окна |
+| 14.09.2026 00:31 | unit | ✅ 611 из 611 | 16 с | f46a020 +6 | [лог](logs/2026-09-13T19-31-03Z-unit-14a7.log) |  |
+| 14.09.2026 00:31 | typecheck | ✅ без ошибок | 32 с | f46a020 +9 | [лог](logs/2026-09-13T19-31-30Z-typecheck-bf50.log) |  |
+| 14.09.2026 00:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spe | ❌ упало 1 из 14 | 2 мин 49 с | f46a020 +9 | [лог](logs/2026-09-13T19-30-11Z-e2e-0a48.log) | все 31 день помещаются по ширине окна |
+| 14.09.2026 00:35 | lint | ✅ без ошибок | 14 с | f46a020 +9 | [лог](logs/2026-09-13T19-35-18Z-lint-27f5.log) |  |
+| 14.09.2026 00:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spe | ✅ 14 из 14 | 2 мин 6 с | f46a020 +9 | [лог](logs/2026-09-13T19-33-53Z-e2e-73f4.log) |  |
+| 14.09.2026 00:37 | typecheck | ✅ без ошибок | 15 с | f46a020 +8 | [лог](logs/2026-09-13T19-37-14Z-typecheck-ed59.log) |  |
+| 14.09.2026 00:38 | unit | ✅ 611 из 611 | 11 с | 91b0280 | [лог](logs/2026-09-13T19-38-22Z-unit-b9cc.log) |  |
+| 14.09.2026 00:38 | lint | ✅ без ошибок | 14 с | 91b0280 | [лог](logs/2026-09-13T19-38-22Z-lint-057a.log) |  |

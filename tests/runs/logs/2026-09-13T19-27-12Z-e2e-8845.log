@@ -1,0 +1,269 @@
+# Сквозные (e2e) · 14.09.2026 00:27 Алматы · MacBook-Air-Urij.local
+# коммит f46a020 (codex/chessboard-calendar-month), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/quality.spec.ts' '--grep' 'месяц|месяца|месяце|месячная|31 день|режимы|drawer:|новые фильтры|шахматка:|период шахматки' '--workers=1'
+[WebServer] (node:58571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:58663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-month.spec.ts:9:1 › месяц по умолчанию: с первого по последнее число, включая прошлые дни (2.9s)
+  ✘   2 tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна (2.7s)
+(node:58705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/chessboard-month.spec.ts:45:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.4s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:45:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (4.1s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:45:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (3.9s)
+  ✓   6 tests/ui/chessboard-month.spec.ts:45:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (4.2s)
+  ✓   7 tests/ui/chessboard-month.spec.ts:62:1 › режимы 7/14 дней, произвольный период и возврат к месяцу (5.8s)
+[WebServer] (node:58790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/chessboard-month.spec.ts:86:1 › в месяце открываются брони, свободные даты и группы номеров (5.5s)
+  ✘   9 tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: light, читаемость и адаптивность (12.1s)
+(node:58843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: dark, читаемость и адаптивность (12.9s)
+(node:58951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58970) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (6.5s)
+[WebServer] (node:59003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (5.8s)
+  ✓  13 tests/ui/quality.spec.ts:92:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.8s)
+  ✓  14 tests/ui/workspace.spec.ts:209:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.6s)
+
+
+  1) tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна ────────────────
+
+    Error: 768px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    3
+
+      29 |       return box.scrollWidth - box.clientWidth;
+      30 |     });
+    > 31 |     expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+         |                                    ^
+      32 |     await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+      33 |     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      34 |   }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-month.spec.ts:31:36
+
+    Error Context: test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: light, читаемость и адаптивность ────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST3\"][data-item-id=\"ui-item-3\"][href=\"/reservations/20260913-TEST3\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      141 |       expect(
+      142 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 143 |       ).toEqual([]);
+          |         ^
+      144 |     }
+      145 |     expect(errors).toEqual([]);
+      146 |     writeFileSync(`reports/chessboard-month/${theme}.json`, JSON.stringify(report, null, 2));
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-month.spec.ts:143:9
+
+    Error Context: test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: dark, читаемость и адаптивность ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST3\"][data-item-id=\"ui-item-3\"][href=\"/reservations/20260913-TEST3\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-15\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-16\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      141 |       expect(
+      142 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 143 |       ).toEqual([]);
+          |         ^
+      144 |     }
+      145 |     expect(errors).toEqual([]);
+      146 |     writeFileSync(`reports/chessboard-month/${theme}.json`, JSON.stringify(report, null, 2));
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-month.spec.ts:143:9
+
+    Error Context: test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна ─────────────────
+    tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: light, читаемость и адаптивность ─────
+    tests/ui/chessboard-month.spec.ts:115:3 › месячная сетка: dark, читаемость и адаптивность ──────
+  11 passed (1.5m)
+
+# код выхода 1 · 1 мин 32 с

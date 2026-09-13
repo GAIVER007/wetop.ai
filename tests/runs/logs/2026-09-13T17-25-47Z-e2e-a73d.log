@@ -1,0 +1,420 @@
+# Сквозные (e2e) · 13.09.2026 22:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 87d7940 (main)
+# npx playwright test --workers=2 --reporter=list,json
+
+Running 32 tests using 2 workers
+
+  ✓   2 tests/e2e/channex-certification.spec.ts:101:3 › Channex certification from the PMS UI › 2. одна дата, один тариф: цена 22.11.2026 меняется (14.5s)
+  ✓   3 tests/e2e/channex-certification.spec.ts:115:3 › Channex certification from the PMS UI › 3. одна дата, несколько тарифов (категорий) — одно сообщение (15.0s)
+  ✓   4 tests/e2e/channex-certification.spec.ts:125:3 › Channex certification from the PMS UI › 4. диапазоны дат для нескольких тарифов — одно сообщение (14.3s)
+  ✓   5 tests/e2e/channex-certification.spec.ts:143:3 › Channex certification from the PMS UI › 5. min stay (13.5s)
+  ✓   1 tests/e2e/cancellation-penalty.spec.ts:22:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (1.3m)
+  ✓   6 tests/e2e/channex-certification.spec.ts:151:3 › Channex certification from the PMS UI › 6. stop sell (23.3s)
+  ✓   8 tests/e2e/channex-certification.spec.ts:160:3 › Channex certification from the PMS UI › 7. несколько ограничений диапазонами (19.7s)
+  ✓   9 tests/e2e/channex-certification.spec.ts:182:3 › Channex certification from the PMS UI › 8. полгода одним сообщением (28.9s)
+  ✘   7 tests/e2e/check-in-out.spec.ts:17:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (1.7m)
+  ✓  11 tests/e2e/chessboard-drag.spec.ts:23:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (55.1s)
+  ✓  12 tests/e2e/chessboard-unassigned.spec.ts:26:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (53.8s)
+  ✘  13 tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (38.2s)
+[после сертификации] scripts/imports/src/cli-import-price-calendar.ts
+календарь 2026-09-09 → 2027-09-09: тарифов 6, строк цен 8640, строк ограничений 0
+daily_rates: создано 0 / обновлено 486 / без изменений 8154
+restrictions: создано 0 / обновлено 0 / без изменений 0 / снято 324
+[после сертификации] scripts/reconciliation/src/cli-rates.ts
+# Rates reconciliation — Gate 3 (цены)
+
+CONTROL DATE: 2026-09-13
+PERIOD: 2026-09-09 → 2027-09-09
+
+Источник EXELY: снимок календаря цен (`project-input/exely/prices/`). Допуск: 0 строк.
+
+## TOTALS
+
+| Metric | Value |
+|---|---:|
+| rows in EXELY | 8640 |
+| rows in PMS | 8640 |
+| matched (same price) | 8640 |
+| price differs | 0 |
+| missing in PMS | 0 |
+| extra in PMS | 0 |
+| restrictions EXELY / PMS | 0 / 0 |
+
+## BY TARIFF × CATEGORY × OCCUPANCY
+
+| Tariff | Category | Occ | EXELY | PMS | matched | diff | missing | extra |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Базовый тариф | Одноместная комната с окном | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Базовый тариф | Одноместная комната без окон | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Базовый тариф | Двухместная комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Базовый тариф | Двухместная комната | 2 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Базовый тариф | Общая мужская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Базовый тариф | Общая женская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Одноместная комната с окном | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Одноместная комната без окон | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Двухместная комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Двухместная комната | 2 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Общая мужская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА +35% | Общая женская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Одноместная комната с окном | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Одноместная комната без окон | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Двухместная комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Двухместная комната | 2 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Общая мужская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Тариф для ОТА в USD +35% | Общая женская комната | 1 | 366 | 366 | 366 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Одноместная комната с окном | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Одноместная комната без окон | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Двухместная комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Двухместная комната | 2 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Общая мужская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Стандартный тариф для Островка | Общая женская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Одноместная комната с окном | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Одноместная комната без окон | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Двухместная комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Двухместная комната | 2 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Общая мужская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| Невозвратный тариф Островок −10% | Общая женская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Одноместная комната с окном | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Одноместная комната без окон | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Двухместная комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Двухместная комната | 2 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Общая мужская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+| В2В Островок | Общая женская комната | 1 | 114 | 114 | 114 | 0 | 0 | 0 |
+
+RESULT: OK — расхождение 0 по всем строкам
+
+→ /Users/vyacheslav/Desktop/Проекты/Pms Lux/reports/rates-2026-09-13.md
+  ✘  10 tests/e2e/channex-certification.spec.ts:204:3 › Channex certification from the PMS UI › 9–10. доступность: бронь со стойки уменьшает остаток категории, отмена возвращает (33.1s)
+  ✓  14 tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями (10.3s)
+  ✓  15 tests/e2e/desk-day.spec.ts:17:1 › экран «Сегодня» открывается с корня и показывает три списка на дату (20.0s)
+  ✓  16 tests/e2e/desk-edit.spec.ts:26:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (1.3m)
+  ✘  18 tests/e2e/finance.spec.ts:27:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (39.6s)
+  ✘  17 tests/e2e/desk-tasks.spec.ts:25:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (1.7m)
+  ✓  20 tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (14.0s)
+  ✓  21 tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (3.5s)
+  ✓  22 tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (3.0s)
+  ✘  23 tests/e2e/manual-reservation.spec.ts:10:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (34.2s)
+  ✘  19 tests/e2e/full-day.spec.ts:22:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (1.1m)
+  ✘  24 tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.5m)
+  ✘  25 tests/e2e/print-forms.spec.ts:26:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (3.0m)
+  ✓  26 tests/e2e/stay-extras.spec.ts:21:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (1.7m)
+  ✓  28 tests/e2e/web-analytics.spec.ts:70:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (19.4s)
+  ✓  29 tests/e2e/web-analytics.spec.ts:171:1 › страница подключения: код с ключом, «Проверить счётчик» видит события (10.1s)
+  ✓  30 tests/e2e/web-analytics.spec.ts:183:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (9.2s)
+  ✓  27 tests/e2e/unit-blocks.spec.ts:25:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (58.5s)
+  ✓  31 tests/e2e/web-booking.spec.ts:47:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (24.7s)
+  ✓  32 tests/e2e/web-booking.spec.ts:97:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (2.4s)
+[уборка e2e] Броней автотестов с активными проживаниями: 4 (кандидатов по фамилии было 1450)
+  свежих, моложе 15 мин, оставлено: 6 — уберёт следующая уборка
+Освобождено броней: 4
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: полная выгрузка запущена
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) tests/e2e/channex-certification.spec.ts:204:3 › Channex certification from the PMS UI › 9–10. доступность: бронь со стойки уменьшает остаток категории, отмена возвращает 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/\d{8}-[A-Z0-9]{6}$/
+    Received string:  "http://127.0.0.1:3000/reservations/new?arrival=2026-11-21&departure=2026-11-22"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × locator resolved to <html lang="ru" class="ibm_plex_sans_7585b8f4-module__oTM27W__variable ibm_plex_mono_e8178f24-module__H1u36W__variable">…</html>
+           - unexpected value "http://127.0.0.1:3000/reservations/new?arrival=2026-11-21&departure=2026-11-22"
+
+
+      214 |     await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
+      215 |     await form.getByRole('button', { name: 'Создать бронь' }).click();
+    > 216 |     await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
+          |                        ^
+      217 |     const number = page.url().split('/').pop()!;
+      218 |     await flush(page, '9. Single Date Availability Update (booking created in PMS UI)');
+      219 |     await page.goto(`/reservations/${number}`);
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/channex-certification.spec.ts:216:24
+
+    Error Context: test-results/channex-certification-Chan-5764f-категории-отмена-возвращает/error-context.md
+
+    Error Context: test-results/channex-certification-Chan-5764f-категории-отмена-возвращает/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-certification-Chan-5764f-категории-отмена-возвращает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-certification-Chan-5764f-категории-отмена-возвращает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/check-in-out.spec.ts:17:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('td[data-state="OCCUPIED"] a[href*="20260913-PU8GUE"]').first()
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('td[data-state="OCCUPIED"] a[href*="20260913-PU8GUE"]').first() with timeout 30000ms
+      - waiting for locator('td[data-state="OCCUPIED"] a[href*="20260913-PU8GUE"]').first()
+
+
+      55 |   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);
+      56 |   const cell = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`).first();
+    > 57 |   await expect(cell).toBeVisible();
+         |                      ^
+      58 |   await page.screenshot({ path: 'reports/screenshots/check-in-chessboard.png' });
+      59 |   await page.goto(`/reservations/${number}`);
+      60 |
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/check-in-out.spec.ts:57:22
+
+    Error Context: test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('occupied-2026-09-08')
+    Expected: "79"
+    Received: "79 / 88"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('occupied-2026-09-08') with timeout 30000ms
+      - waiting for getByTestId('occupied-2026-09-08')
+        63 × locator resolved to <div class="board__occ" title="занято 79 из 88" data-testid="occupied-2026-09-08">…</div>
+           - unexpected value "79 / 88"
+
+
+      25 |   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+      26 |   await expect(page.getByTestId('date-col')).toHaveCount(14);
+    > 27 |   await expect(page.getByTestId('occupied-2026-09-08')).toHaveText(String(summary.occupied));
+         |                                                         ^
+      28 |   await page.screenshot({ path: 'reports/screenshots/chessboard-2026-09-08.png', fullPage: false });
+      29 | });
+      30 |
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/chessboard.spec.ts:27:57
+
+    Error Context: test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/desk-tasks.spec.ts:25:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-row').first()
+    Expected substring: "отменена"
+    Received string:    "45Одноместная комната с окном2026-09-262026-09-29подтверждена33 000,00 ₸Гость Тест-первый · 1"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-row').first() with timeout 30000ms
+      - waiting for getByTestId('stay-row').first()
+        57 × locator resolved to <tr data-testid="stay-row">…</tr>
+           - unexpected value "45Одноместная комната с окном2026-09-262026-09-29подтверждена33 000,00 ₸Гость Тест-первый · 1"
+
+
+      113 |   page.once('dialog', (d) => d.accept());
+      114 |   await page.getByTestId('cancel-reservation').click();
+    > 115 |   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+          |                                                      ^
+      116 | });
+      117 |
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/desk-tasks.spec.ts:115:54
+
+    Error Context: test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/finance.spec.ts:27:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/\d{8}-[A-Z0-9]{6}$/
+    Received string:  "http://127.0.0.1:3000/reservations/new?arrival=2026-10-01&departure=2026-10-02"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        56 × locator resolved to <html lang="ru" class="ibm_plex_sans_7585b8f4-module__oTM27W__variable ibm_plex_mono_e8178f24-module__H1u36W__variable">…</html>
+           - unexpected value "http://127.0.0.1:3000/reservations/new?arrival=2026-10-01&departure=2026-10-02"
+
+
+      37 |   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
+      38 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+    > 39 |   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
+         |                      ^
+      40 |
+      41 |   const panel = page.getByTestId('folio-panel');
+      42 |   await expect(panel).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/finance.spec.ts:39:22
+
+    Error Context: test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/full-day.spec.ts:22:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('document-row')
+    Expected substring: "****0777"
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('document-row') with timeout 30000ms
+      - waiting for getByTestId('document-row')
+
+
+      55 |   await doc.locator('input[name="issueCountry"]').fill('KAZ');
+      56 |   await doc.getByRole('button', { name: 'Добавить' }).click();
+    > 57 |   await expect(page.getByTestId('document-row')).toContainText('****0777');
+         |                                                  ^
+      58 |
+      59 |   // 3. Заезд
+      60 |   await page.goto(`/reservations/${number}`);
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/full-day.spec.ts:57:50
+
+    Error Context: test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/manual-reservation.spec.ts:10:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/\d{8}-[A-Z0-9]{6}$/
+    Received string:  "http://127.0.0.1:3000/reservations/new?arrival=2027-05-10&departure=2027-05-12"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × locator resolved to <html lang="ru" class="ibm_plex_sans_7585b8f4-module__oTM27W__variable ibm_plex_mono_e8178f24-module__H1u36W__variable">…</html>
+           - unexpected value "http://127.0.0.1:3000/reservations/new?arrival=2027-05-10&departure=2027-05-12"
+
+
+      29 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+      30 |
+    > 31 |   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
+         |                      ^
+      32 |   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
+      33 |   await expect(page.getByTestId('stay-row').first()).toContainText(unitCode!);
+      34 |   await page.screenshot({
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/manual-reservation.spec.ts:31:22
+
+    Error Context: test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('td[data-state="OCCUPIED"] a').first()
+
+
+       7 |   await page.goto('/chessboard?from=2026-09-08&to=2026-09-10');
+       8 |   const first = page.locator('td[data-state="OCCUPIED"] a').first();
+    >  9 |   const number = (await first.getAttribute('href'))!.split('/').pop()!;
+         |                               ^
+      10 |   await page.goto(`/reservations/${number}/print?lang=ru`);
+      11 |   await expect(page.getByTestId('print-registration')).toContainText('Регистрационная карта гостя');
+      12 |   await expect(page.getByTestId('print-registration')).toContainText(number);
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/print-and-journal.spec.ts:9:31
+
+    Error Context: test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/print-forms.spec.ts:26:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByTestId('new-reservation-form').locator('select[name="source"]')
+
+
+      30 |   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
+      31 |   const form = page.getByTestId('new-reservation-form');
+    > 32 |   await form.locator('select[name="source"]').selectOption('PHONE');
+         |                                               ^
+      33 |   await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+      34 |   await form.locator('input[name="firstName"]').fill('Гость');
+      35 |   await form.locator('input[name="lastName"]').fill('Тест-печать');
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/e2e/print-forms.spec.ts:32:47
+
+    Error Context: test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/e2e/channex-certification.spec.ts:204:3 › Channex certification from the PMS UI › 9–10. доступность: бронь со стойки уменьшает остаток категории, отмена возвращает 
+    tests/e2e/check-in-out.spec.ts:17:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+    tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+    tests/e2e/desk-tasks.spec.ts:25:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+    tests/e2e/finance.spec.ts:27:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+    tests/e2e/full-day.spec.ts:22:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+    tests/e2e/manual-reservation.spec.ts:10:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+    tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+    tests/e2e/print-forms.spec.ts:26:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+  23 passed (14.8m)
+
+# код выхода 1 · 14 мин 49 с

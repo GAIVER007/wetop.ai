@@ -1,18 +1,22 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { financeApi, formatMinor } from '../../../lib/api';
-import { hotelApi } from '../../../lib/hotel-api';
+import { hotelApi, type HotelContent } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
-import { FeaturePending, SectionCards } from '../../../components/section-cards';
-import { Badge, Fact, Grid, Panel, Stat, Stats, Table } from '../../../components/ui';
+import { SectionCards } from '../../../components/section-cards';
+import { Alert, Badge, Fact, Grid, Notice, Panel, Stat, Stats, Table } from '../../../components/ui';
 
 export default async function HotelSettingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ section?: string[] }>;
+  searchParams: Promise<{ refresh?: string }>;
 }) {
   const { section = [] } = await params;
+  const refresh = (await searchParams).refresh === '1';
+  const view = section[0];
   const path = `/hotel-settings${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
   if (!item) notFound();
@@ -26,13 +30,134 @@ export default async function HotelSettingsPage({
         <StoredSettings view={section[0]!} />
       )}
       {section[0] === 'services' && <Services />}
-      {section[0] === 'photos' && (
-        <FeaturePending icon="inventory" text="Загрузка фотографий пока недоступна." />
-      )}
-      {section[0] === 'amenities' && (
-        <FeaturePending icon="check" text="Редактирование удобств пока недоступно." />
+      {(view === 'description' || view === 'photos' || view === 'amenities') && (
+        <ChannexContent view={view} refresh={refresh} />
       )}
     </Page>
+  );
+}
+
+const ENVIRONMENT: Record<HotelContent['environment'], string> = {
+  staging: 'Channex (тестовый объект staging)',
+  production: 'Channex',
+  custom: 'Channex (своя установка)',
+};
+/** Коды правил объекта из примеров hotel-policy-collection.md; незнакомый код показывается как есть */
+const POLICY: Record<string, string> = {
+  allowed: 'можно',
+  not_allowed: 'нельзя',
+  no_smoking: 'не курят',
+  wifi: 'Wi-Fi',
+  on_site: 'на территории',
+  none: 'нет',
+};
+const policy = (code: string | null) => (code ? (POLICY[code] ?? code) : 'Не указано');
+const almatyTime = (iso: string) =>
+  new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Almaty',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso));
+
+/** Описание, фото и удобства читаются из Channex (ADR-033); меняются в кабинете Channex */
+async function ChannexContent({
+  view,
+  refresh,
+}: {
+  view: 'description' | 'photos' | 'amenities';
+  refresh: boolean;
+}) {
+  const c = await hotelApi.content(refresh);
+  const source = (
+    <p className="note" data-testid="content-source">
+      Источник: {ENVIRONMENT[c.environment]} · прочитано в {almatyTime(c.checkedAt)} по Алматы ·{' '}
+      <Link href="?refresh=1">прочитать заново</Link>. Изменить можно в кабинете Channex.
+    </p>
+  );
+  if (c.state !== 'READY')
+    return (
+      <>
+        <Alert tone="warning" boxed data-testid="content-error">
+          {c.message}
+        </Alert>
+        {source}
+      </>
+    );
+  const p = c.property;
+  return (
+    <>
+      {view === 'description' && (
+        <Panel title="Описание для гостей">
+          {p?.description ? (
+            <p className="content-text" data-testid="content-description">
+              {p.description}
+            </p>
+          ) : (
+            <p>Описание в Channex не заполнено.</p>
+          )}
+          {p?.importantInformation && <Notice>{p.importantInformation}</Notice>}
+          <Grid min={220}>
+            <Fact label="Телефон" value={p?.phone ?? 'Не указан'} />
+            <Fact label="Почта" value={p?.email ?? 'Не указана'} />
+            <Fact label="Сайт" value={p?.website ?? 'Не указан'} />
+            <Fact
+              label="Адрес"
+              value={[p?.address, p?.city, p?.country].filter(Boolean).join(', ') || 'Не указан'}
+            />
+          </Grid>
+        </Panel>
+      )}
+      {view === 'photos' &&
+        (c.photos.length ? (
+          <Grid min={220} className="photo-grid" data-testid="content-photos">
+            {c.photos.map((photo) => (
+              <figure key={photo.url} className="photo-card">
+                {/* Снимки лежат на CDN Channex; оптимизатор Next для внешнего хоста не настраиваем */}
+                <img src={photo.url} alt={photo.description ?? 'Фото объекта'} loading="lazy" />
+                <figcaption>
+                  {photo.description ?? 'Без подписи'}
+                  {photo.forRoomType ? ' · категория номера' : ''}
+                </figcaption>
+              </figure>
+            ))}
+          </Grid>
+        ) : (
+          <p>В Channex нет фотографий объекта.</p>
+        ))}
+      {view === 'amenities' && (
+        <>
+          <Panel title="Удобства объекта">
+            {c.facilities.length ? (
+              <ul className="facility-list" data-testid="content-facilities">
+                {c.facilities.map((f) => (
+                  <li key={f.title}>
+                    {f.title}
+                    {f.category && <span className="cell-sub"> · {f.category}</span>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Удобства в Channex не отмечены.</p>
+            )}
+            <p className="note">Названия — из справочника удобств Channex.</p>
+          </Panel>
+          {c.policy && (
+            <Panel title="Правила объекта">
+              <Grid min={200}>
+                <Fact label="Заезд с" value={c.policy.checkInTime ?? 'Не указано'} />
+                <Fact label="Выезд до" value={c.policy.checkOutTime ?? 'Не указано'} />
+                <Fact label="Гостей максимум" value={c.policy.maxGuests ?? 'Не указано'} />
+                <Fact label="Интернет" value={policy(c.policy.internet)} />
+                <Fact label="Парковка" value={policy(c.policy.parking)} />
+                <Fact label="Животные" value={policy(c.policy.pets)} />
+                <Fact label="Курение" value={policy(c.policy.smoking)} />
+              </Grid>
+            </Panel>
+          )}
+        </>
+      )}
+      {source}
+    </>
   );
 }
 const penaltyNames: Record<string, string> = {

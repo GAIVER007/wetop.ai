@@ -56,6 +56,20 @@ it('сетевой отказ не превращается в нулевые п
   expect(fetch).toHaveBeenCalledTimes(1);
 });
 
+it('чтение ждёт API столько же, сколько команда: 60 с (уточнение ADR-031)', async () => {
+  // 13.09.2026: при нехватке памяти чтение шло дольше 15 с — бронь создавалась, а карточка после неё
+  // падала в «Нет связи с API», и форма оставалась на экране с кнопкой «Создать бронь» (риск дубля)
+  const timeout = vi.spyOn(AbortSignal, 'timeout');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(async () => new Response('{}')),
+  );
+  await getJsonPublic('/chessboard');
+  await reservationsApi.cancel('N1');
+  expect(timeout.mock.calls.map((c) => c[0])).toEqual([60_000, 60_000]);
+  timeout.mockRestore();
+});
+
 it('не перехватывает служебные сигналы рендера как сетевой сбой', async () => {
   const renderSignal = new Error('render control flow');
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(renderSignal));

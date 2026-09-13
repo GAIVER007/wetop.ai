@@ -4,6 +4,8 @@
 # Mac перезагрузился → всё поднимается при входе пользователя.
 #
 #   scripts/ops/launchd/install.sh [api] [web] [tunnel] [awake]   без аргументов — все четыре
+#   scripts/ops/launchd/install.sh exely-sync                      автосинхронизация из Exely раз в 15 мин (ADR-032);
+#                                                                  только явно: на день двойного ввода — uninstall.sh exely-sync
 #   scripts/ops/launchd/install.sh --takeover ...                  остановить уже запущенные вручную процессы
 #   scripts/ops/launchd/install.sh --dry ...                       только собрать и проверить plist во временной папке
 #   scripts/ops/launchd/status.sh                                  что запущено
@@ -37,8 +39,8 @@ for a in "$@"; do
   case "$a" in
     --takeover) TAKEOVER=1 ;;
     --dry) DRY=1 ;;
-    api|web|tunnel|awake) NAMES+=("$a") ;;
-    *) echo "неизвестно: $a (есть api, web, tunnel, awake, --takeover, --dry)"; exit 2 ;;
+    api|web|tunnel|awake|exely-sync) NAMES+=("$a") ;;
+    *) echo "неизвестно: $a (есть api, web, tunnel, awake, exely-sync, --takeover, --dry)"; exit 2 ;;
   esac
 done
 [ ${#NAMES[@]} -eq 0 ] && NAMES=(api web tunnel awake)
@@ -69,7 +71,8 @@ $args  </array>
   </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><$keep/>
-  <key>ThrottleInterval</key><integer>15</integer>
+  <key>ThrottleInterval</key><integer>15</integer>${START_INTERVAL:+
+  <key>StartInterval</key><integer>$START_INTERVAL</integer>}
   <key>StandardOutPath</key><string>$(xml "$log")</string>
   <key>StandardErrorPath</key><string>$(xml "$log")</string>
 </dict>
@@ -87,6 +90,8 @@ command_for() {
     # bash не читает файл сам (запрет macOS) — текст скрипта ему отдаёт node через stdin
     tunnel) CMD=(/bin/bash -c "\"$NODE\" -e \"process.stdout.write(require('fs').readFileSync('scripts/ops/channex-tunnel.sh'))\" | /bin/bash -s") ;;
     awake) CMD=(/usr/bin/caffeinate -is) ;;
+    # одним процессом: node с загрузчиком tsx, без npm и sh (ADR-032)
+    exely-sync) CMD=("$NODE" --import tsx scripts/imports/src/cli-sync-day.ts --auto) ;;
   esac
 }
 
@@ -124,6 +129,7 @@ occupied_by() {
     api) lsof -tiTCP:3001 -sTCP:LISTEN 2>/dev/null ;;
     web) lsof -tiTCP:3000 -sTCP:LISTEN 2>/dev/null ;;
     tunnel) pgrep -f 'scripts/ops/channex-tunnel.sh|cloudflared tunnel --url' 2>/dev/null ;;
+    exely-sync) pgrep -f 'cli-sync-day.ts --auto' 2>/dev/null ;;
   esac
 }
 
@@ -156,7 +162,10 @@ for n in "${NAMES[@]}"; do
     kill $pids 2>/dev/null; sleep 3
   fi
   command_for "$n"
-  write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" true "${CMD[@]}"
+  # службы держатся постоянно; exely-sync — прогон раз в 15 минут, между прогонами процесса нет
+  START_INTERVAL=""; keep=true
+  [ "$n" = exely-sync ] && { START_INTERVAL=900; keep=false; }
+  write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
   loaded=0
   for _ in 1 2 3 4 5; do

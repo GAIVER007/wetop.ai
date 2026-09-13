@@ -173,10 +173,10 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                   <div className="board__wd">{weekday(d)}</div>
                   <div
                     className="board__occ"
-                    data-testid={`occupied-${d}`}
                     title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
                   >
-                    {board.summary[d]!.occupied}
+                    {/* В testid только число занятых: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
+                    <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
                     <span className="board-occ-total"> / {board.rows.length}</span>
                   </div>
                 </th>

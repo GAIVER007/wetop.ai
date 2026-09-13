@@ -554,6 +554,36 @@ function read(path: string, q: URLSearchParams): unknown {
       state: 'READY',
       message: 'Соединение установлено',
     };
+  if (path === '/channels/channex/content')
+    return {
+      checkedAt: new Date().toISOString(),
+      source: 'channex',
+      environment: 'staging',
+      state: 'READY',
+      message: 'Контент объекта прочитан из Channex',
+      property: {
+        title: 'Тестовый хостел',
+        description: 'Вымышленное описание для проверки экрана',
+        importantInformation: null,
+        phone: '+7 700 000 00 00',
+        email: 'ui@example.test',
+        website: null,
+        address: 'ул. Тестовая, 1',
+        city: 'Алматы',
+        country: 'KZ',
+      },
+      policy: {
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
+        maxGuests: 10,
+        pets: 'not_allowed',
+        smoking: 'no_smoking',
+        internet: 'wifi',
+        parking: 'none',
+      },
+      facilities: [{ title: 'WiFi', category: 'general' }],
+      photos: [{ url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', description: 'Фасад', forRoomType: false }],
+    };
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };

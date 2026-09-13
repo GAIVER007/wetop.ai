@@ -34,8 +34,41 @@ export interface ChannelReport {
     amountMinor: string;
   }>;
 }
+/** Контент объекта из Channex (ADR-033): только чтение, без ключей и id провайдера */
+export interface HotelContent {
+  checkedAt: string;
+  source: 'channex';
+  environment: 'staging' | 'production' | 'custom';
+  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'NOT_FOUND' | 'RATE_LIMITED' | 'UNREACHABLE';
+  message: string;
+  property: {
+    title: string | null;
+    description: string | null;
+    importantInformation: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
+    address: string | null;
+    city: string | null;
+    country: string | null;
+  } | null;
+  policy: {
+    checkInTime: string | null;
+    checkOutTime: string | null;
+    maxGuests: number | null;
+    pets: string | null;
+    smoking: string | null;
+    internet: string | null;
+    parking: string | null;
+  } | null;
+  facilities: Array<{ title: string; category: string | null }>;
+  photos: Array<{ url: string; description: string | null; forRoomType: boolean }>;
+}
 export const hotelApi = {
   settings: () => getJsonPublic<HotelSettings>('/hotel/settings'),
+  /** refresh — прочитать из Channex заново, минуя кэш API на 10 минут */
+  content: (refresh = false) =>
+    getJsonPublic<HotelContent>(`/channels/channex/content${refresh ? '?refresh=1' : ''}`),
   channelReport: (from: string, to: string, status: string) =>
     getJsonPublic<ChannelReport>(
       `/hotel/channel-report?${new URLSearchParams({ from, to, status })}`,

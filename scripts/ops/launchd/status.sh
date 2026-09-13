@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Что держит launchd: состояние, PID, код последнего выхода, сколько раз поднимал.
 UID_N="$(id -u)"
-for n in api web tunnel awake; do
+for n in api web tunnel awake exely-sync; do
   label="kz.luxx.pms.$n"
   if out=$(launchctl print "gui/$UID_N/$label" 2>/dev/null); then
     state=$(printf '%s\n' "$out" | awk -F'= ' '/^\tstate = /{print $2; exit}')

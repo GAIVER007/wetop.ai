@@ -44,7 +44,9 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       ...options,
       cache: 'no-store',
       headers: { ...options.headers, ...(testing ? { 'x-wetop-test-client': '1' } : {}) },
-      signal: AbortSignal.timeout(options.method && options.method !== 'GET' ? 60_000 : 15_000),
+      // Чтение и команды ждут одинаково (уточнение ADR-031, 13.09.2026): короткий таймаут чтения обрывал
+      // карточку сразу после успешной брони, и форма оставалась на экране с кнопкой «Создать бронь»
+      signal: AbortSignal.timeout(60_000),
     });
   } catch (error) {
     // Next.js also throws here to switch static prerendering to request-time rendering.

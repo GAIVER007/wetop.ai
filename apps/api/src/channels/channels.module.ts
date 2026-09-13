@@ -15,6 +15,12 @@ import {
   connectionReaderFromEnv,
 } from './connection';
 import {
+  ChannelContentController,
+  ChannelContentService,
+  CHANNEL_CONTENT_READER,
+  contentReaderFromEnv,
+} from './content';
+import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
   PrismaChannelsRepository,
@@ -22,11 +28,14 @@ import {
 } from './channels.repository';
 
 @Module({
-  controllers: [ChannelsController, ChannelConnectionController],
+  controllers: [ChannelsController, ChannelConnectionController, ChannelContentController],
   providers: [
     PrismaService,
     ChannelConnectionService,
     { provide: CHANNEL_CONNECTION_READER, useFactory: connectionReaderFromEnv },
+    // Контент объекта для WETOP из Channex, только чтение (ADR-033)
+    ChannelContentService,
+    { provide: CHANNEL_CONTENT_READER, useFactory: contentReaderFromEnv },
     ChannexSyncService,
     InboundBookingsService,
     { provide: RESERVATIONS_UOW, useClass: PrismaUnitOfWork },

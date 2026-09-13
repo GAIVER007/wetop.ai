@@ -111,6 +111,24 @@ describe('launchd install.sh', () => {
     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.web\.plist/);
   }, 60_000);
 
+  it('exely-sync (ADR-032): раз в 15 минут, без KeepAlive, одним процессом node --import tsx', () => {
+    const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
+    const { out } = install(sb, ['--dry', 'exely-sync']);
+    const plistPath = out.match(/(\/\S+kz\.luxx\.pms\.exely-sync\.plist) собран и проверен/)?.[1];
+    expect(plistPath, out).toBeTruthy();
+    const plist = readFileSync(plistPath!, 'utf8');
+    expect(plist).toMatch(/<key>StartInterval<\/key><integer>900<\/integer>/);
+    expect(plist).toMatch(/<key>KeepAlive<\/key><false\/>/);
+    expect(plist).toContain('<string>--import</string>');
+    expect(plist).toContain('<string>scripts/imports/src/cli-sync-day.ts</string>');
+    expect(plist).toContain('<string>--auto</string>');
+    // стойку и остальные задачи интервал не касается
+    const web = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'web']).out;
+    const webPlist = readFileSync(web.match(/(\/\S+kz\.luxx\.pms\.web\.plist) собран/)![1]!, 'utf8');
+    expect(webPlist).not.toContain('StartInterval');
+    expect(webPlist).toMatch(/<key>KeepAlive<\/key><true\/>/);
+  });
+
   it('переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0, unloadSec: 3 });
     const { out } = install(sb, ['web']);

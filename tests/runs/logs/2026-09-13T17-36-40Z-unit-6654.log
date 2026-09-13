@@ -1,0 +1,39 @@
+# Модульные (unit) · 13.09.2026 22:36 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4f8089b (main), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-36-40Z-unit-6654.json' 'apps/api/src/guard/guard.adapters.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests | 1 failed) 4ms
+   ❯ NestGuardProbes.lastExelySyncAt (exely.stale) (3)
+     × автосинхронизация без изменений полную выгрузку не делает — время берётся из записи exely.sync (ADR-032) 4ms
+     ✓ прогоны до автосинхронизации по-прежнему видны по полной выгрузке с trigger=import 0ms
+     ✓ синхронизаций не было — null 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.adapters.test.ts > NestGuardProbes.lastExelySyncAt (exely.stale) > автосинхронизация без изменений полную выгрузку не делает — время берётся из записи exely.sync (ADR-032)
+AssertionError: expected '2026-09-13T08:59:58.000Z' to be '2026-09-13T17:30:00.000Z' // Object.is equality
+
+Expected: "2026-09-13T17:30:00.000Z"
+Received: "2026-09-13T08:59:58.000Z"
+
+ ❯ apps/api/src/guard/guard.adapters.test.ts:26:31
+     24|       ]),
+     25|     ).lastExelySyncAt();
+     26|     expect(at?.toISOString()).toBe('2026-09-13T17:30:00.000Z');
+       |                               ^
+     27|   });
+     28|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  10:36:41
+   Duration  783ms (import 52%, transform 47%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T17-36-40Z-unit-6654.json
+
+# код выхода 1 · 2 с

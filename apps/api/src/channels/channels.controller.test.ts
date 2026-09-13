@@ -473,6 +473,34 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     ]);
   });
 
+  it('availability/changed (ADR-032): only the named categories and nights go to the outbox as one AVAILABILITY delta; bad input → 400', async () => {
+    await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
+    await request(app.getHttpServer())
+      .post('/channels/channex/availability/changed')
+      .send({ categoryCodes: ['exely-900003'], from: fakes.today, toExclusive: fakes.d(3) })
+      .expect(200, { accepted: true });
+    expect(fakes.outbox.map((o) => o.kind)).toEqual(['AVAILABILITY']);
+    expect(fakes.outbox[0]!.payload).toEqual([
+      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.today, date_to: fakes.today, availability: 2 },
+      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.d(1), date_to: fakes.d(1), availability: 1 },
+      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.d(2), date_to: fakes.d(2), availability: 2 },
+    ]);
+    const bad = [
+      {},
+      { categoryCodes: [], from: fakes.today, toExclusive: fakes.d(1) },
+      { categoryCodes: [''], from: fakes.today, toExclusive: fakes.d(1) },
+      { categoryCodes: ['exely-900003'], from: '13.09.2026', toExclusive: fakes.d(1) },
+      { categoryCodes: ['exely-900003'], from: fakes.d(2), toExclusive: fakes.d(2) },
+      { categoryCodes: ['exely-900003'], from: fakes.today, toExclusive: '2099-01-01' },
+    ];
+    for (const body of bad)
+      await request(app.getHttpServer())
+        .post('/channels/channex/availability/changed')
+        .send(body)
+        .expect(400);
+    expect(fakes.outbox).toHaveLength(1);
+  });
+
   it('sync without mapping → 422; setup with an unknown tariff → 422', async () => {
     await request(app.getHttpServer()).post('/channels/channex/sync').expect(422);
     fakes.repo.localSetup = async () => ({

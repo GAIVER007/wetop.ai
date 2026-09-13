@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -12,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
-import { PROVIDER } from './ari-publisher';
+import { ARI_PUBLISHER, PROVIDER, type AriPublisher } from './ari-publisher';
 import { ChannexSyncService } from './sync.service';
 import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
@@ -27,6 +28,7 @@ export class ChannelsController {
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
     @Inject(OutboxWorker) private readonly outbox: OutboxWorker,
     @Inject(WebhookHealthService) private readonly health: WebhookHealthService,
+    @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
   @Get('mapping')
@@ -54,6 +56,34 @@ export class ChannelsController {
   @HttpCode(200)
   scheduledSync(@Query('force') force?: string) {
     return this.sync.runScheduledFullSyncIfDue(new Date(), force === '1' || force === 'true');
+  }
+
+  /**
+   * Остатки изменились мимо команд PMS — автосинхронизация из Exely (ADR-032). Пересчитать доступность
+   * названных категорий на ночах [from, toExclusive) и поставить дельтой в очередь, как для брони со стойки.
+   * Полная выгрузка по такому событию не делается (сертификация Channex, п. 13: только дельты).
+   */
+  @Post('availability/changed')
+  @HttpCode(200)
+  async availabilityChanged(@Body() body: Record<string, unknown> | undefined) {
+    const { categoryCodes, from, toExclusive } = body ?? {};
+    const isDate = (v: unknown): v is string =>
+      typeof v === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(v) &&
+      new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
+    if (
+      !Array.isArray(categoryCodes) ||
+      categoryCodes.length === 0 ||
+      categoryCodes.length > 50 ||
+      !categoryCodes.every((c) => typeof c === 'string' && c.length > 0 && c.length <= 64)
+    )
+      throw new BadRequestException('categoryCodes: непустой список кодов категорий');
+    if (!isDate(from) || !isDate(toExclusive) || toExclusive <= from)
+      throw new BadRequestException('from и toExclusive: даты YYYY-MM-DD, from раньше toExclusive');
+    if ((Date.parse(toExclusive) - Date.parse(from)) / 86_400_000 > 500)
+      throw new BadRequestException('окно не больше 500 суток — глубины полной выгрузки');
+    await this.publisher.reservationChanged({ categoryCodes, from, toExclusive });
+    return { accepted: true };
   }
 
   /** Webhook Channex: секрет в заголовке X-Channex-Webhook-Secret (webhook-collection.md → Security). */

@@ -166,11 +166,19 @@ test('подключения показывают частичный сбой, �
     'Не удалось проверить webhook',
   );
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
-  for (const path of ['/rooms/promotions', '/hotel-settings/photos', '/hotel-settings/amenities']) {
-    await page.goto(path);
-    await expect(page.getByText('Ещё не подключено', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
-  }
+  await page.goto('/rooms/promotions');
+  await expect(page.getByText('Ещё не подключено', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
+  // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
+  await page.goto('/hotel-settings/photos');
+  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
+  await expect(page.getByTestId('content-source')).toContainText('Channex');
+  await page.goto('/hotel-settings/amenities');
+  await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
+  await expect(page.getByText('нельзя', { exact: true })).toBeVisible();
+  await page.goto('/hotel-settings/description');
+  await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
+  await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
 });
 
 test('поиск и списки дня; мобильное меню и возврат фокуса', async ({ page }) => {

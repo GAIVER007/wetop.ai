@@ -22,7 +22,7 @@ test('месяц по умолчанию: с первого по последн�
 test('все 31 день помещаются по ширине окна', async ({ page }) => {
   await page.goto('/chessboard?from=2026-10-01&to=2026-10-31');
   await expect(page.getByTestId('date-col')).toHaveCount(31);
-  for (const width of [1280, 1440, 1920]) {
+  for (const width of [768, 812, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });
     const overflow = await page.locator('.board-wrap').evaluate((el) => {
       const box = el as unknown as { scrollWidth: number; clientWidth: number };
@@ -85,6 +85,7 @@ test('режимы 7/14 дней, произвольный период и во�
 });
 
 test('в месяце открываются брони, свободные даты и группы номеров', async ({ page }) => {
+  await page.setViewportSize({ width: 812, height: 1000 });
   await page.goto('/chessboard');
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
@@ -98,6 +99,10 @@ test('в месяце открываются брони, свободные да
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
   await group.click();
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
+  await page.locator('[data-unit-code="R03"] [data-testid="unit-link"]').click();
+  await expect(page).toHaveURL(/\/units\/R03$/);
+  await page.goBack();
+  await expect(page.getByTestId('chessboard')).toBeVisible();
   const lastFree = page.locator('[data-unit-code="R03"] [data-testid="free-cell"]').last();
   const href = await lastFree.getAttribute('href');
   const expected = new URL(href!, 'http://127.0.0.1:3100');

@@ -408,9 +408,24 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .board--month .board-group-name-text { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 .board--month tr.board__group td.board__group-free { padding: 4px 0; font-variant-numeric: tabular-nums; }
 .board--month .board-stay-caption { left: 4px; padding-left: 0; }
+.board--month .board__free { margin-right: -1px; }
 @media (max-width: 1100px) {
   .board.board--month { --month-unit-width: 120px; }
   .board--month .board-group-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+/* Narrow desktop panels: room labels sit above their nights, leaving every date visible. */
+@media (min-width: 760px) and (max-width: 1279px) {
+  .page:has(.board--month) { padding-left: 8px; padding-right: 8px; }
+  .board.board--month { --month-unit-width: 0px; }
+  .board--month th.board__unit-head { padding: 0; font-size: 0; border-right: 0 !important; }
+  .board--month th.board__unit-head > * { display: none; }
+  .board.board--month td.board__unit { padding: 0; border-right: 0 !important; background: transparent !important; }
+  .board--month .board-unit-link { position: absolute; top: 2px; left: 8px; height: 24px; padding: 0 4px; white-space: nowrap; }
+  .board--month .board-group-toggle { position: absolute; top: 2px; left: 8px; width: 280px; min-height: 24px; }
+  .board--month .board-group-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .board--month tr.board__group td.board__group-free { padding-top: 28px; padding-bottom: 4px; }
+  .board--month td.board__cell { height: 64px; }
+  .board--month .board__stay,.board--month .board__free { margin-top: 28px; margin-bottom: 4px; }
 }
 .board-period .seg a.is-on,.seg a.is-on { background: var(--surface-elevated); color: var(--primary); box-shadow: var(--shadow); }
 @media (min-width: 761px) and (max-width: 1050px) { .desk-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); } }

@@ -212,7 +212,7 @@ export function ChessboardGrid({
           style={
             fitMonth
               ? ({
-                  '--month-min-width': `calc(var(--month-unit-width) + ${25 * board.dates.length}px)`,
+                  '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
                 } as CSSProperties)
               : { width: 190 + dayWidth * board.dates.length }
           }

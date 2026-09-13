@@ -190,3 +190,9 @@
 | 14.09.2026 00:37 | typecheck | ✅ без ошибок | 15 с | f46a020 +8 | [лог](logs/2026-09-13T19-37-14Z-typecheck-ed59.log) |  |
 | 14.09.2026 00:38 | unit | ✅ 611 из 611 | 11 с | 91b0280 | [лог](logs/2026-09-13T19-38-22Z-unit-b9cc.log) |  |
 | 14.09.2026 00:38 | lint | ✅ без ошибок | 14 с | 91b0280 | [лог](logs/2026-09-13T19-38-22Z-lint-057a.log) |  |
+| 14.09.2026 00:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts --grep все 31 день --workers=1) | ❌ упало 1 из 1 | 21 с | 8f7527a +2 | [лог](logs/2026-09-13T19-43-31Z-e2e-cdad.log) | все 31 день помещаются по ширине окна |
+| 14.09.2026 00:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts --grep все 31 день\|месячная сетка --workers=1) | ✅ 3 из 3 | 1 мин 19 с | 8f7527a +4 | [лог](logs/2026-09-13T19-44-35Z-e2e-caa6.log) |  |
+| 14.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-month.spec.ts tests/ui/premium.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spe | ✅ 14 из 14 | 2 мин 13 с | 8f7527a +4 | [лог](logs/2026-09-13T19-46-33Z-e2e-5741.log) |  |
+| 14.09.2026 00:49 | unit | ✅ 611 из 611 | 15 с | 8f7527a +2 | [лог](logs/2026-09-13T19-49-23Z-unit-3704.log) |  |
+| 14.09.2026 00:49 | lint | ✅ без ошибок | 21 с | 8f7527a +3 | [лог](logs/2026-09-13T19-49-23Z-lint-d648.log) |  |
+| 14.09.2026 00:49 | typecheck | ✅ без ошибок | 25 с | 8f7527a +3 | [лог](logs/2026-09-13T19-49-23Z-typecheck-cc79.log) |  |

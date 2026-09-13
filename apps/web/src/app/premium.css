@@ -394,6 +394,28 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .board .board__stay { height: 32px; line-height: 32px; margin: 7px -1px 7px 0; }
 .board-stay-caption { top: 0; }
 .board-group-toggle { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; background: transparent; border: 0; text-align: left; }
+/* Seven days fill the panel, retaining a visible room column even on a phone. */
+.board.board--week { --week-unit-width: 176px; table-layout: fixed; width: 100%; min-width: calc(var(--week-unit-width) + 168px); }
+.board--week thead th { padding: 8px 0; }
+.board--week th.board__unit-head { min-width: 0; padding: 8px; }
+.board--week td.board__cell { min-width: 0; }
+.board--week .board__free { margin-right: -1px; }
+.board--week .board-group-toggle { gap: 4px; min-height: 32px; }
+.board--week .board-group-name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.board--week tr.board__group td.board__group-free { padding: 4px 0; }
+@media (max-width: 1100px) {
+  .board.board--week { --week-unit-width: 120px; }
+  .board--week .board-occ-total,.board--week .board__unit > .muted-2 { display: none; }
+  .board--week td.board__unit { padding: 4px; }
+}
+@media (max-width: 600px) {
+  .board.board--week { --week-unit-width: 84px; }
+  .board--week .board__d { width: 100%; max-width: 24px; height: 24px; font-size: 14px; }
+  .board--week .board__wd,.board--week .board__occ { font-size: 12px; }
+  .board--week th.board__unit-head { padding: 4px; font-size: 12px; }
+  .board--week th.board__unit-head .board__wd { display: none; }
+  .board--week .board-stay-caption { left: 4px; padding-left: 0; }
+}
 /* A whole calendar month uses the available desktop width; captions follow their stay span. */
 .board.board--month { --month-unit-width: 144px; width: 100%; min-width: var(--month-min-width); }
 .board--month thead th { padding: 8px 0; height: 76px; }

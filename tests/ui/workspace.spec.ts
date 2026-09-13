@@ -210,7 +210,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto('/chessboard');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   // The short window starts today and clips the seeded stay that arrived yesterday.
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+  const last = new Date(Date.parse(`${today}T00:00:00Z`) + 6 * 86400_000)
+    .toISOString()
+    .slice(0, 10);
+  await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();

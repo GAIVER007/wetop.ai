@@ -6,12 +6,14 @@ test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
 });
 
-test('месяц по умолчанию: с первого по последнее число, включая прошлые дни', async ({ page }) => {
+test('месяц: с первого по последнее число, включая прошлые дни', async ({ page }) => {
   const today = new Date(Date.now() + 5 * 3600_000);
   const first = `${today.toISOString().slice(0, 7)}-01`;
   today.setUTCMonth(today.getUTCMonth() + 1, 0);
   const last = today.toISOString().slice(0, 10);
   await page.goto('/chessboard');
+  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
   await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(first);
   await expect(page.getByLabel('Шахматка: по', { exact: true })).toHaveValue(last);
   await expect(page.getByTestId('date-col')).toHaveCount(Number(last.slice(8)));
@@ -60,13 +62,12 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
   });
 }
 
-test('режимы 7/14 дней, произвольный период и возврат к месяцу', async ({ page }) => {
+test('неделя, 14 дней, произвольный период и возврат к месяцу', async ({ page }) => {
   await page.goto('/chessboard');
-  for (const days of [7, 14]) {
-    await page.getByRole('link', { name: `${days} дней`, exact: true }).click();
-    await expect(page.getByTestId('date-col')).toHaveCount(days);
-    await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
-  }
+  await expect(page.getByTestId('date-col')).toHaveCount(7);
+  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(14);
+  await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
   await page.getByLabel('Шахматка: с', { exact: true }).fill('2028-02-10');
   await page.getByLabel('Шахматка: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
@@ -75,18 +76,16 @@ test('режимы 7/14 дней, произвольный период и во�
   await expect(page.getByTestId('date-col')).toHaveCount(29);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', '2028-02-01');
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(
-    page
-      .getByTestId('date-col')
-      .filter({ has: page.locator('.board__d') })
-      .first(),
-  ).toHaveAttribute('data-date', /-01$/);
+  await expect(page.getByTestId('date-col')).toHaveCount(7);
+  await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.locator('th.is-today')).toHaveCount(1);
 });
 
 test('в месяце открываются брони, свободные даты и группы номеров', async ({ page }) => {
   await page.setViewportSize({ width: 812, height: 1000 });
   await page.goto('/chessboard');
+  await page.getByRole('link', { name: '14 дней', exact: true }).click();
+  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
   await stay.click();
@@ -125,6 +124,8 @@ for (const theme of ['light', 'dark'] as const) {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto('/chessboard');
+    await page.getByRole('link', { name: '14 дней', exact: true }).click();
+    await page.getByRole('link', { name: 'Месяц', exact: true }).click();
     const report = [];
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });

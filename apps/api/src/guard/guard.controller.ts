@@ -21,6 +21,7 @@ import { GuardService } from './guard.service';
  */
 @Controller('guard')
 export class GuardController {
+  private lastAlertTestAt = 0;
   constructor(
     @Inject(GuardService) private readonly guard: GuardService,
     @Inject(INCIDENTS_REPOSITORY) private readonly repo: IncidentsRepository,
@@ -80,6 +81,16 @@ export class GuardController {
   @Post('alert/test')
   @HttpCode(200)
   async alertTest() {
+    // Быстрый туннель пробрасывает весь порт API (SECURITY.md §11): пробное сообщение нельзя крутить без конца
+    const nowMs = Date.now();
+    if (nowMs - this.lastAlertTestAt < 60_000)
+      return {
+        configured: this.notifier.configured,
+        delivered: 0,
+        failed: [],
+        hint: 'не чаще раза в минуту',
+      };
+    this.lastAlertTestAt = nowMs;
     if (!this.notifier.configured)
       return {
         configured: false,

@@ -6,6 +6,22 @@ export const GUARD_PROBES = Symbol('GUARD_PROBES');
 export const GUARD_FIXES = Symbol('GUARD_FIXES');
 /** Будильник. В бою — Telegram, если владелец вписал токен и чат (docs/telegram/README.md). */
 export const ALERT_NOTIFIER = Symbol('ALERT_NOTIFIER');
+/** Сигнал «я жив» на сервер «сторож сторожа» (plans/slice-12-guard-server.md). Без GUARD_HEARTBEAT_URL — выключен. */
+export const GUARD_HEARTBEAT = Symbol('GUARD_HEARTBEAT');
+
+/** Только числа: сервер стоит не в РК, заголовков неисправностей и номеров броней в сигнале нет (ADR-018) */
+export interface HeartbeatBeat {
+  at: string;
+  open: number;
+  critical: number;
+  escalated: number;
+  checksFailed: number;
+}
+
+export interface GuardHeartbeat {
+  readonly configured: boolean;
+  send(beat: HeartbeatBeat): Promise<void>;
+}
 
 export interface WebhookSignal {
   checkedAt: string | null;
@@ -107,4 +123,6 @@ export interface GuardTickSummary {
   escalated: number;
   alerted: number;
   alertError: string | null;
+  /** Сигнал на сервер сторожа не ушёл: причина */
+  heartbeatError?: string;
 }

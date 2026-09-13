@@ -30,7 +30,9 @@ import type {
   FailedEvent,
   FixOutcome,
   GuardFixes,
+  GuardHeartbeat,
   GuardProbes,
+  HeartbeatBeat,
   OutboxSignal,
   StaySignal,
   WebhookSignal,
@@ -320,5 +322,29 @@ export function notifierFromEnv(): AlertNotifier {
     configured: true,
     recipients: cfg.chatIds.length,
     send: (text) => client.sendMessage(text),
+  };
+}
+
+/**
+ * Сигнал на сервер «сторож сторожа» (plans/slice-12-guard-server.md, шаг 12.2). Адрес и секрет вписывает владелец в .env;
+ * без них сигнал не шлётся. Только https (или локальный адрес для проверки): секрет в заголовке по открытому
+ * каналу не отправляем. Секрет — в заголовке, не в адресе: адреса попадают в журналы прокси.
+ */
+export function heartbeatFromEnv(): GuardHeartbeat {
+  const url = process.env.GUARD_HEARTBEAT_URL?.trim() ?? '';
+  const secret = process.env.GUARD_HEARTBEAT_SECRET?.trim() ?? '';
+  const safe = /^https:\/\//.test(url) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\//.test(url);
+  if (!url || !secret || !safe) return { configured: false, send: async () => undefined };
+  return {
+    configured: true,
+    async send(beat: HeartbeatBeat) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${secret}` },
+        body: JSON.stringify(beat),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`сервер сторожа ответил HTTP ${res.status}`);
+    },
   };
 }

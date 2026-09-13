@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  Optional,
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
@@ -30,12 +31,15 @@ import {
 import {
   ALERT_NOTIFIER,
   GUARD_FIXES,
+  GUARD_HEARTBEAT,
   GUARD_PROBES,
   type AlertNotifier,
   type FixOutcome,
   type GuardFixes,
+  type GuardHeartbeat,
   type GuardProbes,
   type GuardTickSummary,
+  type HeartbeatBeat,
 } from './guard.ports';
 
 /** Раз в минуту — как сторож webhook; первый проход через 30 с, когда остальные фоновые задачи уже поднялись */
@@ -116,6 +120,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     @Inject(GUARD_PROBES) private readonly probes: GuardProbes,
     @Inject(GUARD_FIXES) private readonly fixes: GuardFixes,
     @Inject(ALERT_NOTIFIER) private readonly notifier: AlertNotifier,
+    @Optional() @Inject(GUARD_HEARTBEAT) private readonly heartbeat?: GuardHeartbeat,
   ) {}
 
   onModuleInit(): void {
@@ -173,6 +178,14 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       } catch (e) {
         summary.dbOk = false;
         await this.onDbDown(now, e, summary);
+        // Базы нет — считать неисправности нечем; сервер сторожа получает «срочно» и дублирует тревогу
+        await this.beat(summary, {
+          at: now.toISOString(),
+          open: 1,
+          critical: 1,
+          escalated: 1,
+          checksFailed: 1,
+        });
         return summary;
       }
       if (this.dbDown) await this.onDbBack(now);
@@ -221,6 +234,14 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       }
 
       await this.alert(now, summary);
+      const openNow = await this.repo.open();
+      await this.beat(summary, {
+        at: now.toISOString(),
+        open: openNow.length,
+        critical: openNow.filter((i) => i.severity === 'CRITICAL').length,
+        escalated: openNow.filter((i) => i.status === 'ESCALATED').length,
+        checksFailed: summary.checkErrors.length,
+      });
       await this.purge(now);
       return summary;
     } finally {
@@ -549,6 +570,16 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         summary.alertError = r.failed.map((f) => `чат ${f.chatId}: ${f.error}`).join('; ');
     } catch (e) {
       summary.alertError = errText(e);
+    }
+  }
+
+  /** Сигнал «жив» на сервер сторожа. Сбой сервера проход не ломает — только пишется в итог прохода. */
+  private async beat(summary: GuardTickSummary, beat: HeartbeatBeat): Promise<void> {
+    if (!this.heartbeat?.configured) return;
+    try {
+      await this.heartbeat.send(beat);
+    } catch (e) {
+      summary.heartbeatError = errText(e);
     }
   }
 

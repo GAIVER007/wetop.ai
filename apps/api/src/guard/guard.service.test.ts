@@ -195,9 +195,18 @@ function setup(
     recipients: 1,
     send: async (text) => (sent.push(text), { delivered: 1, failed: [] }),
   };
+  const beats: unknown[] = [];
+  const heartbeat = {
+    configured: true,
+    fail: false,
+    send: async (b: unknown) => {
+      if (heartbeat.fail) throw new Error('сервер сторожа недоступен');
+      beats.push(b);
+    },
+  };
   const repo = new MemoryIncidents();
-  const guard = new GuardService(repo, probes, fixes, notifier);
-  return { guard, repo, state, calls, sent };
+  const guard = new GuardService(repo, probes, fixes, notifier, heartbeat);
+  return { guard, repo, state, calls, sent, beats, heartbeat };
 }
 
 describe('GuardService.tick', () => {
@@ -472,6 +481,43 @@ describe('GuardService: стойка, синхронизация с Exely, ос�
     const s = await t.guard.tick(NIGHT);
     expect(s.checked).not.toContain('ari.oversell');
     expect(s.checkErrors).toEqual([]);
+  });
+});
+
+describe('GuardService: сигнал на сервер «сторож сторожа»', () => {
+  it('раз в проход — только числа: открыто, срочных, ждут человека, не отработавших проверок', async () => {
+    const t = setup({
+      events: [
+        {
+          externalEventId: 'rev-9',
+          type: 'booking_new',
+          attempts: 6,
+          receivedAt: NIGHT,
+          lastError: 'PMS не выбирает сама (ADR-024)',
+        },
+      ],
+    });
+    await t.guard.tick(NIGHT);
+    expect(t.beats).toEqual([
+      { at: NIGHT.toISOString(), open: 1, critical: 1, escalated: 1, checksFailed: 0 },
+    ]);
+    expect(JSON.stringify(t.beats)).not.toContain('rev-9');
+  });
+
+  it('база легла — сигнал всё равно уходит и говорит «срочно»: сервер продублирует тревогу', async () => {
+    const t = setup();
+    t.state.dbDown = true;
+    await t.guard.tick(NIGHT);
+    expect(t.beats).toEqual([
+      { at: NIGHT.toISOString(), open: 1, critical: 1, escalated: 1, checksFailed: 1 },
+    ]);
+  });
+
+  it('сервер сторожа недоступен — проход не ломается, ошибка видна в итоге', async () => {
+    const t = setup();
+    t.heartbeat.fail = true;
+    const s = await t.guard.tick(NIGHT);
+    expect(s.heartbeatError).toMatch(/недоступен/);
   });
 });
 

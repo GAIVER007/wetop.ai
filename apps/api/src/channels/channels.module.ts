@@ -32,6 +32,7 @@ import {
   exports: [
     ARI_PUBLISHER,
     CHANNELS_REPOSITORY,
+    CHANNEX_GATEWAY,
     InboundBookingsService,
     OutboxWorker,
     ChannexSyncService,

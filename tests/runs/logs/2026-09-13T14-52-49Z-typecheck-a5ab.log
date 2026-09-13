@@ -1,0 +1,19 @@
+# Типы (typecheck) · 13.09.2026 19:52 Алматы · MacBook-Air-Urij.local
+# коммит c538741 (codex/hostel-frontend), незакоммиченных файлов набора: 35
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/ui/fixture-api.ts(493,48): error TS2550: Property 'findLast' does not exist on type '{ dateFrom: string; dateTo: string; price?: string; }[]'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2023' or later.
+tests/ui/fixture-api.ts(493,58): error TS7006: Parameter 'c' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 30 с

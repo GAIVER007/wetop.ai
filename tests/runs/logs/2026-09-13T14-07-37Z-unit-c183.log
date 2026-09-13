@@ -1,0 +1,31 @@
+# Модульные (unit) · 13.09.2026 19:07 Алматы · MacBook-Air-Urij.local
+# коммит 1193194 (codex/hostel-frontend), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-07-37Z-unit-c183.json' 'apps/api/src/hotel/hotel.controller.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/hotel/hotel.controller.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/hotel.controller.test.ts [ apps/api/src/hotel/hotel.controller.test.ts ]
+Error: Cannot find module './hotel.module' imported from /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/api/src/hotel/hotel.controller.test.ts
+ ❯ apps/api/src/hotel/hotel.controller.test.ts:6:1
+      4| import request from 'supertest';
+      5| import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } f…
+      6| import { HotelModule } from './hotel.module';
+       | ^
+      7| import { PrismaService } from '../database/prisma.provider';
+      8|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:07:38
+   Duration  464ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-07-37Z-unit-c183.json
+
+# код выхода 1 · 1 с

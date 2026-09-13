@@ -1,0 +1,139 @@
+import 'reflect-metadata';
+import { Test } from '@nestjs/testing';
+import type { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { HotelModule } from './hotel.module';
+import { PrismaService } from '../database/prisma.provider';
+
+describe('Hotel read projections', () => {
+  let app: INestApplication;
+  const property = {
+    id: 'test-property',
+    name: 'Тестовый хостел',
+    legalName: null,
+    address: null,
+    timezone: 'Asia/Almaty',
+    currency: 'KZT',
+    checkInTime: '14:00',
+    checkOutTime: '12:00',
+  };
+  const findFirst = vi.fn();
+  const groupBy = vi.fn();
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({ imports: [HotelModule] })
+      .overrideProvider(PrismaService)
+      .useValue({
+        db: {
+          property: { findFirst },
+          reservation: { groupBy },
+          ratePlan: { findMany: vi.fn().mockResolvedValue([]) },
+        },
+      })
+      .compile();
+    app = module.createNestApplication();
+    await app.init();
+  });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    findFirst.mockResolvedValue(property);
+    groupBy.mockResolvedValue([]);
+  });
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it('returns stored hotel settings without inventing defaults', async () => {
+    const r = await request(app.getHttpServer()).get('/hotel/settings').expect(200);
+    expect(r.body.property).toEqual(property);
+    expect(r.body.ratePlans).toEqual([]);
+  });
+  it('aggregates by channel/source/currency with precise money and separate cancellations', async () => {
+    groupBy.mockResolvedValue([
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'KZT',
+        status: 'CONFIRMED',
+        _count: { _all: 2 },
+        _sum: { totalAmount: 9007199254740993n },
+      },
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'KZT',
+        status: 'CANCELLED',
+        _count: { _all: 1 },
+        _sum: { totalAmount: 101n },
+      },
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'USD',
+        status: 'NO_SHOW',
+        _count: { _all: 1 },
+        _sum: { totalAmount: 100n },
+      },
+    ]);
+    const r = await request(app.getHttpServer())
+      .get('/hotel/channel-report?from=2026-09-01&to=2026-09-30')
+      .expect(200);
+    expect(r.body.rows).toEqual([
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'KZT',
+        count: 3,
+        cancelled: 1,
+        noShow: 0,
+        amountMinor: '9007199254741094',
+      },
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'USD',
+        count: 1,
+        cancelled: 0,
+        noShow: 1,
+        amountMinor: '100',
+      },
+    ]);
+    expect(groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        by: ['source', 'channel', 'currency', 'status'],
+        where: {
+          propertyId: property.id,
+          arrivalDate: { gte: new Date('2026-09-01'), lte: new Date('2026-09-30') },
+        },
+      }),
+    );
+  });
+  it('filters by stored reservation status and returns a real empty report', async () => {
+    const r = await request(app.getHttpServer())
+      .get('/hotel/channel-report?from=2026-09-01&to=2026-09-01&status=CONFIRMED')
+      .expect(200);
+    expect(r.body.rows).toEqual([]);
+    expect(groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'CONFIRMED' }) }),
+    );
+  });
+  it.each([
+    'from=2026-02-30&to=2026-03-01',
+    'from=2026-09-02&to=2026-09-01',
+    'from=2020-01-01&to=2026-09-01',
+    'from=x&to=2026-09-01',
+    'from=2026-09-01&to=2026-09-02&status=BOGUS',
+    '',
+  ])('rejects invalid query before touching the database: %s', async (q) => {
+    await request(app.getHttpServer()).get(`/hotel/channel-report?${q}`).expect(400);
+    expect(findFirst).not.toHaveBeenCalled();
+    expect(groupBy).not.toHaveBeenCalled();
+  });
+  it('does not disguise an unconfigured property as a zero report', async () => {
+    findFirst.mockResolvedValue(null);
+    await request(app.getHttpServer())
+      .get('/hotel/channel-report?from=2026-09-01&to=2026-09-01')
+      .expect(404);
+    expect(groupBy).not.toHaveBeenCalled();
+  });
+});

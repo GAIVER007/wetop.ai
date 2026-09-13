@@ -41,7 +41,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
   const [delState, setDel] = useState<GuestActionResult>({ error: null });
   return (
     <Stack>
-      <form action={pAction} data-testid="guest-form" className="panel">
+      <form action={pAction} id="guest-profile" data-testid="guest-form" className="panel">
         <PanelTitle>Профиль</PanelTitle>
         <Grid gap="sm">
           <Field label="Фамилия *">
@@ -89,7 +89,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
           {pState.error && <Alert>{pState.error}</Alert>}
         </Row>
       </form>
-      <Panel title="Документы">
+      <Panel title="Документы" id="guest-documents">
         {guest.documents.length === 0 && <span className="sub">нет</span>}
         {guest.documents.map((d) => (
           <Row key={d.id} data-testid="document-row" className="hint--lg">
@@ -97,6 +97,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
               {DOC_TYPES.find(([k]) => k === d.type)?.[1] ?? d.type}{' '}
               <b className="mono">{d.numberMasked}</b>
               {d.issueCountry ? ` · ${d.issueCountry}` : ''}
+              {d.issuedAt ? ` · выдан ${d.issuedAt}` : ''}
               {d.expiresAt ? ` · до ${d.expiresAt}` : ''}
             </span>
             <Button
@@ -111,21 +112,32 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
           </Row>
         ))}
         <form action={dAction} data-testid="document-form" className="row">
-          <Select name="type" defaultValue="PASSPORT">
+          <Select name="type" aria-label="Тип документа" defaultValue="PASSPORT">
             {DOC_TYPES.map(([k, t]) => (
               <option key={k} value={k}>
                 {t}
               </option>
             ))}
           </Select>
-          <Input name="number" placeholder="номер (хранится зашифрованным)" required />
+          <Input
+            name="number"
+            aria-label="Номер документа"
+            placeholder="Номер документа"
+            required
+          />
           <Input
             name="issueCountry"
+            aria-label="Страна выдачи"
             placeholder="страна, KAZ"
             maxLength={3}
             className="inp--w90 inp--upper"
           />
-          <Input type="date" name="expiresAt" title="действителен до" />
+          <Field label="Дата выдачи">
+            <Input type="date" name="issuedAt" />
+          </Field>
+          <Field label="Действителен до">
+            <Input type="date" name="expiresAt" />
+          </Field>
           <Button type="submit" disabled={dPending}>
             Добавить
           </Button>

@@ -1,0 +1,25 @@
+# Типы (typecheck) · 13.09.2026 17:42 Алматы · MacBook-Air-Urij.local
+# коммит 34883f7 (codex/hostel-frontend), незакоммиченных файлов набора: 8
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/components/top-nav.tsx(26,6): error TS2375: Type '{ children: Element[]; href: string; className: string; onClick: (() => void) | undefined; "aria-label": string; }' is not assignable to type 'LinkProps<any>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'onClick' are incompatible.
+    Type '(() => void) | undefined' is not assignable to type 'MouseEventHandler<HTMLAnchorElement>'.
+      Type 'undefined' is not assignable to type 'MouseEventHandler<HTMLAnchorElement>'.
+apps/web/src/components/top-nav.tsx(35,10): error TS2375: Type '{ children: Element[]; href: string; onClick: (() => void) | undefined; className: string; "aria-current": "page" | undefined; }' is not assignable to type 'LinkProps<any>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'onClick' are incompatible.
+    Type '(() => void) | undefined' is not assignable to type 'MouseEventHandler<HTMLAnchorElement>'.
+      Type 'undefined' is not assignable to type 'MouseEventHandler<HTMLAnchorElement>'.
+
+# код выхода 1 · 9 с

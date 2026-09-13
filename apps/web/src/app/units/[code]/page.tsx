@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFoundOn404 } from '../../../lib/page-error';
 import { unitsApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
@@ -16,7 +17,7 @@ const STATUS_RU: Record<string, string> = {
 /** Карточка ячейки: уборка, блокировки, ближайшие проживания. */
 export default async function UnitPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const unit = await unitsApi.card(decodeURIComponent(code));
+  const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
   return (
     <Page

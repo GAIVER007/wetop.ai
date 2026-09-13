@@ -1,0 +1,63 @@
+import { afterEach, expect, it, vi } from 'vitest';
+import { ApiError, getJsonPublic, reservationsApi } from './api';
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
+
+it('сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })));
+  await expect(getJsonPublic('/reservations/MISSING')).rejects.toBeInstanceOf(ApiError);
+  await expect(getJsonPublic('/reservations/MISSING')).rejects.toMatchObject({ status: 404 });
+});
+
+it('обычный запуск не принимает демонстрационные данные', async () => {
+  vi.stubEnv('APP_ALLOW_TEST_DATA', '');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(
+      new Response('{"count":48}', {
+        headers: { 'x-wetop-data-source': 'synthetic' },
+      }),
+    ),
+  );
+  await expect(getJsonPublic('/hotel/channel-report')).rejects.toMatchObject({ status: 503 });
+});
+
+it('production не разрешает тестовый сервер даже с флагом', async () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('APP_ALLOW_TEST_DATA', '1');
+  vi.stubEnv('APP_API_URL', 'http://127.0.0.1:4311');
+  const fetch = vi.fn();
+  vi.stubGlobal('fetch', fetch);
+  await expect(reservationsApi.create({})).rejects.toMatchObject({ status: 503 });
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+it('test opt-in добавляет явный заголовок, пустые реальные ответы остаются пустыми', async () => {
+  vi.stubEnv('NODE_ENV', 'test');
+  vi.stubEnv('APP_ALLOW_TEST_DATA', '1');
+  const fetch = vi.fn().mockResolvedValue(new Response('[]'));
+  vi.stubGlobal('fetch', fetch);
+  await expect(getJsonPublic('/guests')).resolves.toEqual([]);
+  expect(fetch).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      headers: expect.objectContaining({ 'x-wetop-test-client': '1' }),
+      signal: expect.any(AbortSignal),
+    }),
+  );
+});
+
+it('сетевой отказ не превращается в нулевые показатели и не повторяет команду', async () => {
+  const fetch = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
+  vi.stubGlobal('fetch', fetch);
+  await expect(reservationsApi.create({})).rejects.toMatchObject({ status: 503 });
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it('не перехватывает служебные сигналы рендера как сетевой сбой', async () => {
+  const renderSignal = new Error('render control flow');
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(renderSignal));
+  await expect(getJsonPublic('/inventory/summary')).rejects.toBe(renderSignal);
+});

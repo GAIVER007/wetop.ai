@@ -44,28 +44,19 @@ export default async function IncidentsPage() {
   const [status, open, all] = await Promise.all([
     guardApi.status().catch(() => null),
     guardApi.incidents('open').catch(() => null),
-    guardApi.incidents('all', 60).catch(() => []),
+    guardApi.incidents('all', 60).catch(() => null),
   ]);
   const dayAgo = Date.now() - 24 * 3_600_000;
-  const closed = all.filter(
+  const closed = all?.filter(
     (i) => i.status === 'RESOLVED' && Date.parse(i.resolvedAt ?? '') > dayAgo,
   );
   const tick = status?.lastTick ?? null;
   return (
-    <Page title="Неисправности" subtitle="сторож системы" actions={<GuardTickButton />}>
-      {!status && (
-        <Alert boxed>
-          API не отвечает — сторож работает внутри API, поэтому сейчас не проверяет ничего. API
-          держит launchd и поднимает сам за 15 секунд; если не поднялся — смотрите{' '}
-          <span className="mono">scripts/ops/launchd/status.sh</span> и журнал{' '}
-          <span className="mono">~/Library/Logs/pms-lux/api.log</span>.
-        </Alert>
-      )}
+    <Page title="Неисправности" actions={<GuardTickButton />}>
+      {!status && <Alert boxed>API не отвечает. Подключение к системе недоступно.</Alert>}
       {status && !status.notifier.configured && (
         <Alert boxed tone="warning" data-testid="notifier-missing">
-          Будильник не настроен: сторож записывает неисправности, но никого не будит. Владельцу —
-          вписать в <span className="mono">.env</span> TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID
-          (docs/telegram/README.md) и перезапустить API.
+          Уведомления не настроены. Неисправности доступны только здесь.
         </Alert>
       )}
       <Stats min={150}>
@@ -130,6 +121,11 @@ export default async function IncidentsPage() {
       )}
 
       <SectionTitle>Открытые</SectionTitle>
+      {open === null && (
+        <Alert boxed>
+          Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.
+        </Alert>
+      )}
       <Table size="sm" data-testid="incidents-table">
         <thead>
           <tr>
@@ -192,6 +188,11 @@ export default async function IncidentsPage() {
       </Table>
 
       <SectionTitle>Закрыты за сутки</SectionTitle>
+      {all === null && (
+        <Alert boxed>
+          История неисправностей не загрузилась. Это не означает, что закрытых записей нет.
+        </Alert>
+      )}
       <Table size="sm" data-testid="incidents-closed">
         <thead>
           <tr>
@@ -201,14 +202,14 @@ export default async function IncidentsPage() {
           </tr>
         </thead>
         <tbody>
-          {closed.length === 0 && (
+          {closed?.length === 0 && (
             <tr>
               <td colSpan={4} className="muted">
                 за сутки ничего не закрывалось
               </td>
             </tr>
           )}
-          {closed.map((i) => (
+          {closed?.map((i) => (
             <tr key={i.id}>
               <td>
                 {i.title}

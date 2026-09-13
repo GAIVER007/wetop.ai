@@ -40,6 +40,7 @@ export function ReservationActions(props: {
     accommodationTypeName: string;
     unitCode: string | null;
     adults: number;
+    children: number;
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
@@ -88,7 +89,12 @@ export function ReservationActions(props: {
           <Stack key={it.id} gap="sm">
             <StayButtons number={props.number} item={it} />
             <GuestsForm number={props.number} item={it} />
-            <AssignForm number={props.number} item={it} arrivalDate={props.arrivalDate} />
+            <AssignForm
+              number={props.number}
+              item={it}
+              arrivalDate={props.arrivalDate}
+              ratePlans={props.ratePlans}
+            />
           </Stack>
         ))}
       {canEdit && (
@@ -154,7 +160,7 @@ function EditForm(props: { number: string; source: string; notes: string | null 
 /** Гостей на проживании (Q-102). Цена не меняется: перецена по календарю — «Изменить даты». */
 function GuestsForm(props: {
   number: string;
-  item: { id: string; adults: number; accommodationTypeName: string };
+  item: { id: string; adults: number; children: number; accommodationTypeName: string };
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(
     updateStayGuestsAction.bind(null, props.number, props.item.id),
@@ -162,7 +168,7 @@ function GuestsForm(props: {
   );
   return (
     <form
-      key={props.item.adults}
+      key={`${props.item.adults}-${props.item.children}`}
       action={action}
       className="panel"
       data-testid={`guests-form-${props.item.id}`}
@@ -174,6 +180,15 @@ function GuestsForm(props: {
             name="adults"
             min={1}
             defaultValue={props.item.adults}
+            className="inp--w64"
+          />
+        </Field>
+        <Field inline label="Детей">
+          <Input
+            type="number"
+            name="children"
+            min={0}
+            defaultValue={props.item.children}
             className="inp--w64"
           />
         </Field>
@@ -262,6 +277,7 @@ function StayButtons(props: {
 function AssignForm(props: {
   number: string;
   arrivalDate: string;
+  ratePlans: Array<{ code: string; name: string; currency: string }>;
   item: {
     id: string;
     accommodationTypeCode: string;
@@ -307,6 +323,16 @@ function AssignForm(props: {
             </optgroup>
           ))}
         </Select>
+        <Field label="Тариф при смене категории">
+          <Select name="ratePlanCode" defaultValue="">
+            <option value="">Тариф проживания</option>
+            {props.ratePlans.map((plan) => (
+              <option key={plan.code} value={plan.code}>
+                {plan.name} ({plan.currency})
+              </option>
+            ))}
+          </Select>
+        </Field>
         <Field inline label="с даты">
           <Input type="date" name="fromDate" defaultValue={props.arrivalDate} />
         </Field>

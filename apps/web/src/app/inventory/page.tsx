@@ -84,7 +84,7 @@ export default async function InventoryPage({
           <tbody>
             {units.map((u) => (
               <tr key={u.code} data-testid="unit-row">
-                <td className="mono">{u.code}</td>
+                <td className="mono"><Link href={`/units/${encodeURIComponent(u.code)}`} className="unit">{u.code}</Link></td>
                 <td>{u.kind === 'ROOM' ? 'номер' : 'койка'}</td>
                 <td>{u.accommodationTypeName}</td>
                 <td className="mono">{u.roomNumber}</td>

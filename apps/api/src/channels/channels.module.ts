@@ -9,6 +9,12 @@ import { WebhookHealthService } from './webhook-health.service';
 import { ChannexSyncService } from './sync.service';
 import { ChannelsController } from './channels.controller';
 import {
+  ChannelConnectionController,
+  ChannelConnectionService,
+  CHANNEL_CONNECTION_READER,
+  connectionReaderFromEnv,
+} from './connection';
+import {
   CHANNELS_REPOSITORY,
   CHANNEX_GATEWAY,
   PrismaChannelsRepository,
@@ -16,9 +22,11 @@ import {
 } from './channels.repository';
 
 @Module({
-  controllers: [ChannelsController],
+  controllers: [ChannelsController, ChannelConnectionController],
   providers: [
     PrismaService,
+    ChannelConnectionService,
+    { provide: CHANNEL_CONNECTION_READER, useFactory: connectionReaderFromEnv },
     ChannexSyncService,
     InboundBookingsService,
     { provide: RESERVATIONS_UOW, useClass: PrismaUnitOfWork },

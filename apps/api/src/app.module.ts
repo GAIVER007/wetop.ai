@@ -9,6 +9,7 @@ import { FinanceModule } from './finance/finance.module';
 import { GuardModule } from './guard/guard.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { HotelModule } from './hotel/hotel.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UnitsModule } from './units/units.module';
@@ -17,6 +18,7 @@ import { WebBookingModule } from './web-booking/web-booking.module';
 @Module({
   imports: [
     InventoryModule,
+    HotelModule,
     ChessboardModule,
     ReservationsModule,
     ChannelsModule,

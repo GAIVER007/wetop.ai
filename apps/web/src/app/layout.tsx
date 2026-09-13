@@ -2,6 +2,9 @@ import type { ReactNode } from 'react';
 import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import { TopNav } from '../components/top-nav';
 import './globals.css';
+import './workspace.css';
+import './today/desk.css';
+import './management/hotel.css';
 
 /*
  * Шрифты стойки: IBM Plex Sans — весь интерфейс, включая заголовки (две гарнитуры на плотных экранах
@@ -21,15 +24,17 @@ const mono = IBM_Plex_Mono({
   display: 'swap',
 });
 
-export const metadata = { title: 'PMS Luxx Aparts' };
+export const metadata = {
+  title: 'WETOP · Luxx Aparts',
+  description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
+};
 
 /** Общий каркас стойки: верхняя навигация + страница. Стили — `globals.css` (срез 10, ADR-027). */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={`${body.variable} ${mono.variable}`}>
       <body>
-        <TopNav />
-        {children}
+        <TopNav>{children}</TopNav>
       </body>
     </html>
   );

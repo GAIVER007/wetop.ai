@@ -6,19 +6,19 @@
  * и там, где нужно действие (жёлтое «не сделано», красный «долг»); границы в 1 px вместо теней.
  */
 :root {
-  --bg: #f4f5f8;
+  --bg: #f5f6f4;
   --surface: #fff;
-  --surface-muted: #fafbfc;
-  --border: #e3e5e8;
-  --border-soft: #eef0f3;
+  --surface-muted: #f8faf8;
+  --border: #e2e7e2;
+  --border-soft: #eef1ec;
   --border-input: #cbd0d6;
-  --text: #16213a;
-  --text-2: #3d4656;
-  --muted: #6b7280;
-  --muted-2: #8b93a1;
-  --primary: #1f4bd8;
-  --primary-hover: #17399f;
-  --primary-soft: #e8eefc;
+  --text: #23312c;
+  --text-2: #48554f;
+  --muted: #637168;
+  --muted-2: #67756b;
+  --primary: #28654c;
+  --primary-hover: #1d4e3a;
+  --primary-soft: #e7f1eb;
   --success: #176b3f;
   --success-2: #14532d;
   --success-soft: #dff5e7;
@@ -39,12 +39,12 @@
    * подсказка о статусе, читают строку по имени гостя. Точки статусов в таблицах берут насыщенные
    * --success / --primary / --warning, там цветного мало.
    */
-  --st-confirmed: #e4edfd;
-  --st-checked-in: #e2f3e9;
-  --st-checked-out: #edeff2;
-  --st-tentative: #fcf0d3;
-  --st-blocked: #fbe3e3;
-  --row-hover: #f7f9fc;
+  --st-confirmed: #dce7fa;
+  --st-checked-in: #cce7d9;
+  --st-checked-out: #e9ece9;
+  --st-tentative: #f8e8c3;
+  --st-blocked: #f4dad8;
+  --row-hover: #f6f9f6;
   /* графики и доли (срез 8: аналитика сайта). Серии — один синий интерфейса в двух тонах:
      второй цвет различал бы смыслы, а графики стоят порознь и названы заголовками;
      тёплый тон в палитре занят предупреждением и рядом с жёлтым читался бы как тревога */

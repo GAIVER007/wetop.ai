@@ -1,0 +1,31 @@
+# Модульные (unit) · 13.09.2026 19:35 Алматы · MacBook-Air-Urij.local
+# коммит c538741 (codex/hostel-frontend), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-35-48Z-unit-c7e9.json' 'apps/api/src/channels/connection.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/api/src/channels/connection.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/connection.test.ts [ apps/api/src/channels/connection.test.ts ]
+Error: Cannot find module './connection' imported from /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/api/src/channels/connection.test.ts
+ ❯ apps/api/src/channels/connection.test.ts:4:1
+      2| import { afterEach, describe, expect, it, vi } from 'vitest';
+      3| import { channex } from '@pms/integrations';
+      4| import { ChannelConnectionService } from './connection';
+       | ^
+      5| import type { ChannelsRepository } from './channels.repository';
+      6|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:35:50
+   Duration  267ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T14-35-48Z-unit-c7e9.json
+
+# код выхода 1 · 3 с

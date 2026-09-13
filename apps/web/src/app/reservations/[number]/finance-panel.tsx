@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useState } from 'react';
+import { GroupPayment } from './group-payment';
 import {
   formatMinor,
   type FinanceFolio,
@@ -66,6 +67,11 @@ export function FinancePanel({
 }) {
   return (
     <Stack>
+      <GroupPayment
+        number={number}
+        folios={finance.folios}
+        methods={METHODS.filter(([code]) => code !== 'EXTERNAL')}
+      />
       {finance.folios.length > 1 && (
         <div data-testid="finance-total">
           Итого по брони: начислено {formatMinor(finance.chargedMinor, finance.currency)}, оплачено{' '}

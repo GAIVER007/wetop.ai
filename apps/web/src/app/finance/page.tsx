@@ -1,6 +1,17 @@
+import { validDate } from '../../lib/hotel-api';
 import { financeApi, formatMinor } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Field, Input, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Help,
+  Input,
+  SectionTitle,
+  Stat,
+  Stats,
+  Table,
+} from '../../components/ui';
 
 const KIND_RU: Record<string, string> = {
   ACCOMMODATION: 'проживание',
@@ -39,8 +50,9 @@ export default async function FinanceReportPage({
   const def = currentMonth();
   const from = sp.from || def.from;
   const to = sp.to || def.to;
-  const r = await financeApi.report(from, to);
-  const cur = r.currency;
+  const valid = validDate(from) && validDate(to) && from <= to;
+  const r = valid ? await financeApi.report(from, to) : null;
+  const cur = r?.currency ?? '';
   return (
     <Page title="Деньги за период">
       <form method="get" className="row row--lg toolbar" data-testid="period-form">
@@ -53,57 +65,62 @@ export default async function FinanceReportPage({
         <Button type="submit">Показать</Button>
       </form>
 
-      <Stats min={170}>
-        <Stat label="Начислено" value={formatMinor(r.chargedMinor, cur)} testId="charged" />
-        <Stat label="Оплачено" value={formatMinor(r.paidMinor, cur)} testId="paid" />
-        <Stat label="Возвращено" value={formatMinor(r.refundedMinor, cur)} testId="refunded" />
-        <Stat
-          label="Не собрано"
-          value={formatMinor(r.balanceMinor, cur)}
-          testId="balance"
-          hint="начислено − оплачено + возвращено"
-        />
-      </Stats>
+      {!valid && (
+        <Alert boxed>Проверьте даты: окончание периода должно быть не раньше начала.</Alert>
+      )}
+      {r && (
+        <>
+          <Stats min={170}>
+            <Stat label="Начислено" value={formatMinor(r.chargedMinor, cur)} testId="charged" />
+            <Stat label="Оплачено" value={formatMinor(r.paidMinor, cur)} testId="paid" />
+            <Stat label="Возвращено" value={formatMinor(r.refundedMinor, cur)} testId="refunded" />
+            <Stat
+              label="Не собрано"
+              value={formatMinor(r.balanceMinor, cur)}
+              testId="balance"
+              hint="начислено − оплачено + возвращено"
+            />
+          </Stats>
 
-      <Report
-        title="Начисления по видам"
-        testId="charges-table"
-        head={['Вид', 'Штук', 'Сумма']}
-        rows={r.chargesByKind.map((x) => [
-          KIND_RU[x.kind] ?? x.kind,
-          String(x.count),
-          formatMinor(x.amountMinor, cur),
-        ])}
-      />
-      <Report
-        title="Оплаты по способам"
-        testId="payments-table"
-        head={['Способ', 'Штук', 'Сумма']}
-        rows={r.paymentsByMethod.map((x) => [
-          METHOD_RU[x.method] ?? x.method,
-          String(x.count),
-          formatMinor(x.amountMinor, cur),
-        ])}
-      />
-      <Report
-        title="Проживание по категориям"
-        testId="category-table"
-        head={['Категория', 'Начислений', 'Сумма']}
-        rows={r.accommodationByCategory.map((x) => [
-          x.category,
-          String(x.count),
-          formatMinor(x.amountMinor, cur),
-        ])}
-      />
-      <p className="note" style={{ marginTop: 18 }}>
-        Начисления считаются по дате услуги, оплаты и возвраты — по дате операции. Это разные базы:
-        сумма оплат за период не обязана совпадать с начислениями, потому что платят и авансом, и
-        позже.
-        <br />
-        «Не собрано» по броням, перенесённым из Exely, завышено: деньги, собранные площадкой
-        (Trip.com, Agoda, Expedia, Островок), Exely к проживанию не привязывал. У новых броней из
-        каналов это учитывается автоматически. Разбор — reports/unpaid-by-channel-2026-08.md.
-      </p>
+          <Report
+            title="Начисления по видам"
+            testId="charges-table"
+            head={['Вид', 'Штук', 'Сумма']}
+            rows={r.chargesByKind.map((x) => [
+              KIND_RU[x.kind] ?? x.kind,
+              String(x.count),
+              formatMinor(x.amountMinor, cur),
+            ])}
+          />
+          <Report
+            title="Оплаты по способам"
+            testId="payments-table"
+            head={['Способ', 'Штук', 'Сумма']}
+            rows={r.paymentsByMethod.map((x) => [
+              METHOD_RU[x.method] ?? x.method,
+              String(x.count),
+              formatMinor(x.amountMinor, cur),
+            ])}
+          />
+          <Report
+            title="Проживание по категориям"
+            testId="category-table"
+            head={['Категория', 'Начислений', 'Сумма']}
+            rows={r.accommodationByCategory.map((x) => [
+              x.category,
+              String(x.count),
+              formatMinor(x.amountMinor, cur),
+            ])}
+          />
+        </>
+      )}
+      <Help title="Как считаются суммы">
+        <p>Начисления — по дате услуги, оплаты и возвраты — по дате операции.</p>
+        <p>
+          У броней, перенесённых из Exely, могут отсутствовать оплаты, полученные площадкой.
+          Проверьте их перед взысканием остатка.
+        </p>
+      </Help>
     </Page>
   );
 }

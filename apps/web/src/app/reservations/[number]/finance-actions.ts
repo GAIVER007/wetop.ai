@@ -6,6 +6,8 @@ export interface FinanceActionResult {
   error: string | null;
   /** метка последнего успешного действия — чтобы клиент мог сбросить форму */
   ok: number;
+  values?: Record<string, string>;
+  attempt?: number;
 }
 const describe = (e: unknown) =>
   e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
@@ -77,6 +79,31 @@ export async function payAction(
     });
   } catch (e) {
     return { error: describe(e), ok: _prev.ok };
+  }
+  return done(number);
+}
+
+/** Один платёж на выбранные открытые счета. Совпадение сумм проверяет существующий API. */
+export async function payGroupAction(
+  number: string,
+  folioIds: string[],
+  prev: FinanceActionResult,
+  fd: FormData,
+): Promise<FinanceActionResult> {
+  const keys = ['method', 'amount', 'note', ...folioIds.map((id) => `allocation.${id}`)];
+  const values = Object.fromEntries(keys.map((key) => [key, s(fd, key) ?? '']));
+  try {
+    await financeApi.pay({
+      method: s(fd, 'method'),
+      amount: s(fd, 'amount'),
+      note: s(fd, 'note') ?? null,
+      allocations: folioIds.flatMap((folioId) => {
+        const amount = s(fd, `allocation.${folioId}`);
+        return amount ? [{ folioId, amount }] : [];
+      }),
+    });
+  } catch (e) {
+    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1, values };
   }
   return done(number);
 }

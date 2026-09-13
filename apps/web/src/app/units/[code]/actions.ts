@@ -13,7 +13,14 @@ const s = (fd: FormData, k: string) => {
 };
 const done = (code: string) => {
   revalidatePath(`/units/${code}`);
-  revalidatePath('/chessboard');
+  for (const path of [
+    '/chessboard',
+    '/inventory',
+    '/rooms/availability',
+    '/management/statistics',
+    '/today',
+  ])
+    revalidatePath(path);
   return { error: null };
 };
 

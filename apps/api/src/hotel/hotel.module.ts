@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { ReservationDirectory, ReservationDirectoryController } from './reservation-directory';
 import {
   BadRequestException,
   Controller,
@@ -140,5 +141,8 @@ export class HotelController {
   }
 }
 
-@Module({ controllers: [HotelController], providers: [PrismaService, HotelService] })
+@Module({
+  controllers: [HotelController, ReservationDirectoryController],
+  providers: [PrismaService, HotelService, ReservationDirectory],
+})
 export class HotelModule {}

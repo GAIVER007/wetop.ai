@@ -1,250 +1,204 @@
 'use client';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
-import { navigation, activeNavigation, type NavigationItem } from '../lib/navigation';
+import { Sidebar } from './shell/sidebar';
+import { GlobalSearch } from './shell/search';
+import { ShellAssistant } from './shell/assistant';
+import { Overlay } from './overlay';
+import { useTheme } from './theme-provider';
 import { cx } from './ui';
-
-function NavigationEntry({
-  item,
-  active,
-  close,
-}: {
-  item: NavigationItem;
-  active?: string | undefined;
-  close?: (() => void) | undefined;
-}) {
-  const id = useId();
-  const containsActive = item.children?.some((child) => child.href === active) ?? false;
-  const [expanded, setExpanded] = useState(containsActive || item.href === active);
-  // A newly visited child opens its parent; manual collapse remains possible on the current page.
-  useEffect(() => {
-    if (containsActive || item.href === active) setExpanded(true);
-  }, [active, containsActive, item.href]);
-  return (
-    <div className="nav-entry">
-      <div className="nav-entry-row">
-        <Link
-          href={item.href}
-          prefetch={false}
-          onClick={() => close?.()}
-          className={cx(
-            'workspace-link',
-            active === item.href && 'is-active',
-            containsActive && 'has-active-child',
-          )}
-          aria-current={active === item.href ? 'page' : undefined}
-        >
-          <Icon name={item.icon} />
-          <span>{item.label}</span>
-        </Link>
-        {item.children && (
-          <button
-            type="button"
-            className="nav-toggle"
-            aria-label={`Подразделы: ${item.label}`}
-            aria-expanded={expanded}
-            aria-controls={id}
-            onClick={() => setExpanded(!expanded)}
-          >
-            <Icon name="chevron" />
-          </button>
-        )}
-      </div>
-      {item.children && (
-        <div id={id} className="nav-children" hidden={!expanded}>
-          {item.children.map((child) => (
-            <Link
-              key={child.href}
-              href={child.href}
-              prefetch={false}
-              onClick={() => close?.()}
-              className={cx('nav-child', active === child.href && 'is-active')}
-              aria-current={active === child.href ? 'page' : undefined}
-            >
-              {child.label}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Navigation({ path, close }: { path: string; close?: () => void }) {
-  const active = activeNavigation(path)?.href;
-  return (
-    <>
-      <Link
-        href="/today"
-        className="workspace-brand"
-        onClick={() => close?.()}
-        aria-label="WETOP — Сегодня"
-      >
-        <span className="workspace-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none">
-            <path
-              d="m5 9 5 15 6-11 6 11 5-15"
-              stroke="currentColor"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-        <span>
-          wetop<span className="brand-dot">.</span>
-        </span>
-      </Link>
-      <div className="workspace-property">
-        <span className="property-mark">
-          <Icon name="inventory" />
-        </span>
-        <div>
-          <strong>Luxx Aparts</strong>
-          <span>Хостел · Алматы</span>
-        </div>
-      </div>
-      <nav className="workspace-links" aria-label="Разделы">
-        {navigation.map((group) => (
-          <div key={group.label}>
-            <div className="nav-group">{group.label}</div>
-            {group.items.map((item) => (
-              <NavigationEntry key={item.href} item={item} active={active} close={close} />
-            ))}
-          </div>
-        ))}
-      </nav>
-      <div className="workspace-footer">
-        <span className="desk-avatar">
-          <Icon name="bed" />
-        </span>
-        <div>
-          <strong>Стойка регистрации</strong>
-          <span>Luxx Aparts · Алматы</span>
-        </div>
-      </div>
-    </>
-  );
-}
-
-/** Клиентский shell получает серверные страницы слотом; данные не переносятся в клиентский bundle. */
-export function TopNav({ children }: { children: ReactNode }) {
+import { activeNavigation } from '../lib/navigation';
+export function TopNav({ children, demo = false }: { children: ReactNode; demo?: boolean }) {
   const path = usePathname() ?? '';
-  const router = useRouter();
-  const search = useRef<HTMLDialogElement>(null);
-  const menu = useRef<HTMLDialogElement>(null);
+  const [search, setSearch] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [assistant, setAssistant] = useState(false);
+  const [notifications, setNotifications] = useState(false);
+  const [profile, setProfile] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const { setTheme } = useTheme();
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem('wetop.sidebar') === 'collapsed');
+    } catch {
+      /* Optional preference. */
+    }
+  }, []);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && !path.includes('/print')) {
         e.preventDefault();
-        if (!search.current?.open) search.current?.showModal();
+        setSearch((s) => !s);
       }
+      if (e.key === 'Escape') setProfile(false);
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, [path]);
-  if (path.includes('/print')) return <>{children}</>;
-  const section = activeNavigation(path);
+  useEffect(() => {
+    setProfile(false);
+  }, [path]);
+  if (path.includes('/print') || path === '/login') return <>{children}</>;
+  const collapse = () => {
+    setCollapsed(!collapsed);
+    try {
+      localStorage.setItem('wetop.sidebar', collapsed ? 'expanded' : 'collapsed');
+    } catch {
+      /* Optional preference. */
+    }
+  };
+  const nav = [
+    { href: '/today', label: 'Главная', icon: 'today' },
+    { href: '/reservations', label: 'Брони', icon: 'booking' },
+    { href: '/guests', label: 'Гости', icon: 'guests' },
+    { href: '/chessboard', label: 'Шахматка', icon: 'board' },
+  ] as const;
   return (
-    <div className="workspace">
+    <div className={cx('workspace', collapsed && 'is-collapsed')}>
       <a className="skip-link" href="#main-content">
         К содержимому
       </a>
       <aside className="workspace-sidebar">
-        <Navigation path={path} />
+        <Sidebar
+          path={path}
+          onAssistant={() => setAssistant(true)}
+          collapsed={collapsed}
+          onCollapse={collapse}
+        />
       </aside>
       <div className="workspace-body">
         <header className="workspace-header">
           <button
             className="icon-button mobile-menu"
-            onClick={() => menu.current?.showModal()}
+            onClick={() => setMenu(true)}
             aria-label="Открыть меню"
           >
             <Icon name="menu" />
           </button>
-          <div className="workspace-breadcrumb">
-            Luxx Aparts<span>/</span>
-            <strong>{section?.label ?? 'Бронирование'}</strong>
-          </div>
           <button
             className="workspace-search"
             aria-label="Найти гостя или бронь"
-            onClick={() => search.current?.showModal()}
+            onClick={() => setSearch(true)}
           >
             <Icon name="search" />
-            <span>Найти гостя или бронь</span>
+            <span>Поиск гостя, брони, номера...</span>
             <kbd>⌘ K</kbd>
           </button>
-          <Link href="/reservations/new" className="btn workspace-create">
-            <Icon name="plus" />
-            <span>Новая бронь</span>
-          </Link>
+          <div className="header-tools">
+            {demo && (
+              <span
+                className="demo-indicator"
+                title="Вымышленные данные. Изменения не отправляются во внешние сервисы."
+              >
+                Демо
+              </span>
+            )}
+            <button
+              className="icon-button theme-switch"
+              aria-label="Переключить тему"
+              title="Светлая / тёмная тема"
+              onClick={() =>
+                setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
+              }
+            >
+              <Icon name="sun" className="theme-sun" />
+              <Icon name="moon" className="theme-moon" />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Уведомления"
+              onClick={() => setNotifications(true)}
+            >
+              <Icon name="bell" />
+            </button>
+            <div className="profile-menu">
+              <button
+                className="profile-trigger"
+                aria-label="Меню администратора"
+                aria-expanded={profile}
+                aria-controls="profile-dropdown"
+                onClick={() => setProfile(!profile)}
+              >
+                <span className="desk-avatar">АД</span>
+                <span className="profile-caption">
+                  <strong>Администратор</strong>
+                  <small>Luxx Aparts</small>
+                </span>
+                <Icon name="down" width={14} />
+              </button>
+              {profile && (
+                <>
+                  <button
+                    className="dropdown-dismiss"
+                    aria-label="Закрыть меню профиля"
+                    onClick={() => setProfile(false)}
+                  />
+                  <div className="profile-dropdown" id="profile-dropdown">
+                    <span className="eyebrow">Рабочее пространство</span>
+                    <Link href="/profile">
+                      <Icon name="guests" />
+                      Профиль и предпочтения
+                    </Link>
+                    <Link href="/hotel-settings">
+                      <Icon name="settings" />
+                      Настройки объекта
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setTheme('system');
+                        setProfile(false);
+                      }}
+                    >
+                      <Icon name="system" />
+                      Тема устройства
+                    </button>
+                    <Link href="/login">
+                      <Icon name="departure" />
+                      Экран входа
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </header>
+        {demo && (
+          <div className="demo-banner" role="status">
+            Демонстрационный режим{' '}
+            <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
+          </div>
+        )}
         {children}
       </div>
-      <dialog ref={menu} className="mobile-navigation" aria-label="Навигация">
-        <button
-          className="icon-button menu-close"
-          onClick={() => menu.current?.close()}
-          aria-label="Закрыть меню"
-        >
-          <Icon name="close" />
-        </button>
-        <Navigation path={path} close={() => menu.current?.close()} />
-      </dialog>
-      <dialog ref={search} className="search-dialog" aria-labelledby="quick-search-title">
-        <div className="dialog-heading">
-          <h2 id="quick-search-title">Быстрый поиск</h2>
-          <button
-            className="icon-button"
-            onClick={() => search.current?.close()}
-            aria-label="Закрыть поиск"
+      <nav className="bottom-navigation" aria-label="Основная навигация">
+        {nav.map((n) => (
+          <Link
+            key={n.href}
+            href={n.href}
+            className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
           >
-            <Icon name="close" />
-          </button>
-        </div>
-        <p className="muted">Найдите гостя или откройте бронь по её полному номеру.</p>
-        <form
-          className="stack"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const data = new FormData(e.currentTarget);
-            const q = String(data.get('query') ?? '').trim();
-            if (!q) return;
-            search.current?.close();
-            router.push(
-              data.get('kind') === 'booking'
-                ? `/reservations/${encodeURIComponent(q)}`
-                : `/guests?q=${encodeURIComponent(q)}`,
-            );
-          }}
-        >
-          <label className="field">
-            Искать
-            <select className="inp" name="kind">
-              <option value="guest">Гостя по имени, телефону или email</option>
-              <option value="booking">Бронь по номеру</option>
-            </select>
-          </label>
-          <label className="field">
-            Запрос
-            <input
-              className="inp"
-              name="query"
-              autoComplete="off"
-              required
-              minLength={2}
-              placeholder="Имя гостя или номер брони"
-            />
-          </label>
-          <button className="btn" type="submit">
-            <Icon name="search" />
-            Найти
-          </button>
-        </form>
-      </dialog>
+            <Icon name={n.icon} />
+            <span>{n.label}</span>
+          </Link>
+        ))}
+        <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
+          <Icon name="more" />
+          <span>Ещё</span>
+        </button>
+      </nav>
+      <Overlay
+        open={menu}
+        onClose={() => setMenu(false)}
+        title="Навигация"
+        className="mobile-navigation"
+      >
+        <Sidebar path={path} close={() => setMenu(false)} onAssistant={() => setAssistant(true)} />
+      </Overlay>
+      <GlobalSearch open={search} close={() => setSearch(false)} />
+      <ShellAssistant open={assistant} close={() => setAssistant(false)} />
+      <ShellAssistant open={notifications} close={() => setNotifications(false)} notifications />
     </div>
   );
 }

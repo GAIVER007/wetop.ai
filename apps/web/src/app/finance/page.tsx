@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Icon } from '../../components/icon';
 import { validDate } from '../../lib/hotel-api';
 import { financeApi, formatMinor } from '../../lib/api';
 import { Page } from '../../components/page';
@@ -54,7 +56,15 @@ export default async function FinanceReportPage({
   const r = valid ? await financeApi.report(from, to) : null;
   const cur = r?.currency ?? '';
   return (
-    <Page title="Деньги за период">
+    <Page
+      title="Деньги за период"
+      actions={
+        <Link href="/reservations" className="btn">
+          <Icon name="plus" />
+          Принять оплату
+        </Link>
+      }
+    >
       <form method="get" className="row row--lg toolbar" data-testid="period-form">
         <Field inline label="с">
           <Input type="date" name="from" defaultValue={from} />

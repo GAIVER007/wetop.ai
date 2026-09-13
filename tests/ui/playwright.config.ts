@@ -24,7 +24,12 @@ export default defineConfig({
     {
       command: 'npm exec -w apps/web -- next dev --port 3100 --hostname 127.0.0.1',
       cwd: '../..',
-      env: { APP_API_URL: 'http://127.0.0.1:4311', APP_ALLOW_TEST_DATA: '1' },
+      env: {
+        APP_UI_TEST: '1',
+        APP_DEMO_MODE: '',
+        APP_API_URL: 'http://127.0.0.1:4311',
+        APP_ALLOW_TEST_DATA: '1',
+      },
       url: 'http://127.0.0.1:3100/today',
       reuseExistingServer: false,
       timeout: 120_000,

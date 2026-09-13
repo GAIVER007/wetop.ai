@@ -33,7 +33,8 @@
     "cutover:ambiguous": "tsx scripts/reconciliation/src/cli-cutover-ambiguous.ts",
     "reconcile:day": "tsx scripts/reconciliation/src/cli-double-entry.ts",
     "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
-    "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts"
+    "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
+    "dev:demo": "node scripts/preview/start-demo.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

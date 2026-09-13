@@ -1,19 +1,30 @@
 import Link from 'next/link';
+import { GuestDirectory } from './guest-directory';
+import { Icon } from '../../components/icon';
 import { guestsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Input, Panel, Table } from '../../components/ui';
+import { Button, Input, Table } from '../../components/ui';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, status } = await searchParams;
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
-    <Page title="Гости" width="medium">
+    <Page
+      title="Гости"
+      subtitle="Гости объекта и история проживания"
+      actions={
+        <Link className="btn" href="/reservations/new">
+          <Icon name="plus" />
+          Добавить гостя
+        </Link>
+      }
+    >
       <form method="get" className="row toolbar">
         <Input
           name="q"
@@ -60,19 +71,7 @@ export default async function GuestsPage({
           </tbody>
         </Table>
       )}
-      {query.length < 2 && (
-        /* Пустой экран без подсказки выглядит как незагрузившаяся страница: говорим, что искать и зачем */
-        <Panel size="lg">
-          <p className="hint--lg">
-            Найдите гостя по фамилии, имени, телефону или почте — хватит двух букв. В карточке гостя
-            видно гражданство, документ и все его проживания: удобно, когда гость звонит и просит
-            «как в прошлый раз».
-          </p>
-          <p className="hint">
-            Гость создаётся при оформлении брони — отдельно создавать его не нужно.
-          </p>
-        </Panel>
-      )}
+      {query.length < 2 && <GuestDirectory {...(status ? { status } : {})} />}
     </Page>
   );
 }

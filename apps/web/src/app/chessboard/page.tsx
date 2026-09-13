@@ -1,9 +1,12 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { chessboardApi, type UnassignedStay } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Input, Legend, cx } from '../../components/ui';
+import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
 import { displayDate } from '../../lib/display-date';
+import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 
 const STATUS_RU: Record<string, string> = {
@@ -22,11 +25,37 @@ const STATUS_RU: Record<string, string> = {
 export default async function ChessboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { from, to } = await searchParams;
-  const board = await chessboardApi.board(from, to);
+  const query = normalizeSearchParams(await searchParams);
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  const from = query.from || today;
+  const to =
+    query.to ||
+    (validDate(from)
+      ? new Date(Date.parse(`${from}T00:00:00Z`) + 13 * 86400000).toISOString().slice(0, 10)
+      : '');
+  const invalidPeriod =
+    !validDate(from) ||
+    !validDate(to) ||
+    (from &&
+      to &&
+      (from > to || Date.parse(to) - Date.parse(from) > (MAX_CHESSBOARD_DAYS - 1) * 86400000));
+  if (invalidPeriod)
+    return (
+      <Page title="Шахматка">
+        <form method="get" className="row toolbar">
+          <Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
+          <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+          <Button>Показать</Button>
+        </form>
+        <Alert boxed>
+          Выберите корректный период до {MAX_CHESSBOARD_DAYS} дней.{' '}
+          <Link href="/chessboard">Сбросить фильтры</Link>
+        </Alert>
+      </Page>
+    );
+  const board = await chessboardApi.board(from, to);
   /** Окно на N суток от сегодня — смена смотрит вперёд на неделю, две или месяц */
   const window = (days: number) => {
     const t = new Date(`${today}T00:00:00Z`);

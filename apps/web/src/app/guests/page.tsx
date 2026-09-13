@@ -1,17 +1,19 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { reservationStatuses } from '../../lib/hotel-api';
 import { GuestDirectory } from './guest-directory';
 import { Icon } from '../../components/icon';
 import { guestsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Input, Table } from '../../components/ui';
+import { Alert, Button, Input, Table } from '../../components/ui';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { q, status } = await searchParams;
+  const { q, status } = normalizeSearchParams(await searchParams);
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
@@ -28,6 +30,8 @@ export default async function GuestsPage({
       <form method="get" className="row toolbar">
         <Input
           name="q"
+          minLength={2}
+          maxLength={120}
           aria-label="Поиск гостей"
           defaultValue={query}
           placeholder="фамилия, имя, телефон или email"
@@ -35,6 +39,11 @@ export default async function GuestsPage({
         />
         <Button type="submit">Найти</Button>
       </form>
+      {query.length === 1 && (
+        <p className="hint" role="status">
+          Введите не менее 2 символов для поиска.
+        </p>
+      )}
       {query.length >= 2 && (
         <Table data-testid="guests-table">
           <thead>
@@ -71,7 +80,13 @@ export default async function GuestsPage({
           </tbody>
         </Table>
       )}
-      {query.length < 2 && <GuestDirectory {...(status ? { status } : {})} />}
+      {status && !Object.hasOwn(reservationStatuses, status) ? (
+        <Alert boxed>
+          Выберите статус гостя. <Link href="/guests">Сбросить фильтры</Link>
+        </Alert>
+      ) : (
+        query.length < 2 && <GuestDirectory {...(status ? { status } : {})} />
+      )}
     </Page>
   );
 }

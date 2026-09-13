@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { validDate } from '../../lib/hotel-api';
@@ -46,9 +47,9 @@ function currentMonth(): { from: string; to: string } {
 export default async function FinanceReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   const def = currentMonth();
   const from = sp.from || def.from;
   const to = sp.to || def.to;

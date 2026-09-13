@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { deskApi, chessboardApi, formatMinor } from '../../lib/api';
 import { DayWorkspace } from './day-workspace';
@@ -9,12 +10,8 @@ import { AIInsightCard, QuickActions, OccupancyCharts, HotelClock } from './dash
 import { displayDate } from '../../lib/display-date';
 
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
-export default async function TodayPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ date?: string }>;
-}) {
-  const sp = await searchParams;
+export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const sp = normalizeSearchParams(await searchParams);
   const day = await deskApi.today(sp.date);
   const end = new Date(`${day.date}T00:00:00Z`);
   end.setUTCDate(end.getUTCDate() + 6);

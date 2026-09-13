@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { api, reservationsApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
@@ -19,9 +20,9 @@ const isDate = (value: string) => {
 export default async function NewReservationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ arrival?: string; departure?: string; unit?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const q = await searchParams;
+  const q = normalizeSearchParams(await searchParams);
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
   const arrival = q.arrival ?? today;
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');

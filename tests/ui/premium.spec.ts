@@ -89,6 +89,8 @@ test('новые фильтры шахматки, список броней и �
   page,
 }) => {
   await page.goto('/chessboard');
+  // Status filters apply to the first date; seed occupancy is relative to today.
+  await page.getByRole('link', { name: '7 дней', exact: true }).click();
   await page.getByRole('button', { name: 'Номера', exact: true }).click();
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.getByRole('button', { name: 'Койко-места', exact: true }).click();

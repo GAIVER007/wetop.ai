@@ -1,0 +1,86 @@
+# Сквозные (e2e) · 14.09.2026 00:30 Алматы · MacBook-Air-Urij.local
+# коммит f46a020 (codex/chessboard-calendar-month), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/quality.spec.ts' '--grep' 'месяц|месяца|месяце|месячная|31 день|режимы|drawer:|новые фильтры|шахматка:|период шахматки' '--workers=1'
+[WebServer] (node:59412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:59510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-month.spec.ts:9:1 › месяц по умолчанию: с первого по последнее число, включая прошлые дни (2.9s)
+  ✘   2 tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна (18.4s)
+(node:59597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/chessboard-month.spec.ts:46:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.4s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:46:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.2s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:46:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.5s)
+  ✓   6 tests/ui/chessboard-month.spec.ts:46:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (11.8s)
+  ✓   7 tests/ui/chessboard-month.spec.ts:63:1 › режимы 7/14 дней, произвольный период и возврат к месяцу (11.8s)
+[WebServer] (node:59992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/chessboard-month.spec.ts:87:1 › в месяце открываются брони, свободные даты и группы номеров (7.7s)
+  ✓   9 tests/ui/chessboard-month.spec.ts:116:3 › месячная сетка: light, читаемость и адаптивность (41.9s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:116:3 › месячная сетка: dark, читаемость и адаптивность (26.7s)
+[WebServer] (node:60665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (7.6s)
+[WebServer] (node:60730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (7.4s)
+  ✓  13 tests/ui/quality.spec.ts:92:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.6s)
+  ✓  14 tests/ui/workspace.spec.ts:209:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.4s)
+
+
+  1) tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна ────────────────
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('date-col').last()
+    Expected: in viewport
+    Received: viewport ratio 0.1599999964237213
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('date-col').last() with timeout 15000ms
+      - waiting for getByTestId('date-col').last()
+        33 × locator resolved to <th scope="col" class="is-we" data-testid="date-col" data-date="2026-10-31" aria-label="2026-10-31, сб, занято 0 из 88">…</th>
+           - unexpected value "viewport ratio 0.1599999964237213"
+
+
+      35 |   await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
+      36 |   await page.setViewportSize({ width: 1024, height: 1000 });
+    > 37 |   await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+         |                                                     ^
+      38 | });
+      39 |
+      40 | for (const [from, to, direction, expectedFrom, expectedTo] of [
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-month.spec.ts:37:53
+
+    Error Context: test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-month.spec.ts:22:1 › все 31 день помещаются по ширине окна ─────────────────
+  13 passed (2.8m)
+
+# код выхода 1 · 2 мин 49 с

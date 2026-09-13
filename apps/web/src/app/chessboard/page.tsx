@@ -8,6 +8,7 @@ import { ChessboardGrid } from './board-grid';
 import { displayDate } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
+import { monthPeriod } from './month-period';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -29,12 +30,15 @@ export default async function ChessboardPage({
 }) {
   const query = normalizeSearchParams(await searchParams);
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
-  const from = query.from || today;
+  const currentMonth = monthPeriod(today);
+  const from = query.from || currentMonth.from;
   const to =
     query.to ||
-    (validDate(from)
-      ? new Date(Date.parse(`${from}T00:00:00Z`) + 13 * 86400000).toISOString().slice(0, 10)
-      : '');
+    (!query.from
+      ? currentMonth.to
+      : validDate(from)
+        ? new Date(Date.parse(`${from}T00:00:00Z`) + 13 * 86400000).toISOString().slice(0, 10)
+        : '');
   const invalidPeriod =
     !validDate(from) ||
     !validDate(to) ||
@@ -56,7 +60,18 @@ export default async function ChessboardPage({
       </Page>
     );
   const board = await chessboardApi.board(from, to);
-  /** Окно на N суток от сегодня — смена смотрит вперёд на неделю, две или месяц */
+  const month = monthPeriod(from);
+  const isMonth = from === month.from && to === month.to;
+  const monthHref = (offset = 0) => {
+    const period = monthPeriod(from, offset);
+    return `/chessboard?from=${period.from}&to=${period.to}`;
+  };
+  const monthLabel = new Intl.DateTimeFormat('ru-RU', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${from}T00:00:00Z`));
+  /** Подробное окно на 7/14 суток от сегодня. Месяц всегда начинается с первого числа. */
   const window = (days: number) => {
     const t = new Date(`${today}T00:00:00Z`);
     t.setUTCDate(t.getUTCDate() + days - 1);
@@ -74,7 +89,7 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Шахматка"
-      subtitle={`${displayDate(board.from)} — ${displayDate(board.to)} · Номера и койки · ${board.rows.length} мест`}
+      subtitle={`${isMonth ? monthLabel : `${displayDate(board.from)} — ${displayDate(board.to)}`} · Номера и койки · ${board.rows.length} мест`}
       actions={
         <div className="board-period">
           <Link className="btn" href="/reservations/new">
@@ -86,17 +101,21 @@ export default async function ChessboardPage({
               7 дней
             </Link>
             <Link href={window(14)} className={cx(board.dates.length === 14 && 'is-on')}>
-              14
+              14 дней
             </Link>
-            <Link href={window(30)} className={cx(board.dates.length === 30 && 'is-on')}>
-              30
+            <Link
+              href={monthHref()}
+              className={cx(isMonth && 'is-on')}
+              aria-current={isMonth ? 'true' : undefined}
+            >
+              Месяц
             </Link>
           </span>
           <span className="board-date-nav">
             <Link
-              href={shift(-board.dates.length)}
+              href={isMonth ? monthHref(-1) : shift(-board.dates.length)}
               className="icon-button"
-              aria-label="Предыдущий период"
+              aria-label={isMonth ? 'Предыдущий месяц' : 'Предыдущий период'}
             >
               <Icon name="chevron" className="rotate-left" />
             </Link>
@@ -104,9 +123,9 @@ export default async function ChessboardPage({
               Сегодня
             </Link>
             <Link
-              href={shift(board.dates.length)}
+              href={isMonth ? monthHref(1) : shift(board.dates.length)}
               className="icon-button"
-              aria-label="Следующий период"
+              aria-label={isMonth ? 'Следующий месяц' : 'Следующий период'}
             >
               <Icon name="chevron" />
             </Link>
@@ -114,7 +133,7 @@ export default async function ChessboardPage({
         </div>
       }
     >
-      <form method="get" className="board-range-form">
+      <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
         <label className="field field--inline">
           Период
           <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
@@ -136,7 +155,7 @@ export default async function ChessboardPage({
         ]}
       />
       <UnassignedStays stays={board.unassigned ?? []} />
-      <ChessboardGrid board={board} today={today} />
+      <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
       <details className="board-help">
         <summary>Как работать с шахматкой</summary>
         <p className="note">

@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Fragment, useMemo, useRef, useState, useTransition } from 'react';
+import { Fragment, useMemo, useRef, useState, useTransition, type CSSProperties } from 'react';
 import {
   messengerLinks,
   type Chessboard,
@@ -36,7 +36,15 @@ const BLOCK_RU: Record<string, string> = {
  * сегодняшняя колонка выделена, выходные подсвечены; пустая клетка — ссылка «создать бронь на эту дату»;
  * занятую клетку можно перетащить на другую строку — переселение через существующий server action.
  */
-export function ChessboardGrid({ board, today }: { board: Chessboard; today: string }) {
+export function ChessboardGrid({
+  board,
+  today,
+  fitMonth = false,
+}: {
+  board: Chessboard;
+  today: string;
+  fitMonth?: boolean;
+}) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [kind, setKind] = useState('');
@@ -191,16 +199,28 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
           <p>По вашему запросу ничего не найдено. Измените поиск или сбросьте фильтры.</p>
         </div>
       )}
-      <div className="tbl-wrap board-wrap" style={{ opacity: pending ? 0.6 : 1 }}>
+      <div
+        className="tbl-wrap board-wrap"
+        role="region"
+        aria-label="Шахматка по дням"
+        tabIndex={0}
+        style={{ opacity: pending ? 0.6 : 1 }}
+      >
         <table
           data-testid="chessboard"
-          className="board"
-          style={{ width: 190 + dayWidth * board.dates.length }}
+          className={cx('board', fitMonth && 'board--month')}
+          style={
+            fitMonth
+              ? ({
+                  '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
+                } as CSSProperties)
+              : { width: 190 + dayWidth * board.dates.length }
+          }
         >
           <colgroup>
-            <col style={{ width: 190 }} />
+            <col style={{ width: fitMonth ? 'var(--month-unit-width)' : 190 }} />
             {board.dates.map((date) => (
-              <col key={date} style={{ width: dayWidth }} />
+              <col key={date} style={fitMonth ? undefined : { width: dayWidth }} />
             ))}
           </colgroup>
           <thead>
@@ -212,6 +232,9 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                 <th
                   key={d}
                   data-testid="date-col"
+                  data-date={d}
+                  scope="col"
+                  aria-label={`${d}, ${weekday(d)}, занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
                   className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                 >
                   <div className="board__d">{d.slice(8)}</div>
@@ -248,7 +271,9 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                       }
                     >
                       <span aria-hidden="true">{collapsed.has(g.code) ? '›' : '⌄'}</span>
-                      {g.name}
+                      <span className="board-group-name-text" title={g.name}>
+                        {g.name}
+                      </span>
                       <span className="muted">{g.rows.length}</span>
                     </button>
                   </td>
@@ -298,7 +323,6 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                           key={c.date}
                           cell={c}
                           label={labels.get(row.unit.id)?.get(index)}
-                          dayWidth={dayWidth}
                           unitCode={row.unit.code}
                           today={today}
                           onDragStart={onDragStart}
@@ -325,7 +349,6 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
 function Cell({
   cell,
   label,
-  dayWidth,
   unitCode,
   today,
   onDragStart,
@@ -333,7 +356,6 @@ function Cell({
 }: {
   cell: ChessboardCell;
   label: { span: number; continues: boolean } | undefined;
-  dayWidth: number;
   unitCode: string;
   today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
@@ -405,7 +427,10 @@ function Cell({
             }}
           >
             {label && (
-              <span className="board-stay-caption" style={{ width: label.span * dayWidth - 12 }}>
+              <span
+                className="board-stay-caption"
+                style={{ width: `calc(${label.span * 100}% - 12px)` }}
+              >
                 {label.continues ? '← ' : ''}
                 {cell.guestLabel || cell.confirmationNumber}
               </span>

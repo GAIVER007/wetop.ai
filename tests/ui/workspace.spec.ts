@@ -209,8 +209,9 @@ test('поиск и списки дня; мобильное меню и возв
 test('шахматка: фильтры, продолжение брони, выбранная койка в форме', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await page.getByRole('link', { name: '30', exact: true }).click();
-  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  // The short window starts today and clips the seeded stay that arrived yesterday.
+  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
   await page.getByLabel('Категория на шахматке').selectOption('MALE');

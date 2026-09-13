@@ -1,0 +1,60 @@
+# Сквозные (e2e) · 13.09.2026 23:37 Алматы · MacBook-Air-Urij.local
+# коммит 130f0d1 (codex/ui-quality-audit), незакоммиченных файлов набора: 33
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'неподключённые внешние демо'
+[WebServer] (node:42481) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:42650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/quality.spec.ts:141:1 › неподключённые внешние демо не ведут на несуществующие страницы (20.1s)
+
+
+  1) tests/ui/quality.spec.ts:141:1 › неподключённые внешние демо не ведут на несуществующие страницы 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Демо счётчика не подключено', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Демо счётчика не подключено', { exact: true }) with timeout 15000ms
+      - waiting for getByText('Демо счётчика не подключено', { exact: true })
+
+
+      141 | test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
+      142 |   await page.goto('/analytics/setup');
+    > 143 |   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
+          |                                                                                ^
+      144 |   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
+      145 |   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
+      146 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/quality.spec.ts:143:80
+
+    Error Context: test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/quality.spec.ts:141:1 › неподключённые внешние демо не ведут на несуществующие страницы 
+
+# код выхода 1 · 41 с

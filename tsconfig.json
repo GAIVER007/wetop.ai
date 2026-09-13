@@ -1,9 +1,14 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "noEmit": true, "experimentalDecorators": true, "emitDecoratorMetadata": true },
+  "compilerOptions": {
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
   "include": [
     "packages/*/src/**/*.ts",
     "scripts/*/src/**/*.ts",
+    "scripts/preview/**/*.ts",
     "tests/**/*.ts",
     "vitest.config.ts"
   ],

@@ -1,0 +1,16 @@
+# Модульные (unit) · 13.09.2026 23:48 Алматы · MacBook-Air-Urij.local
+# коммит 130f0d1 (codex/ui-quality-audit), незакоммиченных файлов набора: 44
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T18-48-48Z-unit-ee48.json' 'apps/web/src/app/form-retention.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 38ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  22:48:49
+   Duration  417ms (transform 55%, tests 22%, import 19%, worker 4%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-13T18-48-48Z-unit-ee48.json
+
+# код выхода 0 · 2 с

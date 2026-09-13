@@ -1,6 +1,8 @@
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
+import { RoomGrid } from '../room-grid';
 import { notFound } from 'next/navigation';
-import { api, reservationsApi } from '../../../lib/api';
+import { api, chessboardApi, reservationsApi } from '../../../lib/api';
 import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
@@ -12,13 +14,13 @@ export default async function RoomsPage({
   searchParams,
 }: {
   params: Promise<{ section?: string[] }>;
-  searchParams: Promise<{ arrival?: string; departure?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { section = [] } = await params;
   const path = `/rooms${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
   if (!item) notFound();
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   return (
     <Page
       title={item.label}
@@ -28,6 +30,7 @@ export default async function RoomsPage({
         <>
           <RoomTotals />
           <SectionCards items={item.children ?? []} />
+          <RoomsDirectory />
         </>
       )}
       {section[0] === 'categories' && <Categories />}
@@ -181,4 +184,13 @@ async function Availability({
       )}
     </>
   );
+}
+
+async function RoomsDirectory() {
+  const today = hotelToday();
+  const [units, board] = await Promise.all([
+    api.inventoryUnits(),
+    chessboardApi.board(today, today).catch(() => null),
+  ]);
+  return <RoomGrid units={units} board={board} />;
 }

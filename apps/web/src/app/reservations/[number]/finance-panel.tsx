@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useState } from 'react';
+import { useCommand } from '../../../lib/use-command';
 import { GroupPayment } from './group-payment';
 import {
   formatMinor,
@@ -117,7 +118,13 @@ function FolioPanel({
     payAction.bind(null, number, folio.id),
     INIT,
   );
-  const [other, setOther] = useState<FinanceActionResult>(INIT);
+  const {
+    state: other,
+    setState: setOther,
+    run: command,
+    pending: commandPending,
+  } = useCommand<FinanceActionResult>(INIT);
+  const busy = chargePending || payPending || commandPending;
   const [kind, setKind] = useState('SERVICE');
   const open = folio.status === 'OPEN';
   const balance = BigInt(folio.balanceMinor);
@@ -181,7 +188,8 @@ function FolioPanel({
                     size="xs"
                     className="is-danger"
                     data-testid={`void-${c.id}`}
-                    onClick={async () => setOther(await voidChargeAction(number, c.id))}
+                    disabled={busy}
+                    onClick={() => command(() => voidChargeAction(number, c.id))}
                   >
                     сторно
                   </Button>
@@ -251,18 +259,27 @@ function FolioPanel({
       {open && (
         <Stack gap="sm">
           <form
-            key={`c${chargeState.ok}`}
+            key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
             action={chargeAction}
             data-testid="charge-form"
             className="row"
           >
-            <Select name="kind" value={kind} onChange={(e) => setKind(e.target.value)}>
+            <Select
+              name="kind"
+              aria-label="Вид начисления"
+              value={kind}
+              onChange={(e) => setKind(e.target.value)}
+            >
               <option value="SERVICE">услуга</option>
               <option value="PENALTY">штраф</option>
               <option value="ADJUSTMENT">корректировка</option>
             </Select>
             {kind === 'SERVICE' ? (
-              <Select name="serviceCode" defaultValue={services[0]?.code}>
+              <Select
+                name="serviceCode"
+                aria-label="Услуга"
+                defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
+              >
                 {services.map((s) => (
                   <option key={s.code} value={s.code}>
                     {s.group ? `${s.group}: ` : ''}
@@ -271,37 +288,56 @@ function FolioPanel({
                 ))}
               </Select>
             ) : (
-              <Input name="description" placeholder="за что" required className="inp--w180" />
+              <Input
+                name="description"
+                aria-label="Описание начисления"
+                defaultValue={chargeState.values?.description ?? ''}
+                placeholder="за что"
+                required
+                className="inp--w180"
+              />
             )}
             <Input
               name="quantity"
+              aria-label="Количество"
               type="number"
               min={1}
               step={1}
-              defaultValue={1}
+              defaultValue={chargeState.values?.quantity ?? 1}
               className="inp--w64"
               title="количество"
             />
             {kind !== 'SERVICE' && (
               <Input
                 name="unitPrice"
+                aria-label="Цена за единицу"
+                defaultValue={chargeState.values?.unitPrice ?? ''}
                 placeholder={kind === 'ADJUSTMENT' ? 'сумма (можно −)' : 'сумма'}
                 required
                 className="inp--w120"
               />
             )}
-            <Input name="serviceDate" type="date" defaultValue={today} />
-            <Button type="submit" disabled={chargePending}>
+            <Input
+              name="serviceDate"
+              aria-label="Дата услуги"
+              type="date"
+              defaultValue={chargeState.values?.serviceDate ?? today}
+            />
+            <Button type="submit" disabled={busy}>
               Начислить
             </Button>
           </form>
           <form
-            key={`p${payState.ok}-${folio.balanceMinor}`}
+            key={`p${payState.ok}-${folio.balanceMinor}-${payState.attempt ?? 0}`}
             action={payFormAction}
             data-testid="payment-form"
             className="row"
           >
-            <Select name="method" defaultValue="CASH">
+            <Select
+              name="method"
+              aria-label="Способ оплаты"
+              defaultValue={payState.values?.method ?? 'CASH'}
+            >
               {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
                 <option key={k} value={k}>
                   {t}
@@ -310,13 +346,21 @@ function FolioPanel({
             </Select>
             <Input
               name="amount"
+              aria-label="Сумма"
               placeholder="сумма"
               required
-              defaultValue={balance > 0n ? toDecimal(folio.balanceMinor) : ''}
+              defaultValue={
+                payState.values?.amount ?? (balance > 0n ? toDecimal(folio.balanceMinor) : '')
+              }
               className="inp--w120"
             />
-            <Input name="note" placeholder="примечание" />
-            <Button type="submit" tone="success" disabled={payPending}>
+            <Input
+              name="note"
+              aria-label="Примечание"
+              defaultValue={payState.values?.note ?? ''}
+              placeholder="примечание"
+            />
+            <Button type="submit" tone="success" disabled={busy}>
               Принять оплату
             </Button>
           </form>
@@ -334,6 +378,7 @@ function FolioPanel({
                 tone="secondary"
                 size="sm"
                 data-testid={`${testId}-${folio.id}`}
+                disabled={busy}
                 title="Услуга на счёт по правилу объекта: доля ночи зависит от времени"
                 onClick={async () => {
                   // правило объекта из Exely: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
@@ -343,8 +388,8 @@ function FolioPanel({
                     '',
                   );
                   if (time === null) return;
-                  setOther(
-                    await stayExtraAction(number, folio.id, extra, time.trim() || undefined),
+                  await command(() =>
+                    stayExtraAction(number, folio.id, extra, time.trim() || undefined),
                   );
                 }}
               >
@@ -360,6 +405,7 @@ function FolioPanel({
                 tone="secondary"
                 size="sm"
                 data-testid={`close-folio-${folio.id}`}
+                disabled={busy}
                 onClick={async () => {
                   if (
                     !window.confirm(
@@ -367,7 +413,7 @@ function FolioPanel({
                     )
                   )
                     return;
-                  setOther(await closeFolioAction(number, folio.id));
+                  await command(() => closeFolioAction(number, folio.id));
                 }}
               >
                 Закрыть счёт
@@ -404,9 +450,27 @@ function RefundForm({
     INIT,
   );
   return (
-    <form key={state.ok} action={action} data-testid="refund-form" className="row row--xs">
-      <Input name="amount" placeholder="сумма" required className="inp--w90 inp--sm" />
-      <Input name="reason" placeholder="причина" className="inp--w110 inp--sm" />
+    <form
+      key={`${state.ok}-${state.attempt ?? 0}`}
+      action={action}
+      data-testid="refund-form"
+      className="row row--xs"
+    >
+      <Input
+        name="amount"
+        aria-label="Сумма"
+        defaultValue={state.values?.amount ?? ''}
+        placeholder="сумма"
+        required
+        className="inp--w90 inp--sm"
+      />
+      <Input
+        name="reason"
+        aria-label="Причина возврата"
+        defaultValue={state.values?.reason ?? ''}
+        placeholder="причина"
+        className="inp--w110 inp--sm"
+      />
       <Button type="submit" tone="secondary" size="sm" disabled={pending}>
         вернуть
       </Button>

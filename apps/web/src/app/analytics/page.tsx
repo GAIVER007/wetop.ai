@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
 import { Page } from '../../components/page';
@@ -42,9 +43,9 @@ const KIND_RU: Record<SiteReport['sources'][number]['kind'], string> = {
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ site?: string; from?: string; to?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   const sites = await analyticsApi.sites();
   if (!sites.length) return <NoSites />;
   const site = sites.find((s) => s.id === sp.site) ?? sites[0];
@@ -99,7 +100,7 @@ function PeriodForm({
   return (
     <form method="get" className="row toolbar">
       {sites.length > 1 && (
-        <Select name="site" defaultValue={site.id}>
+        <Select aria-label="Сайт" name="site" defaultValue={site.id}>
           {sites.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
@@ -108,9 +109,14 @@ function PeriodForm({
         </Select>
       )}
       {sites.length === 1 && <input type="hidden" name="site" value={site.id} />}
-      <Input type="date" name="from" defaultValue={from ?? period?.from} />
+      <Input
+        aria-label="Аналитика: с"
+        type="date"
+        name="from"
+        defaultValue={from ?? period?.from}
+      />
       <span className="muted">—</span>
-      <Input type="date" name="to" defaultValue={to ?? period?.to} />
+      <Input aria-label="Аналитика: по" type="date" name="to" defaultValue={to ?? period?.to} />
       <Button type="submit">Показать</Button>
       {period && thisMonth && prevMonth && (
         <span className="row row--lg hint--lg ml-sm">

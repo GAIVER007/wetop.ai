@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { Page } from '../../components/page';
@@ -7,9 +8,9 @@ import { SectionTitle, Stat, Stats, Table } from '../../components/ui';
 export default async function InventoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { category } = await searchParams;
+  const { category } = normalizeSearchParams(await searchParams);
   const [summary, units] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(category),
@@ -84,7 +85,11 @@ export default async function InventoryPage({
           <tbody>
             {units.map((u) => (
               <tr key={u.code} data-testid="unit-row">
-                <td className="mono"><Link href={`/units/${encodeURIComponent(u.code)}`} className="unit">{u.code}</Link></td>
+                <td className="mono">
+                  <Link href={`/units/${encodeURIComponent(u.code)}`} className="unit">
+                    {u.code}
+                  </Link>
+                </td>
                 <td>{u.kind === 'ROOM' ? 'номер' : 'койка'}</td>
                 <td>{u.accommodationTypeName}</td>
                 <td className="mono">{u.roomNumber}</td>

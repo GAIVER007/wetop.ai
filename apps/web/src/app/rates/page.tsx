@@ -1,7 +1,8 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { formatMinor, ratesApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Field, Input, Select, Table, cx } from '../../components/ui';
+import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
 
 const monthRange = (ym: string) => {
@@ -12,19 +13,26 @@ const monthRange = (ym: string) => {
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 
 /** Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа. */
-export default async function RatesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; ratePlan?: string; month?: string }>;
-}) {
-  const q = await searchParams;
+export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const q = normalizeSearchParams(await searchParams);
   const options = await ratesApi.options();
   const category = q.category ?? options.categories[0]?.code ?? '';
   const ratePlan =
     q.ratePlan ?? options.ratePlans.find((p) => p.active)?.code ?? options.ratePlans[0]?.code ?? '';
   const month = q.month ?? new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 7);
-  const { from, to } = monthRange(month);
-  const cal = category && ratePlan ? await ratesApi.calendar(category, ratePlan, from, to) : null;
+  const validMonth =
+    /^\d{4}-(0[1-9]|1[0-2])$/.test(month) &&
+    Number(month.slice(0, 4)) >= 1000 &&
+    Number(month.slice(0, 4)) <= 9998;
+  const error = !validMonth
+    ? 'Выберите корректный месяц.'
+    : !options.categories.some((c) => c.code === category) ||
+        !options.ratePlans.some((p) => p.code === ratePlan)
+      ? 'Выберите существующую категорию и тариф.'
+      : null;
+  const { from, to } = validMonth ? monthRange(month) : { from: '', to: '' };
+  const cal =
+    !error && category && ratePlan ? await ratesApi.calendar(category, ratePlan, from, to) : null;
   const shift = (n: number) => {
     const [y, m] = month.split('-').map(Number) as [number, number];
     const d = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
@@ -57,10 +65,17 @@ export default async function RatesPage({
         <Button type="submit" tone="secondary">
           Показать
         </Button>
-        <span style={{ marginLeft: 8 }}>
-          <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
-        </span>
+        {validMonth && (
+          <span style={{ marginLeft: 8 }}>
+            <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
+          </span>
+        )}
       </form>
+      {error && (
+        <Alert boxed>
+          {error} <Link href="/rates">Сбросить фильтры</Link>
+        </Alert>
+      )}
       <div className="split">
         <div className="tbl-wrap">
           {cal ? (
@@ -119,16 +134,18 @@ export default async function RatesPage({
             <p className="empty">Нет категорий или тарифов.</p>
           )}
         </div>
-        <BulkEditor
-          categories={options.categories}
-          ratePlans={options.ratePlans}
-          defaults={{
-            accommodationTypeCode: category,
-            ratePlanCode: ratePlan,
-            dateFrom: from,
-            dateTo: to,
-          }}
-        />
+        {!error && (
+          <BulkEditor
+            categories={options.categories}
+            ratePlans={options.ratePlans}
+            defaults={{
+              accommodationTypeCode: category,
+              ratePlanCode: ratePlan,
+              dateFrom: from,
+              dateTo: to,
+            }}
+          />
+        )}
       </div>
     </Page>
   );

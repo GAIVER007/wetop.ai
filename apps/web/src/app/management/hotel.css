@@ -18,14 +18,14 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #b1c4ba;
+  color: var(--muted);
   cursor: pointer;
   display: grid;
   place-items: center;
 }
 .nav-toggle:hover {
-  background: #33433e;
-  color: white;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 .nav-toggle svg {
   width: 14px;
@@ -36,16 +36,16 @@
   transform: rotate(90deg);
 }
 .workspace-link.has-active-child {
-  color: #e4f3eb;
+  color: var(--success);
 }
 .nav-children {
   margin: 0 0 7px 20px;
   padding-left: 15px;
-  border-left: 1px solid #4a5d54;
+  border-left: 1px solid var(--border);
 }
 .nav-child {
   display: block;
-  color: #bfcfc7;
+  color: var(--muted);
   font-size: 12px;
   padding: 9px 10px;
   border-radius: 5px;
@@ -53,18 +53,18 @@
   line-height: 1.35;
 }
 .nav-child:hover {
-  color: white;
-  background: #33433e;
+  color: var(--text);
+  background: var(--surface-muted);
   text-decoration: none;
 }
 .nav-child.is-active {
-  color: #d5eddf;
-  background: #354b40;
+  color: var(--success);
+  background: var(--success-soft);
   font-weight: 500;
 }
 .nav-toggle:focus-visible,
 .nav-child:focus-visible {
-  outline: 2px solid #c1dfcf;
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 .section-cards {
@@ -78,7 +78,7 @@
   align-items: flex-start;
   gap: 16px;
   padding: 24px;
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
@@ -88,8 +88,8 @@
   min-width: 0;
 }
 .section-card:hover {
-  border-color: #86b098;
-  box-shadow: 0 3px 16px #203e3008;
+  border-color: var(--border);
+  box-shadow: 0 3px 16px var(--overlay);
   text-decoration: none;
 }
 .section-card > div {
@@ -114,18 +114,18 @@
   height: 42px;
   flex-shrink: 0;
   border-radius: 11px;
-  background: #edf4ef;
-  color: #36694e;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .section-card-arrow {
   margin-top: 12px;
   width: 16px;
-  color: #729281;
+  color: var(--muted);
 }
 .feature-pending {
   padding: 48px 24px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   text-align: center;
   margin-bottom: 20px;
@@ -163,8 +163,8 @@
   margin-top: auto;
 }
 .channel-value-panel {
-  background: #eff5f0;
-  border-color: #d7e5da;
+  background: var(--success-soft);
+  border-color: var(--border);
 }
 .channel-totals {
   display: flex;
@@ -190,13 +190,13 @@
   height: 34px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: #e9f0eb;
-  color: #37604a;
+  background: var(--success-soft);
+  color: var(--success);
   font-weight: 600;
 }
 .channel-monogram--ota {
-  background: #eaf0f9;
-  color: #35547c;
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .occupancy-meter {
   display: flex;
@@ -209,15 +209,15 @@
   width: 80px;
   height: 8px;
   border: 0;
-  background: #e5ede7;
+  background: var(--success-soft);
   border-radius: 8px;
 }
 .occupancy-meter meter::-webkit-meter-bar {
-  background: #e5ede7;
+  background: var(--success-soft);
   border: 0;
 }
 .occupancy-meter meter::-webkit-meter-optimum-value {
-  background: #67977b;
+  background: var(--success-soft);
 }
 @media (max-width: 600px) {
   .section-card {
@@ -273,7 +273,7 @@
   width: fit-content;
 }
 .context-help > summary:focus-visible {
-  outline: 2px solid #5b876b;
+  outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
 .context-help > div {

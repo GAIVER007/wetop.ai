@@ -1,7 +1,8 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { getJsonPublic } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Table } from '../../components/ui';
+import { Table, Input, Button } from '../../components/ui';
 
 interface AuditRow {
   id: string;
@@ -49,9 +50,9 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
 export default async function JournalPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { type } = await searchParams;
+  const { type, q } = normalizeSearchParams(await searchParams);
   const rows = await getJsonPublic<AuditRow[]>(
     `/audit?limit=200${type ? `&entityType=${encodeURIComponent(type)}` : ''}`,
   );
@@ -61,13 +62,24 @@ export default async function JournalPage({
       actions={FILTERS.map(([t, label]) => (
         <Link
           key={label}
-          href={t ? `/journal?type=${t}` : '/journal'}
+          href={`/journal?${new URLSearchParams({ ...(t ? { type: t } : {}), ...(q ? { q } : {}) })}`}
           className={(t ?? undefined) === type ? 'bold' : undefined}
         >
           {label}
         </Link>
       ))}
     >
+      <form method="get" className="directory-toolbar">
+        <Input
+          name="q"
+          aria-label="Поиск в журнале"
+          placeholder="Номер брони"
+          defaultValue={q ?? ''}
+        />
+        <input name="type" type="hidden" value={type ?? ''} />
+        <Button tone="secondary">Найти</Button>
+        <span className="muted small">Последние 200 операций</span>
+      </form>
       <Table size="sm" nowrap data-testid="journal-table">
         <thead>
           <tr>
@@ -77,25 +89,34 @@ export default async function JournalPage({
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.id} data-testid="journal-row">
-              <td>
-                {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
-                  .toISOString()
-                  .slice(0, 16)
-                  .replace('T', ' ')}
-              </td>
-              <td>{ACTION_RU[r.action] ?? r.action}</td>
-              <td>{r.entityType}</td>
-              <td>
-                {r.subject && r.entityType === 'Reservation' ? (
-                  <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
-                ) : (
-                  (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
-                )}
+          {rows
+            .filter((r) => !q || r.subject?.includes(q.trim()))
+            .map((r) => (
+              <tr key={r.id} data-testid="journal-row">
+                <td>
+                  {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
+                    .toISOString()
+                    .slice(0, 16)
+                    .replace('T', ' ')}
+                </td>
+                <td>{ACTION_RU[r.action] ?? r.action}</td>
+                <td>{r.entityType}</td>
+                <td>
+                  {r.subject && r.entityType === 'Reservation' ? (
+                    <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
+                  ) : (
+                    (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
+                  )}
+                </td>
+              </tr>
+            ))}
+          {!rows.some((r) => !q || r.subject?.includes(q.trim())) && (
+            <tr>
+              <td colSpan={4} className="empty-state">
+                Нет операций по выбранным условиям
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
     </Page>

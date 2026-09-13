@@ -31,9 +31,15 @@ export interface InventoryUnit {
   isDorm: boolean;
 }
 
-/** Fixtures are available only to the isolated test runner, never to next start. */
+/** Explicit test/demo sources are isolated from normal and production API access. */
 async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
+  const demo =
+    process.env.NODE_ENV === 'development' &&
+    process.env.APP_DEMO_MODE === '1' &&
+    endpoint.replace(/\/$/, '') === 'http://127.0.0.1:4312';
+  if (!demo && new URL(endpoint).port === '4312')
+    throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
   const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
   if (!testing && new URL(endpoint).port === '4311') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
@@ -43,7 +49,11 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
     response = await fetch(`${endpoint.replace(/\/$/, '')}${path}`, {
       ...options,
       cache: 'no-store',
-      headers: { ...options.headers, ...(testing ? { 'x-wetop-test-client': '1' } : {}) },
+      headers: {
+        ...options.headers,
+        ...(testing ? { 'x-wetop-test-client': '1' } : {}),
+        ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
+      },
       // Чтение и команды ждут одинаково (уточнение ADR-031, 13.09.2026): короткий таймаут чтения обрывал
       // карточку сразу после успешной брони, и форма оставалась на экране с кнопкой «Создать бронь»
       signal: AbortSignal.timeout(60_000),
@@ -67,6 +77,8 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
   if (!testing && response.headers.get('x-wetop-data-source') === 'synthetic') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }
+  if (!demo && response.headers.get('x-wetop-data-source') === 'demo')
+    throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
   return response;
 }
 

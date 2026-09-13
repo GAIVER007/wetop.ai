@@ -1,10 +1,5 @@
 /* WETOP: единый рабочий интерфейс хостела поверх существующих компонентов и API. */
-:root {
-  --sidebar-w: 268px;
-  --header-h: 72px;
-  --control-h: 38px;
-  --radius: 10px;
-}
+
 body {
   background: var(--bg);
 }
@@ -60,9 +55,9 @@ svg {
   display: flex;
   flex-direction: column;
   padding: 24px 16px 20px;
-  background: #202b2b;
-  border-right: 1px solid #202b2b;
-  color: #e6eceb;
+  background: var(--surface-muted);
+  border-right: 1px solid var(--border);
+  color: var(--muted);
   overflow-y: auto;
 }
 .workspace-brand {
@@ -70,7 +65,7 @@ svg {
   align-items: center;
   gap: 9px;
   padding: 0 12px;
-  color: #fff;
+  color: var(--muted);
   font-size: 30px;
   font-weight: 600;
   letter-spacing: -1.3px;
@@ -86,15 +81,15 @@ svg {
   height: 30px;
   padding: 2px;
   border-radius: 9px;
-  background: #b3d6c3;
-  color: #233b32;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .workspace-mark svg {
   width: 28px;
   height: 28px;
 }
 .brand-dot {
-  color: #b3d6c3;
+  color: var(--success);
 }
 .workspace-property {
   display: flex;
@@ -102,8 +97,8 @@ svg {
   gap: 10px;
   padding: 14px 12px;
   margin: 30px 0 8px;
-  border: 1px solid #43504e;
-  background: #293535;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
   border-radius: 9px;
 }
 .property-mark {
@@ -112,8 +107,8 @@ svg {
   width: 30px;
   height: 34px;
   border-radius: 7px;
-  background: #3b4a47;
-  color: #d0e4d9;
+  background: var(--surface-muted);
+  color: var(--success);
   font-weight: 600;
 }
 .workspace-property strong {
@@ -123,7 +118,7 @@ svg {
 }
 .workspace-property div > span {
   display: block;
-  color: #b1c0ba;
+  color: var(--muted);
   font-size: 11px;
   margin-top: 2px;
 }
@@ -132,7 +127,7 @@ svg {
 }
 .nav-group {
   margin: 24px 12px 10px;
-  color: #a6b6b0;
+  color: var(--muted);
   font-size: 10px;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -146,26 +141,26 @@ svg {
   padding: 10px 12px;
   margin: 3px 0;
   border-radius: 7px;
-  color: #d2dcd8;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 400;
 }
 .workspace-link svg {
-  color: #a9bbb3;
+  color: var(--muted);
   width: 18px;
   height: 18px;
 }
 .workspace-link:hover {
   text-decoration: none;
-  background: #33433e;
+  background: var(--surface-muted);
 }
 .workspace-link.is-active {
-  background: #c1dfcf;
-  color: #203e30;
+  background: var(--success-soft);
+  color: var(--success);
   font-weight: 500;
 }
 .workspace-link.is-active svg {
-  color: #203e30;
+  color: var(--success);
 }
 .workspace-footer {
   display: flex;
@@ -173,7 +168,7 @@ svg {
   align-items: center;
   margin-top: auto;
   padding: 24px 8px 0;
-  color: #e0e8e4;
+  color: var(--muted);
   font-size: 12px;
 }
 .workspace-footer strong {
@@ -182,15 +177,22 @@ svg {
 .workspace-footer div > span {
   display: block;
   margin-top: 4px;
-  color: #a8b9b1;
+  color: var(--muted);
   font-size: 11px;
 }
 /* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */
-.workspace-footer div > .freshness {
+.sidebar-freshness {
+  padding: 0 4px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-.workspace-footer div > .freshness--warn {
-  color: #f2c46d;
+.sidebar-freshness .freshness--warn {
+  color: var(--warning);
+}
+.is-collapsed .sidebar-freshness {
+  display: none;
 }
 .desk-avatar {
   display: grid;
@@ -199,7 +201,7 @@ svg {
   height: 36px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #3c4b46;
+  background: var(--surface-muted);
 }
 .workspace-body {
   margin-left: var(--sidebar-w);
@@ -214,7 +216,7 @@ svg {
   align-items: center;
   gap: 20px;
   padding: 0 32px;
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--glass);
   border-bottom: 1px solid var(--border);
 }
 .workspace-breadcrumb {
@@ -230,7 +232,7 @@ svg {
   font-weight: 500;
 }
 .workspace-breadcrumb > span {
-  color: #aeb6c4;
+  color: var(--muted);
 }
 .workspace-search {
   display: flex;
@@ -334,7 +336,7 @@ svg {
   margin-bottom: 12px;
 }
 .tbl th {
-  background: #fafbfc;
+  background: var(--primary-soft);
   font-size: 11px;
   font-weight: 500;
   padding: 12px 16px;
@@ -385,18 +387,18 @@ svg {
     border-color 0.12s;
 }
 .btn--secondary {
-  background: #fff;
-  border-color: #dfe3ea;
+  background: var(--surface);
+  border-color: var(--border);
   color: var(--text-2);
 }
 .btn--secondary:hover {
-  background: #f8f9fc;
+  background: var(--primary-soft);
 }
 .inp {
   min-height: 38px;
   padding: 8px 11px;
-  border-color: #cbd0d6;
-  background: #fff;
+  border-color: var(--border);
+  background: var(--surface);
   font-size: 13px;
   max-width: 100%;
   border-radius: 7px;
@@ -410,7 +412,7 @@ svg {
   font-weight: 400;
 }
 .toolbar {
-  background: #fff;
+  background: var(--surface);
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -448,12 +450,12 @@ svg {
   flex-shrink: 0;
   padding: 0;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--surface);
   border-radius: 7px;
   cursor: pointer;
 }
 .icon-button:hover {
-  background: #f3f5f9;
+  background: var(--primary-soft);
 }
 .mobile-menu {
   display: none;
@@ -461,10 +463,10 @@ svg {
 dialog {
   color: var(--text);
   border: 1px solid var(--border);
-  box-shadow: 0 24px 80px #16213a29;
+  box-shadow: 0 24px 80px var(--overlay);
 }
 dialog::backdrop {
-  background: #16213a59;
+  background: var(--primary-soft);
 }
 .search-dialog {
   width: min(480px, calc(100vw - 32px));
@@ -492,8 +494,8 @@ dialog::backdrop {
   max-height: 100dvh;
   padding: 24px 16px;
   border-radius: 0;
-  background: #202b2b;
-  color: #e6eceb;
+  background: var(--surface-muted);
+  color: var(--muted);
 }
 .menu-close {
   position: absolute;
@@ -506,7 +508,7 @@ dialog::backdrop {
   text-align: center;
   gap: 14px;
   padding: 52px 24px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
 }
@@ -527,7 +529,7 @@ dialog::backdrop {
   z-index: 100;
   padding: 10px 16px;
   background: var(--primary);
-  color: #fff;
+  color: var(--muted);
   border-radius: 6px;
 }
 .skip-link:focus {
@@ -542,7 +544,7 @@ dialog::backdrop {
   white-space: nowrap;
 }
 .skeleton {
-  background: linear-gradient(100deg, #edf0f5 25%, #f8f9fb 50%, #edf0f5 75%);
+  background: linear-gradient(100deg, var(--primary-soft) 25%, var(--primary-soft) 50%, var(--primary-soft) 75%);
   background-size: 200% 100%;
   border-radius: 8px;
   animation: skeleton 1.5s ease-in-out infinite;
@@ -573,9 +575,7 @@ dialog::backdrop {
   }
 }
 @media (min-width: 1600px) {
-  :root {
-    --sidebar-w: 248px;
-  }
+
   .workspace-sidebar {
     padding-left: 22px;
     padding-right: 22px;
@@ -615,9 +615,7 @@ dialog::backdrop {
   }
 }
 @media (max-width: 600px) {
-  :root {
-    --header-h: 62px;
-  }
+
   .workspace-header {
     padding: 0 16px;
     gap: 10px;
@@ -703,7 +701,7 @@ dialog::backdrop {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  background: #fff;
+  background: var(--surface);
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 10px 10px 0 0;
@@ -731,7 +729,7 @@ dialog::backdrop {
 .board td.board__cell {
   padding: 5px 0;
   height: 43px;
-  border-right: 1px solid #eef0f4;
+  border-right: 1px solid var(--border);
 }
 .board td.board__unit {
   z-index: 5;
@@ -746,7 +744,7 @@ dialog::backdrop {
   height: 30px;
   line-height: 30px;
   position: relative;
-  color: #263d63;
+  color: var(--primary);
 }
 .board-stay-caption {
   position: absolute;
@@ -798,8 +796,8 @@ dialog::backdrop {
     -45deg,
     transparent,
     transparent 5px,
-    #b4232c0b 5px,
-    #b4232c0b 7px
+    var(--danger-soft) 5px,
+    var(--danger-soft) 7px
   );
 }
 .form-section-title {
@@ -889,7 +887,7 @@ dialog::backdrop {
   padding: 24px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--surface);
   margin-bottom: 16px;
 }
 .guest-avatar {
@@ -949,8 +947,8 @@ dialog::backdrop {
 }
 .board-period .seg {
   padding: 3px;
-  background: #edf0eb;
-  border: 1px solid #e2e6dd;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   gap: 2px;
 }
 .board-period .seg a {
@@ -959,9 +957,9 @@ dialog::backdrop {
   padding: 7px 13px;
 }
 .board-period .seg a.is-on {
-  background: #fff;
+  background: var(--surface);
   color: var(--text);
-  box-shadow: 0 1px 3px #253b2414;
+  box-shadow: 0 1px 3px var(--overlay);
 }
 .rotate-left {
   transform: rotate(180deg);
@@ -980,15 +978,15 @@ dialog::backdrop {
   gap: 12px 20px;
   padding: 12px 16px;
   margin: 0 0 16px;
-  background: #fffaf0;
-  border: 1px solid #eee3ce;
+  background: var(--warning-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 12px;
   max-height: 160px;
   overflow: auto;
 }
 .board-unassigned[data-count='0'] {
-  background: #f3f6ef;
+  background: var(--success-soft);
   border-color: var(--border);
 }
 .board-unassigned-title {
@@ -1030,12 +1028,12 @@ dialog::backdrop {
   padding: 12px 16px;
 }
 .board-toolbar .inp {
-  background: #f9faf7;
-  border-color: #dfe5db;
+  background: var(--success-soft);
+  border-color: var(--border);
 }
 .board thead th {
   height: 82px;
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 .board .board__d {
@@ -1054,12 +1052,12 @@ dialog::backdrop {
 }
 .board th.is-today .board__d {
   background: var(--primary);
-  color: #fff;
+  color: var(--muted);
 }
 .board .board__occ {
   margin-top: 6px;
   font-size: 10px;
-  color: #5c6e60;
+  color: var(--muted);
 }
 .board-occ-total {
   color: var(--muted);
@@ -1081,10 +1079,10 @@ dialog::backdrop {
 .board-unit-link svg {
   width: 15px;
   height: 15px;
-  color: #8f9e90;
+  color: var(--muted);
 }
 .board tr.board__group td {
-  background: #f1f5ef;
+  background: var(--success-soft);
   height: 36px;
 }
 .board .board__stay {
@@ -1096,30 +1094,30 @@ dialog::backdrop {
   padding-left: 3px;
 }
 .board td[data-status='CHECKED_IN'] .board__stay {
-  color: #305b45;
+  color: var(--success);
 }
 .board td[data-status='CONFIRMED'] .board__stay {
-  color: #405d89;
+  color: var(--primary);
 }
 .board td[data-status='TENTATIVE'] .board__stay {
-  color: #81632c;
+  color: var(--warning);
 }
 .board .board__free {
   height: 32px;
 }
 .board td.is-we:not(.is-today),
 .board th.is-we:not(.is-today) {
-  background: #f7f9f5;
+  background: var(--success-soft);
 }
 .board tr:hover td.board__unit {
-  background: #eaf0e6;
+  background: var(--success-soft);
 }
 .board .board__unit-head {
   padding-left: 16px;
   font-size: 12px;
 }
 .board-group-toggle > span:first-child {
-  color: #5d7561;
+  color: var(--muted);
   font-size: 15px;
 }
 @media (max-width: 700px) {

@@ -75,15 +75,18 @@ test('все разделы, карточки и печать открывают
       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
     ) {
       await page.screenshot({
+        caret: 'initial',
         path: `${screenshots}/${route.slice(1)}-desktop.png`,
         fullPage: false,
-        caret: 'initial',
       });
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await noPageOverflow(page);
     if (route === '/today')
-      await page.screenshot({ path: `${screenshots}/today-mobile.png`, caret: 'initial' });
+      await page.screenshot({
+        caret: 'initial',
+        path: `${screenshots}/today-mobile.png`,
+      });
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
   await expect(page.locator('h1')).toContainText('Регистрационная карта');
@@ -125,7 +128,11 @@ test('доступность переносит даты и свободное �
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
   await page.getByRole('link', { name: 'Создать бронь', exact: true }).first().click();
   await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
-  await expect(page.locator('h1')).toHaveText('Новая бронь');
+  await expect(
+    page
+      .getByRole('dialog', { name: 'Новая бронь', exact: true })
+      .getByRole('heading', { level: 1 }),
+  ).toHaveText('Новая бронь');
   await page.goto('/rooms/availability?arrival=2026-10-04&departure=2026-10-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
@@ -212,8 +219,9 @@ test('поиск и списки дня; мобильное меню и возв
 test('шахматка: фильтры, продолжение брони, выбранная койка в форме', async ({ page }) => {
   await page.goto('/chessboard');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await page.getByRole('link', { name: '30', exact: true }).click();
-  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  // The short window starts today and clips the seeded stay that arrived yesterday.
+  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
   await page.getByLabel('Категория на шахматке').selectOption('MALE');
@@ -246,7 +254,9 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(new RegExp(`/reservations/${booking}$`));
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  await expect(page.getByTestId('stay-row')).toContainText('M03');
+  await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
   const commands = await response.json();
   expect(commands).toHaveLength(2);
@@ -279,7 +289,9 @@ test('карточка: профиль гостя и заселение прох
     )
     .toBe('Проверенный');
   await page.goto(`/reservations/${booking}`);
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   await page.getByTestId('check-in-ui-item').click();
+  await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('stay-row')).toContainText('заселён');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { path: string }) => c.path)).toContain(
@@ -368,6 +380,7 @@ test('общий платёж: ошибка не стирает распреде
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { group: true } });
   await page.goto(`/reservations/${booking}`);
+  await page.getByRole('tab', { name: 'Счета', exact: true }).click();
   await page.getByText('Один платёж на несколько счетов', { exact: true }).click();
   const form = page.getByTestId('group-payment-form');
   await form.getByLabel('Общая сумма, KZT').fill('2000');

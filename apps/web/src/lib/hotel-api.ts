@@ -107,3 +107,30 @@ export const sourceNames: Record<string, string> = {
   INSTAGRAM: 'Instagram',
   WEBSITE: 'Сайт',
 };
+
+/** Read-only list projection, backed by existing reservations/folios. */
+export interface ReservationListRow {
+  confirmationNumber: string;
+  status: string;
+  source: string;
+  channel: string | null;
+  arrivalDate: string;
+  departureDate: string;
+  currency: string;
+  totalAmountMinor: string;
+  paidMinor: string;
+  balanceMinor: string;
+  hasFolios: boolean;
+  unitCodes: string[];
+  primaryGuest: { id: string; label: string; phone: string | null; email: string | null } | null;
+}
+export interface ReservationDirectoryResult {
+  from: string;
+  to: string;
+  total: number;
+  page: number;
+  pageSize: number;
+  rows: ReservationListRow[];
+}
+export const reservationDirectory = (query: Record<string, string>) =>
+  getJsonPublic<ReservationDirectoryResult>(`/hotel/reservations?${new URLSearchParams(query)}`);

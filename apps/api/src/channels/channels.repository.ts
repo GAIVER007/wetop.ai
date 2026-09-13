@@ -455,6 +455,6 @@ export function channexGatewayFromEnv(): ChannexGateway {
       testWebhook: fail,
     };
   }
-  // Остатки и ограничения — только через выключатель ARI (Q-126, ADR-037)
+  // Остатки и ограничения — только через выключатель ARI (Q-126, ADR-038)
   return guardAriGateway(new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey }));
 }

@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import {
   hotelApi,
@@ -24,9 +25,9 @@ import {
 export default async function ChannelManagerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string; status?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   const today = hotelToday();
   const from = sp.from ?? `${today.slice(0, 7)}-01`;
   const to = sp.to ?? today;

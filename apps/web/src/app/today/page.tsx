@@ -1,20 +1,23 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { deskApi, formatMinor } from '../../lib/api';
+import { deskApi, chessboardApi, formatMinor } from '../../lib/api';
 import { DayWorkspace } from './day-workspace';
 import { DayAttention } from './day-attention';
 import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
 import { Button, Input } from '../../components/ui';
+import { AIInsightCard, QuickActions, OccupancyCharts, HotelClock } from './dashboard-widgets';
 import { displayDate } from '../../lib/display-date';
 
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
-export default async function TodayPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ date?: string }>;
-}) {
-  const sp = await searchParams;
+export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const sp = normalizeSearchParams(await searchParams);
   const day = await deskApi.today(sp.date);
+  const end = new Date(`${day.date}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 6);
+  const board = await chessboardApi
+    .board(day.date, end.toISOString().slice(0, 10))
+    .catch(() => null);
   const debt = BigInt(day.debtMinor) > 0n;
   const metrics: Array<{
     label: string;
@@ -32,10 +35,10 @@ export default async function TodayPage({
       id: 'c-inhouse',
       icon: 'bed',
       tone: 'home',
-      hint: 'Размещений на выбранную дату',
+      hint: 'активных размещений',
     },
     {
-      label: 'Заезды',
+      label: 'Заезды сегодня',
       value: String(day.counts.arrivals),
       id: 'c-arrivals',
       icon: 'arrival',
@@ -45,7 +48,7 @@ export default async function TodayPage({
       countId: 'c-tocheckin',
     },
     {
-      label: 'Выезды',
+      label: 'Выезды сегодня',
       value: String(day.counts.departures),
       id: 'c-departures',
       icon: 'departure',
@@ -53,6 +56,14 @@ export default async function TodayPage({
       hint: 'ожидают выезда',
       count: day.counts.toCheckOut,
       countId: 'c-tocheckout',
+    },
+    {
+      label: 'Свободно',
+      value: board ? String(board.summary[day.date]?.free ?? 0) : '—',
+      id: 'c-free',
+      icon: 'inventory',
+      tone: 'free',
+      hint: 'номеров и койко-мест',
     },
     {
       label: 'Долг уезжающих',
@@ -66,13 +77,19 @@ export default async function TodayPage({
   return (
     <Page
       title="Обзор дня"
+      crumbs={
+        <span className="eyebrow">
+          Luxx Aparts <span className="property-separator">/</span> Алматы
+        </span>
+      }
       subtitle={
         <>
-          <span className="day-date">{displayDate(day.date, 'full')}</span>
+          <span>Всё важное для спокойной смены.</span>
         </>
       }
       actions={
         <form method="get" className="row day-date-picker">
+          <HotelClock />
           <Input type="date" name="date" aria-label="Дата рабочего дня" defaultValue={day.date} />
           <Button type="submit" tone="secondary">
             Показать
@@ -98,19 +115,90 @@ export default async function TodayPage({
           </article>
         ))}
       </section>
-      <div className="desk-layout">
-        <DayWorkspace day={day} />
-        <aside className="desk-aside" aria-label="Задачи и размещение">
+      <div className="operations-grid">
+        <Upcoming title="Ближайшие заезды" rows={day.arrivals} icon="arrival" date={day.date} />
+        <Upcoming title="Ближайшие выезды" rows={day.departures} icon="departure" date={day.date} />
+        <aside aria-label="Задачи и размещение">
           <DayAttention day={day} />
-          <section className="desk-board-card">
-            <h2>Размещение</h2>
-
-            <Link href={`/chessboard?from=${day.date}`} className="btn btn--secondary">
-              Открыть шахматку <Icon name="arrow" />
-            </Link>
-          </section>
         </aside>
       </div>
+      <div className="dashboard-action-row">
+        <AIInsightCard day={day} />
+        <QuickActions day={day} />
+      </div>
+      <OccupancyCharts board={board} date={day.date} />
+      <DayWorkspace day={day} />
     </Page>
+  );
+}
+
+function Upcoming({
+  title,
+  rows,
+  icon,
+  date,
+}: {
+  title: string;
+  rows: import('../../lib/api').DeskRow[];
+  icon: IconName;
+  date: string;
+}) {
+  return (
+    <section className="upcoming-card">
+      <div className="card-heading">
+        <h2>
+          <Icon name={icon} width={16} />
+          {title}
+        </h2>
+        <Link href={`/reservations?date=${date}`} aria-label={`${title}: весь список`}>
+          <Icon name="arrow" width={16} />
+        </Link>
+      </div>
+      <div className="upcoming-list">
+        {rows.slice(0, 4).map((r) => (
+          <Link
+            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+            className="upcoming-row"
+            key={r.itemId}
+          >
+            <span className="guest-initials">
+              {r.guestLabel
+                .split(' ')
+                .slice(0, 2)
+                .map((n) => n[0])
+                .join('')}
+            </span>
+            <span>
+              <strong>{r.guestLabel}</strong>
+              <small>
+                {r.adults} гост. · {r.unitCode ?? 'Без номера'}
+              </small>
+            </span>
+            <span className="upcoming-status">
+              <i className={r.status === 'CHECKED_IN' ? 'legend-green' : 'legend-blue'} />
+              {r.status === 'CHECKED_OUT'
+                ? 'Выехал'
+                : r.status === 'CHECKED_IN'
+                  ? 'Проживает'
+                  : 'Ожидается'}
+            </span>
+            <Icon name="chevron" width={14} />
+          </Link>
+        ))}
+        {!rows.length && (
+          <div className="empty-state">
+            <Icon name={icon} />
+            <h3>{icon === 'arrival' ? 'Нет заездов на сегодня' : 'Нет выездов на сегодня'}</h3>
+            <p>{displayDate(date, 'full')}</p>
+          </div>
+        )}
+      </div>
+      <div className="upcoming-footer">
+        {rows.length} размещений{' '}
+        <Link href={`/reservations?date=${date}`}>
+          Все брони <Icon name="arrow" width={12} />
+        </Link>
+      </div>
+    </section>
   );
 }

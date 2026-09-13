@@ -1,3 +1,6 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
+import Link from 'next/link';
+import { Icon } from '../../components/icon';
 import { validDate } from '../../lib/hotel-api';
 import { financeApi, formatMinor } from '../../lib/api';
 import { Page } from '../../components/page';
@@ -44,9 +47,9 @@ function currentMonth(): { from: string; to: string } {
 export default async function FinanceReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   const def = currentMonth();
   const from = sp.from || def.from;
   const to = sp.to || def.to;
@@ -54,7 +57,15 @@ export default async function FinanceReportPage({
   const r = valid ? await financeApi.report(from, to) : null;
   const cur = r?.currency ?? '';
   return (
-    <Page title="Деньги за период">
+    <Page
+      title="Деньги за период"
+      actions={
+        <Link href="/reservations" className="btn">
+          <Icon name="plus" />
+          Принять оплату
+        </Link>
+      }
+    >
       <form method="get" className="row row--lg toolbar" data-testid="period-form">
         <Field inline label="с">
           <Input type="date" name="from" defaultValue={from} />

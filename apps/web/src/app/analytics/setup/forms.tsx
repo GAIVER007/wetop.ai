@@ -25,13 +25,25 @@ export function CreateSiteForm() {
     null,
   );
   return (
-    <form action={action} className="stack stack--sm form-narrow" data-testid="site-form">
+    <form
+      key={state?.attempt ?? 0}
+      action={action}
+      className="stack stack--sm form-narrow"
+      data-testid="site-form"
+    >
       <Field label="Название">
-        <Input name="name" required placeholder="Сайт хостела" data-testid="site-name" />
+        <Input
+          name="name"
+          defaultValue={state?.values?.name ?? ''}
+          required
+          placeholder="Сайт хостела"
+          data-testid="site-name"
+        />
       </Field>
       <Field label="Домены без https://, через запятую">
         <Textarea
           name="hosts"
+          defaultValue={state?.values?.hosts ?? ''}
           required
           rows={2}
           placeholder={'luxx-aparts.kz\nwww.luxx-aparts.kz'}

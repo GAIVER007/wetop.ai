@@ -1,22 +1,37 @@
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { reservationStatuses } from '../../lib/hotel-api';
+import { GuestDirectory } from './guest-directory';
+import { Icon } from '../../components/icon';
 import { guestsApi } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Button, Input, Panel, Table } from '../../components/ui';
+import { Alert, Button, Input, Table } from '../../components/ui';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { q } = await searchParams;
+  const { q, status } = normalizeSearchParams(await searchParams);
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
-    <Page title="Гости" width="medium">
+    <Page
+      title="Гости"
+      subtitle="Гости объекта и история проживания"
+      actions={
+        <Link className="btn" href="/reservations/new">
+          <Icon name="plus" />
+          Добавить гостя
+        </Link>
+      }
+    >
       <form method="get" className="row toolbar">
         <Input
           name="q"
+          minLength={2}
+          maxLength={120}
           aria-label="Поиск гостей"
           defaultValue={query}
           placeholder="фамилия, имя, телефон или email"
@@ -24,6 +39,11 @@ export default async function GuestsPage({
         />
         <Button type="submit">Найти</Button>
       </form>
+      {query.length === 1 && (
+        <p className="hint" role="status">
+          Введите не менее 2 символов для поиска.
+        </p>
+      )}
       {query.length >= 2 && (
         <Table data-testid="guests-table">
           <thead>
@@ -60,18 +80,12 @@ export default async function GuestsPage({
           </tbody>
         </Table>
       )}
-      {query.length < 2 && (
-        /* Пустой экран без подсказки выглядит как незагрузившаяся страница: говорим, что искать и зачем */
-        <Panel size="lg">
-          <p className="hint--lg">
-            Найдите гостя по фамилии, имени, телефону или почте — хватит двух букв. В карточке гостя
-            видно гражданство, документ и все его проживания: удобно, когда гость звонит и просит
-            «как в прошлый раз».
-          </p>
-          <p className="hint">
-            Гость создаётся при оформлении брони — отдельно создавать его не нужно.
-          </p>
-        </Panel>
+      {status && !Object.hasOwn(reservationStatuses, status) ? (
+        <Alert boxed>
+          Выберите статус гостя. <Link href="/guests">Сбросить фильтры</Link>
+        </Alert>
+      ) : (
+        query.length < 2 && <GuestDirectory {...(status ? { status } : {})} />
       )}
     </Page>
   );

@@ -1,3 +1,4 @@
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, chessboardApi } from '../../../lib/api';
@@ -12,13 +13,13 @@ export default async function ManagementPage({
   searchParams,
 }: {
   params: Promise<{ section?: string[] }>;
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { section = [] } = await params;
   const path = `/management${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
   if (!item) notFound();
-  const sp = await searchParams;
+  const sp = normalizeSearchParams(await searchParams);
   return (
     <Page
       title={item.label}

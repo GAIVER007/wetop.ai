@@ -80,6 +80,13 @@ function SiteCard({
   plans: Array<{ code: string; name: string }> | null;
 }) {
   const { site, status, snippet } = card;
+  const previewAvailable = (url: string) => {
+    try {
+      return ['https:', 'http:'].includes(new URL(url).protocol);
+    } catch {
+      return false;
+    }
+  };
   return (
     <Panel size="lg" data-testid="site-card" data-key={site.publicKey}>
       <Row gap="lg" className="row--baseline">
@@ -90,16 +97,20 @@ function SiteCard({
         <Badge tone={site.status === 'ACTIVE' ? 'ok' : 'neutral'} data-testid="site-card-status">
           {site.status === 'ACTIVE' ? 'включён' : 'на паузе'}
         </Badge>
-        <a
-          href={snippet.demoUrl}
-          target="_blank"
-          rel="noreferrer"
-          data-testid="site-card-demo"
-          className="ml-auto"
-          title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
-        >
-          демо-страница ↗
-        </a>
+        {previewAvailable(snippet.demoUrl) ? (
+          <a
+            href={snippet.demoUrl}
+            target="_blank"
+            rel="noreferrer"
+            data-testid="site-card-demo"
+            className="ml-auto"
+            title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
+          >
+            демо-страница ↗
+          </a>
+        ) : (
+          <Badge>Демо счётчика не подключено</Badge>
+        )}
         <Link href={`/analytics?site=${site.id}`}>отчёт →</Link>
       </Row>
       <div className="facts">
@@ -159,14 +170,18 @@ function SiteCard({
             </pre>
             <Row>
               <CopyButton text={snippet.bookingCode} />
-              <a
-                href={snippet.bookingDemoUrl}
-                target="_blank"
-                rel="noreferrer"
-                data-testid="site-card-booking-demo"
-              >
-                демо бронирования ↗
-              </a>
+              {previewAvailable(snippet.bookingDemoUrl) ? (
+                <a
+                  href={snippet.bookingDemoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-testid="site-card-booking-demo"
+                >
+                  демо бронирования ↗
+                </a>
+              ) : (
+                <Badge>Демо виджета не подключено</Badge>
+              )}
             </Row>
           </>
         )}

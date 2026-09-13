@@ -139,6 +139,7 @@ function setup(
     events: over.events ?? [],
     dbDown: false,
     outboxThrows: false,
+    pullOkAt: plus(NIGHT, -2),
   };
   const probes: GuardProbes = {
     channexEnabled: () => true,
@@ -149,7 +150,7 @@ function setup(
     webhook: () => state.webhook,
     pullHealth: () => ({
       startedAt: plus(NIGHT, -120),
-      okAt: plus(NIGHT, -2),
+      okAt: state.pullOkAt,
       failedAt: null,
       error: null,
     }),
@@ -281,6 +282,24 @@ describe('GuardService.tick', () => {
     });
     expect(t.sent).toHaveLength(1);
     expect(t.sent[0]).toContain('ревизия rev-7');
+  });
+
+  it('лента не читается, а сторож webhook уже опрашивает её каждую минуту — второй опрос не запускать', async () => {
+    const t = setup({
+      webhook: {
+        ...QUIET_WEBHOOK,
+        suspect: true,
+        suspectReason: 'адрес не отвечает',
+        suspectSince: NIGHT.toISOString(),
+      },
+    });
+    t.state.pullOkAt = plus(NIGHT, -30);
+    const s = await t.guard.tick(NIGHT);
+    expect(t.calls).not.toContain('pull');
+    expect(s.fixes.find((f) => f.kind === 'feed.stale')?.text).toMatch(/уже опрашивает/);
+    t.state.webhook = QUIET_WEBHOOK;
+    await t.guard.tick(plus(NIGHT, 6));
+    expect(t.calls).toContain('pull');
   });
 
   it('GUARD_AUTOFIX=off — ничего не чинит, эскалирует', async () => {

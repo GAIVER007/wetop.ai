@@ -436,7 +436,21 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     };
     switch (inc.kind) {
       case 'feed.stale':
-        return { key: 'pull', run: safe(() => this.fixes.pull()) };
+        // Под подозрением сторож webhook сам опрашивает ленту каждую минуту — второй опрос поверх не нужен
+        // (лимит Channex, замечание сессии pms-lux-1a 13.09.2026); попытка засчитывается, чтобы дойти до эскалации
+        return {
+          key: 'pull',
+          run: safe(async () =>
+            this.probes.channexEnabled() &&
+            this.probes.enabled('webhookHealth') &&
+            this.probes.webhook().suspect
+              ? {
+                  ok: false,
+                  text: 'опрос не запускал: сторож webhook уже опрашивает ленту каждую минуту',
+                }
+              : this.fixes.pull(),
+          ),
+        };
       case 'outbox.failed':
       case 'sync.missing':
         // Не повтор старой дельты, а полная выгрузка: свежий остаток нельзя перезаписать устаревшим (ADR-028)

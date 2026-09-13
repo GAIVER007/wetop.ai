@@ -1,0 +1,47 @@
+# Модульные (unit) · 13.09.2026 17:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2647b47 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-18-37Z-unit-f027.json' 'apps/api/src/guard'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+[Nest] 29401  - 09/13/2026, 5:18:37 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 29401  - 09/13/2026, 5:18:37 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+ ❯ |unit| apps/api/src/guard/guard.service.test.ts (12 tests | 1 failed) 9ms
+   ❯ GuardService.tick (10)
+     ✓ упавшая отправка ARI: запись → полная выгрузка → на следующем проходе закрыта сторожем 2ms
+     ✓ проверка упала — её неисправность остаётся открытой, ошибка проверки видна в итоге прохода 1ms
+     ✓ бронь отклонена правилом: не повторять, сразу эскалировать и разбудить (CRITICAL ночью) 1ms
+     ✓ временная ошибка события — повтор, после исчерпания попыток — к человеку 0ms
+     × лента не читается, а сторож webhook уже опрашивает её каждую минуту — второй опрос не запускать 2ms
+     ✓ GUARD_AUTOFIX=off — ничего не чинит, эскалирует 0ms
+     ✓ овербукинг: к человеку без починки; пока объект на Exely — предупреждение, ночью не будит 0ms
+     ✓ человек нажал «Принято» — CRITICAL больше не будит 0ms
+     ✓ база легла: будит напрямую, не чаще раза в 30 минут; поднялась — остаётся запись в истории 1ms
+     ✓ будильник не настроен — неисправности пишутся, сообщение не уходит, итог прохода это говорит 0ms
+   ✓ GuardService.recordApiError (2)
+     ✓ 500 от кода пишется одной неисправностью на маршрут, без тела запроса и секретов 0ms
+     ✓ ошибка на приёме брони (webhook, сайт) — срочная 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guard/guard.service.test.ts > GuardService.tick > лента не читается, а сторож webhook уже опрашивает её каждую минуту — второй опрос не запускать
+AssertionError: expected [ 'pull' ] to not include 'pull'
+ ❯ apps/api/src/guard/guard.service.test.ts:298:25
+    296|     t.state.pullOkAt = plus(NIGHT, -30);
+    297|     const s = await t.guard.tick(NIGHT);
+    298|     expect(t.calls).not.toContain('pull');
+       |                         ^
+    299|     expect(s.fixes.find((f) => f.kind === 'feed.stale')?.text).toMatch…
+    300|     t.state.webhook = QUIET_WEBHOOK;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  05:18:37
+   Duration  309ms (transform 49%, import 46%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-13T12-18-37Z-unit-f027.json
+
+# код выхода 1 · 1 с

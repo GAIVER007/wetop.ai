@@ -22,11 +22,13 @@ export function Page({
   children: ReactNode;
 }) {
   return (
-    <main className={cx('page', width && `page--${width}`)}>
+    <main id="main-content" tabIndex={-1} className={cx('page', width && `page--${width}`)}>
       {crumbs && <div className="page__crumbs">{crumbs}</div>}
       <header className="page__head">
-        <h1 className="page__title">{title}</h1>
-        {subtitle && <span className="page__subtitle">{subtitle}</span>}
+        <div className="page__heading">
+          <h1 className="page__title">{title}</h1>
+          {subtitle && <div className="page__subtitle">{subtitle}</div>}
+        </div>
         {actions && <nav className="page__actions">{actions}</nav>}
       </header>
       {children}

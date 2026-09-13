@@ -178,17 +178,19 @@ export function Table({
   plain?: boolean | undefined;
 }) {
   return (
-    <table
-      className={cx(
-        'tbl',
-        size && `tbl--${size}`,
-        dense && 'tbl--dense',
-        nowrap && 'tbl--nowrap',
-        plain && 'tbl--plain',
-        className,
-      )}
-      {...rest}
-    />
+    <div className="table-scroll">
+      <table
+        className={cx(
+          'tbl',
+          size && `tbl--${size}`,
+          dense && 'tbl--dense',
+          nowrap && 'tbl--nowrap',
+          plain && 'tbl--plain',
+          className,
+        )}
+        {...rest}
+      />
+    </div>
   );
 }
 

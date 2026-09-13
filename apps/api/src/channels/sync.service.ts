@@ -25,7 +25,13 @@ import {
 export const PROVIDER = 'channex';
 /** Тариф, который продаётся в OTA (plans/slice-4-channex.md, умолчание): «Тариф для ОТА +35%» */
 export const DEFAULT_OTA_RATE_PLAN_CODE = 'exely-10158310';
-const DEFAULT_SYNC_DAYS = 365;
+/*
+ * Глубина полной выгрузки. 500 суток — требование сертификации Channex («Full sync means you should send
+ * 500 days of Availability, rates and restrictions», pms-certification-tests.md §1), и оно же разумно для
+ * продажи: канал не продаст дальше, чем мы отдали остатки. Цены сейчас заведены на 361 день вперёд
+ * (календарь Exely до 2027-09-09), поэтому за этой границей уходят остатки без цены — так и указано в форме.
+ */
+const DEFAULT_SYNC_DAYS = 500;
 /** Входящий endpoint PMS (channels.controller) — Channex шлёт сюда POST с нашим секретом в заголовке */
 export const WEBHOOK_PATH = '/channels/channex/webhook';
 const WEBHOOK_EVENTS = 'booking';

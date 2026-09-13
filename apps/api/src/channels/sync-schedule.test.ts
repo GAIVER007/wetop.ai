@@ -11,7 +11,7 @@ function make(lastRunAt: Date | null) {
   } as unknown as ChannelsRepository;
   const svc = new ChannexSyncService({} as ChannexGateway, repo);
   const calls: string[] = [];
-  svc.fullSync = async (days = 365, trigger = 'manual') => {
+  svc.fullSync = async (days = 500, trigger = 'manual') => {
     calls.push(`${days}:${trigger}`);
     return {
       from: '2026-09-12',
@@ -30,7 +30,7 @@ describe('ChannexSyncService — полная выгрузка раз в сут�
     const { svc, calls } = make(utc('2026-09-10T23:10:00Z'));
     const r = await svc.runScheduledFullSyncIfDue(utc('2026-09-11T22:30:00Z'));
     expect(r.ran).toBe(true);
-    expect(calls).toEqual(['365:scheduled']);
+    expect(calls).toEqual(['500:scheduled']);
   });
   it('не пора (сегодня уже было) — ничего не отправляем и объясняем почему', async () => {
     const { svc, calls } = make(utc('2026-09-11T10:05:00Z'));
@@ -43,6 +43,6 @@ describe('ChannexSyncService — полная выгрузка раз в сут�
     const { svc, calls } = make(utc('2026-09-11T10:05:00Z'));
     const r = await svc.runScheduledFullSyncIfDue(utc('2026-09-11T12:00:00Z'), true);
     expect(r.ran).toBe(true);
-    expect(calls).toEqual(['365:manual']);
+    expect(calls).toEqual(['500:manual']);
   });
 });

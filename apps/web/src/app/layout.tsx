@@ -4,6 +4,7 @@ import { TopNav } from '../components/top-nav';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
+import './management/hotel.css';
 
 /*
  * Шрифты стойки: IBM Plex Sans — весь интерфейс, включая заголовки (две гарнитуры на плотных экранах

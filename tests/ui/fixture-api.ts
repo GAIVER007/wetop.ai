@@ -342,6 +342,70 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   if (path === '/guard/incidents')
     return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+  if (path === '/hotel/settings')
+    return {
+      property: {
+        id: 'test-property',
+        name: 'Luxx Aparts',
+        legalName: null,
+        address: 'Тестовый адрес, 1',
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
+      },
+      ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+    };
+  if (path === '/hotel/channel-report') {
+    const status = q.get('status') || 'ALL';
+    const empty = status !== 'ALL';
+    return {
+      from: q.get('from'),
+      to: q.get('to'),
+      status,
+      dateBasis: 'ARRIVAL',
+      rows: empty
+        ? []
+        : [
+            {
+              source: 'OTA',
+              channel: 'Booking.com',
+              currency: 'KZT',
+              count: 24,
+              cancelled: 2,
+              noShow: 0,
+              amountMinor: '96000000',
+            },
+            {
+              source: 'OTA',
+              channel: 'Trip.com',
+              currency: 'KZT',
+              count: 12,
+              cancelled: 1,
+              noShow: 1,
+              amountMinor: '48000000',
+            },
+            {
+              source: 'WEBSITE',
+              channel: null,
+              currency: 'KZT',
+              count: 8,
+              cancelled: 0,
+              noShow: 0,
+              amountMinor: '32000000',
+            },
+            {
+              source: 'DESK',
+              channel: null,
+              currency: 'KZT',
+              count: 4,
+              cancelled: 0,
+              noShow: 0,
+              amountMinor: '16000000',
+            },
+          ],
+    };
+  }
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },

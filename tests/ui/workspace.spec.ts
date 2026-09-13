@@ -24,7 +24,7 @@ async function noPageOverflow(page: Page) {
 test('все разделы, карточки и печать открываются; desktop/mobile без переполнения', async ({
   page,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -47,13 +47,33 @@ test('все разделы, карточки и печать открывают
     ['/incidents', 'Неисправности'],
     ['/analytics', 'Аналитика сайта'],
     ['/analytics/setup', 'Подключение счётчика'],
+    ['/rooms', 'Управление номерами'],
+    ['/rooms/categories', 'Категории номеров'],
+    ['/rooms/availability', 'Доступность номеров'],
+    ['/rooms/promotions', 'Акции'],
+    ['/hotel-settings', 'Настройка гостиницы'],
+    ['/hotel-settings/check-in', 'Заезд и выезд'],
+    ['/hotel-settings/penalties', 'Штрафы'],
+    ['/hotel-settings/services', 'Услуги'],
+    ['/hotel-settings/description', 'Описание'],
+    ['/hotel-settings/photos', 'Фото'],
+    ['/hotel-settings/amenities', 'Удобства'],
+    ['/management', 'Управление отелем'],
+    ['/management/statistics', 'Статистика'],
+    ['/management/reports', 'Отчёты'],
+    ['/management/analytics', 'Аналитика отеля'],
+    ['/channel-manager', 'Менеджер каналов'],
+    ['/connections', 'Подключения API'],
+    ['/marketing', 'Маркетинг'],
   ];
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(route!);
     await expect(page.locator('h1')).toContainText(title!);
     await noPageOverflow(page);
-    if (route === '/today' || route === '/chessboard') {
+    if (
+      ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
+    ) {
       await page.screenshot({
         path: `${screenshots}/${route.slice(1)}-desktop.png`,
         fullPage: false,
@@ -69,6 +89,84 @@ test('все разделы, карточки и печать открывают
   await expect(page.locator('h1')).toContainText('Регистрационная карта');
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
+  await page.goto('/today');
+  const sidebar = page.locator('.workspace-sidebar');
+  const rooms = sidebar.getByRole('button', { name: 'Подразделы: Управление номерами' });
+  await expect(rooms).toHaveAttribute('aria-expanded', 'false');
+  await rooms.click();
+  await expect(rooms).toHaveAttribute('aria-expanded', 'true');
+  await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
+  await expect(page.locator('h1')).toHaveText('Категории номеров');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Категории номеров');
+  await rooms.click();
+  await expect(
+    sidebar.getByRole('link', { name: 'Категории номеров', exact: true }),
+  ).not.toBeVisible();
+  await page.goto('/analytics/setup');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Настройки сайта');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: 'Открыть меню' }).click();
+  const menu = page.getByRole('dialog', { name: 'Навигация' });
+  await menu.getByRole('button', { name: 'Подразделы: Настройка гостиницы' }).click();
+  await menu.getByRole('link', { name: 'Услуги', exact: true }).click();
+  await expect(page.locator('h1')).toHaveText('Услуги');
+  await expect(menu).not.toBeVisible();
+  await noPageOverflow(page);
+});
+
+test('доступность переносит даты и свободное место в создание брони; неверный период виден', async ({
+  page,
+}) => {
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
+  await page.getByRole('link', { name: 'Создать бронь', exact: true }).first().click();
+  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
+  await expect(page.locator('h1')).toHaveText('Новая бронь');
+  await page.goto('/rooms/availability?arrival=2026-10-04&departure=2026-10-01');
+  await expect(page.getByRole('alert')).toContainText('Выезд должен быть позже заезда');
+  await expect(page.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveCount(0);
+});
+
+test('менеджер каналов: реальные фильтры, пустой результат, период и отказ API', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await expect(page.getByTestId('channel-bookings')).toHaveText('48');
+  await expect(page.getByTestId('channel-report')).toContainText('Booking.com');
+  await expect(page.getByTestId('channel-report')).toContainText('Trip.com');
+  await page.getByLabel('Статус брони').selectOption('CANCELLED');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(page).toHaveURL(/status=CANCELLED/);
+  await expect(page.getByTestId('channel-bookings')).toHaveText('0');
+  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await page.goto('/channel-manager?from=2026-09-30&to=2026-09-01');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
+  await page.goto('/channel-manager');
+  await expect(page.locator('h1')).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByTestId('channel-bookings')).toHaveCount(0);
+});
+
+test('подключения показывают частичный сбой, неподключённые функции не имитируют сохранение', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/channels/channex/webhook/status' },
+  });
+  await page.goto('/connections');
+  await expect(page.getByRole('alert')).toContainText('Не удалось проверить webhook');
+  await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
+  for (const path of ['/rooms/promotions', '/hotel-settings/photos', '/hotel-settings/amenities']) {
+    await page.goto(path);
+    await expect(page.getByText('Ещё не подключено', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
+  }
 });
 
 test('поиск и списки дня; мобильное меню и возврат фокуса', async ({ page }) => {

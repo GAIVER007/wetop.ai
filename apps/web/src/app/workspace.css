@@ -1,6 +1,6 @@
 /* WETOP: единый рабочий интерфейс хостела поверх существующих компонентов и API. */
 :root {
-  --sidebar-w: 224px;
+  --sidebar-w: 268px;
   --header-h: 72px;
   --control-h: 38px;
   --radius: 10px;
@@ -141,13 +141,13 @@ svg {
 .workspace-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
   min-height: 44px;
   padding: 10px 12px;
   margin: 3px 0;
   border-radius: 7px;
   color: #d2dcd8;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
 }
 .workspace-link svg {

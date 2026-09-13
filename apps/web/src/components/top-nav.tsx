@@ -1,29 +1,79 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, type ReactNode } from 'react';
-import { Icon, type IconName } from './icon';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Icon } from './icon';
+import { navigation, activeNavigation, type NavigationItem } from '../lib/navigation';
 import { cx } from './ui';
 
-const sections: Array<{ href: string; label: string; icon: IconName; group: string }> = [
-  { href: '/today', label: 'Сегодня', icon: 'today', group: 'Рабочее место' },
-  { href: '/chessboard', label: 'Шахматка', icon: 'board', group: 'Рабочее место' },
-  { href: '/guests', label: 'Гости', icon: 'guests', group: 'Рабочее место' },
-  { href: '/finance', label: 'Деньги', icon: 'money', group: 'Управление' },
-  { href: '/rates', label: 'Цены', icon: 'rates', group: 'Управление' },
-  { href: '/inventory', label: 'Номерной фонд', icon: 'inventory', group: 'Управление' },
-  { href: '/channels', label: 'Каналы', icon: 'channels', group: 'Управление' },
-  { href: '/analytics', label: 'Аналитика', icon: 'analytics', group: 'Управление' },
-  { href: '/incidents', label: 'Неисправности', icon: 'incidents', group: 'Система' },
-  { href: '/journal', label: 'Журнал', icon: 'journal', group: 'Система' },
-  { href: '/analytics/setup', label: 'Настройки сайта', icon: 'settings', group: 'Система' },
-];
+function NavigationEntry({
+  item,
+  active,
+  close,
+}: {
+  item: NavigationItem;
+  active?: string | undefined;
+  close?: (() => void) | undefined;
+}) {
+  const id = useId();
+  const containsActive = item.children?.some((child) => child.href === active) ?? false;
+  const [expanded, setExpanded] = useState(containsActive || item.href === active);
+  // A newly visited child opens its parent; manual collapse remains possible on the current page.
+  useEffect(() => {
+    if (containsActive || item.href === active) setExpanded(true);
+  }, [active, containsActive, item.href]);
+  return (
+    <div className="nav-entry">
+      <div className="nav-entry-row">
+        <Link
+          href={item.href}
+          prefetch={false}
+          onClick={() => close?.()}
+          className={cx(
+            'workspace-link',
+            active === item.href && 'is-active',
+            containsActive && 'has-active-child',
+          )}
+          aria-current={active === item.href ? 'page' : undefined}
+        >
+          <Icon name={item.icon} />
+          <span>{item.label}</span>
+        </Link>
+        {item.children && (
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={`Подразделы: ${item.label}`}
+            aria-expanded={expanded}
+            aria-controls={id}
+            onClick={() => setExpanded(!expanded)}
+          >
+            <Icon name="chevron" />
+          </button>
+        )}
+      </div>
+      {item.children && (
+        <div id={id} className="nav-children" hidden={!expanded}>
+          {item.children.map((child) => (
+            <Link
+              key={child.href}
+              href={child.href}
+              prefetch={false}
+              onClick={() => close?.()}
+              className={cx('nav-child', active === child.href && 'is-active')}
+              aria-current={active === child.href ? 'page' : undefined}
+            >
+              {child.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Navigation({ path, close }: { path: string; close?: () => void }) {
-  // Самый точный маршрут побеждает: /analytics/setup не подсвечивает два раздела.
-  const active = sections
-    .filter((s) => path === s.href || path.startsWith(`${s.href}/`))
-    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const active = activeNavigation(path)?.href;
   return (
     <>
       <Link
@@ -57,18 +107,12 @@ function Navigation({ path, close }: { path: string; close?: () => void }) {
         </div>
       </div>
       <nav className="workspace-links" aria-label="Разделы">
-        {sections.map((s, i) => (
-          <div key={s.href}>
-            {s.group !== sections[i - 1]?.group && <div className="nav-group">{s.group}</div>}
-            <Link
-              href={s.href}
-              onClick={() => close?.()}
-              className={cx('workspace-link', active === s.href && 'is-active')}
-              aria-current={active === s.href ? 'page' : undefined}
-            >
-              <Icon name={s.icon} />
-              <span>{s.label}</span>
-            </Link>
+        {navigation.map((group) => (
+          <div key={group.label}>
+            <div className="nav-group">{group.label}</div>
+            {group.items.map((item) => (
+              <NavigationEntry key={item.href} item={item} active={active} close={close} />
+            ))}
           </div>
         ))}
       </nav>
@@ -102,9 +146,7 @@ export function TopNav({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', key);
   }, [path]);
   if (path.includes('/print')) return <>{children}</>;
-  const section = sections
-    .filter((s) => path === s.href || path.startsWith(`${s.href}/`))
-    .sort((a, b) => b.href.length - a.href.length)[0];
+  const section = activeNavigation(path);
   return (
     <div className="workspace">
       <a className="skip-link" href="#main-content">

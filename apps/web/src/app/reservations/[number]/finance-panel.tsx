@@ -328,7 +328,7 @@ function FolioPanel({
             </Button>
           </form>
           <form
-            key={`p${payState.ok}-${folio.balanceMinor}-${payState.attempt ?? 0}`}
+            key={`p${payState.ok}-${payState.attempt ?? 0}`}
             action={payFormAction}
             data-testid="payment-form"
             className="row"
@@ -336,6 +336,7 @@ function FolioPanel({
             <Select
               name="method"
               aria-label="Способ оплаты"
+              disabled={busy}
               defaultValue={payState.values?.method ?? 'CASH'}
             >
               {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
@@ -344,19 +345,15 @@ function FolioPanel({
                 </option>
               ))}
             </Select>
-            <Input
-              name="amount"
-              aria-label="Сумма"
-              placeholder="сумма"
-              required
-              defaultValue={
-                payState.values?.amount ?? (balance > 0n ? toDecimal(folio.balanceMinor) : '')
-              }
-              className="inp--w120"
+            <PaymentAmount
+              balanceMinor={folio.balanceMinor}
+              initialValue={payState.values?.amount}
+              disabled={busy}
             />
             <Input
               name="note"
               aria-label="Примечание"
+              disabled={busy}
               defaultValue={payState.values?.note ?? ''}
               placeholder="примечание"
             />
@@ -427,6 +424,31 @@ function FolioPanel({
       )}
       {error && <Alert>{error}</Alert>}
     </Panel>
+  );
+}
+
+/** A balance refresh may suggest an amount, but must never replace an operator's draft. */
+function PaymentAmount({
+  balanceMinor,
+  initialValue,
+  disabled,
+}: {
+  balanceMinor: string;
+  initialValue: string | undefined;
+  disabled: boolean;
+}) {
+  const [draft, setDraft] = useState<string | null>(initialValue ?? null);
+  return (
+    <Input
+      name="amount"
+      aria-label="Сумма"
+      placeholder="сумма"
+      required
+      disabled={disabled}
+      value={draft ?? (BigInt(balanceMinor) > 0n ? toDecimal(balanceMinor) : '')}
+      onChange={(event) => setDraft(event.target.value)}
+      className="inp--w120"
+    />
   );
 }
 

@@ -81,6 +81,23 @@ describe('ExelyUniversalClient (X-API-KEY)', () => {
     expect(f.calls[0]!.url).toContain('startDate=20260801&endDate=20260831&dateKind=1');
     expect(f.calls[1]!.url).toContain('startDate=20260901&endDate=20260905&dateKind=1');
   });
+  it('analyticsPayments asks for payments made outside Exely only when told to', async () => {
+    const f = fakeFetch([
+      { status: 200, body: { data: { payments: [] } } },
+      { status: 200, body: { data: { payments: [] } } },
+    ]);
+    const c = make(f);
+    await c.analyticsPayments({ startDateTime: '202609010000', endDateTime: '202609131200' });
+    await c.analyticsPayments({
+      startDateTime: '202609010000',
+      endDateTime: '202609131200',
+      includeExternalPayments: true,
+    });
+    expect(f.calls[0]!.url).toBe(
+      'https://connect.hopenapi.com/api/exelypms/v1/analytics/payments?startDateTime=202609010000&endDateTime=202609131200',
+    );
+    expect(f.calls[1]!.url).toContain('includeExternalPayments=true');
+  });
   it('retries on 429 honouring retry-after and fails clearly on 401', async () => {
     const f = fakeFetch([
       { status: 429, body: {}, headers: { 'retry-after': '1' } },

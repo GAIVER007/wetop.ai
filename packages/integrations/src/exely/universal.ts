@@ -222,13 +222,18 @@ export class ExelyUniversalClient {
     return out;
   }
 
-  /** GET /v1/analytics/payments — платежи по бронированиям за период (yyyyMMddHHmm). */
+  /**
+   * GET /v1/analytics/payments — платежи по бронированиям за период (yyyyMMddHHmm), окно ≤31 день, будущее нельзя.
+   * includeExternalPayments — добавить предоплаты, проведённые вне Exely (например, гостем на сайте).
+   */
   async analyticsPayments(p: {
     startDateTime: string;
     endDateTime: string;
+    includeExternalPayments?: boolean;
   }): Promise<Record<string, unknown>> {
+    const external = p.includeExternalPayments ? '&includeExternalPayments=true' : '';
     return this.get<Record<string, unknown>>(
-      `/analytics/payments?startDateTime=${p.startDateTime}&endDateTime=${p.endDateTime}`,
+      `/analytics/payments?startDateTime=${p.startDateTime}&endDateTime=${p.endDateTime}${external}`,
     );
   }
 }

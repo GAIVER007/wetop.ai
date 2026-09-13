@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 14.09.2026 03:21 Алматы · MacBook-Air-Urij.local
+# коммит b22fa32 (codex/system-persistence-audit), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/live-system/playwright.config.ts'
+[WebServer] (node:91275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91309) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:91377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91310) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (node:91587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей (34.5s)
+
+
+  1) tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей › переполнение вместимости отклоняется без изменения сохранённой брони 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 422
+
+      123 |         data: { adults: 999 },
+      124 |       });
+    > 125 |       expect(invalid.status()).toBe(400);
+          |                                ^
+      126 |       expect((await db.reservationItem.findUniqueOrThrow({ where: { id: itemId } })).adults).toBe(
+      127 |         1,
+      128 |       );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:125:32
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:121:5
+
+    Error Context: test-results/persistence-UI-→-Nest-→-Su-1c1a4-боркой-только-своих-записей/error-context.md
+
+  1 failed
+    tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей 
+
+# код выхода 1 · 45 с

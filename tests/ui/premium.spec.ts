@@ -147,7 +147,7 @@ test('новые страницы и обе темы: адаптивность �
     await page.setViewportSize({ width, height: 1000 });
     for (const route of routes) {
       await page.goto(route);
-      await expect(page.locator('h1')).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       if (width === 390 && route === '/today')
         await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
       const overflow = await page.evaluate(() => {
@@ -165,7 +165,7 @@ test('новые страницы и обе темы: адаптивность �
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   for (const route of routes) {
     await page.goto(route);
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   }
   expect(errors).toEqual([]);

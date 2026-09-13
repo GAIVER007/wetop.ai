@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-09-13T22:44:18.298Z",
+  "auditReservationsRemaining": 0,
+  "auditGuestsRemaining": 0,
+  "auditPaymentsRemaining": 0,
+  "auditBlocksRemaining": 0,
+  "auditSitesRemaining": 0,
+  "outbox": [
+    {
+      "_count": 1300,
+      "status": "SENT"
+    }
+  ],
+  "schema": {
+    "migrationsApplied": 12,
+    "prismaMigrateStatus": "up-to-date",
+    "prismaMigrateDiff": "no-difference"
+  }
+}

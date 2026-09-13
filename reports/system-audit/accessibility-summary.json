@@ -1,0 +1,22 @@
+[
+  {
+    "report": "accessibility-dark-1440.json",
+    "pages": 38,
+    "violations": 0
+  },
+  {
+    "report": "accessibility-dark-390.json",
+    "pages": 38,
+    "violations": 0
+  },
+  {
+    "report": "accessibility-light-1440.json",
+    "pages": 38,
+    "violations": 0
+  },
+  {
+    "report": "accessibility-light-390.json",
+    "pages": 38,
+    "violations": 0
+  }
+]

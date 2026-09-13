@@ -1,0 +1,282 @@
+# Сквозные (e2e) · 14.09.2026 03:39 Алматы · MacBook-Air-Urij.local
+# коммит b22fa32 (codex/system-persistence-audit), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'premium.spec.ts' 'workspace.spec.ts' '--workers=1'
+[WebServer] (node:98543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 31 tests using 1 worker
+
+(node:98656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.6s)
+  ✓   2 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск, уведомления и помощник (3.6s)
+[WebServer] (node:98755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (4.5s)
+[WebServer] (node:98793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (4.9s)
+[WebServer] (node:98806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98867) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (35.5s)
+  ✓   6 tests/ui/premium.spec.ts:173:1 › сообщения сохраняют только черновик, login не имитирует авторизацию (2.4s)
+[WebServer] (node:98912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98943) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (15.5s)
+[WebServer] (node:98977) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/workspace.spec.ts:97:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (3.0s)
+[WebServer] (node:98983) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/workspace.spec.ts:125:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (1.3s)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1147875000'
+[WebServer] }
+  ✓  10 tests/ui/workspace.spec.ts:143:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (1.5s)
+[WebServer] (node:99004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/workspace.spec.ts:164:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (1.6s)
+  ✓  12 tests/ui/workspace.spec.ts:183:1 › поиск и списки дня; мобильное меню и возврат фокуса (2.0s)
+  ✓  13 tests/ui/workspace.spec.ts:209:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.6s)
+  ✓  14 tests/ui/workspace.spec.ts:231:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.2s)
+[WebServer] (node:99052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99071) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/workspace.spec.ts:263:1 › карточка: профиль гостя и заселение проходят через server actions (1.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1207343065'
+[WebServer] }
+  ✓  16 tests/ui/workspace.spec.ts:296:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.1s)
+  ✓  17 tests/ui/workspace.spec.ts:305:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (1.7s)
+  ✓  18 tests/ui/workspace.spec.ts:319:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (608ms)
+  ✓  19 tests/ui/workspace.spec.ts:331:1 › неверная дата в ссылке оставляет доступную форму для исправления (649ms)
+[WebServer] (node:99105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99107) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/ui/workspace.spec.ts:338:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (1.4s)
+  ✓  21 tests/ui/workspace.spec.ts:347:1 › групповая бронь: разные категории сохраняются при конфликте (951ms)
+[WebServer] (node:99115) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/workspace.spec.ts:371:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.3s)
+[WebServer] (node:99127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/workspace.spec.ts:398:1 › обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия (1.5s)
+  ✓  24 tests/ui/workspace.spec.ts:429:1 › ошибка буфера обмена видна, код остаётся доступен (864ms)
+  ✓  25 tests/ui/workspace.spec.ts:445:1 › финансы: неверные даты можно исправить без падения страницы (909ms)
+  ✓  26 tests/ui/workspace.spec.ts:455:1 › ошибка загрузки тарифов не позволяет включить виджет (699ms)
+[WebServer] (node:99146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/workspace.spec.ts:464:1 › номера: статус уборки, блокировка и снятие сохраняются (1.6s)
+  ✓  28 tests/ui/workspace.spec.ts:486:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (1.3s)
+  ✓  29 tests/ui/workspace.spec.ts:509:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (2.5s)
+  ✓  30 tests/ui/workspace.spec.ts:537:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (2.1s)
+[WebServer] (node:99199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2278748776'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:63:17)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3744660739'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:55:13)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2564740290'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:191:26)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1648452065'
+[WebServer] }
+[WebServer] (node:99202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:57:21)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2368734465'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1147875000'
+[WebServer] }
+[WebServer] ⨯ Error: API /analytics/sites: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:86:11)
+[WebServer]     at async MarketingPage (src/app/marketing/page.tsx:8:17)
+[WebServer]   84 |   const res = await backendFetch(path);
+[WebServer]   85 |   if (!res.ok) {
+[WebServer] > 86 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   87 |   }
+[WebServer]   88 |   return (await res.json()) as T;
+[WebServer]   89 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '19964634'
+[WebServer] }
+  ✓  31 tests/ui/workspace.spec.ts:568:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (4.5s)
+
+  31 passed (2.0m)
+
+# код выхода 0 · 2 мин 1 с

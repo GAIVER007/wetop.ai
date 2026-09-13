@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 14.09.2026 03:24 Алматы · MacBook-Air-Urij.local
+# коммит b22fa32 (codex/system-persistence-audit), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/live-system/playwright.config.ts' '--workers=1'
+[WebServer] (node:92360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:92464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92395) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (node:92534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92559) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1937910019'
+[WebServer] }
+[WebServer] (node:92561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей (1.1m)
+
+
+  1) tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей › счёт: начисление, платёж и возврат из UI сохраняются в Supabase 
+
+    Error: Foreign payment: cleanup refused
+
+       at cleanup.ts:32
+
+      30 |           )
+      31 |         )
+    > 32 |           throw new Error('Foreign payment: cleanup refused');
+         |                 ^
+      33 |         const paymentIds = payments.map((p) => p.id);
+      34 |         await tx.refund.deleteMany({ where: { folioId: { in: folioIds } } });
+      35 |         await tx.paymentAllocation.deleteMany({ where: { folioId: { in: folioIds } } });
+        at db.$transaction.timeout (/Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/cleanup.ts:32:17)
+        at Proxy._transactionWithCallback (/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18)
+        at cleanupAudit (/Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/cleanup.ts:6:3)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:258:5
+
+    Error Context: test-results/persistence-UI-→-Nest-→-Su-1c1a4-боркой-только-своих-записей/error-context.md
+
+  1 failed
+    tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей 
+
+# код выхода 1 · 1 мин 15 с

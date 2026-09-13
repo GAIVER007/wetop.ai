@@ -1,0 +1,160 @@
+{
+  "checkedAt": "2026-09-13T22:36:10.896Z",
+  "method": "HTTP SSR; no UI clicks or writes",
+  "pages": [
+    {
+      "route": "/today",
+      "status": 200,
+      "title": "Обзор дня",
+      "ms": 10034,
+      "loadError": false
+    },
+    {
+      "route": "/chessboard",
+      "status": 200,
+      "title": "Шахматка",
+      "ms": 2082,
+      "loadError": false
+    },
+    {
+      "route": "/reservations",
+      "status": 200,
+      "title": "Брони",
+      "ms": 2398,
+      "loadError": false
+    },
+    {
+      "route": "/guests",
+      "status": 200,
+      "title": "Гости",
+      "ms": 1621,
+      "loadError": false
+    },
+    {
+      "route": "/rooms",
+      "status": 200,
+      "title": "Управление номерами",
+      "ms": 2031,
+      "loadError": false
+    },
+    {
+      "route": "/rooms/categories",
+      "status": 200,
+      "title": "Категории номеров",
+      "ms": 2319,
+      "loadError": false
+    },
+    {
+      "route": "/rooms/availability",
+      "status": 200,
+      "title": "Доступность номеров",
+      "ms": 2072,
+      "loadError": false
+    },
+    {
+      "route": "/rates",
+      "status": 200,
+      "title": "Цены и ограничения",
+      "ms": 837,
+      "loadError": false
+    },
+    {
+      "route": "/hotel-settings",
+      "status": 200,
+      "title": "Настройка гостиницы",
+      "ms": 622,
+      "loadError": false
+    },
+    {
+      "route": "/hotel-settings/check-in",
+      "status": 200,
+      "title": "Заезд и выезд",
+      "ms": 269,
+      "loadError": false
+    },
+    {
+      "route": "/hotel-settings/penalties",
+      "status": 200,
+      "title": "Штрафы",
+      "ms": 592,
+      "loadError": false
+    },
+    {
+      "route": "/hotel-settings/services",
+      "status": 200,
+      "title": "Услуги",
+      "ms": 293,
+      "loadError": false
+    },
+    {
+      "route": "/management",
+      "status": 200,
+      "title": "Управление отелем",
+      "ms": 341,
+      "loadError": false
+    },
+    {
+      "route": "/management/statistics",
+      "status": 200,
+      "title": "Статистика",
+      "ms": 1824,
+      "loadError": false
+    },
+    {
+      "route": "/management/reports",
+      "status": 200,
+      "title": "Отчёты",
+      "ms": 261,
+      "loadError": false
+    },
+    {
+      "route": "/management/analytics",
+      "status": 200,
+      "title": "Аналитика отеля",
+      "ms": 251,
+      "loadError": false
+    },
+    {
+      "route": "/finance",
+      "status": 200,
+      "title": "Деньги за период",
+      "ms": 5496,
+      "loadError": false
+    },
+    {
+      "route": "/channel-manager",
+      "status": 200,
+      "title": "Менеджер каналов",
+      "ms": 403,
+      "loadError": false
+    },
+    {
+      "route": "/analytics",
+      "status": 200,
+      "title": "Аналитика сайта",
+      "ms": 1359,
+      "loadError": false
+    },
+    {
+      "route": "/marketing",
+      "status": 200,
+      "title": "Маркетинг",
+      "ms": 682,
+      "loadError": false
+    },
+    {
+      "route": "/connections",
+      "status": 200,
+      "title": "Подключения API",
+      "ms": 1329,
+      "loadError": false
+    },
+    {
+      "route": "/messages",
+      "status": 200,
+      "title": "Сообщения",
+      "ms": 615,
+      "loadError": false
+    }
+  ]
+}

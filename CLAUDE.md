@@ -75,7 +75,9 @@ Gate 1 сверен с ЖИВЫМ Exely (`cli-inventory --live`: 88/88, все �
 
 Аудит действующей PMS (Exely) сдан 07.09.2026 — `project-input/exely/audit-2026-09-07/`.
 Доступы: Supabase dev-БД (Сингапур, только анонимизированные ПД — ADR-018), Exely Универсальный API
-(`EXELY_API_KEY`), Exely Connect (создано, шлюз 401), Channex staging (`CHANNEX_API_KEY`).
+(`EXELY_API_KEY`), Exely Connect (создано, шлюз 401), Channex staging (`CHANNEX_API_KEY`),
+GitHub — приватный `GAIVER007/wetop.ai` (с 13.09.2026; git ходит через связку ключей macOS; `git push` запускает
+владелец — агенту отправку во внешний сервис блокирует фильтр безопасности Claude Code).
 
 ### Модель утверждена полностью (07.09.2026; §6 Folio — 09.09.2026)
 

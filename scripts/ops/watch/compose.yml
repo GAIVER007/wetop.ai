@@ -1,5 +1,10 @@
-# Отдельный Docker-проект на общем сервере Hostinger: чужие контейнеры (vilkabot2, hermes, traefik) не трогаем.
-# Маршрут наружу — метками для уже работающего Traefik; имя хоста и сеть Traefik уточняются на сервере (WATCH_HOST, TRAEFIK_NETWORK).
+# «Сторож сторожа» — отдельный Docker-проект на общем сервере Hostinger (plans/slice-12-guard-server.md).
+# Чужие контейнеры (vilkabot2, hermes-workspace, traefik) не трогаем.
+#
+# Проверено на сервере 13.09.2026: Traefik работает в сети хоста (network_mode: host), docker-провайдер с
+# exposedbydefault=false, точка входа https — `websecure`, сертификаты — резолвер `letsencrypt`; любое имя
+# *.srv1719674.hstgr.cloud указывает на сервер. Поэтому своей сети Traefik не нужно: он достаёт контейнер по его IP.
+#
 # Секреты — в файле .env рядом (вписывает владелец): WATCH_SECRET, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
 name: pms-lux-watch
 services:
@@ -9,14 +14,10 @@ services:
     env_file: .env
     read_only: true
     security_opt: ['no-new-privileges:true']
+    mem_limit: 128m
     labels:
       - traefik.enable=true
-      - traefik.http.routers.pms-lux-watch.rule=Host(`${WATCH_HOST}`)
-      - traefik.http.routers.pms-lux-watch.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
-      - traefik.http.routers.pms-lux-watch.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      - traefik.http.routers.pms-lux-watch.rule=Host(`pms-watch.srv1719674.hstgr.cloud`)
+      - traefik.http.routers.pms-lux-watch.entrypoints=websecure
+      - traefik.http.routers.pms-lux-watch.tls.certresolver=letsencrypt
       - traefik.http.services.pms-lux-watch.loadbalancer.server.port=8080
-    networks: [traefik]
-networks:
-  traefik:
-    external: true
-    name: ${TRAEFIK_NETWORK:-traefik}

@@ -9,25 +9,37 @@ const plusDays = (iso: string, n: number) => {
   x.setUTCDate(x.getUTCDate() + n);
   return x.toISOString().slice(0, 10);
 };
+const isDate = (value: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+};
 
 /** Slice 3, шаг 3.5: форма ручной брони. Доступность и ячейки — по датам из адресной строки. */
 export default async function NewReservationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ arrival?: string; departure?: string }>;
+  searchParams: Promise<{ arrival?: string; departure?: string; unit?: string }>;
 }) {
   const q = await searchParams;
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
   const arrival = q.arrival ?? today;
-  const departure = q.departure ?? plusDays(arrival, 1);
+  const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
+  const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
   const [summary, ratePlans, availability] = await Promise.all([
     api.inventorySummary(),
     reservationsApi.ratePlans(),
-    reservationsApi.availability(arrival, departure).catch(() => null),
+    validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
   ]);
   return (
-    <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
+    <Page
+      width="narrow"
+      crumbs={<Link href="/chessboard">← шахматка</Link>}
+      title="Новая бронь"
+      subtitle="Выберите размещение и заполните данные гостя"
+    >
       <form method="get" className="row row--end row--lg toolbar">
+        {q.unit && <input type="hidden" name="unit" value={q.unit} />}
         <Field label="Заезд">
           <Input type="date" name="arrival" defaultValue={arrival} />
         </Field>
@@ -50,6 +62,9 @@ export default async function NewReservationPage({
         <div className="danger-text toolbar">Даты некорректны: выезд должен быть позже заезда.</div>
       )}
       <NewReservationForm
+        key={`${arrival}-${departure}-${q.unit ?? ''}`}
+        selectedUnit={q.unit ?? ''}
+        canSubmit={availability !== null}
         arrival={arrival}
         departure={departure}
         categories={summary.byCategory.map((c) => ({

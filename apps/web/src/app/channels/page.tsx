@@ -30,7 +30,7 @@ export default async function ChannelsPage() {
     channelsApi.outbox(),
     api.inventorySummary(),
     channelsApi.webhookStatus().catch(() => null),
-    channelsApi.events(20).catch(() => []),
+    channelsApi.events(20).catch(() => null),
   ]);
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
@@ -60,11 +60,13 @@ export default async function ChannelsPage() {
         <div>
           <div className="fact__label">Webhook в Channex</div>
           <div className="fact__value" data-testid="webhook-status">
-            {webhook?.registered
-              ? `${webhook.active ? 'активен' : 'выключен'} · ${webhook.eventMask}`
-              : webhook?.expectedUrl
-                ? 'не зарегистрирован'
-                : 'нет PUBLIC_API_URL'}
+            {webhook === null
+              ? 'состояние неизвестно'
+              : webhook.registered
+                ? `${webhook.active ? 'активен' : 'выключен'} · ${webhook.eventMask}`
+                : webhook?.expectedUrl
+                  ? 'не зарегистрирован'
+                  : 'нет PUBLIC_API_URL'}
           </div>
           {webhook?.registered && <div className="cell-sub break-all">{webhook.callbackUrl}</div>}
           {webhook?.registered && webhook.callbackReachable === false && (
@@ -87,6 +89,12 @@ export default async function ChannelsPage() {
         </div>
       </div>
       <OverbookingAlarm outbox={outbox} />
+      {webhook === null && (
+        <Alert boxed>
+          Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
+          настройкой.
+        </Alert>
+      )}
       <ChannelButtons webhookReady={webhookReady} />
       <SectionTitle>Входящие события канала</SectionTitle>
       <p className="hint">
@@ -95,6 +103,11 @@ export default async function ChannelsPage() {
         PMS не попала. После шести неудачных попыток PMS перестаёт пробовать сама и ждёт кнопки
         «Обработать заново» — иначе ревизия падала бы на каждом опросе незаметно для человека.
       </p>
+      {events === null && (
+        <Alert boxed>
+          Не удалось загрузить входящие события. Это не означает, что событий нет.
+        </Alert>
+      )}
       <Table size="sm" data-testid="events-table">
         <thead>
           <tr>
@@ -106,14 +119,14 @@ export default async function ChannelsPage() {
           </tr>
         </thead>
         <tbody>
-          {events.length === 0 && (
+          {events?.length === 0 && (
             <tr>
               <td colSpan={8} className="muted">
                 событий пока нет
               </td>
             </tr>
           )}
-          {events.map((e) => (
+          {events?.map((e) => (
             <tr key={e.externalEventId} data-testid="event-row">
               <td className="mono" style={{ fontSize: 11 }}>
                 {e.externalEventId.slice(0, 36)}

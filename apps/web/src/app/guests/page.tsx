@@ -13,10 +13,11 @@ export default async function GuestsPage({
   const query = (q ?? '').trim();
   const guests = query.length >= 2 ? await guestsApi.search(query) : [];
   return (
-    <Page title="Гости" width="medium">
+    <Page title="Гости" width="medium" subtitle="Контакты, документы и история проживаний">
       <form method="get" className="row toolbar">
         <Input
           name="q"
+          aria-label="Поиск гостей"
           defaultValue={query}
           placeholder="фамилия, имя, телефон или email"
           className="inp--grow"
@@ -68,7 +69,7 @@ export default async function GuestsPage({
             «как в прошлый раз».
           </p>
           <p className="hint">
-            Гость заводится сам при заселении и при брони из канала — отдельно создавать его не
+            Гость создаётся при оформлении брони — отдельно создавать его не
             нужно.
           </p>
         </Panel>

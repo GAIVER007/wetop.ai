@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFoundOn404 } from '../../../lib/page-error';
 import { guestsApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
@@ -16,15 +17,38 @@ const STATUS_RU: Record<string, string> = {
 /** Карточка гостя: профиль, документы (маска), история проживаний. */
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const g = await guestsApi.card(id);
+  const g = await guestsApi.card(id).catch(notFoundOn404);
   return (
     <Page
       width="medium"
       crumbs={<Link href="/guests">← гости</Link>}
       title={`${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim()}
     >
+      <div className="guest-summary">
+        <div className="guest-avatar" aria-hidden="true">
+          {g.firstName.slice(0, 1)}
+          {g.lastName.slice(0, 1)}
+        </div>
+        <div>
+          <strong>{g.phone ?? 'Телефон не указан'}</strong>
+          <p>{g.email ?? 'Email не указан'}</p>
+        </div>
+        <div className="guest-summary-fact">
+          <span>Проживаний в истории</span>
+          <strong>{g.stays.length}</strong>
+        </div>
+        <div className="guest-summary-fact">
+          <span>Гражданство</span>
+          <strong>{g.citizenship ?? 'Не заполнено'}</strong>
+        </div>
+      </div>
+      <nav className="record-nav" aria-label="Разделы карточки гостя">
+        <a href="#guest-profile">Профиль</a>
+        <a href="#guest-documents">Документы</a>
+        <a href="#guest-history">Проживания</a>
+      </nav>
       <GuestForms guest={g} />
-      <SectionTitle>История проживаний</SectionTitle>
+      <SectionTitle id="guest-history">История проживаний</SectionTitle>
       <Table>
         <thead>
           <tr>

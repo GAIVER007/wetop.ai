@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
-import { Fragment, useRef, useState, useTransition } from 'react';
+import { Fragment, useMemo, useRef, useState, useTransition } from 'react';
 import {
   messengerLinks,
   type Chessboard,
   type ChessboardCell,
   type ChessboardRow,
 } from '../../lib/api';
-import { Alert, cx } from '../../components/ui';
+import { Alert, Input, Select, cx } from '../../components/ui';
+import { stayLabels } from './stay-labels';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 
@@ -35,6 +36,9 @@ const BLOCK_RU: Record<string, string> = {
  * занятую клетку можно перетащить на другую строку — переселение через существующий server action.
  */
 export function ChessboardGrid({ board, today }: { board: Chessboard; today: string }) {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -78,11 +82,81 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
     setOverUnit(null);
   };
 
-  const groups = groupByCategory(board.rows);
+  const allGroups = groupByCategory(board.rows);
+  const needle = query.trim().toLocaleLowerCase('ru');
+  const rows = board.rows.filter(
+    (row) =>
+      (!category || row.unit.accommodationTypeCode === category) &&
+      (!needle ||
+        [
+          row.unit.code,
+          row.unit.accommodationTypeName,
+          ...row.cells.flatMap((c) => [c.guestLabel, c.confirmationNumber]),
+        ].some((v) => v?.toLocaleLowerCase('ru').includes(needle))),
+  );
+  const groups = groupByCategory(rows);
+  const labels = useMemo(
+    () =>
+      new Map(
+        board.rows.map((r) => [r.unit.id, new Map(stayLabels(r.cells).map((l) => [l.index, l]))]),
+      ),
+    [board.rows],
+  );
+  const dayWidth = board.dates.length > 14 ? 60 : 92;
   return (
     <>
+      <div className="board-toolbar">
+        <Input
+          aria-label="Поиск на шахматке"
+          placeholder="Номер, койка, гость или бронь"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <Select
+          aria-label="Категория на шахматке"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">Все категории</option>
+          {allGroups.map((g) => (
+            <option key={g.code} value={g.code}>
+              {g.name}
+            </option>
+          ))}
+        </Select>
+        <span className="muted small">
+          Показано {rows.length} из {board.rows.length} единиц
+        </span>
+        {(query || category) && (
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => {
+              setQuery('');
+              setCategory('');
+            }}
+          >
+            Сбросить
+          </button>
+        )}
+      </div>
+      {rows.length === 0 && (
+        <div className="empty-state">
+          <p>По вашему запросу ничего не найдено. Измените поиск или сбросьте фильтры.</p>
+        </div>
+      )}
       <div className="tbl-wrap board-wrap" style={{ opacity: pending ? 0.6 : 1 }}>
-        <table data-testid="chessboard" className="board">
+        <table
+          data-testid="chessboard"
+          className="board"
+          style={{ width: 190 + dayWidth * board.dates.length }}
+        >
+          <colgroup>
+            <col style={{ width: 190 }} />
+            {board.dates.map((date) => (
+              <col key={date} style={{ width: dayWidth }} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
               <th className="board__unit-head">Ячейка</th>
@@ -99,7 +173,7 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                   <div
                     className="board__occ"
                     data-testid={`occupied-${d}`}
-                    title={`занято ${board.summary[d]!.occupied} из 88`}
+                    title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
                   >
                     {board.summary[d]!.occupied}
                   </div>
@@ -113,7 +187,23 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                 {/* Строка категории: главное число смены — сколько мест ещё можно продать на эту ночь */}
                 <tr data-testid="category-row" data-category={g.code} className="board__group">
                   <td className="board__unit board__group-name">
-                    {g.name} <span className="muted-2">· {g.rows.length}</span>
+                    <button
+                      type="button"
+                      className="board-group-toggle"
+                      aria-expanded={!collapsed.has(g.code)}
+                      onClick={() =>
+                        setCollapsed((old) => {
+                          const next = new Set(old);
+                          if (next.has(g.code)) next.delete(g.code);
+                          else next.add(g.code);
+                          return next;
+                        })
+                      }
+                    >
+                      <span aria-hidden="true">{collapsed.has(g.code) ? '›' : '⌄'}</span>
+                      {g.name}
+                      <span className="muted">{g.rows.length}</span>
+                    </button>
                   </td>
                   {board.dates.map((d) => {
                     const free = board.byCategory[d]?.[g.code]?.free;
@@ -133,37 +223,42 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
                     );
                   })}
                 </tr>
-                {g.rows.map((row) => (
-                  <tr
-                    key={row.unit.id}
-                    data-testid="unit-row"
-                    data-unit-code={row.unit.code}
-                    onDragOver={onDragOver(row)}
-                    onDrop={onDrop(row)}
-                    className={overUnit === row.unit.code ? 'is-over' : undefined}
-                  >
-                    <td className="board__unit">
-                      <Link
-                        href={`/units/${encodeURIComponent(row.unit.code)}`}
-                        data-testid="unit-link"
-                        className="unit"
-                      >
-                        {row.unit.code}
-                      </Link>{' '}
-                      <span className="muted-2">{row.unit.kind === 'BED' ? 'койка' : 'номер'}</span>
-                    </td>
-                    {row.cells.map((c) => (
-                      <Cell
-                        key={c.date}
-                        cell={c}
-                        unitCode={row.unit.code}
-                        today={today}
-                        onDragStart={onDragStart}
-                        onDragEnd={onDragEnd}
-                      />
-                    ))}
-                  </tr>
-                ))}
+                {!collapsed.has(g.code) &&
+                  g.rows.map((row) => (
+                    <tr
+                      key={row.unit.id}
+                      data-testid="unit-row"
+                      data-unit-code={row.unit.code}
+                      onDragOver={onDragOver(row)}
+                      onDrop={onDrop(row)}
+                      className={overUnit === row.unit.code ? 'is-over' : undefined}
+                    >
+                      <td className="board__unit">
+                        <Link
+                          href={`/units/${encodeURIComponent(row.unit.code)}`}
+                          data-testid="unit-link"
+                          className="unit"
+                        >
+                          {row.unit.code}
+                        </Link>{' '}
+                        <span className="muted-2">
+                          {row.unit.kind === 'BED' ? 'койка' : 'номер'}
+                        </span>
+                      </td>
+                      {row.cells.map((c, index) => (
+                        <Cell
+                          key={c.date}
+                          cell={c}
+                          label={labels.get(row.unit.id)?.get(index)}
+                          dayWidth={dayWidth}
+                          unitCode={row.unit.code}
+                          today={today}
+                          onDragStart={onDragStart}
+                          onDragEnd={onDragEnd}
+                        />
+                      ))}
+                    </tr>
+                  ))}
               </Fragment>
             ))}
           </tbody>
@@ -181,12 +276,16 @@ export function ChessboardGrid({ board, today }: { board: Chessboard; today: str
 
 function Cell({
   cell,
+  label,
+  dayWidth,
   unitCode,
   today,
   onDragStart,
   onDragEnd,
 }: {
   cell: ChessboardCell;
+  label: { span: number; continues: boolean } | undefined;
+  dayWidth: number;
   unitCode: string;
   today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
@@ -248,6 +347,7 @@ function Cell({
             }
             onDragEnd={onDragEnd}
             className="board__stay"
+            aria-label={title}
             style={{
               background: bg,
               borderRadius: radius,
@@ -255,7 +355,12 @@ function Cell({
               cursor: draggable ? 'grab' : undefined,
             }}
           >
-            {cell.isArrival ? cell.guestLabel : ''}
+            {label && (
+              <span className="board-stay-caption" style={{ width: label.span * dayWidth - 12 }}>
+                {label.continues ? '← ' : ''}
+                {cell.guestLabel || cell.confirmationNumber}
+              </span>
+            )}
           </Link>
           {cell.isArrival && messengerLinks(cell.guestPhone) && (
             <a
@@ -263,10 +368,11 @@ function Cell({
               target="_blank"
               rel="noreferrer"
               data-testid="cell-whatsapp"
+              aria-label="Написать гостю в WhatsApp"
               title="Написать гостю в WhatsApp"
               className="board__wa"
             >
-              💬
+              WA
             </a>
           )}
         </>
@@ -277,14 +383,19 @@ function Cell({
          * клавиатурную навигацию; то же действие есть кнопкой «+ Новая бронь» в верхней навигации.
          */
         <Link
-          href={`/reservations/new?arrival=${cell.date}&departure=${nextDay(cell.date)}`}
+          href={`/reservations/new?arrival=${cell.date}&departure=${nextDay(cell.date)}&unit=${encodeURIComponent(unitCode)}`}
           className="board__free board__free--link"
           data-testid="free-cell"
           tabIndex={-1}
           aria-hidden="true"
         />
       ) : (
-        <div className="board__free" style={{ background: bg }} />
+        <Link
+          href={`/units/${encodeURIComponent(unitCode)}`}
+          className="board__free board-block"
+          style={{ background: bg }}
+          aria-label={`${title} · ${unitCode}`}
+        />
       )}
     </td>
   );

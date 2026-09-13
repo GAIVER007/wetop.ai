@@ -1,16 +1,13 @@
 import Link from 'next/link';
-import { deskApi, formatMinor, messengerLinks, type DeskRow } from '../../lib/api';
+import { deskApi, formatMinor } from '../../lib/api';
+import { DayWorkspace } from './day-workspace';
+import { DayAttention } from './day-attention';
+import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
-import { Button, Input, SectionTitle, Stat, Stats, StatusBadge, Table } from '../../components/ui';
+import { Button, Input } from '../../components/ui';
+import { displayDate } from '../../lib/display-date';
 
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'ждём',
-  CHECKED_IN: 'живёт',
-  CHECKED_OUT: 'выселен',
-};
-
-/** Рабочий день стойки: что делать сегодня (SPEC §6). Первое, что открывает администратор утром. */
+/** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
 export default async function TodayPage({
   searchParams,
 }: {
@@ -18,165 +15,102 @@ export default async function TodayPage({
 }) {
   const sp = await searchParams;
   const day = await deskApi.today(sp.date);
-  const debt = day.debtMinor !== '0';
+  const debt = BigInt(day.debtMinor) > 0n;
+  const metrics: Array<{
+    label: string;
+    value: string;
+    id: string;
+    icon: IconName;
+    tone: string;
+    hint: string;
+    count?: number;
+    countId?: string;
+  }> = [
+    {
+      label: 'Проживают',
+      value: String(day.counts.inHouse),
+      id: 'c-inhouse',
+      icon: 'bed',
+      tone: 'home',
+      hint: 'Размещений на выбранную дату',
+    },
+    {
+      label: 'Заезды',
+      value: String(day.counts.arrivals),
+      id: 'c-arrivals',
+      icon: 'arrival',
+      tone: 'arrival',
+      hint: 'ожидают заселения',
+      count: day.counts.toCheckIn,
+      countId: 'c-tocheckin',
+    },
+    {
+      label: 'Выезды',
+      value: String(day.counts.departures),
+      id: 'c-departures',
+      icon: 'departure',
+      tone: 'departure',
+      hint: 'ожидают выезда',
+      count: day.counts.toCheckOut,
+      countId: 'c-tocheckout',
+    },
+    {
+      label: 'Долг уезжающих',
+      value: formatMinor(day.debtMinor),
+      id: 'c-debt',
+      icon: 'money',
+      tone: debt ? 'debt' : 'paid',
+      hint: debt ? 'Проверьте расчёт перед выездом' : 'Все счета оплачены',
+    },
+  ];
   return (
     <Page
-      title={`Сегодня, ${day.date}`}
+      title="Обзор дня"
+      subtitle={
+        <>
+          <span className="day-date">{displayDate(day.date, 'full')}</span>
+        </>
+      }
       actions={
-        <form method="get" className="row">
-          <Input type="date" name="date" defaultValue={day.date} />
+        <form method="get" className="row day-date-picker">
+          <Input type="date" name="date" aria-label="Дата рабочего дня" defaultValue={day.date} />
           <Button type="submit" tone="secondary">
             Показать
           </Button>
         </form>
       }
     >
-      {/*
-       * Четыре числа вместо шести: «из них не заселены» — не отдельный показатель, а хвост заезда,
-       * поэтому он подписью внутри плитки. Плитки всегда белые; цветом выделено только то, что требует
-       * действия — незакрытые заезды/выезды и долг.
-       */}
-      <Stats min={190}>
-        <Stat
-          label="Заезды"
-          value={String(day.counts.arrivals)}
-          testId="c-arrivals"
-          hint={
-            <>
-              <span data-testid="c-tocheckin">{day.counts.toCheckIn}</span> ещё не заселены
-            </>
-          }
-          hintTone={day.counts.toCheckIn > 0 ? 'warn' : undefined}
-        />
-        <Stat
-          label="Выезды"
-          value={String(day.counts.departures)}
-          testId="c-departures"
-          hint={
-            <>
-              <span data-testid="c-tocheckout">{day.counts.toCheckOut}</span> ещё не выселены
-            </>
-          }
-          hintTone={day.counts.toCheckOut > 0 ? 'warn' : undefined}
-        />
-        <Stat label="Живут" value={String(day.counts.inHouse)} testId="c-inhouse" hint="в доме" />
-        <Stat
-          label="Долг уезжающих"
-          value={
-            <span className={debt ? 'danger-text' : undefined} data-testid="c-debt">
-              {formatMinor(day.debtMinor)}
-            </span>
-          }
-          hint={debt ? 'спросить при выезде' : 'все рассчитались'}
-        />
-      </Stats>
+      <section className="desk-metrics" aria-label="Сводка рабочего дня">
+        {metrics.map((m) => (
+          <article key={m.id} className={`desk-metric desk-metric--${m.tone}`}>
+            <div className="desk-metric-top">
+              <span>{m.label}</span>
+              <span className="desk-metric-icon">
+                <Icon name={m.icon} />
+              </span>
+            </div>
+            <strong className="desk-metric-value" data-testid={m.id}>
+              {m.value}
+            </strong>
+            <div className="desk-metric-hint">
+              {m.count !== undefined && <span data-testid={m.countId}>{m.count}</span>} {m.hint}
+            </div>
+          </article>
+        ))}
+      </section>
+      <div className="desk-layout">
+        <DayWorkspace day={day} />
+        <aside className="desk-aside" aria-label="Задачи и размещение">
+          <DayAttention day={day} />
+          <section className="desk-board-card">
+            <h2>Размещение</h2>
 
-      <Group title="Заезжают" rows={day.arrivals} testId="arrivals" showBlocked />
-      <Group title="Выезжают" rows={day.departures} testId="departures" showDebt />
-      <Group title="Живут" rows={day.inHouse} testId="inhouse" />
+            <Link href={`/chessboard?from=${day.date}`} className="btn btn--secondary">
+              Открыть шахматку <Icon name="arrow" />
+            </Link>
+          </section>
+        </aside>
+      </div>
     </Page>
-  );
-}
-
-function Group({
-  title,
-  rows,
-  testId,
-  showBlocked,
-  showDebt,
-}: {
-  title: string;
-  rows: DeskRow[];
-  testId: string;
-  showBlocked?: boolean;
-  showDebt?: boolean;
-}) {
-  const head = ['Гость', 'Ячейка', 'Категория', 'Проживание', 'Статус'];
-  if (showDebt) head.push('Счёт');
-  return (
-    <>
-      <SectionTitle>
-        {title} — {rows.length}
-      </SectionTitle>
-      <Table data-testid={`group-${testId}`}>
-        <thead>
-          <tr>
-            {head.map((h) => (
-              <th key={h} className={h === 'Счёт' ? 'num' : undefined}>
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 && (
-            <tr>
-              <td colSpan={head.length} className="muted">
-                никого
-              </td>
-            </tr>
-          )}
-          {rows.map((r) => {
-            const m = messengerLinks(r.guestPhone);
-            return (
-              <tr key={r.itemId} data-testid={`row-${testId}`}>
-                {/*
-                 * Имя — ссылка на бронь: администратор ищет глазами гостя, а не номер. Сам номер
-                 * второй строкой мелким моноширинным: он нужен, когда его диктуют по телефону.
-                 */}
-                <td>
-                  <Link
-                    href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                    className="bold"
-                  >
-                    {r.guestLabel || 'без имени'}
-                  </Link>
-                  {m && (
-                    <>
-                      {' '}
-                      <a href={m.whatsapp} target="_blank" rel="noreferrer" className="small">
-                        WA
-                      </a>
-                    </>
-                  )}
-                  <div className="cell-sub mono">{r.confirmationNumber}</div>
-                </td>
-                <td>
-                  {r.unitCode ? (
-                    <Link href={`/units/${encodeURIComponent(r.unitCode)}`} className="unit">
-                      {r.unitCode}
-                    </Link>
-                  ) : (
-                    <span className="warn-text">нет</span>
-                  )}
-                </td>
-                <td>{r.accommodationTypeName}</td>
-                <td className="nowrap">
-                  {r.arrivalDate} → {r.departureDate}
-                </td>
-                <td>
-                  <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />
-                  {showBlocked && r.blockedReason && (
-                    <div className="cell-sub warn-text">{r.blockedReason}</div>
-                  )}
-                  {showBlocked && r.guestsRecorded < r.adults && !r.blockedReason && (
-                    <div className="cell-sub warn-text">
-                      карточек {r.guestsRecorded} из {r.adults}
-                    </div>
-                  )}
-                </td>
-                {showDebt && (
-                  <td className="num">
-                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text bold' : 'muted'}>
-                      {formatMinor(r.balanceMinor)}
-                    </span>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
-    </>
   );
 }

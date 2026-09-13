@@ -20,12 +20,20 @@ const KEPT = [
   'unitCode',
   'firstName',
   'lastName',
+  'middleName',
+  'email',
   'phone',
   'notes',
+  'placementIds',
 ];
 const kept = (fd: FormData): Record<string, string> =>
   Object.fromEntries(
-    KEPT.map((k) => [k, fd.get(k)]).filter(([, v]) => typeof v === 'string'),
+    [...fd.entries()].filter(
+      ([key, value]) =>
+        typeof value === 'string' &&
+        (KEPT.includes(key) ||
+          /^item\.\d+\.(accommodationTypeCode|ratePlanCode|adults|quantity|unitCode)$/.test(key)),
+    ),
   ) as Record<string, string>;
 
 const str = (fd: FormData, k: string) => {
@@ -44,8 +52,27 @@ export async function createReservationAction(
   fd: FormData,
 ): Promise<ActionResult> {
   let number: string;
-  const quantity = Number(str(fd, 'quantity') ?? '1');
   try {
+    const ids = (str(fd, 'placementIds') ?? '0').split(',');
+    if (
+      ids.length > 88 ||
+      ids.some((id) => !/^\d+$/.test(id)) ||
+      new Set(ids).size !== ids.length
+    ) {
+      throw new Error('Некорректный список размещений. Обновите форму.');
+    }
+    const items = ids.map((id) => {
+      const prefix = id === '0' ? '' : `item.${id}.`;
+      const value = (name: string) => str(fd, `${prefix}${name}`);
+      const quantity = Number(value('quantity') ?? '1');
+      return {
+        accommodationTypeCode: value('accommodationTypeCode'),
+        ratePlanCode: value('ratePlanCode'),
+        adults: Number(value('adults') ?? '1'),
+        quantity,
+        unitCode: quantity > 1 ? null : (value('unitCode') ?? null),
+      };
+    });
     const card = await reservationsApi.create({
       source: str(fd, 'source'),
       arrivalDate: str(fd, 'arrivalDate'),
@@ -54,18 +81,11 @@ export async function createReservationAction(
       guest: {
         firstName: str(fd, 'firstName'),
         lastName: str(fd, 'lastName'),
+        middleName: str(fd, 'middleName') ?? null,
+        email: str(fd, 'email') ?? null,
         phone: str(fd, 'phone') ?? null,
       },
-      items: [
-        {
-          accommodationTypeCode: str(fd, 'accommodationTypeCode'),
-          ratePlanCode: str(fd, 'ratePlanCode'),
-          adults: Number(str(fd, 'adults') ?? '1'),
-          // Групповая бронь: N мест → N проживаний, ячейки назначит система по номеру; при 1 — как раньше
-          quantity,
-          unitCode: quantity > 1 ? null : (str(fd, 'unitCode') ?? null),
-        },
-      ],
+      items,
     });
     number = card.confirmationNumber;
   } catch (e) {
@@ -102,7 +122,10 @@ export async function updateStayGuestsAction(
   fd: FormData,
 ): Promise<ActionResult> {
   try {
-    await reservationsApi.updateItem(number, itemId, { adults: Number(str(fd, 'adults')) });
+    await reservationsApi.updateItem(number, itemId, {
+      adults: Number(str(fd, 'adults')),
+      ...(fd.has('children') ? { children: Number(str(fd, 'children') ?? '0') } : {}),
+    });
   } catch (e) {
     return { error: describe(e) };
   }
@@ -150,6 +173,7 @@ export async function assignUnitAction(
     await reservationsApi.assign(number, itemId, {
       unitCode: str(fd, 'unitCode'),
       fromDate: str(fd, 'fromDate'),
+      ratePlanCode: str(fd, 'ratePlanCode'),
     });
   } catch (e) {
     return { error: describe(e) };

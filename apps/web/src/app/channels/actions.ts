@@ -50,8 +50,7 @@ export async function channelAction(
       const r = await channelsApi.flush();
       message = `Отправлено пакетов: ${r.sent.length}${r.errors.length ? `, ошибок: ${r.errors.length}` : ''}`;
     }
-    revalidatePath('/channels');
-    revalidatePath('/chessboard');
+    refreshChannelViews();
     return { error: null, message };
   } catch (e) {
     return { error: describe(e), message: null };
@@ -72,8 +71,7 @@ const RESULT_RU: Record<string, string> = {
 export async function retryEventAction(revisionId: string): Promise<ChannelActionResult> {
   try {
     const r = await channelsApi.retryEvent(revisionId);
-    revalidatePath('/channels');
-    revalidatePath('/chessboard');
+    refreshChannelViews();
     return {
       error: r.error ?? null,
       message: r.error
@@ -83,4 +81,21 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
   } catch (e) {
     return { error: describe(e), message: null };
   }
+}
+
+function refreshChannelViews() {
+  for (const path of [
+    '/channels',
+    '/chessboard',
+    '/channel-manager',
+    '/today',
+    '/management/statistics',
+    '/rooms/availability',
+    '/finance',
+    '/guests',
+    '/connections',
+  ])
+    revalidatePath(path);
+  revalidatePath('/reservations/[number]', 'page');
+  revalidatePath('/guests/[id]', 'page');
 }

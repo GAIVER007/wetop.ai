@@ -21,6 +21,15 @@ import type {
 export const cx = (...parts: Array<string | false | null | undefined>) =>
   parts.filter(Boolean).join(' ');
 
+export function Help({ children, title = 'Подробнее' }: { children: ReactNode; title?: string }) {
+  return (
+    <details className="context-help">
+      <summary>{title}</summary>
+      <div>{children}</div>
+    </details>
+  );
+}
+
 export type ButtonTone =
   'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info' | 'ghost';
 
@@ -178,17 +187,19 @@ export function Table({
   plain?: boolean | undefined;
 }) {
   return (
-    <table
-      className={cx(
-        'tbl',
-        size && `tbl--${size}`,
-        dense && 'tbl--dense',
-        nowrap && 'tbl--nowrap',
-        plain && 'tbl--plain',
-        className,
-      )}
-      {...rest}
-    />
+    <div className="table-scroll">
+      <table
+        className={cx(
+          'tbl',
+          size && `tbl--${size}`,
+          dense && 'tbl--dense',
+          nowrap && 'tbl--nowrap',
+          plain && 'tbl--plain',
+          className,
+        )}
+        {...rest}
+      />
+    </div>
   );
 }
 

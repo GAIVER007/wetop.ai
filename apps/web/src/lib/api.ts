@@ -31,12 +31,47 @@ export interface InventoryUnit {
   isDorm: boolean;
 }
 
-const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
+/** Fixtures are available only to the isolated test runner, never to next start. */
+async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
+  const testing = process.env.NODE_ENV !== 'production' && process.env.APP_ALLOW_TEST_DATA === '1';
+  if (!testing && new URL(endpoint).port === '4311') {
+    throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
+  }
+  let response: Response;
+  try {
+    response = await fetch(`${endpoint.replace(/\/$/, '')}${path}`, {
+      ...options,
+      cache: 'no-store',
+      headers: { ...options.headers, ...(testing ? { 'x-wetop-test-client': '1' } : {}) },
+      signal: AbortSignal.timeout(options.method && options.method !== 'GET' ? 60_000 : 15_000),
+    });
+  } catch (error) {
+    // Next.js also throws here to switch static prerendering to request-time rendering.
+    // Only translate actual fetch failures; framework control flow must propagate unchanged.
+    if (!(
+      error instanceof TypeError ||
+      (error instanceof DOMException && ['TimeoutError', 'AbortError'].includes(error.name))
+    ))
+      throw error;
+    // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+    throw new ApiError(
+      503,
+      options.method && options.method !== 'GET'
+        ? 'Нет ответа API. Проверьте результат операции перед повтором.'
+        : 'Нет связи с API. Проверьте подключение.',
+    );
+  }
+  if (!testing && response.headers.get('x-wetop-data-source') === 'synthetic') {
+    throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
+  }
+  return response;
+}
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`, { cache: 'no-store' });
+  const res = await backendFetch(path);
   if (!res.ok) {
-    throw new Error(`API ${path}: HTTP ${res.status}`);
+    throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
   }
   return (await res.json()) as T;
 }
@@ -191,7 +226,7 @@ async function sendJson<T>(
   path: string,
   body: unknown,
 ): Promise<T> {
-  const res = await fetch(`${API}${path}`, {
+  const res = await backendFetch(path, {
     method,
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -323,6 +358,7 @@ export interface OutboxSummary {
   lastTaskId: string | null;
 }
 export const channelsApi = {
+  connection: () => getJson<ChannelConnection>('/channels/channex/connection'),
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
@@ -364,6 +400,19 @@ export const channelsApi = {
       {},
     ),
 };
+export interface ChannelConnection {
+  checkedAt: string;
+  environment: 'staging' | 'production' | 'custom';
+  apiConfigured: boolean;
+  propertyId: string | null;
+  propertyAccessible: boolean;
+  mappedCategories: number;
+  mappedRatePlans: number;
+  lastWebhookAt: string | null;
+  lastPullAt: string | null;
+  state: string;
+  message: string;
+}
 export interface InboundEvent {
   externalEventId: string;
   receivedVia?: 'WEBHOOK' | 'PULL' | 'MANUAL';
@@ -415,7 +464,7 @@ export interface UnitCard {
   housekeepingHistory: Array<{ at: string; from: string; to: string }>;
 }
 async function deleteJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`, { method: 'DELETE', cache: 'no-store' });
+  const res = await backendFetch(path, { method: 'DELETE' });
   if (!res.ok) {
     let message = `HTTP ${res.status}`;
     try {

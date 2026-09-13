@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
 import { Page } from '../../../components/page';
-import { Alert, Badge, Fact, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
+import { Alert, Badge, Fact, Help, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
 import { BookingSettings, CopyButton, CreateSiteForm, HostsForm, SiteButtons } from './forms';
 
 /** Подключение счётчика: сайты, код для вставки, статус. Постоянный публичный адрес API — Q-112. */
 export default async function AnalyticsSetupPage() {
   const sites = await analyticsApi.sites();
   const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
-  const plans = await reservationsApi.ratePlans().catch(() => []);
+  const plans = await reservationsApi.ratePlans().catch(() => null);
   const scriptUrl = cards[0]?.snippet.scriptUrl ?? null;
   const localOnly = !scriptUrl || /127\.0\.0\.1|localhost/.test(scriptUrl);
   const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
@@ -17,16 +17,13 @@ export default async function AnalyticsSetupPage() {
       <Stack>
         {cards.length > 0 && localOnly && (
           <Alert boxed tone="warning" data-testid="setup-local-warning">
-            Код ниже указывает на локальный адрес API ({scriptUrl}). Для настоящего сайта нужен
-            постоянный публичный адрес (PUBLIC_API_URL в .env, вопрос Q-112): адрес быстрого туннеля
-            меняется при каждом перезапуске, и код на сайте перестанет работать.
+            Укажите постоянный публичный адрес API: текущий код доступен только локально.
           </Alert>
         )}
 
         {cards.length > 0 && insecure && (
           <Alert boxed data-testid="setup-insecure-warning">
-            Адрес API без https ({scriptUrl}). Сайт на https молча не загрузит такой скрипт
-            (смешанный контент). PUBLIC_API_URL должен начинаться с https://.
+            Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.
           </Alert>
         )}
 
@@ -39,8 +36,7 @@ export default async function AnalyticsSetupPage() {
           <CreateSiteForm />
         </Panel>
 
-        <Panel size="lg">
-          <SectionTitle first>Как это работает</SectionTitle>
+        <Help title="Инструкция по установке">
           <ol className="list hint--lg list--gap">
             <li>
               Вставьте код счётчика в &lt;head&gt; каждой страницы сайта (в Tilda и WordPress — поле
@@ -70,7 +66,7 @@ export default async function AnalyticsSetupPage() {
               кнопки на ней.
             </li>
           </ol>
-        </Panel>
+        </Help>
       </Stack>
     </Page>
   );
@@ -81,7 +77,7 @@ function SiteCard({
   plans,
 }: {
   card: TrackedSiteCard;
-  plans: Array<{ code: string; name: string }>;
+  plans: Array<{ code: string; name: string }> | null;
 }) {
   const { site, status, snippet } = card;
   return (
@@ -142,12 +138,16 @@ function SiteCard({
 
       <div className="divider">
         <div className="panel__title block--bottom-xs">Бронирование с сайта</div>
-        <BookingSettings
-          id={site.id}
-          enabled={site.bookingEnabled}
-          ratePlanCode={site.bookingRatePlan?.code ?? ''}
-          plans={plans}
-        />
+        {plans ? (
+          <BookingSettings
+            id={site.id}
+            enabled={site.bookingEnabled}
+            ratePlanCode={site.bookingRatePlan?.code ?? ''}
+            plans={plans}
+          />
+        ) : (
+          <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
+        )}
         {site.bookingEnabled && (
           <>
             <div className="hint--lg block--top block--bottom-xs">

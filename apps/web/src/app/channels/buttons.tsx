@@ -3,7 +3,15 @@ import { useState, useTransition } from 'react';
 import { Alert, Button, Notice, Row, Stack } from '../../components/ui';
 import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
 
-export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
+export function ChannelButtons({
+  webhookReady,
+  configured,
+  connected,
+}: {
+  webhookReady: boolean;
+  configured: boolean;
+  connected: boolean;
+}) {
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
@@ -16,7 +24,7 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           type="button"
           data-testid="channel-pull"
           onClick={() => run('pull')}
-          disabled={pending}
+          disabled={pending || !connected}
         >
           Забрать брони из Channex
         </Button>
@@ -24,7 +32,7 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           type="button"
           data-testid="channel-flush"
           onClick={() => run('flush')}
-          disabled={pending}
+          disabled={pending || !connected}
         >
           Отправить очередь сейчас
         </Button>
@@ -33,7 +41,7 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           tone="secondary"
           data-testid="channel-sync"
           onClick={() => run('sync')}
-          disabled={pending}
+          disabled={pending || !connected}
         >
           Полная выгрузка (500 дней)
         </Button>
@@ -42,16 +50,16 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           tone="secondary"
           data-testid="channel-setup"
           onClick={() => run('setup')}
-          disabled={pending}
+          disabled={pending || !configured}
         >
-          Создать объект и категории на staging
+          Создать объект и категории
         </Button>
         <Button
           type="button"
           tone="secondary"
           data-testid="channel-webhook-register"
           onClick={() => run('webhook-register')}
-          disabled={pending || !webhookReady}
+          disabled={pending || !connected || !webhookReady}
           title={webhookReady ? '' : 'нужны PUBLIC_API_URL (https) и CHANNEX_WEBHOOK_SECRET в .env'}
         >
           Зарегистрировать webhook
@@ -61,11 +69,14 @@ export function ChannelButtons({ webhookReady }: { webhookReady: boolean }) {
           tone="secondary"
           data-testid="channel-webhook-test"
           onClick={() => run('webhook-test')}
-          disabled={pending || !webhookReady}
+          disabled={pending || !connected || !webhookReady}
         >
           Проверить webhook
         </Button>
       </Row>
+      {!webhookReady && (
+        <p className="note">Для webhook укажите публичный HTTPS-адрес и секрет на сервере.</p>
+      )}
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="channel-result">{result.message}</Notice>}
     </Stack>

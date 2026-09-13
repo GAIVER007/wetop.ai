@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFoundOn404 } from '../../../lib/page-error';
 import {
   api,
   chessboardApi,
@@ -8,7 +9,7 @@ import {
   reservationsApi,
 } from '../../../lib/api';
 import { Page } from '../../../components/page';
-import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
+import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 
@@ -33,18 +34,23 @@ const SOURCE_RU: Record<string, string> = {
 /** Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение. */
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
-  const r = await chessboardApi.reservation(decodeURIComponent(number));
-  const [ratePlans, finance, services, summary, availabilities] = await Promise.all([
+  const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
+  // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
+  const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
+  const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
     reservationsApi.ratePlans(),
-    financeApi.reservation(r.confirmationNumber),
-    financeApi.services(),
+    financeApi.reservation(r.confirmationNumber).catch(() => null),
+    financeApi.services().catch(() => null),
     api.inventorySummary(),
     Promise.all(
-      r.items.map((it) =>
+      [...periods.values()].map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
       ),
     ),
   ]);
+  const availabilityByPeriod = new Map(
+    [...periods.keys()].map((key, i) => [key, periodResults[i]]),
+  );
   const print = (path: string) =>
     `/reservations/${encodeURIComponent(r.confirmationNumber)}/print${path}`;
   const guestMessengers = messengerLinks(r.primaryGuest?.phone);
@@ -95,7 +101,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
        * Даты, гости и заказчик — факты, а не показатели: строка «подпись — значение» вместо плиток.
        * Плитками остаются только числа, которые требуют действия (см. экран «Сегодня»).
        */}
-      <div className="facts facts--card">
+      <nav className="record-nav" aria-label="Разделы карточки брони">
+        <a href="#booking-overview">Обзор</a>
+        <a href="#booking-stays">Проживания</a>
+        <a href="#booking-finance">Счета</a>
+        <a href="#booking-actions">Действия</a>
+      </nav>
+      <div className="facts facts--card" id="booking-overview">
         <div>
           <div className="fact__label">Заезд</div>
           <div className="fact__value">{r.arrivalDate}</div>
@@ -147,7 +159,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           )}
         </div>
       </div>
-      <SectionTitle first>Проживания</SectionTitle>
+      <SectionTitle first id="booking-stays">
+        Проживания
+      </SectionTitle>
       <Table>
         <thead>
           <tr>
@@ -188,13 +202,29 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           <b>Заметки:</b> {r.notes}
         </p>
       )}
-      <SectionTitle>Счета</SectionTitle>
-      <FinancePanel
-        number={r.confirmationNumber}
-        finance={finance}
-        services={services}
-        today={new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10)}
-      />
+      <SectionTitle id="booking-finance">Счета</SectionTitle>
+      {finance && services ? (
+        <FinancePanel
+          number={r.confirmationNumber}
+          finance={finance}
+          services={services}
+          today={new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10)}
+        />
+      ) : (
+        <Alert boxed>
+          Не удалось загрузить счета или каталог услуг. Финансовые действия недоступны до
+          обновления.{' '}
+          <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
+            Повторить загрузку
+          </Link>
+        </Alert>
+      )}
+      <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
+      {periodResults.some((v) => v === null) && (
+        <Alert boxed tone="warning">
+          Доступность части периодов не загрузилась. Обновите карточку перед назначением ячейки.
+        </Alert>
+      )}
       <ReservationActions
         number={r.confirmationNumber}
         status={r.status}
@@ -203,8 +233,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
         arrivalDate={r.arrivalDate}
         departureDate={r.departureDate}
         ratePlans={ratePlans}
-        items={r.items.map((it, i) => {
-          const byCategory = availabilities[i]?.byCategory ?? {};
+        items={r.items.map((it) => {
+          const byCategory =
+            availabilityByPeriod.get(`${it.arrivalDate}/${it.departureDate}`)?.byCategory ?? {};
           const names = new Map(summary.byCategory.map((c) => [c.code, c.name]));
           // Переселять можно и в другую категорию (T1): предлагаем свободные ячейки всех категорий,
           // своя — первой; цену система пересчитает по календарю выбранной категории
@@ -229,6 +260,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             accommodationTypeName: it.accommodationTypeName,
             unitCode: it.unitCode,
             adults: it.adults,
+            children: it.children,
             availableGroups: groups,
           };
         })}

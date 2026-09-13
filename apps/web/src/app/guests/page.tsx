@@ -17,6 +17,7 @@ export default async function GuestsPage({
       <form method="get" className="row toolbar">
         <Input
           name="q"
+          aria-label="Поиск гостей"
           defaultValue={query}
           placeholder="фамилия, имя, телефон или email"
           className="inp--grow"
@@ -68,8 +69,7 @@ export default async function GuestsPage({
             «как в прошлый раз».
           </p>
           <p className="hint">
-            Гость заводится сам при заселении и при брони из канала — отдельно создавать его не
-            нужно.
+            Гость создаётся при оформлении брони — отдельно создавать его не нужно.
           </p>
         </Panel>
       )}

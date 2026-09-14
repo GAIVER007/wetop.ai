@@ -1,0 +1,24 @@
+# Типы (typecheck) · 14.09.2026 23:40 Алматы · vm
+# коммит 01aa2ad (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 17
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/ui/design-system.spec.ts(115,61): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(name: string, value: string | RegExp, options?: { ignoreCase?: boolean; signal?: AbortSignal; timeout?: number; } | undefined): Promise<void>', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | RegExp'.
+      Type 'null' is not assignable to type 'string | RegExp'.
+  Overload 2 of 2, '(name: string, options?: { signal?: AbortSignal; timeout?: number; } | undefined): Promise<void>', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type '{ signal?: AbortSignal; timeout?: number; } | undefined'.
+      Type 'null' is not assignable to type '{ signal?: AbortSignal; timeout?: number; } | undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 15 с

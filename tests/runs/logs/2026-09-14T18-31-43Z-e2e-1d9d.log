@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 14.09.2026 23:31 Алматы · vm
+# коммит 01aa2ad (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-system.spec.ts' '--workers=1' '--update-snapshots'
+
+Running 7 tests using 1 worker
+
+A snapshot doesn't exist at /home/user/wetop.ai/design/reference/kit/design-system-light.png, writing actual.
+  ✓  1 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (5.6s)
+  ✓  2 tests/ui/design-system.spec.ts:37:3 › axe без нарушений (light) (4.7s)
+A snapshot doesn't exist at /home/user/wetop.ai/design/reference/kit/design-system-dark.png, writing actual.
+  ✓  3 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (4.8s)
+  ✓  4 tests/ui/design-system.spec.ts:37:3 › axe без нарушений (dark) (4.6s)
+  ✓  5 tests/ui/design-system.spec.ts:44:1 › у каждого интерактивного компонента все восемь состояний (3.5s)
+  ✓  6 tests/ui/design-system.spec.ts:59:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.3s)
+  ✘  7 tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (3.3s)
+
+
+  1) tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('tooltip', { name: /Открыть карточку гостя/ })
+    Expected: visible
+    Error: strict mode violation: getByRole('tooltip', { name: /Открыть карточку гостя/ }) resolved to 3 elements:
+        1) <span role="tooltip" id="_R_2u1pbn5rpmlb_" class="tooltip tooltip--top">Открыть карточку гостя: документы, история прожив…</span> aka getByRole('tooltip', { name: 'Открыть карточку гостя: документы, история проживаний, счета' })
+        2) <span role="tooltip" class="tooltip tooltip--bottom">Открыть карточку гостя</span> aka getByRole('tooltip', { name: 'Открыть карточку гостя' }).nth(1)
+        3) <span role="tooltip" class="tooltip tooltip--bottom">Открыть карточку гостя</span> aka getByRole('tooltip', { name: 'Открыть карточку гостя' }).nth(2)
+
+    Call log:
+      - Expect "toBeVisible" getByRole('tooltip', { name: /Открыть карточку гостя/ }) with timeout 15000ms
+      - waiting for getByRole('tooltip', { name: /Открыть карточку гостя/ })
+
+
+      108 |   await trigger.focus();
+      109 |   const tip = page.getByRole('tooltip', { name: /Открыть карточку гостя/ });
+    > 110 |   await expect(tip).toBeVisible();
+          |                     ^
+      111 |   await expect(trigger).toHaveAttribute('aria-describedby', await tip.getAttribute('id'));
+      112 |   await page.keyboard.press('Escape');
+      113 |   await expect(tip).toBeHidden();
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:110:21
+
+    Error Context: test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой 
+  6 passed (32.1s)
+
+# код выхода 1 · 33 с

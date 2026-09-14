@@ -39,6 +39,9 @@ Node 24, установленный Google Chrome, свободные loopback-�
 Скриншоты с вымышленными данными: `reports/hostel-frontend/screenshots/` и `reports/premium-ui/`.
 Экраны для дизайн-системы (витрина крайних случаев `showcase` в fixture, светлая и тёмная тема):
 `tests/ui/design-reference.spec.ts` → `design/reference/current/`.
+Страница компонентов `/design-system`: `tests/ui/design-system.spec.ts` — эталонные снимки `design/reference/kit/`
+(`toHaveScreenshot`, `snapshotPathTemplate` в конфиге), axe в обеих темах, восемь состояний у интерактивных,
+200 % без прокрутки, клавиатура у меню действий, окна подтверждения, уведомления и подсказки.
 Новые проверки покрывают light/dark/system, сохранение темы, ⌘K, меню профиля, сводку,
 вкладки и drawer, каталог броней, карточки номеров, сообщения и экран входа.
 12 основных маршрутов дополнительно проверяются на 320/390/768/1280/1440/1920 px.

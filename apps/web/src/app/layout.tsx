@@ -9,6 +9,7 @@ import './today/desk.css';
 import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
+import './components.css';
 
 export const metadata = {
   title: 'WETOP · Управление гостиницей',

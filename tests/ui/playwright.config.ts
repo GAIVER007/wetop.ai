@@ -4,6 +4,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',
+  // Эталонные снимки страницы компонентов (DESIGN.md, шаг 4): design/reference/kit/<имя>.png
+  snapshotPathTemplate: '{testDir}/../../design/reference/kit/{arg}{ext}',
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,

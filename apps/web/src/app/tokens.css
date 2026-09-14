@@ -41,7 +41,16 @@
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
   --ring: 0 0 0 3px var(--ring-color);
+  --hover-bg: var(--row-hover);
+  --selected-bg: var(--primary-soft);
+  --selected-fg: var(--primary);
+  --disabled-fg: var(--muted);
+  --disabled-bg: var(--surface-muted);
+  --error-border: var(--danger);
+  --error-ring: var(--danger-soft);
+  --pressed-shift: 1px;
   --bg: #f4f7fb;
   --surface: #ffffff;
   --surface-muted: #f6f8fc;
@@ -68,7 +77,7 @@
   --warning-border: #f1dfbc;
   --danger: #cc384e;
   --danger-2: #b9293e;
-  --danger-soft: #fff0f2;
+  --danger-soft: #fff2f4;
   --danger-border: #f3ced5;
   --info: var(--primary);
   --purple: #7860cb;

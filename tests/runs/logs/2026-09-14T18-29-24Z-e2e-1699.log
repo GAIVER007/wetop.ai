@@ -1,0 +1,179 @@
+# Сквозные (e2e) · 14.09.2026 23:29 Алматы · vm
+# коммит 01aa2ad (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-system.spec.ts' '--workers=1'
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (6.2s)
+  ✘  2 tests/ui/design-system.spec.ts:37:3 › axe без нарушений (light) (5.6s)
+  ✘  3 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (4.9s)
+  ✘  4 tests/ui/design-system.spec.ts:37:3 › axe без нарушений (dark) (4.8s)
+  ✓  5 tests/ui/design-system.spec.ts:44:1 › у каждого интерактивного компонента все восемь состояний (3.5s)
+  ✓  6 tests/ui/design-system.spec.ts:59:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.2s)
+  ✘  7 tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (16.8s)
+
+
+  1) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ───────────
+
+    Error: A snapshot doesn't exist at /home/user/wetop.ai/design/reference/kit/design-system-light.png, writing actual.
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |     ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:5
+
+    attachment #1: design-system-light (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-light.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/design-system-light-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-system.spec.ts:37:3 › axe без нарушений (light) ───────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "aria-required-parent: .ds-state[data-state=\"normal\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"hover\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .is-focus[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"disabled\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"loading\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"selected\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"]",
+    +   "color-contrast: .ds-state[data-state=\"error\"] > .btn--danger.btn[type=\"button\"] | #button > .ds-inline > .btn--danger.btn[type=\"button\"] | .is-active.board__stay[href$=\"#cell\"] > small | .ds-state[data-state=\"loading\"] > .ds-board > tbody > tr > td > .board__stay[href$=\"#cell\"] > b | .ds-state[data-state=\"loading\"] > .ds-board > tbody > tr > td > .board__stay[href$=\"#cell\"] > small | .board__stay[aria-current=\"true\"][href$=\"#cell\"] > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__label | .board__stay[aria-current=\"true\"][href$=\"#cell\"] > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__value | tr[data-state=\"disabled\"] > td:nth-child(1) | tr[data-state=\"disabled\"] > td:nth-child(2) | tr[data-state=\"disabled\"] > td:nth-child(3) | td:nth-child(4) > .badge--danger.badge | #drawer > .ds-sample > div:nth-child(1) | .ds-inline > .badge--danger.badge | .ds-sample > .ds-inline > .btn--danger.btn[type=\"button\"] | span:nth-child(1) > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__label | span:nth-child(1) > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__value | .ds-inline > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__label | .ds-inline > .amount-badge--danger.amount-badge[data-kind=\"due\"] > .amount-badge__value | span[data-kind=\"penalty\"] > .amount-badge__label | span[data-kind=\"penalty\"] > .amount-badge__value",
+    +   "link-in-text-block: span > a[href$=\"#unassigned-row\"]",
+    + ]
+
+      38 |     await open(page, theme);
+      39 |     const results = await new AxeBuilder({ page }).analyze();
+    > 40 |     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([]);
+         |                                                                                                             ^
+      41 |   });
+      42 | }
+      43 |
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:40:109
+
+    Error Context: test-results/design-system-axe-без-нарушений-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-axe-без-нарушений-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-без-нарушений-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ────────────
+
+    Error: A snapshot doesn't exist at /home/user/wetop.ai/design/reference/kit/design-system-dark.png, writing actual.
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |     ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:5
+
+    attachment #1: design-system-dark (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-dark.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/design-system-dark-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/design-system.spec.ts:37:3 › axe без нарушений (dark) ────────────────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "aria-required-parent: .ds-state[data-state=\"normal\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"hover\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .is-focus[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"disabled\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"loading\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"] | .ds-state[data-state=\"selected\"] > .record-tab-list > button[role=\"tab\"][type=\"button\"]",
+    +   "color-contrast: .is-active.board__stay[href$=\"#cell\"] > small | .ds-state[data-state=\"loading\"] > .ds-board > tbody > tr > td > .board__stay[href$=\"#cell\"] > small | tr[data-state=\"disabled\"] > td:nth-child(1) | tr[data-state=\"disabled\"] > td:nth-child(2) | tr[data-state=\"disabled\"] > td:nth-child(3) | td:nth-child(4) > .badge--danger.badge | #drawer > .ds-sample > div:nth-child(1)",
+    +   "link-in-text-block: span > a[href$=\"#unassigned-row\"]",
+    + ]
+
+      38 |     await open(page, theme);
+      39 |     const results = await new AxeBuilder({ page }).analyze();
+    > 40 |     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([]);
+         |                                                                                                             ^
+      41 |   });
+      42 | }
+      43 |
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:40:109
+
+    Error Context: test-results/design-system-axe-без-нарушений-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-axe-без-нарушений-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-без-нарушений-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Отменить бронь 20260913-SHOWTN?' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Отменить бронь 20260913-SHOWTN?' }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Отменить бронь 20260913-SHOWTN?' })
+
+
+      88 |   await page.getByRole('button', { name: 'Отменить со штрафом', exact: true }).first().click();
+      89 |   const dialog = page.getByRole('dialog', { name: 'Отменить бронь 20260913-SHOWTN?' });
+    > 90 |   await expect(dialog).toBeVisible();
+         |                        ^
+      91 |   await expect(dialog).toContainText('8 000 ₸');
+      92 |   await page.keyboard.press('Escape');
+      93 |   await expect(dialog).toBeHidden();
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:90:24
+
+    Error Context: test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-меню-действи-87f10-сказка-работают-клавиатурой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ────────────
+    tests/ui/design-system.spec.ts:37:3 › axe без нарушений (light) ────────────────────────────────
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ─────────────
+    tests/ui/design-system.spec.ts:37:3 › axe без нарушений (dark) ─────────────────────────────────
+    tests/ui/design-system.spec.ts:69:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой 
+  2 passed (53.6s)
+
+# код выхода 1 · 55 с

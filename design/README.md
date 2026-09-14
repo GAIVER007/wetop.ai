@@ -7,7 +7,7 @@
 |---|---|---|---|
 | `reference/exely/` | 7 скриншотов Exely с закрашенными фамилиями гостей — только для промптов макетов. Кладёт владелец из `project-input/exely-screens/`, закрасив фамилии или обрезав кадр. Незакрашенные кадры агент не открывает | **нет** (`.gitignore`) | **нет** — что загружено, попадёт в каждый макет |
 | `reference/current/` | Наши экраны как есть, 1440×1000, светлая и тёмная тема. Снимаются Playwright на синтетическом API (`tests/ui/design-reference.spec.ts`): только там псевдонимы гарантированы | да | да |
-| `reference/kit/` | Снимки страницы `/design-system` — эталон `toHaveScreenshot` (шаг 4) | да | да |
+| `reference/kit/` | Снимки страницы `/design-system` (светлая и тёмная, вся страница) — эталон `toHaveScreenshot` в `tests/ui/design-system.spec.ts`; пересобрать после правки компонентов: `… tests/ui/design-system.spec.ts --update-snapshots` | да | да |
 | `brand/` | Знак WETOP (`apps/web/src/app/icon.svg`), логотип Luxx Aparts и цвета бренда — кладёт владелец | да | да |
 | `docs/dtcg-2025.10/` | Спецификация W3C Design Tokens (DTCG) 2025.10: Format Module и Color Module — собранные страницы с зеркала GitHub (`gh-pages` репозитория design-tokens/community-group; сам designtokens.org закрыт прокси удалённой среды); модуль резолвера на gh-pages не выложен — сохранён исходник черновика из `main` (`resolver-draft-src/`, снят 14.09.2026). Загружено с разрешения владельца 14.09.2026 | да | нет |
 | `contrast.md` | Таблица контраста обеих тем и контрастной — генерируется `npm run design:build` | да | да |

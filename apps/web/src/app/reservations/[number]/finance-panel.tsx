@@ -28,6 +28,7 @@ import {
   type FinanceActionResult,
   stayExtraAction,
 } from './finance-actions';
+import { almatyDate } from '../../../lib/almaty';
 
 const KIND_RU: Record<string, string> = {
   ACCOMMODATION: 'проживание',
@@ -224,7 +225,7 @@ function FolioPanel({
                   {p.externalReference ? ` · ${p.externalReference}` : ''}
                   {p.status === 'VOIDED' ? ' · аннулирован' : ''}
                 </td>
-                <td>{p.paidAt.slice(0, 10)}</td>
+                <td>{almatyDate(p.paidAt)}</td>
                 <td className="num">{formatMinor(p.allocatedMinor, folio.currency)}</td>
                 <td className="num">{formatMinor(p.refundedMinor, folio.currency)}</td>
                 <td>
@@ -250,7 +251,7 @@ function FolioPanel({
           {folio.refunds
             .map(
               (r) =>
-                `${formatMinor(r.amountMinor, folio.currency)} (${r.createdAt.slice(0, 10)}${r.reason ? `, ${r.reason}` : ''})`,
+                `${formatMinor(r.amountMinor, folio.currency)} (${almatyDate(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
             )
             .join('; ')}
         </div>

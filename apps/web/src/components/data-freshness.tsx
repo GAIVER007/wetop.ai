@@ -13,8 +13,8 @@ interface Freshness {
   };
 }
 
-/** Exely синхронизируется раз в 15 минут (ADR-032): три пропущенных прогона — уже повод посмотреть */
-const EXELY_STALE_MIN = 45;
+/** Exely синхронизируется раз в 5 минут (launchd exely-sync, StartInterval 300): три пропущенных прогона — повод посмотреть */
+const EXELY_STALE_MIN = 15;
 /** Дельта ARI уходит за секунды; висит дольше 10 минут — канал не знает об изменении */
 const QUEUE_STALE_MIN = 10;
 
@@ -70,7 +70,7 @@ export function DataFreshness() {
       className={cx('freshness', (exelyStale || queueStale || failed) && 'freshness--warn')}
       data-testid="data-freshness"
       title={
-        'Когда данные PMS последний раз сверялись с источниками: синхронизация из Exely (раз в 15 минут), ' +
+        'Когда данные PMS последний раз сверялись с источниками: синхронизация из Exely (раз в 5 минут), ' +
         'последнее событие из Channex и очередь изменений остатков и цен в Channex'
       }
     >

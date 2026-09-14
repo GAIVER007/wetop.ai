@@ -40,7 +40,8 @@
     "dev:demo": "node scripts/preview/start-demo.mjs",
     "design:build": "tsx scripts/design/src/build-tokens.ts",
     "design:check": "tsx scripts/design/src/build-tokens.ts --check",
-    "design:fonts": "tsx scripts/design/src/check-fonts.ts"
+    "design:fonts": "tsx scripts/design/src/check-fonts.ts",
+    "design:bundle": "tsx scripts/design/src/bundle-claude-design.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

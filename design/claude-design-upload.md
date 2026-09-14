@@ -2,7 +2,8 @@
 
 Проект в Claude Design: **«WETOP — стойка»** (тип design-system). Главный источник — репозиторий; правка через
 Remix в Claude Design переносится в `DESIGN.md` и `tokens.json` в тот же день (DESIGN.md §17).
-Список ниже утверждает владелец до загрузки (план, шаг 5); после утверждения — `DesignSync` из Claude Code,
+**Список утверждён владельцем 14.09.2026.** Пакет собирается командой `npm run design:bundle` в
+`design/claude-design-bundle/` (в git не идёт, есть `MANIFEST.md`); после утверждения — `DesignSync` из Claude Code,
 запасной путь — загрузка теми же файлами через настройки организации в Claude Design.
 
 ## Загружается

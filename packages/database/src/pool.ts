@@ -66,7 +66,7 @@ function clientWithQueryDeadline(deadlineMs: number): typeof pg.Client {
     constructor(config?: string | pg.ClientConfig) {
       super(config);
       this.once('connect', () => {
-        // после TLS это уже защищённый сокет; тишина считается по любым байтам в обе стороны
+        // при TLS здесь уже защищённый сокет; тишина считается по любым байтам в обе стороны
         const socket = this.connection.stream as Socket;
         socket.setTimeout(deadlineMs);
         socket.on('timeout', () => {

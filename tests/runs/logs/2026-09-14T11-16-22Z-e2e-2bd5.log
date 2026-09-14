@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 14.09.2026 16:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 354979c (main), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/premium.spec.ts:88' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (3.4s)
+
+
+  1) tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные 
+
+    Error: locator.selectOption: Error: strict mode violation: getByLabel('Тип единиц') resolved to 2 elements:
+        1) <select class="inp" aria-label="Тип единиц">…</select> aka getByRole('main').getByLabel('Тип единиц')
+        2) <select class="inp" aria-label="Тип единиц">…</select> aka getByLabel('Тип единиц').nth(1)
+
+    Call log:
+      - waiting for getByLabel('Тип единиц')
+
+
+      116 |   await expect(page.locator('.room-card')).toHaveCount(16);
+      117 |   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/rooms-light.png` });
+    > 118 |   await page.getByLabel('Тип единиц').selectOption('BED');
+          |                                       ^
+      119 |   await expect(page.locator('.room-card')).toHaveCount(72);
+      120 |   await page.getByLabel('Поиск номеров').fill('M03');
+      121 |   await expect(page.locator('.room-card')).toHaveCount(1);
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/ui/premium.spec.ts:118:39
+
+    Error Context: test-results/premium-новые-фильтры-шахм-a817e-и-номеров-используют-данные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-фильтры-шахм-a817e-и-номеров-используют-данные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-фильтры-шахм-a817e-и-номеров-используют-данные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные 
+
+# код выхода 1 · 7 с

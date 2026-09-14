@@ -1,0 +1,50 @@
+# Сквозные (e2e) · 14.09.2026 16:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 354979c (main), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/login-access.spec.ts' '--workers=1'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/login-access.spec.ts:8:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля (15.8s)
+  ✓  2 tests/ui/login-access.spec.ts:26:1 › без Access (локально на Mac) экран входа прежний и честно говорит, что вход не подключён (509ms)
+
+
+  1) tests/ui/login-access.spec.ts:8:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "<email>"
+    Received string:    "WWETOP.AIHospitality, thoughtfully connectedВесь объектпод контролем.Брони. Гости. Оплаты. Номера.В одной системе.Luxx Aparts · АлматыДобро пожаловатьВойдите в рабочее пространствоEmailПарольПоказатьВойтиАвторизация пока не подключенаОткрыть рабочее пространство"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        33 × locator resolved to <main id="main-content" class="login-page">…</main>
+           - unexpected value "WWETOP.AIHospitality, thoughtfully connectedВесь объектпод контролем.Брони. Гости. Оплаты. Номера.В одной системе.Luxx Aparts · АлматыДобро пожаловатьВойдите в рабочее пространствоEmailПарольПоказатьВойтиАвторизация пока не подключенаОткрыть рабочее пространство"
+
+
+      12 |   await page.goto('/login');
+      13 |   const main = page.getByRole('main');
+    > 14 |   await expect(main).toContainText('<email>');
+         |                      ^
+      15 |   await expect(main.getByRole('link', { name: 'Выйти' })).toHaveAttribute(
+      16 |     'href',
+      17 |     '/cdn-cgi/access/logout',
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/ui/login-access.spec.ts:14:22
+
+    Error Context: test-results/login-access-за-Cloudflare-5503f-ту-и-выход-без-формы-пароля/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-за-Cloudflare-5503f-ту-и-выход-без-формы-пароля/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-за-Cloudflare-5503f-ту-и-выход-без-формы-пароля/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:8:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля 
+  1 passed (22.6s)
+
+# код выхода 1 · 23 с

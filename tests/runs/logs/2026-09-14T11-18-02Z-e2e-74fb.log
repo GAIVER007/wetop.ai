@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 14.09.2026 16:18 Алматы · Noutbuk-Vyacheslav.local
+# коммит 354979c (main), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/premium.spec.ts:88' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (2.9s)
+
+  1 passed (5.1s)
+
+# код выхода 0 · 6 с

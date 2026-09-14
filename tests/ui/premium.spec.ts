@@ -115,9 +115,11 @@ test('новые фильтры шахматки, список броней и �
   await page.goto('/rooms');
   await expect(page.locator('.room-card')).toHaveCount(16);
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/rooms-light.png` });
-  await page.getByLabel('Тип единиц').selectOption('BED');
+  // Пока страница догружается, в DOM на миг есть скрытая копия фильтров — ищем в видимом main
+  const rooms = page.getByRole('main');
+  await rooms.getByLabel('Тип единиц').selectOption('BED');
   await expect(page.locator('.room-card')).toHaveCount(72);
-  await page.getByLabel('Поиск номеров').fill('M03');
+  await rooms.getByLabel('Поиск номеров').fill('M03');
   await expect(page.locator('.room-card')).toHaveCount(1);
   await page.getByRole('button', { name: 'Список', exact: true }).click();
   await expect(page.locator('.room-cards')).toHaveClass(/room-cards--list/);

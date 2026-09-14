@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
-export function LoginForm({ demo }: { demo: boolean }) {
+export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: string | null }) {
   const [show, setShow] = useState(false),
     [error, setError] = useState('');
   const { setTheme } = useTheme();
@@ -50,66 +50,86 @@ export function LoginForm({ demo }: { demo: boolean }) {
           <span className="round-icon">
             <Icon name="shield" />
           </span>
-          <h2>Добро пожаловать</h2>
-          <p>Войдите в рабочее пространство</p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setError(
-                'Вход в рабочий аккаунт ещё не подключён. Используйте доступное рабочее пространство.',
-              );
-            }}
-          >
-            <label className="field">
-              Email
-              <input
-                className="inp"
-                type="email"
-                autoComplete="username"
-                name="email"
-                placeholder="you@hotel.com"
-                required
-              />
-            </label>
-            <label className="field">
-              Пароль
-              <span className="password-control">
-                <input
-                  className="inp"
-                  type={show ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  name="password"
-                  aria-label="Пароль"
-                  required
-                  minLength={6}
-                  placeholder="Введите пароль"
-                />
-                <button
-                  type="button"
-                  aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
-                  onClick={() => setShow(!show)}
-                >
-                  {show ? 'Скрыть' : 'Показать'}
-                </button>
-              </span>
-            </label>
-            {error && (
-              <p className="alert" role="alert">
-                {error}
+          {accessEmail ? (
+            <>
+              <h2>Вы вошли</h2>
+              <p>
+                как <b>{accessEmail}</b>
               </p>
-            )}
-            <button className="btn" type="submit">
-              Войти
-              <Icon name="arrow" width={16} />
-            </button>
-          </form>
-          <div className="login-preview">
-            <span>{demo ? 'Демонстрационный режим' : 'Авторизация пока не подключена'}</span>
-            <Link href="/today">
-              {demo ? 'Открыть демо' : 'Открыть рабочее пространство'}
-              <Icon name="arrow" width={14} />
-            </Link>
-          </div>
+              <Link className="btn" href="/today">
+                Открыть рабочее место
+                <Icon name="arrow" width={16} />
+              </Link>
+              <div className="login-preview">
+                <span>Вход защищён Cloudflare Access</span>
+                {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
+                <a href="/cdn-cgi/access/logout">Выйти</a>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2>Добро пожаловать</h2>
+              <p>Войдите в рабочее пространство</p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setError(
+                    'Вход в рабочий аккаунт ещё не подключён. Используйте доступное рабочее пространство.',
+                  );
+                }}
+              >
+                <label className="field">
+                  Email
+                  <input
+                    className="inp"
+                    type="email"
+                    autoComplete="username"
+                    name="email"
+                    placeholder="you@hotel.com"
+                    required
+                  />
+                </label>
+                <label className="field">
+                  Пароль
+                  <span className="password-control">
+                    <input
+                      className="inp"
+                      type={show ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      name="password"
+                      aria-label="Пароль"
+                      required
+                      minLength={6}
+                      placeholder="Введите пароль"
+                    />
+                    <button
+                      type="button"
+                      aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
+                      onClick={() => setShow(!show)}
+                    >
+                      {show ? 'Скрыть' : 'Показать'}
+                    </button>
+                  </span>
+                </label>
+                {error && (
+                  <p className="alert" role="alert">
+                    {error}
+                  </p>
+                )}
+                <button className="btn" type="submit">
+                  Войти
+                  <Icon name="arrow" width={16} />
+                </button>
+              </form>
+              <div className="login-preview">
+                <span>{demo ? 'Демонстрационный режим' : 'Авторизация пока не подключена'}</span>
+                <Link href="/today">
+                  {demo ? 'Открыть демо' : 'Открыть рабочее пространство'}
+                  <Icon name="arrow" width={14} />
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </main>

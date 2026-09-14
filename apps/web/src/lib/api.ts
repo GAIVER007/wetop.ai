@@ -707,6 +707,8 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Не заехали вовремя: подтверждены, дата заезда прошла, заселения и незаезда нет */
+  overdueArrivals?: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;

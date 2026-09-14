@@ -1,0 +1,35 @@
+# Модульные (unit) · 14.09.2026 16:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9149176 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-38-58Z-unit-660b.json' 'apps/api/src/desk'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests | 1 failed) 116ms
+   ❯ desk day API (3)
+     ✓ делит сутки на заезды, выезды и живущих; называет, что мешает заселить; считает долг уезжающих 10ms
+     × просроченный заезд виден отдельным списком: подтверждён, дата заезда прошла, заселения и незаезда нет 2ms
+     ✓ пустые сутки и неверная дата 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/desk/desk.controller.test.ts > desk day API > просроченный заезд виден отдельным списком: подтверждён, дата заезда прошла, заселения и незаезда нет
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ apps/api/src/desk/desk.controller.test.ts:113:30
+    111|     const r = await request(app.getHttpServer()).get('/desk/today?date…
+    112|     expect(
+    113|       r.body.overdueArrivals.map((a: { confirmationNumber: string }) =…
+       |                              ^
+    114|     ).toEqual(['B-8']);
+    115|     expect(r.body.overdueArrivals[0]).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  04:38:59
+   Duration  657ms (import 54%, transform 26%, tests 20%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-38-58Z-unit-660b.json
+
+# код выхода 1 · 1 с

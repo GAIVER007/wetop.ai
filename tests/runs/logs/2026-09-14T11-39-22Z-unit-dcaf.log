@@ -1,0 +1,16 @@
+# Модульные (unit) · 14.09.2026 16:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9149176 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-39-22Z-unit-dcaf.json' 'apps/api/src/desk'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 93ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  04:39:22
+   Duration  589ms (import 52%, transform 30%, tests 18%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-39-22Z-unit-dcaf.json
+
+# код выхода 0 · 1 с

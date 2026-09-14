@@ -6,7 +6,7 @@ import { DayWorkspace } from './day-workspace';
 import { DayAttention } from './day-attention';
 import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
-import { Button, Input } from '../../components/ui';
+import { Alert, Button, Input } from '../../components/ui';
 import { AIInsightCard, QuickActions, OccupancyCharts, HotelClock } from './dashboard-widgets';
 import { displayDate } from '../../lib/display-date';
 
@@ -118,6 +118,21 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           </article>
         ))}
       </section>
+      {day.overdueArrivals && day.overdueArrivals.length > 0 && (
+        // Подтверждены, дата заезда прошла, заселения и незаезда нет — ни в одном списке дня их не видно
+        <Alert boxed tone="warning" data-testid="overdue-arrivals">
+          Не заехали вовремя ({day.overdueArrivals.length}): отметьте заселение или незаезд —{' '}
+          {day.overdueArrivals.slice(0, 5).map((r, i) => (
+            <span key={r.itemId}>
+              {i > 0 ? ', ' : ''}
+              <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
+                {r.guestLabel} · заезд {r.arrivalDate}
+              </Link>
+            </span>
+          ))}
+          {day.overdueArrivals.length > 5 ? ` и ещё ${day.overdueArrivals.length - 5}` : ''}
+        </Alert>
+      )}
       <div className="operations-grid">
         <Upcoming title="Ближайшие заезды" rows={day.arrivals} icon="arrival" date={day.date} />
         <Upcoming title="Ближайшие выезды" rows={day.departures} icon="departure" date={day.date} />

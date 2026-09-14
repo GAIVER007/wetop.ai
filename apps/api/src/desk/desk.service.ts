@@ -25,6 +25,8 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Должны были заехать раньше этой даты, не заселены и незаезд не отмечен — решает стойка */
+  overdueArrivals: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;
@@ -77,11 +79,21 @@ export class DeskService {
     const inHouse = stays
       .filter((s) => s.status === 'CHECKED_IN' && s.departureDate !== day)
       .map(row);
+    // Выезжающие сегодня уже в списке выездов; здесь — те, кто не попал ни в один список дня
+    const overdueArrivals = stays
+      .filter(
+        (s) =>
+          (s.status === 'CONFIRMED' || s.status === 'TENTATIVE') &&
+          s.arrivalDate < day &&
+          s.departureDate !== day,
+      )
+      .map(row);
     return {
       date: day,
       arrivals,
       departures,
       inHouse,
+      overdueArrivals,
       counts: {
         arrivals: arrivals.length,
         departures: departures.length,

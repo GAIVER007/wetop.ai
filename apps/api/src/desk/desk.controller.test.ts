@@ -51,6 +51,8 @@ const repo: DeskRepository = {
         departureDate: '2026-10-09',
         status: 'CHECKED_IN',
       }),
+      // должен был заехать вчера, не заселён и незаезд не отмечен — ни в одном списке дня его не было
+      stay({ itemId: 'i8', confirmationNumber: 'B-8', arrivalDate: '2026-10-04' }),
     ];
   },
 };
@@ -103,6 +105,17 @@ describe('desk day API', () => {
     expect(r.body.inHouse.map((x: { confirmationNumber: string }) => x.confirmationNumber)).toEqual(
       ['B-5'],
     );
+  });
+
+  it('просроченный заезд виден отдельным списком: подтверждён, дата заезда прошла, заселения и незаезда нет', async () => {
+    const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
+    expect(
+      r.body.overdueArrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
+    ).toEqual(['B-8']);
+    expect(r.body.overdueArrivals[0]).toMatchObject({
+      arrivalDate: '2026-10-04',
+      status: 'CONFIRMED',
+    });
   });
 
   it('пустые сутки и неверная дата', async () => {

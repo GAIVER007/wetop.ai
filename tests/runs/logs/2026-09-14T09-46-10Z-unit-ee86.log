@@ -1,0 +1,23 @@
+# Модульные (unit) · 14.09.2026 14:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8fdabe6 (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-46-10Z-unit-ee86.json' 'apps/api/src/reservations/rate-plans-read.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/web-booking/web-booking.controller.test.ts' 'apps/api/src/channels/inbound.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 2ms
+[Nest] 93258  - 09/14/2026, 2:46:11 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 93258  - 09/14/2026, 2:46:11 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 93258  - 09/14/2026, 2:46:11 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 93258  - 09/14/2026, 2:46:11 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 203ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (18 tests) 221ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (10 tests) 76ms
+
+ Test Files  4 passed (4)
+      Tests  53 passed (53)
+   Start at  02:46:10
+   Duration  977ms (import 51%, transform 33%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-46-10Z-unit-ee86.json
+
+# код выхода 0 · 2 с

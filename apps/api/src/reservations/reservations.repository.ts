@@ -336,6 +336,11 @@ export interface ReservationsRepository {
 /** Одна команда = одна транзакция. В тестах подменяется фальшивкой. */
 export interface UnitOfWork {
   run<T>(fn: (repo: ReservationsRepository) => Promise<T>): Promise<T>;
+  /**
+   * Чтение без транзакции — для справочников. Интерактивная транзакция держит соединение пула и при занятом
+   * пуле падает через maxWait (P2028 → 500), хотя простому запросу транзакция не нужна.
+   */
+  read<T>(fn: (repo: ReservationsRepository) => Promise<T>): Promise<T>;
 }
 export const RESERVATIONS_UOW = Symbol('RESERVATIONS_UOW');
 
@@ -1192,5 +1197,8 @@ export class PrismaUnitOfWork implements UnitOfWork {
       timeout: 60_000,
       maxWait: 10_000,
     });
+  }
+  read<T>(fn: (repo: ReservationsRepository) => Promise<T>): Promise<T> {
+    return fn(new PrismaReservationsRepository(this.prisma.db));
   }
 }

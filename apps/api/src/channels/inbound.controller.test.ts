@@ -472,6 +472,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .useFactory({
         factory: () => ({
           run: (fn: (r: ReservationsRepository) => Promise<unknown>) => fn(fakes.repo),
+          read: (fn: (r: ReservationsRepository) => Promise<unknown>) => fn(fakes.repo),
         }),
       })
       .overrideProvider(CHANNELS_REPOSITORY)

@@ -323,3 +323,5 @@
 | 14.09.2026 14:28 | typecheck | ✅ без ошибок | 9 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-01Z-typecheck-91a0.log) | ADR-043 pool.ts comment (TLS wording) after drill |
 | 14.09.2026 14:28 | lint | ✅ без ошибок | 5 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-10Z-lint-1b2f.log) | ADR-043 pool.ts comment (TLS wording) after drill |
 | 14.09.2026 14:28 | unit | ✅ 749 из 749 | 12 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-16Z-unit-dcec.log) | ADR-043 pool.ts comment (TLS wording) after drill |
+| 14.09.2026 14:44 | unit (частично: apps/api/src/reservations/rate-plans-read.test.ts) | ❌ упало 1 из 1 | 1 с | 8fdabe6 +5 | [лог](logs/2026-09-14T09-44-31Z-unit-e3fc.log) | B9 red: rate plans lookup must not need a transaction |
+| 14.09.2026 14:46 | unit (частично: apps/api/src/reservations/rate-plans-read.test.ts apps/api/src/reservations/reservations.controller.test.ts apps/api/src/web-booking/web-booking | ✅ 53 из 53 | 2 с | 8fdabe6 +11 | [лог](logs/2026-09-14T09-46-10Z-unit-ee86.log) | B9 green: rate plans and widget quote read without a transaction |

@@ -199,6 +199,7 @@ function makeFakes() {
     async freeUnits() {
       return [];
     },
+    async lockCategories() {},
     async categoryAvailability() {
       return 99;
     },

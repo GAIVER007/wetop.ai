@@ -1,0 +1,43 @@
+# Модульные (unit) · 14.09.2026 15:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 917c303 (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T10-01-19Z-unit-220e.json' 'apps/api/src/reservations' 'apps/api/src/channels' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (25 tests) 5ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (9 tests) 5ms
+[Nest] 1556  - 09/14/2026, 3:01:21 AM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 13ms
+[Nest] 1554  - 09/14/2026, 3:01:21 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1554  - 09/14/2026, 3:01:21 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1554  - 09/14/2026, 3:01:21 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 1554  - 09/14/2026, 3:01:21 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 1554  - 09/14/2026, 3:01:21 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1554  - 09/14/2026, 3:01:21 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 1554  - 09/14/2026, 3:01:21 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 1554  - 09/14/2026, 3:01:21 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (8 tests) 5ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (5 tests) 335ms
+[Nest] 1563  - 09/14/2026, 3:01:21 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 1563  - 09/14/2026, 3:01:21 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 1550  - 09/14/2026, 3:01:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1550  - 09/14/2026, 3:01:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1550  - 09/14/2026, 3:01:21 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 5ms
+[Nest] 1550  - 09/14/2026, 3:01:21 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 3ms
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 384ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (10 tests) 144ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (18 tests) 403ms
+
+ Test Files  13 passed (13)
+      Tests  126 passed (126)
+   Start at  03:01:20
+   Duration  1.55s (import 51%, transform 34%, tests 15%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T10-01-19Z-unit-220e.json
+
+# код выхода 0 · 2 с

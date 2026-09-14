@@ -210,6 +210,12 @@ export interface ReservationsRepository {
   ): Promise<UnitRef | null>;
   /** Все свободные активные ячейки категории на период, по номеру ячейки — для групповой брони на N мест */
   freeUnits(accommodationTypeId: string, from: string, toExclusive: string): Promise<UnitRef[]>;
+  /**
+   * Блокировка продаж категорий до конца транзакции (pg_advisory_xact_lock), в порядке id — без взаимных
+   * блокировок. Места без ячейки не защищены исключением `allocations_no_overlap_per_unit`: без этой
+   * блокировки два запроса одновременно продают последнее место категории (Б2).
+   */
+  lockCategories(typeIds: string[]): Promise<void>;
   /** Ограничения продаж (ADR-020) по датам [from, toExclusive) для категории × тарифа; нет строки — нет ограничений */
   restrictionsFor(
     accommodationTypeId: string,
@@ -509,6 +515,12 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
     return free;
+  }
+  async lockCategories(typeIds: string[]): Promise<void> {
+    // xact-блокировка отпускается сама при COMMIT/ROLLBACK; в одной транзакции повторный вызов не ждёт
+    for (const id of [...new Set(typeIds)].sort())
+      await this.db
+        .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${id}`}, 0))`;
   }
   async restrictionsFor(
     accommodationTypeId: string,

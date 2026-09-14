@@ -79,6 +79,8 @@ function makeFake() {
   }
   const state = {
     categoryAvailabilityOverride: null as number | null,
+    /** категории, продажи которых заблокированы на время команды (Б2), в порядке вызова */
+    locks: [] as string[],
     /** гражданство заказчика, как его отдаёт карточка — для правила заселения (DATA_MODEL §3) */
     citizenship: 'KAZ' as string | null,
     /** долг счёта по проживанию — для T3 (выселение с долгом) */
@@ -189,6 +191,9 @@ function makeFake() {
             !blocked.some((b) => b.unitId === u.id && b.from < toExclusive && b.to > from),
         )
         .sort((a, b) => Number(a.code) - Number(b.code));
+    },
+    async lockCategories(typeIds) {
+      state.locks.push(...typeIds);
     },
     async restrictionsFor(typeId, planId, from, toExclusive) {
       return state.restrictions

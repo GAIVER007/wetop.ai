@@ -1,0 +1,64 @@
+# Интеграционные (integration) · 14.09.2026 14:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит 917c303 (main), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-58-23Z-integration-59f7.json' 'tests/integration/reservation-capacity.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+(node:705) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | tests/integration/reservation-capacity.test.ts > category capacity across the places of one booking (integration, rolled back) > refuses more places without a unit than the category has, counting all places of the booking together
+НЕ ОТКАТ: AssertionError: expected Error: ожидался ConflictException — катег… to be an instance of ConflictException
+    at Proxy.<anonymous> (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/index.OVGXnVRj.js:2134:15)
+    at Proxy.<anonymous> (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/index.OVGXnVRj.js:1934:14)
+    at Proxy.methodWrapper (file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/chai/index.js:1700:25)
+    at expectConflictInsideTx (/Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:49:15)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at db.$transaction.timeout (/Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:127:13)
+    at Proxy._transactionWithCallback (/Users/vyacheslav/Desktop/Проекты/Pms Lux/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:75:7
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:20 {
+  actual: Error: ожидался ConflictException — категория продана сверх вместимости
+      at expectConflictInsideTx (/Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:47:11)
+      at processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at db.$transaction.timeout (/Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:127:13)
+      at Proxy._transactionWithCallback (/Users/vyacheslav/Desktop/Проекты/Pms Lux/node_modules/@prisma/client/runtime/client.js:99:4868)
+      at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/integration/reservation-capacity.test.ts:75:7
+      at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:20,
+  expected: undefined,
+  showDiff: false,
+  operator: 'strictEqual'
+}
+
+ ❯ |integration| tests/integration/reservation-capacity.test.ts (1 test | 1 failed) 22847ms
+   ❯ category capacity across the places of one booking (integration, rolled back) (1)
+     × refuses more places without a unit than the category has, counting all places of the booking together 22839ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reservation-capacity.test.ts > category capacity across the places of one booking (integration, rolled back) > refuses more places without a unit than the category has, counting all places of the booking together
+Error: expect(received).toSatisfy()
+
+Expected value to satisfy:
+[Function anonymous]
+
+Received:
+[AssertionError: expected Error: ожидался ConflictException — катег… to be an instance of ConflictException]
+ ❯ tests/integration/reservation-capacity.test.ts:143:8
+    141|           { timeout: 180_000, maxWait: 30_000 },
+    142|         ),
+    143|       ).rejects.toSatisfy((e: unknown) => {
+       |        ^
+    144|         if (!(e instanceof Rollback)) console.error('НЕ ОТКАТ:', e);
+    145|         return e instanceof Rollback;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  02:58:24
+   Duration  25.36s (tests 98%, transform 1%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-58-23Z-integration-59f7.json
+
+# код выхода 1 · 26 с

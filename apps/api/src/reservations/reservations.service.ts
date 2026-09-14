@@ -219,6 +219,16 @@ export class ReservationsService {
           totalMinor: bigint;
           unitId: string | null;
         }> = [];
+        // Б2: продажи категории последовательны — все категории брони блокируются сразу и в одном порядке
+        const lockIds: string[] = [];
+        for (const code of new Set(dto.items!.map((i) => i.accommodationTypeCode!))) {
+          const t = await repo.categoryByCode(code);
+          if (t) lockIds.push(t.id);
+        }
+        await repo.lockCategories(lockIds);
+        // места этого запроса ещё не записаны: считаем их сами, иначе каждое проходит проверку по отдельности
+        const requestedByType = new Map<string, number>();
+        const pickedUnits = new Set<string>();
         for (const it of dto.items!) {
           const type = await repo.categoryByCode(it.accommodationTypeCode!);
           if (!type || !type.active)
@@ -250,16 +260,22 @@ export class ReservationsService {
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
-          // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы
-          await this.assertCategoryCapacity(repo, type, dates, quantity);
+          // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы.
+          // Б2: вместе с местами этой же брони, которые ещё не записаны
+          const requested = (requestedByType.get(type.id) ?? 0) + quantity;
+          await this.assertCategoryCapacity(repo, type, dates, requested);
+          requestedByType.set(type.id, requested);
           if (quantity > 1) {
             // Групповая бронь: N мест → N проживаний, ячейки — первые свободные по номеру (как firstFreeUnit)
-            const free = await repo.freeUnits(type.id, dates.arrivalDate, dates.departureDate);
+            const free = (
+              await repo.freeUnits(type.id, dates.arrivalDate, dates.departureDate)
+            ).filter((u) => !pickedUnits.has(u.id));
             if (free.length < quantity)
               throw new ConflictException(
                 `В категории ${type.name} на ${dates.arrivalDate} → ${dates.departureDate} свободно только ${free.length} из ${quantity} мест`,
               );
-            for (const unit of free.slice(0, quantity))
+            for (const unit of free.slice(0, quantity)) {
+              pickedUnits.add(unit.id);
               prepared.push({
                 typeId: type.id,
                 ratePlanId: plan.id,
@@ -267,6 +283,7 @@ export class ReservationsService {
                 totalMinor: price.totalMinor,
                 unitId: unit.id,
               });
+            }
             continue;
           }
           let unitId: string | null = null;
@@ -282,10 +299,17 @@ export class ReservationsService {
               );
             if (await repo.hasBlockOverlap(unit.id, dates.arrivalDate, dates.departureDate))
               throw new ConflictException(`Ячейка ${it.unitCode} заблокирована на эти даты`);
+            if (pickedUnits.has(unit.id))
+              throw new ConflictException(`Ячейка ${it.unitCode} указана в брони дважды`);
+            pickedUnits.add(unit.id);
             unitId = unit.id;
           } else if (it.autoAssign) {
-            // как у канала (Q-094): первая свободная ячейка категории, иначе без ячейки
-            const unit = await repo.firstFreeUnit(type.id, dates.arrivalDate, dates.departureDate);
+            // как у канала (Q-094): первая свободная ячейка категории, иначе без ячейки;
+            // ячейки, уже выданные другим местам этой брони, не выдаются второй раз
+            const unit = (
+              await repo.freeUnits(type.id, dates.arrivalDate, dates.departureDate)
+            ).find((u) => !pickedUnits.has(u.id));
+            if (unit) pickedUnits.add(unit.id);
             unitId = unit?.id ?? null;
           }
           prepared.push({
@@ -685,6 +709,8 @@ export class ReservationsService {
     exceptItemId?: string,
   ): Promise<void> {
     if (!type) throw new UnprocessableEntityException('Категория проживания не найдена');
+    // Б2: другой запрос не продаст то же место между подсчётом и записью (блокировка до конца транзакции)
+    await repo.lockCategories([type.id]);
     const left = await repo.categoryAvailability(
       type.id,
       dates.arrivalDate,

@@ -31,14 +31,10 @@ if (!connectionString) {
   console.error('DATABASE_URL не задан');
   process.exit(2);
 }
-let target: { host: string; port: number; tls: string };
+let target: { host: string; port: number };
 try {
   const u = new URL(connectionString);
-  target = {
-    host: u.hostname,
-    port: Number(u.port || 5432),
-    tls: u.searchParams.get('sslmode') ?? process.env.PGSSLMODE ?? 'нет',
-  };
+  target = { host: u.hostname, port: Number(u.port || 5432) };
 } catch {
   console.error('DATABASE_URL не разбирается как адрес'); // значение не печатаем
   process.exit(2);
@@ -66,7 +62,7 @@ console.log(
   `Режим: ${control ? 'КОНТРОЛЬ — сроки выключены (как до ADR-043)' : 'сроки пула ADR-043'}; ` +
     `подключение и место в пуле: ${seconds(connectTimeoutMs)}, ответ базы: ${seconds(queryTimeoutMs)}, ` +
     `keepalive: ${pool.keepAlive ? seconds(pool.keepAliveInitialDelayMillis ?? 0) : 'выкл'}; мест в пуле ${POOL_MAX}; ` +
-    `пулер: порт ${target.port}, sslmode ${target.tls}`,
+    `пулер: порт ${target.port}`,
 );
 
 // 1. Прогрев: два соединения в пуле, одно из них внутри транзакции
@@ -95,6 +91,7 @@ track('транзакция, открытая до «сна»', () =>
 const opened = await Promise.race([transactionOpen.then(() => true), delay(60_000).then(() => false)]);
 if (!opened) abort('транзакция не открылась за 60 с');
 console.log(`1. Прогрев: соединений через прокси ${proxy.accepted()}, одно держит открытую транзакцию`);
+console.log(`   Шифрование до пулера (первые байты соединения): ${proxy.handshake()}`);
 
 // 2. «Сон»: уже открытые соединения молча мертвы, новые работают
 const killed = proxy.killExisting();
@@ -195,6 +192,21 @@ function seconds(ms: number): string {
   return ms === 0 ? 'выкл' : `${(ms / 1000).toFixed(1).replace('.', ',')} с`;
 }
 
+function describeClientHello(chunk: Buffer): string {
+  if (chunk[0] === 0x16) return 'TLS сразу (direct)';
+  if (chunk.length >= 8 && chunk.readInt32BE(4) === 80877103) return 'просит TLS (SSLRequest)';
+  if (chunk.length >= 8 && chunk.readInt32BE(4) === 196608) return 'БЕЗ TLS (StartupMessage открытым текстом)';
+  return 'не распознано';
+}
+
+function describeServerReply(chunk: Buffer): string {
+  const first = String.fromCharCode(chunk[0] ?? 0);
+  if (first === 'S') return 'согласен на TLS (S)';
+  if (first === 'N') return 'отказал в TLS (N)';
+  if (chunk[0] === 0x16) return 'TLS-рукопожатие';
+  return `ответ «${first}» без TLS`;
+}
+
 /** pg зовёт connect(port, host) с адресом из строки подключения — ведём сокет в прокси, имя для TLS остаётся настоящим */
 function throughProxy(port: number): () => Socket {
   return () => {
@@ -208,11 +220,18 @@ function throughProxy(port: number): () => Socket {
 async function startProxy(host: string, port: number) {
   const pairs = new Set<{ client: Socket; upstream: Socket; dead: boolean }>();
   let accepted = 0;
+  let clientHello = 'нет данных';
+  let serverReply = 'нет данных';
   const server = createServer((client) => {
     accepted += 1;
     const upstream = tcpConnect(port, host);
     const pair = { client, upstream, dead: false };
     pairs.add(pair);
+    // по первым байтам видно, просит ли клиент TLS: SSLRequest (80877103), TLS сразу (0x16) или открытый StartupMessage
+    if (accepted === 1) {
+      client.once('data', (chunk: Buffer) => (clientHello = describeClientHello(chunk)));
+      upstream.once('data', (chunk: Buffer) => (serverReply = describeServerReply(chunk)));
+    }
     // мёртвое соединение байты глотает и никуда не передаёт; сокеты при этом открыты
     client.on('data', (chunk) => pair.dead || upstream.write(chunk));
     upstream.on('data', (chunk) => pair.dead || client.write(chunk));
@@ -233,6 +252,7 @@ async function startProxy(host: string, port: number) {
   return {
     port: address.port,
     accepted: () => accepted,
+    handshake: () => `клиент: ${clientHello}; пулер: ${serverReply}`,
     killExisting: () => {
       for (const pair of pairs) pair.dead = true;
       return pairs.size;

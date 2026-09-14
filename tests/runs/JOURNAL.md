@@ -318,3 +318,4 @@
 | 14.09.2026 14:17 | typecheck | ✅ без ошибок | 6 с | 38eab10 +2 | [лог](logs/2026-09-14T09-17-38Z-typecheck-f729.log) | ADR-043 drill: export databasePoolTimeouts, scripts/ops/db-dead-connection-drill.ts (after merging main d6d1d30) |
 | 14.09.2026 14:17 | lint | ✅ без ошибок | 5 с | 38eab10 +2 | [лог](logs/2026-09-14T09-17-45Z-lint-f3b8.log) | ADR-043 drill: export databasePoolTimeouts, scripts/ops/db-dead-connection-drill.ts (after merging main d6d1d30) |
 | 14.09.2026 14:17 | unit | ✅ 749 из 749 | 13 с | 38eab10 +2 | [лог](logs/2026-09-14T09-17-50Z-unit-2652.log) | ADR-043 drill: export databasePoolTimeouts, scripts/ops/db-dead-connection-drill.ts (after merging main d6d1d30) |
+| 14.09.2026 14:20 | lint | ✅ без ошибок | 4 с | 95d9300 +1 | [лог](logs/2026-09-14T09-20-43Z-lint-7c99.log) | ADR-043 drill: handshake sniff (TLS or plaintext to pooler) |

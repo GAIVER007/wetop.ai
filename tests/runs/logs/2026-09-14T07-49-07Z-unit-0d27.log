@@ -1,0 +1,18 @@
+# Модульные (unit) · 14.09.2026 12:49 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9ce7b2f (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T07-49-07Z-unit-0d27.json' 'packages/database/src/schema.test.ts' 'tests/unit/test-schema-plan.test.ts' 'apps/api/src/database/connection.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 3ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 57ms
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  00:49:07
+   Duration  854ms (import 48%, transform 44%, tests 8%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T07-49-07Z-unit-0d27.json
+
+# код выхода 0 · 2 с

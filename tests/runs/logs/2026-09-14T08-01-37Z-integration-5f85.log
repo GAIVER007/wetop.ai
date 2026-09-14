@@ -1,0 +1,37 @@
+# Интеграционные (integration) · 14.09.2026 13:01 Алматы · Noutbuk-Vyacheslav.local
+# коммит 76f729b (main), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-01-37Z-integration-5f85.json' 'tests/integration/test-schema.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |integration| tests/integration/test-schema.test.ts (1 test | 1 failed) 959ms
+   ❯ схема автотестов pms_test (integration, DATABASE_URL required) (1)
+     × прямой SQL в тестах работает в pms_test, а не в рабочих данных 958ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/test-schema.test.ts > схема автотестов pms_test (integration, DATABASE_URL required) > прямой SQL в тестах работает в pms_test, а не в рабочих данных
+AssertionError: expected 'public' to be 'pms_test' // Object.is equality
+
+Expected: "pms_test"
+Received: "public"
+
+ ❯ tests/integration/test-schema.test.ts:20:31
+     18|     try {
+     19|       const rows = await db.$queryRaw<Array<{ schema: string }>>`SELEC…
+     20|       expect(rows[0]!.schema).toBe('pms_test');
+       |                               ^
+     21|     } finally {
+     22|       await db.$disconnect();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  01:01:37
+   Duration  3.10s (tests 91%, transform 6%, import 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-01-37Z-integration-5f85.json
+
+# код выхода 1 · 4 с

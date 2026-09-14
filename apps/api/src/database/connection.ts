@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Controller, Get, Header, Inject, Injectable, Module } from '@nestjs/common';
+import { databaseSchemaName } from '@pms/database';
 import type { DataConnection } from '@pms/shared';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from './prisma.provider';
@@ -27,7 +28,8 @@ export class DataConnectionService {
       state: 'DATABASE_UNAVAILABLE',
       message: 'База данных недоступна. Проверьте подключение backend к базе.',
       checkedAt: new Date().toISOString(),
-      database: { connected: false, provider: databaseProvider() },
+      // схема не секрет: по ней прогон e2e убеждается, что пишет в pms_test, а не в рабочие данные (ADR-042)
+      database: { connected: false, provider: databaseProvider(), schema: databaseSchemaName() },
       property: null,
       counts: null,
     };

@@ -1,34 +1,108 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
+import { TEST_API_PORT, TEST_SCHEMA, TEST_WEB_PORT, hardcodedLiveAddress } from './tests/tools/test-schema-plan';
 
 /**
- * E2E: поднимает API (3001) и web (3000) сами. Требует DATABASE_URL в .env — данные реальные
- * (номерной фонд без ПД). Запуск: `npm run e2e`.
+ * E2E (ADR-042). По умолчанию — изолированный стенд: свой API на 3101 и стойка на 3100 (production-сборка apps/web)
+ * работают в схеме pms_test проекта «hotel»; рабочие данные (public), launchd-службы 3000/3001, Channex и Telegram не
+ * задеваются. Первым идёт проект schema-guard: если API тестов не в pms_test — прогон останавливается до первого спека.
+ * Схему готовит tests/e2e-setup.ts (миграции, копия данных при пустой схеме; освежить — npm run test:schema -- --refresh).
+ *
+ * Живой режим только для сертификации Channex (шлёт изменения в Channex staging и пишет номера задач):
+ *   E2E_CHANNEX_LIVE=1 npx playwright test — рабочий стенд 3000/3001, только channex-certification.spec.ts.
+ * Спек с жёстким адресом рабочего стенда в изолированный прогон не идёт (иначе писал бы в рабочие данные) — список
+ * печатается в начале; переведите адрес на process.env.APP_API_URL, и спек вернётся сам.
  */
+const LIVE = process.env['E2E_CHANNEX_LIVE'] === '1';
+const LIVE_ONLY = ['channex-certification.spec.ts'];
+const TEST_API = `http://127.0.0.1:${TEST_API_PORT}`;
+const TEST_WEB = `http://127.0.0.1:${TEST_WEB_PORT}`;
+const SPECS = resolve(import.meta.dirname, 'tests/e2e');
+const hardcoded = readdirSync(SPECS).filter(
+  (f) =>
+    f.endsWith('.spec.ts') &&
+    !LIVE_ONLY.includes(f) &&
+    readFileSync(resolve(SPECS, f), 'utf-8').split('\n').some(hardcodedLiveAddress),
+);
+
+if (!LIVE) {
+  // Конфиг читают и главный процесс, и воркеры: спеки, уборка (globalTeardown) и прямые запросы к базе идут в тестовый стенд
+  process.env['DATABASE_SCHEMA'] = TEST_SCHEMA;
+  process.env['APP_API_URL'] = TEST_API;
+  process.env['E2E_API_URL'] = TEST_API;
+  if (hardcoded.length && process.env['TEST_WORKER_INDEX'] === undefined)
+    console.log(`[e2e] не в прогоне — жёсткий адрес рабочего стенда: ${hardcoded.join(', ')}`);
+}
+
+const PII_ENCRYPTION_KEY = process.env['PII_ENCRYPTION_KEY'] || 'e2e-only-key-not-for-production';
+
 export default defineConfig({
   testDir: 'tests/e2e',
-  // брони автотестов занимают настоящие ячейки — после прогона они отменяются
+  globalSetup: LIVE ? undefined : './tests/e2e-setup.ts',
+  // брони автотестов занимают ячейки — после прогона они отменяются (в изолированном режиме — в pms_test)
   globalTeardown: './tests/e2e-teardown.ts',
   timeout: 90_000,
   expect: { timeout: 30_000 },
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: 'http://127.0.0.1:3000', trace: 'retain-on-failure' },
-  webServer: [
-    {
-      command: 'npm run start -w apps/api',
-      // ключ шифрования ПД для e2e, если владелец ещё не вписал свой (документы вымышленных гостей)
-      env: {
-        PII_ENCRYPTION_KEY: process.env.PII_ENCRYPTION_KEY || 'e2e-only-key-not-for-production',
-      },
-      url: 'http://127.0.0.1:3001/inventory/summary',
-      reuseExistingServer: true,
-      timeout: 120_000,
-    },
-    {
-      command: 'npm run dev -w apps/web',
-      url: 'http://127.0.0.1:3000/inventory',
-      reuseExistingServer: true,
-      timeout: 180_000,
-    },
-  ],
+  use: { baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB, trace: 'retain-on-failure' },
+  projects: LIVE
+    ? [{ name: 'channex-live', testMatch: LIVE_ONLY.map((f) => `**/${f}`) }]
+    : [
+        { name: 'schema-guard', testMatch: /_schema-guard\.setup\.ts$/ },
+        {
+          name: 'isolated',
+          testIgnore: [...LIVE_ONLY, ...hardcoded].map((f) => `**/${f}`),
+          dependencies: ['schema-guard'],
+        },
+      ],
+  webServer: LIVE
+    ? [
+        {
+          command: 'npm run start -w apps/api',
+          env: { PII_ENCRYPTION_KEY },
+          url: 'http://127.0.0.1:3001/inventory/summary',
+          reuseExistingServer: true,
+          timeout: 120_000,
+        },
+        {
+          command: 'npm run dev -w apps/web',
+          url: 'http://127.0.0.1:3000/inventory',
+          reuseExistingServer: true,
+          timeout: 180_000,
+        },
+      ]
+    : [
+        {
+          command: 'npm run start -w apps/api',
+          env: {
+            API_PORT: String(TEST_API_PORT),
+            DATABASE_SCHEMA: TEST_SCHEMA,
+            PII_ENCRYPTION_KEY,
+            // фоновая работа — только у рабочего API на этом Mac; тестовый ничего не шлёт наружу и никого не будит
+            GUARD: 'off',
+            CHANNEX_PULL: 'off',
+            CHANNEX_OUTBOX_WORKER: 'off',
+            CHANNEX_FULL_SYNC: 'off',
+            CHANNEX_WEBHOOK_HEALTH: 'off',
+            CHANNEX_ARI: 'off',
+            GUARD_HEARTBEAT_URL: '',
+            TELEGRAM_BOT_TOKEN: '',
+            TELEGRAM_CHAT_ID: '',
+          },
+          // отвечает 200 и без готовой схемы — схему готовит globalSetup, проверяет schema-guard
+          url: `${TEST_API}/system/connection`,
+          reuseExistingServer: true,
+          timeout: 120_000,
+        },
+        {
+          command: `npx next start --port ${TEST_WEB_PORT} --hostname 127.0.0.1`,
+          cwd: 'apps/web',
+          env: { APP_API_URL: TEST_API },
+          url: `${TEST_WEB}/inventory`,
+          reuseExistingServer: true,
+          timeout: 180_000,
+        },
+      ],
 });

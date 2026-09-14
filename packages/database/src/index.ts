@@ -5,20 +5,32 @@
  */
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, type Prisma } from './generated/prisma/client';
+import { resolveDatabaseSchema } from './schema';
 
 export * from './generated/prisma/client';
+export { databaseSchemaName, resolveDatabaseSchema } from './schema';
 
-export function createPrismaClient(connectionString = process.env.DATABASE_URL): PrismaClient {
+export function createPrismaClient(
+  connectionString = process.env.DATABASE_URL,
+  // ADR-042: автотесты работают в схеме pms_test того же проекта, рабочие данные — в public
+  schema = resolveDatabaseSchema(process.env.DATABASE_SCHEMA),
+): PrismaClient {
   if (!connectionString) {
     throw new Error('DATABASE_URL is not set');
   }
   // Supabase Session pooler допускает 15 клиентов на проект: пул каждого процесса ограничен
   // (DATABASE_POOL_MAX, по умолчанию 5), а в API один клиент на процесс (apps/api PrismaService).
   const max = Number(process.env.DATABASE_POOL_MAX ?? 5);
-  const adapter = new PrismaPg({
-    connectionString,
-    max: Number.isFinite(max) && max > 0 ? max : 5,
-  });
+  const adapter = new PrismaPg(
+    {
+      connectionString,
+      max: Number.isFinite(max) && max > 0 ? max : 5,
+      // Опция schema ниже меняет только SQL, который строит Prisma; прямой SQL ($queryRaw) идёт по search_path соединения.
+      // Параметр при подключении Session pooler Supabase пропускает (проверено 14.09.2026) — схема действует с первого запроса.
+      ...(schema ? { options: `-c search_path=${schema},public` } : {}),
+    },
+    schema ? { schema } : undefined,
+  );
   return new PrismaClient({ adapter });
 }
 

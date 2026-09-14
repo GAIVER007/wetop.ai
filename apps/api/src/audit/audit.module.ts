@@ -12,6 +12,11 @@ export interface AuditRow {
   subject: string | null;
 }
 
+/** Служебные строки: синхронизация Exely пишет одну каждые 5 минут и вытесняет из журнала действия людей */
+export const SYSTEM_AUDIT_ACTIONS = ['exely.sync'];
+/** Ключи снимка, по которым ищет журнал: номер брони, код ячейки, номер брони канала */
+const SUBJECT_KEYS = ['confirmationNumber', 'code', 'uniqueId'] as const;
+
 /** Журнал действий (SECURITY §6): что, когда, с чем. Без ПД в сводке. */
 @Injectable()
 export class AuditService {
@@ -20,11 +25,25 @@ export class AuditService {
     limit?: number | undefined;
     entityType?: string | undefined;
     action?: string | undefined;
+    /** Номер брони или код ячейки: ищется в снимках всей истории, не в последних строках */
+    q?: string | undefined;
+    /** Показывать служебные строки (синхронизация Exely) */
+    system?: boolean | undefined;
   }): Promise<AuditRow[]> {
+    const text = q.q?.trim();
     const rows = await this.prisma.db.auditLog.findMany({
       where: {
         ...(q.entityType ? { entityType: q.entityType } : {}),
         ...(q.action ? { action: { startsWith: q.action } } : {}),
+        ...(q.system || q.action ? {} : { NOT: { action: { in: SYSTEM_AUDIT_ACTIONS } } }),
+        ...(text
+          ? {
+              OR: SUBJECT_KEYS.flatMap((key) => [
+                { after: { path: [key], string_contains: text } },
+                { before: { path: [key], string_contains: text } },
+              ]),
+            }
+          : {}),
       },
       orderBy: { createdAt: 'desc' },
       take: Math.min(Math.max(q.limit ?? 100, 1), 500),
@@ -58,11 +77,15 @@ export class AuditController {
     @Query('limit') limit?: string,
     @Query('entityType') entityType?: string,
     @Query('action') action?: string,
+    @Query('q') q?: string,
+    @Query('system') system?: string,
   ) {
     return this.service.list({
       limit: limit ? Number(limit) : undefined,
       entityType: entityType || undefined,
       action: action || undefined,
+      q: q || undefined,
+      system: system === '1',
     });
   }
 }

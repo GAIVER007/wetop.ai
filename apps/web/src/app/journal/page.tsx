@@ -36,6 +36,7 @@ const ACTION_RU: Record<string, string> = {
   'analytics.site.create': 'сайт со счётчиком добавлен',
   'analytics.site.update': 'сайт со счётчиком изменён',
   'analytics.site.delete': 'сайт со счётчиком удалён',
+  'exely.sync': 'синхронизация с Exely',
 };
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
@@ -52,17 +53,24 @@ export default async function JournalPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { type, q } = normalizeSearchParams(await searchParams);
-  const rows = await getJsonPublic<AuditRow[]>(
-    `/audit?limit=200${type ? `&entityType=${encodeURIComponent(type)}` : ''}`,
-  );
+  const { type, q, system } = normalizeSearchParams(await searchParams);
+  const showSystem = system === '1';
+  // Поиск и фильтр — в API по всей истории: синхронизация Exely пишет строку каждые 5 минут, и 200 последних
+  // строк покрывали меньше суток — «История» брони была пустой (волна 3)
+  const query = new URLSearchParams({
+    limit: '200',
+    ...(type ? { entityType: type } : {}),
+    ...(q?.trim() ? { q: q.trim() } : {}),
+    ...(showSystem ? { system: '1' } : {}),
+  });
+  const rows = await getJsonPublic<AuditRow[]>(`/audit?${query}`);
   return (
     <Page
       title="Журнал действий"
       actions={FILTERS.map(([t, label]) => (
         <Link
           key={label}
-          href={`/journal?${new URLSearchParams({ ...(t ? { type: t } : {}), ...(q ? { q } : {}) })}`}
+          href={`/journal?${new URLSearchParams({ ...(t ? { type: t } : {}), ...(q ? { q } : {}), ...(showSystem ? { system: '1' } : {}) })}`}
           className={(t ?? undefined) === type ? 'bold' : undefined}
         >
           {label}
@@ -77,8 +85,14 @@ export default async function JournalPage({
           defaultValue={q ?? ''}
         />
         <input name="type" type="hidden" value={type ?? ''} />
+        <label className="check">
+          <input type="checkbox" name="system" value="1" defaultChecked={showSystem} /> служебные
+          (синхронизация Exely)
+        </label>
         <Button tone="secondary">Найти</Button>
-        <span className="muted small">Последние 200 операций</span>
+        <span className="muted small">
+          {q?.trim() ? 'Поиск по всей истории' : 'Последние операции'} · до 200 строк
+        </span>
       </form>
       <Table size="sm" nowrap data-testid="journal-table">
         <thead>
@@ -89,28 +103,26 @@ export default async function JournalPage({
           </tr>
         </thead>
         <tbody>
-          {rows
-            .filter((r) => !q || r.subject?.includes(q.trim()))
-            .map((r) => (
-              <tr key={r.id} data-testid="journal-row">
-                <td>
-                  {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
-                    .toISOString()
-                    .slice(0, 16)
-                    .replace('T', ' ')}
-                </td>
-                <td>{ACTION_RU[r.action] ?? r.action}</td>
-                <td>{r.entityType}</td>
-                <td>
-                  {r.subject && r.entityType === 'Reservation' ? (
-                    <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
-                  ) : (
-                    (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
-                  )}
-                </td>
-              </tr>
-            ))}
-          {!rows.some((r) => !q || r.subject?.includes(q.trim())) && (
+          {rows.map((r) => (
+            <tr key={r.id} data-testid="journal-row">
+              <td>
+                {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
+                  .toISOString()
+                  .slice(0, 16)
+                  .replace('T', ' ')}
+              </td>
+              <td>{ACTION_RU[r.action] ?? r.action}</td>
+              <td>{r.entityType}</td>
+              <td>
+                {r.subject && r.entityType === 'Reservation' ? (
+                  <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
+                ) : (
+                  (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
+                )}
+              </td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
             <tr>
               <td colSpan={4} className="empty-state">
                 Нет операций по выбранным условиям

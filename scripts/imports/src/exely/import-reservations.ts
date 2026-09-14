@@ -3,12 +3,14 @@ import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
 import type { GuestImportRecord, ReservationImportRecord } from './normalize-reservation';
-import { planSeats, type SeatRequest } from './seat-plan';
+import { planSeats, type SeatRequest, type Segment } from './seat-plan';
 
 export interface ReservationsImportOptions {
   propertyId: string;
   /** Соль анонимизации для dev-БД (ADR-018). null — только для production в РК, по отдельному разрешению. */
   anonymizeSalt: string | null;
+  /** Сегодняшняя ночь объекта (YYYY-MM-DD): переезд внутри срока, который уже был (ADR-044). По умолчанию — сейчас в Алматы */
+  today?: string;
 }
 export interface ReservationsImportReport {
   reservations: EntityCounts;
@@ -34,13 +36,18 @@ export interface AllocationConflict {
   to: string;
   /** Куда посадили вместо занятой ячейки; null — свободной в категории не нашлось */
   movedTo: string | null;
+  /** Переезд внутри срока (ADR-044): до ночи at — movedTo, с неё — ячейка to */
+  split?: { at: string; to: string };
 }
 const zero = (): EntityCounts => ({ created: 0, updated: 0 });
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const nextDay = (d: string) => iso(new Date(Date.parse(`${d}T00:00:00Z`) + 86_400_000));
 
 /**
  * Идемпотентный импорт броней (внутри одной транзакции). Ключи: Reservation (property, confirmation_number),
- * ReservationItem.exely_room_stay_id, Guest.exely_person_id, Allocation — одна на проживание при импорте.
+ * ReservationItem.exely_room_stay_id, Guest.exely_person_id, Allocation — одна на проживание при импорте, две при
+ * переезде внутри срока (ADR-044).
  * Единица — только по явному «№ комнаты в Exely» (InventoryUnit.exely_room_number), ничего не выводится.
  */
 export async function importReservations(
@@ -70,19 +77,23 @@ export async function importReservations(
     start: Date;
     end: Date;
     conflictIndex: number;
+    /** Ячейка из Exely и ночь, с которой она свободна до конца срока (переезд уже был) */
+    exelyUnitId: string | null;
+    exelyFrom: string | null;
   }> = [];
   /** Проживания с ячейкой из Exely: места раздаются всей пачкой после основного прохода (seat-plan.ts) */
   const seating: Array<{
     request: SeatRequest;
-    currentId: string | null;
-    currentCode: string | null;
+    /** Нынешние назначения по возрастанию дат */
+    current: Array<{ id: string; unitId: string; start: string; end: string }>;
     confirmationNumber: string;
     exelyRoomNumber: string;
   }> = [];
   const units = await tx.inventoryUnit.findMany({
     where: { accommodationType: { propertyId: opts.propertyId } },
-    select: { id: true, exelyRoomNumber: true },
+    select: { id: true, code: true, exelyRoomNumber: true },
   });
+  const codeOf = new Map(units.map((u) => [u.id, u.code]));
   const unitIdByExely = new Map(
     units.filter((u) => u.exelyRoomNumber).map((u) => [u.exelyRoomNumber!, u.id]),
   );
@@ -246,13 +257,16 @@ export async function importReservations(
           throw new Error(
             `Бронь ${r.confirmationNumber}: единица «${it.exelyRoomNumber}» не найдена в фонде`,
           );
-        const current = await tx.allocation.findFirst({
+        const current = await tx.allocation.findMany({
           where: { reservationItemId: itemId },
           select: {
             id: true,
             inventoryUnitId: true,
-            inventoryUnit: { select: { code: true, accommodationTypeId: true } },
+            startDate: true,
+            endDate: true,
+            inventoryUnit: { select: { accommodationTypeId: true } },
           },
+          orderBy: { startDate: 'asc' },
         });
         // Место решается после прохода по всей пачке: Exely меняет гостей местами, и по одному проживанию
         // обмен не проходит — место из Exely ещё занято не обработанным соседом (14.09.2026)
@@ -263,12 +277,19 @@ export async function importReservations(
             desiredUnitId: unitId,
             start: it.arrivalDate,
             end: it.departureDate,
-            current: current
-              ? { unitId: current.inventoryUnitId, typeId: current.inventoryUnit.accommodationTypeId }
-              : null,
+            current: current.map((c) => ({
+              unitId: c.inventoryUnitId,
+              typeId: c.inventoryUnit.accommodationTypeId,
+              start: iso(c.startDate),
+              end: iso(c.endDate),
+            })),
           },
-          currentId: current?.id ?? null,
-          currentCode: current?.inventoryUnit.code ?? null,
+          current: current.map((c) => ({
+            id: c.id,
+            unitId: c.inventoryUnitId,
+            start: iso(c.startDate),
+            end: iso(c.endDate),
+          })),
           confirmationNumber: r.confirmationNumber,
           exelyRoomNumber: it.exelyRoomNumber,
         });
@@ -296,7 +317,6 @@ export async function importReservations(
   // Занятость — только чужие назначения на эти даты (статус проживания не фильтруется: запрет пересечений
   // в БД безусловный). Прежняя пересадка сохраняется, если место из Exely занято, а прежнее своё — свободно.
   if (seating.length > 0) {
-    const iso = (d: Date) => d.toISOString().slice(0, 10);
     const from = seating.reduce((m, q) => (q.request.start < m ? q.request.start : m), seating[0]!.request.start);
     const to = seating.reduce((m, q) => (q.request.end > m ? q.request.end : m), seating[0]!.request.end);
     const others = await tx.allocation.findMany({
@@ -326,30 +346,39 @@ export async function importReservations(
         start: iso(o.startDate),
         end: iso(o.endDate),
       })),
+      opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000)),
     );
-    // Сначала снимаются назначения, которые меняют ячейку: иначе запрет пересечений не пустит соседа по обмену
+    const unchanged = (q: (typeof seating)[number], segments: Segment[]) =>
+      q.current.length === segments.length &&
+      q.current.every(
+        (c, k) => c.unitId === segments[k]!.unitId && c.start === segments[k]!.start && c.end === segments[k]!.end,
+      );
+    // Сначала снимаются все назначения, которые меняются (ячейка или даты): запрет пересечений в БД проверяет каждую
+    // запись сразу, и новое назначение соседа по обмену не встанет, пока старое не снято
     for (const [i, d] of decisions.entries()) {
       const q = seating[i]!;
-      const target = d.kind === 'displaced' ? null : d.unitId;
-      if (q.currentId && q.request.current!.unitId !== target) {
-        const removed = await tx.allocation.deleteMany({ where: { reservationItemId: q.request.itemId } });
-        if (d.kind === 'displaced') report.allocations.released += removed.count;
-      }
+      const segments = d.kind === 'displaced' ? [] : d.segments;
+      if (q.current.length === 0 || unchanged(q, segments)) continue;
+      const removed = await tx.allocation.deleteMany({ where: { reservationItemId: q.request.itemId } });
+      if (segments.length === 0) report.allocations.released += removed.count;
     }
     for (const [i, d] of decisions.entries()) {
       const q = seating[i]!;
       const req = q.request;
       if (d.kind !== 'displaced') {
-        const data = { inventoryUnitId: d.unitId, startDate: asDate(req.start), endDate: asDate(req.end) };
-        if (q.currentId && req.current!.unitId === d.unitId) {
-          await tx.allocation.update({ where: { id: q.currentId }, data });
-          report.allocations.updated += 1;
-        } else {
-          await tx.allocation.create({ data: { reservationItemId: req.itemId, ...data } });
-          // пересадка на место из Exely — назначение того же проживания переписано, а не заведено заново
-          if (q.currentId) report.allocations.updated += 1;
-          else report.allocations.created += 1;
-        }
+        if (!unchanged(q, d.segments))
+          for (const seg of d.segments)
+            await tx.allocation.create({
+              data: {
+                reservationItemId: req.itemId,
+                inventoryUnitId: seg.unitId,
+                startDate: asDate(seg.start),
+                endDate: asDate(seg.end),
+              },
+            });
+        // назначение того же проживания переписано (или осталось прежним), а не заведено заново
+        if (q.current.length > 0) report.allocations.updated += 1;
+        else report.allocations.created += 1;
       }
       if (d.kind === 'desired') continue;
       if (d.kind === 'displaced') {
@@ -359,6 +388,8 @@ export async function importReservations(
           start: asDate(req.start),
           end: asDate(req.end),
           conflictIndex: report.conflicts.length,
+          exelyUnitId: req.desiredUnitId,
+          exelyFrom: d.exelyFrom,
         });
         report.unassigned += 1;
       }
@@ -370,8 +401,11 @@ export async function importReservations(
         conflictsWith: numberOf.get(d.conflict.itemId) ?? d.conflict.itemId,
         from: d.conflict.start,
         to: d.conflict.end,
-        // «посажен на»: прежняя пересадка; вытесненным ячейку подберёт проход ниже
-        movedTo: d.kind === 'kept' ? q.currentCode : null,
+        // «посажен на»: своя ячейка (до переезда); вытесненным ячейки подберёт проход ниже
+        movedTo: d.kind === 'displaced' ? null : (codeOf.get(d.segments[0]!.unitId) ?? null),
+        ...(d.kind === 'moved'
+          ? { split: { at: d.segments[1]!.start, to: codeOf.get(d.segments[1]!.unitId) ?? d.segments[1]!.unitId } }
+          : {}),
       });
     }
   }
@@ -392,33 +426,89 @@ export async function importReservations(
   });
 
   // ── Рассадка вытесненных: все назначения из Exely уже сделаны, свободное — действительно свободно ──
-  // Гость без ячейки не виден на шахматке вовсе, поэтому пустая ячейка той же категории лучше, чем
-  // ничего; исходная комната названа в отчёте, стойка переселит, если нужна именно она.
+  // Гость без ячейки не виден на шахматке вовсе, поэтому пустая ячейка той же категории лучше, чем ничего; исходная
+  // комната названа в отчёте, стойка переселит, если нужна именно она. По порядку (ADR-044):
+  //  а) переезд уже был — первые ночи на свободной ячейке категории, дальше место из Exely;
+  //  б) первая свободная ячейка на весь срок (как было);
+  //  в) две ячейки с одним переездом: свободная с первой ночи дольше других, дальше место из Exely или первая свободная.
+  // Место из Exely проверяется только по назначениям (как в рассадке пачки), остальные ячейки — и по блокировкам.
   const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
   for (const d of displaced) {
-    const free = await tx.inventoryUnit.findMany({
-      where: {
-        accommodationTypeId: d.typeId,
-        active: true,
-        allocations: { none: { startDate: { lt: d.end }, endDate: { gt: d.start } } },
-        blocks: { none: { dateFrom: { lt: d.end }, dateTo: { gt: d.start } } },
-      },
-      select: { id: true, code: true },
-    });
-    free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
-    const unit = free[0];
-    if (!unit) continue;
-    await tx.allocation.create({
-      data: {
-        reservationItemId: d.itemId,
-        inventoryUnitId: unit.id,
-        startDate: d.start,
-        endDate: d.end,
+    const start = iso(d.start);
+    const end = iso(d.end);
+    const candidates = await tx.inventoryUnit.findMany({
+      where: { accommodationTypeId: d.typeId, active: true },
+      select: {
+        id: true,
+        code: true,
+        allocations: {
+          where: { startDate: { lt: d.end }, endDate: { gt: d.start } },
+          select: { startDate: true, endDate: true },
+        },
+        blocks: {
+          where: { dateFrom: { lt: d.end }, dateTo: { gt: d.start } },
+          select: { dateFrom: true, dateTo: true },
+        },
       },
     });
+    candidates.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
+    type Unit = (typeof candidates)[number];
+    const freeOn = (u: Unit, from: string, to: string) =>
+      !u.allocations.some((a) => iso(a.startDate) < to && from < iso(a.endDate)) &&
+      (u.id === d.exelyUnitId || !u.blocks.some((b) => iso(b.dateFrom) < to && from < iso(b.dateTo)));
+    const exely = candidates.find((u) => u.id === d.exelyUnitId);
+
+    let seats: Array<{ unit: Unit; start: string; end: string }> | null = null;
+    if (d.exelyFrom && exely && freeOn(exely, d.exelyFrom, end)) {
+      const first = candidates.find((u) => u !== exely && freeOn(u, start, d.exelyFrom!));
+      if (first)
+        seats = [
+          { unit: first, start, end: d.exelyFrom },
+          { unit: exely, start: d.exelyFrom, end },
+        ];
+    }
+    if (!seats) {
+      const one = candidates.find((u) => freeOn(u, start, end));
+      if (one) seats = [{ unit: one, start, end }];
+    }
+    if (!seats) {
+      const freeUntil = (u: Unit) => {
+        let night = start;
+        while (night < end && freeOn(u, night, nextDay(night))) night = nextDay(night);
+        return night;
+      };
+      // дольше всех свободная с первой ночи; при равенстве — меньший номер (кандидаты уже по номеру, сортировка устойчивая)
+      const longest = candidates
+        .map((unit) => ({ unit, until: freeUntil(unit) }))
+        .filter((x) => x.until > start)
+        .sort((a, b) => (a.until < b.until ? 1 : a.until > b.until ? -1 : 0))[0];
+      if (longest) {
+        const second =
+          exely && exely !== longest.unit && freeOn(exely, longest.until, end)
+            ? exely
+            : candidates.find((u) => u !== longest.unit && freeOn(u, longest.until, end));
+        if (second)
+          seats = [
+            { unit: longest.unit, start, end: longest.until },
+            { unit: second, start: longest.until, end },
+          ];
+      }
+    }
+    if (!seats) continue;
+    for (const seat of seats)
+      await tx.allocation.create({
+        data: {
+          reservationItemId: d.itemId,
+          inventoryUnitId: seat.unit.id,
+          startDate: asDate(seat.start),
+          endDate: asDate(seat.end),
+        },
+      });
     report.allocations.created += 1;
     report.unassigned -= 1;
-    report.conflicts[d.conflictIndex]!.movedTo = unit.code;
+    const conflict = report.conflicts[d.conflictIndex]!;
+    conflict.movedTo = seats[0]!.unit.code;
+    if (seats.length === 2) conflict.split = { at: seats[1]!.start, to: seats[1]!.unit.code };
   }
 
   return report;

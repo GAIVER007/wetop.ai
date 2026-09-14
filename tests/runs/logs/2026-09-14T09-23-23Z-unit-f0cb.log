@@ -1,0 +1,128 @@
+# Модульные (unit) · 14.09.2026 14:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит deee9ac (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-23-23Z-unit-f0cb.json' 'scripts/imports/src/exely/seat-plan.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| scripts/imports/src/exely/seat-plan.test.ts (17 tests | 4 failed) 11ms
+   ✓ рассадка пачки импорта из Exely (11)
+     ✓ обмен: Exely поменял двух гостей местами — оба садятся на места из Exely 1ms
+     ✓ цепочка из трёх: каждый садится на место следующего, в каком бы порядке брони ни пришли из Exely 0ms
+     ✓ двойная продажа койки: место остаётся за тем, кто на ней уже стоит, в каком бы порядке ни пришли брони 0ms
+     ✓ место из Exely занято чужой бронью: остаётся на прежней ячейке своей категории, если она свободна 0ms
+     ✓ прежняя ячейка чужой категории не сохраняется — рассадка отдельным проходом (13.09.2026, койка 35) 0ms
+     ✓ даты сдвинулись на чужую бронь в той же ячейке — проживание вытесняется, а не остаётся поверх 0ms
+     ✓ первый импорт без мест: конфликт с соседом по пачке — вытеснен, ячейку найдёт отдельный проход 0ms
+     ✓ повтор импорта ничего не пересаживает: все на своих местах, вытесненный раньше — на своей пересадке 0ms
+     ✓ не хуже прежнего: сосед по обмену не выгоняет проживание с его койки; будущий переезд не придумывается 0ms
+     ✓ цепочка упирается в чужую бронь в будущем — звенья остаются на своих койках, никто не остаётся без места 0ms
+     ✓ в разные ночи одна ячейка не конфликтует 0ms
+   ❯ переезд внутри срока (ADR-044, Q-120) (6)
+     × переезд уже был: до ночи, когда место из Exely освободилось, — своя койка, дальше место из Exely 5ms
+     × цепочка из живых данных 14.09 сходится переездами 1ms
+     × повтор импорта после переезда ничего не меняет 0ms
+     ✓ место из Exely освободилось на весь срок — переезд снимается, весь срок на месте из Exely 0ms
+     ✓ место из Exely занято в последние ночи срока — с него посреди срока не уезжают: своя койка 0ms
+     × без своей ячейки, переезд уже был — отдельному проходу подсказка: место из Exely свободно с 13.09 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > переезд внутри срока (ADR-044, Q-120) > переезд уже был: до ночи, когда место из Exely освободилось, — своя койка, дальше место из Exely
+AssertionError: expected { D: 'kept 46', M: 'kept 43' } to deeply equal { Object (D, M) }
+
+- Expected
++ Received
+
+  {
+-   "D": "moved 46[12–13) 43[13–15)",
+-   "M": "desired 46",
++   "D": "kept 46",
++   "M": "kept 43",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:151:43
+    149|       [mover, stayer],
+    150|     ])
+    151|       expect(seats(order, [past], TODAY)).toEqual({
+       |                                           ^
+    152|         D: 'moved 46[12–13) 43[13–15)',
+    153|         M: 'desired 46',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > переезд внутри срока (ADR-044, Q-120) > цепочка из живых данных 14.09 сходится переездами
+AssertionError: expected { P: 'kept 6', Q: 'kept 21', …(1) } to deeply equal { P: 'moved 6[12–13) 21[13–17)', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "P": "moved 6[12–13) 21[13–17)",
+-   "Q": "moved 21[12–13) 22[13–15)",
+-   "R": "desired 6",
++   "P": "kept 6",
++   "Q": "kept 21",
++   "R": "kept 8",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:166:46
+    164|     ];
+    165|     for (const order of [chain, [...chain].reverse()])
+    166|       expect(seats(order, [blocker], TODAY)).toEqual({
+       |                                              ^
+    167|         P: 'moved 6[12–13) 21[13–17)',
+    168|         Q: 'moved 21[12–13) 22[13–15)',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > переезд внутри срока (ADR-044, Q-120) > повтор импорта после переезда ничего не меняет
+AssertionError: expected { D: 'kept 46' } to deeply equal { D: 'moved 46[12–13) 43[13–15)' }
+
+- Expected
++ Received
+
+  {
+-   "D": "moved 46[12–13) 43[13–15)",
++   "D": "kept 46",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:178:50
+    176|       ['43', '2026-09-13', '2026-09-15'],
+    177|     ], ['2026-09-12', '2026-09-15']);
+    178|     expect(seats([split], [past], '2026-09-15')).toEqual({ D: 'moved 4…
+       |                                                  ^
+    179|   });
+    180|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > переезд внутри срока (ADR-044, Q-120) > без своей ячейки, переезд уже был — отдельному проходу подсказка: место из Exely свободно с 13.09
+AssertionError: expected { R: 'displaced' } to deeply equal { R: 'displaced, Exely с 2026-09-13' }
+
+- Expected
++ Received
+
+  {
+-   "R": "displaced, Exely с 2026-09-13",
++   "R": "displaced",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:197:89
+    195|
+    196|   it('без своей ячейки, переезд уже был — отдельному проходу подсказка…
+    197|     expect(seats([stay('R', '43', null, ['2026-09-12', '2026-09-15'])]…
+       |                                                                                         ^
+    198|       R: 'displaced, Exely с 2026-09-13',
+    199|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 13 passed (17)
+   Start at  02:23:23
+   Duration  115ms (transform 51%, tests 28%, import 15%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-23-23Z-unit-f0cb.json
+
+# код выхода 1 · 1 с

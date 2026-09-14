@@ -326,4 +326,102 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
       ),
     ).rejects.toBeInstanceOf(Rollback);
   }, 180_000);
+
+  const dorm = {
+    roomMap: new Map([
+      ['R-9010', '9010'],
+      ['R-9011', '9011'],
+      ['R-9012', '9012'],
+    ]),
+    typeMap: new Map([['900003', 'exely-900003']]),
+  };
+  const dated = (b: exely.UniBooking, from: string, to: string): exely.UniBooking => ({
+    ...b,
+    roomStays: b.roomStays.map((st) => ({ ...st, checkInDateTime: `${from}T14:00`, checkOutDateTime: `${to}T12:00` })),
+  });
+  const seatsOf = (tx: Parameters<Parameters<Db['$transaction']>[0]>[0], stayId: string) =>
+    tx.allocation.findMany({
+      where: { reservationItem: { exelyRoomStayId: stayId } },
+      include: { inventoryUnit: true },
+      orderBy: { startDate: 'asc' },
+    });
+  const nights = (rows: Awaited<ReturnType<typeof seatsOf>>) =>
+    rows.map((a) => `${a.inventoryUnit.code} ${a.startDate.toISOString().slice(0, 10)}→${a.endDate.toISOString().slice(0, 10)}`);
+
+  it('ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет', async () => {
+    // 14.09.2026: Exely хранит одну комнату на весь срок, а в первую ночь на новой койке спал другой гость
+    const plan = buildInventoryImportPlan(
+      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
+      parseExelyAccommodationTypes(readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8')),
+    );
+    const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), dorm);
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
+          const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt' };
+          await importReservations(
+            tx,
+            [
+              norm(dated(booking('T-50', 'S-50', 'R-9010', 'G-50'), '2026-09-19', '2026-09-20')),
+              norm(dated(booking('T-51', 'S-51', 'R-9011', 'G-51'), '2026-09-19', '2026-09-22')),
+            ],
+            { ...opts, today: '2026-09-19' },
+          );
+          expect(nights(await seatsOf(tx, 'S-51'))).toEqual(['9011 2026-09-19→2026-09-22']);
+
+          // 20.09 гость перешёл на 9010; в Exely у проживания теперь 9010 на весь срок
+          const moved = norm(dated(booking('T-51', 'S-51', 'R-9010', 'G-51'), '2026-09-19', '2026-09-22'));
+          const report = await importReservations(tx, [moved], { ...opts, today: '2026-09-21' });
+          const seats = await seatsOf(tx, 'S-51');
+          expect(nights(seats)).toEqual(['9011 2026-09-19→2026-09-20', '9010 2026-09-20→2026-09-22']);
+          expect(report.conflicts).toEqual([
+            expect.objectContaining({ movedTo: '9011', split: { at: '2026-09-20', to: '9010' }, from: '2026-09-19', to: '2026-09-20' }),
+          ]);
+          expect(report.unassigned).toBe(0);
+
+          // следующий прогон: те же назначения, записи не переписываются
+          await importReservations(tx, [moved], { ...opts, today: '2026-09-22' });
+          expect((await seatsOf(tx, 'S-51')).map((a) => a.id)).toEqual(seats.map((a) => a.id));
+          throw new Rollback('rollback');
+        },
+        { timeout: 120_000, maxWait: 30_000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+  }, 180_000);
+
+  it('Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом', async () => {
+    const plan = buildInventoryImportPlan(
+      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
+      parseExelyAccommodationTypes(readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8')),
+    );
+    const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), dorm);
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
+          const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt', today: '2026-09-18' };
+          // 20.09: заняты 9010 и 9011, свободна 9012; 21.09: заняты 9010 и 9012, свободна 9011
+          const report = await importReservations(
+            tx,
+            [
+              norm(dated(booking('T-60', 'S-60', 'R-9010', 'G-60'), '2026-09-20', '2026-09-22')),
+              norm(dated(booking('T-61', 'S-61', 'R-9011', 'G-61'), '2026-09-20', '2026-09-21')),
+              norm(dated(booking('T-62', 'S-62', 'R-9012', 'G-62'), '2026-09-21', '2026-09-22')),
+              // Exely дал 9010, она занята T-60 на обе ночи
+              norm(dated(booking('T-63', 'S-63', 'R-9010', 'G-63'), '2026-09-20', '2026-09-22')),
+            ],
+            opts,
+          );
+          expect(nights(await seatsOf(tx, 'S-63'))).toEqual(['9012 2026-09-20→2026-09-21', '9011 2026-09-21→2026-09-22']);
+          expect(report.conflicts).toEqual([
+            expect.objectContaining({ confirmationNumber: 'T-63', movedTo: '9012', split: { at: '2026-09-21', to: '9011' } }),
+          ]);
+          expect(report.unassigned).toBe(0);
+          throw new Rollback('rollback');
+        },
+        { timeout: 120_000, maxWait: 30_000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+  }, 180_000);
 });

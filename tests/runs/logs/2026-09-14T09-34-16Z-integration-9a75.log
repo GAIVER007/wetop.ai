@@ -1,0 +1,49 @@
+# Интеграционные (integration) · 14.09.2026 14:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2e852cd (main), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-34-16Z-integration-9a75.json' 'tests/integration/reservations-import.test.ts' '-t' 'ADR-044|Q-120'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |integration| tests/integration/reservations-import.test.ts (5 tests | 2 failed | 3 skipped) 37681ms
+   ❯ importReservations (integration, DATABASE_URL required) (5)
+     ↓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back
+     ↓ проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется
+     ↓ Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет
+     × ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет 18949ms
+     × Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом 18718ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет
+AssertionError: expected AssertionError: expected [ '9011 2026-09-… { …(4) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:390:6
+    388|         { timeout: 120_000, maxWait: 30_000 },
+    389|       ),
+    390|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    391|   }, 180_000);
+    392|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом
+AssertionError: expected AssertionError: expected [] to deeply equ… { …(4) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:425:6
+    423|         { timeout: 120_000, maxWait: 30_000 },
+    424|       ),
+    425|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    426|   }, 180_000);
+    427| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 skipped (5)
+   Start at  02:34:17
+   Duration  40.05s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-34-16Z-integration-9a75.json
+
+# код выхода 1 · 41 с

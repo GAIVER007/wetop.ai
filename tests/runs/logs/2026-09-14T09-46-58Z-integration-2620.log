@@ -1,0 +1,22 @@
+# Интеграционные (integration) · 14.09.2026 14:46 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8fdabe6 (main), незакоммиченных файлов набора: 14
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-46-58Z-integration-2620.json' 'tests/integration/reservations-import.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (5 tests) 129612ms
+   ✓ importReservations (integration, DATABASE_URL required) (5)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 47763ms
+     ✓ проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется 25481ms
+     ✓ Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет 16616ms
+     ✓ ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет 20219ms
+     ✓ Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом 19518ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:46:59
+   Duration  131.87s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-46-58Z-integration-2620.json
+
+# код выхода 0 · 2 мин 12 с

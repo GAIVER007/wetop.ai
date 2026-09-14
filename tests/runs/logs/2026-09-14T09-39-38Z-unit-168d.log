@@ -1,0 +1,16 @@
+# Модульные (unit) · 14.09.2026 14:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 815813c (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-39-38Z-unit-168d.json' 'scripts/imports/src/exely/seat-plan.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| scripts/imports/src/exely/seat-plan.test.ts (19 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  02:39:39
+   Duration  115ms (transform 62%, tests 19%, import 16%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-39-38Z-unit-168d.json
+
+# код выхода 0 · 1 с

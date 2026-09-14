@@ -184,6 +184,27 @@ export function folioView(f: FolioRecord): FolioView {
   };
 }
 
+type StayExtra = 'EARLY_CHECK_IN' | 'LATE_CHECK_OUT';
+/** ADR-021: доплаты за соседнюю ночь. description — текст начисления и начало причины блока этой ночи */
+const STAY_EXTRAS: Record<
+  StayExtra,
+  { description: string; date: (st: FolioRecord['stay']) => string }
+> = {
+  EARLY_CHECK_IN: { description: 'Ранний заезд', date: (st) => st.arrivalDate },
+  LATE_CHECK_OUT: { description: 'Поздний выезд', date: (st) => st.departureDate },
+};
+/** Причина блока соседней ночи; по ней же блок снимают отмена брони (releaseStayExtraBlocks) и сторно (Б7) */
+const stayExtraBlockReason = (description: string, confirmationNumber: string) =>
+  `${description}, бронь ${confirmationNumber}`;
+/** Начисление — доплата за соседнюю ночь? Ручная услуга с тем же текстом тоже SERVICE, но блока у неё нет */
+function stayExtraByDescription(c: { kind: string; description: string }): StayExtra | null {
+  if (c.kind !== 'SERVICE') return null;
+  const hit = (Object.keys(STAY_EXTRAS) as StayExtra[]).find(
+    (k) => STAY_EXTRAS[k].description === c.description,
+  );
+  return hit ?? null;
+}
+
 /**
  * Счета гостя (DATA_MODEL §6, ADR-014): счёт на проживание, начисление «проживание» ведёт система,
  * услуги / штрафы / корректировки — стойка; платёж распределяется по счетам полностью;
@@ -371,17 +392,7 @@ export class FinanceService {
     folioId: string,
     dto: { extra?: string; unitPrice?: string | number; time?: string },
   ): Promise<ReservationFinanceView> {
-    const EXTRAS = {
-      EARLY_CHECK_IN: {
-        description: 'Ранний заезд',
-        date: (st: FolioRecord['stay']) => st.arrivalDate,
-      },
-      LATE_CHECK_OUT: {
-        description: 'Поздний выезд',
-        date: (st: FolioRecord['stay']) => st.departureDate,
-      },
-    } as const;
-    const spec = EXTRAS[dto.extra as keyof typeof EXTRAS];
+    const spec = STAY_EXTRAS[dto.extra as StayExtra];
     if (!spec) throw new BadRequestException('extra — EARLY_CHECK_IN или LATE_CHECK_OUT');
     const folio = await this.openFolio(folioId);
     const nights = Math.round(
@@ -427,7 +438,7 @@ export class FinanceService {
           dateFrom: night.from,
           dateTo: night.toExclusive,
           type: 'OTHER',
-          reason: `${spec.description}, бронь ${folio.confirmationNumber}`,
+          reason: stayExtraBlockReason(spec.description, folio.confirmationNumber),
         });
       } catch (e) {
         if (e instanceof ConflictException)
@@ -467,6 +478,21 @@ export class FinanceService {
         'Начисление за проживание ведёт система: измените даты или отмените проживание',
       );
     const folio = await this.openFolio(c.folioId);
+    // Б7: доплата за соседнюю ночь ставила блок на эту ночь — без него сторно оставило бы койку непродаваемой.
+    // Снимаем до сторно: не снялся — ничего не сторнировано, повтор безопасен.
+    const extra = stayExtraByDescription(c);
+    let releasedBlock: { unitCode: string; dateFrom: string } | null = null;
+    if (extra) {
+      const candidates = await this.repo.stayExtraBlocks(
+        stayExtraBlockReason(c.description, folio.confirmationNumber),
+      );
+      const night = adjacentNight(extra, folio.stay.arrivalDate, folio.stay.departureDate);
+      const block = candidates.find((b) => b.dateFrom === night.from) ?? candidates[0];
+      if (block) {
+        await this.units.unblock(block.unitCode, block.id);
+        releasedBlock = { unitCode: block.unitCode, dateFrom: block.dateFrom };
+      }
+    }
     await this.repo.voidCharge(chargeId);
     await this.repo.audit(
       'Folio',
@@ -477,6 +503,7 @@ export class FinanceService {
         kind: c.kind,
         description: c.description,
         amountMinor: s(c.amountMinor),
+        ...(extra ? { releasedBlock } : {}),
       },
       null,
     );

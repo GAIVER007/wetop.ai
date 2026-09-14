@@ -124,6 +124,12 @@ function makeFakes() {
       const c = await repo.chargeById(id);
       if (c) c.voidedAt = '2026-09-09T11:00:00.000Z';
     },
+    // блоки доплат за соседнюю ночь: причина «<услуга>, бронь <номер>» (как releaseStayExtraBlocks)
+    async stayExtraBlocks(reason) {
+      return blocks
+        .filter((b) => b.type === 'OTHER' && b.reason === reason)
+        .map((b) => ({ id: b.id, unitCode: b.code, dateFrom: b.dateFrom, dateTo: b.dateTo }));
+    },
     async createPayment(p) {
       const id = `p${++seq}`;
       payments.push({
@@ -187,6 +193,7 @@ function makeFakes() {
   };
   // ADR-021: блок соседней ночи ставится командой ячейки; фальшивка записывает блоки и умеет отказать
   const blocks: Array<{
+    id: string;
     code: string;
     dateFrom: string;
     dateTo: string;
@@ -201,12 +208,18 @@ function makeFakes() {
     ) {
       if (state.blockConflict) throw new ConflictException(state.blockConflict);
       blocks.push({
+        id: `blk-${blocks.length + 1}`,
         code,
         dateFrom: dto.dateFrom!,
         dateTo: dto.dateTo!,
         type: dto.type!,
         reason: dto.reason ?? null,
       });
+      return {} as never;
+    },
+    async unblock(code: string, blockId: string) {
+      const i = blocks.findIndex((b) => b.code === code && b.id === blockId);
+      if (i >= 0) blocks.splice(i, 1);
       return {} as never;
     },
   };
@@ -515,6 +528,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .expect(201);
     expect(fakes.blocks).toEqual([
       {
+        id: expect.any(String),
         code: '9001',
         dateFrom: '2026-10-03',
         dateTo: '2026-10-04',
@@ -562,5 +576,28 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(v.body.folios[0].balanceMinor).toBe('1200000');
     await request(app.getHttpServer()).post(`/finance/charges/${chargeId}/void`).expect(409);
     expect(fakes.audits).toEqual(['finance.charge', 'finance.charge.void']);
+  });
+
+  it('Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся', async () => {
+    fakes.blocks.length = 0;
+    const late = await request(app.getHttpServer())
+      .post('/finance/folios/f1/stay-extras')
+      .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
+      .expect(201);
+    expect(fakes.blocks).toHaveLength(1);
+    const chargeId: string = late.body.folios
+      .find((f: { id: string }) => f.id === 'f1')
+      .charges.find((c: { description: string }) => c.description === 'Поздний выезд').id;
+    // чужая блокировка той же койки (ремонт) остаётся — снимается только блок этой доплаты
+    fakes.blocks.push({
+      id: 'blk-repair',
+      code: '9001',
+      dateFrom: '2026-10-10',
+      dateTo: '2026-10-11',
+      type: 'OUT_OF_ORDER',
+      reason: 'ремонт',
+    });
+    await request(app.getHttpServer()).post(`/finance/charges/${chargeId}/void`).expect(200);
+    expect(fakes.blocks.map((b) => b.reason)).toEqual(['ремонт']);
   });
 });

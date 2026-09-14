@@ -135,6 +135,10 @@ export interface PeriodReport {
 export interface FinanceRepository {
   /** Ячейка проживания по счёту; null — ячейка не назначена */
   stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null>;
+  /** Блоки доплат за соседнюю ночь с этой причиной («<услуга>, бронь <номер>») — любые ячейки, новые первыми */
+  stayExtraBlocks(
+    reason: string,
+  ): Promise<Array<{ id: string; unitCode: string; dateFrom: string; dateTo: string }>>;
   /** null — брони с таким номером нет */
   foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null>;
   folioById(id: string): Promise<FolioRecord | null>;
@@ -261,6 +265,22 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     if (!r) return null;
     return r.items.flatMap((i) => (i.folio ? [toFolio(i.folio)] : []));
+  }
+  async stayExtraBlocks(
+    reason: string,
+  ): Promise<Array<{ id: string; unitCode: string; dateFrom: string; dateTo: string }>> {
+    const rows = await this.prisma.db.inventoryBlock.findMany({
+      where: { type: 'OTHER', reason },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, dateFrom: true, dateTo: true, inventoryUnit: { select: { code: true } } },
+    });
+    const iso = (x: Date) => x.toISOString().slice(0, 10);
+    return rows.map((b) => ({
+      id: b.id,
+      unitCode: b.inventoryUnit.code,
+      dateFrom: iso(b.dateFrom),
+      dateTo: iso(b.dateTo),
+    }));
   }
   async stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null> {
     const a = await this.prisma.db.allocation.findFirst({

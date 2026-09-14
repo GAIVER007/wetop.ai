@@ -496,3 +496,5 @@
 | 17.09.2026 01:07 | typecheck | ✅ без ошибок | 17 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-32Z-typecheck-a80a.log) | repo-sync --fix |
 | 16.09.2026 18:37 | unit | ❌ упало 1 из 974 | 1 мин 4 с | 5b6a9c7 +2 | [лог](logs/2026-09-16T13-37-07Z-unit-482a.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
 | 16.09.2026 18:40 | unit | ✅ 974 из 974 | 1 мин 4 с | 275cdc2 | [лог](logs/2026-09-16T13-40-59Z-unit-389d.log) |  |
+| 14.09.2026 16:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ❌ упало 1 из 25 | 50 с | f40cb76 +4 | [лог](logs/2026-09-14T11-32-23Z-e2e-bdd7.log) | wave 3: guest count capped by category capacity in new booking and rates forms — workspace UI regression |
+| 14.09.2026 16:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 25 из 25 | 1 мин 28 с | 73a5743 +5 | [лог](logs/2026-09-14T11-33-58Z-e2e-61b0.log) | wave 3: workspace UI after guest caps; check-in click on the visible button (hidden streaming copy) |

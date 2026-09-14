@@ -66,6 +66,8 @@ export default async function NewReservationPage({
         categories={summary.byCategory.map((c) => ({
           code: c.code,
           name: c.name,
+          // maxGuests категории — сумма вместимости единиц: гостей на одном месте = maxGuests / units
+          capacity: c.units > 0 ? Math.max(1, Math.ceil(c.maxGuests / c.units)) : 1,
           availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
         }))}
         ratePlans={ratePlans}

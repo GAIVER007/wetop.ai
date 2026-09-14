@@ -9,7 +9,13 @@ export function NewReservationForm(props: {
   canSubmit: boolean;
   arrival: string;
   departure: string;
-  categories: Array<{ code: string; name: string; availableUnitCodes: string[] }>;
+  categories: Array<{
+    code: string;
+    name: string;
+    /** гостей на одном месте категории */
+    capacity: number;
+    availableUnitCodes: string[];
+  }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(createReservationAction, {
@@ -146,7 +152,13 @@ function PlacementFields({
 }: {
   id: string;
   kept: Record<string, string>;
-  categories: Array<{ code: string; name: string; availableUnitCodes: string[] }>;
+  categories: Array<{
+    code: string;
+    name: string;
+    /** гостей на одном месте категории */
+    capacity: number;
+    availableUnitCodes: string[];
+  }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
   selectedUnit: string;
 }) {
@@ -192,7 +204,7 @@ function PlacementFields({
           type="number"
           name={field('adults')}
           min={1}
-          max={2}
+          max={categories.find((c) => c.code === category)?.capacity ?? 1}
           defaultValue={kept[field('adults')] ?? 1}
         />
       </Field>

@@ -28,7 +28,7 @@ import {
   assertCanExtend,
   hasCitizenship,
 } from '@pms/domain';
-import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
+import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
   AllocationOverlapError,
@@ -161,7 +161,7 @@ export class ReservationsService {
   private async publish(cards: Array<ReservationCard | null>): Promise<void> {
     const items = cards.flatMap((c) => c?.items ?? []);
     if (items.length === 0) return;
-    await this.publisher.reservationChanged({
+    await publishAfterCommit(this.publisher, {
       categoryCodes: [...new Set(items.map((i) => i.accommodationTypeCode))],
       from: items.reduce((m, i) => (i.arrivalDate < m ? i.arrivalDate : m), items[0]!.arrivalDate),
       toExclusive: items.reduce(
@@ -824,7 +824,7 @@ export class ReservationsService {
   /** Дельта в каналы после переселения между категориями: освободилась старая, занялась новая. */
   private async publishMove(card: ReservationCard, fromCategory: string | null): Promise<void> {
     if (!fromCategory) return;
-    await this.publisher.reservationChanged({
+    await publishAfterCommit(this.publisher, {
       categoryCodes: [
         ...new Set([fromCategory, ...card.items.map((i) => i.accommodationTypeCode)]),
       ],
@@ -1032,7 +1032,7 @@ export class ReservationsService {
     released: Array<{ categoryCode: string; from: string; toExclusive: string }>,
   ): Promise<void> {
     for (const b of released)
-      await this.publisher.reservationChanged({
+      await publishAfterCommit(this.publisher, {
         categoryCodes: [b.categoryCode],
         from: b.from,
         toExclusive: b.toExclusive,

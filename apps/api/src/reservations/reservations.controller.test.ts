@@ -389,6 +389,8 @@ const body = (over: Record<string, unknown> = {}) => ({
 describe('manual reservation API', () => {
   // GET /rate-plans проверяется в конце файла
   const published: unknown[] = [];
+  /** Б6: очередь каналов не принимает дельту (сбой базы после коммита команды) */
+  let publishFails = false;
   let app: INestApplication;
   let fake: ReturnType<typeof makeFake>;
   beforeEach(() => {
@@ -421,7 +423,10 @@ describe('manual reservation API', () => {
       .overrideProvider(ARI_PUBLISHER)
       .useFactory({
         factory: (): AriPublisher => ({
-          reservationChanged: async (c) => void published.push(c),
+          reservationChanged: async (c) => {
+            if (publishFails) throw new Error('channel_outbox insert failed');
+            published.push(c);
+          },
           ratesChanged: async () => {},
         }),
       })
@@ -458,6 +463,17 @@ describe('manual reservation API', () => {
     expect(res.status).toBe(409);
     expect(res.body.message).toMatch(/мест нет|свободно только/);
     fake.state.categoryAvailabilityOverride = null;
+  });
+
+  it('Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль', async () => {
+    publishFails = true;
+    try {
+      const res = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+      expect(res.body.status).toBe('CONFIRMED');
+      expect(res.body.items[0].unitCode).toBe('9001');
+    } finally {
+      publishFails = false;
+    }
   });
 
   it('POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit', async () => {

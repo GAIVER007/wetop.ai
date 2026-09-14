@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
+import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import {
   UNITS_REPOSITORY,
   type BlockType,
@@ -81,7 +81,7 @@ export class UnitsService {
     });
     const after = await this.card(code);
     await this.repo.audit(unit.id, 'unit.block', before?.blocks ?? [], { blockId: id, ...dto });
-    await this.publisher.reservationChanged({
+    await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],
       from: dto.dateFrom!,
       toExclusive: dto.dateTo!,
@@ -98,7 +98,7 @@ export class UnitsService {
       throw new NotFoundException(`Блокировка ${blockId} не найдена у ячейки ${code}`);
     await this.repo.deleteBlock(blockId);
     await this.repo.audit(unit.id, 'unit.unblock', b, null);
-    await this.publisher.reservationChanged({
+    await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],
       from: b.dateFrom,
       toExclusive: b.dateTo,

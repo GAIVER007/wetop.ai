@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { categoryAvailability } from '@pms/domain';
 import type { channex } from '@pms/integrations';
 import { compressRuns } from './ari';
@@ -41,6 +41,25 @@ export interface LocalRateChange {
   closedToDeparture?: boolean;
 }
 export const ARI_PUBLISHER = Symbol('ARI_PUBLISHER');
+
+/**
+ * Дельта доступности после коммита команды (бронь, переселение, блокировка). Не роняет команду: запись уже в
+ * базе, а ответ 500 заставил бы администратора повторить и создать дубль (Б6). Остаток поправят следующая
+ * дельта этой категории и ночная полная выгрузка; сбой пишется в журнал API.
+ */
+export async function publishAfterCommit(
+  publisher: AriPublisher,
+  change: { categoryCodes: string[]; from: string; toExclusive: string },
+): Promise<void> {
+  try {
+    await publisher.reservationChanged(change);
+  } catch (e) {
+    new Logger('AriPublisher').error(
+      `Дельта доступности не встала в очередь после записи команды (${change.categoryCodes.join(', ')} ` +
+        `${change.from} → ${change.toExclusive}): ${e instanceof Error ? e.message : String(e)}`,
+    );
+  }
+}
 
 /** Поля адреса значения ARI: значение только из них ничего в Channex не меняет */
 const ADDRESS_KEYS = new Set(['property_id', 'rate_plan_id', 'date_from', 'date_to', 'days']);

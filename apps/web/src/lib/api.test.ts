@@ -49,6 +49,21 @@ it('test opt-in добавляет явный заголовок, пустые �
   );
 });
 
+it('ответ 5xx на команду предупреждает, что операция могла записаться, и просит проверить перед повтором (Б6)', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response('{"statusCode":500,"message":"Internal server error"}', { status: 500 }),
+      ),
+  );
+  const error = await reservationsApi.create({}).catch((e: unknown) => e);
+  expect(error).toMatchObject({ status: 500 });
+  expect((error as Error).message).toContain('Проверьте результат');
+  expect((error as Error).message).not.toContain('Internal server error');
+});
+
 it('сетевой отказ не превращается в нулевые показатели и не повторяет команду', async () => {
   const fetch = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
   vi.stubGlobal('fetch', fetch);

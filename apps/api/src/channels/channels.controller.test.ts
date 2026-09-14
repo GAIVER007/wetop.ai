@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { channex } from '@pms/integrations';
 import {
   CHESSBOARD_REPOSITORY,
@@ -20,6 +20,7 @@ import {
 
 /** Фальшивки: локальный объект с 2 категориями, тариф ОТА, цены на 3 дня; Channex отвечает ID по счётчику. */
 function makeFakes() {
+  const state = { hangListWebhooks: false };
   const calls: Array<{ op: string; body: unknown }> = [];
   let n = 0;
   let mi = 0;
@@ -56,6 +57,8 @@ function makeFakes() {
     },
     async ackBookingRevision() {},
     async listWebhooks() {
+      // Channex не отвечает: запрос висит (повторы клиента и пауза на 429 до минуты)
+      if (state.hangListWebhooks) return new Promise<never>(() => {});
       return webhooks;
     },
     async createWebhook(input) {
@@ -331,7 +334,7 @@ function makeFakes() {
       return null;
     },
   };
-  return { gateway, repo, board, calls, mappings, audits, outbox, today, d, webhooks };
+  return { gateway, repo, board, calls, mappings, audits, outbox, today, d, webhooks, state };
 }
 
 describe('Channex setup and full sync (contract on fakes)', () => {
@@ -611,5 +614,19 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     expect(fakes.audits.filter((a) => a === 'channels.webhook.register')).toHaveLength(3);
     delete process.env.PUBLIC_API_URL;
     delete process.env.CHANNEX_WEBHOOK_SECRET;
+  });
+  it('webhook/status: Channex молчит — 504 за отведённое время, а не минута ожидания страницы «Подключения»', async () => {
+    vi.stubEnv('CHANNEX_STATUS_TIMEOUT_MS', '50');
+    fakes.state.hangListWebhooks = true;
+    try {
+      await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
+      const started = Date.now();
+      const res = await request(app.getHttpServer()).get('/channels/channex/webhook/status');
+      expect(res.status).toBe(504);
+      expect(Date.now() - started).toBeLessThan(5_000);
+    } finally {
+      fakes.state.hangListWebhooks = false;
+      vi.unstubAllEnvs();
+    }
   });
 });

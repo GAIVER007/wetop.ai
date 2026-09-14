@@ -57,6 +57,15 @@ describe('Channex read-only connection check', () => {
     });
     expect(r).not.toHaveProperty('attributes');
   });
+  it('«Последний импорт» — последнее событие, пришедшее опросом ленты (CHANNEX_PULL в журнале никто не пишет)', async () => {
+    const c = context();
+    const pulled = new Date('2026-09-14T08:05:00Z');
+    c.repo.lastEventAt.mockImplementation(async (_p: string, via: string) =>
+      via === 'PULL' ? pulled : null,
+    );
+    const r = await c.service.status();
+    expect(r.lastPullAt).toBe('2026-09-14T08:05:00.000Z');
+  });
   it('flags a mismatched configured property without making provider calls', async () => {
     const c = context();
     vi.stubEnv('CHANNEX_PROPERTY_ID', 'different-property');

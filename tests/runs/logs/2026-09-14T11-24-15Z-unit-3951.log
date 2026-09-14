@@ -1,0 +1,55 @@
+# Модульные (unit) · 14.09.2026 16:24 Алматы · Noutbuk-Vyacheslav.local
+# коммит d9a97e7 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-24-15Z-unit-3951.json' 'apps/api/src/channels/channels.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/channels/channels.controller.test.ts (6 tests | 1 failed) 15147ms
+   ❯ Channex setup and full sync (contract on fakes) (6)
+     ✓ setup creates property, room types and one rate plan per category, saves mapping; second run creates nothing 17ms
+     ✓ sync sends availability and restrictions as two calls with compressed ranges 2ms
+     ✓ availability/changed (ADR-032): only the named categories and nights go to the outbox as one AVAILABILITY delta; bad input → 400 12ms
+     ✓ sync without mapping → 422; setup with an unknown tariff → 422 1ms
+     ✓ webhook (webhook-collection.md): register needs the secret, an https address and the Channex property; creates once, then updates; status and test 7ms
+     × webhook/status: Channex молчит — 504 за отведённое время, а не минута ожидания страницы «Подключения» 5006ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/channels.controller.test.ts > Channex setup and full sync (contract on fakes)
+Error: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".
+ ❯ apps/api/src/channels/channels.controller.test.ts:378:3
+    376|     await app.init();
+    377|   });
+    378|   afterAll(async () => {
+       |   ^
+    379|     await app.close();
+    380|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/channels.controller.test.ts > Channex setup and full sync (contract on fakes) > webhook/status: Channex молчит — 504 за отведённое время, а не минута ожидания страницы «Подключения»
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/api/src/channels/channels.controller.test.ts:618:3
+    616|     delete process.env.CHANNEX_WEBHOOK_SECRET;
+    617|   });
+    618|   it('webhook/status: Channex молчит — 504 за отведённое время, а не м…
+       |   ^
+    619|     vi.stubEnv('CHANNEX_STATUS_TIMEOUT_MS', '50');
+    620|     fakes.state.hangListWebhooks = true;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  04:24:16
+   Duration  15.84s (tests 96%, import 2%, transform 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-24-15Z-unit-3951.json
+
+# код выхода 1 · 16 с

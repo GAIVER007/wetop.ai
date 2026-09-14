@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  GatewayTimeoutException,
   Get,
   Headers,
   HttpCode,
@@ -18,6 +19,15 @@ import { ChannexSyncService } from './sync.service';
 import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
+
+/** Ответ или отказ за отведённое время: запрос к провайдеру идёт дальше, но страница его не ждёт */
+function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new GatewayTimeoutException(message)), ms);
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
 @Controller('channels/channex')
@@ -99,8 +109,13 @@ export class ChannelsController {
   /** Webhook в Channex: что зарегистрировано; регистрация/обновление; пробный вызов (webhook-collection.md). */
   @Get('webhook/status')
   async webhookStatus() {
-    // Регистрация в Channex + сторож: когда webhook доставлял последний раз и не под подозрением ли он
-    const status = await this.sync.webhookStatus();
+    // Регистрация в Channex + сторож: когда webhook доставлял последний раз и не под подозрением ли он.
+    // Клиент Channex повторяет запросы и ждёт до минуты на 429 — экран диагностики столько не ждёт (504)
+    const status = await within(
+      this.sync.webhookStatus(),
+      Number(process.env.CHANNEX_STATUS_TIMEOUT_MS ?? 10_000),
+      'Channex не ответил на запрос webhook вовремя — повторите проверку позже',
+    );
     const health = this.health.snapshot();
     return {
       ...status,

@@ -1,0 +1,49 @@
+# Модульные (unit) · 14.09.2026 16:22 Алматы · Noutbuk-Vyacheslav.local
+# коммит d9a97e7 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-22-59Z-unit-5e3a.json' 'apps/api/src/channels/connection.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/channels/connection.test.ts (10 tests | 1 failed) 6ms
+   ❯ Channex read-only connection check (10)
+     ✓ does not claim a connection without credentials 1ms
+     ✓ requires a mapped property and never creates one during a read 0ms
+     ✓ checks the mapped property and returns only operational fields 1ms
+     × «Последний импорт» — последнее событие, пришедшее опросом ленты (CHANNEX_PULL в журнале никто не пишет) 2ms
+     ✓ flags a mismatched configured property without making provider calls 0ms
+     ✓ provider HTTP 401 is DENIED, never connected 0ms
+     ✓ provider HTTP 403 is DENIED, never connected 0ms
+     ✓ provider HTTP 404 is NOT_FOUND, never connected 0ms
+     ✓ provider HTTP 429 is RATE_LIMITED, never connected 0ms
+     ✓ provider HTTP 503 is UNREACHABLE, never connected 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/connection.test.ts > Channex read-only connection check > «Последний импорт» — последнее событие, пришедшее опросом ленты (CHANNEX_PULL в журнале никто не пишет)
+AssertionError: expected null to be '2026-09-14T08:05:00.000Z' // Object.is equality
+
+- Expected:
+"2026-09-14T08:05:00.000Z"
+
++ Received:
+null
+
+ ❯ apps/api/src/channels/connection.test.ts:67:26
+     65|     );
+     66|     const r = await c.service.status();
+     67|     expect(r.lastPullAt).toBe('2026-09-14T08:05:00.000Z');
+       |                          ^
+     68|   });
+     69|   it('flags a mismatched configured property without making provider c…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  04:22:59
+   Duration  434ms (import 50%, transform 48%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-22-59Z-unit-5e3a.json
+
+# код выхода 1 · 1 с

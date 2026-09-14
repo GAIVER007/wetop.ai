@@ -29,7 +29,7 @@ export class ChannelConnectionService {
     const [mapping, lastWebhookAt, lastPullAt] = await Promise.all([
       this.repo.mappings(PROVIDER),
       this.repo.lastEventAt(PROVIDER, 'WEBHOOK'),
-      this.repo.lastAuditAt('CHANNEX_PULL'),
+      this.repo.lastEventAt(PROVIDER, 'PULL'),
     ]);
     const base = process.env.CHANNEX_API_BASE_URL?.trim() || channex.CHANNEX_STAGING_URL;
     let host = '';

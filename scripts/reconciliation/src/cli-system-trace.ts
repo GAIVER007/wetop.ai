@@ -565,8 +565,8 @@ try {
   else if (exelyDayBad.length)
     warnings.push(`сутки Exely ↔ Supabase расходятся при бронях «в пути» (${pending.length}) — следующий прогон синхронизации их заберёт`);
   for (const s of reseated)
-    warnings.push(`не на ячейке из Exely — место из Exely занято другой бронью (переезд внутри срока, Q-120): ${s}`);
-  for (const s of unseated) warnings.push(`без ячейки — место из Exely занято, свободной в категории нет (Q-119/Q-120): ${s}`);
+    warnings.push(`не на ячейке из Exely — место занято другой бронью, или бронь ещё не попала в пачку синхронизации: ${s}`);
+  for (const s of unseated) warnings.push(`без ячейки — место из Exely занято, свободной ячейки и пары с переездом в категории нет (Q-119): ${s}`);
 
   const fromExely = dayRowsItems.filter((it) => it.exelyRoomStayId && it.reservation.notes !== E2E_NOTE);
   const pmsOnly = dayRowsItems.filter((it) => !it.exelyRoomStayId && it.reservation.notes !== E2E_NOTE);

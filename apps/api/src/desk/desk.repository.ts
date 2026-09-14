@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { memoPropertyId } from '../database/property-id';
 
 export interface DeskStay {
   itemId: string;
@@ -39,11 +40,15 @@ export class PrismaDeskRepository implements DeskRepository {
    * Все проживания, которые касаются суток: заезд в этот день, выезд в этот день или гость живёт.
    * Отменённые и незаезды не показываем — стойке они в работе дня не нужны.
    */
-  async stays(date: string): Promise<DeskStay[]> {
-    const property = await this.prisma.db.property.findFirstOrThrow({
+  private readonly propertyId = memoPropertyId(() =>
+    this.prisma.db.property.findFirstOrThrow({
       where: { name: this.propertyName },
       select: { id: true },
-    });
+    }),
+  );
+
+  async stays(date: string): Promise<DeskStay[]> {
+    const property = { id: await this.propertyId() };
     const d = asDate(date);
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {

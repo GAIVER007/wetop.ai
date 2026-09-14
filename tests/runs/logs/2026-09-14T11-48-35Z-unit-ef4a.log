@@ -1,0 +1,29 @@
+# Модульные (unit) · 14.09.2026 16:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит ebb286a (main), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-48-35Z-unit-ef4a.json' 'apps/api/src/database/property-id.test.ts' 'apps/api/src/chessboard' 'apps/api/src/finance' 'apps/api/src/desk' 'apps/api/src/rates'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/database/property-id.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 158ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 175ms
+[Nest] 43995  - 09/14/2026, 4:48:37 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.controller.test.ts:251:13)
+    at /Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.service.ts:183:28
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.service.ts:174:20)
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests) 87ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 124ms
+
+ Test Files  6 passed (6)
+      Tests  35 passed (35)
+   Start at  04:48:36
+   Duration  983ms (import 49%, transform 34%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-48-35Z-unit-ef4a.json
+
+# код выхода 0 · 2 с

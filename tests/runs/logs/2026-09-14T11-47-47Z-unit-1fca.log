@@ -1,0 +1,30 @@
+# Модульные (unit) · 14.09.2026 16:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит ebb286a (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-47-47Z-unit-1fca.json' 'apps/api/src/database/property-id.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/database/property-id.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/database/property-id.test.ts [ apps/api/src/database/property-id.test.ts ]
+Error: Cannot find module './property-id' imported from /Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/database/property-id.test.ts
+ ❯ apps/api/src/database/property-id.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { memoPropertyId } from './property-id';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  04:47:47
+   Duration  82ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-47-47Z-unit-1fca.json
+
+# код выхода 1 · 1 с

@@ -17,7 +17,14 @@ import {
 } from './channels.repository';
 
 export interface FlushResult {
-  sent: Array<{ kind: OutboxKind; rows: number; values: number; taskId: string | null }>;
+  sent: Array<{
+    kind: OutboxKind;
+    rows: number;
+    values: number;
+    taskId: string | null;
+    /** Сколько значений Channex отклонил предупреждением в ответе 200; поля нет, если ни одного */
+    warnings?: number;
+  }>;
   skipped: Array<{ kind: OutboxKind; reason: string }>;
   errors: Array<{ kind: OutboxKind; error: string; retryAt: string }>;
 }
@@ -82,12 +89,25 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
               ? await this.gateway.updateAvailability(values as never)
               : await this.gateway.updateRestrictions(values as never);
           const taskId = res.data[0]?.id ?? null;
+          // ari.md «Warning Notifications»: неверные значения Channex выбрасывает и отвечает 200 — не молчать (Б4)
+          const warnings = Array.isArray(res.meta?.warnings) ? res.meta.warnings : [];
+          const warning = warnings.length
+            ? `Channex отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`
+            : null;
+          if (warning) new Logger(OutboxWorker.name).error(warning.slice(0, 2000));
           await this.repo.markOutboxSent(
             rows.map((r) => r.id),
             taskId,
+            warning,
           );
           this.lastSentAt[kind] = this.now();
-          result.sent.push({ kind, rows: rows.length, values: values.length, taskId });
+          result.sent.push({
+            kind,
+            rows: rows.length,
+            values: values.length,
+            taskId,
+            ...(warnings.length ? { warnings: warnings.length } : {}),
+          });
         } catch (e) {
           const attempts = Math.max(...rows.map((r) => r.attempts)) + 1;
           const retryAt = new Date(this.now() + backoffMs(attempts));

@@ -7,7 +7,12 @@ import { ARI_PUBLISHER, type AriPublisher, type LocalRateChange } from '../chann
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { RatesModule } from './rates.module';
-import { RATES_REPOSITORY, expandDates, type RatesRepository } from './rates.repository';
+import {
+  RATES_REPOSITORY,
+  expandDates,
+  type RateRowCounts,
+  type RatesRepository,
+} from './rates.repository';
 
 function makeFakes() {
   const applied: unknown[] = [];
@@ -34,9 +39,15 @@ function makeFakes() {
         closedToDeparture: false,
       }));
     },
-    async applyChanges(changes) {
+    // Как настоящая транзакция: хук внутри неё (журнал, очередь каналов) упал — ничего не записано
+    async applyChanges(
+      changes,
+      inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+    ) {
+      const counts = { rateRows: changes.length, restrictionRows: 0 };
+      if (inTransaction) await inTransaction({ fakeTx: true }, counts);
       applied.push(...changes);
-      return { rateRows: changes.length, restrictionRows: 0 };
+      return counts;
     },
     async audit(action) {
       audits.push(action);
@@ -146,6 +157,7 @@ describe('rates API', () => {
         dateFrom: '2026-11-21',
         dateTo: '2026-11-21',
         priceMinor: 33300n,
+        primaryOccupancy: 1,
       },
       {
         accommodationTypeCode: 'exely-900002',
@@ -154,6 +166,7 @@ describe('rates API', () => {
         dateTo: '2026-11-10',
         days: ['mo', 'tu'],
         priceMinor: 45623n,
+        primaryOccupancy: 2,
         minStay: 3,
         closedToArrival: true,
       },
@@ -193,5 +206,54 @@ describe('rates API', () => {
       .send({ changes: [{ ...base, price: '1e3' }] })
       .expect(400);
     expect(fakes.published).toHaveLength(0);
+  });
+
+  const one = {
+    accommodationTypeCode: 'exely-900002',
+    ratePlanCode: 'exely-800002',
+    dateFrom: '2026-11-01',
+    dateTo: '2026-11-02',
+  };
+
+  it('rejects a zero price with 400: channels refuse it (Channex «rate must be greater than 0»)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...one, price: '0' }] })
+      .expect(400);
+    expect(res.body.message).toContain('больше нуля');
+    expect(fakes.applied).toHaveLength(0);
+    expect(fakes.published).toHaveLength(0);
+  });
+
+  it('min stay 0 and max stay 0 mean «no restriction»: stored and published as null, never as 0', async () => {
+    await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...one, minStay: 0, maxStay: 0 }] })
+      .expect(201);
+    expect(fakes.applied[0]).toMatchObject({ minStay: null, maxStay: null });
+    expect(fakes.published[0]![0]).toMatchObject({ minStay: null, maxStay: null });
+  });
+
+  it('a price for fewer guests carries its occupancy and the category capacity to the channel publisher', async () => {
+    await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...one, price: '5000', occupancy: 1 }] })
+      .expect(201);
+    expect(fakes.published[0]![0]).toMatchObject({
+      priceMinor: 500000n,
+      occupancy: 1,
+      primaryOccupancy: 2,
+    });
+  });
+
+  it('prices, audit and the channel batch are one transaction: if queueing for channels fails, prices are not saved', async () => {
+    fakes.publisher.ratesChanged = async () => {
+      throw new Error('channel_outbox insert failed');
+    };
+    const res = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...one, price: '5000' }] });
+    expect(res.status).toBeGreaterThanOrEqual(500);
+    expect(fakes.applied).toHaveLength(0);
   });
 });

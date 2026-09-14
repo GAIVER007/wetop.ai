@@ -117,8 +117,12 @@ export class RatesService {
         dateTo: c.dateTo!,
         ...(days.length ? { days: days as RateChange['days'] } : {}),
       };
-      if (c.price !== undefined && c.price !== null && c.price !== '')
+      if (c.price !== undefined && c.price !== null && c.price !== '') {
         change.priceMinor = majorToMinor(c.price);
+        // Channex отклоняет нулевую цену предупреждением в ответе 200, а в PMS она сделала бы проживание бесплатным
+        if (change.priceMinor === 0n)
+          throw new BadRequestException(`${where}: цена должна быть больше нуля`);
+      }
       if (c.occupancy) {
         if (!Number.isInteger(c.occupancy) || c.occupancy < 1 || c.occupancy > type.capacityAdults)
           throw new BadRequestException(`${where}: occupancy 1…${type.capacityAdults}`);
@@ -129,7 +133,8 @@ export class RatesService {
         if (v === undefined) continue;
         if (v !== null && (!Number.isInteger(v) || v < 0))
           throw new BadRequestException(`${where}: ${k} — целое ≥ 0 или null`);
-        change[k] = v;
+        // 0 — «снять ограничение»: хранится как пусто, иначе в базе остаётся строка-ограничение, а Channex получает 0
+        change[k] = v === 0 ? null : v;
       }
       for (const k of ['stopSell', 'closedToArrival', 'closedToDeparture'] as const) {
         const v = c[k];
@@ -146,25 +151,37 @@ export class RatesService {
         throw new BadRequestException(`${where}: нечего менять — укажите цену или ограничение`);
       prepared.push(change);
     }
-    const result = await this.repo.applyChanges(prepared);
-    await this.repo.audit('rates.bulk', {
-      changes: prepared.map((p) => ({ ...p, priceMinor: p.priceMinor?.toString() })),
-      ...result,
-    });
     const local: LocalRateChange[] = prepared.map((p) => ({
       accommodationTypeCode: p.accommodationTypeCode,
       ratePlanCode: p.ratePlanCode,
       dateFrom: p.dateFrom,
       dateTo: p.dateTo,
       ...(p.days ? { days: p.days } : {}),
-      ...(p.priceMinor !== undefined ? { priceMinor: p.priceMinor } : {}),
+      ...(p.priceMinor !== undefined
+        ? {
+            priceMinor: p.priceMinor,
+            ...(p.occupancy !== undefined ? { occupancy: p.occupancy } : {}),
+            primaryOccupancy: p.capacityAdults,
+          }
+        : {}),
       ...(p.minStay !== undefined ? { minStay: p.minStay } : {}),
       ...(p.maxStay !== undefined ? { maxStay: p.maxStay } : {}),
       ...(p.stopSell !== undefined ? { stopSell: p.stopSell } : {}),
       ...(p.closedToArrival !== undefined ? { closedToArrival: p.closedToArrival } : {}),
       ...(p.closedToDeparture !== undefined ? { closedToDeparture: p.closedToDeparture } : {}),
     }));
-    await this.publisher.ratesChanged(local);
+    // Цены, журнал и очередь каналов — одна транзакция: не бывает «цены сохранены, а в каналы не ушли» (Б5)
+    const result = await this.repo.applyChanges(prepared, async (tx, counts) => {
+      await this.repo.audit(
+        'rates.bulk',
+        {
+          changes: prepared.map((p) => ({ ...p, priceMinor: p.priceMinor?.toString() })),
+          ...counts,
+        },
+        tx,
+      );
+      await this.publisher.ratesChanged(local, tx);
+    });
     return { applied: prepared.length, ...result };
   }
 

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
+import type { DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { mergeRestrictions } from './restriction-merge';
@@ -41,13 +42,22 @@ export interface RatesRepository {
     from: string,
     to: string,
   ): Promise<RateCalendarDay[]>;
-  /** Применить изменения одной транзакцией; вернуть число затронутых дат */
+  /**
+   * Применить изменения одной транзакцией; вернуть число затронутых строк. `inTransaction` выполняется в той же
+   * транзакции после записи цен (журнал, очередь каналов): упал — не записано ничего (Б5).
+   */
   applyChanges(
     changes: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
     >,
-  ): Promise<{ rateRows: number; restrictionRows: number }>;
-  audit(action: string, after: unknown): Promise<void>;
+    inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+  ): Promise<RateRowCounts>;
+  /** `tx` — транзакция из `inTransaction`; без неё запись идёт отдельно */
+  audit(action: string, after: unknown, tx?: unknown): Promise<void>;
+}
+export interface RateRowCounts {
+  rateRows: number;
+  restrictionRows: number;
 }
 export const RATES_REPOSITORY = Symbol('RATES_REPOSITORY');
 
@@ -126,7 +136,8 @@ export class PrismaRatesRepository implements RatesRepository {
     changes: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
     >,
-  ) {
+    inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+  ): Promise<RateRowCounts> {
     return this.prisma.db.$transaction(
       async (tx) => {
         let rateRows = 0;
@@ -179,13 +190,16 @@ export class PrismaRatesRepository implements RatesRepository {
             }
           }
         }
-        return { rateRows, restrictionRows };
+        const counts = { rateRows, restrictionRows };
+        if (inTransaction) await inTransaction(tx, counts);
+        return counts;
       },
       { timeout: 120_000, maxWait: 10_000 },
     );
   }
-  async audit(action: string, after: unknown): Promise<void> {
-    await this.prisma.db.auditLog.create({
+  async audit(action: string, after: unknown, tx?: unknown): Promise<void> {
+    const db = (tx as DbTx | undefined) ?? this.prisma.db;
+    await db.auditLog.create({
       data: {
         entityType: 'Property',
         entityId: await this.propertyId(),

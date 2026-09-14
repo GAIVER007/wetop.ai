@@ -17,8 +17,10 @@ function makeRepo(rows: Row[] = []) {
         (r) => r.kind === kind && r.status === 'PENDING' && r.nextAttemptAt <= now,
       );
     },
-    async markOutboxSent(ids: string[], taskId: string | null) {
-      for (const r of rows) if (ids.includes(r.id)) Object.assign(r, { status: 'SENT', taskId });
+    async markOutboxSent(ids: string[], taskId: string | null, warning?: string | null) {
+      for (const r of rows)
+        if (ids.includes(r.id))
+          Object.assign(r, { status: 'SENT', taskId, ...(warning ? { lastError: warning } : {}) });
     },
     async markOutboxRetry(ids: string[], error: string, next: Date, failed: boolean) {
       for (const r of rows)
@@ -102,20 +104,20 @@ function makeRepo(rows: Row[] = []) {
   } as unknown as ChannelsRepository;
   return { repo, rows };
 }
-function makeGateway(fail: () => Error | null = () => null) {
+function makeGateway(fail: () => Error | null = () => null, warnings: unknown[] = []) {
   const calls: Array<{ op: string; values: unknown[] }> = [];
   const gateway = {
     async updateAvailability(values: unknown[]) {
       const e = fail();
       if (e) throw e;
       calls.push({ op: 'availability', values });
-      return { data: [{ id: `task-a${calls.length}`, type: 'task' }], meta: { warnings: [] } };
+      return { data: [{ id: `task-a${calls.length}`, type: 'task' }], meta: { warnings } };
     },
     async updateRestrictions(values: unknown[]) {
       const e = fail();
       if (e) throw e;
       calls.push({ op: 'restrictions', values });
-      return { data: [{ id: `task-r${calls.length}`, type: 'task' }], meta: { warnings: [] } };
+      return { data: [{ id: `task-r${calls.length}`, type: 'task' }], meta: { warnings } };
     },
   } as unknown as ChannexGateway;
   return { gateway, calls };
@@ -214,6 +216,77 @@ describe('OutboxAriPublisher', () => {
       },
     ]);
   });
+  it('ratesChanged: a price set for fewer guests than the category holds is not sent as the room rate (the nightly full sync sends the capacity price)', async () => {
+    const { repo, rows } = makeRepo();
+    const pub = new OutboxAriPublisher(repo);
+    const base = {
+      accommodationTypeCode: 'exely-900001',
+      ratePlanCode: 'exely-800002',
+      primaryOccupancy: 2,
+    };
+    await pub.ratesChanged([
+      { ...base, dateFrom: '2026-11-22', dateTo: '2026-11-22', priceMinor: 500_000n, occupancy: 1 },
+      { ...base, dateFrom: '2026-11-23', dateTo: '2026-11-23', priceMinor: 900_000n, occupancy: 2 },
+      { ...base, dateFrom: '2026-11-24', dateTo: '2026-11-24', priceMinor: 800_000n },
+      {
+        ...base,
+        dateFrom: '2026-11-25',
+        dateTo: '2026-11-25',
+        priceMinor: 400_000n,
+        occupancy: 1,
+        stopSell: true,
+      },
+    ]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.payload).toEqual([
+      {
+        property_id: 'P',
+        rate_plan_id: 'RP1',
+        date_from: '2026-11-23',
+        date_to: '2026-11-23',
+        rate: 900000,
+      },
+      {
+        property_id: 'P',
+        rate_plan_id: 'RP1',
+        date_from: '2026-11-24',
+        date_to: '2026-11-24',
+        rate: 800000,
+      },
+      {
+        property_id: 'P',
+        rate_plan_id: 'RP1',
+        date_from: '2026-11-25',
+        date_to: '2026-11-25',
+        stop_sell: true,
+      },
+    ]);
+  });
+  it('ratesChanged: min stay "no restriction" goes to Channex as 1, never 0 (Channex: must be greater than or equal to 1)', async () => {
+    const { repo, rows } = makeRepo();
+    const pub = new OutboxAriPublisher(repo);
+    await pub.ratesChanged([
+      {
+        accommodationTypeCode: 'exely-900001',
+        ratePlanCode: 'exely-800002',
+        dateFrom: '2026-11-22',
+        dateTo: '2026-11-22',
+        minStay: 0,
+        maxStay: null,
+      },
+    ]);
+    expect(rows[0]!.payload).toEqual([
+      {
+        property_id: 'P',
+        rate_plan_id: 'RP1',
+        date_from: '2026-11-22',
+        date_to: '2026-11-22',
+        min_stay_arrival: 1,
+        min_stay_through: 1,
+        max_stay: 0,
+      },
+    ]);
+  });
 });
 
 describe('OutboxWorker', () => {
@@ -284,6 +357,22 @@ describe('OutboxWorker', () => {
       await w.flush(true);
     }
     expect(rows[0]).toMatchObject({ status: 'FAILED', attempts: 6 });
+  });
+  it('Channex warnings inside a 200 response (rejected values) are kept on the sent rows and reported, not swallowed', async () => {
+    const { repo, rows } = makeRepo([pending('o1', 'RESTRICTIONS', [{ rate_plan_id: 'RP1' }])]);
+    const warning = {
+      rate_plan_id: 'RP1',
+      date_from: '2026-11-22',
+      date_to: '2026-11-22',
+      rate: '0',
+      warning: { rate: ['must be greater than 0'] },
+    };
+    const { gateway } = makeGateway(() => null, [warning]);
+    const w = new OutboxWorker(gateway, repo);
+    const res = await w.flush(true);
+    expect(rows[0]).toMatchObject({ status: 'SENT', taskId: 'task-r1' });
+    expect(rows[0]!.lastError).toContain('must be greater than 0');
+    expect(res.sent[0]).toMatchObject({ kind: 'RESTRICTIONS', warnings: 1 });
   });
 });
 

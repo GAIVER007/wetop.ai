@@ -78,7 +78,10 @@ export interface ChannelsRepository {
   // ── очередь исходящих изменений (ChannelOutbox) ──
   enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string>;
   pendingOutbox(provider: string, kind: OutboxKind, now: Date): Promise<OutboxRow[]>;
-  markOutboxSent(ids: string[], taskId: string | null): Promise<void>;
+  /** `warning` — Channex принял запрос, но отклонил часть значений (meta.warnings): остаётся в last_error */
+  markOutboxSent(ids: string[], taskId: string | null, warning?: string | null): Promise<void>;
+  /** Тот же репозиторий поверх транзакции команды — очередь пишется вместе с её данными */
+  withClient?(db: unknown): ChannelsRepository;
   markOutboxRetry(
     ids: string[],
     error: string,
@@ -315,11 +318,24 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       createdAt: r.createdAt,
     }));
   }
-  async markOutboxSent(ids: string[], taskId: string | null): Promise<void> {
+  async markOutboxSent(
+    ids: string[],
+    taskId: string | null,
+    warning?: string | null,
+  ): Promise<void> {
     await this.prisma.db.channelOutbox.updateMany({
       where: { id: { in: ids } },
-      data: { status: 'SENT', taskId, sentAt: new Date(), lastError: null },
+      data: {
+        status: 'SENT',
+        taskId,
+        sentAt: new Date(),
+        lastError: warning ? warning.slice(0, 1000) : null,
+      },
     });
+  }
+  withClient(db: unknown): ChannelsRepository {
+    // клиент транзакции Prisma вместо общего: те же запросы, но в транзакции вызывающей команды
+    return new PrismaChannelsRepository({ db } as unknown as PrismaService);
   }
   async markOutboxRetry(
     ids: string[],

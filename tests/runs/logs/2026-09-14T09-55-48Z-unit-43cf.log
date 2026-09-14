@@ -1,0 +1,58 @@
+# Модульные (unit) · 14.09.2026 14:55 Алматы · Noutbuk-Vyacheslav.local
+# коммит eb1e3f5 (main), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-55-48Z-unit-43cf.json' 'apps/api/src/channels' 'apps/api/src/rates' 'apps/api/src/guard' 'apps/api/src/reservations' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 13ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (25 tests) 26ms
+[Nest] 99529  - 09/14/2026, 2:55:49 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 99529  - 09/14/2026, 2:55:49 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 99529  - 09/14/2026, 2:55:49 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (23 tests) 16ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (9 tests) 5ms
+[Nest] 99533  - 09/14/2026, 2:55:49 AM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 6ms
+[Nest] 99524  - 09/14/2026, 2:55:50 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 99524  - 09/14/2026, 2:55:50 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 99524  - 09/14/2026, 2:55:50 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 99526  - 09/14/2026, 2:55:50 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.controller.test.ts:251:13)
+    at /Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.service.ts:183:28
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/Users/vyacheslav/Desktop/Проекты/Pms Lux/apps/api/src/rates/rates.service.ts:174:20)
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///Users/vyacheslav/Desktop/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/Pms%20Lux/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests) 205ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (5 tests) 237ms
+[Nest] 99524  - 09/14/2026, 2:55:50 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 265ms
+[Nest] 99534  - 09/14/2026, 2:55:50 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 99534  - 09/14/2026, 2:55:50 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 99534  - 09/14/2026, 2:55:50 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 99534  - 09/14/2026, 2:55:50 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 99534  - 09/14/2026, 2:55:50 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 99534  - 09/14/2026, 2:55:50 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 99534  - 09/14/2026, 2:55:50 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 99534  - 09/14/2026, 2:55:50 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (8 tests) 22ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (10 tests) 133ms
+[Nest] 99535  - 09/14/2026, 2:55:50 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 99535  - 09/14/2026, 2:55:50 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 2ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (18 tests) 366ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 2ms
+ ✓ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests) 2ms
+
+ Test Files  17 passed (17)
+      Tests  165 passed (165)
+   Start at  02:55:48
+   Duration  1.48s (import 51%, transform 31%, tests 17%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T09-55-48Z-unit-43cf.json
+
+# код выхода 0 · 2 с

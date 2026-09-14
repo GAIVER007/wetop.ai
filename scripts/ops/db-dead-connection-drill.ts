@@ -204,6 +204,12 @@ function describeServerReply(chunk: Buffer): string {
   if (first === 'S') return 'согласен на TLS (S)';
   if (first === 'N') return 'отказал в TLS (N)';
   if (chunk[0] === 0x16) return 'TLS-рукопожатие';
+  if (first === 'R' && chunk.length >= 9) {
+    // AuthenticationRequest: 3 — пароль открытым текстом, 5 — MD5, 10 — SASL (SCRAM-SHA-256)
+    const methods: Record<number, string> = { 0: 'без пароля', 3: 'ПАРОЛЬ ОТКРЫТЫМ ТЕКСТОМ', 5: 'MD5', 10: 'SCRAM (SASL)' };
+    const method = methods[chunk.readInt32BE(5)];
+    return `без TLS, вход: ${method ?? `код ${chunk.readInt32BE(5)}`}`;
+  }
   return `ответ «${first}» без TLS`;
 }
 

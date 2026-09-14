@@ -37,7 +37,10 @@
     "reconcile:day": "tsx scripts/reconciliation/src/cli-double-entry.ts",
     "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
     "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
-    "dev:demo": "node scripts/preview/start-demo.mjs"
+    "dev:demo": "node scripts/preview/start-demo.mjs",
+    "design:build": "tsx scripts/design/src/build-tokens.ts",
+    "design:check": "tsx scripts/design/src/build-tokens.ts --check",
+    "design:fonts": "tsx scripts/design/src/check-fonts.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

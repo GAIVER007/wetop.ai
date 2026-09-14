@@ -9,7 +9,9 @@
 | `reference/current/` | Наши экраны как есть, 1440×1000, светлая и тёмная тема. Снимаются Playwright на синтетическом API (`tests/ui/design-reference.spec.ts`): только там псевдонимы гарантированы | да | да |
 | `reference/kit/` | Снимки страницы `/design-system` — эталон `toHaveScreenshot` (шаг 4) | да | да |
 | `brand/` | Знак WETOP (`apps/web/src/app/icon.svg`), логотип Luxx Aparts и цвета бренда — кладёт владелец | да | да |
-| `docs/` | Спецификация W3C Design Tokens (DTCG) 2025.10: формат, цвет, темы. Источник — designtokens.org/tr/2025.10. Загружается из интернета только с разрешения владельца | да | нет |
+| `docs/dtcg-2025.10/` | Спецификация W3C Design Tokens (DTCG) 2025.10: Format Module и Color Module — собранные страницы с зеркала GitHub (`gh-pages` репозитория design-tokens/community-group; сам designtokens.org закрыт прокси удалённой среды); модуль резолвера на gh-pages не выложен — сохранён исходник черновика из `main` (`resolver-draft-src/`, снят 14.09.2026). Загружено с разрешения владельца 14.09.2026 | да | нет |
+| `contrast.md` | Таблица контраста обеих тем и контрастной — генерируется `npm run design:build` | да | да |
+| `reference/fonts/` | Отчёт и снимки проверки шрифтов-кандидатов (`npm run design:fonts -- <файлы>`), DESIGN.md §6 | да | да |
 | `prompts/` | Промпты макетов для Claude Design, переписанные под наши имена, виды и данные (шаг 6) | да | нет (это вход, а не система) |
 
 ## Как снять скриншоты текущих экранов
@@ -25,6 +27,15 @@ npm run test:record -- e2e --config tests/ui/playwright.config.ts tests/ui/desig
 
 Нужны Node 24 и Google Chrome; в окружении с Playwright Chromium — `UI_BROWSER_CHANNEL=chromium`.
 Файлы: `reference/current/<экран>-<light|dark>.png`. Все имена гостей — вымышленные (ADR-010).
+
+## Как доказать, что правка токенов ничего не сдвинула
+
+1. Снять скриншоты до правки (команда выше), скопировать `reference/current` в сторону.
+2. Править `design/tokens.json`, `npm run design:build`, снять скриншоты снова.
+3. `npx tsx scripts/design/src/compare-shots.ts <до> <после> --ignore=0,960,232,40 --out=<папка>` — попиксельно, с
+   картинками отличий (красным). Область `--ignore` — строка свежести данных в углу меню, там минуты.
+   Шум между двумя прогонами одного и того же CSS (14.09.2026): живые часы «Время гостиницы» на «Обзоре дня»
+   (8×9 px), край подложки панели (11×64 px, 10 px), подчёркивание переключателя вида (≤ 20 px). Всё крупнее — правка.
 
 ## Чего здесь не бывает
 

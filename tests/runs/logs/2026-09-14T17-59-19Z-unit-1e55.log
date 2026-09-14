@@ -1,0 +1,234 @@
+# Модульные (unit) · 14.09.2026 22:59 Алматы · vm
+# коммит 9123aee (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-14T17-59-19Z-unit-1e55.json' 'scripts/design/src'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| scripts/design/src/tokens.test.ts (11 tests | 2 failed) 51ms
+   ✓ резолвер DTCG 2025.10 (4)
+     ✓ сливает наборы по порядку, позднее значение побеждает 4ms
+     ✓ отвергает неизвестный модификатор, неизвестный контекст и не ту версию 3ms
+     ✓ наследует $type от группы и не выпускает примитивы в CSS 3ms
+     ✓ требует $type у токена без группы с типом 1ms
+   ❯ рендер CSS (5)
+     ✓ псевдоним на примитив даёт значение, на семантику — var(--имя) 1ms
+     ✓ цвет с альфой — rgba без ведущего нуля, как в прежнем tokens.css 1ms
+     × тень, шрифт, переход и размер рендерятся в прежнем виде 15ms
+     × цикл псевдонимов и псевдоним в никуда — ошибка 7ms
+     ✓ в тёмный и печатный блоки попадают только отличия от светлой темы 8ms
+   ✓ контраст (2)
+     ✓ чёрный на белом — 21:1, белый на белом — 1:1 2ms
+     ✓ полупрозрачный передний план смешивается с фоном 1ms
+ ❯ |unit| scripts/design/src/tokens-css.test.ts (2 tests | 2 failed) 78ms
+   ❯ tokens.css и contrast.md сгенерированы из design/tokens.json (2)
+     × apps/web/src/app/tokens.css совпадает с выводом генератора 75ms
+     × design/contrast.md совпадает с выводом генератора 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/src/tokens-css.test.ts > tokens.css и contrast.md сгенерированы из design/tokens.json > apps/web/src/app/tokens.css совпадает с выводом генератора
+AssertionError: expected '/* WETOP design tokens. Components us…' to be '/* Сгенерировано scripts/design/build…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,49 +1,8 @@
+- /* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-046). */
+- :root, [data-theme='light'] {
+-   color-scheme: light;
+-   --radius-sm: 8px;
+-   --radius-control: 10px;
+-   --radius: 16px;
+-   --radius-lg: 20px;
+-   --control-h: 38px;
+-   --sidebar-w: 232px;
+-   --header-h: 72px;
+-   --topbar-h: 72px;
+-   --font: -apple-system, 'BlinkMacSystemFont', 'Inter', 'Segoe UI', sans-serif;
+-   --font-head: var(--font);
+-   --mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+-   --fs-12: 12px;
+-   --fs-13: 13px;
+-   --fs-14: 14px;
+-   --fs-16: 16px;
+-   --fs-18: 18px;
+-   --fs-22: 22px;
+-   --fs-28: 28px;
+-   --lh-tight: 1.25;
+-   --lh-base: 1.45;
+-   --space-1: 4px;
+-   --space-2: 8px;
+-   --space-3: 12px;
+-   --space-4: 16px;
+-   --space-5: 20px;
+-   --space-6: 24px;
+-   --space-8: 32px;
+-   --space-10: 40px;
+-   --space-12: 48px;
+-   --space-16: 64px;
+-   --z-base: 0;
+-   --z-raised: 10;
+-   --z-sticky: 20;
+-   --z-dropdown: 30;
+-   --z-drawer: 40;
+-   --z-modal: 50;
+-   --z-toast: 60;
+-   --dur-fast: 120ms;
+-   --dur-base: 180ms;
+-   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
+-   --ring: 0px 0px 0px 3px var(--primary-soft);
++ /* WETOP design tokens. Components use semantic names in both themes. */
++ :root, [data-theme='light'] {
++   color-scheme: light;
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface-muted: #f6f8fc;
+    --surface-elevated: #ffffff;
+    --sidebar: rgba(255,255,255,.88);
+@@ -73,24 +32,38 @@
+    --info: var(--primary);
+    --purple: #7860cb;
+    --purple-soft: #f2efff;
+    --chip-bg: #edf1f7;
+    --chip-fg: #536176;
+-   --row-hover: #f2f7fd;
+    --st-confirmed: #dcecff;
+    --st-checked-in: #d7f0e9;
+    --st-checked-out: #e9edf4;
+    --st-tentative: #faedcc;
+    --st-blocked: #f7dde2;
++   --row-hover: #f2f7fd;
+    --chart-1: var(--primary);
+    --chart-1-soft: var(--primary-soft);
+    --chart-2: #20b298;
+    --grid-line: var(--border-soft);
+    --axis-line: var(--border);
+-   --shadow: 0px 6px 24px rgba(26,45,78,.04);
++   --shadow: 0 6px 24px rgba(26,45,78,.04);
+-   --shadow-floating: 0px 20px 70px rgba(18,38,68,.16);
++   --shadow-floating: 0 20px 70px rgba(18,38,68,.16);
+    --overlay: rgba(11,23,44,.32);
++   --radius-sm: 8px;
++   --radius-control: 10px;
++   --radius: 16px;
++   --radius-lg: 20px;
++   --control-h: 38px;
++   --sidebar-w: 232px;
++   --header-h: 72px;
++   --topbar-h: 72px;
++   --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
++   --font-head: var(--font);
++   --mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
++   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
++   --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
++   --ease: 180ms ease-out;
+  }
+  [data-theme='dark'] {
+    color-scheme: dark;
+    --bg: #060b14;
+    --surface: #0b1524;
+@@ -122,32 +95,20 @@
+    --danger-border: #563140;
+    --purple: #b4a0f2;
+    --purple-soft: #28213e;
+    --chip-bg: #1b293b;
+    --chip-fg: #a8b3c5;
+-   --row-hover: #112137;
+    --st-confirmed: #163958;
+    --st-checked-in: #16443f;
+    --st-checked-out: #243044;
+    --st-tentative: #46361c;
+    --st-blocked: #472936;
++   --row-hover: #112137;
+    --chart-2: #38d2ae;
+-   --shadow: 0px 6px 24px rgba(0,0,0,.1);
++   --shadow: 0 6px 24px rgba(0,0,0,.1);
+-   --shadow-floating: 0px 24px 80px rgba(0,0,0,.4);
++   --shadow-floating: 0 24px 80px rgba(0,0,0,.4);
+    --overlay: rgba(0,5,15,.64);
+  }
+- [data-theme='contrast'] {
+-   color-scheme: light;
+-   --border: #596a80;
+-   --border-soft: #dce3ee;
+-   --border-input: #596a80;
+-   --text-2: #101827;
+-   --muted: #536176;
+-   --primary-soft: #085fba;
+- }
+- @media print {
+-   :root {
+-     color-scheme: light;
+-     --bg: #ffffff;
+-   }
++ @media print {
++   :root { color-scheme: light; --bg: #ffffff; --surface: #ffffff; --surface-muted: #f6f8fc; --surface-elevated: #ffffff; --text: #101827; --text-2: #536176; --muted: #596a80; --muted-2: #596a80; --border: #e5eaf2; --border-soft: #eef1f7; --primary: #085fba; }
+  }
+
+
+ ❯ scripts/design/src/tokens-css.test.ts:12:46
+     10|   const built = build();
+     11|   it('apps/web/src/app/tokens.css совпадает с выводом генератора', () …
+     12|     expect(readFileSync(TOKENS_CSS, 'utf8')).toBe(built.css);
+       |                                              ^
+     13|   });
+     14|   it('design/contrast.md совпадает с выводом генератора', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| scripts/design/src/tokens-css.test.ts > tokens.css и contrast.md сгенерированы из design/tokens.json > design/contrast.md совпадает с выводом генератора
+Error: ENOENT: no such file or directory, open '/home/user/wetop.ai/design/contrast.md'
+ ❯ scripts/design/src/tokens-css.test.ts:15:12
+     13|   });
+     14|   it('design/contrast.md совпадает с выводом генератора', () => {
+     15|     expect(readFileSync(CONTRAST_MD, 'utf8')).toBe(built.contrast);
+       |            ^
+     16|   });
+     17| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| scripts/design/src/tokens.test.ts > рендер CSS > тень, шрифт, переход и размер рендерятся в прежнем виде
+AssertionError: expected '0px 6px 24px rgba(0,0,0,.5)' to be '0 6px 24px rgba(0,0,0,.5)' // Object.is equality
+
+Expected: "0 6px 24px rgba(0,0,0,.5)"
+Received: "0px 6px 24px rgba(0,0,0,.5)"
+
+ ❯ scripts/design/src/tokens.test.ts:121:38
+    119|   });
+    120|   it('тень, шрифт, переход и размер рендерятся в прежнем виде', () => {
+    121|     expect(light.vars.get('shadow')).toBe('0 6px 24px rgba(0,0,0,.5)');
+       |                                      ^
+    122|     expect(light.vars.get('font')).toBe("-apple-system, 'Inter', sans-…
+    123|     expect(light.vars.get('ease')).toBe('180ms cubic-bezier(0, 0, 0.58…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| scripts/design/src/tokens.test.ts > рендер CSS > цикл псевдонимов и псевдоним в никуда — ошибка
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ scripts/design/src/tokens.test.ts:131:54
+    129|       ['b', { path: 'b', name: 'b', type: 'color', value: '{a}', css: …
+    130|     ]);
+    131|     expect(() => cssValue(tokens, tokens.get('a')!)).toThrow(/Цикл/);
+       |                                                      ^
+    132|     const lonely = new Map<string, Token>([['a', { path: 'a', name: 'a…
+    133|     expect(() => cssValue(lonely, lonely.get('a')!)).toThrow(/не найде…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 9 passed (13)
+   Start at  17:59:24
+   Duration  855ms (transform 63%, tests 21%, import 14%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-14T17-59-19Z-unit-1e55.json
+
+# код выхода 1 · 6 с

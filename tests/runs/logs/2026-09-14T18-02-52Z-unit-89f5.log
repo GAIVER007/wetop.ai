@@ -1,0 +1,389 @@
+# Модульные (unit) · 14.09.2026 23:02 Алматы · vm
+# коммит 9123aee (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-14T18-02-52Z-unit-89f5.json' 'scripts/design/src'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/design/src/tokens.test.ts (11 tests) 13ms
+ ✓ |unit| scripts/design/src/css-vars.test.ts (2 tests) 6ms
+ ❯ |unit| scripts/design/src/scales.test.ts (6 tests | 2 failed) 30ms
+   ✓ шкалы документа ментора (DESIGN.md §3, §6) (3)
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64; вне шкалы — только с причиной снятия 2ms
+     ✓ размеры шрифта не мельче 12 px и составляют объявленную шкалу 6ms
+     ✓ имена CSS-переменных не повторяются между группами 0ms
+   ❯ контраст токенов в обеих темах (DESIGN.md §10) (3)
+     × каждая пара проходит норму или записана исключением с причиной и сроком 18ms
+     ✓ исключения не протухли: каждое всё ещё действительно не проходит 0ms
+     × контрастная тема проходит всё без исключений 2ms
+ ✓ |unit| scripts/design/src/tokens-css.test.ts (2 tests) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/src/scales.test.ts > контраст токенов в обеих темах (DESIGN.md §10) > каждая пара проходит норму или записана исключением с причиной и сроком
+AssertionError: light: --text на --surface = NaN < 4.5
+light: --text на --bg = NaN < 4.5
+light: --primary на --surface = NaN < 4.5
+light: --primary на --primary-soft = NaN < 4.5
+light: --danger на --danger-soft = 4.48 < 4.5
+light: --text на --st-confirmed = NaN < 4.5
+light: --text на --st-checked-in = NaN < 4.5
+light: --text на --st-checked-out = NaN < 4.5
+light: --text на --st-tentative = NaN < 4.5
+light: --text на --st-blocked = NaN < 4.5
+light: --primary на --bg = NaN < 3
+contrast: --text на --surface = NaN < 4.5
+contrast: --text на --bg = NaN < 4.5
+contrast: --text-2 на --surface = NaN < 4.5
+contrast: --primary на --surface = NaN < 4.5
+contrast: --primary на --primary-soft = NaN < 4.5
+contrast: --danger на --danger-soft = 4.48 < 4.5
+contrast: --text на --st-confirmed = NaN < 4.5
+contrast: --text на --st-checked-in = NaN < 4.5
+contrast: --text на --st-checked-out = NaN < 4.5
+contrast: --text на --st-tentative = NaN < 4.5
+contrast: --text на --st-blocked = NaN < 4.5
+contrast: --primary-soft на --surface = NaN < 3
+contrast: --primary на --bg = NaN < 3: expected [ { theme: 'light', …(5) }, …(23) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "bg": "surface",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "bg",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "surface",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "primary-soft",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "danger-soft",
++     "fg": "danger",
++     "min": 4.5,
++     "ok": false,
++     "ratio": 4.477554801056584,
++     "theme": "light",
++   },
++   {
++     "bg": "st-confirmed",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "st-checked-in",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "st-checked-out",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "st-tentative",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "st-blocked",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "bg",
++     "fg": "primary",
++     "min": 3,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "light",
++   },
++   {
++     "bg": "surface",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "bg",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "text-2",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "primary-soft",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "danger-soft",
++     "fg": "danger",
++     "min": 4.5,
++     "ok": false,
++     "ratio": 4.477554801056584,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-confirmed",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-checked-in",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-checked-out",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-tentative",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-blocked",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "primary-soft",
++     "min": 3,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "bg",
++     "fg": "primary",
++     "min": 3,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++ ]
+
+ ❯ scripts/design/src/scales.test.ts:33:117
+     31|   it('каждая пара проходит норму или записана исключением с причиной и…
+     32|     const bad = rows.filter((r) => !r.ok && !r.excepted);
+     33|     expect(bad, bad.map((r) => `${r.theme}: --${r.fg} на --${r.bg} = $…
+       |                                                                                                                     ^
+     34|   });
+     35|   it('исключения не протухли: каждое всё ещё действительно не проходит…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| scripts/design/src/scales.test.ts > контраст токенов в обеих темах (DESIGN.md §10) > контрастная тема проходит всё без исключений
+AssertionError: expected [ { theme: 'contrast', …(5) }, …(12) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "bg": "surface",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "bg",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "text-2",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "primary-soft",
++     "fg": "primary",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "danger-soft",
++     "fg": "danger",
++     "min": 4.5,
++     "ok": false,
++     "ratio": 4.477554801056584,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-confirmed",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-checked-in",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-checked-out",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-tentative",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "st-blocked",
++     "fg": "text",
++     "min": 4.5,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "surface",
++     "fg": "primary-soft",
++     "min": 3,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++   {
++     "bg": "bg",
++     "fg": "primary",
++     "min": 3,
++     "ok": false,
++     "ratio": NaN,
++     "theme": "contrast",
++   },
++ ]
+
+ ❯ scripts/design/src/scales.test.ts:40:65
+     38|   });
+     39|   it('контрастная тема проходит всё без исключений', () => {
+     40|     expect(rows.filter((r) => r.theme === 'contrast' && !r.ok)).toEqua…
+       |                                                                 ^
+     41|   });
+     42| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  2 failed | 19 passed (21)
+   Start at  18:02:52
+   Duration  567ms (transform 58%, import 30%, tests 8%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-14T18-02-52Z-unit-89f5.json
+
+# код выхода 1 · 1 с

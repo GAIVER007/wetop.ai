@@ -1,6 +1,47 @@
-/* WETOP design tokens. Components use semantic names in both themes. */
+/* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-046). */
 :root, [data-theme='light'] {
   color-scheme: light;
+  --radius-sm: 8px;
+  --radius-control: 10px;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --control-h: 38px;
+  --sidebar-w: 232px;
+  --header-h: 72px;
+  --topbar-h: 72px;
+  --font: -apple-system, 'BlinkMacSystemFont', 'Inter', 'Segoe UI', sans-serif;
+  --font-head: var(--font);
+  --mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-22: 22px;
+  --fs-28: 28px;
+  --lh-tight: 1.25;
+  --lh-base: 1.45;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 20;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
+  --ring: 0 0 0 3px var(--ring-color);
   --bg: #f4f7fb;
   --surface: #ffffff;
   --surface-muted: #f6f8fc;
@@ -34,12 +75,13 @@
   --purple-soft: #f2efff;
   --chip-bg: #edf1f7;
   --chip-fg: #536176;
+  --row-hover: #f2f7fd;
+  --ring-color: #eaf4ff;
   --st-confirmed: #dcecff;
   --st-checked-in: #d7f0e9;
   --st-checked-out: #e9edf4;
   --st-tentative: #faedcc;
   --st-blocked: #f7dde2;
-  --row-hover: #f2f7fd;
   --chart-1: var(--primary);
   --chart-1-soft: var(--primary-soft);
   --chart-2: #20b298;
@@ -48,20 +90,6 @@
   --shadow: 0 6px 24px rgba(26,45,78,.04);
   --shadow-floating: 0 20px 70px rgba(18,38,68,.16);
   --overlay: rgba(11,23,44,.32);
-  --radius-sm: 8px;
-  --radius-control: 10px;
-  --radius: 16px;
-  --radius-lg: 20px;
-  --control-h: 38px;
-  --sidebar-w: 232px;
-  --header-h: 72px;
-  --topbar-h: 72px;
-  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  --font-head: var(--font);
-  --mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
-  --ease: 180ms ease-out;
 }
 [data-theme='dark'] {
   color-scheme: dark;
@@ -97,17 +125,41 @@
   --purple-soft: #28213e;
   --chip-bg: #1b293b;
   --chip-fg: #a8b3c5;
+  --row-hover: #112137;
+  --ring-color: #102c49;
   --st-confirmed: #163958;
   --st-checked-in: #16443f;
   --st-checked-out: #243044;
   --st-tentative: #46361c;
   --st-blocked: #472936;
-  --row-hover: #112137;
   --chart-2: #38d2ae;
   --shadow: 0 6px 24px rgba(0,0,0,.1);
   --shadow-floating: 0 24px 80px rgba(0,0,0,.4);
   --overlay: rgba(0,5,15,.64);
 }
+[data-theme='contrast'] {
+  color-scheme: light;
+  --border: #596a80;
+  --border-soft: #dce3ee;
+  --border-input: #596a80;
+  --text-2: #101827;
+  --muted: #536176;
+  --danger: #b9293e;
+  --ring-color: #085fba;
+}
 @media print {
-  :root { color-scheme: light; --bg: #ffffff; --surface: #ffffff; --surface-muted: #f6f8fc; --surface-elevated: #ffffff; --text: #101827; --text-2: #536176; --muted: #596a80; --muted-2: #596a80; --border: #e5eaf2; --border-soft: #eef1f7; --primary: #085fba; }
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f6f8fc;
+    --surface-elevated: #ffffff;
+    --border: #e5eaf2;
+    --border-soft: #eef1f7;
+    --text: #101827;
+    --text-2: #536176;
+    --muted: #596a80;
+    --muted-2: #596a80;
+    --primary: #085fba;
+  }
 }

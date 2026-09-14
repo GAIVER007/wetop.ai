@@ -21,7 +21,11 @@ async function theme(page: Page, name: (typeof themes)[number]) {
 }
 async function shot(page: Page, name: string, themeName: string) {
   await expect(page.locator('html')).toHaveAttribute('data-theme', themeName);
-  await page.screenshot({ caret: 'initial', path: `${dir}/${name}-${themeName}.png` });
+  // Два снимка одного экрана должны совпадать попиксельно (scripts/design/src/compare-shots.ts):
+  // курсор в угол, без каретки, переходы CSS доведены до конца, значок dev-оверлея Next спрятан.
+  await page.mouse.move(0, 0);
+  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+  await page.screenshot({ caret: 'hide', animations: 'disabled', path: `${dir}/${name}-${themeName}.png` });
 }
 
 for (const t of themes) {
@@ -32,7 +36,8 @@ for (const t of themes) {
     await expect(page.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
     await shot(page, 'chessboard-week', t);
     await page.getByRole('link', { name: 'Месяц', exact: true }).click();
-    await expect(page.getByTestId('date-col').first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute('aria-current', 'true');
+    expect(await page.getByTestId('date-col').count()).toBeGreaterThanOrEqual(28);
     await shot(page, 'chessboard-month', t);
   });
 

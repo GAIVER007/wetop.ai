@@ -39,11 +39,12 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
+  // Справочники — не бронь: их сбой не должен прятать карточку за экраном ошибки (волна 3)
   const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
-    reservationsApi.ratePlans(),
+    reservationsApi.ratePlans().catch(() => null),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
     financeApi.services().catch(() => null),
-    api.inventorySummary(),
+    api.inventorySummary().catch(() => null),
     Promise.all(
       [...periods.values()].map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
@@ -290,6 +291,12 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             content: (
               <>
                 <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
+                {ratePlans === null && (
+                  <Alert boxed tone="warning">
+                    Справочник тарифов не загрузился — смена дат и продление пересчитать цену не
+                    смогут. Обновите карточку.
+                  </Alert>
+                )}
                 {periodResults.some((v) => v === null) && (
                   <Alert boxed tone="warning">
                     Доступность части периодов не загрузилась. Обновите карточку перед назначением
@@ -303,12 +310,12 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
-                  ratePlans={ratePlans}
+                  ratePlans={ratePlans ?? []}
                   items={r.items.map((it) => {
                     const byCategory =
                       availabilityByPeriod.get(`${it.arrivalDate}/${it.departureDate}`)
                         ?.byCategory ?? {};
-                    const names = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+                    const names = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
                     // Переселять можно и в другую категорию (T1): предлагаем свободные ячейки всех категорий,
                     // своя — первой; цену система пересчитает по календарю выбранной категории
                     const groups = Object.entries(byCategory)

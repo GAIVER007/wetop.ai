@@ -171,9 +171,9 @@ export class ReservationsService {
     });
   }
 
-  /** Активные тарифы (справочник для формы). */
+  /** Активные тарифы (справочник для формы). Без транзакции: занятый пул не превращает справочник в 500. */
   ratePlans(): Promise<Array<{ code: string; name: string; currency: string }>> {
-    return this.uow.run(async (repo) =>
+    return this.uow.read(async (repo) =>
       (await repo.activeRatePlans()).map((p) => ({
         code: p.code,
         name: p.name,

@@ -89,6 +89,8 @@ const fakeRepo = {
 const uow = {
   run: <T>(fn: (repo: ReservationsRepository) => Promise<T>) =>
     fn(fakeRepo as unknown as ReservationsRepository),
+  read: <T>(fn: (repo: ReservationsRepository) => Promise<T>) =>
+    fn(fakeRepo as unknown as ReservationsRepository),
 };
 
 const created = { dtos: [] as unknown[] };

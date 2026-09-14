@@ -110,7 +110,10 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
           });
 
           const service = new ReservationsService(
-            { run: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)) },
+            {
+              run: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)),
+              read: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)),
+            },
             new NoopAriPublisher(),
           );
           const body = (over: Record<string, unknown> = {}) => ({

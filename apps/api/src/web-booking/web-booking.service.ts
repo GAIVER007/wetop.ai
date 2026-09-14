@@ -115,7 +115,8 @@ export class WebBookingService {
     const { arrivalDate, departureDate, adults } = parsed.value;
     const plan = site.bookingRatePlan!;
 
-    const categories = await this.uow.run(async (repo) => {
+    // Расчёт цены и мест только читает — без транзакции (Б9): занятый пул не превращает витрину сайта в 500
+    const categories = await this.uow.read(async (repo) => {
       const ratePlan = await repo.ratePlanByCode(plan.code);
       if (!ratePlan || !ratePlan.active) {
         throw new NotFoundException('тариф сайта неактивен — бронирование с сайта выключено');

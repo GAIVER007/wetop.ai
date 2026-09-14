@@ -359,7 +359,7 @@ function makeFake() {
       };
     },
   };
-  const uow: UnitOfWork = { run: (fn) => fn(repo) };
+  const uow: UnitOfWork = { run: (fn) => fn(repo), read: (fn) => fn(repo) };
   return { uow, state, penalties, blocked };
 }
 
@@ -402,7 +402,10 @@ describe('manual reservation API', () => {
     const m = await Test.createTestingModule({ imports: [ReservationsModule] })
       .overrideProvider(RESERVATIONS_UOW)
       .useFactory({
-        factory: () => ({ run: (fn: Parameters<UnitOfWork['run']>[0]) => fake.uow.run(fn) }),
+        factory: () => ({
+          run: (fn: Parameters<UnitOfWork['run']>[0]) => fake.uow.run(fn),
+          read: (fn: Parameters<UnitOfWork['read']>[0]) => fake.uow.read(fn),
+        }),
       })
       .overrideProvider(PrismaService)
       .useValue({})

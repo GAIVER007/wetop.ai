@@ -3,7 +3,11 @@
 # собственную смерть — поэтому API, стойку, туннель и «не спать» держит launchd: процесс упал → поднят через 15 с,
 # Mac перезагрузился → всё поднимается при входе пользователя.
 #
-#   scripts/ops/launchd/install.sh [api] [web] [tunnel] [awake]   без аргументов — все четыре
+#   scripts/ops/launchd/install.sh [api] [web] [tunnel|domain] [awake]   без аргументов — все четыре;
+#                                                                  domain вместо tunnel, если есть ~/.cloudflared/wetop.yml
+#   domain — постоянный туннель wetop.ai (plans/wetop-domain-2026-09-14.md §6): app.wetop.ai за Cloudflare Access и
+#   только публичные пути API на api.wetop.ai. Вместе с быстрым туннелем (tunnel) не ставится: тот открывает всё API
+#   и перерегистрирует webhook на свой адрес — сначала uninstall.sh tunnel.
 #   scripts/ops/launchd/install.sh exely-sync                      автосинхронизация из Exely раз в 5 мин (ADR-032);
 #                                                                  только явно: на день двойного ввода — uninstall.sh exely-sync
 #   scripts/ops/launchd/install.sh --takeover ...                  остановить уже запущенные вручную процессы
@@ -39,11 +43,15 @@ for a in "$@"; do
   case "$a" in
     --takeover) TAKEOVER=1 ;;
     --dry) DRY=1 ;;
-    api|web|tunnel|awake|exely-sync) NAMES+=("$a") ;;
-    *) echo "неизвестно: $a (есть api, web, tunnel, awake, exely-sync, --takeover, --dry)"; exit 2 ;;
+    api|web|tunnel|domain|awake|exely-sync) NAMES+=("$a") ;;
+    *) echo "неизвестно: $a (есть api, web, tunnel, domain, awake, exely-sync, --takeover, --dry)"; exit 2 ;;
   esac
 done
-[ ${#NAMES[@]} -eq 0 ] && NAMES=(api web tunnel awake)
+DOMAIN_CONFIG="$HOME/.cloudflared/wetop.yml"
+if [ ${#NAMES[@]} -eq 0 ]; then
+  if [ -f "$DOMAIN_CONFIG" ]; then NAMES=(api web domain awake); else NAMES=(api web tunnel awake); fi
+fi
+CLOUDFLARED="$(PATH="$PATH_ENV" command -v cloudflared || true)"
 [ "$DRY" -eq 1 ] && AGENTS="$(mktemp -d)"
 mkdir -p "$AGENTS" "$LOGS"
 
@@ -90,6 +98,8 @@ command_for() {
     # bash не читает файл сам (запрет macOS) — текст скрипта ему отдаёт node через stdin
     tunnel) CMD=(/bin/bash -c "\"$NODE\" -e \"process.stdout.write(require('fs').readFileSync('scripts/ops/channex-tunnel.sh'))\" | /bin/bash -s") ;;
     awake) CMD=(/usr/bin/caffeinate -is) ;;
+    # постоянный туннель: адреса и правила — в ~/.cloudflared/wetop.yml (образец scripts/ops/cloudflared-wetop.example.yml)
+    domain) CMD=("${CLOUDFLARED:-cloudflared}" tunnel --no-autoupdate --config "$DOMAIN_CONFIG" run) ;;
     # одним процессом: node с загрузчиком tsx, без npm и sh (ADR-032)
     exely-sync) CMD=("$NODE" --import tsx scripts/imports/src/cli-sync-day.ts --auto) ;;
   esac
@@ -129,19 +139,33 @@ occupied_by() {
     api) lsof -tiTCP:3001 -sTCP:LISTEN 2>/dev/null ;;
     web) lsof -tiTCP:3000 -sTCP:LISTEN 2>/dev/null ;;
     tunnel) pgrep -f 'scripts/ops/channex-tunnel.sh|cloudflared tunnel --url' 2>/dev/null ;;
+    domain) pgrep -f 'cloudflared tunnel .*wetop.yml run' 2>/dev/null ;;
     exely-sync) pgrep -f 'cli-sync-day.ts --auto' 2>/dev/null ;;
   esac
 }
 
+# awake и domain папку проекта не читают (caffeinate; cloudflared берёт конфиг из ~/.cloudflared)
+needs_repo() { [ "$1" != awake ] && [ "$1" != domain ]; }
 REPO_OK=1
 for n in "${NAMES[@]}"; do
-  if [ "$n" != awake ]; then can_read_repo || REPO_OK=0; break; fi
+  if needs_repo "$n"; then can_read_repo || REPO_OK=0; break; fi
 done
 
 for n in "${NAMES[@]}"; do
   label="kz.luxx.pms.$n"
   echo "• $n"
-  if [ "$n" != awake ] && [ "$REPO_OK" -eq 0 ]; then echo "  пропущен: нет доступа к папке проекта"; continue; fi
+  if needs_repo "$n" && [ "$REPO_OK" -eq 0 ]; then echo "  пропущен: нет доступа к папке проекта"; continue; fi
+  # Быстрый и постоянный туннели вместе не работают: быстрый открывает всё API и уводит webhook на свой адрес
+  if [ "$n" = domain ]; then
+    [ "$DRY" -eq 1 ] || [ -f "$DOMAIN_CONFIG" ] || { echo "  пропущен: нет $DOMAIN_CONFIG (образец scripts/ops/cloudflared-wetop.example.yml)"; continue; }
+    [ "$DRY" -eq 1 ] || [ -n "$CLOUDFLARED" ] || { echo "  пропущен: cloudflared не найден в PATH"; continue; }
+    if [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.tunnel" >/dev/null 2>&1; then
+      echo "  пропущен: работает быстрый туннель — сначала scripts/ops/launchd/uninstall.sh tunnel"; continue
+    fi
+  fi
+  if [ "$n" = tunnel ] && [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.domain" >/dev/null 2>&1; then
+    echo "  пропущен: работает постоянный туннель wetop.ai — быстрый открыл бы всё API без входа"; continue
+  fi
   # Сухой прогон загруженную задачу не снимает. После bootout ждём, пока launchd снимет задачу
   # (иначе bootstrap: «5: Input/output error») и старый процесс отпустит порт (иначе он принимается
   # за «запущенный вручную») — в обоих случаях задача оставалась снятой

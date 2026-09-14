@@ -1,0 +1,43 @@
+# Модульные (unit) · 14.09.2026 16:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6df2c54 (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-08-39Z-unit-dac5.json' 'apps/api/src/channels/channels.controller.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| apps/api/src/channels/channels.controller.test.ts (5 tests | 1 failed) 145ms
+   ❯ Channex setup and full sync (contract on fakes) (5)
+     ✓ setup creates property, room types and one rate plan per category, saves mapping; second run creates nothing 17ms
+     ✓ sync sends availability and restrictions as two calls with compressed ranges 2ms
+     ✓ availability/changed (ADR-032): only the named categories and nights go to the outbox as one AVAILABILITY delta; bad input → 400 11ms
+     ✓ sync without mapping → 422; setup with an unknown tariff → 422 1ms
+     × webhook (webhook-collection.md): register needs the secret, an https address and the Channex property; creates once, then updates; status and test 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/channels.controller.test.ts > Channex setup and full sync (contract on fakes) > webhook (webhook-collection.md): register needs the secret, an https address and the Channex property; creates once, then updates; status and test
+Error: expected 409 "Conflict", got 200 "OK"
+ ❯ apps/api/src/channels/channels.controller.test.ts:589:8
+    587|     const hijack = await post('/channels/channex/webhook/register', {
+    588|       callbackUrl: 'https://quick-tunnel.trycloudflare.com/channels/ch…
+    589|     }).expect(409);
+       |        ^
+    590|     expect(hijack.body.message).toContain('PUBLIC_API_URL');
+    591|     // тот же адрес явно — можно (кнопка на /channels шлёт без адреса,…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  04:08:40
+   Duration  1.25s (import 47%, transform 40%, tests 13%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-08-39Z-unit-dac5.json
+
+# код выхода 1 · 3 с

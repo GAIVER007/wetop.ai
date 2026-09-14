@@ -481,9 +481,27 @@ describe('Channex setup and full sync (contract on fakes)', () => {
       .expect(200, { accepted: true });
     expect(fakes.outbox.map((o) => o.kind)).toEqual(['AVAILABILITY']);
     expect(fakes.outbox[0]!.payload).toEqual([
-      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.today, date_to: fakes.today, availability: 2 },
-      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.d(1), date_to: fakes.d(1), availability: 1 },
-      { property_id: 'prop-1', room_type_id: 'rt-4', date_from: fakes.d(2), date_to: fakes.d(2), availability: 2 },
+      {
+        property_id: 'prop-1',
+        room_type_id: 'rt-4',
+        date_from: fakes.today,
+        date_to: fakes.today,
+        availability: 2,
+      },
+      {
+        property_id: 'prop-1',
+        room_type_id: 'rt-4',
+        date_from: fakes.d(1),
+        date_to: fakes.d(1),
+        availability: 1,
+      },
+      {
+        property_id: 'prop-1',
+        room_type_id: 'rt-4',
+        date_from: fakes.d(2),
+        date_to: fakes.d(2),
+        availability: 2,
+      },
     ]);
     const bad = [
       {},
@@ -565,8 +583,17 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     });
     const r2 = await post('/channels/channex/webhook/register').expect(200);
     expect(r2.body.created).toBe(false);
+    // Д1: постоянный адрес задан — быстрый туннель (или ошибка настройки) не перерегистрирует webhook на свой
+    const hijack = await post('/channels/channex/webhook/register', {
+      callbackUrl: 'https://quick-tunnel.trycloudflare.com/channels/channex/webhook',
+    }).expect(409);
+    expect(hijack.body.message).toContain('PUBLIC_API_URL');
+    // тот же адрес явно — можно (кнопка на /channels шлёт без адреса, скрипт — с ним)
+    await post('/channels/channex/webhook/register', {
+      callbackUrl: 'https://pms.example.kz/channels/channex/webhook',
+    }).expect(200);
     expect(fakes.webhooks).toHaveLength(1); // один webhook на объект — повтор обновляет
-    expect(fakes.calls.filter((c) => c.op === 'updateWebhook')).toHaveLength(1);
+    expect(fakes.calls.filter((c) => c.op === 'updateWebhook')).toHaveLength(2);
     const st = await request(app.getHttpServer())
       .get('/channels/channex/webhook/status')
       .expect(200);
@@ -581,7 +608,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     const t = await post('/channels/channex/webhook/test').expect(200);
     expect(t.body).toMatchObject({ statusCode: 400 });
     expect(t.body.verdict).toContain('секрет принят');
-    expect(fakes.audits.filter((a) => a === 'channels.webhook.register')).toHaveLength(2);
+    expect(fakes.audits.filter((a) => a === 'channels.webhook.register')).toHaveLength(3);
     delete process.env.PUBLIC_API_URL;
     delete process.env.CHANNEX_WEBHOOK_SECRET;
   });

@@ -1,0 +1,46 @@
+# Постоянный туннель WETOP на wetop.ai (plans/wetop-domain-2026-09-14.md §6, Д1 и Д2).
+# Один именованный туннель с этого Mac, два адреса; главная wetop.ai живёт отдельно на Cloudflare Pages.
+#
+#   app.wetop.ai — стойка. Пускает только Cloudflare Access (вход по коду на почту из списка владельца), а
+#                  cloudflared ещё и сам проверяет токен Access, прежде чем передать запрос на Mac: даже ошибка
+#                  в настройках Access не откроет стойку без входа (документация Cloudflare, origin parameters → access).
+#   api.wetop.ai — только публичные пути API (SECURITY.md §11): счётчик сайта, виджет бронирования, webhook Channex.
+#                  Демо-страницы /a/demo и /w/demo наружу не выходят: бронь с них настоящая. Остальное — 404.
+#
+# Установка (один раз, после того как домен активен в Cloudflare):
+#   1. cloudflared tunnel login                                  # владелец: браузер → выбрать wetop.ai
+#   2. cloudflared tunnel create wetop                           # напечатает TUNNEL-ID и файл ключа туннеля
+#   3. cloudflared tunnel route dns wetop app.wetop.ai
+#      cloudflared tunnel route dns wetop api.wetop.ai
+#   4. Zero Trust → Access → Applications → Self-hosted: app.wetop.ai, политика Allow по почтам владельца;
+#      из приложения взять AUD-тег, имя команды — из Zero Trust → Settings
+#   5. скопировать этот файл в ~/.cloudflared/wetop.yml, подставить TUNNEL-ID, путь к ключу, имя команды и AUD-тег
+#   6. scripts/ops/launchd/uninstall.sh tunnel && scripts/ops/launchd/install.sh domain
+#   7. .env: PUBLIC_API_URL=https://api.wetop.ai (вписывает владелец) → перезапуск API → «Зарегистрировать webhook»
+#      на /channels. С этого момента API не даст перерегистрировать webhook на другой адрес (409).
+#
+# Host не переписывать (httpHostHeader не задавать): серверные действия Next.js и проверка домена виджета ждут
+# настоящий адрес. Сервисы — 127.0.0.1, не localhost: API и стойка слушают только IPv4.
+
+tunnel: <TUNNEL-ID>
+credentials-file: /Users/<пользователь>/.cloudflared/<TUNNEL-ID>.json
+
+ingress:
+  - hostname: app.wetop.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      access:
+        required: true
+        teamName: <имя-команды-zero-trust>
+        audTag:
+          - <AUD-тег-приложения-access>
+  - hostname: api.wetop.ai
+    path: ^/a/(pms\.js|hit)$
+    service: http://127.0.0.1:3001
+  - hostname: api.wetop.ai
+    path: ^/w/(widget\.js|availability|book)$
+    service: http://127.0.0.1:3001
+  - hostname: api.wetop.ai
+    path: ^/channels/channex/webhook$
+    service: http://127.0.0.1:3001
+  - service: http_status:404

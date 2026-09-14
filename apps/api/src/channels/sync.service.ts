@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import {
   BadGatewayException,
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   ServiceUnavailableException,
@@ -330,6 +331,13 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
    * X-Channex-Webhook-Secret, send_data = true (нужен payload.revision_id). Один webhook на объект — повтор обновляет.
    */
   async registerWebhook(callbackUrl?: string): Promise<WebhookRegisterResult> {
+    // Д1: постоянный адрес задан — регистрация на другой (быстрый туннель, опечатка) увела бы события Channex
+    const permanent = this.expectedCallbackUrl();
+    const asked = callbackUrl?.trim();
+    if (permanent && asked && asked !== permanent)
+      throw new ConflictException(
+        `Задан постоянный адрес PMS (PUBLIC_API_URL → ${permanent}): webhook регистрируется только на него, не на ${asked}`,
+      );
     const { url, secret } = this.webhookInput(callbackUrl);
     const propertyId = await this.providerPropertyId();
     const input: channex.ChannexWebhookInput = {

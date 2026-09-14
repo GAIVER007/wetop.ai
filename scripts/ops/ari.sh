@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Выключатель исходящего ARI в Channex — одна команда (Q-126, ADR-039; CUTOVER.md ROLLBACK, полный откат, шаг 1).
+# Выключатель исходящего ARI в Channex — одна команда (Q-126, ADR-041; CUTOVER.md ROLLBACK, полный откат, шаг 1).
 #
 #   scripts/ops/ari.sh stop     остатки и ограничения из PMS в Channex не уходят ни одним путём; брони продолжают приходить
 #   scripts/ops/ari.sh start    включить и сразу отправить накопленную очередь

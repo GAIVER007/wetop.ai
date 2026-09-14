@@ -1,0 +1,109 @@
+{
+  "source": "database",
+  "provider": "supabase",
+  "state": "READY",
+  "readOnlyBrowserChecks": true,
+  "browserErrors": 0,
+  "results": [
+    {
+      "route": "/chessboard",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 5461,
+      "backendCountsMatch": true,
+      "days": 7,
+      "horizontalOverflow": 0
+    },
+    {
+      "route": "/today",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 6354
+    },
+    {
+      "route": "/reservations",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 2245
+    },
+    {
+      "route": "/guests",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1801
+    },
+    {
+      "route": "/rooms",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 2436
+    },
+    {
+      "route": "/rooms/categories",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1513
+    },
+    {
+      "route": "/rooms/availability",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1751
+    },
+    {
+      "route": "/rates",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1373
+    },
+    {
+      "route": "/hotel-settings/check-in",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1142
+    },
+    {
+      "route": "/hotel-settings/services",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 867
+    },
+    {
+      "route": "/management/statistics",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1968
+    },
+    {
+      "route": "/management/reports",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 853
+    },
+    {
+      "route": "/finance",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 2818
+    },
+    {
+      "route": "/channel-manager",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1069
+    },
+    {
+      "route": "/analytics",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 1679
+    },
+    {
+      "route": "/connections",
+      "status": 200,
+      "loadError": false,
+      "durationMs": 2365,
+      "supabaseConfirmed": true
+    }
+  ]
+}

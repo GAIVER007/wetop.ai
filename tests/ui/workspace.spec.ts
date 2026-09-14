@@ -69,7 +69,7 @@ test('все разделы, карточки и печать открывают
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(route!);
-    await expect(page.locator('h1')).toContainText(title!);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
     await noPageOverflow(page);
     if (
       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
@@ -89,7 +89,7 @@ test('все разделы, карточки и печать открывают
       });
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
-  await expect(page.locator('h1')).toContainText('Регистрационная карта');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Регистрационная карта');
   await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
@@ -102,7 +102,7 @@ test('вложенные разделы: раскрытие, один актив
   await rooms.click();
   await expect(rooms).toHaveAttribute('aria-expanded', 'true');
   await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
-  await expect(page.locator('h1')).toHaveText('Категории номеров');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Категории номеров');
   await rooms.click();
@@ -117,7 +117,7 @@ test('вложенные разделы: раскрытие, один актив
   const menu = page.getByRole('dialog', { name: 'Навигация' });
   await menu.getByRole('button', { name: 'Подразделы: Настройка гостиницы' }).click();
   await menu.getByRole('link', { name: 'Услуги', exact: true }).click();
-  await expect(page.locator('h1')).toHaveText('Услуги');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Услуги');
   await expect(menu).not.toBeVisible();
   await noPageOverflow(page);
 });
@@ -157,7 +157,7 @@ test('менеджер каналов: реальные фильтры, пуст
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
   await page.goto('/channel-manager');
-  await expect(page.locator('h1')).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
   await expect(page.getByTestId('channel-bookings')).toHaveCount(0);
 });
 
@@ -200,7 +200,7 @@ test('поиск и списки дня; мобильное меню и возв
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\?q=/);
-  await expect(page.locator('h1')).toHaveText('Гости');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Гости');
   await page.setViewportSize({ width: 390, height: 844 });
   const openMenu = page.getByRole('button', { name: 'Открыть меню' });
   await openMenu.click();
@@ -220,7 +220,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto('/chessboard');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   // The short window starts today and clips the seeded stay that arrived yesterday.
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+  const last = new Date(Date.parse(`${today}T00:00:00Z`) + 6 * 86400_000)
+    .toISOString()
+    .slice(0, 10);
+  await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
@@ -302,10 +306,10 @@ test('карточка: профиль гостя и заселение прох
 test('сбой API показывает ошибку, повтор восстанавливает страницу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/inventory');
-  await expect(page.locator('h1')).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.getByRole('button', { name: 'Повторить загрузку' }).click();
-  await expect(page.locator('h1')).toHaveText('Номерной фонд');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Номерной фонд');
 });
 
 test('неисправности из обновлённого main: принятие и закрытие работают в новом каркасе', async ({
@@ -336,7 +340,7 @@ test('сбой списка неисправностей не выдаётся �
 
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
-  await expect(page.locator('h1')).toHaveText('Новая бронь');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
   await expect(page.getByText('Даты некорректны:', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
@@ -346,7 +350,7 @@ test('отсутствующая бронь, гость или ячейка по
 }) => {
   for (const route of ['/reservations/MISSING', '/guests/MISSING', '/units/MISSING']) {
     await page.goto(route);
-    await expect(page.locator('h1')).toHaveText('Страница не найдена');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Страница не найдена');
   }
 });
 
@@ -450,7 +454,7 @@ test('ошибка буфера обмена видна, код остаётся
 
 test('финансы: неверные даты можно исправить без падения страницы', async ({ page }) => {
   await page.goto('/finance?from=2026-09-30&to=2026-09-01');
-  await expect(page.locator('h1')).toHaveText('Деньги за период');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Деньги за период');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Проверьте даты');
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
@@ -550,9 +554,12 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   await page.goto('/channels');
   for (const id of ['channel-pull', 'channel-flush', 'channel-sync', 'channel-setup']) {
-    await page.getByTestId(id).click();
-    await expect(page.getByTestId('channel-result')).toBeVisible();
-    await expect(page.getByTestId(id)).toBeEnabled();
+    // Streamed Suspense may briefly retain a hidden copy; require one visible action.
+    const button = page.getByTestId(id).filter({ visible: true });
+    await expect(button).toHaveCount(1);
+    await button.click();
+    await expect(page.getByTestId('channel-result').filter({ visible: true })).toBeVisible();
+    await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();

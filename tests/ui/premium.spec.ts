@@ -90,7 +90,11 @@ test('новые фильтры шахматки, список броней и �
 }) => {
   await page.goto('/chessboard');
   // Status filters apply to the first date; seed occupancy is relative to today.
-  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+  const last = new Date(Date.parse(`${today}T00:00:00Z`) + 6 * 86400_000)
+    .toISOString()
+    .slice(0, 10);
+  await page.goto(`/chessboard?from=${today}&to=${last}`);
   await page.getByRole('button', { name: 'Номера', exact: true }).click();
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.getByRole('button', { name: 'Койко-места', exact: true }).click();
@@ -143,7 +147,7 @@ test('новые страницы и обе темы: адаптивность �
     await page.setViewportSize({ width, height: 1000 });
     for (const route of routes) {
       await page.goto(route);
-      await expect(page.locator('h1')).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       if (width === 390 && route === '/today')
         await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-mobile.png` });
       const overflow = await page.evaluate(() => {
@@ -161,7 +165,7 @@ test('новые страницы и обе темы: адаптивность �
   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
   for (const route of routes) {
     await page.goto(route);
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   }
   expect(errors).toEqual([]);

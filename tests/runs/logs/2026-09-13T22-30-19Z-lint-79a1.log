@@ -1,0 +1,12 @@
+# Линтер (lint) · 14.09.2026 03:30 Алматы · MacBook-Air-Urij.local
+# коммит b22fa32 (codex/system-persistence-audit), незакоммиченных файлов набора: 7
+# npx eslint .
+
+/Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts
+  309:7  error  Unsafe usage of ThrowStatement                                  no-unsafe-finally
+  309:7  error  There is no `cause` attached to the symptom error being thrown  preserve-caught-error
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 10 с

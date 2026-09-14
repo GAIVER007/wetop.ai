@@ -53,6 +53,7 @@ export function ChessboardGrid({
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
 
@@ -208,19 +209,29 @@ export function ChessboardGrid({
       >
         <table
           data-testid="chessboard"
-          className={cx('board', fitMonth && 'board--month')}
+          className={cx('board', fitMonth && 'board--month', fitWeek && 'board--week')}
           style={
             fitMonth
               ? ({
                   '--month-min-width': `calc(var(--month-unit-width) + ${24 * board.dates.length}px)`,
                 } as CSSProperties)
-              : { width: 190 + dayWidth * board.dates.length }
+              : fitWeek
+                ? undefined
+                : { width: 190 + dayWidth * board.dates.length }
           }
         >
           <colgroup>
-            <col style={{ width: fitMonth ? 'var(--month-unit-width)' : 190 }} />
+            <col
+              style={{
+                width: fitMonth
+                  ? 'var(--month-unit-width)'
+                  : fitWeek
+                    ? 'var(--week-unit-width)'
+                    : 190,
+              }}
+            />
             {board.dates.map((date) => (
-              <col key={date} style={fitMonth ? undefined : { width: dayWidth }} />
+              <col key={date} style={fitMonth || fitWeek ? undefined : { width: dayWidth }} />
             ))}
           </colgroup>
           <thead>

@@ -85,7 +85,8 @@ test('виджет: цены на завтра, бронь одноместно�
 
   // карточка брони в PMS
   await page.goto(`/reservations/${number}`);
-  await expect(page.getByText(number)).toBeVisible();
+  // номер брони есть и в заголовке, и во вкладке «История» (PR #2) — проверяем заголовок карточки
+  await expect(page.getByRole('heading', { name: `Бронь ${number}` })).toBeVisible();
   await expect(page.getByText('сайт', { exact: false }).first()).toBeVisible();
   await expect(page.getByTestId('reservation-notes')).toContainText(
     'E2E-АВТОТЕСТ: бронь из виджета',

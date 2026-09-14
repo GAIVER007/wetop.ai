@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -81,16 +82,20 @@ test('стойка: занятую койку не продать дважды, 
   const row = page.getByTestId('stay-row').first();
   await expect(row).toContainText(departure);
   const priceBefore = money(await row.locator('td').nth(5).innerText());
+  await cardTab(page, 'Действия');
   await page.locator('[data-testid^="extend-"]').click();
+  await cardTab(page, 'Обзор');
   await expect(row).toContainText(plus(10));
   const priceAfter = money(await row.locator('td').nth(5).innerText());
   // добавлена ровно одна ночь к двум: цена выросла примерно на половину, а не пересчиталась целиком
   expect(priceAfter).toBeGreaterThan(priceBefore);
   expect(priceAfter).toBeLessThan(priceBefore * 1.75);
   // счёт за проживание переписан под новую цену — долг администратору виден сразу
+  await cardTab(page, 'Счета');
   expect(money(await page.getByTestId('folio-balance').innerText())).toBe(priceAfter);
   // форма изменения дат показывает новую дату выезда: иначе «Пересчитать и сохранить» молча
   // вернуло бы проживание на ночь назад
+  await cardTab(page, 'Действия');
   await expect(page.locator('input[name="departureDate"]')).toHaveValue(plus(10));
 
   // ── T1: переселение в другую категорию с пересчётом ───────────────────────────────────────
@@ -102,15 +107,19 @@ test('стойка: занятую койку не продать дважды, 
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
 
+  await cardTab(page, 'Обзор');
   await expect(row).toContainText(otherUnit);
   await expect(row).toContainText(otherCategory);
   const priceMoved = money(await row.locator('td').nth(5).innerText());
   expect(priceMoved).not.toBe(priceAfter); // цена взята из календаря новой категории
+  await cardTab(page, 'Счета');
   expect(money(await page.getByTestId('folio-balance').innerText())).toBe(priceMoved);
   await page.screenshot({ path: 'reports/screenshots/desk-move-extend.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
   page.once('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

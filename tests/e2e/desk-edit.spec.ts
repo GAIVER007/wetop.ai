@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
@@ -65,22 +66,27 @@ test('групповая бронь на 2 койки → две клетки ш
   // ── Правка: заметки и источник ────────────────────────────────────────────────────────────
   await page.goto(`/reservations/${number}`);
   const edit = page.getByTestId('edit-reservation-form');
+  await cardTab(page, 'Действия');
   await edit.locator('select[name="source"]').selectOption('WHATSAPP');
   await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ · поздний заезд, ключ у соседа');
   await edit.getByRole('button', { name: 'Сохранить' }).click();
   // текст есть и в подписи, и в поле ввода — проверяем именно подпись на карточке
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('reservation-notes')).toContainText('поздний заезд, ключ у соседа');
   await expect(page.locator('main')).toContainText('WhatsApp');
 
   // ── Правка: гостей на проживании — койка вмещает одного, двоих не записать ───────────────
   const guests = page.locator('[data-testid^="guests-form-"]').first();
+  await cardTab(page, 'Действия');
   await guests.locator('input[name="adults"]').fill('2');
   await guests.getByRole('button', { name: 'Сохранить' }).click();
   await expect(guests.getByRole('alert')).toContainText(/вместимость 1/);
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-guests-count').first()).toContainText('· 1');
 
   // ── Ручное закрытие счёта: кнопки нет при долге, есть при нулевом балансе ─────────────────
   const panel = page.getByTestId('folio-panel').first();
+  await cardTab(page, 'Счета');
   await expect(panel.locator('[data-testid^="close-folio-"]')).toHaveCount(0);
   await panel.getByTestId('payment-form').getByRole('button', { name: 'Принять оплату' }).click();
   await expect(panel.getByTestId('folio-balance')).toContainText('оплачено');
@@ -92,6 +98,8 @@ test('групповая бронь на 2 койки → две клетки ш
 
   // прибрать за собой: бронь отменяется, койки освобождаются
   page.once('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

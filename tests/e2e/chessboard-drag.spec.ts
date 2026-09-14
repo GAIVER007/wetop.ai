@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
@@ -77,6 +78,8 @@ test('перетаскивание клетки брони на свободну
 
   // прибрать за собой: бронь отменяется, койка освобождается
   page.once('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

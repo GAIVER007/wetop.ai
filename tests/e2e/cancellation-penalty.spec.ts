@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -37,13 +38,18 @@ test('отмена заранее — без штрафа, незаезд — с
   const stayTotal = minor(
     await page.getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
-  const balance = async () => minor(await page.getByTestId('folio-balance').innerText());
+  const balance = async () => {
+    await cardTab(page, 'Счета');
+    return minor(await page.getByTestId('folio-balance').innerText());
+  };
   expect(await balance()).toBe(stayTotal);
 
   page.on('dialog', (d) => d.accept());
   // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
   await expect(page.getByText('отменена').first()).toBeVisible();
+  await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
   await expect(accommodation).toContainText('сторнировано');
   await expect(panel.getByTestId('charge-row').filter({ hasText: 'Штраф' })).toHaveCount(0);
@@ -63,8 +69,10 @@ test('отмена заранее — без штрафа, незаезд — с
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
   await expect(page.getByText('незаезд').first()).toBeVisible();
+  await cardTab(page, 'Счета');
   const penalty = page
     .getByTestId('folio-panel')
     .getByTestId('charge-row')

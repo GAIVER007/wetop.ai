@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
@@ -48,6 +49,7 @@ test('создать бронь с ячейкой → видна в шахмат
 
   await page.goto(`/reservations/${number}`);
   page.on('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);

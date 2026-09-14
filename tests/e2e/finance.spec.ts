@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Финансы (DATA_MODEL §6, ADR-014): счёт создаётся вместе с проживанием, начисление = цене;
@@ -41,7 +42,11 @@ test('счёт на проживание: начисления, оплата, в
   const panel = page.getByTestId('folio-panel');
   await expect(panel).toHaveCount(1);
   const price = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
-  const balance = async () => minor(await page.getByTestId('folio-balance').innerText());
+  // счёт и его формы — на вкладке «Счета»; каждое чтение баланса открывает её, как администратор
+  const balance = async () => {
+    await cardTab(page, 'Счета');
+    return minor(await page.getByTestId('folio-balance').innerText());
+  };
   expect(price).toBeGreaterThan(0n);
   expect(await balance()).toBe(price); // начисление за проживание = цене проживания
   await expect(panel.getByTestId('charge-row')).toHaveCount(1);

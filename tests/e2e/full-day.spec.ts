@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -43,10 +44,14 @@ test('сутки гостя целиком: заезд, услуга на счё
   const stayPrice = minor(
     await page.getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
-  const balance = async () => minor(await page.getByTestId('folio-balance').innerText());
+  const balance = async () => {
+    await cardTab(page, 'Счета');
+    return minor(await page.getByTestId('folio-balance').innerText());
+  };
   expect(await balance()).toBe(stayPrice);
 
   // 2. Гость: гражданство и документ — без них заселение запрещено
+  await cardTab(page, 'Обзор');
   await page.getByTestId('guest-link').click();
   await page.getByTestId('guest-form').locator('input[name="citizenship"]').fill('KAZ');
   await page.getByTestId('guest-form').getByRole('button', { name: 'Сохранить' }).click();
@@ -58,12 +63,15 @@ test('сутки гостя целиком: заезд, услуга на счё
 
   // 3. Заезд
   await page.goto(`/reservations/${number}`);
+  await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-in-"]').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
 
   // 4. Услуга на счёт
   const panel = page.getByTestId('folio-panel');
   const charge = panel.getByTestId('charge-form');
+  await cardTab(page, 'Счета');
   await charge.locator('select[name="kind"]').selectOption('SERVICE');
   await charge.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
   await charge.getByRole('button', { name: 'Начислить' }).click();
@@ -79,7 +87,9 @@ test('сутки гостя целиком: заезд, услуга на счё
   expect(await balance()).toBe(0n);
 
   // 6. Выезд: долга нет, подтверждения не спрашивают
+  await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-out-"]').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
   expect(await balance()).toBe(0n);
   await page.screenshot({ path: 'reports/screenshots/full-day.png', fullPage: true });

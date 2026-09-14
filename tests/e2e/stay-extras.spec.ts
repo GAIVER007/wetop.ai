@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте одной кнопкой, половина цены ночи
@@ -38,6 +39,7 @@ test('поздний выезд и ранний заезд начисляютс�
 
   // диалог спрашивает время: 19:00 → вся ночь по правилу объекта из Exely
   page.once('dialog', (d) => void d.accept('19:00'));
+  await cardTab(page, 'Счета');
   await page.locator('[data-testid^="late-check-out-"]').click();
   const late = page.getByTestId('charge-row').filter({ hasText: 'Поздний выезд' });
   await expect(late).toHaveCount(1);
@@ -63,7 +65,9 @@ test('поздний выезд и ранний заезд начисляютс�
   await page.goto(`/reservations/${number}`);
 
   page.once('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся
   await page.goto(`/chessboard?from=${plus(11)}&to=${plus(14)}`);

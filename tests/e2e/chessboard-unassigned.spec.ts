@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { cardTab } from './card-tabs';
 
 /**
  * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Exely: проживание без назначения
@@ -47,6 +48,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
+  await cardTab(page, 'Действия');
   await expect(page.getByText('ячейка не назначена').first()).toBeVisible();
 
   // ── шахматка: блок над сеткой ─────────────────────────────────────────────────────────────
@@ -89,7 +91,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
 
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   page.once('dialog', (d) => d.accept());
+  await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   await expect(

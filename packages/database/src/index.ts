@@ -10,6 +10,7 @@ import { resolveDatabaseSchema } from './schema';
 
 export * from './generated/prisma/client';
 export { databaseSchemaName, resolveDatabaseSchema } from './schema';
+export { DATABASE_POOL_DEFAULTS, databasePoolTimeouts } from './pool';
 
 export function createPrismaClient(
   connectionString = process.env.DATABASE_URL,

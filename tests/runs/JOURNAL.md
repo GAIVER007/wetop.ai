@@ -301,3 +301,11 @@
 | 14.09.2026 13:01 | integration (частично: tests/integration/test-schema.test.ts tests/integration/system-incidents.test.ts tests/integration/web-analytics.test.ts) | ✅ 7 из 7 | 18 с | 76f729b +12 | [лог](logs/2026-09-14T08-01-54Z-integration-b028.log) | green: raw SQL runs in schema pms_test (ADR-040) |
 | 14.09.2026 13:05 | integration | ✅ 18 из 18 | 3 мин 22 с | 76f729b +12 | [лог](logs/2026-09-14T08-05-03Z-integration-7879.log) | autotests in schema pms_test (ADR-040): full integration set with search_path |
 | 14.09.2026 13:08 | e2e (частично: --workers=1) | ✅ 23 из 23 | 11 мин 5 с | 76f729b +14 | [лог](logs/2026-09-14T08-08-54Z-e2e-5481.log) | autotests in schema pms_test (ADR-040): isolated stand 3100/3101, full run |
+| 14.09.2026 13:37 | unit (частично: packages/database/src/pool-timeouts.test.ts) | ❌ упало 4 из 5 | 14 с | 1cb30bb +1 | [лог](logs/2026-09-14T08-37-50Z-unit-a783.log) | ADR-043 red: pool timeouts on current createPrismaClient (no bounds) |
+| 14.09.2026 13:38 | unit (частично: packages/database/src/pool-timeouts.test.ts) | ❌ упало 1 из 5 | 4 с | 1cb30bb +2 | [лог](logs/2026-09-14T08-38-51Z-unit-4cc5.log) | ADR-043 experiment: pg built-in query_timeout + connectionTimeoutMillis + keepAlive only (expected: transaction test still red) |
+| 14.09.2026 13:40 | unit (частично: packages/database/src/pool-timeouts.test.ts) | ✅ 5 из 5 | 4 с | 1cb30bb +3 | [лог](logs/2026-09-14T08-40-41Z-unit-af06.log) | ADR-043 green: connection closed on query silence, connect/acquire bound, keepAlive |
+| 14.09.2026 13:41 | unit | ✅ 729 из 729 | 14 с | 1cb30bb +4 | [лог](logs/2026-09-14T08-41-36Z-unit-a897.log) | ADR-043 full unit after pool timeouts (worktree claude/elated-noether-e3dda0 on main 1cb30bb) |
+| 14.09.2026 13:41 | typecheck | ❌ ошибок: 1 | 8 с | 1cb30bb +4 | [лог](logs/2026-09-14T08-41-58Z-typecheck-f279.log) | ADR-043 pool timeouts |
+| 14.09.2026 13:42 | typecheck | ✅ без ошибок | 5 с | 1cb30bb +4 | [лог](logs/2026-09-14T08-42-24Z-typecheck-ee12.log) | ADR-043 pool timeouts (after test typing fix) |
+| 14.09.2026 13:42 | lint | ✅ без ошибок | 5 с | 1cb30bb +4 | [лог](logs/2026-09-14T08-42-29Z-lint-4e70.log) | ADR-043 pool timeouts |
+| 14.09.2026 13:45 | unit | ✅ 729 из 729 | 13 с | 1cb30bb +4 | [лог](logs/2026-09-14T08-45-53Z-unit-ee5c.log) | ADR-043 final code: full unit after test typing fix |

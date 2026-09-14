@@ -1,0 +1,44 @@
+# Модульные (unit) · 14.09.2026 13:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1cb30bb (claude/elated-noether-e3dda0), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-38-51Z-unit-4cc5.json' 'packages/database/src/pool-timeouts.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux/.claude/worktrees/elated-noether-e3dda0
+
+ ❯ |unit| packages/database/src/pool-timeouts.test.ts (5 tests | 1 failed) 3402ms
+   ❯ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 672ms
+     × запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 940ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 339ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 315ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1134ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/database/src/pool-timeouts.test.ts > пул соединений: мёртвое соединение не вешает процесс > запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул
+AssertionError: expected 1 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ packages/database/src/pool-timeouts.test.ts:77:34
+     75|       const next = await settleWithin(db.$queryRaw`SELECT 1`, BOUND_MS…
+     76|       expect(next.state).toBe('rejected');
+     77|       expect(fake.connections()).toBe(2);
+       |                                  ^
+     78|     },
+     79|     TEST_TIMEOUT_MS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  01:38:51
+   Duration  3.59s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-38-51Z-unit-4cc5.json
+
+# код выхода 1 · 4 с

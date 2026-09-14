@@ -1,0 +1,89 @@
+# Модульные (unit) · 14.09.2026 13:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1cb30bb (claude/elated-noether-e3dda0), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-37-50Z-unit-a783.json' 'packages/database/src/pool-timeouts.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux/.claude/worktrees/elated-noether-e3dda0
+
+ ❯ |unit| packages/database/src/pool-timeouts.test.ts (5 tests | 4 failed) 13272ms
+   ❯ пул соединений: мёртвое соединение не вешает процесс (5)
+     × запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 3029ms
+     × запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 3024ms
+     × все места пула заняты зависшими запросами — ожидание места ограничено сроком 3038ms
+     × сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 3034ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1146ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/database/src/pool-timeouts.test.ts > пул соединений: мёртвое соединение не вешает процесс > запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению
+AssertionError: expected 'pending' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "pending"
+
+ ❯ packages/database/src/pool-timeouts.test.ts:50:27
+     48|
+     49|       const first = await settleWithin(db.$queryRaw`SELECT 1`, BOUND_M…
+     50|       expect(first.state).toBe('rejected');
+       |                           ^
+     51|
+     52|       const second = await settleWithin(db.$queryRaw`SELECT 1`, BOUND_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/database/src/pool-timeouts.test.ts > пул соединений: мёртвое соединение не вешает процесс > запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул
+AssertionError: expected 'pending' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "pending"
+
+ ❯ packages/database/src/pool-timeouts.test.ts:71:24
+     69|         BOUND_MS,
+     70|       );
+     71|       expect(tx.state).toBe('rejected');
+       |                        ^
+     72|
+     73|       // соединение с зависшим запросом и открытой транзакцией на серв…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/database/src/pool-timeouts.test.ts > пул соединений: мёртвое соединение не вешает процесс > все места пула заняты зависшими запросами — ожидание места ограничено сроком
+AssertionError: expected 'pending' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "pending"
+
+ ❯ packages/database/src/pool-timeouts.test.ts:99:29
+     97|
+     98|       const waiting = await settleWithin(db.$queryRaw`SELECT 1`, BOUND…
+     99|       expect(waiting.state).toBe('rejected');
+       |                             ^
+    100|       expect(fake.connections()).toBe(1);
+    101|     },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/database/src/pool-timeouts.test.ts > пул соединений: мёртвое соединение не вешает процесс > сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок
+AssertionError: expected 'pending' to be 'rejected' // Object.is equality
+
+Expected: "rejected"
+Received: "pending"
+
+ ❯ packages/database/src/pool-timeouts.test.ts:114:28
+    112|
+    113|       const result = await settleWithin(db.$queryRaw`SELECT 1`, BOUND_…
+    114|       expect(result.state).toBe('rejected');
+       |                            ^
+    115|     },
+    116|     TEST_TIMEOUT_MS,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  01:37:51
+   Duration  13.45s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-37-50Z-unit-a783.json
+
+# код выхода 1 · 14 с

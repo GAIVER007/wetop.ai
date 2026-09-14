@@ -16,7 +16,8 @@ import { expect, test, type Page } from '@playwright/test';
  * Имя *.localhost браузер сам ведёт на loopback; origin у сайта другой, чем у API, поэтому заголовок
  * Origin и проверка домена работают как на настоящем сайте.
  */
-const API = 'http://127.0.0.1:3001';
+// изолированный прогон задаёт APP_API_URL (тестовый API в pms_test, ADR-040)
+const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 const HOST = 'test-site.localhost:3999';
 const SITE_HOST = 'test-site.localhost';
 const DESKTOP_UA =

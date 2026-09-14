@@ -103,6 +103,14 @@ describe('Database connection through the real API application', () => {
     expect(response.body).toMatchObject({ state: 'DATABASE_UNAVAILABLE', counts: null });
   });
 
+  it('names the schema the API works in: public for live data, pms_test for autotests (ADR-040)', async () => {
+    const live = await request(app.getHttpServer()).get('/system/connection').expect(200);
+    expect(live.body.database.schema).toBe('public');
+    vi.stubEnv('DATABASE_SCHEMA', 'pms_test');
+    const tests = await request(app.getHttpServer()).get('/system/connection').expect(200);
+    expect(tests.body.database.schema).toBe('pms_test');
+  });
+
   it('keeps a non-Supabase PostgreSQL connection accurately labelled', async () => {
     vi.stubEnv('DATABASE_URL', 'postgresql://test@supabase.com.invalid/test');
     const response = await request(app.getHttpServer()).get('/system/connection').expect(200);

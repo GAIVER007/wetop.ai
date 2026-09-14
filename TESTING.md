@@ -52,12 +52,17 @@ Markdown внутри кода входит — тесты импорта чит
 | Набор | Что внутри | Что проверяет | Нужно для запуска | Годность |
 |---|---|---|---|---|
 | `unit` | `vitest run --project unit` | Всё, что без базы: `apps`, `packages`, `scripts`, `tests/unit` | ничего | пока не изменится код |
-| `integration` | `vitest run --project integration` | Живая dev-БД: импорт фонда, цен и броней, запрет овербукинга, ручная бронь, CHECK гражданства, аналитика сайта | `DATABASE_URL` в `.env` | сутки |
-| `e2e` | `playwright test --workers=2` | Стойка целиком: браузер → web :3000 → API :3001 → dev-БД; спек сертификации шлёт одно сообщение в Channex staging | dev-БД, ключ Channex staging; серверы Playwright поднимает сам | сутки |
+| `integration` | `vitest run --project integration` | Схема `pms_test` проекта «hotel» (ADR-040): импорт фонда, цен и броней, запрет овербукинга, ручная бронь, CHECK гражданства, аналитика сайта, неисправности, прямой SQL в тестовой схеме | `DATABASE_URL` в `.env`; схему догоняет `tests/integration-setup.ts` | сутки |
+| `e2e` | `playwright test --workers=2` | Стойка целиком в изолированном стенде: браузер → web :3100 → API :3101 → `pms_test`; первым идёт `schema-guard`. Сертификация Channex — только `E2E_CHANNEX_LIVE=1` на рабочем стенде | `DATABASE_URL`, production-сборка `apps/web`; серверы Playwright поднимает сам | сутки |
 | `typecheck` | `typecheck`, `typecheck:api`, `typecheck:web` — все три до конца | Типы корня, API и стойки | ничего | пока не изменится код |
 | `lint` | `eslint .` | Правила кода, включая ADR-004: Channex только в `packages/integrations` | ничего | пока не изменится код |
 
-`npm test` — это **оба** проекта vitest, то есть и живая база. Только модульные — `npm run test:record -- unit`.
+`npm test` — это **оба** проекта vitest, то есть и база (схема `pms_test`). Только модульные — `npm run test:record -- unit`.
+
+**Рабочие данные тесты не трогают (ADR-040, 14.09.2026).** Интеграционные и сквозные тесты работают в схеме `pms_test`
+того же проекта Supabase: копия рабочих таблиц, в которую можно писать. Создать или догнать миграции — `npm run test:schema`,
+освежить копию данных — `npm run test:schema -- --refresh` (не во время чужого прогона). Новый прямой SQL в коде
+(`$queryRaw`) пишите без имени схемы — `search_path` соединения направит его в `pms_test`; явное `public.` сломает изоляцию.
 
 Покрытие не измеряется: пакета `@vitest/coverage-*` в проекте нет, и цель 80% из `tests/README.md` сейчас ничем
 не проверяется.

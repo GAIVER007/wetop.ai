@@ -30,6 +30,9 @@ export default defineConfig({
           exclude: ['**/node_modules/**'],
           fileParallelism: false,
           hookTimeout: 60_000,
+          // ADR-040: интеграционные тесты пишут в схему pms_test проекта «hotel», рабочие данные (public) не трогают
+          env: { DATABASE_SCHEMA: 'pms_test' },
+          globalSetup: ['tests/integration-setup.ts'],
         },
       },
     ],

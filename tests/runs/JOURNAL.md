@@ -319,3 +319,7 @@
 | 14.09.2026 14:17 | lint | ✅ без ошибок | 5 с | 38eab10 +2 | [лог](logs/2026-09-14T09-17-45Z-lint-f3b8.log) | ADR-043 drill: export databasePoolTimeouts, scripts/ops/db-dead-connection-drill.ts (after merging main d6d1d30) |
 | 14.09.2026 14:17 | unit | ✅ 749 из 749 | 13 с | 38eab10 +2 | [лог](logs/2026-09-14T09-17-50Z-unit-2652.log) | ADR-043 drill: export databasePoolTimeouts, scripts/ops/db-dead-connection-drill.ts (after merging main d6d1d30) |
 | 14.09.2026 14:20 | lint | ✅ без ошибок | 4 с | 95d9300 +1 | [лог](logs/2026-09-14T09-20-43Z-lint-7c99.log) | ADR-043 drill: handshake sniff (TLS or plaintext to pooler) |
+| 14.09.2026 14:24 | lint | ✅ без ошибок | 5 с | deee9ac +1 | [лог](logs/2026-09-14T09-24-05Z-lint-703a.log) | ADR-043 drill: auth method of the pooler reply |
+| 14.09.2026 14:28 | typecheck | ✅ без ошибок | 9 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-01Z-typecheck-91a0.log) | ADR-043 pool.ts comment (TLS wording) after drill |
+| 14.09.2026 14:28 | lint | ✅ без ошибок | 5 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-10Z-lint-1b2f.log) | ADR-043 pool.ts comment (TLS wording) after drill |
+| 14.09.2026 14:28 | unit | ✅ 749 из 749 | 12 с | 2e852cd +1 | [лог](logs/2026-09-14T09-28-16Z-unit-dcec.log) | ADR-043 pool.ts comment (TLS wording) after drill |

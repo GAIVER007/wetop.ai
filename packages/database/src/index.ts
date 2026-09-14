@@ -5,6 +5,7 @@
  */
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, type Prisma } from './generated/prisma/client';
+import { databasePoolTimeouts } from './pool';
 import { resolveDatabaseSchema } from './schema';
 
 export * from './generated/prisma/client';
@@ -25,6 +26,8 @@ export function createPrismaClient(
     {
       connectionString,
       max: Number.isFinite(max) && max > 0 ? max : 5,
+      // ADR-043: подключение, место в пуле и ответ базы ограничены сроком — мёртвое соединение не вешает процесс
+      ...databasePoolTimeouts(process.env),
       // Опция schema ниже меняет только SQL, который строит Prisma; прямой SQL ($queryRaw) идёт по search_path соединения.
       // Параметр при подключении Session pooler Supabase пропускает (проверено 14.09.2026) — схема действует с первого запроса.
       ...(schema ? { options: `-c search_path=${schema},public` } : {}),

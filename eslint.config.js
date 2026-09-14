@@ -9,6 +9,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/.next/**',
       '**/.next-ui/**',
+      'apps/site/out/**',
       'coverage/**',
       'playwright-report/**',
     ],

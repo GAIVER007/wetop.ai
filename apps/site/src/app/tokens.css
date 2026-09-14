@@ -1,0 +1,97 @@
+/*
+ * Токены WETOP для главной wetop.ai. Цвета — копия apps/web/src/app/tokens.css (стойка): сайт и продукт выглядят
+ * одним целым. Файл стойки не импортируется — у сайта своя сборка. Тема — только по настройке системы
+ * (prefers-color-scheme), переключателя нет. Меняете цвет в стойке — поменяйте и здесь.
+ */
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f6f8fc;
+  --surface-elevated: #ffffff;
+  --glass: rgba(255, 255, 255, 0.85);
+  --border: #e5eaf2;
+  --border-soft: #eef1f7;
+  --border-input: #dce3ee;
+  --text: #101827;
+  --text-2: #536176;
+  --muted: #596a80;
+  --primary: #085fba;
+  --primary-hover: #0966c8;
+  --primary-soft: #eaf4ff;
+  --on-primary: #ffffff;
+  --success: #06735e;
+  --success-soft: #e5f7f0;
+  --warning: #94600b;
+  --warning-soft: #fff4df;
+  --purple: #7860cb;
+  --purple-soft: #f2efff;
+  --chip-bg: #edf1f7;
+  --chip-fg: #536176;
+  --st-confirmed: #dcecff;
+  --st-checked-in: #d7f0e9;
+  --st-checked-out: #e9edf4;
+  --st-tentative: #faedcc;
+  --st-blocked: #f7dde2;
+  --row-hover: #f2f7fd;
+  --shadow: 0 6px 24px rgba(26, 45, 78, 0.04);
+  --shadow-card: 0 1px 2px rgba(26, 45, 78, 0.04), 0 12px 32px -12px rgba(26, 45, 78, 0.12);
+  --shadow-floating: 0 20px 70px rgba(18, 38, 68, 0.16);
+  --radius-sm: 8px;
+  --radius-control: 12px;
+  --radius: 16px;
+  --radius-lg: 24px;
+
+  --font-head: var(--font-manrope), 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font: var(--font-plex-sans), 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: var(--font-plex-mono), 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --header-h: 64px;
+  --container: 1200px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --ease: 180ms ease-out;
+}
+
+@media (min-width: 60rem) {
+  :root {
+    --header-h: 72px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #060b14;
+    --surface: #0b1524;
+    --surface-muted: #0d192a;
+    --surface-elevated: #111f31;
+    --glass: rgba(11, 21, 36, 0.86);
+    --border: #1b2a3d;
+    --border-soft: #142236;
+    --border-input: #2b3d53;
+    --text: #f7f9fc;
+    --text-2: #a8b3c5;
+    --muted: #899ab1;
+    --primary: #48a5ff;
+    --primary-hover: #71b9ff;
+    --primary-soft: #102c49;
+    --on-primary: #06111f;
+    --success: #38d2ae;
+    --success-soft: #10352f;
+    --warning: #f6ba52;
+    --warning-soft: #392d19;
+    --purple: #b4a0f2;
+    --purple-soft: #28213e;
+    --chip-bg: #1b293b;
+    --chip-fg: #a8b3c5;
+    --st-confirmed: #163958;
+    --st-checked-in: #16443f;
+    --st-checked-out: #243044;
+    --st-tentative: #46361c;
+    --st-blocked: #472936;
+    --row-hover: #112137;
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 32px -12px rgba(0, 0, 0, 0.45);
+    --shadow-floating: 0 24px 80px rgba(0, 0, 0, 0.4);
+  }
+}

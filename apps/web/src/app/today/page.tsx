@@ -9,22 +9,25 @@ import { Page } from '../../components/page';
 import { Alert, Button, Input } from '../../components/ui';
 import { AIInsightCard, QuickActions, OccupancyCharts, HotelClock } from './dashboard-widgets';
 import { displayDate } from '../../lib/display-date';
+import { almatyDate } from '../../lib/almaty';
 
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
-  const [day, hotel] = await Promise.all([
+  // Дата известна до ответа API (по часам объекта), поэтому шахматка недели грузится вместе со сводкой дня,
+  // а не после неё — минус одно ожидание API на каждой загрузке (волна 4)
+  const date =
+    sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : almatyDate(new Date().toISOString());
+  const end = new Date(`${date}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 6);
+  const [day, hotel, board] = await Promise.all([
     deskApi.today(sp.date),
     hotelApi.settings().catch((error: unknown) => {
       if (error instanceof ApiError) return null;
       throw error;
     }),
+    chessboardApi.board(date, end.toISOString().slice(0, 10)).catch(() => null),
   ]);
-  const end = new Date(`${day.date}T00:00:00Z`);
-  end.setUTCDate(end.getUTCDate() + 6);
-  const board = await chessboardApi
-    .board(day.date, end.toISOString().slice(0, 10))
-    .catch(() => null);
   const debt = BigInt(day.debtMinor) > 0n;
   const metrics: Array<{
     label: string;

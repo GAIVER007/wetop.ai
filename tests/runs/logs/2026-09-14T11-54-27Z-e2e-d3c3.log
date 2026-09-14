@@ -1,0 +1,152 @@
+# Сквозные (e2e) · 14.09.2026 16:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит ad79bd0 (main), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' '--workers=1'
+
+Running 25 tests using 1 worker
+
+  ✓   1 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (13.1s)
+  ✓   2 tests/ui/workspace.spec.ts:97:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (2.5s)
+  ✓   3 tests/ui/workspace.spec.ts:125:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (913ms)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1132886680'
+[WebServer] }
+  ✓   4 tests/ui/workspace.spec.ts:143:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (1.1s)
+  ✓   5 tests/ui/workspace.spec.ts:164:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (1.4s)
+  ✓   6 tests/ui/workspace.spec.ts:193:1 › поиск и списки дня; мобильное меню и возврат фокуса (1.6s)
+  ✓   7 tests/ui/workspace.spec.ts:219:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (1.2s)
+  ✓   8 tests/ui/workspace.spec.ts:241:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (889ms)
+  ✓   9 tests/ui/workspace.spec.ts:273:1 › карточка: профиль гостя и заселение проходят через server actions (1.4s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '638286073'
+[WebServer] }
+  ✓  10 tests/ui/workspace.spec.ts:307:1 › сбой API показывает ошибку, повтор восстанавливает страницу (737ms)
+  ✓  11 tests/ui/workspace.spec.ts:316:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (962ms)
+  ✓  12 tests/ui/workspace.spec.ts:330:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (476ms)
+  ✓  13 tests/ui/workspace.spec.ts:342:1 › неверная дата в ссылке оставляет доступную форму для исправления (478ms)
+  ✓  14 tests/ui/workspace.spec.ts:349:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (1.0s)
+  ✓  15 tests/ui/workspace.spec.ts:358:1 › групповая бронь: разные категории сохраняются при конфликте (632ms)
+  ✓  16 tests/ui/workspace.spec.ts:382:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.2s)
+  ✓  17 tests/ui/workspace.spec.ts:409:1 › обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия (1.8s)
+  ✓  18 tests/ui/workspace.spec.ts:440:1 › ошибка буфера обмена видна, код остаётся доступен (576ms)
+  ✓  19 tests/ui/workspace.spec.ts:456:1 › финансы: неверные даты можно исправить без падения страницы (660ms)
+  ✓  20 tests/ui/workspace.spec.ts:466:1 › ошибка загрузки тарифов не позволяет включить виджет (456ms)
+  ✓  21 tests/ui/workspace.spec.ts:475:1 › номера: статус уборки, блокировка и снятие сохраняются (1.2s)
+  ✓  22 tests/ui/workspace.spec.ts:497:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (1.0s)
+  ✓  23 tests/ui/workspace.spec.ts:520:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (1.8s)
+  ✓  24 tests/ui/workspace.spec.ts:548:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (1.3s)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:23:31)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3400547672'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:63:17)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2472790563'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:55:13)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3127145634'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:191:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '848569761'
+[WebServer] }
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:57:21)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1148526657'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1132886680'
+[WebServer] }
+[WebServer] ⨯ Error: API /analytics/sites: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async MarketingPage (src/app/marketing/page.tsx:8:17)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3218443162'
+[WebServer] }
+  ✓  25 tests/ui/workspace.spec.ts:579:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (2.7s)
+
+  25 passed (44.3s)
+
+# код выхода 0 · 45 с

@@ -36,15 +36,20 @@ const SOURCE_RU: Record<string, string> = {
 /** Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение. */
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
-  const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
-  // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
-  const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
-  // Справочники — не бронь: их сбой не должен прятать карточку за экраном ошибки (волна 3)
-  const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
+  const confirmationNumber = decodeURIComponent(number);
+  // Справочники и счета не зависят от ответа брони — стартуют сразу, параллельно с ней (волна 4).
+  // Их сбой не должен прятать карточку за экраном ошибки (волна 3)
+  const lookups = Promise.all([
     reservationsApi.ratePlans().catch(() => null),
-    financeApi.reservation(r.confirmationNumber).catch(() => null),
+    financeApi.reservation(confirmationNumber).catch(() => null),
     financeApi.services().catch(() => null),
     api.inventorySummary().catch(() => null),
+  ]);
+  const r = await chessboardApi.reservation(confirmationNumber).catch(notFoundOn404);
+  // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
+  const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
+  const [[ratePlans, finance, services, summary], periodResults] = await Promise.all([
+    lookups,
     Promise.all(
       [...periods.values()].map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),

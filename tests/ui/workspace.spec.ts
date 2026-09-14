@@ -179,7 +179,7 @@ test('подключения показывают частичный сбой, �
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
   await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
-  await expect(page.getByTestId('content-source')).toContainText('Channex');
+  await expect(page.getByTestId('content-source').filter({ visible: true })).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
   await expect(page.getByText('нельзя', { exact: true })).toBeVisible();

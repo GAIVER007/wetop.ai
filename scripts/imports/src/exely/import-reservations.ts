@@ -3,6 +3,7 @@ import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
 import type { GuestImportRecord, ReservationImportRecord } from './normalize-reservation';
+import { planSeats, type SeatRequest } from './seat-plan';
 
 export interface ReservationsImportOptions {
   propertyId: string;
@@ -69,6 +70,14 @@ export async function importReservations(
     start: Date;
     end: Date;
     conflictIndex: number;
+  }> = [];
+  /** Проживания с ячейкой из Exely: места раздаются всей пачкой после основного прохода (seat-plan.ts) */
+  const seating: Array<{
+    request: SeatRequest;
+    currentId: string | null;
+    currentCode: string | null;
+    confirmationNumber: string;
+    exelyRoomNumber: string;
   }> = [];
   const units = await tx.inventoryUnit.findMany({
     where: { accommodationType: { propertyId: opts.propertyId } },
@@ -227,7 +236,6 @@ export async function importReservations(
 
       // Отменённое / незаехавшее проживание ячейку не занимает (запрет пересечений в БД безусловный):
       // назначение не создаём, а существующее снимаем — как делает команда отмены на стойке.
-
       if (!holdsUnit) {
         const removed = await tx.allocation.deleteMany({ where: { reservationItemId: itemId } });
         report.allocations.released += removed.count;
@@ -238,28 +246,7 @@ export async function importReservations(
           throw new Error(
             `Бронь ${r.confirmationNumber}: единица «${it.exelyRoomNumber}» не найдена в фонде`,
           );
-        const allocData = {
-          inventoryUnitId: unitId,
-          startDate: asDate(it.arrivalDate),
-          endDate: asDate(it.departureDate),
-        };
-        // Пересечение с другим активным проживанием в той же ячейке (данные Exely): назначение не создаём,
-        // конфликт — в отчёт; запрет пересечений в БД остаётся последней линией защиты
-        const clash = await tx.allocation.findFirst({
-          where: {
-            inventoryUnitId: unitId,
-            reservationItemId: { not: itemId },
-            startDate: { lt: allocData.endDate },
-            endDate: { gt: allocData.startDate },
-            reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
-          },
-          select: {
-            startDate: true,
-            endDate: true,
-            reservationItem: { select: { reservation: { select: { confirmationNumber: true } } } },
-          },
-        });
-        const existingAlloc = await tx.allocation.findFirst({
+        const current = await tx.allocation.findFirst({
           where: { reservationItemId: itemId },
           select: {
             id: true,
@@ -267,84 +254,24 @@ export async function importReservations(
             inventoryUnit: { select: { code: true, accommodationTypeId: true } },
           },
         });
-        let keptSeat = false;
-        if (clash) {
-          // Проживание уже пересадили прошлым импортом: если та ячейка всё ещё свободна на эти
-          // даты, оставляем её. Иначе каждый повтор импорта снимал бы и заводил назначение заново.
-          // Только в своей категории: сменилась категория в Exely — прежняя пересадка чужая, рассаживаем заново
-          // (13.09.2026: «женская общая» стояла на мужской койке 35, стойка и канал считали остаток по-разному)
-          if (
-            existingAlloc &&
-            existingAlloc.inventoryUnitId !== unitId &&
-            existingAlloc.inventoryUnit.accommodationTypeId === typeId
-          ) {
-            const stillTaken = await tx.allocation.findFirst({
-              where: {
-                inventoryUnitId: existingAlloc.inventoryUnitId,
-                id: { not: existingAlloc.id },
-                startDate: { lt: allocData.endDate },
-                endDate: { gt: allocData.startDate },
-              },
-              select: { id: true },
-            });
-            if (!stillTaken) {
-              await tx.allocation.update({
-                where: { id: existingAlloc.id },
-                data: { startDate: allocData.startDate, endDate: allocData.endDate },
-              });
-              report.allocations.updated += 1;
-              report.conflicts.push({
-                confirmationNumber: r.confirmationNumber,
-                exelyRoomNumber: it.exelyRoomNumber,
-                arrivalDate: it.arrivalDate,
-                departureDate: it.departureDate,
-                conflictsWith: clash.reservationItem.reservation.confirmationNumber,
-                from: clash.startDate.toISOString().slice(0, 10),
-                to: clash.endDate.toISOString().slice(0, 10),
-                movedTo: existingAlloc.inventoryUnit.code,
-              });
-              keptSeat = true;
-            }
-          }
-        }
-        if (clash && !keptSeat) {
-          // Даты проживания изменились и новые пересекаются с чужим назначением: старое назначение
-          // снимаем, иначе ячейка осталась бы закреплённой на прежние, уже неверные даты
-          if (existingAlloc) {
-            await tx.allocation.delete({ where: { id: existingAlloc.id } });
-            report.allocations.released += 1;
-          }
-          // Ячейку из Exely занять нельзя. Сажать на первую свободную прямо здесь нельзя тоже:
-          // эта ячейка может быть «родной» для брони, которая ещё не обработана, и тогда вытеснение
-          // пойдёт по цепочке. Поэтому конфликтные проживания собираются и рассаживаются
-          // отдельным проходом, когда все назначения из Exely уже сделаны.
-          displaced.push({
+        // Место решается после прохода по всей пачке: Exely меняет гостей местами, и по одному проживанию
+        // обмен не проходит — место из Exely ещё занято не обработанным соседом (14.09.2026)
+        seating.push({
+          request: {
             itemId,
             typeId,
-            start: allocData.startDate,
-            end: allocData.endDate,
-            conflictIndex: report.conflicts.length,
-          });
-          report.conflicts.push({
-            confirmationNumber: r.confirmationNumber,
-            exelyRoomNumber: it.exelyRoomNumber,
-            arrivalDate: it.arrivalDate,
-            departureDate: it.departureDate,
-            conflictsWith: clash.reservationItem.reservation.confirmationNumber,
-            from: clash.startDate.toISOString().slice(0, 10),
-            to: clash.endDate.toISOString().slice(0, 10),
-            movedTo: null,
-          });
-          report.unassigned += 1;
-        } else if (keptSeat) {
-          // ячейка уже правильная (пересадка прошлого импорта) — трогать нечего
-        } else if (existingAlloc) {
-          await tx.allocation.update({ where: { id: existingAlloc.id }, data: allocData });
-          report.allocations.updated += 1;
-        } else {
-          await tx.allocation.create({ data: { reservationItemId: itemId, ...allocData } });
-          report.allocations.created += 1;
-        }
+            desiredUnitId: unitId,
+            start: it.arrivalDate,
+            end: it.departureDate,
+            current: current
+              ? { unitId: current.inventoryUnitId, typeId: current.inventoryUnit.accommodationTypeId }
+              : null,
+          },
+          currentId: current?.id ?? null,
+          currentCode: current?.inventoryUnit.code ?? null,
+          confirmationNumber: r.confirmationNumber,
+          exelyRoomNumber: it.exelyRoomNumber,
+        });
       } else if (holdsUnit) {
         report.unassigned += 1;
       }
@@ -362,6 +289,90 @@ export async function importReservations(
         });
         report.stayGuests.linked += 1;
       }
+    }
+  }
+
+  // ── Места из Exely всей пачкой ──
+  // Занятость — только чужие назначения на эти даты (статус проживания не фильтруется: запрет пересечений
+  // в БД безусловный). Прежняя пересадка сохраняется, если место из Exely занято, а прежнее своё — свободно.
+  if (seating.length > 0) {
+    const iso = (d: Date) => d.toISOString().slice(0, 10);
+    const from = seating.reduce((m, q) => (q.request.start < m ? q.request.start : m), seating[0]!.request.start);
+    const to = seating.reduce((m, q) => (q.request.end > m ? q.request.end : m), seating[0]!.request.end);
+    const others = await tx.allocation.findMany({
+      where: {
+        reservationItemId: { notIn: seating.map((q) => q.request.itemId) },
+        startDate: { lt: asDate(to) },
+        endDate: { gt: asDate(from) },
+        inventoryUnit: { accommodationType: { propertyId: opts.propertyId } },
+      },
+      select: {
+        inventoryUnitId: true,
+        reservationItemId: true,
+        startDate: true,
+        endDate: true,
+        reservationItem: { select: { reservation: { select: { confirmationNumber: true } } } },
+      },
+    });
+    const numberOf = new Map<string, string>([
+      ...others.map((o) => [o.reservationItemId, o.reservationItem.reservation.confirmationNumber] as const),
+      ...seating.map((q) => [q.request.itemId, q.confirmationNumber] as const),
+    ]);
+    const decisions = planSeats(
+      seating.map((q) => q.request),
+      others.map((o) => ({
+        unitId: o.inventoryUnitId,
+        itemId: o.reservationItemId,
+        start: iso(o.startDate),
+        end: iso(o.endDate),
+      })),
+    );
+    // Сначала снимаются назначения, которые меняют ячейку: иначе запрет пересечений не пустит соседа по обмену
+    for (const [i, d] of decisions.entries()) {
+      const q = seating[i]!;
+      const target = d.kind === 'displaced' ? null : d.unitId;
+      if (q.currentId && q.request.current!.unitId !== target) {
+        const removed = await tx.allocation.deleteMany({ where: { reservationItemId: q.request.itemId } });
+        if (d.kind === 'displaced') report.allocations.released += removed.count;
+      }
+    }
+    for (const [i, d] of decisions.entries()) {
+      const q = seating[i]!;
+      const req = q.request;
+      if (d.kind !== 'displaced') {
+        const data = { inventoryUnitId: d.unitId, startDate: asDate(req.start), endDate: asDate(req.end) };
+        if (q.currentId && req.current!.unitId === d.unitId) {
+          await tx.allocation.update({ where: { id: q.currentId }, data });
+          report.allocations.updated += 1;
+        } else {
+          await tx.allocation.create({ data: { reservationItemId: req.itemId, ...data } });
+          // пересадка на место из Exely — назначение того же проживания переписано, а не заведено заново
+          if (q.currentId) report.allocations.updated += 1;
+          else report.allocations.created += 1;
+        }
+      }
+      if (d.kind === 'desired') continue;
+      if (d.kind === 'displaced') {
+        displaced.push({
+          itemId: req.itemId,
+          typeId: req.typeId,
+          start: asDate(req.start),
+          end: asDate(req.end),
+          conflictIndex: report.conflicts.length,
+        });
+        report.unassigned += 1;
+      }
+      report.conflicts.push({
+        confirmationNumber: q.confirmationNumber,
+        exelyRoomNumber: q.exelyRoomNumber,
+        arrivalDate: req.start,
+        departureDate: req.end,
+        conflictsWith: numberOf.get(d.conflict.itemId) ?? d.conflict.itemId,
+        from: d.conflict.start,
+        to: d.conflict.end,
+        // «посажен на»: прежняя пересадка; вытесненным ячейку подберёт проход ниже
+        movedTo: d.kind === 'kept' ? q.currentCode : null,
+      });
     }
   }
 

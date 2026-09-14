@@ -1,0 +1,76 @@
+# Модульные (unit) · 14.09.2026 13:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 76f729b (main), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-19-24Z-unit-6cda.json' 'scripts/imports/src/exely/seat-plan.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ❯ |unit| scripts/imports/src/exely/seat-plan.test.ts (9 tests | 2 failed) 6ms
+   ❯ рассадка пачки импорта из Exely (9)
+     × обмен: Exely поменял двух гостей местами — оба садятся на места из Exely 4ms
+     × цепочка из трёх: каждый садится на место следующего, в каком бы порядке брони ни пришли из Exely 1ms
+     ✓ двойная продажа койки: место остаётся за тем, кто на ней уже стоит, в каком бы порядке ни пришли брони 0ms
+     ✓ место из Exely занято чужой бронью: остаётся на прежней ячейке своей категории, если она свободна 0ms
+     ✓ прежняя ячейка чужой категории не сохраняется — рассадка отдельным проходом (13.09.2026, койка 35) 0ms
+     ✓ даты сдвинулись на чужую бронь в той же ячейке — проживание вытесняется, а не остаётся поверх 0ms
+     ✓ первый импорт без мест: конфликт с соседом по пачке — вытеснен, ячейку найдёт отдельный проход 0ms
+     ✓ повтор импорта ничего не пересаживает: все на своих местах, вытесненный раньше — на своей пересадке 0ms
+     ✓ в разные ночи одна ячейка не конфликтует 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > рассадка пачки импорта из Exely > обмен: Exely поменял двух гостей местами — оба садятся на места из Exely
+AssertionError: expected { A: 'kept 43', B: 'kept 46' } to deeply equal { A: 'desired 46', B: 'desired 43' }
+
+- Expected
++ Received
+
+  {
+-   "A": "desired 46",
+-   "B": "desired 43",
++   "A": "kept 43",
++   "B": "kept 46",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:32:67
+     30|   it('обмен: Exely поменял двух гостей местами — оба садятся на места …
+     31|     // 14.09.2026: 20260914-…1261629766 в Exely 46, в PMS 43; 20260912…
+     32|     expect(seats([stay('A', '46', '43'), stay('B', '43', '46')])).toEq…
+       |                                                                   ^
+     33|       A: 'desired 46',
+     34|       B: 'desired 43',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| scripts/imports/src/exely/seat-plan.test.ts > рассадка пачки импорта из Exely > цепочка из трёх: каждый садится на место следующего, в каком бы порядке брони ни пришли из Exely
+AssertionError: expected { E: 'kept 28', D: 'kept 35', …(1) } to deeply equal { Object (C, D, ...) }
+
+- Expected
++ Received
+
+  {
+    "C": "desired 6",
+-   "D": "desired 8",
+-   "E": "desired 35",
++   "D": "kept 35",
++   "E": "kept 28",
+  }
+
+ ❯ scripts/imports/src/exely/seat-plan.test.ts:42:28
+     40|     const chain = [stay('C', '6', '8'), stay('D', '8', '35'), stay('E'…
+     41|     for (const order of [chain, [...chain].reverse()])
+     42|       expect(seats(order)).toEqual({ C: 'desired 6', D: 'desired 8', E…
+       |                            ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  01:19:24
+   Duration  105ms (transform 53%, tests 21%, import 18%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T08-19-24Z-unit-6cda.json
+
+# код выхода 1 · 1 с

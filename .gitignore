@@ -63,3 +63,6 @@ packages/database/src/generated/
 
 # Isolated UI test build, separate from the interactive preview
 .next-ui/
+
+# --- Дизайн-система (ADR-046, Д7): скриншоты Exely с закрашенными фамилиями лежат только локально ---
+design/reference/exely/

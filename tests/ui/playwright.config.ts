@@ -10,7 +10,11 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     baseURL: 'http://127.0.0.1:3100',
-    channel: process.env.UI_BROWSER_CHANNEL || 'chrome',
+    // Установленный Chrome; в окружении с Playwright Chromium — UI_BROWSER_CHANNEL=chromium;
+    // готовый бинарник другой версии (удалённая среда) — UI_BROWSER_EXECUTABLE=/путь/к/chrome.
+    ...(process.env.UI_BROWSER_EXECUTABLE
+      ? { launchOptions: { executablePath: process.env.UI_BROWSER_EXECUTABLE } }
+      : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',
   },

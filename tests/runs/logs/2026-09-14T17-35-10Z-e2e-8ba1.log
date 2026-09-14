@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 14.09.2026 22:35 Алматы · vm
+# коммит 8c68048 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-reference.spec.ts' '--workers=1'
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (light) (4.6s)
+  ✓   2 tests/ui/design-reference.spec.ts:39:3 › обзор дня (light) (1.8s)
+  ✓   3 tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (light) (6.7s)
+  ✓   4 tests/ui/design-reference.spec.ts:66:3 › карточка гостя (light) (2.2s)
+  ✓   5 tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (light) (1.6s)
+  ✓   6 tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (light) (1.8s)
+  ✓   7 tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (light) (1.3s)
+  ✓   8 tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (dark) (1.9s)
+  ✓   9 tests/ui/design-reference.spec.ts:39:3 › обзор дня (dark) (1.7s)
+  ✓  10 tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (dark) (4.9s)
+  ✓  11 tests/ui/design-reference.spec.ts:66:3 › карточка гостя (dark) (944ms)
+  ✓  12 tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (dark) (1.1s)
+  ✓  13 tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (dark) (1.4s)
+  ✓  14 tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (dark) (1.1s)
+
+  14 passed (38.3s)
+
+# код выхода 0 · 40 с

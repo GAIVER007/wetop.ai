@@ -384,3 +384,5 @@
 | 14.09.2026 22:25 | typecheck | ✅ без ошибок | 18 с | 73a5743 +1 | [лог](logs/2026-09-14T17-25-08Z-typecheck-81d1.log) | remote session connect check after prisma generate, Node 22 |
 | 14.09.2026 22:25 | lint | ✅ без ошибок | 12 с | 73a5743 +1 | [лог](logs/2026-09-14T17-25-34Z-lint-0aad.log) | remote session connect check, Node 22 |
 | 14.09.2026 22:25 | unit | ❌ упало 3 из 788 | 1 мин 40 с | 73a5743 | [лог](logs/2026-09-14T17-25-52Z-unit-709d.log) | remote session connect check, Node 22 |
+| 14.09.2026 22:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-reference.spec.ts --workers=1) | ❌ упало 14 из 14 | 24 с | 8c68048 +2 | [лог](logs/2026-09-14T17-34-21Z-e2e-f8e9.log) | design system step 1: screenshots of current screens on the showcase fixture |
+| 14.09.2026 22:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-reference.spec.ts --workers=1) | ✅ 14 из 14 | 40 с | 8c68048 +3 | [лог](logs/2026-09-14T17-35-10Z-e2e-8ba1.log) | design system step 1: screenshots of current screens on the showcase fixture (remote Chromium) |

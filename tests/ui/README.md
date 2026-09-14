@@ -16,6 +16,8 @@ npm run test:record -- e2e --config tests/ui/playwright.config.ts --workers=1 --
 
 Node 24, установленный Google Chrome, свободные loopback-порты 3100 и 4311.
 В окружении с установленным Playwright Chromium можно задать `UI_BROWSER_CHANNEL=chromium`.
+Готовый бинарник Chromium другой версии (удалённая среда Claude Code: `/opt/pw-browsers/chromium`) —
+`UI_BROWSER_EXECUTABLE=/путь/к/chrome`; после прогона вернуть `apps/web/next-env.d.ts` (`git checkout`), его переписывает `next dev`.
 Конфигурация запускает оба процесса и завершает их после тестов; существующие серверы не подхватывает.
 Основной `playwright.config.ts` и его очистка живой БД не используются.
 
@@ -35,6 +37,8 @@ Node 24, установленный Google Chrome, свободные loopback-�
 - Новые неисправности из main: принятие, закрытие и отдельное состояние сбоя загрузки.
 
 Скриншоты с вымышленными данными: `reports/hostel-frontend/screenshots/` и `reports/premium-ui/`.
+Экраны для дизайн-системы (витрина крайних случаев `showcase` в fixture, светлая и тёмная тема):
+`tests/ui/design-reference.spec.ts` → `design/reference/current/`.
 Новые проверки покрывают light/dark/system, сохранение темы, ⌘K, меню профиля, сводку,
 вкладки и drawer, каталог броней, карточки номеров, сообщения и экран входа.
 12 основных маршрутов дополнительно проверяются на 320/390/768/1280/1440/1920 px.

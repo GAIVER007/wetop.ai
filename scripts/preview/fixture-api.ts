@@ -14,6 +14,7 @@ import type {
   TrackedSite,
   SiteReport,
   Incident,
+  InboundEvent,
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
@@ -233,6 +234,279 @@ const incidentSeed: Incident = {
   resolvedBy: null,
 };
 let incident = structuredClone(incidentSeed);
+
+// ── Витрина крайних случаев для дизайн-системы (план design-system-2026-09-14, шаг 1) ──
+// Включается только `POST /__test/control { showcase: true }`; обычные UI-тесты её не видят.
+// Все имена вымышленные (ADR-010): проверяем длину, кириллицу, латиницу и казахские буквы.
+let showcase = false;
+let showcaseEvents: InboundEvent[] = [];
+let showcaseIncidents: Incident[] = [];
+const fillerSurnames = [
+  'Учебный',
+  'Пример',
+  'Демо',
+  'Образец',
+  'Тестов',
+  'Макетов',
+  'Условный',
+  'Проверочный',
+];
+const fillerNames = ['Гость', 'Посетитель', 'Клиент', 'Жилец', 'Постоялец'];
+function showcaseCard(opts: {
+  number: string;
+  guest: string;
+  status: string;
+  source: string;
+  channel: string | null;
+  unit: string | null;
+  category?: string;
+  arrival: string;
+  departure: string;
+  notes?: string | null;
+}) {
+  const r = cardSeed();
+  const g = structuredClone(guestSeed);
+  const words = opts.guest.split(' ');
+  g.id = `ui-show-guest-${opts.number}`;
+  g.lastName = words[0]!;
+  g.firstName = words[1] ?? '';
+  g.middleName = words[2] ?? null;
+  r.confirmationNumber = opts.number;
+  r.status = opts.status;
+  r.source = opts.source;
+  r.channel = opts.channel;
+  r.arrivalDate = opts.arrival;
+  r.departureDate = opts.departure;
+  r.notes = opts.notes ?? null;
+  r.primaryGuest = { id: g.id, label: opts.guest, citizenship: g.citizenship, phone: g.phone };
+  const unit = opts.unit ? units.find((u) => u.code === opts.unit) : undefined;
+  const category = categories.find(
+    (c) => c.code === (unit?.accommodationTypeCode ?? opts.category ?? 'ROOM'),
+  )!;
+  const nights = Math.max(
+    1,
+    Math.round((Date.parse(opts.departure) - Date.parse(opts.arrival)) / 86400000),
+  );
+  r.items[0] = {
+    ...r.items[0]!,
+    id: `ui-show-item-${opts.number}`,
+    status: r.status,
+    arrivalDate: r.arrivalDate,
+    departureDate: r.departureDate,
+    unitCode: unit?.code ?? null,
+    accommodationTypeCode: category.code,
+    accommodationTypeName: category.name,
+    priceMinor: (800000n * BigInt(nights)).toString(),
+    guests: [{ label: opts.guest, isPrimary: true }],
+  };
+  r.totalAmountMinor = r.items[0].priceMinor;
+  extraCards.set(r.confirmationNumber, r);
+  extraGuests.set(g.id, g);
+}
+/** Занимает все свободные ячейки по фильтру на окно [from, to) — ночь сверх мест и «88 из 88». */
+function fillWindow(from: string, to: string, tag: string, filter: (u: InventoryUnit) => boolean) {
+  const free = units.filter(
+    (u) =>
+      filter(u) &&
+      !allCards().some((r) =>
+        r.items.some(
+          (it) =>
+            it.unitCode === u.code &&
+            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+            it.arrivalDate < to &&
+            it.departureDate > from,
+        ),
+      ) &&
+      !blocksFor(u.code).some((b) => b.dateFrom < to && b.dateTo >= from),
+  );
+  free.forEach((u, i) =>
+    showcaseCard({
+      number: `20260913-${tag}${String(i + 1).padStart(2, '0')}`,
+      guest: `${fillerSurnames[i % fillerSurnames.length]} ${
+        fillerNames[Math.floor(i / fillerSurnames.length) % fillerNames.length]
+      }`,
+      status: i % 3 ? 'CONFIRMED' : 'CHECKED_IN',
+      source: i % 2 ? 'OTA' : 'DESK',
+      channel: i % 2 ? ['Booking.com', 'Trip.com', 'Agoda'][i % 3]! : null,
+      unit: u.code,
+      arrival: from,
+      departure: to,
+    }),
+  );
+}
+function applyShowcase() {
+  showcase = true;
+  const t = (n: number) => add(today, n);
+  // Статусы, каналы, источники, имена
+  showcaseCard({
+    number: '20260913-SHOWTN',
+    guest: 'Әбдірахманова Гүлнұр Қайратқызы',
+    status: 'TENTATIVE',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: 'R06',
+    arrival: today,
+    departure: t(2),
+    notes: 'Перенесена из Exely, не подтверждена',
+  });
+  showcaseCard({
+    number: '20260913-SHOWCX',
+    guest: 'Нұрсұлтанұлы Ерғали',
+    status: 'CANCELLED',
+    source: 'OTA',
+    channel: 'Trip.com',
+    unit: 'R07',
+    arrival: t(1),
+    departure: t(3),
+  });
+  showcaseCard({
+    number: '20260913-SHOWNS',
+    guest: 'Smith John',
+    status: 'NO_SHOW',
+    source: 'OTA',
+    channel: 'Agoda',
+    unit: 'R07',
+    arrival: t(-1),
+    departure: t(1),
+  });
+  showcaseCard({
+    number: '20260913-SHOWEX',
+    guest: 'Constantinopolous-Wentworth Alexandria Genevieve',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Expedia',
+    unit: 'M03',
+    arrival: t(1),
+    departure: t(6),
+  });
+  showcaseCard({
+    number: '20260913-SHOWHW',
+    guest: 'Оганесян-Петросянц Александра Владимировна',
+    status: 'CHECKED_IN',
+    source: 'OTA',
+    channel: 'Hostelworld',
+    unit: 'M04',
+    arrival: t(-3),
+    departure: t(2),
+  });
+  showcaseCard({
+    number: '20260913-SHOWOS',
+    guest: 'Ким Дана',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Ostrovok',
+    unit: 'F02',
+    arrival: t(2),
+    departure: t(4),
+  });
+  showcaseCard({
+    number: '20260913-SHOWDK',
+    guest: 'Сериков Арман Болатұлы',
+    status: 'CONFIRMED',
+    source: 'DESK',
+    channel: null,
+    unit: 'F03',
+    arrival: today,
+    departure: t(1),
+  });
+  showcaseCard({
+    number: '20260913-SHOWWB',
+    guest: 'Müller-Lüdenscheidt Friedrich',
+    status: 'CONFIRMED',
+    source: 'WEBSITE',
+    channel: null,
+    unit: 'R08',
+    arrival: t(3),
+    departure: t(5),
+  });
+  // Блокировки с причиной и три статуса уборки
+  blocks.set('R09', [
+    { id: 'ui-show-block-1', dateFrom: today, dateTo: t(2), type: 'MAINTENANCE', reason: 'кондиционер' },
+  ]);
+  blocks.set('R10', [
+    { id: 'ui-show-block-2', dateFrom: t(1), dateTo: t(4), type: 'OUT_OF_ORDER', reason: 'протечка' },
+  ]);
+  blocks.set('F04', [
+    {
+      id: 'ui-show-block-3',
+      dateFrom: today,
+      dateTo: t(6),
+      type: 'MANAGEMENT',
+      reason: 'резерв для персонала',
+    },
+  ]);
+  blocks.set('F05', [{ id: 'ui-show-block-4', dateFrom: t(2), dateTo: t(3), type: 'OTHER', reason: '' }]);
+  housekeeping.set('R01', 'DIRTY');
+  housekeeping.set('R02', 'CLEAN');
+  housekeeping.set('R03', 'INSPECTED');
+  // Ночь категории сверх мест: все мужские койки заняты сегодня плюс проживание без ячейки (Q-107, Q-119)
+  fillWindow(today, t(1), 'FULLM', (u) => u.accommodationTypeCode === 'MALE');
+  showcaseCard({
+    number: '20260913-SHOWUN',
+    guest: 'Бекболатов Дәулет',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: null,
+    category: 'MALE',
+    arrival: today,
+    departure: t(3),
+  });
+  // Неделя, в которую заняты все 88 из 88 — видна в месяце
+  fillWindow(t(21), t(28), 'FULLW', () => true);
+  // Входящая ревизия с ошибкой и очередь
+  showcaseEvents = [
+    {
+      externalEventId: 'ui-rev-failed',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'FAILED',
+      attempts: 3,
+      receivedAt: `${today}T05:12:41Z`,
+      processedAt: null,
+      lastError:
+        'Несколько перенесённых броней подходят: 20260913-SHOWTN, 20260913-SHOWEX — разберите руками (Q-109)',
+    },
+    {
+      externalEventId: 'ui-rev-modified',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_modification',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T04:58:03Z`,
+      processedAt: `${today}T04:58:05Z`,
+      lastError: null,
+    },
+    {
+      externalEventId: 'ui-rev-cancelled',
+      receivedVia: 'PULL',
+      type: 'booking_cancellation',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T03:20:11Z`,
+      processedAt: `${today}T03:20:12Z`,
+      lastError: null,
+    },
+  ];
+  showcaseIncidents = [
+    {
+      ...structuredClone(incidentSeed),
+      id: 'ui-show-incident-unassigned',
+      kind: 'stay.unassigned',
+      title: 'Проживание без ячейки на сегодня: 20260913-SHOWUN',
+      subjectId: 'ui-show-item-20260913-SHOWUN',
+    },
+    {
+      ...structuredClone(incidentSeed),
+      id: 'ui-show-incident-overbooked',
+      kind: 'stay.overbooked',
+      severity: 'CRITICAL',
+      title: 'Мужской общий номер продан сверх мест на ночь ' + today + ': 37 на 36',
+      subjectType: 'AccommodationType',
+      subjectId: 'MALE',
+    },
+  ];
+}
 
 function desk(date: string): DeskDay {
   const rows = allCards().flatMap((r) =>
@@ -586,7 +860,10 @@ function read(path: string, q: URLSearchParams): unknown {
       open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
     };
   if (path === '/guard/incidents')
-    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+    return [
+      ...(q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident]),
+      ...showcaseIncidents,
+    ];
   if (path === '/hotel/settings')
     return {
       property: {
@@ -836,8 +1113,10 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
-    return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
-  if (path === '/channels/channex/events') return [];
+    return showcase
+      ? { pending: 2, failed: 1, sent: 405, lastSentAt: `${today}T09:12:00Z`, lastTaskId: 'ui-task-4f2a' }
+      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+  if (path === '/channels/channex/events') return showcaseEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
   if (path === '/audit')
@@ -916,6 +1195,9 @@ createServer(async (req, res) => {
       groupFixture = false;
       paid = new Map();
       paymentLines = [];
+      showcase = false;
+      showcaseEvents = [];
+      showcaseIncidents = [];
       return send(200, {});
     }
     if (path === '/__test/control') {
@@ -934,6 +1216,7 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      if (body['showcase'] === true && !showcase) applyShowcase();
       return send(200, {});
     }
     if (path === '/__test/commands') return send(200, commands);

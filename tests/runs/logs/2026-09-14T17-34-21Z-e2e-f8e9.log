@@ -1,0 +1,347 @@
+# Сквозные (e2e) · 14.09.2026 22:34 Алматы · vm
+# коммит 8c68048 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-reference.spec.ts' '--workers=1'
+
+Running 14 tests using 1 worker
+
+  ✘   1 tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (light) (72ms)
+  ✘   2 tests/ui/design-reference.spec.ts:39:3 › обзор дня (light) (111ms)
+  ✘   3 tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (light) (68ms)
+  ✘   4 tests/ui/design-reference.spec.ts:66:3 › карточка гостя (light) (61ms)
+  ✘   5 tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (light) (61ms)
+  ✘   6 tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (light) (67ms)
+  ✘   7 tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (light) (58ms)
+  ✘   8 tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (dark) (54ms)
+  ✘   9 tests/ui/design-reference.spec.ts:39:3 › обзор дня (dark) (64ms)
+  ✘  10 tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (dark) (81ms)
+  ✘  11 tests/ui/design-reference.spec.ts:66:3 › карточка гостя (dark) (67ms)
+  ✘  12 tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (dark) (70ms)
+  ✘  13 tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (dark) (69ms)
+  ✘  14 tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (dark) (61ms)
+
+
+  1) tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (light) ─────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-шахматка-неделя-и-месяц-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-шахматка-неделя-и-месяц-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-шахматка-неделя-и-месяц-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-reference.spec.ts:39:3 › обзор дня (light) ────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-обзор-дня-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-обзор-дня-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-обзор-дня-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (light) ───────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-карточка--e3cf6-нелью-четыре-вкладки-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-карточка--e3cf6-нелью-четыре-вкладки-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-карточка--e3cf6-нелью-четыре-вкладки-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/design-reference.spec.ts:66:3 › карточка гостя (light) ───────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-карточка-гостя-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-карточка-гостя-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-карточка-гостя-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (light) ────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-форма-брони-одно-размещение-и-группа-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-форма-брони-одно-размещение-и-группа-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-форма-брони-одно-размещение-и-группа-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (light) ─────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-цены-и-ог-6ff2e--массовым-изменением-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-цены-и-ог-6ff2e--массовым-изменением-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-цены-и-ог-6ff2e--массовым-изменением-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (light) ────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-журнал-интеграции-Channex-light-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-журнал-интеграции-Channex-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-журнал-интеграции-Channex-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (dark) ──────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-шахматка-неделя-и-месяц-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-шахматка-неделя-и-месяц-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-шахматка-неделя-и-месяц-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/design-reference.spec.ts:39:3 › обзор дня (dark) ─────────────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-обзор-дня-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-обзор-дня-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-обзор-дня-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (dark) ───────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-карточка-брони-панелью-четыре-вкладки-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-карточка-брони-панелью-четыре-вкладки-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-карточка-брони-панелью-четыре-вкладки-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/design-reference.spec.ts:66:3 › карточка гостя (dark) ───────────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-карточка-гостя-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-карточка-гостя-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-карточка-гостя-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (dark) ────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-форма-брони-одно-размещение-и-группа-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-форма-брони-одно-размещение-и-группа-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-форма-брони-одно-размещение-и-группа-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (dark) ─────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-цены-и-ог-a80b1-с-массовым-изменением-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-цены-и-ог-a80b1-с-массовым-изменением-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-цены-и-ог-a80b1-с-массовым-изменением-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (dark) ────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-журнал-интеграции-Channex-dark-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-журнал-интеграции-Channex-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-журнал-интеграции-Channex-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14 failed
+    tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (light) ──────────────────────
+    tests/ui/design-reference.spec.ts:39:3 › обзор дня (light) ─────────────────────────────────────
+    tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (light) ────────
+    tests/ui/design-reference.spec.ts:66:3 › карточка гостя (light) ────────────────────────────────
+    tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (light) ─────────
+    tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (light) ──────
+    tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (light) ─────────────────────
+    tests/ui/design-reference.spec.ts:28:3 › шахматка: неделя и месяц (dark) ───────────────────────
+    tests/ui/design-reference.spec.ts:39:3 › обзор дня (dark) ──────────────────────────────────────
+    tests/ui/design-reference.spec.ts:46:3 › карточка брони панелью, четыре вкладки (dark) ─────────
+    tests/ui/design-reference.spec.ts:66:3 › карточка гостя (dark) ─────────────────────────────────
+    tests/ui/design-reference.spec.ts:73:3 › форма брони: одно размещение и группа (dark) ──────────
+    tests/ui/design-reference.spec.ts:83:3 › цены и ограничения с массовым изменением (dark) ───────
+    tests/ui/design-reference.spec.ts:96:3 › журнал интеграции Channex (dark) ──────────────────────
+
+# код выхода 1 · 24 с

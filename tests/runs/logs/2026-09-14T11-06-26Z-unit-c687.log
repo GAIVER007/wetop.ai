@@ -1,0 +1,48 @@
+# Модульные (unit) · 14.09.2026 16:06 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0fa4c28 (main), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-06-26Z-unit-c687.json' 'apps/api/src/channels' 'apps/api/src/guard' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 7ms
+[Nest] 28548  - 09/14/2026, 4:06:27 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 28548  - 09/14/2026, 4:06:27 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 28548  - 09/14/2026, 4:06:27 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (23 tests) 22ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 4ms
+[Nest] 28549  - 09/14/2026, 4:06:27 AM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 6ms
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 28544  - 09/14/2026, 4:06:27 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 28544  - 09/14/2026, 4:06:27 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 28544  - 09/14/2026, 4:06:27 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 28544  - 09/14/2026, 4:06:27 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 28544  - 09/14/2026, 4:06:27 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (9 tests) 5ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 3ms
+[Nest] 28553  - 09/14/2026, 4:06:28 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 28553  - 09/14/2026, 4:06:28 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 4ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (9 tests) 5ms
+[Nest] 28545  - 09/14/2026, 4:06:28 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 28545  - 09/14/2026, 4:06:28 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 28545  - 09/14/2026, 4:06:28 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (5 tests) 190ms
+[Nest] 28545  - 09/14/2026, 4:06:28 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 209ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (11 tests) 70ms
+ ✓ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests) 2ms
+
+ Test Files  13 passed (13)
+      Tests  136 passed (136)
+   Start at  04:06:27
+   Duration  1.06s (import 48%, transform 42%, tests 9%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-06-26Z-unit-c687.json
+
+# код выхода 0 · 2 с

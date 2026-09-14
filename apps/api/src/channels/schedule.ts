@@ -105,7 +105,11 @@ export function assessWebhook(input: {
  * старый адрес после перезапуска туннеля отвечал 530, пока DNS-запись ещё не удалена. Раньше правило
  * считало живым любой ответ и такой адрес пропускало — ровно тот случай, ради которого проба делалась.
  */
-export function callbackAnswered(status: number): boolean {
+export function callbackAnswered(status: number, extra?: { cfMitigated?: string | null }): boolean {
+  // Д4: на постоянном адресе за Cloudflare 3xx — это вход Access, а 403 с cf-mitigated — проверка на бота:
+  // POST от Channex туда не пройдёт, значит и «жив» такой ответ не считается. Наше приложение на GET отвечает 404.
+  if (status >= 300 && status < 400) return false;
+  if (status === 403 && extra?.cfMitigated) return false;
   return status > 0 && status < 500;
 }
 

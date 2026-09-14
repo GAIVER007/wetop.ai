@@ -24,6 +24,8 @@ export interface WebhookHealthSnapshot {
   callbackProbedUrl: string | null;
   callbackReachable: boolean | null;
   callbackCheckedAt: string | null;
+  /** Постоянный адрес PMS (PUBLIC_API_URL): зарегистрирован другой — события уходят не туда (Д4) */
+  callbackExpectedUrl: string | null;
 }
 
 /** Проба адреса. Подменяется в тестах; в бою — обычный запрос. */
@@ -45,7 +47,7 @@ async function httpProbe(url: string, timeoutMs: number): Promise<boolean> {
       redirect: 'manual',
       signal: AbortSignal.timeout(timeoutMs),
     });
-    return callbackAnswered(res.status);
+    return callbackAnswered(res.status, { cfMitigated: res.headers.get('cf-mitigated') });
   } catch {
     return false;
   }
@@ -75,10 +77,16 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     lastPullBookingAt: null,
     checkedAt: null,
   };
-  private callback: { url: string | null; reachable: boolean | null; checkedAt: Date | null } = {
+  private callback: {
+    url: string | null;
+    reachable: boolean | null;
+    checkedAt: Date | null;
+    expectedUrl: string | null;
+  } = {
     url: null,
     reachable: null,
     checkedAt: null,
+    expectedUrl: null,
   };
   private readonly probe: CallbackProbe;
   constructor(
@@ -101,14 +109,25 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     try {
       const status = await this.sync.webhookStatus();
       const url = status.callbackUrl ?? null;
+      const expectedUrl = status.expectedUrl ?? null;
       if (!url) {
-        this.callback = { url: null, reachable: null, checkedAt: now };
+        this.callback = { url: null, reachable: null, checkedAt: now, expectedUrl };
+        return;
+      }
+      // Д4: адрес постоянный — зарегистрирован другой (старый быстрый туннель, чужая настройка), значит события
+      // Channex до PMS не доходят, даже если тот адрес отвечает. Лечится кнопкой «Зарегистрировать webhook».
+      if (expectedUrl && url !== expectedUrl) {
+        if (this.callback.url !== url || this.callback.reachable !== false)
+          this.log.warn(
+            `в Channex зарегистрирован ${url}, а постоянный адрес PMS — ${expectedUrl}: перерегистрируйте webhook на /channels`,
+          );
+        this.callback = { url, reachable: false, checkedAt: now, expectedUrl };
         return;
       }
       const reachable = await this.probe(url, PROBE_TIMEOUT_MS);
       if (reachable !== this.callback.reachable)
         this.log.log(`адрес webhook ${url}: ${reachable ? 'отвечает' : 'НЕ отвечает'}`);
-      this.callback = { url, reachable, checkedAt: now };
+      this.callback = { url, reachable, checkedAt: now, expectedUrl };
     } catch (e) {
       this.callback = { ...this.callback, reachable: null };
       this.log.warn(`адрес webhook не проверен: ${(e as Error).message}`);
@@ -184,6 +203,7 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
       callbackProbedUrl: this.callback.url,
       callbackReachable: this.callback.reachable,
       callbackCheckedAt: this.callback.checkedAt?.toISOString() ?? null,
+      callbackExpectedUrl: this.callback.expectedUrl,
     };
   }
 }

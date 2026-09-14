@@ -363,6 +363,18 @@ describe('виджет бронирования /w/*', () => {
     expect(created.dtos).toHaveLength(5);
   });
 
+  it('Д3: за туннелем Cloudflare все запросы приходят с 127.0.0.1 — лимит считается по CF-Connecting-IP посетителя', async () => {
+    const from = (ip: string) => post(booking()).set('CF-Connecting-IP', ip);
+    for (let i = 0; i < 5; i += 1) await from('203.0.113.10').expect(201);
+    // другой посетитель в тот же час не получает отказ из-за чужих броней
+    await from('198.51.100.7').expect(201);
+    // а первый упирается в свой лимит
+    await from('203.0.113.10').expect(429);
+    // мусор в заголовке не выдаётся за адрес: считается как сам запрос (loopback)
+    await post(booking()).set('CF-Connecting-IP', 'not-an-ip').expect(201);
+    expect(created.dtos).toHaveLength(7);
+  });
+
   it('демо-страница: виджет и счётчик по ключу; сайт без бронирования — 404', async () => {
     const r = await request(app.getHttpServer()).get(`/w/demo?k=${SITE.publicKey}`).expect(200);
     expect(r.text).toContain('/w/widget.js');

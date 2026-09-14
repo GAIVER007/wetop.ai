@@ -78,12 +78,22 @@ export default async function ChannelsPage() {
                   : 'нет PUBLIC_API_URL'}
           </div>
           {webhook?.registered && <div className="cell-sub break-all">{webhook.callbackUrl}</div>}
-          {webhook?.registered && webhook.callbackReachable === false && (
-            <div className="cell-sub danger-text">
-              адрес не отвечает{checkedAt(webhook.callbackCheckedAt)} — брони подберёт опрос ленты,
-              но webhook надо поднять
-            </div>
-          )}
+          {webhook?.registered &&
+            webhook.expectedUrl &&
+            webhook.callbackUrl !== webhook.expectedUrl && (
+              <div className="cell-sub danger-text" data-testid="webhook-url-mismatch">
+                зарегистрирован не постоянный адрес PMS ({webhook.expectedUrl}) — события уходят не
+                туда, нажмите «Зарегистрировать webhook»
+              </div>
+            )}
+          {webhook?.registered &&
+            webhook.callbackReachable === false &&
+            (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
+              <div className="cell-sub danger-text">
+                адрес не отвечает{checkedAt(webhook.callbackCheckedAt)} — брони подберёт опрос
+                ленты, но webhook надо поднять
+              </div>
+            )}
           {webhook?.registered && webhook.callbackReachable === true && (
             <div className="cell-sub ok-text">
               адрес отвечает{checkedAt(webhook.callbackCheckedAt)}

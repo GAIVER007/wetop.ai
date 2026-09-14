@@ -27,6 +27,8 @@ function makeWithProbe(opts: {
   webhook: Date | null;
   pullBooking: Date | null;
   callbackUrl: string | null;
+  /** Постоянный адрес PMS из PUBLIC_API_URL (webhookStatus.expectedUrl); нет — не задан */
+  expectedUrl?: string | null;
   reachable: boolean;
 }) {
   const pulls: number[] = [];
@@ -47,7 +49,11 @@ function makeWithProbe(opts: {
   const sync = {
     async webhookStatus() {
       statusCalls.push(Date.now());
-      return { registered: opts.callbackUrl !== null, callbackUrl: opts.callbackUrl };
+      return {
+        registered: opts.callbackUrl !== null,
+        callbackUrl: opts.callbackUrl,
+        expectedUrl: opts.expectedUrl ?? null,
+      };
     },
   } as unknown as ConstructorParameters<typeof WebhookHealthService>[2];
   const probed: string[] = [];
@@ -117,6 +123,22 @@ describe('WebhookHealthService — проба зарегистрированно
     expect(s.callbackReachable).toBe(false);
     expect(s.callbackProbedUrl).toBe('https://tunnel.example/channels/channex/webhook');
     expect(s.callbackCheckedAt).toBe('2026-09-13T09:00:00.000Z');
+  });
+
+  it('Д4: в Channex стоит не постоянный адрес PMS — подозрение, даже если тот адрес отвечает', async () => {
+    const { svc, pulls } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://old-quick.trycloudflare.com/channels/channex/webhook',
+      expectedUrl: 'https://api.wetop.ai/channels/channex/webhook',
+      reachable: true,
+    });
+    const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(true);
+    expect(pulls).toHaveLength(1);
+    const s = svc.snapshot();
+    expect(s.callbackReachable).toBe(false);
+    expect(s.callbackExpectedUrl).toBe('https://api.wetop.ai/channels/channex/webhook');
   });
 
   it('адрес отвечает — тишина', async () => {

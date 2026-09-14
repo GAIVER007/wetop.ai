@@ -233,6 +233,11 @@ describe('callbackAnswered — дошёл ли запрос до нашего AP
     expect(callbackAnswered(401)).toBe(true);
     expect(callbackAnswered(200)).toBe(true);
   });
+  it('Д4: редирект на вход Cloudflare Access и проверка на бота — отвечает не наше приложение', () => {
+    for (const code of [301, 302, 303, 307, 308]) expect(callbackAnswered(code)).toBe(false);
+    expect(callbackAnswered(403, { cfMitigated: 'challenge' })).toBe(false);
+    expect(callbackAnswered(403)).toBe(true);
+  });
   it('530 — Cloudflare отвечает сам, туннель за адресом мёртв', () => {
     expect(callbackAnswered(530)).toBe(false);
   });

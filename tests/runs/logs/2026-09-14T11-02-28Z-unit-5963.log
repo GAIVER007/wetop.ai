@@ -1,0 +1,16 @@
+# Модульные (unit) · 14.09.2026 16:02 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0fa4c28 (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-02-28Z-unit-5963.json' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (11 tests) 83ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  04:02:28
+   Duration  839ms (import 46%, transform 43%, tests 11%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-02-28Z-unit-5963.json
+
+# код выхода 0 · 1 с

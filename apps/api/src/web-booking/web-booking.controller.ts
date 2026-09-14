@@ -15,6 +15,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { normalizeHost, SITE_KEY_RE } from '@pms/domain';
+import { clientIp } from './client-ip';
 import { WebBookingService, type RequestContext } from './web-booking.service';
 
 /** Скрипт виджета читается один раз при старте; отдаётся как есть. */
@@ -72,11 +73,13 @@ export class WebBookingController {
   @HttpCode(201)
   book(
     @Body() body: unknown,
-    @Ip() ip: string,
+    @Ip() socketIp: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
     @Headers('origin') origin?: string,
     @Headers('referer') referer?: string,
     @Headers('host') host?: string,
   ) {
+    const ip = clientIp(socketIp, cfConnectingIp) ?? undefined;
     return this.service.book(body, context({ origin, referer, host, ip }));
   }
 

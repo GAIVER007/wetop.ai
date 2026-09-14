@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { guestForStorage } from '@pms/shared';
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import {
   BadGatewayException,
   BadRequestException,
@@ -94,6 +94,13 @@ function payloadHash(payload: unknown): string {
 /** Периодический опрос ленты ревизий — страховка, если webhook не дошёл (туннель, сеть, простой PMS). */
 export const DEFAULT_PULL_INTERVAL_MS = 5 * 60_000;
 
+/** Секрет webhook: длина сравнивается отдельно, содержимое — timingSafeEqual */
+function sameSecret(given: string, expected: string): boolean {
+  const a = Buffer.from(given);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 @Injectable()
 export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
   private pullTimer: NodeJS.Timeout | undefined;
@@ -155,7 +162,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       throw new ServiceUnavailableException(
         'CHANNEX_WEBHOOK_SECRET не задан в .env — webhook отклонён',
       );
-    if (!secretHeader || secretHeader !== expected)
+    // Адрес webhook публичный (api.wetop.ai): сравнение за постоянное время не выдаёт секрет по времени ответа
+    if (!secretHeader || !sameSecret(secretHeader, expected))
       throw new UnauthorizedException('Неверный секрет webhook');
     if (!body || typeof body.event !== 'string') throw new BadRequestException('Нет поля event');
     if (body.event.startsWith('booking')) {

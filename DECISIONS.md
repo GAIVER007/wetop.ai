@@ -1125,3 +1125,8 @@ unexpectedly` с 14:55 до 19:38 PDT (одна — из таймера тран
 **Проверено 14.09.2026.** `pool-timeouts.test.ts` — фальшивый сервер PostgreSQL, который принимает соединение и молчит:
 на прежнем коде 4 из 5 красные (запрос и ожидание места не завершаются), на варианте (а) красный тест транзакции
 (соединение переиспользовано: 1 вместо 2), на (в) 5 из 5. Полные прогоны: unit, typecheck, lint — `tests/runs/JOURNAL.md`.
+Живьём 14.09.2026 в 08:47 UTC: `main` перенесён на f39eff9, `kickstart -k` API (pid 46974 → 69197), `GET /system/connection`
+— 200 за 1,4 с (`READY`, 88 единиц); через 2,5 мин `/system/connection`, `/inventory/summary`, `/guard/status` — 200,
+ошибок в журнале API нет. TLS-соединение с пулером Supabase: `DATABASE_QUERY_TIMEOUT_MS=1 npx tsx
+scripts/reconciliation/src/cli-db-activity.ts` падает за 2 с с `Database did not answer for 1 ms; connection closed`,
+без переменной — выполняется за 1 с. Настоящий цикл сна не воспроизводился: его проверит следующее пробуждение Mac.

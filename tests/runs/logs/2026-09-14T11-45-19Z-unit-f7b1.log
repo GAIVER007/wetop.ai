@@ -1,0 +1,29 @@
+# Модульные (unit) · 14.09.2026 16:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 35ac3f2 (main), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-45-19Z-unit-f7b1.json' 'apps/api/src/inventory' 'scripts/imports/src/exely'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/Pms Lux
+
+ ✓ |unit| scripts/imports/src/exely/seat-plan.test.ts (20 tests) 11ms
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (11 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/anonymize.test.ts (3 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 8ms
+ ✓ |unit| scripts/imports/src/exely/rate-plans.test.ts (3 tests) 4ms
+ ✓ |unit| scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 4ms
+ ✓ |unit| scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/price-calendar.test.ts (4 tests) 8ms
+ ✓ |unit| scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 3ms
+ ✓ |unit| scripts/imports/src/exely/parse-services.test.ts (2 tests) 3ms
+ ✓ |unit| scripts/imports/src/exely/guest-fields.test.ts (4 tests) 2ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 3ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 112ms
+
+ Test Files  14 passed (14)
+      Tests  73 passed (73)
+   Start at  04:45:19
+   Duration  679ms (transform 50%, import 39%, tests 8%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-14T11-45-19Z-unit-f7b1.json
+
+# код выхода 0 · 1 с

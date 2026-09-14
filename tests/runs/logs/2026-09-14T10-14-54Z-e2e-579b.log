@@ -1,0 +1,225 @@
+# Сквозные (e2e) · 14.09.2026 15:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 4307510 (main), незакоммиченных файлов набора: 46
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/payment-draft.spec.ts' '--workers=1'
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (14.5s)
+  ✓   2 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (4.8s)
+  ✓   3 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (18.4s)
+  ✓   4 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск, уведомления и помощник (17.7s)
+  ✘   5 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (50.3s)
+  ✓   6 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (21.7s)
+  ✘   7 tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (3.1m)
+  ✓   8 tests/ui/premium.spec.ts:173:1 › сообщения сохраняют только черновик, login не имитирует авторизацию (2.9s)
+  ✓   9 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (44.7s)
+  ✓  10 tests/ui/workspace.spec.ts:97:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (10.0s)
+  ✓  11 tests/ui/workspace.spec.ts:125:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (11.8s)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1132886680'
+[WebServer] }
+  ✓  12 tests/ui/workspace.spec.ts:143:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (5.9s)
+  ✓  13 tests/ui/workspace.spec.ts:164:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (3.5s)
+  ✓  14 tests/ui/workspace.spec.ts:193:1 › поиск и списки дня; мобильное меню и возврат фокуса (3.1s)
+  ✓  15 tests/ui/workspace.spec.ts:219:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (5.0s)
+  ✓  16 tests/ui/workspace.spec.ts:241:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.3s)
+  ✓  17 tests/ui/workspace.spec.ts:273:1 › карточка: профиль гостя и заселение проходят через server actions (2.6s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '638286073'
+[WebServer] }
+  ✓  18 tests/ui/workspace.spec.ts:306:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.6s)
+  ✓  19 tests/ui/workspace.spec.ts:315:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.2s)
+  ✓  20 tests/ui/workspace.spec.ts:329:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (804ms)
+  ✓  21 tests/ui/workspace.spec.ts:341:1 › неверная дата в ссылке оставляет доступную форму для исправления (822ms)
+  ✓  22 tests/ui/workspace.spec.ts:348:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (1.8s)
+  ✓  23 tests/ui/workspace.spec.ts:357:1 › групповая бронь: разные категории сохраняются при конфликте (975ms)
+  ✓  24 tests/ui/workspace.spec.ts:381:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.4s)
+  ✓  25 tests/ui/workspace.spec.ts:408:1 › обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия (2.8s)
+  ✓  26 tests/ui/workspace.spec.ts:439:1 › ошибка буфера обмена видна, код остаётся доступен (1.1s)
+  ✓  27 tests/ui/workspace.spec.ts:455:1 › финансы: неверные даты можно исправить без падения страницы (979ms)
+  ✓  28 tests/ui/workspace.spec.ts:465:1 › ошибка загрузки тарифов не позволяет включить виджет (558ms)
+  ✓  29 tests/ui/workspace.spec.ts:474:1 › номера: статус уборки, блокировка и снятие сохраняются (1.8s)
+  ✓  30 tests/ui/workspace.spec.ts:496:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (1.6s)
+  ✓  31 tests/ui/workspace.spec.ts:519:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (2.9s)
+  ✓  32 tests/ui/workspace.spec.ts:547:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (3.0s)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2281229768'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:63:17)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2472790563'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:55:13)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3127145634'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:191:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '848569761'
+[WebServer] }
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:57:21)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1148526657'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-14&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1132886680'
+[WebServer] }
+[WebServer] ⨯ Error: API /analytics/sites: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async MarketingPage (src/app/marketing/page.tsx:8:17)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3218443162'
+[WebServer] }
+  ✓  33 tests/ui/workspace.spec.ts:578:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (7.3s)
+
+
+  1) tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true })
+
+
+      60 |   await page.getByTestId('stay-cell').first().click();
+      61 |   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+    > 62 |   await expect(drawer).toBeVisible();
+         |                        ^
+      63 |   await expect(drawer.getByRole('heading', { level: 1 })).toContainText('Бронь');
+      64 |   await drawer.getByRole('tab', { name: 'Счета', exact: true }).click();
+      65 |   await expect(drawer.getByTestId('folio-panel')).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/ui/premium.spec.ts:62:24
+
+    Error Context: test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-drawer-бронь-откры-eada8--Escape-возвращает-контекст/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings", waiting until "load"
+
+
+      165 |   await page.getByRole('button', { name: 'Переключить тему', exact: true }).click();
+      166 |   for (const route of routes) {
+    > 167 |     await page.goto(route);
+          |                ^
+      168 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      169 |     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+      170 |   }
+        at /Users/vyacheslav/Desktop/Проекты/Pms Lux/tests/ui/premium.spec.ts:167:16
+
+    Error Context: test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-новые-страницы-и-о-509fa--отсутствие-ошибок-браузера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст 
+    tests/ui/premium.spec.ts:125:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера 
+  31 passed (7.6m)
+
+# код выхода 1 · 7 мин 35 с

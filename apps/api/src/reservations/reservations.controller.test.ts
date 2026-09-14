@@ -349,6 +349,8 @@ function makeFake() {
           departureDate: it.departureDate,
           status: it.status,
           priceMinor: it.priceMinor.toString(),
+          ratePlanCode: null,
+          ratePlanName: null,
           adults: it.adults,
           children: it.children,
           unitCode: state.allocations.find((a) => a.itemId === it.id)?.unitId

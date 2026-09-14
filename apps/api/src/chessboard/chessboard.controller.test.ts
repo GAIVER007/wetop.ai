@@ -101,6 +101,8 @@ const fakeRepo: ChessboardRepository = {
           departureDate: '2026-09-12',
           status: 'CONFIRMED',
           priceMinor: '1200000',
+          ratePlanCode: null,
+          ratePlanName: null,
           unitCode: '9010',
           adults: 1,
           children: 0,

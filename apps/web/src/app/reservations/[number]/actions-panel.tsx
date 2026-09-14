@@ -1,5 +1,5 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import {
   Alert,
@@ -40,11 +40,16 @@ export function ReservationActions(props: {
     accommodationTypeCode: string;
     accommodationTypeName: string;
     unitCode: string | null;
+    /** null — тариф неизвестен (перенесено из Exely): пересчёт цены без выбора тарифа невозможен */
+    ratePlanCode: string | null;
+    ratePlanName: string | null;
     adults: number;
     children: number;
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   }>;
 }) {
+  // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
+  const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
   const {
     state: cancelState,
     run: cancel,
@@ -86,8 +91,18 @@ export function ReservationActions(props: {
             <Select
               name="ratePlanCode"
               aria-label="Тариф для пересчёта"
-              defaultValue={datesState.values?.ratePlanCode}
+              defaultValue={datesState.values?.ratePlanCode ?? ''}
+              required={!current}
             >
+              {current ? (
+                <option value="">
+                  — оставить текущий тариф: {current.ratePlanName ?? current.ratePlanCode} —
+                </option>
+              ) : (
+                <option value="" disabled>
+                  — выберите тариф —
+                </option>
+              )}
               {props.ratePlans.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -98,6 +113,11 @@ export function ReservationActions(props: {
               Пересчитать и сохранить
             </Button>
           </Row>
+          {!current && (
+            <p className="hint">
+              У брони нет тарифа (перенесена из Exely) — выберите, по какому пересчитать цену.
+            </p>
+          )}
           {datesState.error && <Alert>{datesState.error}</Alert>}
         </form>
       )}
@@ -108,7 +128,7 @@ export function ReservationActions(props: {
         )
         .map((it) => (
           <Stack key={it.id} gap="sm">
-            <StayButtons number={props.number} item={it} />
+            <StayButtons number={props.number} item={it} ratePlans={props.ratePlans} />
             <GuestsForm number={props.number} item={it} />
             <AssignForm
               number={props.number}
@@ -230,9 +250,19 @@ function GuestsForm(props: {
 
 function StayButtons(props: {
   number: string;
-  item: { id: string; status: string; accommodationTypeName: string; unitCode: string | null };
+  item: {
+    id: string;
+    status: string;
+    accommodationTypeName: string;
+    unitCode: string | null;
+    ratePlanCode: string | null;
+  };
+  ratePlans: Array<{ code: string; name: string }>;
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
+  // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирает администратор
+  const [extendPlan, setExtendPlan] = useState('');
+  const needsPlan = !props.item.ratePlanCode;
   const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
     if (action === 'no-show' && !window.confirm('Отметить незаезд? Назначение ячейки снимется.'))
       return;
@@ -275,14 +305,43 @@ function StayButtons(props: {
             Выселить
           </Button>
         )}
+        {(expected || props.item.status === 'CHECKED_IN') && needsPlan && (
+          <Select
+            aria-label="Тариф для продления"
+            value={extendPlan}
+            onChange={(e) => setExtendPlan(e.target.value)}
+          >
+            <option value="" disabled>
+              — тариф для новой ночи —
+            </option>
+            {props.ratePlans.map((p) => (
+              <option key={p.code} value={p.code}>
+                {p.name}
+              </option>
+            ))}
+          </Select>
+        )}
         {(expected || props.item.status === 'CHECKED_IN') && (
           <Button
             type="button"
             tone="info"
             data-testid={`extend-${props.item.id}`}
-            disabled={pending}
-            onClick={() => command(() => extendStayAction(props.number, props.item.id))}
-            title="Выезд на сутки позже, цена пересчитается по календарю"
+            disabled={pending || (needsPlan && !extendPlan)}
+            onClick={() =>
+              command(() =>
+                extendStayAction(
+                  props.number,
+                  props.item.id,
+                  1,
+                  needsPlan ? extendPlan : undefined,
+                ),
+              )
+            }
+            title={
+              needsPlan
+                ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
+                : 'Выезд на сутки позже, цена пересчитается по календарю'
+            }
           >
             + 1 ночь
           </Button>

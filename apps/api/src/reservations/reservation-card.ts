@@ -9,6 +9,9 @@ export interface ReservationCardItem {
   departureDate: string;
   status: string;
   priceMinor: string;
+  /** Тариф проживания (Q-102); null — неизвестен (перенесено из Exely): пересчёт цены требует выбрать тариф */
+  ratePlanCode: string | null;
+  ratePlanName: string | null;
   /** Гостей на проживании (Q-102) — правится с карточки */
   adults: number;
   children: number;
@@ -58,6 +61,7 @@ export async function loadReservationCard(
         orderBy: { createdAt: 'asc' },
         include: {
           accommodationType: { select: { code: true, name: true } },
+          ratePlan: { select: { code: true, name: true } },
           allocations: {
             orderBy: { startDate: 'asc' },
             include: { inventoryUnit: { select: { code: true } } },
@@ -96,6 +100,8 @@ export async function loadReservationCard(
       departureDate: d(it.departureDate),
       status: it.status,
       priceMinor: it.price.toString(),
+      ratePlanCode: it.ratePlan?.code ?? null,
+      ratePlanName: it.ratePlan?.name ?? null,
       adults: it.adults,
       children: it.children,
       unitCode: it.allocations.at(-1)?.inventoryUnit.code ?? null,

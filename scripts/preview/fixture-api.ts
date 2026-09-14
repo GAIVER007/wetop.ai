@@ -114,6 +114,8 @@ function cardSeed(): ReservationCard {
         departureDate: add(today, 3),
         status: 'CONFIRMED',
         priceMinor: '2400000',
+        ratePlanCode: plans[0]!.code,
+        ratePlanName: plans[0]!.name,
         adults: 1,
         children: 0,
         unitCode: 'R01',
@@ -929,6 +931,9 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
+      if (body['withoutRatePlan'] === true)
+        for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       return send(200, {});
     }
     if (path === '/__test/commands') return send(200, commands);

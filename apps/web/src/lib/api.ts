@@ -175,6 +175,9 @@ export interface ReservationCard {
     departureDate: string;
     status: string;
     priceMinor: string;
+    /** Тариф проживания; null — неизвестен (перенесено из Exely), пересчёт цены требует выбрать тариф */
+    ratePlanCode?: string | null;
+    ratePlanName?: string | null;
     /** Гостей на проживании — правится с карточки */
     adults: number;
     children: number;
@@ -290,11 +293,12 @@ export const reservationsApi = {
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/${action}`,
       body,
     ),
-  extend: (number: string, itemId: string, nights = 1) =>
+  /** ratePlanCode — только если у проживания нет своего тарифа (Б8): иначе цена ночи берётся по нему */
+  extend: (number: string, itemId: string, nights = 1, ratePlanCode?: string) =>
     sendJson<ReservationCard>(
       'POST',
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend`,
-      { nights },
+      { nights, ...(ratePlanCode ? { ratePlanCode } : {}) },
     ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(

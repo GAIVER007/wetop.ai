@@ -193,9 +193,10 @@ export async function extendStayAction(
   number: string,
   itemId: string,
   nights = 1,
+  ratePlanCode?: string,
 ): Promise<ActionResult> {
   try {
-    await reservationsApi.extend(number, itemId, nights);
+    await reservationsApi.extend(number, itemId, nights, ratePlanCode);
   } catch (e) {
     return { error: describe(e) };
   }

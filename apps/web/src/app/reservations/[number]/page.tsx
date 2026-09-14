@@ -331,6 +331,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       accommodationTypeCode: it.accommodationTypeCode,
                       accommodationTypeName: it.accommodationTypeName,
                       unitCode: it.unitCode,
+                      ratePlanCode: it.ratePlanCode ?? null,
+                      ratePlanName: it.ratePlanName ?? null,
                       adults: it.adults,
                       children: it.children,
                       availableGroups: groups,

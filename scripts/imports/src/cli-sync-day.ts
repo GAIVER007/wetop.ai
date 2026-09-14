@@ -163,7 +163,11 @@ try {
     for (const c of report.conflicts)
       console.log(
         `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
-          (c.movedTo ? ` → посажен на ${c.movedTo}` : ' → свободной ячейки в категории нет'),
+          (c.split
+            ? ` → до ${c.split.at} на ${c.movedTo}, с ${c.split.at} на ${c.split.to} (переезд внутри срока, ADR-044)`
+            : c.movedTo
+              ? ` → посажен на ${c.movedTo}`
+              : ' → свободной ячейки в категории нет'),
       );
     summary = {
       reservations: report.reservations,

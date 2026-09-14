@@ -377,6 +377,8 @@ try {
   const pending: string[] = [];
   const reseated: string[] = [];
   const unseated: string[] = [];
+  /** С переездом внутри срока (ADR-044): среди ячеек есть ячейка из Exely и ещё одна */
+  const movedInside: string[] = [];
   const counters = { stays: 0, staysOk: 0, cards: 0, apiItems: 0, uiRows: 0, rechecked: 0 };
   for (const [idx, n] of [...cards.keys()].entries()) {
     const trace = async () => {
@@ -386,7 +388,7 @@ try {
       const syncStart = await lastSyncStartedAt();
       const issues: string[] = [];
       const waiting: string[] = [];
-      const seat: { reseated: string[]; unseated: string[] } = { reseated: [], unseated: [] };
+      const seat: { reseated: string[]; unseated: string[]; moved: string[] } = { reseated: [], unseated: [], moved: [] };
       let ok = 0;
       for (const it of exCard.record.items) {
         const row = rows.find((r) => r.exelyRoomStayId === it.exelyRoomStayId);
@@ -412,6 +414,7 @@ try {
           if (units.length === 0) seat.unseated.push(`${label}: в Exely ячейка ${it.exelyRoomNumber}, в PMS без ячейки`);
           else if (!units.includes(it.exelyRoomNumber))
             seat.reseated.push(`${label}: в Exely ячейка ${it.exelyRoomNumber}, в PMS ${units.join(', ')}`);
+          else if (units.length > 1) seat.moved.push(`${label}: ${units.join(' → ')}`);
         }
       }
       for (const extra of rows.filter(
@@ -483,7 +486,7 @@ try {
       try {
         return await trace();
       } catch (e) {
-        const empty = { reseated: [] as string[], unseated: [] as string[] };
+        const empty = { reseated: [] as string[], unseated: [] as string[], moved: [] as string[] };
         return { issues: [`ошибка чтения ${n}: ${(e as Error).message}`], waiting: [] as string[], seat: empty, ok: 0, stays: 0, apiItems: 0, uiRows: 0 };
       }
     };
@@ -500,6 +503,7 @@ try {
     pending.push(...result.waiting);
     reseated.push(...result.seat.reseated);
     unseated.push(...result.seat.unseated);
+    movedInside.push(...result.seat.moved);
     counters.stays += result.stays;
     counters.staysOk += result.ok;
     counters.apiItems += result.apiItems;
@@ -611,6 +615,8 @@ try {
     `| Exely → Supabase (проживаний; броней ${cards.size}: активных на сутки ${affecting.size}, изменённых за 24 ч ${modified.size}) | ${counters.stays} | ${failures.filter((f) => f.startsWith('Exely → Supabase')).length} |`,
     `| Supabase → API (проживаний) | ${counters.apiItems} | ${failures.filter((f) => f.startsWith('Supabase → API')).length} |`,
     `| API → карточка на экране (строк; карточек ${counters.cards}) | ${counters.uiRows} | ${failures.filter((f) => f.startsWith('API → экран')).length} |`,
+    '',
+    `С переездом внутри срока (ADR-044) ${movedInside.length}${movedInside.length ? `: ${movedInside.join('; ')}` : ''}.`,
     '',
     `Сошлось с Exely ${counters.staysOk} из ${counters.stays}; «в пути» (изменены в Exely после старта последней синхронизации) ${pending.length}; броней, перепроверенных после первого расхождения, ${counters.rechecked}.`,
     '',

@@ -637,6 +637,14 @@ textarea.inp {
   display: grid;
   gap: 4px;
 }
+/**
+ * Ссылка внутри примечания подчёркнута: одного цвета мало — на сером тексте примечания синяя ссылка даёт
+ * контраст 1.13:1 против требуемых 3:1, и axe справедливо считает её неразличимой (link-in-text-block).
+ * Проверяется `tests/ui/accessibility.spec.ts` на экранах «Настройки объекта».
+ */
+.note a {
+  text-decoration: underline;
+}
 .note {
   font-size: 12px;
   color: var(--muted);

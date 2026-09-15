@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Срез 9, гейт (план §7): демо-страница с виджетом на адресе API → цены по категориям на завтра →

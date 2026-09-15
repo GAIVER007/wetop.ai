@@ -1,10 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { almatyToday, plusDays } from './dates';
 
-/** B4/B5: печатная форма RU и KZ по существующей брони, журнал действий. */
+/** B4/B5: печатная форма RU и KZ по существующей брони (любая занятая клетка сегодня), журнал действий. */
 test('регистрационная карта печатается на RU и KZ; журнал показывает действия', async ({
   page,
 }) => {
-  await page.goto('/chessboard?from=2026-09-08&to=2026-09-10');
+  const today = almatyToday();
+  await page.goto(`/chessboard?from=${today}&to=${plusDays(today, 2)}`);
   const first = page.locator('td[data-state="OCCUPIED"] a').first();
   const number = (await first.getAttribute('href'))!.split('/').pop()!;
   await page.goto(`/reservations/${number}/print?lang=ru`);

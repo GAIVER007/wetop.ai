@@ -6,6 +6,7 @@ name: checks
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -41,9 +42,9 @@ jobs:
           if-no-files-found: ignore
 
   db:
-    name: миграции на чистом PostgreSQL 16
+    name: миграции · integration · e2e на чистом PostgreSQL 16
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:16
@@ -68,3 +69,29 @@ jobs:
         env:
           MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
         run: scripts/ops/check-migrations.sh
+      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Интеграционные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx vitest run --project integration
+      - name: Сборка стойки и Chromium
+        run: |
+          npm run build -w apps/web
+          npx playwright install --with-deps chromium
+      - name: Сквозные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx playwright test --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+          if-no-files-found: ignore

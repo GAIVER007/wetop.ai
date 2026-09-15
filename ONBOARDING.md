@@ -59,6 +59,17 @@ scripts/ops/channex-tunnel.sh                  # публичный адрес �
 npm test && npm run e2e                        # доказательства: модульные, интеграционные, Playwright
 ```
 
+Без ключей и без dev-БД — на любой машине с PostgreSQL 16 (расширение `btree_gist`), схему и данные тесты создают сами
+(сид, `tests/README.md`):
+
+```bash
+npm run generate -w @pms/database && npm run lint && npm run typecheck && npx vitest run --project unit
+DATABASE_URL=postgresql://pms@127.0.0.1:5432/pms_dev npm run test:record -- integration
+npm run build -w apps/web && DATABASE_URL=postgresql://pms@127.0.0.1:5432/pms_dev npm run test:record -- e2e
+```
+
+То же самое на каждый пуш делает GitHub Actions (`.github/workflows/checks.yml`).
+
 `npm install` Prisma Client не генерирует: на свежем клоне без `npm run generate -w @pms/database` все
 результаты запросов имеют тип `any`, и `npm run typecheck` падает пятью сотнями ошибок `TS7006`, хотя код цел
 (проверено 15.09.2026 на чистом клоне). Генерации база не нужна — только схема.

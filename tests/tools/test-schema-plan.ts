@@ -76,3 +76,16 @@ export function selectExpressions(
 export function hardcodedLiveAddress(line: string): boolean {
   return /(127\.0\.0\.1|localhost):300[01]\b/.test(line) && !line.includes('??');
 }
+
+export type TestDataSource = 'copy' | 'seed';
+
+/**
+ * Откуда брать данные для pms_test: `TEST_DATA=copy` — копия рабочей схемы public (Mac владельца, как было),
+ * `TEST_DATA=seed` — сид из кода (любая машина, CI). Без переменной: копия, если в public есть объект, иначе сид.
+ * Неизвестное значение — ошибка, а не тихое умолчание.
+ */
+export function chooseTestDataSource(env: string | undefined, liveHasData: boolean): TestDataSource {
+  if (env === undefined || env === '') return liveHasData ? 'copy' : 'seed';
+  if (env === 'copy' || env === 'seed') return env;
+  throw new Error(`TEST_DATA=${env}: допустимо только copy или seed`);
+}

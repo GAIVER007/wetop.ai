@@ -46,7 +46,14 @@ export default defineConfig({
   expect: { timeout: 30_000 },
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB, trace: 'retain-on-failure' },
+  use: {
+    baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB,
+    trace: 'retain-on-failure',
+    // Машина без браузеров Playwright, но со своим Chromium (облачная сессия, CI-образ): CHROMIUM_PATH=/путь/к/chrome
+    ...(process.env['CHROMIUM_PATH']
+      ? { launchOptions: { executablePath: process.env['CHROMIUM_PATH'] } }
+      : {}),
+  },
   projects: LIVE
     ? [{ name: 'channex-live', testMatch: LIVE_ONLY.map((f) => `**/${f}`) }]
     : [

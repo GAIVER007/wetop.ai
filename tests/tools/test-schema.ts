@@ -10,7 +10,15 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import pg from 'pg';
-import { TEST_SCHEMA, copyOrder, pendingMigrations, selectExpressions, type ColumnInfo } from './test-schema-plan';
+import { seedTestData, type SeedReport } from './test-seed';
+import {
+  TEST_SCHEMA,
+  chooseTestDataSource,
+  copyOrder,
+  pendingMigrations,
+  selectExpressions,
+  type ColumnInfo,
+} from './test-schema-plan';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const MIGRATIONS = resolve(ROOT, 'packages/database/prisma/migrations');
@@ -23,6 +31,8 @@ export interface TestSchemaReport {
   migrated: string[];
   totalMigrations: number;
   copied: Array<{ table: string; rows: number; live: number }> | null;
+  /** Данные пришли из сида (plans/tests-without-live-db-2026-09-15.md), а не копией public */
+  seeded: SeedReport | null;
   refreshedAt: string | null;
 }
 
@@ -73,19 +83,41 @@ export async function ensureTestSchema(
     const empty =
       Number((await client.query<{ n: string }>(`SELECT count(*) AS n FROM ${S}."properties"`)).rows[0]!.n) === 0;
     let copied: TestSchemaReport['copied'] = null;
-    if (opts.refresh || empty) copied = await copyLiveData(client, log);
+    let seeded: TestSchemaReport['seeded'] = null;
+    if (opts.refresh || empty) {
+      const source = chooseTestDataSource(process.env.TEST_DATA, await liveHasData(client));
+      if (source === 'copy') copied = await copyLiveData(client, log);
+      else {
+        seeded = await seedTestData(connectionString(), TEST_SCHEMA, log);
+        await client.query(
+          `INSERT INTO ${S}."_test_meta" (key, value) VALUES ('refreshed_at', $1)
+           ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+          [`${new Date().toISOString()} (сид)`],
+        );
+      }
+    }
     const meta = await client.query<{ value: string }>(`SELECT value FROM ${S}."_test_meta" WHERE key = 'refreshed_at'`);
     return {
       created: !existed,
       migrated: pending,
       totalMigrations: all.length,
       copied,
+      seeded,
       refreshedAt: meta.rows[0]?.value ?? null,
     };
   } finally {
     client.release();
     await pool.end();
   }
+}
+
+/** В рабочей схеме public есть объект — значит, есть что копировать; нет таблицы или строк — сид */
+async function liveHasData(client: pg.PoolClient): Promise<boolean> {
+  const table = await client.query(
+    "SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'properties'",
+  );
+  if (table.rowCount === 0) return false;
+  return Number((await client.query<{ n: string }>('SELECT count(*) AS n FROM public."properties"')).rows[0]!.n) > 0;
 }
 
 /** Все таблицы public → pms_test одной транзакцией: либо полная согласованная копия, либо ничего. */

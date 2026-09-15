@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);

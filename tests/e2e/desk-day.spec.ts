@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 /*

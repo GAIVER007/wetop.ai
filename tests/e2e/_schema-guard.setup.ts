@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Предохранитель изолированного прогона (ADR-042): API, на который пойдут спеки, работает в схеме pms_test.

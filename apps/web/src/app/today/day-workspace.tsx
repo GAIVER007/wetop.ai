@@ -129,7 +129,7 @@ function Group({
             <th>Гость</th>
             <th>Место</th>
             <th>Проживание</th>
-            <th>{showDebt ? 'Статус · счёт' : 'Статус'}</th>
+            <th>{showDebt ? 'Статус и счёт' : 'Статус'}</th>
             <th>
               <span className="sr-only">Действие</span>
             </th>

@@ -196,7 +196,8 @@
 .day-table thead th {
   position: sticky;
   top: 0;
-  z-index: 1;
+  /* шапка списка над строками, но ниже всплывающих слоёв (DESIGN.md §13) */
+  z-index: var(--z-sticky);
 }
 .day-table {
   border: 0;
@@ -306,7 +307,7 @@
 .day-table-footer a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .day-table-footer svg {
   width: 14px;

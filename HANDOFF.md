@@ -27,9 +27,9 @@
 ### Что можно делать с любой машины, а что только с Mac владельца
 
 С любой машины (в том числе из облачной сессии, без `.env`): `unit`, `lint`, `typecheck`, проверки главной
-(`npm run site:check`), проверка миграций на локальном PostgreSQL (`scripts/ops/check-migrations.sh`), документы,
-планы, домен и чистые модульные правки. Только с Mac: `integration` и `e2e` (dev-БД), сверки с Exely и Channex,
-туннель, домен, launchd, всё, что требует ключей. План снять эту границу — `plans/tests-without-live-db-2026-09-15.md`.
+(`npm run site:check`), проверка миграций (`scripts/ops/check-migrations.sh`), а с 15.09 и `integration` с `e2e` —
+на любом PostgreSQL 16 схему и данные тесты создают сами (сид, `tests/README.md`); то же делает GitHub Actions на
+каждый PR. Только с Mac: сверки с Exely и Channex, живые данные, туннель, домен, launchd, всё, что требует ключей.
 
 ---
 

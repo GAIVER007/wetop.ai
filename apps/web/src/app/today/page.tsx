@@ -1,7 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { deskApi, chessboardApi, formatMinor, ApiError } from '../../lib/api';
-import { hotelApi } from '../../lib/hotel-api';
+import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
 import { DayWorkspace } from './day-workspace';
 import { DayAttention } from './day-attention';
 import { Icon, type IconName } from '../../components/icon';
@@ -13,18 +13,18 @@ import { displayDate } from '../../lib/display-date';
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
-  const [day, hotel] = await Promise.all([
+  // Дата дня известна до ответа API: шахматка недели грузится вместе со сводкой, а не после неё (волна 4)
+  const date = sp.date && validDate(sp.date) ? sp.date : hotelToday();
+  const end = new Date(`${date}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() + 6);
+  const [day, hotel, board] = await Promise.all([
     deskApi.today(sp.date),
     hotelApi.settings().catch((error: unknown) => {
       if (error instanceof ApiError) return null;
       throw error;
     }),
+    chessboardApi.board(date, end.toISOString().slice(0, 10)).catch(() => null),
   ]);
-  const end = new Date(`${day.date}T00:00:00Z`);
-  end.setUTCDate(end.getUTCDate() + 6);
-  const board = await chessboardApi
-    .board(day.date, end.toISOString().slice(0, 10))
-    .catch(() => null);
   const debt = BigInt(day.debtMinor) > 0n;
   const metrics: Array<{
     label: string;

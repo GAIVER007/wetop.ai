@@ -239,6 +239,8 @@ export class FinanceService {
     if (!from || !ISO.test(from) || !to || !ISO.test(to))
       throw new BadRequestException('from и to — даты YYYY-MM-DD');
     if (to < from) throw new BadRequestException('to не может быть раньше from');
+    if (Date.parse(to) - Date.parse(from) > 365 * 86_400_000)
+      throw new BadRequestException('Период отчёта — не больше года (366 дней)');
     const r = await this.repo.periodReport(from, to);
     const sum = (xs: Array<{ amountMinor: bigint }>) => xs.reduce((a, x) => a + x.amountMinor, 0n);
     const charged = sum(r.chargesByKind);

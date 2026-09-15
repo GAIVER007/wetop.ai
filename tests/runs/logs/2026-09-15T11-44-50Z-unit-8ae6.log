@@ -1,0 +1,36 @@
+# Модульные (unit) · 15.09.2026 16:44 Алматы · vm
+# коммит 3a06f7f (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T11-44-50Z-unit-8ae6.json' 'apps/web/src/app/reservations/[number]/finance-actions.test.ts' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/hotel/reservation-directory.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests | 1 failed) 47ms
+   ✓ отправляет один платёж с распределениями и сохраняет ввод при отказе API 41ms
+   ✓ сохраняет поля отдельной оплаты после отказа и сбрасывает их только после успеха 2ms
+   × отказ API с кодом поля показывается администратору подписью поля, а не именем в коде 3ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (5 tests) 16ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 262ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts > отказ API с кодом поля показывается администратору подписью поля, а не именем в коде
+Error: The property "charge" is not defined on the object.
+ ❯ apps/web/src/app/reservations/[number]/finance-actions.test.ts:69:6
+     67|     error: 'Поле «Сумма»: сумма, например 12000 или 456.50',
+     68|   });
+     69|   vi.spyOn(financeApi, 'charge').mockRejectedValueOnce(
+       |      ^
+     70|     new ApiError(400, 'description — за что начисление'),
+     71|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 17 passed (18)
+   Start at  11:44:51
+   Duration  1.48s (transform 60%, import 27%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-15T11-44-50Z-unit-8ae6.json
+
+# код выхода 1 · 2 с

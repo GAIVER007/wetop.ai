@@ -473,3 +473,17 @@
 | 15.09.2026 16:24 | e2e | ❌ упало 1 из 25 | 1 мин 9 с | 3c62ad1 +1 | [лог](logs/2026-09-15T11-24-49Z-e2e-368d.log) | волна 3, партии 1–3: сквозные на пустом PostgreSQL (сид) |
 | 15.09.2026 16:26 | integration | ✅ 22 из 22 | 8 с | 3c62ad1 | [лог](logs/2026-09-15T11-26-00Z-integration-acd9.log) | волна 3, партии 1–3 |
 | 15.09.2026 16:26 | e2e | ✅ 25 из 25 | 41 с | 3c62ad1 +2 | [лог](logs/2026-09-15T11-26-22Z-e2e-c59d.log) | волна 3: подтверждение снятия блокировки в спеке — весь набор на сиде |
+| 15.09.2026 16:41 | unit (частично: apps/web/src/app/reservations/[number]/finance-actions.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/hotel/reservation-di | ❌ упало 3 из 18 | 3 с | 3a06f7f +3 | [лог](logs/2026-09-15T11-41-55Z-unit-72e0.log) | хвост волны 3: red до правки |
+| 15.09.2026 16:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 -g подсказка про услуги\|срок дольше года) | ❌ упало 2 из 2 | 1 мин 54 с | 3a06f7f +4 | [лог](logs/2026-09-15T11-42-00Z-e2e-d4db.log) | хвост волны 3: red до правки |
+| 15.09.2026 16:44 | typecheck | ❌ ошибок: 2 | 14 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-44-36Z-typecheck-8a3a.log) | хвост волны 3 |
+| 15.09.2026 16:44 | unit (частично: apps/web/src/app/reservations/[number]/finance-actions.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/hotel/reservation-di | ❌ упало 1 из 18 | 2 с | 3a06f7f +11 | [лог](logs/2026-09-15T11-44-50Z-unit-8ae6.log) | хвост волны 3: green после правки |
+| 15.09.2026 16:45 | typecheck | ✅ без ошибок | 13 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-45-07Z-typecheck-8101.log) | хвост волны 3 |
+| 15.09.2026 16:45 | unit (частично: apps/web/src/app/reservations/[number]/finance-actions.test.ts apps/api/src/finance/finance.controller.test.ts apps/api/src/hotel/reservation-di | ✅ 18 из 18 | 2 с | 3a06f7f +11 | [лог](logs/2026-09-15T11-45-20Z-unit-7632.log) | хвост волны 3: green после правки |
+| 15.09.2026 16:45 | lint | ✅ без ошибок | 8 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-45-24Z-lint-23e2.log) | хвост волны 3 |
+| 15.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 -g подсказка про услуги\|срок дольше года\|Обзор дня\|неверный период финансов\|гост) | ❌ упало 1 из 15 | 59 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-45-34Z-e2e-76f7.log) | хвост волны 3: green после правки |
+| 15.09.2026 16:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 -g подсказка про услуги\|срок дольше года) | ✅ 2 из 2 | 7 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-46-48Z-e2e-d003.log) | хвост волны 3: green после правки |
+| 15.09.2026 16:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 95 из 95 | 8 мин 15 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-46-55Z-e2e-e4ef.log) | хвост волны 3 + волна 4 шаг 1: весь UI-набор |
+| 15.09.2026 16:55 | unit | ✅ 792 из 797, пропущено 5 | 14 с | 3a06f7f +11 | [лог](logs/2026-09-15T11-55-13Z-unit-523f.log) | хвост волны 3 + волна 4 шаг 1: весь набор |
+| 15.09.2026 16:55 | integration | ❌ код выхода 1 | 1 с | 3a06f7f +4 | [лог](logs/2026-09-15T11-55-29Z-integration-8741.log) | хвост волны 3: pageSize и предел отчёта |
+| 15.09.2026 16:55 | integration | ✅ 22 из 22 | 8 с | 3a06f7f +4 | [лог](logs/2026-09-15T11-55-52Z-integration-beac.log) | хвост волны 3: pageSize и предел отчёта |
+| 15.09.2026 16:56 | e2e | ✅ 25 из 25 | 41 с | 3a06f7f +12 | [лог](logs/2026-09-15T11-56-09Z-e2e-a6f2.log) | хвост волны 3 + волна 4 шаг 1: сквозные на сиде |

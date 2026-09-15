@@ -1,0 +1,81 @@
+# Сквозные (e2e) · 15.09.2026 16:42 Алматы · vm
+# коммит 3a06f7f (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'подсказка про услуги|срок дольше года'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (17.2s)
+  ✘  2 tests/ui/workspace.spec.ts:702:1 › деньги за период: срок дольше года останавливает форма, а не ошибка API (15.9s)
+
+
+  1) tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Сведения об объекте в PMS' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Сведения об объекте в PMS' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Сведения об объекте в PMS' })
+
+
+      696 |   // описание: сведения PMS и описание из Channex — две разные панели с двумя разными адресами
+      697 |   await page.goto('/hotel-settings/description');
+    > 698 |   await expect(page.getByRole('heading', { name: 'Сведения об объекте в PMS' })).toBeVisible();
+          |                                                                                  ^
+      699 |   await expect(page.getByText(/Здесь — то, что знает PMS/).first()).toBeVisible();
+      700 | });
+      701 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:698:82
+
+    Error Context: test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/workspace.spec.ts:702:1 › деньги за период: срок дольше года останавливает форма, а не ошибка API 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert')
+    Expected substring: "не больше года"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('alert')
+
+
+      703 |   await page.goto('/finance?from=2024-01-01&to=2026-12-31');
+      704 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Деньги за период');
+    > 705 |   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+          |                                                           ^
+      706 |   await expect(page.getByTestId('charged')).toHaveCount(0);
+      707 | });
+      708 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:705:59
+
+    Error Context: test-results/workspace-деньги-за-период-3b2b9-ивает-форма-а-не-ошибка-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-деньги-за-период-3b2b9-ивает-форма-а-не-ошибка-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-деньги-за-период-3b2b9-ивает-форма-а-не-ошибка-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+    tests/ui/workspace.spec.ts:702:1 › деньги за период: срок дольше года останавливает форма, а не ошибка API 
+
+# код выхода 1 · 1 мин 54 с

@@ -3,7 +3,13 @@ import { reservationDirectory, hotelToday, reservationStatuses } from '../../lib
 import { Icon } from '../../components/icon';
 import { StatusBadge, Table } from '../../components/ui';
 export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
-  const data = await reservationDirectory({ from: hotelToday(), to: hotelToday(), status });
+  // Все брони дня одной страницей (до 200): у объекта ~80 гостей, страница в 25 показывала треть
+  const data = await reservationDirectory({
+    from: hotelToday(),
+    to: hotelToday(),
+    status,
+    pageSize: '200',
+  });
   const rows = [
     ...new Map(
       data.rows.filter((r) => r.primaryGuest).map((r) => [r.primaryGuest!.id, r]),
@@ -81,7 +87,8 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
       )}
       {data.total > data.pageSize && (
         <p className="muted small">
-          Показаны гости из последних {data.pageSize} броней. Для остальных используйте поиск.
+          Броней на сегодня {data.total}, показаны первые {data.pageSize}. Остальных ищите по имени
+          или телефону.
         </p>
       )}
     </>

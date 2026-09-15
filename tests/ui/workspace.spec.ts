@@ -693,6 +693,19 @@ test('настройки: подсказка про услуги ведёт во
   await page.goto('/hotel-settings/services');
   await expect(page.getByText('«Счета»')).toBeVisible();
   await expect(page.getByText('«Финансы»')).toHaveCount(0);
+  // описание: сведения PMS и описание из Channex — две разные панели с двумя разными адресами
+  await page.goto('/hotel-settings/description');
+  await expect(page.getByText('Сведения об объекте в PMS', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/Здесь — то, что знает PMS/).first()).toBeVisible();
+});
+
+test('деньги за период: срок дольше года останавливает форма, а не ошибка API', async ({
+  page,
+}) => {
+  await page.goto('/finance?from=2024-01-01&to=2026-12-31');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Деньги за период');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+  await expect(page.getByTestId('charged')).toHaveCount(0);
 });
 
 test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({

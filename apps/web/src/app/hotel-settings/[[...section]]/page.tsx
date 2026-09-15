@@ -5,7 +5,17 @@ import { hotelApi, type HotelContent } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
 import { SectionCards } from '../../../components/section-cards';
-import { Alert, Badge, Fact, Grid, Notice, Panel, Stat, Stats, Table } from '../../../components/ui';
+import {
+  Alert,
+  Badge,
+  Fact,
+  Grid,
+  Notice,
+  Panel,
+  Stat,
+  Stats,
+  Table,
+} from '../../../components/ui';
 
 export default async function HotelSettingsPage({
   params,
@@ -87,7 +97,7 @@ async function ChannexContent({
   return (
     <>
       {view === 'description' && (
-        <Panel title="Описание для гостей">
+        <Panel title="Описание для гостей (из Channex)">
           {p?.description ? (
             <p className="content-text" data-testid="content-description">
               {p.description}
@@ -184,7 +194,12 @@ async function StoredSettings({ view }: { view: string }) {
         </>
       )}
       {view === 'description' && (
-        <Panel title="Сведения об объекте">
+        <Panel title="Сведения об объекте в PMS">
+          <p className="note">
+            Здесь — то, что знает PMS: название, адрес, валюта, часовой пояс. Описание для гостей,
+            контакты и адрес ниже приходят из Channex и могут отличаться — их меняют в кабинете
+            Channex.
+          </p>
           <Grid min={250}>
             <Fact label="Название" value={p.name} />
             <Fact label="Юридическое название" value={p.legalName ?? 'Не указано'} />

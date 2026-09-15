@@ -17,6 +17,15 @@ import { describe, expect, it } from 'vitest';
 
 const INSTALL = resolve(import.meta.dirname, '../../scripts/ops/launchd/install.sh');
 
+/**
+ * Песочница подменяет launchctl, но читает собранный plist через `/usr/libexec/PlistBuddy`, а сам
+ * install.sh проверяет его через `plutil` — обе программы есть только в macOS. Там, где их нет,
+ * эмулировать launchd нечем: подставной launchctl не узнаёт имя задачи, и проверка доступа честно
+ * ждёт свои 30 секунд. Набор пропускается целиком, иначе `unit` на любой не-macOS машине вечно
+ * красный, а журнал прогонов врёт (15.09.2026). На macOS ничего не меняется.
+ */
+const LAUNCHD_TOOLS = existsSync('/usr/libexec/PlistBuddy') && spawnSync('plutil', ['-help']).error === undefined;
+
 interface Sandbox {
   bin: string;
   home: string;
@@ -88,7 +97,7 @@ function install(sb: Sandbox, args: string[]) {
   return { out: `${res.stdout}${res.stderr}`, calls };
 }
 
-describe('launchd install.sh', () => {
+describe.skipIf(!LAUNCHD_TOOLS)('launchd install.sh', () => {
   it('--dry не снимает загруженную задачу', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
     const { out, calls } = install(sb, ['--dry', 'web']);

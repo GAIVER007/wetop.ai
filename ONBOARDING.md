@@ -47,12 +47,17 @@
 
 ```bash
 npm install                                    # Node 24; ключи владелец вписывает в .env по .env.example
+npm run generate -w @pms/database              # Prisma Client; без него typecheck даёт сотни ошибок (см. ниже)
 npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте, значения не печатает
 npm run dev -w apps/api                        # API 127.0.0.1:3001
 npm run dev -w apps/web                        # стойка 127.0.0.1:3000
 scripts/ops/channex-tunnel.sh                  # публичный адрес и регистрация webhook Channex (staging)
 npm test && npm run e2e                        # доказательства: модульные, интеграционные, Playwright
 ```
+
+`npm install` Prisma Client не генерирует: на свежем клоне без `npm run generate -w @pms/database` все
+результаты запросов имеют тип `any`, и `npm run typecheck` падает пятью сотнями ошибок `TS7006`, хотя код цел
+(проверено 15.09.2026 на чистом клоне). Генерации база не нужна — только схема.
 
 Правила: `.env` агенту не читается (`.claude/settings.json`), значения ключей вписывает только владелец;
 `PII_STORAGE` пуст везде, кроме базы в Казахстане (`CUTOVER.md`); Exely, OTA и Channex production не трогать (AGENTS.md §9).

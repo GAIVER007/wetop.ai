@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { ApiError, getJsonPublic, reservationsApi } from './api';
+import { ApiError, apiErrorStatus, getJsonPublic, reservationsApi } from './api';
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
@@ -121,4 +121,11 @@ it('обычный режим отвергает demo-заголовок с лю
     vi.fn().mockResolvedValue(new Response('{}', { headers: { 'x-wetop-data-source': 'demo' } })),
   );
   await expect(getJsonPublic('/inventory/summary')).rejects.toMatchObject({ status: 503 });
+});
+
+it('ApiError carries its status in digest, so the client error boundary can tell 404 from 503', () => {
+  expect(new ApiError(404, 'API /x: HTTP 404').digest).toBe('API_404');
+  expect(apiErrorStatus('API_503')).toBe(503);
+  expect(apiErrorStatus('1234567890')).toBeUndefined();
+  expect(apiErrorStatus(undefined)).toBeUndefined();
 });

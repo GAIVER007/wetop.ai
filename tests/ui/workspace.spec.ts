@@ -305,6 +305,55 @@ test('карточка: профиль гостя и заселение прох
   );
 });
 
+test('экран ошибки различает отклонённый запрос (400/404) и отсутствие связи', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/desk/today', failStatus: 404 },
+  });
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByRole('main')).toContainText('Сервер отклонил запрос (код 404)');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/today' } });
+  await page.goto('/today');
+  await expect(page.getByRole('main')).toContainText('Проверьте подключение');
+  await expect(page.getByText('Сервер отклонил запрос')).toHaveCount(0);
+});
+
+test('сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/reservations');
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/reservations/20260913-TESTAA' },
+  });
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Не удалось загрузить данные');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await dialog.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(dialog.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();
+});
+
+test('каналы: сбой сводки фонда не роняет страницу; пустое сопоставление названо', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/channels');
+  await expect(page.getByTestId('mapping-empty')).toContainText('сопоставлений пока нет');
+  await expect(page.getByTestId('events-table')).toContainText('Получено (Алматы)');
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
+  await page.goto('/channels');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж — Channex');
+  await expect(
+    page.getByRole('main').getByRole('alert').filter({ hasText: 'Сводка фонда не загрузилась' }),
+  ).toBeVisible();
+});
+
 test('сбой API показывает ошибку, повтор восстанавливает страницу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/inventory');

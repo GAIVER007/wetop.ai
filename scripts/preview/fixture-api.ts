@@ -196,6 +196,8 @@ function getGuest(id: string) {
 }
 let rejectCreate = false;
 let failPath = '';
+/** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
+let failStatus = 503;
 let emptyFixture = false;
 /** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
 let ratesUnmapped = false;
@@ -954,6 +956,7 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
@@ -963,7 +966,12 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/commands') return send(200, commands);
     if (path === failPath || failPath === '*')
-      return send(503, { message: 'Синтетический сбой API' });
+      return send(
+        failStatus,
+        failStatus >= 500
+          ? { message: 'Синтетический сбой API' }
+          : { message: 'Синтетический отказ API: запрос отклонён' },
+      );
     if (path === '/hotel/settings' && holdHotel)
       await new Promise<void>((resolve) => hotelWaiters.add(resolve));
     if (path === '/hotel/reservations' && req.method === 'GET') {

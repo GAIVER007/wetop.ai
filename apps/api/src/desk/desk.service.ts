@@ -25,12 +25,15 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Заезд был раньше этого дня, гость так и не заселён и не отмечен незаездом: ни заезд дня, ни живущий */
+  overdue: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;
     inHouse: number;
     toCheckIn: number;
     toCheckOut: number;
+    overdue: number;
   };
   debtMinor: string;
 }
@@ -77,11 +80,21 @@ export class DeskService {
     const inHouse = stays
       .filter((s) => s.status === 'CHECKED_IN' && s.departureDate !== day)
       .map(row);
+    // Просроченные заезды (волна 3): раньше такие проживания на экране дня не появлялись вовсе
+    const overdue = stays
+      .filter(
+        (s) =>
+          s.arrivalDate < day &&
+          s.departureDate !== day &&
+          (s.status === 'CONFIRMED' || s.status === 'TENTATIVE'),
+      )
+      .map(row);
     return {
       date: day,
       arrivals,
       departures,
       inHouse,
+      overdue,
       counts: {
         arrivals: arrivals.length,
         departures: departures.length,
@@ -89,6 +102,7 @@ export class DeskService {
         toCheckIn: arrivals.filter((a) => a.status === 'CONFIRMED' || a.status === 'TENTATIVE')
           .length,
         toCheckOut: departures.filter((d) => d.status === 'CHECKED_IN').length,
+        overdue: overdue.length,
       },
       // Только долги: переплата одного гостя не должна прятать долг другого
       debtMinor: departures

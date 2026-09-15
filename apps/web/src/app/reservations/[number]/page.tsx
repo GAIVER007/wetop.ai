@@ -39,11 +39,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
+  // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
+  // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
-    reservationsApi.ratePlans(),
+    reservationsApi.ratePlans().catch(() => null),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
     financeApi.services().catch(() => null),
-    api.inventorySummary(),
+    api.inventorySummary().catch(() => null),
     Promise.all(
       [...periods.values()].map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
@@ -296,6 +298,17 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                     ячейки.
                   </Alert>
                 )}
+                {ratePlans === null && (
+                  <Alert boxed tone="warning" data-testid="rate-plans-missing">
+                    Справочник тарифов не загрузился: смена тарифа, «+1 ночь» и смена дат ждут
+                    обновления страницы.
+                  </Alert>
+                )}
+                {summary === null && (
+                  <Alert boxed tone="warning">
+                    Сводка фонда не загрузилась: категории в переселении показаны кодами.
+                  </Alert>
+                )}
                 <ReservationActions
                   number={r.confirmationNumber}
                   status={r.status}
@@ -303,12 +316,12 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
-                  ratePlans={ratePlans}
+                  ratePlans={ratePlans ?? []}
                   items={r.items.map((it) => {
                     const byCategory =
                       availabilityByPeriod.get(`${it.arrivalDate}/${it.departureDate}`)
                         ?.byCategory ?? {};
-                    const names = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+                    const names = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
                     // Переселять можно и в другую категорию (T1): предлагаем свободные ячейки всех категорий,
                     // своя — первой; цену система пересчитает по календарю выбранной категории
                     const groups = Object.entries(byCategory)

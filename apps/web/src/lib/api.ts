@@ -87,7 +87,16 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
 async function getJson<T>(path: string): Promise<T> {
   const res = await backendFetch(path);
   if (!res.ok) {
-    throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+    // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
+    let message = `API ${path}: HTTP ${res.status}`;
+    if (res.status < 500)
+      try {
+        const j = (await res.json()) as { message?: string | string[] };
+        if (j.message) message = Array.isArray(j.message) ? j.message.join('; ') : j.message;
+      } catch {
+        /* тело не JSON */
+      }
+    throw new ApiError(res.status, message);
   }
   return (await res.json()) as T;
 }
@@ -721,7 +730,10 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Заезд был раньше этого дня, гость не заселён и не отмечен незаездом */
+  overdue: DeskRow[];
   counts: {
+    overdue: number;
     arrivals: number;
     departures: number;
     inHouse: number;

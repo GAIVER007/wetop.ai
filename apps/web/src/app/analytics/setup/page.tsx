@@ -168,6 +168,10 @@ function SiteCard({
             <pre data-testid="site-card-booking-snippet" className="code">
               {snippet.bookingCode}
             </pre>
+            <p className="note">
+              Демо бронирования делает настоящую бронь: она попадёт в шахматку и уйдёт в каналы как
+              бронь с сайта. Проверяйте на вымышленном госте и отменяйте после проверки.
+            </p>
             <Row>
               <CopyButton text={snippet.bookingCode} />
               {previewAvailable(snippet.bookingDemoUrl) ? (

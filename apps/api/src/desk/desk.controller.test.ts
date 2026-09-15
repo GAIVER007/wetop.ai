@@ -51,6 +51,14 @@ const repo: DeskRepository = {
         departureDate: '2026-10-09',
         status: 'CHECKED_IN',
       }),
+      // заезд был позавчера, гость так и не заселён: не заезд дня и не живущий — стойка должна его видеть
+      stay({
+        itemId: 'i8',
+        confirmationNumber: 'B-8',
+        arrivalDate: '2026-10-03',
+        departureDate: '2026-10-08',
+        status: 'CONFIRMED',
+      }),
     ];
   },
 };
@@ -79,7 +87,12 @@ describe('desk day API', () => {
       inHouse: 1,
       toCheckIn: 5,
       toCheckOut: 1,
+      overdue: 1,
     });
+    // просроченный заезд — отдельным списком, с датой, когда должен был заехать
+    expect(r.body.overdue).toMatchObject([
+      { confirmationNumber: 'B-8', arrivalDate: '2026-10-03', status: 'CONFIRMED' },
+    ]);
     expect(
       r.body.arrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
     ).toEqual(['B-1', 'B-2', 'B-7', 'B-3', 'B-6']);
@@ -113,6 +126,7 @@ describe('desk day API', () => {
       inHouse: 0,
       toCheckIn: 0,
       toCheckOut: 0,
+      overdue: 0,
     });
     expect(empty.body.debtMinor).toBe('0');
     await request(app.getHttpServer()).get('/desk/today?date=05.10.2026').expect(400);

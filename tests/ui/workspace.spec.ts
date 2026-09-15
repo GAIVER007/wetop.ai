@@ -354,6 +354,75 @@ test('каналы: сбой сводки фонда не роняет стра�
   ).toBeVisible();
 });
 
+test('сегодня: гость, не заехавший вовремя, виден отдельным списком и в «Требуют внимания»', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/today');
+  await expect(page.getByTestId('group-overdue')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { overdue: true } });
+  await page.goto('/today');
+  await expect(page.getByTestId('group-overdue')).toContainText('20260913-TEST1');
+  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  await expect(tasks.getByRole('link', { name: /Не заехал/ })).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TEST1#booking-actions',
+  );
+});
+
+test('номера: доступность дольше 62 ночей останавливает форма, а не ошибка API', async ({
+  page,
+}) => {
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2027-01-01');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Доступность номеров');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше чем на 62 ночи');
+  await expect(page.getByLabel('Выезд')).toHaveAttribute('max', '2026-12-02');
+});
+
+test('аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/analytics?from=2025-01-01&to=2026-12-31');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/analytics/sites/ui-site/report', failStatus: 400 },
+  });
+  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('запрос отклонён');
+  await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/analytics/setup');
+  // .first(): ~300 мс после загрузки стойка держит две копии страницы (потоковый сегмент Next)
+  await expect(page.getByText(/Демо бронирования делает настоящую бронь/).first()).toBeVisible();
+});
+
+test('карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
+  await page.goto('/reservations/20260913-TESTAA');
+  await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();
+  // предупреждение живёт там, где нужен справочник — во вкладке действий
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await expect(
+    page
+      .getByRole('main')
+      .getByRole('alert')
+      .filter({ hasText: 'Справочник тарифов не загрузился' }),
+  ).toBeVisible();
+  await page.goto('/reservations/new?unit=M03');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
+  await expect(
+    page
+      .getByRole('main')
+      .getByRole('alert')
+      .filter({ hasText: 'Справочник тарифов не загрузился' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('new-reservation-form')).toHaveCount(0);
+});
+
 test('сбой API показывает ошибку, повтор восстанавливает страницу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/inventory');

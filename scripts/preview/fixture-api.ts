@@ -268,17 +268,25 @@ function desk(date: string): DeskDay {
   const inHouse = active.filter(
     (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
   );
+  const overdue = active.filter(
+    (r) =>
+      r.arrivalDate < date &&
+      r.departureDate > date &&
+      (r.status === 'CONFIRMED' || r.status === 'TENTATIVE'),
+  );
   return {
     date,
     arrivals,
     departures,
     inHouse,
+    overdue,
     counts: {
       arrivals: arrivals.length,
       departures: departures.length,
       inHouse: inHouse.length,
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
+      overdue: overdue.length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -958,6 +966,14 @@ createServer(async (req, res) => {
       failPath = String(body['failPath'] || '');
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
+      // просроченный заезд: подтверждённая бронь TEST1 должна была заехать вчера
+      if (body['overdue'] === true) {
+        const late = extraCards.get('20260913-TEST1');
+        if (late) {
+          late.arrivalDate = add(today, -1);
+          late.items[0]!.arrivalDate = late.arrivalDate;
+        }
+      }
       incidentHistory = Number(body['incidents']) || 0;
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)

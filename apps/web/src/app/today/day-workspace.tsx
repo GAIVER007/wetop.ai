@@ -57,6 +57,15 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
           ))}
         </div>
       </div>
+      {(view === 'all' || view === 'arrivals') && day.overdue.length > 0 && (
+        <Group
+          title="Не заехали вовремя"
+          rows={filter(day.overdue)}
+          testId="overdue"
+          showBlocked
+          showArrival
+        />
+      )}
       {(view === 'all' || view === 'arrivals') && (
         <Group title="Заезжают" rows={filter(day.arrivals)} testId="arrivals" showBlocked />
       )}
@@ -79,12 +88,15 @@ function Group({
   testId,
   showBlocked,
   showDebt,
+  showArrival,
 }: {
   title: string;
   rows: DeskRow[];
   testId: string;
   showBlocked?: boolean;
   showDebt?: boolean;
+  /** Просроченные заезды: дата, когда гость должен был заехать */
+  showArrival?: boolean;
 }) {
   return (
     <section className="day-group">
@@ -174,6 +186,11 @@ function Group({
                 </td>
                 <td>
                   <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />
+                  {showArrival && (
+                    <div className="cell-sub warn-text">
+                      Заезд был {displayDate(r.arrivalDate)}: заселить или отметить незаезд
+                    </div>
+                  )}
                   {showBlocked && r.blockedReason && (
                     <div className="cell-sub warn-text">{r.blockedReason}</div>
                   )}

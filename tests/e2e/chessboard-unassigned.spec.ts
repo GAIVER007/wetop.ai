@@ -93,9 +93,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
 
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);

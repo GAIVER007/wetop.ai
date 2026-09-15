@@ -28,9 +28,12 @@ import {
   assignUnitAction,
   cancelReservationAction,
   extendStayAction,
+  cancelPreviewAction,
 } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { displayDay, displayPeriod } from '../../lib/display-date';
+import { penaltyText } from '../../lib/penalty-text';
+import type { CancelPreview } from '../../lib/api';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -66,7 +69,7 @@ interface StayRef {
 type Pending =
   | { kind: 'drop'; payload: DragPayload; unitCode: string; fromDate: string }
   | { kind: 'move'; stay: StayRef; options: string[]; unitCode: string }
-  | { kind: 'cancel'; stay: StayRef };
+  | { kind: 'cancel'; stay: StayRef; penalty?: CancelPreview | null | undefined };
 
 /**
  * Сетка шахматки — клиентская часть (срез 7.1 по макету, DESIGN.md §8, §9).
@@ -531,10 +534,20 @@ function Grid({
                                     extend: () => extend(stayRef(row, index, label.span)),
                                     cancel: () => {
                                       setError(null);
+                                      const stay = stayRef(row, index, label.span);
                                       setPendingAction({
                                         kind: 'cancel',
-                                        stay: stayRef(row, index, label.span),
+                                        stay,
+                                        penalty: undefined,
                                       });
+                                      // Д5: штраф считает сервер тем же кодом, что и начисление
+                                      void cancelPreviewAction(stay.number, 'cancel').then((r) =>
+                                        setPendingAction((p) =>
+                                          p?.kind === 'cancel' && p.stay.number === stay.number
+                                            ? { ...p, penalty: r.preview }
+                                            : p,
+                                        ),
+                                      );
                                     },
                                   }
                                 : undefined
@@ -649,13 +662,18 @@ function Grid({
           ))}
       </ConfirmDialog>
 
-      {/* Отмена: вопрос с объектом, последствие отдельной строкой; сумма штрафа — срез 7.3 */}
+      {/* Отмена: вопрос с объектом, последствие отдельной строкой, штраф из предпросмотра (Д5) */}
       <ConfirmDialog
         open={pendingAction?.kind === 'cancel'}
         title={
           pendingAction?.kind === 'cancel' ? `Отменить бронь ${pendingAction.stay.number}?` : ''
         }
-        consequence="Место вернётся в продажу и уйдёт в каналы. Если по тарифу положен штраф, он останется на счёте. Отмена необратима."
+        consequence="Место вернётся в продажу и уйдёт в каналы. Отмена необратима."
+        amount={
+          pendingAction?.kind === 'cancel' ? (
+            <span data-testid="cancel-penalty">{penaltyText(pendingAction.penalty, 'cancel')}</span>
+          ) : undefined
+        }
         confirmLabel="Отменить бронь"
         cancelLabel="Оставить"
         tone="danger"

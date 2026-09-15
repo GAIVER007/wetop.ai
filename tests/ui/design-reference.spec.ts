@@ -25,7 +25,11 @@ async function shot(page: Page, name: string, themeName: string) {
   // курсор в угол, без каретки, переходы CSS доведены до конца, значок dev-оверлея Next спрятан.
   await page.mouse.move(0, 0);
   await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
-  await page.screenshot({ caret: 'hide', animations: 'disabled', path: `${dir}/${name}-${themeName}.png` });
+  await page.screenshot({
+    caret: 'hide',
+    animations: 'disabled',
+    path: `${dir}/${name}-${themeName}.png`,
+  });
 }
 
 for (const t of themes) {
@@ -36,7 +40,10 @@ for (const t of themes) {
     await expect(page.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
     await shot(page, 'chessboard-week', t);
     await page.getByRole('link', { name: 'Месяц', exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute('aria-current', 'true');
+    await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
     expect(await page.getByTestId('date-col').count()).toBeGreaterThanOrEqual(28);
     await shot(page, 'chessboard-month', t);
   });
@@ -109,6 +116,35 @@ for (const t of themes) {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Каналы продаж');
     await expect(page.getByTestId('events-table')).toContainText('новая бронь');
     await shot(page, 'channels', t);
+  });
+
+  test(`действия управляющего: окно переселения с суммой и «Разрешить» (${t})`, async ({
+    page,
+  }) => {
+    await theme(page, t);
+    // карточка: вкладка «Действия», окно «Переселить в другую категорию» с новой суммой (макет MoveStay)
+    await page.goto('/reservations/20260913-TESTAA');
+    await page
+      .getByRole('tablist', { name: 'Разделы карточки брони' })
+      .getByRole('tab', { name: 'Действия', exact: true })
+      .click();
+    await expect(page.getByTestId('extend-hint-ui-item')).toContainText('на счёт');
+    await shot(page, 'booking-actions', t);
+    const assign = page.getByTestId('assign-form');
+    // первая свободная ячейка другой категории: в витрине мужские койки заняты, список берём с экрана
+    const other = assign.locator('optgroup[label*="пересчётом"]').first();
+    await assign
+      .locator('select[name="unitCode"]')
+      .selectOption((await other.locator('option').first().getAttribute('value'))!);
+    await assign.getByRole('button', { name: 'Переселить' }).click();
+    await expect(page.getByRole('dialog').getByTestId('move-amount')).toContainText('Новая сумма');
+    await shot(page, 'booking-move-dialog', t);
+    // шахматка: плашки конфликтов и меню «Разрешить» (макеты Tentative, Resolve)
+    await page.goto('/chessboard');
+    await expect(page.getByTestId('overbooked-callout')).toBeVisible();
+    await page.getByTestId('unassigned-stays').getByRole('button', { name: 'Разрешить' }).click();
+    await expect(page.getByRole('menu')).toBeVisible();
+    await shot(page, 'chessboard-resolve', t);
   });
 
   test(`приём брони из канала (${t})`, async ({ page }) => {

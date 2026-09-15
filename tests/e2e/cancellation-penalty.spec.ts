@@ -44,10 +44,15 @@ test('отмена заранее — без штрафа, незаезд — с
   };
   expect(await balance()).toBe(stayTotal);
 
-  page.on('dialog', (d) => d.accept());
-  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
+  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется.
+  // Окно подтверждения (срез 7.3, Д5) говорит это до нажатия — той же функцией, что считает начисление
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  const cancelDialog = page.getByRole('dialog');
+  await expect(cancelDialog.getByTestId('cancel-penalty')).toHaveText(
+    'Штраф не начисляется: отмена до дня заезда',
+  );
+  await cancelDialog.getByRole('button', { name: 'Отменить бронь' }).click();
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -71,6 +76,11 @@ test('отмена заранее — без штрафа, незаезд — с
   const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
+  // сумма в окне = начисленный штраф (первая ночь по тарифу ОТА)
+  const noShowDialog = page.getByRole('dialog');
+  const shown = await noShowDialog.getByTestId('no-show-penalty').innerText();
+  expect(shown).toMatch(/^Штраф .+ останется на счёте$/);
+  await noShowDialog.getByRole('button', { name: 'Отметить незаезд' }).click();
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page

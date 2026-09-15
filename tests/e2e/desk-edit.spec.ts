@@ -97,9 +97,9 @@ test('групповая бронь на 2 койки → две клетки ш
   await page.screenshot({ path: 'reports/screenshots/desk-edit-folio-closed.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

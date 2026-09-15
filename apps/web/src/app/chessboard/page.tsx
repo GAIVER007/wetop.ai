@@ -1,7 +1,16 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { chessboardApi, getJsonPublic, type UnassignedStay } from '../../lib/api';
+import {
+  channelsApi,
+  chessboardApi,
+  getJsonPublic,
+  guardApi,
+  type Incident,
+  type InboundEvent,
+  type UnassignedStay,
+} from '../../lib/api';
+import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, cx } from '../../components/ui';
 import { AmountBadge } from '../../components/amount-badge';
@@ -65,7 +74,19 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  const [board, queue] = await Promise.all([chessboardApi.board(from, to), channexQueue()]);
+  const [board, queue, incidents, failedEvents] = await Promise.all([
+    chessboardApi.board(from, to),
+    channexQueue(),
+    // Д3: ночь категории сверх мест — открытая неисправность сторожа; только чтение
+    guardApi.incidents('open').catch((): Incident[] | null => null),
+    // Д4: ревизия канала, которую не удалось сопоставить, — плашка «требует разбора»
+    channelsApi
+      .events({ status: 'FAILED', limit: 1 })
+      .then((r) => r.rows)
+      .catch((): InboundEvent[] | null => null),
+  ]);
+  const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
+  const needsReview = failedEvents?.[0] ?? null;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -170,13 +191,38 @@ export default async function ChessboardPage({
         <Alert boxed role="alert" data-testid="channex-warning" className="board-channex-alert">
           <Icon name="incidents" width={16} height={16} />
           <span>
-            <b>Каналы могут не знать об остатках:</b> ошибок отправки {queue.outboxFailed}, в очереди{' '}
-            {queue.outboxPending}. Пока очередь не разошлась, каналы продают по старому остатку.
+            <b>Каналы могут не знать об остатках:</b> ошибок отправки {queue.outboxFailed}, в
+            очереди {queue.outboxPending}. Пока очередь не разошлась, каналы продают по старому
+            остатку.
           </span>
           <Link href="/channels" className="btn btn--secondary">
             Открыть каналы
           </Link>
         </Alert>
+      )}
+      {overbooked.map((i) => (
+        <div key={i.id} className="callout callout--warn" data-testid="overbooked-callout">
+          <Icon name="incidents" width={16} height={16} />
+          <span>
+            <b>Продано сверх мест.</b> {i.title} Место второй раз не продаётся: остаток категории
+            уже учитывает проживание без ячейки.
+          </span>
+          <a href="#unassigned-stays" className="btn btn--secondary btn--sm">
+            Разрешить
+          </a>
+        </div>
+      ))}
+      {needsReview && (
+        <div className="callout callout--warn" data-testid="review-callout">
+          <Icon name="incidents" width={16} height={16} />
+          <span>
+            <b>Входящая бронь требует разбора.</b>{' '}
+            {needsReview.lastError ?? 'Ревизия канала не обработана.'}
+          </span>
+          <Link href="/channels?status=FAILED" className="btn btn--secondary btn--sm">
+            Разобрать
+          </Link>
+        </div>
       )}
       <UnassignedStays stays={board.unassigned ?? []} />
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
@@ -186,10 +232,10 @@ export default async function ChessboardPage({
           В строке категории и под датой в шапке — сколько мест свободно на эту ночь из{' '}
           {board.rows.length}. Полоса брони начинается с середины клетки заезда и кончается на
           середине клетки выезда: ночь выезда ячейку не занимает. Клик по полосе открывает бронь, по
-          пустой клетке — форму новой брони на эту дату. Меню на полосе: переселить в свободную ячейку
-          той же категории, продлить на ночь, отменить; перетаскивание клетки на другую строку тоже
-          переселяет — с даты взятой клетки (в другую категорию — только на всё проживание). Брони без
-          ячейки — строкой над сеткой; ячейка назначается с карточки брони.
+          пустой клетке — форму новой брони на эту дату. Меню на полосе: переселить в свободную
+          ячейку той же категории, продлить на ночь, отменить; перетаскивание клетки на другую
+          строку тоже переселяет — с даты взятой клетки (в другую категорию — только на всё
+          проживание). Брони без ячейки — строкой над сеткой; ячейка назначается с карточки брони.
         </p>
       </details>
     </Page>
@@ -225,12 +271,14 @@ function BoardLegend() {
 function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
   return (
     <section
+      id="unassigned-stays"
       data-testid="unassigned-stays"
       data-count={stays.length}
       className={cx('board-unassigned', stays.length > 0 && 'board-unassigned--warn')}
     >
       <div className={cx('board-unassigned__title', stays.length ? 'warn-text' : 'muted')}>
-        <Icon name={stays.length ? 'incidents' : 'check'} width={16} height={16} /> Без ячейки: {stays.length}
+        <Icon name={stays.length ? 'incidents' : 'check'} width={16} height={16} /> Без ячейки:{' '}
+        {stays.length}
       </div>
       {stays.map((s) => {
         const status = STAY_STATUS[s.status];
@@ -245,7 +293,10 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
           >
             <b className="board-unassigned__guest">{s.guestLabel || '—'}</b>
             <span className="muted-2">{s.categoryName}</span>
-            <Link href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`} className="bold">
+            <Link
+              href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
+              className="bold"
+            >
               {s.confirmationNumber}
             </Link>
             <span>{displayPeriod(s.arrivalDate, s.departureDate)}</span>
@@ -260,12 +311,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
             </span>
             {source && <span className="badge">{source}</span>}
             {due && <AmountBadge amountMinor={due} kind="due" />}
-            <Link
-              href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
-              className="btn btn--secondary board-unassigned__assign"
-            >
-              Назначить
-            </Link>
+            <ResolveMenu number={s.confirmationNumber} />
           </div>
         );
       })}

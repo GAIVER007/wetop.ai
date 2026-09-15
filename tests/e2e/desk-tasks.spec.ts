@@ -106,6 +106,10 @@ test('стойка: занятую койку не продать дважды, 
   const otherCategory = (await other.getAttribute('label'))!.replace(' — с пересчётом цены', '');
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
+  // другая категория — окно с новой суммой до подтверждения (срез 7.3, Д5)
+  const moveDialog = page.getByRole('dialog');
+  await expect(moveDialog.getByTestId('move-amount')).toContainText('Новая сумма за');
+  await moveDialog.getByRole('button', { name: 'Переселить и пересчитать' }).click();
 
   await cardTab(page, 'Обзор');
   await expect(row).toContainText(otherUnit);
@@ -117,9 +121,9 @@ test('стойка: занятую койку не продать дважды, 
   await page.screenshot({ path: 'reports/screenshots/desk-move-extend.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

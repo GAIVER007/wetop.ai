@@ -72,9 +72,9 @@ test('договор и счёт печатаются на RU и KZ: номер 
 
   // прибрать за собой
   await page.goto(`/reservations/${number}`);
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

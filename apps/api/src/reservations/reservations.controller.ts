@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ReservationsService,
   type AssignUnitDto,
@@ -76,6 +76,36 @@ export class ReservationsController {
     @Body() dto: { nights?: number; ratePlanCode?: string },
   ) {
     return this.service.extend(number, itemId, dto ?? {});
+  }
+
+  // ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение теми же функциями ──
+  @Get(':number/items/:itemId/move-preview')
+  movePreview(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Query('unitCode') unitCode?: string,
+    @Query('ratePlanCode') ratePlanCode?: string,
+  ) {
+    return this.service.previewMove(number, itemId, { unitCode, ratePlanCode });
+  }
+
+  @Get(':number/items/:itemId/extend-preview')
+  extendPreview(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Query('nights') nights?: string,
+    @Query('ratePlanCode') ratePlanCode?: string,
+  ) {
+    return this.service.previewExtend(number, itemId, { nights, ratePlanCode });
+  }
+
+  @Get(':number/cancel-preview')
+  cancelPreview(
+    @Param('number') number: string,
+    @Query('reason') reason?: string,
+    @Query('itemId') itemId?: string,
+  ) {
+    return this.service.previewCancel(number, { reason, itemId });
   }
 
   @Post(':number/items/:itemId/assign')

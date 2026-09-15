@@ -22,7 +22,6 @@
   },
   "window-confirm": {
     "apps/web/src/app/analytics/setup/forms.tsx": 1,
-    "apps/web/src/app/reservations/[number]/actions-panel.tsx": 3,
     "apps/web/src/app/reservations/[number]/finance-panel.tsx": 1
   },
   "dot-separator": {

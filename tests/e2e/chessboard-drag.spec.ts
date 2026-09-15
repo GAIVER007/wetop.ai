@@ -77,9 +77,9 @@ test('перетаскивание клетки брони на свободну
   await expect(unitCell).not.toHaveText(unitA);
 
   // прибрать за собой: бронь отменяется, койка освобождается
-  page.once('dialog', (d) => d.accept()); // карточка брони пока на window.confirm — срез 7.3
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

@@ -320,7 +320,53 @@ export const reservationsApi = {
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/assign`,
       body,
     ),
+  // ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение ──
+  movePreview: (number: string, itemId: string, unitCode: string, ratePlanCode?: string) =>
+    getJson<MovePreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/move-preview?unitCode=${encodeURIComponent(unitCode)}${ratePlanCode ? `&ratePlanCode=${encodeURIComponent(ratePlanCode)}` : ''}`,
+    ),
+  extendPreview: (number: string, itemId: string, nights = 1, ratePlanCode?: string) =>
+    getJson<ExtendPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend-preview?nights=${nights}${ratePlanCode ? `&ratePlanCode=${encodeURIComponent(ratePlanCode)}` : ''}`,
+    ),
+  cancelPreview: (number: string, reason: 'cancel' | 'no_show', itemId?: string) =>
+    getJson<CancelPreview>(
+      `/reservations/${encodeURIComponent(number)}/cancel-preview?reason=${reason}${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ''}`,
+    ),
 };
+/** Переселение: новая сумма, если категория другая; `problem` — почему переселить нельзя */
+export interface MovePreview {
+  unitCode: string;
+  changesCategory: boolean;
+  fromCategory: { code: string; name: string } | null;
+  toCategory: { code: string; name: string } | null;
+  nights: number;
+  currentMinor: string;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  problem: string | null;
+}
+export interface ExtendPreview {
+  nights: number;
+  departureDate: string;
+  unitCode: string | null;
+  addedMinor: string | null;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  nextNightsFree: boolean;
+  problem: string | null;
+}
+export interface CancelPreview {
+  reason: 'cancel' | 'no_show';
+  items: Array<{
+    itemId: string;
+    unitCode: string | null;
+    policy: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+    dueNow: boolean;
+    penaltyMinor: string;
+  }>;
+  totalPenaltyMinor: string;
+}
 
 // ── Цены и ограничения (Slice 3.5 / 4.5) ──
 export interface RateCalendarDay {

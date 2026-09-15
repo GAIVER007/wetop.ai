@@ -39,7 +39,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
-  const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
+  const ACTIVE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
+  const [ratePlans, finance, services, summary, periodResults, extendPreviews] = await Promise.all([
     reservationsApi.ratePlans(),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
     financeApi.services().catch(() => null),
@@ -47,6 +48,14 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
     Promise.all(
       [...periods.values()].map((it) =>
         reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+      ),
+    ),
+    // Д5: цена новой ночи и занятость ячейки — до нажатия «Продлить на ночь»; только чтение
+    Promise.all(
+      r.items.map((it) =>
+        ACTIVE.has(it.status)
+          ? reservationsApi.extendPreview(r.confirmationNumber, it.id).catch(() => null)
+          : Promise.resolve(null),
       ),
     ),
   ]);
@@ -103,6 +112,17 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
        * Даты, гости и заказчик — факты, а не показатели: строка «подпись — значение» вместо плиток.
        * Плитками остаются только числа, которые требуют действия (см. экран «Сегодня»).
        */}
+      {r.status === 'TENTATIVE' && (
+        // Q-130, вариант (а): статус словом и цветом внимания; команды «Подтвердить» нет (Q-135)
+        <div className="callout callout--warn" data-testid="tentative-callout">
+          <Icon name="clock" width={16} height={16} />
+          <span>
+            <b>Не подтверждена.</b> Бронь перенесена из Exely без подтверждения: на шахматке стоит
+            словом «не подтверждена», место второй раз не продаётся. Подтвердить можно в Exely —
+            статус подтянется синхронизацией.
+          </span>
+        </div>
+      )}
       <div className="booking-person">
         <span className="guest-initials">
           {r.primaryGuest?.label
@@ -303,8 +323,10 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
+                  guestLabel={r.primaryGuest?.label ?? 'без имени'}
+                  currency={r.currency}
                   ratePlans={ratePlans}
-                  items={r.items.map((it) => {
+                  items={r.items.map((it, index) => {
                     const byCategory =
                       availabilityByPeriod.get(`${it.arrivalDate}/${it.departureDate}`)
                         ?.byCategory ?? {};
@@ -331,11 +353,17 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       accommodationTypeCode: it.accommodationTypeCode,
                       accommodationTypeName: it.accommodationTypeName,
                       unitCode: it.unitCode,
+                      arrivalDate: it.arrivalDate,
+                      departureDate: it.departureDate,
                       ratePlanCode: it.ratePlanCode ?? null,
                       ratePlanName: it.ratePlanName ?? null,
                       adults: it.adults,
                       children: it.children,
                       availableGroups: groups,
+                      balanceMinor:
+                        finance?.folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ??
+                        null,
+                      extendPreview: extendPreviews[index] ?? null,
                     };
                   })}
                 />

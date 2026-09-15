@@ -25,7 +25,19 @@ export interface ReservationsImportReport {
   paymentsImported: number;
   /** Проживания, чья ячейка в эти даты уже занята другим активным проживанием: назначение пропущено */
   conflicts: AllocationConflict[];
+  /** ADR-046 (Q-127): проживания, исчезнувшие из карточки Exely, отменены этим прогоном */
+  vanished: VanishedStay[];
+  /** ADR-047 (Q-128): начисления «удержано в Exely» созданы этим прогоном */
+  retained: number;
 }
+export interface VanishedStay {
+  confirmationNumber: string;
+  exelyRoomStayId: string;
+  arrivalDate: string;
+  departureDate: string;
+}
+/** Начисление-удержание на счёте отменённого проживания, оплаченного в Exely без возврата (ADR-047) */
+const RETENTION_DESCRIPTION = 'Удержано в Exely при отмене (перенос)';
 export interface AllocationConflict {
   confirmationNumber: string;
   exelyRoomNumber: string;
@@ -64,7 +76,10 @@ export async function importReservations(
     unassigned: 0,
     paymentsImported: 0,
     conflicts: [],
+    vanished: [],
+    retained: 0,
   };
+  const today = opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000));
   const types = await tx.accommodationType.findMany({
     where: { propertyId: opts.propertyId },
     select: { id: true, code: true },
@@ -244,6 +259,13 @@ export async function importReservations(
         currency: r.currency,
       });
       if (paid === 'created') report.paymentsImported += 1;
+      // ADR-047 (Q-128): отменено / незаезд, оплачено в Exely и не возвращено — Exely держит начисление и баланс 0.
+      // У нас начисление за проживание сторнировано, поэтому удержание — отдельным начислением на сумму оплаты;
+      // вернулось в активное или появился возврат — удержание сторнируется. Только для перенесённых проживаний.
+      const retention = await ensureRetentionCharge(tx, folioId, it.paidMinor, it.arrivalDate, {
+        wanted: !holdsUnit && it.paidMinor > 0n && it.refundMinor === 0n,
+      });
+      if (retention === 'created') report.retained += 1;
 
       // Отменённое / незаехавшее проживание ячейку не занимает (запрет пересечений в БД безусловный):
       // назначение не создаём, а существующее снимаем — как делает команда отмены на стойке.
@@ -311,6 +333,56 @@ export async function importReservations(
         report.stayGuests.linked += 1;
       }
     }
+
+    // ADR-046 (Q-127): карточка брони приходит целиком; проживание, которого в ней больше нет, в Exely удалено или
+    // перенесено в другую бронь. Отменяем его как отмену: ячейка снимается, начисление сторнируется, штраф не
+    // начисляется. Предохранители: карточка не пустая, проживание ещё не закончилось (прошлое не трогаем — его
+    // уже прожили), уже отменённое / незаезд / выехавшее — не трогаем. Повтор ничего не делает.
+    if (r.items.length > 0) {
+      const present = new Set(r.items.map((it) => it.exelyRoomStayId));
+      const gone = await tx.reservationItem.findMany({
+        where: {
+          reservationId,
+          exelyRoomStayId: { not: null },
+          status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+          departureDate: { gte: asDate(today) },
+        },
+        select: { id: true, exelyRoomStayId: true, status: true, arrivalDate: true, departureDate: true, price: true },
+      });
+      for (const item of gone) {
+        if (present.has(item.exelyRoomStayId!)) continue;
+        await tx.reservationItem.update({ where: { id: item.id }, data: { status: 'CANCELLED' } });
+        const removed = await tx.allocation.deleteMany({ where: { reservationItemId: item.id } });
+        report.allocations.released += removed.count;
+        await ensureFolioWithAccommodation(tx, {
+          reservationItemId: item.id,
+          currency: r.currency,
+          amountMinor: item.price,
+          description: `Проживание ${iso(item.arrivalDate)} → ${iso(item.departureDate)}`,
+          serviceDate: iso(item.arrivalDate),
+          active: false,
+        });
+        await tx.auditLog.create({
+          data: {
+            entityType: 'ReservationItem',
+            entityId: item.id,
+            action: 'reservation.item.vanished',
+            before: { status: item.status, exelyRoomStayId: item.exelyRoomStayId },
+            after: {
+              status: 'CANCELLED',
+              confirmationNumber: r.confirmationNumber,
+              reason: 'проживания больше нет в карточке брони Exely (ADR-046)',
+            },
+          },
+        });
+        report.vanished.push({
+          confirmationNumber: r.confirmationNumber,
+          exelyRoomStayId: item.exelyRoomStayId!,
+          arrivalDate: iso(item.arrivalDate),
+          departureDate: iso(item.departureDate),
+        });
+      }
+    }
   }
 
   // ── Места из Exely всей пачкой ──
@@ -346,7 +418,7 @@ export async function importReservations(
         start: iso(o.startDate),
         end: iso(o.endDate),
       })),
-      opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000)),
+      today,
     );
     const unchanged = (q: (typeof seating)[number], segments: Segment[]) =>
       q.current.length === segments.length &&
@@ -512,4 +584,40 @@ export async function importReservations(
   }
 
   return report;
+}
+
+/**
+ * Ровно одно активное начисление-удержание на счёте, равное оплаченному в Exely, пока проживание отменено и
+ * возврата нет (ADR-047); иначе — ни одного. Сторно — voided_at, строки не удаляются.
+ */
+async function ensureRetentionCharge(
+  tx: DbTx,
+  folioId: string,
+  amountMinor: bigint,
+  serviceDate: string,
+  opts: { wanted: boolean },
+): Promise<'created' | 'voided' | 'unchanged'> {
+  const current = await tx.charge.findFirst({
+    where: { folioId, kind: 'PENALTY', description: RETENTION_DESCRIPTION, voidedAt: null },
+    select: { id: true, amount: true },
+  });
+  if (!opts.wanted) {
+    if (!current) return 'unchanged';
+    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
+    return 'voided';
+  }
+  if (current && current.amount === amountMinor) return 'unchanged';
+  if (current) await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
+  await tx.charge.create({
+    data: {
+      folioId,
+      kind: 'PENALTY',
+      description: RETENTION_DESCRIPTION,
+      quantity: 1,
+      unitPrice: amountMinor,
+      amount: amountMinor,
+      serviceDate: asDate(serviceDate),
+    },
+  });
+  return 'created';
 }

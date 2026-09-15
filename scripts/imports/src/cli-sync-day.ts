@@ -158,8 +158,13 @@ try {
       `брони ${report.reservations.created}/${report.reservations.updated}, ` +
         `проживания ${report.items.created}/${report.items.updated}, ` +
         `назначения ${report.allocations.created}/${report.allocations.updated}, ` +
-        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}`,
+        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}, ` +
+        `исчезли из Exely ${report.vanished.length}, удержаний ${report.retained}`,
     );
+    for (const v of report.vanished)
+      console.log(
+        `  исчезло из карточки Exely: ${v.confirmationNumber} проживание ${v.exelyRoomStayId} ${v.arrivalDate} → ${v.departureDate} — отменено (ADR-046)`,
+      );
     for (const c of report.conflicts)
       console.log(
         `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
@@ -174,6 +179,8 @@ try {
       items: report.items,
       unassigned: report.unassigned,
       conflicts: report.conflicts.length,
+      vanished: report.vanished.length,
+      retained: report.retained,
     };
   }
 

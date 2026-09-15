@@ -355,15 +355,22 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const saved = existing
       ? await viaChannex(() => this.gateway.updateWebhook(existing.id, input))
       : await viaChannex(() => this.gateway.createWebhook(input));
+    // Успех считаем по ответу Channex, а не по тому, что отправили: 15.09.2026 PUT ответил 200, адрес не поменял,
+    // и кнопка отрапортовала перерегистрацию, пока webhook оставался на мёртвом туннеле.
+    const savedUrl = saved.attributes.callback_url;
+    if (savedUrl !== url)
+      throw new BadGatewayException(
+        `Channex оставил адрес webhook ${savedUrl} вместо ${url} — webhook не перерегистрирован`,
+      );
     await this.repo.audit('channels.webhook.register', {
       webhookId: saved.id,
-      callbackUrl: url,
+      callbackUrl: savedUrl,
       eventMask: WEBHOOK_EVENTS,
       created: !existing,
     });
     return {
       id: saved.id,
-      callbackUrl: url,
+      callbackUrl: savedUrl,
       created: !existing,
       eventMask: saved.attributes.event_mask,
       active: saved.attributes.is_active,

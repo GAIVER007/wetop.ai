@@ -380,3 +380,13 @@
 | 14.09.2026 16:27 | unit (частично: apps/api/src/audit) | ✅ 2 из 2 | 1 с | 1aad24e +4 | [лог](logs/2026-09-14T11-27-57Z-unit-e16a.log) | wave 3 green: journal searches the whole history in the database, exely.sync hidden unless asked |
 | 14.09.2026 16:29 | unit (частично: apps/web/src/lib/almaty.test.ts) | ❌ код выхода 1 | 1 с | d6be239 +2 | [лог](logs/2026-09-14T11-29-56Z-unit-6bc5.log) | wave 3 red: payment and refund dates on the booking card are cut from UTC (night payments show yesterday) |
 | 14.09.2026 16:30 | unit (частично: apps/web/src) | ✅ 61 из 61 | 1 с | d6be239 +5 | [лог](logs/2026-09-14T11-30-18Z-unit-28c4.log) | wave 3 green: payment/refund dates by Almaty day; freshness warns after 15 min (sync every 5 min) |
+| 15.09.2026 16:35 | typecheck | ✅ без ошибок | 16 с | 002173a +1 | [лог](logs/2026-09-15T11-35-58Z-typecheck-933d.log) |  |
+| 15.09.2026 16:36 | lint | ✅ без ошибок | 11 с | 002173a +1 | [лог](logs/2026-09-15T11-36-21Z-lint-d8a9.log) |  |
+| 15.09.2026 16:36 | unit | ✅ 788 из 788 | 19 с | 002173a +1 | [лог](logs/2026-09-15T11-36-38Z-unit-a926.log) |  |
+| 15.09.2026 16:37 | e2e (частично: --workers=1) | ❌ упало 20 из 23, пропущено 2 | 1 мин 16 с | 002173a +1 | [лог](logs/2026-09-15T11-37-08Z-e2e-31ee.log) | отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять |
+| 15.09.2026 16:44 | unit | ✅ 790 из 790 | 18 с | 527908e +3 | [лог](logs/2026-09-15T11-44-32Z-unit-e138.log) |  |
+| 15.09.2026 16:45 | typecheck | ✅ без ошибок | 34 с | 527908e +3 | [лог](logs/2026-09-15T11-45-03Z-typecheck-ae88.log) |  |
+| 15.09.2026 16:45 | lint | ✅ без ошибок | 28 с | 527908e +3 | [лог](logs/2026-09-15T11-45-43Z-lint-66c1.log) |  |
+| 15.09.2026 16:46 | e2e | ❌ упало 2 из 23 | 9 мин 38 с | 527908e +3 | [лог](logs/2026-09-15T11-46-56Z-e2e-7e89.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 15.09.2026 16:44 | e2e (частично: --workers=1) | ❌ упало 3 из 23 | 15 мин 47 с | 527908e +3 | [лог](logs/2026-09-15T11-44-58Z-e2e-f8d4.log) | заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку |
+| 15.09.2026 17:02 | e2e (частично: --workers=1 tests/e2e/check-in-out.spec.ts tests/e2e/chessboard-drag.spec.ts tests/e2e/full-day.spec.ts) | ✅ 4 из 4 | 4 мин 8 с | 527908e +3 | [лог](logs/2026-09-15T12-02-42Z-e2e-0f89.log) |  |

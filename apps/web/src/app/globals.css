@@ -950,6 +950,12 @@ textarea.inp {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+/* ссылка внутри подписи (например, «прочитать заново» в настройках гостиницы) — только цветом её не отличить:
+   контраст с серым текстом 1,13:1, axe link-in-text-block (UI-набор доступности, 15.09.2026) */
+.note a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .tbl .small {
   color: var(--muted);
 }

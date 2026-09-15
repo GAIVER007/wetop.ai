@@ -76,3 +76,5 @@ Production-сборка игнорирует разрешение тестовы
 ссылок на несуществующие страницы демонстрации. Ни одно правило axe не отключено.
 
 [Матрица разделов, логи и ограничения](../../reports/ui-quality/README.md).
+
+**15.09.2026.** На машине без Chrome и без браузеров Playwright набор берёт свой Chromium из `CHROMIUM_PATH` (как e2e и главная). В CI (`.github/workflows/checks.yml`, задание `ui`) идёт в chromium Playwright: `UI_BROWSER_CHANNEL=chromium`. Обход 33 экранов занимает ~50 с на вариант; итог здесь 39/39.

@@ -10,7 +10,10 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     baseURL: 'http://127.0.0.1:3100',
-    channel: process.env.UI_BROWSER_CHANNEL || 'chrome',
+    // Машина без Chrome и без браузеров Playwright, но со своим Chromium: CHROMIUM_PATH=/путь (как у e2e и главной)
+    ...(process.env.CHROMIUM_PATH
+      ? { launchOptions: { executablePath: process.env.CHROMIUM_PATH } }
+      : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',
   },

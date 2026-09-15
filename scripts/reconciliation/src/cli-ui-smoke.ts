@@ -2,6 +2,8 @@
  * Обход всех экранов WETOP на живом API — только чтение (план wetop-live-data, шаг 5).
  * Динамические экраны берутся из живых данных: бронь из «Сегодня», её гость, первая комната и первая койка.
  * Запуск: npx tsx scripts/reconciliation/src/cli-ui-smoke.ts   (стойка WEB_URL, по умолчанию http://127.0.0.1:3000)
+ * Против синтетического API (удалённая сессия без базы): APP_TEST_CLIENT=1 — тогда чтения идут
+ * с заголовком `x-wetop-test-client`, которого требует `scripts/preview/fixture-api.ts`.
  * Пишет reports/ui-smoke-YYYY-MM-DD.md. Код выхода 1, если хоть один экран показал ошибку.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -13,28 +15,66 @@ const WEB = process.env.WEB_URL ?? 'http://127.0.0.1:3000';
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 const TIMEOUT_MS = 120_000;
 
+/** Синтетический API отвечает только «своим» клиентам: без заголовка он даёт 403 */
+const HEADERS: Record<string, string> =
+  process.env.APP_TEST_CLIENT === '1' ? { 'x-wetop-test-client': '1' } : {};
+
 const json = async <T>(path: string): Promise<T> => {
-  const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  const res = await fetch(`${API}${path}`, {
+    headers: HEADERS,
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
   if (!res.ok) throw new Error(`API ${path}: HTTP ${res.status}`);
   return (await res.json()) as T;
 };
 
 const STATIC = [
-  '/today', '/chessboard', '/guests', '/reservations/new',
-  '/rooms', '/rooms/categories', '/rooms/availability', '/rooms/promotions', '/inventory', '/rates',
-  '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/penalties', '/hotel-settings/services',
-  '/hotel-settings/description', '/hotel-settings/photos', '/hotel-settings/amenities',
-  '/management', '/management/statistics', '/management/reports', '/management/analytics', '/finance',
-  '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup', '/marketing',
-  '/journal', '/incidents',
+  '/today',
+  '/chessboard',
+  '/guests',
+  '/reservations/new',
+  '/rooms',
+  '/rooms/categories',
+  '/rooms/availability',
+  '/rooms/promotions',
+  '/inventory',
+  '/rates',
+  '/hotel-settings',
+  '/hotel-settings/check-in',
+  '/hotel-settings/penalties',
+  '/hotel-settings/services',
+  '/hotel-settings/description',
+  '/hotel-settings/photos',
+  '/hotel-settings/amenities',
+  '/management',
+  '/management/statistics',
+  '/management/reports',
+  '/management/analytics',
+  '/finance',
+  '/channel-manager',
+  '/channels',
+  '/connections',
+  '/analytics',
+  '/analytics/setup',
+  '/marketing',
+  '/journal',
+  '/incidents',
   // экраны premium UI (PR #2, ADR-035): справочник броней, сообщения, профиль, вход
-  '/reservations', '/messages', '/profile', '/login',
+  '/reservations',
+  '/messages',
+  '/profile',
+  '/login',
 ];
 
-const day = await json<{ arrivals: Array<{ confirmationNumber: string }>; inHouse: Array<{ confirmationNumber: string }> }>('/desk/today');
+const day = await json<{
+  arrivals: Array<{ confirmationNumber: string }>;
+  inHouse: Array<{ confirmationNumber: string }>;
+}>('/desk/today');
 const number = (day.inHouse[0] ?? day.arrivals[0])?.confirmationNumber;
 const card = number
-  ? await json<{ primaryGuest: { id: string } | null }>(`/reservations/${encodeURIComponent(number)}`)
+  ? await json<{ primaryGuest: { id: string } | null }>(
+      `/reservations/${encodeURIComponent(number)}`,
+    )
   : null;
 const units = await json<Array<{ code: string; kind: 'ROOM' | 'BED' }>>('/inventory/units');
 const dynamic = [
@@ -52,15 +92,29 @@ for (const route of [...STATIC, ...dynamic]) {
     const html = await res.text();
     checks.push(inspectPage(route, res.status, Date.now() - started, html));
   } catch (e) {
-    checks.push({ route, status: 0, ms: Date.now() - started, heading: null, markers: ['NEXT_ERROR'], apiErrors: [(e as Error).message] });
+    checks.push({
+      route,
+      status: 0,
+      ms: Date.now() - started,
+      heading: null,
+      markers: ['NEXT_ERROR'],
+      apiErrors: [(e as Error).message],
+    });
   }
   const c = checks.at(-1)!;
-  console.log(`${pageOk(c) ? 'ок  ' : 'FAIL'} ${route} ${c.status} ${(c.ms / 1000).toFixed(1)} с ${c.markers.join(',')}`);
+  console.log(
+    `${pageOk(c) ? 'ок  ' : 'FAIL'} ${route} ${c.status} ${(c.ms / 1000).toFixed(1)} с ${c.markers.join(',')}`,
+  );
 }
 
 const takenAt = new Date();
 mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
-const out = resolve(ROOT, `reports/ui-smoke-${takenAt.toISOString().slice(0, 10)}.md`);
-writeFileSync(out, smokeReport(checks, takenAt, WEB));
+// Отчёт синтетического прогона не затирает отчёт живого: у них разные имена
+const synthetic = process.env.APP_TEST_CLIENT === '1';
+const out = resolve(
+  ROOT,
+  `reports/ui-smoke${synthetic ? '-synthetic' : ''}-${takenAt.toISOString().slice(0, 10)}.md`,
+);
+writeFileSync(out, smokeReport(checks, takenAt, WEB, synthetic ? 'синтетическом' : 'живом'));
 console.log(`→ ${out}`);
 process.exit(checks.every(pageOk) ? 0 : 1);

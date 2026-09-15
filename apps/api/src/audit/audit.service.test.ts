@@ -59,7 +59,7 @@ describe('AuditService.list', () => {
 describe('AuditService.list — кто сделал', () => {
   it('отдаёт имя вошедшего рядом с действием', async () => {
     const { service } = fakePrisma([
-      row({ user: { fullName: 'Айгуль Сеитова', email: 'aigul@example.invalid' } }),
+      row({ user: { name: 'Айгуль Сеитова' } }),
     ]);
     const [entry] = await service.list({ limit: 10 });
     expect(entry).toMatchObject({ action: 'reservation.checkIn', author: 'Айгуль Сеитова' });
@@ -72,18 +72,16 @@ describe('AuditService.list — кто сделал', () => {
   });
 
   it('берёт из учётной записи только имя: почта сотрудника в журнал не выводится', async () => {
-    const { service, calls } = fakePrisma([
-      row({ user: { fullName: 'Айгуль Сеитова', email: 'aigul@example.invalid' } }),
-    ]);
+    const { service, calls } = fakePrisma([row({ user: { name: 'Айгуль Сеитова' } })]);
     const [entry] = await service.list({ limit: 10 });
-    expect(JSON.stringify(entry)).not.toContain('aigul@example.invalid');
-    expect(JSON.stringify(calls[0]!.include)).toContain('fullName');
+    expect(entry!.author).toBe('Айгуль Сеитова');
+    expect(JSON.stringify(calls[0]!.include)).toContain('name');
     expect(JSON.stringify(calls[0]!.include)).not.toContain('email');
   });
 
   it('действия с учётными записями видны как обычные строки журнала', async () => {
     const { service } = fakePrisma([
-      row({ entityType: 'user', action: 'user.login', after: {}, user: { fullName: 'Дана Тестова' } }),
+      row({ entityType: 'user', action: 'user.login', after: {}, user: { name: 'Дана Тестова' } }),
     ]);
     const [entry] = await service.list({ limit: 10 });
     expect(entry).toMatchObject({ entityType: 'user', action: 'user.login', author: 'Дана Тестова' });

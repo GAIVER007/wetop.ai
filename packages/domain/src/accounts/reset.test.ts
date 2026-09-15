@@ -40,8 +40,12 @@ describe('одноразовая ссылка на пароль', () => {
 describe('письма', () => {
   const link = 'https://app.wetop.ai/login/set-password?token=abc';
 
+  it('без имени письмо всё равно понятно: имя в модели необязательно', () => {
+    expect(invitationLetter({ name: null, link }).text).toContain('Здравствуйте.');
+  });
+
   it('приглашение: зовёт по имени, даёт ссылку и говорит срок', () => {
-    const letter = invitationLetter({ fullName: 'Айгуль Сеитова', link });
+    const letter = invitationLetter({ name: 'Айгуль Сеитова', link });
     expect(letter.subject).toBe('WETOP: задайте пароль для входа');
     expect(letter.text).toContain('Айгуль Сеитова');
     expect(letter.text).toContain(link);
@@ -55,7 +59,7 @@ describe('письма', () => {
   });
 
   it('в письмах нет пароля — только ссылка', () => {
-    for (const letter of [invitationLetter({ fullName: 'Имя', link }), passwordResetLetter({ link })]) {
+    for (const letter of [invitationLetter({ name: 'Имя', link }), passwordResetLetter({ link })]) {
       expect(letter.text.toLowerCase()).not.toMatch(/пароль:\s*\S/);
     }
   });

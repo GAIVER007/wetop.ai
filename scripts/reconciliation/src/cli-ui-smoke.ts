@@ -22,14 +22,14 @@ const json = async <T>(path: string): Promise<T> => {
 
 const STATIC = [
   '/today', '/chessboard', '/guests', '/reservations/new',
-  '/rooms', '/rooms/categories', '/rooms/availability', '/rooms/promotions', '/inventory', '/rates',
+  '/rooms', '/rooms/categories', '/rooms/availability', '/inventory', '/rates',
   '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/penalties', '/hotel-settings/services',
   '/hotel-settings/description', '/hotel-settings/photos', '/hotel-settings/amenities',
-  '/management', '/management/statistics', '/management/reports', '/management/analytics', '/finance',
-  '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup', '/marketing',
+  '/management/statistics', '/finance',
+  '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup',
   '/journal', '/incidents',
   // экраны premium UI (PR #2, ADR-035): справочник броней, сообщения, профиль, вход
-  '/reservations', '/messages', '/profile', '/login',
+  '/reservations', '/profile', '/login',
 ];
 
 const day = await json<{ arrivals: Array<{ confirmationNumber: string }>; inHouse: Array<{ confirmationNumber: string }> }>('/desk/today');

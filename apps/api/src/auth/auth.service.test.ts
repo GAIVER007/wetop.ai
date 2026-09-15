@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
 import { AuthService } from './auth.service';
-import { fakeDb, fakeUser } from './fake-db';
+import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
 const PASSWORD = 'luxx-stoika-2026';
 const NOW = new Date('2026-09-15T10:00:00Z');
@@ -20,8 +20,8 @@ describe('AuthService.login', () => {
     expect(result.user).toEqual({
       id: 'u-1',
       email: 'admin@example.invalid',
-      fullName: 'Айгуль Тестова',
-      role: 'DESK',
+      name: 'Айгуль Тестова',
+      organizationId: FAKE_ORG,
     });
     expect(result.token).toHaveLength(43);
     expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
@@ -94,7 +94,7 @@ describe('AuthService.whoami', () => {
     const later = new Date(NOW.getTime() + 60_000);
 
     await expect(auth.whoami(token, later)).resolves.toMatchObject({
-      user: { id: 'u-1', fullName: 'Айгуль Тестова', role: 'DESK' },
+      user: { id: 'u-1', name: 'Айгуль Тестова', organizationId: FAKE_ORG },
     });
     expect(sessions[0]!.lastSeenAt).toEqual(later);
   });

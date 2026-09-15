@@ -650,6 +650,11 @@ textarea.inp {
   color: var(--muted);
   margin-top: 10px;
 }
+/* Ссылка внутри подписи отличается не только цветом: axe link-in-text-block (контраст с текстом 1,13:1) */
+.note a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* ---------- мелкие утилиты ---------- */
 .bold {

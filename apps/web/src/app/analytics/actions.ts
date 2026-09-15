@@ -106,6 +106,6 @@ export async function hostsAction(id: string, raw: string): Promise<SiteActionRe
 }
 
 function refreshSiteViews() {
-  for (const path of ['/analytics/setup', '/analytics', '/marketing', '/connections'])
+  for (const path of ['/analytics/setup', '/analytics', '/connections'])
     revalidatePath(path);
 }

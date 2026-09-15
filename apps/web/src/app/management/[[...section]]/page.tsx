@@ -1,11 +1,10 @@
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { api, chessboardApi } from '../../../lib/api';
 import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
-import { SectionCards } from '../../../components/section-cards';
 import { Alert, Help, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
 
 export default async function ManagementPage({
@@ -16,39 +15,15 @@ export default async function ManagementPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { section = [] } = await params;
+  // Хаба больше нет (15.09.2026, решение владельца): единственный раздел — статистика
+  if (!section.length) redirect('/management/statistics');
   const path = `/management${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
   if (!item) notFound();
   const sp = normalizeSearchParams(await searchParams);
   return (
-    <Page
-      title={item.label}
-      crumbs={section.length ? <Link href="/management">Управление отелем</Link> : undefined}
-    >
-      {!section.length && <SectionCards items={item.children ?? []} />}
+    <Page title={item.label}>
       {section[0] === 'statistics' && <Statistics date={sp.date ?? hotelToday()} />}
-      {section[0] === 'analytics' && (
-        <SectionCards
-          items={navigationItems.filter((i) =>
-            ['/management/statistics', '/channel-manager', '/analytics'].includes(i.href),
-          )}
-        />
-      )}
-      {section[0] === 'reports' && (
-        <SectionCards
-          items={[
-            ...navigationItems.filter((i) =>
-              ['/finance', '/channel-manager', '/journal', '/incidents'].includes(i.href),
-            ),
-            {
-              href: '/management/statistics',
-              label: 'Загрузка номерного фонда',
-              icon: 'bed',
-              description: 'Статистика по категориям на выбранный день.',
-            },
-          ]}
-        />
-      )}
     </Page>
   );
 }

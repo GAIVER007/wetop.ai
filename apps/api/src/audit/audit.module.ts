@@ -11,7 +11,7 @@ export interface AuditRow {
   /** Короткая сводка без ПД: номер брони / код ячейки, если есть в снимке */
   subject: string | null;
   /**
-   * Кто это сделал: имя вошедшего сотрудника (ADR-023, DATA_MODEL §13 шаг 1). `null` — система: импорт из
+   * Кто это сделал: имя вошедшего сотрудника (ADR-023, DATA_MODEL §13.2). `null` — система: импорт из
    * Exely, сторож, скрипт сверки. Почта сотрудника сюда не идёт — на экране довольно имени.
    */
   author: string | null;
@@ -52,7 +52,7 @@ export class AuditService {
       },
       orderBy: { createdAt: 'desc' },
       take: Math.min(Math.max(q.limit ?? 100, 1), 500),
-      include: { user: { select: { fullName: true } } },
+      include: { user: { select: { name: true } } },
     });
     return rows.map((r) => {
       const after = (r.after ?? r.before) as Record<string, unknown> | null;
@@ -70,7 +70,7 @@ export class AuditService {
         entityId: r.entityId,
         action: r.action,
         subject,
-        author: r.user?.fullName ?? null,
+        author: r.user?.name ?? null,
       };
     });
   }

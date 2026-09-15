@@ -114,13 +114,16 @@ describe('evaluateLogin', () => {
     ).toEqual({ outcome: 'ok', failedAttempts: 0, lockedUntil: null });
   });
 
-  it('заблокированного и не принявшего приглашение не пускает даже с верным паролем', () => {
+  it('заблокированного не пускает даже с верным паролем', () => {
     expect(
       evaluateLogin({ user: user({ status: 'BLOCKED' }), password: 'luxx-stoika-2026', now }),
     ).toMatchObject({ outcome: 'blocked' });
-    expect(
-      evaluateLogin({ user: user({ status: 'INVITED' }), password: 'luxx-stoika-2026', now }),
-    ).toMatchObject({ outcome: 'blocked' });
+  });
+
+  it('человека без пароля по паролю не пускает: он войдёт другим способом, когда тот появится', () => {
+    expect(evaluateLogin({ user: user({ passwordHash: '' }), password: 'что угодно', now })).toMatchObject({
+      outcome: 'wrong',
+    });
   });
 
   it('пользователя без пароля не пускает с пустым паролем', () => {

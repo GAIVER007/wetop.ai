@@ -3,15 +3,8 @@ import { signOut } from '../../app/login/actions';
 import { ApiError, authApi } from '../../lib/api';
 import { Icon } from '../icon';
 
-const ROLES = {
-  OWNER: 'владелец',
-  MANAGER: 'управляющий',
-  DESK: 'стойка',
-  READONLY: 'только чтение',
-} as const;
-
 /**
- * Кто на смене — в меню профиля (DATA_MODEL §13 шаг 1, ADR-046). Серверный кусок внутри клиентской шапки:
+ * Кто на смене — в меню профиля (DATA_MODEL §13.8, ADR-047). Серверный кусок внутри клиентской шапки:
  * имя приходит от API по токену сессии, а «Выйти» отзывает сессию в базе, а не просто чистит cookie.
  * Пока вход не обязателен (APP_AUTH_REQUIRED не задан), без сессии здесь просто ссылка на экран входа.
  */
@@ -33,10 +26,8 @@ export async function AccountMenu() {
   return (
     <>
       <span className="profile-signed-in">
-        <strong>{user.fullName}</strong>
-        <small>
-          {user.email} · {ROLES[user.role]}
-        </small>
+        <strong>{user.name ?? user.email}</strong>
+        {user.name && <small>{user.email}</small>}
       </span>
       <form action={signOut}>
         <button type="submit">

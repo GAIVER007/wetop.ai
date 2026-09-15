@@ -27,25 +27,6 @@ test('повторяющиеся параметры поиска не обруш
   await expect(page.getByRole('heading', { name: 'Журнал действий', exact: true })).toBeVisible();
 });
 
-test('длинный черновик на телефоне переносится внутри панели', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/messages');
-  await page.getByRole('button', { name: 'Новое сообщение', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Новое сообщение', exact: true });
-  await dialog.getByLabel('Получатель').fill('ДлинноеИмя'.repeat(20));
-  await dialog.getByLabel('Сообщение', { exact: true }).fill('ДлинноеСообщение'.repeat(100));
-  await dialog.getByRole('button', { name: 'Сохранить черновик', exact: true }).click();
-  expect(
-    await page.evaluate(() => {
-      const browser = globalThis as unknown as {
-        document: { documentElement: { scrollWidth: number } };
-        innerWidth: number;
-      };
-      return browser.document.documentElement.scrollWidth <= browser.innerWidth + 1;
-    }),
-  ).toBe(true);
-});
-
 test('операция проживания блокирует повторное нажатие до ответа сервера', async ({ page }) => {
   await page.goto('/reservations/20260913-TESTAA');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();

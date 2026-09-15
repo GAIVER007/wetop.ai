@@ -91,7 +91,7 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
 
 /**
  * Кто делает запрос: токен сессии из cookie уходит в API заголовком, и `audit_logs.user_id` заполняется сам
- * (DATA_MODEL §13 шаг 1). Импорт динамический — `next/headers` не должен попасть в клиентский бандл,
+ * (DATA_MODEL §13.8). Импорт динамический — `next/headers` не должен попасть в клиентский бандл,
  * потому что из этого файла клиентские компоненты берут ещё и formatMinor с типами.
  */
 async function sessionHeader(): Promise<Record<string, string>> {
@@ -273,12 +273,14 @@ async function sendJson<T>(
 export interface SignedIn {
   id: string;
   email: string;
-  fullName: string;
-  role: 'OWNER' | 'MANAGER' | 'DESK' | 'READONLY';
+  /** Имя необязательно (DATA_MODEL §13.2) — тогда зовём по почте */
+  name: string | null;
+  /** Организация, под которой открыта сессия (§13.5) */
+  organizationId: string;
 }
 
 /**
- * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Токен кладёт в cookie серверное действие `login/actions.ts`:
+ * Вход в стойку (DATA_MODEL §13.8, ADR-047). Токен кладёт в cookie серверное действие `login/actions.ts`:
  * сюда он потом попадает сам, заголовком (см. sessionHeader).
  */
 export const authApi = {

@@ -1,5 +1,8 @@
 /**
- * Учётные записи сотрудников: завести, сменить пароль, заблокировать (DATA_MODEL §13 шаг 1, ADR-046).
+ * Учётные записи сотрудников: завести, сменить пароль, заблокировать (DATA_MODEL §13, ADR-046 и ADR-047).
+ *
+ * Модель — из ADR-046: человек попадает в организацию через членство, ролей нет. Вход по паролю — ADR-047
+ * (способ входа ждёт решения владельца, Q-141).
  *
  * Пока нет рассылок (Q-137), первый вход выдаёт владелец этой командой. Пароль передаётся переменной
  * PMS_NEW_PASSWORD: в аргументах он остался бы в истории оболочки и в списке процессов.
@@ -45,38 +48,58 @@ function newPassword(): string {
 }
 
 const db = createPrismaClient();
+
+/** Единственная организация объекта: берём существующую, иначе создаём по имени объекта (§13.1). */
+async function organizationId(): Promise<string> {
+  const existing = await db.organization.findFirst({ orderBy: { createdAt: 'asc' } });
+  if (existing) return existing.id;
+  const property = await db.property.findFirst({ select: { name: true } });
+  const created = await db.organization.create({
+    data: { name: property?.name ?? 'WETOP', status: 'ACTIVE' },
+  });
+  console.log(`создана организация «${created.name}»`);
+  return created.id;
+}
+
 try {
   if (command.kind === 'list') {
-    const users = await db.user.findMany({ orderBy: { email: 'asc' } });
-    if (users.length === 0) console.log('сотрудников нет: заведите первого командой create');
+    const users = await db.user.findMany({
+      orderBy: { email: 'asc' },
+      include: { memberships: { include: { organization: { select: { name: true } } } } },
+    });
+    if (users.length === 0) console.log('сотрудников нет: заведите первого командой create или invite');
     for (const u of users) {
       const last = u.lastLoginAt ? u.lastLoginAt.toISOString() : 'ни разу';
-      const locked = u.lockedUntil && u.lockedUntil > new Date() ? `, заперт до ${u.lockedUntil.toISOString()}` : '';
-      console.log(`${u.email}\t${u.fullName}\t${u.role}\t${u.status}\tвход: ${last}${locked}`);
+      const locked =
+        u.lockedUntil && u.lockedUntil > new Date() ? `, заперт до ${u.lockedUntil.toISOString()}` : '';
+      const orgs = u.memberships.map((m) => m.organization.name).join(', ') || 'без организации';
+      const password = u.passwordHash === '' ? 'пароль не задан' : 'пароль задан';
+      console.log(`${u.email}\t${u.name ?? '—'}\t${orgs}\t${u.status}\t${password}\tвход: ${last}${locked}`);
     }
   }
 
   if (command.kind === 'create') {
     const password = newPassword();
+    const organization = await organizationId();
     const user = await db.user.create({
       data: {
         email: command.email,
-        fullName: command.fullName,
-        role: command.role,
+        name: command.name,
         status: 'ACTIVE',
         passwordHash: hashPassword(password),
       },
     });
+    await db.membership.create({ data: { userId: user.id, organizationId: organization } });
     await db.auditLog.create({
       data: {
         userId: user.id,
         entityType: 'user',
         entityId: user.id,
         action: 'user.created',
-        after: { email: user.email, role: user.role, by: 'cli' },
+        after: { email: user.email, organizationId: organization, by: 'cli' },
       },
     });
-    console.log(`создан: ${user.email} (${user.role}). Пароль выдайте сотруднику лично.`);
+    console.log(`создан: ${user.email}. Пароль выдайте сотруднику лично.`);
   }
 
   if (command.kind === 'invite') {
@@ -85,15 +108,12 @@ try {
       console.error(`сотрудник с почтой ${command.email} уже есть — смените пароль командой password`);
       process.exit(2);
     }
+    const organization = await organizationId();
+    // пароль пустой: человек задаст его сам по ссылке (§13.8)
     const user = await db.user.create({
-      data: {
-        email: command.email,
-        fullName: command.fullName,
-        role: command.role,
-        status: 'INVITED',
-        passwordHash: '',
-      },
+      data: { email: command.email, name: command.name, status: 'ACTIVE', passwordHash: '' },
     });
+    await db.membership.create({ data: { userId: user.id, organizationId: organization } });
     // одна живая ссылка на человека: прежние неиспользованные гасим
     await db.passwordReset.updateMany({
       where: { userId: user.id, usedAt: null },
@@ -111,24 +131,24 @@ try {
         entityType: 'user',
         entityId: user.id,
         action: 'user.invited',
-        after: { email: user.email, role: user.role, by: 'cli' },
+        after: { email: user.email, organizationId: organization, by: 'cli' },
       },
     });
 
     const config = mail.mailConfigFromEnv(process.env);
     if (!config) {
-      console.log(`приглашён: ${user.email} (${user.role}).`);
+      console.log(`приглашён: ${user.email}.`);
       console.log('Отправка писем не настроена (RESEND_API_KEY пуст) — передайте ссылку сами:');
       console.log(link);
       console.log('Ссылка работает 24 часа и только один раз.');
     } else {
-      const letter = invitationLetter({ fullName: command.fullName, link });
+      const letter = invitationLetter({ name: command.name, link });
       await new mail.ResendMailer(config).send({
         to: user.email,
         subject: letter.subject,
         text: letter.text,
       });
-      console.log(`приглашён: ${user.email} (${user.role}); письмо отправлено, ссылка живёт 24 часа.`);
+      console.log(`приглашён: ${user.email}; письмо отправлено, ссылка живёт 24 часа.`);
     }
   }
 

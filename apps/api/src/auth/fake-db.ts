@@ -8,20 +8,26 @@ export interface FakeUser {
   id: string;
   email: string;
   passwordHash: string;
-  fullName: string;
-  role: 'OWNER' | 'MANAGER' | 'DESK' | 'READONLY';
-  status: 'INVITED' | 'ACTIVE' | 'BLOCKED';
+  name: string | null;
+  status: 'ACTIVE' | 'BLOCKED';
   failedAttempts: number;
   lockedUntil: Date | null;
   lastLoginAt: Date | null;
 }
 
+export interface FakeMembership {
+  userId: string;
+  organizationId: string;
+  createdAt: Date;
+}
+
 export interface FakeSession {
   id: string;
   userId: string;
+  organizationId: string;
   tokenHash: string;
-  userAgentFamily: string | null;
-  createdAt: Date;
+  userAgent: string | null;
+  issuedAt: Date;
   lastSeenAt: Date;
   expiresAt: Date;
   revokedAt: Date | null;
@@ -43,13 +49,14 @@ export interface AuditRow {
   after: unknown;
 }
 
+export const FAKE_ORG = 'org-1';
+
 export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
   return {
     id: 'u-1',
     email: 'admin@example.invalid',
     passwordHash: hashPassword('luxx-stoika-2026'),
-    fullName: 'Айгуль Тестова',
-    role: 'DESK',
+    name: 'Айгуль Тестова',
     status: 'ACTIVE',
     failedAttempts: 0,
     lockedUntil: null,
@@ -62,15 +69,29 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const sessions: FakeSession[] = [];
   const resets: FakeReset[] = [];
   const audit: AuditRow[] = [];
+  // каждый заведённый человек состоит в одной организации — так его пускает §13.3
+  const memberships: FakeMembership[] = users.map((u) => ({
+    userId: u.id,
+    organizationId: FAKE_ORG,
+    createdAt: new Date('2026-09-15T00:00:00Z'),
+  }));
   let seq = 0;
 
   const db = {
     user: {
-      async findUnique({ where }: { where: { email?: string; id?: string } }) {
+      async findUnique({
+        where,
+        include,
+      }: {
+        where: { email?: string; id?: string };
+        include?: { memberships?: unknown };
+      }) {
         const found = users.find(
           (u) => (where.email !== undefined && u.email === where.email) || (where.id !== undefined && u.id === where.id),
         );
-        return found ? { ...found } : null;
+        if (!found) return null;
+        if (!include?.memberships) return { ...found };
+        return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
       },
       async update({ where, data }: { where: { id: string }; data: Partial<FakeUser> }) {
         const user = users.find((u) => u.id === where.id);
@@ -123,16 +144,26 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         return { count: hit.length };
       },
     },
+    membership: {
+      async create({ data }: { data: { userId: string; organizationId: string } }) {
+        const row: FakeMembership = { ...data, createdAt: new Date() };
+        memberships.push(row);
+        return { ...row };
+      },
+      async findFirst({ where }: { where: { userId: string } }) {
+        return memberships.find((m) => m.userId === where.userId) ?? null;
+      },
+    },
     session: {
-      async create({ data }: { data: Omit<FakeSession, 'id' | 'createdAt' | 'lastSeenAt' | 'revokedAt'> }) {
+      async create({ data }: { data: Omit<FakeSession, 'id' | 'issuedAt' | 'lastSeenAt' | 'revokedAt'> }) {
         seq += 1;
         const row: FakeSession = {
           id: `s-${seq}`,
-          createdAt: new Date(),
+          issuedAt: new Date(),
           lastSeenAt: new Date(),
           revokedAt: null,
           ...data,
-          userAgentFamily: data.userAgentFamily ?? null,
+          userAgent: data.userAgent ?? null,
         };
         sessions.push(row);
         return { ...row };
@@ -174,5 +205,5 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     },
   };
 
-  return { prisma: { db } as never, users, sessions, resets, audit, db };
+  return { prisma: { db } as never, users, sessions, resets, memberships, audit, db };
 }

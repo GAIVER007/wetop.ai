@@ -3,7 +3,10 @@ import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Input, StatusBadge, Table } from '../../components/ui';
-import { formatMinor } from '../../lib/api';
+import { formatMinor, messengerLinks } from '../../lib/api';
+import { displayDate } from '../../lib/display-date';
+import { nightsBetween, pluralRu } from '../../lib/plural';
+import '../directory.css';
 import {
   hotelToday,
   reservationDirectory,
@@ -85,85 +88,95 @@ export default async function ReservationsPage({
       {result && (
         <>
           <div className="directory-meta">
-            <span>{result.total} бронирований</span>
+            <span>{pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])}</span>
             <span>
-              {from} — {to}
+              {displayDate(from)} — {displayDate(to)}
             </span>
           </div>
-          <Table data-testid="reservations-table">
+          {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
+          <Table data-testid="reservations-table" className="dir-table" nowrap>
             <thead>
               <tr>
-                {[
-                  'Бронь / гость',
-                  'Источник',
-                  'Номер',
-                  'Заезд',
-                  'Выезд',
-                  'Статус',
-                  'Стоимость',
-                  'Оплачено',
-                  'К оплате',
-                  '',
-                ].map((h, i) => (
-                  <th key={i}>{h}</th>
-                ))}
+                <th>Гость</th>
+                <th>Источник</th>
+                <th>Место</th>
+                <th>Проживание</th>
+                <th>Статус</th>
+                <th className="num">Стоимость</th>
+                <th className="num">К оплате</th>
               </tr>
             </thead>
             <tbody>
-              {result.rows.map((r) => (
-                <tr key={r.confirmationNumber}>
-                  <td>
-                    <Link
-                      className="directory-guest"
-                      href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                    >
-                      <span className="guest-initials">
-                        {r.primaryGuest?.label
-                          .split(' ')
-                          .slice(0, 2)
-                          .map((n) => n[0])
-                          .join('') || 'Г'}
+              {result.rows.map((r) => {
+                const nights = nightsBetween(r.arrivalDate, r.departureDate);
+                const debt = r.hasFolios && BigInt(r.balanceMinor) > 0n;
+                const wa = messengerLinks(r.primaryGuest?.phone ?? null);
+                return (
+                  <tr key={r.confirmationNumber}>
+                    <td>
+                      {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
+                      <div className="dir-guest-cell">
+                        <Link
+                          className="dir-guest"
+                          href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+                          aria-label={`Открыть бронь ${r.confirmationNumber}`}
+                        >
+                          <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
+                          <span className="dir-number">{r.confirmationNumber}</span>
+                        </Link>
+                        {wa && (
+                          <a
+                            className="dir-wa"
+                            href={wa.whatsapp}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`WhatsApp: ${r.primaryGuest?.label ?? ''}`}
+                          >
+                            WA
+                          </a>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="source-tag">
+                        {r.channel || sourceNames[r.source] || r.source}
                       </span>
-                      <span>
-                        <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
-                        <small>{r.confirmationNumber}</small>
-                      </span>
-                    </Link>
-                  </td>
-                  <td>
-                    <span className="source-tag">
-                      {r.channel || sourceNames[r.source] || r.source}
-                    </span>
-                  </td>
-                  <td>{r.unitCodes.join(', ') || 'Не назначен'}</td>
-                  <td className="nowrap">{r.arrivalDate}</td>
-                  <td className="nowrap">{r.departureDate}</td>
-                  <td>
-                    <StatusBadge
-                      status={r.status}
-                      label={reservationStatuses[r.status] || r.status}
-                    />
-                  </td>
-                  <td className="num nowrap">{formatMinor(r.totalAmountMinor, r.currency)}</td>
-                  <td className="num nowrap">
-                    {r.hasFolios ? formatMinor(r.paidMinor, r.currency) : '—'}
-                  </td>
-                  <td className="num nowrap">
-                    <span className={BigInt(r.balanceMinor) > 0n ? 'danger-text' : ''}>
-                      {r.hasFolios ? formatMinor(r.balanceMinor, r.currency) : '—'}
-                    </span>
-                  </td>
-                  <td>
-                    <Link
-                      className="icon-button"
-                      href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                      aria-label={`Открыть бронь ${r.confirmationNumber}`}
-                    >
-                      <Icon name="chevron" />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      {r.unitCodes.length ? (
+                        <span className="dir-unit">
+                          <Icon name="bed" />
+                          {r.unitCodes.join(', ')}
+                        </span>
+                      ) : (
+                        <span className="warn-text">не назначено</span>
+                      )}
+                    </td>
+                    <td className="dir-stay">
+                      <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                      {' → '}
+                      <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                      {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+                    </td>
+                    <td>
+                      <StatusBadge
+                        status={r.status}
+                        label={reservationStatuses[r.status] || r.status}
+                      />
+                    </td>
+                    <td className="num nowrap">{formatMinor(r.totalAmountMinor, r.currency)}</td>
+                    <td className="num nowrap">
+                      {!r.hasFolios ? (
+                        <span className="muted">—</span>
+                      ) : debt ? (
+                        <span className="dir-debt">{formatMinor(r.balanceMinor, r.currency)}</span>
+                      ) : (
+                        <span className="dir-paid">оплачено</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
           {!result.rows.length && (

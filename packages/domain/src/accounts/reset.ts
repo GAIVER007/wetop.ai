@@ -1,5 +1,5 @@
 /**
- * Одноразовая ссылка на установку пароля (DATA_MODEL §13 шаг 1, ADR-046, решение владельца 15.09.2026).
+ * Одноразовая ссылка на установку пароля (DATA_MODEL §13.8–13.9, ADR-047, решение владельца 15.09.2026).
  * Одной и той же дорогой идут два случая: приглашение нового сотрудника и сброс пароля по его просьбе —
  * в базе это одна запись `password_resets`, в письме одна ссылка.
  *
@@ -34,11 +34,11 @@ export interface MailText {
 
 const SIGNATURE = 'Это письмо отправлено системой, не отвечайте на него.';
 
-export function invitationLetter({ fullName, link }: { fullName: string; link: string }): MailText {
+export function invitationLetter({ name, link }: { name: string | null; link: string }): MailText {
   return {
     subject: 'WETOP: задайте пароль для входа',
     text: [
-      `${fullName}, здравствуйте.`,
+      name ? `${name}, здравствуйте.` : 'Здравствуйте.',
       '',
       'Вам открыли доступ к WETOP — системе управления объектом. Задайте себе пароль по ссылке:',
       link,

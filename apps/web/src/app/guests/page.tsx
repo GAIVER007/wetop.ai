@@ -6,6 +6,7 @@ import { Icon } from '../../components/icon';
 import { guestsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Table } from '../../components/ui';
+import '../directory.css';
 
 /** Поиск гостей: фамилия, имя, телефон, email. */
 export default async function GuestsPage({
@@ -45,7 +46,7 @@ export default async function GuestsPage({
         </p>
       )}
       {query.length >= 2 && (
-        <Table data-testid="guests-table">
+        <Table data-testid="guests-table" className="dir-table" nowrap>
           <thead>
             <tr>
               {['Гость', 'Телефон', 'Email', 'Гражданство', 'Проживаний', 'Последний заезд'].map(

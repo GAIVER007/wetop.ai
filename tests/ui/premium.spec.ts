@@ -15,7 +15,7 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('.occupancy-chart svg').first()).toBeVisible();
+  await expect(page.locator('.occupancy-ring').first()).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -23,7 +23,7 @@ test('темы: system, мгновенное переключение, сохр�
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
-test('shell: панель, меню профиля, поиск, уведомления и помощник', async ({ page }) => {
+test('shell: панель, меню профиля, поиск', async ({ page }) => {
   await page.goto('/today');
   await page.getByRole('button', { name: 'Свернуть панель' }).click();
   await expect(page.locator('.workspace')).toHaveClass(/is-collapsed/);
@@ -40,17 +40,6 @@ test('shell: панель, меню профиля, поиск, уведомле
   await search.getByLabel('Запрос').fill('Тест');
   await search.getByRole('button', { name: 'Найти', exact: true }).click();
   await expect(page).toHaveURL(/guests\?q=/);
-  await page.getByRole('button', { name: 'Уведомления', exact: true }).click();
-  await expect(
-    page.getByRole('dialog', { name: 'Уведомления' }).getByText('долг уезжающих'),
-  ).toBeVisible();
-  await page.keyboard.press('Escape');
-  await page.goto('/today');
-  await page.getByRole('button', { name: 'Открыть AI Assistant', exact: true }).click();
-  const ai = page.getByRole('dialog', { name: 'WETOP AI Assistant' });
-  await ai.getByRole('button', { name: 'Кого нужно заселить?' }).click();
-  await expect(ai.getByRole('link').first()).toBeVisible();
-  await page.keyboard.press('Escape');
 });
 test('drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст', async ({
   page,
@@ -138,7 +127,6 @@ test('новые страницы и обе темы: адаптивность �
     '/guests',
     '/rooms',
     '/finance',
-    '/messages',
     '/profile',
     '/login',
     '/connections',
@@ -172,17 +160,8 @@ test('новые страницы и обе темы: адаптивность �
   }
   expect(errors).toEqual([]);
 });
-test('сообщения сохраняют только черновик, вход не пускает с чужим паролем', async ({ page }) => {
-  await page.goto('/messages');
-  await page.getByRole('button', { name: 'Новое сообщение' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Новое сообщение' });
-  await dialog.getByLabel('Получатель').fill('Демо');
-  await dialog.getByLabel('Сообщение', { exact: true }).fill('Поздний заезд');
-  await dialog.getByRole('button', { name: 'Сохранить черновик' }).click();
-  await expect(page.getByText('Не отправлено', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Удалить черновик' }).click();
-  await expect(page.getByText('Нет сохранённых черновиков')).toBeVisible();
-  // вход теперь настоящий (ADR-046): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
+// вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
+test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');

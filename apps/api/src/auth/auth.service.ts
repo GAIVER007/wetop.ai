@@ -18,8 +18,10 @@ import { PrismaService } from '../database/prisma.provider';
 export interface SignedInUser {
   id: string;
   email: string;
-  fullName: string;
-  role: 'OWNER' | 'MANAGER' | 'DESK' | 'READONLY';
+  /** Имя в модели необязательно (§13.2) — тогда человека зовём по почте */
+  name: string | null;
+  /** Организация, под которой открыта сессия (§13.5). Ролей нет: ADR-023 в силе */
+  organizationId: string;
 }
 
 export interface LoginResult {
@@ -33,15 +35,22 @@ const WRONG = 'Неверная почта или пароль';
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
-const visible = (user: {
-  id: string;
-  email: string;
-  fullName: string;
-  role: SignedInUser['role'];
-}): SignedInUser => ({ id: user.id, email: user.email, fullName: user.fullName, role: user.role });
+const visible = (
+  user: { id: string; email: string; name: string | null },
+  organizationId: string,
+): SignedInUser => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  organizationId,
+});
 
 /**
- * Вход в стойку по логину и паролю (DATA_MODEL §13 шаг 1, ADR-046, решение владельца 15.09.2026 по Q-134).
+ * Вход в стойку по логину и паролю (DATA_MODEL §13.8, ADR-047, решение владельца 15.09.2026 по Q-134).
+ *
+ * Модель учётных записей пришла из ADR-046 (организации, членство, приглашения); способ входа — открытая
+ * развилка Q-141: коды на почту в схеме есть, но не реализованы, пароль работает. Сессия всегда открыта под
+ * организацией (§13.5): её берём из членства человека.
  *
  * Правила входа живут в домене (`@pms/domain/accounts`), здесь только база и журнал. Пароль не попадает
  * ни в журнал, ни в ответы, ни в текст ошибок; в базе лежит хеш пароля и хеш токена сессии.
@@ -56,7 +65,12 @@ export class AuthService {
     now = new Date(),
   ): Promise<LoginResult> {
     const email = normalizeEmail(input.email);
-    const user = email ? await this.prisma.db.user.findUnique({ where: { email } }) : null;
+    const user = email
+      ? await this.prisma.db.user.findUnique({
+          where: { email },
+          include: { memberships: { orderBy: { createdAt: 'asc' }, take: 1 } },
+        })
+      : null;
 
     if (!user) {
       verifyPassword(input.password, DECOY_HASH);
@@ -91,6 +105,10 @@ export class AuthService {
       throw new UnauthorizedException(WRONG);
     }
 
+    // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
+    const organizationId = user.memberships[0]?.organizationId;
+    if (!organizationId) throw new UnauthorizedException(WRONG);
+
     const token = newSessionToken();
     await this.prisma.db.user.update({
       where: { id: user.id },
@@ -100,14 +118,15 @@ export class AuthService {
     await this.prisma.db.session.create({
       data: {
         userId: user.id,
+        organizationId,
         tokenHash: hashSessionToken(token),
-        userAgentFamily: input.userAgentFamily ?? null,
+        userAgent: input.userAgentFamily ?? null,
         expiresAt,
       },
     });
     await this.record(user.id, 'user.login', { via: 'password' });
 
-    return { token, expiresAt: expiresAt.toISOString(), user: visible(user) };
+    return { token, expiresAt: expiresAt.toISOString(), user: visible(user, organizationId) };
   }
 
   /** Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий. */
@@ -121,7 +140,10 @@ export class AuthService {
       where: { id: found.session.id },
       data: { lastSeenAt: now },
     });
-    return { user: visible(found.user), expiresAt: found.session.expiresAt.toISOString() };
+    return {
+      user: visible(found.user, found.session.organizationId),
+      expiresAt: found.session.expiresAt.toISOString(),
+    };
   }
 
   /** «Выйти». Идемпотентен: неизвестный или уже отозванный токен ничего не ломает и в журнал не пишет. */

@@ -1,10 +1,10 @@
 import { verifyPassword } from './password';
 
-/** Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-046). */
+/** Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-047). */
 export const MAX_FAILED_ATTEMPTS = 5;
 export const LOCK_MINUTES = 15;
 
-export type UserStatus = 'INVITED' | 'ACTIVE' | 'BLOCKED';
+export type UserStatus = 'ACTIVE' | 'BLOCKED';
 
 export interface LoginUser {
   status: UserStatus;

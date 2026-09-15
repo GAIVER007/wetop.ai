@@ -6,13 +6,6 @@ import { useTheme } from '../../components/theme-provider';
 import type { SignedIn } from '../../lib/api';
 import { signIn, signOut, type LoginState } from './actions';
 
-const ROLES: Record<SignedIn['role'], string> = {
-  OWNER: 'владелец',
-  MANAGER: 'управляющий',
-  DESK: 'стойка',
-  READONLY: 'только чтение',
-};
-
 export function LoginForm({
   demo,
   accessEmail,
@@ -74,7 +67,8 @@ export function LoginForm({
             <>
               <h2>Вы вошли</h2>
               <p>
-                как <b>{user.fullName}</b> · {user.email} · {ROLES[user.role]}
+                как <b>{user.name ?? user.email}</b>
+                {user.name ? ` · ${user.email}` : ''}
               </p>
               <Link className="btn" href="/today">
                 Открыть рабочее место

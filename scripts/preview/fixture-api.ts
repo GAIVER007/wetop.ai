@@ -535,14 +535,14 @@ function report(): SiteReport {
 }
 
 /**
- * Вход в стойку для проверок интерфейса (DATA_MODEL §13 шаг 1). Настоящих людей здесь нет (ADR-010):
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-047). Настоящих людей здесь нет (ADR-010):
  * один вымышленный сотрудник и пароль, который знает только эта фикстура.
  */
 const uiUser = {
   id: 'ui-user',
   email: 'admin@wetop.test',
-  fullName: 'Дана Тестова',
-  role: 'DESK' as const,
+  name: 'Дана Тестова',
+  organizationId: 'ui-org',
 };
 let uiPassword = 'ui-test-parol';
 const uiSessions = new Set<string>();
@@ -887,7 +887,7 @@ function read(path: string, q: URLSearchParams): unknown {
         action: 'reservation.checkIn',
         subject: card.confirmationNumber,
         // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
-        author: uiUser.fullName,
+        author: uiUser.name,
       },
       {
         id: 'ui-audit-login',
@@ -896,7 +896,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: uiUser.id,
         action: 'user.login',
         subject: null,
-        author: uiUser.fullName,
+        author: uiUser.name,
       },
       {
         id: 'ui-audit-system',

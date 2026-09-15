@@ -6,23 +6,17 @@ describe('parseAccountsArgs', () => {
     expect(parseAccountsArgs(['list'])).toEqual({ ok: true, command: { kind: 'list' } });
   });
 
-  it('создание: почта приводится к нижнему регистру, роль по умолчанию — стойка', () => {
+  it('создание: почта приводится к нижнему регистру', () => {
     expect(parseAccountsArgs(['create', '--email=Aigul@Luxx.KZ', '--name=Айгуль Сеитова'])).toEqual({
       ok: true,
-      command: { kind: 'create', email: 'aigul@luxx.kz', fullName: 'Айгуль Сеитова', role: 'DESK' },
+      command: { kind: 'create', email: 'aigul@luxx.kz', name: 'Айгуль Сеитова' },
     });
   });
 
-  it('создание с ролью', () => {
-    expect(parseAccountsArgs(['create', '--email=a@b.kz', '--name=Имя', '--role=owner'])).toMatchObject({
+  it('роли не принимаются: их нет в модели (ADR-023 в силе, Q-135)', () => {
+    expect(parseAccountsArgs(['create', '--email=a@b.kz', '--name=Имя', '--role=owner'])).toEqual({
       ok: true,
-      command: { role: 'OWNER' },
-    });
-  });
-
-  it('незнакомая роль — ошибка, а не молчаливое умолчание', () => {
-    expect(parseAccountsArgs(['create', '--email=a@b.kz', '--name=Имя', '--role=admin'])).toMatchObject({
-      ok: false,
+      command: { kind: 'create', email: 'a@b.kz', name: 'Имя' },
     });
   });
 
@@ -55,11 +49,8 @@ describe('parseAccountsArgs', () => {
   it('приглашение: как create, но пароль не задаётся — человек задаст его сам по ссылке', () => {
     expect(parseAccountsArgs(['invite', '--email=Nova@Luxx.KZ', '--name=Нова Сеитова'])).toEqual({
       ok: true,
-      command: { kind: 'invite', email: 'nova@luxx.kz', fullName: 'Нова Сеитова', role: 'DESK' },
+      command: { kind: 'invite', email: 'nova@luxx.kz', name: 'Нова Сеитова' },
     });
-    expect(
-      parseAccountsArgs(['invite', '--email=a@b.kz', '--name=Имя', '--role=manager']),
-    ).toMatchObject({ ok: true, command: { kind: 'invite', role: 'MANAGER' } });
   });
 
   it('приглашение без имени или с непохожей почтой не отправляем', () => {

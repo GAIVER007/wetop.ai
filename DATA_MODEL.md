@@ -893,135 +893,143 @@ resolved_by       GUARD (исчезла после починки или сам�
 
 ---
 
-## 13. Учётные записи, организации и подписки (v1.5 — **шаг 1 УТВЕРЖДЁН владельцем 15.09.2026**, шаги 2–4 предложены; срез 13, `plans/slice-13-accounts-saas.md`, ADR-046)
+## 13. Учётные записи и регистрация (v1.5 — принят 15.09.2026, срез 13, ADR-046)
 
-> **Утверждено 15.09.2026 (Q-134, ADR-046) и разрешено к реализации: `User`, `Session`, `PasswordReset` и ссылка
-> `audit_logs.user_id → User`** — это шаг 1, вход по логину и паролю.
->
-> **`Organization`, `OrganizationMember`, `Invitation`, `Plan`, `Subscription`, `Invoice` остаются предложением:**
-> код по ним не пишется, миграций нет, пока владелец не откроет шаги 2–4 (после первой живой смены на объекте).
+Появляется из ADR-046. Существующие таблицы разделов 1–12 не меняются: разделение данных по
+организациям это отдельный срез, до него пробный период пускает в демо-объект, а не в живой.
 
-Поручение владельца 15.09.2026: WETOP делается как SaaS — партнёры-компании, у каждой своя регистрация, вход
-по логину и паролю, и мы видим статус их оплат. Сегодня в модели нет ни пользователя, ни организации, ни
-подписки: `Property` существует (SPEC.md прямо оставил его «на случай, когда отель не один»), а
-`AuditLog.user_id` есть, но всегда `NULL` — заполнять его нечем (ADR-023).
+Общие правила раздела:
 
-Существующие сущности не меняются, кроме двух точек: `Property` получает организацию-владельца,
-`AuditLog.user_id` получает ссылку на `User`. Счета гостей (`Folio`, `Charge`, `Payment`, `Refund`) к подписке
-партнёра отношения не имеют — это разные деньги и разные таблицы.
+- почта хранится в нижнем регистре, сравнение по нормализованной форме, уникальность по ней же;
+- `code_hash` и `token_hash` только хеши (SHA-256 с солью из `.env`), открытых кодов и токенов в базе нет;
+- время в UTC `timestamptz`, как в AGENTS.md §13;
+- удаления строк нет, вместо удаления `status`;
+- лимиты запроса кода: 5 в час на почту, 20 в час с адреса; адрес посетителя из `CF-Connecting-IP` и
+  только от loopback, как в срезе 9 (`SECURITY.md` §11).
 
-### Organization
+### 13.1. `organizations` — арендатор
 
-```
-id
-name                  название партнёра
-legal_name            юридическое имя
-bin                   БИН / регистрационный номер, необязателен
-country               ISO alpha-2
-contact_email
-contact_phone
-status                TRIAL | ACTIVE | SUSPENDED | CLOSED
-created_at
-```
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `name` | `varchar(200)` NOT NULL | название, вводит человек при регистрации |
+| `status` | `varchar(16)` NOT NULL | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED` |
+| `trial_ends_at` | `timestamptz` | срок пробного периода, 7 суток от создания |
+| `created_at` | `timestamptz` NOT NULL | |
 
-`Property.organization_id → Organization`. У нынешнего объекта — организация владельца; переносится
-миграцией, существующие брони и счета не трогаются.
+CHECK: `status IN ('TRIAL','ACTIVE','READ_ONLY','SUSPENDED')`.
 
-### User
+### 13.2. `users` — человек
 
-```
-id
-email                 уникальна, нижний регистр
-password_hash         scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш», соль на пользователя случайная;
-                      сам пароль не пишется ни в журнал, ни в отчёты, ни в details инцидентов
-role                  OWNER | MANAGER | DESK | READONLY — на шаге 1 живёт здесь и ничего не запрещает
-                      (ADR-023 в силе, состав ролей и их права — Q-135); на шаге 2 переезжает
-                      в OrganizationMember
-full_name
-status                INVITED | ACTIVE | BLOCKED
-last_login_at
-failed_attempts       счётчик подряд неудачных попыток
-locked_until          до этого времени вход отклоняется
-created_at
-```
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `email` | `varchar(320)` NOT NULL UNIQUE | нижний регистр |
+| `name` | `varchar(200)` | необязательно |
+| `status` | `varchar(16)` NOT NULL | `ACTIVE`, `BLOCKED` |
+| `created_at` | `timestamptz` NOT NULL | |
+| `last_login_at` | `timestamptz` | |
 
-### OrganizationMember
+### 13.3. `memberships` — человек в организации
 
-```
-id
-organization_id
-user_id
-role                  OWNER | MANAGER | DESK | READONLY      (состав — Q-135)
-created_at
-уникально (organization_id, user_id)
-```
+| Поле | Тип | Примечание |
+|---|---|---|
+| `user_id` | `uuid` FK → `users` | |
+| `organization_id` | `uuid` FK → `organizations` | |
+| `created_at` | `timestamptz` NOT NULL | |
 
-### Session
+PK составной (`user_id`, `organization_id`). Ролей нет намеренно: ADR-023 в этой части в силе.
 
-```
-id
-user_id
-organization_id       под какой организацией работает сессия
-token_hash            хеш токена, не токен: утечка базы не даёт войти
-user_agent_family     «Chrome», «Safari» — полный User-Agent и IP не храним (ADR-018, как в §11)
-created_at
-last_seen_at
-expires_at
-revoked_at
-```
+### 13.4. `login_codes` — одноразовые коды входа
 
-### PasswordReset
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `email` | `varchar(320)` NOT NULL | нижний регистр |
+| `code_hash` | `varchar(64)` NOT NULL | шесть цифр, хеш |
+| `expires_at` | `timestamptz` NOT NULL | 10 минут |
+| `attempts` | `smallint` NOT NULL DEFAULT 0 | потолок 3 |
+| `used_at` | `timestamptz` | одноразовость |
+| `requested_ip` | `varchar(45)` | для лимитов, не для профилирования |
+| `created_at` | `timestamptz` NOT NULL | |
 
-```
-PasswordReset   id, user_id, token_hash, expires_at, used_at
-```
+Индекс по (`email`, `created_at`) для лимитов. Код действителен, пока `used_at IS NULL`,
+`attempts < 3` и `now() < expires_at`.
 
-Одна таблица на два случая (решение 15.09.2026, Q-137): приглашение нового сотрудника и сброс пароля по его
-просьбе — это одна и та же одноразовая ссылка. Приглашённый сотрудник живёт со статусом `INVITED` и пустым
-хешем пароля, что CHECK базы допускает только для него; по ссылке он задаёт пароль и становится `ACTIVE`.
-Ссылка живёт 24 часа, работает один раз, новая гасит прежние неиспользованные.
+### 13.5. `sessions` — активные сессии
 
-### Invitation (шаг 4, предложение)
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | значение в куке это подписанный идентификатор, не сам id |
+| `user_id` | `uuid` FK → `users` | |
+| `organization_id` | `uuid` FK → `organizations` | выбранная организация |
+| `issued_at` | `timestamptz` NOT NULL | |
+| `expires_at` | `timestamptz` NOT NULL | 30 суток, продление при активности |
+| `user_agent` | `varchar(400)` | для списка «где я вошёл» |
+| `revoked_at` | `timestamptz` | «выйти везде» проставляет всем строкам пользователя |
 
-```
-Invitation      id, organization_id, email, role, token_hash, expires_at, accepted_at, invited_by → User
-```
+Кука `HttpOnly`, `Secure`, `SameSite=Lax`.
 
-Понадобится, когда приглашать будет не владелец из командной строки, а организация-партнёр из интерфейса.
+### 13.6. `invites` — приглашения в организацию
 
-### Plan, Subscription, Invoice
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `organization_id` | `uuid` FK → `organizations` | |
+| `email` | `varchar(320)` NOT NULL | кого зовут |
+| `token_hash` | `varchar(64)` NOT NULL | хеш ссылки |
+| `expires_at` | `timestamptz` NOT NULL | 7 суток |
+| `accepted_at` | `timestamptz` | |
+| `created_by` | `uuid` FK → `users` | |
+| `created_at` | `timestamptz` NOT NULL | |
 
-```
-Plan          id, code, name, price_minor, currency, period (MONTH | YEAR), unit_limit, is_public
-Subscription  id, organization_id, plan_id, status (TRIAL | ACTIVE | PAST_DUE | CANCELED),
-              trial_ends_at, current_period_start, current_period_end, canceled_at
-Invoice       id, organization_id, subscription_id, number, period_start, period_end,
-              amount_minor, currency, status (DRAFT | SENT | PAID | OVERDUE | VOID),
-              issued_at, due_at, paid_at, external_payment_id
-```
+### 13.7. Что этот раздел не вводит
 
-Деньги подписки — целые минорные единицы, как везде (ADR-008). Всё в этом подразделе — предложение шага 3. Валюта подписки хранится отдельно от валюты
-объекта: партнёр может платить не в тенге. За что считаем цену и сколько планов — Q-138, чем платят — Q-136,
-что происходит по окончании пробного периода — Q-139.
+Ролей и прав (ADR-023), паролей, двухфакторной аутентификации, SSO, биллинга, удаления организаций,
+`organization_id` в таблицах броней, гостей, счетов и тарифов. Последнее это отдельный срез, и до него
+пробный период не даёт доступа к данным живого объекта.
 
-### Изоляция данных партнёров
+### 13.8. Вход по паролю (Q-141: сделано 15.09.2026, способ входа ждёт решения владельца)
 
-Запрос одного партнёра не должен видеть данные другого — цена ошибки здесь выше остальных, потому что в
-бронях лежат ФИО и документы гостей. Поэтому изоляция ставится двумя замками, а не договорённостью:
+Раздел выше описывает вход по одноразовому коду (`login_codes`). В тот же день в другой сессии владелец
+попросил вход по логину и паролю, и он **сделан и проверен** (`reports/accounts-2026-09-15.md`). Обе записи о
+решении владельца противоречат друг другу — это Q-141, и до ответа сохранены обе дороги: коды на почту лежат
+в схеме нереализованными, пароль работает.
 
-1. **Row Level Security в Postgres** по `organization_id`; соединение выставляет `app.current_org` из сессии.
-   Забытое условие в запросе тогда не возвращает ничего вместо чужого.
-2. **Обёртка Prisma**, которая сама подставляет организацию и роняет запрос к модели с `organization_id`,
-   если организация не задана.
+`users` дополняется (миграция `20260915000014_password_login`):
 
-Доказательство — интеграционный тест, красный до политики: две организации, у каждой свой объект и бронь;
-сессия первой не видит вторую ни в бронях, ни в гостях, ни в счетах, ни в аналитике, ни в журнале.
+| Поле | Тип | Примечание |
+|---|---|---|
+| `password_hash` | `text` NOT NULL DEFAULT `''` | `scrypt` из node:crypto, формат `scrypt$N$r$p$соль$хеш`. Пустая строка — пароль не задан, вход по паролю невозможен |
+| `failed_attempts` | `integer` NOT NULL DEFAULT 0 | промахи подряд |
+| `locked_until` | `timestamptz` | после 5 промахов вход заперт на 15 минут |
 
-### Персональные данные сотрудников
+`sessions` дополняется:
 
-Почта и имя сотрудника — персональные данные, значит на них действует тот же переключатель `PII_STORAGE`,
-что на гостей (ADR-018, `CUTOVER.md`): настоящие — только в базе Казахстана, в сингапурской dev-БД
-вымышленные, как в тестах (ADR-010). Граница подтверждается ответом на Q-140.
+| Поле | Тип | Примечание |
+|---|---|---|
+| `token_hash` | `text` UNIQUE | sha-256 токена из cookie. Сам токен только у человека в браузере |
+| `last_seen_at` | `timestamptz` NOT NULL DEFAULT now() | отметка активности |
+
+### 13.9. `password_resets` — одноразовая ссылка на пароль
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `user_id` | `uuid` FK → `users` | ON DELETE CASCADE |
+| `token_hash` | `text` UNIQUE | хеш токена ссылки, не токен |
+| `expires_at` | `timestamptz` NOT NULL | 24 часа |
+| `used_at` | `timestamptz` | ссылка одноразовая |
+| `created_at` | `timestamptz` NOT NULL | |
+
+Одна таблица на два случая: приглашение сотрудника (он задаёт пароль сам) и сброс пароля по его просьбе.
+Отличается от `invites` раздела 13.6: та зовёт человека в организацию, эта даёт задать пароль.
+
+Ролей здесь нет — ADR-023 в силе, как и в разделе 13.3; состав ролей остаётся Q-135.
+
+`audit_logs.user_id` получает внешний ключ на `users` с `ON DELETE SET NULL`: удаление сотрудника не стирает
+историю его действий (ADR-023 это и предусматривал).
+
 
 ---
 

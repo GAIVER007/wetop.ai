@@ -88,14 +88,6 @@
     }
   },
   {
-    "route": "/rooms/promotions",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/inventory",
     "violations": [],
     "layout": {
@@ -184,31 +176,7 @@
     }
   },
   {
-    "route": "/management",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/management/statistics",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/management/reports",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/management/analytics",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -249,22 +217,6 @@
   },
   {
     "route": "/analytics/setup",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/marketing",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/messages",
     "violations": [],
     "layout": {
       "viewport": 1440,

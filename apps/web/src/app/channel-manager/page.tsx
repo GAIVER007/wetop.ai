@@ -100,7 +100,7 @@ export default async function ChannelManagerPage({
               {!money.size && <span className="muted">За этот период бронирований нет</span>}
             </div>
             {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
-            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты →</Link>
+            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты</Link>
           </Panel>
           <Table data-testid="channel-report">
             <thead>
@@ -126,7 +126,7 @@ export default async function ChannelManagerPage({
                       <div>
                         <strong>{row.channel ?? sourceNames[row.source] ?? row.source}</strong>
                         <div className="cell-sub">
-                          {sourceNames[row.source] ?? row.source} · {row.currency}
+                          {sourceNames[row.source] ?? row.source}, {row.currency}
                         </div>
                       </div>
                     </div>

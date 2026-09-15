@@ -136,7 +136,7 @@ export function Sidebar({
         ))}
       </nav>
       <div className="sidebar-bottom">
-        {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
+        {/* Свежесть данных: Exely, Channex, очередь ARI (план wetop-live-data, шаг 4) */}
         <div className="sidebar-freshness">
           <DataFreshness />
         </div>

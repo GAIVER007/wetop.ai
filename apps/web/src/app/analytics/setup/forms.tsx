@@ -11,6 +11,7 @@ import {
   Stack,
   Textarea,
 } from '../../../components/ui';
+import { ConfirmDialog } from '../../../components/confirm-dialog';
 import {
   bookingSettingsAction,
   createSiteAction,
@@ -63,6 +64,7 @@ export function CreateSiteForm() {
 
 export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PAUSED' }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [pending, start] = useTransition();
   const run = (kind: 'pause' | 'resume' | 'delete' | 'check') =>
     start(async () => setResult(await siteAction(id, kind)));
@@ -90,15 +92,28 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
           type="button"
           tone="secondary"
           className="is-danger"
-          onClick={() => {
-            if (window.confirm('Удалить сайт и всю накопленную статистику?')) run('delete');
-          }}
+          onClick={() => setConfirmDelete(true)}
           disabled={pending}
           data-testid="site-delete"
         >
           Удалить
         </Button>
       </Row>
+      {/* Окно вместо window.confirm (DESIGN.md §15): что именно исчезнет, сказано до нажатия */}
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Удалить сайт и всю накопленную статистику?"
+        consequence="Счётчик на сайте перестанет собирать посещения, отчёты за прошлые месяцы исчезнут. Удаление необратимо."
+        confirmLabel="Удалить сайт"
+        cancelLabel="Оставить"
+        tone="danger"
+        pending={pending ? 'Удаляю…' : undefined}
+        onConfirm={() => {
+          setConfirmDelete(false);
+          run('delete');
+        }}
+        onCancel={() => setConfirmDelete(false)}
+      />
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
     </Stack>

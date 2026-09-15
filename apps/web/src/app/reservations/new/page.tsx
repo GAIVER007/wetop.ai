@@ -48,11 +48,11 @@ export default async function NewReservationPage({
       </form>
       {availability ? (
         <div data-testid="availability" className="hint--lg toolbar">
-          {availability.nights} ноч. · свободно {availability.total.available} из{' '}
+          {availability.nights} ноч., свободно {availability.total.available} из{' '}
           {availability.total.units} ячеек:{' '}
           {summary.byCategory
             .map((c) => `${c.name} — ${availability.byCategory[c.code]?.available ?? 0}`)
-            .join(' · ')}
+            .join(', ')}
         </div>
       ) : (
         <div className="danger-text toolbar">Даты некорректны: выезд должен быть позже заезда.</div>

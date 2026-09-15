@@ -18,7 +18,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-/** «12 000,00 ₸ · к оплате» → 1200000n; «−500,00 ₸» → −50000n */
+/** «12 000,00 ₸, к оплате» → 1200000n; «−500,00 ₸» → −50000n */
 const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
 const decimal = (m: bigint) => {
   const d = (m < 0n ? -m : m).toString().padStart(3, '0');

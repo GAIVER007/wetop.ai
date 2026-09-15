@@ -113,7 +113,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
                     <span className="muted">
                       {stay.arrivalDate} → {stay.departureDate}
                     </span>
-                    <span>Счёт и дополнительные услуги →</span>
+                    <span>Счёт и дополнительные услуги</span>
                   </Link>
                 ))}
                 {!g.stays.length && (

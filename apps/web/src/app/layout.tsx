@@ -12,7 +12,7 @@ import './premium.css';
 import './components.css';
 
 export const metadata = {
-  title: 'WETOP · Управление гостиницей',
+  title: 'WETOP — управление гостиницей',
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 

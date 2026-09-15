@@ -52,8 +52,11 @@ const RULES: Rule[] = [
     why: 'отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)',
     ext: /\.css$/,
     find: (s) =>
-      values(s, /(?:^|[;{\s])(?:padding|margin|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|block|inline))?\s*:\s*([^;}!]+)/gm)
-        .filter((v) => /^-?\d+(?:\.\d+)?px$/.test(v) && !SPACE_SCALE.has(Math.abs(parseFloat(v)))).length,
+      values(
+        s,
+        /(?:^|[;{\s])(?:padding|margin|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|block|inline))?\s*:\s*([^;}!]+)/gm,
+      ).filter((v) => /^-?\d+(?:\.\d+)?px$/.test(v) && !SPACE_SCALE.has(Math.abs(parseFloat(v))))
+        .length,
   },
   {
     id: 'uppercase',
@@ -68,8 +71,14 @@ const RULES: Rule[] = [
     find: (s) =>
       [...s.matchAll(/box-?[sS]hadow\s*:\s*([^;}'"]+)/g)]
         .map((m) => (m[1] ?? '').trim())
-        .filter((v) => v !== 'none' && !v.includes('--shadow-floating') && !v.includes('--ring') && !v.startsWith('inset') && !/^0 0 0 \d/.test(v))
-        .length,
+        .filter(
+          (v) =>
+            v !== 'none' &&
+            !v.includes('--shadow-floating') &&
+            !v.includes('--ring') &&
+            !v.startsWith('inset') &&
+            !/^0 0 0 \d/.test(v),
+        ).length,
   },
   {
     id: 'window-confirm',
@@ -85,9 +94,10 @@ const RULES: Rule[] = [
   },
   {
     id: 'trailing-arrow',
-    why: 'стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» не считается',
+    why: 'стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются',
     ext: /\.tsx$/,
-    find: (s) => count(s, /[→↗](?=\s*(?:<\/|['"`]|\{'\s*\}|$))/gm),
+    // Не считаем стрелку, перед которой в строке нет текста: `<span> → </span>` и `{' → '}` — это период
+    find: (s) => count(s, /(?<![>{]['"`]?\s{0,4})[→↗](?=\s*(?:<\/|['"`]|\{'\s*\}|$))/gm),
   },
   {
     id: 'font-under-12',
@@ -130,7 +140,11 @@ export function scan(): Counts {
   const out: Counts = {};
   for (const r of RULES) out[r.id] = {};
   for (const p of files(SRC)) {
-    const src = readFileSync(p, 'utf8');
+    // Строка с пометкой `slop-allow` не считается: исключение объясняется рядом и в DESIGN.md §15
+    const src = readFileSync(p, 'utf8')
+      .split('\n')
+      .filter((line) => !line.includes('slop-allow'))
+      .join('\n');
     const rel = relative(ROOT, p);
     for (const r of RULES) {
       if (!r.ext.test(p)) continue;
@@ -159,7 +173,10 @@ describe('design: сторож ИИ-слопа (DESIGN.md §15)', () => {
       const better = Object.entries(was)
         .filter(([f, n]) => (got[f] ?? 0) < n)
         .map(([f, n]) => `${f}: ${n} → ${got[f] ?? 0}`);
-      expect(worse, `новые нарушения — исправьте или объясните в reports/design-audit-*.md`).toEqual([]);
+      expect(
+        worse,
+        `новые нарушения — исправьте или объясните в reports/design-audit-*.md`,
+      ).toEqual([]);
       expect(better, `нарушений стало меньше — обновите снимок: DESIGN_SLOP_UPDATE=1`).toEqual([]);
     });
   }

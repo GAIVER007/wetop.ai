@@ -71,30 +71,27 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
       crumbs={
         <>
           <Link href="/chessboard">← шахматка</Link>
-          <span className="ml-auto">
-            печать:{' '}
+          {/* Печать: список ссылок, а не строка через разделители (DESIGN.md §14) */}
+          <span className="ml-auto print-links">
+            <span className="muted">печать:</span>
             <Link href={print('?lang=ru')} data-testid="print-ru">
               регистрационная карта RU
-            </Link>{' '}
-            ·{' '}
-            <Link href={print('?lang=kz')} data-testid="print-kz">
-              KZ
             </Link>
-            {/* заготовки печатных форм — содержание заменит образец владельца */} · договор{' '}
+            <Link href={print('?lang=kz')} data-testid="print-kz">
+              карта KZ
+            </Link>
+            {/* заготовки печатных форм — содержание заменит образец владельца */}
             <Link href={print('/contract?lang=ru')} data-testid="print-contract-ru">
-              RU
-            </Link>{' '}
-            ·{' '}
+              договор RU
+            </Link>
             <Link href={print('/contract?lang=kz')} data-testid="print-contract-kz">
-              KZ
-            </Link>{' '}
-            · счёт{' '}
+              договор KZ
+            </Link>
             <Link href={print('/invoice?lang=ru')} data-testid="print-invoice-ru">
-              RU
-            </Link>{' '}
-            ·{' '}
+              счёт RU
+            </Link>
             <Link href={print('/invoice?lang=kz')} data-testid="print-invoice-kz">
-              KZ
+              счёт KZ
             </Link>
           </span>
         </>
@@ -102,9 +99,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
       title={`Бронь ${r.confirmationNumber}`}
       subtitle={
         <>
-          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} /> ·{' '}
+          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
           {SOURCE_RU[r.source] ?? r.source}
-          {r.channel ? ` · ${r.channel}` : ''}
+          {r.channel ? `, ${r.channel}` : ''}
         </>
       }
     >
@@ -184,11 +181,11 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                           : 'гражданство не указано'}
                         {guestMessengers && (
                           <>
-                            {' · '}
+                            {', '}
                             <a href={guestMessengers.whatsapp} target="_blank" rel="noreferrer">
                               WhatsApp
                             </a>
-                            {' · '}
+                            {', '}
                             <a href={guestMessengers.telegram} target="_blank" rel="noreferrer">
                               Telegram
                             </a>
@@ -233,7 +230,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                           {it.guests.map((g) => g.label).join(', ') || '—'}
                           <span className="hint" data-testid="stay-guests-count">
                             {' '}
-                            · {it.adults}
+                            гостей: {it.adults}
                             {it.children ? ` + ${it.children} дет.` : ''}
                           </span>
                         </td>

@@ -68,7 +68,7 @@ test('групповая бронь на 2 койки → две клетки ш
   const edit = page.getByTestId('edit-reservation-form');
   await cardTab(page, 'Действия');
   await edit.locator('select[name="source"]').selectOption('WHATSAPP');
-  await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ · поздний заезд, ключ у соседа');
+  await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ, поздний заезд, ключ у соседа');
   await edit.getByRole('button', { name: 'Сохранить' }).click();
   // текст есть и в подписи, и в поле ввода — проверяем именно подпись на карточке
   await cardTab(page, 'Обзор');
@@ -82,7 +82,7 @@ test('групповая бронь на 2 койки → две клетки ш
   await guests.getByRole('button', { name: 'Сохранить' }).click();
   await expect(guests.getByRole('alert')).toContainText(/вместимость 1/);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-guests-count').first()).toContainText('· 1');
+  await expect(page.getByTestId('stay-guests-count').first()).toContainText('гостей: 1');
 
   // ── Ручное закрытие счёта: кнопки нет при долге, есть при нулевом балансе ─────────────────
   const panel = page.getByTestId('folio-panel').first();

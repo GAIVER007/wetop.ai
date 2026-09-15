@@ -168,7 +168,10 @@ function Group({
                 </td>
                 <td className="nowrap">
                   <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
-                  <span className="day-stay-arrow"> → </span>
+                  {/* стрелка периода «заезд → выезд» (DESIGN.md §14) */}
+                  <span className="day-stay-arrow" aria-label="по">
+                    {' → '}
+                  </span>
                   <br />
                   <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
                 </td>

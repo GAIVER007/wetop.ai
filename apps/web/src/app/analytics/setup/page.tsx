@@ -106,12 +106,12 @@ function SiteCard({
             className="ml-auto"
             title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
           >
-            демо-страница ↗
+            демо-страница
           </a>
         ) : (
           <Badge>Демо счётчика не подключено</Badge>
         )}
-        <Link href={`/analytics?site=${site.id}`}>отчёт →</Link>
+        <Link href={`/analytics?site=${site.id}`}>отчёт</Link>
       </Row>
       <div className="facts">
         <Fact label="Ключ" value={site.publicKey} testId="site-card-key" />
@@ -177,7 +177,7 @@ function SiteCard({
                   rel="noreferrer"
                   data-testid="site-card-booking-demo"
                 >
-                  демо бронирования ↗
+                  демо бронирования
                 </a>
               ) : (
                 <Badge>Демо виджета не подключено</Badge>

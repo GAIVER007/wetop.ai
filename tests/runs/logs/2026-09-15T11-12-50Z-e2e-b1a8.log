@@ -1,0 +1,91 @@
+# Сквозные (e2e) · 15.09.2026 16:12 Алматы · vm
+# коммит e025c7a (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 31
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-week.spec.ts' '--workers=1'
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.0s)
+  ✓  2 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.8s)
+  ✓  3 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (3.7s)
+  ✓  4 tests/ui/chessboard-week.spec.ts:33:1 › в неделе работают бронь, категории и создание на воскресенье (3.6s)
+  ✘  5 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон (32.2s)
+  ✘  6 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон (32.4s)
+  ✓  7 tests/ui/chessboard-week.spec.ts:96:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.8s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('date-col').first()
+    Expected: in viewport
+    Received: viewport ratio 0.9626168012619019
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('date-col').first() with timeout 15000ms
+      - waiting for getByTestId('date-col').first()
+        33 × locator resolved to <th class="" scope="col" data-testid="date-col" data-date="2026-09-14" aria-label="14.09.2026, пн, свободно 84 из 88">…</th>
+           - unexpected value "viewport ratio 0.9626168012619019"
+
+
+      74 |         .evaluate((el) => el.scrollWidth - el.clientWidth);
+      75 |       expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+    > 76 |       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+         |                                                          ^
+      77 |       await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      78 |       const result = await new AxeBuilder({ page })
+      79 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:76:58
+
+    Error Context: test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('date-col').first()
+    Expected: in viewport
+    Received: viewport ratio 0.9626168012619019
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('date-col').first() with timeout 15000ms
+      - waiting for getByTestId('date-col').first()
+        33 × locator resolved to <th class="" scope="col" data-testid="date-col" data-date="2026-09-14" aria-label="14.09.2026, пн, свободно 84 из 88">…</th>
+           - unexpected value "viewport ratio 0.9626168012619019"
+
+
+      74 |         .evaluate((el) => el.scrollWidth - el.clientWidth);
+      75 |       expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+    > 76 |       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+         |                                                          ^
+      77 |       await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      78 |       const result = await new AxeBuilder({ page })
+      79 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:76:58
+
+    Error Context: test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+  5 passed (1.5m)
+
+# код выхода 1 · 1 мин 31 с

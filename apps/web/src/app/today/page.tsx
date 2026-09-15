@@ -174,7 +174,7 @@ function Upcoming({
             <span>
               <strong>{r.guestLabel}</strong>
               <small>
-                {r.adults} гост. · {r.unitCode ?? 'Без номера'}
+                {r.adults} гост., {r.unitCode ?? 'Без номера'}
               </small>
             </span>
             <span className="upcoming-status">

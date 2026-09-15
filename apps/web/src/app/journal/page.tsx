@@ -91,7 +91,7 @@ export default async function JournalPage({
         </label>
         <Button tone="secondary">Найти</Button>
         <span className="muted small">
-          {q?.trim() ? 'Поиск по всей истории' : 'Последние операции'} · до 200 строк
+          {q?.trim() ? 'Поиск по всей истории' : 'Последние операции'}, до 200 строк
         </span>
       </form>
       <Table size="sm" nowrap data-testid="journal-table">

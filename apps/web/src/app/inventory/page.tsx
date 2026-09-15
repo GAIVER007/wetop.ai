@@ -20,7 +20,7 @@ export default async function InventoryPage({
   return (
     <Page
       title="Номерной фонд"
-      subtitle={`${summary.property.name} · ${summary.property.timezone} · ${summary.property.currency}`}
+      subtitle={`${summary.property.name}, ${summary.property.timezone}, ${summary.property.currency}`}
     >
       <Stats data-testid="inventory-summary">
         <Stat label="Единиц продажи" value={summary.totalUnits} testId="total-units" size="big" />
@@ -42,6 +42,13 @@ export default async function InventoryPage({
             </tr>
           </thead>
           <tbody>
+            {summary.byCategory.length === 0 && (
+              <tr>
+                <td colSpan={4} className="muted">
+                  категорий нет — проверьте импорт фонда
+                </td>
+              </tr>
+            )}
             {summary.byCategory.map((c) => (
               <tr
                 key={c.code}
@@ -83,6 +90,13 @@ export default async function InventoryPage({
             </tr>
           </thead>
           <tbody>
+            {units.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  ячеек нет — проверьте импорт фонда
+                </td>
+              </tr>
+            )}
             {units.map((u) => (
               <tr key={u.code} data-testid="unit-row">
                 <td className="mono">

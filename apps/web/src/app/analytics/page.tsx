@@ -206,6 +206,13 @@ function Report({ report }: { report: SiteReport }) {
             </tr>
           </thead>
           <tbody>
+            {report.daily.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  за период посещений не было
+                </td>
+              </tr>
+            )}
             {report.daily.map((d) => (
               <tr key={d.date}>
                 <td>{d.date}</td>
@@ -239,6 +246,13 @@ function Report({ report }: { report: SiteReport }) {
                 <tr>
                   <td colSpan={8} className="muted">
                     За период сессий нет
+                  </td>
+                </tr>
+              )}
+              {report.sources.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="muted">
+                    источников пока нет
                   </td>
                 </tr>
               )}

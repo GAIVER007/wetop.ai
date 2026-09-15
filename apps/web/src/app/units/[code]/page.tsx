@@ -24,7 +24,7 @@ export default async function UnitPage({ params }: { params: Promise<{ code: str
       width="medium"
       crumbs={<Link href="/chessboard">← шахматка</Link>}
       title={`Ячейка ${unit.code}`}
-      subtitle={`${unit.kind === 'BED' ? 'койка' : 'номер'} · ${unit.accommodationTypeName} · комната ${unit.roomNumber}${unit.active ? '' : ' · неактивна'}`}
+      subtitle={`${unit.kind === 'BED' ? 'койка' : 'номер'}, ${unit.accommodationTypeName}, комната ${unit.roomNumber}${unit.active ? '' : ', неактивна'}`}
     >
       <UnitActions unit={unit} today={today} />
       <SectionTitle>Ближайшие проживания (60 дней)</SectionTitle>

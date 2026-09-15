@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
+import { ConfirmDialog } from '../../../components/confirm-dialog';
 import { GroupPayment } from './group-payment';
 import {
   formatMinor,
@@ -95,7 +96,7 @@ function Balance({ minor, currency }: { minor: string; currency: string }) {
   const label = n > 0n ? 'к оплате' : n < 0n ? 'переплата' : 'оплачено';
   return (
     <b className={cls} data-testid="folio-balance">
-      {formatMinor(minor, currency)} · {label}
+      {formatMinor(minor, currency)}, {label}
     </b>
   );
 }
@@ -111,6 +112,7 @@ function FolioPanel({
   services: ServiceOption[];
   today: string;
 }) {
+  const [confirmClose, setConfirmClose] = useState(false);
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -143,10 +145,10 @@ function FolioPanel({
           <Badge data-testid="folio-closed">счёт закрыт — гость рассчитался и выехал</Badge>
         )}
         <span className="sub">
-          начислено {formatMinor(folio.chargedMinor, folio.currency)} · оплачено{' '}
+          начислено {formatMinor(folio.chargedMinor, folio.currency)}, оплачено{' '}
           {formatMinor(folio.paidMinor, folio.currency)}
           {folio.refundedMinor !== '0'
-            ? ` · возвращено ${formatMinor(folio.refundedMinor, folio.currency)}`
+            ? `, возвращено ${formatMinor(folio.refundedMinor, folio.currency)}`
             : ''}
         </span>
         <span className="ml-auto">
@@ -173,7 +175,7 @@ function FolioPanel({
               className={c.voidedAt ? 'is-void' : undefined}
             >
               <td>
-                <span className="hint">{KIND_RU[c.kind] ?? c.kind} · </span>
+                <span className="hint">{KIND_RU[c.kind] ?? c.kind}, </span>
                 {c.description}
               </td>
               <td>{c.serviceDate ?? '—'}</td>
@@ -221,9 +223,9 @@ function FolioPanel({
               <tr key={p.paymentId} data-testid="payment-row">
                 <td>
                   {methodRu(p.method)}
-                  {p.note ? ` · ${p.note}` : ''}
-                  {p.externalReference ? ` · ${p.externalReference}` : ''}
-                  {p.status === 'VOIDED' ? ' · аннулирован' : ''}
+                  {p.note ? `, ${p.note}` : ''}
+                  {p.externalReference ? `, ${p.externalReference}` : ''}
+                  {p.status === 'VOIDED' ? ', аннулирован' : ''}
                 </td>
                 <td>{almatyDate(p.paidAt)}</td>
                 <td className="num">{formatMinor(p.allocatedMinor, folio.currency)}</td>
@@ -404,21 +406,28 @@ function FolioPanel({
                 size="sm"
                 data-testid={`close-folio-${folio.id}`}
                 disabled={busy}
-                onClick={async () => {
-                  if (
-                    !window.confirm(
-                      'Закрыть счёт? Начислять и принимать оплату по нему будет нельзя.',
-                    )
-                  )
-                    return;
-                  await command(() => closeFolioAction(number, folio.id));
-                }}
+                onClick={() => setConfirmClose(true)}
               >
                 Закрыть счёт
               </Button>
               <span className="hint">
                 баланс нулевой — счёт можно закрыть, если начислений больше не будет
               </span>
+              {/* Окно вместо window.confirm (DESIGN.md §15): последствие названо до нажатия */}
+              <ConfirmDialog
+                open={confirmClose}
+                title={`Закрыть счёт за ${folio.stay.accommodationTypeName.toLocaleLowerCase('ru')}?`}
+                consequence="Начислять услуги и принимать оплату по этому счёту будет нельзя. Закрытие необратимо."
+                amount={<span data-testid="close-folio-amount">Баланс 0 ₸, долга нет</span>}
+                confirmLabel="Закрыть счёт"
+                cancelLabel="Оставить"
+                pending={busy ? 'Закрываю…' : undefined}
+                onConfirm={() => {
+                  setConfirmClose(false);
+                  void command(() => closeFolioAction(number, folio.id));
+                }}
+                onCancel={() => setConfirmClose(false)}
+              />
             </Row>
           )}
         </Stack>

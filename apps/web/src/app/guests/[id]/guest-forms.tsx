@@ -126,9 +126,9 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
             <span>
               {DOC_TYPES.find(([k]) => k === d.type)?.[1] ?? d.type}{' '}
               <b className="mono">{d.numberMasked}</b>
-              {d.issueCountry ? ` · ${d.issueCountry}` : ''}
-              {d.issuedAt ? ` · выдан ${d.issuedAt}` : ''}
-              {d.expiresAt ? ` · до ${d.expiresAt}` : ''}
+              {d.issueCountry ? `, ${d.issueCountry}` : ''}
+              {d.issuedAt ? `, выдан ${d.issuedAt}` : ''}
+              {d.expiresAt ? `, до ${d.expiresAt}` : ''}
             </span>
             <Button
               type="button"

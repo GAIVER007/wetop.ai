@@ -42,7 +42,7 @@ export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: s
         </div>
         <span className="login-property">
           <Icon name="inventory" width={16} />
-          Luxx Aparts · Алматы
+          Luxx Aparts, Алматы
         </span>
       </section>
       <section className="login-form-panel">

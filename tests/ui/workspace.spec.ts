@@ -178,7 +178,9 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
-  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
+  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
+    1,
+  );
   await expect(page.getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
@@ -229,7 +231,9 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   // Полоса, начавшаяся до окна, идёт с левого края без скругления и без метки заезда (DESIGN.md §9.1)
   await expect(
-    page.locator(`.board__cell[data-date="${today}"] .board__stay:not(.board__stay--start)`).first(),
+    page
+      .locator(`.board__cell[data-date="${today}"] .board__stay:not(.board__stay--start)`)
+      .first(),
   ).toBeVisible();
   await page.getByLabel('Категория на шахматке').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
@@ -538,8 +542,8 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.goto('/marketing');
   await expect(page.getByRole('main')).toContainText('updated.example.invalid');
   await page.goto('/analytics/setup');
-  page.once('dialog', (dialog) => dialog.accept());
   await page.getByTestId('site-delete').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Удалить сайт' }).click();
   await expect(page.getByTestId('site-card')).toHaveCount(0);
   await page.getByTestId('site-name').fill('Новый тестовый сайт');
   await page.getByTestId('site-hosts').fill('new.example.invalid');

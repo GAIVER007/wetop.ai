@@ -80,7 +80,7 @@ async function ChannexContent({
   const c = await hotelApi.content(refresh);
   const source = (
     <p className="note" data-testid="content-source">
-      Источник: {ENVIRONMENT[c.environment]} · прочитано в {almatyTime(c.checkedAt)} по Алматы ·{' '}
+      Источник: {ENVIRONMENT[c.environment]}, прочитано в {almatyTime(c.checkedAt)} по Алматы ·{' '}
       <Link href="?refresh=1" className="link-underline">
         прочитать заново
       </Link>
@@ -129,7 +129,7 @@ async function ChannexContent({
                 <img src={photo.url} alt={photo.description ?? 'Фото объекта'} loading="lazy" />
                 <figcaption>
                   {photo.description ?? 'Без подписи'}
-                  {photo.forRoomType ? ' · категория номера' : ''}
+                  {photo.forRoomType ? ', категория номера' : ''}
                 </figcaption>
               </figure>
             ))}
@@ -145,7 +145,7 @@ async function ChannexContent({
                 {c.facilities.map((f) => (
                   <li key={f.title}>
                     {f.title}
-                    {f.category && <span className="cell-sub"> · {f.category}</span>}
+                    {f.category && <span className="cell-sub">, {f.category}</span>}
                   </li>
                 ))}
               </ul>
@@ -223,7 +223,7 @@ async function StoredSettings({ view }: { view: string }) {
                   <td>
                     <strong>{r.name}</strong>
                     <div className="cell-sub">
-                      {r.code} · {r.currency}
+                      {r.code}, {r.currency}
                     </div>
                   </td>
                   <td>{penaltyNames[r.cancellationPenalty] ?? r.cancellationPenalty}</td>
@@ -270,7 +270,7 @@ async function Services() {
                 <strong>{s.nameRu}</strong>
                 <div className="cell-sub">
                   {s.code}
-                  {s.nameKz ? ` · ${s.nameKz}` : ''}
+                  {s.nameKz ? `, ${s.nameKz}` : ''}
                 </div>
               </td>
               <td>{s.group ?? 'Без группы'}</td>

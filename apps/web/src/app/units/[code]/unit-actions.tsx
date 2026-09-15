@@ -52,8 +52,8 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
             <span>
-              {b.dateFrom} → {b.dateTo} · {TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}
-              {b.reason ? ` · ${b.reason}` : ''}
+              {b.dateFrom} → {b.dateTo}, {TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}
+              {b.reason ? `, ${b.reason}` : ''}
             </span>
             <Button
               type="button"

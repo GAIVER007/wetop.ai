@@ -24,7 +24,7 @@ svg {
 }
 .placement-fields {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   margin: 0;
   min-width: 0;
@@ -33,10 +33,10 @@ svg {
   color: var(--text-2);
   font-size: 12px;
   font-weight: 500;
-  padding: 0 6px;
+  padding: 0 8px;
 }
 .placement-fields > .btn {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 @media (max-width: 1180px) {
   .split,
@@ -51,10 +51,10 @@ svg {
   width: var(--sidebar-w);
   position: fixed;
   inset: 0 auto 0 0;
-  z-index: 40;
+  z-index: var(--z-drawer);
   display: flex;
   flex-direction: column;
-  padding: 24px 16px 20px;
+  padding: 24px 16px 24px;
   background: var(--surface-muted);
   border-right: 1px solid var(--border);
   color: var(--muted);
@@ -63,8 +63,8 @@ svg {
 .workspace-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 12px;
+  gap: 8px;
+  padding: 0 16px;
   color: var(--muted);
   font-size: 30px;
   font-weight: 600;
@@ -79,8 +79,8 @@ svg {
   place-items: center;
   width: 30px;
   height: 30px;
-  padding: 2px;
-  border-radius: 9px;
+  padding: 4px;
+  border-radius: var(--radius-sm);
   background: var(--success-soft);
   color: var(--success);
 }
@@ -94,19 +94,19 @@ svg {
 .workspace-property {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 12px;
-  margin: 30px 0 8px;
+  gap: 8px;
+  padding: 16px 16px;
+  margin: 32px 0 8px;
   border: 1px solid var(--border);
   background: var(--surface-muted);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
 }
 .property-mark {
   display: grid;
   place-items: center;
   width: 30px;
   height: 34px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--surface-muted);
   color: var(--success);
   font-weight: 600;
@@ -119,28 +119,26 @@ svg {
 .workspace-property div > span {
   display: block;
   color: var(--muted);
-  font-size: 11px;
-  margin-top: 2px;
+  font-size: 12px;
+  margin-top: 4px;
 }
 .workspace-links {
-  padding-top: 2px;
+  padding-top: 4px;
 }
 .nav-group {
-  margin: 24px 12px 10px;
+  margin: 24px 16px 8px;
   color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
 }
 .workspace-link {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   min-height: 44px;
-  padding: 10px 12px;
-  margin: 3px 0;
-  border-radius: 7px;
+  padding: 8px 16px;
+  margin: 4px 0;
+  border-radius: var(--radius-sm);
   color: var(--muted);
   font-size: 13px;
   font-weight: 400;
@@ -164,7 +162,7 @@ svg {
 }
 .workspace-footer {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   margin-top: auto;
   padding: 24px 8px 0;
@@ -178,11 +176,11 @@ svg {
   display: block;
   margin-top: 4px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 /* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */
 .sidebar-freshness {
-  padding: 0 4px 10px;
+  padding: 0 4px 8px;
   font-size: 12px;
   line-height: 1.4;
   color: var(--muted);
@@ -211,10 +209,10 @@ svg {
   height: var(--header-h);
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   padding: 0 32px;
   background: var(--glass);
   border-bottom: 1px solid var(--border);
@@ -222,7 +220,7 @@ svg {
 .workspace-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
@@ -237,7 +235,7 @@ svg {
 .workspace-search {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   border: 0;
   padding: 8px 0;
   background: none;
@@ -248,10 +246,10 @@ svg {
 }
 .workspace-search kbd {
   font-family: inherit;
-  font-size: 10px;
-  padding: 2px 5px;
+  font-size: 12px;
+  padding: 4px 4px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin-left: 8px;
   color: var(--muted);
 }
@@ -260,7 +258,7 @@ svg {
 }
 .workspace .page {
   max-width: 1680px;
-  padding: 28px 32px 48px;
+  padding: 32px 32px 48px;
 }
 .workspace .page--narrow {
   max-width: 1080px;
@@ -270,7 +268,7 @@ svg {
 }
 .workspace .page--full {
   max-width: none;
-  padding: 28px 24px 40px;
+  padding: 32px 24px 40px;
 }
 .page__head {
   align-items: center;
@@ -302,12 +300,12 @@ svg {
   margin-bottom: 24px;
 }
 .stat {
-  padding: 20px;
+  padding: 24px;
   border-color: var(--border);
 }
 .stat__label {
   font-size: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .stat__value {
   font-size: 31px;
@@ -315,15 +313,15 @@ svg {
   line-height: 1.2;
 }
 .stat__hint {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 8px;
 }
 .stat__value .danger-text {
   color: var(--danger);
 }
 .panel {
-  padding: 20px;
-  gap: 14px;
+  padding: 24px;
+  gap: 16px;
   border-color: var(--border);
 }
 .panel--lg {
@@ -332,17 +330,17 @@ svg {
 .section-title {
   font-weight: 600;
   font-size: 16px;
-  margin-top: 26px;
-  margin-bottom: 12px;
+  margin-top: 24px;
+  margin-bottom: 16px;
 }
 .tbl th {
   background: var(--primary-soft);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 12px 16px;
+  padding: 16px 16px;
 }
 .tbl td {
-  padding: 14px 16px;
+  padding: 16px 16px;
   vertical-align: middle;
   font-size: 13px;
 }
@@ -354,10 +352,10 @@ svg {
 }
 .tbl--sm th,
 .tbl--sm td {
-  padding: 10px 12px;
+  padding: 8px 16px;
 }
 .tbl--dense td {
-  padding: 7px 12px;
+  padding: 8px 16px;
 }
 .tbl .num,
 .tbl th.num {
@@ -377,11 +375,11 @@ svg {
 }
 .btn {
   gap: 8px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 500;
   min-height: 40px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   transition:
     background-color 0.12s,
     border-color 0.12s;
@@ -396,17 +394,17 @@ svg {
 }
 .inp {
   min-height: 38px;
-  padding: 8px 11px;
+  padding: 8px 8px;
   border-color: var(--border);
   background: var(--surface);
   font-size: 13px;
   max-width: 100%;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 .field {
   font-size: 12px;
   font-weight: 500;
-  gap: 7px;
+  gap: 8px;
 }
 .field .inp {
   font-weight: 400;
@@ -415,28 +413,28 @@ svg {
   background: var(--surface);
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 9px;
-  margin-bottom: 20px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
 }
 .facts--card {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px 24px;
+  border-radius: var(--radius-control);
+  padding: 24px 24px;
   margin-bottom: 24px;
 }
 .fact__label {
-  font-size: 11px;
-  margin-bottom: 6px;
+  font-size: 12px;
+  margin-bottom: 8px;
 }
 .fact__value {
   font-size: 14px;
 }
 .seg {
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 .seg a {
   font-size: 12px;
-  padding: 7px 12px;
+  padding: 8px 16px;
 }
 .split {
   gap: 24px;
@@ -451,7 +449,7 @@ svg {
   padding: 0;
   border: 1px solid var(--border);
   background: var(--surface);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .icon-button:hover {
@@ -463,7 +461,7 @@ svg {
 dialog {
   color: var(--text);
   border: 1px solid var(--border);
-  box-shadow: 0 24px 80px var(--overlay);
+  box-shadow: var(--shadow-floating);
 }
 dialog::backdrop {
   background: var(--primary-soft);
@@ -471,7 +469,7 @@ dialog::backdrop {
 .search-dialog {
   width: min(480px, calc(100vw - 32px));
   padding: 24px;
-  border-radius: 14px;
+  border-radius: var(--radius-control);
 }
 .dialog-heading {
   display: flex;
@@ -485,7 +483,7 @@ dialog::backdrop {
 }
 .search-dialog > p {
   font-size: 13px;
-  margin: 14px 0 24px;
+  margin: 16px 0 24px;
 }
 .mobile-navigation {
   margin: 0;
@@ -506,11 +504,11 @@ dialog::backdrop {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 14px;
-  padding: 52px 24px;
+  gap: 16px;
+  padding: 48px 24px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
 .empty-state h2 {
   font-size: 18px;
@@ -526,11 +524,11 @@ dialog::backdrop {
   position: fixed;
   top: -80px;
   left: 12px;
-  z-index: 100;
-  padding: 10px 16px;
+  z-index: var(--z-modal);
+  padding: 8px 16px;
   background: var(--primary);
   color: var(--muted);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 .skip-link:focus {
   top: 10px;
@@ -544,15 +542,20 @@ dialog::backdrop {
   white-space: nowrap;
 }
 .skeleton {
-  background: linear-gradient(100deg, var(--primary-soft) 25%, var(--primary-soft) 50%, var(--primary-soft) 75%);
+  background: linear-gradient(
+    100deg,
+    var(--primary-soft) 25%,
+    var(--primary-soft) 50%,
+    var(--primary-soft) 75%
+  );
   background-size: 200% 100%;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   animation: skeleton 1.5s ease-in-out infinite;
 }
 .skeleton-title {
   width: 240px;
   height: 34px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 .skeleton-stat {
   height: 130px;
@@ -575,10 +578,9 @@ dialog::backdrop {
   }
 }
 @media (min-width: 1600px) {
-
   .workspace-sidebar {
-    padding-left: 22px;
-    padding-right: 22px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 @media (max-width: 1180px) {
@@ -603,7 +605,7 @@ dialog::backdrop {
 @media (max-width: 1100px) {
   .workspace-sidebar {
     width: 64px;
-    padding: 24px 8px 20px;
+    padding: 24px 8px 24px;
   }
   .workspace-body {
     margin-left: 64px;
@@ -640,14 +642,13 @@ dialog::backdrop {
     display: inline-flex;
   }
   .workspace-header {
-    gap: 14px;
+    gap: 16px;
   }
 }
 @media (max-width: 600px) {
-
   .workspace-header {
     padding: 0 16px;
-    gap: 10px;
+    gap: 8px;
   }
   .workspace-search span,
   .workspace-search kbd {
@@ -662,13 +663,13 @@ dialog::backdrop {
   }
   .workspace .page,
   .workspace .page--full {
-    padding: 22px 16px 40px;
+    padding: 24px 16px 40px;
   }
   .page__title {
     font-size: 23px;
   }
   .page__head {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   .page__actions {
     width: 100%;
@@ -676,16 +677,16 @@ dialog::backdrop {
   }
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
   }
   .stat {
-    padding: 15px;
+    padding: 16px;
   }
   .stat__value {
     font-size: 25px;
   }
   .stat__label {
-    font-size: 11px;
+    font-size: 12px;
   }
   .panel,
   .panel--lg {
@@ -697,7 +698,7 @@ dialog::backdrop {
     min-height: 44px;
   }
   .toolbar {
-    gap: 12px;
+    gap: 8px;
   }
   .toolbar .field {
     flex: 1 1 140px;
@@ -727,13 +728,13 @@ dialog::backdrop {
 /* Шахматка сохраняет отдельную ссылку и дату каждой ночи; подпись визуально объединяет отрезок. */
 .board-toolbar {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
   background: var(--surface);
-  padding: 14px 16px;
+  padding: 16px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px 10px 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
 }
 .board-toolbar > input {
   min-width: 240px;
@@ -742,7 +743,7 @@ dialog::backdrop {
   margin-left: auto;
 }
 .board-wrap {
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
   max-height: calc(100dvh - 290px);
   min-height: 280px;
 }
@@ -751,13 +752,13 @@ dialog::backdrop {
   min-width: 0;
 }
 .board thead th {
-  padding: 12px 6px;
+  padding: 16px 8px;
   height: 74px;
   font-weight: 500;
 }
 .board td.board__unit {
-  z-index: 5;
-  padding: 10px 14px;
+  z-index: var(--z-raised);
+  padding: 8px 16px;
   border-right: 1px solid var(--border);
 }
 .board .board__free--link:hover {
@@ -801,8 +802,8 @@ dialog::backdrop {
 .form-section-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0 4px;
+  gap: 8px;
+  padding: 16px 0 4px;
 }
 .form-section-title > span {
   display: grid;
@@ -813,7 +814,7 @@ dialog::backdrop {
   font-size: 12px;
   font-weight: 500;
   background: var(--primary-soft);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .form-section-title h2 {
   font-size: 16px;
@@ -829,8 +830,8 @@ dialog::backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  padding-top: 18px;
+  gap: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 @media (max-width: 600px) {
@@ -853,16 +854,16 @@ dialog::backdrop {
 
 .record-nav {
   display: flex;
-  gap: 26px;
+  gap: 24px;
   align-items: center;
-  padding: 0 2px;
+  padding: 0 4px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 24px;
   overflow: auto;
 }
 .record-nav a {
   display: block;
-  padding: 13px 0;
+  padding: 16px 0;
   font-size: 13px;
   color: var(--text-2);
   white-space: nowrap;
@@ -881,9 +882,9 @@ dialog::backdrop {
 .guest-summary {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   padding: 24px;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   border: 1px solid var(--border);
   background: var(--surface);
   margin-bottom: 16px;
@@ -893,7 +894,7 @@ dialog::backdrop {
   place-items: center;
   width: 64px;
   height: 64px;
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--primary-soft);
   color: var(--primary);
   font-size: 23px;
@@ -907,13 +908,13 @@ dialog::backdrop {
 .guest-summary p {
   color: var(--muted);
   font-size: 12px;
-  margin: 6px 0 0;
+  margin: 8px 0 0;
 }
 .guest-summary-fact {
   margin-left: auto;
 }
 .guest-summary-fact > span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   display: block;
   margin-bottom: 8px;
@@ -921,7 +922,7 @@ dialog::backdrop {
 @media (max-width: 600px) {
   .guest-summary {
     flex-wrap: wrap;
-    padding: 18px;
+    padding: 16px;
     gap: 16px;
   }
   .guest-summary-fact {
@@ -929,7 +930,7 @@ dialog::backdrop {
     margin-right: 16px;
   }
   .record-nav {
-    gap: 22px;
+    gap: 24px;
   }
 }
 
@@ -938,26 +939,25 @@ dialog::backdrop {
 .board-date-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 .board-date-nav {
-  gap: 6px;
+  gap: 4px;
 }
 .board-period .seg {
-  padding: 3px;
+  padding: 4px;
   background: var(--surface-muted);
   border: 1px solid var(--border);
-  gap: 2px;
+  gap: 0px;
 }
 .board-period .seg a {
   border: 0;
-  border-radius: 5px;
-  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
 }
 .board-period .seg a.is-on {
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 1px 3px var(--overlay);
 }
 .rotate-left {
   transform: rotate(180deg);
@@ -973,12 +973,12 @@ dialog::backdrop {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 20px;
-  padding: 12px 16px;
+  gap: 8px 16px;
+  padding: 16px 16px;
   margin: 0 0 16px;
   background: var(--warning-soft);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   max-height: 160px;
   overflow: auto;
@@ -999,7 +999,7 @@ dialog::backdrop {
 }
 .board-unassigned-list {
   list-style: none;
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
@@ -1023,7 +1023,7 @@ dialog::backdrop {
   border-color: var(--border);
 }
 .board-toolbar {
-  padding: 12px 16px;
+  padding: 16px 16px;
 }
 .board-toolbar .inp {
   background: var(--success-soft);
@@ -1040,12 +1040,12 @@ dialog::backdrop {
   font-size: 18px;
   height: 28px;
   width: 28px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   color: var(--text);
 }
 .board .board__wd {
-  font-size: 10px;
-  margin-top: 3px;
+  font-size: 12px;
+  margin-top: 4px;
   color: var(--muted);
 }
 .board th.is-today .board__d {
@@ -1053,8 +1053,8 @@ dialog::backdrop {
   color: var(--muted);
 }
 .board .board__occ {
-  margin-top: 6px;
-  font-size: 10px;
+  margin-top: 8px;
+  font-size: 12px;
   color: var(--muted);
 }
 .board-occ-total {
@@ -1062,12 +1062,12 @@ dialog::backdrop {
   font-weight: 400;
 }
 .board td.board__unit {
-  padding: 10px 16px;
+  padding: 8px 16px;
 }
 .board-unit-link {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: var(--text-2);
 }
 .board-unit-link svg {

@@ -40,10 +40,10 @@ export default async function ConnectionsPage() {
               />
               <Fact
                 label="Сопоставлено"
-                value={`${status.mappedCategories} категорий · ${status.mappedRatePlans} тарифов`}
+                value={`${status.mappedCategories} категорий, ${status.mappedRatePlans} тарифов`}
               />
-              <Fact label="Последний webhook · Алматы" value={time(status.lastWebhookAt)} />
-              <Fact label="Последний импорт · Алматы" value={time(status.lastPullAt)} />
+              <Fact label="Последний webhook, Алматы" value={time(status.lastWebhookAt)} />
+              <Fact label="Последний импорт, Алматы" value={time(status.lastPullAt)} />
             </Grid>
           )}
           {webhook.status === 'fulfilled' ? (

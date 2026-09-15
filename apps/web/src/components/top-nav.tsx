@@ -176,7 +176,7 @@ export function TopNav({
         {demo && (
           <div className="demo-banner" role="status">
             Демонстрационный режим{' '}
-            <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
+            <span>Вымышленные гости и брони, внешние сервисы не вызываются</span>
           </div>
         )}
         {children}

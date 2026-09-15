@@ -105,7 +105,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel}</strong>
                 <small>
-                  {r.unitCode ?? 'Без номера'} · {r.confirmationNumber}
+                  {r.unitCode ?? 'Без номера'}, {r.confirmationNumber}
                 </small>
               </span>
               <Icon name="chevron" />
@@ -237,12 +237,12 @@ export function OccupancyCharts({ board, date }: { board: Chessboard | null; dat
               <CartesianGrid stroke="var(--border-soft)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'var(--muted)', fontSize: 10 }}
+                tick={{ fill: 'var(--muted)', fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: 'var(--muted)', fontSize: 10 }}
+                tick={{ fill: 'var(--muted)', fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
               />

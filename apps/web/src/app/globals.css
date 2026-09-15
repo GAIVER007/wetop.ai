@@ -54,22 +54,22 @@ h3 {
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: var(--z-sticky);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 .topbar__inner {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   min-height: var(--topbar-h);
-  padding: 6px 20px;
+  padding: 8px 24px;
   flex-wrap: wrap;
 }
 .topbar__brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   font-family: var(--font-head);
   font-size: 15px;
   font-weight: 800;
@@ -89,16 +89,16 @@ h3 {
   font-family: var(--font);
   font-size: 12px;
   font-weight: 500;
-  margin-left: -2px;
+  margin-left: -4px;
 }
 .topbar__nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0px;
   flex-wrap: wrap;
 }
 .topbar__link {
-  padding: 6px 10px;
+  padding: 8px 8px;
   border-radius: var(--radius-sm);
   color: var(--text-2);
   white-space: nowrap;
@@ -126,7 +126,7 @@ h3 {
 .page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: 24px 24px 48px;
 }
 .page--narrow {
   max-width: 760px;
@@ -139,14 +139,14 @@ h3 {
 }
 .page--full {
   max-width: none;
-  padding: 20px 20px 48px;
+  padding: 24px 24px 48px;
 }
 .page__crumbs {
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 8px;
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .page__head {
@@ -154,7 +154,7 @@ h3 {
   align-items: baseline;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .page__title {
   font-size: 28px;
@@ -168,7 +168,7 @@ h3 {
 }
 .page__actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: baseline;
   flex-wrap: wrap;
   margin-left: auto;
@@ -176,7 +176,7 @@ h3 {
 }
 .section-title {
   font-size: 17px;
-  margin: 22px 0 10px;
+  margin: 24px 0 8px;
 }
 .section-title--first {
   margin-top: 0;
@@ -186,14 +186,14 @@ h3 {
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 150px), 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 24px;
 }
 .stat {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 8px 16px;
   min-width: 0;
 }
 .stat__label {
@@ -216,7 +216,7 @@ h3 {
 .stat__hint {
   font-size: 12.5px;
   color: var(--muted);
-  margin-top: 3px;
+  margin-top: 4px;
 }
 .stat__extra {
   display: flex;
@@ -238,13 +238,13 @@ h3 {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 16px;
   display: grid;
   gap: 8px;
 }
 .panel--lg {
   padding: 16px;
-  gap: 12px;
+  gap: 8px;
 }
 .panel__title {
   font-size: 14px;
@@ -255,7 +255,7 @@ h3 {
 }
 .stack {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .stack--sm {
   gap: 8px;
@@ -284,7 +284,7 @@ h3 {
 }
 .tbl th {
   text-align: left;
-  padding: 10px 12px 8px;
+  padding: 8px 16px 8px;
   border-bottom: 1px solid var(--border);
   font-size: 12.5px;
   font-weight: 600;
@@ -292,7 +292,7 @@ h3 {
   white-space: nowrap;
 }
 .tbl td {
-  padding: 9px 12px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border-soft);
   vertical-align: top;
 }
@@ -307,7 +307,7 @@ h3 {
 }
 .tbl--sm th,
 .tbl--sm td {
-  padding: 6px 8px;
+  padding: 8px 8px;
 }
 .tbl--dense td {
   padding: 4px 8px;
@@ -341,9 +341,9 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   min-height: var(--control-h);
-  padding: 6px 14px;
+  padding: 8px 16px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -407,12 +407,12 @@ h3 {
 }
 .btn--sm {
   min-height: 28px;
-  padding: 3px 10px;
+  padding: 4px 8px;
   font-size: 13px;
 }
 .btn--xs {
   min-height: 24px;
-  padding: 2px 8px;
+  padding: 4px 8px;
   font-size: 12px;
   font-weight: 500;
 }
@@ -420,7 +420,7 @@ h3 {
 /* ---------- поля ---------- */
 .inp {
   min-height: var(--control-h);
-  padding: 5px 10px;
+  padding: 4px 8px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -434,7 +434,7 @@ h3 {
 }
 textarea.inp {
   resize: vertical;
-  padding: 8px 10px;
+  padding: 8px 8px;
 }
 .inp--sm {
   font-size: 13px;
@@ -459,7 +459,7 @@ textarea.inp {
   min-width: 220px;
 }
 .inp--upper {
-  text-transform: uppercase;
+  text-transform: uppercase; /* slop-allow: uppercase — нормализация ввода кода (KAZ, RU), не капс подписи */
 }
 .field {
   display: flex;
@@ -472,11 +472,11 @@ textarea.inp {
 .field--inline {
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 .check {
   display: inline-flex;
-  gap: 3px;
+  gap: 4px;
   align-items: center;
 }
 
@@ -491,12 +491,12 @@ textarea.inp {
   align-items: end;
 }
 .row--lg {
-  gap: 10px;
+  gap: 8px;
 }
 .grid-auto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 180px), 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 .grid-auto--sm {
   gap: 8px;
@@ -520,7 +520,7 @@ textarea.inp {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-size: 13px;
   line-height: 18px;
   color: var(--text-2);
@@ -564,7 +564,7 @@ textarea.inp {
   border: 1px solid var(--danger-border);
   color: var(--danger-2);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 8px 16px;
   font-size: 14px;
 }
 /* предупреждение в рамке (не ошибка): жёлтая, а не красная — две ссылки специфичнее одной */
@@ -611,23 +611,23 @@ textarea.inp {
 }
 .legend {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   font-size: 12.5px;
   color: var(--text-2);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 .legend__swatch {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   margin-right: 4px;
   vertical-align: -1px;
 }
 .list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 16px;
 }
 .list--gap {
   display: grid;
@@ -636,7 +636,7 @@ textarea.inp {
 .note {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 /* ---------- мелкие утилиты ---------- */
@@ -656,7 +656,7 @@ textarea.inp {
   gap: 4px;
 }
 .stack--mt {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 .note--lg {
   font-size: 14px;
@@ -673,7 +673,7 @@ textarea.inp {
 }
 .tbl--plain th,
 .tbl--plain td {
-  padding: 6px 8px;
+  padding: 8px 8px;
 }
 
 /* ---------- шахматка ---------- */
@@ -684,7 +684,7 @@ textarea.inp {
   min-width: 700px;
 }
 .board th {
-  padding: 6px 4px;
+  padding: 8px 4px;
   border-bottom: 1px solid var(--border);
   font-family: var(--font-head);
   font-size: 12px;
@@ -697,7 +697,9 @@ textarea.inp {
   position: sticky;
   left: 0;
   z-index: calc(var(--z-raised) + 2);
-  min-width: 190px;
+  /* 176 px: после перехода на шкалу отступов (срез 7.4) клетки ячейки стали шире на 4 px,
+     и первая колонка дат уходила под липкий столбец на 1024 px */
+  min-width: 176px;
   text-align: left;
 }
 .board__wd {
@@ -709,7 +711,7 @@ textarea.inp {
   color: var(--text);
 }
 .board td {
-  padding: 3px 6px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--border-soft);
 }
 .board td.board__unit {
@@ -902,7 +904,7 @@ textarea.inp {
   margin-bottom: 8px;
 }
 .block--bottom-xs {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .ml-sm {
   margin-left: 8px;
@@ -920,8 +922,8 @@ textarea.inp {
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 160px), 1fr));
-  gap: 12px;
-  margin: 10px 0;
+  gap: 8px;
+  margin: 8px 0;
 }
 .facts a {
   color: inherit;
@@ -935,12 +937,12 @@ textarea.inp {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 14px 36px;
+  gap: 16px 32px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 18px;
-  margin: 0 0 18px;
+  padding: 16px 16px;
+  margin: 0 0 16px;
 }
 .fact__label {
   font-size: 12px;
@@ -957,7 +959,7 @@ textarea.inp {
   background: var(--surface-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 8px 16px;
   margin: 0 0 8px;
   font-family: var(--mono);
   font-size: 12px;
@@ -969,22 +971,22 @@ textarea.inp {
 }
 .divider {
   border-top: 1px solid var(--border-soft);
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
 }
 
 /* ---------- доля: полоска и процент ---------- */
 .share {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   justify-content: flex-end;
 }
 .share__track {
   display: inline-block;
   width: 60px;
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--chart-1-soft);
   overflow: hidden;
 }
@@ -1003,7 +1005,7 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 12px 6px;
+  padding: 8px 16px 8px;
 }
 .chart__label {
   font-size: 13px;
@@ -1023,8 +1025,8 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px var(--overlay);
-  padding: 6px 10px;
+  box-shadow: var(--shadow-floating);
+  padding: 8px 8px;
   font-size: 12px;
   color: var(--text-2);
   pointer-events: none;
@@ -1047,7 +1049,7 @@ textarea.inp {
 /* ---------- две колонки и раскрывающийся блок ---------- */
 .grid-2 {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   grid-template-columns: 1fr 1fr;
 }
 .split--3-2 {
@@ -1096,7 +1098,7 @@ textarea.inp {
 .cell-sub {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 .unit {
   font-family: var(--mono);
@@ -1107,8 +1109,8 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 16px;
-  margin: 0 0 18px;
+  padding: 16px 16px;
+  margin: 0 0 16px;
 }
 
 /* ---------- шахматка: группы, липкая шапка, сегодня и выходные ---------- */
@@ -1157,7 +1159,7 @@ textarea.inp {
   background: var(--surface-muted);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 5px 6px;
+  padding: 4px 8px;
 }
 .board td.board__group-name {
   font-weight: 600;
@@ -1269,7 +1271,7 @@ textarea.inp {
 .board-skeleton__stay {
   flex: 1;
   height: 32px;
-  margin: 0 2px;
+  margin: 0 4px;
   border-radius: var(--radius-sm);
 }
 /* переключатель окна: 7 / 14 / 30 дней */
@@ -1280,7 +1282,7 @@ textarea.inp {
   overflow: hidden;
 }
 .seg a {
-  padding: 4px 10px;
+  padding: 4px 8px;
   color: var(--text-2);
   border-left: 1px solid var(--border-input);
   font-size: 13px;
@@ -1458,4 +1460,12 @@ select.filter-chip {
   .chain__arrow {
     transform: rotate(90deg);
   }
+}
+
+/* Список печатных форм в крошках карточки: ссылки в строку с отступом, без разделителей-точек */
+.print-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
 }

@@ -2,7 +2,7 @@
 .nav-entry-row {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0px;
 }
 .nav-entry-row .workspace-link {
   flex: 1;
@@ -16,7 +16,7 @@
   min-width: 30px;
   height: 38px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -39,17 +39,17 @@
   color: var(--success);
 }
 .nav-children {
-  margin: 0 0 7px 20px;
-  padding-left: 15px;
+  margin: 0 0 8px 24px;
+  padding-left: 16px;
   border-left: 1px solid var(--border);
 }
 .nav-child {
   display: block;
   color: var(--muted);
   font-size: 12px;
-  padding: 9px 10px;
-  border-radius: 5px;
-  margin: 2px 0;
+  padding: 8px 8px;
+  border-radius: var(--radius-sm);
+  margin: 4px 0;
   line-height: 1.35;
 }
 .nav-child:hover {
@@ -71,7 +71,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
   gap: 16px;
-  margin: 20px 0;
+  margin: 24px 0;
 }
 .section-card {
   display: flex;
@@ -80,7 +80,7 @@
   padding: 24px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   color: var(--text);
   transition:
     border-color 0.15s,
@@ -89,7 +89,7 @@
 }
 .section-card:hover {
   border-color: var(--border);
-  box-shadow: 0 3px 16px var(--overlay);
+
   text-decoration: none;
 }
 .section-card > div {
@@ -99,7 +99,7 @@
 .section-card-title {
   font-size: 15px;
   font-weight: 600;
-  margin: 2px 0 7px;
+  margin: 4px 0 8px;
 }
 .section-card p {
   font-size: 13px;
@@ -113,12 +113,12 @@
   width: 42px;
   height: 42px;
   flex-shrink: 0;
-  border-radius: 11px;
+  border-radius: var(--radius-control);
   background: var(--success-soft);
   color: var(--success);
 }
 .section-card-arrow {
-  margin-top: 12px;
+  margin-top: 16px;
   width: 16px;
   color: var(--muted);
 }
@@ -126,9 +126,9 @@
   padding: 48px 24px;
   border: 1px solid var(--border);
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .feature-pending .section-card-icon {
   margin: 0 auto 16px;
@@ -139,25 +139,25 @@
 }
 .feature-pending p {
   max-width: 580px;
-  margin: 14px auto 0;
+  margin: 16px auto 0;
   color: var(--text-2);
   line-height: 1.7;
 }
 .connection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 .connection-grid .panel {
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
 }
 .connection-grid .panel p {
   line-height: 1.7;
-  margin: 4px 0 12px;
+  margin: 4px 0 16px;
 }
 .connection-grid .panel > a {
   margin-top: auto;
@@ -169,8 +169,8 @@
 .channel-totals {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 28px;
-  margin: 10px 0 14px;
+  gap: 16px 24px;
+  margin: 8px 0 16px;
 }
 .channel-totals strong {
   font-size: 26px;
@@ -181,7 +181,7 @@
 .channel-name {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 .channel-monogram {
   display: grid;
@@ -189,7 +189,7 @@
   width: 34px;
   height: 34px;
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--success-soft);
   color: var(--success);
   font-weight: 600;
@@ -201,7 +201,7 @@
 .occupancy-meter {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 12px;
   color: var(--text-2);
 }
@@ -210,7 +210,7 @@
   height: 8px;
   border: 0;
   background: var(--success-soft);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .occupancy-meter meter::-webkit-meter-bar {
   background: var(--success-soft);
@@ -221,8 +221,8 @@
 }
 @media (max-width: 600px) {
   .section-card {
-    padding: 18px;
-    gap: 12px;
+    padding: 16px;
+    gap: 8px;
   }
   .nav-toggle {
     width: 38px;
@@ -249,7 +249,7 @@
 .section-card {
   align-items: center;
   min-height: 94px;
-  padding: 20px;
+  padding: 24px;
 }
 .section-card-title {
   margin: 0;
@@ -261,14 +261,14 @@
   margin-top: 0;
 }
 .context-help {
-  margin: 20px 0;
+  margin: 24px 0;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.65;
 }
 .context-help > summary {
   cursor: pointer;
-  padding: 10px 0;
+  padding: 8px 0;
   font-weight: 500;
   width: fit-content;
 }
@@ -295,7 +295,7 @@
 }
 .connection-grid .panel {
   padding: 24px;
-  gap: 18px;
+  gap: 16px;
 }
 .connection-grid .grid {
   width: 100%;
@@ -343,12 +343,12 @@
   background: var(--surface-muted);
 }
 .photo-card figcaption {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
 }
 .facility-list {
   columns: 2 220px;
-  margin: 0 0 12px;
-  padding-left: 18px;
+  margin: 0 0 16px;
+  padding-left: 16px;
 }

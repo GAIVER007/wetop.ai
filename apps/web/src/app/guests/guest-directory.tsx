@@ -25,7 +25,7 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
       </nav>
       <div className="directory-meta">
         <span>Гости с проживанием на сегодня</span>
-        <Link href="/reservations">Все бронирования →</Link>
+        <Link href="/reservations">Все бронирования</Link>
       </div>
       <Table>
         <thead>

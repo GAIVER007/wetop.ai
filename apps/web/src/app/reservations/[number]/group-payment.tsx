@@ -60,7 +60,7 @@ export function GroupPayment({
         {open.map((f, i) => (
           <Field
             key={f.id}
-            label={`Счёт ${i + 1} · ${f.stay.accommodationTypeName} · ${f.stay.arrivalDate} — ${f.stay.departureDate} · баланс ${formatMinor(f.balanceMinor, f.currency)}`}
+            label={`Счёт ${i + 1}, ${f.stay.accommodationTypeName}, ${f.stay.arrivalDate} — ${f.stay.departureDate}, баланс ${formatMinor(f.balanceMinor, f.currency)}`}
           >
             <Input
               name={`allocation.${f.id}`}

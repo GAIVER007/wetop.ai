@@ -425,3 +425,14 @@
 | 15.09.2026 12:25 | unit | ✅ 787 из 792, пропущено 5 | 13 с | 72ca4c6 +4 | [лог](logs/2026-09-15T07-25-02Z-unit-3870.log) |  |
 | 15.09.2026 12:25 | integration | ✅ 22 из 22 | 7 с | 72ca4c6 +5 | [лог](logs/2026-09-15T07-25-16Z-integration-eac7.log) | ADR-046/047 на всём наборе |
 | 15.09.2026 12:25 | e2e | ✅ 25 из 25 | 44 с | 72ca4c6 +4 | [лог](logs/2026-09-15T07-25-24Z-e2e-d7a1.log) | e2e на свежем сиде после ADR-046/047 (импорт с удержаниями) |
+| 15.09.2026 12:43 | unit (частично: scripts/imports/src/exely/auto-sync.test.ts) | ❌ упало 2 из 13 | 2 с | 790f3cc +1 | [лог](logs/2026-09-15T07-43-24Z-unit-920f.log) | RED: дельта остатков не знает про исчезнувшие проживания (ревью 15.09, находка 2) |
+| 15.09.2026 12:43 | integration (частично: tests/integration/reservations-import.test.ts) | ❌ упало 1 из 6 | 3 с | 790f3cc +2 | [лог](logs/2026-09-15T07-43-26Z-integration-1f11.log) | RED ревью 15.09: снимок отменяет проживания как живая карточка; заселённые и оплаченные тоже отменяются |
+| 15.09.2026 12:44 | unit (частично: scripts/imports/src/exely/auto-sync.test.ts) | ✅ 13 из 13 | 1 с | 790f3cc +8 | [лог](logs/2026-09-15T07-44-48Z-unit-fb71.log) | GREEN: withVanished — ночи исчезнувших проживаний в дельте остатков |
+| 15.09.2026 12:44 | integration (частично: tests/integration/reservations-import.test.ts) | ❌ упало 6 из 6 | 2 с | 790f3cc +9 | [лог](logs/2026-09-15T07-44-50Z-integration-ab18.log) | GREEN ревью 15.09: cancelVanished только для живых карточек; заселённые и оплаченные не трогаются, Q-134 |
+| 15.09.2026 14:42 | integration (частично: tests/integration/reservations-import.test.ts) | ❌ код выхода 1 | 2 с | 790f3cc +9 | [лог](logs/2026-09-15T09-42-07Z-integration-2311.log) | GREEN ревью 15.09: cancelVanished только для живых карточек; заселённые и оплаченные не трогаются, Q-134 |
+| 15.09.2026 14:42 | integration (частично: tests/integration/reservations-import.test.ts) | ✅ 6 из 6 | 3 с | 790f3cc +9 | [лог](logs/2026-09-15T09-42-47Z-integration-0ea9.log) | GREEN ревью 15.09: cancelVanished только для живых карточек; заселённые и оплаченные не трогаются, Q-134 |
+| 15.09.2026 14:43 | typecheck | ✅ без ошибок | 13 с | 790f3cc +9 | [лог](logs/2026-09-15T09-43-04Z-typecheck-842c.log) |  |
+| 15.09.2026 14:43 | lint | ✅ без ошибок | 9 с | 790f3cc +9 | [лог](logs/2026-09-15T09-43-17Z-lint-5cda.log) |  |
+| 15.09.2026 14:43 | unit | ✅ 789 из 794, пропущено 5 | 14 с | 790f3cc +8 | [лог](logs/2026-09-15T09-43-27Z-unit-ddb3.log) |  |
+| 15.09.2026 14:43 | integration | ✅ 22 из 22 | 8 с | 790f3cc +9 | [лог](logs/2026-09-15T09-43-41Z-integration-3f3b.log) | после ревью 15.09: cancelVanished, kept, общий ensureSingleActiveCharge |
+| 15.09.2026 14:43 | e2e | ✅ 25 из 25 | 47 с | 790f3cc +8 | [лог](logs/2026-09-15T09-43-49Z-e2e-3eee.log) | после ревью 15.09 на свежем сиде |

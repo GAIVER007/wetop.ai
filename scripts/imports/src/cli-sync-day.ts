@@ -30,6 +30,7 @@ import {
   type AutoSyncRun,
   type AvailabilityChange,
   type StayAvailabilityState,
+  withVanished,
 } from './exely/auto-sync';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
@@ -149,9 +150,11 @@ try {
   }
 
   let summary: Record<string, unknown> = { reservations: { created: 0, updated: 0 } };
+  let vanishedStays: Array<{ exelyRoomStayId: string; accommodationTypeCode: string; arrivalDate: string; departureDate: string }> = [];
   if (records.length > 0) {
     const report = await db.$transaction(
-      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt }),
+      // живые карточки целиком — исчезнувшие из них проживания отменяются (ADR-046)
+      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt, cancelVanished: true }),
       { timeout: 900_000, maxWait: 30_000 },
     );
     console.log(
@@ -165,6 +168,11 @@ try {
       console.log(
         `  исчезло из карточки Exely: ${v.confirmationNumber} проживание ${v.exelyRoomStayId} ${v.arrivalDate} → ${v.departureDate} — отменено (ADR-046)`,
       );
+    for (const k of report.vanishedKept)
+      console.log(
+        `  ИСЧЕЗЛО ИЗ EXELY, НЕ ТРОНУТО (${k.reason === 'checked-in' ? 'гость заселён' : 'есть оплата'}, Q-134): ${k.confirmationNumber} проживание ${k.exelyRoomStayId} ${k.arrivalDate} → ${k.departureDate} — разобрать руками`,
+      );
+    vanishedStays = report.vanished;
     for (const c of report.conflicts)
       console.log(
         `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
@@ -180,6 +188,7 @@ try {
       unassigned: report.unassigned,
       conflicts: report.conflicts.length,
       vanished: report.vanished.length,
+      vanishedKept: report.vanishedKept.length,
       retained: report.retained,
     };
   }
@@ -196,6 +205,8 @@ try {
           departureDate: it.departureDate,
           sold: sold(it.status),
         });
+    // освободившиеся ночи исчезнувших проживаний (ADR-046) в записях импорта отсутствуют — дописываем
+    withVanished(before, after, vanishedStays);
     change = availabilityChange(before, after, almatyToday);
     if (change) ari = (await queueAvailabilityDelta(change)) ? 'delta' : 'failed';
     console.log(

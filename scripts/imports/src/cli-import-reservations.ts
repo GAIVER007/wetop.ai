@@ -15,6 +15,7 @@ import {
   adaptUniBooking,
   importReservations,
   normalizeExelyReservation,
+  type VanishedStay,
 } from './exely/index';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
@@ -71,7 +72,9 @@ try {
     stayGuests: { linked: 0 },
     unassigned: 0,
     paymentsImported: 0,
-    vanished: [] as Array<{ confirmationNumber: string; exelyRoomStayId: string; arrivalDate: string; departureDate: string }>,
+    // снимок с диска — не живая карточка: cancelVanished не передаётся, vanished всегда пуст (ADR-046)
+    vanished: [] as VanishedStay[],
+    vanishedKept: [] as Array<VanishedStay & { reason: 'checked-in' | 'paid' }>,
     retained: 0,
     conflicts: [] as Array<{
       confirmationNumber: string;
@@ -116,6 +119,7 @@ try {
     total.unassigned += report.unassigned;
     total.paymentsImported += report.paymentsImported;
     total.vanished.push(...report.vanished);
+    total.vanishedKept.push(...report.vanishedKept);
     total.retained += report.retained;
     total.conflicts.push(...report.conflicts);
     console.log(

@@ -1,4 +1,9 @@
-import { ensureFolioWithAccommodation, recordImportedPayment, type DbTx } from '@pms/database';
+import {
+  ensureFolioWithAccommodation,
+  ensureSingleActiveCharge,
+  recordImportedPayment,
+  type DbTx,
+} from '@pms/database';
 import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
@@ -11,6 +16,12 @@ export interface ReservationsImportOptions {
   anonymizeSalt: string | null;
   /** Сегодняшняя ночь объекта (YYYY-MM-DD): переезд внутри срока, который уже был (ADR-044). По умолчанию — сейчас в Алматы */
   today?: string;
+  /**
+   * ADR-046: записи — живые карточки, полученные целиком только что (`cli-sync-day`): проживание, которого в карточке
+   * нет, отменяется. Снимок с диска (`cli-import-reservations`) так считать нельзя — повтор старого снимка снёс бы
+   * проживания, добавленные позже (ревью 15.09.2026). По умолчанию выключено.
+   */
+  cancelVanished?: boolean;
 }
 export interface ReservationsImportReport {
   reservations: EntityCounts;
@@ -27,12 +38,15 @@ export interface ReservationsImportReport {
   conflicts: AllocationConflict[];
   /** ADR-046 (Q-127): проживания, исчезнувшие из карточки Exely, отменены этим прогоном */
   vanished: VanishedStay[];
+  /** Исчезли из карточки, но не тронуты: заселённый гость или оплаченное проживание — к человеку (Q-134) */
+  vanishedKept: Array<VanishedStay & { reason: 'checked-in' | 'paid' }>;
   /** ADR-047 (Q-128): начисления «удержано в Exely» созданы этим прогоном */
   retained: number;
 }
 export interface VanishedStay {
   confirmationNumber: string;
   exelyRoomStayId: string;
+  accommodationTypeCode: string;
   arrivalDate: string;
   departureDate: string;
 }
@@ -77,6 +91,7 @@ export async function importReservations(
     paymentsImported: 0,
     conflicts: [],
     vanished: [],
+    vanishedKept: [],
     retained: 0,
   };
   const today = opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000));
@@ -262,10 +277,20 @@ export async function importReservations(
       // ADR-047 (Q-128): отменено / незаезд, оплачено в Exely и не возвращено — Exely держит начисление и баланс 0.
       // У нас начисление за проживание сторнировано, поэтому удержание — отдельным начислением на сумму оплаты;
       // вернулось в активное или появился возврат — удержание сторнируется. Только для перенесённых проживаний.
-      const retention = await ensureRetentionCharge(tx, folioId, it.paidMinor, it.arrivalDate, {
-        wanted: !holdsUnit && it.paidMinor > 0n && it.refundMinor === 0n,
-      });
-      if (retention === 'created') report.retained += 1;
+      const retentionWanted = !holdsUnit && it.paidMinor > 0n && it.refundMinor === 0n;
+      // у только что созданного проживания сторнировать нечего — без лишнего запроса на каждое из ~1 800
+      if (retentionWanted || existingItem) {
+        const retention = await ensureSingleActiveCharge(tx, {
+          folioId,
+          kind: 'PENALTY',
+          matchDescription: RETENTION_DESCRIPTION,
+          description: RETENTION_DESCRIPTION,
+          amountMinor: it.paidMinor,
+          serviceDate: it.arrivalDate,
+          wanted: retentionWanted,
+        });
+        if (retention === 'created') report.retained += 1;
+      }
 
       // Отменённое / незаехавшее проживание ячейку не занимает (запрет пересечений в БД безусловный):
       // назначение не создаём, а существующее снимаем — как делает команда отмены на стойке.
@@ -334,11 +359,12 @@ export async function importReservations(
       }
     }
 
-    // ADR-046 (Q-127): карточка брони приходит целиком; проживание, которого в ней больше нет, в Exely удалено или
-    // перенесено в другую бронь. Отменяем его как отмену: ячейка снимается, начисление сторнируется, штраф не
-    // начисляется. Предохранители: карточка не пустая, проживание ещё не закончилось (прошлое не трогаем — его
-    // уже прожили), уже отменённое / незаезд / выехавшее — не трогаем. Повтор ничего не делает.
-    if (r.items.length > 0) {
+    // ADR-046 (Q-127): живая карточка брони приходит целиком (cancelVanished — только cli-sync-day); проживание,
+    // которого в ней больше нет, в Exely удалено или перенесено в другую бронь. Отменяем его как отмену: ячейка
+    // снимается, начисление сторнируется, штраф не начисляется. Предохранители: карточка не пустая; проживание ещё
+    // не закончилось (прошлое уже прожили); уже отменённое / незаезд / выехавшее не трогаем; заселённого гостя и
+    // оплаченное проживание не трогаем, а называем в отчёте — это к человеку (Q-134). Повтор ничего не делает.
+    if (opts.cancelVanished && r.items.length > 0) {
       const present = new Set(r.items.map((it) => it.exelyRoomStayId));
       const gone = await tx.reservationItem.findMany({
         where: {
@@ -347,10 +373,31 @@ export async function importReservations(
           status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
           departureDate: { gte: asDate(today) },
         },
-        select: { id: true, exelyRoomStayId: true, status: true, arrivalDate: true, departureDate: true, price: true },
+        select: {
+          id: true,
+          exelyRoomStayId: true,
+          status: true,
+          arrivalDate: true,
+          departureDate: true,
+          price: true,
+          accommodationType: { select: { code: true } },
+          folio: { select: { allocations: { where: { payment: { status: 'COMPLETED' } }, select: { amount: true } } } },
+        },
       });
       for (const item of gone) {
         if (present.has(item.exelyRoomStayId!)) continue;
+        const stay: VanishedStay = {
+          confirmationNumber: r.confirmationNumber,
+          exelyRoomStayId: item.exelyRoomStayId!,
+          accommodationTypeCode: item.accommodationType.code,
+          arrivalDate: iso(item.arrivalDate),
+          departureDate: iso(item.departureDate),
+        };
+        const paid = (item.folio?.allocations ?? []).some((p) => p.amount > 0n);
+        if (item.status === 'CHECKED_IN' || paid) {
+          report.vanishedKept.push({ ...stay, reason: item.status === 'CHECKED_IN' ? 'checked-in' : 'paid' });
+          continue;
+        }
         await tx.reservationItem.update({ where: { id: item.id }, data: { status: 'CANCELLED' } });
         const removed = await tx.allocation.deleteMany({ where: { reservationItemId: item.id } });
         report.allocations.released += removed.count;
@@ -358,8 +405,8 @@ export async function importReservations(
           reservationItemId: item.id,
           currency: r.currency,
           amountMinor: item.price,
-          description: `Проживание ${iso(item.arrivalDate)} → ${iso(item.departureDate)}`,
-          serviceDate: iso(item.arrivalDate),
+          description: `Проживание ${stay.arrivalDate} → ${stay.departureDate}`,
+          serviceDate: stay.arrivalDate,
           active: false,
         });
         await tx.auditLog.create({
@@ -375,12 +422,7 @@ export async function importReservations(
             },
           },
         });
-        report.vanished.push({
-          confirmationNumber: r.confirmationNumber,
-          exelyRoomStayId: item.exelyRoomStayId!,
-          arrivalDate: iso(item.arrivalDate),
-          departureDate: iso(item.departureDate),
-        });
+        report.vanished.push(stay);
       }
     }
   }
@@ -584,40 +626,4 @@ export async function importReservations(
   }
 
   return report;
-}
-
-/**
- * Ровно одно активное начисление-удержание на счёте, равное оплаченному в Exely, пока проживание отменено и
- * возврата нет (ADR-047); иначе — ни одного. Сторно — voided_at, строки не удаляются.
- */
-async function ensureRetentionCharge(
-  tx: DbTx,
-  folioId: string,
-  amountMinor: bigint,
-  serviceDate: string,
-  opts: { wanted: boolean },
-): Promise<'created' | 'voided' | 'unchanged'> {
-  const current = await tx.charge.findFirst({
-    where: { folioId, kind: 'PENALTY', description: RETENTION_DESCRIPTION, voidedAt: null },
-    select: { id: true, amount: true },
-  });
-  if (!opts.wanted) {
-    if (!current) return 'unchanged';
-    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
-    return 'voided';
-  }
-  if (current && current.amount === amountMinor) return 'unchanged';
-  if (current) await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
-  await tx.charge.create({
-    data: {
-      folioId,
-      kind: 'PENALTY',
-      description: RETENTION_DESCRIPTION,
-      quantity: 1,
-      unitPrice: amountMinor,
-      amount: amountMinor,
-      serviceDate: asDate(serviceDate),
-    },
-  });
-  return 'created';
 }

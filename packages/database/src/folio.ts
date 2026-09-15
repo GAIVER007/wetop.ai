@@ -18,6 +18,60 @@ export interface EnsureFolioInput {
   active?: boolean | undefined;
 }
 
+export interface EnsureChargeInput {
+  folioId: string;
+  kind: 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
+  /** Активное начисление ищется по kind и, если задано, по описанию (у удержания ADR-047 — своё описание) */
+  matchDescription?: string | undefined;
+  description: string;
+  /** integer minor units */
+  amountMinor: bigint;
+  /** Дата услуги (YYYY-MM-DD) */
+  serviceDate: string;
+  /** false — начисления быть не должно: активное сторнируется, новое не создаётся */
+  wanted: boolean;
+}
+
+/**
+ * Ровно одно активное начисление данного вида, равное сумме, пока оно нужно; иначе — ни одного.
+ * Сторно — voided_at, строки не удаляются. Общий механизм для «проживание = цене» (импорт и API)
+ * и для удержания ADR-047.
+ */
+export async function ensureSingleActiveCharge(
+  tx: Tx,
+  input: EnsureChargeInput,
+): Promise<'created' | 'voided' | 'unchanged'> {
+  const current = await tx.charge.findFirst({
+    where: {
+      folioId: input.folioId,
+      kind: input.kind,
+      voidedAt: null,
+      ...(input.matchDescription ? { description: input.matchDescription } : {}),
+    },
+    select: { id: true, amount: true },
+  });
+  if (!input.wanted) {
+    if (!current) return 'unchanged';
+    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
+    return 'voided';
+  }
+  if (current && current.amount === input.amountMinor) return 'unchanged';
+  if (current)
+    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
+  await tx.charge.create({
+    data: {
+      folioId: input.folioId,
+      kind: input.kind,
+      description: input.description,
+      quantity: 1,
+      unitPrice: input.amountMinor,
+      amount: input.amountMinor,
+      serviceDate: new Date(`${input.serviceDate}T00:00:00Z`),
+    },
+  });
+  return 'created';
+}
+
 /** Создаёт счёт, если его нет; синхронизирует начисление за проживание с ценой (сторно + новое при изменении). */
 export async function ensureFolioWithAccommodation(
   tx: Tx,
@@ -32,32 +86,15 @@ export async function ensureFolioWithAccommodation(
       data: { reservationItemId: input.reservationItemId, currency: input.currency },
       select: { id: true },
     }));
-  const current = await tx.charge.findFirst({
-    where: { folioId: folio.id, kind: 'ACCOMMODATION', voidedAt: null },
-    select: { id: true, amount: true },
+  const result = await ensureSingleActiveCharge(tx, {
+    folioId: folio.id,
+    kind: 'ACCOMMODATION',
+    description: input.description,
+    amountMinor: input.amountMinor,
+    serviceDate: input.serviceDate,
+    wanted: input.active !== false,
   });
-  const wanted = input.active !== false;
-  if (!wanted) {
-    if (!current) return { folioId: folio.id, chargeChanged: false };
-    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
-    return { folioId: folio.id, chargeChanged: true };
-  }
-  if (current && current.amount === input.amountMinor)
-    return { folioId: folio.id, chargeChanged: false };
-  if (current)
-    await tx.charge.update({ where: { id: current.id }, data: { voidedAt: new Date() } });
-  await tx.charge.create({
-    data: {
-      folioId: folio.id,
-      kind: 'ACCOMMODATION',
-      description: input.description,
-      quantity: 1,
-      unitPrice: input.amountMinor,
-      amount: input.amountMinor,
-      serviceDate: new Date(`${input.serviceDate}T00:00:00Z`),
-    },
-  });
-  return { folioId: folio.id, chargeChanged: true };
+  return { folioId: folio.id, chargeChanged: result !== 'unchanged' };
 }
 
 /**

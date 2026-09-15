@@ -98,3 +98,29 @@ export function availabilityChange(
     ? { categoryCodes: [...codes].sort(), from, toExclusive: to }
     : null;
 }
+
+/**
+ * Проживания, отменённые импортом как исчезнувшие из карточки Exely (ADR-046), в записях импорта отсутствуют,
+ * и дельта остатков их не видит (ревью 15.09.2026). Дописываем: было продано → не продано; состояние «до»,
+ * снятое с базы, не переписывается.
+ */
+export function withVanished(
+  before: Map<string, StayAvailabilityState>,
+  after: Map<string, StayAvailabilityState>,
+  vanished: ReadonlyArray<{
+    exelyRoomStayId: string;
+    accommodationTypeCode: string;
+    arrivalDate: string;
+    departureDate: string;
+  }>,
+): void {
+  for (const v of vanished) {
+    const state = {
+      accommodationTypeCode: v.accommodationTypeCode,
+      arrivalDate: v.arrivalDate,
+      departureDate: v.departureDate,
+    };
+    if (!before.has(v.exelyRoomStayId)) before.set(v.exelyRoomStayId, { ...state, sold: true });
+    after.set(v.exelyRoomStayId, { ...state, sold: false });
+  }
+}

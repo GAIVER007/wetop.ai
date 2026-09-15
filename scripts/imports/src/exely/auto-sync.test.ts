@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   availabilityChange,
   autoSyncWindow,
+  withVanished,
   type StayAvailabilityState,
 } from './auto-sync';
 
@@ -113,5 +114,29 @@ describe('availabilityChange: какие категории и ночи пере
     expect(
       availabilityChange(map([]), map([['a', stay('dorm', '2026-09-14', '2029-01-01')]]), TODAY),
     ).toEqual({ categoryCodes: ['dorm'], from: '2026-09-14', toExclusive: '2028-01-26' });
+  });
+});
+
+describe('withVanished — освободившиеся ночи исчезнувших проживаний (ADR-046) попадают в дельту остатков', () => {
+  it('исчезнувшее проживание считается «было продано → не продано», и дельта его ночи видит', () => {
+    const before = new Map<string, StayAvailabilityState>();
+    const after = new Map<string, StayAvailabilityState>();
+    withVanished(before, after, [
+      { exelyRoomStayId: 'S-2', accommodationTypeCode: 'exely-5074688', arrivalDate: '2026-09-20', departureDate: '2026-09-22' },
+    ]);
+    expect(before.get('S-2')).toEqual({ accommodationTypeCode: 'exely-5074688', arrivalDate: '2026-09-20', departureDate: '2026-09-22', sold: true });
+    expect(after.get('S-2')).toEqual({ accommodationTypeCode: 'exely-5074688', arrivalDate: '2026-09-20', departureDate: '2026-09-22', sold: false });
+    expect(availabilityChange(before, after, '2026-09-15')).toEqual({ categoryCodes: ['exely-5074688'], from: '2026-09-20', toExclusive: '2026-09-22' });
+  });
+  it('состояние «до», снятое с базы, не переписывается', () => {
+    const before = new Map<string, StayAvailabilityState>([
+      ['S-2', { accommodationTypeCode: 'exely-5074688', arrivalDate: '2026-09-19', departureDate: '2026-09-22', sold: true }],
+    ]);
+    const after = new Map<string, StayAvailabilityState>();
+    withVanished(before, after, [
+      { exelyRoomStayId: 'S-2', accommodationTypeCode: 'exely-5074688', arrivalDate: '2026-09-20', departureDate: '2026-09-22' },
+    ]);
+    expect(before.get('S-2')!.arrivalDate).toBe('2026-09-19');
+    expect(after.get('S-2')!.sold).toBe(false);
   });
 });

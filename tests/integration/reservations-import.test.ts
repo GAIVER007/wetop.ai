@@ -296,13 +296,16 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
       typeMap: new Map([['900003', 'exely-900003']]),
     };
     const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), ctx);
-    // Бронь из трёх проживаний: два будущих (2031) и одно в прошлом, ещё «новое» (в Exely так бывает у забытых броней)
-    const three = (): exely.UniBooking => {
+    // Бронь из пяти проживаний: два будущих (2031), одно в прошлом, ещё «новое» (у забытых броней в Exely так бывает),
+    // одно заселённое и одно оплаченное без ячейки — последние три предохранители ADR-046 трогать не должны
+    const card = (): exely.UniBooking => {
       const b = booking('T-50', 'S-50', 'R-9010', 'G-50');
       const s0 = { ...b.roomStays[0]!, checkInDateTime: '2031-03-01T14:00', checkOutDateTime: '2031-03-03T12:00' };
       const s1 = { ...s0, id: 'S-51', roomId: 'R-9011' };
       const past = { ...b.roomStays[0]!, id: 'S-53', roomId: null, checkInDateTime: '2026-01-10T14:00', checkOutDateTime: '2026-01-12T12:00' };
-      return { ...b, roomStays: [s0, s1, past] };
+      const inHouse = { ...s0, id: 'S-54', roomId: 'R-9012', checkInDateTime: '2031-03-05T14:00', checkOutDateTime: '2031-03-07T12:00', status: 'CheckedIn', actualCheckInDateTime: '2031-03-05T15:00' };
+      const paid = { ...s0, id: 'S-55', roomId: null, checkInDateTime: '2031-03-09T14:00', checkOutDateTime: '2031-03-10T12:00', totalPrice: { amount: 12000, toPayAmount: 0, toRefundAmount: 0 } };
+      return { ...b, roomStays: [s0, s1, past, inHouse, paid] };
     };
     // Отменена, оплачена целиком (к оплате 0), возврата нет — как booking.com 20260902-513903-1262702198 в Exely
     const paidCancelled = booking('T-52', 'S-52', 'R-9012', 'G-52', 0, 'Cancelled');
@@ -311,8 +314,9 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
         async (tx) => {
           const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
           const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt' };
-          const first = await importReservations(tx, [norm(three()), norm(paidCancelled)], opts);
+          const first = await importReservations(tx, [norm(card()), norm(paidCancelled)], opts);
           expect(first.vanished).toEqual([]);
+          expect(first.vanishedKept).toEqual([]);
           // Q-128: начисление за проживание сторнировано, удержание = оплате, баланс 0 — как в кассе Exely
           expect(first.retained).toBe(1);
           const f52 = await tx.folio.findFirstOrThrow({
@@ -330,13 +334,30 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
             await tx.charge.count({ where: { folioId: f52.id, kind: 'PENALTY', voidedAt: null } }),
           ).toBe(1);
 
-          // Q-127: карточка пришла целиком, S-51 и S-53 в ней больше нет
-          const shrunk = { ...three(), roomStays: [three().roomStays[0]!] };
-          const second = await importReservations(tx, [norm(shrunk)], opts);
-          // будущее S-51 отменено; прошлое S-53 не трогаем — предохранитель по дате
+          // Q-127: карточка пришла целиком, в ней осталось только S-50
+          const shrunk = { ...card(), roomStays: [card().roomStays[0]!] };
+          // Снимок с диска (cli-import-reservations) — не живая карточка: без cancelVanished ничего не отменяется,
+          // иначе повтор старого снимка снёс бы проживания, добавленные позже (ревью 15.09)
+          const snapshot = await importReservations(tx, [norm(shrunk)], opts);
+          expect(snapshot.vanished).toEqual([]);
+          expect(snapshot.vanishedKept).toEqual([]);
+          expect((await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-51' } })).status).toBe('CONFIRMED');
+
+          const live = { ...opts, cancelVanished: true };
+          const second = await importReservations(tx, [norm(shrunk)], live);
+          // будущее S-51 отменено; прошлое S-53 не трогаем — предохранитель по дате;
+          // заселённое S-54 и оплаченное S-55 — к человеку, не отменяются (Q-134)
           expect(second.vanished).toEqual([
-            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-51', arrivalDate: '2031-03-01', departureDate: '2031-03-03' },
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-51', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-01', departureDate: '2031-03-03' },
           ]);
+          expect(second.vanishedKept).toEqual([
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-54', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-05', departureDate: '2031-03-07', reason: 'checked-in' },
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-55', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-09', departureDate: '2031-03-10', reason: 'paid' },
+          ]);
+          const s54 = await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-54' }, include: { allocations: true } });
+          expect(s54.status).toBe('CHECKED_IN');
+          expect(s54.allocations).toHaveLength(1);
+          expect((await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-55' } })).status).toBe('CONFIRMED');
           const s51 = await tx.reservationItem.findUniqueOrThrow({
             where: { exelyRoomStayId: 'S-51' },
             include: { allocations: true, folio: { include: { charges: true } } },
@@ -349,9 +370,10 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           expect(
             await tx.auditLog.count({ where: { entityId: s51.id, action: 'reservation.item.vanished' } }),
           ).toBe(1);
-          // повтор той же карточки — ничего нового
-          const third = await importReservations(tx, [norm(shrunk)], opts);
+          // повтор той же карточки — ничего нового; удержанные снова названы, чтобы стойка их видела
+          const third = await importReservations(tx, [norm(shrunk)], live);
           expect(third.vanished).toEqual([]);
+          expect(third.vanishedKept.map((k) => k.exelyRoomStayId)).toEqual(['S-54', 'S-55']);
           expect(
             await tx.auditLog.count({ where: { entityId: s51.id, action: 'reservation.item.vanished' } }),
           ).toBe(1);

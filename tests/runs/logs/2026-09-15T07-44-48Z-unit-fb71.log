@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.09.2026 12:44 Алматы · vm
+# коммит 790f3cc (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T07-44-48Z-unit-fb71.json' 'scripts/imports/src/exely/auto-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (13 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  07:44:49
+   Duration  209ms (transform 74%, import 13%, tests 10%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-15T07-44-48Z-unit-fb71.json
+
+# код выхода 0 · 1 с

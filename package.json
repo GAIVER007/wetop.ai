@@ -41,7 +41,9 @@
     "design:build": "tsx scripts/design/src/build-tokens.ts",
     "design:check": "tsx scripts/design/src/build-tokens.ts --check",
     "design:fonts": "tsx scripts/design/src/check-fonts.ts",
-    "design:bundle": "tsx scripts/design/src/bundle-claude-design.ts"
+    "design:bundle": "tsx scripts/design/src/bundle-claude-design.ts",
+    "site:build": "npm run build -w apps/site",
+    "site:deploy": "npm run site:build && npx wrangler@latest pages deploy apps/site/out --project-name wetop-site --branch main"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

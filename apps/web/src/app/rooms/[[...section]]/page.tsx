@@ -6,8 +6,12 @@ import { api, chessboardApi, reservationsApi } from '../../../lib/api';
 import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
-import { SectionCards } from '../../../components/section-cards';
-import { Alert, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
+import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
+import { Icon } from '../../../components/icon';
+import { displayDate } from '../../../lib/display-date';
+import { pluralRu } from '../../../lib/plural';
+import '../../directory.css';
+import '../rooms.css';
 
 export default async function RoomsPage({
   params,
@@ -29,7 +33,15 @@ export default async function RoomsPage({
       {!section.length && (
         <>
           <RoomTotals />
-          <SectionCards items={item.children ?? []} />
+          {/* Разделы — строкой, а не четырьмя плитками: под ними живёт сам справочник */}
+          <nav className="rooms-links" aria-label="Разделы номеров">
+            {(item.children ?? []).map((c) => (
+              <Link key={c.href} href={c.href} className="rooms-link">
+                <Icon name={c.icon} />
+                {c.label}
+              </Link>
+            ))}
+          </nav>
           <RoomsDirectory />
         </>
       )}
@@ -52,45 +64,81 @@ async function RoomTotals() {
   );
 }
 async function Categories() {
-  const r = await api.inventorySummary();
+  const today = hotelToday();
+  const [r, units, board] = await Promise.all([
+    api.inventorySummary(),
+    api.inventoryUnits(),
+    chessboardApi.board(today, today).catch(() => null),
+  ]);
+  const beds = new Map<string, number>();
+  for (const u of units)
+    if (u.kind === 'BED')
+      beds.set(u.accommodationTypeCode, (beds.get(u.accommodationTypeCode) ?? 0) + 1);
   return (
     <>
-      <Table>
+      <Table className="dir-table" nowrap>
         <thead>
           <tr>
             <th>Категория</th>
-            <th className="num">Номеров / коек</th>
-            <th className="num">Вместимость, гостей</th>
-            <th>Управление</th>
+            <th>Состав</th>
+            <th className="num">Гостей</th>
+            <th>Сегодня, {displayDate(today)}</th>
+            <th>Действия</th>
           </tr>
         </thead>
         <tbody>
-          {r.byCategory.map((c) => (
-            <tr key={c.code}>
-              <td>
-                <strong>{c.name}</strong>
-                <div className="cell-sub">{c.code}</div>
-              </td>
-              <td className="num">{c.units}</td>
-              <td className="num">{c.maxGuests}</td>
-              <td>
-                <Link href={`/inventory?category=${encodeURIComponent(c.code)}`}>
-                  Состав категории
-                </Link>
-                <span className="cell-sub">
+          {r.byCategory.map((c) => {
+            const t = board?.byCategory[today]?.[c.code];
+            const isBeds = (beds.get(c.code) ?? 0) > 0;
+            return (
+              <tr key={c.code}>
+                <td>
+                  <strong>{c.name}</strong>
+                  <div className="cat-code">{c.code}</div>
+                </td>
+                <td>
+                  {isBeds
+                    ? pluralRu(c.units, ['койка', 'койки', 'коек'])
+                    : pluralRu(c.units, ['номер', 'номера', 'номеров'])}
+                </td>
+                <td className="num">{c.maxGuests}</td>
+                <td>
+                  {t ? (
+                    <div className="occupancy-meter cat-today">
+                      <meter
+                        min="0"
+                        max={t.units || 1}
+                        value={t.occupied}
+                        aria-label={`Занято ${t.occupied} из ${t.units}`}
+                      />
+                      <span>
+                        занято {t.occupied} · свободно{' '}
+                        <b className={cx(t.free === 0 && 'is-zero')}>{t.free}</b>
+                        {t.blocked > 0 && ` · закрыто ${t.blocked}`}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="muted">нет данных</span>
+                  )}
+                </td>
+                <td className="rooms-actions">
+                  <Link href={`/inventory?category=${encodeURIComponent(c.code)}`}>Состав</Link>
                   <Link href={`/rates?category=${encodeURIComponent(c.code)}`}>Тарифы</Link>
-                </span>
-              </td>
-            </tr>
-          ))}
+                  <Link href={`/chessboard?from=${today}&to=${nextDay(today)}`}>Шахматка</Link>
+                </td>
+              </tr>
+            );
+          })}
           {!r.byCategory.length && (
             <tr>
-              <td colSpan={4}>Категории ещё не добавлены.</td>
+              <td colSpan={5}>Категории ещё не добавлены.</td>
             </tr>
           )}
         </tbody>
       </Table>
-      <p className="note">Категории доступны только для просмотра.</p>
+      <p className="note">
+        Категории доступны только для просмотра: состав и вместимость приходят из Exely.
+      </p>
     </>
   );
 }
@@ -106,6 +154,22 @@ async function Availability({
   const [r, inventory] = valid
     ? await Promise.all([reservationsApi.availability(arrival, departure), api.inventorySummary()])
     : [null, null];
+  const today = hotelToday();
+  const plus = (from: string, n: number) => {
+    let d = from;
+    for (let k = 0; k < n; k++) d = nextDay(d);
+    return d;
+  };
+  // ближайшие пятница → воскресенье
+  const dow = new Date(`${today}T00:00:00Z`).getUTCDay();
+  const friday = plus(today, (5 - dow + 7) % 7);
+  const presets: Array<[string, string, string]> = [
+    ['Сегодня', today, nextDay(today)],
+    ['Завтра', nextDay(today), plus(today, 2)],
+    ['Выходные', friday, plus(friday, 2)],
+    ['Неделя', today, plus(today, 7)],
+  ];
+  const href = (a: string, d: string) => `/rooms/availability?arrival=${a}&departure=${d}`;
   return (
     <>
       <form className="row toolbar" method="get">
@@ -117,6 +181,18 @@ async function Availability({
         </Field>
         <Button type="submit">Проверить доступность</Button>
       </form>
+      <nav className="avail-presets" aria-label="Быстрые даты">
+        <span>Быстро:</span>
+        {presets.map(([label, a, d]) => (
+          <Link
+            key={label}
+            href={href(a, d)}
+            className={cx(a === arrival && d === departure && 'is-on')}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
       {!valid && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
       {r && (
         <>
@@ -126,15 +202,20 @@ async function Availability({
               value={r.total.available}
               hint="номеров и отдельных коек"
             />
-            <Stat label="Ночей" value={r.nights} />
+            <Stat
+              label="Период"
+              value={pluralRu(r.nights, ['ночь', 'ночи', 'ночей'])}
+              hint={`${displayDate(arrival)} → ${displayDate(departure)}`}
+            />
             <Stat label="Всего в фонде" value={r.total.units} />
           </Stats>
-          <Table>
+          <Table className="dir-table" nowrap>
             <thead>
               <tr>
                 <th>Категория</th>
-                <th className="num">Всего</th>
+                <th>Занятость</th>
                 <th className="num">Доступно</th>
+                <th>Какие места свободны</th>
                 <th>Размещение</th>
               </tr>
             </thead>
@@ -145,12 +226,40 @@ async function Availability({
                     <strong>
                       {inventory?.byCategory.find((i) => i.code === code)?.name ?? code}
                     </strong>
+                    <div className="cat-code">{code}</div>
                   </td>
-                  <td className="num">{c.units}</td>
-                  <td className="num">{c.available}</td>
+                  <td>
+                    <div className="occupancy-meter">
+                      <meter
+                        min="0"
+                        max={c.units || 1}
+                        value={c.units - c.available}
+                        aria-label={`Занято ${c.units - c.available} из ${c.units}`}
+                      />
+                      <span>
+                        {c.units - c.available} из {c.units}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="num">
+                    <span className={cx('avail-free', c.available === 0 && 'is-zero')}>
+                      {c.available}
+                    </span>
+                  </td>
+                  <td>
+                    {c.availableUnitCodes.length ? (
+                      <span className="avail-codes" title={c.availableUnitCodes.join(', ')}>
+                        {c.availableUnitCodes.slice(0, 6).join(', ')}
+                        {c.availableUnitCodes.length > 6 && ` +${c.availableUnitCodes.length - 6}`}
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
                   <td>
                     {c.available > 0 ? (
                       <Link
+                        className="btn btn--secondary btn--sm"
                         href={`/reservations/new?${new URLSearchParams({ arrival, departure, unit: c.availableUnitCodes[0] ?? '' })}`}
                       >
                         Создать бронь
@@ -164,7 +273,8 @@ async function Availability({
             </tbody>
           </Table>
           <p className="note">
-            День выезда не входит. При сохранении брони доступность проверяется повторно.
+            День выезда не входит. Место свободно, только если свободно на все ночи периода; при
+            сохранении брони доступность проверяется повторно.
           </p>
           <Link href={`/chessboard?from=${arrival}&to=${departure}`} className="btn btn--secondary">
             Посмотреть на шахматке
@@ -177,9 +287,11 @@ async function Availability({
 
 async function RoomsDirectory() {
   const today = hotelToday();
+  let weekEnd = today;
+  for (let k = 0; k < 6; k++) weekEnd = nextDay(weekEnd);
   const [units, board] = await Promise.all([
     api.inventoryUnits(),
-    chessboardApi.board(today, today).catch(() => null),
+    chessboardApi.board(today, weekEnd).catch(() => null),
   ]);
   return <RoomGrid units={units} board={board} />;
 }

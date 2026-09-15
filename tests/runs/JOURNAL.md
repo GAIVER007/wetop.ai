@@ -421,3 +421,10 @@
 | 15.09.2026 22:11 | lint | ✅ без ошибок | 5 с | c22f3fa +24 | [лог](logs/2026-09-15T17-11-02Z-lint-6f4d.log) |  |
 | 15.09.2026 22:19 | unit | ✅ 809 из 809 | 43 с | c22f3fa +23 | [лог](logs/2026-09-15T17-19-21Z-unit-6112.log) |  |
 | 15.09.2026 22:11 | e2e | ✅ 23 из 23 | 11 мин 46 с | c22f3fa +24 | [лог](logs/2026-09-15T17-11-17Z-e2e-8347.log) |  |
+| 15.09.2026 22:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/premium.spec.ts --workers=1) | ✅ 31 из 31 | 1 мин 29 с | 0785c76 +4 | [лог](logs/2026-09-15T17-25-18Z-e2e-a1b2.log) |  |
+| 15.09.2026 22:27 | e2e | ✅ 23 из 23 | 12 мин 28 с | 0785c76 +4 | [лог](logs/2026-09-15T17-27-03Z-e2e-14c1.log) |  |
+| 16.09.2026 02:55 | unit | ✅ 811 из 811 | 43 с | 0785c76 +13 | [лог](logs/2026-09-15T21-55-33Z-unit-7d2c.log) |  |
+| 16.09.2026 02:56 | typecheck | ✅ без ошибок | 13 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-17Z-typecheck-28f4.log) |  |
+| 16.09.2026 02:56 | lint | ✅ без ошибок | 9 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-31Z-lint-4266.log) |  |
+| 16.09.2026 02:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/premium.spec.ts tests/ui/quality.spec.ts tests/ui/accessibility.spec.t | ❌ упало 4 из 53 | 7 мин 13 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-54Z-e2e-70a3.log) | доступность всех разделов: light, 1440px |
+| 16.09.2026 03:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts --workers=1) | ✅ 8 из 8 | 4 мин 36 с | 0785c76 +13 | [лог](logs/2026-09-15T22-05-32Z-e2e-37cb.log) |  |

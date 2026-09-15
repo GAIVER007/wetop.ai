@@ -5,6 +5,7 @@
  */
 import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { serviceFetch } from '../../lib/service-api';
 const ROOT = resolve(import.meta.dirname, '../../..');
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 console.log('1/3 импорт календаря цен из снимка Exely');
@@ -22,7 +23,7 @@ const clear = {
   closedToArrival: false,
   closedToDeparture: false,
 };
-const res = await fetch(`${API}/rates/bulk`, {
+const res = await serviceFetch(`${API}/rates/bulk`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify({
@@ -37,5 +38,5 @@ const res = await fetch(`${API}/rates/bulk`, {
 });
 console.log(res.status, (await res.text()).slice(0, 200));
 console.log('3/3 полная выгрузка 500 дней');
-const sync = await fetch(`${API}/channels/channex/sync?days=500`, { method: 'POST' });
+const sync = await serviceFetch(`${API}/channels/channex/sync?days=500`, { method: 'POST' });
 console.log(sync.status, (await sync.text()).slice(0, 300));

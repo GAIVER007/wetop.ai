@@ -38,3 +38,13 @@ export async function clearSessionCookie(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
 }
+
+/**
+ * 401 от API при включённом замке значит «сессия кончилась»: ведём человека на экран входа. Пока
+ * `APP_AUTH_REQUIRED` не задан, ничего не делаем — стойка работает без входа, как до 15.09.2026.
+ */
+export async function redirectToLoginIfRequired(): Promise<void> {
+  if (!authRequired()) return;
+  const { redirect } = await import('next/navigation');
+  redirect('/login');
+}

@@ -31,6 +31,7 @@ import {
   type AvailabilityChange,
   type StayAvailabilityState,
 } from './exely/auto-sync';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -235,7 +236,7 @@ try {
 async function queueAvailabilityDelta(change: AvailabilityChange): Promise<boolean> {
   if (!process.env.CHANNEX_API_KEY?.trim()) return true;
   try {
-    const res = await fetch(`${api}/channels/channex/availability/changed`, {
+    const res = await serviceFetch(`${api}/channels/channex/availability/changed`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(change),
@@ -257,7 +258,7 @@ async function fullSyncChannels(): Promise<boolean> {
   try {
     // Глубину решает API (500 дней, сертификация Channex §1); 365 оставалось здесь с 12.09, как и в кнопке стойки.
     // По этой выгрузке с trigger=import сторож видел время синхронизации до записи exely.sync (ADR-032)
-    const res = await fetch(`${api}/channels/channex/sync?trigger=import`, {
+    const res = await serviceFetch(`${api}/channels/channex/sync?trigger=import`, {
       method: 'POST',
     });
     const body = (await res.json()) as {

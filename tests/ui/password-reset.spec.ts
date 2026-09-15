@@ -92,3 +92,20 @@ test('ссылка без ключа объясняет, а не молчит', 
     '/login/reset',
   );
 });
+
+test('журнал показывает, кто сделал действие, и где система', async ({ page }) => {
+  await page.goto('/journal');
+  const rows = page.getByTestId('journal-row');
+
+  await expect(page.getByRole('columnheader', { name: 'Кто' })).toBeVisible();
+  await expect(rows.first()).toContainText('Дана Тестова');
+  await expect(rows.first()).toContainText('заселение');
+
+  // строка без автора — это импорт, сторож или скрипт сверки
+  await expect(rows.nth(2)).toContainText('система');
+});
+
+test('в журнале есть отбор по сотрудникам, и вход в систему там виден', async ({ page }) => {
+  await page.goto('/journal?type=user');
+  await expect(page.getByTestId('journal-row').first()).toContainText('вход в систему');
+});

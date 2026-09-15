@@ -10,6 +10,11 @@ export interface AuditRow {
   action: string;
   /** Короткая сводка без ПД: номер брони / код ячейки, если есть в снимке */
   subject: string | null;
+  /**
+   * Кто это сделал: имя вошедшего сотрудника (ADR-023, DATA_MODEL §13 шаг 1). `null` — система: импорт из
+   * Exely, сторож, скрипт сверки. Почта сотрудника сюда не идёт — на экране довольно имени.
+   */
+  author: string | null;
 }
 
 /** Служебные строки: синхронизация Exely пишет одну каждые 5 минут и вытесняет из журнала действия людей */
@@ -47,6 +52,7 @@ export class AuditService {
       },
       orderBy: { createdAt: 'desc' },
       take: Math.min(Math.max(q.limit ?? 100, 1), 500),
+      include: { user: { select: { fullName: true } } },
     });
     return rows.map((r) => {
       const after = (r.after ?? r.before) as Record<string, unknown> | null;
@@ -64,6 +70,7 @@ export class AuditService {
         entityId: r.entityId,
         action: r.action,
         subject,
+        author: r.user?.fullName ?? null,
       };
     });
   }

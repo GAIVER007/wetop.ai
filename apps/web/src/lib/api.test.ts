@@ -122,3 +122,40 @@ it('обычный режим отвергает demo-заголовок с лю
   );
   await expect(getJsonPublic('/inventory/summary')).rejects.toMatchObject({ status: 503 });
 });
+
+/**
+ * Замок API (ADR-046): пока `APP_AUTH_REQUIRED` не задан, стойка работает как раньше. Когда его включат,
+ * 401 от API значит «сессия кончилась» — человека надо вести на экран входа, а не показывать ему ошибку.
+ * Ответы самого входа исключены: иначе неверный пароль отправлял бы на ту же страницу молча.
+ */
+it('при включённом входе 401 ведёт на экран входа', async () => {
+  vi.stubEnv('APP_AUTH_REQUIRED', '1');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(new Response('{"message":"Войдите в систему"}', { status: 401 })),
+  );
+  await expect(getJsonPublic('/desk/today')).rejects.toThrow(/NEXT_REDIRECT/);
+});
+
+it('пока вход не включён, 401 остаётся обычной ошибкой API', async () => {
+  vi.stubEnv('APP_AUTH_REQUIRED', '');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(new Response('{"message":"Войдите в систему"}', { status: 401 })),
+  );
+  await expect(getJsonPublic('/desk/today')).rejects.toMatchObject({ status: 401 });
+});
+
+it('неверный пароль на входе не превращается в переход на тот же экран', async () => {
+  vi.stubEnv('APP_AUTH_REQUIRED', '1');
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(new Response('{"message":"Неверная почта или пароль"}', { status: 401 })),
+  );
+  const { authApi } = await import('./api');
+  await expect(
+    authApi.login({ email: 'admin@example.invalid', password: 'не тот' }),
+  ).rejects.toMatchObject({ status: 401, message: 'Неверная почта или пароль' });
+});

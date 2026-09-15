@@ -875,17 +875,42 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/events') return [];
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
-  if (path === '/audit')
-    return [
+  if (path === '/audit') {
+    // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
+    const type = q.get('entityType');
+    const entries = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
         entityType: 'Reservation',
         entityId: 'ui-item',
-        action: 'CREATE',
+        action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
+        author: uiUser.fullName,
+      },
+      {
+        id: 'ui-audit-login',
+        at: `${today}T08:00:00Z`,
+        entityType: 'user',
+        entityId: uiUser.id,
+        action: 'user.login',
+        subject: null,
+        author: uiUser.fullName,
+      },
+      {
+        id: 'ui-audit-system',
+        at: `${today}T07:45:00Z`,
+        entityType: 'Property',
+        entityId: 'ui-property',
+        action: 'channex.fullSync',
+        subject: null,
+        // без автора: так ходят импорт, сторож и скрипты сверки
+        author: null,
       },
     ];
+    return type ? entries.filter((e) => e.entityType === type) : entries;
+  }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
   if (path === '/analytics/sites/ui-site')

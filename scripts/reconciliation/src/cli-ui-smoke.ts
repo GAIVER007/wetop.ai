@@ -7,6 +7,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { inspectPage, pageOk, smokeReport, type PageCheck } from './ui-smoke';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 const WEB = process.env.WEB_URL ?? 'http://127.0.0.1:3000';
@@ -14,7 +15,7 @@ const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 const TIMEOUT_MS = 120_000;
 
 const json = async <T>(path: string): Promise<T> => {
-  const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  const res = await serviceFetch(`${API}${path}`, { signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!res.ok) throw new Error(`API ${path}: HTTP ${res.status}`);
   return (await res.json()) as T;
 };

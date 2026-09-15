@@ -75,6 +75,12 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
         : 'Нет связи с API. Проверьте подключение.',
     );
   }
+  // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
+  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046).
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    const { redirectToLoginIfRequired } = await import('./session');
+    await redirectToLoginIfRequired();
+  }
   if (!testing && response.headers.get('x-wetop-data-source') === 'synthetic') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }

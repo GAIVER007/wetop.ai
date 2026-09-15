@@ -380,3 +380,7 @@
 | 14.09.2026 16:27 | unit (частично: apps/api/src/audit) | ✅ 2 из 2 | 1 с | 1aad24e +4 | [лог](logs/2026-09-14T11-27-57Z-unit-e16a.log) | wave 3 green: journal searches the whole history in the database, exely.sync hidden unless asked |
 | 14.09.2026 16:29 | unit (частично: apps/web/src/lib/almaty.test.ts) | ❌ код выхода 1 | 1 с | d6be239 +2 | [лог](logs/2026-09-14T11-29-56Z-unit-6bc5.log) | wave 3 red: payment and refund dates on the booking card are cut from UTC (night payments show yesterday) |
 | 14.09.2026 16:30 | unit (частично: apps/web/src) | ✅ 61 из 61 | 1 с | d6be239 +5 | [лог](logs/2026-09-14T11-30-18Z-unit-28c4.log) | wave 3 green: payment/refund dates by Almaty day; freshness warns after 15 min (sync every 5 min) |
+| 15.09.2026 10:41 | typecheck | ❌ ошибок: 501 | 14 с | 002173a | [лог](logs/2026-09-15T05-41-23Z-typecheck-599a.log) | подключение новой сессии: проверка состояния на чистом клоне (Claude Code web) |
+| 15.09.2026 10:41 | typecheck | ✅ без ошибок | 12 с | 002173a | [лог](logs/2026-09-15T05-41-57Z-typecheck-a714.log) | подключение сессии: чистый клон + prisma generate (Claude Code web) |
+| 15.09.2026 10:42 | lint | ✅ без ошибок | 8 с | 002173a | [лог](logs/2026-09-15T05-42-12Z-lint-dd83.log) | подключение сессии: проверка состояния (Claude Code web) |
+| 15.09.2026 10:42 | unit | ❌ упало 3 из 788 | 1 мин 37 с | 002173a | [лог](logs/2026-09-15T05-42-24Z-unit-0e58.log) | подключение сессии: проверка состояния (Claude Code web) |

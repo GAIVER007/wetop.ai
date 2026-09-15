@@ -10,6 +10,7 @@ import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { weekPeriod } from './week-period';
+import './board.css';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -148,40 +149,43 @@ export default async function ChessboardPage({
         </div>
       }
     >
-      <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
-        <label className="field field--inline">
-          Период
-          <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
-        </label>
-        <span className="muted">—</span>
-        <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
-        <Button tone="secondary" type="submit">
-          Применить
-        </Button>
-        <span className="muted small">Статусы фильтруются на {displayDate(board.from)}</span>
-      </form>
-      <Legend
-        items={[
-          { color: 'var(--st-confirmed)', label: 'подтверждена' },
-          { color: 'var(--st-checked-in)', label: 'заселён' },
-          { color: 'var(--st-checked-out)', label: 'выселен' },
-          { color: 'var(--st-tentative)', label: 'предварительная' },
-          { color: 'var(--st-blocked)', label: 'блокировка' },
-        ]}
-      />
-      <UnassignedStays stays={board.unassigned ?? []} />
+      {/* Одна планка вместо четырёх рядов: период, легенда, «без ячейки», подсказка — сетке остаётся экран */}
+      <div className="board-bar">
+        <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
+          <label className="field field--inline">
+            Период
+            <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
+          </label>
+          <span className="muted">—</span>
+          <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+          <Button tone="secondary" type="submit">
+            Применить
+          </Button>
+        </form>
+        <Legend
+          items={[
+            { color: 'var(--st-confirmed)', label: 'подтверждена' },
+            { color: 'var(--st-checked-in)', label: 'заселён' },
+            { color: 'var(--st-checked-out)', label: 'выселен' },
+            { color: 'var(--st-tentative)', label: 'предварительная' },
+            { color: 'var(--st-blocked)', label: 'блокировка' },
+          ]}
+        />
+        {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
+        <details className="board-help">
+          <summary>Как работать с шахматкой</summary>
+          <p className="note">
+            В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
+            занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
+            открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую
+            строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только
+            на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}. Брони без
+            ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
+          </p>
+        </details>
+      </div>
+      {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
-      <details className="board-help">
-        <summary>Как работать с шахматкой</summary>
-        <p className="note">
-          В строке категории — сколько мест свободно на эту ночь, под датой в шапке — сколько занято
-          из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает
-          бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую строку —
-          бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только на всё
-          проживание). Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка
-          назначается с карточки брони.
-        </p>
-      </details>
     </Page>
   );
 }
@@ -199,9 +203,14 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
     else groups.push({ code: s.categoryCode, name: s.categoryName, items: [s] });
   }
   return (
-    <section data-testid="unassigned-stays" data-count={stays.length} className="board-unassigned">
+    <section
+      data-testid="unassigned-stays"
+      data-count={stays.length}
+      className={cx('board-unassigned', !stays.length && 'board-unassigned--empty')}
+    >
       <div className={cx('board-unassigned-title', stays.length ? 'warn-text' : 'muted')}>
-        <Icon name={stays.length ? 'incidents' : 'check'} /> Без ячейки: {stays.length}
+        <Icon name={stays.length ? 'incidents' : 'check'} />{' '}
+        {stays.length ? `Без ячейки: ${stays.length}` : 'Все проживания с ячейкой'}
       </div>
       {groups.map((g) => (
         <div key={g.code}>

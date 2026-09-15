@@ -115,49 +115,21 @@ export function ChessboardGrid({
   const labels = useMemo(
     () =>
       new Map(
-        board.rows.map((r) => [r.unit.id, new Map(stayLabels(r.cells).map((l) => [l.index, l]))]),
+        board.rows.map((r) => [
+          r.unit.id,
+          new Map(
+            stayLabels(r.cells).map((l) => [
+              l.index,
+              { ...l, lastDate: r.cells[l.index + l.span - 1]!.date },
+            ]),
+          ),
+        ]),
       ),
     [board.rows],
   );
   const dayWidth = board.dates.length > 14 ? 64 : 104;
   return (
     <>
-      <div className="board-filters-row">
-        <div className="seg" aria-label="Тип размещения">
-          {[
-            ['', 'Все единицы'],
-            ['ROOM', 'Номера'],
-            ['BED', 'Койко-места'],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              className={cx('segment-button', kind === id && 'is-on')}
-              aria-pressed={kind === id}
-              onClick={() => setKind(id!)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <div className="board-state-filters" aria-label="Статус на первую дату периода">
-          {[
-            ['all', 'Все'],
-            ['FREE', 'Свободные'],
-            ['OCCUPIED', 'Занятые'],
-            ['cleaning', 'Уборка'],
-            ['BLOCKED', 'Недоступны'],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              className={cx('filter-chip', state === id && 'is-selected')}
-              aria-pressed={state === id}
-              onClick={() => setState(id!)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
       <div className="board-toolbar">
         <Input
           aria-label="Поиск на шахматке"
@@ -177,6 +149,44 @@ export function ChessboardGrid({
             </option>
           ))}
         </Select>
+        <div className="seg" aria-label="Тип размещения">
+          {[
+            ['', 'Все единицы'],
+            ['ROOM', 'Номера'],
+            ['BED', 'Койко-места'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              className={cx('segment-button', kind === id && 'is-on')}
+              aria-pressed={kind === id}
+              onClick={() => setKind(id!)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div
+          className="board-state-filters"
+          aria-label="Статус на первую дату периода"
+          title={`Статус считается на ${board.from}`}
+        >
+          {[
+            ['all', 'Все'],
+            ['FREE', 'Свободные'],
+            ['OCCUPIED', 'Занятые'],
+            ['cleaning', 'Уборка'],
+            ['BLOCKED', 'Недоступны'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              className={cx('filter-chip', state === id && 'is-selected')}
+              aria-pressed={state === id}
+              onClick={() => setState(id!)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <span className="muted small">
           Показано {rows.length} из {board.rows.length} единиц
         </span>
@@ -250,6 +260,12 @@ export function ChessboardGrid({
                 >
                   <div className="board__d">{d.slice(8)}</div>
                   <div className="board__wd">{weekday(d)}</div>
+                  <div
+                    className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
+                    title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
+                  >
+                    {board.summary[d]!.free === 0 ? 'мест нет' : `своб. ${board.summary[d]!.free}`}
+                  </div>
                   <div
                     className="board__occ"
                     title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
@@ -366,7 +382,7 @@ function Cell({
   onDragEnd,
 }: {
   cell: ChessboardCell;
-  label: { span: number; continues: boolean } | undefined;
+  label: { span: number; continues: boolean; lastDate: string } | undefined;
   unitCode: string;
   today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
@@ -383,7 +399,7 @@ function Cell({
     cell.state === 'OCCUPIED'
       ? `${cell.guestLabel ?? 'без имени'} · ${cell.confirmationNumber} · ${
           STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
-        }`
+        }${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
         ? `${BLOCK_RU[cell.blockType ?? ''] ?? cell.blockType}${
             cell.blockReason ? `: ${cell.blockReason}` : ''
@@ -443,7 +459,15 @@ function Cell({
                 style={{ width: `calc(${label.span * 100}% - 12px)` }}
               >
                 {label.continues ? '← ' : ''}
-                {cell.guestLabel || cell.confirmationNumber}
+                <b className="board-stay-glyph" aria-hidden="true">
+                  {STATUS_GLYPH[cell.itemStatus ?? ''] ?? ''}
+                </b>
+                <span className="board-stay-name">
+                  {cell.guestLabel || cell.confirmationNumber}
+                </span>
+                {label.span >= 2 && (
+                  <span className="board-stay-nights">{nights(label.span, label.continues)}</span>
+                )}
               </span>
             )}
           </Link>
@@ -514,6 +538,21 @@ const nextDay = (d: string) => {
   x.setUTCDate(x.getUTCDate() + 1);
   return x.toISOString().slice(0, 10);
 };
+/** Статус видно и без легенды: ✓ заселён, • ждём, ? предварительная, ✕ выселен */
+const STATUS_GLYPH: Record<string, string> = {
+  CONFIRMED: '•',
+  CHECKED_IN: '✓',
+  CHECKED_OUT: '✕',
+  TENTATIVE: '?',
+};
+/** «3 ночи» по видимому отрезку; отрезок, начавшийся до окна, помечен «+» — ночей больше */
+function nights(span: number, continues: boolean): string {
+  const d = span % 10;
+  const h = span % 100;
+  const word =
+    h >= 11 && h <= 14 ? 'ночей' : d === 1 ? 'ночь' : d >= 2 && d <= 4 ? 'ночи' : 'ночей';
+  return `${span}${continues ? '+' : ''} ${word}`;
+}
 const STATUS_BG: Record<string, string> = {
   CONFIRMED: 'var(--st-confirmed)',
   CHECKED_IN: 'var(--st-checked-in)',

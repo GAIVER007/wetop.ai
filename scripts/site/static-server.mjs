@@ -4,7 +4,7 @@
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -28,8 +28,11 @@ export async function serve({ root, port, routes = {} }) {
       res.end(routes[path]);
       return;
     }
+    const base = resolve(root);
     const candidates = [join(root, path), join(root, path, 'index.html'), join(root, `${path.replace(/\/$/, '')}.html`)];
     for (const file of candidates) {
+      // наружу из папки сборки не выходим (`..` в адресе); сервер и так только на loopback, но пусть и не умеет
+      if (!resolve(file).startsWith(base + sep)) continue;
       try {
         if (!(await stat(file)).isFile()) continue;
         res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' });

@@ -74,14 +74,12 @@ function Entry({
 export function Sidebar({
   path,
   close,
-  onAssistant,
   collapsed,
   onCollapse,
   property,
 }: {
   path: string;
   close?: () => void;
-  onAssistant: () => void;
   collapsed?: boolean;
   onCollapse?: () => void;
   property?: PropertyIdentity | null;
@@ -140,21 +138,6 @@ export function Sidebar({
         <div className="sidebar-freshness">
           <DataFreshness />
         </div>
-        <button
-          className="assistant-launch"
-          onClick={() => {
-            close?.();
-            onAssistant();
-          }}
-          title="AI Assistant"
-        >
-          <span className="ai-orb" aria-hidden="true" />
-          <span>
-            <strong>AI Assistant</strong>
-            <small>Помощник вашей смены</small>
-          </span>
-          <Icon name="arrow" width={16} />
-        </button>
         <Link href="/profile" className="workspace-footer" onClick={() => close?.()}>
           <span className="desk-avatar">АД</span>
           <div>

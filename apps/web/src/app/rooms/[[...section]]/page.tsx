@@ -6,7 +6,7 @@ import { api, chessboardApi, reservationsApi } from '../../../lib/api';
 import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
-import { SectionCards, FeaturePending } from '../../../components/section-cards';
+import { SectionCards } from '../../../components/section-cards';
 import { Alert, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
 
 export default async function RoomsPage({
@@ -36,17 +36,6 @@ export default async function RoomsPage({
       {section[0] === 'categories' && <Categories />}
       {section[0] === 'availability' && (
         <Availability arrival={sp.arrival ?? hotelToday()} departure={sp.departure} />
-      )}
-      {section[0] === 'promotions' && (
-        <>
-          <FeaturePending
-            icon="rates"
-            text="Акции и промокоды пока недоступны. Цены можно изменить в тарифах."
-          />
-          <Link className="btn btn--secondary" href="/rates">
-            Открыть тарифы
-          </Link>
-        </>
       )}
     </Page>
   );

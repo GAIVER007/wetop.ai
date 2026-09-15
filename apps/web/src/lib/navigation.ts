@@ -73,13 +73,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             icon: 'rates',
             description: 'Календарь цен, ограничения и массовое редактирование.',
           },
-          {
-            href: '/rooms/promotions',
-            label: 'Акции',
-            icon: 'rates',
-            description: 'Специальные предложения и скидки.',
-            pending: true,
-          },
         ],
       },
       {
@@ -128,30 +121,10 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/management',
-        label: 'Управление отелем',
-        icon: 'inventory',
-        description: 'Показатели объекта и операционная отчётность.',
-        children: [
-          {
-            href: '/management/statistics',
-            label: 'Статистика',
-            icon: 'analytics',
-            description: 'Занятые, свободные и заблокированные места по категориям.',
-          },
-          {
-            href: '/management/reports',
-            label: 'Отчёты',
-            icon: 'journal',
-            description: 'Финансы, продажи по каналам и журнал действий.',
-          },
-          {
-            href: '/management/analytics',
-            label: 'Аналитика отеля',
-            icon: 'analytics',
-            description: 'Загрузка, продажи и привлечение гостей.',
-          },
-        ],
+        href: '/management/statistics',
+        label: 'Статистика',
+        icon: 'analytics',
+        description: 'Занятые, свободные и заблокированные места по категориям.',
       },
       {
         href: '/finance',
@@ -184,23 +157,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'analytics',
         description: 'Посещаемость сайта, источники трафика и бронирования.',
       },
-      {
-        href: '/marketing',
-        label: 'Маркетинг',
-        icon: 'rates',
-        description: 'Сайты, модуль бронирования и источники привлечения.',
-      },
     ],
   },
   {
     label: 'Система',
     items: [
-      {
-        href: '/messages',
-        label: 'Сообщения',
-        icon: 'messages',
-        description: 'Связь с гостями и история переписки.',
-      },
       {
         href: '/connections',
         label: 'Интеграции',

@@ -407,3 +407,4 @@
 | 14.09.2026 23:40 | lint | ✅ без ошибок | 10 с | 01aa2ad +17 | [лог](logs/2026-09-14T18-40-31Z-lint-53cd.log) | design system steps 3-4 |
 | 14.09.2026 23:40 | unit | ❌ упало 3 из 814 | 1 мин 32 с | 01aa2ad +15 | [лог](logs/2026-09-14T18-40-42Z-unit-46ed.log) | design system steps 3-4: state tokens, money format, dev-only guard (launchd tests need macOS) |
 | 14.09.2026 23:42 | typecheck | ✅ без ошибок | 14 с | 01aa2ad +17 | [лог](logs/2026-09-14T18-42-42Z-typecheck-a8ad.log) | design system steps 3-4 |
+| 15.09.2026 10:10 | unit | ❌ упало 3 из 825 | 1 мин 32 с | e0e56bb +2 | [лог](logs/2026-09-15T05-10-11Z-unit-935f.log) | сторож ИИ-слопа design-slop.test.ts (шаг 8), снимок нарушений |

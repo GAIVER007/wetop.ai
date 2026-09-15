@@ -907,6 +907,104 @@ resolved_by       GUARD (исчезла после починки или сам�
 
 ---
 
+## 13. Учётные записи и регистрация (v1.5 — принят 15.09.2026, срез 13, ADR-046)
+
+Появляется из ADR-046. Существующие таблицы разделов 1–12 не меняются: разделение данных по
+организациям это отдельный срез, до него пробный период пускает в демо-объект, а не в живой.
+
+Общие правила раздела:
+
+- почта хранится в нижнем регистре, сравнение по нормализованной форме, уникальность по ней же;
+- `code_hash` и `token_hash` только хеши (SHA-256 с солью из `.env`), открытых кодов и токенов в базе нет;
+- время в UTC `timestamptz`, как в AGENTS.md §13;
+- удаления строк нет, вместо удаления `status`;
+- лимиты запроса кода: 5 в час на почту, 20 в час с адреса; адрес посетителя из `CF-Connecting-IP` и
+  только от loopback, как в срезе 9 (`SECURITY.md` §11).
+
+### 13.1. `organizations` — арендатор
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `name` | `varchar(200)` NOT NULL | название, вводит человек при регистрации |
+| `status` | `varchar(16)` NOT NULL | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED` |
+| `trial_ends_at` | `timestamptz` | срок пробного периода, 7 суток от создания |
+| `created_at` | `timestamptz` NOT NULL | |
+
+CHECK: `status IN ('TRIAL','ACTIVE','READ_ONLY','SUSPENDED')`.
+
+### 13.2. `users` — человек
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `email` | `varchar(320)` NOT NULL UNIQUE | нижний регистр |
+| `name` | `varchar(200)` | необязательно |
+| `status` | `varchar(16)` NOT NULL | `ACTIVE`, `BLOCKED` |
+| `created_at` | `timestamptz` NOT NULL | |
+| `last_login_at` | `timestamptz` | |
+
+### 13.3. `memberships` — человек в организации
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `user_id` | `uuid` FK → `users` | |
+| `organization_id` | `uuid` FK → `organizations` | |
+| `created_at` | `timestamptz` NOT NULL | |
+
+PK составной (`user_id`, `organization_id`). Ролей нет намеренно: ADR-023 в этой части в силе.
+
+### 13.4. `login_codes` — одноразовые коды входа
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `email` | `varchar(320)` NOT NULL | нижний регистр |
+| `code_hash` | `varchar(64)` NOT NULL | шесть цифр, хеш |
+| `expires_at` | `timestamptz` NOT NULL | 10 минут |
+| `attempts` | `smallint` NOT NULL DEFAULT 0 | потолок 3 |
+| `used_at` | `timestamptz` | одноразовость |
+| `requested_ip` | `varchar(45)` | для лимитов, не для профилирования |
+| `created_at` | `timestamptz` NOT NULL | |
+
+Индекс по (`email`, `created_at`) для лимитов. Код действителен, пока `used_at IS NULL`,
+`attempts < 3` и `now() < expires_at`.
+
+### 13.5. `sessions` — активные сессии
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | значение в куке это подписанный идентификатор, не сам id |
+| `user_id` | `uuid` FK → `users` | |
+| `organization_id` | `uuid` FK → `organizations` | выбранная организация |
+| `issued_at` | `timestamptz` NOT NULL | |
+| `expires_at` | `timestamptz` NOT NULL | 30 суток, продление при активности |
+| `user_agent` | `varchar(400)` | для списка «где я вошёл» |
+| `revoked_at` | `timestamptz` | «выйти везде» проставляет всем строкам пользователя |
+
+Кука `HttpOnly`, `Secure`, `SameSite=Lax`.
+
+### 13.6. `invites` — приглашения в организацию
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `organization_id` | `uuid` FK → `organizations` | |
+| `email` | `varchar(320)` NOT NULL | кого зовут |
+| `token_hash` | `varchar(64)` NOT NULL | хеш ссылки |
+| `expires_at` | `timestamptz` NOT NULL | 7 суток |
+| `accepted_at` | `timestamptz` | |
+| `created_by` | `uuid` FK → `users` | |
+| `created_at` | `timestamptz` NOT NULL | |
+
+### 13.7. Что этот раздел не вводит
+
+Ролей и прав (ADR-023), паролей, двухфакторной аутентификации, SSO, биллинга, удаления организаций,
+`organization_id` в таблицах броней, гостей, счетов и тарифов. Последнее это отдельный срез, и до него
+пробный период не даёт доступа к данным живого объекта.
+
+---
+
 ## Чего в модели нет и почему
 
 | Область                                                   | Решение                                                          |

@@ -1,0 +1,162 @@
+/*
+ * «Управление номерами», «Категории», «Доступность» — правка по замечанию владельца 15.09.2026
+ * («удобнее и круче»). Хаб: четыре плитки-ссылки ужаты в строку, карточки номеров стали компактнее
+ * и говорят главное — кто живёт и до какого числа, а свободный — до какого числа свободен.
+ * Категории: живая загрузка на сегодня с полосой. Доступность: быстрые даты, какие именно места свободны.
+ */
+
+/* ── хаб: ссылки строкой ── */
+.rooms-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 16px;
+}
+.rooms-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 13px;
+}
+.rooms-link svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+}
+.rooms-link:hover {
+  border-color: var(--primary);
+  text-decoration: none;
+}
+
+/* ── карточки номеров: компактнее, с главным ── */
+.room-cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr));
+  gap: 8px;
+}
+.room-card {
+  padding: 16px 16px;
+}
+.room-card-top {
+  gap: 8px;
+}
+.room-card-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.room-card-code svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+.room-card-cat {
+  margin: 8px 0 4px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.room-card-note {
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--text);
+}
+.room-card[data-state='FREE'] .room-card-note {
+  color: var(--success);
+}
+.room-card[data-state='BLOCKED'] .room-card-note {
+  color: var(--warning);
+}
+.room-card-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 12px;
+  color: var(--muted);
+}
+.room-cards--list .room-card {
+  grid-template-columns: 120px 1.4fr 1.6fr 1fr;
+  padding: 8px 16px;
+}
+.room-cards--list .room-card-cat,
+.room-cards--list .room-card-note {
+  margin: 0;
+}
+.room-cards--list .room-card-footer {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.room-directory-head {
+  margin: 8px 0 16px;
+}
+
+/* ── категории: код мелко, полоса загрузки, действия ── */
+.cat-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.cat-today {
+  white-space: nowrap;
+  font-size: 12px;
+}
+.cat-today b {
+  color: var(--success);
+}
+.cat-today b.is-zero {
+  color: var(--danger);
+}
+.rooms-actions a {
+  margin-right: 16px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ── доступность: быстрые даты, свободные места ── */
+.avail-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: -8px 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.avail-presets a {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.avail-presets a.is-on {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.avail-presets a:hover {
+  text-decoration: none;
+  border-color: var(--primary);
+}
+.avail-free {
+  font-weight: 700;
+  color: var(--success);
+}
+.avail-free.is-zero {
+  color: var(--danger);
+}
+.avail-codes {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}

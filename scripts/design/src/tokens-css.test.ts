@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { build, CONTRAST_MD, TOKENS_CSS } from './build-tokens';
 
 /**
- * tokens.css только генерируется (ADR-046). Тест был красным, пока файл был написан руками
+ * tokens.css только генерируется (ADR-047). Тест был красным, пока файл был написан руками
  * (14.09.2026, журнал тестов), и снова станет красным после любой ручной правки.
  */
 describe('tokens.css и contrast.md сгенерированы из design/tokens.json', () => {

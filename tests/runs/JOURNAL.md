@@ -510,3 +510,22 @@
 | 16.09.2026 03:27 | typecheck | ✅ без ошибок | 24 с | 5cf7755 +15 | [лог](logs/2026-09-15T22-27-24Z-typecheck-45fa.log) |  |
 | 16.09.2026 03:27 | lint | ✅ без ошибок | 13 с | 5cf7755 +15 | [лог](logs/2026-09-15T22-27-49Z-lint-36ac.log) |  |
 | 16.09.2026 03:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 115 из 115 | 13 мин 58 с | 8433c13 | [лог](logs/2026-09-15T22-28-52Z-e2e-4195.log) | Изолированный UI на коде после слияния main |
+| 15.09.2026 22:00 | unit | ✅ 809 из 809 | 42 с | c22f3fa +19 | [лог](logs/2026-09-15T17-00-54Z-unit-821f.log) |  |
+| 15.09.2026 22:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/premium.spec.ts tests/ui/quality.spec.ts tests/ui/accessibility.spec.t | ❌ упало 4 из 53 | 4 мин 16 с | c22f3fa +23 | [лог](logs/2026-09-15T17-02-59Z-e2e-fd17.log) | доступность всех разделов: light, 1440px |
+| 15.09.2026 22:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts --workers=1) | ✅ 8 из 8 | 2 мин 14 с | c22f3fa +24 | [лог](logs/2026-09-15T17-08-21Z-e2e-55b1.log) |  |
+| 15.09.2026 22:10 | typecheck | ✅ без ошибок | 9 с | c22f3fa +24 | [лог](logs/2026-09-15T17-10-53Z-typecheck-788c.log) |  |
+| 15.09.2026 22:11 | lint | ✅ без ошибок | 5 с | c22f3fa +24 | [лог](logs/2026-09-15T17-11-02Z-lint-6f4d.log) |  |
+| 15.09.2026 22:19 | unit | ✅ 809 из 809 | 43 с | c22f3fa +23 | [лог](logs/2026-09-15T17-19-21Z-unit-6112.log) |  |
+| 15.09.2026 22:11 | e2e | ✅ 23 из 23 | 11 мин 46 с | c22f3fa +24 | [лог](logs/2026-09-15T17-11-17Z-e2e-8347.log) |  |
+| 15.09.2026 22:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/premium.spec.ts --workers=1) | ✅ 31 из 31 | 1 мин 29 с | 0785c76 +4 | [лог](logs/2026-09-15T17-25-18Z-e2e-a1b2.log) |  |
+| 15.09.2026 22:27 | e2e | ✅ 23 из 23 | 12 мин 28 с | 0785c76 +4 | [лог](logs/2026-09-15T17-27-03Z-e2e-14c1.log) |  |
+| 16.09.2026 02:55 | unit | ✅ 811 из 811 | 43 с | 0785c76 +13 | [лог](logs/2026-09-15T21-55-33Z-unit-7d2c.log) |  |
+| 16.09.2026 02:56 | typecheck | ✅ без ошибок | 13 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-17Z-typecheck-28f4.log) |  |
+| 16.09.2026 02:56 | lint | ✅ без ошибок | 9 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-31Z-lint-4266.log) |  |
+| 16.09.2026 02:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/premium.spec.ts tests/ui/quality.spec.ts tests/ui/accessibility.spec.t | ❌ упало 4 из 53 | 7 мин 13 с | 0785c76 +13 | [лог](logs/2026-09-15T21-56-54Z-e2e-70a3.log) | доступность всех разделов: light, 1440px |
+| 16.09.2026 03:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts --workers=1) | ✅ 8 из 8 | 4 мин 36 с | 0785c76 +13 | [лог](logs/2026-09-15T22-05-32Z-e2e-37cb.log) |  |
+| 16.09.2026 04:37 | unit | ❌ упало 9 из 882, пропущено 7 | 42 с | eac13f5 +36 | [лог](logs/2026-09-15T23-37-41Z-unit-a9f2.log) | design: сторож ИИ-слопа (DESIGN.md §15) color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css |
+| 16.09.2026 04:40 | unit | ❌ упало 1 из 882, пропущено 7 | 42 с | eac13f5 +37 | [лог](logs/2026-09-15T23-40-31Z-unit-eb9f.log) | переменные CSS стойки используются только токены или локально объявленные переменные |
+| 16.09.2026 04:41 | unit | ✅ 875 из 882, пропущено 7 | 42 с | eac13f5 +37 | [лог](logs/2026-09-15T23-41-19Z-unit-2525.log) |  |
+| 16.09.2026 04:42 | typecheck | ✅ без ошибок | 21 с | eac13f5 +42 | [лог](logs/2026-09-15T23-42-06Z-typecheck-31af.log) |  |
+| 16.09.2026 04:42 | lint | ✅ без ошибок | 14 с | eac13f5 +42 | [лог](logs/2026-09-15T23-42-28Z-lint-1e07.log) |  |

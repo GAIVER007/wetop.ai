@@ -50,7 +50,6 @@ test('все разделы, карточки и печать открывают
     ['/rooms', 'Управление номерами'],
     ['/rooms/categories', 'Категории номеров'],
     ['/rooms/availability', 'Доступность номеров'],
-    ['/rooms/promotions', 'Акции'],
     ['/hotel-settings', 'Настройка гостиницы'],
     ['/hotel-settings/check-in', 'Заезд и выезд'],
     ['/hotel-settings/penalties', 'Штрафы'],
@@ -58,13 +57,9 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/description', 'Описание'],
     ['/hotel-settings/photos', 'Фото'],
     ['/hotel-settings/amenities', 'Удобства'],
-    ['/management', 'Управление отелем'],
     ['/management/statistics', 'Статистика'],
-    ['/management/reports', 'Отчёты'],
-    ['/management/analytics', 'Аналитика отеля'],
     ['/channel-manager', 'Менеджер каналов'],
     ['/connections', 'Подключения API'],
-    ['/marketing', 'Маркетинг'],
   ];
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -173,9 +168,6 @@ test('подключения показывают частичный сбой, �
     'Не удалось проверить webhook',
   );
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
-  await page.goto('/rooms/promotions');
-  await expect(page.getByText('Ещё не подключено', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
   await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
@@ -543,8 +535,6 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByTestId('booking-enabled').uncheck();
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
-  await page.goto('/marketing');
-  await expect(page.getByRole('main')).toContainText('updated.example.invalid');
   await page.goto('/analytics/setup');
   await page.getByTestId('site-delete').click();
   await page.getByRole('dialog').getByRole('button', { name: 'Удалить сайт' }).click();
@@ -596,8 +586,6 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.getByTestId(id)).toHaveText('0,00 ₸');
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
-  await page.goto('/marketing');
-  for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   for (const route of [
     '/today',
@@ -605,7 +593,6 @@ test('пустые ответы дают нули; сбой API не выдаё�
     '/rooms',
     '/finance',
     '/channel-manager',
-    '/marketing',
   ]) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');

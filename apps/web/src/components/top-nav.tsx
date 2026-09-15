@@ -5,7 +5,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
 import { Sidebar, type PropertyIdentity } from './shell/sidebar';
 import { GlobalSearch } from './shell/search';
-import { ShellAssistant } from './shell/assistant';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
@@ -22,8 +21,6 @@ export function TopNav({
   const path = usePathname() ?? '';
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [assistant, setAssistant] = useState(false);
-  const [notifications, setNotifications] = useState(false);
   const [profile, setProfile] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { setTheme } = useTheme();
@@ -72,7 +69,6 @@ export function TopNav({
         <Sidebar
           property={property}
           path={path}
-          onAssistant={() => setAssistant(true)}
           collapsed={collapsed}
           onCollapse={collapse}
         />
@@ -114,13 +110,6 @@ export function TopNav({
             >
               <Icon name="sun" className="theme-sun" />
               <Icon name="moon" className="theme-moon" />
-            </button>
-            <button
-              className="icon-button"
-              aria-label="Уведомления"
-              onClick={() => setNotifications(true)}
-            >
-              <Icon name="bell" />
             </button>
             <div className="profile-menu">
               <button
@@ -207,12 +196,9 @@ export function TopNav({
           property={property}
           path={path}
           close={() => setMenu(false)}
-          onAssistant={() => setAssistant(true)}
         />
       </Overlay>
       <GlobalSearch open={search} close={() => setSearch(false)} />
-      <ShellAssistant open={assistant} close={() => setAssistant(false)} />
-      <ShellAssistant open={notifications} close={() => setNotifications(false)} notifications />
     </div>
   );
 }

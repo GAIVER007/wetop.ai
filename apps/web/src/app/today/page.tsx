@@ -7,7 +7,7 @@ import { DayAttention } from './day-attention';
 import { Icon, type IconName } from '../../components/icon';
 import { Page } from '../../components/page';
 import { Button, Input } from '../../components/ui';
-import { AIInsightCard, QuickActions, OccupancyCharts, HotelClock } from './dashboard-widgets';
+import { QuickActions, OccupancyRing, HotelClock } from './dashboard-widgets';
 import { displayDate } from '../../lib/display-date';
 
 /** Рабочий пульт стойки. Показатели целиком из DeskDay, без придуманных сравнений/процентов. */
@@ -126,10 +126,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </aside>
       </div>
       <div className="dashboard-action-row">
-        <AIInsightCard day={day} />
         <QuickActions day={day} />
+        <OccupancyRing board={board} date={day.date} />
       </div>
-      <OccupancyCharts board={board} date={day.date} />
       <DayWorkspace day={day} />
     </Page>
   );

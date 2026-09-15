@@ -424,14 +424,24 @@ function Grid({
                     data-date={d}
                     scope="col"
                     aria-label={`${displayDay(d)}, ${weekday(d)}${d === today ? ', сегодня' : ''}, свободно ${free} из ${board.rows.length}`}
-                    className={cx(d === today && 'is-today')}
+                    className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                   >
                     <div className="board__d">{d.slice(8)}</div>
                     <div className="board__wd">{weekday(d)}</div>
                     {d === today && <div className="board__today-word">сегодня</div>}
-                    <div className="board__occ">
-                      {/* В testid — число свободных: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
-                      <span data-testid={`free-${d}`}>{free}</span>
+                    {/* Свободно — то число, которым смена продаёт; в testid только оно (tests/e2e/chessboard.spec.ts) */}
+                    <div
+                      className={cx('board__free-count', free === 0 && 'is-full')}
+                      title={free === 0 ? `мест нет на ночь ${d}` : `свободно ${free} на ночь ${d}`}
+                    >
+                      своб. <span data-testid={`free-${d}`}>{free}</span>
+                    </div>
+                    <div
+                      className="board__occ"
+                      title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
+                    >
+                      {/* Занято читает сквозная сверка слоёв (scripts/reconciliation/src/cli-system-trace.ts) */}
+                      <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
                       <span className="board-occ-total"> / {board.rows.length}</span>
                     </div>
                   </th>
@@ -474,6 +484,7 @@ function Grid({
                         key={d}
                         className={cx(
                           'board__group-free',
+                          isWeekend(d) && 'is-we',
                           d === today && 'is-today',
                           free === 0 && 'is-full',
                         )}
@@ -773,7 +784,11 @@ function Cell({
   const tailRounded = !!last?.isLastNight;
   return (
     <td
-      className={cx('board__cell', cell.date === today && 'is-today')}
+      className={cx(
+        'board__cell',
+        cell.date === today && 'is-today',
+        isWeekend(cell.date) && 'is-we',
+      )}
       data-state={cell.state}
       data-status={cell.itemStatus}
       data-date={cell.date}
@@ -837,6 +852,11 @@ function Cell({
               {status && (
                 <span className="board-stay-caption__status" data-testid="stay-status">
                   {status.word}
+                </span>
+              )}
+              {label.span >= 2 && (
+                <span className="board-stay-caption__nights">
+                  {nights(label.span, label.continues)}
                 </span>
               )}
               {source && label.span >= CHANNEL_BADGE_FROM_NIGHTS && (
@@ -972,6 +992,18 @@ function groupByCategory(rows: ChessboardRow[]) {
 
 const weekday = (d: string) =>
   ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][new Date(`${d}T00:00:00Z`).getUTCDay()];
+const isWeekend = (d: string) => {
+  const n = new Date(`${d}T00:00:00Z`).getUTCDay();
+  return n === 0 || n === 6;
+};
+/** «3 ночи» по видимому отрезку; отрезок, начавшийся до окна, помечен «+» — ночей больше */
+function nights(span: number, continues: boolean): string {
+  const d = span % 10;
+  const h = span % 100;
+  const word =
+    h >= 11 && h <= 14 ? 'ночей' : d === 1 ? 'ночь' : d >= 2 && d <= 4 ? 'ночи' : 'ночей';
+  return `${span}${continues ? '+' : ''} ${word}`;
+}
 const nextDay = (d: string) => {
   const x = new Date(`${d}T00:00:00Z`);
   x.setUTCDate(x.getUTCDate() + 1);

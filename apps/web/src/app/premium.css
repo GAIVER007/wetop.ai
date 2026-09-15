@@ -212,32 +212,6 @@ time {
 .sidebar-bottom {
   padding-top: 24px;
 }
-.assistant-launch {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 16px 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--surface-muted);
-  gap: 8px;
-  text-align: left;
-}
-.assistant-launch strong {
-  display: block;
-  font-size: 12px;
-  font-weight: 650;
-}
-.assistant-launch small {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 4px;
-}
-.assistant-launch > svg {
-  margin-left: auto;
-  color: var(--muted);
-}
 .ai-orb {
   display: inline-block;
   flex: none;
@@ -810,49 +784,6 @@ select.inp {
 .mobile-navigation .workspace-links {
   flex: none;
 }
-.assistant-intro {
-  padding: 24px 0;
-  text-align: center;
-}
-.ai-orb--large {
-  width: 56px;
-  height: 56px;
-}
-.assistant-intro h3 {
-  font-size: 20px;
-  margin-bottom: 8px;
-}
-.assistant-intro p,
-.assistant-footer {
-  color: var(--muted);
-  font-size: 12px;
-}
-.assistant-facts {
-  display: grid;
-  gap: 8px;
-}
-.assistant-facts > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface-muted);
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  font-size: 12px;
-}
-.assistant-facts svg {
-  color: var(--primary);
-  width: 16px;
-}
-.assistant-facts span {
-  color: var(--muted);
-}
-.assistant-prompts {
-  display: grid;
-  gap: 8px;
-  margin: 24px 0;
-}
 .assistant-results > a {
   display: flex;
   align-items: center;
@@ -872,13 +803,6 @@ select.inp {
 }
 .assistant-results > a > svg {
   margin-left: auto;
-}
-.assistant-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  font-size: 12px;
 }
 .round-icon {
   width: 34px;
@@ -918,9 +842,7 @@ select.inp {
 .is-collapsed .workspace-link span,
 .is-collapsed .nav-toggle,
 .is-collapsed .nav-children,
-.is-collapsed .workspace-footer,
-.is-collapsed .assistant-launch > span:not(.ai-orb),
-.is-collapsed .assistant-launch > svg {
+.is-collapsed .workspace-footer {
   display: none;
 }
 .is-collapsed .brand-row {
@@ -934,10 +856,6 @@ select.inp {
 .is-collapsed .workspace-link {
   justify-content: center;
   height: 42px;
-}
-.is-collapsed .assistant-launch {
-  justify-content: center;
-  padding: 8px 0;
 }
 .is-collapsed .workspace-links > div {
   margin-bottom: 16px;
@@ -1226,7 +1144,6 @@ select.inp {
 }
 .upcoming-card,
 .quick-actions-card,
-.ai-insight-card,
 .chart-card {
   min-width: 0;
   border: 1px solid var(--border);
@@ -1381,52 +1298,9 @@ select.inp {
 }
 .dashboard-action-row {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 16px;
   margin-bottom: 16px;
-}
-.ai-insight-card {
-  padding: 24px;
-  background: linear-gradient(125deg, var(--surface), var(--primary-soft));
-}
-.ai-insight-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.ai-insight-title h2 {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0;
-}
-.ai-insight-title div > span {
-  color: var(--muted);
-  font-size: 12px;
-}
-.ai-insight-title > .badge {
-  margin-left: auto;
-  font-size: 12px;
-}
-.ai-insight-card p {
-  color: var(--text-2);
-  font-size: 12px;
-  line-height: 1.8;
-  margin: 16px 0;
-}
-.ai-insight-card p strong {
-  font-weight: 600;
-  color: var(--text);
-}
-.ai-open {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: 0;
-  color: var(--primary);
-  font-size: 12px;
-  padding: 0;
-  font-weight: 550;
 }
 .quick-actions-grid {
   display: grid;
@@ -1462,12 +1336,6 @@ select.inp {
   color: var(--primary);
   border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
   background: var(--primary-soft);
-}
-.dashboard-charts {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 16px;
-  margin-bottom: 24px;
 }
 .occupancy-content {
   display: flex;
@@ -1549,17 +1417,6 @@ select.inp {
 .legend-gray {
   background: var(--muted);
 }
-.chart-caption {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.occupancy-chart {
-  height: 170px;
-  margin: 0 24px 16px;
-}
 .day-workspace {
   overflow: hidden;
 }
@@ -1617,9 +1474,6 @@ select.inp {
 @media (max-width: 760px) {
   .operations-grid,
   .dashboard-action-row,
-  .dashboard-charts {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .operations-grid > .attention-card {
     grid-column: auto;
   }
@@ -2337,70 +2191,6 @@ select.inp {
   align-items: center;
   font-size: 12px;
 }
-.messages-workspace {
-  display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  min-height: 560px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.messages-list {
-  padding: 24px;
-  border-right: 1px solid var(--border);
-}
-.messages-list .directory-meta {
-  margin-top: 24px;
-}
-.message-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 16px 8px;
-  text-align: left;
-  background: none;
-  border: 0;
-  border-radius: var(--radius-control);
-}
-.message-item.is-selected {
-  background: var(--primary-soft);
-}
-.message-item > span:last-child {
-  min-width: 0;
-}
-.message-item strong,
-.message-item small {
-  display: block;
-  font-size: 12px;
-}
-.message-item small {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 4px;
-}
-.message-content {
-  padding: 24px;
-  min-width: 0;
-}
-.message-content > .empty-state {
-  min-height: 480px;
-}
-.message-bubble {
-  padding: 16px 24px;
-  background: var(--primary-soft);
-  color: var(--text);
-  border-radius: var(--radius-control) var(--radius-control) var(--radius-control) 0;
-  white-space: pre-wrap;
-  margin-bottom: 32px;
-}
-.message-actions {
-  margin: 24px 0;
-}
 @media (max-width: 760px) {
   .login-page {
     grid-template-columns: 1fr;
@@ -2420,19 +2210,6 @@ select.inp {
   }
   .login-form-panel {
     padding: 32px 24px 48px;
-  }
-  .messages-workspace {
-    grid-template-columns: 1fr;
-  }
-  .messages-list {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .message-content {
-    padding: 16px;
-  }
-  .message-content > .empty-state {
-    min-height: 300px;
   }
 }
 /* Keep contiguous stay segments visually joined while every night remains draggable. */

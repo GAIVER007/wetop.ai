@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { reservationDirectory, hotelToday, reservationStatuses } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { StatusBadge, Table } from '../../components/ui';
+import { messengerLinks } from '../../lib/api';
+import { displayDate } from '../../lib/display-date';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
   const data = await reservationDirectory({ from: hotelToday(), to: hotelToday(), status });
   const rows = [
@@ -27,49 +30,80 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
         <span>Гости с проживанием на сегодня</span>
         <Link href="/reservations">Все бронирования</Link>
       </div>
-      <Table>
+      {/* Одна строка на гостя: имя, как связаться, где живёт, когда, статус, бронь — без email и аватаров */}
+      <Table className="dir-table" nowrap>
         <thead>
           <tr>
-            {['Гость', 'Телефон', 'Email', 'Номер', 'Статус', 'Заезд', 'Выезд', 'Бронирование'].map(
-              (h) => (
-                <th key={h}>{h}</th>
-              ),
-            )}
+            <th>Гость</th>
+            <th>Телефон</th>
+            <th>Место</th>
+            <th>Проживание</th>
+            <th>Статус</th>
+            <th>Бронь</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.primaryGuest!.id}>
-              <td>
-                <Link
-                  className="directory-guest"
-                  href={`/guests/${encodeURIComponent(r.primaryGuest!.id)}`}
-                >
-                  <span className="guest-initials">
-                    {r
-                      .primaryGuest!.label.split(' ')
-                      .slice(0, 2)
-                      .map((n) => n[0])
-                      .join('')}
-                  </span>
-                  <strong>{r.primaryGuest!.label}</strong>
-                </Link>
-              </td>
-              <td>{r.primaryGuest!.phone || '—'}</td>
-              <td>{r.primaryGuest!.email || '—'}</td>
-              <td>{r.unitCodes.join(', ') || '—'}</td>
-              <td>
-                <StatusBadge status={r.status} label={reservationStatuses[r.status] || r.status} />
-              </td>
-              <td>{r.arrivalDate}</td>
-              <td>{r.departureDate}</td>
-              <td>
-                <Link href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}>
-                  {r.confirmationNumber}
-                </Link>
-              </td>
-            </tr>
-          ))}
+          {rows.map((r) => {
+            const nights = nightsBetween(r.arrivalDate, r.departureDate);
+            const wa = messengerLinks(r.primaryGuest!.phone);
+            return (
+              <tr key={r.primaryGuest!.id}>
+                <td>
+                  <Link
+                    className="directory-guest dir-guest"
+                    href={`/guests/${encodeURIComponent(r.primaryGuest!.id)}`}
+                  >
+                    <strong>{r.primaryGuest!.label}</strong>
+                  </Link>
+                </td>
+                <td className="dir-phone">
+                  <span>{r.primaryGuest!.phone || '—'}</span>
+                  {wa && (
+                    <a
+                      className="dir-wa"
+                      href={wa.whatsapp}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`WhatsApp: ${r.primaryGuest!.label}`}
+                    >
+                      WA
+                    </a>
+                  )}
+                </td>
+                <td>
+                  {r.unitCodes.length ? (
+                    <span className="dir-unit">
+                      <Icon name="bed" />
+                      {r.unitCodes.join(', ')}
+                    </span>
+                  ) : (
+                    <span className="warn-text">не назначено</span>
+                  )}
+                </td>
+                <td className="dir-stay">
+                  <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                  {' → '}
+                  <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                  {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+                </td>
+                <td>
+                  <StatusBadge
+                    status={r.status}
+                    label={reservationStatuses[r.status] || r.status}
+                  />
+                </td>
+                <td>
+                  <Link
+                    className="dir-number"
+                    href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+                    aria-label={`Открыть бронь ${r.confirmationNumber}`}
+                  >
+                    {r.confirmationNumber}
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
       {!rows.length && (

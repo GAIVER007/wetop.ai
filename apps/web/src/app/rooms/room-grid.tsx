@@ -1,22 +1,33 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { Chessboard, InventoryUnit } from '../../lib/api';
+import type { Chessboard, ChessboardCell, InventoryUnit } from '../../lib/api';
 import { Icon } from '../../components/icon';
 import { Input, StatusBadge } from '../../components/ui';
+import { displayDate } from '../../lib/display-date';
+
+/**
+ * Карточки номеров и коек. Доска на неделю от сегодня даёт каждой карточке главное для стойки:
+ * занят — кем и до какого числа, свободен — до какого числа (или «7+ ночей»), закрыт — почему.
+ */
 export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Chessboard | null }) {
   const [kind, setKind] = useState('ROOM'),
     [status, setStatus] = useState('ALL'),
+    [category, setCategory] = useState(''),
     [q, setQ] = useState(''),
     [view, setView] = useState('grid');
-  const states = new Map(board?.rows.map((row) => [row.unit.code, row.cells[0]]));
+  const cells = new Map(board?.rows.map((row) => [row.unit.code, row.cells]));
+  const categories = [
+    ...new Map(units.map((u) => [u.accommodationTypeCode, u.accommodationTypeName])),
+  ];
   const rows = units.filter(
     (u) =>
       (!kind || u.kind === kind) &&
+      (!category || u.accommodationTypeCode === category) &&
       `${u.code} ${u.accommodationTypeName}`
         .toLocaleLowerCase('ru')
         .includes(q.trim().toLocaleLowerCase('ru')) &&
-      (status === 'ALL' || states.get(u.code)?.state === status),
+      (status === 'ALL' || cells.get(u.code)?.[0]?.state === status),
   );
   return (
     <section className="room-directory">
@@ -60,6 +71,19 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
         </select>
         <select
           className="inp"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          aria-label="Категория"
+        >
+          <option value="">Все категории</option>
+          {categories.map(([code, name]) => (
+            <option key={code} value={code}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select
+          className="inp"
           value={status}
           onChange={(e) => setStatus(e.target.value)}
           aria-label="Доступность номеров"
@@ -69,49 +93,35 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
           <option value="OCCUPIED">Занятые</option>
           <option value="BLOCKED">Недоступные</option>
         </select>
+        <span className="muted small">
+          {rows.length} из {units.length}
+        </span>
       </div>
       <div className={`room-cards ${view === 'list' ? 'room-cards--list' : ''}`}>
         {rows.map((u) => {
-          const cell = states.get(u.code);
+          const c = cells.get(u.code);
+          const cell = c?.[0];
           const state = cell?.state;
           return (
-            <Link key={u.code} href={`/units/${encodeURIComponent(u.code)}`} className="room-card">
+            <Link
+              key={u.code}
+              href={`/units/${encodeURIComponent(u.code)}`}
+              className="room-card"
+              data-state={state ?? 'UNKNOWN'}
+            >
               <div className="room-card-top">
-                <span className="round-icon">
+                <strong className="room-card-code">
                   <Icon name={u.kind === 'ROOM' ? 'inventory' : 'bed'} />
-                </span>
-                <StatusBadge
-                  status={
-                    state === 'OCCUPIED'
-                      ? 'CHECKED_IN'
-                      : state === 'BLOCKED'
-                        ? 'TENTATIVE'
-                        : 'CHECKED_OUT'
-                  }
-                  label={
-                    state === 'OCCUPIED'
-                      ? 'Занят'
-                      : state === 'BLOCKED'
-                        ? cell?.blockType === 'CLEANING'
-                          ? 'Уборка'
-                          : cell?.blockType === 'MAINTENANCE'
-                            ? 'Ремонт'
-                            : 'Заблокирован'
-                        : state === 'FREE'
-                          ? 'Свободен'
-                          : 'Нет данных'
-                  }
-                />
+                  {u.code}
+                </strong>
+                <StatusBadge status={badgeStatus(state)} label={badgeLabel(cell)} />
               </div>
-              <div className="room-card-name">
-                <strong>{u.code}</strong>
-                <span>{u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'}</span>
-              </div>
-              <p>{u.accommodationTypeName}</p>
+              <p className="room-card-cat">{u.accommodationTypeName}</p>
+              <div className="room-card-note">{c ? note(c) : 'нет данных на сегодня'}</div>
               <div className="room-card-footer">
                 <span>
-                  <Icon name="guests" width={14} />
-                  {u.roomCapacity} мест в комнате
+                  {u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'}, {u.roomCapacity}{' '}
+                  {u.roomCapacity === 1 ? 'место' : u.roomCapacity < 5 ? 'места' : 'мест'} в комнате
                 </span>
                 <Icon name="arrow" width={16} />
               </div>
@@ -128,6 +138,7 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
             className="btn btn--secondary"
             onClick={() => {
               setKind('');
+              setCategory('');
               setStatus('ALL');
               setQ('');
             }}
@@ -139,3 +150,55 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
     </section>
   );
 }
+
+function badgeStatus(state: string | undefined): string {
+  return state === 'OCCUPIED' ? 'CHECKED_IN' : state === 'BLOCKED' ? 'TENTATIVE' : 'CHECKED_OUT';
+}
+function badgeLabel(cell: ChessboardCell | undefined): string {
+  if (!cell) return 'Нет данных';
+  if (cell.state === 'OCCUPIED') return 'Занят';
+  if (cell.state === 'FREE') return 'Свободен';
+  return cell.blockType === 'CLEANING'
+    ? 'Уборка'
+    : cell.blockType === 'MAINTENANCE'
+      ? 'Ремонт'
+      : 'Заблокирован';
+}
+
+/** Главное о единице на сегодня по неделе доски: до какого числа занят или свободен. */
+function note(cells: ChessboardCell[]): string {
+  const first = cells[0]!;
+  if (first.state === 'OCCUPIED') {
+    let last = 0;
+    while (
+      last + 1 < cells.length &&
+      cells[last + 1]!.state === 'OCCUPIED' &&
+      cells[last + 1]!.itemId === first.itemId
+    )
+      last++;
+    const who = first.guestLabel || first.confirmationNumber || 'гость';
+    const ends = last < cells.length - 1 || cells[last]!.isLastNight;
+    return ends
+      ? `${who}, выезд ${displayDate(nextDay(cells[last]!.date))}`
+      : `${who}, после ${displayDate(cells[last]!.date)}`;
+  }
+  if (first.state === 'BLOCKED') {
+    const kind =
+      first.blockType === 'CLEANING'
+        ? 'уборка'
+        : first.blockType === 'MAINTENANCE'
+          ? 'ремонт'
+          : 'закрыт';
+    return first.blockReason ? `${kind}: ${first.blockReason}` : kind;
+  }
+  const busy = cells.findIndex((c, i) => i > 0 && c.state !== 'FREE');
+  return busy === -1
+    ? `свободен ${cells.length}+ ночей`
+    : `свободен до ${displayDate(cells[busy]!.date)}`;
+}
+
+const nextDay = (d: string) => {
+  const x = new Date(`${d}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + 1);
+  return x.toISOString().slice(0, 10);
+};

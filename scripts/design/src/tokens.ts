@@ -286,7 +286,7 @@ export const byName = (theme: ThemeCss, name: string): Token => {
 
 // ── Генерация файла ──
 export const TOKENS_CSS_HEADER =
-  '/* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-046). */';
+  '/* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-047). */';
 
 function block(selector: string, scheme: 'light' | 'dark', vars: Map<string, string>, only?: Map<string, string>, indent = ''): string {
   const lines = [`${indent}${selector} {`, `${indent}  color-scheme: ${scheme};`];

@@ -1,4 +1,4 @@
-/* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-046). */
+/* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-047). */
 :root, [data-theme='light'] {
   color-scheme: light;
   --radius-sm: 8px;

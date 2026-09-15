@@ -110,7 +110,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
        * Плитками остаются только числа, которые требуют действия (см. экран «Сегодня»).
        */}
       {r.status === 'TENTATIVE' && (
-        // Q-130, вариант (а): статус словом и цветом внимания; команды «Подтвердить» нет (Q-135)
+        // Q-144, вариант (а): статус словом и цветом внимания; команды «Подтвердить» нет (Q-135)
         <div className="callout callout--warn" data-testid="tentative-callout">
           <Icon name="clock" width={16} height={16} />
           <span>

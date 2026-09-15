@@ -1,0 +1,120 @@
+/*
+ * Справочники «Брони» и «Гости» — правка по замечанию владельца 15.09.2026: удобнее и без лишнего.
+ * Было: аватар и номер брони в три строки в узкой колонке, десять колонок с «Оплачено» и стрелкой,
+ * даты в ISO, у гостей — email и номер брони во всю ширину; строка занимала ~70 px.
+ * Стало: строка в одну линию (~44 px), имя — ссылка, под ним короткий номер брони; проживание одной
+ * колонкой «15 сент. → 17 сент.» и числом ночей; только те деньги, с которыми работает стойка — стоимость
+ * и к оплате; у гостей — телефон с WhatsApp, место, проживание, статус, бронь.
+ */
+.dir-table td {
+  padding: 8px 16px;
+  vertical-align: middle;
+  font-size: 12px;
+}
+.dir-table th {
+  font-size: 12px;
+}
+/*
+ * Цель нажатия — не меньше 24 px и не впритык к соседней (axe target-size, WCAG 2.2 AA).
+ * Поэтому имя и номер брони — одна ссылка на всю ячейку, а WhatsApp — отдельная кнопка рядом.
+ */
+.dir-guest-cell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.dir-guest {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 4px 0;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.dir-guest strong {
+  font-weight: 600;
+}
+.dir-number {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+a.dir-number {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 0;
+}
+a.dir-number:hover {
+  color: var(--primary);
+}
+.dir-wa {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 30px;
+  min-height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.dir-wa:hover {
+  border-color: var(--success);
+  color: var(--success);
+  text-decoration: none;
+}
+.dir-stay {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.dir-stay small {
+  color: var(--muted);
+  margin-left: 8px;
+}
+.dir-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dir-unit svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.dir-phone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.dir-paid {
+  color: var(--success);
+  white-space: nowrap;
+}
+.dir-debt {
+  color: var(--danger);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dir-table .num {
+  text-align: right;
+}
+.directory-toolbar {
+  margin-bottom: 16px;
+}
+.directory-filters {
+  margin-bottom: 16px;
+}
+.directory-meta {
+  margin-bottom: 8px;
+}

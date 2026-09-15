@@ -89,6 +89,30 @@ function install(sb: Sandbox, args: string[]) {
 }
 
 describe('launchd install.sh', () => {
+  /*
+   * 15.09.2026: Session pooler Supabase держит 15 клиентов на проект. Задача синхронизации с пулом по
+   * умолчанию (5) поверх API (5) и разовых скриптов переполняла его, и запросы стойки падали в 500
+   * («Connection terminated due to connection timeout» в журнале API). Прогон синхронизации
+   * последовательный — одного соединения ему достаточно.
+   */
+  /** В сухом прогоне plist собирается во временной папке, её путь скрипт печатает */
+  const dryPlist = (task: string): string => {
+    const out = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', task]).out;
+    const file = /(\S+\.plist) собран и проверен/.exec(out)?.[1];
+    expect(file, `путь plist не найден в выводе:\n${out}`).toBeTruthy();
+    return readFileSync(file!, 'utf8');
+  };
+
+  it('задача синхронизации Exely берёт одно соединение, чтобы не съесть пулер', () => {
+    expect(dryPlist('exely-sync')).toMatch(
+      /<key>DATABASE_POOL_MAX<\/key><string>1<\/string>/,
+    );
+  });
+
+  it('службам пул не урезаем: у API он свой', () => {
+    expect(dryPlist('api')).not.toContain('DATABASE_POOL_MAX');
+  });
+
   it('--dry не снимает загруженную задачу', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
     const { out, calls } = install(sb, ['--dry', 'web']);

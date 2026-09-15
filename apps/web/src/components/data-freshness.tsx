@@ -27,7 +27,10 @@ const time = (iso: string) =>
 const minutesSince = (iso: string | null) =>
   iso ? (Date.now() - Date.parse(iso)) / 60_000 : Number.POSITIVE_INFINITY;
 
-/** Строка «Exely 22:45, Channex 22:41, очередь 0» — обновляется раз в минуту, без перезагрузки страницы */
+/**
+ * Свежесть данных в боковой панели: три строки «источник — время», а не одна длинная фраза —
+ * в узкой панели она переносилась посреди слова (DESIGN.md §14). Обновляется раз в минуту.
+ */
 export function DataFreshness() {
   const [data, setData] = useState<Freshness | null>(null);
   const [failed, setFailed] = useState(false);
@@ -74,10 +77,21 @@ export function DataFreshness() {
         'последнее событие из Channex и очередь изменений остатков и цен в Channex'
       }
     >
-      Exely {data.exely.lastSyncAt ? time(data.exely.lastSyncAt) : 'не синхронизирован'}, Channex{' '}
-      {data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'}, очередь{' '}
-      {data.channex.outboxPending}
-      {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
+      <span className="freshness__row">
+        <span className="freshness__label">Exely</span>
+        <span>{data.exely.lastSyncAt ? time(data.exely.lastSyncAt) : 'не синхронизирован'}</span>
+      </span>
+      <span className="freshness__row">
+        <span className="freshness__label">Channex</span>
+        <span>{data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'}</span>
+      </span>
+      <span className="freshness__row">
+        <span className="freshness__label">Очередь</span>
+        <span>
+          {data.channex.outboxPending}
+          {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
+        </span>
+      </span>
     </span>
   );
 }

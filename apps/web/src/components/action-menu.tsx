@@ -35,6 +35,8 @@ export function ActionMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  /** «вниз» по умолчанию; у нижнего края экрана меню открывается вверх, иначе список не виден */
+  const [up, setUp] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const id = useId();
@@ -50,6 +52,14 @@ export function ActionMenu({
     if (!open) return;
     root.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')[active]?.focus();
   }, [open, active]);
+  useEffect(() => {
+    if (!open) return;
+    const list = root.current?.querySelector<HTMLElement>('[role="menu"]');
+    const anchor = button.current?.getBoundingClientRect();
+    if (!list || !anchor) return;
+    const below = window.innerHeight - anchor.bottom;
+    setUp(list.offsetHeight > below && anchor.top > below);
+  }, [open]);
   const enabled = items.map((it, i) => (it.disabled ? -1 : i)).filter((i) => i >= 0);
   const move = (dir: 1 | -1) => {
     if (!enabled.length) return;
@@ -58,6 +68,7 @@ export function ActionMenu({
   };
   const close = () => {
     setOpen(false);
+    setUp(false);
     button.current?.focus();
   };
   return (
@@ -77,19 +88,31 @@ export function ActionMenu({
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
-            setActive(e.key === 'ArrowDown' ? (enabled[0] ?? 0) : (enabled[enabled.length - 1] ?? 0));
+            setActive(
+              e.key === 'ArrowDown' ? (enabled[0] ?? 0) : (enabled[enabled.length - 1] ?? 0),
+            );
             setOpen(true);
           }
         }}
       >
-        {compact ? <Icon name="more" /> : <>{label} <Icon name="down" width={16} height={16} /></>}
+        {compact ? (
+          <Icon name="more" />
+        ) : (
+          <>
+            {label} <Icon name="down" width={16} height={16} />
+          </>
+        )}
       </button>
       {open && (
         <div
           id={`${id}-menu`}
           role="menu"
           aria-label={label}
-          className={cx('action-menu__list', align === 'start' && 'action-menu__list--start')}
+          className={cx(
+            'action-menu__list',
+            align === 'start' && 'action-menu__list--start',
+            up && 'action-menu__list--up',
+          )}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               e.preventDefault();
@@ -117,7 +140,10 @@ export function ActionMenu({
               tabIndex={i === active ? 0 : -1}
               disabled={it.disabled}
               aria-disabled={it.disabled || undefined}
-              className={cx('action-menu__item', it.tone === 'danger' && 'action-menu__item--danger')}
+              className={cx(
+                'action-menu__item',
+                it.tone === 'danger' && 'action-menu__item--danger',
+              )}
               data-id={it.id}
               onMouseEnter={() => !it.disabled && setActive(i)}
               onClick={() => {

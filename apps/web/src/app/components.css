@@ -25,6 +25,11 @@
   right: auto;
   left: 0;
 }
+/* У нижнего края экрана меню открывается вверх: иначе список уходит за экран (DESIGN.md §8) */
+.action-menu__list--up {
+  top: auto;
+  bottom: calc(100% + var(--space-1));
+}
 .action-menu__item {
   display: flex;
   align-items: center;

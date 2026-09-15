@@ -178,13 +178,21 @@ svg {
   color: var(--muted);
   font-size: 12px;
 }
-/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */
+/* Свежесть данных: три строки «источник — время» (план wetop-live-data, шаг 4) */
 .sidebar-freshness {
   padding: 0 4px 8px;
   font-size: 12px;
   line-height: 1.4;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+.freshness__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.freshness__label {
+  color: var(--muted-2);
 }
 .sidebar-freshness .freshness--warn {
   color: var(--warning);

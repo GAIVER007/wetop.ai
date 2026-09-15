@@ -414,3 +414,7 @@
 | 15.09.2026 21:39 | lint | ✅ без ошибок | 5 с | aa92492 +4 | [лог](logs/2026-09-15T16-39-37Z-lint-eef9.log) |  |
 | 15.09.2026 21:50 | e2e (частично: --workers=1 tests/e2e/desk-day.spec.ts) | ✅ 2 из 2 | 1 мин 5 с | 09470aa +5 | [лог](logs/2026-09-15T16-50-56Z-e2e-2056.log) |  |
 | 15.09.2026 21:52 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 25 из 25 | 1 мин 6 с | 09470aa +5 | [лог](logs/2026-09-15T16-52-13Z-e2e-a9eb.log) |  |
+| 16.09.2026 00:54 | unit | ❌ упало 3 из 591 | 1 мин 34 с | c22f3fa +2 | [лог](logs/2026-09-15T19-54-16Z-unit-582c.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 16.09.2026 00:56 | unit | ❌ упало 3 из 814 | 1 мин 32 с | c22f3fa +2 | [лог](logs/2026-09-15T19-56-17Z-unit-42ac.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 16.09.2026 00:58 | typecheck | ✅ без ошибок | 18 с | c22f3fa +2 | [лог](logs/2026-09-15T19-58-02Z-typecheck-18b1.log) |  |
+| 16.09.2026 00:58 | lint | ✅ без ошибок | 10 с | c22f3fa +2 | [лог](logs/2026-09-15T19-58-21Z-lint-1989.log) |  |

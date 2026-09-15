@@ -148,6 +148,26 @@ ensure_registered() {
   register "$url"
 }
 
+# Постоянный адрес важнее быстрого туннеля. 15.09.2026, после посадки домена: запуск этого скрипта поднял
+# одноразовый туннель, перерегистрировал на него webhook Channex и умер — webhook снова указывал в никуда,
+# брони шли только опросом ленты. Спрашиваем у API, задан ли PUBLIC_API_URL, и отказываемся работать.
+permanent_api_url() {
+  local body
+  body=$(curl -s -m 10 "$API_URL/channels/channex/webhook/status") || return 1
+  printf '%s' "$body" | grep -a -o -E '"expectedUrl":"https://[^"]*"' | head -1 |
+    sed -E 's/^"expectedUrl":"(.*)"$/\1/'
+}
+if [ "${ALLOW_QUICK_TUNNEL:-0}" != "1" ] && permanent=$(permanent_api_url) && [ -n "$permanent" ]; then
+  case "$permanent" in
+    https://*.trycloudflare.com*) ;;
+    *)
+      say "у PMS задан постоянный адрес ($permanent): быстрый туннель увёл бы на себя webhook Channex — отказ"
+      say "если быстрый туннель всё же нужен: ALLOW_QUICK_TUNNEL=1 $0"
+      exit 3
+      ;;
+  esac
+fi
+
 need_register=0
 start_tunnel
 case $? in

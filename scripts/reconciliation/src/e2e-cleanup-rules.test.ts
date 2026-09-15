@@ -5,6 +5,7 @@ import {
   blocksToDelete,
   reservationsToCancel,
   sitesToDelete,
+  syncMessage,
   type CleanupBlock,
   type CleanupReservation,
   type CleanupSite,
@@ -88,5 +89,28 @@ describe('sitesToDelete', () => {
   });
   it('настоящий сайт владельца не трогает', () => {
     expect(sitesToDelete([site({ name: 'Luxx Aparts' })], now)).toHaveLength(0);
+  });
+});
+
+/*
+ * 15.09.2026: каждый прогон e2e заканчивался строкой «полная выгрузка не запущена (HTTP 503) —
+ * подберёт ночная выгрузка». Пугает зря: тестовый API поднимается с CHANNEX_ARI=off намеренно
+ * (playwright.config.ts), чтобы прогон ничего не слал в настоящий Channex, а данные тестов живут
+ * в схеме pms_test и остатков канала не трогают. Выгружать нечего, и ждать ночной выгрузки не нужно.
+ */
+describe('syncMessage: что уборка пишет про остатки в канале', () => {
+  it('ARI выключен — это не беда: выгружать нечего, про ночную выгрузку не пишем', () => {
+    const text = syncMessage({ ok: false, status: 503 });
+    expect(text).toMatch(/ARI выключ/i);
+    expect(text).not.toMatch(/ночная выгрузка/i);
+  });
+
+  it('выгрузка ушла', () => {
+    expect(syncMessage({ ok: true, status: 200 })).toMatch(/запущена/);
+  });
+
+  it('API не ответил или ответил ошибкой — ночная выгрузка подберёт', () => {
+    expect(syncMessage(null)).toMatch(/API недоступен.*ночная выгрузка/is);
+    expect(syncMessage({ ok: false, status: 500 })).toMatch(/HTTP 500.*ночная выгрузка/is);
   });
 });

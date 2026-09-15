@@ -79,3 +79,18 @@ export function blocksToDelete(rows: readonly CleanupBlock[], now: Date): Cleanu
 export function sitesToDelete(rows: readonly CleanupSite[], now: Date): CleanupSite[] {
   return rows.filter((s) => isTestSite(s) && isStale(s.createdAt, now));
 }
+
+/**
+ * Что уборка пишет про остатки в канале после того, как попросила полную выгрузку.
+ *
+ * 503 — исходящий ARI выключен, и это не беда: тестовый API поднимается с `CHANNEX_ARI=off`
+ * намеренно (playwright.config.ts), данные прогона живут в схеме `pms_test` и остатков канала
+ * не трогают. Ждать ночной выгрузки в этом случае незачем — выгружать нечего.
+ */
+export function syncMessage(res: { ok: boolean; status: number } | null): string {
+  if (res?.ok) return 'Остатки в канале: полная выгрузка запущена';
+  if (res?.status === 503)
+    return 'Остатки в канале: выгрузка не нужна — исходящий ARI выключен (тестовый API или scripts/ops/ari.sh stop)';
+  const why = res ? `HTTP ${res.status}` : 'API недоступен';
+  return `Остатки в канале: полная выгрузка не запущена (${why}) — подберёт ночная выгрузка`;
+}

@@ -1573,11 +1573,6 @@ select.inp {
 .day-toolbar {
   padding: 0 24px 16px;
 }
-.day-group-title {
-  padding: 16px 24px;
-  font-size: 12px;
-  background: var(--surface-muted);
-}
 .day-table {
   border-radius: 0;
 }
@@ -1589,11 +1584,6 @@ select.inp {
 .day-guest-name {
   color: var(--text);
   font-size: 12px;
-}
-.day-guest-avatar {
-  background: var(--primary-soft);
-  color: var(--primary);
-  border-radius: 50%;
 }
 .day-unit {
   background: var(--surface-muted);

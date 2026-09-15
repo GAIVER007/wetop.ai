@@ -75,7 +75,8 @@ $args  </array>
   <key>WorkingDirectory</key><string>$(xml "$REPO")</string>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>PATH</key><string>$(xml "$PATH_ENV")</string>
+    <key>PATH</key><string>$(xml "$PATH_ENV")</string>${EXTRA_ENV:+
+$EXTRA_ENV}
   </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><$keep/>
@@ -188,8 +189,14 @@ for n in "${NAMES[@]}"; do
   command_for "$n"
   # службы держатся постоянно; exely-sync — прогон раз в 5 минут (владелец 13.09.2026), между прогонами процесса нет;
   # прогон, не успевший закончиться к следующему старту, launchd второй раз не запускает
-  START_INTERVAL=""; keep=true
-  [ "$n" = exely-sync ] && { START_INTERVAL=300; keep=false; }
+  START_INTERVAL=""; keep=true; EXTRA_ENV=""
+  # Session pooler Supabase — 15 клиентов на проект. Прогон синхронизации последовательный, ему хватает одного;
+  # с пулом по умолчанию (5) поверх API он переполнял пулер, и запросы стойки падали в 500 (15.09.2026).
+  [ "$n" = exely-sync ] && {
+    START_INTERVAL=300
+    keep=false
+    EXTRA_ENV="    <key>DATABASE_POOL_MAX</key><string>1</string>"
+  }
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
   loaded=0

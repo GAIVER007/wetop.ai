@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { relative, resolve } from 'node:path';
+import { narrowsTestSelection } from '@pms/domain';
 
 /**
  * Журнал прогонов тестов — чистая логика без запуска процессов (TESTING.md).
@@ -569,7 +570,9 @@ function cell(text: string): string {
 
 /** Строка JOURNAL.md: одна строка на прогон, чтобы слияние двух машин складывало строки, а не ломало таблицу */
 export function journalRow(r: RunRecord): string {
-  const suite = r.args.length ? `${r.suite} (частично: ${r.args.join(' ')})` : r.suite;
+  const suite = narrowsTestSelection(r.args)
+    ? `${r.suite} (частично: ${r.args.join(' ')})`
+    : r.suite;
   const commit = r.commit.slice(0, 7) + (r.dirty.length ? ` +${r.dirty.length}` : '');
   const logName = r.log.split('/').pop() ?? r.log;
   const tail = r.note ?? (r.status === 'failed' ? (r.failures[0]?.name ?? '') : '');
@@ -646,12 +649,17 @@ export function assess(
   current: { fingerprint: string; now: Date },
 ): Assessment {
   const mine = runs.filter((r) => r.suite === suite.name);
+  // Частичным прогон делает сужение набора (файл, -g, --project), а не то, КАК он запущен:
+  // на машине с 8 ГБ сквозные идут только `--workers=1`, и такой прогон — полноценное доказательство
   const full = mine.filter(
-    (r) => r.args.length === 0 && r.status !== 'interrupted' && !(r.counts && r.counts.total === 0),
+    (r) =>
+      !narrowsTestSelection(r.args) &&
+      r.status !== 'interrupted' &&
+      !(r.counts && r.counts.total === 0),
   );
   const last = full.at(-1) ?? null;
   const partialsAfter = mine.filter(
-    (r) => r.args.length > 0 && (!last || r.startedAt > last.startedAt),
+    (r) => narrowsTestSelection(r.args) && (!last || r.startedAt > last.startedAt),
   );
   if (!last) return { state: 'never', run: null, ageHours: null, partialsAfter };
 

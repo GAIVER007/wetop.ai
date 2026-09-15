@@ -60,6 +60,58 @@ export function latestReportResults(
   return out;
 }
 
+/**
+ * Аргументы, сужающие набор тестов. Прогон с ними набор не доказывает — ни в плюс, ни в минус.
+ * Флаги вида «как запускать» (сколько воркеров, какой отчёт, сколько повторов) набор не сужают:
+ * на машине с 8 ГБ сквозные идут только `--workers=1`, и такой прогон обязан считаться полным,
+ * иначе полного прогона на ней не бывает вовсе (15.09.2026: неисправность «падает e2e» висела двое суток).
+ */
+const NARROWING_FLAGS = new Set([
+  '-g',
+  '--grep',
+  '--grep-invert',
+  '-t',
+  '--testNamePattern',
+  '--project',
+  '--config',
+  '-c',
+  '--dir',
+  '--shard',
+  '--last-failed',
+  '--only-changed',
+  '--changed',
+]);
+
+/** Флаги «как запускать», берущие значение отдельным словом: это слово — не путь к тестам */
+const VALUE_FLAGS = new Set([
+  '--workers',
+  '-j',
+  '--reporter',
+  '--retries',
+  '--timeout',
+  '--global-timeout',
+  '--max-failures',
+  '--output',
+  '--outputFile',
+  '--trace',
+]);
+
+export function narrowsTestSelection(args: readonly string[]): boolean {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!.trim();
+    if (!arg) continue;
+    // Позиционный аргумент — путь или кусок имени файла: это выбор конкретных тестов
+    if (!arg.startsWith('-')) return true;
+    const name = arg.split('=')[0]!;
+    if (NARROWING_FLAGS.has(name)) return true;
+    // Значение флага пропускаем, иначе «--workers 1» прочиталось бы как путь к тестам.
+    // Незнакомый флаг со значением отдельным словом даст «сужает» — сторона безопасная:
+    // такой прогон просто не засчитается как доказательство набора.
+    if (VALUE_FLAGS.has(name) && !arg.includes('=')) i++;
+  }
+  return false;
+}
+
 export interface FailingSuite {
   suite: string;
   startedAt: string;
@@ -85,7 +137,7 @@ export function failingSuites(jsonl: string): FailingSuite[] {
       suite?: string;
       status?: string;
       startedAt?: string;
-      args?: unknown[];
+      args?: string[];
       failures?: Array<{ file?: string | null; message?: string }>;
     };
     try {
@@ -97,7 +149,7 @@ export function failingSuites(jsonl: string): FailingSuite[] {
       !r.suite ||
       !r.startedAt ||
       !r.status ||
-      (r.args?.length ?? 0) > 0 ||
+      narrowsTestSelection(r.args ?? []) ||
       r.status === 'interrupted'
     )
       continue;

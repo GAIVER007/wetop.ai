@@ -1,0 +1,510 @@
+# Сквозные (e2e) · 15.09.2026 16:37 Алматы · MacBook-Air-Urij.local
+# коммит 002173a (main), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[e2e] не в прогоне — жёсткий адрес рабочего стенда: web-booking.spec.ts
+[pms_test] миграций применено 0 из 12; данные от 2026-09-14T07:50:46.719Z
+
+Running 23 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (436ms)
+  ✘   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:23:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (2ms)
+  ✘   3 [isolated] › tests/e2e/check-in-out.spec.ts:18:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (2ms)
+  ✘   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:24:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (2ms)
+  ✘   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:27:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (1ms)
+  ✘   6 [isolated] › tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (1ms)
+  ✘   7 [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями (2ms)
+  ✘   8 [isolated] › tests/e2e/desk-day.spec.ts:17:1 › экран «Сегодня» открывается с корня и показывает три списка на дату (1ms)
+  ✘   9 [isolated] › tests/e2e/desk-edit.spec.ts:27:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (3ms)
+  ✘  10 [isolated] › tests/e2e/desk-tasks.spec.ts:26:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (2ms)
+  ✘  11 [isolated] › tests/e2e/finance.spec.ts:28:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (1ms)
+  ✘  12 [isolated] › tests/e2e/full-day.spec.ts:23:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (2ms)
+  ✘  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (1ms)
+  ✘  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (3ms)
+  ✘  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (1ms)
+  ✘  16 [isolated] › tests/e2e/manual-reservation.spec.ts:11:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (3ms)
+  ✘  17 [isolated] › tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1ms)
+  ✘  18 [isolated] › tests/e2e/print-forms.spec.ts:27:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (5ms)
+  ✘  19 [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (3ms)
+  ✘  20 [isolated] › tests/e2e/unit-blocks.spec.ts:25:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (2ms)
+  ✘  21 [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (2ms)
+  -  22 [isolated] › tests/e2e/web-analytics.spec.ts:172:1 › страница подключения: код с ключом, «Проверить счётчик» видит события
+  -  23 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте
+[уборка e2e] Броней автотестов с активными проживаниями: 4 (кандидатов по фамилии было 1599)
+Освобождено броней: 4
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: полная выгрузка не запущена (HTTP 503) — подберёт ночная выгрузка
+Сайтов со счётчиком от автотестов: 0 — удалены
+[WebServer] (node:134) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+
+
+  1) [isolated] › tests/e2e/cancellation-penalty.spec.ts:23:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/check-in-out.spec.ts:18:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [isolated] › tests/e2e/chessboard-drag.spec.ts:24:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [isolated] › tests/e2e/chessboard-unassigned.spec.ts:27:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [isolated] › tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-шахматка-показы-06669--экране-совпадает-с-данными-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [isolated] › tests/e2e/desk-day.spec.ts:17:1 › экран «Сегодня» открывается с корня и показывает три списка на дату 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/desk-day-экран-«Сегодня»-о-79ece-казывает-три-списка-на-дату-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-day-экран-«Сегодня»-о-79ece-казывает-три-списка-на-дату-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-day-экран-«Сегодня»-о-79ece-казывает-три-списка-на-дату-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [isolated] › tests/e2e/desk-edit.spec.ts:27:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [isolated] › tests/e2e/desk-tasks.spec.ts:26:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [isolated] › tests/e2e/finance.spec.ts:28:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [isolated] › tests/e2e/full-day.spec.ts:23:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/incidents-неисправность-на-27453--«Решено»-—-закрыта-вручную-isolated/error-context.md
+
+    Error Context: test-results/incidents-неисправность-на-27453--«Решено»-—-закрыта-вручную-isolated/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/incidents-неисправность-на-27453--«Решено»-—-закрыта-вручную-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/incidents-неисправность-на-27453--«Решено»-—-закрыта-вручную-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-страница-«Номерн-02b40-88-единиц-и-сводку-16-72-92-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-фильтр-по-категории-оставляет-только-её-единицы-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [isolated] › tests/e2e/manual-reservation.spec.ts:11:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [isolated] › tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [isolated] › tests/e2e/print-forms.spec.ts:27:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [isolated] › tests/e2e/unit-blocks.spec.ts:25:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/urijzapojnov/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/error-context.md
+
+    Error Context: test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    [isolated] › tests/e2e/cancellation-penalty.spec.ts:23:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+    [isolated] › tests/e2e/check-in-out.spec.ts:18:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+    [isolated] › tests/e2e/chessboard-drag.spec.ts:24:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+    [isolated] › tests/e2e/chessboard-unassigned.spec.ts:27:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает 
+    [isolated] › tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными 
+    [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями 
+    [isolated] › tests/e2e/desk-day.spec.ts:17:1 › экран «Сегодня» открывается с корня и показывает три списка на дату 
+    [isolated] › tests/e2e/desk-edit.spec.ts:27:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта 
+    [isolated] › tests/e2e/desk-tasks.spec.ts:26:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+    [isolated] › tests/e2e/finance.spec.ts:28:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+    [isolated] › tests/e2e/full-day.spec.ts:23:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+    [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную 
+    [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 
+    [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы 
+    [isolated] › tests/e2e/manual-reservation.spec.ts:11:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+    [isolated] › tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+    [isolated] › tests/e2e/print-forms.spec.ts:27:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+    [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+    [isolated] › tests/e2e/unit-blocks.spec.ts:25:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка 
+    [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте 
+  2 did not run
+  1 passed (1.2m)
+
+# код выхода 1 · 1 мин 16 с

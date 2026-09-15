@@ -109,6 +109,7 @@ const QUIET_WEBHOOK: WebhookSignal = {
   callbackUrl: 'https://pms.example/channels/channex/webhook',
   callbackReachable: true,
   callbackCheckedAt: NIGHT.toISOString(),
+  callbackExpectedUrl: 'https://pms.example/channels/channex/webhook',
 };
 const NO_STAYS: StaySignal = {
   units: [],
@@ -188,6 +189,11 @@ function setup(
       calls.push('restartWeb');
       state.webOk = true;
       return ok('стойка перезапущена');
+    },
+    registerWebhook: async () => {
+      calls.push('registerWebhook');
+      state.webhook = QUIET_WEBHOOK;
+      return ok('webhook возвращён на https://pms.example/channels/channex/webhook');
     },
   };
   const sent: string[] = [];
@@ -369,6 +375,33 @@ describe('GuardService.tick', () => {
     await t.guard.tick(plus(NIGHT, 1));
     expect(t.repo.rows[0]!.severity).toBe('CRITICAL');
     expect(t.sent).toHaveLength(1);
+  });
+
+  /*
+   * 15.09.2026: за один час webhook трижды уехал с постоянного адреса на одноразовые туннели Cloudflare
+   * (чужой запуск scripts/ops/channex-tunnel.sh). Каждый такой туннель умирает через минуты, и брони идут
+   * только опросом ленты. Адрес в Channex — техника класса А, и чинится она тем же путём, что кнопка
+   * «Зарегистрировать webhook» на /channels.
+   */
+  it('в Channex чужой адрес вместо постоянного — сторож перерегистрирует webhook сам', async () => {
+    const t = setup({
+      webhook: {
+        ...QUIET_WEBHOOK,
+        suspect: true,
+        suspectReason: 'зарегистрированный адрес webhook не отвечает',
+        callbackUrl: 'https://one-off-tunnel.trycloudflare.test/channels/channex/webhook',
+        callbackReachable: false,
+      },
+    });
+    const s = await t.guard.tick(NIGHT);
+    expect(t.calls).toContain('registerWebhook');
+    expect(s.fixes.find((f) => f.kind === 'webhook.misrouted')?.ok).toBe(true);
+  });
+
+  it('зарегистрирован сам постоянный адрес, но молчит — перерегистрация не поможет, сторож не трогает', async () => {
+    const t = setup({ webhook: { ...QUIET_WEBHOOK, callbackReachable: false } });
+    await t.guard.tick(NIGHT);
+    expect(t.calls).not.toContain('registerWebhook');
   });
 
   it('человек нажал «Принято» — CRITICAL больше не будит', async () => {

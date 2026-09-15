@@ -18,6 +18,7 @@ import {
   isTestReservation,
   reservationsToCancel,
   sitesToDelete,
+  syncMessage,
 } from './e2e-cleanup-rules';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
@@ -148,11 +149,7 @@ try {
     const sync = await fetch(`${API}/channels/channex/sync?days=500&trigger=import`, {
       method: 'POST',
     }).catch(() => null);
-    console.log(
-      sync?.ok
-        ? 'Остатки в канале: полная выгрузка запущена'
-        : `Остатки в канале: полная выгрузка не запущена (${sync ? `HTTP ${sync.status}` : 'API недоступен'}) — подберёт ночная выгрузка`,
-    );
+    console.log(syncMessage(sync ? { ok: sync.ok, status: sync.status } : null));
   }
   if (failed.length) {
     console.log('Погашено без API:');

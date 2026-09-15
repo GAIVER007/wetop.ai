@@ -12,21 +12,40 @@ const STATUS_RU: Record<string, string> = {
   CHECKED_IN: 'Проживает',
   CHECKED_OUT: 'Выехал',
 };
+
+type View = 'arrivals' | 'departures' | 'inhouse';
+
+/**
+ * Списки дня: один список на экране, остальные — за вкладкой со счётчиком.
+ *
+ * Прежний вид «Весь день» раскладывал три таблицы подряд — 34 + 32 + 62 строки с аватарами,
+ * и главная уходила в бесконечную прокрутку (замечание владельца 15.09.2026). Теперь список
+ * ограничен по высоте и прокручивается сам, строки в одну линию, сверху — те, кем ещё надо заняться:
+ * не заселённые в заездах, не выехавшие в выездах.
+ */
 export function DayWorkspace({ day }: { day: DeskDay }) {
-  const [view, setView] = useState('all');
+  const [view, setView] = useState<View>('arrivals');
   const [query, setQuery] = useState('');
+  const q = query.trim().toLocaleLowerCase('ru');
   const filter = (rows: DeskRow[]) =>
-    rows.filter((r) =>
-      [r.guestLabel, r.confirmationNumber, r.unitCode, r.accommodationTypeName].some((v) =>
-        v?.toLocaleLowerCase('ru').includes(query.trim().toLocaleLowerCase('ru')),
-      ),
-    );
-  const tabs = [
-    ['all', 'Весь день', null],
-    ['arrivals', 'Заезды', day.arrivals.length],
-    ['departures', 'Выезды', day.departures.length],
-    ['inhouse', 'Живут', day.inHouse.length],
-  ] as const;
+    q
+      ? rows.filter((r) =>
+          [r.guestLabel, r.confirmationNumber, r.unitCode, r.accommodationTypeName].some((v) =>
+            v?.toLocaleLowerCase('ru').includes(q),
+          ),
+        )
+      : rows;
+  const lists: Record<View, { title: string; rows: DeskRow[]; pendingFirst: (r: DeskRow) => boolean }> = {
+    arrivals: { title: 'Заезды', rows: day.arrivals, pendingFirst: (r) => r.status !== 'CHECKED_IN' },
+    departures: {
+      title: 'Выезды',
+      rows: day.departures,
+      pendingFirst: (r) => r.status !== 'CHECKED_OUT',
+    },
+    inhouse: { title: 'Живут', rows: day.inHouse, pendingFirst: () => false },
+  };
+  const current = lists[view];
+  const rows = pendingOnTop(filter(current.rows), current.pendingFirst);
   return (
     <section className="day-workspace">
       <div className="day-section-head">
@@ -43,7 +62,7 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
       </div>
       <div className="day-toolbar">
         <div className="day-tabs" aria-label="Списки рабочего дня">
-          {tabs.map(([id, title, count]) => (
+          {(Object.keys(lists) as View[]).map((id) => (
             <button
               key={id}
               type="button"
@@ -51,55 +70,66 @@ export function DayWorkspace({ day }: { day: DeskDay }) {
               className={cx('day-tab', view === id && 'is-active')}
               onClick={() => setView(id)}
             >
-              {title}
-              {count !== null && <span>{count}</span>}
+              {lists[id].title}
+              <span>{lists[id].rows.length}</span>
             </button>
           ))}
         </div>
       </div>
-      {(view === 'all' || view === 'arrivals') && (
-        <Group title="Заезжают" rows={filter(day.arrivals)} testId="arrivals" showBlocked />
-      )}
-      {(view === 'all' || view === 'departures') && (
-        <Group title="Выезжают" rows={filter(day.departures)} testId="departures" showDebt />
-      )}
-      {(view === 'all' || view === 'inhouse') && (
-        <Group title="Живут" rows={filter(day.inHouse)} testId="inhouse" />
-      )}
+      <Group
+        rows={rows}
+        testId={view}
+        showBlocked={view === 'arrivals'}
+        showDebt={view === 'departures'}
+      />
       <div className="day-table-footer">
-        <Icon name="check" /> Выберите гостя, чтобы открыть бронирование
+        <span>
+          {q && rows.length !== current.rows.length
+            ? `Найдено ${rows.length} из ${current.rows.length}`
+            : `${current.rows.length} ${plural(current.rows.length)}`}
+        </span>
+        <Link href={`/reservations?date=${day.date}`}>
+          Все брони дня <Icon name="arrow" width={12} />
+        </Link>
       </div>
     </section>
   );
 }
 
+/** Сначала те, кем ещё надо заняться; внутри групп порядок API не меняется */
+function pendingOnTop(rows: DeskRow[], pending: (r: DeskRow) => boolean): DeskRow[] {
+  return [...rows.filter(pending), ...rows.filter((r) => !pending(r))];
+}
+
+function plural(n: number): string {
+  const d = n % 10;
+  const h = n % 100;
+  if (h >= 11 && h <= 14) return 'размещений';
+  if (d === 1) return 'размещение';
+  if (d >= 2 && d <= 4) return 'размещения';
+  return 'размещений';
+}
+
 function Group({
-  title,
   rows,
   testId,
   showBlocked,
   showDebt,
 }: {
-  title: string;
   rows: DeskRow[];
-  testId: string;
+  testId: View;
   showBlocked?: boolean;
   showDebt?: boolean;
 }) {
   return (
-    <section className="day-group">
-      <h3 className="day-group-title">
-        <span className={`day-group-dot day-group-dot--${testId}`} />
-        {title}
-        <span>{rows.length}</span>
-      </h3>
-      <Table data-testid={`group-${testId}`} className="day-table">
+    <div className="day-list" data-testid={`group-${testId}`}>
+      <Table className="day-table" nowrap>
         <thead>
           <tr>
             <th>Гость</th>
-            <th>Размещение</th>
+            <th>Место</th>
             <th>Проживание</th>
-            <th>{showDebt ? 'Статус / счёт' : 'Статус'}</th>
+            <th>{showDebt ? 'Статус · счёт' : 'Статус'}</th>
             <th>
               <span className="sr-only">Действие</span>
             </th>
@@ -116,43 +146,29 @@ function Group({
           {rows.map((r) => {
             const m = messengerLinks(r.guestPhone);
             const url = `/reservations/${encodeURIComponent(r.confirmationNumber)}`;
+            const debt = showDebt && BigInt(r.balanceMinor) > 0n;
             return (
               <tr key={r.itemId} data-testid={`row-${testId}`}>
                 <td>
-                  <div className="day-guest">
-                    <span
-                      className={`day-guest-avatar day-guest-avatar--${testId}`}
-                      aria-hidden="true"
-                    >
-                      {r.guestLabel
-                        .split(' ')
-                        .filter(Boolean)
-                        .slice(0, 2)
-                        .map((n) => n[0])
-                        .join('') || '—'}
-                    </span>
-                    <div>
-                      <Link href={url} className="day-guest-name">
-                        {r.guestLabel || 'Гость без имени'}
-                      </Link>
-                      <div className="cell-sub">
-                        <span className="booking-number">{r.confirmationNumber}</span>
-                        {m && (
-                          <>
-                            {' '}
-                            ·{' '}
-                            <a
-                              href={m.whatsapp}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={`WhatsApp: ${r.guestLabel}`}
-                            >
-                              WA
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                  <Link href={url} className="day-guest-name">
+                    {r.guestLabel || 'Гость без имени'}
+                  </Link>
+                  <div className="cell-sub">
+                    <span className="booking-number">{r.confirmationNumber}</span>
+                    {m && (
+                      <>
+                        {' '}
+                        ·{' '}
+                        <a
+                          href={m.whatsapp}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`WhatsApp: ${r.guestLabel}`}
+                        >
+                          WA
+                        </a>
+                      </>
+                    )}
                   </div>
                 </td>
                 <td>
@@ -166,13 +182,12 @@ function Group({
                   )}
                   <div className="cell-sub day-category">{r.accommodationTypeName}</div>
                 </td>
-                <td className="nowrap">
+                <td>
                   <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
                   {/* стрелка периода «заезд → выезд» (DESIGN.md §14) */}
                   <span className="day-stay-arrow" aria-label="по">
                     {' → '}
                   </span>
-                  <br />
                   <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
                 </td>
                 <td>
@@ -186,12 +201,7 @@ function Group({
                     </div>
                   )}
                   {showDebt && (
-                    <div
-                      className={cx(
-                        'cell-sub',
-                        BigInt(r.balanceMinor) > 0n ? 'danger-text bold' : 'muted',
-                      )}
-                    >
+                    <div className={cx('cell-sub', debt ? 'danger-text bold' : 'muted')}>
                       {formatMinor(r.balanceMinor)}
                     </div>
                   )}
@@ -210,6 +220,6 @@ function Group({
           })}
         </tbody>
       </Table>
-    </section>
+    </div>
   );
 }

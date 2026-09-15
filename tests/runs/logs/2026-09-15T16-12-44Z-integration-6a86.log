@@ -1,0 +1,59 @@
+# Интеграционные (integration) · 15.09.2026 21:12 Алматы · MacBook-Air-Urij.local
+# коммит 4971836 (main)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-15T16-12-44Z-integration-6a86.json'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (5 tests) 128755ms
+   ✓ importReservations (integration, DATABASE_URL required) (5)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 46607ms
+     ✓ проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется 24100ms
+     ✓ Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет 17306ms
+     ✓ ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет 21163ms
+     ✓ Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом 19549ms
+(node:49025) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 45268ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 45256ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (3 tests) 11802ms
+   ✓ web analytics repository (integration) (3)
+     ✓ десять событий → три сессии с верными счётчиками, временем, источником и устройством 5598ms
+     ✓ отчёт сервиса за 12.09 по Алматы — контрольные числа гейта 3491ms
+(node:49183) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 33743ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 33732ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 22998ms
+   ✓ importPriceCalendar (integration, DATABASE_URL required) (2)
+     ✓ writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back 14951ms
+     ✓ refuses a calendar whose tariff is unknown in the database 8028ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 7299ms
+   ✓ guests.citizenship column (integration, DATABASE_URL required) (3)
+     ✓ код alpha-3 сохраняется как есть, без дописанных пробелов; NULL допустим 1034ms
+     ✓ база отвергает пустое, пробелы, нижний регистр и короткий код 3775ms
+     ✓ страна выдачи документа живёт по тому же правилу 778ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 4597ms
+   ✓ system_incidents (integration, DATABASE_URL required) (3)
+     ✓ повтор открытой неисправности — та же строка, счётчик растёт; закрытая и снова возникшая — новая строка 2652ms
+     ✓ пароль из текста ошибки в строку не попадает 314ms
+     ✓ база не даёт закрыть неисправность без времени и того, кто закрыл 444ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 3648ms
+   ✓ DB-level overbooking guard (integration) (1)
+     ✓ rejects a second allocation overlapping the same unit with an exclusion violation (23P01) 3628ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 17457ms
+   ✓ importInventoryPlan (integration, DATABASE_URL required) (1)
+     ✓ imports the synthetic plan idempotently: second run creates nothing, count stays 7 17438ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 1039ms
+   ✓ схема автотестов pms_test (integration, DATABASE_URL required) (1)
+     ✓ прямой SQL в тестах работает в pms_test, а не в рабочих данных 1038ms
+
+ Test Files  10 passed (10)
+      Tests  21 passed (21)
+   Start at  20:12:45
+   Duration  282.32s (tests 99%, import 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-15T16-12-44Z-integration-6a86.json
+
+# код выхода 0 · 4 мин 44 с

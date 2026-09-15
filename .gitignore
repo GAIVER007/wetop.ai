@@ -68,3 +68,5 @@ packages/database/src/generated/
 design/reference/exely/
 # пакет для Claude Design собирается командой npm run design:bundle, в git не идёт
 design/claude-design-bundle/
+# Замки прогонов: чей-то живой процесс, в историю не едут
+tests/runs/.locks/

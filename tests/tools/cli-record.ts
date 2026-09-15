@@ -19,6 +19,7 @@ import { hostname, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parse as parseDotEnv } from 'dotenv';
 import { ROOT, codeFingerprint, currentBranch, dirtyFiles, headCommit } from './git-state';
+import { acquireRunLock } from './run-lock';
 import {
   JOURNAL_FILE,
   JOURNAL_MD,
@@ -44,6 +45,9 @@ import {
 } from './journal';
 
 const MAX_LOG_BYTES = 512 * 1024;
+/** Набор, которому не нужны ни база, ни поднятые службы: замок на дерево ему ни к чему */
+const SELF_CONTAINED = 'ничего внешнего';
+const LOCK_DIR = 'tests/runs/.locks';
 const MAX_DIRTY = 50;
 
 const quote = (arg: string): string => `'${arg.replace(/'/g, `'\\''`)}'`;
@@ -88,6 +92,21 @@ function main(): void {
   }
   const { suite, args, note } = parsed;
 
+  /*
+   * Наборам, которым нужна общая dev-БД, замок на дерево: два прогона одновременно рвут друг другу
+   * test-results/ и занимают койки в чужих окнах дат (tests/tools/run-lock.ts). Чистым наборам он не нужен.
+   */
+  const lock = suite.needs === SELF_CONTAINED ? null : acquireRunLock(LOCK_DIR, suite.name);
+  if (lock && !lock.ok) {
+    console.error(
+      `✗ прогон «${suite.name}» уже идёт в этом дереве: pid ${lock.holder.pid}, начат ` +
+        `${almatyTime(lock.holder.startedAt)} Алматы. Дождитесь его: два прогона на общей dev-БД ` +
+        'рвут друг другу test-results/ и занимают койки в чужих окнах дат.',
+    );
+    process.exit(4);
+  }
+  const unlock = () => lock?.ok && lock.release();
+
   const started = new Date();
   const id = runId(started, suite.name, randomBytes(2).toString('hex'));
   const commit = headCommit();
@@ -125,10 +144,13 @@ function main(): void {
     interrupted = true;
     child.kill(signal);
   };
+  // Ctrl+C и `kill` раннера не должны оставить замок: следующий прогон иначе ждал бы мёртвого хозяина
+  process.on('exit', () => unlock());
   process.on('SIGINT', forward);
   process.on('SIGTERM', forward);
 
   child.on('close', (code, signal) => {
+    unlock();
     const durationMs = Date.now() - started.getTime();
     const values = secretValues();
     const mask = (text: string): string => maskSecrets(text, values);

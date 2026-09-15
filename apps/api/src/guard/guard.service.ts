@@ -320,7 +320,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       if (w.checkedAt)
         await run(
           'channex.webhook',
-          w.callbackCheckedAt ? ['webhook.suspect', 'webhook.unreachable'] : ['webhook.suspect'],
+          w.callbackCheckedAt
+            ? ['webhook.suspect', 'webhook.unreachable', 'webhook.misrouted']
+            : ['webhook.suspect'],
           () => {
             const out: Observation[] = [];
             if (w.suspect)
@@ -329,7 +331,20 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
                 title: `Webhook Channex под подозрением: ${w.suspectReason ?? 'причина не записана'}`,
                 details: { since: w.suspectSince },
               });
-            if (w.callbackReachable === false)
+            // Чужой адрес и молчащий свой — разные беды: первую сторож чинит сам, вторая (сеть, туннель) к человеку
+            const misrouted =
+              !!w.callbackExpectedUrl && !!w.callbackUrl && w.callbackUrl !== w.callbackExpectedUrl;
+            if (misrouted)
+              out.push({
+                kind: 'webhook.misrouted',
+                title: `В Channex записан не тот адрес webhook: ${w.callbackUrl} вместо ${w.callbackExpectedUrl} — брони доходят только опросом ленты`,
+                details: {
+                  url: w.callbackUrl,
+                  expectedUrl: w.callbackExpectedUrl,
+                  checkedAt: w.callbackCheckedAt,
+                },
+              });
+            else if (w.callbackReachable === false)
               out.push({
                 kind: 'webhook.unreachable',
                 title: 'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',
@@ -569,6 +584,16 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
               run: safe(() => this.fixes.retryEvent(inc.subjectId!)),
             }
           : null;
+      case 'webhook.misrouted': {
+        // Адрес в Channex — техника: возвращаем его тем же вызовом, что кнопка «Зарегистрировать webhook»
+        if (!this.probes.enabled('webhookHealth')) return null;
+        const expected = this.probes.webhook().callbackExpectedUrl;
+        if (!expected) return null;
+        return {
+          key: `registerWebhook:${expected}`,
+          run: safe(() => this.fixes.registerWebhook()),
+        };
+      }
       case 'web.down':
         return { key: 'restartWeb', run: safe(() => this.fixes.restartWeb()) };
       default:

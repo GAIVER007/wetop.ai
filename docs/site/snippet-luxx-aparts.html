@@ -1,19 +1,20 @@
 <!--
   PMS Luxx Aparts — код для сайта. Сайт в PMS: «Сайт Luxx Aparts», ключ pms_5724b8e298e4.
-  Дата выдачи: 12.09.2026. Адрес API ниже — ВРЕМЕННЫЙ (быстрый туннель Cloudflare), он меняется при
-  перезапуске туннеля. Перед установкой на настоящий сайт см. docs/site/install-2026-09-12.md, раздел 6:
-  нужен постоянный адрес, и тогда в двух строках ниже меняется только хост.
+  Дата выдачи: 12.09.2026, адрес API обновлён 15.09.2026 на постоянный (ADR-045, именованный туннель
+  cloudflared на api.wetop.ai). Наружу открыты только /a/pms.js, /a/hit, /w/widget.js, /w/availability,
+  /w/book и webhook Channex (SECURITY.md §11); демо-страницы /a/demo и /w/demo снаружи отдают 404.
+  На настоящий сайт отеля код пока НЕ ставится: не подтверждён адрес сайта и форма поиска дат (Q-111).
 -->
 
 <!-- ═══ БЛОК 1. Счётчик посещений — в <head> КАЖДОЙ страницы сайта ═══ -->
 <!-- PMS: счётчик посещений -->
-<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/a/pms.js" data-site="pms_5724b8e298e4"></script>
+<script async src="https://api.wetop.ai/a/pms.js" data-site="pms_5724b8e298e4"></script>
 
 
 <!-- ═══ БЛОК 2. Виджет бронирования — один раз, там, где на странице должна быть форма бронирования ═══ -->
 <!-- PMS: виджет бронирования -->
 <div id="pms-booking"></div>
-<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/w/widget.js" data-site="pms_5724b8e298e4"></script>
+<script async src="https://api.wetop.ai/w/widget.js" data-site="pms_5724b8e298e4"></script>
 
 
 <!-- ═══ НЕОБЯЗАТЕЛЬНО. События для аналитики на своих кнопках сайта ═══
@@ -30,6 +31,6 @@
      и после согласия вызовите pms('consent'). Без атрибута счётчик работает сразу: он не ставит cookies
      и не собирает персональные данные. -->
 <!--
-<script async src="https://profit-offered-rotary-titanium.trycloudflare.com/a/pms.js" data-site="pms_5724b8e298e4" data-consent="wait"></script>
+<script async src="https://api.wetop.ai/a/pms.js" data-site="pms_5724b8e298e4" data-consent="wait"></script>
 <script>document.getElementById('cookie-ok').addEventListener('click', function () { pms('consent'); });</script>
 -->

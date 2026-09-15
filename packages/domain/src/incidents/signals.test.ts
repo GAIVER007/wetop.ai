@@ -4,6 +4,7 @@ import {
   classifyError,
   failingSuites,
   latestReportResults,
+  narrowsTestSelection,
   overbookedNights,
 } from './signals';
 
@@ -63,6 +64,42 @@ describe('latestReportResults', () => {
   });
 });
 
+/**
+ * 15.09.2026: полный зелёный прогон e2e не засчитывался. На этой машине сквозные идут только
+ * `--workers=1` (в два воркера при свопе не укладываются в ожидания), а журнал считал любой аргумент
+ * признаком частичного прогона. Из-за этого неисправность «падает набор e2e» висела с 13.09,
+ * показывая чужой красный прогон, и `test:status` вечно требовал гнать заново.
+ * Частичным прогон делает только сужение набора тестов, а не то, КАК он запущен.
+ */
+describe('narrowsTestSelection', () => {
+  it('число воркеров, отчёт, повторы и таймаут набор не сужают', () => {
+    for (const args of [
+      [],
+      ['--workers=1'],
+      ['--workers', '1'],
+      ['--reporter=list'],
+      ['--retries=2'],
+      ['--timeout=180000'],
+      ['--headed'],
+      ['--workers=1', '--retries=0'],
+    ])
+      expect(narrowsTestSelection(args), args.join(' ')).toBe(false);
+  });
+
+  it('файл, grep, проект и другой конфиг — сужают: такой прогон набор не доказывает', () => {
+    for (const args of [
+      ['tests/e2e/finance.spec.ts'],
+      ['-g', 'бронь'],
+      ['--grep=бронь'],
+      ['--project', 'integration'],
+      ['--config', 'tests/ui/playwright.config.ts'],
+      ['--workers=1', 'tests/e2e/finance.spec.ts'],
+      ['-t', 'счёт'],
+    ])
+      expect(narrowsTestSelection(args), args.join(' ')).toBe(true);
+  });
+});
+
 describe('failingSuites', () => {
   const row = (suite: string, status: string, startedAt: string, args: string[] = []) =>
     JSON.stringify({
@@ -86,6 +123,22 @@ describe('failingSuites', () => {
     expect(failingSuites(jsonl)).toEqual([
       { suite: 'unit', startedAt: '2026-09-13T11:00:00Z', failures: 1, first: 'a.test.ts: boom' },
     ]);
+  });
+
+  it('зелёный прогон с --workers=1 — полный: он доказывает набор и снимает неисправность', () => {
+    const jsonl = [
+      row('e2e', 'failed', '2026-09-13T18:48:00.000Z'),
+      row('e2e', 'passed', '2026-09-15T15:30:00.000Z', ['--workers=1']),
+    ].join('\n');
+    expect(failingSuites(jsonl)).toEqual([]);
+  });
+
+  it('прогон одного файла набор не доказывает: красный остаётся красным', () => {
+    const jsonl = [
+      row('e2e', 'failed', '2026-09-13T18:48:00.000Z'),
+      row('e2e', 'passed', '2026-09-15T15:30:00.000Z', ['tests/e2e/finance.spec.ts']),
+    ].join('\n');
+    expect(failingSuites(jsonl).map((s) => s.suite)).toEqual(['e2e']);
   });
 });
 

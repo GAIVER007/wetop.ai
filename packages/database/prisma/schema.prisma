@@ -486,6 +486,7 @@ model Restriction {
 model AuditLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   entityType String   @map("entity_type")
   entityId   String   @map("entity_id")
   action     String
@@ -925,4 +926,76 @@ model SystemIncident {
   @@index([kind, firstSeenAt])
   @@index([resolvedAt])
   @@map("system_incidents")
+}
+
+// ───────────────────────── §13 Учётные записи (шаг 1) ─────────────────────────
+
+/// Сотрудник, входящий в стойку по логину и паролю (DATA_MODEL §13 шаг 1, ADR-046).
+/// Роль хранится, но на шаге 1 ничего не запрещает: администраторы равноправны (ADR-023), права — Q-135.
+/// Почта и имя — персональные данные: настоящие только в базе Казахстана (ADR-018, PII_STORAGE, Q-140).
+model User {
+  id             String     @id @default(uuid()) @db.Uuid
+  email          String     @unique
+  /// scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш». Сам пароль нигде не хранится и не логируется.
+  passwordHash   String     @map("password_hash")
+  fullName       String     @map("full_name")
+  role           UserRole   @default(DESK)
+  status         UserStatus @default(INVITED)
+  lastLoginAt    DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  /// Промахи подряд; после MAX_FAILED_ATTEMPTS вход запирается до locked_until (домен accounts)
+  failedAttempts Int        @default(0) @map("failed_attempts")
+  lockedUntil    DateTime?  @map("locked_until") @db.Timestamptz(6)
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  sessions       Session[]
+  passwordResets PasswordReset[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  BLOCKED
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  DESK
+  READONLY
+}
+
+/// Сессия входа. В cookie у человека сам токен, здесь только его sha-256: утечка базы не даёт войти.
+model Session {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash       String    @unique @map("token_hash")
+  /// «Chrome», «Safari» — семейство браузера. Полный User-Agent и IP не храним (ADR-018, как в §11)
+  userAgentFamily String?   @map("user_agent_family")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSeenAt      DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Сброс пароля по одноразовой ссылке. Тоже хеш токена, не токен.
+model PasswordReset {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("password_resets")
 }

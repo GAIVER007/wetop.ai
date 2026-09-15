@@ -20,6 +20,7 @@ import {
 import type { Response } from 'express';
 import { SITE_KEY_RE } from '@pms/domain';
 import { CollectService } from './collect.service';
+import { Public } from '../auth/public.decorator';
 
 /** Скрипт счётчика читается один раз при старте; отдаётся как есть (план среза 8 §4). */
 export const TRACKER_JS = readFileSync(resolve(import.meta.dirname, 'tracker.js'), 'utf-8');
@@ -40,6 +41,7 @@ class QuietFilter implements ExceptionFilter {
  * блокировщиков (analytics, collect, track). На публичном адресе наружу должны смотреть только они
  * и webhook Channex (Q-112).
  */
+@Public() // наружу через api.wetop.ai, входа не требует (SECURITY.md §11)
 @Controller('a')
 export class CollectController {
   constructor(@Inject(CollectService) private readonly collect: CollectService) {}

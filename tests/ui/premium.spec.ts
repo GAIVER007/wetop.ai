@@ -172,7 +172,7 @@ test('новые страницы и обе темы: адаптивность �
   }
   expect(errors).toEqual([]);
 });
-test('сообщения сохраняют только черновик, login не имитирует авторизацию', async ({ page }) => {
+test('сообщения сохраняют только черновик, вход не пускает с чужим паролем', async ({ page }) => {
   await page.goto('/messages');
   await page.getByRole('button', { name: 'Новое сообщение' }).click();
   const dialog = page.getByRole('dialog', { name: 'Новое сообщение' });
@@ -182,10 +182,11 @@ test('сообщения сохраняют только черновик, login
   await expect(page.getByText('Не отправлено', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Удалить черновик' }).click();
   await expect(page.getByText('Нет сохранённых черновиков')).toBeVisible();
+  // вход теперь настоящий (ADR-046): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('ещё не подключён');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Неверная почта или пароль');
   await expect(page).toHaveURL(/login/);
 });

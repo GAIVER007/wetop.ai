@@ -525,6 +525,29 @@ function report(): SiteReport {
     devices: { devices: [], browsers: [], os: [] },
   };
 }
+
+/**
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13 шаг 1). Настоящих людей здесь нет (ADR-010):
+ * один вымышленный сотрудник и пароль, который знает только эта фикстура.
+ */
+const uiUser = {
+  id: 'ui-user',
+  email: 'admin@wetop.test',
+  fullName: 'Дана Тестова',
+  role: 'DESK' as const,
+};
+const UI_PASSWORD = 'ui-test-parol';
+const uiSessions = new Set<string>();
+
+function sessionOf(req: { headers: Record<string, unknown> }): string | null {
+  const direct = req.headers['x-wetop-session'];
+  if (typeof direct === 'string' && direct !== '') return direct;
+  const header = req.headers['authorization'];
+  if (typeof header === 'string' && header.toLowerCase().startsWith('bearer '))
+    return header.slice(7).trim();
+  return null;
+}
+
 function read(path: string, q: URLSearchParams): unknown {
   if (path === '/system/connection') {
     const ready = connectionState === 'READY';
@@ -980,6 +1003,27 @@ createServer(async (req, res) => {
         rows: emptyFixture ? [] : rows,
       });
     }
+    if (path === '/auth/me') {
+      const token = sessionOf(req as never);
+      return send(200, token && uiSessions.has(token) ? { user: uiUser } : { user: null });
+    }
+    if (path === '/auth/login' && req.method === 'POST') {
+      if (body['email'] !== uiUser.email || body['password'] !== UI_PASSWORD)
+        return send(401, { message: 'Неверная почта или пароль' });
+      const token = `ui-session-${uiSessions.size + 1}`;
+      uiSessions.add(token);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: uiUser,
+      });
+    }
+    if (path === '/auth/logout' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (token) uiSessions.delete(token);
+      return send(200, { ok: true });
+    }
+
     if (req.method === 'GET') {
       const result = read(path, url.searchParams);
       return send(

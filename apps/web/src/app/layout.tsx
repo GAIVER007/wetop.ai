@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { TopNav } from '../components/top-nav';
+import { AccountMenu } from '../components/shell/account-menu';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
 import './globals.css';
@@ -42,6 +43,11 @@ export default function RootLayout({
         <ThemeProvider>
           <TopNav
             demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+            account={
+              <Suspense fallback={null}>
+                <AccountMenu />
+              </Suspense>
+            }
             property={{
               name: (
                 <Suspense fallback="Объект не загружен">

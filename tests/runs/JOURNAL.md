@@ -418,3 +418,11 @@
 | 16.09.2026 00:56 | unit | ❌ упало 3 из 814 | 1 мин 32 с | c22f3fa +2 | [лог](logs/2026-09-15T19-56-17Z-unit-42ac.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
 | 16.09.2026 00:58 | typecheck | ✅ без ошибок | 18 с | c22f3fa +2 | [лог](logs/2026-09-15T19-58-02Z-typecheck-18b1.log) |  |
 | 16.09.2026 00:58 | lint | ✅ без ошибок | 10 с | c22f3fa +2 | [лог](logs/2026-09-15T19-58-21Z-lint-1989.log) |  |
+| 16.09.2026 01:37 | unit | ❌ упало 3 из 882 | 1 мин 32 с | 7c96e0f +49 | [лог](logs/2026-09-15T20-37-49Z-unit-c9dc.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 16.09.2026 01:39 | typecheck | ✅ без ошибок | 17 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-39-31Z-typecheck-7f3c.log) |  |
+| 16.09.2026 01:39 | lint | ✅ без ошибок | 11 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-39-49Z-lint-9ddd.log) |  |
+| 16.09.2026 01:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ❌ упало 5 из 5 | 12 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-40-18Z-e2e-b720.log) | форма входа просит почту и пароль |
+| 16.09.2026 01:57 | typecheck | ✅ без ошибок | 22 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-57-33Z-typecheck-7e5b.log) |  |
+| 16.09.2026 01:58 | unit | ❌ упало 3 из 882 | 1 мин 32 с | 7c96e0f +48 | [лог](logs/2026-09-15T20-58-02Z-unit-8789.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 16.09.2026 01:59 | lint | ✅ без ошибок | 12 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-59-34Z-lint-4df1.log) |  |
+| 16.09.2026 01:59 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts login-access --workers=1) | ✅ 5 из 5 | 14 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-59-52Z-e2e-1338.log) |  |

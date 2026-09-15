@@ -1,7 +1,8 @@
 'use client';
 import { useActionState } from 'react';
 import { Alert, Button, Field, Grid, Input, Select } from '../../../components/ui';
-import { formatMinor, type FinanceFolio } from '../../../lib/api';
+import { formatMinor } from '../../../lib/format';
+import type { FinanceFolio } from '../../../lib/api';
 import { payGroupAction, type FinanceActionResult } from './finance-actions';
 
 export function GroupPayment({

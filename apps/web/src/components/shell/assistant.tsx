@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Overlay } from '../overlay';
 import { Icon } from '../icon';
 import { loadDeskSummary } from './summary-action';
-import { formatMinor } from '../../lib/api';
+import { formatMinor } from '../../lib/format';
 export function ShellAssistant({
   open,
   close,

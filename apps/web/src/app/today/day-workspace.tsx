@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { formatMinor, messengerLinks, type DeskDay, type DeskRow } from '../../lib/api';
+import { formatMinor, messengerLinks } from '../../lib/format';
+import type { DeskDay, DeskRow } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { Input, StatusBadge, Table, cx } from '../../components/ui';
 import { Icon } from '../../components/icon';

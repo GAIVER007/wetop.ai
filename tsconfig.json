@@ -2,6 +2,10 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    // Сквозные и UI-тесты исполняют код в браузере (page.evaluate, evaluateAll), поэтому типы DOM здесь
+    // нужны. До 15.09.2026 они приходили случайно — из графа импортов фикстуры; как только граф изменился
+    // (клиент API стал читать cookie сессии), пять проверок в tests/e2e и tests/ui перестали компилироваться.
+    "lib": ["ES2022", "DOM"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

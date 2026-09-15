@@ -19,6 +19,7 @@ import { ChannexSyncService } from './sync.service';
 import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
+import { Public } from '../auth/public.decorator';
 
 /** Ответ или отказ за отведённое время: запрос к провайдеру идёт дальше, но страница его не ждёт */
 function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
@@ -97,6 +98,7 @@ export class ChannelsController {
   }
 
   /** Webhook Channex: секрет в заголовке X-Channex-Webhook-Secret (webhook-collection.md → Security). */
+  @Public() // Channex приходит снаружи со своим секретом в заголовке, сессии у него нет
   @Post('webhook')
   @HttpCode(200)
   webhook(

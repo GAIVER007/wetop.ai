@@ -1,6 +1,10 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AuthModule } from './auth/auth.module';
+import { SessionGuard } from './auth/auth.guard';
+import { AuthorInterceptor } from './auth/author.interceptor';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
@@ -20,6 +24,7 @@ import { DataConnectionModule } from './database/connection';
 @Module({
   imports: [
     DataConnectionModule,
+    AuthModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,
@@ -35,6 +40,12 @@ import { DataConnectionModule } from './database/connection';
     WebBookingModule,
     GuardModule,
     FreshnessModule,
+  ],
+  // Замок непубличных маршрутов. Молчит, пока не задан AUTH_REQUIRED=1 (auth.guard.ts)
+  providers: [
+    { provide: APP_GUARD, useClass: SessionGuard },
+    // автор действия в журнале берётся из сессии (request-context.ts)
+    { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
   ],
 })
 export class AppModule {}

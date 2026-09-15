@@ -1,12 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { Fragment, useMemo, useRef, useState, useTransition, type CSSProperties } from 'react';
-import {
-  messengerLinks,
-  type Chessboard,
-  type ChessboardCell,
-  type ChessboardRow,
-} from '../../lib/api';
+import { messengerLinks } from '../../lib/format';
+import type { Chessboard, ChessboardCell, ChessboardRow } from '../../lib/api';
 import { Alert, Input, Select, cx } from '../../components/ui';
 import { stayLabels } from './stay-labels';
 import { assignUnitAction } from '../reservations/actions';

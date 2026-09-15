@@ -91,7 +91,10 @@ DECISIONS.md, QUESTIONS.md, PLAN.md
 |---|---|
 | Правила домена | `packages/domain/src` — доступность и остаток категории, ограничения (ADR-020), финансы, штрафы, шахматка, аналитика сайта (`web-analytics`: источник, устройство, метрики GA4), запрос брони с сайта (`web-booking`) |
 | API | `apps/api/src/<модуль>` — inventory, units, chessboard, reservations, guests, desk, finance, rates, channels, analytics (публичные `/a/pms.js`, `/a/hit` и отчёты `/analytics/*`), web-booking (виджет: `/w/widget.js`, `/w/availability`, `/w/book`, `/w/demo`) |
-| Стойка | `apps/web/src/app` — `/today`, `/chessboard`, `/reservations/[number]`, `/guests`, `/finance`, `/rates`, `/channels`, `/journal`, `/analytics`, `/analytics/setup`, печать. Оформление — только `app/globals.css` (токены, классы) и `src/components` (`Page`, `TopNav`, `Table`, `Button`…, ADR-027); страницы стилей не содержат |
+| Стойка | `apps/web/src/app` — `/login` (вход, `/login/reset`, `/login/set-password`), `/today`, `/chessboard`, `/reservations/[number]`, `/guests`, `/finance`, `/rates`, `/channels`, `/journal` (со столбцом «Кто»), `/analytics`, `/analytics/setup`, печать. Оформление — только `app/globals.css` (токены, классы) и `src/components` (`Page`, `TopNav`, `Table`, `Button`…, ADR-027); страницы стилей не содержат |
+| Вход и учётные записи | `packages/domain/src/accounts` (пароль, сессия, одноразовая ссылка), `apps/api/src/auth` (`/auth/*`, замок `SessionGuard`, автор действия в журнале), `apps/web/src/app/login` (вход, сброс, установка пароля), `scripts/ops/cli-accounts.ts` |
+| Письма | `packages/integrations/src/mail` (ADR-004), описание внешнего API — `docs/mail/README.md` |
+| Обращение скриптов к API | `scripts/lib/service-api.ts` — служебный ключ `SERVICE_API_KEY` и разбор 401 |
 | Channex и Exely | только `packages/integrations` (ADR-004) |
 | Импорт из Exely и синхронизация суток | `scripts/imports/src/cli-*.ts`, `cli-sync-day.ts` |
 | Сверки | `scripts/reconciliation/src/cli-*.ts`: фонд, цены, двойной ввод, балансы, ARI Channex, утренний отчёт, уборка автотестов |

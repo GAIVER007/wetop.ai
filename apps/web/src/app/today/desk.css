@@ -183,37 +183,20 @@
   font-size: 12px;
   padding-left: 0;
 }
-.day-group-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 12px 22px;
+/* Один список на экране: ограничен по высоте и прокручивается сам, шапка остаётся видна */
+.day-list {
+  max-height: 520px;
+  overflow: auto;
   border-top: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 500;
-  background: var(--success-soft);
-  color: var(--text-2);
 }
-.day-group-title > span:last-child {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 11px;
-}
-.day-group-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--success-soft);
-}
-.day-group-dot--arrivals {
-  background: var(--primary-soft);
-}
-.day-group-dot--departures {
-  background: var(--warning-soft);
-}
-.day-workspace .table-scroll {
+.day-list .table-scroll {
+  overflow: visible;
   border-radius: 0;
+}
+.day-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .day-table {
   border: 0;
@@ -233,8 +216,9 @@
   padding-left: 22px;
 }
 .day-table td {
-  padding: 14px 12px;
+  padding: 9px 12px;
   font-size: 12px;
+  vertical-align: middle;
 }
 .day-table th:last-child,
 .day-table td:last-child {
@@ -246,33 +230,8 @@
 }
 .day-table .cell-sub {
   font-size: 10px;
-  line-height: 1.5;
-  margin-top: 4px;
-}
-.day-guest {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.day-guest-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  color: var(--muted);
-  background: var(--success-soft);
-  font-size: 11px;
-  font-weight: 500;
-}
-.day-guest-avatar--arrivals {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.day-guest-avatar--departures {
-  background: var(--warning-soft);
-  color: var(--warning);
+  line-height: 1.4;
+  margin-top: 2px;
 }
 .day-guest-name {
   font-weight: 500;
@@ -335,13 +294,19 @@
   color: var(--primary);
 }
 .day-table-footer {
-  padding: 16px 22px;
+  padding: 12px 22px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   font-size: 11px;
   color: var(--muted);
   border-top: 1px solid var(--border-soft);
+}
+.day-table-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .day-table-footer svg {
   width: 14px;

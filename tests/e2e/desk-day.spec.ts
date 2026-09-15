@@ -19,9 +19,15 @@ test('экран «Сегодня» открывается с корня и по
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('heading', { name: 'Обзор дня' })).toBeVisible();
 
-  // три группы всегда на месте, даже если пусто
-  for (const g of ['arrivals', 'departures', 'inhouse'])
+  // три списка за вкладками, каждый открывается и виден, даже если пуст (один список на экране — 15.09.2026)
+  for (const [g, title] of [
+    ['departures', 'Выезды'],
+    ['inhouse', 'Живут'],
+    ['arrivals', 'Заезды'],
+  ] as const) {
+    await page.getByRole('button', { name: new RegExp(`^${title}`) }).click();
     await expect(page.getByTestId(`group-${g}`)).toBeVisible();
+  }
 
   const rows = async (g: string) => page.getByTestId(`row-${g}`).count();
   const card = async (id: string) => Number(await page.getByTestId(id).innerText());

@@ -250,11 +250,9 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .day-section-head { padding: 20px; }
 .day-section-head h2 { font-size: 16px; font-weight: 600; }
 .day-toolbar { padding: 0 20px 16px; }
-.day-group-title { padding: 12px 20px; font-size: 12px; background: var(--surface-muted); }
 .day-table { border-radius: 0; }
 .day-workspace .table-scroll { border: 0; border-radius: 0; box-shadow: none; }
 .day-guest-name { color: var(--text); font-size: 12px; }
-.day-guest-avatar { background: var(--primary-soft); color: var(--primary); border-radius: 50%; }
 .day-unit { background: var(--surface-muted); color: var(--text-2); border: 1px solid var(--border); border-radius: 6px; }
 .day-table-footer { background: var(--surface-muted); color: var(--muted); font-size: 12px; }
 @media (max-width: 1279px) { .desk-metric { padding: 16px; } .operations-grid { grid-template-columns: 1fr 1fr; } .operations-grid > .attention-card { grid-column: span 2; } .attention-list { display: grid; grid-template-columns: 1fr 1fr; } .occupancy-content { gap: 16px; } }

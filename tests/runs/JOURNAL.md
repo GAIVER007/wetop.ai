@@ -412,3 +412,5 @@
 | 15.09.2026 21:38 | unit | ✅ 809 из 809 | 42 с | aa92492 +4 | [лог](logs/2026-09-15T16-38-47Z-unit-47c8.log) |  |
 | 15.09.2026 21:39 | typecheck | ✅ без ошибок | 7 с | aa92492 +4 | [лог](logs/2026-09-15T16-39-30Z-typecheck-08d5.log) |  |
 | 15.09.2026 21:39 | lint | ✅ без ошибок | 5 с | aa92492 +4 | [лог](logs/2026-09-15T16-39-37Z-lint-eef9.log) |  |
+| 15.09.2026 21:50 | e2e (частично: --workers=1 tests/e2e/desk-day.spec.ts) | ✅ 2 из 2 | 1 мин 5 с | 09470aa +5 | [лог](logs/2026-09-15T16-50-56Z-e2e-2056.log) |  |
+| 15.09.2026 21:52 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 25 из 25 | 1 мин 6 с | 09470aa +5 | [лог](logs/2026-09-15T16-52-13Z-e2e-a9eb.log) |  |

@@ -13,6 +13,7 @@
 | Отправить форму сертификации Channex и запросить созвон | production Channex не открывают до сертификации; срока проверки у них нет, подавать сейчас | `plans/channex-certification-pack-2026-09-11.md` |
 | Выбрать провайдера ККМ и положить его документацию в `docs/fiscal/` | Gate 7; адаптер пишется только по документации (AGENTS.md §5) | Q-050, `docs/fiscal/README.md` |
 | Вернуть eQonaq в работу: письмо оператору готово | Gate 7; пока подача вручную, PMS печатает регистрационную карту | `outbox/02-eqonaq.md`, `docs/eqonaq/README.md` |
+| Применить миграцию учётных записей и завести себе вход | вход по логину и паролю сделан 15.09.2026, но миграция к dev-БД не применена и ни одного сотрудника в базе нет: `npx prisma migrate deploy --schema packages/database/prisma/schema.prisma`, затем `PMS_NEW_PASSWORD='…' npm run accounts -- create --email=… --name='…' --role=owner` | `reports/accounts-2026-09-15.md` §4 |
 | Список коек по четырём dorm-комнатам | `PhysicalRoom` сейчас 1:1 с ячейкой | Q-095 |
 | Цены Островка на 2027 | тарифы Островка кончаются 31.12.2026 | Q-101 |
 | Образцы печатных форм объекта | заменят наши заготовки RU/KZ | `project-input/forms/README.md` |

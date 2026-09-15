@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { ToastProvider, useToast } from '../../components/toast';
 import { Button, cx } from '../../components/ui';
-import { formatMoney } from '../../lib/money';
+import { formatMoney, minorToInput } from '../../lib/money';
 import { displayDay } from '../../lib/display-date';
 import { bulkRatesAction } from './actions';
 
@@ -34,7 +34,8 @@ export function PriceCell(props: {
     if (editing) input.current?.select();
   }, [editing]);
   const open = () => {
-    setValue(props.minor ? (BigInt(props.minor) / 100n).toString() : '');
+    // Тиыны не теряем: 123450 → «1234.50», 800000 → «8000». Иначе слепой Enter округлил бы цену вниз
+    setValue(props.minor ? minorToInput(props.minor) : '');
     setError(null);
     setEditing(true);
   };

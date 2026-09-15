@@ -971,7 +971,9 @@ export class ReservationsService {
       if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
       const from = await repo.categoryById(item.accommodationTypeId);
       const unit = await repo.unitByCode(q.unitCode!);
-      let target = from;
+      // Категория цели — по самой ячейке, а не по итогу пересчёта: иначе при занятой ячейке или
+      // неподходящем тарифе окно подтверждения писало бы «Переселить в <текущую категорию>»
+      const target = unit ? await repo.categoryById(unit.accommodationTypeId) : null;
       let newMinor: bigint | null = null;
       let problem: string | null = null;
       let ratePlanRequired = false;
@@ -984,10 +986,7 @@ export class ReservationsService {
         if (await repo.hasAllocationOverlap(unit.id, item.arrivalDate, item.departureDate, item.id))
           throw new ConflictException(`Ячейка ${unit.code} занята на эти даты`);
         const r = await this.repriceForUnit(repo, item, unit, q.ratePlanCode);
-        if (r) {
-          target = r.target;
-          newMinor = r.price.totalMinor;
-        } else newMinor = item.priceMinor;
+        newMinor = r ? r.price.totalMinor : item.priceMinor;
       } catch (e) {
         problem = messageOf(e);
         ratePlanRequired = e instanceof BadRequestException && !item.ratePlanId && !q.ratePlanCode;

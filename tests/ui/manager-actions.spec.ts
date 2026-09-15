@@ -113,7 +113,9 @@ test('карточка: отмена, незаезд и выселение с д
   await cardTab(page, 'Действия');
   await page.getByTestId('no-show-ui-item').click();
   dialog = page.getByRole('dialog', { name: 'Отметить незаезд по R01?' });
-  await expect(dialog.getByTestId('no-show-penalty')).toHaveText('Штраф 8 000 ₸ останется на счёте');
+  await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
+    'Штраф 8 000 ₸ останется на счёте',
+  );
   await dialog.getByRole('button', { name: 'Отметить незаезд' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');
@@ -148,10 +150,9 @@ test('шахматка: плашки «сверх мест» и «требует
   await page.goto('/chessboard');
   await expect(page.getByTestId('overbooked-callout')).toContainText('Продано сверх мест');
   await expect(page.getByTestId('review-callout')).toContainText('Входящая бронь требует разбора');
-  await expect(page.getByTestId('review-callout').getByRole('link', { name: 'Разобрать' })).toHaveAttribute(
-    'href',
-    '/channels?status=FAILED',
-  );
+  await expect(
+    page.getByTestId('review-callout').getByRole('link', { name: 'Разобрать' }),
+  ).toHaveAttribute('href', '/channels?status=FAILED');
   await expect(page.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
   await page.getByTestId('unassigned-stays').getByRole('button', { name: 'Разрешить' }).click();
   const menu = page.getByRole('menu');
@@ -169,6 +170,8 @@ test('шахматка: плашки «сверх мест» и «требует
   await page.getByRole('menuitem', { name: 'Отменить бронь' }).click();
   const dialog = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
   await expect(dialog.getByTestId('cancel-penalty')).toHaveText('Штраф 8 000 ₸ останется на счёте');
+  // команда отменяет бронь целиком — окно обязано это сказать (групповая бронь: до 36 проживаний)
+  await expect(dialog).toContainText('бронь целиком');
   await dialog.getByRole('button', { name: 'Оставить' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });

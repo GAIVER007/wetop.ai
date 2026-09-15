@@ -16,6 +16,9 @@ import {
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { ARI_PUBLISHER, PROVIDER, type AriPublisher } from './ari-publisher';
+
+/** Статусы входящего события в базе (`ExternalEventStatus`): другого значения Prisma не примет */
+const EVENT_STATUSES = ['RECEIVED', 'PROCESSING', 'PROCESSED', 'FAILED'] as const;
 import { ChannexSyncService } from './sync.service';
 import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
@@ -169,10 +172,12 @@ export class ChannelsController {
   ) {
     const n = Number(limit ?? 30);
     const o = Number(offset ?? 0);
+    // Неизвестный статус Prisma отвергает исключением, и вся таблица событий уходит в «не загрузились»
+    const st = (status ?? '').trim();
     return this.repo.eventsPage(PROVIDER, {
       limit: Number.isInteger(n) && n > 0 && n <= 200 ? n : 30,
       offset: Number.isInteger(o) && o >= 0 ? o : 0,
-      status: status?.trim() || undefined,
+      status: EVENT_STATUSES.includes(st as (typeof EVENT_STATUSES)[number]) ? st : undefined,
       type: type?.trim() || undefined,
       q: q?.trim() || undefined,
     });

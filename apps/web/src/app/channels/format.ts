@@ -31,12 +31,13 @@ export const EVENT_STATUS_RU: Record<string, string> = {
   PROCESSED: 'обработано',
   FAILED: 'ошибка',
   RECEIVED: 'получено',
-  SKIPPED: 'пропущено',
+  PROCESSING: 'в работе',
 };
 export const EVENT_STATUS_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
   PROCESSED: 'ok',
   FAILED: 'danger',
   RECEIVED: 'info',
+  PROCESSING: 'info',
 };
 export const VIA_RU: Record<string, string> = {
   WEBHOOK: 'webhook',

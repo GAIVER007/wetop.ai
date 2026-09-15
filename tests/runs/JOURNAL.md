@@ -459,3 +459,9 @@
 | 15.09.2026 20:24 | unit | ❌ упало 3 из 845 | 1 мин 33 с | 16c18ae +5 | [лог](logs/2026-09-15T15-24-36Z-unit-0642.log) | мелкие дефекты после срезов |
 | 15.09.2026 20:26 | typecheck | ✅ без ошибок | 14 с | 16c18ae +6 | [лог](logs/2026-09-15T15-26-10Z-typecheck-479f.log) | мелкие дефекты |
 | 15.09.2026 20:26 | lint | ✅ без ошибок | 9 с | 16c18ae +6 | [лог](logs/2026-09-15T15-26-25Z-lint-cb82.log) | мелкие дефекты |
+| 15.09.2026 20:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts tests/ui/channex-screens.spec.ts --workers=1) | ❌ упало 1 из 8 | 1 мин 16 с | 1d21bf1 +13 | [лог](logs/2026-09-15T15-51-17Z-e2e-276e.log) | находки ревью: отмена брони целиком, предоплата канала на странице ревизии |
+| 15.09.2026 20:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/manager-actions.spec.ts --workers=1) | ✅ 8 из 8 | 29 с | 1d21bf1 +14 | [лог](logs/2026-09-15T15-53-24Z-e2e-f776.log) | находки ревью: предоплата канала на странице ревизии, отмена брони целиком |
+| 15.09.2026 20:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests/ui/des | ✅ 96 из 96 | 8 мин 52 с | 1d21bf1 +14 | [лог](logs/2026-09-15T15-54-00Z-e2e-4240.log) | находки ревью: полная регрессия UI |
+| 15.09.2026 21:03 | unit | ❌ упало 3 из 847 | 1 мин 32 с | 1d21bf1 +12 | [лог](logs/2026-09-15T16-03-00Z-unit-ac75.log) | находки ревью: статус события, тиыны, категория цели |
+| 15.09.2026 21:04 | typecheck | ✅ без ошибок | 13 с | 1d21bf1 +14 | [лог](logs/2026-09-15T16-04-32Z-typecheck-bcc7.log) | находки ревью |
+| 15.09.2026 21:04 | lint | ✅ без ошибок | 9 с | 1d21bf1 +14 | [лог](logs/2026-09-15T16-04-45Z-lint-c37f.log) | находки ревью |

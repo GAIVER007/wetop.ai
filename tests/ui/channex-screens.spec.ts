@@ -41,17 +41,26 @@ test('цены: правка в ячейке — Enter сохраняет и у�
   // Enter — одна строка на один день и одно число гостей, уведомление, новая цена в ячейке
   await cell.getByRole('textbox').fill('9100');
   await cell.getByRole('textbox').press('Enter');
-  await expect(page.getByTestId('toast-stack')).toContainText('Цена на 02.10.2026 сохранена, ушла в Channex');
+  await expect(page.getByTestId('toast-stack')).toContainText(
+    'Цена на 02.10.2026 сохранена, ушла в Channex',
+  );
   await expect(cell.getByRole('button')).toContainText('9 100 ₸');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands).toHaveLength(1);
   expect(commands[0].body.changes).toEqual([
-    expect.objectContaining({ dateFrom: '2026-10-02', dateTo: '2026-10-02', price: '9100', occupancy: 1 }),
+    expect.objectContaining({
+      dateFrom: '2026-10-02',
+      dateTo: '2026-10-02',
+      price: '9100',
+      occupancy: 1,
+    }),
   ]);
   // Соседняя колонка (2 гостя) не тронута
   await expect(page.getByTestId('price-2026-10-02-2')).toContainText('10 000 ₸');
   // Ошибка сервера — там же, у ячейки
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates/bulk' } });
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/rates/bulk' },
+  });
   await cell.getByRole('button').click();
   await cell.getByRole('textbox').fill('9200');
   await cell.getByRole('textbox').press('Enter');
@@ -137,6 +146,9 @@ test('приём брони из канала: цепочка ревизия →
     'href',
     '/reservations/20260913-SHOWTN',
   );
+  // «Оплачено» из разности стоимости и остатка не считается: показываем предоплату канала как есть
+  await expect(chain).toContainText('Предоплата канала');
+  await expect(chain).not.toContainText('Оплачено');
   await expect(page.getByTestId('revision-unit')).toContainText('R06, Двухместный номер');
   await expect(page.getByRole('link', { name: 'Открыть шахматку на эти даты' })).toHaveAttribute(
     'href',

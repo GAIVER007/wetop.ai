@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney } from './money';
+import { formatMoney, minorToInput } from './money';
 
 describe('formatMoney — DESIGN.md §14', () => {
   it('без копеек, если их нет', () => {
@@ -14,5 +14,16 @@ describe('formatMoney — DESIGN.md §14', () => {
   });
   it('другая валюта — кодом', () => {
     expect(formatMoney('1000', 'USD')).toBe('10 USD');
+  });
+});
+
+describe('minorToInput — цена в поле правки ячейки (срез 7.2)', () => {
+  it('тиыны не теряются при открытии поля', () => {
+    expect(minorToInput('123450')).toBe('1234.50');
+    expect(minorToInput('105')).toBe('1.05');
+  });
+  it('целые тенге открываются без копеек', () => {
+    expect(minorToInput('800000')).toBe('8000');
+    expect(minorToInput('0')).toBe('0');
   });
 });

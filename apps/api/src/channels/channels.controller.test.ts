@@ -328,6 +328,9 @@ function makeFakes() {
     },
     // Срез 7.2: журнал с фильтрами и страница ревизии — на вымышленных событиях (ADR-010)
     async eventsPage(_p, q) {
+      // Как Prisma: значение вне перечисления ExternalEventStatus — исключение, а не пустая выборка
+      if (q.status && !['RECEIVED', 'PROCESSING', 'PROCESSED', 'FAILED'].includes(q.status))
+        throw new Error(`Invalid value for argument \`status\`: ${q.status}`);
       let list = events.filter(
         (e) =>
           (!q.status || e.status === q.status) &&
@@ -771,6 +774,11 @@ describe('Channex setup and full sync (contract on fakes)', () => {
       .get('/channels/channex/events?q=B-77')
       .expect(200);
     expect(byNumber.body.total).toBe(1);
+    // Статуса «пропущено» в базе нет: фильтр с ним не должен ронять всю таблицу событий
+    const unknown = await request(app.getHttpServer())
+      .get('/channels/channex/events?status=SKIPPED')
+      .expect(200);
+    expect(unknown.body.total).toBeGreaterThan(0);
     const page2 = await request(app.getHttpServer())
       .get('/channels/channex/events?limit=1&offset=1')
       .expect(200);

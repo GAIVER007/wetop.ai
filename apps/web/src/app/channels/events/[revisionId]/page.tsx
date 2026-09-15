@@ -66,7 +66,9 @@ export default async function RevisionPageView({
   const due = reservation
     ? reservation.items.reduce((s, it) => s + BigInt(balances[it.id] ?? '0'), 0n)
     : 0n;
-  const paid = total - due;
+  // «Оплачено» как стоимость минус остаток не считается: на счёте бывают услуги и штрафы,
+  // и разность уезжает в минус. Показываем то, что знаем точно: предоплату канала из самой ревизии.
+  const prepaid = amountMinor !== null && facts.paymentCollect === 'ota' ? amountMinor : null;
   const guests =
     facts.adults !== null
       ? `${facts.adults} взр.${facts.children ? `, ${facts.children} дет.` : ''}`
@@ -168,10 +170,9 @@ export default async function RevisionPageView({
                   <dd className="fact__value">{formatMoney(total, reservation.currency)}</dd>
                 </div>
                 <div>
-                  <dt className="fact__label">Оплачено</dt>
+                  <dt className="fact__label">Предоплата канала</dt>
                   <dd className="fact__value">
-                    {formatMoney(paid, reservation.currency)}
-                    {paid > 0n && reservation.channel ? ' каналом' : ''}
+                    {prepaid ? formatMoney(prepaid, facts.currency ?? reservation.currency) : '—'}
                   </dd>
                 </div>
                 <div>
@@ -191,12 +192,14 @@ export default async function RevisionPageView({
                   amountMinor={due.toString()}
                   currency={reservation.currency}
                 />
-              ) : (
+              ) : prepaid ? (
                 <AmountBadge
                   kind="prepaid"
-                  amountMinor={paid.toString()}
-                  currency={reservation.currency}
+                  amountMinor={prepaid}
+                  currency={facts.currency ?? reservation.currency}
                 />
+              ) : (
+                <AmountBadge kind="paid" amountMinor="0" currency={reservation.currency} />
               )}
             </>
           ) : (

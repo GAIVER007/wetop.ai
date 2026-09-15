@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 15.09.2026 20:53 Алматы · vm
+# коммит 1d21bf1 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/manager-actions.spec.ts' '--workers=1'
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/channex-screens.spec.ts:15:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.2s)
+  ✓  2 tests/ui/channex-screens.spec.ts:70:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.4s)
+  ✓  3 tests/ui/channex-screens.spec.ts:87:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (3.2s)
+  ✓  4 tests/ui/channex-screens.spec.ts:132:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (3.0s)
+  ✓  5 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (2.6s)
+  ✓  6 tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (2.4s)
+  ✓  7 tests/ui/manager-actions.spec.ts:91:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (4.9s)
+  ✓  8 tests/ui/manager-actions.spec.ts:145:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки, штраф в окне отмены (4.4s)
+
+  8 passed (27.9s)
+
+# код выхода 0 · 29 с

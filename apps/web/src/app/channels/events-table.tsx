@@ -54,7 +54,7 @@ export function EventsTable({
           <option value="PROCESSED">обработано</option>
           <option value="FAILED">ошибка</option>
           <option value="RECEIVED">получено</option>
-          <option value="SKIPPED">пропущено</option>
+          <option value="PROCESSING">в работе</option>
         </Select>
         <Select
           name="type"

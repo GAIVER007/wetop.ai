@@ -803,6 +803,33 @@ describe('manual reservation API', () => {
     ).expect(200);
     expect(blocked.body).toMatchObject({ changesCategory: false, newMinor: null });
     expect(blocked.body.problem).toContain('заблокирована');
+    // занятая ячейка ДРУГОЙ категории: окно называет категорию цели, а не текущую
+    const neighbour = await post(
+      '/reservations',
+      body({
+        arrivalDate: '2026-09-15',
+        departureDate: '2026-09-16',
+        items: [
+          {
+            accommodationTypeCode: 'exely-900002',
+            ratePlanCode: 'exely-800001',
+            adults: 1,
+            unitCode: '9002',
+          },
+        ],
+      }),
+    ).expect(201);
+    const busyOther = await get(
+      `/reservations/${n}/items/${itemId}/move-preview?unitCode=9002`,
+    ).expect(200);
+    expect(busyOther.body).toMatchObject({
+      changesCategory: true,
+      toCategory: { code: 'exely-900002', name: 'Тестовая двойная' },
+      newMinor: null,
+    });
+    expect(busyOther.body.problem).toContain('занята');
+    // соседа убираем: дальше эта же ячейка нужна свободной для настоящего переселения
+    await post(`/reservations/${neighbour.body.confirmationNumber}/cancel`).expect(200);
     await get(`/reservations/${n}/items/${itemId}/move-preview`).expect(400);
 
     // продление: только добавленная ночь по календарю, ячейка свободна

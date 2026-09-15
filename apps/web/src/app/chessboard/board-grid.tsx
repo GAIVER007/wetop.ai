@@ -173,9 +173,13 @@ function Grid({
       const r = await extendStayAction(stay.number, stay.itemId, 1);
       setBusy(null);
       if (r.error) {
+        // Б8: у брони из Exely тарифа нет, и API просит его явно — выбрать тариф можно только на карточке
+        const needsPlan = r.error.includes('ratePlanCode');
         toast.push({
           tone: 'danger',
-          text: `Не удалось продлить: ${r.error}`,
+          text: needsPlan
+            ? `Бронь ${stay.number} перенесена из Exely без тарифа: выберите тариф на карточке и продлите там`
+            : `Не удалось продлить: ${r.error}`,
           action: { label: 'Открыть бронь', href: `/reservations/${stay.number}` },
         });
         return;
@@ -204,6 +208,16 @@ function Grid({
       toast.push({ tone: 'ok', text: `Бронь ${stay.number} отменена, место вернулось в продажу` });
     });
   };
+  /**
+   * Сколько проживаний этой брони видно на доске: команда отмены отменяет бронь целиком,
+   * а у групповой брони на одном номере до 36 проживаний — окно обязано сказать об этом.
+   */
+  const staysOfReservation = (number: string) =>
+    new Set(
+      board.rows.flatMap((r) =>
+        r.cells.filter((c) => c.confirmationNumber === number && c.itemId).map((c) => c.itemId!),
+      ),
+    ).size;
   /** Свободные ячейки той же категории на все видимые ночи проживания — варианты для «Переселить» */
   const freeUnitsFor = (stay: StayRef) => {
     const from = board.dates.indexOf(stay.firstDate);
@@ -668,7 +682,7 @@ function Grid({
         title={
           pendingAction?.kind === 'cancel' ? `Отменить бронь ${pendingAction.stay.number}?` : ''
         }
-        consequence="Место вернётся в продажу и уйдёт в каналы. Отмена необратима."
+        consequence="Отменяется бронь целиком со всеми её проживаниями. Места вернутся в продажу и уйдут в каналы. Отмена необратима."
         amount={
           pendingAction?.kind === 'cancel' ? (
             <span data-testid="cancel-penalty">{penaltyText(pendingAction.penalty, 'cancel')}</span>
@@ -685,12 +699,17 @@ function Grid({
           setError(null);
         }}
       >
-        {pendingAction?.kind === 'cancel' && (
-          <p>
-            Гость {pendingAction.stay.guestLabel}, ячейка {pendingAction.stay.unitCode},{' '}
-            {displayPeriod(pendingAction.stay.firstDate, nextDay(pendingAction.stay.lastDate))}.
-          </p>
-        )}
+        {pendingAction?.kind === 'cancel' &&
+          (() => {
+            const stays = staysOfReservation(pendingAction.stay.number);
+            return (
+              <p data-testid="cancel-subject">
+                Гость {pendingAction.stay.guestLabel}, ячейка {pendingAction.stay.unitCode},{' '}
+                {displayPeriod(pendingAction.stay.firstDate, nextDay(pendingAction.stay.lastDate))}.
+                {stays > 1 ? ` В брони ещё ${stays - 1} проживаний — они тоже отменятся.` : ''}
+              </p>
+            );
+          })()}
       </ConfirmDialog>
     </>
   );

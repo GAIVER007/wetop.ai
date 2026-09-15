@@ -13,3 +13,16 @@ export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
   const sign = currency === 'KZT' ? '₸' : currency;
   return `${neg ? '−' : ''}${int}${frac === '00' ? '' : `,${frac}`} ${sign}`;
 }
+
+/**
+ * Цена из тиынов в то, что администратор правит в поле (срез 7.2, правка цены в ячейке):
+ * копейки показываем, только если они есть. Без этого 1 234,50 ₸ открывалось как «1234»,
+ * и слепой Enter переписывал цену на 1 234,00 ₸ — вместе с отправкой в Channex.
+ */
+export function minorToInput(minor: string): string {
+  const negative = minor.startsWith('-');
+  const digits = minor.replace('-', '').padStart(3, '0');
+  const whole = digits.slice(0, -2);
+  const fraction = digits.slice(-2);
+  return `${negative ? '-' : ''}${whole}${fraction === '00' ? '' : `.${fraction}`}`;
+}

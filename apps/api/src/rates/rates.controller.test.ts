@@ -57,6 +57,8 @@ function makeFakes() {
     async reservationChanged() {},
     async ratesChanged(changes) {
       published.push(changes);
+      // как настоящий издатель: сколько значений встало в очередь (здесь — все сопоставлены)
+      return changes.length;
     },
   };
   return { repo, publisher, applied, published, audits };
@@ -140,7 +142,9 @@ describe('rates API', () => {
         ],
       })
       .expect(201);
-    expect(res.body).toMatchObject({ applied: 3, rateRows: 3 });
+    // queued — сколько значений действительно ушло в очередь каналов (волна 3: стойка не пишет
+    // «ушло в каналы» для несопоставленных категорий и тарифов)
+    expect(res.body).toMatchObject({ applied: 3, rateRows: 3, queued: 3 });
     expect(fakes.applied[1]).toMatchObject({
       accommodationTypeId: 't2',
       capacityAdults: 2,

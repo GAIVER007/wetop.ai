@@ -178,7 +178,9 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
-  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
+  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
+    1,
+  );
   await expect(page.getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
@@ -482,6 +484,17 @@ test('номера: статус уборки, блокировка и снят�
   await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
   await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
   await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+  // Снятие блокировки возвращает ячейку в продажу — стойка переспрашивает; «Отмена» ничего не шлёт
+  const dialogs: string[] = [];
+  page.once('dialog', (d) => {
+    dialogs.push(d.message());
+    void d.dismiss();
+  });
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await expect.poll(() => dialogs.length).toBe(1);
+  expect(dialogs[0]).toContain('Снять блокировку');
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+  page.once('dialog', (d) => void d.accept());
   await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
@@ -491,6 +504,77 @@ test('номера: статус уборки, блокировка и снят�
     'POST /units/R01/blocks',
     'DELETE /units/R01/blocks/ui-block',
   ]);
+});
+
+test('гости: удаление документа переспрашивает; «Отмена» не шлёт команду', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/guests/ui-guest');
+  const form = page.getByTestId('document-form');
+  await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
+  await form.getByRole('button', { name: 'Добавить', exact: true }).click();
+  await expect(page.getByTestId('document-row')).toContainText('0042');
+  page.once('dialog', (d) => void d.dismiss());
+  await page
+    .getByTestId('document-row')
+    .getByRole('button', { name: 'удалить', exact: true })
+    .click();
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  page.once('dialog', (d) => void d.accept());
+  await page
+    .getByTestId('document-row')
+    .getByRole('button', { name: 'удалить', exact: true })
+    .click();
+  await expect(page.getByTestId('document-row')).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
+    'POST /guests/ui-guest/documents',
+    'DELETE /guests/ui-guest/documents/ui-doc-1',
+  ]);
+});
+
+test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
+  await page.goto('/reservations/new?unit=M03');
+  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей в проживании');
+  // койка в общем номере — один гость
+  await expect(guests).toHaveAttribute('max', '1');
+  await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
+  await expect(guests).toHaveAttribute('max', '2');
+});
+
+test('тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы»', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/rates?month=2026-10&category=MALE');
+  const editor = page.getByTestId('bulk-editor');
+  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
+  await editor.locator('select[name="accommodationTypeCode"]').selectOption('ROOM');
+  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '2');
+  await request.post(`${fixture}/__test/control`, { data: { ratesUnmapped: true } });
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await page.getByTestId('apply-changes').click();
+  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
+  await expect(page.getByTestId('bulk-done')).toContainText('В каналы не ушло');
+  await expect(page.getByTestId('bulk-done')).not.toContainText('Ушло в очередь');
+});
+
+test('неисправности: когда история обрезана, это написано', async ({ page, request }) => {
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { incidents: 200 } });
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toContainText('последние 200');
+});
+
+test('настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы»', async ({
+  page,
+}) => {
+  await page.goto('/hotel-settings/services');
+  await expect(page.getByText('«Счета»')).toBeVisible();
+  await expect(page.getByText('«Финансы»')).toHaveCount(0);
 });
 
 test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({

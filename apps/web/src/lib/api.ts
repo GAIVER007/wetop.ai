@@ -7,6 +7,8 @@ export interface CategorySummary {
   name: string;
   units: number;
   maxGuests: number;
+  /** Вместимость одной единицы категории — предел числа гостей в формах */
+  capacityAdults: number;
 }
 
 export interface InventorySummary {
@@ -354,7 +356,7 @@ export const ratesApi = {
       `/rates?accommodationTypeCode=${encodeURIComponent(accommodationTypeCode)}&ratePlanCode=${encodeURIComponent(ratePlanCode)}&from=${from}&to=${to}`,
     ),
   bulk: (changes: RateChangeInput[]) =>
-    sendJson<{ applied: number; rateRows: number; restrictionRows: number }>(
+    sendJson<{ applied: number; rateRows: number; restrictionRows: number; queued: number }>(
       'POST',
       '/rates/bulk',
       { changes },

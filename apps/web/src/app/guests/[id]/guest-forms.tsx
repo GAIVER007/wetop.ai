@@ -136,7 +136,11 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
               size="sm"
               className="is-danger"
               disabled={deletePending || dPending}
-              onClick={() => remove(() => deleteDocumentAction(guest.id, d.id))}
+              onClick={() => {
+                if (!window.confirm('Удалить документ гостя? Восстановить его будет нельзя.'))
+                  return;
+                remove(() => deleteDocumentAction(guest.id, d.id));
+              }}
             >
               удалить
             </Button>

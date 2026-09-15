@@ -61,7 +61,11 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               size="sm"
               className="is-danger"
               disabled={pending || blockPending}
-              onClick={() => start(async () => setOther(await unblockUnitAction(unit.code, b.id)))}
+              onClick={() => {
+                if (!window.confirm('Снять блокировку? Ячейка снова пойдёт в продажу на эти даты.'))
+                  return;
+                start(async () => setOther(await unblockUnitAction(unit.code, b.id)));
+              }}
             >
               снять
             </Button>

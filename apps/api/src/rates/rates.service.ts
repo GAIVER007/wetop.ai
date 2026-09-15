@@ -171,6 +171,7 @@ export class RatesService {
       ...(p.closedToDeparture !== undefined ? { closedToDeparture: p.closedToDeparture } : {}),
     }));
     // Цены, журнал и очередь каналов — одна транзакция: не бывает «цены сохранены, а в каналы не ушли» (Б5)
+    let queued = 0;
     const result = await this.repo.applyChanges(prepared, async (tx, counts) => {
       await this.repo.audit(
         'rates.bulk',
@@ -180,9 +181,9 @@ export class RatesService {
         },
         tx,
       );
-      await this.publisher.ratesChanged(local, tx);
+      queued = await this.publisher.ratesChanged(local, tx);
     });
-    return { applied: prepared.length, ...result };
+    return { applied: prepared.length, queued, ...result };
   }
 
   private async resolve(typeCode: string, planCode: string) {

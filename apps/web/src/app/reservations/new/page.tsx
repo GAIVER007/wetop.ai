@@ -66,6 +66,7 @@ export default async function NewReservationPage({
         categories={summary.byCategory.map((c) => ({
           code: c.code,
           name: c.name,
+          capacityAdults: c.capacityAdults,
           availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
         }))}
         ratePlans={ratePlans}

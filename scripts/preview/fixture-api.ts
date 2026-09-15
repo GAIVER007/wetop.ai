@@ -197,6 +197,10 @@ function getGuest(id: string) {
 let rejectCreate = false;
 let failPath = '';
 let emptyFixture = false;
+/** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
+let ratesUnmapped = false;
+/** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
+let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
@@ -585,8 +589,20 @@ function read(path: string, q: URLSearchParams): unknown {
       lastTick: null,
       open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
     };
-  if (path === '/guard/incidents')
+  if (path === '/guard/incidents') {
+    if (q.get('status') !== 'open' && incidentHistory > 0)
+      return Array.from(
+        { length: Math.min(incidentHistory, Number(q.get('limit')) || 100) },
+        (_, i) => ({
+          ...incident,
+          id: `ui-incident-${i}`,
+          status: 'RESOLVED',
+          resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
+          resolvedBy: 'STAFF',
+        }),
+      );
     return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+  }
   if (path === '/hotel/settings')
     return {
       property: {
@@ -665,6 +681,7 @@ function read(path: string, q: URLSearchParams): unknown {
         name: c.name,
         units: c.count,
         maxGuests: c.count * c.capacityAdults,
+        capacityAdults: c.capacityAdults,
       })),
     };
   if (path === '/inventory/units')
@@ -818,7 +835,13 @@ function read(path: string, q: URLSearchParams): unknown {
         parking: 'none',
       },
       facilities: [{ title: 'WiFi', category: 'general' }],
-      photos: [{ url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', description: 'Фасад', forRoomType: false }],
+      photos: [
+        {
+          url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
+          description: 'Фасад',
+          forRoomType: false,
+        },
+      ],
     };
   if (path === '/channels/channex/connection')
     return {
@@ -931,6 +954,8 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      ratesUnmapped = body['ratesUnmapped'] === true;
+      incidentHistory = Number(body['incidents']) || 0;
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
@@ -1018,6 +1043,7 @@ createServer(async (req, res) => {
         applied: (body['changes'] as unknown[]).length,
         rateRows: 1,
         restrictionRows: 0,
+        queued: ratesUnmapped ? 0 : (body['changes'] as unknown[]).length,
       });
     }
     if (path === '/analytics/sites' && req.method === 'POST') {
@@ -1125,6 +1151,29 @@ createServer(async (req, res) => {
       extraCards.set(r.confirmationNumber, r);
       extraGuests.set(g.id, g);
       return send(201, r);
+    }
+    if (path.startsWith('/guests/') && path.split('/')[3] === 'documents') {
+      const [, , rawId, , docId] = path.split('/');
+      const id = decodeURIComponent(rawId!);
+      const g = id === guest.id ? guest : extraGuests.get(id);
+      if (!g) return send(404, { message: 'Гость не найден' });
+      if (req.method === 'DELETE') {
+        g.documents = g.documents.filter((d) => d.id !== docId);
+        return send(200, getGuest(id));
+      }
+      const number = String(body['number'] ?? '');
+      g.documents = [
+        ...g.documents,
+        {
+          id: `ui-doc-${g.documents.length + 1}`,
+          type: String(body['type'] ?? 'PASSPORT'),
+          numberMasked: `****${number.slice(-4)}`,
+          issueCountry: body['issueCountry'] ? String(body['issueCountry']) : null,
+          issuedAt: body['issuedAt'] ? String(body['issuedAt']) : null,
+          expiresAt: body['expiresAt'] ? String(body['expiresAt']) : null,
+        },
+      ];
+      return send(201, getGuest(id));
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);

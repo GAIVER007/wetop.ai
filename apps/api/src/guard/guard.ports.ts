@@ -31,6 +31,8 @@ export interface WebhookSignal {
   callbackUrl: string | null;
   callbackReachable: boolean | null;
   callbackCheckedAt: string | null;
+  /** Постоянный адрес PMS (PUBLIC_API_URL). Зарегистрирован другой — события Channex уходят мимо (Д4) */
+  callbackExpectedUrl: string | null;
 }
 
 export interface OutboxSignal {
@@ -104,6 +106,8 @@ export interface GuardFixes {
   retryEvent(revisionId: string): Promise<FixOutcome>;
   /** Перезапуск зависшей стойки тем, кто её держит (launchd на Mac); где некому — честное «не настроено» */
   restartWeb(): Promise<FixOutcome>;
+  /** Вернуть webhook Channex на постоянный адрес PMS — то же, что кнопка «Зарегистрировать webhook» на /channels */
+  registerWebhook(): Promise<FixOutcome>;
 }
 
 export interface AlertNotifier {

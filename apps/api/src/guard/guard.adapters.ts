@@ -100,6 +100,7 @@ export class NestGuardProbes implements GuardProbes {
       callbackUrl: s.callbackProbedUrl,
       callbackReachable: s.callbackReachable,
       callbackCheckedAt: s.callbackCheckedAt,
+      callbackExpectedUrl: s.callbackExpectedUrl,
     };
   }
 
@@ -317,6 +318,16 @@ export class NestGuardFixes implements GuardFixes {
     }
     await execFileAsync('launchctl', ['kickstart', '-k', target]);
     return { ok: true, text: `стойка перезапущена: launchctl kickstart -k ${WEB_LAUNCHD_LABEL}` };
+  }
+
+  /**
+   * Вернуть webhook Channex на постоянный адрес PMS. 15.09.2026 адрес трижды за час уезжал на одноразовые туннели
+   * Cloudflare, каждый из которых умирал через минуты; чинится тем же вызовом, что кнопка «Зарегистрировать
+   * webhook» на /channels, и с той же проверкой — успех считается по ответу Channex, а не по отправленному адресу.
+   */
+  async registerWebhook(): Promise<FixOutcome> {
+    const r = await this.sync.registerWebhook();
+    return { ok: true, text: `webhook Channex возвращён на ${r.callbackUrl}` };
   }
 
   async retryEvent(revisionId: string): Promise<FixOutcome> {

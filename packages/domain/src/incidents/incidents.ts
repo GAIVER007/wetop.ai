@@ -10,6 +10,7 @@ export type IncidentStatus = 'OPEN' | 'FIXING' | 'ESCALATED' | 'ACKNOWLEDGED' | 
 export type IncidentKind =
   | 'webhook.suspect'
   | 'webhook.unreachable'
+  | 'webhook.misrouted'
   | 'feed.stale'
   | 'outbox.failed'
   | 'outbox.stuck'
@@ -65,11 +66,24 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
     escalateAfterMs: 15 * MIN,
     close: { by: 'recheck' },
   },
-  // Туннель поднимает его собственный сторож (scripts/ops/channex-tunnel.sh), после Q-112 адрес постоянный
+  // Молчит сам постоянный адрес PMS: это сеть или туннель, перерегистрация запишет то же самое — к человеку
   'webhook.unreachable': {
     class: 'A',
     severity: 'CRITICAL',
     escalateAfterMs: 15 * MIN,
+    close: { by: 'recheck' },
+  },
+  /*
+   * В Channex записан НЕ постоянный адрес PMS: одноразовый туннель или чужая настройка, и события уходят мимо
+   * (15.09.2026 адрес трижды за час уезжал на туннели Cloudflare, каждый умирал через минуты). Чинится тем же
+   * вызовом, что кнопка «Зарегистрировать webhook». Три попытки: если адрес уводят снова и снова, дело не
+   * в технике, и будить человека правильнее.
+   */
+  'webhook.misrouted': {
+    class: 'A',
+    severity: 'CRITICAL',
+    escalateAfterMs: 15 * MIN,
+    fix: { maxAttempts: 3, minIntervalMs: 5 * MIN },
     close: { by: 'recheck' },
   },
   'feed.stale': {

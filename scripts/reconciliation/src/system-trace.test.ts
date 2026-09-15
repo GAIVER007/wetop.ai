@@ -10,6 +10,7 @@ import {
   deskCounts,
   exelyVerdict,
   htmlText,
+  explainedByPending,
   layerMismatches,
   minorFromText,
   parseStayCells,
@@ -128,6 +129,21 @@ describe('сравнение слоёв', () => {
         day,
       ),
     ).toEqual({ arrivals: 2, departures: 2, inHouse: 2, toCheckIn: 1, toCheckOut: 1 });
+  });
+
+  it('брони «в пути» объясняют расхождение только по размеру, а не самим фактом', () => {
+    const rows = [{ metric: 'проживают', values: { exely: 55, db: 52, api: 52, ui: '52' } }];
+    // три брони «в пути» объясняют разницу в три единицы
+    expect(explainedByPending(rows, 3)).toBe(true);
+    // одна — уже нет: раньше любая бронь «в пути» превращала расхождение в предупреждение
+    expect(explainedByPending(rows, 1)).toBe(false);
+    expect(explainedByPending(rows, 0)).toBe(false);
+  });
+
+  it('нечисловое расхождение бронями «в пути» не объясняется', () => {
+    expect(
+      explainedByPending([{ metric: 'ячейка', values: { db: 'M03', api: 'M04' } }], 10),
+    ).toBe(false);
   });
 
   it('показатель расходится, только если различаются слои, где он есть', () => {

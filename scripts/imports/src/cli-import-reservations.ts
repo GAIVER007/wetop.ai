@@ -4,7 +4,6 @@
  * --skip=N — пропустить первые N броней (продолжение после обрыва; импорт идемпотентен, пачки по 50)
  * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env (запасной вариант — PII_ENCRYPTION_KEY).
  */
-import { pseudonymSalt } from '@pms/shared';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
@@ -13,6 +12,7 @@ import type { exely } from '@pms/integrations';
 import {
   LUXX_APARTS_PROPERTY,
   adaptUniBooking,
+  importPiiSalt,
   importReservations,
   normalizeExelyReservation,
 } from './exely/index';
@@ -24,7 +24,8 @@ const set = (process.argv.find((a) => a.startsWith('--set='))?.split('=')[1] ?? 
   'future' | 'all';
 const DIR = resolve(ROOT, `project-input/exely/api/${day}`);
 // соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю
-const salt = pseudonymSalt();
+// Единственный переключатель ПД: PII_STORAGE=real (боевая база в РК) — переносим как есть
+const salt = importPiiSalt();
 const skip = Number(process.argv.find((a) => a.startsWith('--skip='))?.split('=')[1] ?? 0);
 if (!Number.isInteger(skip) || skip < 0) throw new Error('--skip=N — целое от 0');
 

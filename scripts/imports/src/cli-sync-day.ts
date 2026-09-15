@@ -12,7 +12,6 @@
  *   брони, изменённые с прошлого прогона; раз в час — ещё и все активные брони текущих суток. В Channex уходит
  *   только дельта остатков по затронутым категориям и ночам, через очередь ARI; без изменений — ни одного запроса.
  */
-import { pseudonymSalt } from '@pms/shared';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
@@ -21,6 +20,7 @@ import type { ReservationImportRecord } from './exely/index';
 import {
   LUXX_APARTS_PROPERTY,
   adaptUniBooking,
+  importPiiSalt,
   importReservations,
   normalizeExelyReservation,
 } from './exely/index';
@@ -47,7 +47,8 @@ const TO = next.toISOString().slice(0, 10);
 const key = process.env.EXELY_API_KEY;
 if (!key) throw new Error('EXELY_API_KEY пуст');
 // соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю
-const salt = pseudonymSalt();
+// Единственный переключатель ПД: PII_STORAGE=real (боевая база в РК) — переносим как есть
+const salt = importPiiSalt();
 
 const since = process.argv.find((a) => a.startsWith('--since='))?.split('=')[1];
 if (since !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(since))

@@ -10,6 +10,7 @@ import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
 import { exely } from '@pms/integrations';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { compareDay, type ExelyStay, type PmsStay } from './double-entry';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -24,19 +25,9 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(DATE)) throw new Error('дата YYYY-MM-DD');
 const key = process.env.EXELY_API_KEY;
 if (!key) throw new Error('EXELY_API_KEY пуст');
 
-interface Counts {
-  arrivals: number;
-  departures: number;
-  occupied: number;
-  byCategory: Record<string, number>;
-}
-const empty = (): Counts => ({ arrivals: 0, departures: 0, occupied: 0, byCategory: {} });
 /** Метка автотестов: такие брони есть только в PMS и в сверку с Exely не идут */
 const E2E_NOTE = 'E2E-АВТОТЕСТ';
 let e2eSkipped = 0;
-/** Сколько занятых клеток на сетке: проживание без назначенной ячейки шахматка не рисует */
-let cellsOnGrid = 0;
-const withoutUnit: Array<{ number: string; category: string; stay: string }> = [];
 
 // ── Exely: активные брони, затрагивающие сутки ──
 const client = new exely.ExelyUniversalClient({ apiKey: key });
@@ -45,31 +36,25 @@ const numbers = await client.searchBookings({
   affectsPeriodFrom: `${DATE}T00:00`,
   affectsPeriodTo: `${plus(DATE, 1)}T00:00`,
 });
-const ex = empty();
-/** Номера броней Exely, занимающих эту ночь — для поимённого разбора расхождений */
-const exOccupying = new Set<string>();
+const exelyStays: ExelyStay[] = [];
 const roomTypeNames = new Map<string, string>();
 for (const n of numbers) {
   const b = await client.booking(n);
-  for (const rs of b.roomStays) {
-    if (rs.bookingStatus === 'Cancelled' || rs.status === 'Cancelled') continue;
-    const ci = rs.checkInDateTime.slice(0, 10);
-    const co = rs.checkOutDateTime.slice(0, 10);
-    if (ci === DATE) ex.arrivals += 1;
-    if (co === DATE) ex.departures += 1;
-    if (ci <= DATE && DATE < co) {
-      ex.occupied += 1;
-      exOccupying.add(b.number);
-      ex.byCategory[rs.roomTypeId] = (ex.byCategory[rs.roomTypeId] ?? 0) + 1;
-    }
-  }
+  for (const rs of b.roomStays)
+    exelyStays.push({
+      bookingNumber: b.number,
+      roomTypeId: rs.roomTypeId,
+      checkIn: rs.checkInDateTime.slice(0, 10),
+      checkOut: rs.checkOutDateTime.slice(0, 10),
+      actualCheckOut: rs.actualCheckOutDateTime?.slice(0, 10) ?? null,
+      status: rs.status,
+      bookingStatus: rs.bookingStatus,
+    });
 }
 
 // ── PMS ──
 const db = createPrismaClient();
-const pms = empty();
-/** Проживания PMS, занимающие ночь — для поимённого разбора расхождений */
-const pmsOccupying: Array<{ number: string; category: string; stay: string }> = [];
+const pmsStays: PmsStay[] = [];
 try {
   const property = await db.property.findFirstOrThrow({
     where: { name: LUXX_APARTS_PROPERTY.name },
@@ -83,13 +68,17 @@ try {
   const items = await db.reservationItem.findMany({
     where: {
       reservation: { propertyId: property.id },
-      status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+      // Незаезды берём тоже: Универсальный API Exely незаезда не знает, и молча выброшенное
+      // проживание давало −1, который гасил чужую ошибку. Такие строки называет отчёт.
+      status: { not: 'CANCELLED' },
       arrivalDate: { lte: new Date(`${DATE}T00:00:00Z`) },
       departureDate: { gte: new Date(`${DATE}T00:00:00Z`) },
     },
     select: {
       arrivalDate: true,
       departureDate: true,
+      status: true,
+      exelyRoomStayId: true,
       accommodationType: { select: { exelyId: true, id: true, name: true } },
       reservation: { select: { confirmationNumber: true, notes: true } },
       // Шахматка рисует НАЗНАЧЕНИЯ, а не проживания: проживание без ячейки на сетке не видно вовсе.
@@ -110,32 +99,22 @@ try {
       e2eSkipped += 1;
       continue;
     }
-    const ci = it.arrivalDate.toISOString().slice(0, 10);
-    const co = it.departureDate.toISOString().slice(0, 10);
-    if (ci === DATE) pms.arrivals += 1;
-    if (co === DATE) pms.departures += 1;
-    if (ci <= DATE && DATE < co) {
-      pms.occupied += 1;
-      const k = it.accommodationType.exelyId ?? it.accommodationType.id;
-      pms.byCategory[k] = (pms.byCategory[k] ?? 0) + 1;
-      if (it.allocations.length) cellsOnGrid += 1;
-      else
-        withoutUnit.push({
-          number: it.reservation.confirmationNumber,
-          category: it.accommodationType.name,
-          stay: `${ci} → ${co}`,
-        });
-      pmsOccupying.push({
-        number: it.reservation.confirmationNumber,
-        category: it.accommodationType.name,
-        stay: `${ci} → ${co}`,
-      });
-    }
+    pmsStays.push({
+      number: it.reservation.confirmationNumber,
+      categoryKey: it.accommodationType.exelyId ?? it.accommodationType.id,
+      categoryName: it.accommodationType.name,
+      arrival: it.arrivalDate.toISOString().slice(0, 10),
+      departure: it.departureDate.toISOString().slice(0, 10),
+      status: it.status,
+      fromExely: it.exelyRoomStayId !== null,
+      hasUnit: it.allocations.length > 0,
+    });
   }
 } finally {
   await db.$disconnect();
 }
 
+const r = compareDay(DATE, exelyStays, pmsStays);
 const lines = [
   `# Double entry — ${DATE}`,
   '',
@@ -144,71 +123,77 @@ const lines = [
   '',
   '| Metric | PMS | EXELY | DIFF |',
   '|---|---:|---:|---:|',
-  `| arrivals | ${pms.arrivals} | ${ex.arrivals} | ${pms.arrivals - ex.arrivals} |`,
-  `| departures | ${pms.departures} | ${ex.departures} | ${pms.departures - ex.departures} |`,
-  `| occupied units (night) | ${pms.occupied} | ${ex.occupied} | ${pms.occupied - ex.occupied} |`,
+  `| arrivals | ${r.pms.arrivals} | ${r.exely.arrivals} | ${r.pms.arrivals - r.exely.arrivals} |`,
+  `| departures | ${r.pms.departures} | ${r.exely.departures} | ${r.pms.departures - r.exely.departures} |`,
+  `| occupied units (night) | ${r.pms.occupied} | ${r.exely.occupied} | ${r.pms.occupied - r.exely.occupied} |`,
   // строка про сетку: столько занятых клеток увидит администратор на шахматке
-  `| из них видно на шахматке (есть ячейка) | ${cellsOnGrid} | — | ${cellsOnGrid - pms.occupied} |`,
+  `| из них видно на шахматке (есть ячейка) | ${r.cellsOnGrid} | — | ${r.cellsOnGrid - r.pms.occupied} |`,
 ];
-const cats = new Set([...Object.keys(pms.byCategory), ...Object.keys(ex.byCategory)]);
+const cats = new Set([...Object.keys(r.pms.byCategory), ...Object.keys(r.exely.byCategory)]);
 for (const c of [...cats].sort())
   lines.push(
-    `| ${roomTypeNames.get(c) ?? c} | ${pms.byCategory[c] ?? 0} | ${ex.byCategory[c] ?? 0} | ${(pms.byCategory[c] ?? 0) - (ex.byCategory[c] ?? 0)} |`,
+    `| ${roomTypeNames.get(c) ?? c} | ${r.pms.byCategory[c] ?? 0} | ${r.exely.byCategory[c] ?? 0} | ${(r.pms.byCategory[c] ?? 0) - (r.exely.byCategory[c] ?? 0)} |`,
   );
-const ok =
-  withoutUnit.length === 0 &&
-  pms.arrivals === ex.arrivals &&
-  pms.departures === ex.departures &&
-  pms.occupied === ex.occupied &&
-  [...cats].every((c) => (pms.byCategory[c] ?? 0) === (ex.byCategory[c] ?? 0));
 lines.push(
   '',
-  `RESULT: ${ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения, поимённый разбор ниже'}`,
+  `RESULT: ${r.ok ? 'OK — сутки сходятся' : 'FAIL — есть расхождения, поимённый разбор ниже'}`,
   '',
 );
-if (withoutUnit.length) {
+const named = (rows: typeof r.onlyPms) =>
+  rows.map((p) => `| ${p.number} | ${p.category} | ${p.stay} | ${p.why ?? ''} |`);
+if (r.withoutUnit.length) {
   lines.push(
-    `## Проживания без ячейки — ${withoutUnit.length} (на шахматке их не видно)`,
+    `## Проживания без ячейки — ${r.withoutUnit.length} (на шахматке их не видно)`,
     '',
-    '| Бронь | Категория | Проживание |',
-    '|---|---|---|',
-    ...withoutUnit.map((p) => `| ${p.number} | ${p.category} | ${p.stay} |`),
+    '| Бронь | Категория | Проживание | Почему |',
+    '|---|---|---|---|',
+    ...named(r.withoutUnit),
     '',
   );
 }
 
 // ── Поимённый разбор: какие именно брони расходятся (Gate 8: расхождение должно быть названо) ──
-if (!ok) {
-  const onlyPms = pmsOccupying.filter((p) => !exOccupying.has(p.number));
-  const pmsNumbers = new Set(pmsOccupying.map((p) => p.number));
-  const onlyExely = [...exOccupying].filter((n) => !pmsNumbers.has(n));
+// Списки считаются всегда, а не только при разошедшихся числах: две встречные ошибки дают ноль.
+if (!r.ok) {
   lines.push(
     '## Разбор расхождения',
     '',
-    `Занимают ночь только в PMS: **${onlyPms.length}**. Занимают ночь только в Exely: **${onlyExely.length}**.`,
+    `Занимают ночь только в PMS: **${r.onlyPms.length}**. Занимают ночь только в Exely: **${r.onlyExely.length}**.` +
+      (r.noShow.length ? ` Незаездов, которые в Exely ещё заняты: **${r.noShow.length}**.` : ''),
     '',
   );
-  if (onlyPms.length) {
+  if (r.onlyPms.length) {
     lines.push(
-      'Только в PMS — брони, которые в Exely на эти сутки уже не активны (сокращены, отменены или переселены',
-      'после последнего переноса). При параллельном ведении такие строки означают, что PMS отстала от Exely.',
+      'Только в PMS — брони, которых на эти сутки нет в Exely: сокращены, отменены или переселены после',
+      'последнего переноса, либо заведены прямо в PMS (сайт, канал, стойка). Колонка «Почему» говорит, что именно.',
       '',
-      '| Бронь | Категория | Проживание |',
-      '|---|---|---|',
-      ...onlyPms.slice(0, 40).map((p) => `| ${p.number} | ${p.category} | ${p.stay} |`),
+      '| Бронь | Категория | Проживание | Почему |',
+      '|---|---|---|---|',
+      ...named(r.onlyPms.slice(0, 40)),
       '',
     );
-    if (onlyPms.length > 40) lines.push(`…и ещё ${onlyPms.length - 40} строк.`, '');
+    if (r.onlyPms.length > 40) lines.push(`…и ещё ${r.onlyPms.length - 40} строк.`, '');
   }
-  if (onlyExely.length) {
+  if (r.onlyExely.length) {
     lines.push(
       'Только в Exely — брони, которых нет в PMS (созданы после переноса). Подтянуть:',
       '`npx tsx scripts/imports/src/cli-sync-day.ts ' + DATE + '`',
       '',
-      ...onlyExely.slice(0, 40).map((n) => `- ${n}`),
+      ...r.onlyExely.slice(0, 40).map((n) => `- ${n}`),
       '',
     );
-    if (onlyExely.length > 40) lines.push(`…и ещё ${onlyExely.length - 40} строк.`, '');
+    if (r.onlyExely.length > 40) lines.push(`…и ещё ${r.onlyExely.length - 40} строк.`, '');
+  }
+  if (r.noShow.length) {
+    lines.push(
+      'Незаезды: стойка отметила незаезд в PMS, а Универсальный API Exely такого статуса не отдаёт —',
+      'бронь там всё ещё занимает ночь. Снять её в Exely должен человек.',
+      '',
+      '| Бронь | Категория | Проживание | Почему |',
+      '|---|---|---|---|',
+      ...named(r.noShow),
+      '',
+    );
   }
 }
 mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
@@ -216,4 +201,4 @@ const out = resolve(ROOT, `reports/double-entry-${DATE}.md`);
 writeFileSync(out, lines.join('\n'));
 console.log(lines.join('\n'));
 console.log(`→ ${out}`);
-process.exitCode = ok ? 0 : 1;
+process.exitCode = r.ok ? 0 : 1;

@@ -188,6 +188,23 @@ export interface LayerRow {
   values: Record<string, number | string | null>;
 }
 
+/**
+ * Может ли расхождение показателей объясняться бронями «в пути» (изменены в Exely после последней
+ * синхронизации). Раньше хватало самого факта: одна такая бронь превращала любое расхождение суток
+ * в предупреждение, а на живом объекте «в пути» кто-то есть почти всегда. Теперь разница по каждому
+ * показателю должна укладываться в число таких броней, а нечисловое расхождение не объясняется вовсе.
+ */
+export function explainedByPending(rows: readonly LayerRow[], pending: number): boolean {
+  if (rows.length === 0) return true;
+  if (pending === 0) return false;
+  return rows.every((r) => {
+    const present = Object.values(r.values).filter((v) => v !== null);
+    const numbers = present.map((v) => Number(v));
+    if (numbers.some((n) => !Number.isFinite(n))) return false;
+    return Math.max(...numbers) - Math.min(...numbers) <= pending;
+  });
+}
+
 /** Показатели, у которых слои (без null) разошлись */
 export function layerMismatches(rows: readonly LayerRow[]): LayerRow[] {
   return rows.filter((r) => {

@@ -29,6 +29,7 @@ import {
   STATUS_LABEL,
   deskCounts,
   exelyVerdict,
+  explainedByPending,
   layerMismatches,
   parseStayCells,
   parseStayRows,
@@ -560,13 +561,14 @@ try {
 
   // сутки Exely ↔ Supabase: расхождение, целиком объяснённое бронями «в пути», — не ошибка
   const exelyDayBad = layerMismatches(exelyRows);
-  if (exelyDayBad.length && pending.length === 0)
+  if (exelyDayBad.length && explainedByPending(exelyDayBad, pending.length))
+    warnings.push(`сутки Exely ↔ Supabase расходятся не больше, чем на число броней «в пути» (${pending.length}) — следующий прогон синхронизации их заберёт: ${pending.join(', ')}`);
+  else
     for (const r of exelyDayBad) fail(`Exely ↔ Supabase, сутки: «${r.metric}» ${JSON.stringify(r.values)}`);
-  else if (exelyDayBad.length)
-    warnings.push(`сутки Exely ↔ Supabase расходятся при бронях «в пути» (${pending.length}) — следующий прогон синхронизации их заберёт`);
   for (const s of reseated)
     warnings.push(`не на ячейке из Exely — место занято другой бронью, или бронь ещё не попала в пачку синхронизации: ${s}`);
-  for (const s of unseated) warnings.push(`без ячейки — место из Exely занято, свободной ячейки и пары с переездом в категории нет (Q-119): ${s}`);
+  // Проживание без ячейки на шахматке не видно: двойной ввод за то же самое даёт FAIL, и здесь тоже.
+  for (const s of unseated) fail(`без ячейки — на шахматке этого гостя нет (Q-119): ${s}`);
 
   const fromExely = dayRowsItems.filter((it) => it.exelyRoomStayId && it.reservation.notes !== E2E_NOTE);
   const pmsOnly = dayRowsItems.filter((it) => !it.exelyRoomStayId && it.reservation.notes !== E2E_NOTE);

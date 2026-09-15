@@ -4,7 +4,20 @@
  * Реальный импорт без анонимизации — только в production-БД в Казахстане.
  */
 import { createHmac } from 'node:crypto';
+import { pseudonymSalt, realPiiAllowed } from '@pms/shared';
 import type { GenderCode } from './normalize-reservation';
+
+/**
+ * Соль для импорта или `null`, если настоящие ПД разрешены.
+ *
+ * Переключатель один на всю систему — `PII_STORAGE` (ADR-018, `CUTOVER.md` «Условия допуска»).
+ * Приём броней из каналов его читает (`guestForStorage`), а оба импорта из Exely раньше нет:
+ * соль передавалась всегда, и на боевой базе в РК у всех перенесённых гостей вышло бы
+ * «Гость Тест-…» с выдуманным телефоном, а заметки брони — пустые.
+ */
+export function importPiiSalt(env: NodeJS.ProcessEnv = process.env): string | null {
+  return realPiiAllowed(env) ? null : pseudonymSalt(env);
+}
 
 export interface GuestRecord {
   exelyPersonId: string;

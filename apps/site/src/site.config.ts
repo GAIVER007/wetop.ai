@@ -32,10 +32,12 @@ export const siteConfig: SiteConfig = {
   appUrl: 'https://app.wetop.ai',
   trialHref: '',
   company: {
-    name: '',
-    city: '',
-    email: '',
+    name: 'ТОО «MARKVISION AI»',
+    city: 'Астана',
+    email: 'zapoinov@bk.ru',
     phone: '',
-    about: '',
+    about:
+      'MARKVISION AI разрабатывает WETOP, систему управления хостелом и мини-отелем. ' +
+      'Компания зарегистрирована в Астане и является резидентом Astana Hub.',
   },
 };

@@ -67,6 +67,8 @@ test('заблокировать свободную койку на 2 ночи �
   await page.goto(`/units/${unitCode}`);
   // именно свою строку: на той же койке может лежать блок другого спека (даты разные, койка одна),
   // и тогда кнопок «снять» на странице две — клик по роли падал бы на strict mode
+  // снятие блокировки переспрашивает (волна 3): без ответа «ОК» Playwright отклоняет диалог
+  page.once('dialog', (d) => void d.accept());
   await ownBlock.getByRole('button', { name: 'снять' }).click();
   await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);

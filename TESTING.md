@@ -56,6 +56,7 @@ Markdown внутри кода входит — тесты импорта чит
 | `e2e` | `playwright test --workers=2` | Стойка целиком в изолированном стенде: браузер → web :3100 → API :3101 → `pms_test`; первым идёт `schema-guard`. Сертификация Channex — только `E2E_CHANNEX_LIVE=1` на рабочем стенде | `DATABASE_URL`, production-сборка `apps/web`; серверы Playwright поднимает сам | сутки |
 | `typecheck` | `typecheck`, `typecheck:api`, `typecheck:web` — все три до конца | Типы корня, API и стойки | ничего | пока не изменится код |
 | `lint` | `eslint .` | Правила кода, включая ADR-004: Channex только в `packages/integrations` | ничего | пока не изменится код |
+| главная | `e2e --config tests/site/playwright.config.ts` (`npm run site:check`) | Статическая сборка wetop.ai: страницы, доступность (axe), телефон без горизонтальной прокрутки, карточка ссылки с картинкой, адреса из `sitemap.xml` | ничего: ни базы, ни ключей, ни стойки | пока не изменится сайт |
 
 `npm test` — это **оба** проекта vitest, то есть и база (схема `pms_test`). Только модульные — `npm run test:record -- unit`.
 

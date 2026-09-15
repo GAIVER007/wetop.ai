@@ -39,6 +39,8 @@
     "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
     "dev:demo": "node scripts/preview/start-demo.mjs",
     "site:build": "npm run build -w apps/site",
+    "site:og": "node scripts/site/make-og-image.mjs",
+    "site:check": "playwright test --config tests/site/playwright.config.ts",
     "site:deploy": "npm run site:build && npx wrangler@latest pages deploy apps/site/out --project-name wetop-site --branch main"
   },
   "devDependencies": {

@@ -129,6 +129,61 @@ function makeFakes() {
     lastError?: string;
   }> = [];
   const audits: string[] = [];
+  /** Вымышленные события ленты: одна ревизия связана с бронью B-77 по unique_id (ADR-024) */
+  const events: Array<{
+    externalEventId: string;
+    type: string;
+    status: string;
+    attempts: number;
+    receivedVia: 'WEBHOOK' | 'PULL' | 'MANUAL';
+    receivedAt: string;
+    processedAt: string | null;
+    lastError: string | null;
+    uniqueId: string | null;
+    otaName: string | null;
+    confirmationNumber: string | null;
+    payload: unknown;
+  }> = [
+    {
+      externalEventId: 'rev-new',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedVia: 'WEBHOOK',
+      receivedAt: '2026-09-15T02:41:00Z',
+      processedAt: '2026-09-15T02:41:02Z',
+      lastError: null,
+      uniqueId: 'BDC-4821-7731',
+      otaName: 'Booking.com',
+      confirmationNumber: 'B-77',
+      payload: {
+        unique_id: 'BDC-4821-7731',
+        ota_name: 'Booking.com',
+        status: 'new',
+        arrival_date: '2026-09-16',
+        departure_date: '2026-09-18',
+        occupancy: { adults: 1, children: 0, infants: 0 },
+        amount: '16000.00',
+        currency: 'KZT',
+        customer: { name: 'Гость', surname: 'Тестовый', phone: '+70000000009' },
+        rooms: [],
+      },
+    },
+    {
+      externalEventId: 'rev-failed',
+      type: 'booking_new',
+      status: 'FAILED',
+      attempts: 6,
+      receivedVia: 'PULL',
+      receivedAt: '2026-09-15T01:00:00Z',
+      processedAt: null,
+      lastError: 'Несколько перенесённых броней подходят',
+      uniqueId: 'EXP-1',
+      otaName: 'Expedia',
+      confirmationNumber: null,
+      payload: { unique_id: 'EXP-1', ota_name: 'Expedia', status: 'new' },
+    },
+  ];
   const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
   const d = (k: number) => {
     const x = new Date(`${today}T00:00:00Z`);
@@ -270,6 +325,88 @@ function makeFakes() {
     },
     async recentEvents() {
       return [];
+    },
+    // Срез 7.2: журнал с фильтрами и страница ревизии — на вымышленных событиях (ADR-010)
+    async eventsPage(_p, q) {
+      let list = events.filter(
+        (e) =>
+          (!q.status || e.status === q.status) &&
+          (!q.type || e.type === q.type) &&
+          (!q.q ||
+            e.externalEventId.includes(q.q) ||
+            (e.uniqueId ?? '').includes(q.q) ||
+            (e.confirmationNumber ?? '').includes(q.q)),
+      );
+      const total = list.length;
+      list = list.slice(q.offset, q.offset + q.limit);
+      return {
+        total,
+        rows: list.map((r) =>
+          Object.fromEntries(Object.entries(r).filter(([k]) => k !== 'payload')),
+        ) as never,
+      };
+    },
+    async eventByRevision(_p, revisionId) {
+      const e = events.find((x) => x.externalEventId === revisionId);
+      if (!e) return null;
+      return Object.fromEntries(
+        Object.entries(e).filter(
+          ([k]) => !['uniqueId', 'otaName', 'confirmationNumber'].includes(k),
+        ),
+      ) as never;
+    },
+    async reservationCardByExternalId(externalId) {
+      if (externalId !== 'BDC-4821-7731') return null;
+      return {
+        card: {
+          confirmationNumber: 'B-77',
+          source: 'OTA',
+          channel: 'Booking.com',
+          status: 'CONFIRMED',
+          arrivalDate: d(1),
+          departureDate: d(3),
+          adults: 1,
+          children: 0,
+          currency: 'KZT',
+          totalAmountMinor: '1600000',
+          notes: null,
+          primaryGuest: null,
+          items: [
+            {
+              id: 'i-77',
+              accommodationTypeCode: 'exely-900001',
+              accommodationTypeName: 'Одиночная',
+              arrivalDate: d(1),
+              departureDate: d(3),
+              status: 'CONFIRMED',
+              priceMinor: '1600000',
+              ratePlanCode: null,
+              ratePlanName: null,
+              adults: 1,
+              children: 0,
+              unitCode: '9001',
+              guests: [],
+            },
+          ],
+        },
+        balances: { 'i-77': '0' },
+      };
+    },
+    async outboxRows(_p, q) {
+      return outbox
+        .filter((o) => !q.status || o.status === q.status)
+        .slice(0, q.limit)
+        .map((o) => ({
+          id: o.id,
+          kind: o.kind,
+          payload: o.payload,
+          status: o.status as 'PENDING' | 'SENT' | 'FAILED',
+          attempts: o.attempts,
+          taskId: o.taskId ?? null,
+          lastError: o.lastError ?? null,
+          createdAt: o.createdAt.toISOString(),
+          sentAt: null,
+        }));
     },
     async outboxSummary() {
       return {
@@ -615,6 +752,77 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     delete process.env.PUBLIC_API_URL;
     delete process.env.CHANNEX_WEBHOOK_SECRET;
   });
+  it('срез 7.2: журнал событий — фильтр по статусу, поиск по номеру брони, постраничность, бронь у ревизии', async () => {
+    const all = await request(app.getHttpServer()).get('/channels/channex/events').expect(200);
+    expect(all.body.total).toBe(2);
+    expect(all.body.rows[0]).toMatchObject({
+      externalEventId: 'rev-new',
+      confirmationNumber: 'B-77',
+      otaName: 'Booking.com',
+    });
+    expect(JSON.stringify(all.body)).not.toContain('Тестовый'); // payload в списке не отдаётся
+    const failed = await request(app.getHttpServer())
+      .get('/channels/channex/events?status=FAILED')
+      .expect(200);
+    expect(failed.body.rows.map((r: { externalEventId: string }) => r.externalEventId)).toEqual([
+      'rev-failed',
+    ]);
+    const byNumber = await request(app.getHttpServer())
+      .get('/channels/channex/events?q=B-77')
+      .expect(200);
+    expect(byNumber.body.total).toBe(1);
+    const page2 = await request(app.getHttpServer())
+      .get('/channels/channex/events?limit=1&offset=1')
+      .expect(200);
+    expect(page2.body.total).toBe(2);
+    expect(page2.body.rows).toHaveLength(1);
+  });
+
+  it('срез 7.2: страница ревизии — факты без ПД, связанная бронь, категория по маппингу; неизвестная — 404', async () => {
+    await request(app.getHttpServer())
+      .post('/channels/channex/setup')
+      .send({ ratePlanCode: 'OTA' })
+      .expect(200);
+    const res = await request(app.getHttpServer())
+      .get('/channels/channex/events/rev-new')
+      .expect(200);
+    expect(res.body.facts).toMatchObject({
+      uniqueId: 'BDC-4821-7731',
+      arrivalDate: '2026-09-16',
+      amount: '16000.00',
+    });
+    expect(JSON.stringify(res.body)).not.toContain('+70000000009');
+    expect(res.body.reservation.confirmationNumber).toBe('B-77');
+    expect(res.body.balances).toEqual({ 'i-77': '0' });
+    expect(Object.values(res.body.categoryByRoomType)).toContain('exely-900001');
+    await request(app.getHttpServer()).get('/channels/channex/events/nope').expect(404);
+  });
+
+  it('срез 7.2: строки очереди — что ушло, на какие даты, по каким категориям; фильтр по статусу', async () => {
+    await request(app.getHttpServer())
+      .post('/channels/channex/setup')
+      .send({ ratePlanCode: 'OTA' })
+      .expect(200);
+    // полная выгрузка идёт в Channex напрямую; в очередь пишет дельта остатков (ADR-032)
+    await request(app.getHttpServer())
+      .post('/channels/channex/availability/changed')
+      .send({ categoryCodes: ['exely-900001'], from: fakes.today, toExclusive: fakes.d(2) })
+      .expect(200);
+    await request(app.getHttpServer()).post('/channels/channex/outbox/flush').expect(200);
+    const rows = await request(app.getHttpServer())
+      .get('/channels/channex/outbox/rows')
+      .expect(200);
+    expect(rows.body.length).toBeGreaterThan(0);
+    const avail = rows.body.find((r: { kind: string }) => r.kind === 'AVAILABILITY');
+    expect(avail).toMatchObject({ status: 'SENT', messages: expect.any(Number) });
+    expect(avail.dateFrom <= avail.dateTo).toBe(true);
+    expect(avail.roomTypes).toContain('exely-900001'); // код категории по маппингу, имя подставит экран
+    const pending = await request(app.getHttpServer())
+      .get('/channels/channex/outbox/rows?status=PENDING')
+      .expect(200);
+    expect(pending.body.every((r: { status: string }) => r.status === 'PENDING')).toBe(true);
+  });
+
   it('webhook/status: Channex молчит — 504 за отведённое время, а не минута ожидания страницы «Подключения»', async () => {
     vi.stubEnv('CHANNEX_STATUS_TIMEOUT_MS', '50');
     fakes.state.hangListWebhooks = true;

@@ -424,3 +424,11 @@
 | 15.09.2026 10:58 | unit | ❌ упало 3 из 835 | 1 мин 32 с | 32d4823 +18 | [лог](logs/2026-09-15T05-58-43Z-unit-6790.log) | срез 7.1 шахматка: снимок сторожа обновлён после чистки premium.css |
 | 15.09.2026 11:03 | lint | ✅ без ошибок | 10 с | 980bacb +1 | [лог](logs/2026-09-15T06-03-07Z-lint-1bab.log) | слияние main в ветку среза 7.1 (PR #9) |
 | 15.09.2026 11:03 | typecheck | ✅ без ошибок | 14 с | 980bacb +1 | [лог](logs/2026-09-15T06-03-17Z-typecheck-cf57.log) | слияние main в ветку среза 7.1 (PR #9) |
+| 15.09.2026 15:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ❌ упало 2 из 4 | 1 мин 3 с | d26b377 +21 | [лог](logs/2026-09-15T10-00-14Z-e2e-5ff4.log) | срез 7.2: три экрана Channex на синтетическом API, первый прогон |
+| 15.09.2026 15:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 4 из 4 | 17 с | d26b377 +22 | [лог](logs/2026-09-15T10-01-56Z-e2e-62c8.log) | срез 7.2: три экрана Channex на синтетическом API |
+| 15.09.2026 15:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/accessibility.spec.ts tests/ui/quality.spec.ts tests/ui/design-referen | ❌ упало 6 из 71 | 9 мин 4 с | d26b377 +23 | [лог](logs/2026-09-15T10-02-45Z-e2e-5fe7.log) | срез 7.2: регрессия экранов /rates и /channels, снимки эталона |
+| 15.09.2026 15:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/accessibility.spec.ts --workers=1) | ✅ 33 из 33 | 5 мин 40 с | d26b377 +25 | [лог](logs/2026-09-15T10-13-21Z-e2e-3cd2.log) | срез 7.2: workspace и axe после правок (ссылка в тексте, кнопка «Убрать строку», полоса без метки ←) |
+| 15.09.2026 15:19 | unit | ❌ упало 3 из 844 | 1 мин 32 с | d26b377 +22 | [лог](logs/2026-09-15T10-19-13Z-unit-306d.log) | срез 7.2: помощники outbox-rows и revision-facts, контроллер каналов, снимок сторожа |
+| 15.09.2026 15:20 | typecheck | ✅ без ошибок | 22 с | d26b377 +26 | [лог](logs/2026-09-15T10-20-46Z-typecheck-8793.log) | срез 7.2 |
+| 15.09.2026 15:21 | lint | ❌ ошибок: 5 | 11 с | d26b377 +26 | [лог](logs/2026-09-15T10-21-08Z-lint-b338.log) | срез 7.2 |
+| 15.09.2026 15:22 | lint | ✅ без ошибок | 11 с | d26b377 +26 | [лог](logs/2026-09-15T10-22-58Z-lint-7938.log) | срез 7.2: после правки неиспользуемых имён |

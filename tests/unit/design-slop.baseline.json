@@ -27,7 +27,6 @@
   },
   "dot-separator": {
     "apps/web/src/app/channel-manager/page.tsx": 1,
-    "apps/web/src/app/channels/page.tsx": 1,
     "apps/web/src/app/connections/page.tsx": 3,
     "apps/web/src/app/guests/[id]/guest-forms.tsx": 3,
     "apps/web/src/app/hotel-settings/[[...section]]/page.tsx": 5,
@@ -35,8 +34,6 @@
     "apps/web/src/app/journal/page.tsx": 1,
     "apps/web/src/app/layout.tsx": 1,
     "apps/web/src/app/login/login-form.tsx": 1,
-    "apps/web/src/app/rates/bulk-editor.tsx": 7,
-    "apps/web/src/app/rates/page.tsx": 1,
     "apps/web/src/app/reservations/[number]/finance-panel.tsx": 7,
     "apps/web/src/app/reservations/[number]/group-payment.tsx": 3,
     "apps/web/src/app/reservations/[number]/page.tsx": 6,
@@ -54,11 +51,9 @@
     "apps/web/src/app/channel-manager/page.tsx": 1,
     "apps/web/src/app/guests/[id]/page.tsx": 1,
     "apps/web/src/app/guests/guest-directory.tsx": 1,
-    "apps/web/src/app/rates/page.tsx": 1,
     "apps/web/src/app/today/day-workspace.tsx": 1
   },
   "font-under-12": {
-    "apps/web/src/app/channels/page.tsx": 1,
     "apps/web/src/app/today/dashboard-widgets.tsx": 2,
     "apps/web/src/app/today/desk.css": 14,
     "apps/web/src/app/workspace.css": 11

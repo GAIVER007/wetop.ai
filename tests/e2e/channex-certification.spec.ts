@@ -108,7 +108,8 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     const price = before.startsWith('333,') ? '334' : '333';
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-22', price });
     await save(page);
-    await expect(cell).toHaveText(new RegExp(`${price},00`));
+    // Срез 7.2: деньги по DESIGN.md §14 — «333 ₸» без «,00»
+    await expect(cell).toHaveText(new RegExp(`${price} ₸`));
     expect((await cell.textContent())!.trim()).not.toBe(before);
     await flush(page, '2. Single Date Update for Single Rate');
   });
@@ -154,7 +155,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-14', stopSell: 'true' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-16', stopSell: 'true' });
     await save(page);
-    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('да');
+    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('закрыто');
     await flush(page, '6. Stop Sell Update');
   });
 

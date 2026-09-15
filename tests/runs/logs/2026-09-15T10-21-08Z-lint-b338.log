@@ -1,0 +1,17 @@
+# Линтер (lint) · 15.09.2026 15:21 Алматы · vm
+# коммит d26b377 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 26
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/channels/channels.controller.test.ts
+  342:50  error  '_payload' is defined but never used     @typescript-eslint/no-unused-vars
+  347:25  error  '_u' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  347:38  error  '_o' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  347:62  error  '_c' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/user/wetop.ai/apps/api/src/channels/channels.controller.ts
+  187:22  error  '_payload' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 5 problems (5 errors, 0 warnings)
+
+
+# код выхода 1 · 11 с

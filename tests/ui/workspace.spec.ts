@@ -227,7 +227,10 @@ test('шахматка: фильтры, продолжение брони, вы�
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
+  // Полоса, начавшаяся до окна, идёт с левого края без скругления и без метки заезда (DESIGN.md §9.1)
+  await expect(
+    page.locator(`.board__cell[data-date="${today}"] .board__stay:not(.board__stay--start)`).first(),
+  ).toBeVisible();
   await page.getByLabel('Категория на шахматке').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
   await page.getByLabel('Поиск на шахматке').fill('M03');
@@ -502,7 +505,7 @@ test('тарифы: добавить, удалить, сохранить и пр
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
   await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await editor.getByRole('button', { name: '×', exact: true }).click();
+  await editor.getByRole('button', { name: 'Убрать строку 1', exact: true }).click();
   await expect(page.getByTestId('apply-changes')).toBeDisabled();
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();

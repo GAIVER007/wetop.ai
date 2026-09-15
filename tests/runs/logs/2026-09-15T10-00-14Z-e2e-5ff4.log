@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 15.09.2026 15:00 Алматы · vm
+# коммит d26b377 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' '--workers=1'
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/channex-screens.spec.ts:15:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (3.1s)
+  ✓  2 tests/ui/channex-screens.spec.ts:61:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.7s)
+  ✘  3 tests/ui/channex-screens.spec.ts:78:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (2.4s)
+  ✘  4 tests/ui/channex-screens.spec.ts:123:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (4.7s)
+
+
+  1) tests/ui/channex-screens.spec.ts:78:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью 
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Найти' }) resolved to 2 elements:
+        1) <button class="workspace-search" aria-label="Найти гостя или бронь">…</button> aka getByRole('button', { name: 'Найти гостя или бронь' })
+        2) <button type="submit" class="btn btn--secondary btn--sm">Найти</button> aka getByRole('button', { name: 'Найти', exact: true })
+
+    Call log:
+      - waiting for getByRole('button', { name: 'Найти' })
+
+
+      107 |   // Фильтр по статусу + поиск по unique_id
+      108 |   await page.getByLabel('Статус события').selectOption('FAILED');
+    > 109 |   await page.getByRole('button', { name: 'Найти' }).click();
+          |                                                     ^
+      110 |   await expect(page.getByTestId('events-table').getByTestId('event-row')).toHaveCount(1);
+      111 |   await expect(page.getByTestId('events-table')).toContainText('BDC-4821-7731');
+      112 |   await page.getByLabel('Статус события').selectOption('');
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:109:53
+
+    Error Context: test-results/channex-screens-каналы-оче-afa13-и-поиском-и-постраничностью/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-каналы-оче-afa13-и-поиском-и-постраничностью/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-каналы-оче-afa13-и-поиском-и-постраничностью/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channex-screens.spec.ts:123:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 404
+    Received: 200
+
+      153 |   // Неизвестная ревизия — 404, а не пустая цепочка
+      154 |   const res = await page.goto('/channels/events/no-such-revision');
+    > 155 |   expect(res?.status()).toBe(404);
+          |                         ^
+      156 | });
+      157 |
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:155:25
+
+    Error Context: test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-приём-брон-d319f-нальных-данных-ошибка-и-404/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/channex-screens.spec.ts:78:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью 
+    tests/ui/channex-screens.spec.ts:123:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 
+  2 passed (1.0m)
+
+# код выхода 1 · 1 мин 3 с

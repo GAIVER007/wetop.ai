@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import type { RateChangeInput } from '../../lib/api';
+import { displayDay, displayPeriod } from '../../lib/display-date';
 import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
 import { bulkRatesAction } from './actions';
 
@@ -112,7 +113,7 @@ export function BulkEditor(props: {
           </Field>
         </Grid>
         <div className="row hint">
-          дни:
+          Дни недели:
           {DAYS.map(([d, t]) => (
             <label key={d} className="check">
               <input type="checkbox" name={`day-${d}`} defaultChecked /> {t}
@@ -157,32 +158,43 @@ export function BulkEditor(props: {
         </div>
       </form>
       {rows.length > 0 && (
-        <ul data-testid="pending-changes" className="list list--gap hint--lg">
-          {rows.map((r, i) => (
-            <li key={i}>
-              {name(r.accommodationTypeCode, props.categories)} ·{' '}
-              {name(r.ratePlanCode, props.ratePlans)} · {r.dateFrom}
-              {r.dateTo !== r.dateFrom ? ` → ${r.dateTo}` : ''}
-              {r.days ? ` (${r.days.join(',')})` : ''}
-              {r.price ? ` · цена ${r.price}` : ''}
-              {r.occupancy ? ` (${r.occupancy} гост.)` : ''}
-              {r.minStay !== undefined ? ` · min ${r.minStay}` : ''}
-              {r.maxStay !== undefined ? ` · max ${r.maxStay}` : ''}
-              {r.stopSell !== undefined ? ` · stop sell ${r.stopSell ? 'да' : 'нет'}` : ''}
-              {r.closedToArrival !== undefined ? ` · CTA ${r.closedToArrival ? 'да' : 'нет'}` : ''}
-              {r.closedToDeparture !== undefined
-                ? ` · CTD ${r.closedToDeparture ? 'да' : 'нет'}`
-                : ''}{' '}
-              <Button
-                type="button"
-                tone="ghost"
-                onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
-              >
-                ×
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <ol data-testid="pending-changes" className="pending-list">
+          {rows.map((r, i) => {
+            const facts = [
+              r.price ? `цена ${r.price}${r.occupancy ? ` (${r.occupancy} гост.)` : ''}` : '',
+              r.minStay !== undefined ? `min stay ${r.minStay}` : '',
+              r.maxStay !== undefined ? `max stay ${r.maxStay}` : '',
+              r.stopSell !== undefined ? `stop sell ${r.stopSell ? 'да' : 'нет'}` : '',
+              r.closedToArrival !== undefined ? `CTA ${r.closedToArrival ? 'да' : 'нет'}` : '',
+              r.closedToDeparture !== undefined ? `CTD ${r.closedToDeparture ? 'да' : 'нет'}` : '',
+            ].filter(Boolean);
+            const period =
+              r.dateTo !== r.dateFrom
+                ? displayPeriod(r.dateFrom, r.dateTo)
+                : displayDay(r.dateFrom);
+            const days = r.days
+              ? ` (${r.days.map((d) => DAYS.find(([k]) => k === d)?.[1] ?? d).join(', ')})`
+              : '';
+            return (
+              <li key={i} className="pending-list__row">
+                <span>
+                  {name(r.accommodationTypeCode, props.categories)},{' '}
+                  {name(r.ratePlanCode, props.ratePlans)}: {period}
+                  {days} — {facts.join(', ')}
+                </span>
+                <Button
+                  type="button"
+                  tone="ghost"
+                  size="xs"
+                  aria-label={`Убрать строку ${i + 1}`}
+                  onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
+                >
+                  ×
+                </Button>
+              </li>
+            );
+          })}
+        </ol>
       )}
       <Row gap="lg">
         <Button

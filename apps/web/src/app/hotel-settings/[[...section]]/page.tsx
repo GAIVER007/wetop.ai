@@ -5,7 +5,17 @@ import { hotelApi, type HotelContent } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
 import { SectionCards } from '../../../components/section-cards';
-import { Alert, Badge, Fact, Grid, Notice, Panel, Stat, Stats, Table } from '../../../components/ui';
+import {
+  Alert,
+  Badge,
+  Fact,
+  Grid,
+  Notice,
+  Panel,
+  Stat,
+  Stats,
+  Table,
+} from '../../../components/ui';
 
 export default async function HotelSettingsPage({
   params,
@@ -71,7 +81,10 @@ async function ChannexContent({
   const source = (
     <p className="note" data-testid="content-source">
       Источник: {ENVIRONMENT[c.environment]} · прочитано в {almatyTime(c.checkedAt)} по Алматы ·{' '}
-      <Link href="?refresh=1">прочитать заново</Link>. Изменить можно в кабинете Channex.
+      <Link href="?refresh=1" className="link-underline">
+        прочитать заново
+      </Link>
+      . Изменить можно в кабинете Channex.
     </p>
   );
   if (c.state !== 'READY')

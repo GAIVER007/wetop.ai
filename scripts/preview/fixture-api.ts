@@ -15,6 +15,8 @@ import type {
   SiteReport,
   Incident,
   InboundEvent,
+  OutboxRow,
+  RevisionFacts,
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
@@ -201,7 +203,14 @@ let emptyFixture = false;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
-let priceChanges: Array<{ dateFrom: string; dateTo: string; price?: string }> = [];
+let priceChanges: Array<{
+  dateFrom: string;
+  dateTo: string;
+  price?: string;
+  occupancy?: number;
+  stopSell?: boolean;
+  minStay?: number;
+}> = [];
 let siteDeleted = false;
 let groupFixture = false;
 let paid = new Map<string, bigint>();
@@ -240,6 +249,9 @@ let incident = structuredClone(incidentSeed);
 // Все имена вымышленные (ADR-010): проверяем длину, кириллицу, латиницу и казахские буквы.
 let showcase = false;
 let showcaseEvents: InboundEvent[] = [];
+/** Факты ревизий витрины без ПД (срез 7.2, страница «Приём брони из канала») */
+const showcaseRevisions = new Map<string, RevisionFacts>();
+let showcaseOutbox: OutboxRow[] = [];
 let showcaseIncidents: Incident[] = [];
 const fillerSurnames = [
   'Учебный',
@@ -421,10 +433,22 @@ function applyShowcase() {
   });
   // Блокировки с причиной и три статуса уборки
   blocks.set('R09', [
-    { id: 'ui-show-block-1', dateFrom: today, dateTo: t(2), type: 'MAINTENANCE', reason: 'кондиционер' },
+    {
+      id: 'ui-show-block-1',
+      dateFrom: today,
+      dateTo: t(2),
+      type: 'MAINTENANCE',
+      reason: 'кондиционер',
+    },
   ]);
   blocks.set('R10', [
-    { id: 'ui-show-block-2', dateFrom: t(1), dateTo: t(4), type: 'OUT_OF_ORDER', reason: 'протечка' },
+    {
+      id: 'ui-show-block-2',
+      dateFrom: t(1),
+      dateTo: t(4),
+      type: 'OUT_OF_ORDER',
+      reason: 'протечка',
+    },
   ]);
   blocks.set('F04', [
     {
@@ -435,7 +459,9 @@ function applyShowcase() {
       reason: 'резерв для персонала',
     },
   ]);
-  blocks.set('F05', [{ id: 'ui-show-block-4', dateFrom: t(2), dateTo: t(3), type: 'OTHER', reason: '' }]);
+  blocks.set('F05', [
+    { id: 'ui-show-block-4', dateFrom: t(2), dateTo: t(3), type: 'OTHER', reason: '' },
+  ]);
   housekeeping.set('R01', 'DIRTY');
   housekeeping.set('R02', 'CLEAN');
   housekeeping.set('R03', 'INSPECTED');
@@ -466,6 +492,9 @@ function applyShowcase() {
       processedAt: null,
       lastError:
         'Несколько перенесённых броней подходят: 20260913-SHOWTN, 20260913-SHOWEX — разберите руками (Q-109)',
+      uniqueId: 'BDC-4821-7731',
+      otaName: 'Booking.com',
+      confirmationNumber: null,
     },
     {
       externalEventId: 'ui-rev-modified',
@@ -476,6 +505,9 @@ function applyShowcase() {
       receivedAt: `${today}T04:58:03Z`,
       processedAt: `${today}T04:58:05Z`,
       lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
     },
     {
       externalEventId: 'ui-rev-cancelled',
@@ -486,6 +518,168 @@ function applyShowcase() {
       receivedAt: `${today}T03:20:11Z`,
       processedAt: `${today}T03:20:12Z`,
       lastError: null,
+      uniqueId: 'EXP-90210',
+      otaName: 'Expedia',
+      confirmationNumber: '20260913-SHOWCX',
+    },
+    {
+      externalEventId: 'ui-rev-new-2',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T02:41:07Z`,
+      processedAt: `${today}T02:41:09Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
+    },
+    // Хвост обработанных событий — чтобы была вторая страница («показано 20 из 32»)
+    ...Array.from({ length: 28 }, (_, i) => ({
+      externalEventId: `ui-rev-auto-${String(i + 1).padStart(2, '0')}`,
+      receivedVia: (i % 5 === 0 ? 'PULL' : 'WEBHOOK') as 'PULL' | 'WEBHOOK',
+      type: i % 7 === 3 ? 'booking_cancellation' : 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${t(-1 - Math.floor(i / 4))}T${String(20 - (i % 4) * 3).padStart(2, '0')}:1${i % 10}:00Z`,
+      processedAt: `${t(-1 - Math.floor(i / 4))}T${String(20 - (i % 4) * 3).padStart(2, '0')}:1${i % 10}:02Z`,
+      lastError: null,
+      uniqueId: `HW-AUTO-${1000 + i}`,
+      otaName: 'Hostelworld',
+      confirmationNumber: null,
+    })),
+  ];
+  const facts = (o: Partial<RevisionFacts>): RevisionFacts => ({
+    uniqueId: null,
+    otaName: null,
+    otaReservationCode: null,
+    status: null,
+    arrivalDate: null,
+    departureDate: null,
+    adults: 1,
+    children: 0,
+    amount: null,
+    currency: 'KZT',
+    paymentCollect: 'ota',
+    rooms: [],
+    ...o,
+  });
+  showcaseRevisions.clear();
+  showcaseRevisions.set(
+    'ui-rev-failed',
+    facts({
+      uniqueId: 'BDC-4821-7731',
+      otaName: 'Booking.com',
+      otaReservationCode: '4821773100',
+      status: 'new',
+      arrivalDate: today,
+      departureDate: t(2),
+      amount: '16000.00',
+      rooms: [
+        {
+          checkinDate: today,
+          checkoutDate: t(2),
+          roomTypeId: 'ui-rt-room',
+          ratePlanId: 'ui-rp-room',
+          adults: 1,
+          amount: '16000.00',
+        },
+      ],
+    }),
+  );
+  for (const id of ['ui-rev-new-2', 'ui-rev-modified'])
+    showcaseRevisions.set(
+      id,
+      facts({
+        uniqueId: 'BDC-5510-2201',
+        otaName: 'Booking.com',
+        otaReservationCode: '5510220100',
+        status: id === 'ui-rev-new-2' ? 'new' : 'modified',
+        arrivalDate: today,
+        departureDate: t(2),
+        amount: '16000.00',
+        rooms: [
+          {
+            checkinDate: today,
+            checkoutDate: t(2),
+            roomTypeId: 'ui-rt-room',
+            ratePlanId: 'ui-rp-room',
+            adults: 1,
+            amount: '16000.00',
+          },
+        ],
+      }),
+    );
+  showcaseRevisions.set(
+    'ui-rev-cancelled',
+    facts({
+      uniqueId: 'EXP-90210',
+      otaName: 'Expedia',
+      otaReservationCode: '90210',
+      status: 'cancelled',
+      arrivalDate: today,
+      departureDate: t(2),
+      amount: '16000.00',
+      paymentCollect: 'property',
+    }),
+  );
+  showcaseOutbox = [
+    {
+      id: 'ui-out-1',
+      kind: 'RESTRICTIONS',
+      status: 'SENT',
+      attempts: 1,
+      taskId: 'ui-task-4f2a',
+      lastError: null,
+      createdAt: `${today}T04:09:40Z`,
+      sentAt: `${today}T04:10:02Z`,
+      dateFrom: t(-9),
+      dateTo: t(-8),
+      roomTypes: ['ROOM'],
+      messages: 2,
+    },
+    {
+      id: 'ui-out-2',
+      kind: 'AVAILABILITY',
+      status: 'PENDING',
+      attempts: 0,
+      taskId: null,
+      lastError: null,
+      createdAt: `${today}T04:11:15Z`,
+      sentAt: null,
+      dateFrom: today,
+      dateTo: t(1),
+      roomTypes: ['FEMALE'],
+      messages: 2,
+    },
+    {
+      id: 'ui-out-3',
+      kind: 'AVAILABILITY',
+      status: 'FAILED',
+      attempts: 3,
+      taskId: null,
+      lastError: 'Channex ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
+      createdAt: `${today}T03:58:30Z`,
+      sentAt: null,
+      dateFrom: t(1),
+      dateTo: t(3),
+      roomTypes: ['ROOM'],
+      messages: 3,
+    },
+    {
+      id: 'ui-out-4',
+      kind: 'RESTRICTIONS',
+      status: 'PENDING',
+      attempts: 0,
+      taskId: null,
+      lastError: null,
+      createdAt: `${today}T04:12:03Z`,
+      sentAt: null,
+      dateFrom: t(6),
+      dateTo: t(8),
+      roomTypes: ['MALE', 'FEMALE'],
+      messages: 6,
     },
   ];
   showcaseIncidents = [
@@ -586,7 +780,8 @@ function board(from: string, to: string): Chessboard {
             itemStatus: it.status,
             source: r.source,
             channel: r.channel,
-            balanceMinor: finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
+            balanceMinor:
+              finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
           };
@@ -654,7 +849,8 @@ function board(from: string, to: string): Chessboard {
           guestLabel: r.primaryGuest?.label ?? 'Гость',
           source: r.source,
           channel: r.channel,
-          balanceMinor: finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
+          balanceMinor:
+            finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
         })),
     ),
   };
@@ -1034,21 +1230,26 @@ function read(path: string, q: URLSearchParams): unknown {
       currency: 'KZT',
       capacityAdults:
         categories.find((c) => c.code === q.get('accommodationTypeCode'))?.capacityAdults ?? 1,
-      days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date) => ({
-        date,
-        prices: {
-          '1': parseMoney(
-            [...priceChanges].reverse().find((c) => c.dateFrom <= date && c.dateTo >= date)
-              ?.price || '8000',
-          ).toString(),
-          '2': '1000000',
-        },
-        minStay: 1,
-        maxStay: null,
-        stopSell: false,
-        closedToArrival: false,
-        closedToDeparture: false,
-      })),
+      days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date, idx) => {
+        const forDay = [...priceChanges]
+          .reverse()
+          .filter((c) => c.dateFrom <= date && c.dateTo >= date);
+        const price = (occ: number, fallback: string) =>
+          parseMoney(
+            forDay.find((c) => c.price && (!c.occupancy || c.occupancy === occ))?.price || fallback,
+          ).toString();
+        const stop = forDay.find((c) => c.stopSell !== undefined)?.stopSell;
+        return {
+          date,
+          prices: { '1': price(1, '8000'), '2': price(2, '10000') },
+          minStay: forDay.find((c) => c.minStay !== undefined)?.minStay ?? 1,
+          maxStay: null,
+          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка строки
+          stopSell: stop ?? (showcase && (idx === 5 || idx === 11)),
+          closedToArrival: false,
+          closedToDeparture: false,
+        };
+      }),
     };
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
@@ -1103,7 +1304,13 @@ function read(path: string, q: URLSearchParams): unknown {
         parking: 'none',
       },
       facilities: [{ title: 'WiFi', category: 'general' }],
-      photos: [{ url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', description: 'Фасад', forRoomType: false }],
+      photos: [
+        {
+          url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
+          description: 'Фасад',
+          forRoomType: false,
+        },
+      ],
     };
   if (path === '/channels/channex/connection')
     return {
@@ -1122,9 +1329,52 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return showcase
-      ? { pending: 2, failed: 1, sent: 405, lastSentAt: `${today}T09:12:00Z`, lastTaskId: 'ui-task-4f2a' }
+      ? {
+          pending: 2,
+          failed: 1,
+          sent: 405,
+          lastSentAt: `${today}T09:12:00Z`,
+          lastTaskId: 'ui-task-4f2a',
+        }
       : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
-  if (path === '/channels/channex/events') return showcaseEvents;
+  if (path === '/channels/channex/outbox/rows') {
+    const st = q.get('status');
+    return showcaseOutbox.filter((r) => !st || r.status === st);
+  }
+  if (path === '/channels/channex/events') {
+    const st = q.get('status'),
+      type = q.get('type'),
+      needle = (q.get('q') || '').trim().toLowerCase();
+    const limit = Number(q.get('limit') || 20),
+      offset = Number(q.get('offset') || 0);
+    const rows = showcaseEvents.filter(
+      (e) =>
+        (!st || e.status === st) &&
+        (!type || e.type === type) &&
+        (!needle ||
+          e.externalEventId.toLowerCase().includes(needle) ||
+          (e.uniqueId ?? '').toLowerCase().includes(needle) ||
+          (e.confirmationNumber ?? '').toLowerCase().includes(needle)),
+    );
+    return { rows: rows.slice(offset, offset + limit), total: rows.length };
+  }
+  if (path.startsWith('/channels/channex/events/')) {
+    const id = decodeURIComponent(path.split('/')[4]!);
+    const event = showcaseEvents.find((e) => e.externalEventId === id);
+    const facts = showcaseRevisions.get(id);
+    if (!event || !facts) return undefined;
+    const reservation = event.confirmationNumber ? getCard(event.confirmationNumber) : undefined;
+    const fin = reservation ? finance(reservation) : null;
+    return {
+      event,
+      facts,
+      categoryByRoomType: { 'ui-rt-room': 'ROOM', 'ui-rt-male': 'MALE', 'ui-rt-female': 'FEMALE' },
+      reservation: reservation ?? null,
+      balances: Object.fromEntries(
+        (fin?.folios ?? []).map((f) => [f.reservationItemId, f.balanceMinor]),
+      ),
+    };
+  }
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
   if (path === '/audit')
@@ -1205,6 +1455,8 @@ createServer(async (req, res) => {
       paymentLines = [];
       showcase = false;
       showcaseEvents = [];
+      showcaseOutbox = [];
+      showcaseRevisions.clear();
       showcaseIncidents = [];
       return send(200, {});
     }
@@ -1326,6 +1578,16 @@ createServer(async (req, res) => {
     }
     if (path === '/channels/channex/pull')
       return send(200, { received: 0, acknowledged: 0, outcomes: [] });
+    if (path.startsWith('/channels/channex/events/') && path.endsWith('/retry')) {
+      const id = decodeURIComponent(path.split('/')[4]!);
+      const event = showcaseEvents.find((e) => e.externalEventId === id);
+      if (!event) return send(404, { message: 'Событие не найдено' });
+      return send(200, {
+        result: event.status === 'FAILED' ? 'failed' : 'skipped_duplicate',
+        confirmationNumber: event.confirmationNumber ?? null,
+        ...(event.status === 'FAILED' ? { error: event.lastError } : {}),
+      });
+    }
     if (path === '/channels/channex/outbox/flush') return send(200, { sent: [], errors: [] });
     if (path === '/channels/channex/sync')
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });

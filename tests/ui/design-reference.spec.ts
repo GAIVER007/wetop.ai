@@ -96,13 +96,26 @@ for (const t of themes) {
     await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
     await expect(page.getByTestId('pending-changes')).toContainText('9100');
     await shot(page, 'rates-bulk', t);
+    // Ячейка в правке: поле с подсказкой «Enter — сохранить, Esc — отмена» (макет «Rates»)
+    const cell = page.getByTestId('rates-table').getByTestId(/^price-\d{4}-\d{2}-05-1$/);
+    await cell.getByRole('button').click();
+    await expect(cell.getByRole('textbox')).toBeFocused();
+    await shot(page, 'rates-edit', t);
   });
 
   test(`журнал интеграции Channex (${t})`, async ({ page }) => {
     await theme(page, t);
     await page.goto('/channels');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Каналы продаж');
-    await expect(page.getByTestId('events-table')).toContainText('booking_new');
+    await expect(page.getByTestId('events-table')).toContainText('новая бронь');
     await shot(page, 'channels', t);
+  });
+
+  test(`приём брони из канала (${t})`, async ({ page }) => {
+    await theme(page, t);
+    await page.goto('/channels/events/ui-rev-new-2');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
+    await expect(page.getByTestId('revision-reservation')).toBeVisible();
+    await shot(page, 'channels-inbound', t);
   });
 }

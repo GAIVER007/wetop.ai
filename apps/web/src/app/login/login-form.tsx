@@ -17,10 +17,12 @@ export function LoginForm({
   demo,
   accessEmail,
   user,
+  passwordJustSet = false,
 }: {
   demo: boolean;
   accessEmail: string | null;
   user: SignedIn | null;
+  passwordJustSet?: boolean;
 }) {
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
@@ -87,6 +89,11 @@ export function LoginForm({
             <>
               <h2>Добро пожаловать</h2>
               <p>Войдите в рабочее пространство</p>
+              {passwordJustSet && (
+                <p className="alert alert--ok" role="status">
+                  Пароль сохранён. Войдите с ним.
+                </p>
+              )}
               <form action={submit}>
                 <label className="field">
                   Email
@@ -131,6 +138,9 @@ export function LoginForm({
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
+              <Link className="login-forgot" href="/login/reset">
+                Забыли пароль?
+              </Link>
               <div className="login-preview">
                 {accessEmail ? (
                   <>

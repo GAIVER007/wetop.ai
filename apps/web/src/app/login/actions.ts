@@ -32,3 +32,49 @@ export async function signOut(): Promise<void> {
   await clearSessionCookie();
   redirect('/login');
 }
+
+export interface ResetRequestState {
+  error: string | null;
+  sent: boolean;
+}
+
+/**
+ * «Забыли пароль». Сообщение не говорит, нашлась ли почта: иначе форма рассказывает, кто есть в системе.
+ */
+export async function requestReset(
+  _prev: ResetRequestState,
+  form: FormData,
+): Promise<ResetRequestState> {
+  const email = String(form.get('email') ?? '').trim();
+  if (!email) return { error: 'Введите почту', sent: false };
+  try {
+    await authApi.requestReset({ email });
+  } catch (error) {
+    if (error instanceof ApiError) return { error: error.message, sent: false };
+    throw error;
+  }
+  return { error: null, sent: true };
+}
+
+export interface SetPasswordState {
+  error: string | null;
+}
+
+/** Пароль по ссылке из письма: человек задаёт его себе сам, ссылка после этого не работает. */
+export async function setPassword(
+  _prev: SetPasswordState,
+  form: FormData,
+): Promise<SetPasswordState> {
+  const token = String(form.get('token') ?? '');
+  const password = String(form.get('password') ?? '');
+  const again = String(form.get('again') ?? '');
+  if (!token) return { error: 'Ссылка неполная: откройте её из письма целиком' };
+  if (password !== again) return { error: 'Пароли не совпадают' };
+  try {
+    await authApi.confirmReset({ token, password });
+  } catch (error) {
+    if (error instanceof ApiError) return { error: error.message };
+    throw error;
+  }
+  redirect('/login?password=set');
+}

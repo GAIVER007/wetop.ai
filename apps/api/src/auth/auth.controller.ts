@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { BadRequestException, Body, Controller, Get, Headers, Inject, Post } from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
 import { AuthService } from './auth.service';
+import { PasswordResetService } from './password-reset.service';
 import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
 
@@ -18,7 +19,10 @@ const text = (value: unknown, field: string, max = 200): string => {
  */
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject(AuthService) private readonly auth: AuthService) {}
+  constructor(
+    @Inject(AuthService) private readonly auth: AuthService,
+    @Inject(PasswordResetService) private readonly reset: PasswordResetService,
+  ) {}
 
   /** Без входа по построению: этим маршрутом и входят. */
   @Public()
@@ -44,6 +48,28 @@ export class AuthController {
   async logout(@Headers() headers: Record<string, string>) {
     const token = tokenFromHeaders(headers);
     if (token) await this.auth.logout(token);
+    return { ok: true };
+  }
+
+  /**
+   * «Забыли пароль». Ответ всегда одинаковый: по нему нельзя узнать, есть ли такая почта в системе.
+   * Без входа по построению — человек как раз не может войти.
+   */
+  @Public()
+  @Post('password-reset/request')
+  async requestReset(@Body() body: Record<string, unknown>) {
+    await this.reset.request(text(body?.email, 'email'));
+    return { ok: true };
+  }
+
+  /** Пароль по ссылке из письма: ссылка одноразовая, пароль человек задаёт себе сам. */
+  @Public()
+  @Post('password-reset/confirm')
+  async confirmReset(@Body() body: Record<string, unknown>) {
+    await this.reset.confirm({
+      token: text(body?.token, 'token', 400),
+      password: text(body?.password, 'password', 200),
+    });
     return { ok: true };
   }
 

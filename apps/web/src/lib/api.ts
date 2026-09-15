@@ -282,6 +282,12 @@ export const authApi = {
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
+  /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
+  requestReset: (body: { email: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  /** Пароль по одноразовой ссылке из письма */
+  confirmReset: (body: { token: string; password: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
 };
 
 export const reservationsApi = {

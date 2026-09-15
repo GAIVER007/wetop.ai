@@ -970,12 +970,24 @@ expires_at
 revoked_at
 ```
 
-### PasswordReset, Invitation
+### PasswordReset
 
 ```
 PasswordReset   id, user_id, token_hash, expires_at, used_at
+```
+
+Одна таблица на два случая (решение 15.09.2026, Q-137): приглашение нового сотрудника и сброс пароля по его
+просьбе — это одна и та же одноразовая ссылка. Приглашённый сотрудник живёт со статусом `INVITED` и пустым
+хешем пароля, что CHECK базы допускает только для него; по ссылке он задаёт пароль и становится `ACTIVE`.
+Ссылка живёт 24 часа, работает один раз, новая гасит прежние неиспользованные.
+
+### Invitation (шаг 4, предложение)
+
+```
 Invitation      id, organization_id, email, role, token_hash, expires_at, accepted_at, invited_by → User
 ```
+
+Понадобится, когда приглашать будет не владелец из командной строки, а организация-партнёр из интерфейса.
 
 ### Plan, Subscription, Invoice
 

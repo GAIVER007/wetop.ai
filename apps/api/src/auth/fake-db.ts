@@ -27,6 +27,14 @@ export interface FakeSession {
   revokedAt: Date | null;
 }
 
+export interface FakeReset {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+  usedAt: Date | null;
+}
+
 export interface AuditRow {
   userId: string | null;
   entityType: string;
@@ -52,6 +60,7 @@ export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
 
 export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const sessions: FakeSession[] = [];
+  const resets: FakeReset[] = [];
   const audit: AuditRow[] = [];
   let seq = 0;
 
@@ -68,6 +77,50 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!user) throw new Error('нет такого пользователя');
         Object.assign(user, data);
         return { ...user };
+      },
+      async create({ data }: { data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt'> }) {
+        if (users.some((u) => u.email === data.email)) throw new Error('почта занята');
+        seq += 1;
+        const row: FakeUser = {
+          id: `u-${seq + 1}`,
+          failedAttempts: 0,
+          lockedUntil: null,
+          lastLoginAt: null,
+          ...data,
+        };
+        users.push(row);
+        return { ...row };
+      },
+    },
+    passwordReset: {
+      async create({ data }: { data: Omit<FakeReset, 'id' | 'usedAt'> }) {
+        seq += 1;
+        const row: FakeReset = { id: `r-${seq}`, usedAt: null, ...data };
+        resets.push(row);
+        return { ...row };
+      },
+      async findUnique({ where, include }: { where: { tokenHash: string }; include?: { user: boolean } }) {
+        const row = resets.find((r) => r.tokenHash === where.tokenHash);
+        if (!row) return null;
+        const user = users.find((u) => u.id === row.userId);
+        return include?.user ? { ...row, user: user ? { ...user } : null } : { ...row };
+      },
+      async update({ where, data }: { where: { id: string }; data: Partial<FakeReset> }) {
+        const row = resets.find((r) => r.id === where.id);
+        if (!row) throw new Error('нет такой ссылки');
+        Object.assign(row, data);
+        return { ...row };
+      },
+      async updateMany({
+        where,
+        data,
+      }: {
+        where: { userId: string; usedAt: null };
+        data: Partial<FakeReset>;
+      }) {
+        const hit = resets.filter((r) => r.userId === where.userId && r.usedAt === null);
+        hit.forEach((r) => Object.assign(r, data));
+        return { count: hit.length };
       },
     },
     session: {
@@ -121,5 +174,5 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     },
   };
 
-  return { prisma: { db } as never, users, sessions, audit, db };
+  return { prisma: { db } as never, users, sessions, resets, audit, db };
 }

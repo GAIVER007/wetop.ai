@@ -7,7 +7,12 @@ import { LoginForm } from './login-form';
  * Access (ADR-045), а дальше система спрашивает свой логин и пароль. Почту, под которой пропустил Access,
  * показываем и подставляем в поле — но она сама по себе никуда не пускает.
  */
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const passwordJustSet = (await searchParams)['password'] === 'set';
   const accessEmail = (await headers()).get('cf-access-authenticated-user-email')?.trim() || null;
   const me = await authApi.me().catch((error: unknown) => {
     if (error instanceof ApiError) return { user: null };
@@ -18,6 +23,7 @@ export default async function LoginPage() {
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
       accessEmail={accessEmail}
       user={me.user ?? null}
+      passwordJustSet={passwordJustSet}
     />
   );
 }

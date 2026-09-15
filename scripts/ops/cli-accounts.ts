@@ -11,7 +11,16 @@
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
-import { checkPassword, hashPassword } from '@pms/domain';
+import { mail } from '@pms/integrations';
+import {
+  checkPassword,
+  hashPassword,
+  hashSessionToken,
+  invitationLetter,
+  newSessionToken,
+  resetExpiry,
+  resetLink,
+} from '@pms/domain';
 import { parseAccountsArgs, USAGE } from './accounts-args';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -68,6 +77,59 @@ try {
       },
     });
     console.log(`создан: ${user.email} (${user.role}). Пароль выдайте сотруднику лично.`);
+  }
+
+  if (command.kind === 'invite') {
+    const existing = await db.user.findUnique({ where: { email: command.email } });
+    if (existing) {
+      console.error(`сотрудник с почтой ${command.email} уже есть — смените пароль командой password`);
+      process.exit(2);
+    }
+    const user = await db.user.create({
+      data: {
+        email: command.email,
+        fullName: command.fullName,
+        role: command.role,
+        status: 'INVITED',
+        passwordHash: '',
+      },
+    });
+    // одна живая ссылка на человека: прежние неиспользованные гасим
+    await db.passwordReset.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    const token = newSessionToken();
+    const now = new Date();
+    await db.passwordReset.create({
+      data: { userId: user.id, tokenHash: hashSessionToken(token), expiresAt: resetExpiry(now) },
+    });
+    const link = resetLink(process.env.PUBLIC_APP_URL?.trim() || 'https://app.wetop.ai', token);
+    await db.auditLog.create({
+      data: {
+        userId: user.id,
+        entityType: 'user',
+        entityId: user.id,
+        action: 'user.invited',
+        after: { email: user.email, role: user.role, by: 'cli' },
+      },
+    });
+
+    const config = mail.mailConfigFromEnv(process.env);
+    if (!config) {
+      console.log(`приглашён: ${user.email} (${user.role}).`);
+      console.log('Отправка писем не настроена (RESEND_API_KEY пуст) — передайте ссылку сами:');
+      console.log(link);
+      console.log('Ссылка работает 24 часа и только один раз.');
+    } else {
+      const letter = invitationLetter({ fullName: command.fullName, link });
+      await new mail.ResendMailer(config).send({
+        to: user.email,
+        subject: letter.subject,
+        text: letter.text,
+      });
+      console.log(`приглашён: ${user.email} (${user.role}); письмо отправлено, ссылка живёт 24 часа.`);
+    }
   }
 
   if (command.kind === 'password') {

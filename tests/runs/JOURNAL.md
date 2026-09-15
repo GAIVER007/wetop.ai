@@ -428,3 +428,6 @@
 | 16.09.2026 01:59 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts login-access --workers=1) | ✅ 5 из 5 | 14 с | 7c96e0f +50 | [лог](logs/2026-09-15T20-59-52Z-e2e-1338.log) |  |
 | 16.09.2026 02:00 | unit | ❌ упало 3 из 882 | 1 мин 32 с | af2dea7 | [лог](logs/2026-09-15T21-00-59Z-unit-c6b3.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
 | 16.09.2026 02:02 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts login-access --workers=1) | ✅ 5 из 5 | 13 с | af2dea7 | [лог](logs/2026-09-15T21-02-31Z-e2e-79d1.log) |  |
+| 16.09.2026 02:22 | unit | ❌ упало 3 из 915 | 1 мин 32 с | e06f7f4 +26 | [лог](logs/2026-09-15T21-22-10Z-unit-789b.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 16.09.2026 02:23 | typecheck | ✅ без ошибок | 21 с | e06f7f4 +27 | [лог](logs/2026-09-15T21-23-48Z-typecheck-0b58.log) |  |
+| 16.09.2026 02:24 | lint | ✅ без ошибок | 9 с | e06f7f4 +27 | [лог](logs/2026-09-15T21-24-10Z-lint-b8c5.log) |  |

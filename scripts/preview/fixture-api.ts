@@ -21,6 +21,14 @@ let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+function resetUiAuth() {
+  uiPassword = 'ui-test-parol';
+  uiSessions.clear();
+  uiResetTokens.clear();
+  uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+  uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+}
+
 function setHotelHold(value: boolean) {
   holdHotel = value;
   if (!value) {
@@ -536,8 +544,12 @@ const uiUser = {
   fullName: 'Дана Тестова',
   role: 'DESK' as const,
 };
-const UI_PASSWORD = 'ui-test-parol';
+let uiPassword = 'ui-test-parol';
 const uiSessions = new Set<string>();
+/** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
+const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
+uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
 
 function sessionOf(req: { headers: Record<string, unknown> }): string | null {
   const direct = req.headers['x-wetop-session'];
@@ -918,6 +930,7 @@ createServer(async (req, res) => {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
     if (path === '/__test/reset') {
+      resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -1007,8 +1020,26 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       return send(200, token && uiSessions.has(token) ? { user: uiUser } : { user: null });
     }
+    if (path === '/auth/password-reset/request' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/password-reset/confirm' && req.method === 'POST') {
+      const token = String(body['token'] ?? '');
+      const password = String(body['password'] ?? '');
+      const link = uiResetTokens.get(token);
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите новую' });
+      if (link.used) return send(401, { message: 'Ссылка уже использована: запросите новую' });
+      if (link.expired) return send(401, { message: 'Срок ссылки истёк: запросите новую' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      link.used = true;
+      uiPassword = password;
+      uiSessions.clear();
+      return send(200, { ok: true });
+    }
     if (path === '/auth/login' && req.method === 'POST') {
-      if (body['email'] !== uiUser.email || body['password'] !== UI_PASSWORD)
+      if (body['email'] !== uiUser.email || body['password'] !== uiPassword)
         return send(401, { message: 'Неверная почта или пароль' });
       const token = `ui-session-${uiSessions.size + 1}`;
       uiSessions.add(token);

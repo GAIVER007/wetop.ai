@@ -69,6 +69,9 @@ h1,h2,h3 { letter-spacing: -.035em; }
 .profile-signed-in strong { font-size: 12px; color: var(--text-1); }
 .profile-signed-in small { font-size: 11px; color: var(--muted); }
 .login-preview form { display: contents; }
+.login-forgot { align-self: center; font-size: 12px; color: var(--muted); }
+.login-forgot:hover { color: var(--primary); text-decoration: underline; }
+.alert--ok { border-color: color-mix(in srgb, var(--primary) 40%, transparent); color: var(--text-1); }
 .dropdown-dismiss { position: fixed; inset: 0; border: 0; background: transparent; cursor: default; }
 .eyebrow { display: block; font-size: 12px; font-weight: 550; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .page { padding: 28px; max-width: none; margin: 0; }

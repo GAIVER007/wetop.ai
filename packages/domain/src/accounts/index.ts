@@ -2,4 +2,5 @@
 export * from './email';
 export * from './login';
 export * from './password';
+export * from './reset';
 export * from './session';

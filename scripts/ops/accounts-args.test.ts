@@ -52,6 +52,21 @@ describe('parseAccountsArgs', () => {
     if (!result.ok) expect(result.error).toMatch(/PMS_NEW_PASSWORD/);
   });
 
+  it('приглашение: как create, но пароль не задаётся — человек задаст его сам по ссылке', () => {
+    expect(parseAccountsArgs(['invite', '--email=Nova@Luxx.KZ', '--name=Нова Сеитова'])).toEqual({
+      ok: true,
+      command: { kind: 'invite', email: 'nova@luxx.kz', fullName: 'Нова Сеитова', role: 'DESK' },
+    });
+    expect(
+      parseAccountsArgs(['invite', '--email=a@b.kz', '--name=Имя', '--role=manager']),
+    ).toMatchObject({ ok: true, command: { kind: 'invite', role: 'MANAGER' } });
+  });
+
+  it('приглашение без имени или с непохожей почтой не отправляем', () => {
+    expect(parseAccountsArgs(['invite', '--email=a@b.kz'])).toMatchObject({ ok: false });
+    expect(parseAccountsArgs(['invite', '--name=Имя'])).toMatchObject({ ok: false });
+  });
+
   it('без команды показываем, что умеем', () => {
     expect(parseAccountsArgs([])).toMatchObject({ ok: false });
     expect(parseAccountsArgs(['выдумка'])).toMatchObject({ ok: false });

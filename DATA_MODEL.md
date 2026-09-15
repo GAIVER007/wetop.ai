@@ -893,6 +893,119 @@ resolved_by       GUARD (исчезла после починки или сам�
 
 ---
 
+## 13. Учётные записи, организации и подписки (v1.5 — **ПРЕДЛОЖЕН 15.09.2026, НЕ УТВЕРЖДЁН**; срез 13, `plans/slice-13-accounts-saas.md`)
+
+> **Пока раздел не утверждён владельцем, код по нему не пишется и миграций нет** (AGENTS.md §15, CLAUDE.md §3).
+> Раздел записан здесь, потому что порядок в проекте такой: сначала модель в этом файле, потом код.
+
+Поручение владельца 15.09.2026: WETOP делается как SaaS — партнёры-компании, у каждой своя регистрация, вход
+по логину и паролю, и мы видим статус их оплат. Сегодня в модели нет ни пользователя, ни организации, ни
+подписки: `Property` существует (SPEC.md прямо оставил его «на случай, когда отель не один»), а
+`AuditLog.user_id` есть, но всегда `NULL` — заполнять его нечем (ADR-023).
+
+Существующие сущности не меняются, кроме двух точек: `Property` получает организацию-владельца,
+`AuditLog.user_id` получает ссылку на `User`. Счета гостей (`Folio`, `Charge`, `Payment`, `Refund`) к подписке
+партнёра отношения не имеют — это разные деньги и разные таблицы.
+
+### Organization
+
+```
+id
+name                  название партнёра
+legal_name            юридическое имя
+bin                   БИН / регистрационный номер, необязателен
+country               ISO alpha-2
+contact_email
+contact_phone
+status                TRIAL | ACTIVE | SUSPENDED | CLOSED
+created_at
+```
+
+`Property.organization_id → Organization`. У нынешнего объекта — организация владельца; переносится
+миграцией, существующие брони и счета не трогаются.
+
+### User
+
+```
+id
+email                 уникальна, нижний регистр
+password_hash         argon2id; сам пароль не пишется ни в журнал, ни в отчёты, ни в details инцидентов
+full_name
+status                INVITED | ACTIVE | BLOCKED
+last_login_at
+failed_attempts       счётчик подряд неудачных попыток
+locked_until          до этого времени вход отклоняется
+created_at
+```
+
+### OrganizationMember
+
+```
+id
+organization_id
+user_id
+role                  OWNER | MANAGER | DESK | READONLY      (состав — Q-135)
+created_at
+уникально (organization_id, user_id)
+```
+
+### Session
+
+```
+id
+user_id
+organization_id       под какой организацией работает сессия
+token_hash            хеш токена, не токен: утечка базы не даёт войти
+user_agent_family     «Chrome», «Safari» — полный User-Agent и IP не храним (ADR-018, как в §11)
+created_at
+last_seen_at
+expires_at
+revoked_at
+```
+
+### PasswordReset, Invitation
+
+```
+PasswordReset   id, user_id, token_hash, expires_at, used_at
+Invitation      id, organization_id, email, role, token_hash, expires_at, accepted_at, invited_by → User
+```
+
+### Plan, Subscription, Invoice
+
+```
+Plan          id, code, name, price_minor, currency, period (MONTH | YEAR), unit_limit, is_public
+Subscription  id, organization_id, plan_id, status (TRIAL | ACTIVE | PAST_DUE | CANCELED),
+              trial_ends_at, current_period_start, current_period_end, canceled_at
+Invoice       id, organization_id, subscription_id, number, period_start, period_end,
+              amount_minor, currency, status (DRAFT | SENT | PAID | OVERDUE | VOID),
+              issued_at, due_at, paid_at, external_payment_id
+```
+
+Деньги подписки — целые минорные единицы, как везде (ADR-008). Валюта подписки хранится отдельно от валюты
+объекта: партнёр может платить не в тенге. За что считаем цену и сколько планов — Q-138, чем платят — Q-136,
+что происходит по окончании пробного периода — Q-139.
+
+### Изоляция данных партнёров
+
+Запрос одного партнёра не должен видеть данные другого — цена ошибки здесь выше остальных, потому что в
+бронях лежат ФИО и документы гостей. Поэтому изоляция ставится двумя замками, а не договорённостью:
+
+1. **Row Level Security в Postgres** по `organization_id`; соединение выставляет `app.current_org` из сессии.
+   Забытое условие в запросе тогда не возвращает ничего вместо чужого.
+2. **Обёртка Prisma**, которая сама подставляет организацию и роняет запрос к модели с `organization_id`,
+   если организация не задана.
+
+Доказательство — интеграционный тест, красный до политики: две организации, у каждой свой объект и бронь;
+сессия первой не видит вторую ни в бронях, ни в гостях, ни в счетах, ни в аналитике, ни в журнале.
+
+### Персональные данные сотрудников
+
+Почта и имя сотрудника — персональные данные, значит на них действует тот же переключатель `PII_STORAGE`,
+что на гостей (ADR-018, `CUTOVER.md`): настоящие — только в базе Казахстана, в сингапурской dev-БД
+вымышленные, как в тестах (ADR-010). Граница подтверждается ответом на Q-140.
+
+---
+
 ## Чего в модели нет и почему
 
 | Область                                                   | Решение                                                          |

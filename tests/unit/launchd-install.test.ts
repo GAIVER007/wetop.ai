@@ -10,7 +10,14 @@
  *     «Bootstrap failed: 5: Input/output error» — задача оставалась не загруженной.
  */
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -88,7 +95,14 @@ function install(sb: Sandbox, args: string[]) {
   return { out: `${res.stdout}${res.stderr}`, calls };
 }
 
-describe('launchd install.sh', () => {
+/**
+ * Подставной launchctl читает plist через `/usr/libexec/PlistBuddy` — его нет нигде, кроме macOS,
+ * поэтому в удалённой среде (Linux) набор пропускается. На Mac, где эти службы и живут, он идёт как прежде:
+ * иначе три красных теста висели бы в каждом прогоне и приучали не смотреть на красное (TESTING.md §4).
+ */
+const onMac = process.platform === 'darwin';
+
+describe.skipIf(!onMac)('launchd install.sh', () => {
   it('--dry не снимает загруженную задачу', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
     const { out, calls } = install(sb, ['--dry', 'web']);
@@ -124,7 +138,10 @@ describe('launchd install.sh', () => {
     expect(plist).toContain('<string>--auto</string>');
     // стойку и остальные задачи интервал не касается
     const web = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'web']).out;
-    const webPlist = readFileSync(web.match(/(\/\S+kz\.luxx\.pms\.web\.plist) собран/)![1]!, 'utf8');
+    const webPlist = readFileSync(
+      web.match(/(\/\S+kz\.luxx\.pms\.web\.plist) собран/)![1]!,
+      'utf8',
+    );
     expect(webPlist).not.toContain('StartInterval');
     expect(webPlist).toMatch(/<key>KeepAlive<\/key><true\/>/);
   });

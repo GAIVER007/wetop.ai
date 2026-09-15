@@ -600,6 +600,35 @@ dialog::backdrop {
     padding: 16px;
   }
 }
+@media (max-width: 1100px) {
+  .workspace-sidebar {
+    width: 64px;
+    padding: 24px 8px 20px;
+  }
+  .workspace-body {
+    margin-left: 64px;
+  }
+  .workspace-sidebar .brand-name,
+  .workspace-sidebar .sidebar-collapse,
+  .workspace-sidebar .workspace-property,
+  .workspace-sidebar .nav-group,
+  .workspace-sidebar .sidebar-freshness,
+  .workspace-sidebar .nav-toggle,
+  .workspace-sidebar .nav-children,
+  .workspace-sidebar .workspace-link > span {
+    display: none;
+  }
+  .workspace-sidebar .workspace-link {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin: 4px auto;
+  }
+  .workspace-sidebar .workspace-link.is-active::before {
+    left: -8px;
+  }
+}
 @media (max-width: 960px) {
   .workspace-sidebar {
     display: none;
@@ -726,41 +755,10 @@ dialog::backdrop {
   height: 74px;
   font-weight: 500;
 }
-.board td.board__cell {
-  padding: 5px 0;
-  height: 43px;
-  border-right: 1px solid var(--border);
-}
 .board td.board__unit {
   z-index: 5;
   padding: 10px 14px;
   border-right: 1px solid var(--border);
-}
-.board td.board__unit > .muted-2 {
-  font-size: 10px;
-}
-.board .board__stay {
-  overflow: visible;
-  height: 30px;
-  line-height: 30px;
-  position: relative;
-  color: var(--primary);
-}
-.board-stay-caption {
-  position: absolute;
-  left: 6px;
-  top: 0;
-  z-index: 3;
-  pointer-events: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-  font-size: 11px;
-}
-.board .board__free {
-  height: 30px;
-  display: block;
 }
 .board .board__free--link:hover {
   background: var(--primary-soft);
@@ -989,13 +987,13 @@ dialog::backdrop {
   background: var(--success-soft);
   border-color: var(--border);
 }
-.board-unassigned-title {
+.board-unassigned__title {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
 }
-.board-unassigned-title svg {
+.board-unassigned__title svg {
   width: 16px;
   height: 16px;
 }
@@ -1063,10 +1061,6 @@ dialog::backdrop {
   color: var(--muted);
   font-weight: 400;
 }
-.board td.board__cell {
-  height: 48px;
-  padding: 7px 0;
-}
 .board td.board__unit {
   padding: 10px 16px;
 }
@@ -1084,30 +1078,6 @@ dialog::backdrop {
 .board tr.board__group td {
   background: var(--success-soft);
   height: 36px;
-}
-.board .board__stay {
-  height: 32px;
-  line-height: 32px;
-}
-.board-stay-caption {
-  font-size: 11px;
-  padding-left: 3px;
-}
-.board td[data-status='CHECKED_IN'] .board__stay {
-  color: var(--success);
-}
-.board td[data-status='CONFIRMED'] .board__stay {
-  color: var(--primary);
-}
-.board td[data-status='TENTATIVE'] .board__stay {
-  color: var(--warning);
-}
-.board .board__free {
-  height: 32px;
-}
-.board td.is-we:not(.is-today),
-.board th.is-we:not(.is-today) {
-  background: var(--success-soft);
 }
 .board tr:hover td.board__unit {
   background: var(--success-soft);

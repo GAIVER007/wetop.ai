@@ -102,7 +102,14 @@ export const api = {
 };
 
 export type CellState = 'FREE' | 'OCCUPIED' | 'BLOCKED';
-export interface ChessboardCell {
+export type HousekeepingState = 'DIRTY' | 'CLEAN' | 'INSPECTED';
+/** Полоса брони (срез 7.1): источник и канал — бейдж, остаток счёта (тиыны строкой) — плашка «к оплате» */
+export interface StayFacts {
+  source?: string;
+  channel?: string | null;
+  balanceMinor?: string;
+}
+export interface ChessboardCell extends StayFacts {
   date: string;
   state: CellState;
   itemId?: string;
@@ -123,17 +130,20 @@ export interface ChessboardRow {
     kind: 'ROOM' | 'BED';
     accommodationTypeCode: string;
     accommodationTypeName: string;
+    /** статус уборки — бейдж словом в строке и фильтр «Уборка» */
+    housekeeping?: HousekeepingState;
   };
   cells: ChessboardCell[];
 }
-/** Проживание без ячейки в диапазоне доски (строка «Без ячейки», паритет с «Без номера» в Exely). Без гостей — ПД. */
-export interface UnassignedStay {
+/** Проживание без ячейки в диапазоне доски (строка «Без ячейки», паритет с «Без номера» в Exely); заказчик — как на клетках */
+export interface UnassignedStay extends StayFacts {
   confirmationNumber: string;
   categoryCode: string;
   categoryName: string;
   arrivalDate: string;
   departureDate: string;
   status: string;
+  guestLabel?: string;
 }
 export interface Chessboard {
   from: string;

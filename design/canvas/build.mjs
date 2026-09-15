@@ -1,3 +1,4 @@
+/* global process */
 // Генератор артбордов холста дизайна «WETOP — стойка» (план дизайн-системы, Д6 — запасной путь к Claude Design).
 // Каждый артборд — статичный .dc.html из общих кусков (оболочка, шахматка, панель, окно), значения — ровно из
 // design/tokens.json (светлая тема) и классов компонентов apps/web (premium.css, components.css).
@@ -151,8 +152,8 @@ function stayBar(s, cw) {
   const w = s.nights * cw - 4;
   return `<a href="#" style="position: absolute; left: 2px; top: 7px; display: flex; align-items: center; gap: 6px; width: ${w}px; height: 32px; padding: 0 8px; box-sizing: border-box; border-radius: ${s.cont ? '0' : '8px'} 8px 8px ${s.cont ? '0' : '8px'}; background: ${bg}; color: ${T.text}; font-size: 12px; font-weight: 500; text-decoration: none; white-space: nowrap; overflow: hidden; ${s.focus ? `outline: 2px solid ${T.primary}; outline-offset: 2px;` : ''} ${s.dashed ? `outline: 2px dashed ${T.primary}; outline-offset: -2px;` : ''}">${icon(ic, 16, T.text2)}<span style="overflow: hidden; text-overflow: ellipsis;">${s.name}</span><span style="color: ${T.text2}; font-weight: 400;">${s.word ?? word}</span>${s.extra ?? ''}</a>`;
 }
-function board({ groups, cw = 135, labelW = 200, freeCols, unassigned, todayCol = 0, weekend = true, extraTop = '' }) {
-  const head = `<tr><th style="box-sizing: border-box; width: ${labelW}px; text-align: left; padding: 12px 16px; background: ${T.surfaceMuted}; border-bottom: 1px solid ${T.border}; border-right: 1px solid ${T.border}; font-weight: 500; color: ${T.text2};">Номер / койка<div style="color: ${T.muted}; font-weight: 400;">свободно по дням</div></th>${DAYS.map(([d, wd, today, we], i) => `<th style="box-sizing: border-box; width: ${cw}px; padding: 10px 8px; text-align: center; background: ${i === todayCol ? T.primarySoft : T.surfaceMuted}; border-bottom: 1px solid ${T.border}; font-weight: 500;"><div style="font-size: 16px; font-weight: 600; color: ${i === todayCol ? T.primary : T.text};">${d}</div><div style="color: ${T.muted}; font-size: 12px; font-weight: 400;">${wd}${i === todayCol ? ', сегодня' : ''}</div><div style="color: ${T.muted}; font-size: 12px;">${freeCols ? freeCols[i] : ''}</div></th>`).join('')}</tr>`;
+function board({ groups, cw = 135, labelW = 200, freeCols, unassigned, todayCol = 0, extraTop = '' }) {
+  const head = `<tr><th style="box-sizing: border-box; width: ${labelW}px; text-align: left; padding: 12px 16px; background: ${T.surfaceMuted}; border-bottom: 1px solid ${T.border}; border-right: 1px solid ${T.border}; font-weight: 500; color: ${T.text2};">Номер / койка<div style="color: ${T.muted}; font-weight: 400;">свободно по дням</div></th>${DAYS.map(([d, wd], i) => `<th style="box-sizing: border-box; width: ${cw}px; padding: 10px 8px; text-align: center; background: ${i === todayCol ? T.primarySoft : T.surfaceMuted}; border-bottom: 1px solid ${T.border}; font-weight: 500;"><div style="font-size: 16px; font-weight: 600; color: ${i === todayCol ? T.primary : T.text};">${d}</div><div style="color: ${T.muted}; font-size: 12px; font-weight: 400;">${wd}${i === todayCol ? ', сегодня' : ''}</div><div style="color: ${T.muted}; font-size: 12px;">${freeCols ? freeCols[i] : ''}</div></th>`).join('')}</tr>`;
   const rows = groups.map((g) => {
     const grp = `<tr><td style="height: 30px; padding: 0 16px; background: ${T.surfaceMuted}; border-bottom: 1px solid ${T.border}; border-right: 1px solid ${T.border}; color: ${T.muted}; font-size: 12px;"><span style="display: inline-flex; align-items: center; gap: 6px; color: ${T.text}; white-space: nowrap;">${icon('down', 16, T.muted)}${g.name}<span style="color: ${T.muted};">${g.count}</span></span></td>${g.free.map((f) => `<td style="height: 30px; text-align: center; background: ${T.surfaceMuted}; border-bottom: 1px solid ${T.border}; font-size: 12px; ${f === 0 ? `color: ${T.danger}; font-weight: 600;` : `color: ${T.muted};`}">${f === 0 ? '0 нет' : f}</td>`).join('')}</tr>`;
     const units = (g.rows ?? []).map((r) => {
@@ -477,4 +478,4 @@ const canvas = {
   launch: { view: 'canvas', page: 'desk' },
 };
 writeFileSync(join(here, 'canvas.json'), JSON.stringify(canvas, null, 2) + '\n');
-console.log(`артбордов: ${Object.keys(artboards).length}`);
+process.stdout.write(`артбордов: ${Object.keys(artboards).length}\n`);

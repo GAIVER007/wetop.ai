@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 15.09.2026 10:55 Алматы · vm
+# коммит 32d4823 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-system.spec.ts' '--workers=1' '--update-snapshots'
+
+Running 7 tests using 1 worker
+
+/home/user/wetop.ai/design/reference/kit/design-system-light.png is re-generated, writing actual.
+  ✓  1 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (8.8s)
+  ✓  2 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (light) (3.9s)
+/home/user/wetop.ai/design/reference/kit/design-system-dark.png is re-generated, writing actual.
+  ✓  3 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (8.2s)
+  ✓  4 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (dark) (3.8s)
+  ✓  5 tests/ui/design-system.spec.ts:46:1 › у каждого интерактивного компонента все восемь состояний (2.8s)
+  ✓  6 tests/ui/design-system.spec.ts:61:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.2s)
+  ✓  7 tests/ui/design-system.spec.ts:71:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (3.2s)
+
+  7 passed (35.6s)
+
+# код выхода 0 · 37 с

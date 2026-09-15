@@ -3,8 +3,8 @@ import { cardTab } from './card-tabs';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
- * той же категории. Проверяется то, что видит стойка: вопрос с номером брони и ячейкой, после
- * подтверждения — на карточке брони новая ячейка, на шахматке новая клетка занята, старая свободна.
+ * той же категории. Проверяется то, что видит стойка: окно подтверждения с номером брони и ячейкой,
+ * после подтверждения — на карточке брони новая ячейка, на шахматке новая клетка занята, старая свободна.
  * Гость вымышленный (ADR-010), бронь отменяется в конце; метка E2E-АВТОТЕСТ — для уборки и сверок.
  */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -56,11 +56,11 @@ test('перетаскивание клетки брони на свободну
   await expect(rowB.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
   await expect(rowB.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
 
-  page.once('dialog', (d) => {
-    expect(d.message()).toBe(`Переселить бронь ${number} в ячейку ${unitB} с даты ${arrival}?`);
-    void d.accept();
-  });
   await source.dragTo(rowB.locator(`td[data-date="${arrival}"]`));
+  // окно подтверждения вместо window.confirm (DESIGN.md §15): вопрос с номером брони и ячейкой
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading')).toHaveText(`Переселить бронь ${number} в ${unitB}?`);
+  await dialog.getByRole('button', { name: 'Переселить' }).click();
 
   // после переселения сетка перерисована с сервера: обе ночи на B, A свободна, ошибки нет
   await expect(rowB.locator(`[data-testid="stay-cell"][data-number="${number}"]`)).toHaveCount(2);
@@ -77,7 +77,7 @@ test('перетаскивание клетки брони на свободну
   await expect(unitCell).not.toHaveText(unitA);
 
   // прибрать за собой: бронь отменяется, койка освобождается
-  page.once('dialog', (d) => d.accept());
+  page.once('dialog', (d) => d.accept()); // карточка брони пока на window.confirm — срез 7.3
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
   await cardTab(page, 'Обзор');

@@ -700,7 +700,7 @@ textarea.inp {
 .board th.board__unit-head {
   position: sticky;
   left: 0;
-  z-index: 2;
+  z-index: calc(var(--z-raised) + 2);
   min-width: 190px;
   text-align: left;
 }
@@ -727,34 +727,169 @@ textarea.inp {
   background: var(--st-confirmed);
 }
 .board td.board__cell {
-  padding: 2px;
+  padding: 0;
   min-width: 44px;
+  height: 46px;
   position: relative;
 }
+/*
+ * Полоса брони (срез 7.1, DESIGN.md §9): каждая клетка ночи — отрезок; клетка заезда начинается с середины,
+ * последняя ночь заканчивается на середине клетки выезда (заезд и выезд в один день читаются). Подпись —
+ * отдельным слоем над первой видимой клеткой, шириной на всю полосу.
+ */
+/* сама по себе (образец на /design-system) — плашка 32 px; в клетке сетки — отрезок полосы */
 .board__stay {
   display: block;
-  height: 22px;
-  line-height: 22px;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
   color: var(--text);
+  font-size: 12px;
   text-decoration: none;
-  overflow: hidden;
   white-space: nowrap;
-  font-size: 11px;
+  overflow: hidden;
+}
+.board td.board__cell .board__stay {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  right: 0;
+  min-width: 24px; /* цель нажатия на узкой клетке заезда (DESIGN.md §11) */
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  overflow: visible;
+  z-index: var(--z-base);
+}
+.board .board__stay--start {
+  left: 50%;
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+}
+.board .board__stay--end {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+.board .board__stay--into-next {
+  right: -50%;
+  z-index: calc(var(--z-base) + 1);
+}
+.board__stay--draggable {
+  cursor: grab;
 }
 .board__stay:hover {
   text-decoration: none;
   filter: brightness(0.96);
 }
+.board-stay-caption {
+  position: absolute;
+  top: 7px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: calc(var(--z-base) + 2);
+}
+/* меню действий у конца полосы: отдельный слой, чтобы список выходил за подпись и поверх соседних строк */
+.board-stay-menu {
+  position: absolute;
+  top: 7px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--space-1);
+  box-sizing: border-box;
+  z-index: calc(var(--z-base) + 3);
+}
+.board-stay-menu--end {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+.board-stay-menu:has([aria-expanded='true']) {
+  z-index: var(--z-dropdown);
+}
+.board-stay-menu .icon-button {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  color: var(--text-2);
+  background: transparent;
+  border-color: transparent;
+}
+.board-stay-caption > * {
+  flex: none;
+}
+.board-stay-caption__icon {
+  color: var(--text-2);
+}
+.board-stay-caption__name {
+  flex: 0 1 auto;
+  min-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.board-stay-caption__status {
+  color: var(--text-2);
+  font-weight: 400;
+}
+.board-stay-caption__badge {
+  pointer-events: auto;
+}
 .board__free {
-  height: 22px;
-  border-radius: 4px;
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  right: 0;
+  display: block;
+  border-radius: var(--radius-sm);
+}
+.board-block__word {
+  position: absolute;
+  top: 7px;
+  left: var(--space-2);
+  right: 0;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--danger);
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: calc(var(--z-base) + 2);
+}
+.board-block {
+  border-radius: var(--radius-sm);
+  background-image: repeating-linear-gradient(45deg, transparent 0 6px, var(--danger-border) 6px 8px);
 }
 .board__wa {
-  position: absolute;
-  right: 2px;
-  top: 3px;
-  font-size: 10px;
-  line-height: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  pointer-events: auto;
+}
+.board__wa:hover,
+.board__wa:focus-visible {
+  background: var(--surface);
+  color: var(--primary);
+}
+.board__hk {
+  margin-left: var(--space-2);
 }
 
 .block {
@@ -979,11 +1114,11 @@ textarea.inp {
 .board thead th {
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: calc(var(--z-raised) + 3);
   background: var(--surface);
 }
 .board th.board__unit-head {
-  z-index: 4;
+  z-index: calc(var(--z-raised) + 4);
 }
 .board__d {
   font-weight: 700;
@@ -994,21 +1129,23 @@ textarea.inp {
   font-weight: 600;
   color: var(--text-2);
 }
-/* сегодняшняя колонка: в две недели её иначе приходится искать счётом */
+/* сегодняшняя колонка: подсветка и слово «сегодня» (DESIGN.md §9); выходные нейтральны */
 .board th.is-today {
   background: var(--primary-soft);
 }
 .board th.is-today .board__d {
   color: var(--primary);
 }
-.board td.is-today {
-  box-shadow:
-    inset 1px 0 0 var(--primary-soft),
-    inset -1px 0 0 var(--primary-soft);
+.board__today-word {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary);
 }
-.board th.is-we:not(.is-today),
-.board td.is-we:not(.is-today) {
-  background: var(--primary-soft);
+.board td.is-today {
+  background: var(--row-hover);
+}
+.board__full-word {
+  font-weight: 500;
 }
 /* строка категории: сколько мест ещё можно продать */
 .board tr.board__group td {
@@ -1019,9 +1156,12 @@ textarea.inp {
 }
 .board td.board__group-name {
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text);
   background: var(--surface-muted);
+}
+.board-group-toggle svg {
+  color: var(--muted);
 }
 .board td.board__group-free {
   text-align: center;
@@ -1033,14 +1173,99 @@ textarea.inp {
 .board td.board__group-free.is-full {
   color: var(--danger);
 }
-.board__free--link {
-  display: block;
-  height: 22px;
-  border-radius: 4px;
-}
 .board__free--link:hover {
   background: var(--primary-soft);
   box-shadow: inset 0 0 0 1px var(--primary);
+}
+.board-wrap.is-busy .board {
+  color: var(--muted);
+}
+/* строка «Без ячейки» — одной строкой над сеткой, как в макете */
+.board-unassigned__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+}
+.board-unassigned__item .muted svg {
+  vertical-align: -3px;
+}
+.board-unassigned__assign {
+  margin-left: auto;
+}
+.board-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.board-channex-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.board-channex-alert > span {
+  flex: 1;
+}
+/* скелетон шахматки (loading.tsx): форма сетки без крутилки */
+.board-skeleton__toolbar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: 0 0 var(--space-4);
+}
+.board-skeleton__control {
+  height: 38px;
+  border-radius: var(--radius-control);
+}
+.board-skeleton {
+  padding: 0;
+  overflow: hidden;
+}
+.board-skeleton__head,
+.board-skeleton__row,
+.board-skeleton__group {
+  display: grid;
+  grid-template-columns: 190px repeat(7, minmax(0, 1fr));
+  align-items: center;
+  border-bottom: 1px solid var(--border-soft);
+}
+.board-skeleton__head {
+  height: 72px;
+  background: var(--surface-muted);
+  border-bottom-color: var(--border);
+}
+.board-skeleton__group {
+  height: 30px;
+  background: var(--surface-muted);
+}
+.board-skeleton__row {
+  height: 46px;
+}
+.board-skeleton__label,
+.board-skeleton__unit {
+  height: 14px;
+  width: 120px;
+  margin: 0 var(--space-4);
+}
+.board-skeleton__unit {
+  width: 70px;
+}
+.board-skeleton__day {
+  height: 14px;
+  width: 60px;
+  margin: 0 auto;
+}
+.board-skeleton__cell {
+  height: 46px;
+  display: flex;
+  align-items: center;
+}
+.board-skeleton__stay {
+  flex: 1;
+  height: 32px;
+  margin: 0 2px;
+  border-radius: var(--radius-sm);
 }
 /* переключатель окна: 7 / 14 / 30 дней */
 .seg {

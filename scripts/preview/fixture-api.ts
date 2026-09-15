@@ -557,7 +557,7 @@ function desk(date: string): DeskDay {
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
   const rows = units.map((u) => ({
-    unit: { id: u.code, ...u },
+    unit: { id: u.code, ...u, housekeeping: housekeeping.get(u.code) ?? 'CLEAN' },
     cells: days.map((date) => {
       const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
       if (block)
@@ -582,7 +582,11 @@ function board(from: string, to: string): Chessboard {
             itemId: it.id,
             confirmationNumber: r.confirmationNumber,
             guestLabel: r.primaryGuest?.label ?? 'Гость',
+            guestPhone: r.primaryGuest?.phone ?? null,
             itemStatus: it.status,
+            source: r.source,
+            channel: r.channel,
+            balanceMinor: finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
           };
@@ -647,6 +651,10 @@ function board(from: string, to: string): Chessboard {
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
           status: it.status,
+          guestLabel: r.primaryGuest?.label ?? 'Гость',
+          source: r.source,
+          channel: r.channel,
+          balanceMinor: finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
         })),
     ),
   };

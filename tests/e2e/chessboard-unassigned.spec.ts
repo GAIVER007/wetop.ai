@@ -61,8 +61,11 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(block).toContainText(categoryName);
   const item = block.locator(`[data-testid="unassigned-stay"][data-number="${number}"]`);
   await expect(item).toHaveCount(1);
-  await expect(item).toContainText(`${arrival} → ${departure}`);
-  await expect(item).toContainText('подтверждена');
+  // период по DESIGN.md §14: «14.09 → 17.09.2026»; статус словом «ждём», заказчик назван (срез 7.1)
+  const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
+  await expect(item).toContainText(`${dd(arrival)} → ${dd(departure)}.${departure.slice(0, 4)}`);
+  await expect(item).toContainText('ждём');
+  await expect(item).toContainText('Тест-без-ячейки');
   await expect(item.getByRole('link', { name: number })).toHaveAttribute(
     'href',
     `/reservations/${number}`,

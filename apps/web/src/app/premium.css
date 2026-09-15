@@ -274,7 +274,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .filter-chip.is-selected { background: var(--primary-soft); color: var(--primary); border-color: color-mix(in srgb,var(--primary) 20%,var(--border)); }
 .board-toolbar { padding: 12px 16px; gap: 12px; }
 .board-toolbar .inp { background: var(--surface); }
-.board-wrap { border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); max-height: calc(100dvh - 350px); min-height: 280px; background: var(--surface); }
+.board-wrap { border-radius: var(--radius); border: 1px solid var(--border); max-height: calc(100dvh - 350px); min-height: 280px; background: var(--surface); }
 .board { background: var(--surface); }
 .board thead th { background: var(--surface-muted); color: var(--text); height: 72px; border-color: var(--border); }
 .board__unit-head,.board__unit { background: var(--surface) !important; color: var(--text-2); border-right: 1px solid var(--border) !important; }
@@ -284,7 +284,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .board-unit-link svg { color: var(--muted); width: 15px; }
 .board__unit > .muted-2 { font-size: 12px; color: var(--muted); }
 .board__cell { height: 46px; border-color: var(--border-soft); }
-.board__stay { height: 32px; margin: 7px 0; color: var(--text); border: 0; box-shadow: none; }
+.board__stay { color: var(--text); border: 0; box-shadow: none; }
 .board__stay:hover { filter: brightness(1.04); outline: 1px solid var(--primary); outline-offset: -1px; }
 .board-stay-caption { font-size: 12px; font-weight: 500; top: 9px; color: var(--text); }
 .board__free { height: 32px; margin: 7px 0; background: transparent; }
@@ -296,8 +296,9 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .board__d { font-size: 16px; font-weight: 600; }
 .board__wd { color: var(--muted); font-size: 12px; font-weight: 400; }
 .board__occ { color: var(--muted); font-size: 12px; }
-.board-unassigned { background: transparent; border-color: var(--border); border-radius: 10px; padding: 10px 14px; }
-.board-unassigned-title { font-size: 12px; }
+.board-unassigned { background: var(--surface); border-color: var(--border); border-radius: var(--radius-control); padding: 10px 14px; }
+.board-unassigned--warn { border-color: var(--warning-border); }
+.board-unassigned__title { font-size: 12px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
 .legend { font-size: 12px; color: var(--muted); gap: 16px; margin: 0 0 14px; }
 .legend__swatch { width: 8px; height: 8px; border: 0; border-radius: 3px; }
 @media(max-width: 600px) { .board-period { gap: 8px; flex-wrap: wrap; } .board-range-form { gap: 6px; } .board-range-form .inp { width: 130px; } .board-range-form > span:last-child { width: 100%; margin: 0; } .board-wrap { max-height: calc(100dvh - 210px); } .board-state-filters { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; } .filter-chip { padding: 6px 8px; font-size: 12px; } .board-filters-row { gap: 8px; } }
@@ -390,9 +391,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .message-actions { margin: 24px 0; }
 @media(max-width:760px) { .login-page { grid-template-columns: 1fr; }.login-story { padding: 24px; }.login-message { padding: 32px 0 0; }.login-message h1 { font-size: 36px; }.login-orbit,.login-property { display: none; }.login-form-panel { padding: 32px 24px 48px; }.messages-workspace { grid-template-columns: 1fr; }.messages-list { border-right: 0; border-bottom: 1px solid var(--border); }.message-content { padding: 16px; }.message-content > .empty-state { min-height: 300px; } }
 /* Keep contiguous stay segments visually joined while every night remains draggable. */
-.board td.board__cell { padding: 0; height: 46px; border-right: 1px solid var(--border-soft); }
-.board .board__stay { height: 32px; line-height: 32px; margin: 7px -1px 7px 0; }
-.board-stay-caption { top: 0; }
+.board td.board__cell { border-right: 1px solid var(--border-soft); }
 .board-group-toggle { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; background: transparent; border: 0; text-align: left; }
 /* Seven days fill the panel, retaining a visible room column even on a phone. */
 .board.board--week { --week-unit-width: 176px; table-layout: fixed; width: 100%; min-width: calc(var(--week-unit-width) + 168px); }
@@ -447,7 +446,6 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
   .board--month .board-group-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .board--month tr.board__group td.board__group-free { padding-top: 28px; padding-bottom: 4px; }
   .board--month td.board__cell { height: 64px; }
-  .board--month .board__stay,.board--month .board__free { margin-top: 28px; margin-bottom: 4px; }
 }
 .board-period .seg a.is-on,.seg a.is-on { background: var(--surface-elevated); color: var(--primary); box-shadow: var(--shadow); }
 @media (min-width: 761px) and (max-width: 1050px) { .desk-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); } }

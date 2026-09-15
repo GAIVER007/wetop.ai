@@ -181,3 +181,53 @@ describe('buildChessboard: проживания без ячейки (парит�
     expect(b.summary['2026-09-11']).toEqual({ occupied: 1, blocked: 0, free: 2 });
   });
 });
+
+describe('buildChessboard: срез 7.1 — канал, остаток счёта, уборка и заказчик на доске (DESIGN.md §8, §9)', () => {
+  const rich: ChessboardInput = {
+    ...input,
+    units: input.units.map((u, i) => ({ ...u, housekeeping: (['DIRTY', 'CLEAN', 'INSPECTED'] as const)[i]! })),
+    allocations: [
+      { ...input.allocations[0]!, source: 'OTA', channel: 'Booking.com', balanceMinor: '1600000' },
+      { ...input.allocations[1]!, source: 'DESK', channel: null, balanceMinor: '0' },
+    ],
+    unassigned: [
+      {
+        confirmationNumber: 'U-9',
+        categoryCode: 'exely-900003',
+        categoryName: 'Тестовый dorm',
+        arrivalDate: '2026-09-12',
+        departureDate: '2026-09-13',
+        status: 'CONFIRMED',
+        guestLabel: 'Гость Тест-без-ячейки',
+        source: 'OTA',
+        channel: 'Trip.com',
+        balanceMinor: '400000',
+      },
+    ],
+  };
+  it('клетка проживания несёт канал, источник и остаток к оплате — плашка и бейдж на полосе', () => {
+    const b = buildChessboard(rich);
+    const cell = b.rows[0]!.cells[0]!; // u1, 2026-09-10 — проживание A
+    expect(cell).toMatchObject({ source: 'OTA', channel: 'Booking.com', balanceMinor: '1600000' });
+    const desk = b.rows[1]!.cells[1]!; // u2, 2026-09-11 — проживание B
+    expect(desk).toMatchObject({ source: 'DESK', channel: null, balanceMinor: '0' });
+  });
+  it('строка ячейки несёт статус уборки — бейдж словом и фильтр «Уборка» по настоящему статусу', () => {
+    const b = buildChessboard(rich);
+    expect(b.rows.map((r) => r.unit.housekeeping)).toEqual(['DIRTY', 'CLEAN', 'INSPECTED']);
+  });
+  it('строка «Без ячейки» несёт заказчика, канал и остаток', () => {
+    const b = buildChessboard(rich);
+    expect(b.unassigned[0]).toMatchObject({
+      guestLabel: 'Гость Тест-без-ячейки',
+      channel: 'Trip.com',
+      balanceMinor: '400000',
+    });
+  });
+  it('без новых полей на входе клетка их не выдумывает', () => {
+    const b = buildChessboard(input);
+    const cell = b.rows[0]!.cells[0]!;
+    expect('channel' in cell).toBe(false);
+    expect('balanceMinor' in cell).toBe(false);
+  });
+});

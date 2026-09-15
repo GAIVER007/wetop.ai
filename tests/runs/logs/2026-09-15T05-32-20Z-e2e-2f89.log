@@ -1,0 +1,398 @@
+# Сквозные (e2e) · 15.09.2026 10:32 Алматы · vm
+# коммит 32d4823 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/design-system.spec.ts' 'tests/ui/design-reference.spec.ts' '--workers=1'
+
+Running 44 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.0s)
+  ✓   2 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (3.9s)
+  ✓   3 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (3.6s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (3.6s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (3.5s)
+  ✓   6 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (3.6s)
+  ✓   7 tests/ui/chessboard-month.spec.ts:65:1 › неделя, 14 дней, произвольный период и возврат к месяцу (4.8s)
+  ✓   8 tests/ui/chessboard-month.spec.ts:84:1 › в месяце открываются брони, свободные даты и группы номеров (6.9s)
+  ✘   9 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (11.8s)
+  ✘  10 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность (11.5s)
+  ✓  11 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (3.5s)
+  ✓  12 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.2s)
+  ✓  13 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (3.2s)
+  ✓  14 tests/ui/chessboard-week.spec.ts:33:1 › в неделе работают бронь, категории и создание на воскресенье (2.5s)
+  ✘  15 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон (16.3s)
+  ✘  16 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон (15.2s)
+  ✓  17 tests/ui/chessboard-week.spec.ts:96:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.5s)
+  ✓  18 tests/ui/design-reference.spec.ts:32:3 › шахматка: неделя и месяц (light) (2.8s)
+  ✓  19 tests/ui/design-reference.spec.ts:44:3 › обзор дня (light) (1.6s)
+  ✓  20 tests/ui/design-reference.spec.ts:51:3 › карточка брони панелью, четыре вкладки (light) (4.7s)
+  ✓  21 tests/ui/design-reference.spec.ts:71:3 › карточка гостя (light) (1.7s)
+  ✓  22 tests/ui/design-reference.spec.ts:78:3 › форма брони: одно размещение и группа (light) (1.4s)
+  ✓  23 tests/ui/design-reference.spec.ts:88:3 › цены и ограничения с массовым изменением (light) (1.8s)
+  ✓  24 tests/ui/design-reference.spec.ts:101:3 › журнал интеграции Channex (light) (1.1s)
+  ✓  25 tests/ui/design-reference.spec.ts:32:3 › шахматка: неделя и месяц (dark) (3.1s)
+  ✓  26 tests/ui/design-reference.spec.ts:44:3 › обзор дня (dark) (1.8s)
+  ✓  27 tests/ui/design-reference.spec.ts:51:3 › карточка брони панелью, четыре вкладки (dark) (4.6s)
+  ✓  28 tests/ui/design-reference.spec.ts:71:3 › карточка гостя (dark) (1.0s)
+  ✓  29 tests/ui/design-reference.spec.ts:78:3 › форма брони: одно размещение и группа (dark) (1.1s)
+  ✓  30 tests/ui/design-reference.spec.ts:88:3 › цены и ограничения с массовым изменением (dark) (1.3s)
+  ✓  31 tests/ui/design-reference.spec.ts:101:3 › журнал интеграции Channex (dark) (1.0s)
+  ✘  32 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (9.6s)
+  ✓  33 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (light) (4.2s)
+  ✘  34 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (8.0s)
+  ✓  35 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (dark) (3.8s)
+  ✓  36 tests/ui/design-system.spec.ts:46:1 › у каждого интерактивного компонента все восемь состояний (2.6s)
+  ✓  37 tests/ui/design-system.spec.ts:61:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.2s)
+  ✓  38 tests/ui/design-system.spec.ts:71:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (3.2s)
+  ✓  39 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.5s)
+  ✓  40 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск, уведомления и помощник (4.8s)
+  ✓  41 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (4.4s)
+  ✓  42 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (5.4s)
+  ✓  43 tests/ui/premium.spec.ts:127:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (47.7s)
+  ✓  44 tests/ui/premium.spec.ts:175:1 › сообщения сохраняют только черновик, login не имитирует авторизацию (1.9s)
+
+
+  1) tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность ────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 28
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         ".is-today[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST3\"][data-item-id=\"ui-item-3\"][href=\"/reservations/20260913-TEST3\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      148 |       expect(
+      149 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 150 |       ).toEqual([]);
+          |         ^
+      151 |     }
+      152 |     expect(errors).toEqual([]);
+      153 |     writeFileSync(`reports/chessboard-month/${theme}.json`, JSON.stringify(report, null, 2));
+        at /home/user/wetop.ai/tests/ui/chessboard-month.spec.ts:150:9
+
+    Error Context: test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность ─────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 28
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         ".is-today[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         ".is-today[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST3\"][data-item-id=\"ui-item-3\"][href=\"/reservations/20260913-TEST3\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-13\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      148 |       expect(
+      149 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 150 |       ).toEqual([]);
+          |         ^
+      151 |     }
+      152 |     expect(errors).toEqual([]);
+      153 |     writeFileSync(`reports/chessboard-month/${theme}.json`, JSON.stringify(report, null, 2));
+        at /home/user/wetop.ai/tests/ui/chessboard-month.spec.ts:150:9
+
+    Error Context: test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-месячная--6ccb6-k-читаемость-и-адаптивность/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 34
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      83 |       expect(
+      84 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 85 |       ).toEqual([]);
+         |         ^
+      86 |     }
+      87 |     // At mobile/tablet widths navigation is a drawer, so resize to desktop to collapse it.
+      88 |     await page.setViewportSize({ width: 1440, height: 1000 });
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:85:9
+
+    Error Context: test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 34
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "target-size",
+    +     "nodes": Array [
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TESTAA\"][data-item-id=\"ui-item\"][href=\"/reservations/20260913-TESTAA\"]",
+    +       ],
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CONFIRMED\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST1\"][data-item-id=\"ui-item-1\"][href=\"/reservations/20260913-TEST1\"]",
+    +       ],
+    +       Array [
+    +         ".board__stay--start[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST2\"][data-item-id=\"ui-item-2\"][href=\"/reservations/20260913-TEST2\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST5\"][data-item-id=\"ui-item-5\"][href=\"/reservations/20260913-TEST5\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST6\"][data-item-id=\"ui-item-6\"][href=\"/reservations/20260913-TEST6\"]",
+    +       ],
+    +       Array [
+    +         "td[data-status=\"CHECKED_IN\"][data-state=\"OCCUPIED\"][data-date=\"2026-09-17\"] > a[data-number=\"20260913-TEST7\"][data-item-id=\"ui-item-7\"][href=\"/reservations/20260913-TEST7\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      83 |       expect(
+      84 |         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 85 |       ).toEqual([]);
+         |         ^
+      86 |     }
+      87 |     // At mobile/tablet widths navigation is a drawer, so resize to desktop to collapse it.
+      88 |     await page.setViewportSize({ width: 1440, height: 1000 });
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:85:9
+
+    Error Context: test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ───────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      12598 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: design-system-light.png
+
+    Call log:
+      - Expect "toHaveScreenshot(design-system-light.png)" with timeout 15000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 12598 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 12598 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |                        ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:24
+
+    attachment #1: design-system-light (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-light.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/design-system-light-actual.png
+    Diff:     test-results/design-system-эталонный-снимок-страницы-компонентов-light-/design-system-light-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      12802 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: design-system-dark.png
+
+    Call log:
+      - Expect "toHaveScreenshot(design-system-dark.png)" with timeout 15000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 12802 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 12802 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |                        ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:24
+
+    attachment #1: design-system-dark (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-dark.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/design-system-dark-actual.png
+    Diff:     test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/design-system-dark-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность ─────
+    tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность ──────
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ────────────
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ─────────────
+  38 passed (4.1m)
+
+# код выхода 1 · 4 мин 7 с

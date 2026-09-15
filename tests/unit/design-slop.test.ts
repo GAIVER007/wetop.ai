@@ -36,7 +36,7 @@ const count = (src: string, re: RegExp) => [...src.matchAll(re)].length;
 /** Значения свойства в CSS: `padding: 12px 20px` → ['12px','20px']. */
 function values(src: string, prop: RegExp): string[] {
   const out: string[] = [];
-  for (const m of src.matchAll(prop)) out.push(...m[1].trim().split(/\s+/));
+  for (const m of src.matchAll(prop)) out.push(...(m[1] ?? '').trim().split(/\s+/));
   return out;
 }
 
@@ -67,7 +67,7 @@ const RULES: Rule[] = [
     ext: /\.(css|tsx)$/,
     find: (s) =>
       [...s.matchAll(/box-?[sS]hadow\s*:\s*([^;}'"]+)/g)]
-        .map((m) => m[1].trim())
+        .map((m) => (m[1] ?? '').trim())
         .filter((v) => v !== 'none' && !v.includes('--shadow-floating') && !v.includes('--ring') && !v.startsWith('inset') && !/^0 0 0 \d/.test(v))
         .length,
   },
@@ -101,7 +101,7 @@ const RULES: Rule[] = [
     ext: /\.css$/,
     find: (s) =>
       [...s.matchAll(/border-radius\s*:\s*([^;}]+)/g)]
-        .map((m) => m[1].trim())
+        .map((m) => (m[1] ?? '').trim())
         .filter((v) => !v.includes('var(') && !RADIUS_TOKENS.has(v)).length,
   },
   {

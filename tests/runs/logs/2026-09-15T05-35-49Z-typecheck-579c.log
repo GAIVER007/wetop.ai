@@ -1,0 +1,22 @@
+# Типы (typecheck) · 15.09.2026 10:35 Алматы · vm
+# коммит 32d4823 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 22
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+packages/domain/src/chessboard/build.test.ts(188,5): error TS2322: Type '{ housekeeping: "DIRTY" | "CLEAN" | "INSPECTED" | undefined; id: string; code: string; kind: InventoryUnitKind; accommodationTypeCode: string; accommodationTypeName: string; }[]' is not assignable to type 'ChessboardUnit[]'.
+  Type '{ housekeeping: "DIRTY" | "CLEAN" | "INSPECTED" | undefined; id: string; code: string; kind: InventoryUnitKind; accommodationTypeCode: string; accommodationTypeName: string; }' is not assignable to type 'ChessboardUnit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'housekeeping' are incompatible.
+      Type '"DIRTY" | "CLEAN" | "INSPECTED" | undefined' is not assignable to type 'HousekeepingState'.
+        Type 'undefined' is not assignable to type 'HousekeepingState'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Gate 2 (шахматка): сетка на 88 ячеек, и число занятых на экране совпадает с данными API,
+ * Gate 2 (шахматка): сетка на 88 ячеек, и число свободных на экране совпадает с данными API
+ * (с среза 7.1 шапка дня показывает «свободно / 88» — это число продают, DESIGN.md §9),
  * а занято + свободно + заблокировано всегда равно 88.
  * Сверка ИМЕННО С EXELY по числам — в датированных отчётах `reports/double-entry-*.md`
  * (скрипт `cli-double-entry.ts` читает Exely живьём). Жёсткое число здесь не зашивается:
@@ -24,7 +25,9 @@ test('шахматка показывает 88 ячеек, и занятость
   await expect(page.getByRole('heading', { name: 'Шахматка' })).toBeVisible();
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await expect(page.getByTestId('occupied-2026-09-08')).toHaveText(String(summary.occupied));
+  await expect(page.getByTestId('free-2026-09-08')).toHaveText(String(summary.free));
+  // статус на полосе — словом, не только цветом (DESIGN.md §1 п. 4, §9)
+  await expect(page.getByTestId('stay-status').first()).toHaveText(/ждём|заселён|выехал|не подтверждена/);
   await page.screenshot({ path: 'reports/screenshots/chessboard-2026-09-08.png', fullPage: false });
 });
 

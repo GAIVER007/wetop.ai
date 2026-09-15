@@ -1,24 +1,29 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { chessboardApi, type UnassignedStay } from '../../lib/api';
+import { chessboardApi, getJsonPublic, type UnassignedStay } from '../../lib/api';
 import { Page } from '../../components/page';
-import { Alert, Button, Input, Legend, cx } from '../../components/ui';
+import { Alert, Button, Input, cx } from '../../components/ui';
+import { AmountBadge } from '../../components/amount-badge';
 import { ChessboardGrid } from './board-grid';
-import { displayDate } from '../../lib/display-date';
+import { STAY_STATUS, sourceBadge } from './stay-status';
+import { displayDay, displayPeriod } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { weekPeriod } from './week-period';
 
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
+/** Очередь Channex: плашка над сеткой, когда отправки падают — каналы продают по старому остатку */
+interface Freshness {
+  channex: { outboxPending: number; outboxFailed: number };
+}
+async function channexQueue(): Promise<Freshness['channex'] | null> {
+  try {
+    return (await getJsonPublic<Freshness>('/system/freshness')).channex;
+  } catch {
+    return null; // сторож и /channels покажут сами; шахматка без плашки, но не без сетки
+  }
+}
 
 /**
  * Slice 2, шаг 2.7: шахматка — 88 ячеек × даты. Страница остаётся server component; сетка вынесена
@@ -60,7 +65,7 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  const board = await chessboardApi.board(from, to);
+  const [board, queue] = await Promise.all([chessboardApi.board(from, to), channexQueue()]);
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -96,7 +101,7 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Шахматка"
-      subtitle={`${isMonth ? monthLabel : `${displayDate(board.from)} — ${displayDate(board.to)}`} · Номера и койки · ${board.rows.length} мест`}
+      subtitle={`${isMonth ? monthLabel : displayPeriod(board.from, board.to)}, номера и койки, ${board.rows.length} мест`}
       actions={
         <div className="board-period">
           <Link className="btn" href="/reservations/new">
@@ -158,76 +163,112 @@ export default async function ChessboardPage({
         <Button tone="secondary" type="submit">
           Применить
         </Button>
-        <span className="muted small">Статусы фильтруются на {displayDate(board.from)}</span>
+        <span className="muted small">Статусы фильтруются на {displayDay(board.from)}</span>
       </form>
-      <Legend
-        items={[
-          { color: 'var(--st-confirmed)', label: 'подтверждена' },
-          { color: 'var(--st-checked-in)', label: 'заселён' },
-          { color: 'var(--st-checked-out)', label: 'выселен' },
-          { color: 'var(--st-tentative)', label: 'предварительная' },
-          { color: 'var(--st-blocked)', label: 'блокировка' },
-        ]}
-      />
+      <BoardLegend />
+      {queue && queue.outboxFailed > 0 && (
+        <Alert boxed role="alert" data-testid="channex-warning" className="board-channex-alert">
+          <Icon name="incidents" width={16} height={16} />
+          <span>
+            <b>Каналы могут не знать об остатках:</b> ошибок отправки {queue.outboxFailed}, в очереди{' '}
+            {queue.outboxPending}. Пока очередь не разошлась, каналы продают по старому остатку.
+          </span>
+          <Link href="/channels" className="btn btn--secondary">
+            Открыть каналы
+          </Link>
+        </Alert>
+      )}
       <UnassignedStays stays={board.unassigned ?? []} />
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
       <details className="board-help">
         <summary>Как работать с шахматкой</summary>
         <p className="note">
-          В строке категории — сколько мест свободно на эту ночь, под датой в шапке — сколько занято
-          из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке открывает
-          бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую строку —
-          бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только на всё
-          проживание). Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка
-          назначается с карточки брони.
+          В строке категории и под датой в шапке — сколько мест свободно на эту ночь из{' '}
+          {board.rows.length}. Полоса брони начинается с середины клетки заезда и кончается на
+          середине клетки выезда: ночь выезда ячейку не занимает. Клик по полосе открывает бронь, по
+          пустой клетке — форму новой брони на эту дату. Меню на полосе: переселить в свободную ячейку
+          той же категории, продлить на ночь, отменить; перетаскивание клетки на другую строку тоже
+          переселяет — с даты взятой клетки (в другую категорию — только на всё проживание). Брони без
+          ячейки — строкой над сеткой; ячейка назначается с карточки брони.
         </p>
       </details>
     </Page>
   );
 }
 
+/** Легенда статусов: значок, слово и цвет — смысл не только цветом (DESIGN.md §1 п. 4, §9) */
+function BoardLegend() {
+  return (
+    <div className="legend board-legend" aria-label="Статусы на шахматке">
+      {Object.entries(STAY_STATUS).map(([status, { word, icon, token }]) => (
+        <span key={status} className="board-legend__item" data-status={status}>
+          <span className="legend__swatch" style={{ background: `var(--st-${token})` }} />
+          <Icon name={icon} width={16} height={16} />
+          {word}
+        </span>
+      ))}
+      <span className="board-legend__item" data-status="BLOCKED">
+        <span className="legend__swatch" style={{ background: 'var(--st-blocked)' }} />
+        <Icon name="incidents" width={16} height={16} />
+        блокировка
+      </span>
+    </div>
+  );
+}
+
 /**
  * Строка «Без ячейки» — как «Без номера» в шахматке Exely: проживания в диапазоне доски, у которых
- * нет назначения (бронь канала, которой не хватило места — Q-107, или снятое назначение). Список
- * приходит отсортированным по категории и заезду, здесь только группируется. Гостей не показываем.
+ * нет назначения (бронь канала, которой не хватило места — Q-107, или снятое назначение). По макету
+ * (срез 7.1): одной строкой над сеткой — заказчик, категория, номер брони, период, статус, остаток,
+ * кнопка «Назначить» ведёт на карточку брони, где ячейка и назначается.
  */
 function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
-  const groups: Array<{ code: string; name: string; items: UnassignedStay[] }> = [];
-  for (const s of stays) {
-    const last = groups[groups.length - 1];
-    if (last && last.code === s.categoryCode) last.items.push(s);
-    else groups.push({ code: s.categoryCode, name: s.categoryName, items: [s] });
-  }
   return (
-    <section data-testid="unassigned-stays" data-count={stays.length} className="board-unassigned">
-      <div className={cx('board-unassigned-title', stays.length ? 'warn-text' : 'muted')}>
-        <Icon name={stays.length ? 'incidents' : 'check'} /> Без ячейки: {stays.length}
+    <section
+      data-testid="unassigned-stays"
+      data-count={stays.length}
+      className={cx('board-unassigned', stays.length > 0 && 'board-unassigned--warn')}
+    >
+      <div className={cx('board-unassigned__title', stays.length ? 'warn-text' : 'muted')}>
+        <Icon name={stays.length ? 'incidents' : 'check'} width={16} height={16} /> Без ячейки: {stays.length}
       </div>
-      {groups.map((g) => (
-        <div key={g.code}>
-          <span className="muted-2">{g.name}</span>
-          <ul className="board-unassigned-list">
-            {g.items.map((s) => (
-              <li
-                key={`${s.confirmationNumber}-${s.arrivalDate}`}
-                data-testid="unassigned-stay"
-                data-number={s.confirmationNumber}
-                style={{ lineHeight: '20px' }}
-              >
-                <Link
-                  href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
-                  className="mono bold"
-                >
-                  {s.confirmationNumber}
-                </Link>{' '}
-                <span className="muted">
-                  {s.arrivalDate} → {s.departureDate} · {STATUS_RU[s.status] ?? s.status}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {stays.map((s) => {
+        const status = STAY_STATUS[s.status];
+        const source = sourceBadge(s);
+        const due = s.balanceMinor && /^[1-9]\d*$/.test(s.balanceMinor) ? s.balanceMinor : null;
+        return (
+          <div
+            key={`${s.confirmationNumber}-${s.arrivalDate}`}
+            data-testid="unassigned-stay"
+            data-number={s.confirmationNumber}
+            className="board-unassigned__item"
+          >
+            <b className="board-unassigned__guest">{s.guestLabel || '—'}</b>
+            <span className="muted-2">{s.categoryName}</span>
+            <Link href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`} className="bold">
+              {s.confirmationNumber}
+            </Link>
+            <span>{displayPeriod(s.arrivalDate, s.departureDate)}</span>
+            <span className="muted">
+              {status ? (
+                <>
+                  <Icon name={status.icon} width={16} height={16} /> {status.word}
+                </>
+              ) : (
+                s.status
+              )}
+            </span>
+            {source && <span className="badge">{source}</span>}
+            {due && <AmountBadge amountMinor={due} kind="due" />}
+            <Link
+              href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
+              className="btn btn--secondary board-unassigned__assign"
+            >
+              Назначить
+            </Link>
+          </div>
+        );
+      })}
     </section>
   );
 }

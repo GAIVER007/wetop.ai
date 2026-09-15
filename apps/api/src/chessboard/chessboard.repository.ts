@@ -9,6 +9,7 @@ import type {
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
+import { stayFacts } from './stay-facts';
 
 export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
@@ -34,6 +35,14 @@ export const CHESSBOARD_REPOSITORY = Symbol('CHESSBOARD_REPOSITORY');
 const d = (x: Date) => x.toISOString().slice(0, 10);
 const guestLabel = (g: { firstName: string; lastName: string } | null | undefined) =>
   g ? `${g.firstName} ${g.lastName}`.trim() : '';
+/** Счёт проживания одним включением: остаток на полосе считает stayFacts тем же folioBalance, что и /finance */
+const FOLIO_ROWS = {
+  select: {
+    charges: { select: { amount: true, voidedAt: true } },
+    allocations: { select: { amount: true } },
+    refunds: { select: { amount: true } },
+  },
+} as const;
 
 @Injectable()
 export class PrismaChessboardRepository implements ChessboardRepository {
@@ -61,6 +70,7 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         kind: u.kind,
         accommodationTypeCode: u.accommodationType.code,
         accommodationTypeName: u.accommodationType.name,
+        housekeeping: u.housekeepingStatus,
       }));
   }
 
@@ -103,8 +113,16 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         arrivalDate: true,
         departureDate: true,
         status: true,
-        reservation: { select: { confirmationNumber: true } },
+        reservation: {
+          select: {
+            confirmationNumber: true,
+            source: true,
+            channel: true,
+            primaryGuest: { select: { firstName: true, lastName: true } },
+          },
+        },
         accommodationType: { select: { code: true, name: true } },
+        folio: FOLIO_ROWS,
       },
     });
     return rows.map((r) => ({
@@ -114,6 +132,8 @@ export class PrismaChessboardRepository implements ChessboardRepository {
       arrivalDate: d(r.arrivalDate),
       departureDate: d(r.departureDate),
       status: r.status,
+      guestLabel: guestLabel(r.reservation.primaryGuest),
+      ...stayFacts(r),
     }));
   }
 
@@ -132,6 +152,7 @@ export class PrismaChessboardRepository implements ChessboardRepository {
                 primaryGuest: { select: { firstName: true, lastName: true, phone: true } },
               },
             },
+            folio: FOLIO_ROWS,
           },
         },
       },
@@ -145,6 +166,7 @@ export class PrismaChessboardRepository implements ChessboardRepository {
       confirmationNumber: a.reservationItem.reservation.confirmationNumber,
       guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
       guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
+      ...stayFacts(a.reservationItem),
     }));
   }
 

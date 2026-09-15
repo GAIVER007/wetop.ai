@@ -431,3 +431,4 @@
 | 16.09.2026 02:22 | unit | ❌ упало 3 из 915 | 1 мин 32 с | e06f7f4 +26 | [лог](logs/2026-09-15T21-22-10Z-unit-789b.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
 | 16.09.2026 02:23 | typecheck | ✅ без ошибок | 21 с | e06f7f4 +27 | [лог](logs/2026-09-15T21-23-48Z-typecheck-0b58.log) |  |
 | 16.09.2026 02:24 | lint | ✅ без ошибок | 9 с | e06f7f4 +27 | [лог](logs/2026-09-15T21-24-10Z-lint-b8c5.log) |  |
+| 16.09.2026 02:35 | e2e (частично: --config /tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts password-reset --workers=1) | ✅ 7 из 7 | 14 с | 976f221 | [лог](logs/2026-09-15T21-35-36Z-e2e-ac57.log) |  |

@@ -272,6 +272,45 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     expect(none.out).toMatch(/не под git|не репозиторий/);
   });
 
+  it('аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту', () => {
+    // 16.09.2026, первый запуск на Mac: «bash repo-sync.sh   # только проверка» пришёл как пять аргументов,
+    // скрипт ответил «неизвестно: #» и не сделал ничего
+    const sb = sandbox();
+    const { code, out } = run(sb, ['#', 'только', 'проверка,', 'ничего', 'не', 'меняет']);
+    expect(out).not.toContain('неизвестно');
+    expect(out).toMatch(/отстаёт от origin\/main на 1/);
+    expect(code).toBe(1);
+  });
+
+  it('при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain', () => {
+    // На машине стойки стоит ~/.cloudflared/wetop.yml (постоянный туннель wetop.ai). Быстрый туннель там
+    // запускать нельзя: он уводит webhook Channex на одноразовый адрес (CLAUDE.md, 16.09.2026). На Mac 16.09
+    // среди служб оказался tunnel, а domain — нет.
+    const sb = sandbox();
+    const agents = join(sb.home, 'Library', 'LaunchAgents');
+    writeFileSync(join(agents, 'kz.luxx.pms.tunnel.plist'), plist('tunnel', sb.oldDir));
+    writeFileSync(join(sb.dir, 'state', 'loaded-kz.luxx.pms.tunnel'), '');
+    mkdirSync(join(sb.home, '.cloudflared'), { recursive: true });
+    writeFileSync(join(sb.home, '.cloudflared', 'wetop.yml'), 'tunnel: wetop\n');
+
+    const check = run(sb, []);
+    expect(check.out).toMatch(/быстрый туннель/);
+    expect(check.out).toMatch(/install\.sh domain/);
+
+    const { out, calls } = run(sb, ['--relink']);
+    expect(
+      existsSync(join(agents, 'kz.luxx.pms.tunnel.plist')),
+      'plist быстрого туннеля снят',
+    ).toBe(false);
+    expect(calls).toMatch(/bootout \S*kz\.luxx\.pms\.tunnel/);
+    expect(calls).not.toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.tunnel\.plist/);
+    expect(out).toMatch(/install\.sh domain/);
+    // остальные службы переведены как обычно
+    expect(plistValue(join(agents, 'kz.luxx.pms.api.plist'), 'WorkingDirectory')).toBe(
+      realpathSync(sb.newDir),
+    );
+  }, 60_000);
+
   it('находит вторую копию репозитория рядом с папкой', () => {
     const sb = sandbox();
     git(sb.dir, 'clone', '-q', sb.origin, sb.oldDir);

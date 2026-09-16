@@ -34,6 +34,8 @@ while [ $# -gt 0 ]; do
     --dir) shift; DIR="${1:-}" ;;
     --dir=*) DIR="${1#--dir=}" ;;
     -h|--help) sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    # zsh без INTERACTIVE_COMMENTS отдаёт «# комментарий» из строки команды скрипту как аргументы (Mac, 16.09.2026)
+    \#*) break ;;
     *) echo "неизвестно: $1 (есть --pull, --relink, --from <папка>, --fix, --dir <папка>)"; exit 2 ;;
   esac
   shift
@@ -139,8 +141,9 @@ done
 
 # ---------- 4. Службы launchd: в какой папке они держат PMS ----------
 AGENTS="${LAUNCH_AGENTS:-$HOME/Library/LaunchAgents}"
+DOMAIN_CONFIG="$HOME/.cloudflared/wetop.yml"
 UID_N="$(id -u)"
-stale=(); here=(); any=0
+stale=(); here=(); any=0; quick=0; domain_installed=0
 plist_workdir() {
   sed -n 's#.*<key>WorkingDirectory</key><string>\([^<]*\)</string>.*#\1#p' "$1" | head -1 |
     sed -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g'
@@ -152,6 +155,14 @@ for n in api web tunnel domain awake exely-sync; do
   wd="$(plist_workdir "$f")"
   loaded=""
   launchctl print "gui/$UID_N/kz.luxx.pms.$n" >/dev/null 2>&1 && loaded=" (загружена)"
+  [ "$n" = domain ] && domain_installed=1
+  # Быстрый туннель при постоянном адресе запускать нельзя: он уводит webhook Channex на одноразовый адрес,
+  # который умирает вместе с ним (CLAUDE.md, 15–16.09.2026). Переустанавливать его на новую папку — не чинить, а ломать.
+  if [ "$n" = tunnel ] && [ -f "$DOMAIN_CONFIG" ]; then
+    quick=1
+    bad "служба tunnel$loaded — быстрый туннель, а у объекта постоянный адрес ($DOMAIN_CONFIG): он уводит webhook Channex на одноразовый"
+    continue
+  fi
   if [ -n "$wd" ] && [ "$(realdir "$wd")" = "$ROOT_P" ]; then
     here+=("$n")
   else
@@ -162,6 +173,18 @@ for n in api web tunnel domain awake exely-sync; do
 done
 if [ "$any" -eq 0 ]; then
   info "служб launchd нет; на машине стойки их ставит scripts/ops/launchd/install.sh"
+fi
+if [ "$quick" -eq 1 ]; then
+  if [ "$RELINK" -eq 1 ]; then
+    bash "$ROOT/scripts/ops/launchd/uninstall.sh" tunnel 2>&1 | sed 's/^/      /'
+    ok "быстрый туннель снят"
+  else
+    need "снять быстрый туннель: scripts/ops/launchd/uninstall.sh tunnel (--relink снимет сам)"
+  fi
+fi
+if [ -f "$DOMAIN_CONFIG" ] && [ "$domain_installed" -eq 0 ]; then
+  bad "постоянный туннель wetop.ai (domain) не установлен, хотя $DOMAIN_CONFIG есть — без него app.wetop.ai и api.wetop.ai молчат"
+  need "поставить постоянный туннель: scripts/ops/launchd/install.sh domain"
 fi
 if [ ${#stale[@]} -gt 0 ]; then
   if [ "$RELINK" -eq 1 ]; then

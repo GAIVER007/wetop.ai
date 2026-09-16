@@ -1,0 +1,19 @@
+# Модульные (unit) · 17.09.2026 00:25 Алматы · vm
+# коммит b8d0213 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-16T19-25-49Z-unit-186d.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/repo-sync.test.ts (11 tests) 2401ms
+   ✓ repo-sync.sh: связь папки с репозиторием (11)
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 425ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 426ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:25:49
+   Duration  2.62s (tests 97%, transform 3%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-16T19-25-49Z-unit-186d.json
+
+# код выхода 0 · 3 с

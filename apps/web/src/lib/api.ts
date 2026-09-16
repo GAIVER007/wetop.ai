@@ -880,3 +880,85 @@ export const guardApi = {
     sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/resolve`, {}),
   tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
 };
+
+// ── Вход по коду и регистрация (срез 13, ADR-046) ──
+/** Ровно то, что API отдаёт вошедшему: без ключа, без внутренних номеров строк. */
+export interface AuthSession {
+  email: string;
+  organizationId: string;
+  organizationName: string;
+  organizationStatus: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
+  trialEndsAt: string | null;
+}
+/** Заголовки, которые стойка передаёт API от имени браузера: адрес посетителя для пределов и агент для списка сессий. */
+export interface AuthClientInfo {
+  ip: string | null;
+  userAgent: string | null;
+}
+function authHeaders(info: AuthClientInfo, token?: string | null): Record<string, string> {
+  return {
+    'content-type': 'application/json',
+    ...(info.ip ? { 'cf-connecting-ip': info.ip } : {}),
+    ...(info.userAgent ? { 'user-agent': info.userAgent } : {}),
+    ...(token ? { authorization: `Bearer ${token}` } : {}),
+  };
+}
+async function messageOf(res: Response): Promise<string> {
+  try {
+    const j = (await res.json()) as { message?: string | string[] };
+    if (j.message) return Array.isArray(j.message) ? j.message.join('; ') : j.message;
+  } catch {
+    /* тело не JSON */
+  }
+  return `HTTP ${res.status}`;
+}
+export const authApi = {
+  /** 204 всегда — есть адрес или нет, наружу не видно. Ошибка только если API недоступен. */
+  requestCode: async (email: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch('/auth/code', {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
+  register: async (email: string, organizationName: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch('/auth/register', {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: JSON.stringify({ email, organizationName }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
+  verify: async (
+    email: string,
+    code: string,
+    info: AuthClientInfo,
+  ): Promise<{ token: string; session: AuthSession }> => {
+    const res = await backendFetch('/auth/verify', {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: JSON.stringify({ email, code }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { token: string; session: AuthSession };
+  },
+  /** `null` — сессии нет, протухла или отозвана; API не различает и мы тоже. */
+  me: async (token: string, info: AuthClientInfo): Promise<AuthSession | null> => {
+    const res = await backendFetch('/auth/me', { headers: authHeaders(info, token) });
+    if (res.status === 401) return null;
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthSession;
+  },
+  /** 204 всегда: повторный выход и выход с мёртвым ключом — не ошибка. */
+  logout: async (token: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch('/auth/logout', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+};

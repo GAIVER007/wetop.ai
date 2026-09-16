@@ -1275,6 +1275,42 @@ createServer(async (req, res) => {
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
     if (path === '/__test/commands') return send(200, commands);
+    // ── Вход по коду (срез 13): код всегда 123456, ключ один. Не проверка API, а декорация для экрана.
+    if (path.startsWith('/auth/')) {
+      const noContent = () => {
+        res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
+        res.end();
+      };
+      const authSession = {
+        email: 'urij@example.com',
+        organizationId: 'org-fixture',
+        organizationName: 'Хостел «Пример»',
+        organizationStatus: 'TRIAL',
+        trialEndsAt: new Date(Date.now() + 5 * 24 * 3600_000).toISOString(),
+      };
+      if (path === '/auth/code' && req.method === 'POST') return noContent();
+      if (path === '/auth/register' && req.method === 'POST') {
+        if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
+          return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
+        if (!String(body['organizationName'] ?? '').trim())
+          return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+        return noContent();
+      }
+      if (path === '/auth/verify' && req.method === 'POST') {
+        if (body['code'] !== '123456') return send(401, { message: 'Код не подошёл. Запросите новый.' });
+        return send(200, {
+          token: 'fixture-session-token',
+          session: { ...authSession, email: String(body['email']).trim().toLowerCase() },
+        });
+      }
+      const bearer = String(req.headers['authorization'] ?? '');
+      if (path === '/auth/me')
+        return bearer === 'Bearer fixture-session-token'
+          ? send(200, authSession)
+          : send(401, { message: 'Сессия закончилась. Войдите снова.' });
+      if (path === '/auth/logout') return noContent();
+      return send(404, {});
+    }
     if (path === failPath || failPath === '*')
       return send(503, { message: 'Синтетический сбой API' });
     if (path === '/hotel/settings' && holdHotel)

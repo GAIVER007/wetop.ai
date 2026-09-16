@@ -45,7 +45,7 @@ export function TopNav({
   useEffect(() => {
     setProfile(false);
   }, [path]);
-  if (path.includes('/print') || path === '/login') return <>{children}</>;
+  if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
   const collapse = () => {
     setCollapsed(!collapsed);
     try {

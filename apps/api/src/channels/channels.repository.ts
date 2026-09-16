@@ -4,6 +4,7 @@ import { channex } from '@pms/integrations';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 import type { LocalDailyRate, LocalRestriction } from './ari';
 import type {
   LocalCategoryForChannex,
@@ -235,10 +236,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     }));
   }
   async audit(action: string, after: unknown): Promise<void> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     await this.prisma.db.auditLog.create({
       data: {
         entityType: 'Property',
@@ -249,10 +247,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
   }
   async categoryUnits(): Promise<Array<{ code: string; active: number; capacityAdults: number }>> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       select: {
@@ -354,10 +349,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
   }
   async ratePlanIdsByCode(): Promise<Record<string, string>> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     const rows = await this.prisma.db.ratePlan.findMany({
       where: { propertyId: p.id },
       select: { code: true, id: true },

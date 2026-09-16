@@ -605,17 +605,23 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of [
-    '/today',
-    '/chessboard',
-    '/rooms',
-    '/finance',
-    '/channel-manager',
-  ]) {
+  for (const route of ['/chessboard', '/rooms', '/finance', '/channel-manager']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   }
+  /*
+   * «Главная» с 16.09.2026 ведёт себя иначе намеренно (замечание владельца «выбираю период и нифига
+   * не открывает»): экран открывается, а каждый неудавшийся блок называет причину сам. Правило этой
+   * проверки остаётся тем же — нули вместо неизвестных чисел не показываются.
+   */
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Главная');
+  await expect(page.getByTestId('dashboard-error')).toBeVisible();
+  await expect(page.getByTestId('desk-error')).toBeVisible();
+  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
+  await expect(page.locator('.desk-stat__value:visible')).toHaveCount(0);
+  await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
   await page.goto('/connections');
   await expect(
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),

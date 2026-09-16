@@ -511,3 +511,13 @@
 | 16.09.2026 17:37 | unit | ✅ 974 из 977, пропущено 3 | 1 мин 1 с | f75142f | [лог](logs/2026-09-16T12-37-09Z-unit-f3d2.log) |  |
 | 16.09.2026 17:38 | typecheck | ✅ без ошибок | 14 с | f75142f | [лог](logs/2026-09-16T12-38-15Z-typecheck-a88b.log) |  |
 | 16.09.2026 17:38 | lint | ✅ без ошибок | 9 с | f75142f | [лог](logs/2026-09-16T12-38-30Z-lint-2711.log) |  |
+| 16.09.2026 18:13 | unit | ❌ упало 2 из 990, пропущено 3 | 1 мин 1 с | 776fca3 +17 | [лог](logs/2026-09-16T13-13-21Z-unit-7f63.log) | reservation directory is a bounded read projection scopes and limits reads, preserving empty data and decimal-safe money |
+| 16.09.2026 18:15 | unit | ✅ 987 из 990, пропущено 3 | 1 мин 1 с | 776fca3 +17 | [лог](logs/2026-09-16T13-15-02Z-unit-d04c.log) |  |
+| 16.09.2026 18:16 | typecheck | ✅ без ошибок | 13 с | 776fca3 +18 | [лог](logs/2026-09-16T13-16-03Z-typecheck-4d86.log) |  |
+| 16.09.2026 18:16 | lint | ✅ без ошибок | 9 с | 776fca3 +18 | [лог](logs/2026-09-16T13-16-17Z-lint-ad98.log) |  |
+| 16.09.2026 18:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 108 из 108 | 8 мин 8 с | 776fca3 +18 | [лог](logs/2026-09-16T13-16-31Z-e2e-ad03.log) |  |
+| 16.09.2026 18:28 | unit | ✅ 987 из 990, пропущено 3 | 1 мин 1 с | 776fca3 +20 | [лог](logs/2026-09-16T13-28-32Z-unit-053b.log) |  |
+| 16.09.2026 18:29 | typecheck | ✅ без ошибок | 13 с | 776fca3 +22 | [лог](logs/2026-09-16T13-29-34Z-typecheck-41e3.log) |  |
+| 16.09.2026 18:29 | lint | ✅ без ошибок | 9 с | 776fca3 +22 | [лог](logs/2026-09-16T13-29-47Z-lint-ad0d.log) |  |
+| 16.09.2026 18:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 110 | 8 мин 6 с | 776fca3 +22 | [лог](logs/2026-09-16T13-30-01Z-e2e-14d8.log) | пустые ответы дают нули; сбой API не выдаётся за пустую базу |
+| 16.09.2026 18:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 110 из 110 | 8 мин 7 с | 776fca3 +23 | [лог](logs/2026-09-16T13-38-44Z-e2e-bbbe.log) |  |

@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 
 export type ChargeKind = 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
 export type PaymentMethod =
@@ -249,11 +250,8 @@ const toFolio = (f: FolioRow): FolioRecord => ({
 export class PrismaFinanceRepository implements FinanceRepository {
   private readonly propertyName = LUXX_APARTS_PROPERTY.name;
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  private property() {
-    return this.prisma.db.property.findFirstOrThrow({
-      where: { name: this.propertyName },
-      select: { id: true },
-    });
+  private async property(): Promise<{ id: string }> {
+    return { id: await propertyIdRef(this.prisma.db, this.propertyName) };
   }
   async foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null> {
     const { id: propertyId } = await this.property();

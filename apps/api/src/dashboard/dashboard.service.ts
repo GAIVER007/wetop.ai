@@ -35,11 +35,16 @@ export class DashboardService {
   }
 
   private async period(from: string, to: string): Promise<DashboardPeriod> {
+    // Шахматка сама ходит в базу в четыре запроса — её держим отдельно; остальные четыре выборки
+    // друг от друга не зависят и идут одновременно. Было десять рейсов подряд на один экран, и на
+    // задержках сети до Сингапура это стоило секунд (разбор «всё тормозит», 16.09.2026).
     const board = await this.repo.board(from, to);
-    const stays = await this.repo.stays(from, to);
-    const charges = await this.repo.charges(from, to);
-    const payments = await this.repo.payments(from, to);
-    const refundsMinor = await this.repo.refundsMinor(from, to);
+    const [stays, charges, payments, refundsMinor] = await Promise.all([
+      this.repo.stays(from, to),
+      this.repo.charges(from, to),
+      this.repo.payments(from, to),
+      this.repo.refundsMinor(from, to),
+    ]);
     return buildDashboard({
       from,
       to,

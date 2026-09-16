@@ -9,6 +9,7 @@ import type {
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
+import { propertyIdRef } from '../database/property-ref';
 
 export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
@@ -39,12 +40,9 @@ const guestLabel = (g: { firstName: string; lastName: string } | null | undefine
 export class PrismaChessboardRepository implements ChessboardRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  private async propertyId(): Promise<string> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
-    return p.id;
+  /** id объекта — из памяти процесса: рейс в базу за ним на каждый запрос стоил дороже самих данных */
+  private propertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
 
   async units(): Promise<ChessboardUnit[]> {

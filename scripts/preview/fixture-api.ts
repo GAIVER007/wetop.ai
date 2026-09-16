@@ -864,6 +864,17 @@ const uiUser = {
 };
 let uiPassword = 'ui-test-parol';
 const uiSessions = new Set<string>();
+
+/**
+ * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
+ * лишние рейсы к API, на машине владельца стоит лишние сотни миллисекунд — и это видно только счётчиком.
+ * Читается тестом (`tests/ui/requests.spec.ts`), обнуляется вместе с остальной фикстурой.
+ */
+const hits = new Map<string, number>();
+const countHit = (path: string): void => {
+  if (path.startsWith('/__test/')) return;
+  hits.set(path, (hits.get(path) ?? 0) + 1);
+};
 /** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
 const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
 uiResetTokens.set('ui-reset-token', { used: false, expired: false });
@@ -1294,9 +1305,15 @@ createServer(async (req, res) => {
       });
       res.end(JSON.stringify(data));
     };
+    countHit(path);
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    if (path === '/__test/hits')
+      return send(200, {
+        total: [...hits.values()].reduce((a, b) => a + b, 0),
+        byPath: Object.fromEntries([...hits].sort((a, b) => b[1] - a[1])),
+      });
     if (
       !path.startsWith('/__test/') &&
       req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
@@ -1308,6 +1325,7 @@ createServer(async (req, res) => {
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
     if (path === '/__test/reset') {
+      hits.clear();
       resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';

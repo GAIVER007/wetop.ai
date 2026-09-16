@@ -459,3 +459,8 @@
 | 16.09.2026 17:19 | lint | ✅ без ошибок | 13 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-27Z-lint-e7d0.log) |  |
 | 16.09.2026 17:19 | unit (частично: packages/integrations/src/mail) | ✅ 16 из 16 | 2 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-52Z-unit-278b.log) |  |
 | 16.09.2026 17:19 | typecheck | ✅ без ошибок | 20 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-52Z-typecheck-a874.log) |  |
+| 16.09.2026 17:42 | unit (частично: packages/integrations/src/mail) | ✅ 30 из 30 | 2 с | 31e81a8 +4 | [лог](logs/2026-09-16T12-42-51Z-unit-bf2a.log) |  |
+| 16.09.2026 17:57 | unit (частично: packages/shared/src/auth-hash.test.ts packages/domain/src/accounts) | ✅ 57 из 57 | 1 с | de281bf +7 | [лог](logs/2026-09-16T12-57-24Z-unit-2428.log) |  |
+| 16.09.2026 18:08 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ❌ упало 1 из 85 | 13 с | c20f55b +14 | [лог](logs/2026-09-16T13-08-12Z-unit-7f9d.log) | кто вошёл и выход чужой или выдуманный ключ — 401 |
+| 16.09.2026 18:10 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ✅ 85 из 85 | 3 с | c20f55b +14 | [лог](logs/2026-09-16T13-10-00Z-unit-1ca5.log) |  |
+| 16.09.2026 18:11 | integration | ✅ 26 из 26 | 6 мин 24 с | da3339f | [лог](logs/2026-09-16T13-11-27Z-integration-8c81.log) |  |

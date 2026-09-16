@@ -490,3 +490,7 @@
 | 17.09.2026 00:57 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 13 из 13 | 4 с | 887babf +2 | [лог](logs/2026-09-16T19-57-32Z-unit-1b0a.log) | esbuild не той платформы: зелёный |
 | 17.09.2026 00:57 | lint | ✅ без ошибок | 13 с | 887babf +2 | [лог](logs/2026-09-16T19-57-36Z-lint-19c4.log) | repo-sync: нативные модули |
 | 17.09.2026 00:57 | typecheck | ✅ без ошибок | 17 с | 887babf +2 | [лог](logs/2026-09-16T19-57-50Z-typecheck-af98.log) | repo-sync: нативные модули |
+| 17.09.2026 01:05 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 2 из 15 | 9 с | ed890ec +1 | [лог](logs/2026-09-16T20-05-44Z-unit-b4c0.log) | --fix чинит сам: npm ci, webhook — красный до правки |
+| 17.09.2026 01:07 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 15 из 15 | 6 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-11Z-unit-d277.log) | --fix чинит сам: npm ci, webhook, перезапуск — зелёный |
+| 17.09.2026 01:07 | lint | ✅ без ошибок | 14 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-17Z-lint-f19b.log) | repo-sync --fix |
+| 17.09.2026 01:07 | typecheck | ✅ без ошибок | 17 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-32Z-typecheck-a80a.log) | repo-sync --fix |

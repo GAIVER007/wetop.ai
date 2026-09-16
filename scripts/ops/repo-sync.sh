@@ -14,7 +14,10 @@
 #   scripts/ops/repo-sync.sh --from "<папка>"   перенести из старой папки то, чего нет в git: .env,
 #                                               project-input/*, design/reference/exely, .claude/settings.local.json;
 #                                               то, что здесь уже есть, не перезаписывается
-#   scripts/ops/repo-sync.sh --fix              = --pull --relink, плюс npm install и клиент Prisma, если устарели
+#   scripts/ops/repo-sync.sh --fix              = --pull --relink, плюс: npm install / npm ci и клиент Prisma, если
+#                                               зависимости устарели или нативные модули не той платформы; пересборка
+#                                               стойки, если она старше кода; возврат webhook Channex на постоянный
+#                                               адрес; перезапуск api и web через launchctl kickstart
 #   scripts/ops/repo-sync.sh --dir "<папка>"    проверять не текущую папку, а указанную
 #
 # Код выхода: 0 — всё сходится; 1 — есть что сделать (строки со стрелкой); 2 — папка не связана с репозиторием.
@@ -23,6 +26,8 @@ set -u
 
 EXPECT_REMOTE="${EXPECT_REMOTE:-GAIVER007/wetop.ai}"
 BRANCH="${BRANCH:-main}"
+API_URL="${API_URL:-http://127.0.0.1:3001}"
+restart_api=0; restart_web=0
 PULL=0; RELINK=0; FIX=0; FROM=""; DIR=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -33,7 +38,7 @@ while [ $# -gt 0 ]; do
     --from=*) FROM="${1#--from=}" ;;
     --dir) shift; DIR="${1:-}" ;;
     --dir=*) DIR="${1#--dir=}" ;;
-    -h|--help) sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     # zsh без INTERACTIVE_COMMENTS отдаёт «# комментарий» из строки команды скрипту как аргументы (Mac, 16.09.2026)
     \#*) break ;;
     *) echo "неизвестно: $1 (есть --pull, --relink, --from <папка>, --fix, --dir <папка>)"; exit 2 ;;
@@ -106,7 +111,7 @@ elif [ "$behind" -gt 0 ]; then
       need "--pull только на $BRANCH: git checkout $BRANCH, затем снова --pull"
     elif git merge --ff-only --quiet "origin/$BRANCH" >/dev/null 2>&1; then
       ok "подтянул origin/$BRANCH: $head_short → $(git rev-parse --short HEAD)"
-      pulled=1
+      pulled=1; restart_api=1; restart_web=1
     else
       need "fast-forward не удался: git merge --ff-only origin/$BRANCH и смотреть, что мешает"
     fi
@@ -207,7 +212,7 @@ if [ ${#stale[@]} -gt 0 ]; then
   fi
 fi
 [ ${#here[@]} -gt 0 ] && ok "службы launchd в этой папке: ${here[*]}"
-if [ "$pulled" -eq 1 ] && [ ${#here[@]} -gt 0 ]; then
+if [ "$pulled" -eq 1 ] && [ ${#here[@]} -gt 0 ] && [ "$FIX" -eq 0 ]; then
   need "код обновился — перезапустить API: launchctl kickstart -k gui/$UID_N/kz.luxx.pms.api"
   need "стойка на production-сборке: npm run build -w apps/web && launchctl kickstart -k gui/$UID_N/kz.luxx.pms.web"
 fi
@@ -259,20 +264,15 @@ for rel in project-input/exely project-input/exely-screens design/reference/exel
 done
 
 # ---------- 6. Зависимости, клиент Prisma, сборка стойки ----------
+install_deps() {
+  if (cd "$ROOT" && npm install --no-audit --no-fund); then ok "npm install выполнен"; restart_api=1; else need "npm install упал — смотреть вывод"; fi
+}
 if [ ! -d "$ROOT/node_modules" ]; then
   bad "node_modules нет"
-  if [ "$FIX" -eq 1 ]; then
-    (cd "$ROOT" && npm install --no-audit --no-fund) && ok "npm install выполнен" || need "npm install упал — смотреть вывод"
-  else
-    need "npm install"
-  fi
+  if [ "$FIX" -eq 1 ]; then install_deps; else need "npm install"; fi
 elif [ "$ROOT/package-lock.json" -nt "$ROOT/node_modules/.package-lock.json" ]; then
   bad "package-lock.json новее установленных зависимостей"
-  if [ "$FIX" -eq 1 ]; then
-    (cd "$ROOT" && npm install --no-audit --no-fund) && ok "npm install выполнен" || need "npm install упал — смотреть вывод"
-  else
-    need "npm install"
-  fi
+  if [ "$FIX" -eq 1 ]; then install_deps; else need "npm install"; fi
 else
   ok "зависимости соответствуют package-lock.json"
 fi
@@ -282,7 +282,19 @@ fi
 if [ -d "$ROOT/node_modules" ] && command -v node >/dev/null 2>&1; then
   if [ -d "$ROOT/node_modules/esbuild" ] && ! (cd "$ROOT" && node -e "require('esbuild')" >/dev/null 2>&1); then
     bad "esbuild не запускается на этой платформе — tsx, а с ним API и exely-sync, падают на старте"
-    need "переустановить зависимости ровно по package-lock.json: npm ci (затем npm run generate -w @pms/database и kickstart api)"
+    if [ "$FIX" -eq 1 ]; then
+      if (cd "$ROOT" && npm ci); then
+        ok "npm ci выполнен: зависимости ровно по package-lock.json"
+        if [ -d "$ROOT/packages/database" ]; then
+          (cd "$ROOT" && npm run generate -w @pms/database >/dev/null) && ok "клиент Prisma сгенерирован" || need "npm run generate -w @pms/database упал"
+        fi
+        restart_api=1
+      else
+        need "npm ci упал — смотреть вывод"
+      fi
+    else
+      need "переустановить зависимости ровно по package-lock.json: npm ci, затем клиент Prisma и перезапуск API (--fix сделает сам)"
+    fi
   fi
   if [ "$(uname -s)" = Darwin ]; then
     swc="@next/swc-darwin-$(uname -m | sed 's/x86_64/x64/')"
@@ -310,10 +322,61 @@ if [ -d "$ROOT/apps/web" ]; then
     info "production-сборки стойки нет — служба web соберёт её при старте (scripts/ops/launchd/web-start.mjs)"
   elif [ -n "$(find "$ROOT/apps/web/src" "$ROOT/packages" -type f ! -path '*/node_modules/*' ! -path '*/generated/*' -newer "$build_id" -print 2>/dev/null | head -1)" ]; then
     bad "сборка стойки старше кода"
-    [ "$pulled" -eq 1 ] || need "пересобрать стойку: npm run build -w apps/web && launchctl kickstart -k gui/$UID_N/kz.luxx.pms.web"
+    if [ "$FIX" -eq 1 ]; then
+      if (cd "$ROOT" && npm run build -w apps/web); then ok "стойка пересобрана"; restart_web=1; else need "сборка стойки упала — смотреть вывод"; fi
+    else
+      need "пересобрать стойку: npm run build -w apps/web && launchctl kickstart -k gui/$UID_N/kz.luxx.pms.web"
+    fi
   else
     ok "сборка стойки не старше кода"
   fi
+fi
+
+# ---------- 7. Webhook Channex: адрес в Channex против постоянного ----------
+# 16–17.09.2026: в Channex дважды оставался адрес мёртвого быстрого туннеля, сторож исчерпывал попытки, брони
+# шли только опросом ленты. Возврат — тот же вызов, что кнопка «Зарегистрировать webhook» на /channels.
+status_body="$(curl -s -m 10 "$API_URL/channels/channex/webhook/status" 2>/dev/null || true)"
+if printf '%s' "$status_body" | grep -q '"registered":'; then
+  wh_field() { printf '%s' "$status_body" | grep -o -E "\"$1\":\"[^\"]*\"" | head -1 | sed -E "s/^\"$1\":\"(.*)\"$/\1/"; }
+  wh_expected="$(wh_field expectedUrl)"
+  wh_current="$(wh_field callbackUrl)"
+  if [ -n "$wh_expected" ] && [ "$wh_current" != "$wh_expected" ]; then
+    bad "в Channex записан webhook «${wh_current:-нет}», а постоянный адрес — $wh_expected: брони доходят только опросом ленты"
+    if [ "$FIX" -eq 1 ]; then
+      reg="$(curl -s -m 60 -X POST -H 'content-type: application/json' -d "{\"callbackUrl\":\"$wh_expected\"}" "$API_URL/channels/channex/webhook/register" 2>/dev/null || true)"
+      if printf '%s' "$reg" | grep -q -F "\"callbackUrl\":\"$wh_expected\""; then
+        ok "webhook перерегистрирован на $wh_expected"
+      else
+        need "перерегистрация webhook не прошла (${reg:-нет ответа}) — кнопка «Зарегистрировать webhook» на /channels"
+      fi
+    else
+      need "вернуть webhook на постоянный адрес: scripts/ops/repo-sync.sh --fix (или кнопка на /channels)"
+    fi
+  elif [ -n "$wh_expected" ]; then
+    ok "webhook Channex на постоянном адресе $wh_expected"
+  else
+    info "постоянный адрес webhook (PUBLIC_API_URL) не задан — адрес в Channex не сверяю"
+  fi
+else
+  info "API на $API_URL не отвечает — адрес webhook в Channex не проверен"
+fi
+
+# ---------- 8. Перезапуск служб на новом коде (--fix) ----------
+restart_service() {
+  local f="$AGENTS/kz.luxx.pms.$1.plist"
+  if [ ! -f "$f" ] || [ "$(realdir "$(plist_workdir "$f")")" != "$ROOT_P" ]; then
+    info "служба $1 не в этой папке — не перезапускаю"
+    return
+  fi
+  if launchctl kickstart -k "gui/$UID_N/kz.luxx.pms.$1" >/dev/null 2>&1; then
+    if [ "$1" = api ]; then ok "API перезапущен на новом коде"; else ok "стойка перезапущена на новой сборке"; fi
+  else
+    need "перезапустить $1: launchctl kickstart -k gui/$UID_N/kz.luxx.pms.$1"
+  fi
+}
+if [ "$FIX" -eq 1 ] && command -v launchctl >/dev/null 2>&1; then
+  [ "$restart_api" -eq 1 ] && restart_service api
+  [ "$restart_web" -eq 1 ] && restart_service web
 fi
 
 # ---------- Итог ----------

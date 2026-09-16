@@ -10,7 +10,8 @@
  * Песочница: голый «origin» с именем GAIVER007/wetop.ai в пути, клон «Pms Lux», переименованный в «WETOP»,
  * plist с прежним путём и подставные launchctl / plutil / lsof / pgrep — настоящие службы не трогаются.
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { createServer, type Server } from 'node:http';
 import {
   chmodSync,
   existsSync,
@@ -149,19 +150,72 @@ exit 0`),
   writeFileSync(join(bin, 'plutil'), script('exit 0'));
   writeFileSync(join(bin, 'lsof'), script('exit 0'));
   writeFileSync(join(bin, 'pgrep'), script('exit 0'));
-  for (const f of ['launchctl', 'plutil', 'lsof', 'pgrep']) chmodSync(join(bin, f), 0o755);
+  writeFileSync(join(bin, 'npm'), script(`echo "npm $*" >> "${calls}"; exit 0`));
+  for (const f of ['launchctl', 'plutil', 'lsof', 'pgrep', 'npm']) chmodSync(join(bin, f), 0o755);
   return { dir, bin, home, calls, origin, seed, oldDir, newDir };
 }
+
+const envFor = (sb: Sandbox, extra: Record<string, string> = {}) => ({
+  ...process.env,
+  ...GIT_ENV,
+  PATH: `${sb.bin}:${process.env.PATH}`,
+  HOME: sb.home,
+  // API PMS в песочнице нет: закрытый порт, чтобы скрипт не постучался в настоящий 3001
+  API_URL: 'http://127.0.0.1:9',
+  ...extra,
+});
 
 function run(sb: Sandbox, args: string[], cwd = sb.newDir) {
   const res = spawnSync('bash', [SCRIPT, ...args], {
     cwd,
-    env: { ...process.env, ...GIT_ENV, PATH: `${sb.bin}:${process.env.PATH}`, HOME: sb.home },
+    env: envFor(sb),
     encoding: 'utf8',
     timeout: 90_000,
   });
   const calls = existsSync(sb.calls) ? readFileSync(sb.calls, 'utf8') : '';
   return { code: res.status, out: `${res.stdout}${res.stderr}`, calls };
+}
+
+/** Асинхронный запуск: поддельный API живёт в этом же процессе, spawnSync его заблокировал бы */
+function runAsync(sb: Sandbox, args: string[], extra: Record<string, string>) {
+  return new Promise<{ code: number | null; out: string; calls: string }>((done) => {
+    const p = spawn('bash', [SCRIPT, ...args], { cwd: sb.newDir, env: envFor(sb, extra) });
+    let out = '';
+    p.stdout.on('data', (c) => (out += c));
+    p.stderr.on('data', (c) => (out += c));
+    p.on('close', (code) =>
+      done({ code, out, calls: existsSync(sb.calls) ? readFileSync(sb.calls, 'utf8') : '' }),
+    );
+  });
+}
+
+/** Поддельный API PMS: статус webhook с адресом в Channex и постоянным адресом; регистрации записывает */
+function fakeApi(callbackUrl: string, expectedUrl: string) {
+  const registered: string[] = [];
+  const server: Server = createServer((req, res) => {
+    const path = (req.url ?? '').split('?')[0];
+    if (req.method === 'POST' && path === '/channels/channex/webhook/register') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', () => {
+        registered.push(body);
+        const url = (JSON.parse(body) as { callbackUrl: string }).callbackUrl;
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ registered: true, callbackUrl: url, active: true }));
+      });
+      return;
+    }
+    res.writeHead(200, { 'content-type': 'application/json' });
+    if (path === '/channels/channex/webhook/status')
+      res.end(JSON.stringify({ registered: true, callbackUrl, expectedUrl, active: true }));
+    else res.end(JSON.stringify({ ok: true }));
+  });
+  return new Promise<{ url: string; registered: string[]; close: () => void }>((done) => {
+    server.listen(0, '127.0.0.1', () => {
+      const { port } = server.address() as { port: number };
+      done({ url: `http://127.0.0.1:${port}`, registered, close: () => server.close() });
+    });
+  });
 }
 
 describe('repo-sync.sh: связь папки с репозиторием', () => {
@@ -351,6 +405,49 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     expect(out).toMatch(/npm ci/);
     expect(code).toBe(1);
   });
+
+  it('--fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд', () => {
+    // Ночь на 17.09.2026: владелец пять раз подряд получал от агента список команд. --fix обязан
+    // закрывать известные поломки сам: переустановить зависимости, сгенерировать клиент, перезапустить API.
+    const sb = sandbox();
+    const nm = join(sb.newDir, 'node_modules');
+    mkdirSync(join(nm, 'esbuild'), { recursive: true });
+    mkdirSync(join(sb.newDir, 'packages', 'database'), { recursive: true });
+    writeFileSync(join(nm, '.package-lock.json'), '{}\n');
+    writeFileSync(join(nm, 'esbuild', 'package.json'), '{"name":"esbuild","main":"index.js"}\n');
+    writeFileSync(
+      join(nm, 'esbuild', 'index.js'),
+      "throw new Error('You installed esbuild for another platform');\n",
+    );
+    const { out, calls } = run(sb, ['--fix']);
+    expect(calls).toMatch(/^npm ci$/m);
+    expect(calls).toMatch(/^npm run generate -w @pms\/database$/m);
+    expect(calls).toMatch(/kickstart -k gui\/\d+\/kz\.luxx\.pms\.api/);
+    expect(out).toMatch(/перезапустил API|API перезапущен/);
+  }, 60_000);
+
+  it('webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует', async () => {
+    // 16–17.09.2026: в Channex остался адрес мёртвого быстрого туннеля, сторож исчерпал попытки,
+    // брони шли только опросом ленты. Возврат адреса — тот же вызов, что кнопка на /channels.
+    const permanent = 'https://api.wetop.ai/channels/channex/webhook';
+    const api = await fakeApi(
+      'https://dead-tunnel.trycloudflare.com/channels/channex/webhook',
+      permanent,
+    );
+    try {
+      const sb = sandbox();
+      const check = await runAsync(sb, [], { API_URL: api.url });
+      expect(check.out).toMatch(/опросом ленты/);
+      expect(api.registered).toHaveLength(0);
+
+      const fix = await runAsync(sb, ['--fix'], { API_URL: api.url });
+      expect(api.registered).toHaveLength(1);
+      expect(api.registered[0]).toContain(permanent);
+      expect(fix.out).toMatch(/перерегистрирован/);
+    } finally {
+      api.close();
+    }
+  }, 60_000);
 
   it('находит вторую копию репозитория рядом с папкой', () => {
     const sb = sandbox();

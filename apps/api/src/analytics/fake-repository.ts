@@ -54,7 +54,7 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     [SITE_PAUSED.id, SITE_PAUSED],
   ]);
   recorded: StoredHit[] = [];
-  audits: Array<{ action: string; siteId: string }> = [];
+  audits: Array<{ action: string; siteId: string; details?: Record<string, unknown> | undefined }> = [];
   sessionRows: SessionRow[] = [];
   pageviewRows: Array<{ path: string }> = [];
   eventRows: Array<{ name: string; sessionKey: string; props: unknown }> = [];
@@ -177,8 +177,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async status(): Promise<SiteStatus> {
     return this.siteStatus;
   }
-  async audit(action: string, siteId: string): Promise<void> {
-    this.audits.push({ action, siteId });
+  async audit(action: string, siteId: string, after?: Record<string, unknown>): Promise<void> {
+    this.audits.push({ action, siteId, details: after });
   }
   async ratePlanByCode(code: string): Promise<RatePlanOption | null> {
     return PLANS.find((p) => p.code === code) ?? null;
@@ -192,6 +192,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     sessionKey: string,
     confirmationNumber: string,
   ): Promise<boolean> {
+    // Как в базе: привязать можно только сессию, которая уже записана; иначе updateMany никого не найдёт
+    if (!this.recorded.some((h) => h.siteId === siteId && h.sessionKey === sessionKey)) return false;
     this.linked.push({ siteId, sessionKey, confirmationNumber });
     return true;
   }

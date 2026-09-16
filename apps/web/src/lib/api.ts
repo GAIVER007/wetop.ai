@@ -8,6 +8,8 @@ export interface CategorySummary {
   name: string;
   units: number;
   maxGuests: number;
+  /** Вместимость одной единицы категории — предел числа гостей в формах */
+  capacityAdults: number;
 }
 
 export interface InventorySummary {
@@ -108,7 +110,16 @@ async function sessionHeader(): Promise<Record<string, string>> {
 async function getJson<T>(path: string): Promise<T> {
   const res = await backendFetch(path);
   if (!res.ok) {
-    throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+    // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
+    let message = `API ${path}: HTTP ${res.status}`;
+    if (res.status < 500)
+      try {
+        const j = (await res.json()) as { message?: string | string[] };
+        if (j.message) message = Array.isArray(j.message) ? j.message.join('; ') : j.message;
+      } catch {
+        /* тело не JSON */
+      }
+    throw new ApiError(res.status, message);
   }
   return (await res.json()) as T;
 }
@@ -236,12 +247,24 @@ export interface RatePlanOption {
 }
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
 export class ApiError extends Error {
+  /**
+   * Код статуса в `digest`: Next отдаёт границе ошибок клиента только digest (текст в production
+   * вырезается), а уже имеющийся digest не переписывает — так экран ошибки отличает 400/404 от 503.
+   */
+  readonly digest: string;
   constructor(
     readonly status: number,
     message: string,
   ) {
     super(message);
+    this.digest = apiErrorDigest(status);
   }
+}
+export const apiErrorDigest = (status: number) => `API_${status}`;
+/** Код статуса из digest ошибки на клиенте; не наш digest — undefined */
+export function apiErrorStatus(digest: string | undefined): number | undefined {
+  const m = /^API_(\d{3})$/.exec(digest ?? '');
+  return m ? Number(m[1]) : undefined;
 }
 async function sendJson<T>(
   method: 'POST' | 'PATCH' | 'DELETE',
@@ -388,7 +411,7 @@ export const ratesApi = {
       `/rates?accommodationTypeCode=${encodeURIComponent(accommodationTypeCode)}&ratePlanCode=${encodeURIComponent(ratePlanCode)}&from=${from}&to=${to}`,
     ),
   bulk: (changes: RateChangeInput[]) =>
-    sendJson<{ applied: number; rateRows: number; restrictionRows: number }>(
+    sendJson<{ applied: number; rateRows: number; restrictionRows: number; queued: number }>(
       'POST',
       '/rates/bulk',
       { changes },
@@ -741,7 +764,10 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Заезд был раньше этого дня, гость не заселён и не отмечен незаездом */
+  overdue: DeskRow[];
   counts: {
+    overdue: number;
     arrivals: number;
     departures: number;
     inHouse: number;

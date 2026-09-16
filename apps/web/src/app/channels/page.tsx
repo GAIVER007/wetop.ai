@@ -16,9 +16,22 @@ const EVENT_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
   FAILED: 'danger',
   RECEIVED: 'info',
 };
-/** «, проверено 14:22» — время последней пробы адреса webhook; без пробы подпись не нужна */
+/** Время по часам объекта: сервер стойки может стоять не в Алматы */
+const almatyTime = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: 'Asia/Almaty',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+const almatyDateTime = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: 'Asia/Almaty',
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+/** «, проверено 14:22 по Алматы» — время последней пробы адреса webhook; без пробы подпись не нужна */
 const checkedAt = (iso: string | null | undefined) =>
-  iso ? `, проверено ${new Date(iso).toLocaleTimeString('ru-RU', { timeStyle: 'short' })}` : '';
+  iso ? `, проверено ${almatyTime.format(new Date(iso))} по Алматы` : '';
 const VIA_RU: Record<string, string> = {
   WEBHOOK: 'сама (webhook)',
   PULL: 'опрос ленты',
@@ -29,13 +42,15 @@ export default async function ChannelsPage() {
   const [mapping, outbox, summary, webhook, events, connection] = await Promise.all([
     channelsApi.mapping(),
     channelsApi.outbox(),
-    api.inventorySummary(),
+    // сводка фонда нужна только для названий категорий: без неё страница остаётся, категории — кодами
+    api.inventorySummary().catch(() => null),
     channelsApi.webhookStatus().catch(() => null),
     channelsApi.events(20).catch(() => null),
     channelsApi.connection().catch(() => null),
   ]);
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
-  const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+  const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
+  const mapped = mapping.filter((m) => m.providerRoomTypeId);
   const property = mapping.find((m) => !m.providerRoomTypeId);
   return (
     <Page
@@ -108,6 +123,9 @@ export default async function ChannelsPage() {
         </div>
       </div>
       <OverbookingAlarm outbox={outbox} />
+      {summary === null && (
+        <Alert boxed>Сводка фонда не загрузилась: категории в сопоставлении показаны кодами.</Alert>
+      )}
       {webhook === null && (
         <Alert boxed>
           Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
@@ -138,11 +156,18 @@ export default async function ChannelsPage() {
       <Table size="sm" data-testid="events-table">
         <thead>
           <tr>
-            {['Событие', 'Тип', 'Как дошло', 'Статус', 'Попыток', 'Получено', 'Ошибка', ''].map(
-              (h) => (
-                <th key={h}>{h}</th>
-              ),
-            )}
+            {[
+              'Событие',
+              'Тип',
+              'Как дошло',
+              'Статус',
+              'Попыток',
+              'Получено (Алматы)',
+              'Ошибка',
+              '',
+            ].map((h) => (
+              <th key={h}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -166,7 +191,7 @@ export default async function ChannelsPage() {
                 </Badge>
               </td>
               <td className="num">{e.attempts}</td>
-              <td className="nowrap">{e.receivedAt.slice(0, 16).replace('T', ' ')}</td>
+              <td className="nowrap">{almatyDateTime.format(new Date(e.receivedAt))}</td>
               <td className="danger-text">{e.lastError?.slice(0, 80) ?? ''}</td>
               <td>
                 {e.status === 'FAILED' && <RetryEventButton revisionId={e.externalEventId} />}
@@ -186,17 +211,23 @@ export default async function ChannelsPage() {
           </tr>
         </thead>
         <tbody>
-          {mapping
-            .filter((m) => m.providerRoomTypeId)
-            .map((m) => (
-              <tr key={m.id} data-testid="mapping-row">
-                <td>
-                  {byCode.get(m.localAccommodationTypeCode ?? '') ?? m.localAccommodationTypeCode}
-                </td>
-                <td className="mono">{m.providerRoomTypeId}</td>
-                <td className="mono">{m.providerRatePlanId}</td>
-              </tr>
-            ))}
+          {mapped.length === 0 && (
+            <tr>
+              <td colSpan={3} className="muted" data-testid="mapping-empty">
+                сопоставлений пока нет: категории и тарифы появятся здесь после «Создать объект в
+                Channex»
+              </td>
+            </tr>
+          )}
+          {mapped.map((m) => (
+            <tr key={m.id} data-testid="mapping-row">
+              <td>
+                {byCode.get(m.localAccommodationTypeCode ?? '') ?? m.localAccommodationTypeCode}
+              </td>
+              <td className="mono">{m.providerRoomTypeId}</td>
+              <td className="mono">{m.providerRatePlanId}</td>
+            </tr>
+          ))}
         </tbody>
       </Table>
     </Page>

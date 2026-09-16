@@ -33,6 +33,11 @@ export function BulkEditor(props: {
   const [rows, setRows] = useState<RateChangeInput[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  const [category, setCategory] = useState(props.defaults.accommodationTypeCode);
+  const capacity = Math.max(
+    1,
+    props.categories.find((c) => c.code === category)?.capacityAdults ?? 1,
+  );
   const [pending, start] = useTransition();
   /** Без action-формы: React 19 сбрасывает поля после action асинхронно, и сброс гонится со следующим вводом. */
   const add = (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,7 +78,15 @@ export function BulkEditor(props: {
       const res = await bulkRatesAction(rows);
       if (res.error) setError(res.error);
       else {
-        setDone(`Сохранено изменений: ${res.applied}. Ушло в очередь каналов одним сообщением.`);
+        // «Ушло в каналы» — только если очередь действительно пополнилась: несопоставленные с Channex
+        // категории и тарифы издатель пропускает (волна 3)
+        setDone(
+          `Сохранено изменений: ${res.applied}. ${
+            res.queued
+              ? 'Ушло в очередь каналов одним сообщением.'
+              : 'В каналы не ушло: категория или тариф не сопоставлены с Channex.'
+          }`,
+        );
         setRows([]);
       }
     });
@@ -86,7 +99,8 @@ export function BulkEditor(props: {
           <Field label="Категория">
             <Select
               name="accommodationTypeCode"
-              defaultValue={props.defaults.accommodationTypeCode}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             >
               {props.categories.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -124,7 +138,7 @@ export function BulkEditor(props: {
             <Input name="price" placeholder="напр. 15400" inputMode="decimal" />
           </Field>
           <Field label="Гостей (occupancy)">
-            <Input name="occupancy" type="number" min={1} max={2} placeholder="все" />
+            <Input name="occupancy" type="number" min={1} max={capacity} placeholder="все" />
           </Field>
           <Field label="Min stay">
             <Input name="minStay" type="number" min={0} />

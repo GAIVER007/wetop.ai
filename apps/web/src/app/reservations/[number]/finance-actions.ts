@@ -9,8 +9,28 @@ export interface FinanceActionResult {
   values?: Record<string, string>;
   attempt?: number;
 }
+/** Подписи полей формы: отказ API называет поле кодом (`amount — …`), администратор видит подпись */
+const FIELD_LABELS: Record<string, string> = {
+  amount: 'Сумма',
+  method: 'Способ оплаты',
+  note: 'Примечание',
+  kind: 'Вид начисления',
+  serviceCode: 'Услуга',
+  description: 'Описание',
+  quantity: 'Количество',
+  unitPrice: 'Цена',
+  serviceDate: 'Дата услуги',
+  reason: 'Причина',
+  allocations: 'Распределение по счетам',
+  extra: 'Доплата',
+};
+const humanize = (message: string) => {
+  const m = /^([A-Za-z]+) — (.+)$/s.exec(message);
+  const label = m && FIELD_LABELS[m[1]!];
+  return label ? `Поле «${label}»: ${m![2]}` : message;
+};
 const describe = (e: unknown) =>
-  e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
+  e instanceof ApiError ? humanize(e.message) : e instanceof Error ? e.message : String(e);
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
   return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;

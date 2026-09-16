@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatMinor, type DeskDay } from '../../lib/api';
+import { displayDate } from '../../lib/display-date';
 import { Icon } from '../../components/icon';
 
 /** Ссылки на уже существующие действия. Один пункт на проживание, причины показаны вместе. */
@@ -10,7 +11,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
       (r.blockedReason || !r.unitCode || r.guestsRecorded < r.adults),
   );
   const departures = day.departures.filter((r) => BigInt(r.balanceMinor) > 0n);
-  const count = arrivals.length + departures.length;
+  const count = day.overdue.length + arrivals.length + departures.length;
   return (
     <section className="attention-card">
       <div className="attention-heading">
@@ -25,6 +26,25 @@ export function DayAttention({ day }: { day: DeskDay }) {
         </div>
       ) : (
         <div className="attention-list">
+          {day.overdue.map((r) => (
+            <Link
+              key={`overdue-${r.itemId}`}
+              href={`/reservations/${encodeURIComponent(r.confirmationNumber)}#booking-actions`}
+              className="attention-item"
+            >
+              <span className="attention-icon">
+                <Icon name="clock" />
+              </span>
+              <span>
+                <strong>{r.guestLabel || r.confirmationNumber}</strong>
+                <small>
+                  Не заехал {displayDate(r.arrivalDate)}: заселить или отметить незаезд
+                  {r.blockedReason ? ` · ${r.blockedReason}` : ''}
+                </small>
+              </span>
+              <Icon name="chevron" />
+            </Link>
+          ))}
           {arrivals.map((r) => (
             <Link
               key={`arrival-${r.itemId}`}

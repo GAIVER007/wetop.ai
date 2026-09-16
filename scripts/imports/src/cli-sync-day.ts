@@ -30,6 +30,7 @@ import {
   type AutoSyncRun,
   type AvailabilityChange,
   type StayAvailabilityState,
+  withVanished,
 } from './exely/auto-sync';
 import { serviceFetch } from '../../lib/service-api';
 
@@ -150,17 +151,29 @@ try {
   }
 
   let summary: Record<string, unknown> = { reservations: { created: 0, updated: 0 } };
+  let vanishedStays: Array<{ exelyRoomStayId: string; accommodationTypeCode: string; arrivalDate: string; departureDate: string }> = [];
   if (records.length > 0) {
     const report = await db.$transaction(
-      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt }),
+      // живые карточки целиком — исчезнувшие из них проживания отменяются (ADR-050)
+      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt, cancelVanished: true }),
       { timeout: 900_000, maxWait: 30_000 },
     );
     console.log(
       `брони ${report.reservations.created}/${report.reservations.updated}, ` +
         `проживания ${report.items.created}/${report.items.updated}, ` +
         `назначения ${report.allocations.created}/${report.allocations.updated}, ` +
-        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}`,
+        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}, ` +
+        `исчезли из Exely ${report.vanished.length}, удержаний ${report.retained}`,
     );
+    for (const v of report.vanished)
+      console.log(
+        `  исчезло из карточки Exely: ${v.confirmationNumber} проживание ${v.exelyRoomStayId} ${v.arrivalDate} → ${v.departureDate} — отменено (ADR-050)`,
+      );
+    for (const k of report.vanishedKept)
+      console.log(
+        `  ИСЧЕЗЛО ИЗ EXELY, НЕ ТРОНУТО (${k.reason === 'checked-in' ? 'гость заселён' : 'есть оплата'}, Q-134): ${k.confirmationNumber} проживание ${k.exelyRoomStayId} ${k.arrivalDate} → ${k.departureDate} — разобрать руками`,
+      );
+    vanishedStays = report.vanished;
     for (const c of report.conflicts)
       console.log(
         `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
@@ -175,6 +188,9 @@ try {
       items: report.items,
       unassigned: report.unassigned,
       conflicts: report.conflicts.length,
+      vanished: report.vanished.length,
+      vanishedKept: report.vanishedKept.length,
+      retained: report.retained,
     };
   }
 
@@ -190,6 +206,8 @@ try {
           departureDate: it.departureDate,
           sold: sold(it.status),
         });
+    // освободившиеся ночи исчезнувших проживаний (ADR-050) в записях импорта отсутствуют — дописываем
+    withVanished(before, after, vanishedStays);
     change = availabilityChange(before, after, almatyToday);
     if (change) ari = (await queueAvailabilityDelta(change)) ? 'delta' : 'failed';
     console.log(

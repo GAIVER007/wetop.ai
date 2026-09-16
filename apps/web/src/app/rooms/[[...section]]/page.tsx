@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { RoomGrid } from '../room-grid';
 import { notFound } from 'next/navigation';
 import { api, chessboardApi, reservationsApi } from '../../../lib/api';
-import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
+import { hotelToday, nextDay, plusDays, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
 import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
@@ -142,6 +142,8 @@ async function Categories() {
     </>
   );
 }
+/** Горизонт доступности = горизонт шахматки (MAX_CHESSBOARD_DAYS в @pms/domain) */
+const MAX_AVAILABILITY_NIGHTS = 62;
 async function Availability({
   arrival,
   departure: requestedDeparture,
@@ -151,9 +153,16 @@ async function Availability({
 }) {
   const departure = requestedDeparture ?? (validDate(arrival) ? nextDay(arrival) : hotelToday());
   const valid = validDate(arrival) && validDate(departure) && arrival < departure;
-  const [r, inventory] = valid
-    ? await Promise.all([reservationsApi.availability(arrival, departure), api.inventorySummary()])
-    : [null, null];
+  // Доступность считается не дальше горизонта шахматки: предел — в форме, а не ответом 400 от API
+  const lastDeparture = validDate(arrival) ? plusDays(arrival, MAX_AVAILABILITY_NIGHTS) : undefined;
+  const tooLong = valid && lastDeparture !== undefined && departure > lastDeparture;
+  const [r, inventory] =
+    valid && !tooLong
+      ? await Promise.all([
+          reservationsApi.availability(arrival, departure),
+          api.inventorySummary(),
+        ])
+      : [null, null];
   const today = hotelToday();
   const plus = (from: string, n: number) => {
     let d = from;
@@ -177,7 +186,13 @@ async function Availability({
           <Input type="date" name="arrival" defaultValue={arrival} required />
         </Field>
         <Field label="Выезд">
-          <Input type="date" name="departure" defaultValue={departure} required />
+          <Input
+            type="date"
+            name="departure"
+            defaultValue={departure}
+            required
+            {...(lastDeparture ? { max: lastDeparture } : {})}
+          />
         </Field>
         <Button type="submit">Проверить доступность</Button>
       </form>
@@ -194,6 +209,12 @@ async function Availability({
         ))}
       </nav>
       {!valid && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
+      {tooLong && (
+        <Alert boxed>
+          Доступность считается не больше чем на {MAX_AVAILABILITY_NIGHTS} ночи: укажите выезд не
+          позже {lastDeparture}.
+        </Alert>
+      )}
       {r && (
         <>
           <Stats>

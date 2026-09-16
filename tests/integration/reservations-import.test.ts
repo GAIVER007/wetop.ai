@@ -282,6 +282,108 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
     ).rejects.toBeInstanceOf(Rollback);
   }, 180_000);
 
+  it('Q-127 / Q-128 (ADR-050, ADR-051): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Exely оплата — начислением', async () => {
+    const plan = buildInventoryImportPlan(
+      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
+      parseExelyAccommodationTypes(readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8')),
+    );
+    const ctx = {
+      roomMap: new Map([
+        ['R-9010', '9010'],
+        ['R-9011', '9011'],
+        ['R-9012', '9012'],
+      ]),
+      typeMap: new Map([['900003', 'exely-900003']]),
+    };
+    const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), ctx);
+    // Бронь из пяти проживаний: два будущих (2031), одно в прошлом, ещё «новое» (у забытых броней в Exely так бывает),
+    // одно заселённое и одно оплаченное без ячейки — последние три предохранители ADR-050 трогать не должны
+    const card = (): exely.UniBooking => {
+      const b = booking('T-50', 'S-50', 'R-9010', 'G-50');
+      const s0 = { ...b.roomStays[0]!, checkInDateTime: '2031-03-01T14:00', checkOutDateTime: '2031-03-03T12:00' };
+      const s1 = { ...s0, id: 'S-51', roomId: 'R-9011' };
+      const past = { ...b.roomStays[0]!, id: 'S-53', roomId: null, checkInDateTime: '2026-01-10T14:00', checkOutDateTime: '2026-01-12T12:00' };
+      const inHouse = { ...s0, id: 'S-54', roomId: 'R-9012', checkInDateTime: '2031-03-05T14:00', checkOutDateTime: '2031-03-07T12:00', status: 'CheckedIn', actualCheckInDateTime: '2031-03-05T15:00' };
+      const paid = { ...s0, id: 'S-55', roomId: null, checkInDateTime: '2031-03-09T14:00', checkOutDateTime: '2031-03-10T12:00', totalPrice: { amount: 12000, toPayAmount: 0, toRefundAmount: 0 } };
+      return { ...b, roomStays: [s0, s1, past, inHouse, paid] };
+    };
+    // Отменена, оплачена целиком (к оплате 0), возврата нет — как booking.com 20260902-513903-1262702198 в Exely
+    const paidCancelled = booking('T-52', 'S-52', 'R-9012', 'G-52', 0, 'Cancelled');
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const inv = await importInventoryPlan(tx, plan, TEST_PROPERTY);
+          const opts = { propertyId: inv.propertyId, anonymizeSalt: 'test-salt' };
+          const first = await importReservations(tx, [norm(card()), norm(paidCancelled)], opts);
+          expect(first.vanished).toEqual([]);
+          expect(first.vanishedKept).toEqual([]);
+          // Q-128: начисление за проживание сторнировано, удержание = оплате, баланс 0 — как в кассе Exely
+          expect(first.retained).toBe(1);
+          const f52 = await tx.folio.findFirstOrThrow({
+            where: { reservationItem: { exelyRoomStayId: 'S-52' } },
+            include: { charges: true, allocations: true },
+          });
+          const active = f52.charges.filter((c) => c.voidedAt === null);
+          expect(active).toHaveLength(1);
+          expect(active[0]).toMatchObject({ kind: 'PENALTY', amount: 1200000n });
+          expect(f52.allocations.reduce((a, p) => a + p.amount, 0n)).toBe(1200000n);
+          // неоплаченная отмена удержания не получает (как T-4 в тесте выше): здесь проверяем повтор — без дубля
+          const again = await importReservations(tx, [norm(paidCancelled)], opts);
+          expect(again.retained).toBe(0);
+          expect(
+            await tx.charge.count({ where: { folioId: f52.id, kind: 'PENALTY', voidedAt: null } }),
+          ).toBe(1);
+
+          // Q-127: карточка пришла целиком, в ней осталось только S-50
+          const shrunk = { ...card(), roomStays: [card().roomStays[0]!] };
+          // Снимок с диска (cli-import-reservations) — не живая карточка: без cancelVanished ничего не отменяется,
+          // иначе повтор старого снимка снёс бы проживания, добавленные позже (ревью 15.09)
+          const snapshot = await importReservations(tx, [norm(shrunk)], opts);
+          expect(snapshot.vanished).toEqual([]);
+          expect(snapshot.vanishedKept).toEqual([]);
+          expect((await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-51' } })).status).toBe('CONFIRMED');
+
+          const live = { ...opts, cancelVanished: true };
+          const second = await importReservations(tx, [norm(shrunk)], live);
+          // будущее S-51 отменено; прошлое S-53 не трогаем — предохранитель по дате;
+          // заселённое S-54 и оплаченное S-55 — к человеку, не отменяются (Q-134)
+          expect(second.vanished).toEqual([
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-51', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-01', departureDate: '2031-03-03' },
+          ]);
+          expect(second.vanishedKept).toEqual([
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-54', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-05', departureDate: '2031-03-07', reason: 'checked-in' },
+            { confirmationNumber: 'T-50', exelyRoomStayId: 'S-55', accommodationTypeCode: 'exely-900003', arrivalDate: '2031-03-09', departureDate: '2031-03-10', reason: 'paid' },
+          ]);
+          const s54 = await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-54' }, include: { allocations: true } });
+          expect(s54.status).toBe('CHECKED_IN');
+          expect(s54.allocations).toHaveLength(1);
+          expect((await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-55' } })).status).toBe('CONFIRMED');
+          const s51 = await tx.reservationItem.findUniqueOrThrow({
+            where: { exelyRoomStayId: 'S-51' },
+            include: { allocations: true, folio: { include: { charges: true } } },
+          });
+          expect(s51.status).toBe('CANCELLED');
+          expect(s51.allocations).toHaveLength(0);
+          expect(s51.folio!.charges.filter((c) => c.voidedAt === null)).toHaveLength(0);
+          const s53 = await tx.reservationItem.findUniqueOrThrow({ where: { exelyRoomStayId: 'S-53' } });
+          expect(s53.status).toBe('CONFIRMED');
+          expect(
+            await tx.auditLog.count({ where: { entityId: s51.id, action: 'reservation.item.vanished' } }),
+          ).toBe(1);
+          // повтор той же карточки — ничего нового; удержанные снова названы, чтобы стойка их видела
+          const third = await importReservations(tx, [norm(shrunk)], live);
+          expect(third.vanished).toEqual([]);
+          expect(third.vanishedKept.map((k) => k.exelyRoomStayId)).toEqual(['S-54', 'S-55']);
+          expect(
+            await tx.auditLog.count({ where: { entityId: s51.id, action: 'reservation.item.vanished' } }),
+          ).toBe(1);
+          throw new Rollback('rollback');
+        },
+        { timeout: 120_000, maxWait: 30_000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+  }, 180_000);
+
   it('Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет', async () => {
     const plan = buildInventoryImportPlan(
       parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),

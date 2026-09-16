@@ -1,0 +1,16 @@
+# Модульные (unit) · 15.09.2026 15:57 Алматы · vm
+# коммит 96bbeee (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T10-57-15Z-unit-62c6.json' 'apps/web/src/lib/api.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/api.test.ts (12 tests) 57ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  10:57:16
+   Duration  335ms (transform 63%, tests 28%, import 7%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-15T10-57-15Z-unit-62c6.json
+
+# код выхода 0 · 1 с

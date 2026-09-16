@@ -170,7 +170,9 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
-  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
+  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
+    1,
+  );
   await expect(page.getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
@@ -319,6 +321,121 @@ test('карточка: профиль гостя и заселение прох
   expect(commands.map((c: { path: string }) => c.path)).toContain(
     `/reservations/${booking}/items/ui-item/check-in`,
   );
+});
+
+test('экран ошибки различает отклонённый запрос (400/404) и отсутствие связи', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/desk/today', failStatus: 404 },
+  });
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+  await expect(page.getByRole('main')).toContainText('Сервер отклонил запрос (код 404)');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/today' } });
+  await page.goto('/today');
+  await expect(page.getByRole('main')).toContainText('Проверьте подключение');
+  await expect(page.getByText('Сервер отклонил запрос')).toHaveCount(0);
+});
+
+test('сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/reservations');
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/reservations/20260913-TESTAA' },
+  });
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Не удалось загрузить данные');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Брони');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await dialog.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(dialog.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();
+});
+
+test('каналы: сбой сводки фонда не роняет страницу; пустое сопоставление названо', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/channels');
+  await expect(page.getByTestId('mapping-empty')).toContainText('сопоставлений пока нет');
+  await expect(page.getByTestId('events-table')).toContainText('Получено (Алматы)');
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
+  await page.goto('/channels');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж — Channex');
+  await expect(
+    page.getByRole('main').getByRole('alert').filter({ hasText: 'Сводка фонда не загрузилась' }),
+  ).toBeVisible();
+});
+
+// Списки дня с главной ушли в «Брони» (ADR-047), поэтому просроченный заезд ищется в «Требуют внимания»
+test('сегодня: гость, не заехавший вовремя, виден в «Требуют внимания»', async ({ page, request }) => {
+  await page.goto('/today');
+  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  await expect(tasks).toBeVisible();
+  await expect(tasks.getByRole('link', { name: /Не заехал/ })).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { overdue: true } });
+  await page.goto('/today');
+  const late = tasks.getByRole('link', { name: /Не заехал/ });
+  await expect(late).toHaveCount(1);
+  await expect(late).toHaveAttribute('href', '/reservations/20260913-TEST1#booking-actions');
+});
+
+test('номера: доступность дольше 62 ночей останавливает форма, а не ошибка API', async ({
+  page,
+}) => {
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2027-01-01');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Доступность номеров');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше чем на 62 ночи');
+  await expect(page.getByLabel('Выезд')).toHaveAttribute('max', '2026-12-02');
+});
+
+test('аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/analytics?from=2025-01-01&to=2026-12-31');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/analytics/sites/ui-site/report', failStatus: 400 },
+  });
+  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('запрос отклонён');
+  await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/analytics/setup');
+  // .first(): ~300 мс после загрузки стойка держит две копии страницы (потоковый сегмент Next)
+  await expect(page.getByText(/Демо бронирования делает настоящую бронь/).first()).toBeVisible();
+});
+
+test('карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
+  await page.goto('/reservations/20260913-TESTAA');
+  await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();
+  // предупреждение живёт там, где нужен справочник — во вкладке действий
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await expect(
+    page
+      .getByRole('main')
+      .getByRole('alert')
+      .filter({ hasText: 'Справочник тарифов не загрузился' }),
+  ).toBeVisible();
+  await page.goto('/reservations/new?unit=M03');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
+  await expect(
+    page
+      .getByRole('main')
+      .getByRole('alert')
+      .filter({ hasText: 'Справочник тарифов не загрузился' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('new-reservation-form')).toHaveCount(0);
 });
 
 test('сбой API показывает ошибку, повтор восстанавливает страницу', async ({ page, request }) => {
@@ -503,6 +620,17 @@ test('номера: статус уборки, блокировка и снят�
   await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
   await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
   await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+  // Снятие блокировки возвращает ячейку в продажу — стойка переспрашивает; «Отмена» ничего не шлёт
+  const dialogs: string[] = [];
+  page.once('dialog', (d) => {
+    dialogs.push(d.message());
+    void d.dismiss();
+  });
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await expect.poll(() => dialogs.length).toBe(1);
+  expect(dialogs[0]).toContain('Снять блокировку');
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+  page.once('dialog', (d) => void d.accept());
   await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
@@ -512,6 +640,90 @@ test('номера: статус уборки, блокировка и снят�
     'POST /units/R01/blocks',
     'DELETE /units/R01/blocks/ui-block',
   ]);
+});
+
+test('гости: удаление документа переспрашивает; «Отмена» не шлёт команду', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/guests/ui-guest');
+  const form = page.getByTestId('document-form');
+  await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
+  await form.getByRole('button', { name: 'Добавить', exact: true }).click();
+  await expect(page.getByTestId('document-row')).toContainText('0042');
+  page.once('dialog', (d) => void d.dismiss());
+  await page
+    .getByTestId('document-row')
+    .getByRole('button', { name: 'удалить', exact: true })
+    .click();
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  page.once('dialog', (d) => void d.accept());
+  await page
+    .getByTestId('document-row')
+    .getByRole('button', { name: 'удалить', exact: true })
+    .click();
+  await expect(page.getByTestId('document-row')).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
+    'POST /guests/ui-guest/documents',
+    'DELETE /guests/ui-guest/documents/ui-doc-1',
+  ]);
+});
+
+test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
+  await page.goto('/reservations/new?unit=M03');
+  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей в проживании');
+  // койка в общем номере — один гость
+  await expect(guests).toHaveAttribute('max', '1');
+  await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
+  await expect(guests).toHaveAttribute('max', '2');
+});
+
+test('тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы»', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/rates?month=2026-10&category=MALE');
+  const editor = page.getByTestId('bulk-editor');
+  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
+  await editor.locator('select[name="accommodationTypeCode"]').selectOption('ROOM');
+  await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '2');
+  await request.post(`${fixture}/__test/control`, { data: { ratesUnmapped: true } });
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await page.getByTestId('apply-changes').click();
+  await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
+  await expect(page.getByTestId('bulk-done')).toContainText('В каналы не ушло');
+  await expect(page.getByTestId('bulk-done')).not.toContainText('Ушло в очередь');
+});
+
+test('неисправности: когда история обрезана, это написано', async ({ page, request }) => {
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { incidents: 200 } });
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toContainText('последние 200');
+});
+
+test('настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы»', async ({
+  page,
+}) => {
+  await page.goto('/hotel-settings/services');
+  await expect(page.getByText('«Счета»')).toBeVisible();
+  await expect(page.getByText('«Финансы»')).toHaveCount(0);
+  // описание: сведения PMS и описание из Channex — две разные панели с двумя разными адресами
+  await page.goto('/hotel-settings/description');
+  await expect(page.getByText('Сведения об объекте в PMS', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/Здесь — то, что знает PMS/).first()).toBeVisible();
+});
+
+test('деньги за период: срок дольше года останавливает форма, а не ошибка API', async ({
+  page,
+}) => {
+  await page.goto('/finance?from=2024-01-01&to=2026-12-31');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Деньги за период');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+  await expect(page.getByTestId('charged')).toHaveCount(0);
 });
 
 test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({

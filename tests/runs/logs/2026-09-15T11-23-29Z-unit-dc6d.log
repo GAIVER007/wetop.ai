@@ -1,0 +1,159 @@
+# Модульные (unit) · 15.09.2026 16:23 Алматы · vm
+# коммит 84acbd7 (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T11-23-29Z-unit-dc6d.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 295ms
+[Nest] 14341  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (19 tests) 353ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (6 tests) 269ms
+ ✓ |unit| tests/unit/launchd-web-start.test.ts (1 test) 3351ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 3350ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 3168ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 744ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 643ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 337ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 315ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1128ms
+[Nest] 14357  - 09/15/2026, 11:23:34 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 14357  - 09/15/2026, 11:23:34 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 14357  - 09/15/2026, 11:23:34 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 14357  - 09/15/2026, 11:23:34 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 304ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 281ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (12 tests) 200ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (4 tests) 234ms
+[Nest] 14389  - 09/15/2026, 11:23:35 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:255:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:184:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:175:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests) 229ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (5 tests) 188ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (10 tests) 199ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 181ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (10 tests) 152ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 174ms
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 112ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (2 tests) 152ms
+ ✓ |unit| packages/integrations/src/exely/client.test.ts (7 tests) 60ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (14 tests) 60ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 96ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 151ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (12 tests) 68ms
+ ✓ |unit| scripts/preview/real-config.test.ts (24 tests) 67ms
+ ✓ |unit| packages/integrations/src/exely/universal.test.ts (5 tests) 58ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 57ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 49ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 55ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (5 tests) 50ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (2 tests) 48ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 9ms
+[Nest] 14548  - 09/15/2026, 11:23:38 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 14548  - 09/15/2026, 11:23:38 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 14548  - 09/15/2026, 11:23:38 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (13 tests) 26ms
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (23 tests) 43ms
+ ✓ |unit| scripts/reconciliation/src/cutover-compare.test.ts (14 tests) 18ms
+ ✓ |unit| scripts/imports/src/exely/seat-plan.test.ts (20 tests) 23ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (10 tests) 16ms
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (8 tests) 15ms
+ ✓ |unit| tests/unit/test-journal.test.ts (21 tests) 19ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 18ms
+[Nest] 14612  - 09/15/2026, 11:23:39 AM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 19ms
+[Nest] 14626  - 09/15/2026, 11:23:39 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 14626  - 09/15/2026, 11:23:39 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 9ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 11ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 11ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (4 tests) 14ms
+ ✓ |unit| scripts/reconciliation/src/system-trace.test.ts (9 tests) 13ms
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14654  - 09/15/2026, 11:23:40 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 14654  - 09/15/2026, 11:23:40 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 14654  - 09/15/2026, 11:23:40 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 14654  - 09/15/2026, 11:23:40 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 14654  - 09/15/2026, 11:23:40 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (9 tests) 12ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 11ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (17 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 12ms
+ ✓ |unit| scripts/reconciliation/src/test-data-purge-rules.test.ts (11 tests) 8ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (6 tests) 11ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (21 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (13 tests) 10ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 9ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 12ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 12ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 15ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (7 tests) 9ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (9 tests) 9ms
+ ✓ |unit| scripts/reconciliation/src/cutover-ambiguous.test.ts (9 tests) 11ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 9ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (2 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/guest-fields.test.ts (4 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/price-calendar.test.ts (4 tests) 8ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 7ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/rate-plans.test.ts (3 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/rollback-window.test.ts (10 tests) 8ms
+ ✓ |unit| scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 9ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (7 tests) 8ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 6ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/inventory-compare.test.ts (3 tests) 5ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/anonymize.test.ts (3 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 8ms
+ ✓ |unit| scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/rates-compare.test.ts (2 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 6ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (2 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/parse-services.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 5ms
+ ✓ |unit| packages/domain/src/reservations/cutover-match.test.ts (6 tests) 6ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 5ms
+ ✓ |unit| packages/shared/src/markdown-table.test.ts (3 tests) 5ms
+ ✓ |unit| tests/unit/test-data-source.test.ts (3 tests) 4ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 5ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 5ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 6ms
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 4ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 4ms
+ ✓ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests) 4ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 4ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/almaty.test.ts (2 tests) 4ms
+ ↓ |unit| tests/unit/launchd-install.test.ts (5 tests | 5 skipped)
+
+ Test Files  106 passed | 1 skipped (107)
+      Tests  790 passed | 5 skipped (795)
+   Start at  11:23:30
+   Duration  13.59s (tests 43%, import 42%, transform 13%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-15T11-23-29Z-unit-dc6d.json
+
+# код выхода 0 · 14 с

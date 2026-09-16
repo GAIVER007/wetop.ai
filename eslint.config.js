@@ -52,6 +52,15 @@ export default tseslint.config(
     },
   },
   {
+    // Скрипты главной wetop.ai: чистый Node без сборки (их запускают `node scripts/site/…`).
+    files: ['scripts/site/*.mjs'],
+    languageOptions: {
+      globals: Object.fromEntries(
+        ['process', 'console', 'URL', 'setTimeout', 'fetch'].map((g) => [g, 'readonly']),
+      ),
+    },
+  },
+  {
     // ADR-004: домен и приложения не знают про Channex. Vendor SDK — только в packages/integrations.
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['packages/integrations/**'],

@@ -1,0 +1,256 @@
+# Сквозные (e2e) · 15.09.2026 15:58 Алматы · vm
+# коммит 96bbeee (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+
+Running 90 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:48:5 › доступность всех разделов: light, 1440px (54.9s)
+  ✓   2 tests/ui/accessibility.spec.ts:48:5 › доступность всех разделов: dark, 1440px (49.6s)
+  ✓   3 tests/ui/accessibility.spec.ts:48:5 › доступность всех разделов: light, 390px (44.2s)
+  ✓   4 tests/ui/accessibility.spec.ts:48:5 › доступность всех разделов: dark, 390px (45.7s)
+  ✓   5 tests/ui/accessibility.spec.ts:110:5 › доступность открытых форм и drawer: light, 1440px (5.8s)
+  ✓   6 tests/ui/accessibility.spec.ts:110:5 › доступность открытых форм и drawer: dark, 1440px (5.6s)
+  ✓   7 tests/ui/accessibility.spec.ts:110:5 › доступность открытых форм и drawer: light, 390px (5.2s)
+  ✓   8 tests/ui/accessibility.spec.ts:110:5 › доступность открытых форм и drawer: dark, 390px (4.9s)
+  ✓   9 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (2.3s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (3.5s)
+  ✓  11 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (3.7s)
+  ✓  12 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (3.6s)
+  ✓  13 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (3.6s)
+  ✓  14 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (3.7s)
+  ✓  15 tests/ui/chessboard-month.spec.ts:65:1 › неделя, 14 дней, произвольный период и возврат к месяцу (4.6s)
+  ✓  16 tests/ui/chessboard-month.spec.ts:84:1 › в месяце открываются брони, свободные даты и группы номеров (6.0s)
+  ✓  17 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (26.6s)
+  ✓  18 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность (23.3s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (3.2s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (3.4s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (3.4s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:33:1 › в неделе работают бронь, категории и создание на воскресенье (2.7s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон (15.0s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон (15.9s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:96:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.3s)
+  ✓  26 tests/ui/login-access.spec.ts:8:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля (548ms)
+  ✓  27 tests/ui/login-access.spec.ts:26:1 › без Access (локально на Mac) экран входа прежний и честно говорит, что вход не подключён (539ms)
+  ✓  28 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (1.9s)
+  ✓  29 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (1.7s)
+  ✓  30 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (2.8s)
+  ✓  31 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск, уведомления и помощник (4.3s)
+  ✓  32 tests/ui/premium.spec.ts:55:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (4.2s)
+  ✓  33 tests/ui/premium.spec.ts:88:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (4.5s)
+  ✓  34 tests/ui/premium.spec.ts:127:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (39.0s)
+  ✓  35 tests/ui/premium.spec.ts:175:1 › сообщения сохраняют только черновик, login не имитирует авторизацию (1.5s)
+  ✓  36 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (1.4s)
+  ✓  37 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (650ms)
+  ✓  38 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (868ms)
+  ✓  39 tests/ui/quality.spec.ts:30:1 › длинный черновик на телефоне переносится внутри панели (884ms)
+  ✓  40 tests/ui/quality.spec.ts:49:1 › операция проживания блокирует повторное нажатие до ответа сервера (1.1s)
+  ✓  41 tests/ui/quality.spec.ts:71:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (1.6s)
+  ✓  42 tests/ui/quality.spec.ts:92:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.4s)
+  ✓  43 tests/ui/quality.spec.ts:105:1 › список гостей и вторая бронь открывают собственные карточки (1.7s)
+  ✓  44 tests/ui/quality.spec.ts:116:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.1s)
+  ✓  45 tests/ui/quality.spec.ts:139:1 › изменение уборки относится только к выбранному номеру (1.6s)
+  ✓  46 tests/ui/quality.spec.ts:147:1 › неподключённые внешние демо не ведут на несуществующие страницы (718ms)
+  ✓  47 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: профиль гостя (1.4s)
+  ✓  48 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: документ гостя (1.4s)
+  ✓  49 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: блокировка номера (1.4s)
+  ✓  50 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: сайт аналитики (1.2s)
+  ✓  51 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (850ms)
+  ✓  52 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.1s)
+  ✓  53 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.0s)
+  ✓  54 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (652ms)
+  ✓  55 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (975ms)
+  ✓  56 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (1.4s)
+  ✓  57 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (1.3s)
+  ✓  58 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (20.9s)
+  ✓  59 tests/ui/workspace.spec.ts:97:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (2.8s)
+  ✓  60 tests/ui/workspace.spec.ts:125:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (1.7s)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-15&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  61 tests/ui/workspace.spec.ts:143:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (2.1s)
+  ✓  62 tests/ui/workspace.spec.ts:164:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (2.4s)
+  ✓  63 tests/ui/workspace.spec.ts:195:1 › поиск и списки дня; мобильное меню и возврат фокуса (2.7s)
+  ✓  64 tests/ui/workspace.spec.ts:221:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (2.5s)
+  ✓  65 tests/ui/workspace.spec.ts:243:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (1.5s)
+  ✓  66 tests/ui/workspace.spec.ts:275:1 › карточка: профиль гостя и заселение проходят через server actions (2.6s)
+[WebServer] ⨯ Error: API /desk/today: HTTP 404
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  67 tests/ui/workspace.spec.ts:308:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.5s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:39:13)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  68 tests/ui/workspace.spec.ts:325:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (2.0s)
+  ✓  69 tests/ui/workspace.spec.ts:342:1 › каналы: сбой сводки фонда не роняет страницу; пустое сопоставление названо (1.0s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  70 tests/ui/workspace.spec.ts:357:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.2s)
+  ✓  71 tests/ui/workspace.spec.ts:366:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (1.9s)
+  ✓  72 tests/ui/workspace.spec.ts:380:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (610ms)
+  ✓  73 tests/ui/workspace.spec.ts:392:1 › неверная дата в ссылке оставляет доступную форму для исправления (658ms)
+  ✓  74 tests/ui/workspace.spec.ts:399:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.0s)
+  ✓  75 tests/ui/workspace.spec.ts:408:1 › групповая бронь: разные категории сохраняются при конфликте (1.1s)
+  ✓  76 tests/ui/workspace.spec.ts:432:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.8s)
+  ✓  77 tests/ui/workspace.spec.ts:459:1 › обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия (2.0s)
+  ✓  78 tests/ui/workspace.spec.ts:490:1 › ошибка буфера обмена видна, код остаётся доступен (946ms)
+  ✓  79 tests/ui/workspace.spec.ts:506:1 › финансы: неверные даты можно исправить без падения страницы (1.1s)
+  ✓  80 tests/ui/workspace.spec.ts:516:1 › ошибка загрузки тарифов не позволяет включить виджет (659ms)
+  ✓  81 tests/ui/workspace.spec.ts:525:1 › номера: статус уборки, блокировка и снятие сохраняются (2.1s)
+  ✓  82 tests/ui/workspace.spec.ts:558:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.8s)
+  ✓  83 tests/ui/workspace.spec.ts:586:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (965ms)
+  ✓  84 tests/ui/workspace.spec.ts:595:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (1.4s)
+  ✓  85 tests/ui/workspace.spec.ts:613:1 › неисправности: когда история обрезана, это написано (1.3s)
+  ✓  86 tests/ui/workspace.spec.ts:621:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (787ms)
+  ✓  87 tests/ui/workspace.spec.ts:629:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (1.7s)
+  ✓  88 tests/ui/workspace.spec.ts:652:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (3.4s)
+  ✓  89 tests/ui/workspace.spec.ts:680:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (2.3s)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:63:17)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:55:13)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:191:26)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:57:21)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-15&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /analytics/sites: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async MarketingPage (src/app/marketing/page.tsx:8:17)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  90 tests/ui/workspace.spec.ts:711:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (5.3s)
+
+  90 passed (8.6m)
+
+# код выхода 0 · 8 мин 38 с

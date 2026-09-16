@@ -60,6 +60,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     // прямые запросы спеков к API идут как служебные: людей у них нет, а замок пропускает по ключу
     ...(AUTH ? { extraHTTPHeaders: { 'x-wetop-service-key': SERVICE_KEY } } : {}),
+    // Машина без браузеров Playwright, но со своим Chromium (облачная сессия, CI-образ): CHROMIUM_PATH=/путь/к/chrome
+    ...(process.env['CHROMIUM_PATH']
+      ? { launchOptions: { executablePath: process.env['CHROMIUM_PATH'] } }
+      : {}),
   },
   projects: LIVE
     ? [{ name: 'channex-live', testMatch: LIVE_ONLY.map((f) => `**/${f}`) }]

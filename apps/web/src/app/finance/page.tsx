@@ -54,7 +54,9 @@ export default async function FinanceReportPage({
   const from = sp.from || def.from;
   const to = sp.to || def.to;
   const valid = validDate(from) && validDate(to) && from <= to;
-  const r = valid ? await financeApi.report(from, to) : null;
+  // Предел периода — в форме, как у API: год; сумма за несколько лет по дням — не задача этого экрана
+  const tooLong = valid && Date.parse(to) - Date.parse(from) > 365 * 86_400_000;
+  const r = valid && !tooLong ? await financeApi.report(from, to) : null;
   const cur = r?.currency ?? '';
   return (
     <Page
@@ -78,6 +80,11 @@ export default async function FinanceReportPage({
 
       {!valid && (
         <Alert boxed>Проверьте даты: окончание периода должно быть не раньше начала.</Alert>
+      )}
+      {tooLong && (
+        <Alert boxed>
+          Период отчёта — не больше года (366 дней). Выберите более короткий отрезок.
+        </Alert>
       )}
       {r && (
         <>

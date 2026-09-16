@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -67,6 +67,8 @@ test('заблокировать свободную койку на 2 ночи �
   await page.goto(`/units/${unitCode}`);
   // именно свою строку: на той же койке может лежать блок другого спека (даты разные, койка одна),
   // и тогда кнопок «снять» на странице две — клик по роли падал бы на strict mode
+  // снятие блокировки переспрашивает (волна 3): без ответа «ОК» Playwright отклоняет диалог
+  page.once('dialog', (d) => void d.accept());
   await ownBlock.getByRole('button', { name: 'снять' }).click();
   await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);

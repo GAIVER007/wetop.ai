@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { ApiError, getJsonPublic, reservationsApi } from './api';
+import { ApiError, apiErrorStatus, getJsonPublic, reservationsApi } from './api';
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
@@ -158,4 +158,11 @@ it('неверный пароль на входе не превращается 
   await expect(
     authApi.login({ email: 'admin@example.invalid', password: 'не тот' }),
   ).rejects.toMatchObject({ status: 401, message: 'Неверная почта или пароль' });
+});
+
+it('ApiError carries its status in digest, so the client error boundary can tell 404 from 503', () => {
+  expect(new ApiError(404, 'API /x: HTTP 404').digest).toBe('API_404');
+  expect(apiErrorStatus('API_503')).toBe(503);
+  expect(apiErrorStatus('1234567890')).toBeUndefined();
+  expect(apiErrorStatus(undefined)).toBeUndefined();
 });

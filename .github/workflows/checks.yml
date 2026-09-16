@@ -1,62 +1,124 @@
-# Автопрогон на каждый коммит (16.09.2026).
-#
-# Зачем: до сегодняшнего дня ни один коммит в проекте не проверялся ничем, кроме ноутбука
-# владельца. При трёх сессиях, правящих один репозиторий, поломка от соседа обнаруживалась
-# в лучшем случае через сутки.
-#
-# Что здесь есть: проверка типов, линтер и модульные тесты — всё, чему не нужно ничего
-# внешнего. Это около 890 проверок из примерно 920.
-#
-# Чего здесь нет и почему:
-#   • интеграционные — нужна dev-база через пулер Supabase. Можно добавить, положив
-#     DATABASE_URL в секреты репозитория; решение за владельцем, это доступ к живым данным;
-#   • сквозные (e2e) — нужен поднятый PMS, браузер и база. Им место на сервере, а не здесь;
-#   • запись в журнал прогонов (`tests/runs/`) — журнал привязан к машине и коммиту и служит
-#     доказательством по AGENTS.md §6. Записи отсюда были бы доказательством «прогнал робот
-#     на пустой машине», а это другой смысл. Журнал остаётся ручным.
-
-name: Проверки
+# Проверки на каждый пуш и PR (plans/tests-without-live-db-2026-09-15.md, шаг 4).
+# Секретов здесь нет и не будет (SECURITY.md §3): наборы, которым нужны Exely, Channex, Telegram или ключ
+# шифрования ПД, остаются ручными на рабочем стенде. Журнал tests/runs/ CI не пишет — он про доказательства
+# на рабочем коде, а не про каждый пуш; логи здесь остаются в самом прогоне.
+name: checks
 
 on:
   push:
     branches: [main]
   pull_request:
 
-# Новый коммит в ту же ветку отменяет предыдущий прогон: ждать устаревший результат незачем.
 concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  checks:
-    name: Типы, линтер, модульные тесты
-    runs-on: ubuntu-latest
+  fast:
+    name: lint · typecheck · unit · главная
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npm run lint
+      - run: npm run typecheck && npm run typecheck:api && npm run typecheck:web
+      - run: npx vitest run --project unit
+      - name: Chromium для проверок главной
+        run: npx playwright install --with-deps chromium
+      - run: npm run site:check
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: site-check-results
+          path: |
+            tests/site/test-results
+            test-results
+          if-no-files-found: ignore
 
-      # ci, а не install: ставит ровно то, что записано в package-lock.json.
-      # Разъехавшиеся версии — это прогон, который ничего не доказывает.
-      - name: Зависимости
-        run: npm ci
+  db:
+    name: миграции · integration · e2e на чистом PostgreSQL 16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql --version && pg_dump --version
+      - name: Применение и откат каждой миграции
+        env:
+          MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
+        run: scripts/ops/check-migrations.sh
+      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Интеграционные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx vitest run --project integration
+      - name: Сборка стойки и Chromium
+        run: |
+          npm run build -w apps/web
+          npx playwright install --with-deps chromium
+      - name: Сквозные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx playwright test --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+          if-no-files-found: ignore
 
-      # Клиент Prisma не под учётом git (.gitignore), а типы из него нужны проверке типов.
-      # Без этого шага typecheck падает на первом же импорте из @pms/database.
-      - name: Клиент Prisma
-        run: npm run generate -w @pms/database
-
-      - name: Проверка типов
-        run: npm run typecheck
-
-      - name: Линтер
-        run: npm run lint
-
-      # Напрямую vitest, а не test:record: запись в журнал остаётся ручной (см. шапку).
-      - name: Модульные тесты
-        run: npx vitest run --project unit
+  ui:
+    name: стойка на синтетическом API (tests/ui)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      # Браузер — chromium Playwright (на Mac набор идёт в Chrome владельца); next dev и подставной API поднимает конфиг
+      - name: Браузерные проверки без базы
+        env:
+          UI_BROWSER_CHANNEL: chromium
+        run: npx playwright test --config tests/ui/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-results
+          path: |
+            test-results
+            reports/ui-quality
+          if-no-files-found: ignore

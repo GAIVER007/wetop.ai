@@ -427,7 +427,7 @@ describe('manual reservation API', () => {
             if (publishFails) throw new Error('channel_outbox insert failed');
             published.push(c);
           },
-          ratesChanged: async () => {},
+          ratesChanged: async () => 0,
         }),
       })
       .compile();

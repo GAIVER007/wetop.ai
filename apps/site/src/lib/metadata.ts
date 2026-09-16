@@ -11,13 +11,21 @@ type PageMeta = {
 };
 
 /*
+ * Картинка ссылки одна на весь сайт: `public/og.png`, её рисует `scripts/site/make-og-image.mjs` из настоящих
+ * стилей сайта. Она перечисляется здесь, а не файлом-соглашением `opengraph-image.png`: страницы задают
+ * `openGraph` целиком, и тогда Next подставляет картинку соглашения не везде — у `/blog/` её не оказалось.
+ */
+const OG_IMAGE = { url: '/og.png', width: 1200, height: 630 };
+
+/*
  * OpenGraph и canonical для страницы. Next сливает metadata слоёв неглубоко: `openGraph` страницы целиком
- * заменяет `openGraph` макета, поэтому название сайта и язык добавляются здесь каждый раз.
+ * заменяет `openGraph` макета, поэтому название сайта, язык и картинка добавляются здесь каждый раз.
  */
 function base({ path, title, description }: PageMeta) {
   const t = getDictionary();
   return {
     siteName: t.meta.siteName,
+    images: [{ ...OG_IMAGE, alt: title ? `${title} — ${t.meta.siteName}` : t.meta.title }],
     locale: localeInfo().openGraphLocale,
     url: path,
     // Как в <title>: шаблон «%s — WETOP» из макета к OpenGraph сам не применяется.

@@ -47,6 +47,19 @@ describe('reservation directory is a bounded read projection', () => {
       }),
     );
   });
+  it('pageSize widens a page up to 200 rows (guests of the day) and refuses more', async () => {
+    const { db, service } = fixture();
+    const result = await service.list({ from: '2026-09-15', to: '2026-09-15', pageSize: '200' });
+    expect(result).toMatchObject({ pageSize: 200, page: 1 });
+    expect(db.reservation.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 200, skip: 0 }),
+    );
+    for (const pageSize of ['0', '201', '2.5', 'x']) {
+      const bad = fixture();
+      await expect(bad.service.list({ pageSize })).rejects.toBeInstanceOf(BadRequestException);
+      expect(bad.db.reservation.findMany).not.toHaveBeenCalled();
+    }
+  });
   it('excludes voided finance entries in the read selection and preserves refunds', async () => {
     const { db, service } = fixture();
     db.reservation.findMany.mockResolvedValue([

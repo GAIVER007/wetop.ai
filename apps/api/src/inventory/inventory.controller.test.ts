@@ -97,8 +97,14 @@ describe('GET /inventory', () => {
       physicalRooms: 3,
       blocks: 0,
       byCategory: [
-        { code: 'exely-900001', name: 'Тестовая одиночная', units: 1, maxGuests: 1 },
-        { code: 'exely-900003', name: 'Тестовый dorm', units: 2, maxGuests: 2 },
+        {
+          code: 'exely-900001',
+          name: 'Тестовая одиночная',
+          units: 1,
+          maxGuests: 1,
+          capacityAdults: 1,
+        },
+        { code: 'exely-900003', name: 'Тестовый dorm', units: 2, maxGuests: 2, capacityAdults: 1 },
       ],
     });
   });

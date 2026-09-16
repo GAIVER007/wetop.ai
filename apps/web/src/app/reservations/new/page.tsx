@@ -2,7 +2,7 @@ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-pa
 import Link from 'next/link';
 import { api, reservationsApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
-import { Button, Field, Input } from '../../../components/ui';
+import { Alert, Button, Field, Input } from '../../../components/ui';
 import { NewReservationForm } from './form';
 
 const plusDays = (iso: string, n: number) => {
@@ -27,9 +27,10 @@ export default async function NewReservationPage({
   const arrival = q.arrival ?? today;
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
+  // Без справочника фонда или тарифов бронь не создать — но это предупреждение на месте, не экран ошибки
   const [summary, ratePlans, availability] = await Promise.all([
-    api.inventorySummary(),
-    reservationsApi.ratePlans(),
+    api.inventorySummary().catch(() => null),
+    reservationsApi.ratePlans().catch(() => null),
     validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
   ]);
   return (
@@ -50,26 +51,39 @@ export default async function NewReservationPage({
         <div data-testid="availability" className="hint--lg toolbar">
           {availability.nights} ноч. · свободно {availability.total.available} из{' '}
           {availability.total.units} ячеек:{' '}
-          {summary.byCategory
+          {(summary?.byCategory ?? [])
             .map((c) => `${c.name} — ${availability.byCategory[c.code]?.available ?? 0}`)
             .join(' · ')}
         </div>
       ) : (
         <div className="danger-text toolbar">Даты некорректны: выезд должен быть позже заезда.</div>
       )}
-      <NewReservationForm
-        key={`${arrival}-${departure}-${q.unit ?? ''}`}
-        selectedUnit={q.unit ?? ''}
-        canSubmit={availability !== null}
-        arrival={arrival}
-        departure={departure}
-        categories={summary.byCategory.map((c) => ({
-          code: c.code,
-          name: c.name,
-          availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
-        }))}
-        ratePlans={ratePlans}
-      />
+      {ratePlans === null && (
+        <Alert boxed tone="warning">
+          Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.
+        </Alert>
+      )}
+      {summary === null && (
+        <Alert boxed tone="warning">
+          Сводка фонда не загрузилась: без категорий бронь не создать. Обновите страницу.
+        </Alert>
+      )}
+      {summary !== null && ratePlans !== null && (
+        <NewReservationForm
+          key={`${arrival}-${departure}-${q.unit ?? ''}`}
+          selectedUnit={q.unit ?? ''}
+          canSubmit={availability !== null}
+          arrival={arrival}
+          departure={departure}
+          categories={summary.byCategory.map((c) => ({
+            code: c.code,
+            name: c.name,
+            capacityAdults: c.capacityAdults,
+            availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
+          }))}
+          ratePlans={ratePlans}
+        />
+      )}
     </Page>
   );
 }

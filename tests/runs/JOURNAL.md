@@ -472,3 +472,5 @@
 | 16.09.2026 18:08 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ❌ упало 1 из 85 | 13 с | c20f55b +14 | [лог](logs/2026-09-16T13-08-12Z-unit-7f9d.log) | кто вошёл и выход чужой или выдуманный ключ — 401 |
 | 16.09.2026 18:10 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ✅ 85 из 85 | 3 с | c20f55b +14 | [лог](logs/2026-09-16T13-10-00Z-unit-1ca5.log) |  |
 | 16.09.2026 18:11 | integration | ✅ 26 из 26 | 6 мин 24 с | da3339f | [лог](logs/2026-09-16T13-11-27Z-integration-8c81.log) |  |
+| 16.09.2026 18:37 | unit | ❌ упало 1 из 974 | 1 мин 4 с | 5b6a9c7 +2 | [лог](logs/2026-09-16T13-37-07Z-unit-482a.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 16.09.2026 18:40 | unit | ✅ 974 из 974 | 1 мин 4 с | 275cdc2 | [лог](logs/2026-09-16T13-40-59Z-unit-389d.log) |  |

@@ -11,6 +11,7 @@ import type {
 import type { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { auditUserId } from '../accounts/actor';
 
 /** Сайт со счётчиком (DATA_MODEL §11 TrackedSite) плюс пояс объекта — для границ периода. */
 export interface SiteRecord {
@@ -339,6 +340,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async audit(action: string, siteId: string, after: Record<string, unknown>): Promise<void> {
     await this.prisma.db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: 'TrackedSite',
         entityId: siteId,
         action,

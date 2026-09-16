@@ -4,6 +4,7 @@ import type { DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { mergeRestrictions } from './restriction-merge';
+import { auditUserId } from '../accounts/actor';
 
 export interface RateCalendarDay {
   date: string;
@@ -201,6 +202,7 @@ export class PrismaRatesRepository implements RatesRepository {
     const db = (tx as DbTx | undefined) ?? this.prisma.db;
     await db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: 'Property',
         entityId: await this.propertyId(),
         action,

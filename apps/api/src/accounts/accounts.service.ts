@@ -20,6 +20,7 @@ import {
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
 import { ACCOUNTS_REPOSITORY, type AccountsRepository, type SessionRecord } from './accounts.repository';
+import type { Actor } from './actor';
 
 const HOUR_MS = 60 * 60 * 1000;
 const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
@@ -178,6 +179,14 @@ export class AccountsService {
     if (!stored) return null;
     if (!checkSession(stored, new Date()).ok) return null;
     return toSession(stored);
+  }
+
+  /** Автор для журнала действий: внутренний номер человека и организации. Наружу не отдаётся. */
+  async actorFor(token: string): Promise<Actor | null> {
+    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
+    if (!stored) return null;
+    if (!checkSession(stored, new Date()).ok) return null;
+    return { userId: stored.userId, organizationId: stored.organizationId };
   }
 
   /**

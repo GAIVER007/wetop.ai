@@ -1,11 +1,12 @@
 import 'reflect-metadata';
-import { Module } from '@nestjs/common';
+import { Module, type MiddlewareConsumer, type NestModule } from '@nestjs/common';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { AccountsController } from './accounts.controller';
 import { ACCOUNTS_REPOSITORY, type AccountsRepository } from './accounts.repository';
 import { AccountsService } from './accounts.service';
 import { PrismaAccountsRepository } from './accounts.prisma-repository';
+import { ActorMiddleware } from './actor.middleware';
 
 /**
  * Свои учётные записи и вход по одноразовому коду (срез 13, ADR-046, DATA_MODEL §13).
@@ -41,6 +42,11 @@ const mailProviders = [
   ],
   exports: [AccountsService],
 })
-export class AccountsModule {}
+export class AccountsModule implements NestModule {
+  /** На все маршруты: журнал пишут все разделы API, и автор нужен везде, где он есть. */
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(ActorMiddleware).forRoutes('{*path}');
+  }
+}
 
 export type { AccountsRepository };

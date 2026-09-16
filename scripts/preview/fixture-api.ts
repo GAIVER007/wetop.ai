@@ -1,6 +1,12 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { createServer } from 'node:http';
-import { parseMoney, assertAllocationsMatch } from '@pms/domain';
+import {
+  parseMoney,
+  assertAllocationsMatch,
+  buildDashboard,
+  previousPeriod,
+  type DashboardPeriod,
+} from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import type {
   Chessboard,
@@ -377,6 +383,56 @@ function board(from: string, to: string): Chessboard {
     ),
   };
 }
+/**
+ * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
+ * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
+ */
+function dashboardPeriod(from: string, to: string): DashboardPeriod {
+  const b = board(from, to);
+  const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
+  return buildDashboard({
+    from,
+    to,
+    categories: categories.map((c) => ({ code: c.code, name: c.name, units: c.count })),
+    days: b.dates.map((date) => ({
+      date,
+      ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
+      byCategory: b.byCategory[date] ?? {},
+    })),
+    unassigned: b.unassigned.length,
+    stays: allCards().flatMap((r) =>
+      r.items.map((it) => ({
+        arrivalDate: it.arrivalDate,
+        departureDate: it.departureDate,
+        status: it.status,
+        adults: it.adults,
+        children: it.children,
+        priceMinor: BigInt(it.priceMinor),
+        source: r.source,
+        channel: r.channel,
+        categoryCode: it.accommodationTypeCode,
+      })),
+    ),
+    charges: allCards().flatMap((r) =>
+      r.items
+        .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
+        .map((it) => ({
+          kind: 'ACCOMMODATION' as const,
+          amountMinor: BigInt(it.priceMinor),
+          categoryCode: it.accommodationTypeCode,
+        })),
+    ),
+    payments:
+      from <= today && today <= to
+        ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
+        : [],
+    refundsMinor: 0n,
+  });
+}
+function dashboard(from: string, to: string) {
+  const prev = previousPeriod(from, to);
+  return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
+}
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =
@@ -562,6 +618,24 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard') {
+      const from = q.get('from') || today,
+        to = q.get('to') || today;
+      const zero = (f: string, t: string) =>
+        buildDashboard({
+          from: f,
+          to: t,
+          categories: [],
+          days: dates(f, t).map((date) => ({ date, occupied: 0, free: 0, blocked: 0, byCategory: {} })),
+          unassigned: 0,
+          stays: [],
+          charges: [],
+          payments: [],
+          refundsMinor: 0n,
+        });
+      const prev = previousPeriod(from, to);
+      return { current: zero(from, to), previous: zero(prev.from, prev.to) };
+    }
     if (path === '/finance/report')
       return {
         currency: 'KZT',
@@ -670,6 +744,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/inventory/units')
     return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
   if (path === '/desk/today') return desk(q.get('date') || today);
+  if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return plans;
   if (path === '/availability') {

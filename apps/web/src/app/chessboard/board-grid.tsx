@@ -264,7 +264,16 @@ export function ChessboardGrid({
                     className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
                     title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
                   >
-                    {board.summary[d]!.free === 0 ? 'мест нет' : `своб. ${board.summary[d]!.free}`}
+                    {board.summary[d]!.free === 0 ? (
+                      <>
+                        <span className="board__free-word">мест </span>нет
+                      </>
+                    ) : (
+                      <>
+                        <span className="board__free-word">своб. </span>
+                        {board.summary[d]!.free}
+                      </>
+                    )}
                   </div>
                   <div
                     className="board__occ"

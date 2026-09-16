@@ -13,33 +13,36 @@ const plus = (n: number) => {
   return x.toISOString().slice(0, 10);
 };
 
-/** Рабочий день стойки: заезды, выезды и живущие на дату, и что мешает заселить. */
-test('экран «Сегодня» открывается с корня и показывает три списка на дату', async ({ page }) => {
+/**
+ * Главная (срез 14): показатели за период сверху, полоса стойки на дату снизу.
+ * Заезд, заведённый на дату, должен попасть в счётчик заездов и в «Требуют внимания» с причиной.
+ */
+test('главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания»', async ({
+  page,
+}) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
-  await expect(page.getByRole('heading', { name: 'Обзор дня' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+  // период по умолчанию — сегодня; показатели считаются из живых шахматки и счетов
+  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByTestId('kpi-occupancy')).toContainText('%');
+  await expect(page.getByTestId('kpi-revenue')).toContainText('₸');
+  await expect(page.getByTestId('chart-categories')).toBeVisible();
+  // месяц: столбики по дням, сравнение с прошлым отрезком
+  await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
+  await expect(page.getByTestId('chart-daily')).toBeVisible();
+  await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
 
-  // три списка за вкладками, каждый открывается и виден, даже если пуст (один список на экране — 15.09.2026)
-  for (const [g, title] of [
-    ['departures', 'Выезды'],
-    ['inhouse', 'Живут'],
-    ['arrivals', 'Заезды'],
-  ] as const) {
-    await page.getByRole('button', { name: new RegExp(`^${title}`) }).click();
-    await expect(page.getByTestId(`group-${g}`)).toBeVisible();
-  }
-
-  const rows = async (g: string) => page.getByTestId(`row-${g}`).count();
   const card = async (id: string) => Number(await page.getByTestId(id).innerText());
 
-  // Заводим заведомый заезд на выбранную дату и проверяем, что он реально попал в список заездов,
-  // а счётчик вырос. Сравнение счётчика со строками той же таблицы ничего бы не доказывало.
+  // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
+  // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.
   const day = plus(6);
-  const before = { count: 0, rows: 0 };
   await page.goto(`/today?date=${day}`);
-  before.count = await card('c-arrivals');
-  before.rows = await rows('arrivals');
-  expect(before.count).toBe(before.rows);
+  const before = await card('c-arrivals');
 
   await page.goto(`/reservations/new?arrival=${day}&departure=${plus(7)}`);
   const form = page.getByTestId('new-reservation-form');
@@ -53,17 +56,23 @@ test('экран «Сегодня» открывается с корня и по
   const number = page.url().split('/').pop()!;
 
   await page.goto(`/today?date=${day}`);
-  await expect(page.getByTestId('group-arrivals')).toContainText(number);
-  expect(await card('c-arrivals')).toBe(before.count + 1);
-  expect(await rows('arrivals')).toBe(before.rows + 1);
+  expect(await card('c-arrivals')).toBe(before + 1);
+  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  await expect(tasks).toContainText(number);
   // бронь без ячейки — стойка должна видеть причину
-  await expect(page.getByTestId('group-arrivals')).toContainText('нет ячейки');
+  await expect(tasks.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
+  // полоса стойки — на выбранную дату, и период тот же день
+  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText(
+    'На стойке',
+  );
+  await expect(page.getByLabel('Период: с')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
-  // на дату из прошлого списки тоже строятся
+  // на дату из прошлого показатели тоже строятся
   await page.goto('/today?date=2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Обзор дня' })).toBeVisible();
-  await expect(page.getByLabel('Дата рабочего дня')).toHaveValue('2026-08-15');
-  expect(await card('c-arrivals')).toBe(await rows('arrivals'));
+  await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+  await expect(page.getByLabel('Период: с')).toHaveValue('2026-08-15');
+  await expect(page.getByTestId('period-caption')).toContainText('15 августа');
+  expect(Number.isInteger(await card('c-arrivals'))).toBe(true);
 });

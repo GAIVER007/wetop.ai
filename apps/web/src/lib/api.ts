@@ -2,6 +2,7 @@
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
+import type { DashboardPeriod } from '@pms/domain';
 export interface CategorySummary {
   code: string;
   name: string;
@@ -719,6 +720,17 @@ export interface DeskDay {
 export const deskApi = {
   today: (date?: string) =>
     getJson<DeskDay>(`/desk/today${date ? `?date=${encodeURIComponent(date)}` : ''}`),
+};
+
+// ── Главная собственника: показатели за период (срез 14) ──
+export interface DashboardView {
+  current: DashboardPeriod;
+  /** Тот же расчёт за предыдущий отрезок той же длины */
+  previous: DashboardPeriod;
+}
+export const dashboardApi = {
+  period: (from: string, to: string) =>
+    getJson<DashboardView>(`/desk/dashboard?${new URLSearchParams({ from, to })}`),
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────

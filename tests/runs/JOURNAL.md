@@ -455,3 +455,15 @@
 | 16.09.2026 15:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-system --update-snapshots) | ❌ упало 3 из 8 | 45 с | 1bbbe4b +15 | [лог](logs/2026-09-16T10-59-02Z-e2e-6403.log) | страница компонентов: первый прогон, эталоны снимаются |
 | 16.09.2026 16:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-system --update-snapshots) | ✅ 8 из 8 | 41 с | 1bbbe4b +17 | [лог](logs/2026-09-16T11-01-50Z-e2e-fb34.log) | страница компонентов: axe и эталоны после починки tablist и danger-soft |
 | 16.09.2026 16:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 91 из 91 | 9 мин 10 с | 1bbbe4b +17 | [лог](logs/2026-09-16T11-06-10Z-e2e-9daf.log) | полный UI-набор после шага 4: новые компоненты, страница /design-system, перекраска danger-soft |
+| 16.09.2026 14:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 81 | 20 мин 37 с | 6e58ff3 +7 | [лог](logs/2026-09-16T09-15-37Z-e2e-eee9.log) | Срез 14 + починка шахматки: полный изолированный UI-набор |
+| 16.09.2026 14:36 | e2e | ✅ 23 из 23 | 12 мин 39 с | 9b376b6 +7 | [лог](logs/2026-09-16T09-36-35Z-e2e-8599.log) |  |
+| 16.09.2026 14:49 | unit | ✅ 872 из 872 | 1 мин 1 с | 9b376b6 +7 | [лог](logs/2026-09-16T09-49-54Z-unit-3465.log) |  |
+| 16.09.2026 14:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/premium.spec.ts --workers=1) | ❌ упало 1 из 6 | 4 мин 22 с | 9b376b6 +7 | [лог](logs/2026-09-16T09-49-20Z-e2e-a932.log) | Повтор premium после полного набора: единственный красный — таймаут 180 с и «Нет связи с API» под нагрузкой |
+| 16.09.2026 16:43 | integration | ✅ 26 из 26 | 6 мин 9 с | 583045a +6 | [лог](logs/2026-09-16T11-43-35Z-integration-4f79.log) |  |
+| 16.09.2026 16:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/premium.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 1 с | 583045a +7 | [лог](logs/2026-09-16T11-49-50Z-e2e-dee0.log) | Повтор premium на свободной машине: в наборе браузер падал (session closed) при свопе 15 из 16 ГБ |
+| 16.09.2026 17:01 | integration | ✅ 26 из 26 | 5 мин 16 с | 3a6a2be +6 | [лог](logs/2026-09-16T12-01-08Z-integration-b23a.log) |  |
+| 16.09.2026 17:15 | unit | ❌ упало 1 из 890 | 43 с | d7db160 +10 | [лог](logs/2026-09-16T12-15-35Z-unit-bcd8.log) | scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля в Channex записан одноразовый туннель — работаем как прежде |
+| 16.09.2026 17:18 | unit | ✅ 890 из 890 | 1 мин 4 с | 35ede3e +10 | [лог](logs/2026-09-16T12-18-22Z-unit-630b.log) |  |
+| 16.09.2026 17:19 | lint | ✅ без ошибок | 13 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-27Z-lint-e7d0.log) |  |
+| 16.09.2026 17:19 | unit (частично: packages/integrations/src/mail) | ✅ 16 из 16 | 2 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-52Z-unit-278b.log) |  |
+| 16.09.2026 17:19 | typecheck | ✅ без ошибок | 20 с | 35ede3e +10 | [лог](logs/2026-09-16T12-19-52Z-typecheck-a874.log) |  |

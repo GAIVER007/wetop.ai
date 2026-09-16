@@ -36,7 +36,9 @@ test('главная открывается с корня; заезд на да�
   await expect(page.getByTestId('chart-daily')).toBeVisible();
   await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
 
-  const card = async (id: string) => Number(await page.getByTestId(id).innerText());
+  // Только видимая полоса стойки: пока её кусок доезжает потоком, та же разметка лежит в скрытом сегменте
+  const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
+  const card = async (id: string) => Number(await strip.getByTestId(id).innerText());
 
   // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
   // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.

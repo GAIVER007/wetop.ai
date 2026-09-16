@@ -11,11 +11,15 @@
  */
 import { test as base, expect, type Page } from '@playwright/test';
 
-/** Скрытый потоковый сегмент со страницей ещё в DOM? Ждём его ухода; если стойка его не убирает — не падаем здесь */
+/**
+ * Скрытый потоковый сегмент ещё в DOM? Ждём его ухода; если стойка его не убирает — не падаем здесь.
+ * Любой сегмент, а не только со всей страницей: с 16.09.2026 «Главная» отдаёт показатели и полосу стойки
+ * своими кусками (`Suspense`), и их сегменты `main` не содержат — а копия `c-arrivals` в них та же.
+ */
 export async function settleStreaming(page: Page): Promise<void> {
   // Выражение строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
   await page
-    .waitForFunction('!document.querySelector(\'body > div[hidden][id^="S:"] main\')', null, { timeout: 10_000 })
+    .waitForFunction('!document.querySelector(\'body > div[hidden][id^="S:"]\')', null, { timeout: 10_000 })
     .catch(() => undefined);
 }
 

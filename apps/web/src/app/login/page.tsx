@@ -1,17 +1,29 @@
 import { headers } from 'next/headers';
+import { authApi, ApiError } from '../../lib/api';
 import { LoginForm } from './login-form';
 
 /**
- * На app.wetop.ai вход делает Cloudflare Access (plans/wetop-domain-2026-09-14.md §3): до стойки доходит только вошедший,
- * а почту Access передаёт заголовком. Заголовок только для показа — права по нему не выдаются (стойка слушает 127.0.0.1,
- * снаружи к ней ведёт лишь туннель, который сам проверяет токен Access).
+ * Экран входа (DATA_MODEL §13.8, ADR-049). Два замка, не один: снаружи стойку закрывает Cloudflare
+ * Access (ADR-045), а дальше система спрашивает свой логин и пароль. Почту, под которой пропустил Access,
+ * показываем и подставляем в поле — но она сама по себе никуда не пускает.
  */
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const passwordJustSet = (await searchParams)['password'] === 'set';
   const accessEmail = (await headers()).get('cf-access-authenticated-user-email')?.trim() || null;
+  const me = await authApi.me().catch((error: unknown) => {
+    if (error instanceof ApiError) return { user: null };
+    throw error;
+  });
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
       accessEmail={accessEmail}
+      user={me.user ?? null}
+      passwordJustSet={passwordJustSet}
     />
   );
 }

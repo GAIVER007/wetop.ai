@@ -17,6 +17,7 @@ import {
 import { normalizeHost, SITE_KEY_RE } from '@pms/domain';
 import { clientIp } from './client-ip';
 import { WebBookingService, type RequestContext } from './web-booking.service';
+import { Public } from '../auth/public.decorator';
 
 /** Скрипт виджета читается один раз при старте; отдаётся как есть. */
 export const WIDGET_JS = readFileSync(resolve(import.meta.dirname, 'widget.js'), 'utf-8');
@@ -48,6 +49,7 @@ function context(h: {
  * CORS для доменов сайта — middleware модуля. Ошибки бизнес-правил (нет мест, ограничение, нет цены)
  * возвращаются как есть текстом — виджет показывает их гостю.
  */
+@Public() // наружу через api.wetop.ai, входа не требует (SECURITY.md §11)
 @Controller('w')
 export class WebBookingController {
   constructor(@Inject(WebBookingService) private readonly service: WebBookingService) {}

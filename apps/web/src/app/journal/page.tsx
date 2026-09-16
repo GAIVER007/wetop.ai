@@ -11,6 +11,8 @@ interface AuditRow {
   entityId: string;
   action: string;
   subject: string | null;
+  /** Имя вошедшего; null — система: импорт, сторож, скрипт сверки (ADR-023, ADR-046) */
+  author: string | null;
 }
 const ACTION_RU: Record<string, string> = {
   'reservation.create': 'бронь создана',
@@ -37,6 +39,13 @@ const ACTION_RU: Record<string, string> = {
   'analytics.site.update': 'сайт со счётчиком изменён',
   'analytics.site.delete': 'сайт со счётчиком удалён',
   'exely.sync': 'синхронизация с Exely',
+  'user.login': 'вход в систему',
+  'user.logout': 'выход из системы',
+  'user.password.changed': 'пароль изменён',
+  'user.invited': 'сотрудник приглашён',
+  'user.created': 'сотрудник добавлен',
+  'user.blocked': 'сотрудник заблокирован',
+  'user.unblocked': 'сотрудник разблокирован',
 };
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
@@ -45,6 +54,7 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   ['Guest', 'гости'],
   ['Property', 'объект и каналы'],
   ['TrackedSite', 'сайт'],
+  ['user', 'сотрудники'],
 ];
 
 /** Журнал действий администратора и интеграций (SECURITY §6). Без ПД. */
@@ -97,7 +107,7 @@ export default async function JournalPage({
       <Table size="sm" nowrap data-testid="journal-table">
         <thead>
           <tr>
-            {['Когда (Алматы)', 'Действие', 'Объект', 'Что'].map((h) => (
+            {['Когда (Алматы)', 'Кто', 'Действие', 'Объект', 'Что'].map((h) => (
               <th key={h}>{h}</th>
             ))}
           </tr>
@@ -110,6 +120,9 @@ export default async function JournalPage({
                   .toISOString()
                   .slice(0, 16)
                   .replace('T', ' ')}
+              </td>
+              <td>
+                {r.author ?? <span className="muted-2">система</span>}
               </td>
               <td>{ACTION_RU[r.action] ?? r.action}</td>
               <td>{r.entityType}</td>
@@ -124,7 +137,7 @@ export default async function JournalPage({
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={4} className="empty-state">
+              <td colSpan={5} className="empty-state">
                 Нет операций по выбранным условиям
               </td>
             </tr>

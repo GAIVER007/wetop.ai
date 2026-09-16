@@ -1,11 +1,24 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useActionState, useState } from 'react';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
-export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: string | null }) {
-  const [show, setShow] = useState(false),
-    [error, setError] = useState('');
+import type { SignedIn } from '../../lib/api';
+import { signIn, signOut, type LoginState } from './actions';
+
+export function LoginForm({
+  demo,
+  accessEmail,
+  user,
+  passwordJustSet = false,
+}: {
+  demo: boolean;
+  accessEmail: string | null;
+  user: SignedIn | null;
+  passwordJustSet?: boolean;
+}) {
+  const [show, setShow] = useState(false);
+  const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
   const { setTheme } = useTheme();
   return (
     <main className="login-page" id="main-content">
@@ -50,34 +63,32 @@ export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: s
           <span className="round-icon">
             <Icon name="shield" />
           </span>
-          {accessEmail ? (
+          {user ? (
             <>
               <h2>Вы вошли</h2>
               <p>
-                как <b>{accessEmail}</b>
+                как <b>{user.name ?? user.email}</b>
+                {user.name ? ` · ${user.email}` : ''}
               </p>
               <Link className="btn" href="/today">
                 Открыть рабочее место
                 <Icon name="arrow" width={16} />
               </Link>
-              <div className="login-preview">
-                <span>Вход защищён Cloudflare Access</span>
-                {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
-                <a href="/cdn-cgi/access/logout">Выйти</a>
-              </div>
+              <form action={signOut} className="login-preview">
+                <span>Смена закончена?</span>
+                <button type="submit">Выйти</button>
+              </form>
             </>
           ) : (
             <>
               <h2>Добро пожаловать</h2>
               <p>Войдите в рабочее пространство</p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setError(
-                    'Вход в рабочий аккаунт ещё не подключён. Используйте доступное рабочее пространство.',
-                  );
-                }}
-              >
+              {passwordJustSet && (
+                <p className="alert alert--ok" role="status">
+                  Пароль сохранён. Войдите с ним.
+                </p>
+              )}
+              <form action={submit}>
                 <label className="field">
                   Email
                   <input
@@ -86,6 +97,7 @@ export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: s
                     autoComplete="username"
                     name="email"
                     placeholder="you@hotel.com"
+                    defaultValue={accessEmail ?? ''}
                     required
                   />
                 </label>
@@ -99,7 +111,6 @@ export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: s
                       name="password"
                       aria-label="Пароль"
                       required
-                      minLength={6}
                       placeholder="Введите пароль"
                     />
                     <button
@@ -111,22 +122,29 @@ export function LoginForm({ demo, accessEmail }: { demo: boolean; accessEmail: s
                     </button>
                   </span>
                 </label>
-                {error && (
+                {state.error && (
                   <p className="alert" role="alert">
-                    {error}
+                    {state.error}
                   </p>
                 )}
-                <button className="btn" type="submit">
-                  Войти
+                <button className="btn" type="submit" disabled={pending}>
+                  {pending ? 'Проверяем…' : 'Войти'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
+              <Link className="login-forgot" href="/login/reset">
+                Забыли пароль?
+              </Link>
               <div className="login-preview">
-                <span>{demo ? 'Демонстрационный режим' : 'Авторизация пока не подключена'}</span>
-                <Link href="/today">
-                  {demo ? 'Открыть демо' : 'Открыть рабочее пространство'}
-                  <Icon name="arrow" width={14} />
-                </Link>
+                {accessEmail ? (
+                  <>
+                    <span>Cloudflare Access пропустил {accessEmail}</span>
+                    {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
+                    <a href="/cdn-cgi/access/logout">Выйти из Access</a>
+                  </>
+                ) : (
+                  <span>{demo ? 'Демонстрационный режим' : 'Пароль выдаёт владелец объекта'}</span>
+                )}
               </div>
             </>
           )}

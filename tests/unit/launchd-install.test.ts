@@ -90,6 +90,14 @@ function install(sb: Sandbox, args: string[]) {
 
 describe('launchd install.sh', () => {
   /*
+   * Три случая ниже доходят до настоящей установки: подставной launchctl читает Label и путь журнала
+   * из plist через `/usr/libexec/PlistBuddy`, а сам скрипт проверяет plist через `plutil`. Обеих команд
+   * нет нигде, кроме macOS, поэтому на Linux (в том числе в контейнере агента) прогон падал не на коде,
+   * а на отсутствии macOS — и журнал прогонов красил набор красным. Сухие прогоны платформы не требуют.
+   */
+  const onMac = it.skipIf(process.platform !== 'darwin');
+
+  /*
    * 15.09.2026: Session pooler Supabase держит 15 клиентов на проект. Задача синхронизации с пулом по
    * умолчанию (5) поверх API (5) и разовых скриптов переполняла его, и запросы стойки падали в 500
    * («Connection terminated due to connection timeout» в журнале API). Прогон синхронизации
@@ -120,14 +128,14 @@ describe('launchd install.sh', () => {
     expect(calls).not.toMatch(/bootout \S*kz\.luxx\.pms\.web/);
   });
 
-  it('проверка доступа дожидается node, когда bash первым пишет «Operation not permitted»', () => {
+  onMac('проверка доступа дожидается node, когда bash первым пишет «Operation not permitted»', () => {
     const sb = sandbox({ nodeDelaySec: 3, releaseSec: 0 });
     const { out } = install(sb, ['web']);
     expect(out).not.toContain('нет доступа к папке проекта');
     expect(out).toContain('загружен');
   }, 60_000);
 
-  it('переустановка работающей задачи ждёт, пока старый процесс освободит порт', () => {
+  onMac('переустановка работающей задачи ждёт, пока старый процесс освободит порт', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 3 });
     const { out, calls } = install(sb, ['web']);
     expect(out).not.toContain('уже запущен вручную');
@@ -153,7 +161,7 @@ describe('launchd install.sh', () => {
     expect(webPlist).toMatch(/<key>KeepAlive<\/key><true\/>/);
   });
 
-  it('переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает', () => {
+  onMac('переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0, unloadSec: 3 });
     const { out } = install(sb, ['web']);
     expect(out).not.toContain('Bootstrap failed');

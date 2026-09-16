@@ -4,6 +4,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',
+  // набор со включённым замком поднимает свой стенд и идёт отдельно: `playwright.auth.config.ts`
+  testIgnore: 'login-lock.spec.ts',
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,

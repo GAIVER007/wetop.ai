@@ -20,6 +20,7 @@ import {
   sitesToDelete,
   syncMessage,
 } from './e2e-cleanup-rules';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -67,7 +68,7 @@ try {
     }
     // Playwright останавливает свой API до globalTeardown, поэтому API может быть недоступен:
     // тогда снимаем назначения прямо в базе — койки освобождаются, сверка их всё равно исключает по метке.
-    const res = await fetch(
+    const res = await serviceFetch(
       `${API}/reservations/${encodeURIComponent(r.confirmationNumber)}/cancel`,
       {
         method: 'POST',
@@ -146,7 +147,7 @@ try {
   // сверкой 11.09: мужской дом 19 против 18 в Channex). Поэтому после уборки просим полную выгрузку сами;
   // если API недоступен — её сделает ночная выгрузка после 03:00 по Алматы.
   if (!dry && freed > 0) {
-    const sync = await fetch(`${API}/channels/channex/sync?days=500&trigger=import`, {
+    const sync = await serviceFetch(`${API}/channels/channex/sync?days=500&trigger=import`, {
       method: 'POST',
     }).catch(() => null);
     console.log(syncMessage(sync ? { ok: sync.ok, status: sync.status } : null));

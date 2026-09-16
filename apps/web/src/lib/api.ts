@@ -52,6 +52,7 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       cache: 'no-store',
       headers: {
         ...options.headers,
+        ...(await sessionHeader()),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -75,12 +76,33 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
         : 'Нет связи с API. Проверьте подключение.',
     );
   }
+  // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
+  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046).
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    const { redirectToLoginIfRequired } = await import('./session');
+    await redirectToLoginIfRequired();
+  }
   if (!testing && response.headers.get('x-wetop-data-source') === 'synthetic') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }
   if (!demo && response.headers.get('x-wetop-data-source') === 'demo')
     throw new ApiError(503, 'Демонстрационный источник отключён. Подключите рабочий API.');
   return response;
+}
+
+/**
+ * Кто делает запрос: токен сессии из cookie уходит в API заголовком, и `audit_logs.user_id` заполняется сам
+ * (DATA_MODEL §13.8). Импорт динамический — `next/headers` не должен попасть в клиентский бандл,
+ * потому что из этого файла клиентские компоненты берут ещё и formatMinor с типами.
+ */
+async function sessionHeader(): Promise<Record<string, string>> {
+  try {
+    const { sessionToken } = await import('./session');
+    const token = await sessionToken();
+    return token ? { 'x-wetop-session': token } : {};
+  } catch {
+    return {};
+  }
 }
 
 async function getJson<T>(path: string): Promise<T> {
@@ -197,26 +219,8 @@ export const chessboardApi = {
   reservation: (number: string) =>
     getJson<ReservationCard>(`/reservations/${encodeURIComponent(number)}`),
 };
-/** Тиыны → строка в тенге с разделителями, без float-арифметики. */
-/**
- * T5: ссылки в мессенджеры по телефону гостя. Телефон приводим к цифрам — оба сервиса ждут
- * международный формат без плюса и разделителей. Пустой или слишком короткий номер ссылок не даёт.
- */
-export function messengerLinks(phone: string | null | undefined): {
-  whatsapp: string;
-  telegram: string;
-} | null {
-  const digits = (phone ?? '').replace(/\D/g, '');
-  if (digits.length < 10) return null;
-  return { whatsapp: `https://wa.me/${digits}`, telegram: `https://t.me/+${digits}` };
-}
-
-export function formatMinor(minor: string, currency = 'KZT'): string {
-  const neg = minor.startsWith('-');
-  const digits = minor.replace('-', '').padStart(3, '0');
-  const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
-}
+// formatMinor и messengerLinks переехали в ./format — их берут и клиентские компоненты (см. там же)
+export { formatMinor, messengerLinks } from './format';
 
 export interface StayAvailability {
   arrivalDate: string;
@@ -266,6 +270,35 @@ async function sendJson<T>(
   }
   return (await res.json()) as T;
 }
+
+export interface SignedIn {
+  id: string;
+  email: string;
+  /** Имя необязательно (DATA_MODEL §13.2) — тогда зовём по почте */
+  name: string | null;
+  /** Организация, под которой открыта сессия (§13.5) */
+  organizationId: string;
+}
+
+/**
+ * Вход в стойку (DATA_MODEL §13.8, ADR-049). Токен кладёт в cookie серверное действие `login/actions.ts`:
+ * сюда он потом попадает сам, заголовком (см. sessionHeader).
+ */
+export const authApi = {
+  login: (body: { email: string; password: string }) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
+  me: () => getJson<{ user: SignedIn | null; expiresAt?: string }>('/auth/me'),
+  logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
+  changePassword: (body: { currentPassword: string; newPassword: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password', body),
+  /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
+  requestReset: (body: { email: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  /** Пароль по одноразовой ссылке из письма */
+  confirmReset: (body: { token: string; password: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
+};
+
 export const reservationsApi = {
   ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
   availability: (arrival: string, departure: string) =>

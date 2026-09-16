@@ -2,12 +2,8 @@
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { GroupPayment } from './group-payment';
-import {
-  formatMinor,
-  type FinanceFolio,
-  type ReservationFinance,
-  type ServiceOption,
-} from '../../../lib/api';
+import { formatMinor } from '../../../lib/format';
+import type { FinanceFolio, ReservationFinance, ServiceOption } from '../../../lib/api';
 import {
   Alert,
   Badge,

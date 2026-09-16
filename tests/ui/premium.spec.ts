@@ -160,11 +160,12 @@ test('новые страницы и обе темы: адаптивность �
   }
   expect(errors).toEqual([]);
 });
-test('login не имитирует авторизацию', async ({ page }) => {
+// вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
+test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('ещё не подключён');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Неверная почта или пароль');
   await expect(page).toHaveURL(/login/);
 });

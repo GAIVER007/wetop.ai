@@ -24,10 +24,32 @@ import type {
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
+/**
+ * Замок как у настоящего API при `AUTH_REQUIRED=1` (ADR-049): без сессии — 401 на всё, кроме входа и
+ * публичных путей счётчика и виджета. Нужен набору `tests/ui/playwright.auth.config.ts`, который
+ * проверяет стойку такой, какой она станет после включения замка на машине стойки.
+ */
+const authLock = process.env.FIXTURE_AUTH_LOCK === '1';
+/** Пути, открытые и при замке: ими входят, ими управляет сам прогон, их зовёт сайт (ADR-025, ADR-026). */
+const openAtLock = (p: string): boolean =>
+  p.startsWith('/__test/') ||
+  p.startsWith('/a/') ||
+  p.startsWith('/w/') ||
+  p === '/auth/login' ||
+  p === '/auth/logout' ||
+  p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+function resetUiAuth() {
+  uiPassword = 'ui-test-parol';
+  uiSessions.clear();
+  uiResetTokens.clear();
+  uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+  uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+}
+
 function setHotelHold(value: boolean) {
   holdHotel = value;
   if (!value) {
@@ -35,7 +57,9 @@ function setHotelHold(value: boolean) {
     hotelWaiters.clear();
   }
 }
-const port = demo ? 4312 : 4311;
+// Порт можно задать (`FIXTURE_PORT`): отдельный набор со включённым замком поднимает свой стенд
+// и не спорит с обычным прогоном за 4311 (`tests/ui/playwright.auth.config.ts`).
+const port = Number(process.env.FIXTURE_PORT) || (demo ? 4312 : 4311);
 const names = [
   'Daniel Kim',
   'Maria Lopez',
@@ -827,6 +851,44 @@ function report(): SiteReport {
     devices: { devices: [], browsers: [], os: [] },
   };
 }
+
+/**
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-049). Настоящих людей здесь нет (ADR-010):
+ * один вымышленный сотрудник и пароль, который знает только эта фикстура.
+ */
+const uiUser = {
+  id: 'ui-user',
+  email: 'admin@wetop.test',
+  name: 'Дана Тестова',
+  organizationId: 'ui-org',
+};
+let uiPassword = 'ui-test-parol';
+const uiSessions = new Set<string>();
+
+/**
+ * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
+ * лишние рейсы к API, на машине владельца стоит лишние сотни миллисекунд — и это видно только счётчиком.
+ * Читается тестом (`tests/ui/requests.spec.ts`), обнуляется вместе с остальной фикстурой.
+ */
+const hits = new Map<string, number>();
+const countHit = (path: string): void => {
+  if (path.startsWith('/__test/')) return;
+  hits.set(path, (hits.get(path) ?? 0) + 1);
+};
+/** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
+const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
+uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+
+function sessionOf(req: { headers: Record<string, unknown> }): string | null {
+  const direct = req.headers['x-wetop-session'];
+  if (typeof direct === 'string' && direct !== '') return direct;
+  const header = req.headers['authorization'];
+  if (typeof header === 'string' && header.toLowerCase().startsWith('bearer '))
+    return header.slice(7).trim();
+  return null;
+}
+
 function read(path: string, q: URLSearchParams): unknown {
   if (path === '/system/connection') {
     const ready = connectionState === 'READY';
@@ -1173,17 +1235,42 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/events') return designEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
-  if (path === '/audit')
-    return [
+  if (path === '/audit') {
+    // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
+    const type = q.get('entityType');
+    const entries = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
         entityType: 'Reservation',
         entityId: 'ui-item',
-        action: 'CREATE',
+        action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-login',
+        at: `${today}T08:00:00Z`,
+        entityType: 'user',
+        entityId: uiUser.id,
+        action: 'user.login',
+        subject: null,
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-system',
+        at: `${today}T07:45:00Z`,
+        entityType: 'Property',
+        entityId: 'ui-property',
+        action: 'channex.fullSync',
+        subject: null,
+        // без автора: так ходят импорт, сторож и скрипты сверки
+        author: null,
       },
     ];
+    return type ? entries.filter((e) => e.entityType === type) : entries;
+  }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
   if (path === '/analytics/sites/ui-site')
@@ -1218,16 +1305,28 @@ createServer(async (req, res) => {
       });
       res.end(JSON.stringify(data));
     };
+    countHit(path);
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    if (path === '/__test/hits')
+      return send(200, {
+        total: [...hits.values()].reduce((a, b) => a + b, 0),
+        byPath: Object.fromEntries([...hits].sort((a, b) => b[1] - a[1])),
+      });
     if (
       !path.startsWith('/__test/') &&
       req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
     ) {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
+    if (authLock && !openAtLock(path)) {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+    }
     if (path === '/__test/reset') {
+      hits.clear();
+      resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -1318,6 +1417,45 @@ createServer(async (req, res) => {
         rows: emptyFixture ? [] : rows,
       });
     }
+    if (path === '/auth/me') {
+      const token = sessionOf(req as never);
+      return send(200, token && uiSessions.has(token) ? { user: uiUser } : { user: null });
+    }
+    if (path === '/auth/password-reset/request' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/password-reset/confirm' && req.method === 'POST') {
+      const token = String(body['token'] ?? '');
+      const password = String(body['password'] ?? '');
+      const link = uiResetTokens.get(token);
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите новую' });
+      if (link.used) return send(401, { message: 'Ссылка уже использована: запросите новую' });
+      if (link.expired) return send(401, { message: 'Срок ссылки истёк: запросите новую' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      link.used = true;
+      uiPassword = password;
+      uiSessions.clear();
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/login' && req.method === 'POST') {
+      if (body['email'] !== uiUser.email || body['password'] !== uiPassword)
+        return send(401, { message: 'Неверная почта или пароль' });
+      const token = `ui-session-${uiSessions.size + 1}`;
+      uiSessions.add(token);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: uiUser,
+      });
+    }
+    if (path === '/auth/logout' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (token) uiSessions.delete(token);
+      return send(200, { ok: true });
+    }
+
     if (req.method === 'GET') {
       const result = read(path, url.searchParams);
       return send(

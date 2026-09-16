@@ -12,6 +12,7 @@ import { ReservationStatus } from '@pms/database';
 import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 export interface DirectoryQuery {
   from?: string;
   to?: string;
@@ -49,10 +50,9 @@ export class ReservationDirectory {
       throw new BadRequestException('Некорректная страница');
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
-    const property = await this.prisma.db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const property = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name)
+      .then((id) => ({ id }))
+      .catch(() => null);
     if (!property) throw new NotFoundException('Гостиница ещё не настроена');
     const where = {
       propertyId: property.id,

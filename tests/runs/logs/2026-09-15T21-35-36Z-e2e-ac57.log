@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 16.09.2026 02:35 Алматы · vm
+# коммит 976f221 (claude/project-status-check-pkq33o)
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts' 'password-reset' '--workers=1'
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (1.3s)
+  ✓  2 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (1.8s)
+  ✓  3 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (1.9s)
+  ✓  4 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (965ms)
+  ✓  5 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.0s)
+  ✓  6 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.0s)
+  ✓  7 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (665ms)
+
+  7 passed (13.1s)
+
+# код выхода 0 · 14 с

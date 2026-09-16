@@ -167,7 +167,8 @@
 .board-stay-nights {
   flex: none;
   font-weight: 400;
-  color: var(--muted);
+  /* тем же цветом, что имя: серый на цветной плашке в тёмной теме не проходил контраст (axe) */
+  color: inherit;
 }
 .board td[data-status='CHECKED_IN'] .board-stay-glyph {
   color: var(--success);

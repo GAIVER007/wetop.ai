@@ -966,7 +966,7 @@ model User {
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   lastLoginAt DateTime?  @map("last_login_at") @db.Timestamptz(6)
 
-  /// Вход по паролю (§13.8, ADR-047, миграция 20260915000014). Пустая строка — пароль не задан:
+  /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
   /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
   passwordHash   String    @default("") @map("password_hash")
   /// Промахи подряд; после пяти вход заперт до locked_until (домен accounts)
@@ -982,7 +982,7 @@ model User {
   @@map("users")
 }
 
-/// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-047).
+/// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
 /// В базе только хеш токена — утечка базы не даёт задать пароль.
 model PasswordReset {
   id        String    @id @default(uuid()) @db.Uuid

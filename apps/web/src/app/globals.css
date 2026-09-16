@@ -1088,3 +1088,244 @@ textarea.inp {
     background: var(--surface);
   }
 }
+
+/* ---------- компоненты шага 4 дизайн-системы (DESIGN.md §8): меню действий, окно подтверждения,
+   уведомление, подсказка, плашка суммы. Только токены: отступы из шкалы, слои и длительности —
+   переменными, тень — лишь у слоя над страницей. ---------- */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+.action-menu__button {
+  padding: 0 var(--space-2);
+  min-width: var(--control-h);
+}
+.action-menu__list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--space-1));
+  z-index: var(--layer-overlay);
+  min-width: 200px;
+  padding: var(--space-1);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-floating);
+}
+.action-menu__item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.action-menu__item:hover,
+.action-menu__item:focus-visible {
+  background: var(--row-hover);
+  outline: none;
+}
+.action-menu__item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+.action-menu__item--danger {
+  color: var(--danger);
+}
+.action-menu__item[aria-disabled='true'],
+.action-menu__item:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.confirm-dialog {
+  width: min(560px, calc(100vw - var(--space-8)));
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.confirm-dialog::backdrop {
+  background: var(--overlay);
+}
+.confirm-dialog__body {
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
+.confirm-dialog__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+.confirm-dialog__text {
+  font-size: var(--text-md);
+  color: var(--text-2);
+}
+.confirm-dialog__text strong {
+  color: var(--text);
+}
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+/* статичный показ на странице компонентов: без showModal, в потоке */
+.confirm-dialog--static {
+  position: static;
+  display: block;
+  margin: 0;
+}
+
+.toast-region {
+  position: fixed;
+  top: calc(var(--header-h) + var(--space-2));
+  right: var(--space-4);
+  z-index: var(--layer-toast);
+  display: grid;
+  gap: var(--space-2);
+  width: min(360px, calc(100vw - var(--space-8)));
+}
+.toast-region--static {
+  position: static;
+  width: min(360px, 100%);
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  background: var(--surface-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--muted);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-floating);
+  font-size: var(--text-sm);
+  animation: toast-in var(--duration-base) cubic-bezier(0, 0, 0.58, 1);
+}
+.toast--success {
+  border-left-color: var(--success);
+}
+.toast--info {
+  border-left-color: var(--primary);
+}
+.toast--warning {
+  border-left-color: var(--warning);
+}
+.toast--danger {
+  border-left-color: var(--danger);
+}
+.toast__text {
+  flex: 1;
+  padding-top: 3px;
+}
+.toast__close {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.toast__close:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.tooltip-host {
+  position: relative;
+  display: inline-flex;
+}
+.tooltip {
+  position: absolute;
+  left: 50%;
+  z-index: var(--layer-overlay);
+  transform: translateX(-50%);
+  max-width: 280px;
+  width: max-content;
+  padding: var(--space-1) var(--space-2);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-fast) ease-out;
+}
+.tooltip--top {
+  bottom: calc(100% + var(--space-1));
+}
+.tooltip--bottom {
+  top: calc(100% + var(--space-1));
+}
+.tooltip.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.amount-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.amount-chip__value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.amount-chip--due {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.amount-chip--due .amount-chip__value {
+  color: var(--danger);
+}
+.amount-chip--paid {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.amount-chip--paid .amount-chip__value {
+  color: var(--success);
+}
+.amount-chip--refund {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.amount-chip--refund .amount-chip__value {
+  color: var(--warning);
+}

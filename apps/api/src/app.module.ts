@@ -8,6 +8,7 @@ import { AuthorInterceptor } from './auth/author.interceptor';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
 import { FreshnessModule } from './freshness/freshness.module';
@@ -36,6 +37,7 @@ import { DataConnectionModule } from './database/connection';
     AuditModule,
     FinanceModule,
     DeskModule,
+    DashboardModule,
     AnalyticsModule,
     WebBookingModule,
     GuardModule,

@@ -1,7 +1,7 @@
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 
 /**
- * Пароли сотрудников (DATA_MODEL §13.8, ADR-047). Считаем `scrypt` из стандартной библиотеки Node:
+ * Пароли сотрудников (DATA_MODEL §13.8, ADR-049). Считаем `scrypt` из стандартной библиотеки Node:
  * ни одной новой зависимости, одинаково работает на Mac владельца и на сервере, куда PMS переедет.
  * Формат строки в базе: `scrypt$N$r$p$соль$хеш`, соль своя у каждого пользователя.
  *
@@ -19,7 +19,7 @@ const KEY_LENGTH = 64;
 const SALT_BYTES = 16;
 const bytes = new TextEncoder();
 
-/** Минимальная длина пароля. Умолчание шага 1: правил сложности владелец не задавал (Q-135). */
+/** Минимальная длина пароля. Умолчание шага 1: правил сложности владелец не задавал (Q-140). */
 export const MIN_PASSWORD_LENGTH = 10;
 
 export type PasswordCheck = { ok: true } | { ok: false; reason: string };

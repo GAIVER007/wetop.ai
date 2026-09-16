@@ -13,7 +13,7 @@ describe('parseAccountsArgs', () => {
     });
   });
 
-  it('роли не принимаются: их нет в модели (ADR-023 в силе, Q-135)', () => {
+  it('роли не принимаются: их нет в модели (ADR-023 в силе, Q-140)', () => {
     expect(parseAccountsArgs(['create', '--email=a@b.kz', '--name=Имя', '--role=owner'])).toEqual({
       ok: true,
       command: { kind: 'create', email: 'a@b.kz', name: 'Имя' },

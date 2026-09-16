@@ -1,6 +1,12 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { createServer } from 'node:http';
-import { parseMoney, assertAllocationsMatch } from '@pms/domain';
+import {
+  parseMoney,
+  assertAllocationsMatch,
+  buildDashboard,
+  previousPeriod,
+  type DashboardPeriod,
+} from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import type {
   Chessboard,
@@ -14,6 +20,7 @@ import type {
   TrackedSite,
   SiteReport,
   Incident,
+  InboundEvent,
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
@@ -180,6 +187,251 @@ function initializeRecords() {
   }
 }
 initializeRecords();
+/**
+ * Крайние случаи для дизайн-системы (plans/design-system-2026-09-14.md, шаг 1). Включаются только
+ * `POST /__test/design-seed`, обычные UI-тесты их не видят. Все имена вымышленные (ADR-010).
+ */
+let designEvents: InboundEvent[] = [];
+const DESIGN_STAYS: Array<{
+  n: string;
+  label: string;
+  status: string;
+  source: string;
+  channel: string | null;
+  unit: string | null;
+  from: number;
+  to: number;
+  price: string;
+}> = [
+  {
+    n: 'DSG-TENT',
+    label: 'Ақбота Нұрсұлтанқызы Әбдіғаппарова',
+    status: 'TENTATIVE',
+    source: 'OTA',
+    channel: 'Trip.com',
+    unit: 'R06',
+    from: 1,
+    to: 4,
+    price: '3600000',
+  },
+  {
+    n: 'DSG-CANC',
+    label: 'Посетитель Отменённый',
+    status: 'CANCELLED',
+    source: 'OTA',
+    channel: 'Agoda',
+    unit: 'R07',
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-NOSH',
+    label: 'Клиент Незаезд',
+    status: 'NO_SHOW',
+    source: 'OTA',
+    channel: 'Expedia',
+    unit: 'R07',
+    from: -1,
+    to: 1,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-HWL',
+    label: 'Constantine-Alexander Featherstonehaugh-Wentworth',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Hostelworld',
+    unit: 'M03',
+    from: 0,
+    to: 6,
+    price: '2700000',
+  },
+  {
+    n: 'DSG-OVK',
+    label: 'Анна-Мария Константинопольская-Щербатова',
+    status: 'CHECKED_IN',
+    source: 'OTA',
+    channel: 'Ostrovok',
+    unit: 'F02',
+    from: -3,
+    to: 2,
+    price: '2250000',
+  },
+  {
+    n: 'DSG-BDC',
+    label: 'Гость Букинг',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: 'M04',
+    from: 2,
+    to: 3,
+    price: '450000',
+  },
+  {
+    n: 'DSG-WEB',
+    label: 'Гость Сайт',
+    status: 'CONFIRMED',
+    source: 'WEBSITE',
+    channel: null,
+    unit: 'M05',
+    from: 1,
+    to: 2,
+    price: '450000',
+  },
+  {
+    n: 'DSG-DESK',
+    label: 'Гость Стойка',
+    status: 'CHECKED_IN',
+    source: 'DESK',
+    channel: null,
+    unit: 'R08',
+    from: -1,
+    to: 1,
+    price: '1600000',
+  },
+  // проживание без ячейки — строка «Без ячейки» над сеткой (Д3)
+  {
+    n: 'DSG-UNAS',
+    label: 'Гость Без-Ячейки',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: null,
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+];
+function designCard(d: (typeof DESIGN_STAYS)[number], arrival: string, departure: string) {
+  const unit = d.unit ? units.find((u) => u.code === d.unit)! : null;
+  const category = unit
+    ? categories.find((c) => c.code === unit.accommodationTypeCode)!
+    : categories[0]!;
+  const words = d.label.split(' ');
+  const g = structuredClone(guestSeed);
+  g.id = `ui-guest-${d.n}`;
+  g.lastName = words[0]!;
+  g.firstName = words.slice(1).join(' ') || 'Гость';
+  const r = cardSeed();
+  r.confirmationNumber = `20260916-${d.n}`;
+  r.status = d.status;
+  r.source = d.source;
+  r.channel = d.channel;
+  r.arrivalDate = arrival;
+  r.departureDate = departure;
+  r.totalAmountMinor = d.price;
+  r.primaryGuest = { id: g.id, label: d.label, citizenship: 'KAZ', phone: null };
+  r.items[0] = {
+    ...r.items[0]!,
+    id: `ui-item-${d.n}`,
+    status: d.status,
+    arrivalDate: arrival,
+    departureDate: departure,
+    priceMinor: d.price,
+    unitCode: unit?.code ?? null,
+    accommodationTypeCode: category.code,
+    accommodationTypeName: category.name,
+    guests: [{ label: d.label, isPrimary: true }],
+  };
+  return { r, g };
+}
+function seedDesign() {
+  for (const d of DESIGN_STAYS) {
+    const { r, g } = designCard(d, add(today, d.from), add(today, d.to));
+    extraCards.set(r.confirmationNumber, r);
+    extraGuests.set(g.id, g);
+  }
+  // месяц, в котором заняты все 88 из 88: следующий календарный месяц, по одному проживанию на ячейку
+  const next = new Date(`${today}T00:00:00Z`);
+  next.setUTCDate(1);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  const monthFrom = next.toISOString().slice(0, 10);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  const monthTo = next.toISOString().slice(0, 10);
+  units.forEach((u, i) => {
+    const d = {
+      n: `FULL${String(i + 1).padStart(2, '0')}`,
+      label: `Гость Полный-${String(i + 1).padStart(2, '0')}`,
+      status: 'CONFIRMED',
+      source: i % 3 ? 'OTA' : 'DESK',
+      channel: i % 3 ? (['Booking.com', 'Trip.com', 'Agoda'][i % 3] ?? null) : null,
+      unit: u.code,
+      from: 0,
+      to: 0,
+      price: u.kind === 'ROOM' ? '24800000' : '13950000',
+    };
+    const { r, g } = designCard(d, monthFrom, monthTo);
+    extraCards.set(r.confirmationNumber, r);
+    extraGuests.set(g.id, g);
+  });
+  // блокировки с причиной и три статуса уборки
+  blocks.set('R09', [
+    {
+      id: 'dsg-block-1',
+      dateFrom: today,
+      dateTo: add(today, 3),
+      type: 'MAINTENANCE',
+      reason: 'ремонт: кондиционер',
+    },
+  ]);
+  blocks.set('M06', [
+    {
+      id: 'dsg-block-2',
+      dateFrom: add(today, -1),
+      dateTo: add(today, 1),
+      type: 'OUT_OF_ORDER',
+      reason: 'нет матраса',
+    },
+  ]);
+  blocks.set('F03', [
+    {
+      id: 'dsg-block-3',
+      dateFrom: add(today, 1),
+      dateTo: add(today, 5),
+      type: 'MANAGEMENT',
+      reason: 'резерв владельца',
+    },
+  ]);
+  housekeeping.set('R01', 'DIRTY');
+  housekeeping.set('R02', 'INSPECTED');
+  housekeeping.set('M01', 'DIRTY');
+  // входящая ревизия с ошибкой (ADR-024, Q-109) и обычная обработанная
+  designEvents = [
+    {
+      externalEventId: 'dsg-revision-failed-0001',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'FAILED',
+      attempts: 6,
+      receivedAt: `${today}T05:12:40Z`,
+      processedAt: null,
+      lastError:
+        'Несколько перенесённых броней подходят: 20260913-TEST1, 20260913-TEST3 — разобрать руками (Q-109)',
+    },
+    {
+      externalEventId: 'dsg-revision-ok-0002',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_modification',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T06:01:03Z`,
+      processedAt: `${today}T06:01:04Z`,
+      lastError: null,
+    },
+    {
+      externalEventId: 'dsg-revision-ok-0003',
+      receivedVia: 'PULL',
+      type: 'booking_cancellation',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T06:30:00Z`,
+      processedAt: `${today}T06:30:01Z`,
+      lastError: null,
+    },
+  ];
+}
 const allCards = () => [card, ...extraCards.values()];
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
@@ -385,6 +637,56 @@ function board(from: string, to: string): Chessboard {
     ),
   };
 }
+/**
+ * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
+ * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
+ */
+function dashboardPeriod(from: string, to: string): DashboardPeriod {
+  const b = board(from, to);
+  const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
+  return buildDashboard({
+    from,
+    to,
+    categories: categories.map((c) => ({ code: c.code, name: c.name, units: c.count })),
+    days: b.dates.map((date) => ({
+      date,
+      ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
+      byCategory: b.byCategory[date] ?? {},
+    })),
+    unassigned: b.unassigned.length,
+    stays: allCards().flatMap((r) =>
+      r.items.map((it) => ({
+        arrivalDate: it.arrivalDate,
+        departureDate: it.departureDate,
+        status: it.status,
+        adults: it.adults,
+        children: it.children,
+        priceMinor: BigInt(it.priceMinor),
+        source: r.source,
+        channel: r.channel,
+        categoryCode: it.accommodationTypeCode,
+      })),
+    ),
+    charges: allCards().flatMap((r) =>
+      r.items
+        .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
+        .map((it) => ({
+          kind: 'ACCOMMODATION' as const,
+          amountMinor: BigInt(it.priceMinor),
+          categoryCode: it.accommodationTypeCode,
+        })),
+    ),
+    payments:
+      from <= today && today <= to
+        ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
+        : [],
+    refundsMinor: 0n,
+  });
+}
+function dashboard(from: string, to: string) {
+  const prev = previousPeriod(from, to);
+  return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
+}
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =
@@ -535,7 +837,7 @@ function report(): SiteReport {
 }
 
 /**
- * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-047). Настоящих людей здесь нет (ADR-010):
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-049). Настоящих людей здесь нет (ADR-010):
  * один вымышленный сотрудник и пароль, который знает только эта фикстура.
  */
 const uiUser = {
@@ -597,6 +899,30 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard') {
+      const from = q.get('from') || today,
+        to = q.get('to') || today;
+      const zero = (f: string, t: string) =>
+        buildDashboard({
+          from: f,
+          to: t,
+          categories: [],
+          days: dates(f, t).map((date) => ({
+            date,
+            occupied: 0,
+            free: 0,
+            blocked: 0,
+            byCategory: {},
+          })),
+          unassigned: 0,
+          stays: [],
+          charges: [],
+          payments: [],
+          refundsMinor: 0n,
+        });
+      const prev = previousPeriod(from, to);
+      return { current: zero(from, to), previous: zero(prev.from, prev.to) };
+    }
     if (path === '/finance/report')
       return {
         currency: 'KZT',
@@ -705,6 +1031,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/inventory/units')
     return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
   if (path === '/desk/today') return desk(q.get('date') || today);
+  if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return plans;
   if (path === '/availability') {
@@ -853,7 +1180,13 @@ function read(path: string, q: URLSearchParams): unknown {
         parking: 'none',
       },
       facilities: [{ title: 'WiFi', category: 'general' }],
-      photos: [{ url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=', description: 'Фасад', forRoomType: false }],
+      photos: [
+        {
+          url: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
+          description: 'Фасад',
+          forRoomType: false,
+        },
+      ],
     };
   if (path === '/channels/channex/connection')
     return {
@@ -872,7 +1205,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
-  if (path === '/channels/channex/events') return [];
+  if (path === '/channels/channex/events') return designEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
   if (path === '/audit') {
@@ -970,6 +1303,7 @@ createServer(async (req, res) => {
       emptyFixture = false;
       housekeeping.clear();
       blocks.clear();
+      designEvents = [];
       initializeRecords();
       priceChanges = [];
       site = structuredClone(siteSeed);
@@ -996,6 +1330,10 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       return send(200, {});
+    }
+    if (path === '/__test/design-seed') {
+      seedDesign();
+      return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
     if (path === '/__test/commands') return send(200, commands);
     if (path === failPath || failPath === '*')

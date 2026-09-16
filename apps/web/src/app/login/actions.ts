@@ -8,7 +8,7 @@ export interface LoginState {
 }
 
 /**
- * Вход: форма → API → cookie → рабочий день (DATA_MODEL §13.8, ADR-047).
+ * Вход: форма → API → cookie → рабочий день (DATA_MODEL §13.8, ADR-049).
  * Текст ошибки берём от API как есть: он один и тот же для неверной почты и неверного пароля.
  */
 export async function signIn(_prev: LoginState, form: FormData): Promise<LoginState> {

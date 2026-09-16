@@ -66,3 +66,7 @@ packages/database/src/generated/
 
 # Замки прогонов: чей-то живой процесс, в историю не едут
 tests/runs/.locks/
+
+# --- Дизайн-система: скриншоты Exely с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
+design/reference/exely/*
+!design/reference/exely/.gitkeep

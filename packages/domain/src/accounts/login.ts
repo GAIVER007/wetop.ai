@@ -1,6 +1,6 @@
 import { verifyPassword } from './password';
 
-/** Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-047). */
+/** Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-049). */
 export const MAX_FAILED_ATTEMPTS = 5;
 export const LOCK_MINUTES = 15;
 

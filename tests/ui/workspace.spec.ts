@@ -32,7 +32,7 @@ test('все разделы, карточки и печать открывают
     if (message.type() === 'error') errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
-    ['/today', 'Обзор дня'],
+    ['/today', 'Главная'],
     ['/chessboard', 'Шахматка'],
     ['/guests?q=Тест', 'Гости'],
     ['/guests/ui-guest', 'Гость'],
@@ -174,7 +174,8 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
-  await expect(page.getByText('нельзя', { exact: true })).toBeVisible();
+  // значение — у своего факта: строгий getByText ловил второй элемент во время перерисовки страницы
+  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText('нельзя');
   await page.goto('/hotel-settings/description');
   await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
@@ -182,12 +183,37 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
 });
 
-test('поиск и списки дня; мобильное меню и возврат фокуса', async ({ page }) => {
+test('главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса', async ({
+  page,
+}) => {
   await page.goto('/today');
-  await page.getByRole('button', { name: /^Заезды/ }).click();
-  await expect(page.getByTestId('group-departures')).toHaveCount(0);
-  await page.getByLabel('Поиск в рабочем дне').fill('R01');
-  await expect(page.getByTestId('row-arrivals')).toHaveCount(1);
+  // по умолчанию — сегодня: один день, загрузка по категориям вместо столбиков по дням
+  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByTestId('chart-categories')).toBeVisible();
+  await expect(page.getByTestId('kpi-occupancy')).toContainText('%');
+  await expect(page.getByTestId('kpi-revenue')).toContainText('₸');
+  await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
+  await expect(page).toHaveURL(/period=month/);
+  await expect(page.getByRole('link', { name: 'Этот месяц', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByTestId('chart-daily')).toBeVisible();
+  await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
+  await expect(page.getByTestId('sources')).toContainText('Booking.com');
+  // свой отрезок — три дня
+  await page.getByLabel('Период: с').fill('2026-09-01');
+  await page.getByLabel('Период: по').fill('2026-09-03');
+  await page.getByTestId('period-form').getByRole('button', { name: 'Показать' }).click();
+  await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
+  await expect(page.getByTestId('period-caption')).toContainText('3 дня');
+  // неверный отрезок — ошибка на экране, показан сегодняшний день
+  await page.goto('/today?period=custom&from=2026-09-10&to=2026-09-01');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
+  await expect(page.getByTestId('chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
@@ -397,7 +423,7 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия', async ({
+test('обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия', async ({
   page,
 }) => {
   await page.goto('/today');
@@ -409,14 +435,17 @@ test('обзор: задачи ведут к счетам, фильтр не м�
     '/reservations/20260913-TEST4#booking-finance',
   );
   const debt = await page.getByTestId('c-debt').innerText();
-  await page.getByLabel('Поиск в рабочем дне').fill('несуществующий гость');
-  await expect(page.getByTestId('row-arrivals')).toHaveCount(0);
+  const arrivals = await page.getByTestId('c-arrivals').innerText();
+  // полоса стойки — всегда про сегодня, какой бы период ни был выбран сверху
+  await page.getByRole('link', { name: 'Прошлый месяц', exact: true }).click();
+  await expect(page).toHaveURL(/period=last-month/);
   await expect(page.getByTestId('c-debt')).toHaveText(debt);
+  await expect(page.getByTestId('c-arrivals')).toHaveText(arrivals);
+  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
   await expect(tasks.locator('.attention-count')).toHaveText('1');
-  await page.getByLabel('Поиск в рабочем дне').fill('R01');
   await expect(
-    page.getByRole('link', { name: `Открыть бронь ${booking}`, exact: true }),
-  ).toHaveAttribute('href', `/reservations/${booking}#booking-actions`);
+    page.getByRole('region', { name: 'Сегодня на стойке' }).getByRole('link', { name: 'Все брони дня' }),
+  ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);

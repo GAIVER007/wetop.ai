@@ -37,6 +37,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel || r.confirmationNumber}</strong>
                 <small>
+                  <span className="booking-number">{r.confirmationNumber}</span> ·{' '}
                   {r.blockedReason ||
                     (!r.unitCode
                       ? 'Назначить номер или койку'
@@ -57,7 +58,10 @@ export function DayAttention({ day }: { day: DeskDay }) {
               </span>
               <span>
                 <strong>{r.guestLabel || r.confirmationNumber}</strong>
-                <small>К оплате {formatMinor(r.balanceMinor)}</small>
+                <small>
+                  <span className="booking-number">{r.confirmationNumber}</span> · К оплате{' '}
+                  {formatMinor(r.balanceMinor)}
+                </small>
               </span>
               <Icon name="chevron" />
             </Link>

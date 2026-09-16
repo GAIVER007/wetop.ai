@@ -7,6 +7,7 @@ import { ApiError } from '../lib/api';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
+import './today/dashboard.css';
 import './management/hotel.css';
 import './tokens.css';
 import './premium.css';

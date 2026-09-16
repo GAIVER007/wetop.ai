@@ -323,19 +323,21 @@ test('карточка: профиль гостя и заселение прох
   );
 });
 
+// «Главная» с 16.09 отказ стойки называет словами и не падает (dashboard-resilience.spec.ts), поэтому экран
+// ошибки целиком проверяется на «Номерном фонде»: его запросы идут в границу ошибок без перехвата
 test('экран ошибки различает отклонённый запрос (400/404) и отсутствие связи', async ({
   page,
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, {
-    data: { failPath: '/desk/today', failStatus: 404 },
+    data: { failPath: '/inventory/summary', failStatus: 404 },
   });
-  await page.goto('/today');
+  await page.goto('/inventory');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
   await expect(page.getByRole('main')).toContainText('Сервер отклонил запрос (код 404)');
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/today' } });
-  await page.goto('/today');
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
+  await page.goto('/inventory');
   await expect(page.getByRole('main')).toContainText('Проверьте подключение');
   await expect(page.getByText('Сервер отклонил запрос')).toHaveCount(0);
 });

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
+import { AccountsModule } from './accounts/accounts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
@@ -21,6 +22,7 @@ import { DataConnectionModule } from './database/connection';
 @Module({
   imports: [
     DataConnectionModule,
+    AccountsModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,

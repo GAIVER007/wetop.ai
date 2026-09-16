@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
@@ -77,9 +78,9 @@ test('перетаскивание клетки брони на свободну
   await expect(unitCell).not.toHaveText(unitA);
 
   // прибрать за собой: бронь отменяется, койка освобождается
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -106,20 +107,26 @@ test('стойка: занятую койку не продать дважды, 
   const otherCategory = (await other.getAttribute('label'))!.replace(' — с пересчётом цены', '');
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
+  // чужая категория — окно с новой суммой до подтверждения (срез 7.3, Д5); сумму считает тот же код, что и запись
+  const moveAmount = page.getByRole('dialog').getByTestId('move-amount');
+  await expect(moveAmount).toContainText('Новая сумма за');
+  const shownNew = money(/Новая сумма за \S+ \S+ (.+?) \(было/.exec(await moveAmount.innerText())?.[1] ?? '');
+  await confirmDialog(page, 'Переселить и пересчитать');
 
   await cardTab(page, 'Обзор');
   await expect(row).toContainText(otherUnit);
   await expect(row).toContainText(otherCategory);
   const priceMoved = money(await row.locator('td').nth(5).innerText());
   expect(priceMoved).not.toBe(priceAfter); // цена взята из календаря новой категории
+  expect(priceMoved).toBe(shownNew); // окно показало ровно то, что легло на проживание
   await cardTab(page, 'Счета');
   expect(money(await page.getByTestId('folio-balance').innerText())).toBe(priceMoved);
   await page.screenshot({ path: 'reports/screenshots/desk-move-extend.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

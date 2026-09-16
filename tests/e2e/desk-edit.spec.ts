@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
@@ -97,9 +98,9 @@ test('групповая бронь на 2 койки → две клетки ш
   await page.screenshot({ path: 'reports/screenshots/desk-edit-folio-closed.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

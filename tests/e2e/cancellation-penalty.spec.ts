@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -44,10 +45,11 @@ test('отмена заранее — без штрафа, незаезд — с
   };
   expect(await balance()).toBe(stayTotal);
 
-  page.on('dialog', (d) => d.accept());
-  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
+  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется.
+  // Окно подтверждения (срез 7.3, Д5) говорит об этом до нажатия — тем же кодом, что потом пишет счёт
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь', /Штраф не начисляется/);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -71,6 +73,11 @@ test('отмена заранее — без штрафа, незаезд — с
   const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
+  // сумма в окне = сумма начисления: предпросмотр и штраф считает одна функция (Д5)
+  await expect(page.getByTestId('no-show-penalty')).toContainText('останется на счёте'); // предпросмотр дошёл
+  const shownText = await page.getByTestId('no-show-penalty').innerText();
+  const shown = minor(shownText) * (shownText.includes(',') ? 1n : 100n); // окно печатает без тиынов
+  await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page
@@ -80,6 +87,7 @@ test('отмена заранее — без штрафа, незаезд — с
   await expect(penalty).toHaveCount(1);
   const penaltyMinor = minor(await penalty.locator('td').nth(3).innerText());
   expect(penaltyMinor * 3n).toBe(stay2); // одна ночь из трёх
+  expect(shown).toBe(penaltyMinor); // окно показало ровно то, что легло на счёт
   expect(await balance()).toBe(penaltyMinor);
   await page.screenshot({ path: 'reports/screenshots/cancellation-penalty.png', fullPage: true });
 

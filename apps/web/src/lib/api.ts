@@ -305,6 +305,50 @@ export const authApi = {
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
 };
 
+/**
+ * Предпросмотр сумм до подтверждения (срез 7.3, Д5): считает сервер теми же функциями, что и запись,
+ * ничего не пишет. `null` в сумме — посчитать нельзя (нет тарифа), причина в `problem`.
+ */
+export interface MovePreview {
+  unitCode: string;
+  changesCategory: boolean;
+  fromCategory: { code: string; name: string } | null;
+  toCategory: { code: string; name: string } | null;
+  nights: number;
+  currentMinor: string;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  problem: string | null;
+}
+export interface ExtendPreview {
+  nights: number;
+  departureDate: string;
+  unitCode: string | null;
+  addedMinor: string | null;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  /** Ячейка свободна на добавленные ночи (без брони и блокировки); без ячейки — true */
+  nextNightsFree: boolean;
+  problem: string | null;
+}
+export interface CancelPreview {
+  reason: 'cancel' | 'no_show';
+  items: Array<{
+    itemId: string;
+    unitCode: string | null;
+    policy: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+    /** Наступил ли момент штрафа (Q-103): отмена до дня заезда бесплатна */
+    dueNow: boolean;
+    penaltyMinor: string;
+  }>;
+  totalPenaltyMinor: string;
+}
+const query = (params: Record<string, string | number | undefined>) => {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') q.set(k, String(v));
+  const s = q.toString();
+  return s ? `?${s}` : '';
+};
 export const reservationsApi = {
   ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
   availability: (arrival: string, departure: string) =>
@@ -343,6 +387,19 @@ export const reservationsApi = {
       'POST',
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend`,
       { nights, ...(ratePlanCode ? { ratePlanCode } : {}) },
+    ),
+  /** Срез 7.3, Д5: сумма до подтверждения — только чтение */
+  movePreview: (number: string, itemId: string, unitCode: string, ratePlanCode?: string) =>
+    getJson<MovePreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/move-preview${query({ unitCode, ratePlanCode })}`,
+    ),
+  extendPreview: (number: string, itemId: string, nights = 1, ratePlanCode?: string) =>
+    getJson<ExtendPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend-preview${query({ nights, ratePlanCode })}`,
+    ),
+  cancelPreview: (number: string, reason: 'cancel' | 'no_show', itemId?: string) =>
+    getJson<CancelPreview>(
+      `/reservations/${encodeURIComponent(number)}/cancel-preview${query({ reason, itemId })}`,
     ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(

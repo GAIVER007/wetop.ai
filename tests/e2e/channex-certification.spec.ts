@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Сертификационные сценарии Channex (docs/channex/site/api-v.1-documentation/pms-certification-tests.md),
@@ -219,9 +220,9 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     const number = page.url().split('/').pop()!;
     await flush(page, '9. Single Date Availability Update (booking created in PMS UI)');
     await page.goto(`/reservations/${number}`);
-    page.on('dialog', (d) => d.accept());
     await cardTab(page, 'Действия');
     await page.getByTestId('cancel-reservation').click();
+    await confirmDialog(page, 'Отменить бронь');
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

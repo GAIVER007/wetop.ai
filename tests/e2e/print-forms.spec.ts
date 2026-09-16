@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Заготовки печатных форм: договор и счёт открываются с карточки брони на RU и KZ, в тексте есть
@@ -72,9 +73,9 @@ test('договор и счёт печатаются на RU и KZ: номер 
 
   // прибрать за собой
   await page.goto(`/reservations/${number}`);
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

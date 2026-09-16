@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -64,20 +65,21 @@ test('заселить → карточка и шахматка показыва
   await page.goto(`/reservations/${number}`);
 
   // T3: на счёте есть начисление за проживание и нет оплаты, значит выселение должно быть остановлено.
-  // Диалог отклоняем — проверяем именно защиту, а не текст ошибки: статус обязан остаться «заселён».
-  page.once('dialog', (d) => d.dismiss());
+  // Окно «Выселить с долгом?» (срез 7.3) называет сумму; «Оставить» — проверяем именно защиту:
+  // статус обязан остаться «заселён».
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-out-"]').click();
-  await expect(page.getByRole('alert').first()).toContainText('долг');
+  await expect(page.getByTestId('debt-amount')).toContainText('Долг');
+  await confirmDialog(page, 'Оставить');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
   await cardTab(page, 'Счета');
   await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
 
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-out-"]').click();
+  await confirmDialog(page, 'Выселить с долгом');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
   await cardTab(page, 'Счета');
@@ -97,9 +99,9 @@ test('заселить → карточка и шахматка показыва
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
-  page.on('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
+  await confirmDialog(page, 'Отметить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');

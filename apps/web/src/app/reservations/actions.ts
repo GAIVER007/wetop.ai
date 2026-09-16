@@ -1,7 +1,13 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { ApiError, reservationsApi } from '../../lib/api';
+import {
+  ApiError,
+  reservationsApi,
+  type CancelPreview,
+  type ExtendPreview,
+  type MovePreview,
+} from '../../lib/api';
 
 export interface ActionResult {
   error: string | null;
@@ -220,4 +226,42 @@ export async function stayAction(
   revalidatePath('/chessboard');
   revalidatePath(`/reservations/${number}`);
   return { error: null };
+}
+
+// ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение, `null` — не загрузился ──
+export async function movePreviewAction(
+  number: string,
+  itemId: string,
+  unitCode: string,
+  ratePlanCode?: string,
+): Promise<MovePreview | null> {
+  try {
+    return await reservationsApi.movePreview(number, itemId, unitCode, ratePlanCode);
+  } catch {
+    return null;
+  }
+}
+
+export async function extendPreviewAction(
+  number: string,
+  itemId: string,
+  ratePlanCode?: string,
+): Promise<ExtendPreview | null> {
+  try {
+    return await reservationsApi.extendPreview(number, itemId, 1, ratePlanCode);
+  } catch {
+    return null;
+  }
+}
+
+export async function cancelPreviewAction(
+  number: string,
+  reason: 'cancel' | 'no_show',
+  itemId?: string,
+): Promise<CancelPreview | null> {
+  try {
+    return await reservationsApi.cancelPreview(number, reason, itemId);
+  } catch {
+    return null;
+  }
 }

@@ -717,6 +717,27 @@ function dashboard(from: string, to: string) {
   const prev = previousPeriod(from, to);
   return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
 }
+/** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
+const nightly = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
+const nightsOf = (it: { arrivalDate: string; departureDate: string }) =>
+  Math.max(1, Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000));
+const LIVE = (status: string) => !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(status);
+const tenge = (minor: bigint) => `${(minor / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
+/** Ячейка занята другим проживанием или блоком на ночи [from, to) */
+const unitBusy = (code: string, from: string, to: string, except?: { id: string }) =>
+  allCards().some((o) =>
+    o.items.some(
+      (x) =>
+        x.id !== except?.id &&
+        x.unitCode === code &&
+        LIVE(x.status) &&
+        x.arrivalDate < to &&
+        x.departureDate > from,
+    ),
+  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo >= from);
+const retotal = (r: ReservationCard) => {
+  r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
+};
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =
@@ -1119,6 +1140,81 @@ function read(path: string, q: URLSearchParams): unknown {
       total: { units: 88, available: available.length },
     };
   }
+  if (path.startsWith('/reservations/') && /-preview$/.test(path)) {
+    const parts = path.split('/');
+    const tail = parts[parts.length - 1];
+    const r = getCard(decodeURIComponent(parts[2]!));
+    if (!r) return undefined;
+    if (tail === 'cancel-preview') {
+      const reason = q.get('reason') === 'no_show' ? 'no_show' : 'cancel';
+      const items = r.items
+        .filter((it) => (!q.get('itemId') || it.id === q.get('itemId')) && LIVE(it.status))
+        .map((it) => {
+          // штраф — первая ночь, и только с дня заезда (Q-103); до заезда отмена бесплатна
+          const dueNow = it.arrivalDate <= today;
+          return {
+            itemId: it.id,
+            unitCode: it.unitCode,
+            policy: 'FIRST_NIGHT',
+            dueNow,
+            penaltyMinor: (dueNow ? nightly(it.accommodationTypeCode) : 0n).toString(),
+          };
+        });
+      return {
+        reason,
+        items,
+        totalPenaltyMinor: items.reduce((s, i) => s + BigInt(i.penaltyMinor), 0n).toString(),
+      };
+    }
+    const item = r.items.find((it) => it.id === parts[4]);
+    if (!item) return undefined;
+    const nights = nightsOf(item);
+    if (tail === 'move-preview') {
+      const unit = units.find((u) => u.code === q.get('unitCode'));
+      const from = categories.find((c) => c.code === item.accommodationTypeCode) ?? null;
+      if (!unit)
+        return {
+          unitCode: q.get('unitCode') ?? '',
+          changesCategory: false,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: null,
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: 'Ячейка не найдена',
+        };
+      const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
+      const changes = to.code !== item.accommodationTypeCode;
+      return {
+        unitCode: unit.code,
+        changesCategory: changes,
+        fromCategory: from && { code: from.code, name: from.name },
+        toCategory: { code: to.code, name: to.name },
+        nights,
+        currentMinor: item.priceMinor,
+        newMinor: changes ? (nightly(to.code) * BigInt(nights)).toString() : item.priceMinor,
+        ratePlanRequired: false,
+        problem: null,
+      };
+    }
+    if (tail === 'extend-preview') {
+      const n = Math.max(1, Number(q.get('nights') || 1));
+      const departure = add(item.departureDate, n);
+      const added = nightly(item.accommodationTypeCode) * BigInt(n);
+      return {
+        nights: n,
+        departureDate: departure,
+        unitCode: item.unitCode,
+        addedMinor: added.toString(),
+        newMinor: (BigInt(item.priceMinor) + added).toString(),
+        ratePlanRequired: !item.ratePlanCode && !q.get('ratePlanCode'),
+        nextNightsFree: !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+        problem: null,
+      };
+    }
+    return undefined;
+  }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
@@ -1391,6 +1487,44 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
+      if (body['tentative'] === true) {
+        card.status = 'TENTATIVE';
+        card.items[0]!.status = 'TENTATIVE';
+      }
+      // витрина конфликтов (срез 7.3, Д3–Д4): бронь без ячейки, ночь сверх мест, неразобранная ревизия
+      if (body['showcase'] === true) {
+        const show = cardSeed();
+        show.confirmationNumber = '20260913-SHOWUN';
+        show.source = 'OTA';
+        show.channel = 'Booking.com';
+        show.departureDate = add(today, 1);
+        show.items[0] = {
+          ...show.items[0]!,
+          id: 'ui-item-showun',
+          accommodationTypeCode: 'MALE',
+          accommodationTypeName: categories[1]!.name,
+          departureDate: add(today, 1),
+          unitCode: null,
+          priceMinor: '400000',
+        };
+        show.totalAmountMinor = '400000';
+        extraCards.set(show.confirmationNumber, show);
+        incident.kind = 'stay.overbooked';
+        incident.title = `${categories[1]!.name} продан сверх мест на ночь ${today}: 37 на 36`;
+        incident.subjectType = 'AccommodationType';
+        incident.subjectId = 'MALE';
+        designEvents.push({
+          externalEventId: 'ui-revision-failed',
+          receivedVia: 'WEBHOOK',
+          type: 'booking_new',
+          status: 'FAILED',
+          attempts: 3,
+          receivedAt: `${today}T06:40:00Z`,
+          processedAt: null,
+          lastError: 'несколько перенесённых броней подходят под ревизию — разбор руками (Q-109)',
+        });
+      }
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       // просроченный заезд: подтверждённая бронь TEST1 должна была заехать вчера
@@ -1686,6 +1820,59 @@ createServer(async (req, res) => {
       const r = getCard(decodeURIComponent(number!));
       if (!r) return send(404, { message: 'Бронь не найдена' });
       const item = r.items.find((it) => it.id === itemId);
+      if (path.split('/')[3] === 'cancel') {
+        for (const it of r.items)
+          if (LIVE(it.status)) {
+            it.status = 'CANCELLED';
+            it.unitCode = null;
+          }
+        r.status = 'CANCELLED';
+        return send(200, r);
+      }
+      if (item && action === 'no-show') {
+        item.status = 'NO_SHOW';
+        item.unitCode = null;
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'NO_SHOW';
+        return send(200, r);
+      }
+      if (item && action === 'check-out') {
+        const folio = finance(r).folios.find((f) => f.reservationItemId === item.id);
+        const balance = folio ? BigInt(folio.balanceMinor) : 0n;
+        if (balance > 0n && body['withDebt'] !== true)
+          return send(409, {
+            message: `На счёте долг ${tenge(balance)}: примите оплату или выселите с подтверждением`,
+          });
+        item.status = 'CHECKED_OUT';
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'CHECKED_OUT';
+        return send(200, r);
+      }
+      if (item && action === 'extend') {
+        const n = Math.max(1, Number(body['nights'] ?? 1));
+        if (!item.ratePlanCode && !body['ratePlanCode'])
+          return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
+        const departure = add(item.departureDate, n);
+        if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
+          return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
+        item.priceMinor = (BigInt(item.priceMinor) + nightly(item.accommodationTypeCode) * BigInt(n)).toString();
+        item.departureDate = departure;
+        if (departure > r.departureDate) r.departureDate = departure;
+        retotal(r);
+        return send(200, r);
+      }
+      if (item && action === 'assign') {
+        const unit = units.find((u) => u.code === body['unitCode']);
+        if (!unit) return send(404, { message: 'Ячейка не найдена' });
+        if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
+          return send(409, { message: `Ячейка ${unit.code} уже занята` });
+        if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
+          item.accommodationTypeCode = unit.accommodationTypeCode;
+          item.accommodationTypeName = unit.accommodationTypeName;
+          item.priceMinor = (nightly(unit.accommodationTypeCode) * BigInt(nightsOf(item))).toString();
+        }
+        item.unitCode = unit.code;
+        retotal(r);
+        return send(200, r);
+      }
       if (item && action === 'check-in') {
         item.status = 'CHECKED_IN';
         r.status = 'CHECKED_IN';

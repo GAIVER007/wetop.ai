@@ -1,7 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { chessboardApi, type UnassignedStay } from '../../lib/api';
+import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
+import { ResolveMenu } from './resolve-menu';
+import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -61,7 +63,15 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  const board = await chessboardApi.board(from, to);
+  // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
+  // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
+  const [board, incidents, events] = await Promise.all([
+    chessboardApi.board(from, to),
+    guardApi.incidents('open').catch(() => null),
+    channelsApi.events(50).catch(() => null),
+  ]);
+  const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
+  const failedEvents = (events ?? []).filter((e) => e.status === 'FAILED').length;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -184,6 +194,18 @@ export default async function ChessboardPage({
           </p>
         </details>
       </div>
+      {overbooked.length > 0 && (
+        <Alert boxed data-testid="overbooked-callout">
+          Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
+          <a href="#unassigned-stays">Разрешить</a>
+        </Alert>
+      )}
+      {failedEvents > 0 && (
+        <Alert boxed tone="warning" data-testid="review-callout">
+          Входящая бронь требует разбора: {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])}{' '}
+          Channex не разобрана автоматически. <Link href="/channels">Разобрать</Link>
+        </Alert>
+      )}
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
     </Page>
@@ -204,6 +226,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
   }
   return (
     <section
+      id="unassigned-stays"
       data-testid="unassigned-stays"
       data-count={stays.length}
       className={cx('board-unassigned', !stays.length && 'board-unassigned--empty')}
@@ -231,7 +254,8 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
                 </Link>{' '}
                 <span className="muted">
                   {s.arrivalDate} → {s.departureDate} · {STATUS_RU[s.status] ?? s.status}
-                </span>
+                </span>{' '}
+                <ResolveMenu number={s.confirmationNumber} />
               </li>
             ))}
           </ul>

@@ -1,12 +1,16 @@
-/* WETOP design tokens. Components use semantic names in both themes. */
+/*
+ * СГЕНЕРИРОВАНО из design/tokens.json командой `npm run design:tokens` — руками не править.
+ * Правила и смысл каждого токена — DESIGN.md. Тест scripts/design/build-tokens.test.ts
+ * сверяет этот файл с генератором: ручная правка делает его красным.
+ */
 :root, [data-theme='light'] {
   color-scheme: light;
   --bg: #f4f7fb;
   --surface: #ffffff;
   --surface-muted: #f6f8fc;
   --surface-elevated: #ffffff;
-  --sidebar: rgba(255,255,255,.88);
-  --glass: rgba(255,255,255,.85);
+  --sidebar: rgba(255, 255, 255, 0.88);
+  --glass: rgba(255, 255, 255, 0.85);
   --border: #e5eaf2;
   --border-soft: #eef1f7;
   --border-input: #dce3ee;
@@ -29,25 +33,24 @@
   --danger-2: #b9293e;
   --danger-soft: #fff0f2;
   --danger-border: #f3ced5;
-  --info: var(--primary);
-  --purple: #7860cb;
-  --purple-soft: #f2efff;
+  --info: #085fba;
+  --purple: #7860cb; /* устарел */
+  --purple-soft: #f2efff; /* устарел */
   --chip-bg: #edf1f7;
   --chip-fg: #536176;
+  --row-hover: #f2f7fd;
+  --chart-1: #085fba;
+  --chart-1-soft: #eaf4ff;
+  --chart-2: #20b298;
+  --grid-line: #eef1f7;
+  --axis-line: #e5eaf2;
+  --overlay: rgba(11, 23, 44, 0.32);
+  --focus: #085fba;
   --st-confirmed: #dcecff;
   --st-checked-in: #d7f0e9;
   --st-checked-out: #e9edf4;
   --st-tentative: #faedcc;
   --st-blocked: #f7dde2;
-  --row-hover: #f2f7fd;
-  --chart-1: var(--primary);
-  --chart-1-soft: var(--primary-soft);
-  --chart-2: #20b298;
-  --grid-line: var(--border-soft);
-  --axis-line: var(--border);
-  --shadow: 0 6px 24px rgba(26,45,78,.04);
-  --shadow-floating: 0 20px 70px rgba(18,38,68,.16);
-  --overlay: rgba(11,23,44,.32);
   --radius-sm: 8px;
   --radius-control: 10px;
   --radius: 16px;
@@ -55,13 +58,47 @@
   --control-h: 38px;
   --sidebar-w: 232px;
   --header-h: 72px;
-  --topbar-h: 72px;
-  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  --font-head: var(--font);
-  --mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
-  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
-  --ease: 180ms ease-out;
+  --topbar-h: 72px; /* устарел */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --board-row-h: 38px;
+  --board-stay-h: 28px;
+  --board-head-h: 66px;
+  --board-unit-col-week: 176px;
+  --board-unit-col-month: 144px;
+  --board-day-min: 24px;
+  --font: -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', sans-serif;
+  --font-head: -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 28px;
+  --shadow: 0px 6px 24px 0px rgba(26, 45, 78, 0.04);
+  --shadow-floating: 0px 20px 70px 0px rgba(18, 38, 68, 0.16);
+  --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 240ms;
+  --layer-base: 1;
+  --layer-sticky: 5;
+  --layer-header: 30;
+  --layer-bottom-nav: 35;
+  --layer-sidebar: 40;
+  --layer-overlay: 50;
+  --layer-toast: 60;
+  --layer-skip-link: 100;
 }
 [data-theme='dark'] {
   color-scheme: dark;
@@ -70,7 +107,7 @@
   --surface-muted: #0d192a;
   --surface-elevated: #111f31;
   --sidebar: #08111f;
-  --glass: rgba(11,21,36,.86);
+  --glass: rgba(11, 21, 36, 0.86);
   --border: #1b2a3d;
   --border-soft: #142236;
   --border-input: #2b3d53;
@@ -93,21 +130,59 @@
   --danger-2: #ff9ba5;
   --danger-soft: #34202b;
   --danger-border: #563140;
+  --info: #48a5ff;
   --purple: #b4a0f2;
   --purple-soft: #28213e;
   --chip-bg: #1b293b;
   --chip-fg: #a8b3c5;
+  --row-hover: #112137;
+  --chart-1: #48a5ff;
+  --chart-1-soft: #102c49;
+  --chart-2: #38d2ae;
+  --grid-line: #142236;
+  --axis-line: #1b2a3d;
+  --overlay: rgba(0, 5, 15, 0.64);
+  --focus: #48a5ff;
   --st-confirmed: #163958;
   --st-checked-in: #16443f;
   --st-checked-out: #243044;
   --st-tentative: #46361c;
   --st-blocked: #472936;
-  --row-hover: #112137;
-  --chart-2: #38d2ae;
-  --shadow: 0 6px 24px rgba(0,0,0,.1);
-  --shadow-floating: 0 24px 80px rgba(0,0,0,.4);
-  --overlay: rgba(0,5,15,.64);
+  --shadow: 0px 6px 24px 0px rgba(0, 0, 0, 0.1);
+  --shadow-floating: 0px 24px 80px 0px rgba(0, 0, 0, 0.4);
+}
+[data-theme='contrast'] {
+  color-scheme: light;
+  --border: #596a80;
+  --border-input: #3f4f66;
+  --text: #000000;
+  --text-2: #2b3a52;
+  --muted: #3f4f66;
+  --primary: #064a92;
+  --danger-soft: #ffffff;
+  --info: #064a92;
+  --chart-1: #064a92;
+  --axis-line: #596a80;
+  --focus: #064a92;
 }
 @media print {
-  :root { color-scheme: light; --bg: #ffffff; --surface: #ffffff; --surface-muted: #f6f8fc; --surface-elevated: #ffffff; --text: #101827; --text-2: #536176; --muted: #596a80; --muted-2: #596a80; --border: #e5eaf2; --border-soft: #eef1f7; --primary: #085fba; }
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f6f8fc;
+    --surface-elevated: #ffffff;
+    --border: #e5eaf2;
+    --border-soft: #eef1f7;
+    --text: #101827;
+    --text-2: #536176;
+    --muted: #596a80;
+    --muted-2: #596a80;
+    --primary: #085fba;
+    --info: #085fba;
+    --chart-1: #085fba;
+    --grid-line: #eef1f7;
+    --axis-line: #e5eaf2;
+    --focus: #085fba;
+  }
 }

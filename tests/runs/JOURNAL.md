@@ -450,3 +450,5 @@
 | 16.09.2026 15:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-reference) | ❌ упало 2 из 2 | 7 с | 58af544 +2 | [лог](logs/2026-09-16T10-29-01Z-e2e-a4f6.log) | снимки текущих экранов для дизайн-системы, шаг 1 |
 | 16.09.2026 15:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-reference) | ✅ 2 из 2 | 43 с | 58af544 +3 | [лог](logs/2026-09-16T10-29-30Z-e2e-ab0f.log) | снимки текущих экранов для дизайн-системы, шаг 1 |
 | 16.09.2026 15:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-reference) | ✅ 2 из 2 | 35 с | 58af544 +3 | [лог](logs/2026-09-16T10-31-43Z-e2e-8976.log) | снимки для дизайн-системы, шаг 1; отпечаток без next-env.d.ts |
+| 16.09.2026 15:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-reference) | ✅ 2 из 2 | 35 с | 73aca24 +5 | [лог](logs/2026-09-16T10-43-56Z-e2e-a581.log) | снимки после генерации tokens.css — сравнение с шагом 1 |
+| 16.09.2026 15:46 | unit | ❌ упало 3 из 843 | 1 мин 34 с | 73aca24 +6 | [лог](logs/2026-09-16T10-46-42Z-unit-e71a.log) | дизайн-система шаг 2: генератор токенов, контраст, отпечаток без next-env |

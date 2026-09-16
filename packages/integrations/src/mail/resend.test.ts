@@ -32,7 +32,9 @@ describe('отправка через Resend', () => {
     const queue = [...responses];
     return new ResendMailSender({
       config,
-      idempotencyKey,
+      // Необязательное поле передаём, только если оно есть: в проекте включена строгая
+      // проверка (`exactOptionalPropertyTypes`), и явный undefined здесь недопустим.
+      ...(idempotencyKey ? { idempotencyKey } : {}),
       sleep: async (ms) => {
         sleeps.push(ms);
       },
@@ -48,11 +50,11 @@ describe('отправка через Resend', () => {
   it('письмо уходит по адресу из документации, с ключом в заголовке и текстом в теле', async () => {
     await sender([okResponse()]).send(letter);
     expect(calls).toHaveLength(1);
-    expect(calls[0].url).toBe('https://api.resend.com/emails');
-    expect(calls[0].init.method).toBe('POST');
-    const headers = calls[0].init.headers as Record<string, string>;
+    expect(calls[0]!.url).toBe('https://api.resend.com/emails');
+    expect(calls[0]!.init.method).toBe('POST');
+    const headers = calls[0]!.init.headers as Record<string, string>;
     expect(headers.authorization).toBe('Bearer re_secret_value_do_not_leak');
-    const body = JSON.parse(String(calls[0].init.body));
+    const body = JSON.parse(String(calls[0]!.init.body));
     expect(body).toEqual({
       from: 'WETOP <noreply@send.wetop.ai>',
       to: 'gost@example.com',
@@ -63,7 +65,7 @@ describe('отправка через Resend', () => {
 
   it('поле html не отправляем вовсе', async () => {
     await sender([okResponse()]).send(letter);
-    expect(JSON.parse(String(calls[0].init.body))).not.toHaveProperty('html');
+    expect(JSON.parse(String(calls[0]!.init.body))).not.toHaveProperty('html');
   });
 
   it('без подписи отправителя уходит голый адрес', async () => {
@@ -75,18 +77,18 @@ describe('отправка через Resend', () => {
       }) as unknown as typeof fetch,
     });
     await s.send(letter);
-    expect(JSON.parse(String(calls[0].init.body)).from).toBe('noreply@send.wetop.ai');
+    expect(JSON.parse(String(calls[0]!.init.body)).from).toBe('noreply@send.wetop.ai');
   });
 
   it('ключ идемпотентности уходит заголовком, когда он задан', async () => {
     await sender([okResponse()], () => 'код-для-gost-в-12-00').send(letter);
-    const headers = calls[0].init.headers as Record<string, string>;
+    const headers = calls[0]!.init.headers as Record<string, string>;
     expect(headers['idempotency-key']).toBe('код-для-gost-в-12-00');
   });
 
   it('без ключа идемпотентности заголовка нет — пустого не шлём', async () => {
     await sender([okResponse()]).send(letter);
-    expect(calls[0].init.headers as Record<string, string>).not.toHaveProperty('idempotency-key');
+    expect(calls[0]!.init.headers as Record<string, string>).not.toHaveProperty('idempotency-key');
   });
 });
 

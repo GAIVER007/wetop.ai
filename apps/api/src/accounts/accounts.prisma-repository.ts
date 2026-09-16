@@ -17,11 +17,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async codesForEmailSince(email: string, since: Date): Promise<number> {
-    return this.prisma.loginCode.count({ where: { email, createdAt: { gte: since } } });
+    return this.prisma.db.loginCode.count({ where: { email, createdAt: { gte: since } } });
   }
 
   async codesForIpSince(ip: string, since: Date): Promise<number> {
-    return this.prisma.loginCode.count({ where: { requestedIp: ip, createdAt: { gte: since } } });
+    return this.prisma.db.loginCode.count({ where: { requestedIp: ip, createdAt: { gte: since } } });
   }
 
   async saveLoginCode(input: {
@@ -30,7 +30,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
     expiresAt: Date;
     ip: string | null;
   }): Promise<void> {
-    await this.prisma.loginCode.create({
+    await this.prisma.db.loginCode.create({
       data: {
         email: input.email,
         codeHash: input.codeHash,
@@ -42,7 +42,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
   /** Последний по времени. Старые не удаляем: по ним считаются часовые пределы. */
   async latestLoginCode(email: string): Promise<LoginCodeRecord | null> {
-    const row = await this.prisma.loginCode.findFirst({
+    const row = await this.prisma.db.loginCode.findFirst({
       where: { email },
       orderBy: { createdAt: 'desc' },
       select: { id: true, codeHash: true, expiresAt: true, attempts: true, usedAt: true },
@@ -51,11 +51,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
   }
 
   async markCodeAttempt(id: string): Promise<void> {
-    await this.prisma.loginCode.update({ where: { id }, data: { attempts: { increment: 1 } } });
+    await this.prisma.db.loginCode.update({ where: { id }, data: { attempts: { increment: 1 } } });
   }
 
   async markCodeUsed(id: string, at: Date): Promise<void> {
-    await this.prisma.loginCode.update({ where: { id }, data: { usedAt: at } });
+    await this.prisma.db.loginCode.update({ where: { id }, data: { usedAt: at } });
   }
 
   /**
@@ -63,7 +63,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
    * этап 7); пока берём первую по времени вступления — выбор организации будет отдельным шагом.
    */
   async accountByEmail(email: string): Promise<AccountRecord | null> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.db.user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -94,7 +94,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
   }
 
   async markLogin(userId: string, at: Date): Promise<void> {
-    await this.prisma.user.update({ where: { id: userId }, data: { lastLoginAt: at } });
+    await this.prisma.db.user.update({ where: { id: userId }, data: { lastLoginAt: at } });
   }
 
   async createSession(input: {
@@ -104,7 +104,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
     expiresAt: Date;
     userAgent: string | null;
   }): Promise<void> {
-    await this.prisma.session.create({
+    await this.prisma.db.session.create({
       data: {
         tokenHash: input.tokenHash,
         userId: input.userId,
@@ -116,7 +116,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
   }
 
   async sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null> {
-    const row = await this.prisma.session.findUnique({
+    const row = await this.prisma.db.session.findUnique({
       where: { tokenHash },
       select: {
         expiresAt: true,
@@ -140,7 +140,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
   /** Повторный выход по тому же ключу — не ошибка: строки может уже не быть. */
   async revokeSession(tokenHash: string, at: Date): Promise<void> {
-    await this.prisma.session.updateMany({
+    await this.prisma.db.session.updateMany({
       where: { tokenHash, revokedAt: null },
       data: { revokedAt: at },
     });

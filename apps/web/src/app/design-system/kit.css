@@ -1,0 +1,150 @@
+/* Страница компонентов: только раскладка витрины. Вид самих компонентов — globals.css и токены. */
+.kit-themes {
+  display: grid;
+  gap: var(--space-8);
+}
+.kit-theme {
+  padding: var(--space-6);
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color-scheme: light;
+}
+.kit-theme[data-theme='dark'] {
+  color-scheme: dark;
+}
+.kit-theme__title {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-2xl);
+}
+.kit-component {
+  padding: var(--space-6) 0;
+  border-top: 1px solid var(--border);
+}
+.kit-component__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-lg);
+}
+.kit-component__where {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.kit-states {
+  display: grid;
+  gap: var(--space-4);
+}
+.kit-state {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+.kit-state__label {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  padding-top: var(--space-2);
+}
+.kit-state__note {
+  color: var(--muted);
+}
+.kit-state__body {
+  min-width: 0;
+}
+.kit-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.kit-swatch {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+}
+.kit-swatch__color {
+  height: var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.kit-swatch__label {
+  color: var(--muted);
+}
+.kit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.kit-status {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
+  color: var(--text);
+}
+.kit-space {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+}
+.kit-space i {
+  display: inline-block;
+  height: var(--space-4);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary);
+}
+.kit-radius {
+  display: inline-grid;
+  place-items: center;
+  width: 120px;
+  height: var(--space-12);
+  border: 1px solid var(--border-input);
+  background: var(--surface);
+  font-size: var(--text-xs);
+}
+.kit-type {
+  display: grid;
+  gap: var(--space-2);
+}
+.kit-type code {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.kit-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--space-2);
+}
+.kit-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.kit-static {
+  position: static;
+  display: block;
+  width: max-content;
+}
+.kit-hover {
+  background: var(--row-hover);
+}
+.kit-tooltip-open {
+  margin-top: var(--space-8);
+}
+.kit-disabled-host {
+  display: inline-block;
+}
+@media (max-width: 760px) {
+  .kit-state {
+    grid-template-columns: 1fr;
+  }
+}

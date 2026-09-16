@@ -365,6 +365,9 @@ describe('что входит в отпечаток кода', () => {
     expect(spec).toContain(':(exclude,glob)**/README.md');
     // тесты импорта читают scripts/imports/src/exely/__fixtures__/*.md — Markdown целиком исключать нельзя
     expect(spec.some((p) => p.includes('*.md'))).toBe(false);
+    // next dev переписывает apps/web/next-env.d.ts под свою папку сборки (.next или .next-ui): это не код,
+    // иначе каждый UI-прогон помечал бы себя «код менялся во время прогона»
+    expect(spec).toContain(':(exclude,glob)**/next-env.d.ts');
   });
 });
 

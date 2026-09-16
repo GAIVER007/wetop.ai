@@ -39,6 +39,9 @@
     "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
     "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
     "dev:demo": "node scripts/preview/start-demo.mjs",
+    "design:tokens": "tsx scripts/design/build-tokens.ts",
+    "design:font": "tsx scripts/design/check-font.ts",
+    "design:diff": "tsx scripts/design/diff-screens.ts",
     "site:build": "npm run build -w apps/site",
     "site:deploy": "npm run site:build && npx wrangler@latest pages deploy apps/site/out --project-name wetop-site --branch main"
   },

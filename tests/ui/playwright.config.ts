@@ -8,9 +8,15 @@ export default defineConfig({
   workers: 1,
   timeout: 45_000,
   expect: { timeout: 15_000 },
+  // эталонные снимки страницы компонентов (DESIGN.md, план шаг 4): имя даёт сам тест, включая платформу
+  snapshotPathTemplate: '{testDir}/../../design/reference/kit/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:3100',
-    channel: process.env.UI_BROWSER_CHANNEL || 'chrome',
+    // Chrome с машины по умолчанию; `UI_BROWSER_CHANNEL=chromium` — сборка Playwright;
+    // `UI_BROWSER_EXECUTABLE=/путь/к/chrome` — конкретный двоичный файл (контейнер с другой версией Chromium)
+    ...(process.env.UI_BROWSER_EXECUTABLE
+      ? { launchOptions: { executablePath: process.env.UI_BROWSER_EXECUTABLE } }
+      : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',
   },

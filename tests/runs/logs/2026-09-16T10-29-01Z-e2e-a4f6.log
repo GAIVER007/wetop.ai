@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 16.09.2026 15:29 Алматы · vm
+# коммит 58af544 (claude/inspiring-pasteur-urrgr8), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-reference'
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (3ms)
+  ✘  2 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (3ms)
+
+
+  1) tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light ─────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-экраны-для-дизайн-системы-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-экраны-для-дизайн-системы-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-экраны-для-дизайн-системы-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ──────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/design-reference-экраны-для-дизайн-системы-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light ──────────────────────
+    tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ───────────────────────
+
+# код выхода 1 · 7 с

@@ -19,9 +19,17 @@ export const NOT_CODE = 'tests/runs';
 /**
  * Pathspec git для файлов набора. Исключены журнал с логами и README — правка документации тесты не
  * обесценивает. Остальной Markdown остаётся: тесты импорта читают фикстуры `__fixtures__/*.md`.
+ * `next-env.d.ts` генерирует сам `next dev` (под `.next` или `.next-ui`), поэтому UI-прогон менял отпечаток
+ * набора во время прогона и не засчитывался как доказательство (16.09.2026).
  */
 export function watchPathspec(watch: readonly string[]): string[] {
-  return ['--', ...watch, `:(exclude)${NOT_CODE}`, ':(exclude,glob)**/README.md'];
+  return [
+    '--',
+    ...watch,
+    `:(exclude)${NOT_CODE}`,
+    ':(exclude,glob)**/README.md',
+    ':(exclude,glob)**/next-env.d.ts',
+  ];
 }
 
 export type SuiteName = 'unit' | 'integration' | 'e2e' | 'typecheck' | 'lint';

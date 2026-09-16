@@ -1,0 +1,172 @@
+# Сквозные (e2e) · 16.09.2026 15:59 Алматы · vm
+# коммит 1bbbe4b (claude/inspiring-pasteur-urrgr8), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-system' '--update-snapshots'
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (2.9s)
+  ✘  2 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (4.0s)
+  ✘  3 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (4.1s)
+  ✓  4 tests/ui/design-system.spec.ts:72:1 › масштаб 200 %: нет горизонтальной прокрутки (1.5s)
+  ✓  5 tests/ui/design-system.spec.ts:87:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (2.0s)
+  ✓  6 tests/ui/design-system.spec.ts:109:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (3.1s)
+  ✘  7 tests/ui/design-system.spec.ts:124:1 › уведомление появляется в живой области и закрывается (16.9s)
+  ✓  8 tests/ui/design-system.spec.ts:134:1 › подсказка открывается фокусом и закрывается Escape (2.0s)
+
+
+  1) tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light ────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 48
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "aria-required-parent",
+    +     "nodes": Array [
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"tabs\"][aria-labelledby=\"kit-tabs\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"selected\"] > .kit-state__body > .record-tab-list[role=\"presentation\"] > button[role=\"tab\"][type=\"button\"]",
+    +       ],
+    +     ],
+    +   },
+    +   Object {
+    +     "id": "color-contrast",
+    +     "nodes": Array [
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"button\"][aria-labelledby=\"kit-button\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .row > .btn--danger.btn[type=\"button\"]",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > .kit-component[data-component=\"badge\"][aria-labelledby=\"kit-badge\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .row > .badge--danger.badge:nth-child(5)",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > .kit-component[data-component=\"badge\"][aria-labelledby=\"kit-badge\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .row > .badge--danger.badge:nth-child(6)",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > .kit-component[data-component=\"amount-chip\"][aria-labelledby=\"kit-amount-chip\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .row > .amount-chip--due.amount-chip > .amount-chip__label",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > .kit-component[data-component=\"amount-chip\"][aria-labelledby=\"kit-amount-chip\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .row > .amount-chip--due.amount-chip > .amount-chip__value.num",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"table\"][aria-labelledby=\"kit-table\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .table-scroll[aria-label=\"Брони дня\"][role=\"region\"] > table[aria-label=\"Брони дня\"] > tbody > tr:nth-child(1) > .num > .amount-chip--due.amount-chip > .amount-chip__label",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"table\"][aria-labelledby=\"kit-table\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .table-scroll[aria-label=\"Брони дня\"][role=\"region\"] > table[aria-label=\"Брони дня\"] > tbody > tr:nth-child(1) > .num > .amount-chip--due.amount-chip > .amount-chip__value.num",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"table\"][aria-labelledby=\"kit-table\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"default\"] > .kit-state__body > .table-scroll[aria-label=\"Брони дня\"][role=\"region\"] > table[aria-label=\"Брони дня\"] > tbody > .is-void > td:nth-child(3) > .badge--danger.badge",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"confirm-dialog\"][aria-labelledby=\"kit-confirm-dialog\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"hover\"] > .kit-state__body > .row[data-state=\"live\"] > .btn--danger.btn[type=\"button\"]",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"confirm-dialog\"][aria-labelledby=\"kit-confirm-dialog\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"error\"] > .kit-state__body > .confirm-dialog--static.confirm-dialog[role=\"presentation\"] > .confirm-dialog__body > .confirm-dialog__actions > .btn--danger.btn[type=\"button\"]",
+    +       ],
+    +       Array [
+    +         "div[data-testid=\"kit-light\"] > section[data-component=\"confirm-dialog\"][aria-labelledby=\"kit-confirm-dialog\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"selected\"] > .kit-state__body > .confirm-dialog--static.confirm-dialog[role=\"presentation\"] > .confirm-dialog__body > .confirm-dialog__actions > .btn--danger.btn[type=\"button\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      55 |     expect(
+      56 |       result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 57 |     ).toEqual([]);
+         |       ^
+      58 |     const sections = block.locator('section[data-component]');
+      59 |     const count = await sections.count();
+      60 |     for (let i = 0; i < count; i++) {
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:57:7
+
+    Error Context: test-results/design-system-axe-и-эталонные-снимки-секций-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-axe-и-эталонные-снимки-секций-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-и-эталонные-снимки-секций-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark ─────────────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "aria-required-parent",
+    +     "nodes": Array [
+    +       Array [
+    +         "div[data-testid=\"kit-dark\"] > section[data-component=\"tabs\"][aria-labelledby=\"kit-tabs\"][data-interactive=\"true\"] > .kit-states > .kit-state[data-state=\"selected\"] > .kit-state__body > .record-tab-list[role=\"presentation\"] > button[role=\"tab\"][type=\"button\"]",
+    +       ],
+    +     ],
+    +   },
+    + ]
+
+      55 |     expect(
+      56 |       result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+    > 57 |     ).toEqual([]);
+         |       ^
+      58 |     const sections = block.locator('section[data-component]');
+      59 |     const count = await sections.count();
+      60 |     for (let i = 0; i < count; i++) {
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:57:7
+
+    Error Context: test-results/design-system-axe-и-эталонные-снимки-секций-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-axe-и-эталонные-снимки-секций-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-axe-и-эталонные-снимки-секций-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-system.spec.ts:124:1 › уведомление появляется в живой области и закрывается ───
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('status').filter({ hasText: 'Гость заселён, R01' }).last()
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('status').filter({ hasText: 'Гость заселён, R01' }).last() with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: 'Гость заселён, R01' }).last()
+        33 × locator resolved to <div role="status" class="toast toast--success">…</div>
+           - unexpected value "visible"
+
+
+      129 |   await expect(toast).toBeVisible();
+      130 |   await toast.getByRole('button', { name: 'Закрыть уведомление' }).click();
+    > 131 |   await expect(toast).toBeHidden();
+          |                       ^
+      132 | });
+      133 |
+      134 | test('подсказка открывается фокусом и закрывается Escape', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:131:23
+
+    Error Context: test-results/design-system-уведомление--22ca3-живой-области-и-закрывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-уведомление--22ca3-живой-области-и-закрывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-уведомление--22ca3-живой-области-и-закрывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light ─────────────────────
+    tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark ──────────────────────
+    tests/ui/design-system.spec.ts:124:1 › уведомление появляется в живой области и закрывается ────
+  5 passed (44.2s)
+
+# код выхода 1 · 45 с

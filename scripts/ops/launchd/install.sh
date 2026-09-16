@@ -22,6 +22,10 @@
 # Стойка идёт на production-сборке `next start` (ADR-034, память Mac): правка в apps/web видна только после
 # `npm run build -w apps/web && launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.web`.
 #
+# Путь к папке вшивается в plist абсолютно (WorkingDirectory). Переименовали или перенесли папку проекта —
+# launchd не может сделать chdir и молча не поднимает ни одну службу: `scripts/ops/repo-sync.sh --relink`
+# переустанавливает их на новую папку (16.09.2026, «Pms Lux» → «WETOP»).
+#
 # Доступ к папке проекта. macOS не даёт процессам launchd читать ~/Desktop, ~/Documents и ~/Downloads без
 # разрешения (проверено 13.09.2026: `ls` видит имена, `head` и `bash script.sh` получают «Operation not permitted»,
 # а node читает — у него разрешение уже есть). Поэтому api и web запускаются через node, а скрипт туннеля bash

@@ -472,3 +472,9 @@
 | 16.09.2026 18:08 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ❌ упало 1 из 85 | 13 с | c20f55b +14 | [лог](logs/2026-09-16T13-08-12Z-unit-7f9d.log) | кто вошёл и выход чужой или выдуманный ключ — 401 |
 | 16.09.2026 18:10 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ✅ 85 из 85 | 3 с | c20f55b +14 | [лог](logs/2026-09-16T13-10-00Z-unit-1ca5.log) |  |
 | 16.09.2026 18:11 | integration | ✅ 26 из 26 | 6 мин 24 с | da3339f | [лог](logs/2026-09-16T13-11-27Z-integration-8c81.log) |  |
+| 17.09.2026 00:08 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 9 из 9 | 2 с | 275cdc2 +1 | [лог](logs/2026-09-16T19-08-04Z-unit-d6ce.log) | repo-sync.sh: красный до кода (скрипта ещё нет) |
+| 17.09.2026 00:12 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 9 из 9 | 3 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-40Z-unit-791c.log) | repo-sync.sh: зелёный после кода (9 сценариев: проверка, --pull, --relink, --from, чужой remote, вторая копия) |
+| 17.09.2026 00:12 | lint | ✅ без ошибок | 11 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-43Z-lint-cdbc.log) | repo-sync: тест и npm-команда |
+| 17.09.2026 00:12 | typecheck | ✅ без ошибок | 18 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-55Z-typecheck-1915.log) | repo-sync |
+| 17.09.2026 00:14 | unit (частично: --exclude tests/unit/launchd-install.test.ts) | ❌ упало 3 из 983 | 1 мин 36 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-14-29Z-unit-9551.log) | весь набор без launchd-install: три его теста зовут plutil и PlistBuddy, на Linux их нет (та же причина красного main в GitHub) |
+| 17.09.2026 00:16 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 9 из 9 | 3 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-16-41Z-unit-6d75.log) | repo-sync.sh: после prettier, тот же зелёный |

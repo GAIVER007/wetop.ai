@@ -56,7 +56,8 @@ FINDINGS.md, DATA_MODEL.md, DECISIONS.md, QUESTIONS.md, PLAN.md.
 
 ```
 Проект: собственная PMS для хостела Luxx Aparts, Алматы, замена Exely.
-Папка проекта: /Users/vyacheslav/Desktop/Проекты/Pms Lux
+Папка проекта: /Users/vyacheslav/Desktop/Проекты/WETOP (до 16.09.2026 называлась «Pms Lux»;
+связь папки с репозиторием и службами проверяет scripts/ops/repo-sync.sh)
 
 СТАТУС 11.09.2026: срезы 1–7 сделаны, сверки с Exely в ноль (фонд 88/88, сутки, цены 8640,
 балансы 1449). Channex staging работает в обе стороны. Переезд ждёт владельца: база в Казахстане,
@@ -89,6 +90,7 @@ DECISIONS.md, QUESTIONS.md, PLAN.md
 
 | Что | Где |
 |---|---|
+| Связь папки с репозиторием и службами | `scripts/ops/repo-sync.sh` (`npm run repo:sync`) — remote, отставание от GitHub, папка в plist launchd, `.env`, зависимости; `--pull`, `--relink`, `--from "<старая папка>"`, `--fix` |
 | Правила домена | `packages/domain/src` — доступность и остаток категории, ограничения (ADR-020), финансы, штрафы, шахматка, аналитика сайта (`web-analytics`: источник, устройство, метрики GA4), запрос брони с сайта (`web-booking`) |
 | API | `apps/api/src/<модуль>` — inventory, units, chessboard, reservations, guests, desk, finance, rates, channels, analytics (публичные `/a/pms.js`, `/a/hit` и отчёты `/analytics/*`), web-booking (виджет: `/w/widget.js`, `/w/availability`, `/w/book`, `/w/demo`) |
 | Стойка | `apps/web/src/app` — `/today`, `/chessboard`, `/reservations/[number]`, `/guests`, `/finance`, `/rates`, `/channels`, `/journal`, `/analytics`, `/analytics/setup`, печать. Оформление — только `app/globals.css` (токены, классы) и `src/components` (`Page`, `TopNav`, `Table`, `Button`…, ADR-027); страницы стилей не содержат |

@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "tsx scripts/preview/start-real.ts",
     "check:connection": "tsx scripts/preview/start-real.ts --check",
+    "repo:sync": "bash scripts/ops/repo-sync.sh",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:record": "tsx tests/tools/cli-record.ts",

@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { auditUserId } from '../accounts/actor';
 
 export type ChargeKind = 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
 export type PaymentMethod =
@@ -457,7 +458,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
   ) {
     const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
     await this.prisma.db.auditLog.create({
-      data: { entityType, entityId, action, before: j(before), after: j(after) },
+      data: { userId: auditUserId(), entityType, entityId, action, before: j(before), after: j(after) },
     });
   }
 }

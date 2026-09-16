@@ -93,6 +93,42 @@ export class PrismaAccountsRepository implements AccountsRepository {
     };
   }
 
+  /**
+   * Три строки в одной транзакции: организация, человек, членство. Занятый адрес ловим по
+   * нарушению уникальности `users.email` (Prisma P2002), а не проверкой «есть ли такой» перед
+   * вставкой: две одновременные регистрации на один адрес иначе заведут две организации.
+   */
+  async createAccount(input: {
+    email: string;
+    organizationName: string;
+    trialEndsAt: Date;
+  }): Promise<AccountRecord | null> {
+    try {
+      return await this.prisma.db.$transaction(async (tx) => {
+        const org = await tx.organization.create({
+          data: { name: input.organizationName, status: 'TRIAL', trialEndsAt: input.trialEndsAt },
+          select: { id: true, name: true, status: true, trialEndsAt: true },
+        });
+        const user = await tx.user.create({
+          data: { email: input.email, status: 'ACTIVE' },
+          select: { id: true, email: true },
+        });
+        await tx.membership.create({ data: { userId: user.id, organizationId: org.id } });
+        return {
+          userId: user.id,
+          email: user.email,
+          organizationId: org.id,
+          organizationName: org.name,
+          organizationStatus: org.status,
+          trialEndsAt: org.trialEndsAt,
+        };
+      });
+    } catch (e) {
+      if (isUniqueViolation(e)) return null;
+      throw e;
+    }
+  }
+
   async markLogin(userId: string, at: Date): Promise<void> {
     await this.prisma.db.user.update({ where: { id: userId }, data: { lastLoginAt: at } });
   }
@@ -145,4 +181,9 @@ export class PrismaAccountsRepository implements AccountsRepository {
       data: { revokedAt: at },
     });
   }
+}
+
+/** Код P2002 у Prisma — нарушение уникального индекса. Другие ошибки базы не глотаем. */
+function isUniqueViolation(e: unknown): boolean {
+  return typeof e === 'object' && e !== null && (e as { code?: unknown }).code === 'P2002';
 }

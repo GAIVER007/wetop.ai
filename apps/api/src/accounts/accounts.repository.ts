@@ -47,6 +47,16 @@ export interface AccountsRepository {
   markCodeUsed(id: string, at: Date): Promise<void>;
 
   accountByEmail(email: string): Promise<AccountRecord | null>;
+  /**
+   * Регистрация: организация, человек и членство одной операцией — либо всё, либо ничего.
+   * `null` — адрес уже занят (в том числе заблокированным): гонку двух регистраций на один адрес
+   * решает уникальность `users.email`, а не проверка перед вставкой.
+   */
+  createAccount(input: {
+    email: string;
+    organizationName: string;
+    trialEndsAt: Date;
+  }): Promise<AccountRecord | null>;
   markLogin(userId: string, at: Date): Promise<void>;
 
   createSession(input: {

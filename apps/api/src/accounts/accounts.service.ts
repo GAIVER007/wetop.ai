@@ -13,11 +13,14 @@ import {
   isCodeShaped,
   isEmailShaped,
   normalizeEmail,
+  normalizeOrganizationName,
   sessionExpiresAt,
+  trialEndsAt,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
 import { ACCOUNTS_REPOSITORY, type AccountsRepository, type SessionRecord } from './accounts.repository';
+import type { Actor } from './actor';
 
 const HOUR_MS = 60 * 60 * 1000;
 const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
@@ -55,21 +58,55 @@ export class AccountsService {
     if (typeof rawEmail !== 'string') return;
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return;
-
-    const since = new Date(Date.now() - HOUR_MS);
-    if ((await this.repo.codesForEmailSince(email, since)) >= MAX_CODES_PER_EMAIL_PER_HOUR) {
-      this.log.warn(`код не выслан: предел на адрес исчерпан (${MAX_CODES_PER_EMAIL_PER_HOUR}/час)`);
-      return;
-    }
-    if (ip && (await this.repo.codesForIpSince(ip, since)) >= MAX_CODES_PER_IP_PER_HOUR) {
-      this.log.warn(`код не выслан: предел на адрес сети исчерпан (${MAX_CODES_PER_IP_PER_HOUR}/час)`);
-      return;
-    }
+    if (await this.overLimit(email, ip)) return;
 
     // Незнакомому адресу код не шлём и в базе не заводим — иначе таблица кодов растёт от перебора.
     // Наружу разницы всё равно нет: ответ тот же самый.
     if ((await this.repo.accountByEmail(email)) === null) return;
+    await this.issueCode(email, ip);
+  }
 
+  /**
+   * Регистрация. Форма ввода уже проверена контроллером; здесь, как и в `requestCode`, ни одного
+   * `throw`: занятый адрес, новый адрес, исчерпанный предел — наружу всё одно и то же.
+   * Пределы проверяются до создания организации: иначе перебором адресов заводятся тысячи
+   * пустых организаций. Занятому адресу новая организация не заводится — уходит код в его старую.
+   */
+  async register(rawEmail: string, rawOrganizationName: string, ip: string | null): Promise<void> {
+    const email = normalizeEmail(rawEmail);
+    const organizationName = normalizeOrganizationName(rawOrganizationName);
+    if (!isEmailShaped(email) || !organizationName) return;
+    if (await this.overLimit(email, ip)) return;
+
+    let account = await this.repo.accountByEmail(email);
+    if (account === null) {
+      const now = new Date();
+      account = await this.repo.createAccount({ email, organizationName, trialEndsAt: trialEndsAt(now) });
+      if (account === null) {
+        // Адрес занят, но `accountByEmail` его не отдал: человек заблокирован или без организации.
+        // Такому код не шлём, наружу молчим — как и при обычном запросе кода.
+        return;
+      }
+      this.log.log(`зарегистрирована организация ${account.organizationId}, пробный период до ${account.trialEndsAt?.toISOString()}`);
+    }
+    await this.issueCode(email, ip);
+  }
+
+  private async overLimit(email: string, ip: string | null): Promise<boolean> {
+    const since = new Date(Date.now() - HOUR_MS);
+    if ((await this.repo.codesForEmailSince(email, since)) >= MAX_CODES_PER_EMAIL_PER_HOUR) {
+      this.log.warn(`код не выслан: предел на адрес исчерпан (${MAX_CODES_PER_EMAIL_PER_HOUR}/час)`);
+      return true;
+    }
+    if (ip && (await this.repo.codesForIpSince(ip, since)) >= MAX_CODES_PER_IP_PER_HOUR) {
+      this.log.warn(`код не выслан: предел на адрес сети исчерпан (${MAX_CODES_PER_IP_PER_HOUR}/час)`);
+      return true;
+    }
+    return false;
+  }
+
+  /** Код в базу, письмо человеку. Пределы и существование адреса проверены до вызова. */
+  private async issueCode(email: string, ip: string | null): Promise<void> {
     const code = formatCode(randomInt(0, 10 ** CODE_LENGTH));
     const now = new Date();
     await this.repo.saveLoginCode({
@@ -142,6 +179,14 @@ export class AccountsService {
     if (!stored) return null;
     if (!checkSession(stored, new Date()).ok) return null;
     return toSession(stored);
+  }
+
+  /** Автор для журнала действий: внутренний номер человека и организации. Наружу не отдаётся. */
+  async actorFor(token: string): Promise<Actor | null> {
+    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
+    if (!stored) return null;
+    if (!checkSession(stored, new Date()).ok) return null;
+    return { userId: stored.userId, organizationId: stored.organizationId };
   }
 
   /**

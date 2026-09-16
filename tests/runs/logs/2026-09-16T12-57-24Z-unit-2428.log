@@ -1,0 +1,19 @@
+# Модульные (unit) · 16.09.2026 17:57 Алматы · MacBook-Air-Urij.local
+# коммит de281bf (main), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T12-57-24Z-unit-2428.json' 'packages/shared/src/auth-hash.test.ts' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓  unit  packages/domain/src/accounts/trial.test.ts (11 tests) 5ms
+ ✓  unit  packages/domain/src/accounts/session.test.ts (6 tests) 7ms
+ ✓  unit  packages/shared/src/auth-hash.test.ts (11 tests) 7ms
+ ✓  unit  packages/domain/src/accounts/login-code.test.ts (29 tests) 9ms
+
+ Test Files  4 passed (4)
+      Tests  57 passed (57)
+   Start at  16:57:26
+   Duration  233ms (transform 61%, import 19%, tests 10%, worker 9%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T12-57-24Z-unit-2428.json
+
+# код выхода 0 · 1 с

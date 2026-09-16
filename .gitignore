@@ -70,3 +70,4 @@ tests/runs/.locks/
 # --- Дизайн-система: скриншоты Exely с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
 design/reference/exely/*
 !design/reference/exely/.gitkeep
+tests/runs/.auth/

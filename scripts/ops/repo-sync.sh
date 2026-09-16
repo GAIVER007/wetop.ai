@@ -156,11 +156,13 @@ for n in api web tunnel domain awake exely-sync; do
   loaded=""
   launchctl print "gui/$UID_N/kz.luxx.pms.$n" >/dev/null 2>&1 && loaded=" (загружена)"
   [ "$n" = domain ] && domain_installed=1
-  # Быстрый туннель при постоянном адресе запускать нельзя: он уводит webhook Channex на одноразовый адрес,
-  # который умирает вместе с ним (CLAUDE.md, 15–16.09.2026). Переустанавливать его на новую папку — не чинить, а ломать.
-  if [ "$n" = tunnel ] && [ -f "$DOMAIN_CONFIG" ]; then
+  # Быстрый туннель не запускается ни на одной машине, пока в Channex стоит постоянный адрес (отчёт 77c8085,
+  # 16.09.2026): он уводит webhook на одноразовый адрес, который умирает вместе с ним. Вечером 16.09 --relink
+  # переустановил его на втором компьютере разработчика, где wetop.yml нет, и адрес снова был перебит.
+  # Переустанавливать быстрый туннель на новую папку — не чинить, а ломать; осознанный запуск — руками.
+  if [ "$n" = tunnel ]; then
     quick=1
-    bad "служба tunnel$loaded — быстрый туннель, а у объекта постоянный адрес ($DOMAIN_CONFIG): он уводит webhook Channex на одноразовый"
+    bad "служба tunnel$loaded — быстрый туннель: с 16.09.2026 не запускается ни на одной машине, пока в Channex постоянный адрес"
     continue
   fi
   if [ -n "$wd" ] && [ "$(realdir "$wd")" = "$ROOT_P" ]; then
@@ -179,7 +181,7 @@ if [ "$quick" -eq 1 ]; then
     bash "$ROOT/scripts/ops/launchd/uninstall.sh" tunnel 2>&1 | sed 's/^/      /'
     ok "быстрый туннель снят"
   else
-    need "снять быстрый туннель: scripts/ops/launchd/uninstall.sh tunnel (--relink снимет сам)"
+    need "снять быстрый туннель: scripts/ops/launchd/uninstall.sh tunnel (--relink снимет сам; осознанно — ALLOW_QUICK_TUNNEL=1 scripts/ops/channex-tunnel.sh)"
   fi
 fi
 if [ -f "$DOMAIN_CONFIG" ] && [ "$domain_installed" -eq 0 ]; then

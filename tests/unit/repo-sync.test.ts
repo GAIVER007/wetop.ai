@@ -311,6 +311,29 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     );
   }, 60_000);
 
+  it('быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается', () => {
+    // 16.09.2026, вечер: на втором компьютере разработчика (wetop.yml нет, PUBLIC_API_URL не задан) --relink
+    // переустановил tunnel, и тот снова затёр постоянный адрес webhook в Channex. Правило из отчёта
+    // 77c8085: быстрый туннель не запускать ни на одной машине, пока в Channex стоит постоянный адрес.
+    const sb = sandbox();
+    const agents = join(sb.home, 'Library', 'LaunchAgents');
+    writeFileSync(join(agents, 'kz.luxx.pms.tunnel.plist'), plist('tunnel', sb.oldDir));
+    writeFileSync(join(sb.dir, 'state', 'loaded-kz.luxx.pms.tunnel'), '');
+
+    const check = run(sb, []);
+    expect(check.out).toMatch(/быстрый туннель/);
+    expect(check.out).not.toMatch(/служба tunnel.*держит PMS/);
+
+    const { calls } = run(sb, ['--relink']);
+    expect(
+      existsSync(join(agents, 'kz.luxx.pms.tunnel.plist')),
+      'plist быстрого туннеля снят',
+    ).toBe(false);
+    expect(calls).not.toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.tunnel\.plist/);
+    // без wetop.yml постоянный туннель ставить негде — про domain не просим
+    expect(run(sb, []).out).not.toMatch(/install\.sh domain/);
+  }, 60_000);
+
   it('находит вторую копию репозитория рядом с папкой', () => {
     const sb = sandbox();
     git(sb.dir, 'clone', '-q', sb.origin, sb.oldDir);

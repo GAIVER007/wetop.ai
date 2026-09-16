@@ -482,3 +482,7 @@
 | 17.09.2026 00:25 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 11 из 11 | 3 с | b8d0213 +2 | [лог](logs/2026-09-16T19-25-49Z-unit-186d.log) | аргументы после # и быстрый туннель при постоянном адресе: зелёный |
 | 17.09.2026 00:25 | lint | ✅ без ошибок | 11 с | b8d0213 +2 | [лог](logs/2026-09-16T19-25-52Z-lint-681d.log) | repo-sync: # и быстрый туннель |
 | 17.09.2026 00:26 | typecheck | ✅ без ошибок | 14 с | b8d0213 +2 | [лог](logs/2026-09-16T19-26-04Z-typecheck-2b25.log) | repo-sync |
+| 17.09.2026 00:33 | unit (частично: tests/unit/channex-tunnel-guard.test.ts tests/unit/repo-sync.test.ts) | ❌ упало 3 из 19 | 1 мин 42 с | 36a3d4a +2 | [лог](logs/2026-09-16T19-33-45Z-unit-9198.log) | гонка защиты туннеля с запуском API и переустановка tunnel через --relink: красный до правки |
+| 17.09.2026 00:36 | unit (частично: tests/unit/channex-tunnel-guard.test.ts tests/unit/repo-sync.test.ts) | ✅ 19 из 19 | 1 мин 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-36-30Z-unit-1aaf.log) | гонка защиты туннеля и переустановка tunnel: зелёный после правки |
+| 17.09.2026 00:37 | lint | ✅ без ошибок | 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-42Z-lint-23f5.log) | туннель и repo-sync |
+| 17.09.2026 00:37 | typecheck | ✅ без ошибок | 14 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-54Z-typecheck-bb7a.log) | туннель и repo-sync |

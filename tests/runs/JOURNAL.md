@@ -445,3 +445,5 @@
 | 16.09.2026 13:38 | e2e (частично: --workers=1 tests/e2e/chessboard.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/web-analytics.spec.ts) | ✅ 7 из 7 | 2 мин 5 с | 2965fed +37 | [лог](logs/2026-09-16T08-38-46Z-e2e-3ec1.log) |  |
 | 16.09.2026 13:58 | e2e (частично: tests/e2e/desk-day.spec.ts --workers=1) | ✅ 2 из 2 | 1 мин 20 с | 34d5752 +38 | [лог](logs/2026-09-16T08-58-20Z-e2e-a854.log) | Срез 14: главная-дашборд, заезд виден в счётчике и в «Требуют внимания» с номером брони (изолированный стенд) |
 | 16.09.2026 13:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts --workers=1) | ✅ 7 из 7 | 1 мин 35 с | 34d5752 +38 | [лог](logs/2026-09-16T08-59-41Z-e2e-7f0c.log) | Шахматка: подпись ночей тем же цветом, что имя — контраст в тёмной теме |
+| 16.09.2026 14:33 | typecheck | ✅ без ошибок | 40 с | 6e58ff3 +8 | [лог](logs/2026-09-16T09-33-12Z-typecheck-6c19.log) |  |
+| 16.09.2026 14:33 | lint | ✅ без ошибок | 28 с | 6e58ff3 +8 | [лог](logs/2026-09-16T09-33-55Z-lint-66c8.log) |  |

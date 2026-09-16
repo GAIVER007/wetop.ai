@@ -97,8 +97,8 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
       const rows = await db.$queryRaw<Array<{ status: string; trial_ends_at: Date | null }>>`
         SELECT status, trial_ends_at FROM organizations WHERE id = ${id}::uuid`;
       expect(rows).toHaveLength(1);
-      expect(rows[0].status).toBe('TRIAL');
-      expect(rows[0].trial_ends_at).not.toBeNull();
+      expect(rows[0]!.status).toBe('TRIAL');
+      expect(rows[0]!.trial_ends_at).not.toBeNull();
     } finally {
       await db.$executeRaw`DELETE FROM organizations WHERE id = ${id}::uuid`;
     }

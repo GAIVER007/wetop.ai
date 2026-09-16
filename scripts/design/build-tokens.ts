@@ -381,6 +381,36 @@ export const CONTRAST_PAIRS: ContrastPair[] = [
     min: 3,
     note: 'граница панели — декоративная, порог 3:1 справочно',
   },
+  {
+    fg: 'color.semantic.border-soft',
+    bg: 'color.semantic.surface',
+    min: 3,
+    note: 'линия между строками — декоративная, справочно',
+  },
+  {
+    fg: 'color.semantic.warning-border',
+    bg: 'color.semantic.warning-bg',
+    min: 3,
+    note: 'рамка предупреждения — декоративная, справочно',
+  },
+  {
+    fg: 'color.semantic.danger-border',
+    bg: 'color.semantic.danger-soft',
+    min: 3,
+    note: 'рамка ошибки — декоративная, справочно',
+  },
+  {
+    fg: 'color.semantic.warning',
+    bg: 'color.status.tentative',
+    min: 4.5,
+    note: 'глиф «?» на плашке «предварительная»',
+  },
+  {
+    fg: 'color.semantic.success',
+    bg: 'color.status.checked-in',
+    min: 4.5,
+    note: 'глиф «✓» на плашке «заселён»',
+  },
 ];
 
 const luminance = (hex: string): number => {

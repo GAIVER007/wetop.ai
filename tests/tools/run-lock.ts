@@ -13,7 +13,21 @@ import { join } from 'node:path';
 export interface LockHolder {
   pid: number;
   startedAt: string;
+  /** Набор, который держит замок (не имя замка: наборы на общей базе делят один) */
   suite: string;
+}
+
+/** Набор, которому не нужны ни база, ни поднятые службы: замок на дерево ему ни к чему */
+const SELF_CONTAINED = 'ничего внешнего';
+/**
+ * Один замок на всех, кому нужна dev-БД. Раньше замок брался на имя набора, и `e2e` с `integration`
+ * спокойно шли одновременно — а база у них одна, и Session pooler Supabase один на проект (15 клиентов):
+ * 15.09.2026 ночной e2e растянулся на 6 часов и упал десятью таймаутами базы.
+ */
+export const SHARED_DB_LOCK = 'dev-database';
+
+export function lockNameFor(needs: string): string | null {
+  return needs === SELF_CONTAINED ? null : SHARED_DB_LOCK;
 }
 export type RunLock =
   | { ok: true; release: () => void }
@@ -45,14 +59,14 @@ function readHolder(file: string): LockHolder | null {
  * Взять замок набора. Занят живым процессом — отказ с тем, кто держит; остался от убитого прогона —
  * перехватываем, иначе упавший прогон заблокировал бы набор навсегда.
  */
-export function acquireRunLock(dir: string, suite: string): RunLock {
+export function acquireRunLock(dir: string, name: string, owner = name): RunLock {
   mkdirSync(dir, { recursive: true });
-  const file = join(dir, `${suite}.lock`);
+  const file = join(dir, `${name}.lock`);
   if (existsSync(file)) {
     const holder = readHolder(file);
     if (holder && alive(holder.pid)) return { ok: false, holder };
   }
-  const mine: LockHolder = { pid: process.pid, startedAt: new Date().toISOString(), suite };
+  const mine: LockHolder = { pid: process.pid, startedAt: new Date().toISOString(), suite: owner };
   writeFileSync(file, JSON.stringify(mine));
   let released = false;
   return {

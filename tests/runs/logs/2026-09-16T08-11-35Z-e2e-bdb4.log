@@ -1,0 +1,448 @@
+# Сквозные (e2e) · 16.09.2026 13:11 Алматы · MacBook-Air-Urij.local
+# коммит f936676 (main), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[e2e] не в прогоне — жёсткий адрес рабочего стенда: web-booking.spec.ts
+[pms_test] миграций применено 0 из 13; данные от 2026-09-14T07:50:46.719Z
+
+Running 23 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (505ms)
+[WebServer] (node:48579) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:23:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (1.1m)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+  ✓   3 [isolated] › tests/e2e/check-in-out.spec.ts:18:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (1.8m)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1034080144'
+[WebServer] }
+  ✓   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:24:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (50.5s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:27:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (38.1s)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (9.3s)
+  ✘   7 [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями (1.5m)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/apps_web_src_1dtjuf5._.js from module 93275
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '814977541',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/apps_web_src_1dtjuf5._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+  ✘   8 [isolated] › tests/e2e/desk-day.spec.ts:20:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (32.8s)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:27:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (1.1m)
+  ✓  10 [isolated] › tests/e2e/desk-tasks.spec.ts:26:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (1.3m)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:28:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (54.7s)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:23:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (1.1m)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (7.9s)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (3.3s)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (2.6s)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+  ✓  16 [isolated] › tests/e2e/manual-reservation.spec.ts:11:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (44.2s)
+  ✓  17 [isolated] › tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (9.9s)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1034080144'
+[WebServer] }
+  ✓  18 [isolated] › tests/e2e/print-forms.spec.ts:27:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (47.9s)
+[WebServer] ⨯ Error [ChunkLoadError]: Failed to load chunk server/chunks/ssr/_1-p2ima._.js from module 37215
+[WebServer]     at Context.loadChunkAsync [as l] (.next/server/chunks/ssr/[turbopack]_runtime.js:702:27) {
+[WebServer]   digest: '123493139',
+[WebServer]   [cause]: Error: Cannot find module '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/_1-p2ima._.js'
+[WebServer]   Require stack:
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js
+[WebServer]   - /Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js
+[WebServer]       at ignore-listed frames {
+[WebServer]     code: 'MODULE_NOT_FOUND',
+[WebServer]     requireStack: [
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/chunks/ssr/[turbopack]_runtime.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/.next/server/app/@drawer/(.)reservations/[number]/page.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/require.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/next.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/server/lib/start-server.js',
+[WebServer]       '/Users/urijzapojnov/Documents/ChatGPT/WETOP/node_modules/next/dist/cli/next-start.js'
+[WebServer]     ]
+[WebServer]   }
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1034080144'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1034080144'
+[WebServer] }
+  ✘  19 [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (1.4m)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:25:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (55.2s)
+  ✘  21 [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (37.4s)
+  -  22 [isolated] › tests/e2e/web-analytics.spec.ts:172:1 › страница подключения: код с ключом, «Проверить счётчик» видит события
+  -  23 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте
+[уборка e2e] Броней автотестов с активными проживаниями: 4 (кандидатов по фамилии было 1602)
+  свежих, моложе 15 мин, оставлено: 3 — уберёт следующая уборка
+Освобождено броней: 4
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: выгрузка не нужна — исходящий ARI выключен (тестовый API или scripts/ops/ari.sh stop)
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('td[data-state="OCCUPIED"] a').first()
+        - locator resolved to <a draggable="false" data-unit-code="1" class="board__stay" data-date="2026-09-08" data-testid="stay-cell" data-number="20260831-513903-1261833710" href="/reservations/20260831-513903-1261833710" data-item-id="c8faa466-7225-4db6-9a77-8a0b5ad59553" aria-label="Гость Тест-4b18c3 · 20260831-513903-1261833710 · выселен · с ранее → 2026-09-11 · 3+ ночи">…</a>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <td class="board__cell" data-state="OCCUPIED" data-date="2026-09-09" data-status="CHECKED_OUT" title="Гость Тест-4b18c3 · 20260831-513903-1261833710 · выселен">…</td> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <td class="board__cell" data-state="OCCUPIED" data-date="2026-09-09" data-status="CHECKED_OUT" title="Гость Тест-4b18c3 · 20260831-513903-1261833710 · выселен">…</td> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        159 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <td class="board__cell" data-state="OCCUPIED" data-date="2026-09-09" data-status="CHECKED_OUT" title="Гость Тест-4b18c3 · 20260831-513903-1261833710 · выселен">…</td> intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+
+
+      33 |   const first = page.locator('td[data-state="OCCUPIED"] a').first();
+      34 |   const number = (await first.getAttribute('href'))!.split('/').pop()!;
+    > 35 |   await first.click();
+         |               ^
+      36 |   await expect(page).toHaveURL(new RegExp(`/reservations/${number}`));
+      37 |   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
+      38 |   await expect(page.getByTestId('stay-row').first()).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/e2e/chessboard.spec.ts:35:15
+
+    Error Context: test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-клик-по-занятой-34172-рточку-брони-с-проживаниями-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/desk-day.spec.ts:20:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Главная' })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Главная' }) with timeout 30000ms
+      - waiting for getByRole('heading', { name: 'Главная' })
+
+
+      23 |   await page.goto('/');
+      24 |   await expect(page).toHaveURL(/\/today$/);
+    > 25 |   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+         |                                                                ^
+      26 |   // период по умолчанию — сегодня; показатели считаются из живых шахматки и счетов
+      27 |   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
+      28 |     'aria-current',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/e2e/desk-day.spec.ts:25:64
+
+    Error Context: test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-row').first()
+    Expected substring: "отменена"
+    Received string:    "5Общая мужская комната2026-10-082026-10-10подтверждена12 000,00 ₸Гость Тест-поздний-выезд · 1"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-row').first() with timeout 30000ms
+      - waiting for getByTestId('stay-row').first()
+        60 × locator resolved to <tr data-testid="stay-row">…</tr>
+           - unexpected value "5Общая мужская комната2026-10-082026-10-10подтверждена12 000,00 ₸Гость Тест-поздний-выезд · 1"
+
+
+      69 |   await page.getByTestId('cancel-reservation').click();
+      70 |   await cardTab(page, 'Обзор');
+    > 71 |   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+         |                                                      ^
+      72 |   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся
+      73 |   await page.goto(`/chessboard?from=${plus(11)}&to=${plus(14)}`);
+      74 |   await expect(unitRow.locator('td[data-state="BLOCKED"]')).toHaveCount(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/e2e/stay-extras.spec.ts:71:54
+
+    Error Context: test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('an-demand-row')
+    Expected: 1
+    Received: 0
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('an-demand-row') with timeout 30000ms
+      - waiting for getByTestId('an-demand-row')
+        63 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      157 |
+      158 |   await expect(page.getByTestId('an-page-row')).toHaveCount(2);
+    > 159 |   await expect(page.getByTestId('an-demand-row')).toHaveCount(1);
+          |                                                   ^
+      160 |   await expect(page.getByTestId('an-demand-row').first()).toHaveAttribute(
+      161 |     'data-arrival',
+      162 |     '2026-10-01',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/e2e/web-analytics.spec.ts:159:51
+
+    Error Context: test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/error-context.md
+
+    Error Context: test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/web-analytics-три-сессии-д-d3d17-иёмника-и-сходятся-в-отчёте-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [isolated] › tests/e2e/chessboard.spec.ts:31:1 › клик по занятой клетке открывает карточку брони с проживаниями 
+    [isolated] › tests/e2e/desk-day.spec.ts:20:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+    [isolated] › tests/e2e/stay-extras.spec.ts:22:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+    [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте 
+  2 did not run
+  17 passed (17.0m)
+
+# код выхода 1 · 17 мин 4 с

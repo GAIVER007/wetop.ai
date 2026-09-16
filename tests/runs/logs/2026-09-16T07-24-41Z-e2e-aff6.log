@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 16.09.2026 12:24 Алматы · MacBook-Air-Urij.local
+# коммит f936676 (main), незакоммиченных файлов набора: 35
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⨯ Error: Нет связи с API. Проверьте подключение.
+[WebServer]     at backendFetch (src/lib/api.ts:71:11)
+[WebServer]     at async getJson (src/lib/api.ts:87:15)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:29:42)
+[WebServer]   69 |       throw error;
+[WebServer]   70 |     // No automatic retry: a timed-out payment/booking may already have been committed by the API.
+[WebServer] > 71 |     throw new ApiError(
+[WebServer]      |           ^
+[WebServer]   72 |       503,
+[WebServer]   73 |       options.method && options.method !== 'GET'
+[WebServer]   74 |         ? 'Нет ответа API. Проверьте результат операции перед повтором.' {
+[WebServer]   status: 503,
+[WebServer]   digest: '3920703258'
+[WebServer] }
+
+Running 81 tests using 1 worker
+
+  ✘   1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (2.3s)
+  ✘   2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (3.5s)
+  ✘   3 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px (8.5s)
+
+# код выхода —, сигнал SIGTERM · 29 мин 28 с

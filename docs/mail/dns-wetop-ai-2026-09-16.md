@@ -6,28 +6,31 @@
 
 Зона `wetop.ai` живёт в Cloudflare.
 
-## Уже прописано
+## Записи в зоне: все на месте (16.09.2026)
 
-| Тип | Имя | Значение | Прокси | Состояние |
+| Тип | Имя | Приоритет | Значение | Прокси |
 |---|---|---|---|---|
-| TXT | `@` | `zoho-verification=zb32389794.zmverify.zoho.com` | DNS only | прописано, домен подтверждён |
+| TXT | `@` | — | `zoho-verification=zb32389794.zmverify.zoho.com` | DNS only |
+| MX | `@` | 10 | `mx.zoho.com` | DNS only |
+| MX | `@` | 20 | `mx2.zoho.com` | DNS only |
+| MX | `@` | 50 | `mx3.zoho.com` | DNS only |
+| TXT | `@` | — | `v=spf1 include:zohomail.com ~all` | DNS only |
+| TXT | `zoho._domainkey` | — | ключ DKIM ниже, 2048 бит | DNS only |
+| TXT | `_dmarc` | — | `v=DMARC1; p=none; rua=mailto:wetopai@wetop.ai` | DNS only |
 
-## Осталось прописать
+Проверка из публичного DNS через 1.1.1.1 и 8.8.8.8: все семь записей отдаются, запись SPF
+одна, ключ DKIM пришёл целиком (415 байт, не обрезан).
 
-| # | Тип | Имя | Приоритет | Значение |
-|---|---|---|---|---|
-| 1 | MX | `@` | 10 | `mx.zoho.com` |
-| 2 | MX | `@` | 20 | `mx2.zoho.com` |
-| 3 | MX | `@` | 50 | `mx3.zoho.com` |
-| 4 | TXT | `@` | — | `v=spf1 include:zohomail.com ~all` |
-| 5 | TXT | `zoho._domainkey` | — | значение DKIM ниже |
-| 6 | TXT | `_dmarc` | — | `v=DMARC1; p=none; rua=mailto:wetopai@wetop.ai` |
+Состояние в консоли Zoho:
 
-DKIM, селектор `zoho`, ключ 2048 бит:
-
-```
-v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3BJnAFoYAQ9VhB397pFgV9Eko/2PAj6Iqe/TLh4zjNObXT+H/fzjs9JQmT5QZMNZK111i1JQeJk8chwX4q87osjVZjazdGD+UvYKh0kDCkamdfMWgRZ0r/oZ6b1FDSH2ySYtjZv3KGnfPuI5KP4EriovOiSXnq6MsaGPlGURC66MBCwl4z0aLzrPScRH2rf3tQv+W089/Z2wANwE/PaLoxkl2pabB2SOpxML/3XD3fPW1Egp6s3nwhxTAWlS0p89F9FUVOEqb/7ERUKlagMVZ5eAHOcDgZzdeOZIOjgCnRgf1gVOtctD9akd/EDv9dEiWoC9fkVibpzJtRELR1UfYwIDAQAB
-```
+| Что | Состояние |
+|---|---|
+| Владение доменом | подтверждено |
+| MX | «Записи MX вашего домена указывают на Zoho» |
+| SPF | «Записи SPF вашего домена успешно настроены» |
+| DKIM, селектор `zoho` | «Селектор DKIM успешно подтверждён», подпись включена |
+| DMARC | запись стоит в зоне; в консоли эта вкладка только генерирует значение, проверки там нет |
+| Домен целиком | **Завершено** |
 
 ## Что важно не сломать
 
@@ -49,3 +52,40 @@ v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3BJnAFoYAQ9VhB397p
 После того как записи встанут, в консоли Zoho: Домены → wetop.ai → Конфигурация эл. почты,
 на каждой вкладке (MX, SPF, DKIM) кнопка «Проверить». Ждать распространения обычно
 минуты, Cloudflare отдаёт быстро.
+
+---
+
+## Resend: отправка с поддомена send.wetop.ai (16.09.2026)
+
+Отправитель заведён на **поддомен**, а не на голый домен. Причина: у корня `wetop.ai` уже стоит
+рабочая запись SPF под Zoho, и правка её ради второго отправителя — лишний риск. Поломка SPF
+не даёт ошибки, письма просто начинают тихо уходить в спам. С поддоменом две системы не
+пересекаются вовсе: записи Zoho не трогаются, а если рассылка кодов когда-нибудь испортит себе
+репутацию, писем с `admin@wetop.ai` это не коснётся.
+
+Адрес отправителя становится `noreply@send.wetop.ai`.
+
+Регион Resend: **Ireland (eu-west-1)** — из четырёх (Вирджиния, Ирландия, Сан-Паулу, Токио)
+ближайший к Казахстану и с самым внятным режимом защиты данных. По умолчанию предлагался Токио.
+
+### Записи
+
+| Тип | Имя | Значение | Прокси |
+|---|---|---|---|
+| TXT | `resend._domainkey.send` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBsQrOUDrAfdVavstfSc4opKWCXCSdKdp61641euqOKk0JeSy9aSogSh0dAGs5f9v2KPfWndvMbHixpQeXW1r8ckDMT0lbPt3zipQdVEXP1k/MkLfZbcR2eH7OL10MpZeGkyOhlVzCDdbaGbyofeKWLAMCWJu023QPwY+rJDJVmQIDAQAB` | DNS only |
+| CNAME | `rsend.send` | `rsend-euw1.forge.rmta.net` | **DNS only, не проксировать** |
+| CNAME | `send.send` | `send.forge.rmta.net` | **DNS only, не проксировать** |
+
+Записи SPF у Resend в этой схеме нет: обратный путь писем идёт через `send.send.wetop.ai`,
+и проверка опирается на него. Значит корневая запись SPF под Zoho остаётся нетронутой — ровно
+то, ради чего брали поддомен.
+
+Запись MX для приёма писем на `send.wetop.ai` Resend тоже предлагает
+(`inbound-smtp.eu-west-1.amazonaws.com`, приоритет 10). **Не добавляем:** с этого поддомена
+только шлём, принимать там нечего. Меньше записей — меньше того, что может сломаться.
+
+### Что осталось на владельце
+
+Ключ API в Resend создаёт и кладёт в `.env` владелец. Агент ключ не видит и не запрашивает
+(AGENTS.md §7). Имена переменных — в `docs/mail/setup-2026-09-16.md` §4, значение `MAIL_FROM`
+теперь `noreply@send.wetop.ai`.

@@ -20,3 +20,4 @@ export {
   AnonymizeSaltMissingError,
   type GuestIdentity,
 } from './pii-residency';
+export * from './auth-hash';

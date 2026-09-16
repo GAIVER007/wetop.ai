@@ -1,99 +1,181 @@
-import { describe, expect, it } from 'vitest';
-import { MailApiError, ResendMailer, mailConfigFromEnv } from './resend';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-/** Отправка писем учётных записей. Форма запроса и ответа — docs/mail/README.md. */
-type Call = { url: string; init: RequestInit };
-function fakeFetch(handler: (call: Call, n: number) => { status: number; body: unknown }) {
-  const calls: Call[] = [];
-  const fn: typeof fetch = async (input, init) => {
-    const call = { url: String(input), init: init ?? {} };
-    calls.push(call);
-    const r = handler(call, calls.length);
-    return new Response(JSON.stringify(r.body), {
-      status: r.status,
-      headers: { 'content-type': 'application/json' },
-    });
-  };
-  return { fn, calls };
-}
-const KEY = ['re', 'fake-key-for-tests'].join('_');
-const letter = {
-  to: 'aigul@example.invalid',
-  subject: 'WETOP: задайте пароль',
-  text: 'Ссылка: https://app.wetop.ai/login/set-password?token=abc',
+import { ResendMailSender } from './resend';
+import { MailError, type MailConfig } from './sender';
+
+const config: MailConfig = {
+  provider: 'resend',
+  apiKey: 're_secret_value_do_not_leak',
+  from: 'noreply@send.wetop.ai',
+  fromName: 'WETOP',
 };
 
-describe('ResendMailer', () => {
-  it('POST JSON на /emails, ключ в заголовке, письмо только текстом', async () => {
-    const f = fakeFetch(() => ({ status: 200, body: { id: 'mail-1' } }));
-    const mailer = new ResendMailer({ apiKey: KEY, from: 'WETOP <no-reply@wetop.ai>', fetch: f.fn });
+const letter = { to: 'gost@example.com', subject: 'Код для входа в WETOP', text: 'Код: 123456' };
 
-    await expect(mailer.send(letter)).resolves.toEqual({ id: 'mail-1' });
+function okResponse() {
+  return new Response(JSON.stringify({ id: 'abc' }), { status: 200 });
+}
+function errorResponse(status: number, name: string, message = 'подробности') {
+  return new Response(JSON.stringify({ name, message }), { status });
+}
 
-    expect(f.calls).toHaveLength(1);
-    expect(f.calls[0]!.url).toBe('https://api.resend.com/emails');
-    expect(f.calls[0]!.init.method).toBe('POST');
-    const headers = f.calls[0]!.init.headers as Record<string, string>;
-    expect(headers['authorization']).toBe(`Bearer ${KEY}`);
-    expect(JSON.parse(String(f.calls[0]!.init.body))).toEqual({
-      from: 'WETOP <no-reply@wetop.ai>',
-      to: [letter.to],
-      subject: letter.subject,
-      text: letter.text,
+describe('отправка через Resend', () => {
+  let calls: Array<{ url: string; init: RequestInit }>;
+  let sleeps: number[];
+
+  beforeEach(() => {
+    calls = [];
+    sleeps = [];
+  });
+
+  function sender(responses: Response[], idempotencyKey?: () => string) {
+    const queue = [...responses];
+    return new ResendMailSender({
+      config,
+      // Необязательное поле передаём, только если оно есть: в проекте включена строгая
+      // проверка (`exactOptionalPropertyTypes`), и явный undefined здесь недопустим.
+      ...(idempotencyKey ? { idempotencyKey } : {}),
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+      fetch: (async (url: string, init: RequestInit) => {
+        calls.push({ url: String(url), init });
+        const next = queue.shift();
+        if (!next) throw new Error('лишний запрос');
+        return next;
+      }) as unknown as typeof fetch,
+    });
+  }
+
+  it('письмо уходит по адресу из документации, с ключом в заголовке и текстом в теле', async () => {
+    await sender([okResponse()]).send(letter);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.url).toBe('https://api.resend.com/emails');
+    expect(calls[0]!.init.method).toBe('POST');
+    const headers = calls[0]!.init.headers as Record<string, string>;
+    expect(headers.authorization).toBe('Bearer re_secret_value_do_not_leak');
+    const body = JSON.parse(String(calls[0]!.init.body));
+    expect(body).toEqual({
+      from: 'WETOP <noreply@send.wetop.ai>',
+      to: 'gost@example.com',
+      subject: 'Код для входа в WETOP',
+      text: 'Код: 123456',
     });
   });
 
-  it('201 тоже успех', async () => {
-    const f = fakeFetch(() => ({ status: 201, body: { id: 'mail-2' } }));
-    await expect(
-      new ResendMailer({ apiKey: KEY, from: 'x@wetop.ai', fetch: f.fn }).send(letter),
-    ).resolves.toEqual({ id: 'mail-2' });
+  it('поле html не отправляем вовсе', async () => {
+    await sender([okResponse()]).send(letter);
+    expect(JSON.parse(String(calls[0]!.init.body))).not.toHaveProperty('html');
   });
 
-  it('ошибка сервиса не выносит наружу ни ключ, ни адрес получателя', async () => {
-    const f = fakeFetch(() => ({
-      status: 422,
-      body: { name: 'validation_error', message: 'The from address is not verified' },
-    }));
-    const mailer = new ResendMailer({ apiKey: KEY, from: 'x@wetop.ai', fetch: f.fn });
-
-    await expect(mailer.send(letter)).rejects.toThrow(MailApiError);
-    const error = (await mailer.send(letter).catch((e: unknown) => e)) as MailApiError;
-    expect(error.status).toBe(422);
-    expect(error.message).toContain('The from address is not verified');
-    expect(error.message).not.toContain(KEY);
-    expect(error.message).not.toContain(letter.to);
+  it('без подписи отправителя уходит голый адрес', async () => {
+    const s = new ResendMailSender({
+      config: { ...config, fromName: '' },
+      fetch: (async (url: string, init: RequestInit) => {
+        calls.push({ url: String(url), init });
+        return okResponse();
+      }) as unknown as typeof fetch,
+    });
+    await s.send(letter);
+    expect(JSON.parse(String(calls[0]!.init.body)).from).toBe('noreply@send.wetop.ai');
   });
 
-  it('нечитаемое тело ошибки не роняет отправку без объяснения', async () => {
-    const fn: typeof fetch = async () => new Response('<html>502</html>', { status: 502 });
-    const mailer = new ResendMailer({ apiKey: KEY, from: 'x@wetop.ai', fetch: fn });
-    await expect(mailer.send(letter)).rejects.toThrow(/502/);
+  it('ключ идемпотентности уходит заголовком, когда он задан', async () => {
+    await sender([okResponse()], () => 'код-для-gost-в-12-00').send(letter);
+    const headers = calls[0]!.init.headers as Record<string, string>;
+    expect(headers['idempotency-key']).toBe('код-для-gost-в-12-00');
   });
 
-  it('сеть молчит — это ошибка отправки, а не исключение мимо обработки', async () => {
-    const fn: typeof fetch = async () => {
-      throw new TypeError('fetch failed');
-    };
-    const mailer = new ResendMailer({ apiKey: KEY, from: 'x@wetop.ai', fetch: fn });
-    await expect(mailer.send(letter)).rejects.toThrow(MailApiError);
+  it('без ключа идемпотентности заголовка нет — пустого не шлём', async () => {
+    await sender([okResponse()]).send(letter);
+    expect(calls[0]!.init.headers as Record<string, string>).not.toHaveProperty('idempotency-key');
   });
 });
 
-describe('mailConfigFromEnv', () => {
-  it('без ключа отправки нет — и это не ошибка запуска', () => {
-    expect(mailConfigFromEnv({})).toBeNull();
-    expect(mailConfigFromEnv({ RESEND_API_KEY: '   ' })).toBeNull();
+describe('Resend: отказы', () => {
+  let sleeps: number[];
+  let attempts: number;
+
+  beforeEach(() => {
+    sleeps = [];
+    attempts = 0;
   });
 
-  it('с ключом берёт отправителя из окружения, иначе умолчание', () => {
-    expect(mailConfigFromEnv({ RESEND_API_KEY: KEY })).toEqual({
-      apiKey: KEY,
-      from: 'WETOP <no-reply@wetop.ai>',
+  function sender(responses: Response[]) {
+    const queue = [...responses];
+    return new ResendMailSender({
+      config,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+      fetch: (async () => {
+        attempts += 1;
+        const next = queue.shift();
+        if (!next) throw new Error('лишний запрос');
+        return next;
+      }) as unknown as typeof fetch,
     });
-    expect(mailConfigFromEnv({ RESEND_API_KEY: KEY, MAIL_FROM: 'Стойка <desk@wetop.ai>' })).toEqual({
-      apiKey: KEY,
-      from: 'Стойка <desk@wetop.ai>',
+  }
+
+  it('429 повторяется один раз и проходит', async () => {
+    await sender([errorResponse(429, 'rate_limit_exceeded'), okResponse()]).send(letter);
+    expect(attempts).toBe(2);
+    expect(sleeps).toEqual([1000]);
+  });
+
+  it('503 тоже повторяется', async () => {
+    await sender([errorResponse(503, 'service_unavailable'), okResponse()]).send(letter);
+    expect(attempts).toBe(2);
+  });
+
+  it('повтор ровно один: второй отказ уже отдаём наверх', async () => {
+    const s = sender([errorResponse(500, 'application_error'), errorResponse(500, 'application_error')]);
+    await expect(s.send(letter)).rejects.toThrow(MailError);
+    expect(attempts).toBe(2);
+  });
+
+  it('422 не повторяется — это наша ошибка в запросе, а не заминка на той стороне', async () => {
+    const s = sender([errorResponse(422, 'missing_required_field')]);
+    await expect(s.send(letter)).rejects.toMatchObject({ retriable: false });
+    expect(attempts).toBe(1);
+  });
+
+  it('401 не повторяется и помечен как неповторяемый', async () => {
+    const s = sender([errorResponse(401, 'missing_api_key')]);
+    await expect(s.send(letter)).rejects.toMatchObject({ retriable: false });
+    expect(attempts).toBe(1);
+  });
+
+  it('в тексте ошибки есть имя отказа и код, чтобы было что чинить', async () => {
+    const s = sender([errorResponse(403, 'suspended_api_key', 'This API key is suspended')]);
+    await expect(s.send(letter)).rejects.toThrow(/403.*suspended_api_key/);
+  });
+
+  it('ключ не протекает в текст ошибки, даже если Resend вернул его в своём сообщении', async () => {
+    const s = sender([
+      errorResponse(401, 'restricted_api_key', 'ключ re_secret_value_do_not_leak не подошёл'),
+    ]);
+    const err = await s.send(letter).catch((e: Error) => e);
+    expect((err as Error).message).toContain('<ключ>');
+    expect((err as Error).message).not.toContain('re_secret_value_do_not_leak');
+  });
+
+  it('сеть не ответила — ошибка помечена повторяемой, ключ в ней не светится', async () => {
+    const s = new ResendMailSender({
+      config,
+      sleep: async () => {},
+      fetch: (async () => {
+        throw new Error('соединение оборвано, ключ re_secret_value_do_not_leak');
+      }) as unknown as typeof fetch,
     });
+    const err = (await s.send(letter).catch((e: Error) => e)) as MailError;
+    expect(err.retriable).toBe(true);
+    expect(err.message).toContain('<ключ>');
+    expect(err.message).not.toContain('re_secret_value_do_not_leak');
+  });
+
+  it('ответ без разбираемого тела не роняет клиент', async () => {
+    const s = sender([new Response('не json', { status: 400 })]);
+    await expect(s.send(letter)).rejects.toThrow(/400/);
   });
 });

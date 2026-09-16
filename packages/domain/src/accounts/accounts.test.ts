@@ -8,21 +8,21 @@ import {
   hashPassword,
   hashSessionToken,
   newSessionToken,
-  normalizeEmail,
+  validEmail,
   sessionState,
   verifyPassword,
 } from './index';
 
-describe('normalizeEmail', () => {
+describe('validEmail', () => {
   it('приводит к нижнему регистру и убирает пробелы по краям', () => {
-    expect(normalizeEmail('  Admin@Luxx.KZ ')).toBe('admin@luxx.kz');
+    expect(validEmail('  Admin@Luxx.KZ ')).toBe('admin@luxx.kz');
   });
 
   it('отвергает то, что не похоже на почту', () => {
-    expect(normalizeEmail('admin')).toBeNull();
-    expect(normalizeEmail('')).toBeNull();
-    expect(normalizeEmail('a@b')).toBeNull();
-    expect(normalizeEmail('два@слова.kz с пробелом')).toBeNull();
+    expect(validEmail('admin')).toBeNull();
+    expect(validEmail('')).toBeNull();
+    expect(validEmail('a@b')).toBeNull();
+    expect(validEmail('два@слова.kz с пробелом')).toBeNull();
   });
 });
 

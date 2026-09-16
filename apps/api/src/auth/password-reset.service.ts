@@ -12,7 +12,7 @@ import {
   hashSessionToken,
   invitationLetter,
   newSessionToken,
-  normalizeEmail,
+  validEmail,
   passwordResetLetter,
   resetExpiry,
   resetLink,
@@ -20,9 +20,13 @@ import {
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
-/** Кому отдаём письмо. Настоящий отправитель — `@pms/integrations` mail (ADR-004), в тестах подставной. */
+/**
+ * Кому отдаём письмо. Порт — общий с входом по коду (`@pms/integrations` mail, ADR-004): один
+ * отправитель на систему, в тестах подставной. 16.09.2026 две сессии написали по клиенту Resend;
+ * оставлен проверенный живым письмом (`docs/mail/resend-api.md`), мой удалён.
+ */
 export interface Mailer {
-  send(letter: { to: string; subject: string; text: string }): Promise<{ id: string }>;
+  send(letter: { to: string; subject: string; text: string }): Promise<void>;
 }
 export const MAILER = Symbol('MAILER');
 export const APP_URL = Symbol('APP_URL');
@@ -52,7 +56,7 @@ export class PasswordResetService {
     if (!this.mailer)
       throw new ServiceUnavailableException('Отправка писем не настроена: обратитесь к владельцу');
 
-    const normalized = normalizeEmail(email);
+    const normalized = validEmail(email);
     if (!normalized) return;
     const user = await this.prisma.db.user.findUnique({ where: { email: normalized } });
     if (!user || user.status === 'BLOCKED') return;
@@ -110,7 +114,7 @@ export class PasswordResetService {
     input: { email: string; name: string; organizationId: string },
     now = new Date(),
   ): Promise<{ link: string; sent: boolean }> {
-    const email = normalizeEmail(input.email);
+    const email = validEmail(input.email);
     if (!email) throw new BadRequestException('email: непохоже на почту');
     const name = input.name.trim();
     if (!name) throw new BadRequestException('name: журналу нужно имя, а не только почта');

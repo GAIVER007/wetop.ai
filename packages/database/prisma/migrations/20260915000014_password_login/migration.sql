@@ -10,10 +10,10 @@ ALTER TABLE "users" ADD COLUMN "password_hash" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "users" ADD COLUMN "failed_attempts" INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE "users" ADD COLUMN "locked_until" TIMESTAMPTZ(6);
 
--- Сессия по токену: в cookie у человека сам токен, здесь только его sha-256.
-ALTER TABLE "sessions" ADD COLUMN "token_hash" TEXT;
+-- Сессия: когда её видели последний раз. Сам отпечаток токена (`token_hash`) добавляет миграция
+-- 20260916000014_session_token_hash из параллельной работы по входу на почту — там он строже
+-- (NOT NULL, VARCHAR(64) и CHECK на 64 шестнадцатеричных знака), и второй раз его добавлять нельзя.
 ALTER TABLE "sessions" ADD COLUMN "last_seen_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP;
-CREATE UNIQUE INDEX "sessions_token_hash_key" ON "sessions"("token_hash");
 
 -- Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе.
 CREATE TABLE "password_resets" (

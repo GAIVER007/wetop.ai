@@ -8,7 +8,7 @@ import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-r
 
 /**
  * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Отправка писем настраивается ключом в окружении:
- * без `RESEND_API_KEY` система работает, но приглашения и сброс пароля письмом недоступны — ссылку выдаёт
+ * без `MAIL_API_KEY` система работает, но приглашения и сброс пароля письмом недоступны — ссылку выдаёт
  * владелец командой `npm run accounts -- invite` (docs/mail/README.md).
  */
 @Module({
@@ -21,7 +21,7 @@ import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-r
       provide: MAILER,
       useFactory: (): Mailer | null => {
         const config = mail.mailConfigFromEnv(process.env);
-        return config ? new mail.ResendMailer(config) : null;
+        return config ? new mail.ResendMailSender({ config }) : null;
       },
     },
     {

@@ -521,3 +521,14 @@
 | 16.09.2026 18:29 | lint | ✅ без ошибок | 9 с | 776fca3 +22 | [лог](logs/2026-09-16T13-29-47Z-lint-ad0d.log) |  |
 | 16.09.2026 18:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 110 | 8 мин 6 с | 776fca3 +22 | [лог](logs/2026-09-16T13-30-01Z-e2e-14d8.log) | пустые ответы дают нули; сбой API не выдаётся за пустую базу |
 | 16.09.2026 18:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 110 из 110 | 8 мин 7 с | 776fca3 +23 | [лог](logs/2026-09-16T13-38-44Z-e2e-bbbe.log) |  |
+| 16.09.2026 17:42 | unit (частично: packages/integrations/src/mail) | ✅ 30 из 30 | 2 с | 31e81a8 +4 | [лог](logs/2026-09-16T12-42-51Z-unit-bf2a.log) |  |
+| 16.09.2026 17:57 | unit (частично: packages/shared/src/auth-hash.test.ts packages/domain/src/accounts) | ✅ 57 из 57 | 1 с | de281bf +7 | [лог](logs/2026-09-16T12-57-24Z-unit-2428.log) |  |
+| 16.09.2026 18:08 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ❌ упало 1 из 85 | 13 с | c20f55b +14 | [лог](logs/2026-09-16T13-08-12Z-unit-7f9d.log) | кто вошёл и выход чужой или выдуманный ключ — 401 |
+| 16.09.2026 18:10 | unit (частично: apps/api/src/accounts packages/domain/src/accounts) | ✅ 85 из 85 | 3 с | c20f55b +14 | [лог](logs/2026-09-16T13-10-00Z-unit-1ca5.log) |  |
+| 16.09.2026 18:11 | integration | ✅ 26 из 26 | 6 мин 24 с | da3339f | [лог](logs/2026-09-16T13-11-27Z-integration-8c81.log) |  |
+| 16.09.2026 22:12 | unit | ❌ упало 2 из 1109, пропущено 3 | 1 мин 3 с | d73556a +42 | [лог](logs/2026-09-16T17-12-33Z-unit-f442.log) | parseAccountsArgs без имени или с непохожей почтой не создаём |
+| 16.09.2026 22:13 | unit | ✅ 1106 из 1109, пропущено 3 | 1 мин 1 с | d73556a +43 | [лог](logs/2026-09-16T17-13-55Z-unit-939c.log) |  |
+| 16.09.2026 22:15 | typecheck | ✅ без ошибок | 13 с | d73556a +43 | [лог](logs/2026-09-16T17-15-02Z-typecheck-ebce.log) |  |
+| 16.09.2026 22:15 | lint | ✅ без ошибок | 8 с | d73556a +43 | [лог](logs/2026-09-16T17-15-15Z-lint-4138.log) |  |
+| 16.09.2026 22:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 110 из 110 | 8 мин 53 с | d73556a +43 | [лог](logs/2026-09-16T17-16-05Z-e2e-a84d.log) |  |
+| 16.09.2026 22:25 | e2e (частично: --config tests/ui/playwright.auth.config.ts) | ✅ 4 из 4 | 10 с | d73556a +43 | [лог](logs/2026-09-16T17-25-03Z-e2e-926c.log) |  |

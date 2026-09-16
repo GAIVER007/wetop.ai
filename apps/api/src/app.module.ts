@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { AccountsModule } from './accounts/accounts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { SessionGuard } from './auth/auth.guard';
@@ -25,7 +26,10 @@ import { DataConnectionModule } from './database/connection';
 @Module({
   imports: [
     DataConnectionModule,
+    // Два способа входа живут рядом, пока владелец не выбрал (Q-146): пароль — AuthModule (ADR-049),
+    // одноразовый код на почту — AccountsModule (ADR-046).
     AuthModule,
+    AccountsModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,

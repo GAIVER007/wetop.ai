@@ -6,7 +6,7 @@ import {
   hashPassword,
   hashSessionToken,
   newSessionToken,
-  normalizeEmail,
+  validEmail,
   sessionExpiry,
   sessionState,
   verifyPassword,
@@ -64,7 +64,7 @@ export class AuthService {
     input: { email: string; password: string; userAgentFamily?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
-    const email = normalizeEmail(input.email);
+    const email = validEmail(input.email);
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },

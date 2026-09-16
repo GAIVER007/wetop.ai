@@ -1,4 +1,4 @@
-import { normalizeEmail } from '@pms/domain';
+import { validEmail } from '@pms/domain';
 
 export type AccountsCommand =
   | { kind: 'list' }
@@ -39,7 +39,7 @@ export function parseAccountsArgs(argv: readonly string[]): ParseResult {
   if (command === 'list') return { ok: true, command: { kind: 'list' } };
 
   if (command === 'create' || command === 'invite') {
-    const email = normalizeEmail(arg('email'));
+    const email = validEmail(arg('email'));
     const name = (arg('name') ?? '').trim();
     if (!email) return { ok: false, error: '--email= непохож на почту' };
     if (!name) return { ok: false, error: '--name= обязателен: журналу нужно имя, а не только почта' };
@@ -47,7 +47,7 @@ export function parseAccountsArgs(argv: readonly string[]): ParseResult {
   }
 
   if (command === 'password' || command === 'block' || command === 'unblock') {
-    const email = normalizeEmail(arg('email'));
+    const email = validEmail(arg('email'));
     if (!email) return { ok: false, error: '--email= непохож на почту' };
     return { ok: true, command: { kind: command, email } };
   }

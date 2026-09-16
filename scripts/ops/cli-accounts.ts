@@ -138,12 +138,12 @@ try {
     const config = mail.mailConfigFromEnv(process.env);
     if (!config) {
       console.log(`приглашён: ${user.email}.`);
-      console.log('Отправка писем не настроена (RESEND_API_KEY пуст) — передайте ссылку сами:');
+      console.log('Отправка писем не настроена (MAIL_API_KEY пуст) — передайте ссылку сами:');
       console.log(link);
       console.log('Ссылка работает 24 часа и только один раз.');
     } else {
       const letter = invitationLetter({ name: command.name, link });
-      await new mail.ResendMailer(config).send({
+      await new mail.ResendMailSender({ config }).send({
         to: user.email,
         subject: letter.subject,
         text: letter.text,

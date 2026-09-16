@@ -276,6 +276,22 @@ elif [ "$ROOT/package-lock.json" -nt "$ROOT/node_modules/.package-lock.json" ]; 
 else
   ok "зависимости соответствуют package-lock.json"
 fi
+# Нативные модули под эту платформу. esbuild нужен tsx, то есть API и exely-sync; swc — сборке стойки. Ночь на
+# 17.09.2026: после npm install на ноутбуке esbuild остался под другую платформу, API упал 101 раз подряд, а
+# status.sh показывал только «spawn scheduled». Проверка — попробовать загрузить модуль тем же node.
+if [ -d "$ROOT/node_modules" ] && command -v node >/dev/null 2>&1; then
+  if [ -d "$ROOT/node_modules/esbuild" ] && ! (cd "$ROOT" && node -e "require('esbuild')" >/dev/null 2>&1); then
+    bad "esbuild не запускается на этой платформе — tsx, а с ним API и exely-sync, падают на старте"
+    need "переустановить зависимости ровно по package-lock.json: npm ci (затем npm run generate -w @pms/database и kickstart api)"
+  fi
+  if [ "$(uname -s)" = Darwin ]; then
+    swc="@next/swc-darwin-$(uname -m | sed 's/x86_64/x64/')"
+    if [ -d "$ROOT/node_modules/$swc" ] && ! (cd "$ROOT" && node -e "require('$swc')" >/dev/null 2>&1); then
+      bad "$swc не загружается (подпись или платформа) — next build без него не работает"
+      need "переустановить: rm -rf node_modules/$swc && npm install"
+    fi
+  fi
+fi
 if [ -d "$ROOT/packages/database" ] && [ -d "$ROOT/node_modules" ]; then
   if [ -d "$ROOT/packages/database/src/generated" ]; then
     ok "клиент Prisma сгенерирован"

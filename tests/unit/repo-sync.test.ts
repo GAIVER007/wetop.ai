@@ -334,6 +334,24 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     expect(run(sb, []).out).not.toMatch(/install\.sh domain/);
   }, 60_000);
 
+  it('esbuild не той платформы: API и exely-sync падали бы на старте — просит npm ci', () => {
+    // Ночь на 17.09.2026: после npm install на ноутбуке esbuild остался под другую платформу, tsx не стартовал,
+    // API упал 101 раз подряд, а status.sh показывал «spawn scheduled». Нативные модули проверяем запуском node.
+    const sb = sandbox();
+    const nm = join(sb.newDir, 'node_modules');
+    mkdirSync(join(nm, 'esbuild'), { recursive: true });
+    writeFileSync(join(nm, '.package-lock.json'), '{}\n');
+    writeFileSync(join(nm, 'esbuild', 'package.json'), '{"name":"esbuild","main":"index.js"}\n');
+    writeFileSync(
+      join(nm, 'esbuild', 'index.js'),
+      "throw new Error('You installed esbuild for another platform');\n",
+    );
+    const { out, code } = run(sb, []);
+    expect(out).toMatch(/esbuild/);
+    expect(out).toMatch(/npm ci/);
+    expect(code).toBe(1);
+  });
+
   it('находит вторую копию репозитория рядом с папкой', () => {
     const sb = sandbox();
     git(sb.dir, 'clone', '-q', sb.origin, sb.oldDir);

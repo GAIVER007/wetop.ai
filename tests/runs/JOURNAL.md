@@ -486,3 +486,7 @@
 | 17.09.2026 00:36 | unit (частично: tests/unit/channex-tunnel-guard.test.ts tests/unit/repo-sync.test.ts) | ✅ 19 из 19 | 1 мин 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-36-30Z-unit-1aaf.log) | гонка защиты туннеля и переустановка tunnel: зелёный после правки |
 | 17.09.2026 00:37 | lint | ✅ без ошибок | 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-42Z-lint-23f5.log) | туннель и repo-sync |
 | 17.09.2026 00:37 | typecheck | ✅ без ошибок | 14 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-54Z-typecheck-bb7a.log) | туннель и repo-sync |
+| 17.09.2026 00:57 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 1 из 13 | 7 с | 887babf +1 | [лог](logs/2026-09-16T19-57-12Z-unit-ed8f.log) | esbuild не той платформы: красный до правки |
+| 17.09.2026 00:57 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 13 из 13 | 4 с | 887babf +2 | [лог](logs/2026-09-16T19-57-32Z-unit-1b0a.log) | esbuild не той платформы: зелёный |
+| 17.09.2026 00:57 | lint | ✅ без ошибок | 13 с | 887babf +2 | [лог](logs/2026-09-16T19-57-36Z-lint-19c4.log) | repo-sync: нативные модули |
+| 17.09.2026 00:57 | typecheck | ✅ без ошибок | 17 с | 887babf +2 | [лог](logs/2026-09-16T19-57-50Z-typecheck-af98.log) | repo-sync: нативные модули |

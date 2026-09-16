@@ -6,37 +6,31 @@
 
 Зона `wetop.ai` живёт в Cloudflare.
 
-## Уже прописано (16.09.2026)
+## Записи в зоне: все на месте (16.09.2026)
 
 | Тип | Имя | Приоритет | Значение | Прокси |
 |---|---|---|---|---|
 | TXT | `@` | — | `zoho-verification=zb32389794.zmverify.zoho.com` | DNS only |
 | MX | `@` | 10 | `mx.zoho.com` | DNS only |
 | MX | `@` | 20 | `mx2.zoho.com` | DNS only |
+| MX | `@` | 50 | `mx3.zoho.com` | DNS only |
+| TXT | `@` | — | `v=spf1 include:zohomail.com ~all` | DNS only |
+| TXT | `zoho._domainkey` | — | ключ DKIM ниже, 2048 бит | DNS only |
+| TXT | `_dmarc` | — | `v=DMARC1; p=none; rua=mailto:wetopai@wetop.ai` | DNS only |
 
-Домен подтверждён. Двух записей MX хватает, чтобы почта на `@wetop.ai` уже принималась:
-третья — запасная на случай, когда первые две недоступны.
+Проверка из публичного DNS через 1.1.1.1 и 8.8.8.8: все семь записей отдаются, запись SPF
+одна, ключ DKIM пришёл целиком (415 байт, не обрезан).
 
-## Осталось прописать
+Состояние в консоли Zoho:
 
-| # | Тип | Имя | Приоритет | Значение |
-|---|---|---|---|---|
-| 1 | MX | `@` | 50 | `mx3.zoho.com` |
-| 2 | TXT | `@` | — | `v=spf1 include:zohomail.com ~all` |
-| 3 | TXT | `zoho._domainkey` | — | значение DKIM ниже |
-| 4 | TXT | `_dmarc` | — | `v=DMARC1; p=none; rua=mailto:wetopai@wetop.ai` |
-
-Панель Cloudflare перестала открывать окно «Add record» после нескольких подряд добавлений:
-кнопка нажимается, окно не появляется, перезагрузка страницы не помогла. Записи выше
-добавлены до того, как это началось. Оставшиеся четыре ставятся либо руками, либо кнопкой
-«Войдите в мой DNS» в консоли Zoho — она просит доступ к Cloudflare и прописывает MX, SPF и
-DKIM сама. Доступ выдаёт владелец, агент чужие учётные записи не связывает.
-
-DKIM, селектор `zoho`, ключ 2048 бит:
-
-```
-v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3BJnAFoYAQ9VhB397pFgV9Eko/2PAj6Iqe/TLh4zjNObXT+H/fzjs9JQmT5QZMNZK111i1JQeJk8chwX4q87osjVZjazdGD+UvYKh0kDCkamdfMWgRZ0r/oZ6b1FDSH2ySYtjZv3KGnfPuI5KP4EriovOiSXnq6MsaGPlGURC66MBCwl4z0aLzrPScRH2rf3tQv+W089/Z2wANwE/PaLoxkl2pabB2SOpxML/3XD3fPW1Egp6s3nwhxTAWlS0p89F9FUVOEqb/7ERUKlagMVZ5eAHOcDgZzdeOZIOjgCnRgf1gVOtctD9akd/EDv9dEiWoC9fkVibpzJtRELR1UfYwIDAQAB
-```
+| Что | Состояние |
+|---|---|
+| Владение доменом | подтверждено |
+| MX | «Записи MX вашего домена указывают на Zoho» |
+| SPF | «Записи SPF вашего домена успешно настроены» |
+| DKIM, селектор `zoho` | «Селектор DKIM успешно подтверждён», подпись включена |
+| DMARC | запись стоит в зоне; в консоли эта вкладка только генерирует значение, проверки там нет |
+| Домен целиком | **Завершено** |
 
 ## Что важно не сломать
 

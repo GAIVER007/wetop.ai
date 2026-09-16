@@ -5,7 +5,13 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { MAX_CODES_PER_EMAIL_PER_HOUR, MAX_CODES_PER_IP_PER_HOUR } from '@pms/domain';
+import {
+  MAX_CODES_PER_EMAIL_PER_HOUR,
+  MAX_CODES_PER_IP_PER_HOUR,
+  REGISTRATION_EMAIL_MESSAGE,
+  REGISTRATION_NAME_MESSAGE,
+  TRIAL_DAYS,
+} from '@pms/domain';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { AccountsController } from './accounts.controller';
@@ -128,6 +134,108 @@ describe('запрос кода: пределы', () => {
         .expect(204);
     }
     expect(sender.sent).toHaveLength(MAX_CODES_PER_IP_PER_HOUR);
+  });
+});
+
+describe('регистрация', () => {
+  const NEW = { email: 'novyj@example.com', organizationName: 'Хостел «Новый»' };
+
+  it('новый адрес — 204, заведены организация в TRIAL, человек и членство, ушёл код', async () => {
+    const before = Date.now();
+    await request(app.getHttpServer()).post('/auth/register').send(NEW).expect(204);
+    const account = repo.accounts.find((a) => a.email === NEW.email);
+    expect(account).toBeDefined();
+    expect(account?.organizationName).toBe(NEW.organizationName);
+    expect(account?.organizationStatus).toBe('TRIAL');
+    const trialMs = (account?.trialEndsAt?.getTime() ?? 0) - before;
+    expect(trialMs).toBeGreaterThanOrEqual(TRIAL_DAYS * 24 * 60 * 60 * 1000 - 5000);
+    expect(trialMs).toBeLessThanOrEqual(TRIAL_DAYS * 24 * 60 * 60 * 1000 + 5000);
+    expect(sender.sent).toHaveLength(1);
+    expect(sender.last?.to).toBe(NEW.email);
+  });
+
+  it('кодом из письма после регистрации можно сразу войти — в свою новую организацию', async () => {
+    await request(app.getHttpServer()).post('/auth/register').send(NEW).expect(204);
+    const res = await request(app.getHttpServer())
+      .post('/auth/verify')
+      .send({ email: NEW.email, code: codeFromLetter() })
+      .expect(200);
+    expect(res.body.session.organizationName).toBe(NEW.organizationName);
+    expect(res.body.session.organizationStatus).toBe('TRIAL');
+    expect(res.body.session.trialEndsAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('занятый адрес — тот же 204 и тот же код в письме, но новой организации нет', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: ACCOUNT.email, organizationName: 'Чужая контора' })
+      .expect(204);
+    expect(repo.accounts).toHaveLength(1);
+    expect(repo.accounts[0]?.organizationName).toBe(ACCOUNT.organizationName);
+    expect(sender.sent).toHaveLength(1);
+    expect(sender.last?.to).toBe(ACCOUNT.email);
+  });
+
+  it('почта приводится к нижнему регистру, название — к одному пробелу между словами', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: '  Novyj@Example.COM ', organizationName: '  Хостел   «Новый» ' })
+      .expect(204);
+    const account = repo.accounts.find((a) => a.email === NEW.email);
+    expect(account?.organizationName).toBe('Хостел «Новый»');
+  });
+
+  it('строка, не похожая на почту, — 400 с понятным текстом', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: 'не почта', organizationName: 'Хостел' })
+      .expect(400);
+    expect(res.body.message).toBe(REGISTRATION_EMAIL_MESSAGE);
+    expect(repo.accounts).toHaveLength(1);
+  });
+
+  it('пустое название — 400 с понятным текстом, организация не заводится', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: NEW.email, organizationName: '   ' })
+      .expect(400);
+    expect(res.body.message).toBe(REGISTRATION_NAME_MESSAGE);
+    expect(repo.accounts).toHaveLength(1);
+    expect(sender.sent).toHaveLength(0);
+  });
+
+  it('тело без полей — 400, а не 500', async () => {
+    await request(app.getHttpServer()).post('/auth/register').send({}).expect(400);
+  });
+
+  it('предел на адрес сети действует и на регистрацию: организации сверх предела не заводятся', async () => {
+    for (let i = 0; i < MAX_CODES_PER_IP_PER_HOUR + 3; i += 1) {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .set('CF-Connecting-IP', '203.0.113.9')
+        .send({ email: `reg${i}@example.com`, organizationName: `Контора ${i}` })
+        .expect(204);
+    }
+    // ACCOUNT плюс ровно столько новых, сколько разрешено кодов с одного адреса за час.
+    expect(repo.accounts).toHaveLength(1 + MAX_CODES_PER_IP_PER_HOUR);
+    expect(sender.sent).toHaveLength(MAX_CODES_PER_IP_PER_HOUR);
+  });
+
+  it('заблокированный или бесхозный адрес: организации нет, письма нет, ответ прежний', async () => {
+    // Фейк: адрес занят в users, но accountByEmail его не отдаёт — как у BLOCKED в настоящей базе.
+    repo.accounts = [ACCOUNT, { ...ACCOUNT, userId: 'u-blocked', email: 'blocked@example.com' }];
+    const original = repo.accountByEmail.bind(repo);
+    repo.accountByEmail = async (email) => (email === 'blocked@example.com' ? null : original(email));
+    try {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ email: 'blocked@example.com', organizationName: 'Ещё раз' })
+        .expect(204);
+      expect(repo.accounts).toHaveLength(2);
+      expect(sender.sent).toHaveLength(0);
+    } finally {
+      repo.accountByEmail = original;
+    }
   });
 });
 

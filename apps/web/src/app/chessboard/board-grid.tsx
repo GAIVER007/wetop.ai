@@ -434,7 +434,8 @@ function Grid({
                       className={cx('board__free-count', free === 0 && 'is-full')}
                       title={free === 0 ? `мест нет на ночь ${d}` : `свободно ${free} на ночь ${d}`}
                     >
-                      своб. <span data-testid={`free-${d}`}>{free}</span>
+                      <span className="board__free-word">своб.</span>{' '}
+                      <span data-testid={`free-${d}`}>{free}</span>
                     </div>
                     <div
                       className="board__occ"

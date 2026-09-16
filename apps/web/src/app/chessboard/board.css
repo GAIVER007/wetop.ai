@@ -111,8 +111,14 @@
 .board th.board__unit-head {
   /* угол таблицы — над обеими липкими полосами */
   z-index: var(--z-dropdown);
-  min-width: 200px;
   padding: 8px 16px;
+}
+/* Ширина колонки ячеек только на большом экране: на планшете и телефоне неделя и месяц
+   сжимают её до нуля, и жёсткий min-width выдавливал сетку за край окна */
+@media (min-width: 1101px) {
+  .board th.board__unit-head {
+    min-width: 200px;
+  }
 }
 .board td.board__unit {
   z-index: var(--z-raised);
@@ -155,7 +161,8 @@
 }
 
 /* шапка даты: число, день недели, свободно (главное число смены) и занято (по нему сверяют) */
-.board .board__d {
+/* Неделя и месяц держат своё число: там колонок больше, и 30 px не помещаются */
+.board:not(.board--week):not(.board--month) .board__d {
   width: 30px;
   height: 30px;
   font-size: 17px;
@@ -249,4 +256,20 @@
     position: static;
     box-shadow: none;
   }
+}
+
+/* Узкий экран: в шапке даты остаётся только число свободных — слово и «занято из 88»
+   раздували колонку, и неделя на телефоне, а месяц на планшете уезжали за край окна */
+@media (max-width: 1100px) {
+  .board .board__free-word,
+  .board .board__occ {
+    display: none;
+  }
+}
+
+/* Месяц: 31 колонка на экране, поэтому в шапке остаются только числа — слово «своб.»
+   и «/ 88» не помещаются и распирали таблицу за край окна */
+.board--month .board__free-word,
+.board--month .board-occ-total {
+  display: none;
 }

@@ -24,6 +24,20 @@ import type {
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
+/**
+ * Замок как у настоящего API при `AUTH_REQUIRED=1` (ADR-049): без сессии — 401 на всё, кроме входа и
+ * публичных путей счётчика и виджета. Нужен набору `tests/ui/playwright.auth.config.ts`, который
+ * проверяет стойку такой, какой она станет после включения замка на машине стойки.
+ */
+const authLock = process.env.FIXTURE_AUTH_LOCK === '1';
+/** Пути, открытые и при замке: ими входят, ими управляет сам прогон, их зовёт сайт (ADR-025, ADR-026). */
+const openAtLock = (p: string): boolean =>
+  p.startsWith('/__test/') ||
+  p.startsWith('/a/') ||
+  p.startsWith('/w/') ||
+  p === '/auth/login' ||
+  p === '/auth/logout' ||
+  p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
@@ -43,7 +57,9 @@ function setHotelHold(value: boolean) {
     hotelWaiters.clear();
   }
 }
-const port = demo ? 4312 : 4311;
+// Порт можно задать (`FIXTURE_PORT`): отдельный набор со включённым замком поднимает свой стенд
+// и не спорит с обычным прогоном за 4311 (`tests/ui/playwright.auth.config.ts`).
+const port = Number(process.env.FIXTURE_PORT) || (demo ? 4312 : 4311);
 const names = [
   'Daniel Kim',
   'Maria Lopez',
@@ -1286,6 +1302,10 @@ createServer(async (req, res) => {
       req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
     ) {
       return send(403, { message: 'Fixture API is available only to the test runner' });
+    }
+    if (authLock && !openAtLock(path)) {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
     if (path === '/__test/reset') {
       resetUiAuth();

@@ -152,8 +152,11 @@ Invoice                id, organization_id, subscription_id, number, period_star
 3. проверить, что служебные ходоки живы: `npx tsx scripts/reconciliation/src/cli-system-trace.ts` и первый
    проход `exely-sync` без ошибок, на `/incidents` не появилось новых неисправностей;
 4. вписать `AUTH_REQUIRED=1` (API) и `APP_AUTH_REQUIRED=1` (стойка), перезапустить оба;
-5. проверить руками: без входа любой экран уводит на `/login`; после входа работает; `GET /a/pms.js`,
-   `GET /w/widget.js` и webhook Channex отвечают как раньше;
+5. проверить стойку с замком: набор `UI_BROWSER_EXECUTABLE=… npm run test:record -- e2e --config
+   tests/ui/playwright.auth.config.ts` (свой стенд на 3102/4313, `APP_AUTH_REQUIRED=1`, синтетический API
+   отвечает 401 без сессии) — без входа любой экран уводит на `/login`, после входа работает, «Выйти»
+   закрывает двери снова; руками остаётся проверить на живом API `GET /a/pms.js`, `GET /w/widget.js`
+   и webhook Channex — они отвечают как раньше;
 6. прогнать полный `e2e` **с замком**: `E2E_AUTH=1 npm run test:record -- e2e` (шаг входа сам проверяет,
    что стенд и правда под замком — иначе прогон остановится, а не даст ложное зелёное), затем UI-набор.
 

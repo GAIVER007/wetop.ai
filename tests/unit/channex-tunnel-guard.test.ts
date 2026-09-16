@@ -17,13 +17,13 @@ const PERMANENT = 'https://api.wetop.ai/channels/channex/webhook';
 let server: Server | null = null;
 
 /** Поддельный API PMS: отдаёт статус webhook с заданным постоянным адресом. */
-function fakeApi(expectedUrl: string | null): Promise<number> {
+function fakeApi(expectedUrl: string | null, callbackUrl: string | null = null): Promise<number> {
   return new Promise((done) => {
     server = createServer((req, res) => {
       const path = (req.url ?? '').split('?')[0];
       res.writeHead(200, { 'content-type': 'application/json' });
       if (path === '/channels/channex/webhook/status')
-        res.end(JSON.stringify({ registered: true, callbackUrl: null, expectedUrl }));
+        res.end(JSON.stringify({ registered: true, callbackUrl, expectedUrl }));
       else res.end(JSON.stringify({ ok: true }));
     });
     server.listen(0, '127.0.0.1', () =>
@@ -67,6 +67,28 @@ describe('scripts/ops/channex-tunnel.sh: постоянный адрес важ�
     expect(out).toMatch(/постоянный адрес/i);
     expect(out).not.toMatch(/туннель поднят/);
     expect(code).not.toBe(0);
+  }, 30_000);
+
+  /*
+   * 16.09.2026: защита срабатывала только там, где задан PUBLIC_API_URL. На второй машине разработчика
+   * его нет, и её сторож туннеля каждые ~90 секунд затирал постоянный адрес объекта своим одноразовым
+   * (журнал перерегистраций 11:10–12:03; в той же dev-базе лежат стеки с /Users/vyacheslav/). Аккаунт
+   * Channex общий, поэтому решает не локальное окружение, а то, что уже записано в Channex: постоянный
+   * адрес одноразовым туннелем не затираем ни с какой машины.
+   */
+  it('в Channex уже записан постоянный адрес — не затираем его, даже без PUBLIC_API_URL', async () => {
+    const port = await fakeApi(null, PERMANENT);
+    const { code, out } = await run(port);
+    expect(out).toMatch(/постоянный адрес/i);
+    expect(out).not.toMatch(/туннель поднят/);
+    expect(code).not.toBe(0);
+  }, 30_000);
+
+  it('в Channex записан одноразовый туннель — работаем как прежде', async () => {
+    // домен настоящий по форме: скрипт узнаёт одноразовый туннель по нему, обращений к хосту нет
+    const port = await fakeApi(null, 'https://old-tunnel.trycloudflare.com/channels/channex/webhook');
+    const { out } = await run(port);
+    expect(out).not.toMatch(/постоянный адрес/i);
   }, 30_000);
 
   it('осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту', async () => {

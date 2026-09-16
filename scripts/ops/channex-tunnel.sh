@@ -151,21 +151,28 @@ ensure_registered() {
 # Постоянный адрес важнее быстрого туннеля. 15.09.2026, после посадки домена: запуск этого скрипта поднял
 # одноразовый туннель, перерегистрировал на него webhook Channex и умер — webhook снова указывал в никуда,
 # брони шли только опросом ленты. Спрашиваем у API, задан ли PUBLIC_API_URL, и отказываемся работать.
-permanent_api_url() {
-  local body
-  body=$(curl -s -m 10 "$API_URL/channels/channex/webhook/status") || return 1
-  printf '%s' "$body" | grep -a -o -E '"expectedUrl":"https://[^"]*"' | head -1 |
-    sed -E 's/^"expectedUrl":"(.*)"$/\1/'
+# Берём из статуса и постоянный адрес этой PMS (expectedUrl), и тот, что УЖЕ записан в Channex
+# (callbackUrl). Второе важнее: аккаунт Channex общий, и 16.09.2026 вторая машина разработчика, где
+# PUBLIC_API_URL не задан, каждые ~90 секунд затирала постоянный адрес объекта своим одноразовым.
+webhook_field() {
+  local body=$1 field=$2
+  printf '%s' "$body" | grep -a -o -E "\"$field\":\"https://[^\"]*\"" | head -1 |
+    sed -E "s/^\"$field\":\"(.*)\"$/\1/"
 }
-if [ "${ALLOW_QUICK_TUNNEL:-0}" != "1" ] && permanent=$(permanent_api_url) && [ -n "$permanent" ]; then
-  case "$permanent" in
-    https://*.trycloudflare.com*) ;;
-    *)
-      say "у PMS задан постоянный адрес ($permanent): быстрый туннель увёл бы на себя webhook Channex — отказ"
+is_quick_tunnel() {
+  case "$1" in https://*.trycloudflare.com*) return 0 ;; *) return 1 ;; esac
+}
+if [ "${ALLOW_QUICK_TUNNEL:-0}" != "1" ]; then
+  status_body=$(curl -s -m 10 "$API_URL/channels/channex/webhook/status" || true)
+  permanent=$(webhook_field "$status_body" expectedUrl)
+  registered=$(webhook_field "$status_body" callbackUrl)
+  for addr in "$permanent" "$registered"; do
+    if [ -n "$addr" ] && ! is_quick_tunnel "$addr"; then
+      say "постоянный адрес webhook уже настроен ($addr): быстрый туннель затёр бы его — отказ"
       say "если быстрый туннель всё же нужен: ALLOW_QUICK_TUNNEL=1 $0"
       exit 3
-      ;;
-  esac
+    fi
+  done
 fi
 
 need_register=0

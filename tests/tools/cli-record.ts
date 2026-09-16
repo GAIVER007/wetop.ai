@@ -19,7 +19,7 @@ import { hostname, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parse as parseDotEnv } from 'dotenv';
 import { ROOT, codeFingerprint, currentBranch, dirtyFiles, headCommit } from './git-state';
-import { acquireRunLock } from './run-lock';
+import { acquireRunLock, lockNameFor } from './run-lock';
 import {
   JOURNAL_FILE,
   JOURNAL_MD,
@@ -45,8 +45,6 @@ import {
 } from './journal';
 
 const MAX_LOG_BYTES = 512 * 1024;
-/** Набор, которому не нужны ни база, ни поднятые службы: замок на дерево ему ни к чему */
-const SELF_CONTAINED = 'ничего внешнего';
 const LOCK_DIR = 'tests/runs/.locks';
 const MAX_DIRTY = 50;
 
@@ -96,12 +94,13 @@ function main(): void {
    * Наборам, которым нужна общая dev-БД, замок на дерево: два прогона одновременно рвут друг другу
    * test-results/ и занимают койки в чужих окнах дат (tests/tools/run-lock.ts). Чистым наборам он не нужен.
    */
-  const lock = suite.needs === SELF_CONTAINED ? null : acquireRunLock(LOCK_DIR, suite.name);
+  const lockName = lockNameFor(suite.needs);
+  const lock = lockName ? acquireRunLock(LOCK_DIR, lockName, suite.name) : null;
   if (lock && !lock.ok) {
     console.error(
-      `✗ прогон «${suite.name}» уже идёт в этом дереве: pid ${lock.holder.pid}, начат ` +
+      `✗ прогон «${lock.holder.suite}» уже идёт в этом дереве: pid ${lock.holder.pid}, начат ` +
         `${almatyTime(lock.holder.startedAt)} Алматы. Дождитесь его: два прогона на общей dev-БД ` +
-        'рвут друг другу test-results/ и занимают койки в чужих окнах дат.',
+        'рвут друг другу test-results/, занимают койки в чужих окнах дат и вычерпывают пулер.',
     );
     process.exit(4);
   }

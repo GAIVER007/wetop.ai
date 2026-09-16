@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Icon } from './icon';
-import { apiErrorStatus } from '../lib/api';
+import { apiErrorStatus } from '../lib/api-error';
 
 /**
  * Общий экран ошибки для оболочки и выезжающей карточки. Отклонённый запрос (400/404/422 — неверная дата

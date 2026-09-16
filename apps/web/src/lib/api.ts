@@ -3,6 +3,7 @@
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
 import type { DashboardPeriod } from '@pms/domain';
+import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
   name: string;
@@ -246,26 +247,8 @@ export interface RatePlanOption {
   currency: string;
 }
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
-export class ApiError extends Error {
-  /**
-   * Код статуса в `digest`: Next отдаёт границе ошибок клиента только digest (текст в production
-   * вырезается), а уже имеющийся digest не переписывает — так экран ошибки отличает 400/404 от 503.
-   */
-  readonly digest: string;
-  constructor(
-    readonly status: number,
-    message: string,
-  ) {
-    super(message);
-    this.digest = apiErrorDigest(status);
-  }
-}
-export const apiErrorDigest = (status: number) => `API_${status}`;
-/** Код статуса из digest ошибки на клиенте; не наш digest — undefined */
-export function apiErrorStatus(digest: string | undefined): number | undefined {
-  const m = /^API_(\d{3})$/.exec(digest ?? '');
-  return m ? Number(m[1]) : undefined;
-}
+export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
+
 async function sendJson<T>(
   method: 'POST' | 'PATCH' | 'DELETE',
   path: string,

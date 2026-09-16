@@ -96,10 +96,34 @@
 }
 
 /* ── сетка: больше строк на экране ── */
-/* высота — до нижнего края окна: над сеткой шапка страницы, планка и фильтры (~330 px) */
-.board-wrap {
-  max-height: calc(100dvh - var(--header-h, 64px) - 330px);
-  min-height: 360px;
+/*
+ * Высота сетки — остаток окна, а не константа. Константа (100dvh − 330px) верна только на широком
+ * экране: на узком шапка страницы переносится на несколько строк, занимает 488 px вместо ~330,
+ * и выходило худшее из двух — сетка не достаёт до низа, а страница всё равно прокручивается на 125 px.
+ * Прокрутка страницы тут опасна: уехавшую под липкую верхнюю панель клетку не нажать (проверено
+ * 16.09.2026 через elementFromPoint — клик попадал в шапку). Колонка страницы с растущей сеткой
+ * убирает и то, и другое.
+ */
+.page:has(> .board-wrap) {
+  display: flex;
+  flex-direction: column;
+  /* высота, а не min-height: иначе колонка растёт под содержимое и страница снова прокручивается */
+  height: calc(100dvh - var(--header-h, 72px));
+  padding-bottom: 16px;
+  overflow: hidden;
+}
+.page:has(> .board-wrap) > .board-wrap {
+  /* min-height: 0 обязателен — без него flex-элемент не сжимается ниже своего содержимого */
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+}
+/* Браузер без :has() — прежняя константа, лучше, чем ничего */
+@supports not selector(:has(*)) {
+  .board-wrap {
+    max-height: calc(100dvh - var(--header-h, 72px) - 330px);
+    min-height: 360px;
+  }
 }
 .board thead th {
   height: 66px;
@@ -234,14 +258,51 @@
   font-size: 11px;
 }
 
+/* Месяц и неделя: колонка 24 px — у шапки нет боковых отступов, слово «своб.» скрыто, числа мельче.
+   Иначе последняя дата вылезала за контейнер на 768 px (tests/ui/chessboard-month.spec.ts). */
+.board--month thead th,
+.board--week thead th {
+  padding-left: 0;
+  padding-right: 0;
+}
+.board--month .board__d,
+.board--week .board__d {
+  max-width: 100%;
+}
+.board--month .board__free-count,
+.board--month .board__occ {
+  font-size: 10px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.board--month .board__free-word {
+  display: none;
+}
+/* Подпись на плашке не шире самой плашки: «N ночей» не должна вылезать за последнюю колонку (320 px) */
+.board-stay-caption {
+  overflow: hidden;
+}
+.board-stay-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 600px) {
+  .board--week .board-stay-nights,
+  .board--week .board__free-word {
+    display: none;
+  }
+}
+
 /* строка под курсором — видно, куда тянешь и на что смотришь */
 .board tbody tr:hover td.board__cell {
   background: color-mix(in srgb, var(--primary-soft) 45%, transparent);
 }
 
 @media (max-width: 960px) {
-  .board-wrap {
-    max-height: 70dvh;
+  .page:has(> .board-wrap) > .board-wrap {
+    min-height: 60dvh;
   }
   .board-bar .board-help[open] .note {
     position: static;

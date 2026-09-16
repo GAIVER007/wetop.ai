@@ -1,0 +1,12 @@
+# Сквозные (e2e) · 16.09.2026 15:29 Алматы · vm
+# коммит 58af544 (claude/inspiring-pasteur-urrgr8), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-reference'
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (21.2s)
+  ✓  2 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (13.8s)
+
+  2 passed (41.6s)
+
+# код выхода 0 · 43 с

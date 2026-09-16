@@ -75,6 +75,8 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--month-unit-width',
       '--month-min-width',
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя
+      '--space-', // `var(--space-${n})` на странице /design-system — тоже шаблон
+      '--text-', //  `var(--text-${s})` там же
     ]);
     const missing = [...used].filter((v) => !defined.has(v) && !local.has(v)).sort();
     expect(missing).toEqual([]);

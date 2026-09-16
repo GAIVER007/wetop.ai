@@ -87,9 +87,20 @@ export function explainSlowness(input: {
       });
   }
 
-  // 2. Медленный эндпоинт: смотрим на сам ответ API
+  // 2а. Лежащий API — одна строка, а не по одной на каждый вызов: причина у всех одна
+  const dead = input.api.filter((m) => m.error);
+  if (dead.length > 1 && dead.length === input.api.length)
+    found.push({
+      cost: 1_000_000, // это не «медленно», это «не работает»: в отчёте всегда первой строкой
+      title: 'API не ответил ни на один вызов',
+      detail: `${dead.map((m) => m.name).join(', ')} — ${dead[0]!.error ?? 'без ответа'}`,
+      advice: 'Проверить, что API поднят (`scripts/ops/launchd/status.sh`) и отвечает на 127.0.0.1.',
+    });
+
+  // 2б. Медленный эндпоинт: смотрим на сам ответ API
   for (const m of input.api) {
     if (m.error) {
+      if (dead.length > 1 && dead.length === input.api.length) continue;
       found.push({
         cost: 0,
         title: `${m.name} не ответил`,

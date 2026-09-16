@@ -81,4 +81,19 @@ describe('выводы', () => {
     expect(findings[0]?.title).toContain('не ответил');
     expect(findings[0]?.advice).toContain('launchd');
   });
+
+  it('лежащий API — одна строка со всеми вызовами, а не восемь одинаковых', () => {
+    const findings = explainSlowness({
+      api: [
+        { name: '/hotel/settings', samples: [], error: 'fetch failed' },
+        { name: '/desk/today', samples: [], error: 'fetch failed' },
+        { name: '/chessboard', samples: [], error: 'fetch failed' },
+      ],
+      desk: [],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.title).toContain('API не ответил ни на один вызов');
+    expect(findings[0]?.detail).toContain('/hotel/settings');
+    expect(findings[0]?.detail).toContain('/chessboard');
+  });
 });

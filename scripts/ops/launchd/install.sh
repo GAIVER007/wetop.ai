@@ -160,8 +160,22 @@ for n in "${NAMES[@]}"; do
   if [ "$n" = domain ]; then
     [ "$DRY" -eq 1 ] || [ -f "$DOMAIN_CONFIG" ] || { echo "  пропущен: нет $DOMAIN_CONFIG (образец scripts/ops/cloudflared-wetop.example.yml)"; continue; }
     [ "$DRY" -eq 1 ] || [ -n "$CLOUDFLARED" ] || { echo "  пропущен: cloudflared не найден в PATH"; continue; }
+    # Образец скопировали, а заполнить забыли (17.09.2026): cloudflared падал на «error parsing tunnel ID:
+    # <TUNNEL-ID>», launchd поднимал его каждые 15 с, и `status.sh` показывал задачу «загружена».
+    if [ "$DRY" -eq 0 ] && grep -v '^[[:space:]]*#' "$DOMAIN_CONFIG" | grep -q '<'; then
+      echo "  пропущен: в $DOMAIN_CONFIG остались заглушки <…> — подставить TUNNEL-ID, путь к ключу, имя команды и AUD-тег"; continue
+    fi
     if [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.tunnel" >/dev/null 2>&1; then
       echo "  пропущен: работает быстрый туннель — сначала scripts/ops/launchd/uninstall.sh tunnel"; continue
+    fi
+    # Тот же туннель уже держит кто-то другой: системная служба cloudflared от root или вторая машина.
+    # Вторая копия не заменяет первую — Cloudflare начинает делить запросы между ними, и адрес отвечает
+    # через раз (17.09.2026). Разбираться, кто держит: /Library/LaunchDaemons, sudo launchctl list | grep cloudflare.
+    if [ "$DRY" -eq 0 ] && [ "${ALLOW_SECOND_TUNNEL:-}" != 1 ] &&
+      ! launchctl print "gui/$UID_N/$label" >/dev/null 2>&1 &&
+      [ "$(curl -s -o /dev/null -m 5 -w '%{http_code}' "${PUBLIC_API_URL:-https://api.wetop.ai}/a/pms.js" 2>/dev/null)" = 200 ]; then
+      echo "  пропущен: туннель уже держит другой cloudflared — адрес отвечает 200 без этой задачи."
+      echo "    сначала снять ту копию; осознанный обход — ALLOW_SECOND_TUNNEL=1"; continue
     fi
   fi
   if [ "$n" = tunnel ] && [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.domain" >/dev/null 2>&1; then

@@ -13,6 +13,7 @@ import {
   Badge,
   Button,
   Input,
+  Notice,
   Panel,
   Row,
   Select,
@@ -132,6 +133,8 @@ function FolioPanel({
   const open = folio.status === 'OPEN';
   const balance = BigInt(folio.balanceMinor);
   const error = chargeState.error ?? payState.error ?? other.error;
+  // Подтверждение последнего успеха: без него после оплаты экран просто очищал форму (§7.3)
+  const done = payState.message ?? chargeState.message ?? other.message;
   return (
     <Panel data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
@@ -426,6 +429,11 @@ function FolioPanel({
         </Stack>
       )}
       {error && <Alert>{error}</Alert>}
+      {!error && done && (
+        <Notice data-testid="finance-done" role="status">
+          {done}
+        </Notice>
+      )}
       {dialog}
     </Panel>
   );

@@ -866,3 +866,19 @@ test('журнал: время операции — тем же способом
   await page.goto('/journal');
   await expect(page.getByTestId('journal-row').first()).toContainText('13:30');
 });
+
+/**
+ * Форма оплаты подтверждает приём словами (§7.3 плана wetop-domain).
+ *
+ * После «Принять оплату» форма очищалась, и всё: администратор видел пустые поля и должен был
+ * сам искать в таблице, прошла ли оплата. Для денег молчание — худший ответ.
+ */
+test('счета: приём оплаты подтверждается суммой на экране', async ({ page }) => {
+  await page.goto('/reservations/20260913-TESTAA');
+  await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+  const payment = page.getByTestId('payment-form').filter({ visible: true }).first();
+  await payment.getByLabel('Сумма', { exact: true }).fill('1200');
+  await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+  await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
+  await expect(page.getByTestId('finance-done')).toContainText('1 200');
+});

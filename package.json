@@ -39,6 +39,7 @@
     "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
     "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
     "slow": "tsx scripts/ops/cli-slow.ts",
+    "ui:walkthrough": "tsx scripts/reconciliation/src/cli-ui-walkthrough.ts",
     "accounts": "DATABASE_POOL_MAX=1 tsx scripts/ops/cli-accounts.ts",
     "dev:demo": "node scripts/preview/start-demo.mjs",
     "design:tokens": "tsx scripts/design/build-tokens.ts",

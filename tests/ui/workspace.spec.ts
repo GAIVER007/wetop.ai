@@ -258,6 +258,28 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');
 });
 
+/**
+ * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
+ * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ */
+test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({ page }) => {
+  await page.goto('/chessboard');
+  const help = page.locator('details.board-help');
+  await help.locator('summary').click();
+  await expect(help).toHaveAttribute('open', '');
+  await page.getByRole('button', { name: 'Номера', exact: true }).click();
+  await expect(help).not.toHaveAttribute('open', '');
+  const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
+  await expect(reset).toBeVisible();
+  await reset.click({ timeout: 5000 });
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+  // Escape закрывает её так же, как щелчок вне
+  await help.locator('summary').click();
+  await expect(help).toHaveAttribute('open', '');
+  await page.keyboard.press('Escape');
+  await expect(help).not.toHaveAttribute('open', '');
+});
+
 test('ошибка создания сохраняет ввод; повтор отправляет поля существующего API', async ({
   page,
   request,

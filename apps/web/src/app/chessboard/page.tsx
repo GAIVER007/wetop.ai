@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { ResolveMenu } from './resolve-menu';
+import { BoardHelp } from './board-help';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
@@ -182,8 +183,7 @@ export default async function ChessboardPage({
           ]}
         />
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
-        <details className="board-help">
-          <summary>Как работать с шахматкой</summary>
+        <BoardHelp title="Как работать с шахматкой">
           <p className="note">
             В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
             занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
@@ -192,7 +192,7 @@ export default async function ChessboardPage({
             на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}. Брони без
             ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
           </p>
-        </details>
+        </BoardHelp>
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">

@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 17.09.2026 13:53 Алматы · vm
+# коммит 733fc44 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'подсказка закрывается'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:265:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.1s)
+
+  1 passed (6.2s)
+
+# код выхода 0 · 7 с

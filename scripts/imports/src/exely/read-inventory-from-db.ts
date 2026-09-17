@@ -7,7 +7,12 @@ export async function readInventoryPlanFromDb(
   propertyName: string,
   /** Дата, на которую считаются действующие блокировки (YYYY-MM-DD); по умолчанию сегодня в Алматы */
   blocksOnDate: string = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10),
-): Promise<{ plan: InventoryImportPlan; blocks: number } | null> {
+): Promise<{
+  plan: InventoryImportPlan;
+  blocks: number;
+  /** Сам объект: API держит дерево фонда в памяти и дальше считает только блокировки */
+  property: { id: string; name: string; timezone: string; currency: string };
+} | null> {
   const property = await db.property.findFirst({
     where: { name: propertyName },
     include: {
@@ -40,15 +45,14 @@ export async function readInventoryPlanFromDb(
     );
   // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату: Exely в сверке даёт «заблокировано на дату»,
   // а не «сколько записей о блокировках было за всю историю» (иначе Gate 1 сломается после первой блокировки)
-  const onDate = new Date(`${blocksOnDate}T00:00:00Z`);
-  const blocks = await db.inventoryBlock.count({
-    where: {
-      inventoryUnit: { accommodationType: { propertyId: property.id } },
-      dateFrom: { lte: onDate },
-      dateTo: { gt: onDate },
-    },
-  });
+  const blocks = await countActiveBlocks(db, property.id, blocksOnDate);
   return {
+    property: {
+      id: property.id,
+      name: property.name,
+      timezone: property.timezone,
+      currency: property.currency,
+    },
     plan: {
       buildingName: building?.name ?? '',
       floorName: floor?.name ?? '',
@@ -64,4 +68,20 @@ export async function readInventoryPlanFromDb(
     },
     blocks,
   };
+}
+
+/** Блокировки, действующие на дату (YYYY-MM-DD): одно правило для экрана фонда, API и сверки Gate 1 */
+export function countActiveBlocks(
+  db: Db | DbTx,
+  propertyId: string,
+  onDate: string,
+): Promise<number> {
+  const d = new Date(`${onDate}T00:00:00Z`);
+  return db.inventoryBlock.count({
+    where: {
+      inventoryUnit: { accommodationType: { propertyId } },
+      dateFrom: { lte: d },
+      dateTo: { gt: d },
+    },
+  });
 }

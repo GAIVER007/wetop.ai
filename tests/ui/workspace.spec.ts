@@ -312,7 +312,8 @@ test('карточка: профиль гостя и заселение прох
     .toBe('Проверенный');
   await page.goto(`/reservations/${booking}`);
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
-  await page.getByTestId('check-in-ui-item').click();
+  // Пока вкладка догружается, в DOM на миг есть скрытая копия панели действий — жмём видимую кнопку
+  await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('stay-row')).toContainText('заселён');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();

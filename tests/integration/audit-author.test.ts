@@ -64,9 +64,13 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
     await db.$executeRaw`INSERT INTO sessions (id, token_hash, user_id, organization_id, issued_at, expires_at)
       VALUES (${randomUUID()}::uuid, ${hashSecret(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '30 days')`;
 
+    // ProbeController живёт в корневом тестовом модуле, а PrismaService — внутри AccountsModule, откуда
+    // он не экспортируется: без своей регистрации Nest отвечает «can't resolve dependencies of the
+    // ProbeController» (первый живой прогон 17.09.2026). Подмена ниже накрывает обе регистрации.
     const moduleRef = await Test.createTestingModule({
       imports: [AccountsModule],
       controllers: [ProbeController],
+      providers: [PrismaService],
     })
       .overrideProvider(PrismaService)
       .useValue({ db })

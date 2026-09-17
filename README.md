@@ -62,6 +62,7 @@
 Порядок подключения и ограничения — [в отчёте](reports/real-data/README.md).
 
 ```bash
+scripts/ops/repo-sync.sh                       # та ли папка: remote, отставание от GitHub, службы launchd, .env; --fix чинит
 npm install                                    # Node 24 (.nvmrc); ключи владелец вписывает в .env по .env.example
 npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте; значения не печатает
 npm run dev -w apps/api                        # API на 127.0.0.1:3001

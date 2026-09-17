@@ -34,6 +34,9 @@ export function BulkEditor(props: {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  // «Гостей» ограничено вместимостью выбранной категории (было жёстко 2)
+  const [category, setCategory] = useState(props.defaults.accommodationTypeCode);
+  const capacity = props.categories.find((c) => c.code === category)?.capacityAdults ?? 1;
   /** Без action-формы: React 19 сбрасывает поля после action асинхронно, и сброс гонится со следующим вводом. */
   const add = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,6 +90,7 @@ export function BulkEditor(props: {
             <Select
               name="accommodationTypeCode"
               defaultValue={props.defaults.accommodationTypeCode}
+              onChange={(e) => setCategory(e.target.value)}
             >
               {props.categories.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -124,7 +128,7 @@ export function BulkEditor(props: {
             <Input name="price" placeholder="напр. 15400" inputMode="decimal" />
           </Field>
           <Field label="Гостей (occupancy)">
-            <Input name="occupancy" type="number" min={1} max={2} placeholder="все" />
+            <Input name="occupancy" type="number" min={1} max={capacity} placeholder="все" />
           </Field>
           <Field label="Min stay">
             <Input name="minStay" type="number" min={0} />

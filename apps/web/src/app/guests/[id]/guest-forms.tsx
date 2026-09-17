@@ -21,6 +21,7 @@ import {
   updateGuestAction,
   type GuestActionResult,
 } from './actions';
+import { useConfirm } from '../../../components/use-confirm';
 
 const DOC_TYPES: Array<[string, string]> = [
   ['PASSPORT', 'паспорт'],
@@ -44,6 +45,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
     run: remove,
     pending: deletePending,
   } = useCommand<GuestActionResult>({ error: null });
+  const { ask, dialog } = useConfirm();
   return (
     <Stack>
       <form
@@ -136,7 +138,16 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
               size="sm"
               className="is-danger"
               disabled={deletePending || dPending}
-              onClick={() => remove(() => deleteDocumentAction(guest.id, d.id))}
+              onClick={async () => {
+                // Документ хранится в шифровании и восстановлению не подлежит — вносить заново руками
+                const ok = await ask({
+                  title: 'Удалить документ гостя?',
+                  body: `${DOC_TYPES.find(([k]) => k === d.type)?.[1] ?? d.type} ${d.numberMasked} исчезнет с карточки. Вернуть его можно будет только вводом заново, а без документа гостя не заселить.`,
+                  confirmLabel: 'Удалить документ',
+                });
+                if (!ok) return;
+                await remove(() => deleteDocumentAction(guest.id, d.id));
+              }}
             >
               удалить
             </Button>
@@ -186,6 +197,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
         </form>
         {(dState.error || delState.error) && <Alert>{dState.error ?? delState.error}</Alert>}
       </Panel>
+      {dialog}
     </Stack>
   );
 }

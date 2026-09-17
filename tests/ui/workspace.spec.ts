@@ -516,6 +516,7 @@ test('номера: статус уборки, блокировка и снят�
   await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
   await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
   await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Снять блокировку' }).click();
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
@@ -566,8 +567,8 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
   await page.goto('/analytics/setup');
-  page.once('dialog', (dialog) => dialog.accept());
   await page.getByTestId('site-delete').click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Удалить сайт' }).click();
   await expect(page.getByTestId('site-card')).toHaveCount(0);
   await page.getByTestId('site-name').fill('Новый тестовый сайт');
   await page.getByTestId('site-hosts').fill('new.example.invalid');
@@ -627,4 +628,56 @@ test('пустые ответы дают нули; сбой API не выдаё�
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),
   ).toBeVisible();
   await expect(page.getByText('Соединение установлено')).toHaveCount(0);
+});
+
+/**
+ * Необратимое спрашивают окном подтверждения (DESIGN.md §8, §15; срез 7.3 плана дизайн-системы).
+ *
+ * До правки снятие блокировки и удаление документа гостя шли с одного клика: промах по строке — и
+ * койка вернулась в продажу или паспорт стёрт без следа на экране. Системное `window.confirm` тоже
+ * не годится: оно не скажет, что именно исчезнет.
+ */
+test('снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/units/R01');
+  await page.getByLabel('Блокировка с').fill('2026-10-01');
+  await page.getByLabel('До (не включая)').fill('2026-10-03');
+  await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
+  await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  const dialog = page.getByTestId('confirm-dialog');
+  await expect(dialog).toContainText('Снять блокировку');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Снять блокировку' }).click();
+  await expect(page.getByTestId('block-row')).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(
+    commands.filter((c: { method: string }) => c.method === 'DELETE').map((c: { path: string }) => c.path),
+  ).toEqual(['/units/R01/blocks/ui-block']);
+});
+
+test('удаление документа гостя спрашивают: отказ оставляет документ на карточке', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/guests/ui-guest');
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
+  const dialog = page.getByTestId('confirm-dialog');
+  await expect(dialog).toContainText('Удалить документ');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
+
+  await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
+  await dialog.getByRole('button', { name: 'Удалить документ' }).click();
+  await expect(page.getByTestId('document-row')).toHaveCount(0);
 });

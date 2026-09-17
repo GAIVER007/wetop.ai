@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmAction, confirmCancelReservation } from './confirm';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -44,10 +45,10 @@ test('отмена заранее — без штрафа, незаезд — с
   };
   expect(await balance()).toBe(stayTotal);
 
-  page.on('dialog', (d) => d.accept());
   // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -71,6 +72,7 @@ test('отмена заранее — без штрафа, незаезд — с
   const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
+  await confirmAction(page, 'Отметить незаезд');
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page

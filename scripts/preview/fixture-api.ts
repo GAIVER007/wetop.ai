@@ -86,7 +86,17 @@ const guestSeed: GuestCard = {
   phone: null,
   email: 'guest@example.invalid',
   notes: 'Вымышленные данные для проверки интерфейса',
-  documents: [],
+  // Вымышленный документ (ADR-010): на нём проверяется вопрос перед удалением
+  documents: [
+    {
+      id: 'ui-document',
+      type: 'PASSPORT',
+      numberMasked: '•••• 4321',
+      issueCountry: 'KAZ',
+      issuedAt: null,
+      expiresAt: null,
+    },
+  ],
   stays: [
     {
       confirmationNumber: '20260913-TESTAA',
@@ -1512,6 +1522,13 @@ createServer(async (req, res) => {
       extraCards.set(r.confirmationNumber, r);
       extraGuests.set(g.id, g);
       return send(201, r);
+    }
+    if (path.startsWith('/guests/') && path.includes('/documents/') && req.method === 'DELETE') {
+      const [, , id, , documentId] = path.split('/');
+      const g = decodeURIComponent(id!) === guest.id ? guest : extraGuests.get(decodeURIComponent(id!));
+      if (!g) return send(404, { message: 'Гость не найден' });
+      g.documents = g.documents.filter((d) => d.id !== decodeURIComponent(documentId!));
+      return send(200, getGuest(decodeURIComponent(id!)));
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);

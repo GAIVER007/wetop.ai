@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
 
 /**
  * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте одной кнопкой, половина цены ночи
@@ -64,9 +65,9 @@ test('поздний выезд и ранний заезд начисляютс�
   await expect(unitRow.locator(`td[data-date="${plus(14)}"][data-state="BLOCKED"]`)).toHaveCount(1);
   await page.goto(`/reservations/${number}`);
 
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся

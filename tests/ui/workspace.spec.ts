@@ -746,3 +746,23 @@ test('кнопки называют своё действие: гость зав
   await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
   await expect(page).toHaveURL(/\/reservations$/);
 });
+
+/**
+ * Период доступности длиннее 62 ночей — ошибка формы, а не «нет связи» (§7.3 плана wetop-domain).
+ *
+ * API считает доступность той же шахматкой, а у неё потолок 62 дня за запрос: на 90 ночей он
+ * отвечал 400, экран падал в общую ошибку «Проверьте подключение и повторите запрос», и
+ * администратор чинил связь вместо того, чтобы укоротить период.
+ */
+test('доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи', async ({
+  page,
+}) => {
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2027-01-01');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('62');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  // форма на месте и даёт исправить период, а не только «повторить загрузку»
+  await expect(page.getByLabel('Заезд')).toHaveValue('2026-10-01');
+  await page.getByRole('link', { name: 'Неделя' }).click();
+  await expect(page.getByText('не больше 62 ночей')).toHaveCount(0);
+  await expect(page.getByText('Доступно на весь срок')).toBeVisible();
+});

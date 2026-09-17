@@ -9,7 +9,8 @@ import { Page } from '../../../components/page';
 import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { displayDate } from '../../../lib/display-date';
-import { pluralRu } from '../../../lib/plural';
+import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import '../../directory.css';
 import '../rooms.css';
 
@@ -150,7 +151,11 @@ async function Availability({
   departure?: string | undefined;
 }) {
   const departure = requestedDeparture ?? (validDate(arrival) ? nextDay(arrival) : hotelToday());
-  const valid = validDate(arrival) && validDate(departure) && arrival < departure;
+  const dates = validDate(arrival) && validDate(departure) && arrival < departure;
+  // Доступность считается той же шахматкой: у неё потолок 62 дня за запрос. Проверяем здесь,
+  // иначе API отвечает 400 и экран падает в общую ошибку «нет связи» (§7.3)
+  const tooLong = dates && nightsBetween(arrival, departure) > MAX_CHESSBOARD_DAYS;
+  const valid = dates && !tooLong;
   const [r, inventory] = valid
     ? await Promise.all([reservationsApi.availability(arrival, departure), api.inventorySummary()])
     : [null, null];
@@ -193,7 +198,13 @@ async function Availability({
           </Link>
         ))}
       </nav>
-      {!valid && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
+      {!dates && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
+      {tooLong && (
+        <Alert boxed>
+          Период — не больше {MAX_CHESSBOARD_DAYS} ночей за один запрос. Укоротите период или
+          посмотрите остаток по месяцам на шахматке.
+        </Alert>
+      )}
       {r && (
         <>
           <Stats>

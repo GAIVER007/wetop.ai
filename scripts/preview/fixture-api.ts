@@ -1440,10 +1440,13 @@ createServer(async (req, res) => {
     }
     if (path === '/rates/bulk') {
       priceChanges.push(...(body['changes'] as typeof priceChanges));
+      const changes = body['changes'] as Array<{ accommodationTypeCode?: string }>;
+      // как настоящий API: категория без сопоставления с Channex в очередь каналов не идёт
       return send(200, {
-        applied: (body['changes'] as unknown[]).length,
+        applied: changes.length,
         rateRows: 1,
         restrictionRows: 0,
+        queued: changes.filter((c) => c.accommodationTypeCode !== 'NOCHANNEL').length,
       });
     }
     if (path === '/analytics/sites' && req.method === 'POST') {

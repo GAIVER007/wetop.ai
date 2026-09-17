@@ -17,7 +17,7 @@ describe('дельта доступности после коммита', () => 
       reservationChanged: async () => {
         throw new Error('Connection terminated');
       },
-      ratesChanged: async () => {},
+      ratesChanged: async () => 0,
       deltaLost: async (change, error) => {
         lost.push({ change, error });
       },
@@ -33,7 +33,7 @@ describe('дельта доступности после коммита', () => 
     let lost = 0;
     const publisher: AriPublisher = {
       reservationChanged: async () => {},
-      ratesChanged: async () => {},
+      ratesChanged: async () => 0,
       deltaLost: async () => {
         lost += 1;
       },
@@ -47,7 +47,7 @@ describe('дельта доступности после коммита', () => 
       reservationChanged: async () => {
         throw new Error('очередь недоступна');
       },
-      ratesChanged: async () => {},
+      ratesChanged: async () => 0,
       deltaLost: async () => {
         throw new Error('и журнал недоступен');
       },

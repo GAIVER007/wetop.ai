@@ -546,7 +546,9 @@ test('тарифы: добавить, удалить, сохранить и пр
   await expect(page.getByTestId('pending-changes')).toContainText('9100');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.getByTestId('apply-changes').click();
+  // Отправку в каналы экран обещает по ответу API, а не «всегда» (§7.3)
   await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
+  await expect(page.getByTestId('bulk-done')).toContainText('В очередь каналов ушло 1');
   await expect(page.getByTestId('price-2026-10-01-1')).toContainText('9 100');
 });
 

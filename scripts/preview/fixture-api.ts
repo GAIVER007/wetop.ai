@@ -145,7 +145,9 @@ function initializeRecords() {
     card.primaryGuest!.label = `${lastName} ${firstName}`;
     card.items[0]!.guests[0]!.label = card.primaryGuest!.label;
   }
-  for (let i = 1; i < 8; i++) {
+  // i = 8 — «не заехал вовремя»: подтверждён, заезд был позавчера, выезд не сегодня. Такой брони не
+  // видно ни в заездах, ни в выездах, ни среди живущих — её показывает блок «Требуют внимания»
+  for (let i = 1; i < 9; i++) {
     const r = cardSeed();
     const g = structuredClone(guestSeed);
     const label = demo ? names[i]! : ['Посетитель Демо', 'Клиент Пример', 'Гость Учебный'][i % 3]!;
@@ -154,14 +156,14 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    r.status = i === 1 || i === 8 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
     r.channel = i % 2 ? 'Booking.com' : null;
     r.primaryGuest = { id: g.id, label, citizenship: g.citizenship, phone: g.phone };
     const unit = units.find(
-      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01'][i],
+      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01', 'F03'][i],
     )!;
     r.items[0] = {
       ...r.items[0]!,
@@ -514,17 +516,27 @@ function desk(date: string): DeskDay {
   const inHouse = active.filter(
     (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
   );
+  // Не заехали вовремя — как в apps/api/src/desk/desk.service.ts: заезд был раньше, заселения нет,
+  // выезд не сегодня (иначе они уже в списке выездов)
+  const overdueArrivals = active.filter(
+    (r) =>
+      (r.status === 'CONFIRMED' || r.status === 'TENTATIVE') &&
+      r.arrivalDate < date &&
+      r.departureDate !== date,
+  );
   return {
     date,
     arrivals,
     departures,
     inHouse,
+    overdueArrivals,
     counts: {
       arrivals: arrivals.length,
       departures: departures.length,
       inHouse: inHouse.length,
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
+      overdueArrivals: overdueArrivals.length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -1297,7 +1309,8 @@ createServer(async (req, res) => {
         return noContent();
       }
       if (path === '/auth/verify' && req.method === 'POST') {
-        if (body['code'] !== '123456') return send(401, { message: 'Код не подошёл. Запросите новый.' });
+        if (body['code'] !== '123456')
+          return send(401, { message: 'Код не подошёл. Запросите новый.' });
         return send(200, {
           token: 'fixture-session-token',
           session: { ...authSession, email: String(body['email']).trim().toLowerCase() },

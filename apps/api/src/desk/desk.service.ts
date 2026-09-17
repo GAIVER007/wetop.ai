@@ -25,12 +25,15 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Дата заезда прошла, заселения и незаезда нет: ни в один список дня такое проживание не попадает */
+  overdueArrivals: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;
     inHouse: number;
     toCheckIn: number;
     toCheckOut: number;
+    overdueArrivals: number;
   };
   debtMinor: string;
 }
@@ -77,11 +80,22 @@ export class DeskService {
     const inHouse = stays
       .filter((s) => s.status === 'CHECKED_IN' && s.departureDate !== day)
       .map(row);
+    // Не заехали вовремя: место занято, а смена их не видит — ни в заездах (день не их), ни в живущих
+    // (не заселены), ни в выездах. Выезжающих сегодня не берём: они уже в списке выездов.
+    const overdueArrivals = stays
+      .filter(
+        (s) =>
+          (s.status === 'CONFIRMED' || s.status === 'TENTATIVE') &&
+          s.arrivalDate < day &&
+          s.departureDate !== day,
+      )
+      .map(row);
     return {
       date: day,
       arrivals,
       departures,
       inHouse,
+      overdueArrivals,
       counts: {
         arrivals: arrivals.length,
         departures: departures.length,
@@ -89,6 +103,7 @@ export class DeskService {
         toCheckIn: arrivals.filter((a) => a.status === 'CONFIRMED' || a.status === 'TENTATIVE')
           .length,
         toCheckOut: departures.filter((d) => d.status === 'CHECKED_IN').length,
+        overdueArrivals: overdueArrivals.length,
       },
       // Только долги: переплата одного гостя не должна прятать долг другого
       debtMinor: departures

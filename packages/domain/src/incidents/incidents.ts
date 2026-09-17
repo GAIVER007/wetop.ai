@@ -14,6 +14,7 @@ export type IncidentKind =
   | 'feed.stale'
   | 'outbox.failed'
   | 'outbox.stuck'
+  | 'ari.delta.lost'
   | 'event.failed'
   | 'event.rejected'
   | 'sync.missing'
@@ -103,6 +104,17 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
     class: 'A',
     severity: 'CRITICAL',
     fix: { maxAttempts: 3, minIntervalMs: 2 * MIN },
+    close: { by: 'recheck' },
+  },
+  /*
+   * Дельта остатков не встала в очередь после записанной команды (Б6): в очереди её нет, поэтому
+   * `outbox.failed` и `outbox.stuck` этого не видят, а канал продаёт по старому остатку. Повторять нечем —
+   * содержимое дельты нигде не сохранено, — поэтому чинится полной выгрузкой, как и упавшая отправка.
+   */
+  'ari.delta.lost': {
+    class: 'A',
+    severity: 'CRITICAL',
+    fix: { maxAttempts: 2, minIntervalMs: 2 * MIN },
     close: { by: 'recheck' },
   },
   // Временная ошибка (сеть, 5xx) — повторить; отказ по правилу (ADR-024, валидация) — `event.rejected`, к человеку

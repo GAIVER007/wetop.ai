@@ -81,6 +81,14 @@
 .attention-item--debt small {
   color: var(--danger);
 }
+/* Не заехали вовремя: тревожнее незаполненной карточки, но это не долг — предупреждение, не ошибка */
+.attention-item--overdue small {
+  color: var(--warning);
+}
+.attention-item--overdue .attention-icon {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
 .attention-item--debt .attention-icon {
   background: var(--warning-soft);
   color: var(--danger);

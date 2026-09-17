@@ -34,29 +34,77 @@ export const LOCAL_PROPERTY = {
   checkOutTime: '12:00',
 };
 
-/** Категория и пять единиц: номер «1» нужен сторожу овербукинга, остальные — запас на переселения */
-const UNITS = ['1', '2', '3', '4', '5'];
+/**
+ * Форма объекта повторяет настоящую (CLAUDE.md §6): 88 единиц продажи — 16 отдельных номеров и
+ * 72 койко-места, пять категорий, нумерация Exely не сплошная (1–4 номера, 5–40 койки, 41–48 номера,
+ * 49–84 койки, 85–88 номера). Совпадает только форма: ни одного настоящего гостя, брони или тарифа.
+ */
+const CATEGORIES = [
+  { code: 'L-SINGLE', name: 'Одноместный (стенд)', kind: 'PRIVATE_ROOM', capacityAdults: 1 },
+  { code: 'L-DOUBLE', name: 'Двухместный (стенд)', kind: 'PRIVATE_ROOM', capacityAdults: 2 },
+  { code: 'L-MALE', name: 'Мужская общая (стенд)', kind: 'DORM_BED', capacityAdults: 1 },
+  { code: 'L-FEMALE', name: 'Женская общая (стенд)', kind: 'DORM_BED', capacityAdults: 1 },
+  { code: 'L-MIXED', name: 'Общая смешанная (стенд)', kind: 'DORM_BED', capacityAdults: 1 },
+] as const;
 
-export async function seedLocal(db: Db): Promise<{ propertyId: string; units: number }> {
+/** Номер Exely → категория и вид единицы; ничего из номера не выводится, таблица задана явно (ADR-003) */
+function unitPlan(): Array<{ number: string; category: string; kind: 'ROOM' | 'BED' }> {
+  const rooms = [...range(1, 4), ...range(41, 48), ...range(85, 88)];
+  const beds = [...range(5, 40), ...range(49, 84)];
+  const plan: Array<{ number: string; category: string; kind: 'ROOM' | 'BED' }> = [];
+  rooms.forEach((n, i) =>
+    plan.push({ number: String(n), category: i % 3 === 0 ? 'L-DOUBLE' : 'L-SINGLE', kind: 'ROOM' }),
+  );
+  beds.forEach((n, i) =>
+    plan.push({
+      number: String(n),
+      category: (['L-MALE', 'L-FEMALE', 'L-MIXED'] as const)[i % 3]!,
+      kind: 'BED',
+    }),
+  );
+  return plan;
+}
+const range = (from: number, to: number) =>
+  Array.from({ length: to - from + 1 }, (_, i) => from + i);
+
+/** Цена за ночь на стенде: одна на все категории, целая (ADR-008 — тиыны) */
+const NIGHT_PRICE_MINOR = 1_200_000n;
+/** Календарь цен: год назад и год вперёд — хватает всем окнам дат сквозных тестов */
+const RATE_DAYS_BACK = 30;
+const RATE_DAYS_AHEAD = 400;
+
+export async function seedLocal(
+  db: Db,
+): Promise<{ propertyId: string; units: number; rates: number }> {
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
     (await db.property.create({ data: LOCAL_PROPERTY, select: { id: true } }));
-  const type =
-    (await db.accommodationType.findFirst({
-      where: { propertyId: property.id, code: 'LOCAL-SINGLE' },
+
+  const typeIds = new Map<string, string>();
+  for (const c of CATEGORIES) {
+    const existing = await db.accommodationType.findFirst({
+      where: { propertyId: property.id, code: c.code },
       select: { id: true },
-    })) ??
-    (await db.accommodationType.create({
-      data: {
-        propertyId: property.id,
-        code: 'LOCAL-SINGLE',
-        name: 'Одноместный (стенд)',
-        kind: 'PRIVATE_ROOM',
-        capacityAdults: 1,
-        capacityChildren: 0,
-      },
-      select: { id: true },
-    }));
+    });
+    typeIds.set(
+      c.code,
+      existing?.id ??
+        (
+          await db.accommodationType.create({
+            data: {
+              propertyId: property.id,
+              code: c.code,
+              name: c.name,
+              kind: c.kind,
+              capacityAdults: c.capacityAdults,
+              capacityChildren: 0,
+            },
+            select: { id: true },
+          })
+        ).id,
+    );
+  }
+
   // Единица живёт в комнате, комната на этаже, этаж в корпусе (DATA_MODEL §1) — заводим всю цепочку
   const building =
     (await db.building.findFirst({
@@ -73,35 +121,82 @@ export async function seedLocal(db: Db): Promise<{ propertyId: string; units: nu
       select: { id: true },
     })) ??
     (await db.floor.create({ data: { buildingId: building.id, name: '1' }, select: { id: true } }));
-  let created = 0;
-  for (const code of UNITS) {
+
+  let units = 0;
+  for (const u of unitPlan()) {
     const exists = await db.inventoryUnit.findFirst({
-      where: { exelyRoomNumber: code },
+      where: { exelyRoomNumber: u.number },
       select: { id: true },
     });
     if (exists) continue;
     const room =
       (await db.physicalRoom.findFirst({
-        where: { floorId: floor.id, roomNumber: code },
+        where: { floorId: floor.id, roomNumber: u.number },
         select: { id: true },
       })) ??
       (await db.physicalRoom.create({
-        data: { floorId: floor.id, roomNumber: code, capacity: 1 },
+        data: { floorId: floor.id, roomNumber: u.number, capacity: u.kind === 'BED' ? 18 : 2, isDorm: u.kind === 'BED' },
         select: { id: true },
       }));
     await db.inventoryUnit.create({
       data: {
         physicalRoomId: room.id,
-        accommodationTypeId: type.id,
-        code: `L${code}`,
-        exelyRoomNumber: code,
-        kind: 'ROOM',
+        accommodationTypeId: typeIds.get(u.category)!,
+        code: `L${u.number}`,
+        exelyRoomNumber: u.number,
+        kind: u.kind,
         active: true,
       },
     });
-    created += 1;
+    units += 1;
   }
-  return { propertyId: property.id, units: created };
+
+  // Тариф и календарь цен: без цены на дату бронь со стойки не создаётся
+  const plan =
+    (await db.ratePlan.findFirst({
+      where: { propertyId: property.id, code: 'L-BASE' },
+      select: { id: true },
+    })) ??
+    (await db.ratePlan.create({
+      data: {
+        propertyId: property.id,
+        code: 'L-BASE',
+        name: 'Базовый тариф (стенд)',
+        currency: 'KZT',
+        active: true,
+      },
+      select: { id: true },
+    }));
+  for (const id of typeIds.values())
+    await db.ratePlanAccommodationType.upsert({
+      where: { ratePlanId_accommodationTypeId: { ratePlanId: plan.id, accommodationTypeId: id } },
+      create: { ratePlanId: plan.id, accommodationTypeId: id },
+      update: {},
+    });
+
+  const day = 86_400_000;
+  const start = Date.now() - RATE_DAYS_BACK * day;
+  const rows: Array<{
+    date: Date;
+    accommodationTypeId: string;
+    ratePlanId: string;
+    occupancy: number;
+    price: bigint;
+  }> = [];
+  for (let i = 0; i < RATE_DAYS_BACK + RATE_DAYS_AHEAD; i++) {
+    const date = new Date(new Date(start + i * day).toISOString().slice(0, 10));
+    for (const c of CATEGORIES)
+      for (let occ = 1; occ <= c.capacityAdults; occ++)
+        rows.push({
+          date,
+          accommodationTypeId: typeIds.get(c.code)!,
+          ratePlanId: plan.id,
+          occupancy: occ,
+          price: NIGHT_PRICE_MINOR * BigInt(occ),
+        });
+  }
+  const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
+  return { propertyId: property.id, units, rates: rates.count };
 }
 
 if (import.meta.filename === process.argv[1]) {
@@ -112,6 +207,6 @@ if (import.meta.filename === process.argv[1]) {
   }
   const db = createPrismaClient(url, process.env.DATABASE_SCHEMA ?? '');
   const r = await seedLocal(db);
-  console.log(`объект ${r.propertyId}, новых единиц ${r.units}`);
+  console.log(`объект ${r.propertyId}, новых единиц ${r.units}, новых цен ${r.rates}`);
   await db.$disconnect();
 }

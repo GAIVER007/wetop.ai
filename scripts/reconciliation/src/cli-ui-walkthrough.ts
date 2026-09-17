@@ -4,9 +4,11 @@
  * экране с ответом API за тот же период. Только чтение: кнопки, которые пишут (заселить, отправить очередь,
  * сохранить…), не нажимаются и перечисляются в отчёте отдельно; окна подтверждения закрываются «Оставить»/Escape.
  *
- * Запуск на стенде (стойка из сборки + API на тестовой схеме, как у e2e):
- *   WEB_URL=http://127.0.0.1:3100 APP_API_URL=http://127.0.0.1:3101 CHROMIUM_PATH=… \
- *     npx tsx scripts/reconciliation/src/cli-ui-walkthrough.ts
+ * Запуск на машине стойки (живые 3000 и 3001, как у `cli-ui-smoke.ts`):
+ *   npm run ui:walkthrough
+ * На стенде сквозных тестов (стойка из сборки 3100 + API на схеме `pms_test` 3101):
+ *   WEB_URL=http://127.0.0.1:3100 APP_API_URL=http://127.0.0.1:3101 npm run ui:walkthrough
+ * Машина без браузеров Playwright, но со своим Chromium: `CHROMIUM_PATH=/путь/к/chrome`.
  * Пишет reports/ui-walkthrough-YYYY-MM-DD.md. Код выхода 1, если хоть одна проверка дала FAIL.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -15,8 +17,9 @@ import { chromium, type Locator, type Page } from 'playwright';
 import { PERIOD_PRESETS, previousPeriod, resolvePeriod } from '@pms/domain';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
-const WEB = process.env['WEB_URL'] ?? 'http://127.0.0.1:3100';
-const API = process.env['APP_API_URL'] ?? 'http://127.0.0.1:3101';
+// По умолчанию — живая стойка, как у остальных скриптов эксплуатации; стенд задаётся переменными
+const WEB = process.env['WEB_URL'] ?? 'http://127.0.0.1:3000';
+const API = process.env['APP_API_URL'] ?? 'http://127.0.0.1:3001';
 const NAV_TIMEOUT = 90_000;
 /** сегодня по часам объекта (Алматы, UTC+5) — так же считает стойка */
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);

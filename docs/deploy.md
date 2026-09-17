@@ -27,10 +27,25 @@ launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.web
 Проверить, что встало:
 
 ```bash
+bash scripts/ops/launchd/status.sh                       # все шесть служб
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3001/inventory/summary   # 200
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/today               # 200
 npm run ui:walkthrough                                   # обход экранов и кнопок, сверка чисел с API
 ```
+
+**Служб должно быть шесть, не две.** `api` и `web` держат сервер и стойку, но снаружи объект живёт
+только с остальными: `domain` — именованный туннель Cloudflare (`app.wetop.ai`, `api.wetop.ai`, webhook
+Channex), `exely-sync` — синхронизация с Exely раз в 15 минут (ADR-032), `awake` — Mac не засыпает.
+Если `status.sh` пишет «не загружен», поднять:
+
+```bash
+bash scripts/ops/launchd/install.sh domain
+bash scripts/ops/launchd/install.sh exely-sync
+bash scripts/ops/launchd/install.sh awake
+```
+
+Без `domain` брони из каналов доходят только опросом ленты, а не webhook'ом; без `exely-sync` данные
+в PMS устаревают. В день двойного ввода `exely-sync` снимают намеренно (`CUTOVER.md`, условие 2).
 
 **Миграции базы применяет владелец вручную** (`DATA_MODEL.md`, `CUTOVER.md`): агент production migration
 не делает. Сначала миграция, потом перезапуск API.

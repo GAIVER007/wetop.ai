@@ -616,3 +616,5 @@
 | 17.09.2026 22:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 45 с | a6434dd +10 | [лог](logs/2026-09-17T17-36-22Z-e2e-4a5d.log) |  |
 | 17.09.2026 22:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 -g шахматка\|правка в ячейке) | ✅ 5 из 5 | 15 с | a6434dd +11 | [лог](logs/2026-09-17T17-37-40Z-e2e-168e.log) |  |
 | 17.09.2026 22:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 116 из 116 | 9 мин 45 с | a6434dd +11 | [лог](logs/2026-09-17T17-38-03Z-e2e-9c2d.log) |  |
+| 17.09.2026 22:48 | lint | ✅ без ошибок | 11 с | 8d29932 | [лог](logs/2026-09-17T17-48-49Z-lint-910e.log) |  |
+| 17.09.2026 22:49 | typecheck | ✅ без ошибок | 19 с | 8d29932 | [лог](logs/2026-09-17T17-49-00Z-typecheck-84b8.log) |  |

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
+import { ApiError } from '../../../../lib/api-error';
 import { Page } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { Badge, StatusBadge } from '../../../../components/ui';
@@ -50,8 +51,12 @@ export default async function RevisionPageView({
   let data: RevisionPage;
   try {
     data = await channelsApi.event(revisionId);
-  } catch {
-    notFound();
+  } catch (error) {
+    // «Страница не найдена» — только когда ревизии правда нет. Любую другую беду (сервер ответил 500,
+    // связи нет) прячем под тем же словом — и на стойке непонятно, что чинить: обход 17.09.2026 получил
+    // «не найдено» там, где ревизия была на месте. Ошибку показываем как на других экранах.
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
   const summary = await api.inventorySummary().catch(() => null);
   const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));

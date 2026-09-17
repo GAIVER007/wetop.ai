@@ -166,3 +166,19 @@ test('приём брони из канала: цепочка ревизия →
   await page.goto('/channels/events/no-such-revision');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Страница не найдена');
 });
+
+/**
+ * Сбой сервера — не «не найдено». До 17.09.2026 страница прятала любую ошибку под словом «не найдено»,
+ * и на живой стойке было не понять, что ревизия на месте, а отвечает сервер. Найдено обходом стойки.
+ */
+test('приём брони: сбой сервера назван ошибкой, а не «страница не найдена»', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/channels/channex/events/ui-rev-new-2' },
+  });
+  await page.goto('/channels/events/ui-rev-new-2');
+  await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Страница не найдена');
+  await expect(page.getByRole('alert').first()).toContainText(/Проверьте подключение|Сервер отклонил/);
+});

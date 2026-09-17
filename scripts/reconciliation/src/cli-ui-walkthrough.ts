@@ -291,7 +291,7 @@ async function followLinks(page: Page, route: string, visited: Set<string>) {
       if (visited.has(h)) continue;
       visited.add(h);
       const { status, errors } = await open(page, h);
-      const h1 = (await page.locator('h1').first().innerText().catch(() => '')).trim();
+      const h1 = (await page.locator('main h1').first().innerText().catch(() => '')).trim();
       // переход по якорю Next ведёт клиентски: ответа у goto нет (status 0), судим по заголовку экрана
       const statusOk = status === 200 || (status === 0 && h.includes('#') && h1.length > 0);
       const ok = statusOk && errors.length === 0 && h1 !== 'Страница не найдена';
@@ -529,7 +529,7 @@ async function main() {
   const visited = new Set<string>();
   for (const route of [...STATIC, ...dynamic]) {
     const { status, errors } = await open(page, route);
-    const h1 = (await page.locator('h1').first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const h1 = (await page.locator('main h1').first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
     const notFound = h1 === 'Страница не найдена';
     // `/design-system` собирается только в `next dev` (DESIGN.md §8) — на собранной стойке её нет намеренно
     const verdict: Verdict = notFound && route === '/design-system' ? 'skip' : status === 200 && !errors.length && !notFound ? 'ok' : 'FAIL';
@@ -555,7 +555,7 @@ async function main() {
   await page.setViewportSize(PHONE);
   for (const route of [...STATIC, ...dynamic]) {
     const { status, errors } = await open(page, route);
-    const h1 = (await page.locator('h1').first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    const h1 = (await page.locator('main h1').first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
     if (h1 === 'Страница не найдена') continue;
     const overflow = await page.evaluate(() => ({
       doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,

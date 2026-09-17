@@ -1,0 +1,107 @@
+'use client';
+import { useState, useTransition } from 'react';
+import { Button, Input, cx } from '../../components/ui';
+import { bulkRatesAction } from './actions';
+
+/**
+ * Правка цены прямо в ячейке календаря (срез 7.2, сцена показа Channex).
+ *
+ * Панель массовой правки остаётся: она для «поднять выходные на месяц вперёд». Одна цена на одну
+ * дату — это один клик, и путь у него тот же самый: `bulkRatesAction` на одну строку, то есть одна
+ * транзакция в API и одно сообщение в очередь каналов. Своей логики цен здесь нет.
+ */
+export function PriceCell({
+  date,
+  occupancy,
+  text,
+  major,
+  accommodationTypeCode,
+  ratePlanCode,
+}: {
+  date: string;
+  occupancy: number;
+  /** что видно в ячейке сейчас: отформатированная сумма или «нет» */
+  text: string;
+  /** текущая цена в тенге для поля ввода; пусто — цены на дату нет */
+  major: string;
+  accommodationTypeCode: string;
+  ratePlanCode: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(major);
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const [pending, start] = useTransition();
+
+  const save = () => {
+    const price = value.trim();
+    if (!price) {
+      setResult({ ok: false, text: 'Введите цену в тенге' });
+      return;
+    }
+    start(async () => {
+      const r = await bulkRatesAction([
+        { accommodationTypeCode, ratePlanCode, dateFrom: date, dateTo: date, occupancy, price },
+      ]);
+      if (r.error) {
+        setResult({ ok: false, text: r.error });
+        return;
+      }
+      setOpen(false);
+      setResult({
+        ok: true,
+        text: r.queued
+          ? `Цена сохранена, ушло в очередь каналов: ${r.queued}`
+          : 'Цена сохранена, но в очередь каналов не ушла: категория или тариф не сопоставлены с Channex',
+      });
+    });
+  };
+
+  return (
+    <div className="price-cell">
+      <button
+        type="button"
+        className="price-cell__value"
+        data-testid="price-cell-edit"
+        aria-label={`Изменить цену на ${date}, гостей ${occupancy}`}
+        onClick={() => {
+          setResult(null);
+          setOpen((v) => !v);
+        }}
+      >
+        {text}
+      </button>
+      {open && (
+        <div className="price-editor" role="group" aria-label={`Цена на ${date}`}>
+          <Input
+            type="text"
+            inputMode="decimal"
+            autoFocus
+            value={value}
+            data-testid="price-cell-input"
+            aria-label={`Цена в тенге на ${date}, гостей ${occupancy}`}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') save();
+              if (e.key === 'Escape') setOpen(false);
+            }}
+          />
+          <Button size="xs" type="button" onClick={save} disabled={pending}>
+            Сохранить цену
+          </Button>
+          <Button size="xs" tone="ghost" type="button" onClick={() => setOpen(false)}>
+            Отмена
+          </Button>
+        </div>
+      )}
+      {result && (
+        <div
+          className={cx('price-cell__result', result.ok ? 'ok-text' : 'danger-text')}
+          data-testid="price-cell-result"
+          role={result.ok ? undefined : 'alert'}
+        >
+          {result.text}
+        </div>
+      )}
+    </div>
+  );
+}

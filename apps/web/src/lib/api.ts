@@ -390,6 +390,9 @@ export const channelsApi = {
   connection: () => getJson<ChannelConnection>('/channels/channex/connection'),
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
+  /** Строки очереди: что именно уехало в Channex (срез 7.2) */
+  outboxMessages: (limit = 20) =>
+    getJson<OutboxMessage[]>(`/channels/channex/outbox/messages?limit=${limit}`),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
   /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
   sync: (days?: number) =>
@@ -451,6 +454,24 @@ export interface InboundEvent {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
+  /** Номер брони PMS, если ревизию удалось связать (срез 7.2); null — не разобрана */
+  reservationNumber?: string | null;
+}
+/** Сообщение очереди ARI: что уезжает в Channex и чем кончилось */
+export interface OutboxMessage {
+  id: string;
+  kind: 'AVAILABILITY' | 'RESTRICTIONS';
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  lines: number;
+  dateFrom: string | null;
+  dateTo: string | null;
+  roomTypeIds: string[];
+  ratePlanIds: string[];
 }
 export interface WebhookStatus {
   registered: boolean;

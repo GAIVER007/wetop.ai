@@ -951,3 +951,49 @@ test('шахматка: несопоставленные ревизии кана
   await notice.getByRole('link').click();
   await expect(page).toHaveURL(/\/channels$/);
 });
+
+/**
+ * Срез 7.2 — три сцены показа Channex на сертификации.
+ *
+ * (1) Очередь на экране была тремя числами: «в очереди 4» ничего не говорит о том, что именно
+ * уехало и за какие даты. (2) У входящей ревизии не было ссылки на бронь — номер искали руками.
+ * (3) Цена правилась только панелью массовой правки: на показе это три экрана вместо одного клика.
+ */
+test('каналы: очередь показана строками — что уехало, за какие даты и чем кончилось', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/channels');
+  const rows = page.getByTestId('outbox-row');
+  await expect(rows.first()).toBeVisible();
+  // вид сообщения словом, а не кодом перечисления
+  await expect(rows.first()).toContainText('остатки');
+  // отказ виден со своей причиной, а не одним счётчиком «ошибок»
+  const failed = page.getByTestId('outbox-row').filter({ hasText: 'ошибка' }).first();
+  await expect(failed).toContainText('422');
+});
+
+test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/channels');
+  const link = page.getByTestId('event-reservation').first();
+  await expect(link).toBeVisible();
+  const number = (await link.textContent())!.trim();
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`/reservations/${encodeURIComponent(number)}$`));
+});
+
+test('цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь', async ({
+  page,
+}) => {
+  await page.goto('/rates');
+  const cell = page.getByTestId('rates-table').getByTestId('price-cell-edit').first();
+  await cell.click();
+  const input = page.getByTestId('price-cell-input');
+  await input.fill('15000');
+  await page.getByRole('button', { name: 'Сохранить цену' }).click();
+  const said = page.getByTestId('price-cell-result');
+  await expect(said).toContainText('Цена сохранена');
+  await expect(said).toContainText('в очередь каналов');
+});

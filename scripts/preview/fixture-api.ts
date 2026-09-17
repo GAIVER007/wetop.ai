@@ -422,6 +422,7 @@ function seedDesign() {
       processedAt: null,
       lastError:
         'Несколько перенесённых броней подходят: 20260913-TEST1, 20260913-TEST3 — разобрать руками (Q-109)',
+      reservationNumber: null,
     },
     {
       externalEventId: 'dsg-revision-ok-0002',
@@ -432,6 +433,7 @@ function seedDesign() {
       receivedAt: `${today}T06:01:03Z`,
       processedAt: `${today}T06:01:04Z`,
       lastError: null,
+      reservationNumber: '20260913-TEST1',
     },
     {
       externalEventId: 'dsg-revision-ok-0003',
@@ -442,6 +444,7 @@ function seedDesign() {
       receivedAt: `${today}T06:30:00Z`,
       processedAt: `${today}T06:30:01Z`,
       lastError: null,
+      reservationNumber: '20260913-TEST3',
     },
   ];
 }
@@ -1221,6 +1224,55 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+  // Срез 7.2: строки очереди — что именно уехало в Channex и чем кончилось
+  if (path === '/channels/channex/outbox/messages')
+    return [
+      {
+        id: 'ui-outbox-1',
+        kind: 'AVAILABILITY',
+        status: 'PENDING',
+        attempts: 0,
+        taskId: null,
+        lastError: null,
+        createdAt: `${today}T06:40:00Z`,
+        sentAt: null,
+        lines: 5,
+        dateFrom: today,
+        dateTo: add(today, 4),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+      {
+        id: 'ui-outbox-2',
+        kind: 'RESTRICTIONS',
+        status: 'SENT',
+        attempts: 1,
+        taskId: 'ui-task-77',
+        lastError: null,
+        createdAt: `${today}T06:20:00Z`,
+        sentAt: `${today}T06:20:03Z`,
+        lines: 31,
+        dateFrom: today,
+        dateTo: add(today, 30),
+        roomTypeIds: [],
+        ratePlanIds: ['ui-rate-plan'],
+      },
+      {
+        id: 'ui-outbox-3',
+        kind: 'AVAILABILITY',
+        status: 'FAILED',
+        attempts: 3,
+        taskId: null,
+        lastError: 'Channex: 422 unprocessable entity — room_type_id не найден',
+        createdAt: `${today}T05:50:00Z`,
+        sentAt: null,
+        lines: 2,
+        dateFrom: today,
+        dateTo: add(today, 1),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+    ];
   if (path === '/channels/channex/events') return designEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };

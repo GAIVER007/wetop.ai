@@ -324,18 +324,17 @@
 .board-stay-channel,
 .board .board-stay-due {
   flex: none;
-  font-size: 10px;
+  /* --text-xs: мельче 12 px в системе нет (DESIGN.md §6) */
+  font-size: var(--text-xs);
   line-height: 16px;
   white-space: nowrap;
   color: inherit;
 }
 .board-stay-channel {
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-weight: var(--weight-semibold, 600);
 }
 .board .board-stay-due {
-  gap: 3px;
+  gap: var(--space-1);
   padding: 0;
   background: transparent;
 }
@@ -357,11 +356,7 @@
 }
 /* «грязно» в строке ячейки — тем же бейджем, что на карточке места */
 .board .board-hk {
-  font-size: 11px;
+  font-size: var(--text-xs);
   line-height: 16px;
-  gap: 4px;
-}
-.board .board-hk::before {
-  width: 6px;
-  height: 6px;
+  gap: var(--space-1);
 }

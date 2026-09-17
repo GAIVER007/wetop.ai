@@ -4,6 +4,8 @@ import { formatMinor, ratesApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
+import { PriceCell } from './price-cell';
+import './rates.css';
 
 const monthRange = (ym: string) => {
   const [y, m] = ym.split('-').map(Number) as [number, number];
@@ -111,15 +113,21 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                       <td>
                         {d.date} <span className="muted-2">{WD[wd]}</span>
                       </td>
-                      {Array.from({ length: cal.capacityAdults }, (_, i) => (
-                        <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
-                          {d.prices[String(i + 1)] ? (
-                            formatMinor(d.prices[String(i + 1)]!, cal.currency)
-                          ) : (
-                            <span className="warn-text">нет</span>
-                          )}
-                        </td>
-                      ))}
+                      {Array.from({ length: cal.capacityAdults }, (_, i) => {
+                        const minor = d.prices[String(i + 1)];
+                        return (
+                          <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
+                            <PriceCell
+                              date={d.date}
+                              occupancy={i + 1}
+                              text={minor ? formatMinor(minor, cal.currency) : 'нет'}
+                              major={minor ? (BigInt(minor) / 100n).toString() : ''}
+                              accommodationTypeCode={category}
+                              ratePlanCode={ratePlan}
+                            />
+                          </td>
+                        );
+                      })}
                       <td>{d.minStay ?? '—'}</td>
                       <td>{d.maxStay ?? '—'}</td>
                       <td>{d.stopSell ? 'да' : '—'}</td>

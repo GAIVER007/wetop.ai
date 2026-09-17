@@ -1,0 +1,295 @@
+# Модульные (unit) · 17.09.2026 13:58 Алматы · vm
+# коммит 28531f3 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-17T08-58-46Z-unit-a7e1.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/repo-sync.test.ts (18 tests) 4502ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 418ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 432ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 515ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 398ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 463ms
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 3362ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 967ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 629ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 322ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 319ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1124ms
+ ✓ |unit| tests/unit/launchd-web-start.test.ts (1 test) 3745ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 3743ms
+[Nest] 13028  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (19 tests) 361ms
+[Nest] 13048  - 09/17/2026, 8:59:01 AM   ERROR [AccountsService] MAIL_* не настроены — код сгенерирован, но письмо не отправлено
+ ✓ |unit| apps/api/src/accounts/accounts.controller.test.ts (38 tests) 361ms
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (6 tests) 260ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 245ms
+[Nest] 13084  - 09/17/2026, 8:59:03 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13084  - 09/17/2026, 8:59:03 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13084  - 09/17/2026, 8:59:03 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 13084  - 09/17/2026, 8:59:03 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 234ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 234ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (5 tests) 151ms
+[Nest] 13120  - 09/17/2026, 8:59:05 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:251:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:183:28
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:174:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests) 184ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (11 tests) 184ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (4 tests) 169ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (10 tests) 140ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 163ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 137ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (2 tests) 121ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (10 tests) 127ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 124ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (3 tests) 142ms
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 98ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 77ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (14 tests) 61ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (11 tests) 55ms
+ ✓ |unit| packages/integrations/src/exely/client.test.ts (7 tests) 44ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (14 tests) 44ms
+ ✓ |unit| scripts/preview/real-config.test.ts (24 tests) 53ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 36ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 37ms
+ ✓ |unit| packages/integrations/src/exely/universal.test.ts (5 tests) 39ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (5 tests) 46ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 55ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (2 tests) 34ms
+[Nest] 13373  - 09/17/2026, 8:59:14 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 13373  - 09/17/2026, 8:59:14 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 13373  - 09/17/2026, 8:59:14 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (25 tests) 35ms
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (13 tests) 23ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (11 tests) 18ms
+ ✓ |unit| scripts/imports/src/exely/seat-plan.test.ts (20 tests) 17ms
+ ✓ |unit| tests/unit/test-journal.test.ts (21 tests) 16ms
+ ✓ |unit| scripts/reconciliation/src/cutover-compare.test.ts (14 tests) 14ms
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (8 tests) 14ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 14ms
+[Nest] 13436  - 09/17/2026, 8:59:15 AM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 15ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (9 tests) 7ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (10 tests) 15ms
+[Nest] 13464  - 09/17/2026, 8:59:16 AM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 13464  - 09/17/2026, 8:59:16 AM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 8ms
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 13471  - 09/17/2026, 8:59:17 AM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 13471  - 09/17/2026, 8:59:17 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 13471  - 09/17/2026, 8:59:17 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 13471  - 09/17/2026, 8:59:17 AM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 13471  - 09/17/2026, 8:59:17 AM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (9 tests) 11ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (4 tests) 10ms
+ ✓ |unit| tests/unit/run-lock.test.ts (8 tests) 7ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 9ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 11ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 10ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (11 tests) 8ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (17 tests) 9ms
+ ✓ |unit| packages/domain/src/accounts/login-code.test.ts (29 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/test-data-purge-rules.test.ts (11 tests) 10ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (6 tests) 8ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (21 tests) 8ms
+ ✓ |unit| scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 9ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (2 tests) 5ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 8ms
+ ✓ |unit| packages/shared/src/auth-hash.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/system-trace.test.ts (9 tests) 8ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 8ms
+ ✓ |unit| packages/domain/src/dashboard/metrics.test.ts (8 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/anonymize.test.ts (3 tests) 5ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 7ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 8ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (12 tests) 11ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/price-calendar.test.ts (4 tests) 8ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 10ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (3 tests) 6ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (7 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/cutover-ambiguous.test.ts (9 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/rate-plans.test.ts (3 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/rollback-window.test.ts (10 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (11 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 6ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 6ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 6ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 5ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (5 tests) 5ms
+ ✓ |unit| packages/domain/src/dashboard/period.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 4ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (11 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 4ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 4ms
+ ✓ |unit| scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 6ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 4ms
+ ✓ |unit| packages/domain/src/reservations/cutover-match.test.ts (6 tests) 4ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 4ms
+ ✓ |unit| scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 4ms
+ ✓ |unit| packages/integrations/src/mail/login-code-letter.test.ts (8 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 5ms
+ ✓ |unit| scripts/imports/src/exely/parse-services.test.ts (2 tests) 4ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 5ms
+ ✓ |unit| scripts/reconciliation/src/inventory-compare.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 5ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 7ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 5ms
+ ✓ |unit| scripts/reconciliation/src/rates-compare.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 4ms
+ ✓ |unit| packages/shared/src/markdown-table.test.ts (3 tests) 4ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 4ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (6 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 5ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (2 tests) 5ms
+ ✓ |unit| apps/api/src/inventory/inventory.repository.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 3ms
+ ✓ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests) 3ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 4ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 3ms
+ ✓ |unit| scripts/imports/src/exely/guest-fields.test.ts (4 tests) 4ms
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 3ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 3ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/almaty.test.ts (2 tests) 3ms
+ ✓ |unit| tests/unit/channex-tunnel-guard.test.ts (7 tests) 70467ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (7)
+     ✓ в Channex записан одноразовый туннель — работаем как прежде 20109ms
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 20087ms
+     ✓ без постоянного адреса работает как прежде 20111ms
+     ✓ API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным 5027ms
+     ✓ API отвечает ошибкой на статус (Channex молчит) — тоже отказ 5040ms
+ ❯ |unit| tests/unit/launchd-install.test.ts (7 tests | 3 failed) 90691ms
+   ❯ launchd install.sh (7)
+     ✓ задача синхронизации Exely берёт одно соединение, чтобы не съесть пулер 66ms
+     ✓ службам пул не урезаем: у API он свой 48ms
+     ✓ --dry не снимает загруженную задачу 39ms
+     × проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» 30162ms
+     × переустановка работающей задачи ждёт, пока старый процесс освободит порт 30149ms
+     ✓ exely-sync (ADR-032, владелец 13.09.2026): раз в 5 минут, без KeepAlive, одним процессом node --import tsx 70ms
+     × переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает 30154ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/launchd-install.test.ts > launchd install.sh > проверка доступа дожидается node, когда bash первым пишет «Operation not permitted»
+AssertionError: expected '  ✗ macOS не пускает процессы launchd…' not to contain 'нет доступа к папке проекта'
+
+- Expected
++ Received
+
+- нет доступа к папке проекта
++   ✗ macOS не пускает процессы launchd в папку проекта (/home/user/wetop.ai). Запущенные вручную процессы не тронуты.
++     Сделать один из двух вариантов (владелец):
++       1) Системные настройки → Конфиденциальность и безопасность → Полный доступ к диску → «+» →
++          добавить /tmp/launchd-install-RgrlQE/home/.local/bin/node; затем повторить install.sh;
++       2) перенести проект из «Рабочего стола» в папку вне Desktop/Documents/Downloads (например ~/pms-lux).
++     Журнал проверки: /tmp/launchd-install-RgrlQE/home/Library/Logs/pms-lux/preflight.log
++ • web
++   пропущен: нет доступа к папке проекта
++ /home/user/wetop.ai/scripts/ops/launchd/install.sh: line 94: plutil: command not found
++ /tmp/launchd-install-RgrlQE/bin/launchctl: line 15: /usr/libexec/PlistBuddy: No such file or directory
++ /tmp/launchd-install-RgrlQE/bin/launchctl: line 16: /usr/libexec/PlistBuddy: No such file or directory
++
+
+ ❯ tests/unit/launchd-install.test.ts:126:21
+    124|     const sb = sandbox({ nodeDelaySec: 3, releaseSec: 0 });
+    125|     const { out } = install(sb, ['web']);
+    126|     expect(out).not.toContain('нет доступа к папке проекта');
+       |                     ^
+    127|     expect(out).toContain('загружен');
+    128|   }, 60_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/launchd-install.test.ts > launchd install.sh > переустановка работающей задачи ждёт, пока старый процесс освободит порт
+AssertionError: expected '  ✗ macOS не пускает процессы launchd…' to contain 'загружен'
+
+- Expected
++ Received
+
+- загружен
++   ✗ macOS не пускает процессы launchd в папку проекта (/home/user/wetop.ai). Запущенные вручную процессы не тронуты.
++     Сделать один из двух вариантов (владелец):
++       1) Системные настройки → Конфиденциальность и безопасность → Полный доступ к диску → «+» →
++          добавить /tmp/launchd-install-jwUGTn/home/.local/bin/node; затем повторить install.sh;
++       2) перенести проект из «Рабочего стола» в папку вне Desktop/Documents/Downloads (например ~/pms-lux).
++     Журнал проверки: /tmp/launchd-install-jwUGTn/home/Library/Logs/pms-lux/preflight.log
++ • web
++   пропущен: нет доступа к папке проекта
++ /home/user/wetop.ai/scripts/ops/launchd/install.sh: line 94: plutil: command not found
++ /tmp/launchd-install-jwUGTn/bin/launchctl: line 15: /usr/libexec/PlistBuddy: No such file or directory
++ /tmp/launchd-install-jwUGTn/bin/launchctl: line 16: /usr/libexec/PlistBuddy: No such file or directory
++
+
+ ❯ tests/unit/launchd-install.test.ts:134:17
+    132|     const { out, calls } = install(sb, ['web']);
+    133|     expect(out).not.toContain('уже запущен вручную');
+    134|     expect(out).toContain('загружен');
+       |                 ^
+    135|     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.web\.plist/…
+    136|   }, 60_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/launchd-install.test.ts > launchd install.sh > переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает
+AssertionError: expected '  ✗ macOS не пускает процессы launchd…' to contain 'загружен'
+
+- Expected
++ Received
+
+- загружен
++   ✗ macOS не пускает процессы launchd в папку проекта (/home/user/wetop.ai). Запущенные вручную процессы не тронуты.
++     Сделать один из двух вариантов (владелец):
++       1) Системные настройки → Конфиденциальность и безопасность → Полный доступ к диску → «+» →
++          добавить /tmp/launchd-install-GPvw9D/home/.local/bin/node; затем повторить install.sh;
++       2) перенести проект из «Рабочего стола» в папку вне Desktop/Documents/Downloads (например ~/pms-lux).
++     Журнал проверки: /tmp/launchd-install-GPvw9D/home/Library/Logs/pms-lux/preflight.log
++ • web
++   пропущен: нет доступа к папке проекта
++ /home/user/wetop.ai/scripts/ops/launchd/install.sh: line 94: plutil: command not found
++ /tmp/launchd-install-GPvw9D/bin/launchctl: line 15: /usr/libexec/PlistBuddy: No such file or directory
++ /tmp/launchd-install-GPvw9D/bin/launchctl: line 16: /usr/libexec/PlistBuddy: No such file or directory
++
+
+ ❯ tests/unit/launchd-install.test.ts:160:17
+    158|     const { out } = install(sb, ['web']);
+    159|     expect(out).not.toContain('Bootstrap failed');
+    160|     expect(out).toContain('загружен');
+       |                 ^
+    161|   }, 60_000);
+    162| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 128 passed (129)
+      Tests  3 failed | 1011 passed (1014)
+   Start at  08:58:47
+   Duration  90.92s (tests 93%, import 5%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-17T08-58-46Z-unit-a7e1.json
+
+# код выхода 1 · 1 мин 32 с

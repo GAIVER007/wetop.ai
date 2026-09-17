@@ -170,12 +170,16 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
   // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
   await page.goto('/hotel-settings/photos');
-  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(1);
+  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
+    1,
+  );
   await expect(page.getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
   // значение — у своего факта: строгий getByText ловил второй элемент во время перерисовки страницы
-  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText('нельзя');
+  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText(
+    'нельзя',
+  );
   await page.goto('/hotel-settings/description');
   await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
@@ -430,11 +434,16 @@ test('обзор: задачи ведут к счетам, период не м�
   await page.goto('/today');
   const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  // долг уезжающего плюс «не заехал вовремя»: подтверждён, заезд был раньше, ни в одном списке дня его нет
+  await expect(tasks.locator('.attention-count')).toHaveText('2');
   await expect(tasks.getByRole('link', { name: /К оплате/ })).toHaveAttribute(
     'href',
     '/reservations/20260913-TEST4#booking-finance',
   );
+  const overdue = tasks.getByTestId('overdue-arrival');
+  await expect(overdue).toHaveCount(1);
+  await expect(overdue).toContainText('Не заехал');
+  await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
   const debt = await page.getByTestId('c-debt').innerText();
   const arrivals = await page.getByTestId('c-arrivals').innerText();
   // полоса стойки — всегда про сегодня, какой бы период ни был выбран сверху
@@ -443,9 +452,11 @@ test('обзор: задачи ведут к счетам, период не м�
   await expect(page.getByTestId('c-debt')).toHaveText(debt);
   await expect(page.getByTestId('c-arrivals')).toHaveText(arrivals);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  await expect(tasks.locator('.attention-count')).toHaveText('2');
   await expect(
-    page.getByRole('region', { name: 'Сегодня на стойке' }).getByRole('link', { name: 'Все брони дня' }),
+    page
+      .getByRole('region', { name: 'Сегодня на стойке' })
+      .getByRole('link', { name: 'Все брони дня' }),
   ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
@@ -606,13 +617,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of [
-    '/today',
-    '/chessboard',
-    '/rooms',
-    '/finance',
-    '/channel-manager',
-  ]) {
+  for (const route of ['/today', '/chessboard', '/rooms', '/finance', '/channel-manager']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);

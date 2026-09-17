@@ -10,7 +10,9 @@ export function DayAttention({ day }: { day: DeskDay }) {
       (r.blockedReason || !r.unitCode || r.guestsRecorded < r.adults),
   );
   const departures = day.departures.filter((r) => BigInt(r.balanceMinor) > 0n);
-  const count = arrivals.length + departures.length;
+  // Не заехали вовремя (срез 5 → срез 14): место занято, а ни в одном списке дня их нет
+  const overdue = day.overdueArrivals ?? [];
+  const count = arrivals.length + departures.length + overdue.length;
   return (
     <section className="attention-card">
       <div className="attention-heading">
@@ -21,7 +23,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
         <div className="attention-empty">
           <Icon name="check" />
           <strong>Всё в порядке</strong>
-          <p>Нет незавершённых карточек и долгов уезжающих.</p>
+          <p>Нет незавершённых карточек, просроченных заездов и долгов уезжающих.</p>
         </div>
       ) : (
         <div className="attention-list">
@@ -42,6 +44,26 @@ export function DayAttention({ day }: { day: DeskDay }) {
                     (!r.unitCode
                       ? 'Назначить номер или койку'
                       : `Заполнить карточки: ${r.guestsRecorded} из ${r.adults}`)}
+                </small>
+              </span>
+              <Icon name="chevron" />
+            </Link>
+          ))}
+          {overdue.map((r) => (
+            <Link
+              key={`overdue-${r.itemId}`}
+              href={`/reservations/${encodeURIComponent(r.confirmationNumber)}#booking-actions`}
+              className="attention-item attention-item--overdue"
+              data-testid="overdue-arrival"
+            >
+              <span className="attention-icon">
+                <Icon name="clock" />
+              </span>
+              <span>
+                <strong>{r.guestLabel || r.confirmationNumber}</strong>
+                <small>
+                  <span className="booking-number">{r.confirmationNumber}</span> · Не заехал: заезд{' '}
+                  {r.arrivalDate} — заселить или отметить незаезд
                 </small>
               </span>
               <Icon name="chevron" />

@@ -1292,6 +1292,33 @@ createServer(async (req, res) => {
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       return send(200, {});
     }
+    // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
+    // список на 25 строк. Как и design-seed, обычные тесты этих броней не видят, пока не позовут.
+    if (path === '/__test/crowd-seed') {
+      const count = Math.min(Number(url.searchParams.get('n') || 40), units.length);
+      for (let i = 0; i < count; i++) {
+        const unit = units[i]!;
+        const n = `CROWD${String(i + 1).padStart(2, '0')}`;
+        const { r, g } = designCard(
+          {
+            n,
+            label: `Гость Многолюдный-${String(i + 1).padStart(2, '0')}`,
+            status: 'CHECKED_IN',
+            source: 'DESK',
+            channel: null,
+            unit: unit.code,
+            from: 0,
+            to: 0,
+            price: '1000000',
+          },
+          add(today, -1),
+          add(today, 1),
+        );
+        extraCards.set(r.confirmationNumber, r);
+        extraGuests.set(g.id, g);
+      }
+      return send(200, { stays: count });
+    }
     if (path === '/__test/design-seed') {
       seedDesign();
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
@@ -1368,13 +1395,15 @@ createServer(async (req, res) => {
             ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
             : null,
         }));
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
         total: emptyFixture ? 0 : rows.length,
-        page: 1,
-        pageSize: 25,
-        rows: emptyFixture ? [] : rows,
+        page,
+        pageSize,
+        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }
     if (req.method === 'GET') {

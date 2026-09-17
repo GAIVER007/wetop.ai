@@ -681,3 +681,21 @@ test('удаление документа гостя спрашивают: от�
   await dialog.getByRole('button', { name: 'Удалить документ' }).click();
   await expect(page.getByTestId('document-row')).toHaveCount(0);
 });
+
+/**
+ * «Гости» показывают всех, кто живёт сегодня (§7.3 плана wetop-domain).
+ *
+ * До правки экран читал первую страницу списка броней — 25 строк, — и остальных примерно 55 гостей
+ * смена не видела вовсе: подписи «показаны первые 25» на месте не было, а поиск требует знать имя.
+ */
+test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
+  const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
+  expect(seeded.stays).toBe(40);
+  await page.goto('/guests');
+  const rows = page.locator('.dir-table tbody tr');
+  // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
+  const shown = await rows.count();
+  expect(shown).toBeGreaterThan(40);
+  await expect(page.getByTestId('guests-today-count')).toContainText(`сегодня: ${shown} гост`);
+  await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
+});

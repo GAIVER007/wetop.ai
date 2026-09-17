@@ -51,6 +51,22 @@ const repo: DeskRepository = {
         departureDate: '2026-10-09',
         status: 'CHECKED_IN',
       }),
+      // должен был заехать позавчера, но не заселён и незаезд не отмечен: ни в одном списке дня его нет
+      stay({
+        itemId: 'i8',
+        confirmationNumber: 'B-8',
+        arrivalDate: '2026-10-03',
+        departureDate: '2026-10-08',
+        status: 'CONFIRMED',
+      }),
+      // тоже заехал бы раньше, но выезд сегодня — он уже в списке выездов, второй раз показывать нечего
+      stay({
+        itemId: 'i9',
+        confirmationNumber: 'B-9',
+        arrivalDate: '2026-10-02',
+        departureDate: '2026-10-05',
+        status: 'TENTATIVE',
+      }),
     ];
   },
 };
@@ -75,10 +91,11 @@ describe('desk day API', () => {
     const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
     expect(r.body.counts).toEqual({
       arrivals: 5,
-      departures: 1,
+      departures: 2,
       inHouse: 1,
       toCheckIn: 5,
       toCheckOut: 1,
+      overdueArrivals: 1,
     });
     expect(
       r.body.arrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
@@ -105,6 +122,28 @@ describe('desk day API', () => {
     );
   });
 
+  /*
+   * Просроченные заезды: подтверждён, дата заезда прошла, заселения и незаезда нет. Такое проживание
+   * не попадает ни в заезды (день не его), ни в живущих (не заселён), ни в выезды — смена его не видит,
+   * а место при этом занято. Работа 14.09 (коммит 35ac3f2 резервной ветки) вернулась сюда после того,
+   * как срез 14 переписал главную: показывать их в «Требуют внимания».
+   */
+  it('не заехали вовремя: подтверждены, дата заезда прошла, выезд не сегодня', async () => {
+    const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
+    expect(
+      r.body.overdueArrivals.map((x: { confirmationNumber: string }) => x.confirmationNumber),
+    ).toEqual(['B-8']);
+    expect(r.body.overdueArrivals[0]).toMatchObject({
+      arrivalDate: '2026-10-03',
+      status: 'CONFIRMED',
+    });
+    expect(r.body.counts.overdueArrivals).toBe(1);
+    // выезжающий сегодня B-9 сюда не попал: он уже в списке выездов
+    expect(
+      r.body.departures.map((x: { confirmationNumber: string }) => x.confirmationNumber),
+    ).toContain('B-9');
+  });
+
   it('пустые сутки и неверная дата', async () => {
     const empty = await request(app.getHttpServer()).get('/desk/today?date=2026-01-01').expect(200);
     expect(empty.body.counts).toEqual({
@@ -113,6 +152,7 @@ describe('desk day API', () => {
       inHouse: 0,
       toCheckIn: 0,
       toCheckOut: 0,
+      overdueArrivals: 0,
     });
     expect(empty.body.debtMinor).toBe('0');
     await request(app.getHttpServer()).get('/desk/today?date=05.10.2026').expect(400);

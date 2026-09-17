@@ -708,12 +708,15 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
+  /** Не заехали вовремя: дата заезда прошла, заселения и незаезда нет (API может быть старее экрана) */
+  overdueArrivals?: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;
     inHouse: number;
     toCheckIn: number;
     toCheckOut: number;
+    overdueArrivals?: number;
   };
   debtMinor: string;
 }
@@ -923,7 +926,11 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
-  register: async (email: string, organizationName: string, info: AuthClientInfo): Promise<void> => {
+  register: async (
+    email: string,
+    organizationName: string,
+    info: AuthClientInfo,
+  ): Promise<void> => {
     const res = await backendFetch('/auth/register', {
       method: 'POST',
       headers: authHeaders(info),

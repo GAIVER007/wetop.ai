@@ -10,6 +10,8 @@ import {
   messengerLinks,
   reservationsApi,
 } from '../../../lib/api';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { nightsBetween } from '../../../lib/plural';
 import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
@@ -39,6 +41,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
+  // Доступность считается не дальше 62 ночей (ADR: предел шахматки). У долгих проживаний — а это
+  // рабочий случай, на объекте живут по три месяца — запрос заведомо отклоняется, и карточка писала
+  // «не загрузилась. Обновите карточку»: совет бесполезный, обновление ничего не изменит.
+  // Такие периоды не запрашиваем вовсе и говорим, что делать (найдено обходом стойки 17.09.2026).
+  const tooLong = (it: { arrivalDate: string; departureDate: string }) =>
+    nightsBetween(it.arrivalDate, it.departureDate) > MAX_CHESSBOARD_DAYS;
+  const longPeriods = [...periods.values()].filter(tooLong).length;
   // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
@@ -48,7 +57,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
     api.inventorySummary().catch(() => null),
     Promise.all(
       [...periods.values()].map((it) =>
-        reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+        tooLong(it)
+          ? Promise.resolve(null)
+          : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
       ),
     ),
   ]);
@@ -299,7 +310,14 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             content: (
               <>
                 <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
-                {periodResults.some((v) => v === null) && (
+                {longPeriods > 0 && (
+                  <Alert boxed tone="warning" data-testid="stay-too-long">
+                    Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных ячеек на весь
+                    срок не строится. Назначайте и переселяйте с шахматки на нужные даты.
+                  </Alert>
+                )}
+                {periodResults.filter((v, i) => v === null && !tooLong([...periods.values()][i]!))
+                  .length > 0 && (
                   <Alert boxed tone="warning">
                     Доступность части периодов не загрузилась. Обновите карточку перед назначением
                     ячейки.

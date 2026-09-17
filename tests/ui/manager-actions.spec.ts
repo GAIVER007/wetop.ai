@@ -152,6 +152,23 @@ test('карточка: предварительная бронь названа
   await expect(page.getByTestId('tentative-callout')).toContainText('второй раз не продаётся');
 });
 
+/**
+ * Проживание длиннее 62 ночей — рабочий случай: на объекте живут по три месяца. Доступность на весь
+ * срок не считается, и до 17.09.2026 карточка писала «не загрузилась, обновите карточку» — совет,
+ * который ничего не менял. Найдено обходом стойки на живых данных.
+ */
+test('карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { longStay: true } });
+  await page.goto(`/reservations/${BOOKING}`);
+  await cardTab(page, 'Действия');
+  await expect(page.getByTestId('stay-too-long')).toContainText('длиннее 62 ночей');
+  await expect(page.getByTestId('stay-too-long')).toContainText('с шахматки');
+  await expect(page.getByRole('main')).not.toContainText('Доступность части периодов не загрузилась');
+});
+
 test('шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки', async ({
   page,
   request,

@@ -1868,6 +1868,11 @@ createServer(async (req, res) => {
         }
       }
       incidentHistory = Number(body['incidents']) || 0;
+      // долгое проживание: на объекте живут по три месяца, а доступность считается не дальше 62 ночей
+      if (body['longStay'] === true) {
+        card.departureDate = add(today, 90);
+        card.items[0]!.departureDate = card.departureDate;
+      }
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });

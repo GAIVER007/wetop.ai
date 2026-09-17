@@ -94,7 +94,13 @@ head_short="$(git rev-parse --short HEAD)"
 branch="$(git rev-parse --abbrev-ref HEAD)"
 ahead="$(git rev-list --count "origin/$BRANCH..HEAD")"
 behind="$(git rev-list --count "HEAD..origin/$BRANCH")"
-modified="$(git status --porcelain --untracked-files=no | wc -l | tr -d ' ')"
+# Файлы, которые переписывает сборка: считать их работой для человека нельзя, а прятать — врать.
+# `next build`, `next dev` и UI-тесты (distDir `.next-ui`) пишут в next-env.d.ts разные строки, и файл
+# «изменён» после любого из них (17.09.2026: пункт к исполнению на полностью чистой папке).
+GENERATED_RE='^apps/web/next-env\.d\.ts$'
+dirty_paths() { git status --porcelain --untracked-files=no | sed 's/^...//'; }
+generated_dirty="$(dirty_paths | grep -E "$GENERATED_RE" || true)"
+modified="$(dirty_paths | grep -vE "$GENERATED_RE" | grep -c . || true)"
 untracked="$(git status --porcelain --untracked-files=normal | grep -c '^??' || true)"
 echo "Git: ветка $branch, коммит $head_short; origin/$BRANCH $(git rev-parse --short "origin/$BRANCH")"
 [ "$branch" != "$BRANCH" ] && bad "ветка $branch — стойка работает с $BRANCH (git checkout $BRANCH)"
@@ -109,10 +115,18 @@ elif [ "$behind" -gt 0 ]; then
       need "--pull не трогает дерево с незакоммиченными правками: закоммитить своими файлами или убрать (git stash)"
     elif [ "$branch" != "$BRANCH" ]; then
       need "--pull только на $BRANCH: git checkout $BRANCH, затем снова --pull"
-    elif git merge --ff-only --quiet "origin/$BRANCH" >/dev/null 2>&1; then
+    else
+      # сгенерированные сборкой файлы возвращаем: иначе fast-forward отменится из-за файла, который
+      # всё равно перепишется следующей сборкой
+      [ -n "$generated_dirty" ] && printf '%s\n' "$generated_dirty" | while IFS= read -r f; do
+        [ -n "$f" ] && git checkout -- "$f" 2>/dev/null
+      done
+      generated_dirty=""
+    fi
+    if [ "$modified" -eq 0 ] && [ "$branch" = "$BRANCH" ] && git merge --ff-only --quiet "origin/$BRANCH" >/dev/null 2>&1; then
       ok "подтянул origin/$BRANCH: $head_short → $(git rev-parse --short HEAD)"
       pulled=1; restart_api=1; restart_web=1
-    else
+    elif [ "$modified" -eq 0 ] && [ "$branch" = "$BRANCH" ]; then
       need "fast-forward не удался: git merge --ff-only origin/$BRANCH и смотреть, что мешает"
     fi
   else
@@ -126,8 +140,11 @@ else
 fi
 if [ "$modified" -gt 0 ]; then
   bad "незакоммиченных правок: $modified"
-  git status --porcelain --untracked-files=no | head -10 | sed 's/^/      /'
+  dirty_paths | grep -vE "$GENERATED_RE" | head -10 | sed 's/^/      /'
   [ "$pulled" -eq 1 ] || [ "$behind" -eq 0 ] && need "закоммитить своими файлами (явным списком, не git add -A) или убрать (git stash)"
+fi
+if [ -n "$generated_dirty" ]; then
+  info "переписан сборкой, к работе не относится: $(printf '%s' "$generated_dirty" | tr '\n' ' ')— вернуть: git checkout -- $(printf '%s' "$generated_dirty" | tr '\n' ' ')"
 fi
 [ "$untracked" -gt 0 ] && info "неотслеживаемых файлов: $untracked (git status)"
 

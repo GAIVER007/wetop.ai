@@ -99,10 +99,10 @@ test('каналы: очередь с фильтром по статусу, со
   await expect(page.getByTestId('outbox-filter-FAILED')).toHaveAttribute('aria-current', 'true');
   await expect(page.getByTestId('outbox-table').getByTestId('outbox-row')).toHaveCount(1);
   await expect(page.getByTestId('outbox-table')).toContainText('ошибка');
-  // События: страница из 20, всего 32
+  // События: страница из 20, всего 33 (в витрине есть и проверка webhook с двоеточиями в номере)
   const events = page.getByTestId('events-table');
   await expect(events.getByTestId('event-row')).toHaveCount(20);
-  await expect(page.getByTestId('events-pager')).toContainText('показано 20 из 32');
+  await expect(page.getByTestId('events-pager')).toContainText('показано 20 из 33');
   await expect(page.getByTestId('events-callout')).toContainText('Входящая бронь требует разбора');
   await expect(events.getByRole('link', { name: '20260913-SHOWTN' }).first()).toHaveAttribute(
     'href',
@@ -111,8 +111,8 @@ test('каналы: очередь с фильтром по статусу, со
   await page.getByRole('link', { name: 'Дальше' }).click();
   await expect(page).toHaveURL(/page=2/);
   await expect(page).toHaveURL(/queue=FAILED/); // фильтр очереди не сброшен
-  await expect(page.getByTestId('events-table').getByTestId('event-row')).toHaveCount(12);
-  await expect(page.getByTestId('events-pager')).toContainText('показано 12 из 32');
+  await expect(page.getByTestId('events-table').getByTestId('event-row')).toHaveCount(13);
+  await expect(page.getByTestId('events-pager')).toContainText('показано 13 из 33');
   // Фильтр по статусу + поиск по unique_id
   await page.getByLabel('Статус события').selectOption('FAILED');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
@@ -165,6 +165,17 @@ test('приём брони из канала: цепочка ревизия →
   // Неизвестная ревизия — «Страница не найдена», а не пустая цепочка (как у карточки брони)
   await page.goto('/channels/events/no-such-revision');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Страница не найдена');
+});
+
+/**
+ * Идентификатор ревизии Channex содержит двоеточия (`test:<время>:<хеш>`). Next отдаёт сегмент адреса
+ * закодированным, и до 17.09.2026 клиент API кодировал его второй раз: сервер отвечал 404 на живую
+ * ревизию, экран говорил «Страница не найдена». Найдено обходом стойки на живых данных.
+ */
+test('приём брони: ревизия с двоеточиями в номере открывается', async ({ page }) => {
+  await page.goto(`/channels/events/${encodeURIComponent('test:2026-09-16T18:35:20.672058Z:74234e98afe7')}`);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
+  await expect(page.getByTestId('revision-chain')).toContainText('test:2026-09-16T18:35:20');
 });
 
 /**

@@ -600,6 +600,20 @@ function applyChannelShowcase() {
       confirmationNumber: '20260913-SHOWCX',
     },
     {
+      // Проверка webhook Channex приходит с двоеточиями в номере — экран обязан её открыть
+      externalEventId: 'test:2026-09-16T18:35:20.672058Z:74234e98afe7',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T02:50:00Z`,
+      processedAt: `${today}T02:50:01Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
+    },
+    {
       externalEventId: 'ui-rev-new-2',
       receivedVia: 'WEBHOOK',
       type: 'booking_new',
@@ -664,7 +678,7 @@ function applyChannelShowcase() {
       rooms: [room],
     }),
   );
-  for (const id of ['ui-rev-new-2', 'ui-rev-modified'])
+  for (const id of ['ui-rev-new-2', 'ui-rev-modified', 'test:2026-09-16T18:35:20.672058Z:74234e98afe7'])
     showcaseRevisions.set(
       id,
       facts({

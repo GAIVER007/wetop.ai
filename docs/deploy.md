@@ -13,8 +13,8 @@
 ```bash
 cd ~/путь/к/wetop.ai
 git fetch origin && git checkout main && git pull        # или нужная ветка
-npm install                                              # только если менялись зависимости
-npm run generate -w @pms/database                        # только если менялась схема Prisma
+npm install                                              # заодно перегенерирует клиент базы
+npm run generate -w @pms/database                        # если ставили не через npm install
 
 # API: перечитать код
 launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api
@@ -46,6 +46,12 @@ bash scripts/ops/launchd/install.sh awake
 
 Без `domain` брони из каналов доходят только опросом ленты, а не webhook'ом; без `exely-sync` данные
 в PMS устаревают. В день двойного ввода `exely-sync` снимают намеренно (`CUTOVER.md`, условие 2).
+
+**Клиент базы обязан знать схему.** Он генерируется из `schema.prisma`, а не из самой базы: пока
+`prisma generate` не выполнен, сервер обращается к полям, которых клиент не знает, и отвечает 500 —
+17.09.2026 так падал журнал действий («Unknown field `user` for include statement on model `AuditLog`»),
+хотя все миграции были применены. Теперь генерация идёт сама при `npm install` (`postinstall`), а
+после ручной правки схемы — `npm run generate -w @pms/database` и перезапуск API.
 
 **Миграции базы применяет владелец вручную** (`DATA_MODEL.md`, `CUTOVER.md`): агент production migration
 не делает. Сначала миграция, потом перезапуск API.

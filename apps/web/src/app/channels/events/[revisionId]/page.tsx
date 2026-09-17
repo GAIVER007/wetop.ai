@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
 import { ApiError } from '../../../../lib/api-error';
+import { decodeRouteParam } from '../../../../lib/route-param';
 import { Page } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { Badge, StatusBadge } from '../../../../components/ui';
@@ -47,7 +48,9 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
-  const { revisionId } = await params;
+  // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
+  // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
+  const revisionId = decodeRouteParam((await params).revisionId);
   let data: RevisionPage;
   try {
     data = await channelsApi.event(revisionId);

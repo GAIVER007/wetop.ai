@@ -513,3 +513,4 @@
 | 17.09.2026 13:11 | lint | ✅ без ошибок | 11 с | 95fc0cb +1 | [лог](logs/2026-09-17T08-11-18Z-lint-ae45.log) | audit-author.test.ts |
 | 17.09.2026 13:09 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 7 с | 8b28b33 | [лог](logs/2026-09-17T08-09-10Z-integration-d8c7.log) | (файл не выполнился) |
 | 17.09.2026 13:14 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 8 с | 8b28b33 | [лог](logs/2026-09-17T08-14-26Z-integration-bb2b.log) | (файл не выполнился) |
+| 17.09.2026 13:16 | integration (частично: tests/integration/audit-author.test.ts) | ✅ 3 из 3 | 9 с | 461b716 | [лог](logs/2026-09-17T08-16-52Z-integration-d586.log) |  |

@@ -114,10 +114,12 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
                   <Icon name={u.kind === 'ROOM' ? 'inventory' : 'bed'} />
                   {u.code}
                 </strong>
-                <StatusBadge status={badgeStatus(state)} label={badgeLabel(cell)} />
+                <StatusBadge status={badgeStatus(state)} label={badgeLabel(cell, board !== null)} />
               </div>
               <p className="room-card-cat">{u.accommodationTypeName}</p>
-              <div className="room-card-note">{c ? note(c) : 'нет данных на сегодня'}</div>
+              <div className="room-card-note">
+                {c ? note(c) : board ? 'нет данных на сегодня' : 'занятость не загрузилась'}
+              </div>
               <div className="room-card-footer">
                 <span>
                   {u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'} · {u.roomCapacity}{' '}
@@ -154,8 +156,9 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
 function badgeStatus(state: string | undefined): string {
   return state === 'OCCUPIED' ? 'CHECKED_IN' : state === 'BLOCKED' ? 'TENTATIVE' : 'CHECKED_OUT';
 }
-function badgeLabel(cell: ChessboardCell | undefined): string {
-  if (!cell) return 'Нет данных';
+function badgeLabel(cell: ChessboardCell | undefined, boardLoaded = true): string {
+  // Пустая клетка значит разное: шахматка не ответила или единицы нет на доске (§7.3)
+  if (!cell) return boardLoaded ? 'Нет данных' : 'Занятость не загрузилась';
   if (cell.state === 'OCCUPIED') return 'Занят';
   if (cell.state === 'FREE') return 'Свободен';
   return cell.blockType === 'CLEANING'

@@ -461,6 +461,7 @@ function getGuest(id: string) {
 let rejectCreate = false;
 let failPath = '';
 let emptyFixture = false;
+let fullIncidentHistory = false;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
@@ -933,8 +934,20 @@ function read(path: string, q: URLSearchParams): unknown {
       lastTick: null,
       open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
     };
-  if (path === '/guard/incidents')
-    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+  if (path === '/guard/incidents') {
+    if (q.get('status') === 'open' && incident.status === 'RESOLVED') return [];
+    if (fullIncidentHistory && q.get('status') === 'all') {
+      const limit = Number(q.get('limit') || 100);
+      return Array.from({ length: limit }, (_, i) => ({
+        ...incident,
+        id: `ui-incident-${i}`,
+        status: 'RESOLVED',
+        resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
+        resolvedBy: 'GUARD',
+      }));
+    }
+    return [incident];
+  }
   if (path === '/hotel/settings')
     return {
       property: {
@@ -1262,6 +1275,7 @@ createServer(async (req, res) => {
       rejectCreate = false;
       failPath = '';
       emptyFixture = false;
+      fullIncidentHistory = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -1284,6 +1298,8 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
+      fullIncidentHistory = body['fullIncidentHistory'] === true;
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');

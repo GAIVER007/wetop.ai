@@ -766,3 +766,43 @@ test('доступность: период длиннее 62 ночей объя
   await expect(page.getByText('не больше 62 ночей')).toHaveCount(0);
   await expect(page.getByText('Доступно на весь срок')).toBeVisible();
 });
+
+/**
+ * Сбой шахматки на «Номерах» виден как сбой, а не как «нет данных» (§7.3 плана wetop-domain).
+ *
+ * Занятость карточек и категорий считается шахматкой, и её ответ ловился `.catch(() => null)`:
+ * при любой ошибке каждая карточка писала «Нет данных», а каждая категория — «нет данных».
+ * Смена читала это как «в системе пусто» и шла заводить брони заново.
+ */
+test('номера: сбой шахматки назван сбоем, а не пустотой', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
+  await page.goto('/rooms');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
+  await expect(page.getByText('Нет данных')).toHaveCount(0);
+
+  await page.goto('/rooms/categories');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
+  await expect(page.getByText('нет данных')).toHaveCount(0);
+
+  // как только шахматка отвечает, занятость на месте и предупреждения нет
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/rooms/categories');
+  await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  await expect(page.getByText('занято').first()).toBeVisible();
+});
+
+/**
+ * «Неисправности» говорят, что история обрезана (§7.3 плана wetop-domain).
+ *
+ * Экран читает последние записи истории и из них показывает закрытые за сутки. Если записей
+ * ровно столько, сколько запросили, закрытых могло быть больше — и дежурный этого не видел.
+ */
+test('неисправности: полная выдача истории названа обрезанной', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { fullIncidentHistory: true } });
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toContainText('могло быть больше');
+
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/incidents');
+  await expect(page.getByTestId('incidents-truncated')).toHaveCount(0);
+});

@@ -301,17 +301,16 @@ export class FinanceService {
           balance > 0n ? 'примите оплату' : 'оформите возврат переплаты'
         }`,
       );
-    await this.repo.closeFolio(folioId);
-    await this.repo.audit(
-      'Folio',
-      folioId,
-      'finance.folio.close',
-      { status: 'OPEN' },
-      {
+    await this.repo.closeFolio(folioId, {
+      entityType: 'Folio',
+      entityId: folioId,
+      action: 'finance.folio.close',
+      before: { status: 'OPEN' },
+      after: {
         status: 'CLOSED',
         balanceMinor: '0',
       },
-    );
+    });
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -362,24 +361,24 @@ export class FinanceService {
           : 'Цена должна быть больше нуля',
       );
     const amountMinor = unitPriceMinor * BigInt(quantity);
-    const id = await this.repo.addCharge(folioId, {
-      kind,
-      serviceId,
-      description,
-      quantity,
-      unitPriceMinor,
-      amountMinor,
-      serviceDate,
-    });
-    await this.repo.audit('Folio', folioId, 'finance.charge', null, {
-      chargeId: id,
-      kind,
-      description,
-      quantity,
-      unitPriceMinor: s(unitPriceMinor),
-      amountMinor: s(amountMinor),
-      serviceDate,
-    });
+    await this.repo.addCharge(
+      folioId,
+      { kind, serviceId, description, quantity, unitPriceMinor, amountMinor, serviceDate },
+      {
+        entityType: 'Folio',
+        entityId: folioId,
+        action: 'finance.charge',
+        idField: 'chargeId',
+        after: {
+          kind,
+          description,
+          quantity,
+          unitPriceMinor: s(unitPriceMinor),
+          amountMinor: s(amountMinor),
+          serviceDate,
+        },
+      },
+    );
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -448,24 +447,32 @@ export class FinanceService {
         throw e;
       }
     }
-    const id = await this.repo.addCharge(folioId, {
-      kind: 'SERVICE',
-      serviceId: null,
-      description: spec.description,
-      quantity: 1,
-      unitPriceMinor,
-      amountMinor: unitPriceMinor,
-      serviceDate,
-    });
-    await this.repo.audit('Folio', folioId, 'finance.stayExtra', null, {
-      chargeId: id,
-      extra: dto.extra,
-      time: dto.time ?? null,
-      percent,
-      amountMinor: s(unitPriceMinor),
-      serviceDate,
-      defaultUsed: dto.unitPrice === undefined,
-    });
+    await this.repo.addCharge(
+      folioId,
+      {
+        kind: 'SERVICE',
+        serviceId: null,
+        description: spec.description,
+        quantity: 1,
+        unitPriceMinor,
+        amountMinor: unitPriceMinor,
+        serviceDate,
+      },
+      {
+        entityType: 'Folio',
+        entityId: folioId,
+        action: 'finance.stayExtra',
+        idField: 'chargeId',
+        after: {
+          extra: dto.extra,
+          time: dto.time ?? null,
+          percent,
+          amountMinor: s(unitPriceMinor),
+          serviceDate,
+          defaultUsed: dto.unitPrice === undefined,
+        },
+      },
+    );
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -493,20 +500,20 @@ export class FinanceService {
         releasedBlock = { unitCode: block.unitCode, dateFrom: block.dateFrom };
       }
     }
-    await this.repo.voidCharge(chargeId);
-    await this.repo.audit(
-      'Folio',
-      c.folioId,
-      'finance.charge.void',
-      {
+    await this.repo.voidCharge(chargeId, {
+      entityType: 'Folio',
+      entityId: c.folioId,
+      action: 'finance.charge.void',
+      before: {
         chargeId,
         kind: c.kind,
         description: c.description,
         amountMinor: s(c.amountMinor),
         ...(extra ? { releasedBlock } : {}),
       },
-      null,
-    );
+      // Сторно: состояние «до» — само начисление, «после» — его больше нет
+      after: { voided: true },
+    });
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -539,20 +546,30 @@ export class FinanceService {
       throw new BadRequestException('Счета в одном платеже должны быть в одной валюте');
     if (dto.currency !== undefined && dto.currency !== currency)
       throw new BadRequestException(`Валюта платежа должна быть ${currency}`);
-    const id = await this.repo.createPayment({
-      method: dto.method as PaymentMethod,
-      amountMinor,
-      currency,
-      paidAt: dto.paidAt ?? null,
-      note: dto.note?.trim() || null,
-      allocations,
-    });
-    await this.repo.audit('Payment', id, 'finance.payment', null, {
-      method: dto.method,
-      amountMinor: s(amountMinor),
-      currency,
-      allocations: allocations.map((a) => ({ folioId: a.folioId, amountMinor: s(a.amountMinor) })),
-    });
+    await this.repo.createPayment(
+      {
+        method: dto.method as PaymentMethod,
+        amountMinor,
+        currency,
+        paidAt: dto.paidAt ?? null,
+        note: dto.note?.trim() || null,
+        allocations,
+      },
+      {
+        // id платежа известен только после вставки — его подставит репозиторий в той же транзакции
+        entityType: 'Payment',
+        action: 'finance.payment',
+        after: {
+          method: dto.method,
+          amountMinor: s(amountMinor),
+          currency,
+          allocations: allocations.map((a) => ({
+            folioId: a.folioId,
+            amountMinor: s(a.amountMinor),
+          })),
+        },
+      },
+    );
     return this.reservation(folios[0]!.confirmationNumber);
   }
 
@@ -575,18 +592,25 @@ export class FinanceService {
       assertRefundWithin({ allocatedMinor: alloc.amountMinor, refundedMinor, refundMinor }),
     );
     const folio = await this.openFolio(dto.folioId);
-    const id = await this.repo.createRefund({
-      paymentId,
-      folioId: dto.folioId,
-      amountMinor: refundMinor,
-      reason: dto.reason?.trim() || null,
-    });
-    await this.repo.audit('Payment', paymentId, 'finance.refund', null, {
-      refundId: id,
-      folioId: dto.folioId,
-      amountMinor: s(refundMinor),
-      reason: dto.reason ?? null,
-    });
+    await this.repo.createRefund(
+      {
+        paymentId,
+        folioId: dto.folioId,
+        amountMinor: refundMinor,
+        reason: dto.reason?.trim() || null,
+      },
+      {
+        entityType: 'Payment',
+        entityId: paymentId,
+        action: 'finance.refund',
+        idField: 'refundId',
+        after: {
+          folioId: dto.folioId,
+          amountMinor: s(refundMinor),
+          reason: dto.reason ?? null,
+        },
+      },
+    );
     return this.reservation(folio.confirmationNumber);
   }
 }

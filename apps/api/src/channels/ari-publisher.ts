@@ -20,6 +20,14 @@ export interface AriPublisher {
    * `tx` — транзакция команды: очередь пишется вместе с ценами, иначе цены сохранятся, а в каналы не уйдут (Б5).
    */
   ratesChanged(changes: LocalRateChange[], tx?: unknown): Promise<void>;
+  /**
+   * След для сторожа: дельта не встала в очередь после записанной команды (Б6). Очередь пуста, поэтому
+   * «упавшая отправка» и «застряла очередь» этого не увидят — сторож читает журнал (`channex.deltaLost`).
+   */
+  deltaLost?(
+    change: { categoryCodes: string[]; from: string; toExclusive: string },
+    error: string,
+  ): Promise<void>;
 }
 /** Одно изменение цен/ограничений в терминах PMS (без ID провайдера). */
 export interface LocalRateChange {
@@ -54,10 +62,20 @@ export async function publishAfterCommit(
   try {
     await publisher.reservationChanged(change);
   } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
     new Logger('AriPublisher').error(
       `Дельта доступности не встала в очередь после записи команды (${change.categoryCodes.join(', ')} ` +
-        `${change.from} → ${change.toExclusive}): ${e instanceof Error ? e.message : String(e)}`,
+        `${change.from} → ${change.toExclusive}): ${error}`,
     );
+    // Журнал в базе, а не только в файле: из него сторож узнаёт, что остаток в канале устарел, и делает
+    // полную выгрузку. Сбой самой записи следа команду тоже не роняет — она уже записана.
+    try {
+      await publisher.deltaLost?.(change, error);
+    } catch (e2) {
+      new Logger('AriPublisher').error(
+        `След потерянной дельты не записан: ${e2 instanceof Error ? e2.message : String(e2)}`,
+      );
+    }
   }
 }
 
@@ -73,6 +91,14 @@ const plusDays = (iso: string, n: number) => {
 @Injectable()
 export class OutboxAriPublisher implements AriPublisher {
   constructor(@Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository) {}
+
+  /** Строка журнала о потерянной дельте: её читает сторож (`OutboxSignal.lostDeltaAt`, ADR-028) */
+  async deltaLost(
+    change: { categoryCodes: string[]; from: string; toExclusive: string },
+    error: string,
+  ): Promise<void> {
+    await this.repo.audit('channex.deltaLost', { ...change, error });
+  }
 
   async reservationChanged(change: {
     categoryCodes: string[];

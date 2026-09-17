@@ -39,25 +39,27 @@ test('стойка: занятую койку не продать дважды, 
   await second.goto(url);
 
   const fill = async (p: typeof page, lastName: string, unitCode: string) => {
-    const f = p.getByTestId('new-reservation-form');
-    await f.locator('select[name="source"]').selectOption('WALK_IN');
-    await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
-    await f.locator('select[name="unitCode"]').selectOption(unitCode);
-    await f.locator('input[name="firstName"]').fill('Гость');
-    await f.locator('input[name="lastName"]').fill(lastName);
-    await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
-    await f.getByRole('button', { name: 'Создать бронь' }).click();
+    const f = p.getByTestId('new-reservation-form').first();
+    await f.locator('select[name="source"]').first().selectOption('WALK_IN');
+    await f.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
+    await f.locator('select[name="unitCode"]').first().selectOption(unitCode);
+    await f.locator('input[name="firstName"]').first().fill('Гость');
+    await f.locator('input[name="lastName"]').first().fill(lastName);
+    await f.locator('textarea[name="notes"]').first().fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
+    await f.getByRole('button', { name: 'Создать бронь' }).first().click();
   };
 
-  const firstForm = page.getByTestId('new-reservation-form');
-  await firstForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+  // Форма доезжает потоковым куском Next: пока он встраивается, та же разметка лежит в двух копиях —
+  // работаем с видимой первой, как и на других экранах
+  const firstForm = page.getByTestId('new-reservation-form').first();
+  await firstForm.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
   const unit = (await firstForm
     .locator('select[name="unitCode"] option')
     .nth(1)
     .getAttribute('value'))!;
   // вторая вкладка выбирает ту же койку: её список составлен до создания первой брони
-  const secondForm = second.getByTestId('new-reservation-form');
-  await secondForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+  const secondForm = second.getByTestId('new-reservation-form').first();
+  await secondForm.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
   await expect(secondForm.locator(`select[name="unitCode"] option[value="${unit}"]`)).toHaveCount(
     1,
   );

@@ -59,10 +59,11 @@ export default async function FinanceReportPage({
   return (
     <Page
       title="Деньги за период"
+      // Оплату принимают на счёте брони; отсюда можно только пойти её искать (§7.3)
       actions={
         <Link href="/reservations" className="btn">
-          <Icon name="plus" />
-          Принять оплату
+          <Icon name="search" />
+          Найти бронь для оплаты
         </Link>
       }
     >

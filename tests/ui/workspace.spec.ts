@@ -699,3 +699,48 @@ test('гости на сегодня: в списке все, а не первы
   await expect(page.getByTestId('guests-today-count')).toContainText(`сегодня: ${shown} гост`);
   await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
 });
+
+/**
+ * Подписи ведут туда, куда написано (§7.3 плана wetop-domain).
+ *
+ * «Как начислить услугу» звала вкладку карточки «Финансы», хотя она называется «Счета», и вела
+ * искать проживающего гостя на «Сегодня» — а срез 14 (ADR-047) убрал оттуда списки дня: гости
+ * живут на «Гостях». Администратор шёл по подписи и не находил ни вкладки, ни списка.
+ */
+test('настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей', async ({
+  page,
+}) => {
+  await page.goto('/hotel-settings/services');
+  const panel = page.getByTestId('service-hint');
+  await expect(panel).toContainText('«Счета»');
+  await expect(panel).not.toContainText('«Финансы»');
+  await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+  await expect(page).toHaveURL(/\/guests$/);
+  await expect(page.getByTestId('guests-today-count')).toBeVisible();
+});
+
+test('описание объекта: два адреса подписаны источником — PMS и Channex', async ({ page }) => {
+  await page.goto('/hotel-settings/description');
+  // Адресов на экране два: в PMS его меняет стойка, в Channex — кабинет канала. Без подписи
+  // при расхождении непонятно, какой из них правит администратор.
+  await expect(page.getByTestId('stored-property')).toContainText('Адрес в PMS');
+  await expect(page.getByText('Адрес в Channex')).toBeVisible();
+  await expect(page.getByText('Адрес', { exact: true })).toHaveCount(0);
+});
+
+test('кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони', async ({
+  page,
+}) => {
+  // «Добавить гостя» вела в форму брони, «Принять оплату» на «Деньгах» — в список броней:
+  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3).
+  await page.goto('/guests');
+  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь с гостем' });
+  await expect(newBooking).toBeVisible();
+  await newBooking.click();
+  await expect(page).toHaveURL(/\/reservations\/new$/);
+
+  await page.goto('/finance');
+  await expect(page.getByRole('main').getByRole('link', { name: 'Принять оплату' })).toHaveCount(0);
+  await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
+  await expect(page).toHaveURL(/\/reservations$/);
+});

@@ -21,10 +21,11 @@ export default async function GuestsPage({
     <Page
       title="Гости"
       subtitle="Гости объекта и история проживания"
+      // Гость заводится вместе с бронью — отдельной формы гостя нет, и кнопка это называет
       actions={
         <Link className="btn" href="/reservations/new">
           <Icon name="plus" />
-          Добавить гостя
+          Новая бронь с гостем
         </Link>
       }
     >

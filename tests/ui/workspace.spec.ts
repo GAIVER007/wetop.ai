@@ -806,3 +806,56 @@ test('неисправности: полная выдача истории на�
   await page.goto('/incidents');
   await expect(page.getByTestId('incidents-truncated')).toHaveCount(0);
 });
+
+/**
+ * «Демо бронирования» предупреждает, что бронь настоящая (§7.3 плана wetop-domain).
+ *
+ * Демо-страница виджета работает на живом API: `POST /w/book` создаёт обычную бронь, занимает
+ * место и открывает счёт. Ссылка звалась «демо», ничего об этом не говорила — и проверка
+ * виджета молча съедала койку.
+ */
+test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
+  await page.goto('/analytics/setup');
+  await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
+  // DESIGN.md §14: стрелок в конце текста ссылок нет
+  await expect(page.getByTestId('site-card')).not.toContainText('↗');
+});
+
+/**
+ * Время входящих событий Channex — по часам объекта (§7.3 плана wetop-domain, DESIGN.md §14).
+ *
+ * Лента печатала сырой ISO из базы: `2026-09-17T05:12` — это UTC, а стойка читает его как своё
+ * время и считает, что бронь пришла пять часов назад. Часового пояса рядом не было.
+ */
+test('подключения каналов: время события — по Алматы, а не сырой UTC', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`); // лента событий живёт в засеянных данных
+  await page.goto('/channels');
+  const rows = page.getByTestId('event-row');
+  await expect(rows.first()).toContainText('10:12'); // 05:12 UTC = 10:12 в Алматы
+  await expect(rows.first()).not.toContainText('05:12');
+});
+
+/**
+ * «Каналы» переживают сбой сводки фонда и не показывают пустую таблицу молча (§7.3).
+ *
+ * Страница читала сводку фонда без `catch`: её отказ уносил весь экран — вместе с очередью ARI
+ * и статусом webhook, то есть ровно тем, ради чего на него и заходят, когда что-то сломалось.
+ * А пустой маппинг выглядел как таблица из одной шапки: непонятно, то ли не настроено, то ли
+ * не загрузилось.
+ */
+test('каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/channels');
+  await expect(page.getByTestId('mapping-empty')).toContainText('Сопоставлений нет');
+
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
+  await page.goto('/channels');
+  await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
+  await expect(page.getByTestId('inventory-failed')).toBeVisible();
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+});

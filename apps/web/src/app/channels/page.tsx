@@ -3,6 +3,7 @@ import { type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert, Badge, Help, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { ChannelButtons, RetryEventButton } from './buttons';
+import { almatyMoment } from '../../lib/almaty';
 
 /** Каналы (Channex staging): маппинг, очередь исходящих изменений, ручные действия. */
 const EVENT_RU: Record<string, string> = {
@@ -16,9 +17,9 @@ const EVENT_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
   FAILED: 'danger',
   RECEIVED: 'info',
 };
-/** «, проверено 14:22» — время последней пробы адреса webhook; без пробы подпись не нужна */
+/** «, проверено 17.09 14:22» по часам объекта — время последней пробы адреса webhook */
 const checkedAt = (iso: string | null | undefined) =>
-  iso ? `, проверено ${new Date(iso).toLocaleTimeString('ru-RU', { timeStyle: 'short' })}` : '';
+  iso ? `, проверено ${almatyMoment(iso)}` : '';
 const VIA_RU: Record<string, string> = {
   WEBHOOK: 'сама (webhook)',
   PULL: 'опрос ленты',
@@ -29,13 +30,15 @@ export default async function ChannelsPage() {
   const [mapping, outbox, summary, webhook, events, connection] = await Promise.all([
     channelsApi.mapping(),
     channelsApi.outbox(),
-    api.inventorySummary(),
+    // Сводка фонда нужна только чтобы подписать категории именами: её отказ не должен уносить
+    // очередь ARI и статус webhook — именно за ними сюда и приходят, когда что-то сломалось (§7.3)
+    api.inventorySummary().catch(() => null),
     channelsApi.webhookStatus().catch(() => null),
     channelsApi.events(20).catch(() => null),
     channelsApi.connection().catch(() => null),
   ]);
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
-  const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+  const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
   const property = mapping.find((m) => !m.providerRoomTypeId);
   return (
     <Page
@@ -46,6 +49,12 @@ export default async function ChannelsPage() {
         </Link>
       }
     >
+      {!summary && (
+        <Alert boxed tone="warning" data-testid="inventory-failed">
+          Сводка фонда не загрузилась: категории ниже подписаны кодами. Очередь каналов и статус
+          webhook на этой странице читаются отдельно и верны.
+        </Alert>
+      )}
       {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
       <Stats min={150}>
         <Stat label="В очереди" value={String(outbox.pending)} testId="outbox-pending" />
@@ -166,7 +175,7 @@ export default async function ChannelsPage() {
                 </Badge>
               </td>
               <td className="num">{e.attempts}</td>
-              <td className="nowrap">{e.receivedAt.slice(0, 16).replace('T', ' ')}</td>
+              <td className="nowrap">{almatyMoment(e.receivedAt)}</td>
               <td className="danger-text">{e.lastError?.slice(0, 80) ?? ''}</td>
               <td>
                 {e.status === 'FAILED' && <RetryEventButton revisionId={e.externalEventId} />}
@@ -197,6 +206,14 @@ export default async function ChannelsPage() {
                 <td className="mono">{m.providerRatePlanId}</td>
               </tr>
             ))}
+          {!mapping.some((m) => m.providerRoomTypeId) && (
+            <tr>
+              <td colSpan={3} className="muted" data-testid="mapping-empty">
+                Сопоставлений нет: категории и тарифы ещё не связаны с Channex. Пока их нет, цены и
+                остатки в каналы не уходят.
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
     </Page>

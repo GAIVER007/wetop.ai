@@ -1,0 +1,36 @@
+# Контекст сборки — корень репозитория (compose: context: ..), поэтому файл лежит рядом с Dockerfile
+# и перечисляет пути от корня.
+#
+# Секреты в образ не попадают ни при каких условиях (SECURITY.md §3): .env подаётся снаружи через
+# env_file, ключ туннеля монтируется в контейнер cloudflared.
+.env
+.env.*
+!.env.example
+deploy/cloudflared/
+*.pem
+*.key
+secrets/
+
+# Собирается внутри образа — копировать чужую сборку нельзя: она может быть от другого кода
+node_modules/
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+packages/database/src/generated/
+
+# Не нужно на сервере
+.git/
+.github/
+.claude/
+tests/
+design/
+plans/
+reports/
+project-input/
+docs/
+**/*.test.ts
+**/*.spec.ts
+playwright-report/
+test-results/
+coverage/

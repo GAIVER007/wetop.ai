@@ -6,6 +6,10 @@
 *.key
 .n8n_token
 
+# Ключ туннеля на сервере — обычный .json рядом с конфигом, под *.pem и *.key не попадает
+deploy/cloudflared/
+!deploy/cloudflared.example.yml
+
 # --- Claude Code: личное не едет в репозиторий ---
 # settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,
 # туда пишутся абсолютные пути и команды целиком; worktrees — рабочие копии сессий.

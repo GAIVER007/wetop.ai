@@ -1,0 +1,78 @@
+# PMS на сервере в Казахстане (plans/server-kz-2026-09-17.md). Заменяет launchd с Mac владельца:
+# те же четыре службы, что держал launchd, только под Docker — так же, как сторож на Hostinger
+# (scripts/ops/watch/compose.yml).
+#
+#   api         — NestJS, 3001. Наружу не публикуется: до него ходит только туннель и стойка.
+#   web         — стойка Next на `next start`, 3000. Тоже только через туннель.
+#   cloudflared — именованный туннель: app.wetop.ai и api.wetop.ai. Адреса при переезде не меняются,
+#                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
+#   exely-sync  — синхронизация с Exely раз в 5 минут (ADR-032).
+#
+# Секреты — в файле .env рядом, его вписывает владелец (SECURITY.md §3). В образ они не попадают.
+# База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
+#
+# Запуск:   docker compose -f deploy/compose.yml up -d --build
+# Обновить: git pull && docker compose -f deploy/compose.yml up -d --build
+# Смотреть: docker compose -f deploy/compose.yml ps ; docker compose -f deploy/compose.yml logs -f api
+name: pms-lux
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: pms-lux:latest
+  restart: unless-stopped
+  env_file: .env
+  security_opt: ['no-new-privileges:true']
+
+services:
+  api:
+    <<: *app
+    command: ['node', '--import', 'tsx', 'apps/api/src/main.ts']
+    expose: ['3001']
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/inventory/summary']
+      interval: 60s
+      timeout: 10s
+      start_period: 60s
+
+  web:
+    <<: *app
+    command: ['npm', 'run', 'start', '-w', 'apps/web']
+    expose: ['3000']
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/today']
+      interval: 60s
+      timeout: 10s
+      start_period: 90s
+
+  # Ровно одна копия туннеля на весь проект. Две копии одного туннеля друг друга не заменяют:
+  # Cloudflare делит запросы между ними, и адрес отвечает через раз (17.09.2026, docs/deploy.md §1).
+  # Перед запуском здесь — снять туннель с Mac и убедиться, что `cloudflared tunnel info wetop`
+  # показывает один коннектор.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ['tunnel', '--no-autoupdate', '--config', '/etc/cloudflared/wetop.yml', 'run']
+    # Правила маршрутизации живут в репозитории и видны в ревью, а не в панели Cloudflare.
+    # Ключ туннеля кладёт владелец рядом с конфигом; в git не едет.
+    volumes: ['./cloudflared:/etc/cloudflared:ro']
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+
+  # Пул на одно соединение: прогон последовательный, а лишние клиенты переполняют пулер
+  # и роняют запросы стойки в 500 (15.09.2026, TESTING.md §1).
+  # В день двойного ввода службу снимают: docker compose -f deploy/compose.yml stop exely-sync
+  exely-sync:
+    <<: *app
+    command:
+      - sh
+      - -c
+      - 'while true; do node --import tsx scripts/imports/src/cli-sync-day.ts --auto || true; sleep 300; done'
+    environment:
+      DATABASE_POOL_MAX: '1'
+    depends_on:
+      api: { condition: service_healthy }

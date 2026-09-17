@@ -78,6 +78,35 @@ sudo launchctl list | grep -i cloudflare
 
 ---
 
+## 1а. Сервер в Казахстане (переезд идёт)
+
+Всё, что описано выше, — это Mac владельца, и это временно. Боевой контур переезжает на сервер в
+Казахстане: этого требует условие допуска №1 `CUTOVER.md` и правило, что данные гостей живут в РК
+(ADR-009, ADR-018). Порядок переезда, доказательства и откат — `plans/server-kz-2026-09-17.md`,
+выбор площадки — `docs/ops/server-kz-2026-09-16.md`.
+
+На сервере нет launchd: те же четыре службы поднимает Docker Compose, так же как сторожа на Hostinger.
+
+```bash
+cp deploy/cloudflared.example.yml deploy/cloudflared/wetop.yml   # подставить TUNNEL-ID, команду, AUD-тег
+docker compose -f deploy/compose.yml up -d --build
+docker compose -f deploy/compose.yml ps
+docker compose -f deploy/compose.yml logs -f api
+```
+
+Обновление кода — `git pull` и та же команда `up -d --build`: образ один на API и стойку, поэтому
+собранная стойка и клиент базы заведомо от одного кода. Отдельного `npm run build` и отдельной
+генерации клиента, как на Mac, здесь нет.
+
+Секреты в образ не попадают: `.env` подаётся через `env_file`, ключ туннеля монтируется только на
+чтение (`SECURITY.md` §3). Проверки этих правил — `tests/unit/deploy-server.test.ts`.
+
+**Туннель поднимается на сервере только после того, как снят с Mac.** Две копии одного туннеля друг
+друга не заменяют, см. предупреждение выше. Порядок: поднять на сервере, убедиться в
+`cloudflared tunnel info wetop`, что коннектор один, затем снимать с Mac.
+
+---
+
 ## 2. Главная `wetop.ai`
 
 Статическая сборка `apps/site`, выкладывается прямой загрузкой в Cloudflare Pages: приватный репозиторий

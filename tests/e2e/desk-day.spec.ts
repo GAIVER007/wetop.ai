@@ -28,13 +28,18 @@ test('главная открывается с корня; заезд на да�
     'aria-current',
     'page',
   );
-  await expect(page.getByTestId('kpi-occupancy')).toContainText('%');
-  await expect(page.getByTestId('kpi-revenue')).toContainText('₸');
-  await expect(page.getByTestId('chart-categories')).toBeVisible();
+  // Показатели доезжают отдельным потоковым куском: пока он встраивается, та же разметка есть в двух
+  // копиях — читаем только видимую область показателей, как и полосу стойки ниже
+  const kpi = page.getByRole('region', { name: 'Показатели за период' });
+  await expect(kpi.getByTestId('kpi-occupancy')).toContainText('%');
+  await expect(kpi.getByTestId('kpi-revenue')).toContainText('₸');
+  await expect(page.getByTestId('chart-categories').first()).toBeVisible();
   // месяц: столбики по дням, сравнение с прошлым отрезком
-  await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
-  await expect(page.getByTestId('chart-daily')).toBeVisible();
-  await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
+  await page.getByRole('link', { name: 'Этот месяц', exact: true }).first().click();
+  await expect(page.getByTestId('chart-daily').first()).toBeVisible();
+  await expect(page.getByTestId('kpi-compare').first()).toContainText(
+    'Сравнение с предыдущим периодом',
+  );
 
   // Только видимая полоса стойки: пока её кусок доезжает потоком, та же разметка лежит в скрытом сегменте
   const strip = page.getByRole('region', { name: 'Сегодня на стойке' });

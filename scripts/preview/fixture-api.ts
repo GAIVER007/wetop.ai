@@ -356,6 +356,10 @@ function designCard(d: (typeof DESIGN_STAYS)[number], arrival: string, departure
   return { r, g };
 }
 function seedDesign() {
+  // Крайний случай ширины: на объекте названия категорий длиннее, чем в базовой фикстуре, и на
+  // телефоне выпадающий список фильтра растягивал экран (обход стойки 17.09.2026)
+  categories[0]!.name = 'Одноместная комната с окном и балконом';
+  for (const u of units) if (u.accommodationTypeCode === categories[0]!.code) u.accommodationTypeName = categories[0]!.name;
   for (const d of DESIGN_STAYS) {
     const { r, g } = designCard(d, add(today, d.from), add(today, d.to));
     extraCards.set(r.confirmationNumber, r);

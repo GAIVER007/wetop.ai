@@ -55,8 +55,27 @@ const STATIC = [
   '/management/statistics', '/finance',
   '/channel-manager', '/channels', '/analytics',
   '/connections', '/analytics/setup', '/incidents', '/journal',
-  '/reservations/new', '/profile', '/login', '/design-system',
+  '/reservations/new', '/profile', '/login', '/login/reset', '/design-system',
 ];
+/** Узкая ширина: экран обязан открываться и не уезжать вбок (DESIGN.md §2 «Телефон») */
+const PHONE = { width: 390, height: 844 };
+/**
+ * Действия записи обход не нажимает — их доказывают сквозные тесты на живой базе.
+ * Слева — как кнопка названа на экране, справа — спек, который делает это действие целиком.
+ */
+const WRITE_COVERAGE: Array<[RegExp, string]> = [
+  [/Заселить|Выселить/i, 'tests/e2e/check-in-out.spec.ts, full-day.spec.ts'],
+  [/Создать счёт|Закрыть счёт|Оплатить|Начислить|Вернуть|Сторн/i, 'tests/e2e/finance.spec.ts'],
+  [/Сохранить|Пересчитать и сохранить|Переселить|Продлить/i, 'tests/e2e/desk-tasks.spec.ts, desk-edit.spec.ts'],
+  [/Отменить бронь|Незаезд/i, 'tests/e2e/manual-reservation.spec.ts, cancellation-penalty.spec.ts'],
+  [/Применить|Добавить в список/i, 'tests/e2e/channex-certification.spec.ts (цены и ограничения)'],
+  [/Забрать брони|Отправить очередь|Полная выгрузка|Создать объект|webhook/i, 'tests/e2e/channex-certification.spec.ts'],
+  [/Добавить сайт|Проверить счётчик/i, 'tests/e2e/web-analytics.spec.ts'],
+  [/Проверить сейчас|Принято|Решено/i, 'tests/e2e/incidents.spec.ts'],
+  [/Заблокировать|Разблокировать|снять/i, 'tests/e2e/unit-blocks.spec.ts'],
+  [/Войти|Выйти/i, 'tests/ui/password-reset.spec.ts, playwright.auth.config.ts'],
+];
+const coverageOf = (name: string) => WRITE_COVERAGE.find(([re]) => re.test(name))?.[1] ?? '';
 /** Кнопки, которые пишут без окна подтверждения, — не нажимаем (только чтение) */
 const WRITES =
   /заселить|выселить|забрать брони|отправить очередь|полная выгрузка|создать объект|зарегистрировать|проверить webhook|обработать заново|принять|повторить|проверить сейчас|выйти|войти|сохранить|записать|применить|оплатить|начислить|вернуть|сторн|перечитать|прочитать заново|обновить контент|снять|удалить|разблокировать|заблокировать|создать|отправить|включить|выключить|закрыть счёт|перезапуст|синхрониз|запустить/i;
@@ -138,7 +157,13 @@ async function pressButtons(page: Page, route: string) {
       formMethod !== null &&
       (formMethod === 'post' || formAction.startsWith('javascript:'));
     if (writesViaForm || WRITES.test(name)) {
-      note(route, `кнопка «${name}»`, 'skip', 'действие записи — не нажимаем');
+      const covered = coverageOf(name);
+      note(
+        route,
+        `кнопка «${name}»`,
+        'skip',
+        covered ? `действие записи — доказано сквозными: ${covered}` : 'действие записи — не нажимаем',
+      );
       continue;
     }
     // прошлое меню или окно могло остаться открытым и перехватывать клики
@@ -484,11 +509,15 @@ async function main() {
   const number = (day.inHouse[0] ?? day.arrivals[0])?.confirmationNumber;
   const card = number ? await json<{ primaryGuest: { id: string } | null }>(`/reservations/${encodeURIComponent(number)}`) : null;
   const units = await json<Array<{ code: string; kind: 'ROOM' | 'BED' }>>('/inventory/units');
+  const events = await json<{ rows: Array<{ externalEventId: string }> }>(
+    '/channels/channex/events?limit=1',
+  ).catch(() => ({ rows: [] }));
   const dynamic = [
     number && `/reservations/${encodeURIComponent(number)}`,
     card?.primaryGuest && `/guests/${card.primaryGuest.id}`,
     units.find((u) => u.kind === 'ROOM') && `/units/${units.find((u) => u.kind === 'ROOM')!.code}`,
     units.find((u) => u.kind === 'BED') && `/units/${units.find((u) => u.kind === 'BED')!.code}`,
+    events.rows[0] && `/channels/events/${encodeURIComponent(events.rows[0].externalEventId)}`,
   ].filter((r): r is string => typeof r === 'string');
 
   await walkDashboard(page);
@@ -519,6 +548,31 @@ async function main() {
     await submitGetForms(page, route);
     await followLinks(page, route, visited);
   }
+  // Телефон: экран обязан открыться и поместиться по ширине — горизонтальной прокрутки быть не должно
+  await page.setViewportSize(PHONE);
+  for (const route of [...STATIC, ...dynamic]) {
+    const { status, errors } = await open(page, route);
+    const h1 = (await page.locator('h1').first().innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+    if (h1 === 'Страница не найдена') continue;
+    const overflow = await page.evaluate(() => ({
+      doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      wide: [...document.querySelectorAll('main *')]
+        .filter((e) => e.getBoundingClientRect().right > window.innerWidth + 2)
+        .map((e) => `${e.tagName}.${(e.className || '').toString().slice(0, 40)}`)
+        .slice(0, 2),
+    }));
+    const ok = status === 200 && !errors.length && overflow.doc <= 2;
+    note(
+      `${route} (телефон 390)`,
+      'экран открывается и помещается по ширине',
+      ok ? 'ok' : 'FAIL',
+      ok
+        ? `«${h1}»`
+        : `HTTP ${status}; вылет вправо ${overflow.doc} px${overflow.wide.length ? `: ${overflow.wide.join(', ')}` : ''}${errors.length ? '; ' + errors.join('; ') : ''}`,
+    );
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+
   // меню слева: каждый пункт ведёт на свой экран
   await open(page, '/today');
   const navLinks = await page

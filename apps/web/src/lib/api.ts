@@ -113,6 +113,10 @@ export interface ChessboardCell {
   guestPhone?: string | null;
   isArrival?: boolean;
   isLastNight?: boolean;
+  /** Откуда бронь и сколько по ней не заплачено (срез 7.1): канал бейджем, долг плашкой суммы */
+  source?: string;
+  channel?: string | null;
+  balanceMinor?: string;
   blockType?: string;
   /** причина блокировки («ремонт: кондиционер») — показывается подсказкой на клетке */
   blockReason?: string | null;
@@ -124,6 +128,8 @@ export interface ChessboardRow {
     kind: 'ROOM' | 'BED';
     accommodationTypeCode: string;
     accommodationTypeName: string;
+    /** Убрана ли ячейка: бейдж в строке и фильтр «Уборка» (срез 7.1) */
+    housekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED';
   };
   cells: ChessboardCell[];
 }

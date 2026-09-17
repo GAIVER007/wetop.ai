@@ -310,3 +310,58 @@
     box-shadow: none;
   }
 }
+
+/*
+ * ── срез 7.1: канал, долг и уборка прямо на сетке ──
+ * Плашка брони узкая, поэтому порядок важен: имя, канал, долг, ночи. Имя ужимается первым, но не
+ * ниже 4,5 em; что не влезло — обрезает сама подпись (overflow: hidden выше), и справа пропадает
+ * менее важное, а не гость. Цвет плашки уже занят статусом брони, поэтому канал и сумма — словами
+ * (DESIGN.md §9), без своей заливки: на цветной плашке она ломала бы контраст.
+ */
+.board-stay-name {
+  min-width: 4.5em;
+}
+.board-stay-channel,
+.board .board-stay-due {
+  flex: none;
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+  color: inherit;
+}
+.board-stay-channel {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.board .board-stay-due {
+  gap: 3px;
+  padding: 0;
+  background: transparent;
+}
+.board .board-stay-due .amount-chip__value {
+  color: inherit;
+  font-weight: 700;
+}
+/* Месяц: колонка 24 px — на плашке помещается только имя, а в строке ячейки скрыт даже вид места */
+.board--month .board-stay-channel,
+.board--month .board-stay-due,
+.board--month .board-hk {
+  display: none;
+}
+@media (max-width: 600px) {
+  .board--week .board-stay-channel,
+  .board--week .board-stay-due {
+    display: none;
+  }
+}
+/* «грязно» в строке ячейки — тем же бейджем, что на карточке места */
+.board .board-hk {
+  font-size: 11px;
+  line-height: 16px;
+  gap: 4px;
+}
+.board .board-hk::before {
+  width: 6px;
+  height: 6px;
+}

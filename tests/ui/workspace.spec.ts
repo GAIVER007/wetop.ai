@@ -897,3 +897,57 @@ test('деньги за период: период длиннее года об�
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
   await expect(page.locator('input[name="from"]')).toHaveValue('2020-01-01');
 });
+
+/**
+ * Срез 7.1: на клетке видно то, ради чего сейчас открывают карточку (документ ментора 14.09,
+ * `DESIGN.md` §9 и план `plans/slice-7-1-chessboard-2026-09-17.md`).
+ *
+ * Бронь из канала не подтверждена — словом, а не только жёлтым (Q-135); канал — бейджем, потому что
+ * цвет уже занят статусом; неоплаченный остаток — плашкой суммы; убрана ли ячейка — бейджем в строке.
+ * Фильтр «Уборка» до этого искал тип блокировки `CLEANING`, которого в модели нет, и не срабатывал
+ * никогда.
+ */
+test('шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке', async ({ page }) => {
+  await page.goto('/chessboard');
+  const plate = page.getByTestId('stay-cell').first();
+  await expect(plate).toBeVisible();
+
+  // статус «не подтверждена» читается словом в подсказке клетки
+  const tentative = page.locator('td[data-status="TENTATIVE"]').first();
+  await expect(tentative).toHaveAttribute('title', /не подтверждена/);
+
+  // канал и остаток к оплате — на плашке брони
+  await expect(page.getByTestId('cell-channel').first()).toBeVisible();
+  await expect(page.getByTestId('cell-due').first()).toContainText('₸');
+
+  // уборка — бейджем в строке ячейки
+  await expect(page.getByTestId('unit-housekeeping').first()).toBeVisible();
+});
+
+test('шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту', async ({ page }) => {
+  await page.goto('/chessboard');
+  const all = await page.getByTestId('unit-row').count();
+  await page.getByRole('button', { name: 'Уборка', exact: true }).click();
+  const dirty = await page.getByTestId('unit-row').count();
+  expect(dirty).toBeGreaterThan(0);
+  expect(dirty).toBeLessThan(all);
+  // легенда называет статусы глифом и словом, а не одним цветом (принцип 4)
+  await expect(page.getByTestId('board-legend')).toContainText('не подтверждена');
+});
+
+/**
+ * Вторая половина Q-135: ревизия из канала, которую не удалось сопоставить с бронью, остаётся
+ * событием `FAILED` и брони не создаёт. До этого её было видно только на «Подключениях» — стойка
+ * о ней не знала, а это входящая бронь, которую никто не разобрал.
+ */
+test('шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`); // в засеянных данных есть ревизия FAILED
+  await page.goto('/chessboard');
+  const notice = page.getByTestId('failed-revisions');
+  await expect(notice).toContainText('требует разбора');
+  await notice.getByRole('link').click();
+  await expect(page).toHaveURL(/\/channels$/);
+});

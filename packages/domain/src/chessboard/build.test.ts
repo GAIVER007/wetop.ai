@@ -181,3 +181,47 @@ describe('buildChessboard: проживания без ячейки (парит�
     expect(b.summary['2026-09-11']).toEqual({ occupied: 1, blocked: 0, free: 2 });
   });
 });
+
+/**
+ * Срез 7.1: на клетке видно то, ради чего администратор сейчас открывает карточку — из какого канала
+ * бронь, сколько по ней не заплачено и убрана ли ячейка. Всё три факта уже есть в базе; шахматка их
+ * только передаёт. Документ ментора 14.09 берёт это из Exely: бейдж канала и красная плашка суммы на
+ * полосе брони, значок уборки у номера.
+ */
+describe('buildChessboard: канал, долг и уборка', () => {
+  const withExtras: ChessboardInput = {
+    ...input,
+    units: input.units.map((u, i) =>
+      i === 1 ? { ...u, housekeepingStatus: 'DIRTY' as const } : u,
+    ),
+    allocations: input.allocations.map((a) =>
+      a.itemId === 'i2'
+        ? { ...a, source: 'OTA' as const, channel: 'Booking.com', balanceMinor: '1250000' }
+        : a,
+    ),
+  };
+
+  it('канал и остаток к оплате едут на каждую клетку проживания', () => {
+    const b = buildChessboard(withExtras);
+    const row = b.rows.find((r) => r.unit.code === '9010')!;
+    const busy = row.cells.filter((c) => c.state === 'OCCUPIED');
+    expect(busy).toHaveLength(3); // ночи 11, 12 и 13 сентября — проживание 11→14
+    for (const cell of busy)
+      expect(cell).toMatchObject({ channel: 'Booking.com', balanceMinor: '1250000' });
+  });
+
+  it('статус уборки — свойство ячейки, а не клетки', () => {
+    const b = buildChessboard(withExtras);
+    expect(b.rows.find((r) => r.unit.code === '9010')!.unit.housekeepingStatus).toBe('DIRTY');
+    // у ячейки без статуса поля просто нет — экран покажет строку без бейджа
+    expect(b.rows.find((r) => r.unit.code === '9001')!.unit.housekeepingStatus).toBeUndefined();
+  });
+
+  it('без этих полей шахматка работает как раньше: клетка их не выдумывает', () => {
+    const b = buildChessboard(input);
+    const cell = b.rows.find((r) => r.unit.code === '9010')!.cells[1]!;
+    expect(cell.state).toBe('OCCUPIED');
+    expect(cell.channel).toBeUndefined();
+    expect(cell.balanceMinor).toBeUndefined();
+  });
+});

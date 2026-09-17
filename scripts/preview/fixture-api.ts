@@ -166,7 +166,16 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 || i === 8 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // Смена должна видеть это на клетке словом, не только жёлтым цветом.
+    r.status =
+      i === 2
+        ? 'TENTATIVE'
+        : i === 1 || i === 8
+          ? 'CONFIRMED'
+          : i === 4
+            ? 'CHECKED_OUT'
+            : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
@@ -557,8 +566,11 @@ function desk(date: string): DeskDay {
 }
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
+  // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
+  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
+    housekeeping.get(code) ?? (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
   const rows = units.map((u) => ({
-    unit: { id: u.code, ...u },
+    unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
       const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
       if (block)
@@ -586,6 +598,10 @@ function board(from: string, to: string): Chessboard {
             itemStatus: it.status,
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
+            // канал и остаток к оплате — как отдаёт API после среза 7.1
+            source: r.source,
+            channel: r.channel,
+            balanceMinor: finance(r).balanceMinor,
           };
       }
       return { date, state: 'FREE' as const };

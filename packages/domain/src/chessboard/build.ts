@@ -9,12 +9,16 @@ export type StayStatus =
   'TENTATIVE' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW';
 export type CellState = 'FREE' | 'OCCUPIED' | 'BLOCKED';
 
+export type HousekeepingStatus = 'DIRTY' | 'CLEAN' | 'INSPECTED';
+
 export interface ChessboardUnit {
   id: string;
   code: string;
   kind: InventoryUnitKind;
   accommodationTypeCode: string;
   accommodationTypeName: string;
+  /** Убрана ли ячейка (срез 7.1): приём из Exely «значок уборки у номера»; без значения бейджа нет */
+  housekeepingStatus?: HousekeepingStatus;
 }
 export interface ChessboardAllocation {
   unitId: string;
@@ -24,6 +28,11 @@ export interface ChessboardAllocation {
   itemStatus: StayStatus;
   confirmationNumber: string;
   guestLabel: string;
+  /** Откуда бронь: `OTA` с названием канала, `DESK`, `WEBSITE`… Каналы различаются словом, не цветом */
+  source?: string;
+  channel?: string | null;
+  /** Остаток к оплате по счёту проживания, тиыны строкой (ADR-008); «0» — плашки суммы нет */
+  balanceMinor?: string;
 }
 export interface ChessboardBlock {
   unitId: string;
@@ -65,6 +74,10 @@ export interface ChessboardCell {
   /** дата = дата заезда проживания / дата = последняя ночь */
   isArrival?: boolean;
   isLastNight?: boolean;
+  /** Канал и долг проживания — чтобы не открывать карточку ради двух фактов (срез 7.1) */
+  source?: string;
+  channel?: string | null;
+  balanceMinor?: string;
   blockType?: string;
   blockReason?: string | null;
 }
@@ -147,6 +160,9 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
         guestLabel: a.guestLabel,
         isArrival: d === a.startDate,
         isLastNight: d === lastNight,
+        ...(a.source === undefined ? {} : { source: a.source }),
+        ...(a.channel === undefined ? {} : { channel: a.channel }),
+        ...(a.balanceMinor === undefined ? {} : { balanceMinor: a.balanceMinor }),
       });
     }
   }

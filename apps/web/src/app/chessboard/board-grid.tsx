@@ -7,21 +7,27 @@ import {
   type ChessboardCell,
   type ChessboardRow,
 } from '../../lib/api';
-import { Alert, Input, Select, cx } from '../../components/ui';
+import { Alert, Badge, Input, Select, cx } from '../../components/ui';
 import { stayLabels } from './stay-labels';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { Icon } from '../../components/icon';
+import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
 const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
+  TENTATIVE: 'не подтверждена',
   CONFIRMED: 'подтверждена, ждём',
   CHECKED_IN: 'заселён',
   CHECKED_OUT: 'выселен',
 };
+/**
+ * Уборка: на сетке называем только то, с чем надо что-то делать — «грязно». «Убрано» и «проверено»
+ * на 88 строках были бы шумом, а фильтр «Уборка» показывает те же ячейки списком.
+ */
+const HK_DIRTY = 'DIRTY';
 const BLOCK_RU: Record<string, string> = {
   MAINTENANCE: 'ремонт',
   CLEANING: 'уборка',
@@ -104,8 +110,10 @@ export function ChessboardGrid({
       (!category || row.unit.accommodationTypeCode === category) &&
       (!kind || row.unit.kind === kind) &&
       (state === 'all' ||
+        // «Уборка» — это статус ячейки, а не блокировка: типа блокировки CLEANING в модели нет,
+        // и фильтр не срабатывал никогда (DESIGN.md §9, срез 7.1)
         (state === 'cleaning'
-          ? row.cells[0]?.state === 'BLOCKED' && row.cells[0]?.blockType === 'CLEANING'
+          ? row.unit.housekeepingStatus === 'DIRTY'
           : row.cells[0]?.state === state)) &&
       (!needle ||
         [
@@ -356,6 +364,17 @@ export function ChessboardGrid({
                         <span className="muted-2">
                           {row.unit.kind === 'BED' ? 'койка' : 'номер'}
                         </span>
+                        {row.unit.housekeepingStatus === HK_DIRTY && (
+                          <Badge
+                            tone="warn"
+                            className="board-hk"
+                            data-testid="unit-housekeeping"
+                            data-status={row.unit.housekeepingStatus}
+                            title="Ячейку надо убрать"
+                          >
+                            грязно
+                          </Badge>
+                        )}
                       </td>
                       {row.cells.map((c, index) => (
                         <Cell
@@ -412,7 +431,7 @@ function Cell({
     cell.state === 'OCCUPIED'
       ? `${cell.guestLabel ?? 'без имени'} · ${cell.confirmationNumber} · ${
           STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
-        }${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
+        }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
         ? `${BLOCK_RU[cell.blockType ?? ''] ?? cell.blockType}${
             cell.blockReason ? `: ${cell.blockReason}` : ''
@@ -478,6 +497,20 @@ function Cell({
                 <span className="board-stay-name">
                   {cell.guestLabel || cell.confirmationNumber}
                 </span>
+                {/* Канал — словом: цвет на плашке уже занят статусом брони (DESIGN.md §9) */}
+                {cell.channel && (
+                  <span className="board-stay-channel" data-testid="cell-channel">
+                    {cell.channel}
+                  </span>
+                )}
+                {cell.balanceMinor && BigInt(cell.balanceMinor) > 0n && (
+                  <AmountChip
+                    minor={cell.balanceMinor}
+                    tone="due"
+                    className="board-stay-due"
+                    data-testid="cell-due"
+                  />
+                )}
                 {label.span >= 2 && (
                   <span className="board-stay-nights">{nights(label.span, label.continues)}</span>
                 )}

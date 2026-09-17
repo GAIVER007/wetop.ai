@@ -629,6 +629,12 @@ textarea.inp {
   margin-right: 4px;
   vertical-align: -1px;
 }
+/* Глиф рядом с цветом: те же знаки стоят на плашках шахматки, цвет один смысл не несёт (§1 п. 4) */
+.legend__glyph {
+  margin-right: 4px;
+  font-weight: 700;
+  color: var(--text);
+}
 .list {
   margin: 0;
   padding-left: 18px;

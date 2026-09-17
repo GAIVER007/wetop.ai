@@ -1,7 +1,8 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { chessboardApi, type UnassignedStay } from '../../lib/api';
+import { channelsApi, chessboardApi, type UnassignedStay } from '../../lib/api';
+import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -61,7 +62,15 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  const board = await chessboardApi.board(from, to);
+  // Ревизии канала, которые не удалось сопоставить с бронью (ADR-024, Q-109): брони по ним нет,
+  // а место, возможно, продано. Стойка узнаёт о них здесь, а не только на «Подключениях» (Q-135).
+  const [board, failedRevisions] = await Promise.all([
+    chessboardApi.board(from, to),
+    channelsApi
+      .events(30)
+      .then((events) => events.filter((e) => e.status === 'FAILED').length)
+      .catch(() => 0),
+  ]);
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -163,14 +172,22 @@ export default async function ChessboardPage({
           </Button>
         </form>
         <Legend
+          data-testid="board-legend"
           items={[
-            { color: 'var(--st-confirmed)', label: 'подтверждена' },
-            { color: 'var(--st-checked-in)', label: 'заселён' },
-            { color: 'var(--st-checked-out)', label: 'выселен' },
-            { color: 'var(--st-tentative)', label: 'предварительная' },
-            { color: 'var(--st-blocked)', label: 'блокировка' },
+            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
           ]}
         />
+        {failedRevisions > 0 && (
+          <Alert boxed tone="warning" data-testid="failed-revisions">
+            Входящая бронь требует разбора: {pluralRu(failedRevisions, ['ревизия', 'ревизии', 'ревизий'])}{' '}
+            из канала не удалось сопоставить с бронью — места по ним не заняты.{' '}
+            <Link href="/channels">Открыть журнал интеграции</Link>
+          </Alert>
+        )}
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
         <details className="board-help">
           <summary>Как работать с шахматкой</summary>

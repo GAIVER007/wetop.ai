@@ -18,7 +18,7 @@ test('создать бронь с ячейкой → видна в шахмат
   const freeBefore = Number(/свободно (\d+)/.exec(availabilityBefore ?? '')?.[1]);
   expect(freeBefore).toBeGreaterThan(0);
 
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitSelect.locator('option').nth(1).getAttribute('value');

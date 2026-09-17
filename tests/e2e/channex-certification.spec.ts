@@ -207,7 +207,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     page,
   }) => {
     await page.goto(`/reservations/new?arrival=2026-11-21&departure=2026-11-22`);
-    const form = page.getByTestId('new-reservation-form');
+    const form = page.getByRole('main').getByTestId('new-reservation-form');
     await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);

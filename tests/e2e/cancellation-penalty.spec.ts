@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmCancelReservation } from './confirm';
+import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -23,12 +24,15 @@ const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('�
 
 test('отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять', async ({
   page,
+  request,
 }) => {
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(20)}&departure=${plus(23)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(20), plus(23)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-штраф');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
@@ -58,10 +62,15 @@ test('отмена заранее — без штрафа, незаезд — с
 
   // Незаезд: штраф есть всегда, потому что место простояло
   await page.goto(`/reservations/new?arrival=${plus(21)}&departure=${plus(24)}`);
-  const f2 = page.getByTestId('new-reservation-form');
+  const f2 = page.getByRole('main').getByTestId('new-reservation-form');
   await f2.locator('select[name="source"]').selectOption('PHONE');
-  await f2.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
-  await f2.locator('select[name="ratePlanCode"]').selectOption('exely-10158310'); // тариф ОТА: штраф — первая ночь
+  await f2
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(21), plus(24)));
+  // тариф со штрафом в первую ночь — по политике, а не по коду объекта (Q-103)
+  await f2
+    .locator('select[name="ratePlanCode"]')
+    .selectOption(await ratePlanWithPenalty(request, 'FIRST_NIGHT'));
   const unit = f2.locator('select[name="unitCode"]');
   await unit.selectOption((await unit.locator('option').nth(1).getAttribute('value'))!);
   await f2.locator('input[name="firstName"]').fill('Гость');

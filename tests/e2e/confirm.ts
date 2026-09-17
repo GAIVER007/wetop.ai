@@ -7,10 +7,18 @@ import { expect, type Page } from '@playwright/test';
  * Теперь вопрос задаёт сама страница, поэтому порядок обычный: нажали действие, прочитали вопрос,
  * нажали кнопку в окне. Кнопка названа действием («Отменить бронь»), отказ — «Оставить как есть».
  */
+/**
+ * Открытое окно — только одно, но `<dialog>` на странице несколько: их держит каждая панель с
+ * действиями (карточка брони — и «Счета», и «Действия»). Закрытые не имеют атрибута `open`,
+ * поэтому ищем именно открытое: иначе Playwright видит три элемента и отказывается работать.
+ */
+const openDialog = (page: Page) => page.locator('dialog[open][data-testid="confirm-dialog"]');
+
 export async function confirmAction(page: Page, label: string) {
-  const dialog = page.getByTestId('confirm-dialog');
+  const dialog = openDialog(page);
+  await expect(dialog, 'окно подтверждения не открылось').toHaveCount(1);
   await dialog.getByRole('button', { name: label, exact: true }).click();
-  await expect(dialog).toBeHidden();
+  await expect(dialog).toHaveCount(0);
 }
 
 /** Отказ в том же окне: действие не выполняется. */

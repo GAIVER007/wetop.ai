@@ -514,3 +514,7 @@
 | 17.09.2026 13:09 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 7 с | 8b28b33 | [лог](logs/2026-09-17T08-09-10Z-integration-d8c7.log) | (файл не выполнился) |
 | 17.09.2026 13:14 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 8 с | 8b28b33 | [лог](logs/2026-09-17T08-14-26Z-integration-bb2b.log) | (файл не выполнился) |
 | 17.09.2026 13:16 | integration (частично: tests/integration/audit-author.test.ts) | ✅ 3 из 3 | 9 с | 461b716 | [лог](logs/2026-09-17T08-16-52Z-integration-d586.log) |  |
+| 17.09.2026 13:31 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 3 из 18 | 6 с | a681438 +1 | [лог](logs/2026-09-17T08-31-11Z-unit-74b1.log) | next-env.d.ts от сборки: красный до правки |
+| 17.09.2026 13:32 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 18 из 18 | 5 с | a681438 +2 | [лог](logs/2026-09-17T08-32-45Z-unit-6bfc.log) | next-env.d.ts от сборки: зелёный |
+| 17.09.2026 13:32 | lint | ✅ без ошибок | 10 с | a681438 +2 | [лог](logs/2026-09-17T08-32-55Z-lint-3485.log) | repo-sync: файлы от сборки |
+| 17.09.2026 13:33 | typecheck | ✅ без ошибок | 13 с | a681438 +2 | [лог](logs/2026-09-17T08-33-05Z-typecheck-685a.log) | repo-sync: файлы от сборки |

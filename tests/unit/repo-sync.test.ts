@@ -110,6 +110,8 @@ function sandbox(): Sandbox {
     writeFileSync(join(seed, 'scripts/ops/launchd', f), readFileSync(join(LAUNCHD, f)));
     chmodSync(join(seed, 'scripts/ops/launchd', f), 0o755);
   }
+  mkdirSync(join(seed, 'apps', 'web'), { recursive: true });
+  writeFileSync(join(seed, 'apps/web/next-env.d.ts'), '/// <reference types="next" />\n');
   writeFileSync(join(seed, 'package.json'), '{"name":"sandbox"}\n');
   writeFileSync(join(seed, 'package-lock.json'), '{}\n');
   writeFileSync(join(seed, 'README.md'), '# sandbox\n');
@@ -448,6 +450,43 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
       api.close();
     }
   }, 60_000);
+
+  it('next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка»', () => {
+    // Next переписывает apps/web/next-env.d.ts при каждом запуске, а next.config.ts меняет папку сборки
+    // между next dev, next build и UI-тестами (.next-ui) — файл вечно «изменён». 17.09.2026: после
+    // пересборки стойки скрипт выдал из-за него пункт к исполнению на полностью чистой папке.
+    const sb = sandbox();
+    const before = /пунктов к исполнению — (\d+)/.exec(run(sb, []).out)?.[1];
+    writeFileSync(join(sb.newDir, 'apps/web/next-env.d.ts'), '/// изменено сборкой\n');
+    const { out } = run(sb, []);
+    expect(out).toMatch(/next-env\.d\.ts/);
+    expect(out).toMatch(/сборк/i);
+    expect(out).not.toMatch(/→ закоммитить/);
+    // пунктов к исполнению не прибавилось: в песочнице свой пункт про службы launchd
+    expect(/пунктов к исполнению — (\d+)/.exec(out)?.[1]).toBe(before);
+  });
+
+  it('настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению', () => {
+    const sb = sandbox();
+    writeFileSync(join(sb.newDir, 'apps/web/next-env.d.ts'), '/// изменено сборкой\n');
+    writeFileSync(join(sb.newDir, 'README.md'), '# правка руками\n');
+    const { out, code } = run(sb, []);
+    // правка руками — в счёте и в списке; сгенерированный файл — отдельной строкой и вне счёта
+    expect(out).toMatch(/незакоммиченных правок: 1/);
+    expect(out).toContain('README.md');
+    expect(out).toMatch(/переписан сборкой.*next-env\.d\.ts/);
+    expect(code).toBe(1);
+  });
+
+  it('--pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется', () => {
+    const sb = sandbox();
+    const target = git(sb.seed, 'rev-parse', 'HEAD');
+    writeFileSync(join(sb.newDir, 'apps/web/next-env.d.ts'), '/// изменено сборкой\n');
+    const { out } = run(sb, ['--pull']);
+    expect(git(sb.newDir, 'rev-parse', 'HEAD')).toBe(target);
+    expect(out).toMatch(/подтянул/);
+    expect(git(sb.newDir, 'status', '--porcelain', '--untracked-files=no')).toBe('');
+  });
 
   it('находит вторую копию репозитория рядом с папкой', () => {
     const sb = sandbox();

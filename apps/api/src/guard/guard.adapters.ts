@@ -115,7 +115,7 @@ export class NestGuardProbes implements GuardProbes {
       status: 'FAILED' as const,
       ...(lastFullSyncAt ? { createdAt: { gt: lastFullSyncAt } } : {}),
     };
-    const [failedSinceSync, lastFailed, summary] = await Promise.all([
+    const [failedSinceSync, lastFailed, summary, lostDeltaAt] = await Promise.all([
       this.prisma.db.channelOutbox.count({ where }),
       this.prisma.db.channelOutbox.findFirst({
         where,
@@ -123,12 +123,15 @@ export class NestGuardProbes implements GuardProbes {
         select: { lastError: true },
       }),
       this.channels.outboxSummary(PROVIDER),
+      // Дельта, не вставшая в очередь (Б6): в самой очереди её нет, след остаётся только в журнале
+      this.channels.lastAuditAt('channex.deltaLost'),
     ]);
     return {
       lastFullSyncAt,
       failedSinceSync,
       lastFailedError: lastFailed?.lastError ?? null,
       oldestPendingAt: summary.oldestPendingAt ? new Date(summary.oldestPendingAt) : null,
+      lostDeltaAt,
     };
   }
 

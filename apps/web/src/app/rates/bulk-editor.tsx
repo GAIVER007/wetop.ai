@@ -76,7 +76,13 @@ export function BulkEditor(props: {
       const res = await bulkRatesAction(rows);
       if (res.error) setError(res.error);
       else {
-        setDone(`Сохранено изменений: ${res.applied}. Ушло в очередь каналов одним сообщением.`);
+        // Обещать отправку в каналы можно только по ответу API: категория или тариф без
+        // сопоставления с Channex меняются лишь в PMS, каналы о них не узнают (§7.3)
+        setDone(
+          res.queued
+            ? `Сохранено изменений: ${res.applied}. В очередь каналов ушло ${res.queued} одним сообщением.`
+            : `Сохранено изменений: ${res.applied}. В каналы ничего не ушло: эти категория и тариф через каналы не продаются.`,
+        );
         setRows([]);
       }
     });

@@ -23,6 +23,7 @@ import {
   type ActionResult,
 } from '../actions';
 import { SOURCES } from '../sources';
+import { useConfirm } from '../../../components/use-confirm';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
 
@@ -55,6 +56,7 @@ export function ReservationActions(props: {
     run: cancel,
     pending: cancelPending,
   } = useCommand<ActionResult>({ error: null });
+  const { ask, dialog } = useConfirm();
   const [datesState, datesAction, datesPending] = useActionState<ActionResult, FormData>(
     changeDatesAction.bind(null, props.number),
     { error: null },
@@ -139,26 +141,30 @@ export function ReservationActions(props: {
           </Stack>
         ))}
       {canEdit && (
-        <form
-          action={async () => {
-            if (!window.confirm('Отменить бронь? Ячейки освободятся.')) return;
-            await cancel(() => cancelReservationAction(props.number));
-          }}
-          className="panel"
-        >
+        <div className="panel">
           <div>
             <Button
-              type="submit"
+              type="button"
               tone="danger"
               disabled={cancelPending}
               data-testid="cancel-reservation"
+              onClick={async () => {
+                const ok = await ask({
+                  title: `Отменить бронь ${props.number}?`,
+                  body: 'Проживания станут отменёнными, ячейки освободятся, начисления сторнируются. По политике тарифа может начислиться штраф.',
+                  confirmLabel: 'Отменить бронь',
+                });
+                if (!ok) return;
+                await cancel(() => cancelReservationAction(props.number));
+              }}
             >
               Отменить бронь
             </Button>
           </div>
           {cancelState.error && <Alert>{cancelState.error}</Alert>}
-        </form>
+        </div>
       )}
+      {dialog}
     </section>
   );
 }
@@ -260,19 +266,29 @@ function StayButtons(props: {
   ratePlans: Array<{ code: string; name: string }>;
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
+  const { ask, dialog } = useConfirm();
   // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирает администратор
   const [extendPlan, setExtendPlan] = useState('');
   const needsPlan = !props.item.ratePlanCode;
   const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
-    if (action === 'no-show' && !window.confirm('Отметить незаезд? Назначение ячейки снимется.'))
-      return;
+    if (action === 'no-show') {
+      const ok = await ask({
+        title: `Отметить незаезд — ${props.item.accommodationTypeName}?`,
+        body: `Назначение ячейки ${props.item.unitCode ?? '—'} снимется, место вернётся в продажу. По политике тарифа может начислиться штраф.`,
+        confirmLabel: 'Отметить незаезд',
+      });
+      if (!ok) return;
+    }
     await command(async () => {
       const r = await stayAction(props.number, props.item.id, action);
       // T3: выселение с долгом — показать сумму и переспросить, затем выселить с подтверждением
       if (action === 'check-out' && r.error && r.error.includes('долг')) {
-        if (window.confirm(`${r.error}. Выселить с долгом?`)) {
-          return stayAction(props.number, props.item.id, action, true);
-        }
+        const ok = await ask({
+          title: 'Выселить с долгом?',
+          body: r.error,
+          confirmLabel: 'Выселить с долгом',
+        });
+        if (ok) return stayAction(props.number, props.item.id, action, true);
       }
       return r;
     });
@@ -359,6 +375,7 @@ function StayButtons(props: {
         )}
       </Row>
       {state.error && <Alert>{state.error}</Alert>}
+      {dialog}
     </div>
   );
 }

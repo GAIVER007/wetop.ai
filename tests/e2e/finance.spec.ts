@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Финансы (DATA_MODEL §6, ADR-014): счёт создаётся вместе с проживанием, начисление = цене;
@@ -27,12 +28,15 @@ const decimal = (m: bigint) => {
 
 test('счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс', async ({
   page,
+  request,
 }) => {
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(9)}&departure=${plus(10)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(9), plus(10)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-счёт');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

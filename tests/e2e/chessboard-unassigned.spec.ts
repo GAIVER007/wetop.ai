@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Exely: проживание без назначения
@@ -21,19 +23,20 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688'; // dorm: места в категории есть всегда (Q-107 не откажет)
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 
 test('бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   const arrival = plus(16);
   const departure = plus(18);
+  const DORM = await roomiestCategory(request, arrival, departure);
 
   // ── бронь без ячейки из формы ─────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const optionText = await form
@@ -90,9 +93,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
 
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);

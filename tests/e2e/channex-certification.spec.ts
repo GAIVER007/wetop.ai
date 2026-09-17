@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
 
 /**
  * Сертификационные сценарии Channex (docs/channex/site/api-v.1-documentation/pms-certification-tests.md),
@@ -206,7 +207,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     page,
   }) => {
     await page.goto(`/reservations/new?arrival=2026-11-21&departure=2026-11-22`);
-    const form = page.getByTestId('new-reservation-form');
+    const form = page.getByRole('main').getByTestId('new-reservation-form');
     await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);
@@ -218,9 +219,9 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     const number = page.url().split('/').pop()!;
     await flush(page, '9. Single Date Availability Update (booking created in PMS UI)');
     await page.goto(`/reservations/${number}`);
-    page.on('dialog', (d) => d.accept());
     await cardTab(page, 'Действия');
     await page.getByTestId('cancel-reservation').click();
+    await confirmCancelReservation(page);
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

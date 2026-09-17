@@ -355,7 +355,7 @@ export const ratesApi = {
       `/rates?accommodationTypeCode=${encodeURIComponent(accommodationTypeCode)}&ratePlanCode=${encodeURIComponent(ratePlanCode)}&from=${from}&to=${to}`,
     ),
   bulk: (changes: RateChangeInput[]) =>
-    sendJson<{ applied: number; rateRows: number; restrictionRows: number }>(
+    sendJson<{ applied: number; rateRows: number; restrictionRows: number; queued: number }>(
       'POST',
       '/rates/bulk',
       { changes },

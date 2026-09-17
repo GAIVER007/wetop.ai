@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmAction, confirmCancelReservation } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
@@ -22,18 +24,20 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688';
 
 test('групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   const arrival = plus(12);
   const departure = plus(13);
+  // групповая бронь на две койки — значит, в категории нужны минимум две свободные
+  const DORM = await roomiestCategory(request, arrival, departure, 2);
 
   // ── Форма: «Количество мест» = 2, конкретная ячейка не выбирается ─────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   await expect(form.locator('select[name="unitCode"]')).toHaveCount(1);
@@ -90,16 +94,16 @@ test('групповая бронь на 2 койки → две клетки ш
   await expect(panel.locator('[data-testid^="close-folio-"]')).toHaveCount(0);
   await panel.getByTestId('payment-form').getByRole('button', { name: 'Принять оплату' }).click();
   await expect(panel.getByTestId('folio-balance')).toContainText('оплачено');
-  page.once('dialog', (d) => d.accept());
   await panel.locator('[data-testid^="close-folio-"]').click();
+  await confirmAction(page, 'Закрыть счёт');
   await expect(panel.getByTestId('folio-closed')).toBeVisible();
   await expect(panel.getByTestId('payment-form')).toHaveCount(0);
   await page.screenshot({ path: 'reports/screenshots/desk-edit-folio-closed.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

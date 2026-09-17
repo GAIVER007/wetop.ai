@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmAction, declineAction } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -17,13 +19,16 @@ const plus = (n: number) => {
 
 test('заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку', async ({
   page,
+  request,
 }) => {
   // сценарий длинный: бронь, карточка гостя, документ, заезд, шахматка, выезд, вторая бронь, незаезд
   test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688'); // dorm: остаток есть всегда
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(3), plus(4)));
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
@@ -65,9 +70,9 @@ test('заселить → карточка и шахматка показыва
 
   // T3: на счёте есть начисление за проживание и нет оплаты, значит выселение должно быть остановлено.
   // Диалог отклоняем — проверяем именно защиту, а не текст ошибки: статус обязан остаться «заселён».
-  page.once('dialog', (d) => d.dismiss());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-out-"]').click();
+  await declineAction(page);
   await expect(page.getByRole('alert').first()).toContainText('долг');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
@@ -75,9 +80,9 @@ test('заселить → карточка и шахматка показыва
   await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
 
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="check-out-"]').click();
+  await confirmAction(page, 'Выселить с долгом');
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
   await cardTab(page, 'Счета');
@@ -86,9 +91,11 @@ test('заселить → карточка и шахматка показыва
 
   // незаезд
   await page.goto(`/reservations/new?arrival=${plus(5)}&departure=${plus(6)}`);
-  const f2 = page.getByTestId('new-reservation-form');
+  const f2 = page.getByRole('main').getByTestId('new-reservation-form');
   await f2.locator('select[name="source"]').selectOption('PHONE');
-  await f2.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await f2
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(5), plus(6)));
   const freeUnit = f2.locator('select[name="unitCode"]');
   await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
   await freeUnit.selectOption((await freeUnit.locator('option').nth(1).getAttribute('value'))!);
@@ -97,9 +104,9 @@ test('заселить → карточка и шахматка показыва
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
-  page.on('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="no-show-"]').click();
+  await confirmAction(page, 'Отметить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');

@@ -46,7 +46,15 @@ export default defineConfig({
   expect: { timeout: 30_000 },
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB, trace: 'retain-on-failure' },
+  use: {
+    baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB,
+    trace: 'retain-on-failure',
+    // Браузер с машины по умолчанию; `E2E_BROWSER_EXECUTABLE=/путь/к/chrome` — конкретный двоичный файл
+    // (контейнер с другой сборкой Chromium, где `playwright install` недоступен). Как в tests/ui/playwright.config.ts
+    ...(process.env['E2E_BROWSER_EXECUTABLE']
+      ? { launchOptions: { executablePath: process.env['E2E_BROWSER_EXECUTABLE'] } }
+      : {}),
+  },
   projects: LIVE
     ? [{ name: 'channex-live', testMatch: LIVE_ONLY.map((f) => `**/${f}`) }]
     : [

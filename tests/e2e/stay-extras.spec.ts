@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте одной кнопкой, половина цены ночи
@@ -19,12 +21,14 @@ const plus = (n: number) => {
 };
 const money = (s: string) => Number(s.replace(/[^\d,]/g, '').replace(',', '.'));
 
-test('поздний выезд и ранний заезд начисляются на счёт как половина ночи', async ({ page }) => {
+test('поздний выезд и ранний заезд начисляются на счёт как половина ночи', async ({ page, request }) => {
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(12)}&departure=${plus(14)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(12), plus(14)));
   const unit = (await form.locator('select[name="unitCode"] option').nth(1).getAttribute('value'))!;
   await form.locator('select[name="unitCode"]').selectOption(unit);
   await form.locator('input[name="firstName"]').fill('Гость');
@@ -64,9 +68,9 @@ test('поздний выезд и ранний заезд начисляютс�
   await expect(unitRow.locator(`td[data-date="${plus(14)}"][data-state="BLOCKED"]`)).toHaveCount(1);
   await page.goto(`/reservations/${number}`);
 
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся

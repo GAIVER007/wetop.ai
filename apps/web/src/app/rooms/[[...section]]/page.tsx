@@ -9,7 +9,8 @@ import { Page } from '../../../components/page';
 import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { displayDate } from '../../../lib/display-date';
-import { pluralRu } from '../../../lib/plural';
+import { nightsBetween, pluralRu } from '../../../lib/plural';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import '../../directory.css';
 import '../rooms.css';
 
@@ -63,6 +64,11 @@ async function RoomTotals() {
     </Stats>
   );
 }
+/** Одна подпись на оба экрана: занятость не загрузилась — это сбой, а не пустая база */
+const BOARD_FAILED =
+  'Занятость не загрузилась: шахматка не ответила. Номера и категории ниже — из фонда; ' +
+  'обновите страницу или откройте шахматку.';
+
 async function Categories() {
   const today = hotelToday();
   const [r, units, board] = await Promise.all([
@@ -76,6 +82,7 @@ async function Categories() {
       beds.set(u.accommodationTypeCode, (beds.get(u.accommodationTypeCode) ?? 0) + 1);
   return (
     <>
+      {!board && <Alert boxed>{BOARD_FAILED}</Alert>}
       <Table className="dir-table" nowrap>
         <thead>
           <tr>
@@ -118,7 +125,7 @@ async function Categories() {
                       </span>
                     </div>
                   ) : (
-                    <span className="muted">нет данных</span>
+                    <span className="muted">{board ? 'нет данных' : 'не загрузилось'}</span>
                   )}
                 </td>
                 <td className="rooms-actions">
@@ -150,7 +157,11 @@ async function Availability({
   departure?: string | undefined;
 }) {
   const departure = requestedDeparture ?? (validDate(arrival) ? nextDay(arrival) : hotelToday());
-  const valid = validDate(arrival) && validDate(departure) && arrival < departure;
+  const dates = validDate(arrival) && validDate(departure) && arrival < departure;
+  // Доступность считается той же шахматкой: у неё потолок 62 дня за запрос. Проверяем здесь,
+  // иначе API отвечает 400 и экран падает в общую ошибку «нет связи» (§7.3)
+  const tooLong = dates && nightsBetween(arrival, departure) > MAX_CHESSBOARD_DAYS;
+  const valid = dates && !tooLong;
   const [r, inventory] = valid
     ? await Promise.all([reservationsApi.availability(arrival, departure), api.inventorySummary()])
     : [null, null];
@@ -193,7 +204,13 @@ async function Availability({
           </Link>
         ))}
       </nav>
-      {!valid && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
+      {!dates && <Alert boxed>Выезд должен быть позже заезда. Укажите корректные даты.</Alert>}
+      {tooLong && (
+        <Alert boxed>
+          Период — не больше {MAX_CHESSBOARD_DAYS} ночей за один запрос. Укоротите период или
+          посмотрите остаток по месяцам на шахматке.
+        </Alert>
+      )}
       {r && (
         <>
           <Stats>
@@ -289,9 +306,16 @@ async function RoomsDirectory() {
   const today = hotelToday();
   let weekEnd = today;
   for (let k = 0; k < 6; k++) weekEnd = nextDay(weekEnd);
+  // Сам справочник единиц важнее занятости: если шахматка не ответила, показываем номера и
+  // прямо говорим, что занятость не загрузилась, — иначе это читается как «в системе пусто» (§7.3)
   const [units, board] = await Promise.all([
     api.inventoryUnits(),
     chessboardApi.board(today, weekEnd).catch(() => null),
   ]);
-  return <RoomGrid units={units} board={board} />;
+  return (
+    <>
+      {!board && <Alert boxed>{BOARD_FAILED}</Alert>}
+      <RoomGrid units={units} board={board} />
+    </>
+  );
 }

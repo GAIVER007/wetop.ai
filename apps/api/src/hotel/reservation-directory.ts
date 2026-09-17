@@ -18,12 +18,14 @@ export interface DirectoryQuery {
   status?: string;
   q?: string;
   page?: string;
+  /** Сколько строк на странице, 1…200. По умолчанию 25 — как было до «Гостей на сегодня» */
+  pageSize?: string;
 }
 @Injectable()
 export class ReservationDirectory {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   async list(query: DirectoryQuery) {
-    for (const key of ['from', 'to', 'status', 'q', 'page'] as const) {
+    for (const key of ['from', 'to', 'status', 'q', 'page', 'pageSize'] as const) {
       if (query[key] !== undefined && typeof query[key] !== 'string')
         throw new BadRequestException('Параметры поиска должны быть строками');
     }
@@ -36,6 +38,8 @@ export class ReservationDirectory {
       new Date(date).toISOString().slice(0, 10) === date;
     const status = query.status || 'ALL';
     const page = Number(query.page || 1);
+    // Потолок держит один запрос в берегах: на объекте 88 мест, больше 200 броней в сутках не бывает
+    const pageSize = Number(query.pageSize || 25);
     if (
       !valid(from) ||
       !valid(to) ||
@@ -47,6 +51,8 @@ export class ReservationDirectory {
       throw new BadRequestException('Неизвестный статус');
     if (!Number.isInteger(page) || page < 1 || page > 10000)
       throw new BadRequestException('Некорректная страница');
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200)
+      throw new BadRequestException('Размер страницы — целое число от 1 до 200');
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
     const property = await this.prisma.db.property.findFirst({
@@ -82,8 +88,8 @@ export class ReservationDirectory {
       this.prisma.db.reservation.count({ where }),
       this.prisma.db.reservation.findMany({
         where,
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
         orderBy: [{ arrivalDate: 'desc' }, { id: 'asc' }],
         select: {
           confirmationNumber: true,
@@ -124,7 +130,7 @@ export class ReservationDirectory {
       to,
       total,
       page,
-      pageSize: 25,
+      pageSize,
       rows: rows.map((r) => {
         const folios = r.items.flatMap((it) => (it.folio ? [it.folio] : []));
         const balance = folioBalance({

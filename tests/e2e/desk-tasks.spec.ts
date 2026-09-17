@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -20,16 +22,18 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688';
 const money = (s: string) => Number(s.replace(/[^\d,]/g, '').replace(',', '.'));
 
 test('стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом', async ({
   page,
   context,
+  request,
 }) => {
   test.setTimeout(240_000);
   const arrival = plus(7);
   const departure = plus(9); // две ночи: продление на третью не должно пересчитать всё проживание
+  // две брони и переселение: свободных мест в категории нужно хотя бы три
+  const DORM = await roomiestCategory(request, arrival, departure, 3);
 
   // ── Овербукинг из интерфейса: две вкладки видят одну и ту же свободную койку ──────────────
   const url = `/reservations/new?arrival=${arrival}&departure=${departure}`;
@@ -48,7 +52,7 @@ test('стойка: занятую койку не продать дважды, 
     await f.getByRole('button', { name: 'Создать бронь' }).click();
   };
 
-  const firstForm = page.getByTestId('new-reservation-form');
+  const firstForm = page.getByRole('main').getByTestId('new-reservation-form');
   await firstForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unit = (await firstForm
     .locator('select[name="unitCode"] option')
@@ -117,9 +121,9 @@ test('стойка: занятую койку не продать дважды, 
   await page.screenshot({ path: 'reports/screenshots/desk-move-extend.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
-  page.once('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 });

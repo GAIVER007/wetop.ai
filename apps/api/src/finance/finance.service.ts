@@ -107,6 +107,8 @@ export interface ServiceView {
 }
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+/** Предел периода сводки: год с запасом, как у отчёта по каналам — дальше это уже выгрузка, не экран */
+const MAX_PERIOD_DAYS = 366;
 const today = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 const s = (x: bigint) => x.toString();
 /** Тиыны → «12 000,00 ₸» для сообщения администратору; без float. */
@@ -239,6 +241,9 @@ export class FinanceService {
     if (!from || !ISO.test(from) || !to || !ISO.test(to))
       throw new BadRequestException('from и to — даты YYYY-MM-DD');
     if (to < from) throw new BadRequestException('to не может быть раньше from');
+    // Волна 4: без предела отчёт просили хоть за десять лет и собирали всю базу разом
+    if ((Date.parse(to) - Date.parse(from)) / 86_400_000 + 1 > MAX_PERIOD_DAYS)
+      throw new BadRequestException(`Период до ${MAX_PERIOD_DAYS} дней включительно`);
     const r = await this.repo.periodReport(from, to);
     const sum = (xs: Array<{ amountMinor: bigint }>) => xs.reduce((a, x) => a + x.amountMinor, 0n);
     const charged = sum(r.chargesByKind);

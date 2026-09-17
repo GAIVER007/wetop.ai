@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -24,12 +25,13 @@ const TO = plus(42);
 
 test('заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка', async ({
   page,
+  request,
 }) => {
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   await page
     .getByTestId('new-reservation-form')
     .locator('select[name="accommodationTypeCode"]')
-    .selectOption('exely-5074688');
+    .selectOption(await roomiestCategory(request, FROM, TO));
   const unitCode = (await page
     .getByTestId('new-reservation-form')
     .locator('select[name="unitCode"] option')

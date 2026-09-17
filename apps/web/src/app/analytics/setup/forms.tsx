@@ -18,6 +18,7 @@ import {
   siteAction,
   type SiteActionResult,
 } from '../actions';
+import { useConfirm } from '../../../components/use-confirm';
 
 export function CreateSiteForm() {
   const [state, action, pending] = useActionState<SiteActionResult | null, FormData>(
@@ -64,6 +65,7 @@ export function CreateSiteForm() {
 export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PAUSED' }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   const run = (kind: 'pause' | 'resume' | 'delete' | 'check') =>
     start(async () => setResult(await siteAction(id, kind)));
   return (
@@ -90,8 +92,13 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
           type="button"
           tone="secondary"
           className="is-danger"
-          onClick={() => {
-            if (window.confirm('Удалить сайт и всю накопленную статистику?')) run('delete');
+          onClick={async () => {
+            const ok = await ask({
+              title: 'Удалить сайт?',
+              body: 'Вместе с сайтом исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.',
+              confirmLabel: 'Удалить сайт',
+            });
+            if (ok) run('delete');
           }}
           disabled={pending}
           data-testid="site-delete"
@@ -101,6 +108,7 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
+      {dialog}
     </Stack>
   );
 }

@@ -133,6 +133,21 @@ describe('сайты и отчёты /analytics', () => {
       .expect(400);
   });
 
+  /**
+   * Предел периода отчёта (§7.3 плана wetop-domain). Данные счётчика живут 13 месяцев
+   * (`npm run analytics:retention`), а отчёт брал любой период: «с 2020 по 2030» тянет из базы
+   * всё и строит разбивку на тысячи дней. Предел — те же 400 дней, что и хранение.
+   */
+  it('период длиннее предела — 400 с внятным текстом, ровно по пределу — считается', async () => {
+    const tooLong = await request(app.getHttpServer())
+      .get(`/analytics/sites/${SITE.id}/report?from=2020-01-01&to=2030-12-31`)
+      .expect(400);
+    expect(String(tooLong.body.message)).toContain('400');
+    await request(app.getHttpServer())
+      .get(`/analytics/sites/${SITE.id}/report?from=2026-01-01&to=2027-02-04`)
+      .expect(200);
+  });
+
   it('бронирование с сайта: включение подставляет тариф по умолчанию, код виджета содержит ключ', async () => {
     const on = await request(app.getHttpServer())
       .patch(`/analytics/sites/${SITE.id}`)

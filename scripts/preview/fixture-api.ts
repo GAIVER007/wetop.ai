@@ -86,7 +86,17 @@ const guestSeed: GuestCard = {
   phone: null,
   email: 'guest@example.invalid',
   notes: 'Вымышленные данные для проверки интерфейса',
-  documents: [],
+  // Вымышленный документ (ADR-010): на нём проверяется вопрос перед удалением
+  documents: [
+    {
+      id: 'ui-document',
+      type: 'PASSPORT',
+      numberMasked: '•••• 4321',
+      issueCountry: 'KAZ',
+      issuedAt: null,
+      expiresAt: null,
+    },
+  ],
   stays: [
     {
       confirmationNumber: '20260913-TESTAA',
@@ -451,6 +461,7 @@ function getGuest(id: string) {
 let rejectCreate = false;
 let failPath = '';
 let emptyFixture = false;
+let fullIncidentHistory = false;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
@@ -923,8 +934,20 @@ function read(path: string, q: URLSearchParams): unknown {
       lastTick: null,
       open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
     };
-  if (path === '/guard/incidents')
-    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+  if (path === '/guard/incidents') {
+    if (q.get('status') === 'open' && incident.status === 'RESOLVED') return [];
+    if (fullIncidentHistory && q.get('status') === 'all') {
+      const limit = Number(q.get('limit') || 100);
+      return Array.from({ length: limit }, (_, i) => ({
+        ...incident,
+        id: `ui-incident-${i}`,
+        status: 'RESOLVED',
+        resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
+        resolvedBy: 'GUARD',
+      }));
+    }
+    return [incident];
+  }
   if (path === '/hotel/settings')
     return {
       property: {
@@ -1252,6 +1275,7 @@ createServer(async (req, res) => {
       rejectCreate = false;
       failPath = '';
       emptyFixture = false;
+      fullIncidentHistory = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -1274,6 +1298,8 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
+      fullIncidentHistory = body['fullIncidentHistory'] === true;
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
@@ -1281,6 +1307,33 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       return send(200, {});
+    }
+    // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
+    // список на 25 строк. Как и design-seed, обычные тесты этих броней не видят, пока не позовут.
+    if (path === '/__test/crowd-seed') {
+      const count = Math.min(Number(url.searchParams.get('n') || 40), units.length);
+      for (let i = 0; i < count; i++) {
+        const unit = units[i]!;
+        const n = `CROWD${String(i + 1).padStart(2, '0')}`;
+        const { r, g } = designCard(
+          {
+            n,
+            label: `Гость Многолюдный-${String(i + 1).padStart(2, '0')}`,
+            status: 'CHECKED_IN',
+            source: 'DESK',
+            channel: null,
+            unit: unit.code,
+            from: 0,
+            to: 0,
+            price: '1000000',
+          },
+          add(today, -1),
+          add(today, 1),
+        );
+        extraCards.set(r.confirmationNumber, r);
+        extraGuests.set(g.id, g);
+      }
+      return send(200, { stays: count });
     }
     if (path === '/__test/design-seed') {
       seedDesign();
@@ -1358,13 +1411,15 @@ createServer(async (req, res) => {
             ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
             : null,
         }));
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
         total: emptyFixture ? 0 : rows.length,
-        page: 1,
-        pageSize: 25,
-        rows: emptyFixture ? [] : rows,
+        page,
+        pageSize,
+        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }
     if (req.method === 'GET') {
@@ -1401,10 +1456,13 @@ createServer(async (req, res) => {
     }
     if (path === '/rates/bulk') {
       priceChanges.push(...(body['changes'] as typeof priceChanges));
+      const changes = body['changes'] as Array<{ accommodationTypeCode?: string }>;
+      // как настоящий API: категория без сопоставления с Channex в очередь каналов не идёт
       return send(200, {
-        applied: (body['changes'] as unknown[]).length,
+        applied: changes.length,
         rateRows: 1,
         restrictionRows: 0,
+        queued: changes.filter((c) => c.accommodationTypeCode !== 'NOCHANNEL').length,
       });
     }
     if (path === '/analytics/sites' && req.method === 'POST') {
@@ -1512,6 +1570,13 @@ createServer(async (req, res) => {
       extraCards.set(r.confirmationNumber, r);
       extraGuests.set(g.id, g);
       return send(201, r);
+    }
+    if (path.startsWith('/guests/') && path.includes('/documents/') && req.method === 'DELETE') {
+      const [, , id, , documentId] = path.split('/');
+      const g = decodeURIComponent(id!) === guest.id ? guest : extraGuests.get(decodeURIComponent(id!));
+      if (!g) return send(404, { message: 'Гость не найден' });
+      g.documents = g.documents.filter((d) => d.id !== decodeURIComponent(documentId!));
+      return send(200, getGuest(decodeURIComponent(id!)));
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);

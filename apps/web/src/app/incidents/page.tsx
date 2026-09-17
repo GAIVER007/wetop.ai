@@ -40,12 +40,16 @@ const at = (iso: string | null) =>
       })
     : '—';
 
+/** Сколько записей истории читаем; если пришло ровно столько, значит могло быть и больше */
+const HISTORY_LIMIT = 60;
+
 export default async function IncidentsPage() {
   const [status, open, all] = await Promise.all([
     guardApi.status().catch(() => null),
     guardApi.incidents('open').catch(() => null),
-    guardApi.incidents('all', 60).catch(() => null),
+    guardApi.incidents('all', HISTORY_LIMIT).catch(() => null),
   ]);
+  const truncated = all !== null && all.length >= HISTORY_LIMIT;
   const dayAgo = Date.now() - 24 * 3_600_000;
   const closed = all?.filter(
     (i) => i.status === 'RESOLVED' && Date.parse(i.resolvedAt ?? '') > dayAgo,
@@ -188,6 +192,12 @@ export default async function IncidentsPage() {
       </Table>
 
       <SectionTitle>Закрыты за сутки</SectionTitle>
+      {truncated && (
+        <p className="note" data-testid="incidents-truncated" role="status">
+          История читается по {HISTORY_LIMIT} записям, и их пришло ровно столько: закрытых за сутки
+          могло быть больше, чем в таблице.
+        </p>
+      )}
       {all === null && (
         <Alert boxed>
           История неисправностей не загрузилась. Это не означает, что закрытых записей нет.

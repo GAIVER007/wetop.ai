@@ -57,6 +57,8 @@ function makeFakes() {
     async reservationChanged() {},
     async ratesChanged(changes) {
       published.push(changes);
+      // как настоящий: в очередь идут только те изменения, которые канал продаёт
+      return changes.filter((c) => c.accommodationTypeCode !== 'exely-900001').length;
     },
   };
   return { repo, publisher, applied, published, audits };
@@ -106,6 +108,35 @@ describe('rates API', () => {
         '/rates?accommodationTypeCode=exely-900001&ratePlanCode=nope&from=2026-11-01&to=2026-11-03',
       )
       .expect(422);
+    // Волна 4: календарь цен без предела строил хоть десять лет по дню на строку
+    await request(app.getHttpServer())
+      .get(
+        '/rates?accommodationTypeCode=exely-900001&ratePlanCode=exely-800002&from=2020-01-01&to=2030-12-31',
+      )
+      .expect(400);
+  });
+
+  /**
+   * «Ушло в очередь каналов» на экране должно означать, что действительно ушло (§7.3 плана
+   * wetop-domain). Категория или тариф без сопоставления с Channex в очередь не попадают — цена
+   * меняется только в PMS, а экран рапортовал отправку и вводил смену в заблуждение.
+   */
+  it('POST /rates/bulk: изменение по непродаваемой категории сохранено, но в очередь не ушло', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({
+        changes: [
+          {
+            accommodationTypeCode: 'exely-900001',
+            ratePlanCode: 'exely-800002',
+            dateFrom: '2026-11-21',
+            dateTo: '2026-11-21',
+            price: '333',
+          },
+        ],
+      })
+      .expect(201);
+    expect(res.body).toMatchObject({ applied: 1, queued: 0 });
   });
 
   it('POST /rates/bulk applies several changes in one transaction and publishes ONE batch (certification tests 3–8)', async () => {
@@ -140,7 +171,8 @@ describe('rates API', () => {
         ],
       })
       .expect(201);
-    expect(res.body).toMatchObject({ applied: 3, rateRows: 3 });
+    // «Одиночную» канал не продаёт (нет сопоставления): сохранены три изменения, в очередь ушли два
+    expect(res.body).toMatchObject({ applied: 3, rateRows: 3, queued: 2 });
     expect(fakes.applied[1]).toMatchObject({
       accommodationTypeId: 't2',
       capacityAdults: 2,

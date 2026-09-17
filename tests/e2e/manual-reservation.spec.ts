@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
+import { confirmCancelReservation } from './confirm';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
@@ -17,7 +18,7 @@ test('создать бронь с ячейкой → видна в шахмат
   const freeBefore = Number(/свободно (\d+)/.exec(availabilityBefore ?? '')?.[1]);
   expect(freeBefore).toBeGreaterThan(0);
 
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitSelect.locator('option').nth(1).getAttribute('value');
@@ -48,9 +49,9 @@ test('создать бронь с ячейкой → видна в шахмат
   expect(Number(/свободно (\d+)/.exec(availabilityAfter ?? '')?.[1])).toBe(freeBefore - 1);
 
   await page.goto(`/reservations/${number}`);
-  page.on('dialog', (d) => d.accept());
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
   const availabilityEnd = await page.getByTestId('availability').textContent();

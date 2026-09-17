@@ -28,3 +28,20 @@ export function almatyMoment(iso: string | null | undefined): string {
   const t = iso ? Date.parse(iso) : NaN;
   return Number.isNaN(t) ? '—' : momentInAlmaty.format(t).replace(',', '');
 }
+
+const stampInAlmaty = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Asia/Almaty',
+  dateStyle: 'short',
+  timeStyle: 'short',
+});
+
+/**
+ * Момент события (UTC) → «2026-09-17 13:30» по часам объекта: для журналов, где важен и год.
+ *
+ * Пояс берётся из базы часовых поясов, а не сдвигом на пять часов руками: сдвиг верен сегодня,
+ * но переживёт перенос сервера и смену правил только случайно.
+ */
+export function almatyStamp(iso: string): string {
+  const t = Date.parse(iso);
+  return Number.isNaN(t) ? '—' : stampInAlmaty.format(t);
+}

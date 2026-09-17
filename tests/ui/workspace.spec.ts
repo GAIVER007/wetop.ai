@@ -859,3 +859,10 @@ test('каналы: сбой сводки фонда не уносит очер�
   await expect(page.getByTestId('inventory-failed')).toBeVisible();
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
 });
+
+test('журнал: время операции — тем же способом, что и везде (по Алматы)', async ({ page }) => {
+  // Было: ручная арифметика «+5 часов» и обрезанный ISO. Пояс объекта задаётся одним местом,
+  // иначе при переносе сервера в РК два экрана покажут разное время одного события.
+  await page.goto('/journal');
+  await expect(page.getByTestId('journal-row').first()).toContainText('13:30');
+});

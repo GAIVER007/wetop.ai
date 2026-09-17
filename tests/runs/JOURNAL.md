@@ -514,7 +514,6 @@
 | 17.09.2026 13:09 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 7 с | 8b28b33 | [лог](logs/2026-09-17T08-09-10Z-integration-d8c7.log) | (файл не выполнился) |
 | 17.09.2026 13:14 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 8 с | 8b28b33 | [лог](logs/2026-09-17T08-14-26Z-integration-bb2b.log) | (файл не выполнился) |
 | 17.09.2026 13:16 | integration (частично: tests/integration/audit-author.test.ts) | ✅ 3 из 3 | 9 с | 461b716 | [лог](logs/2026-09-17T08-16-52Z-integration-d586.log) |  |
-| 17.09.2026 15:06 | e2e (частично: tests/e2e/finance.spec.ts) | ✅ 2 из 2 | 1 мин 19 с | 9147e94 | [лог](logs/2026-09-17T10-06-30Z-e2e-c8a1.log) |  |
 | 17.09.2026 13:31 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 3 из 18 | 6 с | a681438 +1 | [лог](logs/2026-09-17T08-31-11Z-unit-74b1.log) | next-env.d.ts от сборки: красный до правки |
 | 17.09.2026 13:32 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 18 из 18 | 5 с | a681438 +2 | [лог](logs/2026-09-17T08-32-45Z-unit-6bfc.log) | next-env.d.ts от сборки: зелёный |
 | 17.09.2026 13:32 | lint | ✅ без ошибок | 10 с | a681438 +2 | [лог](logs/2026-09-17T08-32-55Z-lint-3485.log) | repo-sync: файлы от сборки |
@@ -545,3 +544,4 @@
 | 17.09.2026 15:02 | typecheck | ✅ без ошибок | 13 с | adffc9c +4 | [лог](logs/2026-09-17T10-02-41Z-typecheck-2a12.log) | журнал финансов |
 | 17.09.2026 15:02 | lint | ✅ без ошибок | 9 с | adffc9c +4 | [лог](logs/2026-09-17T10-02-54Z-lint-af46.log) | журнал финансов |
 | 17.09.2026 15:03 | unit | ❌ упало 3 из 1023 | 1 мин 32 с | adffc9c +4 | [лог](logs/2026-09-17T10-03-03Z-unit-0d1c.log) | журнал финансов в транзакции: весь набор |
+| 17.09.2026 15:06 | e2e (частично: tests/e2e/finance.spec.ts) | ✅ 2 из 2 | 1 мин 19 с | 9147e94 | [лог](logs/2026-09-17T10-06-30Z-e2e-c8a1.log) |  |

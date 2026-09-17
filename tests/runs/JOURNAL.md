@@ -508,3 +508,4 @@
 | 17.09.2026 01:15 | lint | ✅ без ошибок | 11 с | 76add5e | [лог](logs/2026-09-16T20-15-07Z-lint-7308.log) | после слияния main и трёх cherry-pick |
 | 17.09.2026 01:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservation-tariff.spec.ts tests/ui/workspace.spec.ts) | ✅ 28 из 28 | 1 мин 44 с | 76add5e | [лог](logs/2026-09-16T20-17-11Z-e2e-e547.log) | cherry-pick из backup/pms-lux: спеки формы брони и главной, синтетический API |
 | 17.09.2026 01:18 | unit (частично: apps/api/src/inventory scripts/imports apps/web) | ✅ 143 из 143 | 3 с | 76add5e | [лог](logs/2026-09-16T20-18-57Z-unit-deac.log) | cherry-pick из backup/pms-lux: фонд в памяти, форма брони, карточка |
+| 17.09.2026 01:24 | integration | ❌ код выхода 1 | 3 мин 3 с | 739f7e9 | [лог](logs/2026-09-16T20-24-54Z-integration-72db.log) | (файл не выполнился) |

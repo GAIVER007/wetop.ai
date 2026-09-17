@@ -1,0 +1,11 @@
+# Сквозные (e2e) · 17.09.2026 22:33 Алматы · vm
+# коммит a6434dd (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'правка в ячейке календаря'
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:987:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.6s)
+
+  1 passed (5.8s)
+
+# код выхода 0 · 7 с

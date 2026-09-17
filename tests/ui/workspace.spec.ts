@@ -365,7 +365,7 @@ test('каналы: сбой сводки фонда не роняет стра�
 }) => {
   await page.goto('/channels');
   await expect(page.getByTestId('mapping-empty')).toContainText('сопоставлений пока нет');
-  await expect(page.getByTestId('events-table')).toContainText('Получено (Алматы)');
+  await expect(page.getByTestId('events-table')).toContainText('Получено');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/channels');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж — Channex');
@@ -737,7 +737,7 @@ test('тарифы: добавить, удалить, сохранить и пр
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
   await expect(page.getByTestId('pending-changes')).toContainText('9100');
-  await editor.getByRole('button', { name: '×', exact: true }).click();
+  await editor.getByRole('button', { name: 'Убрать строку 1', exact: true }).click();
   await expect(page.getByTestId('apply-changes')).toBeDisabled();
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();

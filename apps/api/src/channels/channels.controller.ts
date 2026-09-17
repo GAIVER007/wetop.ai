@@ -8,6 +8,7 @@ import {
   Headers,
   HttpCode,
   Inject,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -15,11 +16,20 @@ import {
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { ARI_PUBLISHER, PROVIDER, type AriPublisher } from './ari-publisher';
+
+/** Статусы входящего события в базе (`ExternalEventStatus`): другого значения Prisma не примет */
+const EVENT_STATUSES = ['RECEIVED', 'PROCESSING', 'PROCESSED', 'FAILED'] as const;
 import { ChannexSyncService } from './sync.service';
 import { reachabilityForRegistered } from './schedule';
 import { WebhookHealthService } from './webhook-health.service';
-import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
+import {
+  CHANNELS_REPOSITORY,
+  type ChannelsRepository,
+  type OutboxStatus,
+} from './channels.repository';
 import { Public } from '../auth/public.decorator';
+import { outboxRowSummary } from './outbox-rows';
+import { revisionFacts } from './revision-facts';
 
 /** Ответ или отказ за отведённое время: запрос к провайдеру идёт дальше, но страница его не ждёт */
 function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
@@ -150,11 +160,83 @@ export class ChannelsController {
     return this.inbound.pull(propertyId || undefined);
   }
 
-  /** Журнал входящих событий: что прислал Channex и обработали ли мы это (ADR-007). */
+  /**
+   * Журнал входящих событий: что прислал Channex и обработали ли мы это (ADR-007). Срез 7.2: фильтры
+   * по статусу и типу, поиск по номеру брони или unique_id, постраничность (offset), бронь у события.
+   */
   @Get('events')
-  events(@Query('limit') limit?: string) {
+  async events(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('status') status?: string,
+    @Query('type') type?: string,
+    @Query('q') q?: string,
+  ) {
     const n = Number(limit ?? 30);
-    return this.repo.recentEvents(PROVIDER, Number.isInteger(n) && n > 0 && n <= 200 ? n : 30);
+    const o = Number(offset ?? 0);
+    // Неизвестный статус Prisma отвергает исключением, и вся таблица событий уходит в «не загрузились»
+    const st = (status ?? '').trim();
+    return this.repo.eventsPage(PROVIDER, {
+      limit: Number.isInteger(n) && n > 0 && n <= 200 ? n : 30,
+      offset: Number.isInteger(o) && o >= 0 ? o : 0,
+      status: EVENT_STATUSES.includes(st as (typeof EVENT_STATUSES)[number]) ? st : undefined,
+      type: type?.trim() || undefined,
+      q: q?.trim() || undefined,
+    });
+  }
+
+  /** Страница «Приём брони из канала» (срез 7.2): ревизия без ПД → бронь → ячейки; только чтение. */
+  @Get('events/:revisionId')
+  async event(@Param('revisionId') revisionId: string) {
+    const ev = await this.repo.eventByRevision(PROVIDER, revisionId);
+    if (!ev) throw new NotFoundException(`Событие ${revisionId} не найдено`);
+    const facts = revisionFacts(ev.payload);
+    const row = Object.fromEntries(Object.entries(ev).filter(([k]) => k !== 'payload'));
+    const linked = facts.uniqueId
+      ? await this.repo.reservationCardByExternalId(facts.uniqueId)
+      : null;
+    const mappings = await this.repo.mappings(PROVIDER);
+    const categoryByRoomType = Object.fromEntries(
+      mappings
+        .filter((m) => m.providerRoomTypeId && m.localAccommodationTypeCode)
+        .map((m) => [m.providerRoomTypeId!, m.localAccommodationTypeCode!]),
+    );
+    return {
+      event: row,
+      facts,
+      categoryByRoomType,
+      reservation: linked?.card ?? null,
+      balances: linked?.balances ?? {},
+    };
+  }
+
+  /** Строки очереди ARI для журнала интеграции (срез 7.2): что ушло, на какие даты, по каким категориям. */
+  @Get('outbox/rows')
+  async outboxRows(@Query('status') status?: string, @Query('limit') limit?: string) {
+    const n = Number(limit ?? 50);
+    const st = ['PENDING', 'SENT', 'FAILED'].includes(status ?? '')
+      ? (status as OutboxStatus)
+      : undefined;
+    const [rows, mappings] = await Promise.all([
+      this.repo.outboxRows(PROVIDER, {
+        status: st,
+        limit: Number.isInteger(n) && n > 0 && n <= 200 ? n : 50,
+      }),
+      this.repo.mappings(PROVIDER),
+    ]);
+    const names = {
+      roomTypeById: new Map(
+        mappings
+          .filter((m) => m.providerRoomTypeId && m.localAccommodationTypeCode)
+          .map((m) => [m.providerRoomTypeId!, m.localAccommodationTypeCode!]),
+      ),
+      ratePlanById: new Map(
+        mappings
+          .filter((m) => m.providerRatePlanId && m.localAccommodationTypeCode)
+          .map((m) => [m.providerRatePlanId!, m.localAccommodationTypeCode!]),
+      ),
+    };
+    return rows.map(({ payload, ...r }) => ({ ...r, ...outboxRowSummary(payload, names) }));
   }
 
   /**

@@ -496,7 +496,24 @@ export const channelsApi = {
     ),
   flush: () =>
     sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
-  events: (limit = 30) => getJson<InboundEvent[]>(`/channels/channex/events?limit=${limit}`),
+  /** Журнал входящих событий с фильтрами и постраничностью (срез 7.2) */
+  events: (q: EventsQuery = {}) => {
+    const sp = new URLSearchParams();
+    sp.set('limit', String(q.limit ?? 20));
+    sp.set('offset', String(q.offset ?? 0));
+    if (q.status) sp.set('status', q.status);
+    if (q.type) sp.set('type', q.type);
+    if (q.q) sp.set('q', q.q);
+    return getJson<{ rows: InboundEvent[]; total: number }>(`/channels/channex/events?${sp}`);
+  },
+  /** Страница «Приём брони из канала»: ревизия без ПД → бронь → ячейки */
+  event: (revisionId: string) =>
+    getJson<RevisionPage>(`/channels/channex/events/${encodeURIComponent(revisionId)}`),
+  /** Строки очереди ARI: что ушло, на какие даты, по каким категориям */
+  outboxRows: (status?: OutboxRowStatus, limit = 50) =>
+    getJson<OutboxRow[]>(
+      `/channels/channex/outbox/rows?limit=${limit}${status ? `&status=${status}` : ''}`,
+    ),
   retryEvent: (revisionId: string) =>
     sendJson<{ result: string; confirmationNumber: string | null; error?: string }>(
       'POST',
@@ -541,6 +558,66 @@ export interface InboundEvent {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
+  /** Номер брони на стороне канала (`unique_id` ревизии) и канал — срез 7.2 */
+  uniqueId?: string | null;
+  otaName?: string | null;
+  /** Бронь PMS, связанная по `externalId = unique_id`; null — ещё не создана или не сопоставлена */
+  confirmationNumber?: string | null;
+}
+export interface EventsQuery {
+  limit?: number;
+  offset?: number;
+  status?: string;
+  type?: string;
+  q?: string;
+}
+export type OutboxRowStatus = 'PENDING' | 'SENT' | 'FAILED';
+/** Строка очереди `channel_outbox` для журнала интеграции (срез 7.2) */
+export interface OutboxRow {
+  id: string;
+  kind: 'AVAILABILITY' | 'RESTRICTIONS';
+  status: OutboxRowStatus;
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  dateFrom: string | null;
+  dateTo: string | null;
+  /** Коды категорий по маппингу; неизвестный id провайдера — как есть */
+  roomTypes: string[];
+  messages: number;
+}
+/** Факты ревизии Channex без персональных данных гостя (ADR-018) */
+export interface RevisionFacts {
+  uniqueId: string | null;
+  otaName: string | null;
+  otaReservationCode: string | null;
+  status: string | null;
+  arrivalDate: string | null;
+  departureDate: string | null;
+  adults: number | null;
+  children: number | null;
+  amount: string | null;
+  currency: string | null;
+  paymentCollect: string | null;
+  rooms: Array<{
+    checkinDate: string | null;
+    checkoutDate: string | null;
+    roomTypeId: string | null;
+    ratePlanId: string | null;
+    adults: number | null;
+    amount: string | null;
+  }>;
+}
+export interface RevisionPage {
+  event: InboundEvent;
+  facts: RevisionFacts;
+  /** provider room_type_id → код категории PMS */
+  categoryByRoomType: Record<string, string>;
+  reservation: ReservationCard | null;
+  /** остаток счёта по проживанию (тиын, строка) — тот же `folioBalance`, что на карточке */
+  balances: Record<string, string>;
 }
 export interface WebhookStatus {
   registered: boolean;

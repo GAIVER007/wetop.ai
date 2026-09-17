@@ -156,7 +156,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-14', stopSell: 'true' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-16', stopSell: 'true' });
     await save(page);
-    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('да');
+    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('закрыто'); // stop sell словом (срез 7.2)
     await flush(page, '6. Stop Sell Update');
   });
 

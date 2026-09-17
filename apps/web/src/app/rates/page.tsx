@@ -1,9 +1,11 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { formatMinor, ratesApi } from '../../lib/api';
+import { ratesApi } from '../../lib/api';
 import { Page } from '../../components/page';
+import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
+import { PriceCell, RatesToastScope } from './price-cell';
 
 const monthRange = (ym: string) => {
   const [y, m] = ym.split('-').map(Number) as [number, number];
@@ -11,8 +13,17 @@ const monthRange = (ym: string) => {
   return { from: `${ym}-01`, to: `${ym}-${String(last).padStart(2, '0')}` };
 };
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const monthTitle = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: 'UTC',
+  month: 'long',
+  year: 'numeric',
+});
+const guestsHeader = (n: number) => `Цена, ${n} ${n === 1 ? 'гость' : n < 5 ? 'гостя' : 'гостей'}`;
 
-/** Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа. */
+/**
+ * Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа.
+ * Цена правится в ячейке (срез 7.2), ограничения — только массовым изменением (развилка 7.2-1).
+ */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
   const options = await ratesApi.options();
@@ -38,8 +49,17 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
     const d = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
     return `/rates?category=${category}&ratePlan=${ratePlan}&month=${d}`;
   };
+  const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
+  const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
+  const monthLabel = validMonth
+    ? monthTitle.format(new Date(`${month}-01T00:00:00Z`)).replace(' г.', '')
+    : '';
   return (
-    <Page width="wide" title="Цены и ограничения">
+    <Page
+      width="wide"
+      title="Цены и ограничения"
+      subtitle={!error && cal ? `${categoryName}, ${planName}, ${monthLabel}` : undefined}
+    >
       <form method="get" className="row row--end row--lg toolbar">
         <Field label="Категория">
           <Select name="category" defaultValue={category}>
@@ -59,17 +79,22 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
             ))}
           </Select>
         </Field>
+        {validMonth && (
+          <Link href={shift(-1)} className="icon-button" aria-label="Предыдущий месяц">
+            <Icon name="chevron" className="rotate-left" />
+          </Link>
+        )}
         <Field label="Месяц">
           <Input type="month" name="month" defaultValue={month} />
         </Field>
+        {validMonth && (
+          <Link href={shift(1)} className="icon-button" aria-label="Следующий месяц">
+            <Icon name="chevron" />
+          </Link>
+        )}
         <Button type="submit" tone="secondary">
           Показать
         </Button>
-        {validMonth && (
-          <span style={{ marginLeft: 8 }}>
-            <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
-          </span>
-        )}
       </form>
       {error && (
         <Alert boxed>
@@ -77,59 +102,66 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         </Alert>
       )}
       <div className="split">
-        <div className="tbl-wrap">
+        <div className="tbl-wrap stack stack--sm">
           {cal ? (
-            <Table size="sm" dense nowrap data-testid="rates-table">
-              <thead>
-                <tr>
-                  {[
-                    'Дата',
-                    ...Array.from({ length: cal.capacityAdults }, (_, i) => `Цена, ${i + 1} гост.`),
-                    'Min stay',
-                    'Max stay',
-                    'Stop sell',
-                    'CTA',
-                    'CTD',
-                  ].map((h) => (
-                    <th key={h}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {cal.days.map((d) => {
-                  const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
-                  const weekend = wd === 0 || wd === 6;
-                  return (
-                    <tr
-                      key={d.date}
-                      data-testid={`rate-row-${d.date}`}
-                      className={cx(
-                        d.stopSell && 'is-stop',
-                        !d.stopSell && weekend && 'is-weekend',
-                      )}
-                    >
-                      <td>
-                        {d.date} <span className="muted-2">{WD[wd]}</span>
-                      </td>
-                      {Array.from({ length: cal.capacityAdults }, (_, i) => (
-                        <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
-                          {d.prices[String(i + 1)] ? (
-                            formatMinor(d.prices[String(i + 1)]!, cal.currency)
-                          ) : (
-                            <span className="warn-text">нет</span>
-                          )}
+            <RatesToastScope>
+              <Table size="sm" dense nowrap data-testid="rates-table">
+                <thead>
+                  <tr>
+                    {[
+                      'Дата',
+                      ...Array.from({ length: cal.capacityAdults }, (_, i) => guestsHeader(i + 1)),
+                      'Min stay',
+                      'Max stay',
+                      'Stop sell',
+                      'CTA',
+                      'CTD',
+                    ].map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cal.days.map((d) => {
+                    const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
+                    return (
+                      <tr
+                        key={d.date}
+                        data-testid={`rate-row-${d.date}`}
+                        className={cx(d.stopSell && 'is-stop')}
+                      >
+                        <td>
+                          {d.date.slice(8, 10)}.{d.date.slice(5, 7)}{' '}
+                          <span className="muted-2">{WD[wd]}</span>
                         </td>
-                      ))}
-                      <td>{d.minStay ?? '—'}</td>
-                      <td>{d.maxStay ?? '—'}</td>
-                      <td>{d.stopSell ? 'да' : '—'}</td>
-                      <td>{d.closedToArrival ? 'да' : '—'}</td>
-                      <td>{d.closedToDeparture ? 'да' : '—'}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+                        {Array.from({ length: cal.capacityAdults }, (_, i) => (
+                          <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
+                            <PriceCell
+                              date={d.date}
+                              occupancy={i + 1}
+                              minor={d.prices[String(i + 1)] ?? null}
+                              currency={cal.currency}
+                              accommodationTypeCode={cal.accommodationTypeCode}
+                              ratePlanCode={cal.ratePlanCode}
+                            />
+                          </td>
+                        ))}
+                        <td className="num">{d.minStay ?? '—'}</td>
+                        <td className="num">{d.maxStay ?? '—'}</td>
+                        <td>{d.stopSell ? <b className="warn-text">закрыто</b> : '—'}</td>
+                        <td>{d.closedToArrival ? 'закрыт' : '—'}</td>
+                        <td>{d.closedToDeparture ? 'закрыт' : '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+              <p className="hint row row--inline">
+                <Icon name="incidents" width={16} height={16} className="warn-text" />
+                Стоп-продажа — словом в колонке, строка подсвечена. Цена правится в ячейке: клик,
+                Enter — сохранить, Esc — отмена.
+              </p>
+            </RatesToastScope>
           ) : (
             <p className="empty">Нет категорий или тарифов.</p>
           )}

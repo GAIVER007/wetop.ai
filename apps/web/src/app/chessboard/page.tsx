@@ -68,10 +68,10 @@ export default async function ChessboardPage({
   const [board, incidents, events] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
-    channelsApi.events(50).catch(() => null),
+    channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
-  const failedEvents = (events ?? []).filter((e) => e.status === 'FAILED').length;
+  const failedEvents = events?.total ?? 0;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);

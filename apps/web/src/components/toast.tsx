@@ -63,7 +63,12 @@ export function ToastRegion({
   className?: string | undefined;
 }) {
   return (
-    <div className={cx('toast-region', className)} aria-live="polite" aria-relevant="additions">
+    <div
+      className={cx('toast-region', className)}
+      aria-live="polite"
+      aria-relevant="additions"
+      data-testid="toast-stack"
+    >
       {items.map((t) => (
         <div key={t.id} className={cx('toast', t.tone && `toast--${t.tone}`)} role="status">
           <span className="toast__text">{t.text}</span>

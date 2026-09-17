@@ -492,7 +492,8 @@ test('финансы: неверные даты можно исправить б
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
-  await expect(page.getByTestId('charged')).toBeVisible();
+  // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
+  await expect(page.getByRole('main').getByTestId('charged')).toBeVisible();
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
@@ -881,4 +882,18 @@ test('счета: приём оплаты подтверждается сумм�
   await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
   await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
   await expect(page.getByTestId('finance-done')).toContainText('1 200');
+});
+
+/**
+ * «Деньги за период» объясняют слишком длинный период формой, а не экраном «нет связи» (§7.4).
+ *
+ * Отчёт собирает начисления, оплаты и возвраты за период: без предела с экрана можно было
+ * попросить десять лет и уложить базу. Предел — 366 дней, и о нём должна сказать страница,
+ * сохранив даты, а не общий экран ошибки без формы.
+ */
+test('деньги за период: период длиннее года объясняется на странице', async ({ page }) => {
+  await page.goto('/finance?from=2020-01-01&to=2030-12-31');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('366');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  await expect(page.locator('input[name="from"]')).toHaveValue('2020-01-01');
 });

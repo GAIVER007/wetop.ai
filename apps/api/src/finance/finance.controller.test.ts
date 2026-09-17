@@ -298,6 +298,10 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await request(app.getHttpServer())
       .get('/finance/report?from=2026-10-31&to=2026-10-01')
       .expect(400);
+    // Волна 4: без предела «Деньги за период» просили хоть десять лет и собирали всю базу
+    await request(app.getHttpServer())
+      .get('/finance/report?from=2020-01-01&to=2030-12-31')
+      .expect(400);
 
     const r = await request(app.getHttpServer())
       .get('/finance/report?from=2026-10-01&to=2026-10-31')

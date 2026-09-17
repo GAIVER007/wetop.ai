@@ -108,6 +108,12 @@ describe('rates API', () => {
         '/rates?accommodationTypeCode=exely-900001&ratePlanCode=nope&from=2026-11-01&to=2026-11-03',
       )
       .expect(422);
+    // Волна 4: календарь цен без предела строил хоть десять лет по дню на строку
+    await request(app.getHttpServer())
+      .get(
+        '/rates?accommodationTypeCode=exely-900001&ratePlanCode=exely-800002&from=2020-01-01&to=2030-12-31',
+      )
+      .expect(400);
   });
 
   /**

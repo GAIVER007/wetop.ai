@@ -6,10 +6,15 @@
 # Папка deploy/cloudflared/ в git не едет: в ней ключ (SECURITY.md §3).
 #
 #   1. на сервере: cloudflared tunnel login  →  выбрать wetop.ai
-#   2. ключ существующего туннеля: cloudflared tunnel token --cred-file wetop.json wetop
-#      (туннель НЕ пересоздавать — записи DNS уже на него, и webhook Channex смотрит на те же имена)
-#   3. подставить ниже TUNNEL-ID, имя команды Zero Trust и AUD-тег приложения Access
-#   4. снять туннель с Mac и проверить: cloudflared tunnel info wetop → один коннектор
+#   2. cloudflared tunnel delete --force wetop   — старая копия работает неизвестно где (18.09.2026), искать её
+#      не нужно: без туннеля она подключиться не сможет. С этой секунды app/api.wetop.ai не отвечают — простой
+#      на минуты, делать в момент шага 4 плана
+#   3. cloudflared tunnel create wetop           — новый TUNNEL-ID и файл ключа; положить в deploy/cloudflared/
+#   4. cloudflared tunnel route dns --overwrite-dns wetop app.wetop.ai   (и то же для api.wetop.ai)
+#      имена те же → webhook Channex и приложение Access не трогаются
+#   5. подставить ниже TUNNEL-ID, имя команды Zero Trust и AUD-тег приложения Access
+#   6. docker compose -f deploy/compose.yml up -d cloudflared; проверить: cloudflared tunnel info wetop →
+#      ровно один коннектор, linux_amd64, IP сервера
 #
 # Host не переписывать (httpHostHeader не задавать): серверные действия Next и проверка домена
 # виджета ждут настоящий адрес.

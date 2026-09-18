@@ -1,0 +1,70 @@
+# Три службы PMS на сервере в Казахстане (plans/server-kz-2026-09-18.md шаг 4).
+#
+# Портов наружу НЕ публикуем: снаружи объект виден только через туннель Cloudflare
+# (app.wetop.ai, api.wetop.ai). Внутри сети compose службы зовут друг друга по имени.
+#
+# .env лежит в КОРНЕ репозитория — там же, откуда его читают `cli-check-env.ts`,
+# `prisma migrate deploy` и все скрипты сверки. Одно место, два читателя (18.09.2026).
+name: wetop
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: wetop-pms:local
+  restart: unless-stopped
+  env_file:
+    - ../.env
+    # Выключатель ARI (scripts/ops/ari-server.sh). Файла может не быть — это не ошибка.
+    - path: ./ari.env
+      required: false
+  environment:
+    TZ: Asia/Almaty
+    NODE_ENV: production
+
+services:
+  api:
+    <<: *app
+    # В контейнере 127.0.0.1 — это сам контейнер: ни стойка, ни туннель не достучатся (ADR-049, шаг 2 плана)
+    environment:
+      TZ: Asia/Almaty
+      NODE_ENV: production
+      API_HOST: 0.0.0.0
+      API_PORT: '3001'
+    command: ['npm', 'run', 'start', '-w', 'apps/api']
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  web:
+    <<: *app
+    # `npm run start -w apps/web` прибит к 127.0.0.1 — в контейнере это значит «никому не видна»
+    command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
+    working_dir: /app/apps/web
+    environment:
+      TZ: Asia/Almaty
+      NODE_ENV: production
+      APP_API_URL: http://api:3001
+    depends_on:
+      - api
+
+  exely-sync:
+    <<: *app
+    # Раз в 15 минут, как задача launchd на Mac (ADR-032). Пул — один: сумма пулов всех служб
+    # обязана быть меньше предела базы, иначе стойка получает 500 (случай 15.09.2026).
+    environment:
+      TZ: Asia/Almaty
+      NODE_ENV: production
+      DATABASE_POOL_MAX: '1'
+    command:
+      - sh
+      - -c
+      - 'while true; do npx tsx scripts/imports/src/cli-sync-day.ts --auto || true; sleep 900; done'
+    depends_on:
+      - api
+
+# Туннель поднимается отдельно и позже — шаг 4 плана домена, только после сверки двух баз.
+# Ключ и конфиг кладутся в deploy/cloudflared/ (в git не едет).

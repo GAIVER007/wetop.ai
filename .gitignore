@@ -71,3 +71,4 @@ tests/runs/.locks/
 design/reference/exely/*
 !design/reference/exely/.gitkeep
 tests/runs/.auth/
+.agent-tmp/

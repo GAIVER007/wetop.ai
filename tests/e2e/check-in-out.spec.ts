@@ -110,5 +110,6 @@ test('заселить → карточка и шахматка показыва
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');
-  await expect(page.getByTestId('stay-row').first()).toContainText('не назначена');
+  // §14: пустое значение — прочерк; ячейка снята, в колонке «—»
+  await expect(page.getByTestId('stay-row').first().locator('td').first()).toHaveText('—');
 });

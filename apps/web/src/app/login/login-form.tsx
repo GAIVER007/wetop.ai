@@ -70,7 +70,7 @@ export function LoginForm({
           </span>
         </Link>
         <div className="login-message">
-          <span className="eyebrow">Hospitality, thoughtfully connected</span>
+          <span className="eyebrow">Стойка, брони и каналы в одном окне</span>
           <h1>
             Весь объект
             <br />

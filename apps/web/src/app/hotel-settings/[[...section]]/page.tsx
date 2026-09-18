@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { financeApi, formatMinor } from '../../../lib/api';
+import { financeApi } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
 import { hotelApi, type HotelContent } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
@@ -267,7 +268,7 @@ async function Services() {
                 </div>
               </td>
               <td>{s.group ?? 'Без группы'}</td>
-              <td className="num">{formatMinor(s.priceMinor, settings.property.currency)}</td>
+              <td className="num">{formatMoney(s.priceMinor, settings.property.currency)}</td>
             </tr>
           ))}
           {!services.length && (

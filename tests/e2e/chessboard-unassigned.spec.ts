@@ -64,7 +64,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(block).toContainText(categoryName);
   const item = block.locator(`[data-testid="unassigned-stay"][data-number="${number}"]`);
   await expect(item).toHaveCount(1);
-  await expect(item).toContainText(`${arrival} → ${departure}`);
+  // даты словами (§14), сырые — в datetime
+  await expect(item.locator('time').nth(0)).toHaveAttribute('datetime', arrival);
+  await expect(item.locator('time').nth(1)).toHaveAttribute('datetime', departure);
   await expect(item).toContainText('подтверждена');
   await expect(item.getByRole('link', { name: number })).toHaveAttribute(
     'href',

@@ -50,7 +50,7 @@
   align-items: center;
   gap: 6px;
   font-size: 20px;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: -0.03em;
   color: var(--text);
 }
@@ -79,7 +79,7 @@
   margin-top: 10px;
   padding-top: 8px;
   border-top: 1px solid var(--border-soft);
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .room-cards--list .room-card {
@@ -102,7 +102,7 @@
 /* ── категории: код мелко, полоса загрузки, действия ── */
 .cat-code {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .cat-today {
@@ -156,7 +156,7 @@
 }
 .avail-codes {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--muted);
   white-space: nowrap;
 }

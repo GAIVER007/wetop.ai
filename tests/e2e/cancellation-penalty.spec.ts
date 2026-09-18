@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmCancelReservation } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
@@ -20,7 +21,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
+const minor = minorFromText;
 
 test('отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять', async ({
   page,

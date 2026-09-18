@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
 
@@ -19,8 +20,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-/** «12 000,00 ₸ · к оплате» → 1200000n; «−500,00 ₸» → −50000n */
-const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
+const minor = minorFromText;
 const decimal = (m: bigint) => {
   const d = (m < 0n ? -m : m).toString().padStart(3, '0');
   return `${m < 0n ? '-' : ''}${d.slice(0, -2)}.${d.slice(-2)}`;
@@ -76,7 +76,7 @@ test('счёт на проживание: начисления, оплата, в
   await cf.locator('input[name="quantity"]').fill('2');
   await cf.getByRole('button', { name: 'Начислить' }).click();
   await expect(panel.getByTestId('charge-row')).toHaveCount(3);
-  await expect(panel.getByTestId('charge-row').nth(2)).toContainText('2 × 500,00 ₸');
+  await expect(panel.getByTestId('charge-row').nth(2)).toContainText('2 × 500 ₸');
   expect(await balance()).toBe(price + 200_000n);
 
   // оплата наличными: сумма по умолчанию — весь баланс

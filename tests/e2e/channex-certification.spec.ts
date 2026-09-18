@@ -106,10 +106,10 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     // сохранении — в ячейке уже стояло бы 333 с прошлого раза.
     const cell = page.getByTestId('price-2026-11-22-1');
     const before = (await cell.textContent())!.trim();
-    const price = before.startsWith('333,') ? '334' : '333';
+    const price = before.startsWith('333 ') ? '334' : '333';
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-22', price });
     await save(page);
-    await expect(cell).toHaveText(new RegExp(`${price},00`));
+    await expect(cell).toHaveText(new RegExp(`${price} ₸`)); // §14: без тиынов
     expect((await cell.textContent())!.trim()).not.toBe(before);
     await flush(page, '2. Single Date Update for Single Rate');
   });

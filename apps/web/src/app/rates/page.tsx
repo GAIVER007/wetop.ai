@@ -1,6 +1,8 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { formatMinor, ratesApi } from '../../lib/api';
+import { ratesApi } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
+import { displayDate } from '../../lib/display-date';
 import { Page } from '../../components/page';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
@@ -110,8 +112,9 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                         !d.stopSell && weekend && 'is-weekend',
                       )}
                     >
-                      <td>
-                        {d.date} <span className="muted-2">{WD[wd]}</span>
+                      <td className="nowrap">
+                        <time dateTime={d.date}>{displayDate(d.date)}</time>{' '}
+                        <span className="muted-2">{WD[wd]}</span>
                       </td>
                       {Array.from({ length: cal.capacityAdults }, (_, i) => {
                         const minor = d.prices[String(i + 1)];
@@ -120,7 +123,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                             <PriceCell
                               date={d.date}
                               occupancy={i + 1}
-                              text={minor ? formatMinor(minor, cal.currency) : 'нет'}
+                              text={minor ? formatMoney(minor, cal.currency) : '—'}
                               major={minor ? (BigInt(minor) / 100n).toString() : ''}
                               accommodationTypeCode={category}
                               ratePlanCode={ratePlan}
@@ -139,7 +142,9 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
               </tbody>
             </Table>
           ) : (
-            <p className="empty">Нет категорий или тарифов.</p>
+            <p className="empty">
+              Категорий или тарифов нет — календарь цен пуст. Заведите тариф в настройках объекта.
+            </p>
           )}
         </div>
         {!error && (

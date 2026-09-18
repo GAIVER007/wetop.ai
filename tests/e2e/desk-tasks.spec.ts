@@ -84,7 +84,8 @@ test('стойка: занятую койку не продать дважды, 
 
   // ── T2: «+ 1 ночь» ───────────────────────────────────────────────────────────────────────
   const row = page.getByTestId('stay-row').first();
-  await expect(row).toContainText(departure);
+  // даты в строке — словами (§14), сырая дата лежит в datetime
+  await expect(row.locator('time').nth(1)).toHaveAttribute('datetime', departure);
   const priceBefore = money(await row.locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="extend-"]').click();
@@ -94,7 +95,7 @@ test('стойка: занятую койку не продать дважды, 
   await expect(ask).toContainText('₸');
   await confirmAction(page, 'Продлить');
   await cardTab(page, 'Обзор');
-  await expect(row).toContainText(plus(10));
+  await expect(row.locator('time').nth(1)).toHaveAttribute('datetime', plus(10));
   const priceAfter = money(await row.locator('td').nth(5).innerText());
   // добавлена ровно одна ночь к двум: цена выросла примерно на половину, а не пересчиталась целиком
   expect(priceAfter).toBeGreaterThan(priceBefore);

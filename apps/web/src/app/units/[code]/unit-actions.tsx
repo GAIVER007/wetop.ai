@@ -51,7 +51,9 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         </Row>
       </Panel>
       <Panel title="Блокировки (ремонт, вывод из продажи)">
-        {unit.blocks.length === 0 && <span className="sub">нет</span>}
+        {unit.blocks.length === 0 && (
+          <p className="sub">Блокировок нет — ячейка в продаже. Закрыть её можно формой ниже.</p>
+        )}
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
             <span>

@@ -15,6 +15,7 @@ import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from '.
 import { Icon } from '../../components/icon';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
+import { useToast } from '../../components/toast';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -62,6 +63,7 @@ export function ChessboardGrid({
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
+  const { toast } = useToast();
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
@@ -110,6 +112,8 @@ export function ChessboardGrid({
       // server action сам делает revalidatePath('/chessboard') — сетка перерисуется с сервера
       const r = await assignUnitAction(payload.number, payload.itemId, { error: null }, fd);
       setError(r.error);
+      if (!r.error)
+        toast({ text: `Бронь ${payload.number} переселена в ${plan.unitCode}`, tone: 'success' });
     });
   };
   const onDragEnd = () => {

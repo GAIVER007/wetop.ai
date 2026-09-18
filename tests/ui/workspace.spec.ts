@@ -318,6 +318,8 @@ test('карточка: профиль гостя и заселение прох
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   // Пока вкладка догружается, в DOM на миг есть скрытая копия панели действий — жмём видимую кнопку
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
+  await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('stay-row')).toContainText('заселён');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
@@ -419,7 +421,7 @@ test('общий платёж: ошибка не стирает распреде
   await form.getByLabel('На счёт 2', { exact: true }).fill('1000');
   await form.getByRole('button', { name: 'Принять общий платёж' }).click();
   await expect(form.getByRole('status')).toContainText('Платёж принят');
-  await expect(page.getByTestId('finance-total')).toContainText('30 000,00');
+  await expect(page.getByTestId('finance-total')).toContainText('30 000 ₸');
   const result = await (
     await request.get(`${fixture}/finance/reservations/${booking}`, {
       headers: { 'x-wetop-test-client': '1' },
@@ -617,7 +619,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
   await page.goto('/finance');
   for (const id of ['charged', 'paid', 'refunded', 'balance'])
-    await expect(page.getByTestId(id)).toHaveText('0,00 ₸');
+    await expect(page.getByTestId(id)).toHaveText('0 ₸');
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });

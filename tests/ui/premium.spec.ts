@@ -68,7 +68,7 @@ test('drawer: бронь открывается поверх доски, вкл�
     .getByTestId('payment-form')
     .getByRole('button', { name: 'Принять оплату', exact: true })
     .click();
-  await expect(drawer.getByTestId('folio-balance')).toHaveText('0,00 ₸ · оплачено');
+  await expect(drawer.getByTestId('folio-balance')).toHaveText('0 ₸ · оплачено');
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(page).toHaveURL(/chessboard/);

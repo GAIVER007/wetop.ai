@@ -2,7 +2,7 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, type UnassignedStay } from '../../lib/api';
-import { pluralRu } from '../../lib/plural';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -183,8 +183,9 @@ export default async function ChessboardPage({
         />
         {failedRevisions > 0 && (
           <Alert boxed tone="warning" data-testid="failed-revisions">
-            Входящая бронь требует разбора: {pluralRu(failedRevisions, ['ревизия', 'ревизии', 'ревизий'])}{' '}
-            из канала не удалось сопоставить с бронью — места по ним не заняты.{' '}
+            Входящая бронь требует разбора:{' '}
+            {pluralRu(failedRevisions, ['ревизия', 'ревизии', 'ревизий'])} из канала не удалось
+            сопоставить с бронью — места по ним не заняты.{' '}
             <Link href="/channels">Открыть журнал интеграции</Link>
           </Alert>
         )}
@@ -247,7 +248,14 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
                   {s.confirmationNumber}
                 </Link>{' '}
                 <span className="muted">
-                  {s.arrivalDate} → {s.departureDate} · {STATUS_RU[s.status] ?? s.status}
+                  <time dateTime={s.arrivalDate}>{displayDate(s.arrivalDate)}</time> →{' '}
+                  <time dateTime={s.departureDate}>{displayDate(s.departureDate)}</time> ·{' '}
+                  {pluralRu(nightsBetween(s.arrivalDate, s.departureDate), [
+                    'ночь',
+                    'ночи',
+                    'ночей',
+                  ])}{' '}
+                  · {STATUS_RU[s.status] ?? s.status}
                 </span>
               </li>
             ))}

@@ -122,7 +122,9 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
         </Row>
       </form>
       <Panel title="Документы" id="guest-documents">
-        {guest.documents.length === 0 && <span className="sub">нет</span>}
+        {guest.documents.length === 0 && (
+          <p className="sub">Документов нет. Добавьте паспорт или удостоверение формой ниже.</p>
+        )}
         {guest.documents.map((d) => (
           <Row key={d.id} data-testid="document-row" className="hint--lg">
             <span>

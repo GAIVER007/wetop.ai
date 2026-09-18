@@ -71,7 +71,8 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         </Button>
         {validMonth && (
           <span style={{ marginLeft: 8 }}>
-            <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
+            <Link href={shift(-1)}>Предыдущий месяц</Link>{' '}
+            <Link href={shift(1)}>Следующий месяц</Link>
           </span>
         )}
       </form>
@@ -89,11 +90,11 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                   {[
                     'Дата',
                     ...Array.from({ length: cal.capacityAdults }, (_, i) => `Цена, ${i + 1} гост.`),
-                    'Min stay',
-                    'Max stay',
-                    'Stop sell',
-                    'CTA',
-                    'CTD',
+                    'Мин. ночей',
+                    'Макс. ночей',
+                    'Стоп-продажа',
+                    'Закрыт заезд',
+                    'Закрыт выезд',
                   ].map((h) => (
                     <th key={h}>{h}</th>
                   ))}

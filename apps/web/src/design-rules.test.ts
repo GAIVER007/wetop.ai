@@ -88,6 +88,42 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
         .map((f) => relative(SRC, f)),
     ).toEqual([]);
   });
+  it('стрелок в конце текста ссылок нет — ссылка названа словом (§14)', () => {
+    const guilty = tsxFiles(SRC)
+      .filter((f) => /(→|›)\s*<\/(?:Link|a)>/.test(readFileSync(f, 'utf8')))
+      .map((f) => relative(SRC, f));
+    expect(guilty).toEqual([]);
+  });
+  it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола', () => {
+    // размытие подложки у липкой шапки и выпадающих меню — слой над страницей, правило его не запрещает
+    expect(offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}px/.test(r.body))).toEqual([]);
+  });
+  /**
+   * Храповик (§3, §14): чего много и что чинится по экрану вместе с макетами — « · » как разделитель
+   * смыслов и отступы вне шкалы 4/8/16/24/32/40/48/64. Число не должно расти; починили —
+   * опустите потолок в тесте, иначе он «зелёный» зря.
+   */
+  it('« · » как разделитель в TSX не размножается (потолок 104 строки на 18.09)', () => {
+    const lines = tsxFiles(SRC).reduce(
+      (n, f) =>
+        n +
+        readFileSync(f, 'utf8')
+          .split('\n')
+          .filter((l) => l.includes(' · ')).length,
+      0,
+    );
+    expect(lines).toBeLessThanOrEqual(104);
+  });
+  it('отступов вне шкалы не прибавляется (потолок 475 значений на 18.09)', () => {
+    const offScale = cssFiles(SRC).reduce((n, f) => {
+      const text = readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      const values = [...text.matchAll(/(?:padding|margin|gap)(?:-[a-z]+)?:\s*([^;]+);/g)].flatMap(
+        (m) => [...m[1]!.matchAll(/\b(\d+)px\b/g)].map((v) => Number(v[1])),
+      );
+      return n + values.filter((v) => ![0, 4, 8, 16, 24, 32, 40, 48, 64].includes(v)).length;
+    }, 0);
+    expect(offScale).toBeLessThanOrEqual(475);
+  });
   it('деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам', () => {
     const guilty = tsxFiles(SRC)
       .filter((f) => !/\/print\//.test(f) && !/lib\/api\.ts$/.test(f) && !/lib\/money\.ts$/.test(f))

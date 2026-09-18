@@ -80,9 +80,6 @@ export function LoginForm({
             Брони. Гости. Оплаты. Номера.
             <br />В одной системе.
           </p>
-          <div className="login-orbit" aria-hidden="true">
-            <span className="ai-orb" />
-          </div>
         </div>
         <span className="login-property">
           <Icon name="inventory" width={16} />
@@ -145,7 +142,8 @@ export function LoginForm({
             <>
               <h2>Код отправлен</h2>
               <p>
-                Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10 минут.
+                Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10
+                минут.
               </p>
               <form
                 onSubmit={(e) => {
@@ -248,7 +246,9 @@ export function LoginForm({
                 </button>
               </form>
               <div className="login-preview">
-                <span>{mode === 'register' ? 'Уже есть организация?' : 'Ещё нет организации?'}</span>
+                <span>
+                  {mode === 'register' ? 'Уже есть организация?' : 'Ещё нет организации?'}
+                </span>
                 <button
                   type="button"
                   className="btn btn--secondary"

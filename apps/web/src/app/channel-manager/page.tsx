@@ -100,7 +100,7 @@ export default async function ChannelManagerPage({
               {!money.size && <span className="muted">За этот период бронирований нет</span>}
             </div>
             {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
-            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты →</Link>
+            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
           </Panel>
           <Table data-testid="channel-report">
             <thead>

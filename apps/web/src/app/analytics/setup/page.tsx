@@ -111,7 +111,7 @@ function SiteCard({
         ) : (
           <Badge>Демо счётчика не подключено</Badge>
         )}
-        <Link href={`/analytics?site=${site.id}`}>отчёт →</Link>
+        <Link href={`/analytics?site=${site.id}`}>Открыть отчёт</Link>
       </Row>
       <div className="facts">
         <Fact label="Ключ" value={site.publicKey} testId="site-card-key" />

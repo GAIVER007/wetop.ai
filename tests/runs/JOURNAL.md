@@ -640,3 +640,7 @@
 | 18.09.2026 14:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts --update-snapshots) | ✅ 8 из 8 | 1 мин 50 с | 55086c2 +41 | [лог](logs/2026-09-18T09-52-07Z-e2e-4bc6.log) |  |
 | 18.09.2026 14:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts) | ✅ 8 из 8 | 32 с | 55086c2 +41 | [лог](logs/2026-09-18T09-53-57Z-e2e-23d9.log) |  |
 | 18.09.2026 14:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 119 из 119 | 9 мин 25 с | 55086c2 +41 | [лог](logs/2026-09-18T09-54-40Z-e2e-1a2e.log) |  |
+| 18.09.2026 15:09 | unit | ❌ упало 3 из 1057 | 1 мин 33 с | d12e610 +8 | [лог](logs/2026-09-18T10-09-01Z-unit-2a08.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 18.09.2026 15:10 | typecheck | ✅ без ошибок | 25 с | d12e610 +8 | [лог](logs/2026-09-18T10-10-41Z-typecheck-86d8.log) |  |
+| 18.09.2026 15:11 | lint | ✅ без ошибок | 13 с | d12e610 +8 | [лог](logs/2026-09-18T10-11-07Z-lint-b392.log) |  |
+| 18.09.2026 15:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 119 из 119 | 9 мин 43 с | d12e610 +8 | [лог](logs/2026-09-18T10-08-59Z-e2e-5819.log) |  |

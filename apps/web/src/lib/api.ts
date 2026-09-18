@@ -1,3 +1,6 @@
+import type { ActionPreview } from './action-preview';
+export type { ActionPreview } from './action-preview';
+
 /**
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
@@ -310,6 +313,11 @@ export const reservationsApi = {
       'POST',
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend`,
       { nights, ...(ratePlanCode ? { ratePlanCode } : {}) },
+    ),
+  /** Сколько будет стоить действие — до подтверждения (срез 7.3, Д5). Только чтение. */
+  preview: (number: string, itemId: string, query: Record<string, string>) =>
+    getJson<ActionPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/preview?${new URLSearchParams(query).toString()}`,
     ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(

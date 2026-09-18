@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { cardTab } from './card-tabs';
-import { confirmCancelReservation } from './confirm';
+import { confirmAction, confirmCancelReservation } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -88,6 +88,11 @@ test('стойка: занятую койку не продать дважды, 
   const priceBefore = money(await row.locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
   await page.locator('[data-testid^="extend-"]').click();
+  // Срез 7.3: продление сначала называет цену новой ночи — то же число, что потом встанет на счёт
+  const ask = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(ask).toContainText('Новая ночь');
+  await expect(ask).toContainText('₸');
+  await confirmAction(page, 'Продлить');
   await cardTab(page, 'Обзор');
   await expect(row).toContainText(plus(10));
   const priceAfter = money(await row.locator('td').nth(5).innerText());

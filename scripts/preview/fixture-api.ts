@@ -1084,6 +1084,60 @@ function read(path: string, q: URLSearchParams): unknown {
       total: { units: 88, available: available.length },
     };
   }
+  // Срез 7.3: предпросмотр действия — считает так же, как настоящий API, но ничего не меняет
+  if (path.startsWith('/reservations/') && path.endsWith('/preview')) {
+    const parts = path.split('/');
+    const r = getCard(decodeURIComponent(parts[2]!));
+    const item = r?.items.find((i) => i.id === decodeURIComponent(parts[4]!));
+    if (!r || !item) return undefined;
+    const action = q.get('action') ?? '';
+    const current = BigInt(item.priceMinor);
+    const night = 1_100_000n; // цена ночи в фикстуре: календарь тут один на все категории
+    if (action === 'cancel' || action === 'no_show')
+      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        voidedMinor: item.priceMinor,
+        // отмена заранее бесплатна, незаезд платный всегда (Q-103)
+        penaltyMinor: action === 'no_show' ? night.toString() : '0',
+        policy: 'FIRST_NIGHT',
+      };
+    if (action === 'extend')
+      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        nights: 1,
+        departureDate: add(item.departureDate, 1),
+        newPriceMinor: (current + night).toString(),
+        differenceMinor: night.toString(),
+      };
+    const unitCode = q.get('unitCode') ?? '';
+    const unit = units.find((u) => u.code === unitCode);
+    const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
+    const nights = BigInt(
+      Math.max(
+        1,
+        Math.round(
+          (Date.parse(`${item.departureDate}T00:00:00Z`) -
+            Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
+            86_400_000,
+        ),
+      ),
+    );
+    const moved = changesCategory ? nights * 1_500_000n : current;
+    return {
+      action: 'move',
+      currentPriceMinor: item.priceMinor,
+      currency: 'KZT',
+      changesCategory,
+      unitCode,
+      categoryName: unit?.accommodationTypeName,
+      newPriceMinor: moved.toString(),
+      differenceMinor: (moved - current).toString(),
+    };
+  }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
     return [guest, ...extraGuests.values()]

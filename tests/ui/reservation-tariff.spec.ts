@@ -51,6 +51,11 @@ test('у брони без тарифа смена дат и «+1 ночь» п�
   const extendTariff = page.getByLabel('Тариф для продления');
   await extendTariff.selectOption('BASE');
   await page.getByTestId('extend-ui-item').click();
+  // Срез 7.3: продление сначала называет цену новой ночи и ждёт подтверждения
+  await page
+    .locator('dialog[open][data-testid="confirm-dialog"]')
+    .getByRole('button', { name: 'Продлить' })
+    .click();
   await expect
     .poll(() => lastCommand(request, `/reservations/${number}/items/ui-item/extend`))
     .toMatchObject({ method: 'POST', body: { nights: 1, ratePlanCode: 'BASE' } });

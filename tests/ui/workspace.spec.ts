@@ -997,3 +997,55 @@ test('цены: правка в ячейке календаря уходит т�
   await expect(said).toContainText('Цена сохранена');
   await expect(said).toContainText('в очередь каналов');
 });
+
+/**
+ * Срез 7.3 (Д5): сумму администратор объявляет гостю ДО действия, а система до сих пор считала её
+ * молча после нажатия. Окно подтверждения обязано назвать число — одно и то же с тем, что появится
+ * на счёте (его даёт предпросмотр `GET …/preview`, считающий теми же функциями, что само действие).
+ */
+test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page }) => {
+  await page.goto('/reservations/20260913-TEST1');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await page.getByTestId(/^no-show-/).first().click();
+  const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(dialog).toContainText('Отметить незаезд');
+  await expect(dialog).toContainText('штраф');
+  await expect(dialog).toContainText('₸');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(dialog).toHaveCount(0);
+});
+
+test('«+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/reservations/20260913-TEST1');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await page.getByTestId(/^extend-/).first().click();
+  const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(dialog).toContainText('Новая ночь');
+  await expect(dialog).toContainText('₸');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.filter((c: { path: string }) => c.path.includes('/extend'))).toEqual([]);
+
+  await page.getByTestId(/^extend-/).first().click();
+  await dialog.getByRole('button', { name: 'Продлить' }).click();
+  await expect
+    .poll(async () =>
+      (await (await request.get(`${fixture}/__test/commands`)).json()).filter(
+        (c: { path: string }) => c.path.includes('/extend'),
+      ).length,
+    )
+    .toBe(1);
+});
+
+test('отмена брони: окно называет, что сторнируется и будет ли штраф', async ({ page }) => {
+  await page.goto('/reservations/20260913-TEST1');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await page.getByTestId('cancel-reservation').click();
+  const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(dialog).toContainText('Начисление');
+  await expect(dialog).toContainText('сторнируется');
+  await expect(dialog).toContainText('₸');
+});

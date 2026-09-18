@@ -47,7 +47,12 @@ test('в неделе работают бронь, категории и соз�
   await group.click();
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   const sunday = await page.getByTestId('date-col').last().getAttribute('data-date');
-  await page.locator('[data-unit-code="R03"] [data-testid="free-cell"]').last().click();
+  // Брони фикстуры ставятся от «сегодня» (заезд сегодня, три ночи), и с четверга воскресенье у
+  // R01–R03 занято — тест падал по дню недели. Берём первую комнату, у которой воскресенье свободно.
+  const sundayFree = page.locator(`td[data-date="${sunday}"] [data-testid="free-cell"]`);
+  const row = page.getByTestId('unit-row').filter({ has: sundayFree }).first();
+  const unitCode = await row.getAttribute('data-unit-code');
+  await row.locator(`td[data-date="${sunday}"] [data-testid="free-cell"]`).click();
   const form = page.getByTestId('new-reservation-form');
   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(sunday!);
   const monday = new Date(`${sunday}T00:00:00Z`);
@@ -55,7 +60,7 @@ test('в неделе работают бронь, категории и соз�
   await expect(form.locator('[name="departureDate"]')).toHaveValue(
     monday.toISOString().slice(0, 10),
   );
-  await expect(form.locator('[name="unitCode"]')).toHaveValue('R03');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(unitCode!);
 });
 
 for (const theme of ['light', 'dark'] as const) {

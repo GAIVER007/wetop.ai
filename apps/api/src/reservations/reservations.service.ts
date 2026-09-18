@@ -89,6 +89,29 @@ export interface AssignUnitDto {
   ratePlanCode?: string;
 }
 
+/**
+ * Ответ предпросмотра действия (срез 7.3, Д5). Деньги — строки тиынов (ADR-008). Поля зависят от
+ * действия: у переселения и продления — цена после и разница, у отмены и незаезда — штраф и политика.
+ */
+export interface ActionPreview {
+  action: 'move' | 'extend' | 'cancel' | 'no_show';
+  currentPriceMinor: string;
+  currency: string;
+  newPriceMinor?: string;
+  differenceMinor?: string;
+  /** переселение: меняется ли категория — только тогда цена пересчитывается */
+  changesCategory?: boolean;
+  unitCode?: string;
+  categoryName?: string;
+  /** продление: сколько ночей и какой выезд получится */
+  nights?: number;
+  departureDate?: string;
+  /** отмена и незаезд: штраф по политике тарифа и сколько сторнируется */
+  penaltyMinor?: string;
+  policy?: string;
+  voidedMinor?: string;
+}
+
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const isIso = (s: unknown): s is string =>
   typeof s === 'string' && ISO.test(s) && !Number.isNaN(Date.parse(s));
@@ -496,6 +519,131 @@ export class ReservationsService {
   }
 
   /**
+   * Срез 7.3 (Д5): сколько будет стоить действие — до того, как его сделали. Только чтение: ни
+   * начислений, ни журнала, ни очереди каналов. Считается теми же функциями, что и само действие
+   * (`priceStay` по календарю тарифа, `penaltyPreview` по политике тарифа), поэтому число в окне
+   * подтверждения равно тому, что появится на счёте.
+   *
+   * Осуществимость (занята ли ячейка, не закрыты ли продажи) здесь не проверяется — на это ответит
+   * сама команда своим отказом; предпросмотр отвечает только на вопрос «сколько».
+   */
+  async preview(
+    number: string,
+    itemId: string,
+    q: { action?: string; unitCode?: string; nights?: string | number; ratePlanCode?: string },
+  ): Promise<ActionPreview> {
+    const action = q.action ?? '';
+    if (!['move', 'extend', 'cancel', 'no_show'].includes(action))
+      throw new BadRequestException('action: move | extend | cancel | no_show');
+    return this.uow.read(async (repo) => {
+      const state = await this.load(repo, number);
+      const item = state.items.find((i) => i.id === itemId);
+      if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+      const base = {
+        action: action as ActionPreview['action'],
+        currentPriceMinor: item.priceMinor.toString(),
+        currency: state.currency,
+      };
+      const occupancy = Math.max(1, item.adults || item.guestsCount);
+
+      if (action === 'cancel' || action === 'no_show') {
+        const penalty = await this.penaltyPreview(
+          repo,
+          item,
+          action === 'no_show' ? 'незаезд' : 'отмену брони',
+        );
+        return {
+          ...base,
+          penaltyMinor: penalty.toString(),
+          policy: item.cancellationPenalty,
+          // Начисление за проживание сторнируется целиком, вместо него встаёт штраф (Q-103)
+          voidedMinor: item.priceMinor.toString(),
+        };
+      }
+
+      if (action === 'extend') {
+        const nights = q.nights === undefined ? 1 : Number(q.nights);
+        if (!Number.isInteger(nights) || nights < 1 || nights > 30)
+          throw new BadRequestException('nights — целое от 1 до 30');
+        const departureDate = addDays(item.departureDate, nights);
+        const planId = q.ratePlanCode
+          ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
+          : item.ratePlanId;
+        if (!planId)
+          throw new BadRequestException(
+            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+          );
+        // Как и само продление: считаются только добавленные ночи, проданные не переоцениваются
+        const rates = await repo.nightRates(
+          item.accommodationTypeId,
+          planId,
+          item.departureDate,
+          departureDate,
+        );
+        const added = priceStay({
+          arrivalDate: item.departureDate,
+          departureDate,
+          occupancy,
+          rates,
+        });
+        return {
+          ...base,
+          newPriceMinor: (item.priceMinor + added.totalMinor).toString(),
+          differenceMinor: added.totalMinor.toString(),
+          nights,
+          departureDate,
+        };
+      }
+
+      if (!q.unitCode) throw new BadRequestException('unitCode обязателен для action=move');
+      const unit = await repo.unitByCode(q.unitCode);
+      if (!unit || !unit.active)
+        throw new UnprocessableEntityException(`Ячейка ${q.unitCode} не найдена или неактивна`);
+      const changesCategory = unit.accommodationTypeId !== item.accommodationTypeId;
+      if (!changesCategory)
+        return {
+          ...base,
+          changesCategory: false,
+          newPriceMinor: item.priceMinor.toString(),
+          differenceMinor: '0',
+          unitCode: unit.code,
+        };
+      const target = await repo.categoryById(unit.accommodationTypeId);
+      if (!target || !target.active)
+        throw new UnprocessableEntityException(`Категория ячейки ${q.unitCode} неактивна`);
+      const planId = q.ratePlanCode
+        ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
+        : item.ratePlanId;
+      if (!planId)
+        throw new BadRequestException(
+          'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+        );
+      if (!(await repo.ratePlanCoversType(planId, target.id)))
+        throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
+      const rates = await repo.nightRates(
+        target.id,
+        planId,
+        item.arrivalDate,
+        item.departureDate,
+      );
+      const price = priceStay({
+        arrivalDate: item.arrivalDate,
+        departureDate: item.departureDate,
+        occupancy,
+        rates,
+      });
+      return {
+        ...base,
+        changesCategory: true,
+        unitCode: unit.code,
+        categoryName: target.name,
+        newPriceMinor: price.totalMinor.toString(),
+        differenceMinor: (price.totalMinor - item.priceMinor).toString(),
+      };
+    });
+  }
+
+  /**
    * T2 «Быстрое продление след дня»: одна кнопка добавляет ночи к проживанию.
    * Дата выезда сдвигается, цена пересчитывается по календарю тарифа проживания, назначение продлевается.
    * Ячейка на новые ночи занята — база не даст пересечение, администратор увидит 409 и переселит.
@@ -844,7 +992,26 @@ export class ReservationsService {
     item: ItemState,
     reason: 'отмену брони' | 'незаезд',
   ): Promise<void> {
-    if (item.cancellationPenalty === 'NONE' || item.priceMinor <= 0n) return;
+    const amount = await this.penaltyPreview(repo, item, reason);
+    if (amount > 0n)
+      await repo.addPenaltyCharge(
+        item.id,
+        amount,
+        `Штраф за ${reason} (${item.arrivalDate} → ${item.departureDate})`,
+      );
+  }
+
+  /**
+   * Сколько штрафа начислит отмена или незаезд прямо сейчас. Чтение: ничего не пишет. Тем же
+   * методом пользуется и сам штраф, и предпросмотр в окне подтверждения (срез 7.3, Д5) — иначе
+   * число в окне и число на счёте разошлись бы при первой же правке правила.
+   */
+  private async penaltyPreview(
+    repo: ReservationsRepository,
+    item: ItemState,
+    reason: 'отмену брони' | 'незаезд',
+  ): Promise<bigint> {
+    if (item.cancellationPenalty === 'NONE' || item.priceMinor <= 0n) return 0n;
     // Штраф появляется только в день заезда и позже; отмена заранее бесплатна на всех каналах (Q-103)
     if (
       !penaltyDue({
@@ -853,7 +1020,7 @@ export class ReservationsService {
         reason: reason === 'незаезд' ? 'no_show' : 'cancel',
       })
     )
-      return;
+      return 0n;
     const nights = Math.round(
       (Date.parse(`${item.departureDate}T00:00:00Z`) -
         Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
@@ -872,17 +1039,11 @@ export class ReservationsService {
         rates.find((r) => r.date === item.arrivalDate && r.occupancy === occupancy)?.priceMinor ??
         null;
     }
-    const amount = penaltyAmount(item.cancellationPenalty, {
+    return penaltyAmount(item.cancellationPenalty, {
       totalMinor: item.priceMinor,
       nights,
       firstNightMinor,
     });
-    if (amount > 0n)
-      await repo.addPenaltyCharge(
-        item.id,
-        amount,
-        `Штраф за ${reason} (${item.arrivalDate} → ${item.departureDate})`,
-      );
   }
 
   /** Сегодня по часам объекта (Asia/Almaty, UTC+5). */

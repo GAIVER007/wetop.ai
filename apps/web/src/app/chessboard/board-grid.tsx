@@ -9,7 +9,8 @@ import {
 } from '../../lib/api';
 import { Alert, Badge, Input, Select, cx } from '../../components/ui';
 import { stayLabels } from './stay-labels';
-import { assignUnitAction } from '../reservations/actions';
+import { assignUnitAction, previewAction } from '../reservations/actions';
+import { previewLine } from '../../lib/action-preview';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { Icon } from '../../components/icon';
 import { AmountChip } from '../../components/amount-chip';
@@ -88,7 +89,20 @@ export function ChessboardGrid({
     if (!payload) return;
     const plan = planMove(payload, { unitCode: row.unit.code });
     if (plan.kind === 'noop') return;
-    if (!(await ask({ title: plan.title, body: plan.detail, confirmLabel: 'Переселить' }))) return;
+    // Переселение в другую категорию переоценивает всё проживание — сумму называем до подтверждения
+    // (срез 7.3, Д5): число считает API теми же функциями, что и само переселение.
+    const preview = await previewAction(payload.number, payload.itemId, {
+      action: 'move',
+      unitCode: plan.unitCode,
+    });
+    if (
+      !(await ask({
+        title: plan.title,
+        body: `${plan.detail} ${previewLine(preview)}`,
+        confirmLabel: 'Переселить',
+      }))
+    )
+      return;
     const fd = new FormData();
     fd.set('unitCode', plan.unitCode);
     fd.set('fromDate', plan.fromDate);

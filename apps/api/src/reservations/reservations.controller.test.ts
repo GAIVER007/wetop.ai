@@ -713,6 +713,66 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  /**
+   * Срез 7.3 (Д5): сумму объявляют гостю ДО действия, а до сих пор её считали молча после нажатия.
+   * Предпросмотр — только чтение теми же функциями; главный случай — «сумма в окне = начисление».
+   */
+  it('предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' }))
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    const preview = (q: string) =>
+      request(app.getHttpServer()).get(`/reservations/${n}/items/${itemId}/preview?${q}`);
+
+    // переселение в двойную: 3 ночи по её календарю вместо одиночной
+    const move = await preview('action=move&unitCode=9002').expect(200);
+    expect(move.body).toMatchObject({
+      action: 'move',
+      currentPriceMinor: '3300000',
+      newPriceMinor: '4500000',
+      differenceMinor: '1200000',
+      changesCategory: true,
+    });
+    // та же категория — цена не меняется, и это сказано, а не показано нулём
+    const same = await preview('action=move&unitCode=9001').expect(200);
+    expect(same.body).toMatchObject({ changesCategory: false, differenceMinor: '0' });
+
+    // продление: добавляется только новая ночь
+    const extend = await preview('action=extend&nights=1').expect(200);
+    expect(extend.body).toMatchObject({
+      action: 'extend',
+      currentPriceMinor: '3300000',
+      newPriceMinor: '4400000',
+      differenceMinor: '1100000',
+    });
+
+    // отмена заранее штрафа не даёт — окно скажет это словом, а не нулём без объяснения (Q-103)
+    const cancel = await preview('action=cancel').expect(200);
+    expect(cancel.body).toMatchObject({
+      action: 'cancel',
+      policy: 'FIRST_NIGHT',
+      penaltyMinor: '0',
+    });
+
+    // незаезд штраф даёт всегда: место простояло. Сумма — первая ночь по календарю
+    const noShow = await preview('action=no_show').expect(200);
+    expect(noShow.body).toMatchObject({ action: 'no_show', penaltyMinor: '1100000' });
+
+    // предпросмотр ничего не записал: ни штрафа, ни цены
+    expect(fake.penalties).toEqual([]);
+    expect(fake.state.reservations.get(n)!.items[0]!.priceMinor).toBe(3_300_000n);
+
+    // главное требование Д5: то же число, что начислит настоящий незаезд
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/no-show`)
+      .send({})
+      .expect(200);
+    expect(fake.penalties.map((x) => x.amountMinor.toString())).toEqual([noShow.body.penaltyMinor]);
+  });
+
   it('T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')

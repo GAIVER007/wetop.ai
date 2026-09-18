@@ -8,14 +8,20 @@
 # Скрипт работает на обеих машинах и сам понимает, где он (принудительно — ARI_MODE=launchd|docker):
 #
 #   launchd (Mac владельца). CHANNEX_ARI=off задаётся задачам пользователя (`launchctl setenv`), API
-#   перезапускается (`kickstart -k`) и проверяется, что запущенный процесс действительно видит выключатель.
-#   ВНИМАНИЕ: `launchctl setenv` не переживает перезагрузку машины — после перезагрузки ARI снова включён.
+#   перезапускается (`kickstart -k`) и проверяется, что запущенный процесс действительно видит выключатель
+#   (`ps eww`). ВНИМАНИЕ: `launchctl setenv` не переживает перезагрузку машины — после перезагрузки ARI снова включён.
 #
 #   docker (сервер, plans/server-kz-2026-09-17.md). Выключатель кладётся файлом `deploy/ari.env`, который
-#   compose читает как необязательный env_file, и контейнер API пересоздаётся. Это **переживает перезагрузку**:
-#   файл на месте — ARI выключен, файла нет — включён.
+#   compose читает необязательным `env_file`, и контейнер API пересоздаётся. Это **переживает перезагрузку**:
+#   файл на месте — ARI выключен, файла нет — включён. Портов наружу у compose нет, поэтому всё общение с API
+#   идёт изнутри контейнера (`compose exec api node -e fetch(...)`), а выключатель спрашивается у САМОГО API —
+#   поле `ariStopped` в сводке очереди: «задано в файле» ещё не значит «процесс это видит» (урок 15.09.2026,
+#   рапорт без проверки). Механика ветки Docker слита 18.09.2026 из scripts/ops/ari-server.sh параллельной сессии.
 #
 # При полном откате сначала отключаются каналы в Channex (шаг 2), тогда включившийся ARI до OTA не доходит.
+#
+# Переменные для тестов и нестандартных стендов: COMPOSE — команда compose целиком (умолчание
+# `docker compose -f <COMPOSE_FILE>`), ARI_ENV_FILE — файл выключателя, API_URL, API_LABEL, API_PORT.
 set -u
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 LABEL="${API_LABEL:-kz.luxx.pms.api}"
@@ -23,10 +29,12 @@ API_URL="${API_URL:-http://127.0.0.1:3001}"
 API_PORT="${API_PORT:-3001}"
 DOMAIN="gui/$(id -u)"
 COMPOSE_FILE="${COMPOSE_FILE:-$REPO/deploy/compose.yml}"
-ARI_ENV="$(dirname "$COMPOSE_FILE")/ari.env"
+COMPOSE="${COMPOSE:-docker compose -f $COMPOSE_FILE}"
+ARI_ENV="${ARI_ENV_FILE:-$(dirname "$COMPOSE_FILE")/ari.env}"
 
 say() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*"; }
-dc() { docker compose -f "$COMPOSE_FILE" "$@"; }
+# shellcheck disable=SC2086  # COMPOSE — команда со своими аргументами, разбиение по словам намеренное
+dc() { $COMPOSE "$@"; }
 
 # Где живёт API. Задача launchd важнее: на Mac разработчика может стоять и docker, но боевой API держит launchd.
 mode() {
@@ -43,6 +51,12 @@ mode() {
 }
 MODE="$(mode)"
 
+# Изнутри контейнера api: тело ответа API по адресу $1 (портов наружу нет). Пусто — нет ответа.
+in_api() {
+  dc exec -T api node -e \
+    "fetch('$API_URL$1',{method:'${2:-GET}'}).then(r=>r.text()).then(t=>process.stdout.write(t)).catch(()=>process.exit(1))" 2>/dev/null
+}
+
 # Значение CHANNEX_ARI в процессе, который на самом деле обслуживает запросы. Не в настройках и не в файле:
 # plist и env_file могут говорить одно, а живой процесс работать с другим — ради этого проверка и заведена.
 running_switch() {
@@ -55,9 +69,13 @@ running_switch() {
       echo "${v:-не задана}"
       ;;
     docker)
-      local v
-      v=$(dc exec -T api printenv CHANNEX_ARI 2>/dev/null | tr -d '\r\n')
-      echo "${v:-не задана}"
+      local body
+      body=$(in_api /channels/channex/outbox) || { echo "НЕТ ОТВЕТА"; return 1; }
+      case "$body" in
+        *'"ariStopped":true'*) echo off ;;
+        *'"ariStopped":false'*) echo on ;;
+        *) echo "НЕПОНЯТНЫЙ ОТВЕТ"; return 1 ;;
+      esac
       ;;
     *)
       echo "не знаю, где запущен API"
@@ -67,12 +85,22 @@ running_switch() {
 }
 
 wait_api() {
-  # Живость меряем /health: он публичный и трогает базу, поэтому отвечает и с включённым AUTH_REQUIRED=1,
-  # и честно молчит, когда соединения пула мертвы.
-  for _ in $(seq 1 45); do
-    [ "$(curl -s -m 5 -o /dev/null -w '%{http_code}' "$API_URL/health")" = "200" ] && return 0
-    sleep 2
-  done
+  case "$MODE" in
+    launchd)
+      # Живость меряем /health: он публичный и трогает базу, поэтому отвечает и с включённым AUTH_REQUIRED=1
+      for _ in $(seq 1 45); do
+        [ "$(curl -s -m 5 -o /dev/null -w '%{http_code}' "$API_URL/health")" = "200" ] && return 0
+        sleep 2
+      done
+      ;;
+    docker)
+      # Портов наружу нет — ждём, пока API изнутри контейнера ответит сводкой очереди
+      for _ in $(seq 1 45); do
+        running_switch >/dev/null 2>&1 && return 0
+        sleep 2
+      done
+      ;;
+  esac
   return 1
 }
 
@@ -88,7 +116,7 @@ restart_api() {
       ;;
     docker)
       dc up -d --force-recreate api || { say "не удалось пересоздать контейнер api"; return 1; }
-      wait_api || { say "API не поднялся за 90 с — смотреть: docker compose -f $COMPOSE_FILE logs api"; return 1; }
+      wait_api || { say "API не поднялся за 90 с — смотреть: $COMPOSE logs --tail=50 api"; return 1; }
       ;;
     *)
       say "не знаю, где запущен API: нет ни задачи launchd $LABEL, ни $COMPOSE_FILE"
@@ -100,7 +128,7 @@ restart_api() {
 set_switch_off() {
   case "$MODE" in
     launchd) launchctl setenv CHANNEX_ARI off ;;
-    docker) printf 'CHANNEX_ARI=off\n' > "$ARI_ENV" ;;
+    docker) mkdir -p "$(dirname "$ARI_ENV")"; printf 'CHANNEX_ARI=off\n' > "$ARI_ENV" ;;
   esac
 }
 
@@ -115,13 +143,25 @@ stored_switch() {
   case "$MODE" in
     launchd) echo "launchd: CHANNEX_ARI=$(launchctl getenv CHANNEX_ARI 2>/dev/null || true)" ;;
     docker)
-      if [ -f "$ARI_ENV" ]; then echo "файл $ARI_ENV: $(cat "$ARI_ENV")"; else echo "файла $ARI_ENV нет — ARI включён"; fi
+      if [ -s "$ARI_ENV" ]; then echo "файл $ARI_ENV: $(cat "$ARI_ENV")"; else echo "файла $ARI_ENV нет — ARI включён"; fi
       ;;
     *) echo "машина неизвестна" ;;
   esac
 }
 
-queue() { curl -s -m 20 "$API_URL/channels/channex/outbox"; }
+queue() {
+  case "$MODE" in
+    docker) in_api /channels/channex/outbox || echo "нет ответа" ;;
+    *) curl -s -m 20 "$API_URL/channels/channex/outbox" ;;
+  esac
+}
+
+flush() {
+  case "$MODE" in
+    docker) in_api /channels/channex/outbox/flush POST || echo "нет ответа" ;;
+    *) curl -s -m 60 -X POST "$API_URL/channels/channex/outbox/flush" ;;
+  esac
+}
 
 case "${1:-status}" in
   stop)
@@ -146,8 +186,8 @@ case "${1:-status}" in
       say "ОШИБКА: API всё ещё видит CHANNEX_ARI=off — проверить .env и настройки задачи"
       exit 1
     fi
-    say "исходящий ARI включён, отправляю накопленное: $(curl -s -m 60 -X POST "$API_URL/channels/channex/outbox/flush")"
-    say "после полного отката перед возвратом каналов сделать полную выгрузку: curl -s -X POST '$API_URL/channels/channex/sync'"
+    say "исходящий ARI включён, отправляю накопленное: $(flush)"
+    say "после полного отката перед возвратом каналов сделать полную выгрузку: POST $API_URL/channels/channex/sync"
     ;;
   status)
     echo "машина: $MODE"

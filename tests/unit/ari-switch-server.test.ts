@@ -4,10 +4,12 @@
  * Выключатель исходящего ARI был написан только под Mac: `launchctl setenv`, `kickstart`, `lsof`, `ps eww`.
  * На сервере ничего этого нет, то есть первый шаг полного отката там просто не выполнялся бы — а откат
  * входит в условие допуска №3. Здесь проверяется ветка для Docker: настоящие контейнеры не трогаются,
- * `docker` и `curl` подставные.
+ * `docker` подставной.
  *
- * Побочный выигрыш ветки Docker: состояние выключателя лежит файлом рядом с compose и **переживает
- * перезагрузку**, тогда как `launchctl setenv` на Mac её не переживает (предупреждение в шапке скрипта).
+ * Механика ветки Docker (18.09.2026, слито из ari-server.sh параллельной сессии): портов наружу у compose
+ * нет, поэтому API спрашивается изнутри контейнера, и выключатель подтверждается ответом САМОГО API —
+ * полем `ariStopped` в сводке очереди, а не тем, что записано в файл. Побочный выигрыш: состояние лежит
+ * файлом рядом с compose и **переживает перезагрузку**, тогда как `launchctl setenv` на Mac её не переживает.
  */
 import { spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -18,8 +20,8 @@ import { describe, expect, it } from 'vitest';
 const ARI = resolve(import.meta.dirname, '../../scripts/ops/ari.sh');
 
 interface Case {
-  /** Что печатает `printenv CHANNEX_ARI` внутри контейнера после перезапуска. */
-  containerSwitch?: string;
+  /** Что API отвечает про выключатель после перезапуска: `off`, `on`; не задано — по файлу, как настоящий env_file. */
+  containerSwitch?: 'off' | 'on';
   /** Есть ли файл выключателя до запуска команды. */
   stopped?: boolean;
 }
@@ -49,28 +51,22 @@ function run(args: string[], opts: Case = {}): Run {
     writeFileSync(file, `#!/bin/bash\n${body}\n`);
     chmodSync(file, 0o755);
   };
-  // printenv внутри контейнера отвечает тем, что лежит в файле выключателя, — как настоящий env_file
+  // Подставной docker: `compose … up` — ок; `compose … exec -T api node -e …` — сводка очереди, где
+  // ariStopped отвечает тому, что лежит в файле выключателя (как настоящий env_file), либо тому,
+  // что задано в случае — так проверяется «файл записан, а процесс не увидел»
+  const stopped =
+    opts.containerSwitch === undefined
+      ? `$([ -s "${ariEnv}" ] && grep -q off "${ariEnv}" && echo true || echo false)`
+      : opts.containerSwitch === 'off'
+        ? 'true'
+        : 'false';
   script(
     'docker',
     `echo "$*" >> "${calls}"
-if [ "$*" = "${'${*}'}" ]; then :; fi
 case "$*" in
-  *"printenv CHANNEX_ARI"*)
-    ${
-      opts.containerSwitch === undefined
-        ? `if [ -f "${ariEnv}" ]; then echo off; else exit 1; fi`
-        : `echo '${opts.containerSwitch}'`
-    } ;;
+  *" exec "*) printf '{"pending":0,"sent":0,"ariStopped":%s}' "${stopped}" ;;
 esac
 exit 0`,
-  );
-  // Живость: скрипт спрашивает /health и ждёт ровно «200». Очередь отвечает телом.
-  script(
-    'curl',
-    `case "$*" in
-  */health*) printf '200' ;;
-  *) echo '{"pending":0,"sent":0}' ;;
-esac`,
   );
   const res = spawnSync('bash', [ARI, ...args], {
     encoding: 'utf8',
@@ -90,27 +86,30 @@ esac`,
 }
 
 describe('ari.sh на сервере (Docker)', () => {
-  it('stop кладёт выключатель файлом и пересоздаёт контейнер API', () => {
+  it('stop кладёт выключатель файлом, пересоздаёт контейнер API и подтверждает ответом самого API', () => {
     const r = run(['stop']);
-    expect(r.code).toBe(0);
+    expect(r.code, r.out).toBe(0);
     expect(r.envFile).toContain('CHANNEX_ARI=off');
     expect(r.docker).toMatch(/up -d --force-recreate api/);
+    expect(r.docker).toMatch(/exec -T api node -e/);
+    expect(r.out).toContain('исходящий ARI остановлен');
   });
 
-  it('start убирает файл и пересоздаёт контейнер', () => {
-    const r = run(['start'], { stopped: true, containerSwitch: '' });
-    expect(r.code).toBe(0);
+  it('start убирает файл, пересоздаёт контейнер и проверяет, что API выключателя больше не видит', () => {
+    const r = run(['start'], { stopped: true, containerSwitch: 'on' });
+    expect(r.code, r.out).toBe(0);
     expect(r.envFile).toBeNull();
     expect(r.docker).toMatch(/up -d --force-recreate api/);
+    expect(r.out).toContain('исходящий ARI включён');
   });
 
-  it('stop не рапортует успех, если контейнер выключателя не увидел', () => {
+  it('файл записан, а процесс выключателя не увидел — это ОШИБКА, а не успех', () => {
     const r = run(['stop'], { containerSwitch: 'on' });
     expect(r.code).not.toBe(0);
     expect(r.out).toMatch(/ARI НЕ остановлен/);
   });
 
-  it('start не рапортует успех, если контейнер всё ещё видит off', () => {
+  it('start не рапортует успех, если API всё ещё видит off', () => {
     const r = run(['start'], { stopped: true, containerSwitch: 'off' });
     expect(r.code).not.toBe(0);
   });
@@ -118,6 +117,14 @@ describe('ari.sh на сервере (Docker)', () => {
   it('status показывает и файл, и то, что видит запущенный API', () => {
     const r = run(['status'], { stopped: true });
     expect(r.code).toBe(0);
-    expect(r.out).toMatch(/остановлен|off/i);
+    expect(r.out).toContain('машина: docker');
+    expect(r.out).toContain('CHANNEX_ARI=off');
+    expect(r.out).toMatch(/API сейчас: CHANNEX_ARI=off/);
+  });
+
+  it('с хоста к API не ходит: портов наружу нет, всё через compose exec', () => {
+    const r = run(['status'], { stopped: false });
+    expect(r.code).toBe(0);
+    expect(r.docker.match(/ exec /g)?.length).toBeGreaterThanOrEqual(2);
   });
 });

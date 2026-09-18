@@ -28,6 +28,7 @@ import {
   type OutboxStatus,
 } from './channels.repository';
 import { Public } from '../auth/public.decorator';
+import { isAriStopped } from './ari-switch';
 import { outboxRowSummary } from './outbox-rows';
 import { revisionFacts } from './revision-facts';
 
@@ -251,8 +252,11 @@ export class ChannelsController {
 
   /** Очередь исходящих изменений ARI: сколько ждёт, сколько ушло, последняя задача Channex. */
   @Get('outbox')
-  outboxStatus() {
-    return this.repo.outboxSummary(PROVIDER);
+  async outboxStatus() {
+    // Выключатель ARI спрашивается у самого запущенного процесса: на сервере переменную задаёт
+    // compose, и «задано в файле» ещё не значит «процесс это видит» (урок 15.09 — рапорт без
+    // проверки). scripts/ops/ari-server.sh читает именно это поле.
+    return { ...(await this.repo.outboxSummary(PROVIDER)), ariStopped: isAriStopped() };
   }
 
   /** Отправить накопившееся сейчас (без ожидания фонового цикла). */

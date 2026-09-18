@@ -1,18 +1,26 @@
-# PMS на сервере в Казахстане (plans/server-kz-2026-09-17.md). Заменяет launchd с Mac владельца:
-# те же четыре службы, что держал launchd, только под Docker — так же, как сторож на Hostinger
+# PMS на сервере в Казахстане (plans/server-kz-2026-09-17.md, plans/server-kz-2026-09-18.md). Заменяет launchd с
+# Mac владельца: те же четыре службы, что держал launchd, только под Docker — как сторож на Hostinger
 # (scripts/ops/watch/compose.yml).
 #
 #   api         — NestJS, 3001. Наружу не публикуется: до него ходит только туннель и стойка.
 #   web         — стойка Next на `next start`, 3000. Тоже только через туннель.
 #   cloudflared — именованный туннель: app.wetop.ai и api.wetop.ai. Адреса при переезде не меняются,
 #                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
-#   exely-sync  — синхронизация с Exely раз в 5 минут (ADR-032).
+#                 Поднимается ПОСЛЕ сверки двух баз, отдельно: up -d cloudflared (план, шаг 4).
+#   exely-sync  — синхронизация с Exely (ADR-032), раз в 5 минут, как задача launchd на Mac
+#                 (scripts/ops/launchd/install.sh: StartInterval 300, владелец 13.09.2026).
 #
-# Секреты — в файле .env в корне клона (../.env отсюда), его вписывает владелец (SECURITY.md §3).
-# В образ они не попадают: .env исключён из контекста сборки (.dockerignore), в контейнер идёт как env_file.
+# Портов наружу НЕ публикуем (expose, не ports): снаружи объект виден только через туннель. Внутри сети
+# compose службы зовут друг друга по имени, поэтому API и стойка слушают здесь 0.0.0.0 — на Mac умолчание
+# прежнее, 127.0.0.1.
+#
+# Секреты — в файле .env в КОРНЕ клона (../.env отсюда), его вписывает владелец (SECURITY.md §3): оттуда же его
+# читают main.ts, cli-check-env.ts и prisma migrate на хосте. Одно место, все читатели. В образ .env не попадает
+# (.dockerignore), в контейнер идёт как env_file.
 # База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
+# Боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15).
 #
-# Запуск:   docker compose -f deploy/compose.yml up -d --build
+# Запуск:   docker compose -f deploy/compose.yml up -d --build api web exely-sync
 # Обновить: git pull && docker compose -f deploy/compose.yml up -d --build
 # Смотреть: docker compose -f deploy/compose.yml ps ; docker compose -f deploy/compose.yml logs -f api
 name: pms-lux
@@ -24,8 +32,7 @@ x-app: &app
   image: pms-lux:latest
   restart: unless-stopped
   env_file:
-    # Один .env на сервере — в корне клона: его же читают main.ts, cli-check-env и prisma на хосте.
-    # Копии в deploy/ нет намеренно: два файла разъезжаются (18.09.2026, замечание параллельной сессии).
+    # Один .env на сервере — в корне клона. Копии в deploy/ нет намеренно: два файла разъезжаются.
     - path: ../.env
       required: true
     # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
@@ -35,22 +42,27 @@ x-app: &app
       required: false
   security_opt: ['no-new-privileges:true']
 
+# environment у служб не наследуется через &app (слияние YAML не глубокое), поэтому у каждой службы свой блок.
+# TZ и NODE_ENV заданы в образе (Dockerfile), здесь только то, что различается.
 services:
   api:
     <<: *app
     command: ['node', '--import', 'tsx', 'apps/api/src/main.ts']
     # На Mac API слушает только 127.0.0.1; в контейнере это «недоступен никому»: у каждой службы своя сеть.
-    # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются (expose, не ports).
+    # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются.
     environment:
       API_HOST: '0.0.0.0'
+      API_PORT: '3001'
     expose: ['3001']
     # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
     # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
-    # а стойка и туннель ждут его здоровья и не поднимаются вовсе.
+    # а стойка и туннель ждут его здоровья и не поднимаются вовсе. Проверка через node: она есть в любом
+    # образе, wget/curl — нет.
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/health']
-      interval: 60s
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
       timeout: 10s
+      retries: 3
       start_period: 60s
 
   web:
@@ -60,20 +72,23 @@ services:
     # напрямую из папки стойки, а не через npm-скрипт.
     working_dir: /app/apps/web
     command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
+    environment:
+      # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама
+      APP_API_URL: http://api:3001
     expose: ['3000']
     depends_on:
       api: { condition: service_healthy }
     healthcheck:
       # /login отвечает и с замком APP_AUTH_REQUIRED=1, и без него; /today с замком уводит на вход
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/login']
-      interval: 60s
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
       timeout: 10s
+      retries: 3
       start_period: 90s
 
   # Ровно одна копия туннеля на весь проект. Две копии одного туннеля друг друга не заменяют:
   # Cloudflare делит запросы между ними, и адрес отвечает через раз (17.09.2026, docs/deploy.md §1).
-  # Перед запуском здесь — снять туннель с Mac и убедиться, что `cloudflared tunnel info wetop`
-  # показывает один коннектор.
+  # Старый туннель гасится со стороны Cloudflare (tunnel delete --force) — deploy/cloudflared.example.yml.
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped

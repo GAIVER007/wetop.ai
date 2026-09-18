@@ -1,17 +1,8 @@
 import 'reflect-metadata';
-import {
-  Controller,
-  Get,
-  Header,
-  Inject,
-  Injectable,
-  Module,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Controller, Get, Header, Inject, Injectable, Module } from '@nestjs/common';
 import { databaseSchemaName } from '@pms/database';
 import type { DataConnection } from '@pms/shared';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
-import { Public } from '../auth/public.decorator';
 import { PrismaService } from './prisma.provider';
 
 function databaseProvider(): DataConnection['database']['provider'] {
@@ -104,69 +95,9 @@ class DataConnectionController {
   }
 }
 
-/**
- * Живость API для проверки снаружи процесса: healthcheck Docker на сервере, `ari.sh` и `status.sh` на Mac.
- *
- * Мерить живость рабочим маршрутом (`/inventory/summary`, как было на Mac) нельзя по двум причинам.
- * С включённым `AUTH_REQUIRED=1` он отвечает 401 без сессии — контейнер API навсегда «нездоров», а
- * стойка и туннель ждут его здоровья (`depends_on: service_healthy`) и не поднимутся. И он ничего не
- * говорит о базе, когда та молчит: 14.09.2026 Mac уснул, соединения пула умерли, API отвечал, но ни один
- * запрос не доходил до базы.
- *
- * Поэтому маршрут свой, публичный и обязательно трогает базу. Наружу он не выходит: туннель пропускает
- * только шесть публичных путей (`SECURITY.md` §11), `/health` среди них нет.
- *
- * Что здоровье даёт, а чего нет. Красный healthcheck Docker контейнер **не перезапускает** — он виден в
- * `docker compose ps` и держит зависимые службы на старте; `restart: unless-stopped` срабатывает только
- * на выход процесса. Мёртвые соединения пула лечит сам пул (ADR-043, `packages/database/src/pool.ts`):
- * ответ базы ждётся не дольше 30 с, потом сокет закрывается, и пул выбрасывает соединение.
- */
-const HEALTH_TIMEOUT_DEFAULT_MS = 5000;
-
-@Injectable()
-export class HealthService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-
-  /**
-   * `SELECT 1` со своим сроком. Срок пула (ADR-043) — 30 с на ответ базы, а healthcheck Docker ждёт 10 с:
-   * без своего срока проверка отваливалась бы по таймауту Docker, не сказав ни слова о причине.
-   */
-  async ping(): Promise<void> {
-    const ms = Number(process.env['HEALTH_TIMEOUT_MS']) || HEALTH_TIMEOUT_DEFAULT_MS;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
-      await Promise.race([
-        this.prisma.db.$queryRaw`SELECT 1`,
-        new Promise((_, reject) => {
-          timer = setTimeout(() => reject(new Error('health timeout')), ms);
-        }),
-      ]);
-    } finally {
-      if (timer) clearTimeout(timer);
-    }
-  }
-}
-
-@Controller()
-class HealthController {
-  constructor(@Inject(HealthService) private readonly service: HealthService) {}
-
-  @Get('health')
-  @Public()
-  @Header('Cache-Control', 'no-store')
-  async health() {
-    try {
-      await this.service.ping();
-    } catch {
-      // Причина не выходит наружу: в тексте ошибки драйвера бывает строка подключения с паролем.
-      throw new ServiceUnavailableException({ status: 'down' });
-    }
-    return { status: 'ok' };
-  }
-}
-
+// Живость API (`GET /health`) живёт в ../health/health.module.ts — слито 18.09.2026 из двух реализаций.
 @Module({
-  controllers: [DataConnectionController, HealthController],
-  providers: [PrismaService, DataConnectionService, HealthService],
+  controllers: [DataConnectionController],
+  providers: [PrismaService, DataConnectionService],
 })
 export class DataConnectionModule {}

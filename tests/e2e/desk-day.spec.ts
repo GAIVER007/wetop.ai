@@ -30,15 +30,19 @@ test('главная открывается с корня; заезд на да�
     'aria-current',
     'page',
   );
-  await expect(page.getByTestId('kpi-occupancy')).toContainText('%');
-  await expect(page.getByTestId('kpi-revenue')).toContainText('₸');
-  await expect(page.getByTestId('chart-categories')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('kpi-occupancy')).toContainText('%');
+  await expect(page.getByRole('main').getByTestId('kpi-revenue')).toContainText('₸');
+  await expect(page.getByRole('main').getByTestId('chart-categories')).toBeVisible();
   // месяц: столбики по дням, сравнение с прошлым отрезком
   await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
-  await expect(page.getByTestId('chart-daily')).toBeVisible();
-  await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
+  await expect(page.getByRole('main').getByTestId('chart-daily')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('kpi-compare')).toContainText(
+    'Сравнение с предыдущим периодом',
+  );
 
-  const card = async (id: string) => Number(await page.getByTestId(id).innerText());
+  // при переходе Next держит уходящую страницу в DOM — считаем плитку внутри main, а не по всей странице
+  const card = async (id: string) =>
+    Number(await page.getByRole('main').getByTestId(id).innerText());
 
   // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
   // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.
@@ -66,17 +70,15 @@ test('главная открывается с корня; заезд на да�
   // бронь без ячейки — стойка должна видеть причину
   await expect(tasks.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
   // полоса стойки — на выбранную дату, и период тот же день
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText(
-    'На стойке',
-  );
-  await expect(page.getByLabel('Период: с')).toHaveValue(day);
+  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('На стойке');
+  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
   // на дату из прошлого показатели тоже строятся
   await page.goto('/today?date=2026-08-15');
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  await expect(page.getByLabel('Период: с')).toHaveValue('2026-08-15');
-  await expect(page.getByTestId('period-caption')).toContainText('15 августа');
+  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue('2026-08-15');
+  await expect(page.getByRole('main').getByTestId('period-caption')).toContainText('15 августа');
   expect(Number.isInteger(await card('c-arrivals'))).toBe(true);
 });

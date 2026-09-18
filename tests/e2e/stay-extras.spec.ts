@@ -21,7 +21,10 @@ const plus = (n: number) => {
 };
 const money = (s: string) => Number(s.replace(/[^\d,]/g, '').replace(',', '.'));
 
-test('поздний выезд и ранний заезд начисляются на счёт как половина ночи', async ({ page, request }) => {
+test('поздний выезд и ранний заезд начисляются на счёт как половина ночи', async ({
+  page,
+  request,
+}) => {
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(12)}&departure=${plus(14)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
@@ -38,41 +41,53 @@ test('поздний выезд и ранний заезд начисляютс�
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
   // цена двух ночей — из строки проживания; половина ночи = цена / 2 / 2
-  const price = money(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  const price = money(
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+  );
   const half = Math.floor(price / 2 / 2);
 
   // диалог спрашивает время: 19:00 → вся ночь по правилу объекта из Exely
   page.once('dialog', (d) => void d.accept('19:00'));
   await cardTab(page, 'Счета');
-  await page.locator('[data-testid^="late-check-out-"]').click();
-  const late = page.getByTestId('charge-row').filter({ hasText: 'Поздний выезд' });
+  await page.getByRole('main').locator('[data-testid^="late-check-out-"]').click();
+  const late = page
+    .getByRole('main')
+    .getByTestId('charge-row')
+    .filter({ hasText: 'Поздний выезд' });
   await expect(late).toHaveCount(1);
   expect(money(await late.locator('td').nth(3).innerText())).toBe(half * 2);
   // услуга датирована днём выезда
   await expect(late).toContainText(plus(14));
 
   page.once('dialog', (d) => void d.accept('07:00')); // 06:00–11:59 → половина ночи
-  await page.locator('[data-testid^="early-check-in-"]').click();
-  const early = page.getByTestId('charge-row').filter({ hasText: 'Ранний заезд' });
+  await page.getByRole('main').locator('[data-testid^="early-check-in-"]').click();
+  const early = page
+    .getByRole('main')
+    .getByTestId('charge-row')
+    .filter({ hasText: 'Ранний заезд' });
   await expect(early).toHaveCount(1);
   await expect(early).toContainText(plus(12));
 
   // баланс вырос на целую ночь (выезд в 19:00) и половину (заезд в 07:00)
-  expect(money(await page.getByTestId('folio-balance').innerText())).toBe(price + 3 * half);
+  expect(money(await page.getByRole('main').getByTestId('folio-balance').innerText())).toBe(
+    price + 3 * half,
+  );
 
   // соседние ночи на этой койке заблокированы, как «выделять доступность» в Exely
   const number = page.url().split('/').pop()!;
   await page.goto(`/chessboard?from=${plus(11)}&to=${plus(14)}`);
-  const unitRow = page.locator(`[data-testid="unit-row"][data-unit-code="${unit}"]`);
+  const unitRow = page
+    .getByRole('main')
+    .locator(`[data-testid="unit-row"][data-unit-code="${unit}"]`);
   await expect(unitRow.locator(`td[data-date="${plus(11)}"][data-state="BLOCKED"]`)).toHaveCount(1);
   await expect(unitRow.locator(`td[data-date="${plus(14)}"][data-state="BLOCKED"]`)).toHaveCount(1);
   await page.goto(`/reservations/${number}`);
 
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
   await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся
   await page.goto(`/chessboard?from=${plus(11)}&to=${plus(14)}`);
   await expect(unitRow.locator('td[data-state="BLOCKED"]')).toHaveCount(0);

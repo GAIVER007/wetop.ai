@@ -40,19 +40,19 @@ test('отмена заранее — без штрафа, незаезд — с
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
-  const panel = page.getByTestId('folio-panel');
+  const panel = page.getByRole('main').getByTestId('folio-panel');
   const stayTotal = minor(
-    await page.getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
   const balance = async () => {
     await cardTab(page, 'Счета');
-    return minor(await page.getByTestId('folio-balance').innerText());
+    return minor(await page.getByRole('main').getByTestId('folio-balance').innerText());
   };
   expect(await balance()).toBe(stayTotal);
 
   // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
   await confirmCancelReservation(page);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
@@ -79,13 +79,16 @@ test('отмена заранее — без штрафа, незаезд — с
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
-  const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  const stay2 = minor(
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+  );
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="no-show-"]').click();
+  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
   await confirmAction(page, 'Отметить незаезд');
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page
+    .getByRole('main')
     .getByTestId('folio-panel')
     .getByTestId('charge-row')
     .filter({ hasText: 'Штраф за незаезд' });

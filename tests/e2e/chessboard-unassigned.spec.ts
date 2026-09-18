@@ -56,7 +56,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
 
   // ── шахматка: блок над сеткой ─────────────────────────────────────────────────────────────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  const block = page.getByTestId('unassigned-stays');
+  const block = page.getByRole('main').getByTestId('unassigned-stays');
   await expect(block).toBeVisible();
   const count = Number(await block.getAttribute('data-count'));
   expect(count).toBeGreaterThanOrEqual(1);
@@ -96,12 +96,12 @@ test('бронь без ячейки видна в блоке «Без ячей�
 
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
   await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   await expect(
-    page.getByTestId('unassigned-stays').locator(`[data-number="${number}"]`),
+    page.getByRole('main').getByTestId('unassigned-stays').locator(`[data-number="${number}"]`),
   ).toHaveCount(0);
 });

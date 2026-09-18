@@ -88,10 +88,12 @@ test('виджет: цены на завтра, бронь одноместно�
   // номер брони есть и в заголовке, и во вкладке «История» (PR #2) — проверяем заголовок карточки
   await expect(page.getByRole('heading', { name: `Бронь ${number}` })).toBeVisible();
   await expect(page.getByText('сайт', { exact: false }).first()).toBeVisible();
-  await expect(page.getByTestId('reservation-notes')).toContainText(
+  await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
     'E2E-АВТОТЕСТ: бронь из виджета',
   );
-  await expect(page.getByTestId('reservation-notes')).toContainText('Бронь с сайта');
+  await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
+    'Бронь с сайта',
+  );
   await page.screenshot({ path: 'reports/screenshots/web-booking-card.png', fullPage: true });
 });
 
@@ -112,10 +114,10 @@ test('аналитика: бронь связана с сессией счётч
     )
     .toBe(1);
   await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
-  await expect(page.getByTestId('an-bookings')).toHaveText('1');
-  await expect(page.getByTestId('an-source-bookings').first()).toHaveText('1');
+  await expect(page.getByRole('main').getByTestId('an-bookings')).toHaveText('1');
+  await expect(page.getByRole('main').getByTestId('an-source-bookings').first()).toHaveText('1');
   // поиск дат из виджета попал в календарь спроса
   await expect(
-    page.locator(`[data-testid="an-demand-row"][data-arrival="${arrival}"]`),
+    page.getByRole('main').locator(`[data-testid="an-demand-row"][data-arrival="${arrival}"]`),
   ).toHaveCount(1);
 });

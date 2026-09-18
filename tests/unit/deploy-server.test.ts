@@ -93,6 +93,23 @@ describe('deploy/compose.yml', () => {
     }
   });
 
+  it('API и стойка слушают 0.0.0.0 внутри контейнера, иначе соседи по сети compose их не видят', () => {
+    // На Mac обе службы слушают только 127.0.0.1, и в контейнере это означало бы «недоступен никому»:
+    // у каждой службы compose своя сеть, web → api:3001 и cloudflared → web:3000 получили бы отказ.
+    // Найдено 18.09.2026; тест без демона Docker этого не ловил, поэтому правило закреплено здесь.
+    expect(COMPOSE).toMatch(/API_HOST:\s*'0\.0\.0\.0'/);
+    const web = COMPOSE.slice(COMPOSE.indexOf('  web:'), COMPOSE.indexOf('  cloudflared:'));
+    expect(web).toMatch(/--hostname/);
+    expect(web).toMatch(/0\.0\.0\.0/);
+  });
+
+  it('порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose', () => {
+    // expose — соседям по сети; ports — на хост и в интернет. Наружу ходит только туннель.
+    expect(COMPOSE).not.toMatch(/^\s+ports:/m);
+    expect(COMPOSE).toMatch(/expose: \['3001'\]/);
+    expect(COMPOSE).toMatch(/expose: \['3000'\]/);
+  });
+
   it('у синхронизации пул в одно соединение', () => {
     expect(COMPOSE).toMatch(/DATABASE_POOL_MAX:\s*'1'/);
   });

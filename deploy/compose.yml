@@ -36,6 +36,10 @@ services:
   api:
     <<: *app
     command: ['node', '--import', 'tsx', 'apps/api/src/main.ts']
+    # На Mac API слушает только 127.0.0.1; в контейнере это «недоступен никому»: у каждой службы своя сеть.
+    # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются (expose, не ports).
+    environment:
+      API_HOST: '0.0.0.0'
     expose: ['3001']
     # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
     # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
@@ -48,7 +52,11 @@ services:
 
   web:
     <<: *app
-    command: ['npm', 'run', 'start', '-w', 'apps/web']
+    # Скрипт `start` в apps/web/package.json жёстко ставит --hostname 127.0.0.1 (так надо на Mac);
+    # в контейнере стойка обязана слушать 0.0.0.0, иначе туннель её не увидит. Поэтому next запускается
+    # напрямую из папки стойки, а не через npm-скрипт.
+    working_dir: /app/apps/web
+    command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
     expose: ['3000']
     depends_on:
       api: { condition: service_healthy }

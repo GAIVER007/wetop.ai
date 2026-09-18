@@ -79,12 +79,32 @@ describe('deploy/compose.yml', () => {
     expect(COMPOSE).not.toMatch(/scale:\s*[2-9]/);
   });
 
+  it('живость меряется маршрутами, которые отвечают и с включённым замком', () => {
+    // С AUTH_REQUIRED=1 рабочие маршруты отдают 401 без сессии. Если ими мерить здоровье,
+    // контейнер API навсегда останется «нездоровым», а web и cloudflared ждут его здоровья
+    // (depends_on: service_healthy) и не поднимутся вовсе.
+    const checks = [...COMPOSE.matchAll(/wget', '-qO-', '([^']+)'/g)].map((m) => m[1] ?? '');
+    expect(checks.length).toBeGreaterThanOrEqual(2);
+    expect(checks.some((u) => u.endsWith('/health'))).toBe(true);
+    for (const url of checks) {
+      expect(url, `здоровье нельзя мерить закрытым маршрутом: ${url}`).not.toMatch(
+        /\/(inventory|desk|reservations|chessboard|rates|finance|today)/,
+      );
+    }
+  });
+
   it('у синхронизации пул в одно соединение', () => {
     expect(COMPOSE).toMatch(/DATABASE_POOL_MAX:\s*'1'/);
   });
 
+  it('выключатель ARI подхватывается файлом и не обязателен', () => {
+    // scripts/ops/ari.sh stop кладёт deploy/ari.env, start его убирает. Файл необязателен:
+    // его отсутствие — это «ARI включён», а не отказ compose подняться.
+    expect(COMPOSE).toMatch(/path: ari\.env\s*\n\s*required: false/);
+  });
+
   it('секреты приходят снаружи, а не из файла compose', () => {
-    expect(COMPOSE).toContain('env_file: .env');
+    expect(COMPOSE).toMatch(/path: \.env\s*\n\s*required: true/);
     // Ни одного присвоения, похожего на ключ или строку подключения
     expect(COMPOSE).not.toMatch(/(API_KEY|SECRET|TOKEN|PASSWORD|DATABASE_URL)\s*[:=]\s*\S/i);
   });

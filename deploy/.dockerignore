@@ -34,3 +34,4 @@ docs/
 playwright-report/
 test-results/
 coverage/
+deploy/ari.env

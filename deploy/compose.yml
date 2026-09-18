@@ -22,7 +22,14 @@ x-app: &app
     dockerfile: deploy/Dockerfile
   image: pms-lux:latest
   restart: unless-stopped
-  env_file: .env
+  env_file:
+    - path: .env
+      required: true
+    # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
+    # Файл есть — ARI выключен, файла нет — включён. В отличие от `launchctl setenv` на Mac,
+    # это переживает перезагрузку сервера.
+    - path: ari.env
+      required: false
   security_opt: ['no-new-privileges:true']
 
 services:
@@ -30,8 +37,11 @@ services:
     <<: *app
     command: ['node', '--import', 'tsx', 'apps/api/src/main.ts']
     expose: ['3001']
+    # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
+    # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
+    # а стойка и туннель ждут его здоровья и не поднимаются вовсе.
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/inventory/summary']
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/health']
       interval: 60s
       timeout: 10s
       start_period: 60s
@@ -43,7 +53,8 @@ services:
     depends_on:
       api: { condition: service_healthy }
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/today']
+      # /login отвечает и с замком APP_AUTH_REQUIRED=1, и без него; /today с замком уводит на вход
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/login']
       interval: 60s
       timeout: 10s
       start_period: 90s

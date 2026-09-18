@@ -9,6 +9,8 @@
 # Ключ туннеля на сервере — обычный .json рядом с конфигом, под *.pem и *.key не попадает
 deploy/cloudflared/
 !deploy/cloudflared.example.yml
+# Состояние выключателя ARI на конкретной машине (scripts/ops/ari.sh), не код
+deploy/ari.env
 
 # --- Claude Code: личное не едет в репозиторий ---
 # settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,

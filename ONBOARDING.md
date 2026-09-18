@@ -69,9 +69,11 @@ npm run build -w apps/web && DATABASE_URL=postgresql://pms@127.0.0.1:5432/pms_de
 
 То же самое на каждый пуш делает GitHub Actions (`.github/workflows/checks.yml`).
 
-`npm install` Prisma Client не генерирует: на свежем клоне без `npm run generate -w @pms/database` все
-результаты запросов имеют тип `any`, и `npm run typecheck` падает пятью сотнями ошибок `TS7006`, хотя код цел
-(проверено 15.09.2026 на чистом клоне). Генерации база не нужна — только схема.
+С 17.09.2026 `npm install` генерирует Prisma Client сам (`postinstall` в `@pms/database`): до этого на свежем
+клоне без `npm run generate -w @pms/database` все результаты запросов имели тип `any`, `npm run typecheck`
+падал пятью сотнями ошибок `TS7006`, а на машине стойки старый клиент ронял журнал действий в 500 при
+применённой миграции (`docs/deploy.md` §1). Ручная генерация по-прежнему нужна после правки `schema.prisma`
+без переустановки. Генерации база не нужна — только схема.
 
 Правила: `.env` агенту не читается (`.claude/settings.json`), значения ключей вписывает только владелец;
 `PII_STORAGE` пуст везде, кроме базы в Казахстане (`CUTOVER.md`); Exely, OTA и Channex production не трогать (AGENTS.md §9).

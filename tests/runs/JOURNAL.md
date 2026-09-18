@@ -630,3 +630,13 @@
 | 18.09.2026 10:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 119 из 119 | 12 мин 20 с | 8725d53 +14 | [лог](logs/2026-09-18T05-18-50Z-e2e-0037.log) |  |
 | 18.09.2026 10:31 | lint | ✅ без ошибок | 14 с | 8725d53 +15 | [лог](logs/2026-09-18T05-31-24Z-lint-ec79.log) |  |
 | 18.09.2026 10:31 | typecheck | ✅ без ошибок | 24 с | 8725d53 +15 | [лог](logs/2026-09-18T05-31-38Z-typecheck-5f51.log) |  |
+| 18.09.2026 10:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 1 мин 21 с | 55086c2 +40 | [лог](logs/2026-09-18T05-51-22Z-e2e-9227.log) |  |
+| 18.09.2026 10:53 | unit | ❌ упало 3 из 1053 | 1 мин 33 с | 55086c2 +31 | [лог](logs/2026-09-18T05-53-50Z-unit-1742.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 18.09.2026 10:55 | typecheck | ✅ без ошибок | 23 с | 55086c2 +41 | [лог](logs/2026-09-18T05-55-26Z-typecheck-18d3.log) |  |
+| 18.09.2026 10:55 | lint | ✅ без ошибок | 18 с | 55086c2 +41 | [лог](logs/2026-09-18T05-55-50Z-lint-e6d3.log) |  |
+| 18.09.2026 10:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 119 | 12 мин 24 с | 55086c2 +41 | [лог](logs/2026-09-18T05-53-05Z-e2e-f4d8.log) | axe и эталонные снимки секций: light |
+| 18.09.2026 11:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts --update-snapshots) | ✅ 8 из 8 | 45 с | 55086c2 +41 | [лог](logs/2026-09-18T06-06-11Z-e2e-4779.log) |  |
+| 18.09.2026 11:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 119 | 12 мин 15 с | 55086c2 +41 | [лог](logs/2026-09-18T06-07-16Z-e2e-cb32.log) | axe и эталонные снимки секций: light |
+| 18.09.2026 14:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts --update-snapshots) | ✅ 8 из 8 | 1 мин 50 с | 55086c2 +41 | [лог](logs/2026-09-18T09-52-07Z-e2e-4bc6.log) |  |
+| 18.09.2026 14:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts) | ✅ 8 из 8 | 32 с | 55086c2 +41 | [лог](logs/2026-09-18T09-53-57Z-e2e-23d9.log) |  |
+| 18.09.2026 14:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 119 из 119 | 9 мин 25 с | 55086c2 +41 | [лог](logs/2026-09-18T09-54-40Z-e2e-1a2e.log) |  |

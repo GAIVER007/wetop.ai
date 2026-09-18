@@ -136,10 +136,11 @@ chmod 700 "$TARGET/deploy/cloudflared"
 cat <<EOF
 
 == готово. Дальше — docs/ops/server-setup-2026-09-18.md §2.4 и §3:
-   1. с Mac:   scp ~/.env $PMS_USER@<IP-сервера>:$TARGET/deploy/.env
-   2. здесь:   chmod 600 $TARGET/deploy/.env
-               в deploy/.env заменить DATABASE_URL на строку управляемой базы ps.kz;
+   1. с Mac:   scp ~/.env $PMS_USER@<IP-сервера>:$TARGET/.env
+   2. здесь:   chmod 600 $TARGET/.env
+               в .env заменить DATABASE_URL на строку управляемой базы ps.kz;
                DATABASE_SCHEMA не задавать, PII_STORAGE пока не трогать
+               (один файл в корне клона: его читают и хост, и compose через ../.env)
    3. здесь:   cd $TARGET && npm ci && npx tsx scripts/imports/src/cli-check-env.ts
    Ключ и конфиг туннеля — только на шаге 4 плана, папка: $TARGET/deploy/cloudflared/
 EOF

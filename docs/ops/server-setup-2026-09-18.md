@@ -108,8 +108,8 @@ git checkout claude/trusting-ramanujan-gi6uzl     # или main, когда ве
 - `DATABASE_POOL_MAX` — см. §4.
 
 ```bash
-scp ~/.env pms@<IP-сервера>:~/wetop/deploy/.env       # с Mac; compose читает .env рядом с собой
-chmod 600 ~/wetop/deploy/.env                          # на сервере
+scp ~/.env pms@<IP-сервера>:~/wetop/.env              # с Mac; один файл в корне клона
+chmod 600 ~/wetop/.env                                 # на сервере; compose читает его как ../.env
 mkdir -p ~/wetop/deploy/cloudflared                    # ключ и конфиг туннеля — шаг 4 плана, не сейчас
 cd ~/wetop && npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте, значений не печатает
 ```

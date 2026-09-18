@@ -8,7 +8,8 @@
 #                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
 #   exely-sync  — синхронизация с Exely раз в 5 минут (ADR-032).
 #
-# Секреты — в файле .env рядом, его вписывает владелец (SECURITY.md §3). В образ они не попадают.
+# Секреты — в файле .env в корне клона (../.env отсюда), его вписывает владелец (SECURITY.md §3).
+# В образ они не попадают: .env исключён из контекста сборки (.dockerignore), в контейнер идёт как env_file.
 # База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
 #
 # Запуск:   docker compose -f deploy/compose.yml up -d --build
@@ -23,7 +24,9 @@ x-app: &app
   image: pms-lux:latest
   restart: unless-stopped
   env_file:
-    - path: .env
+    # Один .env на сервере — в корне клона: его же читают main.ts, cli-check-env и prisma на хосте.
+    # Копии в deploy/ нет намеренно: два файла разъезжаются (18.09.2026, замечание параллельной сессии).
+    - path: ../.env
       required: true
     # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
     # Файл есть — ARI выключен, файла нет — включён. В отличие от `launchctl setenv` на Mac,

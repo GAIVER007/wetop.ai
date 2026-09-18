@@ -76,7 +76,9 @@ describe.skipIf(!asRoot)('deploy/server-bootstrap.sh (root, Linux)', () => {
     );
     expect(head.stdout.trim(), head.stderr).toBe(branch);
     expect(existsSync(`${HOME}/wetop/deploy/cloudflared`)).toBe(true);
-    expect(r.out).toContain('deploy/.env');
+    // .env живёт в корне клона: его читают main.ts, cli-check-env и prisma на хосте, а compose берёт по ../.env
+    expect(r.out).toMatch(/\/wetop\/\.env\b/);
+    expect(r.out).not.toContain('deploy/.env');
     // Ключ и клон принадлежат пользователю системы, не root
     const owner = spawnSync('stat', ['-c', '%U', `${HOME}/wetop`], { encoding: 'utf8' }).stdout.trim();
     expect(owner).toBe(USER);

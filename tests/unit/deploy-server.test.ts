@@ -120,8 +120,10 @@ describe('deploy/compose.yml', () => {
     expect(COMPOSE).toMatch(/path: ari\.env\s*\n\s*required: false/);
   });
 
-  it('секреты приходят снаружи, а не из файла compose', () => {
-    expect(COMPOSE).toMatch(/path: \.env\s*\n\s*required: true/);
+  it('секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория', () => {
+    // .env читается из корня десятками мест (main.ts, cli-check-env, prisma migrate на хосте):
+    // один файл на сервере, compose берёт его по относительному пути, а не свою копию в deploy/.
+    expect(COMPOSE).toMatch(/path: \.\.\/\.env\s*\n\s*required: true/);
     // Ни одного присвоения, похожего на ключ или строку подключения
     expect(COMPOSE).not.toMatch(/(API_KEY|SECRET|TOKEN|PASSWORD|DATABASE_URL)\s*[:=]\s*\S/i);
   });

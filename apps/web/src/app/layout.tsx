@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
+import { AccountMenu } from '../components/shell/account-menu';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
 import './globals.css';
@@ -44,6 +45,11 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <TopNav
+              account={
+                <Suspense fallback={null}>
+                  <AccountMenu />
+                </Suspense>
+              }
               demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
               property={{
                 name: (

@@ -1,34 +1,42 @@
 'use client';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useActionState, useState, useTransition } from 'react';
+import { daysLeft } from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
-import { daysLeft } from '@pms/domain';
-import type { AuthInvite, AuthSession } from '../../lib/api';
+import type { AuthInvite, SignedIn } from '../../lib/api';
 import {
   inviteAction,
-  logoutAction,
   registerAction,
   requestCodeAction,
+  signIn,
+  signOut,
   verifyAction,
+  type LoginState,
 } from './actions';
 import { displayDate } from '../../lib/display-date';
 
-export type LoginMode = 'login' | 'register';
+/**
+ * Способ входа. Пока владелец не выбрал один (Q-146), на экране живут оба: по паролю (ADR-049) —
+ * по умолчанию, и по коду на почту (ADR-046); регистрация — тот же код, но сначала организация.
+ */
+export type LoginMode = 'password' | 'code' | 'register';
 
 export function LoginForm({
   demo,
   accessEmail,
-  session,
-  mode: initialMode = 'login',
+  user,
+  passwordJustSet = false,
+  mode: initialMode = 'password',
   invites = [],
   initialEmail = '',
   initialStep = 'email',
 }: {
   demo: boolean;
   accessEmail: string | null;
-  /** Своя сессия WETOP (срез 13). Имеет приоритет над Cloudflare Access: два входа сосуществуют. */
-  session: AuthSession | null;
+  /** Своя сессия WETOP любым из двух входов. Имеет приоритет над Cloudflare Access: два замка сосуществуют. */
+  user: SignedIn | null;
+  passwordJustSet?: boolean;
   mode?: LoginMode;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
@@ -37,12 +45,16 @@ export function LoginForm({
   initialStep?: 'email' | 'code';
 }) {
   const [mode, setMode] = useState<LoginMode>(initialMode);
+  const [show, setShow] = useState(false);
+  const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
+
+  // вход по коду: почта (и название организации) → код из письма
   const [step, setStep] = useState<'email' | 'code'>(initialStep);
-  const [email, setEmail] = useState(initialEmail);
+  const [email, setEmail] = useState(initialEmail || accessEmail || '');
   const [organizationName, setOrganizationName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
-  const [pending, startTransition] = useTransition();
+  const [codePending, startTransition] = useTransition();
   const { setTheme } = useTheme();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteError, setInviteError] = useState('');
@@ -60,6 +72,11 @@ export function LoginForm({
       }
     });
   }
+
+  const switchTo = (next: LoginMode) => {
+    setError('');
+    setMode(next);
+  };
 
   /** Первый шаг: почта (и название организации при регистрации). Дальше — ввод кода из письма. */
   function submitEmail() {
@@ -82,6 +99,14 @@ export function LoginForm({
       if (r.error) setError(r.error);
     });
   }
+
+  const trialLine = (u: SignedIn) => {
+    const org = u.organization;
+    if (!org || org.status !== 'TRIAL' || !org.trialEndsAt) return null;
+    const left = daysLeft(new Date(org.trialEndsAt), new Date());
+    return left === 0 ? 'Пробный период закончился' : `Пробный период: ещё ${left} дн.`;
+  };
+
   return (
     <main className="login-page" id="main-content">
       <button
@@ -122,21 +147,22 @@ export function LoginForm({
           <span className="round-icon">
             <Icon name="shield" />
           </span>
-          {session ? (
+          {user ? (
             <>
               <h2>Вы вошли</h2>
               <p>
-                как <b>{session.email}</b>
-                <br />
-                {session.organizationName}
-                {session.organizationStatus === 'TRIAL' && session.trialEndsAt && (
+                как <b>{user.name ?? user.email}</b>
+                {user.name ? ` · ${user.email}` : ''}
+                {user.organization && (
                   <>
                     <br />
-                    <span className="muted">
-                      {daysLeft(new Date(session.trialEndsAt), new Date()) === 0
-                        ? 'Пробный период закончился'
-                        : `Пробный период: ещё ${daysLeft(new Date(session.trialEndsAt), new Date())} дн.`}
-                    </span>
+                    {user.organization.name}
+                    {trialLine(user) && (
+                      <>
+                        <br />
+                        <span className="muted">{trialLine(user)}</span>
+                      </>
+                    )}
                   </>
                 )}
               </p>
@@ -144,14 +170,10 @@ export function LoginForm({
                 Открыть рабочее место
                 <Icon name="arrow" width={16} />
               </Link>
-              <div className="login-preview">
-                <span>Вход по коду на почту</span>
-                <form action={logoutAction}>
-                  <button type="submit" className="btn btn--secondary">
-                    Выйти
-                  </button>
-                </form>
-              </div>
+              <form action={signOut} className="login-preview">
+                <span>Смена закончена?</span>
+                <button type="submit">Выйти</button>
+              </form>
               {/* Приглашения (срез 13, этап 7): ролей нет — каждый вошедший зовёт в свою организацию */}
               <section className="login-invites" aria-labelledby="invite-heading">
                 <h3 id="invite-heading">Пригласить администратора</h3>
@@ -182,7 +204,7 @@ export function LoginForm({
                       {inviteError}
                     </p>
                   )}
-                  <button className="btn btn--secondary" type="submit" disabled={pending}>
+                  <button className="btn btn--secondary" type="submit" disabled={codePending}>
                     Отправить приглашение
                   </button>
                 </form>
@@ -213,22 +235,6 @@ export function LoginForm({
                   </p>
                 )}
               </section>
-            </>
-          ) : accessEmail ? (
-            <>
-              <h2>Вы вошли</h2>
-              <p>
-                как <b>{accessEmail}</b>
-              </p>
-              <Link className="btn" href="/today">
-                Открыть рабочее место
-                <Icon name="arrow" width={16} />
-              </Link>
-              <div className="login-preview">
-                <span>Вход защищён Cloudflare Access</span>
-                {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
-                <a href="/cdn-cgi/access/logout">Выйти</a>
-              </div>
             </>
           ) : step === 'code' ? (
             <>
@@ -264,7 +270,7 @@ export function LoginForm({
                     {error}
                   </p>
                 )}
-                <button className="btn" type="submit" disabled={pending}>
+                <button className="btn" type="submit" disabled={codePending}>
                   Войти
                   <Icon name="arrow" width={16} />
                 </button>
@@ -281,6 +287,91 @@ export function LoginForm({
                   }}
                 >
                   Другая почта или новый код
+                </button>
+              </div>
+            </>
+          ) : mode === 'password' ? (
+            <>
+              <h2>Добро пожаловать</h2>
+              <p>Войдите в рабочее пространство</p>
+              {passwordJustSet && (
+                <p className="alert alert--ok" role="status">
+                  Пароль сохранён. Войдите с ним.
+                </p>
+              )}
+              <form action={submit}>
+                <label className="field">
+                  Email
+                  <input
+                    className="inp"
+                    type="email"
+                    autoComplete="username"
+                    name="email"
+                    placeholder="you@hotel.com"
+                    defaultValue={accessEmail ?? ''}
+                    required
+                  />
+                </label>
+                <label className="field">
+                  Пароль
+                  <span className="password-control">
+                    <input
+                      className="inp"
+                      type={show ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      name="password"
+                      aria-label="Пароль"
+                      required
+                      placeholder="Введите пароль"
+                    />
+                    <button
+                      type="button"
+                      aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
+                      onClick={() => setShow(!show)}
+                    >
+                      {show ? 'Скрыть' : 'Показать'}
+                    </button>
+                  </span>
+                </label>
+                {state.error && (
+                  <p className="alert" role="alert">
+                    {state.error}
+                  </p>
+                )}
+                <button className="btn" type="submit" disabled={pending}>
+                  {pending ? 'Проверяем…' : 'Войти'}
+                  <Icon name="arrow" width={16} />
+                </button>
+              </form>
+              <Link className="login-forgot" href="/login/reset">
+                Забыли пароль?
+              </Link>
+              <div className="login-preview">
+                {accessEmail ? (
+                  <>
+                    <span>Cloudflare Access пропустил {accessEmail}</span>
+                    {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
+                    <a href="/cdn-cgi/access/logout">Выйти из Access</a>
+                  </>
+                ) : (
+                  <span>{demo ? 'Демонстрационный режим' : 'Пароль выдаёт владелец объекта'}</span>
+                )}
+              </div>
+              <div className="login-preview">
+                <span>Другой способ входа</span>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={() => switchTo('code')}
+                >
+                  Войти по коду из письма
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={() => switchTo('register')}
+                >
+                  Попробовать бесплатно
                 </button>
               </div>
             </>
@@ -332,7 +423,7 @@ export function LoginForm({
                     {error}
                   </p>
                 )}
-                <button className="btn" type="submit" disabled={pending}>
+                <button className="btn" type="submit" disabled={codePending}>
                   {mode === 'register' ? 'Создать организацию' : 'Получить код'}
                   <Icon name="arrow" width={16} />
                 </button>
@@ -344,12 +435,16 @@ export function LoginForm({
                 <button
                   type="button"
                   className="btn btn--secondary"
-                  onClick={() => {
-                    setError('');
-                    setMode(mode === 'register' ? 'login' : 'register');
-                  }}
+                  onClick={() => switchTo(mode === 'register' ? 'code' : 'register')}
                 >
                   {mode === 'register' ? 'Войти по коду' : 'Попробовать бесплатно'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={() => switchTo('password')}
+                >
+                  Войти по паролю
                 </button>
                 {demo && (
                   <>

@@ -1,9 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi } from '../../lib/api';
-import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { Page } from '../../components/page';
+import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
 import { PriceCell } from './price-cell';
@@ -15,8 +15,16 @@ const monthRange = (ym: string) => {
   return { from: `${ym}-01`, to: `${ym}-${String(last).padStart(2, '0')}` };
 };
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+const monthTitle = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: 'UTC',
+  month: 'long',
+  year: 'numeric',
+});
 
-/** Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа. */
+/**
+ * Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа.
+ * Цена правится в ячейке (срез 7.2), ограничения — только массовым изменением (развилка 7.2-1).
+ */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
   const options = await ratesApi.options();
@@ -42,8 +50,17 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
     const d = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
     return `/rates?category=${category}&ratePlan=${ratePlan}&month=${d}`;
   };
+  const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
+  const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
+  const monthLabel = validMonth
+    ? monthTitle.format(new Date(`${month}-01T00:00:00Z`)).replace(' г.', '')
+    : '';
   return (
-    <Page width="wide" title="Цены и ограничения">
+    <Page
+      width="wide"
+      title="Цены и ограничения"
+      subtitle={!error && cal ? `${categoryName}, ${planName}, ${monthLabel}` : undefined}
+    >
       <form method="get" className="row row--end row--lg toolbar">
         <Field label="Категория">
           <Select name="category" defaultValue={category}>
@@ -63,9 +80,19 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
             ))}
           </Select>
         </Field>
+        {validMonth && (
+          <Link href={shift(-1)} className="icon-button" aria-label="Предыдущий месяц">
+            <Icon name="chevron" className="rotate-left" />
+          </Link>
+        )}
         <Field label="Месяц">
           <Input type="month" name="month" defaultValue={month} />
         </Field>
+        {validMonth && (
+          <Link href={shift(1)} className="icon-button" aria-label="Следующий месяц">
+            <Icon name="chevron" />
+          </Link>
+        )}
         <Button type="submit" tone="secondary">
           Показать
         </Button>
@@ -82,7 +109,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         </Alert>
       )}
       <div className="split">
-        <div className="tbl-wrap">
+        <div className="tbl-wrap stack stack--sm">
           {cal ? (
             <Table size="sm" dense nowrap data-testid="rates-table">
               <thead>
@@ -118,14 +145,13 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                         <span className="muted-2">{WD[wd]}</span>
                       </td>
                       {Array.from({ length: cal.capacityAdults }, (_, i) => {
-                        const minor = d.prices[String(i + 1)];
                         return (
                           <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
                             <PriceCell
                               date={d.date}
                               occupancy={i + 1}
-                              text={minor ? formatMoney(minor, cal.currency) : '—'}
-                              major={minor ? (BigInt(minor) / 100n).toString() : ''}
+                              minor={d.prices[String(i + 1)] ?? null}
+                              currency={cal.currency}
                               accommodationTypeCode={category}
                               ratePlanCode={ratePlan}
                             />
@@ -134,7 +160,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                       })}
                       <td>{d.minStay ?? '—'}</td>
                       <td>{d.maxStay ?? '—'}</td>
-                      <td>{d.stopSell ? 'да' : '—'}</td>
+                      <td>{d.stopSell ? 'закрыто' : '—'}</td>
                       <td>{d.closedToArrival ? 'да' : '—'}</td>
                       <td>{d.closedToDeparture ? 'да' : '—'}</td>
                     </tr>

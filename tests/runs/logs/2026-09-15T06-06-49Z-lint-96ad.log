@@ -1,0 +1,19 @@
+# Линтер (lint) · 15.09.2026 11:06 Алматы · vm
+# коммит 982d8bb (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 8
+# npx eslint .
+
+/home/user/wetop.ai/site-audit.tmp.mjs
+  42:46  error  'document' is not defined  no-undef
+  42:85  error  'document' is not defined  no-undef
+  46:5   error  'console' is not defined   no-undef
+  47:19  error  'console' is not defined   no-undef
+  48:26  error  'console' is not defined   no-undef
+  50:7   error  'console' is not defined   no-undef
+  51:7   error  'console' is not defined   no-undef
+  54:60  error  'console' is not defined   no-undef
+  61:1   error  'console' is not defined   no-undef
+
+✖ 9 problems (9 errors, 0 warnings)
+
+
+# код выхода 1 · 8 с

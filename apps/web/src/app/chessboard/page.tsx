@@ -1,8 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, type UnassignedStay } from '../../lib/api';
+import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -67,15 +68,15 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  // Ревизии канала, которые не удалось сопоставить с бронью (ADR-024, Q-109): брони по ним нет,
-  // а место, возможно, продано. Стойка узнаёт о них здесь, а не только на «Подключениях» (Q-135).
-  const [board, failedRevisions] = await Promise.all([
+  // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
+  // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
+  const [board, incidents, events] = await Promise.all([
     chessboardApi.board(from, to),
-    channelsApi
-      .events(30)
-      .then((events) => events.filter((e) => e.status === 'FAILED').length)
-      .catch(() => 0),
+    guardApi.incidents('open').catch(() => null),
+    channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
   ]);
+  const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
+  const failedEvents = events?.total ?? 0;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -182,14 +183,6 @@ export default async function ChessboardPage({
             Применить
           </Button>
         </form>
-        {failedRevisions > 0 && (
-          <Alert boxed tone="warning" data-testid="failed-revisions">
-            Входящая бронь требует разбора:{' '}
-            {pluralRu(failedRevisions, ['ревизия', 'ревизии', 'ревизий'])} из канала не удалось
-            сопоставить с бронью — места по ним не заняты.{' '}
-            <Link href="/channels">Открыть журнал интеграции</Link>
-          </Alert>
-        )}
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
         <details className="board-help">
           <summary>Как работать с шахматкой</summary>
@@ -216,6 +209,19 @@ export default async function ChessboardPage({
           </div>
         </details>
       </div>
+      {overbooked.length > 0 && (
+        <Alert boxed data-testid="overbooked-callout">
+          Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
+          <a href="#unassigned-stays">Разрешить</a>
+        </Alert>
+      )}
+      {failedEvents > 0 && (
+        <Alert boxed tone="warning" data-testid="review-callout">
+          Входящая бронь требует разбора:{' '}
+          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана
+          автоматически. <Link href="/channels">Разобрать</Link>
+        </Alert>
+      )}
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
     </Page>
@@ -236,6 +242,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
   }
   return (
     <section
+      id="unassigned-stays"
       data-testid="unassigned-stays"
       data-count={stays.length}
       className={cx('board-unassigned', !stays.length && 'board-unassigned--empty')}
@@ -271,6 +278,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
                   ])}{' '}
                   · {STATUS_RU[s.status] ?? s.status}
                 </span>
+                <ResolveMenu number={s.confirmationNumber} />
               </li>
             ))}
           </ul>

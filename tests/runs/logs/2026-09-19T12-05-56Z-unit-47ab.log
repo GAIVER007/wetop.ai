@@ -1,0 +1,50 @@
+# Модульные (unit) · 19.09.2026 17:05 Алматы · vm
+# коммит 5bd5056 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 101
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T12-05-56Z-unit-47ab.json' 'tests/unit/test-data-source.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/test-data-source.test.ts (5 tests | 2 failed) 8ms
+   ✓ chooseTestDataSource (3)
+     ✓ без переменной: копия, если рабочая схема с данными, иначе сид 2ms
+     ✓ переменная побеждает состояние базы 0ms
+     ✓ незнакомое значение — ошибка, не умолчание 1ms
+   ❯ seedIsStale (2)
+     × сид не с сегодняшнего дня (по Алматы) — устарел 3ms
+     × копия рабочих данных не стареет, как и отсутствие отметки 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/test-data-source.test.ts > seedIsStale > сид не с сегодняшнего дня (по Алматы) — устарел
+TypeError: seedIsStale is not a function
+ ❯ tests/unit/test-data-source.test.ts:28:12
+     26| describe('seedIsStale', () => {
+     27|   it('сид не с сегодняшнего дня (по Алматы) — устарел', () => {
+     28|     expect(seedIsStale('2026-09-16T20:30:00.000Z (сид)', '2026-09-19')…
+       |            ^
+     29|     // 21:30 UTC 18.09 — это уже 02:30 19.09 по Алмати: сид сегодняшний
+     30|     expect(seedIsStale('2026-09-18T21:30:00.000Z (сид)', '2026-09-19')…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/test-data-source.test.ts > seedIsStale > копия рабочих данных не стареет, как и отсутствие отметки
+TypeError: seedIsStale is not a function
+ ❯ tests/unit/test-data-source.test.ts:34:12
+     32|   });
+     33|   it('копия рабочих данных не стареет, как и отсутствие отметки', () =…
+     34|     expect(seedIsStale('2026-09-10T10:00:00.000Z', '2026-09-19')).toBe…
+       |            ^
+     35|     expect(seedIsStale(null, '2026-09-19')).toBe(false);
+     36|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  12:05:57
+   Duration  236ms (transform 69%, import 15%, tests 11%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-09-19T12-05-56Z-unit-47ab.json
+
+# код выхода 1 · 1 с

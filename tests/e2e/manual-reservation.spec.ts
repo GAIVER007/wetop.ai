@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmCancelReservation } from './confirm';
+import { confirmDialog } from './confirm';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
@@ -51,7 +51,7 @@ test('создать бронь с ячейкой → видна в шахмат
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь');
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
   const availabilityEnd = await page.getByRole('main').getByTestId('availability').textContent();

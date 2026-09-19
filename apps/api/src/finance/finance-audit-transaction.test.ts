@@ -58,7 +58,8 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
         return args.data;
       },
     },
-    property: { findFirstOrThrow: async () => ({ id: 'prop-1' }) },
+    // объект читается через `propertyIdRef` (findFirst, один раз на процесс) — как у остальных хранилищ
+    property: { findFirst: async () => ({ id: 'prop-1', name: 'Luxx Aparts' }) },
   });
   const tx = tables('tx');
   const db = {

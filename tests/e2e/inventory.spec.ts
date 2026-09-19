@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /** Gate 1, шаг 7: страница показывает ровно реальные 88 единиц (PLAN.md неделя 2). */
 test('страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92', async ({ page }) => {

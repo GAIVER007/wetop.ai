@@ -486,6 +486,7 @@ model Restriction {
 model AuditLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   entityType String   @map("entity_type")
   entityId   String   @map("entity_id")
   action     String
@@ -965,11 +966,35 @@ model User {
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   lastLoginAt DateTime?  @map("last_login_at") @db.Timestamptz(6)
 
-  memberships   Membership[]
-  sessions      Session[]
-  invitesIssued Invite[]     @relation("InviteCreatedBy")
+  /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
+  /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
+  passwordHash   String    @default("") @map("password_hash")
+  /// Промахи подряд; после пяти вход заперт до locked_until (домен accounts)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
+
+  memberships    Membership[]
+  sessions       Session[]
+  invitesIssued  Invite[]        @relation("InviteCreatedBy")
+  passwordResets PasswordReset[]
+  auditLogs      AuditLog[]
 
   @@map("users")
+}
+
+/// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
+/// В базе только хеш токена — утечка базы не даёт задать пароль.
+model PasswordReset {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("password_resets")
 }
 
 /// Человек в организации. Ролей нет: ADR-023 в этой части в силе, контролем остаётся журнал действий.
@@ -1012,6 +1037,8 @@ model Session {
   expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
   userAgent      String?   @map("user_agent") @db.VarChar(400)
   revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
+  /// Когда сессию видели последний раз: заполняется при проверке токена (§13.9)
+  lastSeenAt     DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(6)
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])

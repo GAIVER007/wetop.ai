@@ -1,0 +1,124 @@
+# Проверки на каждый пуш и PR (plans/tests-without-live-db-2026-09-15.md, шаг 4).
+# Секретов здесь нет и не будет (SECURITY.md §3): наборы, которым нужны Exely, Channex, Telegram или ключ
+# шифрования ПД, остаются ручными на рабочем стенде. Журнал tests/runs/ CI не пишет — он про доказательства
+# на рабочем коде, а не про каждый пуш; логи здесь остаются в самом прогоне.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    name: lint · typecheck · unit · главная
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npm run lint
+      - run: npm run typecheck && npm run typecheck:api && npm run typecheck:web
+      - run: npx vitest run --project unit
+      - name: Chromium для проверок главной
+        run: npx playwright install --with-deps chromium
+      - run: npm run site:check
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: site-check-results
+          path: |
+            tests/site/test-results
+            test-results
+          if-no-files-found: ignore
+
+  db:
+    name: миграции · integration · e2e на чистом PostgreSQL 16
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pms
+          POSTGRES_PASSWORD: pms
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pms"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          psql --version && pg_dump --version
+      - name: Применение и откат каждой миграции
+        env:
+          MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
+        run: scripts/ops/check-migrations.sh
+      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      - name: Интеграционные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx vitest run --project integration
+      - name: Сборка стойки и Chromium
+        run: |
+          npm run build -w apps/web
+          npx playwright install --with-deps chromium
+      - name: Сквозные тесты
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npx playwright test --workers=2
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+          if-no-files-found: ignore
+
+  ui:
+    name: стойка на синтетическом API (tests/ui)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run generate -w @pms/database
+      - run: npx playwright install --with-deps chromium
+      # Браузер — chromium Playwright (на Mac набор идёт в Chrome владельца); next dev и подставной API поднимает конфиг
+      - name: Браузерные проверки без базы
+        env:
+          UI_BROWSER_CHANNEL: chromium
+        run: npx playwright test --config tests/ui/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-results
+          path: |
+            test-results
+            reports/ui-quality
+          if-no-files-found: ignore

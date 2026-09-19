@@ -6,11 +6,14 @@ export type { ActionPreview } from './action-preview';
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
 import type { DashboardPeriod } from '@pms/domain';
+import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
   name: string;
   units: number;
   maxGuests: number;
+  /** Вместимость одной единицы категории — предел числа гостей в формах */
+  capacityAdults: number;
 }
 
 export interface InventorySummary {
@@ -55,6 +58,7 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       cache: 'no-store',
       headers: {
         ...options.headers,
+        ...(await sessionHeader()),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -78,6 +82,12 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
         : 'Нет связи с API. Проверьте подключение.',
     );
   }
+  // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
+  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046).
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    const { redirectToLoginIfRequired } = await import('./session');
+    await redirectToLoginIfRequired();
+  }
   if (!testing && response.headers.get('x-wetop-data-source') === 'synthetic') {
     throw new ApiError(503, 'Тестовый источник отключён. Подключите рабочий API.');
   }
@@ -86,10 +96,34 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
   return response;
 }
 
+/**
+ * Кто делает запрос: токен сессии из cookie уходит в API заголовком, и `audit_logs.user_id` заполняется сам
+ * (DATA_MODEL §13.8). Импорт динамический — `next/headers` не должен попасть в клиентский бандл,
+ * потому что из этого файла клиентские компоненты берут ещё и formatMinor с типами.
+ */
+async function sessionHeader(): Promise<Record<string, string>> {
+  try {
+    const { sessionToken } = await import('./session');
+    const token = await sessionToken();
+    return token ? { 'x-wetop-session': token } : {};
+  } catch {
+    return {};
+  }
+}
+
 async function getJson<T>(path: string): Promise<T> {
   const res = await backendFetch(path);
   if (!res.ok) {
-    throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+    // Текст отказа NestJS (400/404/422) — администратору нужен он, а не «HTTP 400» (волна 3)
+    let message = `API ${path}: HTTP ${res.status}`;
+    if (res.status < 500)
+      try {
+        const j = (await res.json()) as { message?: string | string[] };
+        if (j.message) message = Array.isArray(j.message) ? j.message.join('; ') : j.message;
+      } catch {
+        /* тело не JSON */
+      }
+    throw new ApiError(res.status, message);
   }
   return (await res.json()) as T;
 }
@@ -206,26 +240,8 @@ export const chessboardApi = {
   reservation: (number: string) =>
     getJson<ReservationCard>(`/reservations/${encodeURIComponent(number)}`),
 };
-/** Тиыны → строка в тенге с разделителями, без float-арифметики. */
-/**
- * T5: ссылки в мессенджеры по телефону гостя. Телефон приводим к цифрам — оба сервиса ждут
- * международный формат без плюса и разделителей. Пустой или слишком короткий номер ссылок не даёт.
- */
-export function messengerLinks(phone: string | null | undefined): {
-  whatsapp: string;
-  telegram: string;
-} | null {
-  const digits = (phone ?? '').replace(/\D/g, '');
-  if (digits.length < 10) return null;
-  return { whatsapp: `https://wa.me/${digits}`, telegram: `https://t.me/+${digits}` };
-}
-
-export function formatMinor(minor: string, currency = 'KZT'): string {
-  const neg = minor.startsWith('-');
-  const digits = minor.replace('-', '').padStart(3, '0');
-  const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
-}
+// formatMinor и messengerLinks переехали в ./format — их берут и клиентские компоненты (см. там же)
+export { formatMinor, messengerLinks } from './format';
 
 export interface StayAvailability {
   arrivalDate: string;
@@ -240,14 +256,8 @@ export interface RatePlanOption {
   currency: string;
 }
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
-export class ApiError extends Error {
-  constructor(
-    readonly status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
+export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
+
 async function sendJson<T>(
   method: 'POST' | 'PATCH' | 'DELETE',
   path: string,
@@ -275,6 +285,204 @@ async function sendJson<T>(
   }
   return (await res.json()) as T;
 }
+
+export interface SignedIn {
+  id: string;
+  email: string;
+  /** Имя необязательно (DATA_MODEL §13.2) — тогда зовём по почте */
+  name: string | null;
+  /** Организация, под которой открыта сессия (§13.5) */
+  organizationId: string;
+  /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
+  organization?: SignedInOrganization | null;
+}
+
+export interface SignedInOrganization {
+  name: string;
+  status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED' | (string & {});
+  trialEndsAt: string | null;
+}
+
+/** Ровно то, что API отдаёт вошедшему по коду (`POST /auth/verify`): без ключа, без внутренних номеров строк. */
+export interface AuthSession {
+  email: string;
+  organizationId: string;
+  organizationName: string;
+  organizationStatus: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
+  trialEndsAt: string | null;
+}
+/** Заголовки, которые стойка передаёт API от имени браузера: адрес посетителя для пределов и агент для списка сессий. */
+export interface AuthClientInfo {
+  ip: string | null;
+  userAgent: string | null;
+}
+function authHeaders(info: AuthClientInfo, token?: string | null): Record<string, string> {
+  return {
+    'content-type': 'application/json',
+    ...(info.ip ? { 'cf-connecting-ip': info.ip } : {}),
+    ...(info.userAgent ? { 'user-agent': info.userAgent } : {}),
+    ...(token ? { authorization: `Bearer ${token}` } : {}),
+  };
+}
+async function messageOf(res: Response): Promise<string> {
+  try {
+    const j = (await res.json()) as { message?: string | string[] };
+    if (j.message) return Array.isArray(j.message) ? j.message.join('; ') : j.message;
+  } catch {
+    /* тело не JSON */
+  }
+  return `HTTP ${res.status}`;
+}
+/** Отказ API с его же текстом (400 про форму, 401 про код); иначе — код ответа. */
+async function throwUnlessOk(res: Response): Promise<Response> {
+  if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  return res;
+}
+
+/**
+ * Вход в стойку. Два способа живут рядом, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8,
+ * ADR-049) и по одноразовому коду на почту с регистрацией организации (ADR-046). Сессия у обоих одна:
+ * таблица `sessions` в API и кука `wetop_session` в стойке. Токен кладёт серверное действие
+ * `login/actions.ts`, сюда он потом попадает сам, заголовком (см. sessionHeader); `/auth/me` и
+ * `/auth/logout` общие — API узнаёт сессию любого входа.
+ */
+export const authApi = {
+  login: (body: { email: string; password: string }) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
+  me: () => getJson<{ user: SignedIn | null; expiresAt?: string }>('/auth/me'),
+  logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
+  changePassword: (body: { currentPassword: string; newPassword: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password', body),
+  /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
+  requestReset: (body: { email: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  /** Пароль по одноразовой ссылке из письма */
+  confirmReset: (body: { token: string; password: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
+  /** Код на почту: 204 всегда — есть адрес или нет, наружу не видно. Ошибка только если API недоступен. */
+  requestCode: async (email: string, info: AuthClientInfo): Promise<void> => {
+    await throwUnlessOk(
+      await backendFetch('/auth/code', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email }),
+      }),
+    );
+  },
+  /** Регистрация: 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
+  register: async (
+    email: string,
+    organizationName: string,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    await throwUnlessOk(
+      await backendFetch('/auth/register', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email, organizationName }),
+      }),
+    );
+  },
+  /** Проверка кода: 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
+  verify: async (
+    email: string,
+    code: string,
+    info: AuthClientInfo,
+  ): Promise<{ token: string; session: AuthSession }> => {
+    const res = await throwUnlessOk(
+      await backendFetch('/auth/verify', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email, code }),
+      }),
+    );
+    return (await res.json()) as { token: string; session: AuthSession };
+  },
+  // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
+  /** Ожидающие приглашения своей организации. 401 — сессии нет. */
+  invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
+    const res = await backendFetch('/auth/invites', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvite[];
+  },
+  /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
+  invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
+    const res = await backendFetch('/auth/invites', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvite;
+  },
+  /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
+  inviteByToken: async (
+    rawToken: string,
+    info: AuthClientInfo,
+  ): Promise<AuthInvitePreview | null> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}`, {
+      headers: authHeaders(info),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvitePreview;
+  },
+  /** Принять: членство заведено, код для входа выслан. 404 с текстом на мёртвую ссылку. */
+  acceptInvite: async (rawToken: string, info: AuthClientInfo): Promise<AuthInvitePreview> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvitePreview;
+  },
+};
+
+/**
+ * Предпросмотр сумм до подтверждения (срез 7.3, Д5): считает сервер теми же функциями, что и запись,
+ * ничего не пишет. `null` в сумме — посчитать нельзя (нет тарифа), причина в `problem`.
+ */
+export interface MovePreview {
+  unitCode: string;
+  changesCategory: boolean;
+  fromCategory: { code: string; name: string } | null;
+  toCategory: { code: string; name: string } | null;
+  nights: number;
+  currentMinor: string;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  problem: string | null;
+}
+export interface ExtendPreview {
+  nights: number;
+  departureDate: string;
+  unitCode: string | null;
+  addedMinor: string | null;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  /** Ячейка свободна на добавленные ночи (без брони и блокировки); без ячейки — true */
+  nextNightsFree: boolean;
+  problem: string | null;
+}
+export interface CancelPreview {
+  reason: 'cancel' | 'no_show';
+  items: Array<{
+    itemId: string;
+    unitCode: string | null;
+    policy: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+    /** Наступил ли момент штрафа (Q-103): отмена до дня заезда бесплатна */
+    dueNow: boolean;
+    penaltyMinor: string;
+  }>;
+  totalPenaltyMinor: string;
+}
+const query = (params: Record<string, string | number | undefined>) => {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') q.set(k, String(v));
+  const s = q.toString();
+  return s ? `?${s}` : '';
+};
 export const reservationsApi = {
   ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
   availability: (arrival: string, departure: string) =>
@@ -318,6 +526,19 @@ export const reservationsApi = {
   preview: (number: string, itemId: string, query: Record<string, string>) =>
     getJson<ActionPreview>(
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/preview?${new URLSearchParams(query).toString()}`,
+    ),
+  /** Срез 7.3, Д5: сумма до подтверждения — только чтение */
+  movePreview: (number: string, itemId: string, unitCode: string, ratePlanCode?: string) =>
+    getJson<MovePreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/move-preview${query({ unitCode, ratePlanCode })}`,
+    ),
+  extendPreview: (number: string, itemId: string, nights = 1, ratePlanCode?: string) =>
+    getJson<ExtendPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend-preview${query({ nights, ratePlanCode })}`,
+    ),
+  cancelPreview: (number: string, reason: 'cancel' | 'no_show', itemId?: string) =>
+    getJson<CancelPreview>(
+      `/reservations/${encodeURIComponent(number)}/cancel-preview${query({ reason, itemId })}`,
     ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(
@@ -417,7 +638,24 @@ export const channelsApi = {
     ),
   flush: () =>
     sendJson<{ sent: unknown[]; errors: unknown[] }>('POST', '/channels/channex/outbox/flush', {}),
-  events: (limit = 30) => getJson<InboundEvent[]>(`/channels/channex/events?limit=${limit}`),
+  /** Журнал входящих событий с фильтрами и постраничностью (срез 7.2) */
+  events: (q: EventsQuery = {}) => {
+    const sp = new URLSearchParams();
+    sp.set('limit', String(q.limit ?? 20));
+    sp.set('offset', String(q.offset ?? 0));
+    if (q.status) sp.set('status', q.status);
+    if (q.type) sp.set('type', q.type);
+    if (q.q) sp.set('q', q.q);
+    return getJson<{ rows: InboundEvent[]; total: number }>(`/channels/channex/events?${sp}`);
+  },
+  /** Страница «Приём брони из канала»: ревизия без ПД → бронь → ячейки */
+  event: (revisionId: string) =>
+    getJson<RevisionPage>(`/channels/channex/events/${encodeURIComponent(revisionId)}`),
+  /** Строки очереди ARI: что ушло, на какие даты, по каким категориям */
+  outboxRows: (status?: OutboxRowStatus, limit = 50) =>
+    getJson<OutboxRow[]>(
+      `/channels/channex/outbox/rows?limit=${limit}${status ? `&status=${status}` : ''}`,
+    ),
   retryEvent: (revisionId: string) =>
     sendJson<{ result: string; confirmationNumber: string | null; error?: string }>(
       'POST',
@@ -462,10 +700,22 @@ export interface InboundEvent {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
-  /** Номер брони PMS, если ревизию удалось связать (срез 7.2); null — не разобрана */
   reservationNumber?: string | null;
+  /** Номер брони на стороне канала (`unique_id` ревизии) и канал — срез 7.2 */
+  uniqueId?: string | null;
+  otaName?: string | null;
+  /** Бронь PMS, связанная по `externalId = unique_id`; null — ещё не создана или не сопоставлена */
+  confirmationNumber?: string | null;
 }
-/** Сообщение очереди ARI: что уезжает в Channex и чем кончилось */
+export interface EventsQuery {
+  limit?: number;
+  offset?: number;
+  status?: string;
+  type?: string;
+  q?: string;
+}
+export type OutboxRowStatus = 'PENDING' | 'SENT' | 'FAILED';
+/** Строка очереди `channel_outbox` для журнала интеграции (срез 7.2) */
 export interface OutboxMessage {
   id: string;
   kind: 'AVAILABILITY' | 'RESTRICTIONS';
@@ -480,6 +730,53 @@ export interface OutboxMessage {
   dateTo: string | null;
   roomTypeIds: string[];
   ratePlanIds: string[];
+}
+
+export interface OutboxRow {
+  id: string;
+  kind: 'AVAILABILITY' | 'RESTRICTIONS';
+  status: OutboxRowStatus;
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  dateFrom: string | null;
+  dateTo: string | null;
+  /** Коды категорий по маппингу; неизвестный id провайдера — как есть */
+  roomTypes: string[];
+  messages: number;
+}
+/** Факты ревизии Channex без персональных данных гостя (ADR-018) */
+export interface RevisionFacts {
+  uniqueId: string | null;
+  otaName: string | null;
+  otaReservationCode: string | null;
+  status: string | null;
+  arrivalDate: string | null;
+  departureDate: string | null;
+  adults: number | null;
+  children: number | null;
+  amount: string | null;
+  currency: string | null;
+  paymentCollect: string | null;
+  rooms: Array<{
+    checkinDate: string | null;
+    checkoutDate: string | null;
+    roomTypeId: string | null;
+    ratePlanId: string | null;
+    adults: number | null;
+    amount: string | null;
+  }>;
+}
+export interface RevisionPage {
+  event: InboundEvent;
+  facts: RevisionFacts;
+  /** provider room_type_id → код категории PMS */
+  categoryByRoomType: Record<string, string>;
+  reservation: ReservationCard | null;
+  /** остаток счёта по проживанию (тиын, строка) — тот же `folioBalance`, что на карточке */
+  balances: Record<string, string>;
 }
 export interface WebhookStatus {
   registered: boolean;
@@ -743,15 +1040,15 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
-  /** Не заехали вовремя: дата заезда прошла, заселения и незаезда нет (API может быть старее экрана) */
-  overdueArrivals?: DeskRow[];
+  /** Не заехали вовремя: дата заезда прошла, заселения и незаезда нет */
+  overdueArrivals: DeskRow[];
   counts: {
+    overdueArrivals: number;
     arrivals: number;
     departures: number;
     inHouse: number;
     toCheckIn: number;
     toCheckOut: number;
-    overdueArrivals?: number;
   };
   debtMinor: string;
 }
@@ -917,132 +1214,6 @@ export const guardApi = {
   resolve: (id: string) =>
     sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/resolve`, {}),
   tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
-};
-
-// ── Вход по коду и регистрация (срез 13, ADR-046) ──
-/** Ровно то, что API отдаёт вошедшему: без ключа, без внутренних номеров строк. */
-export interface AuthSession {
-  email: string;
-  organizationId: string;
-  organizationName: string;
-  organizationStatus: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
-  trialEndsAt: string | null;
-}
-/** Заголовки, которые стойка передаёт API от имени браузера: адрес посетителя для пределов и агент для списка сессий. */
-export interface AuthClientInfo {
-  ip: string | null;
-  userAgent: string | null;
-}
-function authHeaders(info: AuthClientInfo, token?: string | null): Record<string, string> {
-  return {
-    'content-type': 'application/json',
-    ...(info.ip ? { 'cf-connecting-ip': info.ip } : {}),
-    ...(info.userAgent ? { 'user-agent': info.userAgent } : {}),
-    ...(token ? { authorization: `Bearer ${token}` } : {}),
-  };
-}
-async function messageOf(res: Response): Promise<string> {
-  try {
-    const j = (await res.json()) as { message?: string | string[] };
-    if (j.message) return Array.isArray(j.message) ? j.message.join('; ') : j.message;
-  } catch {
-    /* тело не JSON */
-  }
-  return `HTTP ${res.status}`;
-}
-export const authApi = {
-  /** 204 всегда — есть адрес или нет, наружу не видно. Ошибка только если API недоступен. */
-  requestCode: async (email: string, info: AuthClientInfo): Promise<void> => {
-    const res = await backendFetch('/auth/code', {
-      method: 'POST',
-      headers: authHeaders(info),
-      body: JSON.stringify({ email }),
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-  },
-  /** 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
-  register: async (
-    email: string,
-    organizationName: string,
-    info: AuthClientInfo,
-  ): Promise<void> => {
-    const res = await backendFetch('/auth/register', {
-      method: 'POST',
-      headers: authHeaders(info),
-      body: JSON.stringify({ email, organizationName }),
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-  },
-  /** 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
-  verify: async (
-    email: string,
-    code: string,
-    info: AuthClientInfo,
-  ): Promise<{ token: string; session: AuthSession }> => {
-    const res = await backendFetch('/auth/verify', {
-      method: 'POST',
-      headers: authHeaders(info),
-      body: JSON.stringify({ email, code }),
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as { token: string; session: AuthSession };
-  },
-  /** `null` — сессии нет, протухла или отозвана; API не различает и мы тоже. */
-  me: async (token: string, info: AuthClientInfo): Promise<AuthSession | null> => {
-    const res = await backendFetch('/auth/me', { headers: authHeaders(info, token) });
-    if (res.status === 401) return null;
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as AuthSession;
-  },
-  /** 204 всегда: повторный выход и выход с мёртвым ключом — не ошибка. */
-  logout: async (token: string, info: AuthClientInfo): Promise<void> => {
-    const res = await backendFetch('/auth/logout', {
-      method: 'POST',
-      headers: authHeaders(info, token),
-      body: '{}',
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-  },
-
-  // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
-  /** Ожидающие приглашения своей организации. 401 — сессии нет. */
-  invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
-    const res = await backendFetch('/auth/invites', { headers: authHeaders(info, token) });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as AuthInvite[];
-  },
-  /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
-  invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
-    const res = await backendFetch('/auth/invites', {
-      method: 'POST',
-      headers: authHeaders(info, token),
-      body: JSON.stringify({ email }),
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as AuthInvite;
-  },
-  /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
-  inviteByToken: async (
-    rawToken: string,
-    info: AuthClientInfo,
-  ): Promise<AuthInvitePreview | null> => {
-    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}`, {
-      headers: authHeaders(info),
-    });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as AuthInvitePreview;
-  },
-  /** Принять: членство заведено, код для входа выслан. 404 с текстом на мёртвую ссылку. */
-  acceptInvite: async (rawToken: string, info: AuthClientInfo): Promise<AuthInvitePreview> => {
-    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
-      method: 'POST',
-      headers: authHeaders(info),
-      body: '{}',
-    });
-    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-    return (await res.json()) as AuthInvitePreview;
-  },
 };
 
 export interface AuthInvite {

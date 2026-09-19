@@ -97,6 +97,10 @@ describe('desk day API', () => {
       toCheckOut: 1,
       overdueArrivals: 1,
     });
+    // просроченный заезд — отдельным списком, с датой, когда должен был заехать
+    expect(r.body.overdueArrivals).toMatchObject([
+      { confirmationNumber: 'B-8', arrivalDate: '2026-10-03', status: 'CONFIRMED' },
+    ]);
     expect(
       r.body.arrivals.map((a: { confirmationNumber: string }) => a.confirmationNumber),
     ).toEqual(['B-1', 'B-2', 'B-7', 'B-3', 'B-6']);

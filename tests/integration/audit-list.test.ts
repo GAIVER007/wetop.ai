@@ -47,10 +47,12 @@ describe.skipIf(!url)('журнал действий: список (integration,
     const rows = await service.list({ limit: 500, system: true });
     const mine = rows.filter((r) => r.entityId === mark);
     expect(mine.map((r) => r.subject).sort()).toEqual([`${mark}-B07`, null, number].sort());
-    // в строке списка снимков нет — только короткие поля
+    // в строке списка снимков нет — только короткие поля и автор (имя из `users`, ADR-023)
     expect(Object.keys(mine[0]!).sort()).toEqual(
-      ['action', 'at', 'entityId', 'entityType', 'id', 'subject'].sort(),
+      ['action', 'at', 'author', 'entityId', 'entityType', 'id', 'subject'].sort(),
     );
+    // строки без автора — система: у этих записей `user_id` пуст
+    expect(mine.map((r) => r.author)).toEqual([null, null, null]);
   });
 
   it('поиск идёт по снимкам всей истории', async () => {

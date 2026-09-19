@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Срез 9, гейт (план §7): демо-страница с виджетом на адресе API → цены по категориям на завтра →
@@ -6,7 +6,8 @@ import { expect, test } from '@playwright/test';
  * Бронь настоящая (занимает ячейку) — в конце отменяется через API, как со стойки; комментарий гостя
  * содержит метку E2E-АВТОТЕСТ, по ней уборка e2e найдёт бронь, если тест сорвётся.
  */
-const API = 'http://127.0.0.1:3001';
+// Адрес API из конфига прогона: изолированный стенд :3101 (playwright.config.ts), рабочий :3001 — только вручную
+const API = process.env['APP_API_URL'] ?? 'http://127.0.0.1:3001';
 const DESKTOP_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 

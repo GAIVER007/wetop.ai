@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { Button, Input, cx } from '../../components/ui';
+import { formatMoney, minorToInput } from '../../lib/money';
 import { bulkRatesAction } from './actions';
 
 /**
@@ -13,26 +14,25 @@ import { bulkRatesAction } from './actions';
 export function PriceCell({
   date,
   occupancy,
-  text,
-  major,
+  minor,
+  currency,
   accommodationTypeCode,
   ratePlanCode,
 }: {
   date: string;
   occupancy: number;
-  /** что видно в ячейке сейчас: отформатированная сумма или «—» (§14: одно слово для пустого) */
-  text: string;
-  /** текущая цена в тенге для поля ввода; пусто — цены на дату нет */
-  major: string;
+  minor: string | null;
+  currency: string;
   accommodationTypeCode: string;
   ratePlanCode: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(major);
+  const [value, setValue] = useState(minor ? minorToInput(minor) : '');
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
 
   const save = () => {
+    if (pending) return;
     const price = value.trim();
     if (!price) {
       setResult({ ok: false, text: 'Введите цену в тенге' });
@@ -64,11 +64,12 @@ export function PriceCell({
         data-testid="price-cell-edit"
         aria-label={`Изменить цену на ${date}, гостей ${occupancy}`}
         onClick={() => {
+          setValue(minor ? minorToInput(minor) : '');
           setResult(null);
           setOpen((v) => !v);
         }}
       >
-        {text}
+        {minor ? formatMoney(minor, currency) : '—'}
       </button>
       {open && (
         <div className="price-editor" role="group" aria-label={`Цена на ${date}`}>

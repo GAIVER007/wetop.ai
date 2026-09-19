@@ -1,7 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmCancelReservation } from './confirm';
+import { confirmDialog } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
 
 /**
@@ -50,10 +50,11 @@ test('отмена заранее — без штрафа, незаезд — с
   };
   expect(await balance()).toBe(stayTotal);
 
-  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется
+  // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется.
+  // Окно подтверждения (срез 7.3, Д5) говорит об этом до нажатия — тем же кодом, что потом пишет счёт
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь', /Штраф не начисляется/);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -84,7 +85,13 @@ test('отмена заранее — без штрафа, незаезд — с
   );
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
-  await confirmAction(page, 'Отметить незаезд');
+  // сумма в окне = сумма начисления: предпросмотр и штраф считает одна функция (Д5)
+  await expect(page.getByRole('main').getByTestId('no-show-penalty')).toContainText(
+    'останется на счёте',
+  ); // предпросмотр дошёл
+  const shownText = await page.getByRole('main').getByTestId('no-show-penalty').innerText();
+  const shown = minor(shownText) * (shownText.includes(',') ? 1n : 100n); // окно печатает без тиынов
+  await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page
@@ -95,6 +102,7 @@ test('отмена заранее — без штрафа, незаезд — с
   await expect(penalty).toHaveCount(1);
   const penaltyMinor = minor(await penalty.locator('td').nth(3).innerText());
   expect(penaltyMinor * 3n).toBe(stay2); // одна ночь из трёх
+  expect(shown).toBe(penaltyMinor); // окно показало ровно то, что легло на счёт
   expect(await balance()).toBe(penaltyMinor);
   await page.screenshot({ path: 'reports/screenshots/cancellation-penalty.png', fullPage: true });
 

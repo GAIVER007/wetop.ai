@@ -7,7 +7,7 @@ import type { InventoryCategorySummary, InventoryImportPlan, InventorySummary } 
 export function summarizeInventoryPlan(plan: InventoryImportPlan): InventorySummary {
   const byCode = new Map<string, InventoryCategorySummary>();
   for (const t of plan.accommodationTypes) {
-    byCode.set(t.code, { code: t.code, name: t.name, units: 0, maxGuests: 0 });
+    byCode.set(t.code, { code: t.code, name: t.name, units: 0, maxGuests: 0, capacityAdults: 0 });
   }
   let rooms = 0;
   let beds = 0;
@@ -25,6 +25,7 @@ export function summarizeInventoryPlan(plan: InventoryImportPlan): InventorySumm
     }
     cat.units += 1;
     cat.maxGuests += guests;
+    cat.capacityAdults = Math.max(cat.capacityAdults, guests);
   }
   return {
     totalUnits: plan.units.length,

@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmCancelReservation } from './confirm';
+import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -85,7 +85,7 @@ test('поздний выезд и ранний заезд начисляютс�
 
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   // отмена брони снимает и её блоки соседних ночей — койка снова продаётся

@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, declineAction } from './confirm';
+import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
@@ -77,11 +77,12 @@ test('заселить → карточка и шахматка показыва
   await page.goto(`/reservations/${number}`);
 
   // T3: на счёте есть начисление за проживание и нет оплаты, значит выселение должно быть остановлено.
-  // Диалог отклоняем — проверяем именно защиту, а не текст ошибки: статус обязан остаться «заселён».
+  // Окно «Выселить с долгом?» (срез 7.3) называет сумму; «Оставить» — проверяем именно защиту:
+  // статус обязан остаться «заселён».
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
-  await declineAction(page);
-  await expect(page.getByRole('alert').first()).toContainText('долг');
+  await expect(page.getByRole('main').getByTestId('debt-amount')).toContainText('Долг');
+  await confirmDialog(page, 'Оставить');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
   await cardTab(page, 'Счета');
@@ -90,7 +91,7 @@ test('заселить → карточка и шахматка показыва
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
-  await confirmAction(page, 'Выселить с долгом');
+  await confirmDialog(page, 'Выселить с долгом');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
   await cardTab(page, 'Счета');
@@ -114,7 +115,7 @@ test('заселить → карточка и шахматка показыва
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
-  await confirmAction(page, 'Отметить незаезд');
+  await confirmDialog(page, 'Отметить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');

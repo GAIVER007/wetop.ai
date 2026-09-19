@@ -9,13 +9,9 @@ import {
   useTransition,
   type CSSProperties,
 } from 'react';
-import {
-  messengerLinks,
-  type Chessboard,
-  type ChessboardCell,
-  type ChessboardRow,
-} from '../../lib/api';
+import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
 import { Alert, Badge, Input, Select, cx } from '../../components/ui';
+import { messengerLinks } from '../../lib/format';
 import { stayLabels } from './stay-labels';
 import { assignUnitAction, previewAction } from '../reservations/actions';
 import { previewLine } from '../../lib/action-preview';

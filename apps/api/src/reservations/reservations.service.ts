@@ -36,6 +36,7 @@ import {
   type ItemState,
   type ReservationsRepository,
   type UnitOfWork,
+  type UnitRef,
 } from './reservations.repository';
 
 export interface CreateReservationDto {
@@ -111,6 +112,44 @@ export interface ActionPreview {
   policy?: string;
   voidedMinor?: string;
 }
+/** Предпросмотр переселения (срез 7.3, Д5): суммы строками тиынов, `problem` — почему переселить нельзя */
+export interface MovePreview {
+  unitCode: string;
+  changesCategory: boolean;
+  fromCategory: { code: string; name: string } | null;
+  toCategory: { code: string; name: string } | null;
+  nights: number;
+  currentMinor: string;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  problem: string | null;
+}
+export interface ExtendPreview {
+  nights: number;
+  departureDate: string;
+  unitCode: string | null;
+  addedMinor: string | null;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  /** Ячейка свободна на добавленные ночи (без брони и блокировки); без ячейки — true */
+  nextNightsFree: boolean;
+  problem: string | null;
+}
+export interface CancelPreview {
+  reason: 'cancel' | 'no_show';
+  items: Array<{
+    itemId: string;
+    unitCode: string | null;
+    policy: ItemState['cancellationPenalty'];
+    /** Наступил ли момент штрафа (Q-103): отмена до дня заезда бесплатна */
+    dueNow: boolean;
+    penaltyMinor: string;
+  }>;
+  totalPenaltyMinor: string;
+}
+const messageOf = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+const nightsBetween = (from: string, to: string) =>
+  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const isIso = (s: unknown): s is string =>
@@ -521,7 +560,7 @@ export class ReservationsService {
   /**
    * Срез 7.3 (Д5): сколько будет стоить действие — до того, как его сделали. Только чтение: ни
    * начислений, ни журнала, ни очереди каналов. Считается теми же функциями, что и само действие
-   * (`priceStay` по календарю тарифа, `penaltyPreview` по политике тарифа), поэтому число в окне
+   * (`priceStay` по календарю тарифа, `penaltyFor` по политике тарифа), поэтому число в окне
    * подтверждения равно тому, что появится на счёте.
    *
    * Осуществимость (занята ли ячейка, не закрыты ли продажи) здесь не проверяется — на это ответит
@@ -547,14 +586,10 @@ export class ReservationsService {
       const occupancy = Math.max(1, item.adults || item.guestsCount);
 
       if (action === 'cancel' || action === 'no_show') {
-        const penalty = await this.penaltyPreview(
-          repo,
-          item,
-          action === 'no_show' ? 'незаезд' : 'отмену брони',
-        );
+        const penalty = await this.penaltyFor(repo, item, action);
         return {
           ...base,
-          penaltyMinor: penalty.toString(),
+          penaltyMinor: penalty.amountMinor.toString(),
           policy: item.cancellationPenalty,
           // Начисление за проживание сторнируется целиком, вместо него встаёт штраф (Q-103)
           voidedMinor: item.priceMinor.toString(),
@@ -620,12 +655,7 @@ export class ReservationsService {
         );
       if (!(await repo.ratePlanCoversType(planId, target.id)))
         throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
-      const rates = await repo.nightRates(
-        target.id,
-        planId,
-        item.arrivalDate,
-        item.departureDate,
-      );
+      const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
       const price = priceStay({
         arrivalDate: item.arrivalDate,
         departureDate: item.departureDate,
@@ -664,13 +694,7 @@ export class ReservationsService {
         assertCanExtend(item.status);
         const before = await repo.card(number);
         const departureDate = addDays(item.departureDate, nights);
-        const planId = dto.ratePlanCode
-          ? (await repo.ratePlanByCode(dto.ratePlanCode))?.id
-          : item.ratePlanId;
-        if (!planId)
-          throw new BadRequestException(
-            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-          );
+        const planId = await this.resolvePlanId(repo, item, dto.ratePlanCode);
         // Ограничения (ADR-020) — на добавленные ночи и новый выезд; уже проданные ночи не перепроверяются
         await this.assertRestrictions(
           repo,
@@ -688,18 +712,8 @@ export class ReservationsService {
         );
         // Считаем только ДОБАВЛЕННЫЕ ночи: цена уже проданных ночей согласована с гостем и каналом,
         // переоценивать её по сегодняшнему календарю нельзя. Перецена всего проживания — это changeDates.
-        const rates = await repo.nightRates(
-          item.accommodationTypeId,
-          planId,
-          item.departureDate,
-          departureDate,
-        );
-        const added = priceStay({
-          arrivalDate: item.departureDate,
-          departureDate,
-          occupancy: Math.max(1, item.adults || item.guestsCount),
-          rates,
-        });
+        // Д5: та же функция считает сумму для подсказки «+8 000 ₸ на счёт» (previewExtend)
+        const added = await this.priceAddedNights(repo, item, planId, departureDate);
         const price = { totalMinor: item.priceMinor + added.totalMinor };
         const last = item.allocations[item.allocations.length - 1];
         if (last) {
@@ -779,39 +793,13 @@ export class ReservationsService {
 
         let repriced: bigint | null = null;
         if (changesCategory) {
-          const target = await repo.categoryById(unit.accommodationTypeId);
-          if (!target || !target.active)
-            throw new UnprocessableEntityException(`Категория ячейки ${dto.unitCode} неактивна`);
-          const adults = Math.max(1, item.adults || item.guestsCount);
-          assertFits(target, adults, item.children);
-          const planId = dto.ratePlanCode
-            ? (await repo.ratePlanByCode(dto.ratePlanCode))?.id
-            : item.ratePlanId;
-          if (!planId)
-            throw new BadRequestException(
-              'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-            );
-          if (!(await repo.ratePlanCoversType(planId, target.id)))
-            throw new UnprocessableEntityException(
-              `Тариф не действует на категорию ${target.name}`,
-            );
-          const rates = await repo.nightRates(
-            target.id,
-            planId,
-            item.arrivalDate,
-            item.departureDate,
-          );
-          const price = priceStay({
-            arrivalDate: item.arrivalDate,
-            departureDate: item.departureDate,
-            occupancy: adults,
-            rates,
-          });
-          repriced = price.totalMinor;
+          // Д5: та же функция считает сумму для окна подтверждения (previewMove)
+          const r = (await this.repriceForUnit(repo, item, unit, dto.ratePlanCode))!;
+          repriced = r.price.totalMinor;
           await repo.updateItem(item.id, {
-            accommodationTypeId: target.id,
-            ratePlanId: planId,
-            priceMinor: price.totalMinor,
+            accommodationTypeId: r.target.id,
+            ratePlanId: r.planId,
+            priceMinor: r.price.totalMinor,
           });
         }
         await this.releaseFrom(repo, item, fromDate);
@@ -992,42 +980,38 @@ export class ReservationsService {
     item: ItemState,
     reason: 'отмену брони' | 'незаезд',
   ): Promise<void> {
-    const amount = await this.penaltyPreview(repo, item, reason);
-    if (amount > 0n)
+    // Д5: та же функция даёт сумму для окна подтверждения (previewCancel) — окно не может разойтись со счётом
+    const penalty = await this.penaltyFor(repo, item, reason === 'незаезд' ? 'no_show' : 'cancel');
+    if (penalty.amountMinor > 0n)
       await repo.addPenaltyCharge(
         item.id,
-        amount,
+        penalty.amountMinor,
         `Штраф за ${reason} (${item.arrivalDate} → ${item.departureDate})`,
       );
   }
 
   /**
-   * Сколько штрафа начислит отмена или незаезд прямо сейчас. Чтение: ничего не пишет. Тем же
-   * методом пользуется и сам штраф, и предпросмотр в окне подтверждения (срез 7.3, Д5) — иначе
-   * число в окне и число на счёте разошлись бы при первой же правке правила.
+   * Штраф по политике тарифа проживания (Q-103): появляется только в день заезда и позже, отмена заранее
+   * бесплатна на всех каналах; незаезд — всегда. Сумма — `penaltyAmount` домена: первая ночь по календарю
+   * тарифа или доля цены проживания.
    */
-  private async penaltyPreview(
+  private async penaltyFor(
     repo: ReservationsRepository,
     item: ItemState,
-    reason: 'отмену брони' | 'незаезд',
-  ): Promise<bigint> {
-    if (item.cancellationPenalty === 'NONE' || item.priceMinor <= 0n) return 0n;
-    // Штраф появляется только в день заезда и позже; отмена заранее бесплатна на всех каналах (Q-103)
-    if (
-      !penaltyDue({
-        arrivalDate: item.arrivalDate,
-        on: this.today(),
-        reason: reason === 'незаезд' ? 'no_show' : 'cancel',
-      })
-    )
-      return 0n;
+    reason: 'cancel' | 'no_show',
+  ): Promise<{ policy: ItemState['cancellationPenalty']; dueNow: boolean; amountMinor: bigint }> {
+    const policy = item.cancellationPenalty;
+    if (policy === 'NONE' || item.priceMinor <= 0n)
+      return { policy, dueNow: false, amountMinor: 0n };
+    const dueNow = penaltyDue({ arrivalDate: item.arrivalDate, on: this.today(), reason });
+    if (!dueNow) return { policy, dueNow, amountMinor: 0n };
     const nights = Math.round(
       (Date.parse(`${item.departureDate}T00:00:00Z`) -
         Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
         86_400_000,
     );
     let firstNightMinor: bigint | null = null;
-    if (item.cancellationPenalty === 'FIRST_NIGHT' && item.ratePlanId) {
+    if (policy === 'FIRST_NIGHT' && item.ratePlanId) {
       const rates = await repo.nightRates(
         item.accommodationTypeId,
         item.ratePlanId,
@@ -1039,10 +1023,206 @@ export class ReservationsService {
         rates.find((r) => r.date === item.arrivalDate && r.occupancy === occupancy)?.priceMinor ??
         null;
     }
-    return penaltyAmount(item.cancellationPenalty, {
-      totalMinor: item.priceMinor,
-      nights,
-      firstNightMinor,
+    return {
+      policy,
+      dueNow,
+      amountMinor: penaltyAmount(policy, { totalMinor: item.priceMinor, nights, firstNightMinor }),
+    };
+  }
+
+  /** Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8) */
+  private async resolvePlanId(
+    repo: ReservationsRepository,
+    item: ItemState,
+    ratePlanCode: string | undefined,
+  ): Promise<string> {
+    const planId = ratePlanCode ? (await repo.ratePlanByCode(ratePlanCode))?.id : item.ratePlanId;
+    if (!planId)
+      throw new BadRequestException(
+        'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+      );
+    return planId;
+  }
+
+  /** Цена добавленных ночей по календарю тарифа — только их, проданные ночи не переоцениваются */
+  private async priceAddedNights(
+    repo: ReservationsRepository,
+    item: ItemState,
+    planId: string,
+    departureDate: string,
+  ) {
+    const rates = await repo.nightRates(
+      item.accommodationTypeId,
+      planId,
+      item.departureDate,
+      departureDate,
+    );
+    return priceStay({
+      arrivalDate: item.departureDate,
+      departureDate,
+      occupancy: Math.max(1, item.adults || item.guestsCount),
+      rates,
+    });
+  }
+
+  /**
+   * Цена проживания в ячейке другой категории: те же проверки вместимости и тарифа и тот же `priceStay`
+   * по календарю новой категории, что и при переселении. null — категория не меняется.
+   */
+  private async repriceForUnit(
+    repo: ReservationsRepository,
+    item: ItemState,
+    unit: UnitRef,
+    ratePlanCode: string | undefined,
+  ) {
+    if (unit.accommodationTypeId === item.accommodationTypeId) return null;
+    const target = await repo.categoryById(unit.accommodationTypeId);
+    if (!target || !target.active)
+      throw new UnprocessableEntityException(`Категория ячейки ${unit.code} неактивна`);
+    const adults = Math.max(1, item.adults || item.guestsCount);
+    assertFits(target, adults, item.children);
+    const planId = await this.resolvePlanId(repo, item, ratePlanCode);
+    if (!(await repo.ratePlanCoversType(planId, target.id)))
+      throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
+    const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
+    const price = priceStay({
+      arrivalDate: item.arrivalDate,
+      departureDate: item.departureDate,
+      occupancy: adults,
+      rates,
+    });
+    return { target, planId, price };
+  }
+
+  // ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение, теми же функциями ──
+
+  /** Переселение в ячейку `unitCode` на весь срок: новая сумма, если категория другая */
+  async previewMove(
+    number: string,
+    itemId: string,
+    q: { unitCode?: string | undefined; ratePlanCode?: string | undefined },
+  ): Promise<MovePreview> {
+    if (!q.unitCode) throw new BadRequestException('unitCode обязателен');
+    return this.uow.read(async (repo) => {
+      const state = await this.load(repo, number);
+      const item = state.items.find((i) => i.id === itemId);
+      if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+      const from = await repo.categoryById(item.accommodationTypeId);
+      const unit = await repo.unitByCode(q.unitCode!);
+      // Категория цели — по самой ячейке, а не по итогу пересчёта: иначе при занятой ячейке или
+      // неподходящем тарифе окно подтверждения писало бы «Переселить в <текущую категорию>»
+      const target = unit ? await repo.categoryById(unit.accommodationTypeId) : null;
+      let newMinor: bigint | null = null;
+      let problem: string | null = null;
+      let ratePlanRequired = false;
+      try {
+        assertCanAssign(item.status);
+        if (!unit || !unit.active)
+          throw new UnprocessableEntityException(`Ячейка ${q.unitCode} не найдена или неактивна`);
+        if (await repo.hasBlockOverlap(unit.id, item.arrivalDate, item.departureDate))
+          throw new ConflictException(`Ячейка ${unit.code} заблокирована на эти даты`);
+        if (await repo.hasAllocationOverlap(unit.id, item.arrivalDate, item.departureDate, item.id))
+          throw new ConflictException(`Ячейка ${unit.code} занята на эти даты`);
+        const r = await this.repriceForUnit(repo, item, unit, q.ratePlanCode);
+        newMinor = r ? r.price.totalMinor : item.priceMinor;
+      } catch (e) {
+        problem = messageOf(e);
+        ratePlanRequired = e instanceof BadRequestException && !item.ratePlanId && !q.ratePlanCode;
+      }
+      return {
+        unitCode: q.unitCode!,
+        changesCategory: !!target && !!from && target.id !== from.id,
+        fromCategory: from ? { code: from.code, name: from.name } : null,
+        toCategory: target ? { code: target.code, name: target.name } : null,
+        nights: nightsBetween(item.arrivalDate, item.departureDate),
+        currentMinor: item.priceMinor.toString(),
+        newMinor: newMinor === null ? null : newMinor.toString(),
+        ratePlanRequired,
+        problem,
+      };
+    });
+  }
+
+  /** Продление на `nights` ночей: цена добавленных ночей и занята ли ячейка на них */
+  async previewExtend(
+    number: string,
+    itemId: string,
+    q: { nights?: string | number | undefined; ratePlanCode?: string | undefined },
+  ): Promise<ExtendPreview> {
+    const nights = q.nights === undefined || q.nights === '' ? 1 : Number(q.nights);
+    if (!Number.isInteger(nights) || nights < 1 || nights > 30)
+      throw new BadRequestException('nights — целое от 1 до 30');
+    return this.uow.read(async (repo) => {
+      const state = await this.load(repo, number);
+      const item = state.items.find((i) => i.id === itemId);
+      if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
+      const departureDate = addDays(item.departureDate, nights);
+      const last = item.allocations[item.allocations.length - 1];
+      let addedMinor: bigint | null = null;
+      let problem: string | null = null;
+      let ratePlanRequired = false;
+      try {
+        assertCanExtend(item.status);
+        const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
+        addedMinor = (await this.priceAddedNights(repo, item, planId, departureDate)).totalMinor;
+      } catch (e) {
+        problem = messageOf(e);
+        ratePlanRequired = e instanceof BadRequestException && !item.ratePlanId && !q.ratePlanCode;
+      }
+      const nextNightsFree = last
+        ? !(await repo.hasBlockOverlap(last.unitId, item.departureDate, departureDate)) &&
+          !(await repo.hasAllocationOverlap(
+            last.unitId,
+            item.departureDate,
+            departureDate,
+            item.id,
+          ))
+        : true;
+      return {
+        nights,
+        departureDate,
+        unitCode: last?.unitCode ?? null,
+        addedMinor: addedMinor === null ? null : addedMinor.toString(),
+        newMinor: addedMinor === null ? null : (item.priceMinor + addedMinor).toString(),
+        ratePlanRequired,
+        nextNightsFree,
+        problem,
+      };
+    });
+  }
+
+  /** Отмена брони или незаезд по проживанию: штраф по каждому проживанию, как его начислит команда */
+  async previewCancel(
+    number: string,
+    q: { reason?: string | undefined; itemId?: string | undefined },
+  ): Promise<CancelPreview> {
+    const reason =
+      q.reason === 'no_show' ? 'no_show' : q.reason === 'cancel' || !q.reason ? 'cancel' : null;
+    if (!reason) throw new BadRequestException('reason — cancel или no_show');
+    return this.uow.read(async (repo) => {
+      const state = await this.load(repo, number);
+      let items = state.items.filter((i) => i.status !== 'CANCELLED' && i.status !== 'NO_SHOW');
+      if (q.itemId) {
+        items = items.filter((i) => i.id === q.itemId);
+        if (items.length === 0)
+          throw new NotFoundException(`Проживание ${q.itemId} не найдено в брони ${number}`);
+      }
+      const rows = [];
+      for (const item of items) {
+        const p = await this.penaltyFor(repo, item, reason);
+        rows.push({
+          itemId: item.id,
+          unitCode: item.allocations[item.allocations.length - 1]?.unitCode ?? null,
+          policy: p.policy,
+          dueNow: p.dueNow,
+          penaltyMinor: p.amountMinor.toString(),
+        });
+      }
+      return {
+        reason,
+        items: rows,
+        totalPenaltyMinor: rows.reduce((s, r) => s + BigInt(r.penaltyMinor), 0n).toString(),
+      };
     });
   }
 

@@ -1,16 +1,9 @@
-import { headers } from 'next/headers';
-import { currentSession } from '../../lib/session';
 import { LoginForm } from '../login/login-form';
+import { accessEmail, signedInUser } from '../login/signed-in';
 
-/** Сюда ведёт «Попробовать бесплатно» с wetop.ai (срез 13, этап 9). Та же форма, открытая на регистрации. */
+/** Сюда ведёт «Попробовать бесплатно» с wetop.ai (срез 13, ADR-046). Та же форма, открытая на регистрации. */
 export default async function RegisterPage() {
-  const accessEmail = (await headers()).get('cf-access-authenticated-user-email')?.trim() || null;
   return (
-    <LoginForm
-      demo={false}
-      accessEmail={accessEmail}
-      session={await currentSession()}
-      mode="register"
-    />
+    <LoginForm demo={false} accessEmail={await accessEmail()} user={await signedInUser()} mode="register" />
   );
 }

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { createPrismaClient } from '@pms/database';
 
 /**

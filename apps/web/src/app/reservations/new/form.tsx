@@ -12,8 +12,7 @@ export function NewReservationForm(props: {
   categories: Array<{
     code: string;
     name: string;
-    /** гостей на одном месте категории */
-    capacity: number;
+    capacityAdults: number;
     availableUnitCodes: string[];
   }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
@@ -155,8 +154,7 @@ function PlacementFields({
   categories: Array<{
     code: string;
     name: string;
-    /** гостей на одном месте категории */
-    capacity: number;
+    capacityAdults: number;
     availableUnitCodes: string[];
   }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
@@ -171,6 +169,8 @@ function PlacementFields({
   );
   const [quantity, setQuantity] = useState(kept[field('quantity')] ?? '1');
   const units = categories.find((c) => c.code === category)?.availableUnitCodes ?? [];
+  // Предел гостей — вместимость единицы выбранной категории (койка — 1), а не «2» для всех
+  const capacity = Math.max(1, categories.find((c) => c.code === category)?.capacityAdults ?? 1);
   const group = Number(quantity) > 1;
   return (
     <Grid>
@@ -204,7 +204,7 @@ function PlacementFields({
           type="number"
           name={field('adults')}
           min={1}
-          max={categories.find((c) => c.code === category)?.capacity ?? 1}
+          max={capacity}
           defaultValue={kept[field('adults')] ?? 1}
         />
       </Field>

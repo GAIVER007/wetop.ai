@@ -10,6 +10,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -23,7 +24,7 @@ const category = process.argv[2] ?? 'exely-5074688';
 const OTA_NAME = 'Booking.com';
 
 const get = async <T>(path: string): Promise<T> => {
-  const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(60_000) });
+  const res = await serviceFetch(`${API}${path}`, { signal: AbortSignal.timeout(60_000) });
   if (!res.ok) throw new Error(`API ${path}: HTTP ${res.status}`);
   return (await res.json()) as T;
 };

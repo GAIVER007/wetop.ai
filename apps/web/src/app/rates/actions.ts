@@ -5,7 +5,7 @@ import { ApiError, ratesApi, type RateChangeInput } from '../../lib/api';
 export interface RatesActionResult {
   error: string | null;
   applied?: number;
-  /** Сколько изменений действительно встало в очередь каналов: не всё, что сохранено, туда идёт */
+  /** Сколько значений встало в очередь каналов; 0 — категория или тариф не сопоставлены */
   queued?: number;
 }
 

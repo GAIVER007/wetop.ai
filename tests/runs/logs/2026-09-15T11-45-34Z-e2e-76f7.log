@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 15.09.2026 16:45 Алматы · vm
+# коммит 3a06f7f (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'подсказка про услуги|срок дольше года|Обзор дня|неверный период финансов|гост'
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (986ms)
+  ✓   2 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.0s)
+  ✓   3 tests/ui/quality.spec.ts:105:1 › список гостей и вторая бронь открывают собственные карточки (2.7s)
+  ✓   4 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: профиль гостя (1.4s)
+  ✓   5 tests/ui/quality.spec.ts:184:3 › отказ API сохраняет поля: документ гостя (1.3s)
+  ✓   6 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.1s)
+  ✓   7 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (939ms)
+  ✓   8 tests/ui/workspace.spec.ts:275:1 › карточка: профиль гостя и заселение проходят через server actions (2.4s)
+  ✓   9 tests/ui/workspace.spec.ts:357:1 › сегодня: гость, не заехавший вовремя, виден отдельным списком и в «Требуют внимания» (1.3s)
+  ✓  10 tests/ui/workspace.spec.ts:468:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.4s)
+  ✓  11 tests/ui/workspace.spec.ts:627:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.5s)
+  ✓  12 tests/ui/workspace.spec.ts:655:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (919ms)
+  ✓  13 tests/ui/workspace.spec.ts:664:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (1.3s)
+  ✘  14 tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (16.4s)
+  ✓  15 tests/ui/workspace.spec.ts:702:1 › деньги за период: срок дольше года останавливает форма, а не ошибка API (756ms)
+
+
+  1) tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Сведения об объекте в PMS' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Сведения об объекте в PMS' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Сведения об объекте в PMS' })
+
+
+      696 |   // описание: сведения PMS и описание из Channex — две разные панели с двумя разными адресами
+      697 |   await page.goto('/hotel-settings/description');
+    > 698 |   await expect(page.getByRole('heading', { name: 'Сведения об объекте в PMS' })).toBeVisible();
+          |                                                                                  ^
+      699 |   await expect(page.getByText(/Здесь — то, что знает PMS/).first()).toBeVisible();
+      700 | });
+      701 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:698:82
+
+    Error Context: test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:690:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+  14 passed (57.7s)
+
+# код выхода 1 · 59 с

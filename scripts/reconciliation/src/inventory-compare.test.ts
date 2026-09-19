@@ -9,9 +9,9 @@ const exely: InventorySummary = {
   maxGuests: 9,
   physicalRooms: 7,
   byCategory: [
-    { code: 'exely-900001', name: 'Тестовая одиночная', units: 2, maxGuests: 2 },
-    { code: 'exely-900002', name: 'Тестовая двойная', units: 2, maxGuests: 4 },
-    { code: 'exely-900003', name: 'Тестовый dorm', units: 3, maxGuests: 3 },
+    { code: 'exely-900001', name: 'Тестовая одиночная', units: 2, maxGuests: 2, capacityAdults: 1 },
+    { code: 'exely-900002', name: 'Тестовая двойная', units: 2, maxGuests: 4, capacityAdults: 2 },
+    { code: 'exely-900003', name: 'Тестовый dorm', units: 3, maxGuests: 3, capacityAdults: 1 },
   ],
 };
 
@@ -32,7 +32,7 @@ describe('compareInventory', () => {
         ...exely.byCategory.map((c) =>
           c.code === 'exely-900003' ? { ...c, units: 2, maxGuests: 2 } : c,
         ),
-        { code: 'exely-999', name: 'Лишняя', units: 1, maxGuests: 1 },
+        { code: 'exely-999', name: 'Лишняя', units: 1, maxGuests: 1, capacityAdults: 1 },
       ],
     };
     const r = compareInventory({ pms, exely, blocksInPms: 0, blocksInExely: 0 });

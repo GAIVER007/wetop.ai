@@ -30,7 +30,9 @@ import {
   type AutoSyncRun,
   type AvailabilityChange,
   type StayAvailabilityState,
+  withVanished,
 } from './exely/auto-sync';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -149,17 +151,29 @@ try {
   }
 
   let summary: Record<string, unknown> = { reservations: { created: 0, updated: 0 } };
+  let vanishedStays: Array<{ exelyRoomStayId: string; accommodationTypeCode: string; arrivalDate: string; departureDate: string }> = [];
   if (records.length > 0) {
     const report = await db.$transaction(
-      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt }),
+      // живые карточки целиком — исчезнувшие из них проживания отменяются (ADR-050)
+      (tx) => importReservations(tx, records, { propertyId: property.id, anonymizeSalt: salt, cancelVanished: true }),
       { timeout: 900_000, maxWait: 30_000 },
     );
     console.log(
       `брони ${report.reservations.created}/${report.reservations.updated}, ` +
         `проживания ${report.items.created}/${report.items.updated}, ` +
         `назначения ${report.allocations.created}/${report.allocations.updated}, ` +
-        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}`,
+        `без ячейки ${report.unassigned}, конфликтов ${report.conflicts.length}, ` +
+        `исчезли из Exely ${report.vanished.length}, удержаний ${report.retained}`,
     );
+    for (const v of report.vanished)
+      console.log(
+        `  исчезло из карточки Exely: ${v.confirmationNumber} проживание ${v.exelyRoomStayId} ${v.arrivalDate} → ${v.departureDate} — отменено (ADR-050)`,
+      );
+    for (const k of report.vanishedKept)
+      console.log(
+        `  ИСЧЕЗЛО ИЗ EXELY, НЕ ТРОНУТО (${k.reason === 'checked-in' ? 'гость заселён' : 'есть оплата'}, Q-134): ${k.confirmationNumber} проживание ${k.exelyRoomStayId} ${k.arrivalDate} → ${k.departureDate} — разобрать руками`,
+      );
+    vanishedStays = report.vanished;
     for (const c of report.conflicts)
       console.log(
         `  конфликт: ${c.confirmationNumber} ячейка ${c.exelyRoomNumber} ${c.arrivalDate} → ${c.departureDate} занята ${c.conflictsWith}` +
@@ -174,6 +188,9 @@ try {
       items: report.items,
       unassigned: report.unassigned,
       conflicts: report.conflicts.length,
+      vanished: report.vanished.length,
+      vanishedKept: report.vanishedKept.length,
+      retained: report.retained,
     };
   }
 
@@ -189,6 +206,8 @@ try {
           departureDate: it.departureDate,
           sold: sold(it.status),
         });
+    // освободившиеся ночи исчезнувших проживаний (ADR-050) в записях импорта отсутствуют — дописываем
+    withVanished(before, after, vanishedStays);
     change = availabilityChange(before, after, almatyToday);
     if (change) ari = (await queueAvailabilityDelta(change)) ? 'delta' : 'failed';
     console.log(
@@ -235,7 +254,7 @@ try {
 async function queueAvailabilityDelta(change: AvailabilityChange): Promise<boolean> {
   if (!process.env.CHANNEX_API_KEY?.trim()) return true;
   try {
-    const res = await fetch(`${api}/channels/channex/availability/changed`, {
+    const res = await serviceFetch(`${api}/channels/channex/availability/changed`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(change),
@@ -257,7 +276,7 @@ async function fullSyncChannels(): Promise<boolean> {
   try {
     // Глубину решает API (500 дней, сертификация Channex §1); 365 оставалось здесь с 12.09, как и в кнопке стойки.
     // По этой выгрузке с trigger=import сторож видел время синхронизации до записи exely.sync (ADR-032)
-    const res = await fetch(`${api}/channels/channex/sync?trigger=import`, {
+    const res = await serviceFetch(`${api}/channels/channex/sync?trigger=import`, {
       method: 'POST',
     });
     const body = (await res.json()) as {

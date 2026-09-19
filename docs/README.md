@@ -7,10 +7,12 @@ AGENTS.md §5: integration code пишется только по докумен�
 
 | Папка | Что кладём | Статус |
 |---|---|---|
-| `channex/` | PMS API docs, certification checklist, sandbox docs, webhook spec | пусто |
+| `channex/` | PMS API docs, certification checklist, sandbox docs, webhook spec | **есть** (с 09.09.2026), см. `channex/README.md` |
 | `eqonaq/` | API docs, Smart Bridge, требования к ИС, примеры запросов | пусто |
-| `fiscal/` | документация выбранного онлайн-ККМ | провайдер не выбран (Q-050) |
+| `fiscal/` | исследование ККМ | чек снят владельцем 12.09.2026 (Q-050 закрыт); папка остаётся как исследование |
 | `telegram/` | Bot API: sendMessage, getUpdates — будильник сторожа (срез 11) | **выжимка 13.09.2026**, см. `telegram/README.md` |
+| `site/` | сайт wetop.ai: посадка домена, код счётчика и виджета для сайта объекта | см. `site/` |
+| `history.md` | хроника статуса 09–13.09.2026, перенесённая из `CLAUDE.md` §2 | не документация, история |
 | `exely/` | OpenAPI Exely Connect (44 эндпоинта), портал разработчика, база знаний | **получено 08.09.2026**, см. `exely/README.md` |
 
 Каждый скачанный документ сопровождается строкой в README соответствующей папки:

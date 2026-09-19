@@ -25,6 +25,7 @@ import {
   type AnalyticsRepository,
   type SiteRecord,
 } from '../analytics/analytics.repository';
+import { CollectService } from '../analytics/collect.service';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 
@@ -104,6 +105,7 @@ export class WebBookingService {
     @Inject(ANALYTICS_REPOSITORY) private readonly sites: AnalyticsRepository,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
+    @Inject(CollectService) private readonly collect: CollectService,
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
@@ -226,8 +228,18 @@ export class WebBookingService {
         },
       ],
     });
+    let linkedSession = false;
     if (req.sessionKey) {
-      await this.sites.linkSessionReservation(site.id, req.sessionKey, card.confirmationNumber);
+      // Приёмник счётчика пишет события пачкой раз в секунду. Посетитель на быстрой сети бронирует раньше, чем
+      // его первый просмотр доехал до базы, и привязка никого не находит — источник брони терялся молча
+      // (гонка воспроизведена 15.09.2026: хит → сразу /w/book → не привязано, через 2 с — привязано).
+      // Сначала записываем всё, что накопилось, потом привязываем; в журнале — что привязка удалась на самом деле.
+      await this.collect.flush();
+      linkedSession = await this.sites.linkSessionReservation(
+        site.id,
+        req.sessionKey,
+        card.confirmationNumber,
+      );
     }
     await this.sites.audit('analytics.site.booking', site.id, {
       confirmationNumber: card.confirmationNumber,
@@ -235,7 +247,7 @@ export class WebBookingService {
       arrivalDate: req.arrivalDate,
       departureDate: req.departureDate,
       adults: req.adults,
-      linkedSession: !!req.sessionKey,
+      linkedSession,
     });
     const item = card.items[0];
     return {

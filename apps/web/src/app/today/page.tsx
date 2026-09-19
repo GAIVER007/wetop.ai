@@ -1,22 +1,25 @@
+import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { resolvePeriod } from '@pms/domain';
-import { ApiError, chessboardApi, dashboardApi, deskApi } from '../../lib/api';
+import { ApiError } from '../../lib/api';
 import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
-import { AttentionSummary, DayAttention } from './day-attention';
-import { QuickActions, HotelClock } from './dashboard-widgets';
+import { HotelClock } from './dashboard-widgets';
 import { PeriodBar } from './period-bar';
-import { KpiGrid } from './kpi';
-import { CategoriesPanel, OccupancyChart, PaymentsPanel, SourcesPanel } from './dashboard-panels';
-import { DeskStrip } from './desk-strip';
+import { DashboardSection, DashboardSkeleton } from './dashboard-section';
+import { AttentionSection, DeskSection, DeskSkeleton } from './desk-section';
 
 /**
  * Главная собственника и управляющего (срез 14, plans/slice-14-dashboard-2026-09-16.md):
  * показатели за период из шахматки и счетов, ниже — что происходит на стойке сегодня.
  * Ничего не оценивается и не прогнозируется: сравнение — только с предыдущим отрезком той же длины.
+ *
+ * Экран открывается сразу: заголовок и выбор периода не ждут данных, а каждый блок приходит своим
+ * куском (`Suspense`). Раньше страница ждала все четыре вызова разом и при отказе любого не
+ * открывалась вовсе — замечание владельца 16.09.2026 «выбираю период и нифига не открывает».
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
@@ -28,15 +31,10 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   // Полоса стойки: явная ?date=, иначе выбранный день, иначе сегодня объекта
   const deskDate =
     sp.date && validDate(sp.date) ? sp.date : period.from === period.to ? period.from : today;
-  const [hotel, dashboard, day, board] = await Promise.all([
-    hotelApi.settings().catch((error: unknown) => {
-      if (error instanceof ApiError) return null;
-      throw error;
-    }),
-    dashboardApi.period(period.from, period.to),
-    deskApi.today(deskDate),
-    chessboardApi.board(deskDate, deskDate).catch(() => null),
-  ]);
+  const hotel = await hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
   return (
     <Page
       title="Главная"
@@ -55,27 +53,19 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       }
     >
       <div className="dashboard-day">
-        <AttentionSummary day={day} date={deskDate} />
+        <Suspense fallback={<span className="muted">Загружаем задачи дня…</span>}>
+          <AttentionSection date={deskDate} />
+        </Suspense>
         <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
       </div>
       <PeriodBar period={period} today={today} />
       {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
-      <KpiGrid current={dashboard.current} previous={dashboard.previous} />
-      <div className="dash-grid dash-grid--chart">
-        <OccupancyChart period={dashboard.current} today={today} />
-        <SourcesPanel period={dashboard.current} />
-      </div>
-      <div className="dash-grid dash-grid--tables">
-        <CategoriesPanel period={dashboard.current} />
-        <PaymentsPanel period={dashboard.current} />
-      </div>
-      <DeskStrip day={day} board={board} today={today} />
-      <div className="dash-grid dash-grid--desk">
-        <QuickActions day={day} />
-        <aside aria-label="Задачи и размещение">
-          <DayAttention day={day} />
-        </aside>
-      </div>
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardSection period={period} today={today} />
+      </Suspense>
+      <Suspense fallback={<DeskSkeleton />}>
+        <DeskSection date={deskDate} today={today} />
+      </Suspense>
     </Page>
   );
 }

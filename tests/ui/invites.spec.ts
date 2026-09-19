@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test';
  * Это проверка экранов и серверных действий стойки; правила API закрыты тестами контроллера.
  */
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login');
+  await page.goto('/login?mode=code');
   const main = page.getByRole('main');
   await main.getByLabel('Email').fill('urij@example.com');
   await main.getByRole('button', { name: 'Получить код' }).click();
@@ -40,7 +40,7 @@ test('вошедший видит ожидающие приглашения и �
 test('без сессии формы приглашения нет', async ({ page }) => {
   await page.goto('/login');
   const main = page.getByRole('main');
-  await expect(main.getByRole('button', { name: 'Получить код' })).toBeVisible();
+  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   await expect(main).not.toContainText('Пригласить администратора');
 });
 

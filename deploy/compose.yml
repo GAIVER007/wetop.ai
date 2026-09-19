@@ -47,12 +47,21 @@ x-app: &app
 services:
   api:
     <<: *app
-    command: ['node', '--import', 'tsx', 'apps/api/src/main.ts']
+    # Из папки пакета, а не из корня: tsx берёт tsconfig.json рабочей папки. В корневом нет
+    # experimentalDecorators, и Nest падает на первом же контроллере — «Parameter decorators only work
+    # when experimental decorators are enabled» (проверено на сервере 18.09.2026; та же грабля описана
+    # в шапке apps/api/src/main.ts). На Mac этого не видно: launchd зовёт workspace-скрипт.
+    working_dir: /app/apps/api
+    command: ['node', '--import', 'tsx', 'src/main.ts']
     # На Mac API слушает только 127.0.0.1; в контейнере это «недоступен никому»: у каждой службы своя сеть.
     # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются.
     environment:
       API_HOST: '0.0.0.0'
       API_PORT: '3001'
+      # Пул задаётся явно, а не умолчанием (5): сумма пулов всех копий PMS обязана быть меньше предела
+      # базы. 18–19.09.2026 вторая копия с умолчанием переполнила Session pooler Supabase (15 клиентов
+      # на проект) и уронила боевую стойку в 500 — 609 отказов на одной только карточке брони.
+      DATABASE_POOL_MAX: '${DATABASE_POOL_MAX:-5}'
     expose: ['3001']
     # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
     # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,

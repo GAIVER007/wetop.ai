@@ -128,6 +128,23 @@ describe('deploy/compose.yml', () => {
     expect(service('api')).toMatch(/API_HOST:\s*'?0\.0\.0\.0'?/);
   });
 
+  it('API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает', () => {
+    // 18.09.2026 на сервере: команда из корня давала «Parameter decorators only work when experimental
+    // decorators are enabled» и контейнер валился по кругу. На Mac не видно — launchd зовёт
+    // workspace-скрипт, который уже стоит в apps/api.
+    const api = service('api');
+    expect(api).toMatch(/working_dir:\s*\/app\/apps\/api/);
+    expect(api, 'команда считается от рабочей папки, путь от корня — та же ошибка').not.toMatch(
+      /command:.*apps\/api\/src\/main\.ts/,
+    );
+  });
+
+  it('у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию', () => {
+    // 18–19.09.2026: вторая копия PMS с пулом по умолчанию выбрала остаток Session pooler Supabase
+    // (15 клиентов на проект), и боевая стойка отвечала 500 — 609 раз на одной карточке брони.
+    expect(service('api')).toMatch(/DATABASE_POOL_MAX:/);
+  });
+
   it('стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1', () => {
     const web = service('web');
     expect(web).toContain('--hostname');
@@ -170,8 +187,9 @@ describe('deploy/compose.yml', () => {
   });
 
   it('команды служб зовут то, что есть в репозитории', () => {
+    // Путь считается от рабочей папки службы, а не от корня образа (см. проверку про working_dir)
     expect(existsSync(join(ROOT, 'apps/api/src/main.ts'))).toBe(true);
-    expect(service('api')).toContain("'apps/api/src/main.ts'");
+    expect(service('api')).toContain("'src/main.ts'");
     expect(existsSync(join(ROOT, 'scripts/imports/src/cli-sync-day.ts'))).toBe(true);
     expect(service('exely-sync')).toContain('scripts/imports/src/cli-sync-day.ts --auto');
   });

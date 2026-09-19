@@ -7,7 +7,7 @@
 | Папка | Что лежит | В git | В Claude Design |
 |---|---|---|---|
 | `reference/exely/` | 7 скриншотов Exely с закрашенными фамилиями гостей — только для промптов макетов (шаг 6). Кладёт владелец из `project-input/exely-screens/`, предварительно закрасив или обрезав фамилии. Незакрашенные кадры агент не открывает | **нет** (`.gitignore`) | **нет** |
-| `reference/current/` | Наши экраны на синтетическом API, 1440×1000, светлая и тёмная тема. Снимает `tests/ui/design-reference.spec.ts`; на снимках только псевдонимы | да | да |
+| `reference/current/` | Наши экраны на синтетическом API, 1440×1000, светлая и тёмная тема. Снимает `tests/ui/design-reference.spec.ts`; на снимках только псевдонимы. **Обновлены 19.09.2026** после срезов 7.1–7.4, сравнение с 16.09 — `reports/design-reference-refresh-2026-09-19.md` | да | да |
 | `reference/kit/` | Снимки секций страницы `/design-system` — эталон Playwright `toHaveScreenshot` (`tests/ui/design-system.spec.ts`). Имя включает платформу (`…-linux.png`, `…-darwin.png`): шрифты разные, у каждой машины свой эталон; на новой машине первый прогон — с `--update-snapshots` | да | да |
 | `brand/` | Знак WETOP (`wetop-mark.svg`, копия `apps/web/src/app/icon.svg`); логотип Luxx Aparts и цвета бренда кладёт владелец | да | да |
 | `docs/` | Спецификация W3C DTCG 2025.10 — см. `docs/README.md`: агенту доступ в сеть закрыт, файл кладёт владелец | да | нет |

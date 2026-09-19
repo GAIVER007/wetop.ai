@@ -51,3 +51,22 @@ Next.js (`next dev`) + синтетический API на 4311, один worker
 | `min-width: 0` для сложенной таблицы | `2026-09-19T20-17-27Z-e2e-6a02.log` | GREEN 1/1 |
 | Сторожа `design-rules.test.ts` (шкала отступов, « · », капс, шрифт) | `2026-09-19T20-13-20Z-unit-91c7.log` | 13/13 |
 | typecheck стойки, eslint по правленым файлам | — | без ошибок |
+| `premium` целиком, `quality`, `requests` (счётчик запросов на экран) | `2026-09-19T20-17-59Z-e2e-aa94.log` | 26/26 |
+| `accessibility` — все разделы, light/dark, 1440 и 390 px; `/reservations` без нарушений axe и без переполнения | `2026-09-19T20-20-19Z-e2e-7a2d.log` | 8/8 |
+| `workspace` целиком (в нём — карточка брони из списка при сбое API) и `design-reference` (эталоны экранов `design/reference/current`, перерисованы `reservations-light/dark.png`; остальные 38 сдвинулись только из-за даты фикстуры и возвращены из git) | `2026-09-19T20-25-24Z-e2e-740f.log` | 55/55 |
+
+## Визуальная проверка
+
+Снимки на синтетическом API, гости вымышленные (ADR-010).
+
+- До: [телефон 390 px](reservations/before-light-390.png), [пустой результат 1440](reservations/before-empty-1440.png).
+- После: [desktop light 1440](reservations/after-light-1440.png), [телефон light 390](reservations/after-light-390.png),
+  [телефон dark 390](reservations/after-dark-390.png), [пустой результат 1440](reservations/after-empty-1440.png).
+- Эталоны экрана для Claude Design: `design/reference/current/reservations-{light,dark}.png` пересняты.
+
+## Границы
+
+Это изолированный стенд: список читает синтетический API, живые данные, вход и Cloudflare Access не
+проверялись. Полный `tests/ui` целиком гонит CI на PR #25 из этой ветки (в контейнере он не
+укладывается в лимит одной команды). B2–B5 не начаты; двойная реализация предпросмотра продления на
+карточке (см. `reports/ui-suite-after-merge-2026-09-20.md`) — вне B1.

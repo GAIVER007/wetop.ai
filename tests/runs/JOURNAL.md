@@ -1056,3 +1056,5 @@
 | 20.09.2026 01:15 | e2e (частично: --config tests/ui/playwright.config.ts premium -g выборка названа --workers=1) | ❌ упало 1 из 1 | 10 с | e6321f9 +3 | [лог](logs/2026-09-19T20-15-39Z-e2e-3f66.log) | список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок |
 | 20.09.2026 01:17 | e2e (частично: --config tests/ui/playwright.config.ts premium -g выборка названа --workers=1) | ✅ 1 из 1 | 9 с | e6321f9 +3 | [лог](logs/2026-09-19T20-17-27Z-e2e-6a02.log) |  |
 | 20.09.2026 01:17 | e2e (частично: --config tests/ui/playwright.config.ts premium quality requests --workers=1) | ✅ 26 из 26 | 2 мин 3 с | e6321f9 +3 | [лог](logs/2026-09-19T20-17-59Z-e2e-aa94.log) |  |
+| 20.09.2026 01:20 | e2e (частично: --config tests/ui/playwright.config.ts accessibility --workers=1) | ✅ 8 из 8 | 4 мин 50 с | e6321f9 +3 | [лог](logs/2026-09-19T20-20-19Z-e2e-7a2d.log) |  |
+| 20.09.2026 01:25 | e2e (частично: --config tests/ui/playwright.config.ts design-reference workspace --workers=1) | ✅ 55 из 55 | 3 мин 10 с | ad9241d | [лог](logs/2026-09-19T20-25-24Z-e2e-740f.log) |  |

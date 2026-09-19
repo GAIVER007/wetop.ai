@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { type DeskDay } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
+import { displayDate } from '../../lib/display-date';
 
 /** Ссылки на уже существующие действия. Один пункт на проживание, причины показаны вместе. */
-export function DayAttention({ day }: { day: DeskDay }) {
+function attentionItems(day: DeskDay) {
   const arrivals = day.arrivals.filter(
     (r) =>
       (r.status === 'CONFIRMED' || r.status === 'TENTATIVE') &&
@@ -14,8 +15,30 @@ export function DayAttention({ day }: { day: DeskDay }) {
   // Не заехали вовремя (срез 5 → срез 14): место занято, а ни в одном списке дня их нет
   const overdue = day.overdueArrivals ?? [];
   const count = arrivals.length + departures.length + overdue.length;
+  return { arrivals, departures, overdue, count };
+}
+
+export function AttentionSummary({ day, date }: { day: DeskDay; date: string }) {
+  const { count } = attentionItems(day);
   return (
-    <section className="attention-card">
+    <a href="#day-attention" className="attention-summary" data-testid="attention-summary">
+      <Icon name={count ? 'clock' : 'check'} />
+      <span>
+        <strong>Требуют внимания: {count}</strong>
+        <small>
+          Задачи на {displayDate(date)}
+          {count === 0 ? '. Всё в порядке' : '. Открыть список'}
+        </small>
+      </span>
+      <Icon name="chevron" />
+    </a>
+  );
+}
+
+export function DayAttention({ day }: { day: DeskDay }) {
+  const { arrivals, departures, overdue, count } = attentionItems(day);
+  return (
+    <section className="attention-card" id="day-attention">
       <div className="attention-heading">
         <h2>Требуют внимания</h2>
         <span className="attention-count">{count}</span>

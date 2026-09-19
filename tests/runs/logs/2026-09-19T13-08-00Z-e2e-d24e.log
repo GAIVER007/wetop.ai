@@ -1,0 +1,129 @@
+# Сквозные (e2e) · 19.09.2026 18:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3ad7b47 (main), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-refresh'
+[WebServer] (node:37080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:37160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/design-refresh.spec.ts:7:1 › главная: новая бронь и резюме внимания доступны на первом экране (16.2s)
+(node:37211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/design-refresh.spec.ts:20:1 › период на телефоне: подписанные поля и цели не меньше 44 px (847ms)
+(node:37225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/design-refresh.spec.ts:36:1 › месячные показатели и задачи конкретного дня подписаны отдельно (15.7s)
+
+
+  1) tests/ui/design-refresh.spec.ts:7:1 › главная: новая бронь и резюме внимания доступны на первом экране 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true })
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true })
+        33 × locator resolved to <a href="/reservations/new" class="quick-action quick-action--primary">…</a>
+           - unexpected value "viewport ratio 0"
+
+
+      10 |     await page.goto('/today');
+      11 |     const create = page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true });
+    > 12 |     await expect(create).toBeInViewport({ ratio: 1 });
+         |                          ^
+      13 |     const attention = page.getByRole('link', { name: /Требуют внимания: / });
+      14 |     await expect(attention).toBeInViewport({ ratio: 1 });
+      15 |     await attention.click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/design-refresh.spec.ts:12:26
+
+    Error Context: test-results/design-refresh-главная-нов-a93ae-я-доступны-на-первом-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-главная-нов-a93ae-я-доступны-на-первом-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-главная-нов-a93ae-я-доступны-на-первом-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/design-refresh.spec.ts:20:1 › период на телефоне: подписанные поля и цели не меньше 44 px 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    38
+
+      29 |     const box = await control.boundingBox();
+      30 |     expect(box).not.toBeNull();
+    > 31 |     expect(box!.height).toBeGreaterThanOrEqual(44);
+         |                         ^
+      32 |     expect(box!.width).toBeGreaterThanOrEqual(44);
+      33 |   }
+      34 | });
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/design-refresh.spec.ts:31:25
+
+    Error Context: test-results/design-refresh-период-на-т-caea7-поля-и-цели-не-меньше-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-период-на-т-caea7-поля-и-цели-не-меньше-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-период-на-т-caea7-поля-и-цели-не-меньше-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-refresh.spec.ts:36:1 › месячные показатели и задачи конкретного дня подписаны отдельно 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('attention-summary')
+    Expected substring: "17 сент."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('attention-summary') with timeout 15000ms
+      - waiting for getByTestId('attention-summary')
+
+
+      37 |   await page.goto('/today?period=month&date=2026-09-17');
+      38 |   await expect(page.getByTestId('period-caption')).toContainText('30 дней');
+    > 39 |   await expect(page.getByTestId('attention-summary')).toContainText('17 сент.');
+         |                                                       ^
+      40 |   for (const id of ['occupancy', 'revenue', 'paid', 'adr', 'revpar', 'arrivals']) {
+      41 |     await expect(page.getByTestId(`kpi-${id}`)).toBeVisible();
+      42 |   }
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/design-refresh.spec.ts:39:55
+
+    Error Context: test-results/design-refresh-месячные-по-b6def-ного-дня-подписаны-отдельно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-месячные-по-b6def-ного-дня-подписаны-отдельно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-месячные-по-b6def-ного-дня-подписаны-отдельно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/design-refresh.spec.ts:7:1 › главная: новая бронь и резюме внимания доступны на первом экране 
+    tests/ui/design-refresh.spec.ts:20:1 › период на телефоне: подписанные поля и цели не меньше 44 px 
+    tests/ui/design-refresh.spec.ts:36:1 › месячные показатели и задачи конкретного дня подписаны отдельно 
+
+# код выхода 1 · 40 с

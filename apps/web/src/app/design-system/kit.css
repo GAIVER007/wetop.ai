@@ -143,8 +143,11 @@
 .kit-disabled-host {
   display: inline-block;
 }
+.kit-theme .confirm-dialog--static { max-width: 100%; }
 @media (max-width: 760px) {
   .kit-state {
     grid-template-columns: 1fr;
   }
+  .kit-theme .tooltip-host { width: 100%; }
+  .kit-theme .tooltip { max-width: 100%; }
 }

@@ -127,6 +127,9 @@ for (const theme of ['light', 'dark'] as const) {
     await page.getByRole('link', { name: '14 дней', exact: true }).click();
     await page.getByRole('link', { name: 'Месяц', exact: true }).click();
     const report = [];
+    // Next обновляет метаданные потоком: axe запускается после завершения перехода в месяц.
+    await expect(page.getByRole('main').getByTestId('chessboard')).toHaveClass(/board--month/);
+    await expect(page).toHaveTitle('WETOP · Управление гостиницей');
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       const layout = await page.evaluate(() => {

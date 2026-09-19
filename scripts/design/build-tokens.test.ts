@@ -25,12 +25,10 @@ const tree = loadTokens(ROOT);
  * 16.09 перекраской --danger-soft светлой темы в #fff3f5 (4,57) — единственная перекраска шага 2–4.
  */
 const KNOWN_GAPS = [
-  'light: color.semantic.border-input / color.semantic.surface',
   'light: color.semantic.border / color.semantic.surface',
   'light: color.semantic.border-soft / color.semantic.surface',
   'light: color.semantic.warning-border / color.semantic.warning-bg',
   'light: color.semantic.danger-border / color.semantic.danger-soft',
-  'dark: color.semantic.border-input / color.semantic.surface',
   'dark: color.semantic.border / color.semantic.surface',
   'dark: color.semantic.border-soft / color.semantic.surface',
   'dark: color.semantic.warning-border / color.semantic.warning-bg',
@@ -84,6 +82,15 @@ describe('tokens.css генерируется из design/tokens.json', () => {
 });
 
 describe('design/tokens.json', () => {
+  it('граница поля различима на поверхности в светлой и тёмной теме (редизайн A2)', () => {
+    const rows = contrastReport(tree, ['light', 'dark']).filter(
+      (row) => row.fg === 'color.semantic.border-input',
+    );
+    expect(rows).toHaveLength(2);
+    for (const row of rows) {
+      expect(row.ratio, `граница поля: ${row.theme}`).toBeGreaterThanOrEqual(3);
+    }
+  });
   it('темы объявлены, у каждого семантического цвета есть тёмное значение', () => {
     expect(Object.keys(tree.themes)).toEqual(['light', 'dark', 'contrast', 'print']);
     const colors = tree.tokens.filter((t) => t.type === 'color');

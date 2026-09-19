@@ -169,9 +169,6 @@ export default async function ChannelsPage({
         </div>
       </div>
       <OverbookingAlarm outbox={outbox} />
-      {summary === null && (
-        <Alert boxed>Сводка фонда не загрузилась: категории в сопоставлении показаны кодами.</Alert>
-      )}
       {webhook === null && (
         <Alert boxed>
           Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед

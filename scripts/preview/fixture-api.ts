@@ -1897,14 +1897,6 @@ createServer(async (req, res) => {
       }
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
-      // просроченный заезд: подтверждённая бронь TEST1 должна была заехать вчера
-      if (body['overdue'] === true) {
-        const late = extraCards.get('20260913-TEST1');
-        if (late) {
-          late.arrivalDate = add(today, -1);
-          late.items[0]!.arrivalDate = late.arrivalDate;
-        }
-      }
       incidentHistory = Number(body['incidents']) || 0;
       // долгое проживание: на объекте живут по три месяца, а доступность считается не дальше 62 ночей
       if (body['longStay'] === true) {

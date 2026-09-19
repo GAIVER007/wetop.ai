@@ -32,10 +32,14 @@ export function PeriodBar({ period, today }: { period: ResolvedPeriod; today: st
       </div>
       <form method="get" className="period-custom" data-testid="period-form">
         <input type="hidden" name="period" value="custom" />
-        <Input type="date" name="from" defaultValue={period.from} aria-label="Период: с" />
-        <span className="muted">—</span>
-        <Input type="date" name="to" defaultValue={period.to} aria-label="Период: по" />
-        <Button type="submit" tone="secondary" size="sm">
+        <label>
+          С<Input type="date" name="from" defaultValue={period.from} aria-label="Период: с" />
+        </label>
+        <label>
+          По
+          <Input type="date" name="to" defaultValue={period.to} aria-label="Период: по" />
+        </label>
+        <Button type="submit" tone="secondary">
           Показать
         </Button>
       </form>

@@ -61,7 +61,13 @@ function Card({
 }
 
 /** Шесть показателей периода и сравнение с предыдущим таким же отрезком. Все числа — из API, как есть. */
-export function KpiGrid({ current, previous }: { current: DashboardPeriod; previous: DashboardPeriod }) {
+export function KpiGrid({
+  current,
+  previous,
+}: {
+  current: DashboardPeriod;
+  previous: DashboardPeriod;
+}) {
   const c = current;
   const p = previous;
   const single = c.nights === 1;
@@ -98,7 +104,10 @@ export function KpiGrid({ current, previous }: { current: DashboardPeriod; previ
           label="Выручка (начислено)"
           value={wholeTenge(c.revenue.totalMinor)}
           hint={`проживание ${wholeTenge(c.revenue.accommodationMinor)}${
-            b(c.revenue.servicesMinor) + b(c.revenue.penaltiesMinor) + b(c.revenue.adjustmentsMinor) !== 0n
+            b(c.revenue.servicesMinor) +
+              b(c.revenue.penaltiesMinor) +
+              b(c.revenue.adjustmentsMinor) !==
+            0n
               ? ` · услуги и штрафы ${wholeTenge(
                   (
                     b(c.revenue.servicesMinor) +
@@ -120,6 +129,18 @@ export function KpiGrid({ current, previous }: { current: DashboardPeriod; previ
           }`}
           delta={deltaPercent(b(c.payments.totalMinor), b(p.payments.totalMinor))}
         />
+        <Card
+          id="arrivals"
+          icon="arrival"
+          label="Заезды"
+          value={formatInt(c.arrivals.count)}
+          hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])} · выезды ${c.departures.count}${
+            c.arrivals.cancelled ? ` · отмен ${c.arrivals.cancelled}` : ''
+          }${c.arrivals.noShow ? ` · незаездов ${c.arrivals.noShow}` : ''}`}
+          delta={deltaPercent(c.arrivals.count, p.arrivals.count)}
+        />
+      </section>
+      <section className="kpi-secondary" aria-label="Эффективность продаж за период">
         <Card
           id="adr"
           icon="rates"
@@ -143,16 +164,6 @@ export function KpiGrid({ current, previous }: { current: DashboardPeriod; previ
               ? deltaPercent(b(c.revparMinor), b(p.revparMinor))
               : { direction: null, text: 'нет базы для сравнения' }
           }
-        />
-        <Card
-          id="arrivals"
-          icon="arrival"
-          label="Заезды"
-          value={formatInt(c.arrivals.count)}
-          hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])} · выезды ${c.departures.count}${
-            c.arrivals.cancelled ? ` · отмен ${c.arrivals.cancelled}` : ''
-          }${c.arrivals.noShow ? ` · незаездов ${c.arrivals.noShow}` : ''}`}
-          delta={deltaPercent(c.arrivals.count, p.arrivals.count)}
         />
       </section>
       <p className="kpi-compare muted" data-testid="kpi-compare">

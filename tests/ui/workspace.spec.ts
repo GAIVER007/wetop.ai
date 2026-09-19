@@ -173,7 +173,7 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
     1,
   );
-  await expect(page.getByTestId('content-source')).toContainText('Channex');
+  await expect(page.getByRole('main').getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
   // значение — у своего факта: строгий getByText ловил второй элемент во время перерисовки страницы
@@ -217,7 +217,7 @@ test('главная: период готовыми отрезками и сво
   // неверный отрезок — ошибка на экране, показан сегодняшний день
   await page.goto('/today?period=custom&from=2026-09-10&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
-  await expect(page.getByTestId('chart-categories')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
@@ -519,7 +519,10 @@ test('номера: статус уборки, блокировка и снят�
   await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
   await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
   await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
-  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Снять блокировку' }).click();
+  await page
+    .getByTestId('confirm-dialog')
+    .getByRole('button', { name: 'Снять блокировку' })
+    .click();
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
@@ -572,13 +575,14 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
   await page.goto('/analytics/setup');
-  await page.getByTestId('site-delete').click();
-  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Удалить сайт' }).click();
-  await expect(page.getByTestId('site-card')).toHaveCount(0);
-  await page.getByTestId('site-name').fill('Новый тестовый сайт');
-  await page.getByTestId('site-hosts').fill('new.example.invalid');
-  await page.getByTestId('site-create').click();
-  await expect(page.getByTestId('site-card-name')).toHaveText('Новый тестовый сайт');
+  const main = page.getByRole('main');
+  await main.getByTestId('site-delete').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Удалить сайт' }).click();
+  await expect(main.getByTestId('site-card')).toHaveCount(0);
+  await main.getByTestId('site-name').fill('Новый тестовый сайт');
+  await main.getByTestId('site-hosts').fill('new.example.invalid');
+  await main.getByTestId('site-create').click();
+  await expect(main.getByTestId('site-card-name')).toHaveText('Новый тестовый сайт');
 });
 
 test('кнопки Channex отправляют команды один раз и показывают результат; проверка только читает', async ({
@@ -619,7 +623,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
   await page.goto('/finance');
   for (const id of ['charged', 'paid', 'refunded', 'balance'])
-    await expect(page.getByTestId(id)).toHaveText('0 ₸');
+    await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
@@ -665,7 +669,9 @@ test('снятие блокировки спрашивают: «оставить
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(
-    commands.filter((c: { method: string }) => c.method === 'DELETE').map((c: { path: string }) => c.path),
+    commands
+      .filter((c: { method: string }) => c.method === 'DELETE')
+      .map((c: { path: string }) => c.path),
   ).toEqual(['/units/R01/blocks/ui-block']);
 });
 
@@ -1008,7 +1014,10 @@ test('цены: правка в ячейке календаря уходит т�
 test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page }) => {
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
-  await page.getByTestId(/^no-show-/).first().click();
+  await page
+    .getByTestId(/^no-show-/)
+    .first()
+    .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
   await expect(dialog).toContainText('Отметить незаезд');
   await expect(dialog).toContainText('штраф');
@@ -1023,7 +1032,10 @@ test('«+1 ночь» спрашивает и называет цену ново
 }) => {
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
-  await page.getByTestId(/^extend-/).first().click();
+  await page
+    .getByTestId(/^extend-/)
+    .first()
+    .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
   await expect(dialog).toContainText('Новая ночь');
   await expect(dialog).toContainText('₸');
@@ -1031,13 +1043,17 @@ test('«+1 ночь» спрашивает и называет цену ново
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.filter((c: { path: string }) => c.path.includes('/extend'))).toEqual([]);
 
-  await page.getByTestId(/^extend-/).first().click();
+  await page
+    .getByTestId(/^extend-/)
+    .first()
+    .click();
   await dialog.getByRole('button', { name: 'Продлить' }).click();
   await expect
-    .poll(async () =>
-      (await (await request.get(`${fixture}/__test/commands`)).json()).filter(
-        (c: { path: string }) => c.path.includes('/extend'),
-      ).length,
+    .poll(
+      async () =>
+        (await (await request.get(`${fixture}/__test/commands`)).json()).filter(
+          (c: { path: string }) => c.path.includes('/extend'),
+        ).length,
     )
     .toBe(1);
 });

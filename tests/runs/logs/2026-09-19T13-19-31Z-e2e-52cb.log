@@ -1,0 +1,31 @@
+# Сквозные (e2e) · 19.09.2026 18:19 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3ad7b47 (main), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'design-refresh'
+[WebServer] (node:39970) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40001) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:40045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и резюме внимания доступны на первом экране (1.6s)
+  ✓  2 tests/ui/design-refresh.spec.ts:24:1 › период на телефоне: подписанные поля и цели не меньше 44 px (531ms)
+  ✓  3 tests/ui/design-refresh.spec.ts:42:1 › месячные показатели и задачи конкретного дня подписаны отдельно (534ms)
+  ✓  4 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (3.3s)
+  ✓  5 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (3.2s)
+  ✓  6 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (3.2s)
+  ✓  7 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (3.3s)
+
+  7 passed (19.6s)
+
+# код выхода 0 · 20 с

@@ -1,0 +1,88 @@
+# Сквозные (e2e) · 19.09.2026 18:25 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3ad7b47 (main), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'месячная сетка|экраны для дизайн-системы|axe и эталонные|сайты: проверка|редизайн:'
+[WebServer] (node:42772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42802) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42842) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:42846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (12.0s)
+  ✓   2 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность (12.4s)
+[WebServer] (node:43016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (8.7s)
+[WebServer] (node:43087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (5.7s)
+(node:43113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (3.6s)
+  ✓   6 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (3.1s)
+  ✓   7 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (3.2s)
+  ✓   8 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (3.2s)
+  ✓   9 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (4.0s)
+  ✓  10 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (4.1s)
+  ✓  11 tests/ui/workspace.spec.ts:561:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (1.7s)
+
+
+  1) tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ──────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('bulk-editor')
+    Expected: visible
+    Error: strict mode violation: getByTestId('bulk-editor') resolved to 2 elements:
+        1) <section class="panel panel--lg" data-testid="bulk-editor">…</section> aka getByRole('main').getByTestId('bulk-editor')
+        2) <section class="panel panel--lg" data-testid="bulk-editor">…</section> aka getByTestId('bulk-editor').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('bulk-editor') with timeout 15000ms
+      - waiting for getByTestId('bulk-editor')
+
+
+      87 |     await page.goto('/rates');
+      88 |     await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
+    > 89 |     await expect(page.getByTestId('bulk-editor')).toBeVisible();
+         |                                                   ^
+      90 |     await shot(page, 'rates', theme);
+      91 |     await shot(page, 'rates-full', theme, true);
+      92 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/design-reference.spec.ts:89:51
+
+    Error Context: test-results/design-reference-экраны-для-дизайн-системы-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-reference-экраны-для-дизайн-системы-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark ───────────────────────
+  10 passed (1.1m)
+
+# код выхода 1 · 1 мин 7 с

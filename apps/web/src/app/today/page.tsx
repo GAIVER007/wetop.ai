@@ -4,7 +4,9 @@ import { ApiError, chessboardApi, dashboardApi, deskApi } from '../../lib/api';
 import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
-import { DayAttention } from './day-attention';
+import Link from 'next/link';
+import { Icon } from '../../components/icon';
+import { AttentionSummary, DayAttention } from './day-attention';
 import { QuickActions, HotelClock } from './dashboard-widgets';
 import { PeriodBar } from './period-bar';
 import { KpiGrid } from './kpi';
@@ -39,9 +41,23 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     <Page
       title="Главная"
       crumbs={<span className="eyebrow">{hotel?.property.name ?? 'Гостиница'}</span>}
-      subtitle="Показатели объекта за период и что происходит на стойке сегодня."
-      actions={<HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />}
+      subtitle="Загрузка, деньги и задачи вашего объекта."
+      actions={
+        <>
+          <Link href="/chessboard" className="btn btn--secondary">
+            Шахматка
+          </Link>
+          <Link href="/reservations/new" className="btn">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        </>
+      }
     >
+      <div className="dashboard-day">
+        <AttentionSummary day={day} date={deskDate} />
+        <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
+      </div>
       <PeriodBar period={period} today={today} />
       {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
       <KpiGrid current={dashboard.current} previous={dashboard.previous} />

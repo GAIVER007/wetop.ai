@@ -491,7 +491,7 @@ let paymentLines: Array<{
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 const incidentSeed: Incident = {
   id: 'ui-incident',
-  kind: 'booking.unassigned',
+  kind: 'stay.unassigned',
   class: 'B',
   severity: 'WARNING',
   status: 'OPEN',

@@ -16,6 +16,7 @@ import { Icon } from '../../components/icon';
 import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
+import { blockTypeLabel } from '../../lib/block-types';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -30,11 +31,6 @@ const STATUS_RU: Record<string, string> = {
  * на 88 строках были бы шумом, а фильтр «Уборка» показывает те же ячейки списком.
  */
 const HK_DIRTY = 'DIRTY';
-const BLOCK_RU: Record<string, string> = {
-  MAINTENANCE: 'ремонт',
-  CLEANING: 'уборка',
-  OTHER: 'блокировка',
-};
 
 /**
  * Сетка шахматки — клиентская часть.
@@ -451,9 +447,7 @@ function Cell({
           STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
         }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
-        ? `${BLOCK_RU[cell.blockType ?? ''] ?? cell.blockType}${
-            cell.blockReason ? `: ${cell.blockReason}` : ''
-          }`
+        ? `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`
         : 'Свободно — создать бронь на эту дату';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   const draggable =
@@ -497,7 +491,7 @@ function Cell({
             className="board__stay"
             aria-label={title}
             style={{
-              background: bg,
+              backgroundColor: bg,
               borderRadius: radius,
               paddingLeft: cell.isArrival ? 6 : 2,
               cursor: draggable ? 'grab' : undefined,
@@ -566,7 +560,7 @@ function Cell({
         <Link
           href={`/units/${encodeURIComponent(unitCode)}`}
           className="board__free board-block"
-          style={{ background: bg }}
+          style={{ backgroundColor: bg }}
           aria-label={`${title} · ${unitCode}`}
         />
       )}

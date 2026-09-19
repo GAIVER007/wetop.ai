@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 18.09.2026 15:58 Алматы · vm
+# коммит 4e29fd3 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-blocks.spec.ts'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (2.0s)
+
+
+  1) tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "repeating-linear-gradient"
+    Received string:    "none"
+
+      27 |   // штриховка жива: background-image не сброшен инлайн-фоном
+      28 |   const image = await link.evaluate((el) => getComputedStyle(el).backgroundImage);
+    > 29 |   expect(image).toContain('repeating-linear-gradient');
+         |                 ^
+      30 |   // тип блокировки — словом, как на карточке ячейки; сырого кода нет
+      31 |   await expect(link).toHaveAttribute('aria-label', /неисправна: нет матраса/);
+      32 |   await expect(link).not.toHaveAttribute('aria-label', /OUT_OF_ORDER/);
+        at /home/user/wetop.ai/tests/ui/chessboard-blocks.spec.ts:29:17
+
+    Error Context: test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-blocks-клетка-б-a0540-ована-и-называет-тип-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом ─
+
+# код выхода 1 · 8 с

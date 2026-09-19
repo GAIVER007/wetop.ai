@@ -529,7 +529,7 @@ dialog::backdrop {
   z-index: 100;
   padding: 10px 16px;
   background: var(--primary);
-  color: var(--muted);
+  color: var(--on-primary);
   border-radius: 6px;
 }
 .skip-link:focus {
@@ -544,7 +544,12 @@ dialog::backdrop {
   white-space: nowrap;
 }
 .skeleton {
-  background: linear-gradient(100deg, var(--primary-soft) 25%, var(--primary-soft) 50%, var(--primary-soft) 75%);
+  background: linear-gradient(
+    100deg,
+    var(--primary-soft) 25%,
+    var(--primary-soft) 50%,
+    var(--primary-soft) 75%
+  );
   background-size: 200% 100%;
   border-radius: 8px;
   animation: skeleton 1.5s ease-in-out infinite;
@@ -575,7 +580,6 @@ dialog::backdrop {
   }
 }
 @media (min-width: 1600px) {
-
   .workspace-sidebar {
     padding-left: 22px;
     padding-right: 22px;
@@ -615,7 +619,6 @@ dialog::backdrop {
   }
 }
 @media (max-width: 600px) {
-
   .workspace-header {
     padding: 0 16px;
     gap: 10px;
@@ -791,15 +794,6 @@ dialog::backdrop {
 .board .board__group-name {
   white-space: normal;
 }
-.board-block {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 5px,
-    var(--danger-soft) 5px,
-    var(--danger-soft) 7px
-  );
-}
 .form-section-title {
   display: flex;
   align-items: center;
@@ -853,29 +847,6 @@ dialog::backdrop {
   }
 }
 
-.record-nav {
-  display: flex;
-  gap: 26px;
-  align-items: center;
-  padding: 0 2px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-  overflow: auto;
-}
-.record-nav a {
-  display: block;
-  padding: 13px 0;
-  font-size: 13px;
-  color: var(--text-2);
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-}
-.record-nav a:hover,
-.record-nav a:focus-visible {
-  color: var(--primary);
-  text-decoration: none;
-  border-color: var(--primary);
-}
 [id^='booking-'],
 [id^='guest-'] {
   scroll-margin-top: calc(var(--header-h) + 20px);
@@ -929,9 +900,6 @@ dialog::backdrop {
   .guest-summary-fact {
     margin-left: 0;
     margin-right: 16px;
-  }
-  .record-nav {
-    gap: 22px;
   }
 }
 

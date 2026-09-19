@@ -10,13 +10,9 @@ import {
   unblockUnitAction,
   type UnitActionResult,
 } from './actions';
+import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 
-const TYPES: Array<[string, string]> = [
-  ['MAINTENANCE', 'ремонт'],
-  ['OUT_OF_ORDER', 'неисправна'],
-  ['MANAGEMENT', 'решение управляющего'],
-  ['OTHER', 'другое'],
-];
+const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 const HK: Array<[UnitCard['housekeepingStatus'], string]> = [
   ['DIRTY', 'грязно'],
   ['CLEAN', 'убрано'],

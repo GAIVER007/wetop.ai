@@ -146,3 +146,34 @@ describe('DESIGN.md §15: системных окон подтверждения
     expect(guilty).toEqual([]);
   });
 });
+
+/**
+ * План дизайн-системы, раздел 10 «найдено попутно», п. 2, 3 и 11 (закрыты 18.09.2026):
+ *  — ссылка «перейти к содержимому» лежит на `--primary`, её текст — только `--on-primary`
+ *    (`--muted` на синем давал контраст около 1,1:1, §10);
+ *  — штриховка блокировки (`.board-block`, `background-image`) гаснет, если клетка ставит инлайн
+ *    сокращение `background:` — оно сбрасывает и изображение; на шахматке инлайн только `backgroundColor`;
+ *  — мёртвые классы `.topbar*` и `.record-nav` удалены и не возвращаются.
+ */
+describe('план дизайн-системы §10: попутные дефекты не возвращаются', () => {
+  const workspaceCss = readFileSync(join(SRC, 'app', 'workspace.css'), 'utf8');
+  it('«перейти к содержимому» на --primary пишется цветом --on-primary', () => {
+    const rule = cssRules(join(SRC, 'app', 'workspace.css')).find(
+      (r) => r.selector === '.skip-link',
+    );
+    expect(rule, '.skip-link есть в workspace.css').toBeDefined();
+    expect(rule!.body).toMatch(/color:\s*var\(--on-primary\)/);
+    expect(rule!.body).not.toMatch(/color:\s*var\(--muted\)/);
+  });
+  it('на шахматке инлайн-фон клетки — backgroundColor, не сокращение background', () => {
+    const guilty = tsxFiles(join(SRC, 'app', 'chessboard'))
+      .filter((f) => /style=\{\{[\s\S]*?\bbackground:/.test(readFileSync(f, 'utf8')))
+      .map((f) => relative(SRC, f));
+    expect(guilty).toEqual([]);
+  });
+  it('мёртвых классов .topbar и .record-nav в CSS стойки нет', () => {
+    const dead = offenders((r) => /(^|[\s,])\.(topbar|record-nav)(\b|__)/.test(r.selector));
+    expect(dead).toEqual([]);
+    expect(workspaceCss).not.toMatch(/\.record-nav/);
+  });
+});

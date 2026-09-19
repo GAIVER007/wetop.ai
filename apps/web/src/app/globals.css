@@ -6,7 +6,6 @@
  * и там, где нужно действие (жёлтое «не сделано», красный «долг»); границы в 1 px вместо теней.
  */
 
-
 *,
 *::before,
 *::after {
@@ -49,78 +48,6 @@ h3 {
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 1px;
-}
-
-/* ---------- верхняя навигация ---------- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.topbar__inner {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-height: var(--topbar-h);
-  padding: 6px 20px;
-  flex-wrap: wrap;
-}
-.topbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--font-head);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-.topbar__mark {
-  color: var(--text);
-  flex: none;
-}
-.topbar__brand:hover {
-  text-decoration: none;
-}
-.topbar__brand span {
-  color: var(--muted);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: -2px;
-}
-.topbar__nav {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-wrap: wrap;
-}
-.topbar__link {
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.topbar__link:hover {
-  background: var(--surface-muted);
-  text-decoration: none;
-}
-.topbar__link--active {
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-weight: 600;
-}
-.topbar__link--accent {
-  margin-left: 8px;
-  background: var(--primary);
-  color: var(--muted);
-  font-weight: 600;
-}
-.topbar__link--accent:hover {
-  background: var(--primary-hover);
 }
 
 /* ---------- страница ---------- */
@@ -1079,9 +1006,6 @@ textarea.inp {
 }
 
 @media print {
-  .topbar {
-    display: none;
-  }
   body {
     background: var(--surface);
   }

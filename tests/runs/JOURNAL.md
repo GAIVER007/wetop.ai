@@ -655,3 +655,15 @@
 | 18.09.2026 15:51 | unit | ❌ упало 3 из 1060 | 1 мин 32 с | 12a67c5 +2 | [лог](logs/2026-09-18T10-51-18Z-unit-6d14.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
 | 18.09.2026 15:53 | typecheck | ✅ без ошибок | 20 с | 12a67c5 +22 | [лог](logs/2026-09-18T10-53-02Z-typecheck-27ab.log) |  |
 | 18.09.2026 15:53 | lint | ✅ без ошибок | 10 с | 12a67c5 +22 | [лог](logs/2026-09-18T10-53-22Z-lint-a700.log) |  |
+| 18.09.2026 15:58 | unit (частично: apps/web/src/design-rules.test.ts apps/web/src/lib/block-types.test.ts tests/unit/fixture-incident-kinds.test.ts) | ❌ упало 4 из 14 | 1 с | 4e29fd3 +3 | [лог](logs/2026-09-18T10-58-24Z-unit-dc6a.log) | фикстура UI: виды неисправностей — только из домена каждый kind у Incident в fixture-api.ts есть в POLICY |
+| 18.09.2026 15:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-blocks.spec.ts) | ❌ упало 1 из 1 | 8 с | 4e29fd3 +3 | [лог](logs/2026-09-18T10-58-19Z-e2e-5230.log) | клетка блокировки заштрихована и называет тип словом |
+| 18.09.2026 15:59 | unit (частично: apps/web/src/design-rules.test.ts apps/web/src/lib/block-types.test.ts tests/unit/fixture-incident-kinds.test.ts) | ✅ 16 из 16 | 1 с | 4e29fd3 +10 | [лог](logs/2026-09-18T10-59-45Z-unit-fe12.log) |  |
+| 18.09.2026 15:59 | typecheck | ❌ ошибок: 1 | 24 с | 4e29fd3 +11 | [лог](logs/2026-09-18T10-59-47Z-typecheck-e3d5.log) | TS2304 |
+| 18.09.2026 16:00 | lint | ✅ без ошибок | 13 с | 4e29fd3 +11 | [лог](logs/2026-09-18T11-00-12Z-lint-1f44.log) |  |
+| 18.09.2026 15:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 1 мин 18 с | 4e29fd3 +10 | [лог](logs/2026-09-18T10-59-37Z-e2e-2ec2.log) |  |
+| 18.09.2026 16:01 | typecheck | ✅ без ошибок | 15 с | 4e29fd3 +11 | [лог](logs/2026-09-18T11-01-06Z-typecheck-9c00.log) |  |
+| 18.09.2026 16:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 120 | 9 мин 19 с | 4e29fd3 +10 | [лог](logs/2026-09-18T11-01-36Z-e2e-78d9.log) | клетка блокировки заштрихована и называет тип словом |
+| 19.09.2026 16:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-blocks.spec.ts) | ✅ 1 из 1 | 1 мин 34 с | 4e29fd3 +11 | [лог](logs/2026-09-19T11-31-52Z-e2e-57a2.log) |  |
+| 19.09.2026 16:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 120 из 120 | 12 мин 41 с | 4e29fd3 +11 | [лог](logs/2026-09-19T11-34-27Z-e2e-6f68.log) |  |
+| 19.09.2026 16:47 | unit | ❌ упало 3 из 1066 | 1 мин 35 с | 4e29fd3 +11 | [лог](logs/2026-09-19T11-47-19Z-unit-eead.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 19.09.2026 16:48 | lint | ✅ без ошибок | 17 с | 4e29fd3 +12 | [лог](logs/2026-09-19T11-48-55Z-lint-ccef.log) |  |

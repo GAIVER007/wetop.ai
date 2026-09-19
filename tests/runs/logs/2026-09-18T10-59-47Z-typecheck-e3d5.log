@@ -1,0 +1,18 @@
+# Типы (typecheck) · 18.09.2026 15:59 Алматы · vm
+# коммит 4e29fd3 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 11
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/ui/chessboard-blocks.spec.ts(28,45): error TS2304: Cannot find name 'getComputedStyle'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 24 с

@@ -360,3 +360,16 @@
   line-height: 16px;
   gap: var(--space-1);
 }
+
+/* Штриховка блокировки. Селектор сильнее `.board__free` из premium.css (там сокращение `background`
+ * сбрасывало background-image, и блокировка выглядела ровной заливкой — план дизайн-системы §10 п. 3);
+ * инлайн-цвет клетки идёт через backgroundColor и штриховку не трогает. */
+.board .board__free.board-block {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    var(--danger-soft) 5px,
+    var(--danger-soft) 7px
+  );
+}

@@ -697,3 +697,5 @@
 | 19.09.2026 18:27 | unit (частично: scripts/design/build-tokens.test.ts apps/web/src/design-rules.test.ts) | ✅ 25 из 25 | 1 с | 3ad7b47 +12 | [лог](logs/2026-09-19T13-27-55Z-unit-e686.log) | Редизайн A: финальные токены и правила |
 | 19.09.2026 18:27 | typecheck | ✅ без ошибок | 8 с | 3ad7b47 +16 | [лог](logs/2026-09-19T13-27-56Z-typecheck-504a.log) | Редизайн A: типы корня, API и web |
 | 19.09.2026 18:28 | lint (частично: --ignore-pattern .agent-tmp/**) | ✅ без ошибок | 5 с | 3ad7b47 +16 | [лог](logs/2026-09-19T13-28-04Z-lint-3ef4.log) | Редизайн A: lint; исключён сохранённый посторонний архив .agent-tmp |
+| 19.09.2026 23:06 | unit (частично: apps/web/src/design-rules.test.ts apps/api/src/accounts) | ✅ 70 из 70 | 3 с | 830329c | [лог](logs/2026-09-19T18-06-15Z-unit-0593.log) |  |
+| 19.09.2026 23:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/invites.spec.ts tests/ui/login-access.spec.ts tests/ui/design-refresh.spec.ts) | ✅ 16 из 16 | 46 с | 830329c | [лог](logs/2026-09-19T18-06-18Z-e2e-1b9a.log) |  |

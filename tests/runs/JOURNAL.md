@@ -1071,3 +1071,4 @@
 | 20.09.2026 01:48 | e2e (частично: --config tests/ui/playwright.config.ts design-system --update-snapshots --workers=1) | ✅ 8 из 8 | 51 с | 6cdcc43 +2 | [лог](logs/2026-09-19T20-48-17Z-e2e-e93a.log) |  |
 | 20.09.2026 01:50 | e2e (частично: --config tests/ui/playwright.config.ts workspace quality design-system manager-actions --workers=1) | ✅ 82 из 82 | 3 мин 51 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-50-38Z-e2e-b53f.log) |  |
 | 20.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts accessibility --workers=1) | ✅ 8 из 8 | 4 мин 43 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-54-30Z-e2e-b05c.log) |  |
+| 20.09.2026 01:59 | e2e (частично: --config tests/ui/playwright.config.ts design-reference chessboard-week chessboard-month --workers=1) | ✅ 22 из 22 | 4 мин 7 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-59-13Z-e2e-5413.log) |  |

@@ -22,6 +22,11 @@ const mailProviders = [
     useFactory: (): boolean => mail.mailConfigFromEnv(process.env) !== null,
   },
   {
+    /** Адрес стойки для ссылок в письмах (приглашения, этап 7). Пустой — ссылка относительная. */
+    provide: 'APP_URL',
+    useFactory: (): string => process.env.APP_URL?.trim() ?? '',
+  },
+  {
     provide: 'MAIL_SENDER',
     useFactory: (): mail.MailSender => {
       const config = mail.mailConfigFromEnv(process.env);

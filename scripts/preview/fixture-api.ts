@@ -571,7 +571,8 @@ function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
   // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
   const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
-    housekeeping.get(code) ?? (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
+    housekeeping.get(code) ??
+    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
@@ -1497,6 +1498,49 @@ createServer(async (req, res) => {
           ? send(200, authSession)
           : send(401, { message: 'Сессия закончилась. Войдите снова.' });
       if (path === '/auth/logout') return noContent();
+      // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
+      const invitePreview = {
+        organizationName: authSession.organizationName,
+        email: 'novyj@example.com',
+        expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+      };
+      if (path === '/auth/invites') {
+        if (bearer !== 'Bearer fixture-session-token')
+          return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+        if (req.method === 'POST') {
+          const email = String(body['email'] ?? '')
+            .trim()
+            .toLowerCase();
+          if (!email.includes('@'))
+            return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
+          if (email === authSession.email)
+            return send(400, { message: 'Этот человек уже в организации.' });
+          return send(201, {
+            id: `inv-${Date.now()}`,
+            email,
+            expiresAt: invitePreview.expiresAt,
+            acceptedAt: null,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        return send(200, [
+          {
+            id: 'inv-fixture',
+            email: 'zhdet@example.com',
+            expiresAt: invitePreview.expiresAt,
+            acceptedAt: null,
+            createdAt: new Date(Date.now() - 3600_000).toISOString(),
+          },
+        ]);
+      }
+      const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
+      if (inviteMatch) {
+        if (inviteMatch[1] !== 'fixture-invite-token')
+          return send(404, {
+            message: 'Приглашение не найдено, уже принято или его срок истёк.',
+          });
+        return send(200, invitePreview);
+      }
       return send(404, {});
     }
     if (path === failPath || failPath === '*')
@@ -1695,7 +1739,8 @@ createServer(async (req, res) => {
     }
     if (path.startsWith('/guests/') && path.includes('/documents/') && req.method === 'DELETE') {
       const [, , id, , documentId] = path.split('/');
-      const g = decodeURIComponent(id!) === guest.id ? guest : extraGuests.get(decodeURIComponent(id!));
+      const g =
+        decodeURIComponent(id!) === guest.id ? guest : extraGuests.get(decodeURIComponent(id!));
       if (!g) return send(404, { message: 'Гость не найден' });
       g.documents = g.documents.filter((d) => d.id !== decodeURIComponent(documentId!));
       return send(200, getGuest(decodeURIComponent(id!)));

@@ -6,6 +6,7 @@
 import type {
   AccountRecord,
   AccountsRepository,
+  InviteRecord,
   LoginCodeRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -140,4 +141,92 @@ export class FakeAccountsRepository implements AccountsRepository {
     const s = this.sessions.find((x) => x.tokenHash === tokenHash);
     if (s && s.revokedAt === null) s.revokedAt = at;
   }
+
+  // ── Приглашения (этап 7) ────────────────────────────────────────────────────────────────────
+  readonly invites: StoredInvite[] = [];
+
+  async createInvite(input: {
+    organizationId: string;
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    createdBy: string;
+  }): Promise<InviteRecord> {
+    this.seq += 1;
+    const org = this.accounts.find((a) => a.organizationId === input.organizationId);
+    const stored: StoredInvite = {
+      id: `i-${this.seq}`,
+      organizationId: input.organizationId,
+      organizationName: org?.organizationName ?? input.organizationId,
+      email: input.email,
+      tokenHash: input.tokenHash,
+      expiresAt: input.expiresAt,
+      acceptedAt: null,
+      createdBy: input.createdBy,
+      createdAt: new Date(),
+    };
+    this.invites.push(stored);
+    return toInviteRecord(stored);
+  }
+
+  async pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]> {
+    return this.invites
+      .filter(
+        (i) => i.organizationId === organizationId && i.acceptedAt === null && i.expiresAt > now,
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(toInviteRecord);
+  }
+
+  async inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null> {
+    const i = this.invites.find((x) => x.tokenHash === tokenHash);
+    return i ? toInviteRecord(i) : null;
+  }
+
+  async markInviteAccepted(id: string, at: Date): Promise<void> {
+    const i = this.invites.find((x) => x.id === id);
+    if (i && i.acceptedAt === null) i.acceptedAt = at;
+  }
+
+  async isMember(email: string, organizationId: string): Promise<boolean> {
+    return this.accounts.some((a) => a.email === email && a.organizationId === organizationId);
+  }
+
+  /** Подделка держит одну строку на членство: тот же человек в другой организации — ещё одна строка. */
+  async joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord> {
+    const existing = this.accounts.find(
+      (a) => a.email === input.email && a.organizationId === input.organizationId,
+    );
+    if (existing) return existing;
+    const org = this.accounts.find((a) => a.organizationId === input.organizationId);
+    const sameUser = this.accounts.find((a) => a.email === input.email);
+    if (!sameUser) this.seq += 1;
+    const account: AccountRecord = {
+      userId: sameUser?.userId ?? `u-${this.seq}`,
+      email: input.email,
+      organizationId: input.organizationId,
+      organizationName: org?.organizationName ?? input.organizationId,
+      organizationStatus: org?.organizationStatus ?? 'TRIAL',
+      trialEndsAt: org?.trialEndsAt ?? null,
+    };
+    this.accounts.push(account);
+    return account;
+  }
+}
+
+interface StoredInvite extends InviteRecord {
+  tokenHash: string;
+  createdBy: string;
+}
+
+function toInviteRecord(i: StoredInvite): InviteRecord {
+  return {
+    id: i.id,
+    organizationId: i.organizationId,
+    organizationName: i.organizationName,
+    email: i.email,
+    expiresAt: i.expiresAt,
+    acceptedAt: i.acceptedAt,
+    createdAt: i.createdAt,
+  };
 }

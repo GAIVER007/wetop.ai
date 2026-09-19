@@ -1,15 +1,18 @@
 import 'reflect-metadata';
 import { randomInt } from 'node:crypto';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   CODE_LENGTH,
   CODE_REJECTED_MESSAGE,
+  INVITE_TTL_MS,
   MAX_CODES_PER_EMAIL_PER_HOUR,
   MAX_CODES_PER_IP_PER_HOUR,
   checkCode,
+  checkInvite,
   checkSession,
   expiresAt as codeExpiresAt,
   formatCode,
+  inviteExpiresAt,
   isCodeShaped,
   isEmailShaped,
   normalizeEmail,
@@ -19,11 +22,35 @@ import {
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
-import { ACCOUNTS_REPOSITORY, type AccountsRepository, type SessionRecord } from './accounts.repository';
+import {
+  ACCOUNTS_REPOSITORY,
+  type AccountsRepository,
+  type InviteRecord,
+  type SessionRecord,
+} from './accounts.repository';
 import type { Actor } from './actor';
 
 const HOUR_MS = 60 * 60 * 1000;
 const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
+
+/** Что видит вошедший в списке приглашений и что получает в ответ на новое. Ключа здесь нет. */
+export interface InviteView {
+  id: string;
+  email: string;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  createdAt: Date;
+}
+
+/** Что видит человек, открывший ссылку: кто зовёт и кого. */
+export interface InvitePreview {
+  organizationName: string;
+  email: string;
+  expiresAt: Date;
+}
+
+export type InviteOutcome =
+  { ok: true; invite: InviteView } | { ok: false; reason: 'email' | 'member' };
 
 /** Кого пустили внутрь. Ровно то, что экран показывает вошедшему. */
 export interface Session {
@@ -47,6 +74,11 @@ export class AccountsService {
     @Inject(ACCOUNTS_REPOSITORY) private readonly repo: AccountsRepository,
     @Inject('MAIL_SENDER') private readonly sender: mail.MailSender,
     @Inject('MAIL_CONFIG_PRESENT') private readonly mailReady: boolean,
+    /**
+     * Адрес стойки для ссылок в письмах (`APP_URL`). Необязателен: модули и тесты, которым
+     * приглашения не нужны, его не объявляют — тогда ссылка в письме будет относительной.
+     */
+    @Optional() @Inject('APP_URL') private readonly appUrl: string = '',
   ) {}
 
   /**
@@ -81,13 +113,19 @@ export class AccountsService {
     let account = await this.repo.accountByEmail(email);
     if (account === null) {
       const now = new Date();
-      account = await this.repo.createAccount({ email, organizationName, trialEndsAt: trialEndsAt(now) });
+      account = await this.repo.createAccount({
+        email,
+        organizationName,
+        trialEndsAt: trialEndsAt(now),
+      });
       if (account === null) {
         // Адрес занят, но `accountByEmail` его не отдал: человек заблокирован или без организации.
         // Такому код не шлём, наружу молчим — как и при обычном запросе кода.
         return;
       }
-      this.log.log(`зарегистрирована организация ${account.organizationId}, пробный период до ${account.trialEndsAt?.toISOString()}`);
+      this.log.log(
+        `зарегистрирована организация ${account.organizationId}, пробный период до ${account.trialEndsAt?.toISOString()}`,
+      );
     }
     await this.issueCode(email, ip);
   }
@@ -95,11 +133,15 @@ export class AccountsService {
   private async overLimit(email: string, ip: string | null): Promise<boolean> {
     const since = new Date(Date.now() - HOUR_MS);
     if ((await this.repo.codesForEmailSince(email, since)) >= MAX_CODES_PER_EMAIL_PER_HOUR) {
-      this.log.warn(`код не выслан: предел на адрес исчерпан (${MAX_CODES_PER_EMAIL_PER_HOUR}/час)`);
+      this.log.warn(
+        `код не выслан: предел на адрес исчерпан (${MAX_CODES_PER_EMAIL_PER_HOUR}/час)`,
+      );
       return true;
     }
     if (ip && (await this.repo.codesForIpSince(ip, since)) >= MAX_CODES_PER_IP_PER_HOUR) {
-      this.log.warn(`код не выслан: предел на адрес сети исчерпан (${MAX_CODES_PER_IP_PER_HOUR}/час)`);
+      this.log.warn(
+        `код не выслан: предел на адрес сети исчерпан (${MAX_CODES_PER_IP_PER_HOUR}/час)`,
+      );
       return true;
     }
     return false;
@@ -197,6 +239,118 @@ export class AccountsService {
     if (!token) return;
     await this.repo.revokeSession(hashSecret(token), new Date());
   }
+
+  // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
+
+  /**
+   * Пригласить по почте. Кто зовёт — известен (сессия проверена контроллером), поэтому здесь, в
+   * отличие от входа, ошибки формы наружу называются: не почта, уже в организации. Ключ ссылки
+   * уходит только в письмо; в базе — отпечаток.
+   */
+  async createInvite(
+    sessionToken: string | null,
+    rawEmail: unknown,
+  ): Promise<InviteOutcome | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
+    const email = normalizeEmail(rawEmail);
+    if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
+    if (await this.repo.isMember(email, who.organizationId)) return { ok: false, reason: 'member' };
+
+    const token = newSessionToken();
+    const now = new Date();
+    const invite = await this.repo.createInvite({
+      organizationId: who.organizationId,
+      email,
+      tokenHash: hashSecret(token),
+      expiresAt: inviteExpiresAt(now),
+      createdBy: who.userId,
+    });
+    const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
+    try {
+      if (!this.mailReady) {
+        this.log.error('MAIL_* не настроены — приглашение создано, но письмо не отправлено');
+      } else {
+        await this.sender.send(mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS));
+      }
+    } catch (e) {
+      this.log.error(`письмо с приглашением не отправлено: ${(e as Error).message}`);
+    }
+    return { ok: true, invite: toInviteView(invite) };
+  }
+
+  /** `null` — сессии нет: список приглашений видит только вошедший, и только своей организации. */
+  async pendingInvites(sessionToken: string | null): Promise<InviteView[] | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    return (await this.repo.pendingInvites(who.organizationId, new Date())).map(toInviteView);
+  }
+
+  /** Живая сессия целиком: автор для `created_by` и организация для письма. Наружу не отдаётся. */
+  private async liveSession(token: string | null): Promise<SessionRecord | null> {
+    if (!token) return null;
+    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
+    if (!stored) return null;
+    return checkSession(stored, new Date()).ok ? stored : null;
+  }
+
+  /** Кто зовёт и кого — для страницы по ссылке. `null` на любую мёртвую ссылку, без подробностей. */
+  async inviteByToken(rawToken: string): Promise<InvitePreview | null> {
+    const invite = await this.liveInvite(rawToken);
+    return invite
+      ? {
+          organizationName: invite.organizationName,
+          email: invite.email,
+          expiresAt: invite.expiresAt,
+        }
+      : null;
+  }
+
+  /**
+   * Принять: человек и членство заводятся (или уже есть), приглашение гасится, на почту уходит
+   * обычный код для входа. Ссылка сессией не становится — вход остаётся одним путём.
+   * Код не уходит, если адрес исчерпал часовой предел: членство всё равно заведено, код можно
+   * запросить с формы входа.
+   */
+  async acceptInvite(rawToken: string, ip: string | null): Promise<InvitePreview | null> {
+    const invite = await this.liveInvite(rawToken);
+    if (!invite) return null;
+    await this.repo.joinOrganization({
+      email: invite.email,
+      organizationId: invite.organizationId,
+    });
+    await this.repo.markInviteAccepted(invite.id, new Date());
+    if (
+      !(await this.overLimit(invite.email, ip)) &&
+      (await this.repo.accountByEmail(invite.email))
+    ) {
+      await this.issueCode(invite.email, ip);
+    }
+    return {
+      organizationName: invite.organizationName,
+      email: invite.email,
+      expiresAt: invite.expiresAt,
+    };
+  }
+
+  private async liveInvite(rawToken: string): Promise<InviteRecord | null> {
+    const token = rawToken.trim();
+    if (!token) return null;
+    const invite = await this.repo.inviteByTokenHash(hashSecret(token));
+    if (!invite) return null;
+    return checkInvite(invite, new Date()).ok ? invite : null;
+  }
+}
+
+function toInviteView(i: InviteRecord): InviteView {
+  return {
+    id: i.id,
+    email: i.email,
+    expiresAt: i.expiresAt,
+    acceptedAt: i.acceptedAt,
+    createdAt: i.createdAt,
+  };
 }
 
 function toSession(a: {

@@ -181,7 +181,9 @@ test('подключения показывают частичный сбой, �
     'нельзя',
   );
   await page.goto('/hotel-settings/description');
-  await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
+  await expect(page.getByRole('main').getByTestId('content-description')).toContainText(
+    'Вымышленное описание',
+  );
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);

@@ -52,8 +52,13 @@ export default async function ChessboardPage({
     return (
       <Page title="Шахматка">
         <form method="get" className="row toolbar">
-          <Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
-          <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+          <label className="field">
+            С<Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
+          </label>
+          <label className="field">
+            По
+            <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+          </label>
           <Button>Показать</Button>
         </form>
         <Alert boxed>
@@ -113,7 +118,7 @@ export default async function ChessboardPage({
             <Icon name="plus" />
             Новая бронь
           </Link>
-          <span className="seg">
+          <span className="seg" role="group" aria-label="Вид шахматки">
             <Link
               href={weekHref()}
               className={cx(isWeek && 'is-on')}
@@ -121,7 +126,11 @@ export default async function ChessboardPage({
             >
               Неделя
             </Link>
-            <Link href={window(14)} className={cx(board.dates.length === 14 && 'is-on')}>
+            <Link
+              href={window(14)}
+              className={cx(board.dates.length === 14 && 'is-on')}
+              aria-current={board.dates.length === 14 ? 'true' : undefined}
+            >
               14 дней
             </Link>
             <Link
@@ -158,29 +167,21 @@ export default async function ChessboardPage({
         </div>
       }
     >
-      {/* Одна планка вместо четырёх рядов: период, легенда, «без ячейки», подсказка — сетке остаётся экран */}
+      {/* Частые действия видимы; расшифровка статусов и инструкции раскрываются по запросу. */}
       <div className="board-bar">
         <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
           <label className="field field--inline">
-            Период
+            <span>С</span>
             <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
           </label>
-          <span className="muted">—</span>
-          <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+          <label className="field field--inline">
+            <span>По</span>
+            <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+          </label>
           <Button tone="secondary" type="submit">
             Применить
           </Button>
         </form>
-        <Legend
-          data-testid="board-legend"
-          items={[
-            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
-            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-          ]}
-        />
         {failedRevisions > 0 && (
           <Alert boxed tone="warning" data-testid="failed-revisions">
             Входящая бронь требует разбора:{' '}
@@ -192,14 +193,27 @@ export default async function ChessboardPage({
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
         <details className="board-help">
           <summary>Как работать с шахматкой</summary>
-          <p className="note">
-            В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
-            занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
-            открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую
-            строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только
-            на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}. Брони без
-            ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
-          </p>
+          <div className="board-help-content">
+            <Legend
+              data-testid="board-legend"
+              items={[
+                { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+                { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+                { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+                { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+                { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+              ]}
+            />
+            <p className="note">
+              В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
+              занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
+              открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на
+              другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию
+              — только на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}.
+              Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с
+              карточки брони.
+            </p>
+          </div>
         </details>
       </div>
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}

@@ -1,0 +1,21 @@
+# Модульные (unit) · 19.09.2026 23:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит 48149c7 (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-19T18-00-04Z-unit-ea09.json' 'apps/web/src/app/chessboard' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 2ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 2ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (12 tests) 24ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 41ms
+
+ Test Files  6 passed (6)
+      Tests  49 passed (49)
+   Start at  11:00:04
+   Duration  167ms (transform 56%, tests 22%, import 17%, worker 5%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-19T18-00-04Z-unit-ea09.json
+
+# код выхода 0 · 1 с

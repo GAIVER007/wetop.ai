@@ -890,3 +890,8 @@
 | 19.09.2026 17:07 | integration | ❌ упало 1 из 37, пропущено 5 | 11 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-07-49Z-integration-8667.log) | журнал действий: список (integration, DATABASE_URL required) сводка берётся из снимка: номер брони из after, код ячейки из before |
 | 19.09.2026 17:08 | integration | ✅ 32 из 37, пропущено 5 | 11 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-08-21Z-integration-a1a0.log) |  |
 | 19.09.2026 17:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-13-31Z-e2e-ae39.log) | (ошибка вне тестов) |
+| 19.09.2026 17:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 10 из 156 | 12 мин 48 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-14-22Z-e2e-0738.log) | в неделе работают бронь, категории и создание на воскресенье |
+| 19.09.2026 22:48 | typecheck | ✅ без ошибок | 37 с | 736e992 +6 | [лог](logs/2026-09-19T17-48-40Z-typecheck-b02d.log) |  |
+| 19.09.2026 22:49 | lint | ✅ без ошибок | 17 с | 736e992 +6 | [лог](logs/2026-09-19T17-49-18Z-lint-ee28.log) |  |
+| 19.09.2026 22:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts) | ✅ 56 из 56 | 4 мин 23 с | 736e992 +6 | [лог](logs/2026-09-19T17-49-36Z-e2e-cdab.log) |  |
+| 19.09.2026 22:54 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 15 с | 7c8b1cf | [лог](logs/2026-09-19T17-54-11Z-e2e-5dd4.log) |  |

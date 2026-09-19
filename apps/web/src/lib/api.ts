@@ -1003,4 +1003,58 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
+
+  // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
+  /** Ожидающие приглашения своей организации. 401 — сессии нет. */
+  invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
+    const res = await backendFetch('/auth/invites', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvite[];
+  },
+  /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
+  invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
+    const res = await backendFetch('/auth/invites', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvite;
+  },
+  /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
+  inviteByToken: async (
+    rawToken: string,
+    info: AuthClientInfo,
+  ): Promise<AuthInvitePreview | null> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}`, {
+      headers: authHeaders(info),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvitePreview;
+  },
+  /** Принять: членство заведено, код для входа выслан. 404 с текстом на мёртвую ссылку. */
+  acceptInvite: async (rawToken: string, info: AuthClientInfo): Promise<AuthInvitePreview> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthInvitePreview;
+  },
 };
+
+export interface AuthInvite {
+  id: string;
+  email: string;
+  expiresAt: string;
+  acceptedAt: string | null;
+  createdAt: string;
+}
+
+export interface AuthInvitePreview {
+  organizationName: string;
+  email: string;
+  expiresAt: string;
+}

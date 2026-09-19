@@ -4,6 +4,7 @@ import { PrismaService } from '../database/prisma.provider';
 import type {
   AccountRecord,
   AccountsRepository,
+  InviteRecord,
   LoginCodeRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -21,7 +22,9 @@ export class PrismaAccountsRepository implements AccountsRepository {
   }
 
   async codesForIpSince(ip: string, since: Date): Promise<number> {
-    return this.prisma.db.loginCode.count({ where: { requestedIp: ip, createdAt: { gte: since } } });
+    return this.prisma.db.loginCode.count({
+      where: { requestedIp: ip, createdAt: { gte: since } },
+    });
   }
 
   async saveLoginCode(input: {
@@ -181,6 +184,119 @@ export class PrismaAccountsRepository implements AccountsRepository {
       data: { revokedAt: at },
     });
   }
+
+  // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
+  async createInvite(input: {
+    organizationId: string;
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    createdBy: string;
+  }): Promise<InviteRecord> {
+    const row = await this.prisma.db.invite.create({
+      data: {
+        organizationId: input.organizationId,
+        email: input.email,
+        tokenHash: input.tokenHash,
+        expiresAt: input.expiresAt,
+        createdBy: input.createdBy,
+      },
+      select: INVITE_SELECT,
+    });
+    return toInviteRecord(row);
+  }
+
+  async pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]> {
+    const rows = await this.prisma.db.invite.findMany({
+      where: { organizationId, acceptedAt: null, expiresAt: { gt: now } },
+      orderBy: { createdAt: 'desc' },
+      select: INVITE_SELECT,
+    });
+    return rows.map(toInviteRecord);
+  }
+
+  async inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null> {
+    const row = await this.prisma.db.invite.findUnique({
+      where: { tokenHash },
+      select: INVITE_SELECT,
+    });
+    return row ? toInviteRecord(row) : null;
+  }
+
+  /** Принимается один раз: повторная отметка ничего не меняет. */
+  async markInviteAccepted(id: string, at: Date): Promise<void> {
+    await this.prisma.db.invite.updateMany({
+      where: { id, acceptedAt: null },
+      data: { acceptedAt: at },
+    });
+  }
+
+  async isMember(email: string, organizationId: string): Promise<boolean> {
+    const n = await this.prisma.db.membership.count({ where: { organizationId, user: { email } } });
+    return n > 0;
+  }
+
+  /**
+   * Человек и членство одной транзакцией. Человека ищем по почте (уникальна), членство — по
+   * составному ключу: второе вступление того же человека ничего не дублирует и не падает.
+   */
+  async joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord> {
+    return this.prisma.db.$transaction(async (tx) => {
+      const user = await tx.user.upsert({
+        where: { email: input.email },
+        create: { email: input.email, status: 'ACTIVE' },
+        update: {},
+        select: { id: true, email: true },
+      });
+      await tx.membership.upsert({
+        where: { userId_organizationId: { userId: user.id, organizationId: input.organizationId } },
+        create: { userId: user.id, organizationId: input.organizationId },
+        update: {},
+      });
+      const org = await tx.organization.findUniqueOrThrow({
+        where: { id: input.organizationId },
+        select: { id: true, name: true, status: true, trialEndsAt: true },
+      });
+      return {
+        userId: user.id,
+        email: user.email,
+        organizationId: org.id,
+        organizationName: org.name,
+        organizationStatus: org.status,
+        trialEndsAt: org.trialEndsAt,
+      };
+    });
+  }
+}
+
+const INVITE_SELECT = {
+  id: true,
+  organizationId: true,
+  email: true,
+  expiresAt: true,
+  acceptedAt: true,
+  createdAt: true,
+  organization: { select: { name: true } },
+} as const;
+
+function toInviteRecord(row: {
+  id: string;
+  organizationId: string;
+  email: string;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  createdAt: Date;
+  organization: { name: string };
+}): InviteRecord {
+  return {
+    id: row.id,
+    organizationId: row.organizationId,
+    organizationName: row.organization.name,
+    email: row.email,
+    expiresAt: row.expiresAt,
+    acceptedAt: row.acceptedAt,
+    createdAt: row.createdAt,
+  };
 }
 
 /** Код P2002 у Prisma — нарушение уникального индекса. Другие ошибки базы не глотаем. */

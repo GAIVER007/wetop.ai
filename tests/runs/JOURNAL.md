@@ -895,3 +895,7 @@
 | 19.09.2026 22:49 | lint | ✅ без ошибок | 17 с | 736e992 +6 | [лог](logs/2026-09-19T17-49-18Z-lint-ee28.log) |  |
 | 19.09.2026 22:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts) | ✅ 56 из 56 | 4 мин 23 с | 736e992 +6 | [лог](logs/2026-09-19T17-49-36Z-e2e-cdab.log) |  |
 | 19.09.2026 22:54 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 15 с | 7c8b1cf | [лог](logs/2026-09-19T17-54-11Z-e2e-5dd4.log) |  |
+| 19.09.2026 22:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 152 из 152 | 13 мин 36 с | 7c8b1cf | [лог](logs/2026-09-19T17-54-27Z-e2e-947c.log) |  |
+| 19.09.2026 23:08 | unit | ✅ 1255 из 1258, пропущено 3 | 1 мин 14 с | 66dfb0d | [лог](logs/2026-09-19T18-08-21Z-unit-e185.log) |  |
+| 19.09.2026 23:09 | integration | ✅ 32 из 37, пропущено 5 | 14 с | 66dfb0d | [лог](logs/2026-09-19T18-09-35Z-integration-61ac.log) |  |
+| 19.09.2026 23:09 | e2e | ✅ 25 из 25 | 55 с | 66dfb0d | [лог](logs/2026-09-19T18-09-49Z-e2e-10b0.log) |  |

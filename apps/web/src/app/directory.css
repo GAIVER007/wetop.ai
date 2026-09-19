@@ -112,9 +112,126 @@ a.dir-number:hover {
 .directory-toolbar {
   margin-bottom: 14px;
 }
+/* B1 (20.09.2026): у дат видимые подписи «С» и «По», а не только aria-label */
+.directory-toolbar .field--inline .inp {
+  width: 145px;
+}
 .directory-filters {
   margin-bottom: 14px;
 }
+/* Выборка названа одним предложением: «9 бронирований на 20 сент., статус «Проживают»» */
 .directory-meta {
-  margin-bottom: 10px;
+  margin: 0 0 8px;
+}
+.empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/*
+ * Телефон (B1): семь колонок в 390 px не помещаются, и таблица уезжала в прокрутку вбок — видны были
+ * только гость, источник и место. Строка складывается в карточку: гость и статус, проживание, место и
+ * источник, стоимость и «к оплате». Разметка та же (`tbody tr`, ссылка «Открыть бронь N»), шапка
+ * остаётся для чтения с экрана, но не рисуется; цели фильтров статуса — 44 px (DESIGN.md §11).
+ */
+@media (max-width: 600px) {
+  .directory-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+  .directory-toolbar .search-field {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .directory-toolbar .field--inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+  }
+  .directory-toolbar .field--inline .inp {
+    width: 100%;
+    min-height: var(--touch-target);
+  }
+  .directory-toolbar > .btn {
+    grid-column: 1 / -1;
+    min-height: var(--touch-target);
+  }
+  .directory-filters a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    padding: 0;
+  }
+  /* таблица и тело — блоки: иначе строки-сетки внутри табличной раскладки держат ширину колонок */
+  .tbl.dir-table,
+  .dir-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0; /* у .tbl min-width 520 px ради прокрутки широких таблиц — здесь строки складываются */
+  }
+  .dir-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table tbody td,
+  .tbl--nowrap.dir-table tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .dir-table tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table tbody td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .dir-table tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 4;
+    text-align: left;
+    color: var(--muted);
+  }
+  .dir-table tbody td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+  }
+  .dir-guest {
+    white-space: normal;
+  }
 }

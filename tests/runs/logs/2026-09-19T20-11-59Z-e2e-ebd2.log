@@ -1,0 +1,46 @@
+# Сквозные (e2e) · 20.09.2026 01:11 Алматы · vm
+# коммит e6321f9 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'premium' '-g' 'выборка названа' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/premium.spec.ts:180:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (16.2s)
+
+
+  1) tests/ui/premium.spec.ts:180:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('directory-meta')
+    Expected substring: "9 бронирований"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('directory-meta') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('directory-meta')
+
+
+      184 |   const main = page.getByRole('main');
+      185 |   const meta = main.getByTestId('directory-meta');
+    > 186 |   await expect(meta).toContainText('9 бронирований');
+          |                      ^
+      187 |   // один день — одна дата словами, без «20 сент. — 20 сент.»
+      188 |   await expect(meta).toContainText(/на \d{1,2} [а-яё]+\./);
+      189 |   await expect(meta).not.toContainText('—');
+        at /home/user/wetop.ai/tests/ui/premium.spec.ts:186:22
+
+    Error Context: test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/premium-список-броней-выбо-61986--телефон-без-прокрутки-вбок/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/premium.spec.ts:180:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок 
+
+# код выхода 1 · 22 с

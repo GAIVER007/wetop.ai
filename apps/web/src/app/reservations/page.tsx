@@ -2,7 +2,8 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
-import { Alert, Button, Input, StatusBadge, Table } from '../../components/ui';
+import { Alert, Button, Field, Input, StatusBadge, Table } from '../../components/ui';
+import { AmountChip } from '../../components/amount-chip';
 import { messengerLinks } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
@@ -43,6 +44,10 @@ export default async function ReservationsPage({
   const result = !error ? await reservationDirectory({ from, to, status, q, page }) : null;
   const href = (values: Record<string, string>) =>
     `/reservations?${new URLSearchParams({ from, to, status, q, ...values })}`;
+  // Выборка названа словами (B1): один день — одна дата, статус и запрос — только когда заданы
+  const periodText = from === to ? displayDate(from) : `${displayDate(from)} — ${displayDate(to)}`;
+  const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
+  const queryText = q ? `, по запросу «${q}»` : '';
   return (
     <Page
       title="Брони"
@@ -64,9 +69,12 @@ export default async function ReservationsPage({
             aria-label="Поиск броней"
           />
         </div>
-        <Input type="date" name="from" defaultValue={from} aria-label="Брони: с" />
-        <span className="muted">—</span>
-        <Input type="date" name="to" defaultValue={to} aria-label="Брони: по" />
+        <Field inline label="С">
+          <Input type="date" name="from" defaultValue={from} />
+        </Field>
+        <Field inline label="По">
+          <Input type="date" name="to" defaultValue={to} />
+        </Field>
         <input type="hidden" name="status" value={status} />
         <Button tone="secondary">Показать</Button>
       </form>
@@ -88,14 +96,15 @@ export default async function ReservationsPage({
       )}
       {result && (
         <>
-          <div className="directory-meta">
-            <span>{pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])}</span>
-            <span>
-              {displayDate(from)} — {displayDate(to)}
-            </span>
-          </div>
+          <p className="directory-meta" data-testid="directory-meta">
+            {pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])} на{' '}
+            {periodText}
+            {statusText}
+            {queryText}
+          </p>
           {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
-          <Table data-testid="reservations-table" className="dir-table" nowrap>
+          {result.rows.length > 0 && (
+            <Table data-testid="reservations-table" className="dir-table" nowrap>
             <thead>
               <tr>
                 <th>Гость</th>
@@ -170,7 +179,7 @@ export default async function ReservationsPage({
                       {!r.hasFolios ? (
                         <span className="muted">—</span>
                       ) : debt ? (
-                        <span className="dir-debt">{formatMoney(r.balanceMinor, r.currency)}</span>
+                        <AmountChip tone="due" minor={r.balanceMinor} currency={r.currency} />
                       ) : (
                         <span className="dir-paid">оплачено</span>
                       )}
@@ -180,17 +189,35 @@ export default async function ReservationsPage({
               })}
             </tbody>
           </Table>
+          )}
           {!result.rows.length && (
-            <div className="empty-state">
+            <div className="empty-state" data-testid="reservations-empty">
               <Icon name="booking" />
               <h3>Бронирований не найдено</h3>
-              <p>Измените период или условия поиска.</p>
-              <Link href="/reservations" className="btn btn--secondary">
-                Сбросить фильтры
-              </Link>
+              <p>
+                На {periodText}
+                {statusText}
+                {queryText} броней нет. Уберите условие или выберите другой день.
+              </p>
+              <div className="empty-state__actions">
+                {q && (
+                  <Link href={href({ q: '', page: '1' })} className="btn btn--secondary">
+                    Убрать поиск
+                  </Link>
+                )}
+                {status !== 'ALL' && (
+                  <Link href={href({ status: 'ALL', page: '1' })} className="btn btn--secondary">
+                    Все статусы
+                  </Link>
+                )}
+                <Link href="/reservations" className="btn btn--secondary">
+                  Сбросить фильтры
+                </Link>
+              </div>
             </div>
           )}
-          <nav className="pagination" aria-label="Страницы броней">
+          {result.total > result.pageSize && (
+            <nav className="pagination" aria-label="Страницы броней">
             {result.page > 1 && (
               <Link className="btn btn--secondary" href={href({ page: String(result.page - 1) })}>
                 Назад
@@ -205,6 +232,7 @@ export default async function ReservationsPage({
               </Link>
             )}
           </nav>
+          )}
         </>
       )}
     </Page>

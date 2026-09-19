@@ -170,3 +170,60 @@ test('вход не пускает с чужой почтой и чужим па
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Неверная почта или пароль');
   await expect(page).toHaveURL(/login/);
 });
+
+/**
+ * B1 «Список броней» (tasks/todo.md, 20.09.2026): выборка названа словами — число, день и статус;
+ * пустой результат называет условие и предлагает убрать именно его, а не только «сбросить всё»;
+ * на телефоне строка складывается в карточку — гость, место, даты, статус и остаток видны без
+ * прокрутки вбок, у фильтров статуса цели 44 px.
+ */
+test('список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок', async ({
+  page,
+}) => {
+  await page.goto('/reservations');
+  const main = page.getByRole('main');
+  const meta = main.getByTestId('directory-meta');
+  await expect(meta).toContainText('9 бронирований');
+  // один день — одна дата словами, без «20 сент. — 20 сент.»
+  await expect(meta).toContainText(/на \d{1,2} [а-яё]+\./);
+  await expect(meta).not.toContainText('—');
+  // подписи дат видны, не только aria-label
+  await expect(main.locator('.directory-toolbar').getByText('С', { exact: true })).toBeVisible();
+  await expect(main.locator('.directory-toolbar').getByText('По', { exact: true })).toBeVisible();
+  // одна страница — счётчик страниц не рисуется
+  await expect(main.getByText(/Страница \d+ из/)).toHaveCount(0);
+
+  // пустой результат: названы статус и запрос, шапки пустой таблицы нет, поправка точечная
+  await page.goto('/reservations?status=CANCELLED&q=Иванов');
+  const empty = main.locator('.empty-state');
+  await expect(empty).toContainText('Бронирований не найдено');
+  await expect(empty).toContainText('Отменены');
+  await expect(empty).toContainText('Иванов');
+  await expect(main.getByTestId('reservations-table')).toHaveCount(0);
+  await empty.getByRole('link', { name: 'Убрать поиск', exact: true }).click();
+  await expect(main.getByLabel('Поиск броней')).toHaveValue('');
+  await expect(page).toHaveURL(/status=CANCELLED/);
+  await main.locator('.empty-state').getByRole('link', { name: 'Все статусы', exact: true }).click();
+  await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+
+  // телефон
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/reservations');
+  const table = main.getByTestId('reservations-table');
+  const overflow = await main
+    .locator('.table-scroll')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const row = table.locator('tbody tr').first();
+  await expect(row).toContainText(/\d{1,2} [а-яё]+\./);
+  await expect(row).toContainText('Подтверждены');
+  await expect(row).toContainText('к оплате');
+  await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
+  const chip = await main.locator('.directory-filters a').first().boundingBox();
+  expect(chip!.height).toBeGreaterThanOrEqual(44);
+  const layout = await page.evaluate(() => ({
+    viewport: window.innerWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(layout.content).toBeLessThanOrEqual(layout.viewport + 1);
+});

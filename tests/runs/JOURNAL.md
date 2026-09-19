@@ -667,3 +667,5 @@
 | 19.09.2026 16:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 120 из 120 | 12 мин 41 с | 4e29fd3 +11 | [лог](logs/2026-09-19T11-34-27Z-e2e-6f68.log) |  |
 | 19.09.2026 16:47 | unit | ❌ упало 3 из 1066 | 1 мин 35 с | 4e29fd3 +11 | [лог](logs/2026-09-19T11-47-19Z-unit-eead.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
 | 19.09.2026 16:48 | lint | ✅ без ошибок | 17 с | 4e29fd3 +12 | [лог](logs/2026-09-19T11-48-55Z-lint-ccef.log) |  |
+| 19.09.2026 16:53 | integration | ❌ код выхода 1 | 1 с | 1df6994 | [лог](logs/2026-09-19T11-53-55Z-integration-3a17.log) |  |
+| 19.09.2026 16:54 | integration | ✅ 35 из 35 | 14 с | 1df6994 | [лог](logs/2026-09-19T11-54-35Z-integration-276e.log) |  |

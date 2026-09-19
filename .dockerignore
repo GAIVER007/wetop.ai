@@ -1,10 +1,12 @@
-# Контекст сборки — корень репозитория (compose: context: ..), поэтому файл лежит рядом с Dockerfile
-# и перечисляет пути от корня.
+# Контекст сборки — корень репозитория (compose: context: ..). Docker читает этот файл
+# из корня контекста, не deploy/.dockerignore. Все пути — относительно корня.
 #
 # Секреты в образ не попадают ни при каких условиях (SECURITY.md §3): .env подаётся снаружи через
 # env_file, ключ туннеля монтируется в контейнер cloudflared.
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
 deploy/cloudflared/
 *.pem
@@ -15,6 +17,7 @@ secrets/
 node_modules/
 **/node_modules/
 **/.next/
+**/.next-ui/
 **/out/
 **/dist/
 packages/database/src/generated/
@@ -23,6 +26,11 @@ packages/database/src/generated/
 .git/
 .github/
 .claude/
+.codex/
+.agents/
+.omx/
+.agent-tmp/
+.gbrain/
 tests/
 design/
 plans/
@@ -35,3 +43,4 @@ playwright-report/
 test-results/
 coverage/
 deploy/ari.env
+deploy/compose.hostinger.yml

@@ -90,7 +90,7 @@ test('отмена заранее — без штрафа, незаезд — с
     'останется на счёте',
   ); // предпросмотр дошёл
   const shownText = await page.getByRole('main').getByTestId('no-show-penalty').innerText();
-  const shown = minor(shownText) * (shownText.includes(',') ? 1n : 100n); // окно печатает без тиынов
+  const shown = minor(shownText); // общий помощник уже переводит и целые тенге, и тиыны
   await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');

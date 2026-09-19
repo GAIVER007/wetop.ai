@@ -33,9 +33,17 @@ export function PriceCell({
 
   const save = () => {
     if (pending) return;
-    const price = value.trim();
+    const price = value.trim().replace(',', '.');
     if (!price) {
       setResult({ ok: false, text: 'Введите цену в тенге' });
+      return;
+    }
+    if (!/^\d+(\.\d{1,2})?$/.test(price)) {
+      setResult({ ok: false, text: 'Введите цену числом' });
+      return;
+    }
+    if (/^0+(\.0{1,2})?$/.test(price)) {
+      setResult({ ok: false, text: 'Цена не может быть 0' });
       return;
     }
     start(async () => {

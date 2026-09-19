@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 19.09.2026 23:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит ca1f67a (main), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'login-access' '-g' 'клавиатура'
+[WebServer] (node:90512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:90594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/login-access.spec.ts:95:1 › клавиатура, видимость пароля и ожидание без повторной отправки (1.1s)
+
+
+  1) tests/ui/login-access.spec.ts:95:1 › клавиатура, видимость пароля и ожидание без повторной отправки 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 482.046875
+    Received:    462.046875
+
+      108 |   const inputBox = await password.boundingBox();
+      109 |   const toggleBox = await toggle.boundingBox();
+    > 110 |   expect(toggleBox!.y).toBeGreaterThanOrEqual(inputBox!.y);
+          |                        ^
+      111 |   expect(toggleBox!.y + toggleBox!.height).toBeLessThanOrEqual(inputBox!.y + inputBox!.height);
+      112 |   await toggle.press('Enter');
+      113 |   await expect(password).toHaveAttribute('type', 'text');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/login-access.spec.ts:110:24
+
+    Error Context: test-results/login-access-клавиатура-ви-654ad-ание-без-повторной-отправки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-клавиатура-ви-654ad-ание-без-повторной-отправки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-клавиатура-ви-654ad-ание-без-повторной-отправки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:95:1 › клавиатура, видимость пароля и ожидание без повторной отправки 
+
+# код выхода 1 · 6 с

@@ -167,7 +167,9 @@ test('вход не пускает с чужой почтой и чужим па
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Неверная почта или пароль');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'Неверная почта или пароль',
+  );
   await expect(page).toHaveURL(/login/);
 });
 
@@ -203,7 +205,10 @@ test('список броней: выборка названа, пустой р�
   await empty.getByRole('link', { name: 'Убрать поиск', exact: true }).click();
   await expect(main.getByLabel('Поиск броней')).toHaveValue('');
   await expect(page).toHaveURL(/status=CANCELLED/);
-  await main.locator('.empty-state').getByRole('link', { name: 'Все статусы', exact: true }).click();
+  await main
+    .locator('.empty-state')
+    .getByRole('link', { name: 'Все статусы', exact: true })
+    .click();
   await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
 
   // телефон

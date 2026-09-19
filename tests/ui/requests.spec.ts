@@ -24,7 +24,14 @@ async function hits(request: import('@playwright/test').APIRequestContext): Prom
   return (await res.json()) as Hits;
 }
 
-for (const screen of ['/today', '/chessboard', '/reservations', '/guests', '/rooms']) {
+for (const screen of [
+  '/today',
+  '/chessboard',
+  '/reservations',
+  '/reservations/new?unit=M03',
+  '/guests',
+  '/rooms',
+]) {
   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
     await request.post(`${API}/__test/reset`);
     await page.goto(screen);

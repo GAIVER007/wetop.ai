@@ -235,3 +235,88 @@ a.dir-number:hover {
     white-space: normal;
   }
 }
+
+/*
+ * Форма новой брони (B2, 20.09.2026). Три шага в одном ряду — даты (отдельная GET-форма), размещение,
+ * гость; резюме выбора и «Создать бронь» держатся у нижнего края окна, пока форма прокручена:
+ * на 1440×1000 кнопка стояла на y≈1260, на телефоне — на 2069 (замер владельца 19.09).
+ */
+.booking-dates {
+  margin-bottom: 16px;
+}
+.booking-dates__availability {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+.booking-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  /* панель формы — grid: без min-width: 0 неразрывная строка сути растянула бы единственную колонку
+     (и все поля формы) шире экрана телефона */
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 -24px -24px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.booking-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 16px;
+  margin: 0;
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+.booking-footer__digest {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.booking-summary dt {
+  color: var(--muted);
+}
+.booking-summary dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.booking-summary__line {
+  display: block;
+}
+.booking-footer__actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .booking-footer {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 -16px -16px;
+    padding: 16px;
+    /* над нижней навигацией (fixed, ~64 px + безопасная зона), а не под ней */
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+  .booking-footer__actions {
+    align-items: stretch;
+    text-align: left;
+  }
+  .booking-footer .btn {
+    min-height: var(--touch-target);
+  }
+}

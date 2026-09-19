@@ -266,7 +266,9 @@ test('шахматка: фильтры, продолжение брони, вы�
  * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
  * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({ page }) => {
+test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+  page,
+}) => {
   await page.goto('/chessboard');
   const help = page.locator('details.board-help');
   await help.locator('summary').click();
@@ -1184,4 +1186,52 @@ test('«+1 ночь» спрашивает и называет цену ново
         ).length,
     )
     .toBe(1);
+});
+
+/**
+ * B2 «Форма брони» (tasks/todo.md, 20.09.2026): резюме выбора собирается по ходу заполнения из самих
+ * полей (даты и ночи, размещение, источник, гость) без цен — цену и доступность считает сервер при
+ * создании; кнопка «Создать бронь» вместе с резюме держится у нижнего края окна, пока форма
+ * прокручена, а на телефоне стоит над нижней навигацией, не под ней.
+ */
+test('новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 700 });
+  await page.goto('/reservations/new?unit=M03');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
+  const summary = form.getByTestId('booking-summary');
+  await expect(summary).toContainText('1 ночь');
+  await expect(summary).toContainText('Мужской общий номер');
+  await expect(summary).toContainText('M03');
+  await expect(summary).not.toContainText('₸');
+  await form.getByLabel('Источник *').selectOption('PHONE');
+  await expect(summary).toContainText('телефон');
+  await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
+  await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
+  // §14: «Фамилия Имя»
+  await expect(summary).toContainText('Тестовая Айгуль');
+  await form.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
+  await expect(summary).toContainText('Двухместный номер');
+  await expect(summary).not.toContainText('M03');
+  // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
+  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();
+
+  // телефон: кнопка над нижней навигацией, страница без прокрутки вбок
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/reservations/new?unit=M03');
+  const button = form.getByRole('button', { name: 'Создать бронь' });
+  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await expect(button).toBeInViewport();
+  const [box, nav] = await Promise.all([
+    button.boundingBox(),
+    page.locator('.bottom-navigation').boundingBox(),
+  ]);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(nav!.y + 1);
+  const layout = await page.evaluate(() => ({
+    viewport: window.innerWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(layout.content).toBeLessThanOrEqual(layout.viewport + 1);
 });

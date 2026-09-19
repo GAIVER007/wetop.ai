@@ -419,8 +419,11 @@
   .board-range-form > .btn {
     grid-column: 1 / -1;
   }
+  /* Своя строка целиком: у `.seg` из globals.css `overflow: hidden`, и при `flex: 1` (basis 0) переключатель
+     сжимался до 13 px между «Новая бронь» и стрелками дат, а ссылки «Неделя · 14 дней · Месяц» оставались
+     под ними с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
   .board-period .seg {
-    flex: 1;
+    flex: 1 1 100%;
   }
   .board-period .seg a {
     display: inline-flex;

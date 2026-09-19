@@ -3,6 +3,8 @@
  * Здесь только чистая часть — что едет в dataTransfer и что делать по броску; сам вызов
  * переселения остаётся в существующем server action (assignUnitAction), API не меняется.
  */
+import { displayDate } from '../../lib/display-date';
+
 export const DRAG_MIME = 'application/x-pms-stay';
 
 export interface DragPayload {
@@ -17,7 +19,9 @@ export interface DragPayload {
 }
 
 export type MovePlan =
-  { kind: 'noop' } | { kind: 'move'; unitCode: string; fromDate: string; confirmText: string };
+  | { kind: 'noop' }
+  /** `title` и `detail` — вопрос и последствие для окна подтверждения (DESIGN.md §8, §14) */
+  | { kind: 'move'; unitCode: string; fromDate: string; title: string; detail: string };
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -52,6 +56,7 @@ export function planMove(payload: DragPayload, target: { unitCode: string }): Mo
     kind: 'move',
     unitCode: target.unitCode,
     fromDate: payload.date,
-    confirmText: `Переселить бронь ${payload.number} в ячейку ${target.unitCode} с даты ${payload.date}?`,
+    title: `Переселить бронь ${payload.number}?`,
+    detail: `С ${displayDate(payload.date)} проживание переедет из ячейки ${payload.unitCode} в ${target.unitCode} — прежняя ячейка освободится.`,
   };
 }

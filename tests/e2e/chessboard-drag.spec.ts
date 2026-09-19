@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmAction, confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
@@ -20,18 +21,20 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688'; // dorm: свободные койки одной категории есть всегда
 
 test('перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   const arrival = plus(12);
   const departure = plus(14); // две ночи: обе клетки должны переехать
+  // Категория — та, где больше всего свободных мест: нужна вторая свободная койка той же категории
+  const DORM = await roomiestCategory(request, arrival, departure, 2);
 
   // ── бронь на койке A ──────────────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
@@ -57,11 +60,12 @@ test('перетаскивание клетки брони на свободну
   await expect(rowB.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
   await expect(rowB.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
 
-  page.once('dialog', (d) => {
-    expect(d.message()).toBe(`Переселить бронь ${number} в ячейку ${unitB} с даты ${arrival}?`);
-    void d.accept();
-  });
   await source.dragTo(rowB.locator(`td[data-date="${arrival}"]`));
+  // вопрос стойки: номер брони в заголовке, ячейки и дата переезда — в теле
+  const confirm = page.getByTestId('confirm-dialog');
+  await expect(confirm).toContainText(`Переселить бронь ${number}?`);
+  await expect(confirm).toContainText(unitB);
+  await confirmAction(page, 'Переселить');
 
   // после переселения сетка перерисована с сервера: обе ночи на B, A свободна, ошибки нет
   await expect(rowB.locator(`[data-testid="stay-cell"][data-number="${number}"]`)).toHaveCount(2);

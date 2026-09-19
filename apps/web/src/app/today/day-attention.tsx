@@ -11,7 +11,9 @@ export function DayAttention({ day }: { day: DeskDay }) {
       (r.blockedReason || !r.unitCode || r.guestsRecorded < r.adults),
   );
   const departures = day.departures.filter((r) => BigInt(r.balanceMinor) > 0n);
-  const count = day.overdue.length + arrivals.length + departures.length;
+  // Не заехали вовремя (срез 5 → срез 14): место занято, а ни в одном списке дня их нет
+  const overdue = day.overdueArrivals;
+  const count = arrivals.length + departures.length + overdue.length;
   return (
     <section className="attention-card">
       <div className="attention-heading">
@@ -22,15 +24,16 @@ export function DayAttention({ day }: { day: DeskDay }) {
         <div className="attention-empty">
           <Icon name="check" />
           <strong>Всё в порядке</strong>
-          <p>Нет незавершённых карточек и долгов уезжающих.</p>
+          <p>Нет незавершённых карточек, просроченных заездов и долгов уезжающих.</p>
         </div>
       ) : (
         <div className="attention-list">
-          {day.overdue.map((r) => (
+          {overdue.map((r) => (
             <Link
               key={`overdue-${r.itemId}`}
               href={`/reservations/${encodeURIComponent(r.confirmationNumber)}#booking-actions`}
-              className="attention-item"
+              className="attention-item attention-item--overdue"
+              data-testid="overdue-arrival"
             >
               <span className="attention-icon">
                 <Icon name="clock" />
@@ -38,7 +41,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel || r.confirmationNumber}</strong>
                 <small>
-                  Не заехал {displayDate(r.arrivalDate)}: заселить или отметить незаезд
+                  <span className="booking-number">{r.confirmationNumber}</span> · Не заехал {displayDate(r.arrivalDate)}: заселить или отметить незаезд
                   {r.blockedReason ? ` · ${r.blockedReason}` : ''}
                 </small>
               </span>

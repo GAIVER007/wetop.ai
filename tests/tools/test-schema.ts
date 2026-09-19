@@ -16,6 +16,7 @@ import {
   chooseTestDataSource,
   copyOrder,
   pendingMigrations,
+  seedIsStale,
   selectExpressions,
   type ColumnInfo,
 } from './test-schema-plan';
@@ -84,7 +85,14 @@ export async function ensureTestSchema(
       Number((await client.query<{ n: string }>(`SELECT count(*) AS n FROM ${S}."properties"`)).rows[0]!.n) === 0;
     let copied: TestSchemaReport['copied'] = null;
     let seeded: TestSchemaReport['seeded'] = null;
-    if (opts.refresh || empty) {
+    const stamp = (
+      await client.query<{ value: string }>(`SELECT value FROM ${S}."_test_meta" WHERE key = 'refreshed_at'`)
+    ).rows[0]?.value ?? null;
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    // сид живёт вокруг «сегодня»: вчерашний сид сегодня пуст, и спеки шахматки видели бы занято 0
+    const stale = !empty && seedIsStale(stamp, today);
+    if (stale) log(`сид от ${stamp} устарел к ${today} — засеваю заново`);
+    if (opts.refresh || empty || stale) {
       const source = chooseTestDataSource(process.env.TEST_DATA, await liveHasData(client));
       if (source === 'copy') copied = await copyLiveData(client, log);
       else {

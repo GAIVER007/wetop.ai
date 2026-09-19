@@ -162,8 +162,33 @@ webhook_field() {
 is_quick_tunnel() {
   case "$1" in https://*.trycloudflare.com*) return 0 ;; *) return 1 ;; esac
 }
+# Пока статус недоступен (API ещё поднимается или Channex молчит), решать нечего: пустой ответ — не «адреса нет».
+# 16.09.2026, вечер: launchd поднял api и tunnel одновременно, curl к API не прошёл, и быстрый туннель второй
+# машины снова затёр api.wetop.ai в Channex. Теперь ждём статус до API_WAIT секунд, не дождались — отказ:
+# launchd (KeepAlive) перезапустит скрипт через 15 с, и защита сработает уже по настоящему ответу.
+API_WAIT="${API_WAIT:-90}"
+webhook_status() {
+  # 0 и тело — статус получен; 1 — недоступен (нет ответа, не 200 или тело без поля registered)
+  local resp code body
+  resp=$(curl -s -m 10 -w '\n%{http_code}' "$API_URL/channels/channex/webhook/status" 2>/dev/null) || return 1
+  code=$(printf '%s' "$resp" | tail -n 1)
+  body=$(printf '%s' "$resp" | sed '$d')
+  [ "$code" = "200" ] || return 1
+  printf '%s' "$body" | grep -a -q '"registered":' || return 1
+  printf '%s' "$body"
+}
 if [ "${ALLOW_QUICK_TUNNEL:-0}" != "1" ]; then
-  status_body=$(curl -s -m 10 "$API_URL/channels/channex/webhook/status" || true)
+  status_body=""
+  waited=0
+  while ! status_body=$(webhook_status); do
+    if [ "$waited" -ge "$API_WAIT" ]; then
+      say "статус webhook недоступен ${API_WAIT} с: не могу проверить, какой адрес записан в Channex — отказ (launchd перезапустит)"
+      exit 3
+    fi
+    [ "$waited" -eq 0 ] && say "статус webhook недоступен (API ещё не отвечает) — жду до ${API_WAIT} с"
+    sleep 5
+    waited=$((waited + 5))
+  done
   permanent=$(webhook_field "$status_body" expectedUrl)
   registered=$(webhook_field "$status_body" callbackUrl)
   for addr in "$permanent" "$registered"; do

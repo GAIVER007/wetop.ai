@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Заготовки печатных форм: договор и счёт открываются с карточки брони на RU и KZ, в тексте есть
@@ -27,12 +28,15 @@ const TITLES = {
 
 test('договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(15), plus(17)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-печать');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

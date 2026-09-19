@@ -49,6 +49,7 @@
 ## 3. Как поднять локально
 
 ```bash
+scripts/ops/repo-sync.sh                       # та ли папка: remote, отставание от GitHub, службы launchd, .env; --fix чинит
 npm install                                    # Node 24; ключи владелец вписывает в .env по .env.example
 npm run generate -w @pms/database              # Prisma Client; без него typecheck даёт сотни ошибок (см. ниже)
 npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте, значения не печатает

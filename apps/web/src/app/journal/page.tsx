@@ -1,5 +1,6 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { almatyStamp } from '../../lib/almaty';
 import { getJsonPublic } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Table, Input, Button } from '../../components/ui';
@@ -115,15 +116,8 @@ export default async function JournalPage({
         <tbody>
           {rows.map((r) => (
             <tr key={r.id} data-testid="journal-row">
-              <td>
-                {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
-                  .toISOString()
-                  .slice(0, 16)
-                  .replace('T', ' ')}
-              </td>
-              <td>
-                {r.author ?? <span className="muted-2">система</span>}
-              </td>
+              <td>{almatyStamp(r.at)}</td>
+              <td>{r.author ?? <span className="muted-2">система</span>}</td>
               <td>{ACTION_RU[r.action] ?? r.action}</td>
               <td>{r.entityType}</td>
               <td>

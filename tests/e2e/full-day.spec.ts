@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -22,6 +23,7 @@ const minor = (t: string) => BigInt(t.replace(/[^\d−-]/g, '').replace('−', '
 
 test('сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится', async ({
   page,
+  request,
 }) => {
   test.setTimeout(240_000);
   const arrival = plus(26);
@@ -29,9 +31,11 @@ test('сутки гостя целиком: заезд, услуга на счё
 
   // 1. Бронь с ячейкой
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, arrival, departure));
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);

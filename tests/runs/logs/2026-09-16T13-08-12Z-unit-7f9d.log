@@ -1,0 +1,84 @@
+# Модульные (unit) · 16.09.2026 18:08 Алматы · MacBook-Air-Urij.local
+# коммит c20f55b (main), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T13-08-12Z-unit-7f9d.json' 'apps/api/src/accounts' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓  unit  packages/domain/src/accounts/session.test.ts (6 tests) 6ms
+ ✓  unit  packages/domain/src/accounts/trial.test.ts (11 tests) 6ms
+ ✓  unit  packages/domain/src/accounts/login-code.test.ts (29 tests) 12ms
+ ✓  unit  apps/api/src/accounts/cookie.test.ts (10 tests) 7ms
+[Nest] 43222  - 09/16/2026, 5:08:15 PM   ERROR [AccountsService] MAIL_* не настроены — код сгенерирован, но письмо не отправлено
+ ❯  unit  apps/api/src/accounts/accounts.controller.test.ts (29 tests | 1 failed) 10405ms
+   ✓ запрос кода: ответ ничего не выдаёт (5)
+     ✓ знакомый адрес — 204, письмо ушло 51ms
+     ✓ незнакомый адрес — тот же 204, но письма нет и код в базе не заводится 11ms
+     ✓ адрес в другом регистре и с пробелами — тот же человек 4ms
+     ✓ мусор вместо адреса — тот же 204, без письма 14ms
+     ✓ тело без поля email не роняет ручку 2ms
+   ✓ запрос кода: пределы (2)
+     ✓ после 5 кодов на адрес письма перестают уходить, ответ прежний 11ms
+     ✓ предел по сети считается по CF-Connecting-IP, а не по адресу соединения 21ms
+   ✓ проверка кода (11)
+     ✓ верный код пускает и выдаёт ключ 5ms
+     ✓ ключ ставится кукой HttpOnly — чужой скрипт на странице его не прочитает 3ms
+     ✓ сам код в базе не лежит — только отпечаток 2ms
+     ✓ ключ сессии в базе не лежит — только отпечаток 3ms
+     ✓ неверный код — 401 и всегда один и тот же текст 3ms
+     ✓ по тексту отказа не отличить «нет такого адреса» от «не тот код» 3ms
+     ✓ после трёх промахов код мёртв, даже если потом ввести верный 6ms
+     ✓ использованный код второй раз не пускает 4ms
+     ✓ протухший код не пускает и не тратит попытку 2ms
+     ✓ код не той формы отвергается, не заглядывая в базу 8ms
+     ✓ вход отмечается у пользователя 3ms
+   ❯ кто вошёл и выход (10)
+     ✓ по ключу в заголовке видно, кто вошёл 6ms
+     ✓ кука работает так же, как заголовок 5ms
+     ✓ без ключа — 401 2ms
+     × чужой или выдуманный ключ — 401 2ms
+     ✓ заголовок не той схемы не считается ключом 4ms
+     ✓ после выхода прежний ключ мёртв 5ms
+     ✓ выход гасит куку 4ms
+     ✓ повторный выход — не ошибка 5ms
+     ✓ выход без ключа — тоже не ошибка 1ms
+     ✓ протухшая сессия не пускает 5ms
+   ✓ почта не настроена (1)
+     ✓ код всё равно заводится, API не падает — в журнале видно, что письмо не ушло 10ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/accounts/accounts.controller.test.ts [ apps/api/src/accounts/accounts.controller.test.ts ]
+Error: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".
+ ❯ apps/api/src/accounts/accounts.controller.test.ts:38:1
+     36| });
+     37|
+     38| afterAll(async () => {
+       | ^
+     39|   await app.close();
+     40| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/accounts/accounts.controller.test.ts > кто вошёл и выход > чужой или выдуманный ключ — 401
+TypeError: Invalid character in header content ["Authorization"]
+ ❯ setHeader node_modules/superagent/src/node/index.js:830:39
+ ❯ request node_modules/superagent/src/node/index.js:965:8
+ ❯ Test.end node_modules/supertest/lib/test.js:136:11
+ ❯ end node_modules/superagent/src/request-base.js:283:12
+ ❯ Test.RequestBase.then node_modules/superagent/src/request-base.js:265:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 84 passed (85)
+   Start at  17:08:13
+   Duration  11.57s (tests 89%, import 6%, transform 5%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T13-08-12Z-unit-7f9d.json
+
+# код выхода 1 · 13 с

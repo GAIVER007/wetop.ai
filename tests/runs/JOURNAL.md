@@ -753,3 +753,140 @@
 | 18.09.2026 15:19 | lint | ✅ без ошибок | 10 с | 4d16b50 +16 | [лог](logs/2026-09-18T10-19-42Z-lint-5ff6.log) |  |
 | 18.09.2026 15:19 | unit | ✅ 1186 из 1189, пропущено 3 | 1 мин 1 с | 4d16b50 +16 | [лог](logs/2026-09-18T10-19-53Z-unit-416c.log) |  |
 | 18.09.2026 15:20 | e2e | ✅ 25 из 25 | 52 с | 4d16b50 +13 | [лог](logs/2026-09-18T10-20-55Z-e2e-87f2.log) |  |
+| 17.09.2026 00:08 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 9 из 9 | 2 с | 275cdc2 +1 | [лог](logs/2026-09-16T19-08-04Z-unit-d6ce.log) | repo-sync.sh: красный до кода (скрипта ещё нет) |
+| 17.09.2026 00:12 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 9 из 9 | 3 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-40Z-unit-791c.log) | repo-sync.sh: зелёный после кода (9 сценариев: проверка, --pull, --relink, --from, чужой remote, вторая копия) |
+| 17.09.2026 00:12 | lint | ✅ без ошибок | 11 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-43Z-lint-cdbc.log) | repo-sync: тест и npm-команда |
+| 17.09.2026 00:12 | typecheck | ✅ без ошибок | 18 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-12-55Z-typecheck-1915.log) | repo-sync |
+| 17.09.2026 00:14 | unit (частично: --exclude tests/unit/launchd-install.test.ts) | ❌ упало 3 из 983 | 1 мин 36 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-14-29Z-unit-9551.log) | весь набор без launchd-install: три его теста зовут plutil и PlistBuddy, на Linux их нет (та же причина красного main в GitHub) |
+| 17.09.2026 00:16 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 9 из 9 | 3 с | 275cdc2 +4 | [лог](logs/2026-09-16T19-16-41Z-unit-6d75.log) | repo-sync.sh: после prettier, тот же зелёный |
+| 17.09.2026 00:24 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 2 из 11 | 4 с | b8d0213 +1 | [лог](logs/2026-09-16T19-24-56Z-unit-8cb1.log) | аргументы после # и быстрый туннель при постоянном адресе: красный до правки |
+| 17.09.2026 00:25 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 11 из 11 | 3 с | b8d0213 +2 | [лог](logs/2026-09-16T19-25-49Z-unit-186d.log) | аргументы после # и быстрый туннель при постоянном адресе: зелёный |
+| 17.09.2026 00:25 | lint | ✅ без ошибок | 11 с | b8d0213 +2 | [лог](logs/2026-09-16T19-25-52Z-lint-681d.log) | repo-sync: # и быстрый туннель |
+| 17.09.2026 00:26 | typecheck | ✅ без ошибок | 14 с | b8d0213 +2 | [лог](logs/2026-09-16T19-26-04Z-typecheck-2b25.log) | repo-sync |
+| 17.09.2026 00:33 | unit (частично: tests/unit/channex-tunnel-guard.test.ts tests/unit/repo-sync.test.ts) | ❌ упало 3 из 19 | 1 мин 42 с | 36a3d4a +2 | [лог](logs/2026-09-16T19-33-45Z-unit-9198.log) | гонка защиты туннеля с запуском API и переустановка tunnel через --relink: красный до правки |
+| 17.09.2026 00:36 | unit (частично: tests/unit/channex-tunnel-guard.test.ts tests/unit/repo-sync.test.ts) | ✅ 19 из 19 | 1 мин 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-36-30Z-unit-1aaf.log) | гонка защиты туннеля и переустановка tunnel: зелёный после правки |
+| 17.09.2026 00:37 | lint | ✅ без ошибок | 12 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-42Z-lint-23f5.log) | туннель и repo-sync |
+| 17.09.2026 00:37 | typecheck | ✅ без ошибок | 14 с | 36a3d4a +4 | [лог](logs/2026-09-16T19-37-54Z-typecheck-bb7a.log) | туннель и repo-sync |
+| 17.09.2026 00:57 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 1 из 13 | 7 с | 887babf +1 | [лог](logs/2026-09-16T19-57-12Z-unit-ed8f.log) | esbuild не той платформы: красный до правки |
+| 17.09.2026 00:57 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 13 из 13 | 4 с | 887babf +2 | [лог](logs/2026-09-16T19-57-32Z-unit-1b0a.log) | esbuild не той платформы: зелёный |
+| 17.09.2026 00:57 | lint | ✅ без ошибок | 13 с | 887babf +2 | [лог](logs/2026-09-16T19-57-36Z-lint-19c4.log) | repo-sync: нативные модули |
+| 17.09.2026 00:57 | typecheck | ✅ без ошибок | 17 с | 887babf +2 | [лог](logs/2026-09-16T19-57-50Z-typecheck-af98.log) | repo-sync: нативные модули |
+| 17.09.2026 01:05 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 2 из 15 | 9 с | ed890ec +1 | [лог](logs/2026-09-16T20-05-44Z-unit-b4c0.log) | --fix чинит сам: npm ci, webhook — красный до правки |
+| 17.09.2026 01:07 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 15 из 15 | 6 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-11Z-unit-d277.log) | --fix чинит сам: npm ci, webhook, перезапуск — зелёный |
+| 17.09.2026 01:07 | lint | ✅ без ошибок | 14 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-17Z-lint-f19b.log) | repo-sync --fix |
+| 17.09.2026 01:07 | typecheck | ✅ без ошибок | 17 с | ed890ec +2 | [лог](logs/2026-09-16T20-07-32Z-typecheck-a80a.log) | repo-sync --fix |
+| 16.09.2026 18:37 | unit | ❌ упало 1 из 974 | 1 мин 4 с | 5b6a9c7 +2 | [лог](logs/2026-09-16T13-37-07Z-unit-482a.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 16.09.2026 18:40 | unit | ✅ 974 из 974 | 1 мин 4 с | 275cdc2 | [лог](logs/2026-09-16T13-40-59Z-unit-389d.log) |  |
+| 14.09.2026 16:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ❌ упало 1 из 25 | 50 с | f40cb76 +4 | [лог](logs/2026-09-14T11-32-23Z-e2e-bdd7.log) | wave 3: guest count capped by category capacity in new booking and rates forms — workspace UI regression |
+| 14.09.2026 16:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 25 из 25 | 1 мин 28 с | 73a5743 +5 | [лог](logs/2026-09-14T11-33-58Z-e2e-61b0.log) | wave 3: workspace UI after guest caps; check-in click on the visible button (hidden streaming copy) |
+| 14.09.2026 16:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-tariff.spec.ts --workers=1) | ❌ упало 1 из 3 | 25 с | a833a47 +2 | [лог](logs/2026-09-14T11-37-05Z-e2e-fd44.log) | wave 3 red on committed card page: a failed rate plan lookup replaces the whole booking card with the error screen |
+| 14.09.2026 16:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-tariff.spec.ts --workers=1) | ✅ 3 из 3 | 8 с | a833a47 +3 | [лог](logs/2026-09-14T11-37-30Z-e2e-fdd6.log) | wave 3 green: booking card survives a failed rate plan / inventory lookup with a warning |
+| 14.09.2026 16:38 | unit (частично: apps/api/src/desk) | ❌ упало 1 из 3 | 1 с | 9149176 +2 | [лог](logs/2026-09-14T11-38-58Z-unit-660b.log) | wave 3 red: confirmed stays that should have arrived before today appear in no /today list |
+| 14.09.2026 16:39 | unit (частично: apps/api/src/desk) | ✅ 3 из 3 | 1 с | 9149176 +4 | [лог](logs/2026-09-14T11-39-22Z-unit-dcaf.log) | wave 3 green: /desk/today returns overdue arrivals |
+| 14.09.2026 16:44 | unit (частично: apps/api/src/inventory/inventory.repository.test.ts) | ❌ упало 1 из 1 | 1 с | 35ac3f2 +2 | [лог](logs/2026-09-14T11-44-23Z-unit-ede6.log) | wave 4 red: inventory tree re-read from the database on every request |
+| 14.09.2026 16:45 | unit (частично: apps/api/src/inventory scripts/imports/src/exely) | ✅ 73 из 73 | 1 с | 35ac3f2 +5 | [лог](logs/2026-09-14T11-45-19Z-unit-f7b1.log) | wave 4 green: inventory tree cached in the API (60 s), active blocks counted per request |
+| 17.09.2026 01:14 | typecheck | ✅ без ошибок | 19 с | 76add5e | [лог](logs/2026-09-16T20-14-48Z-typecheck-d358.log) | после слияния main и трёх cherry-pick из backup/pms-lux |
+| 17.09.2026 01:15 | lint | ✅ без ошибок | 11 с | 76add5e | [лог](logs/2026-09-16T20-15-07Z-lint-7308.log) | после слияния main и трёх cherry-pick |
+| 17.09.2026 01:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservation-tariff.spec.ts tests/ui/workspace.spec.ts) | ✅ 28 из 28 | 1 мин 44 с | 76add5e | [лог](logs/2026-09-16T20-17-11Z-e2e-e547.log) | cherry-pick из backup/pms-lux: спеки формы брони и главной, синтетический API |
+| 17.09.2026 01:18 | unit (частично: apps/api/src/inventory scripts/imports apps/web) | ✅ 143 из 143 | 3 с | 76add5e | [лог](logs/2026-09-16T20-18-57Z-unit-deac.log) | cherry-pick из backup/pms-lux: фонд в памяти, форма брони, карточка |
+| 17.09.2026 01:24 | integration | ❌ код выхода 1 | 3 мин 3 с | 739f7e9 | [лог](logs/2026-09-16T20-24-54Z-integration-72db.log) | (файл не выполнился) |
+| 17.09.2026 13:11 | typecheck | ✅ без ошибок | 17 с | 95fc0cb +1 | [лог](logs/2026-09-17T08-11-00Z-typecheck-af7a.log) | audit-author.test.ts: PrismaService в корневом тестовом модуле |
+| 17.09.2026 13:11 | lint | ✅ без ошибок | 11 с | 95fc0cb +1 | [лог](logs/2026-09-17T08-11-18Z-lint-ae45.log) | audit-author.test.ts |
+| 17.09.2026 13:09 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 7 с | 8b28b33 | [лог](logs/2026-09-17T08-09-10Z-integration-d8c7.log) | (файл не выполнился) |
+| 17.09.2026 13:14 | integration (частично: tests/integration/audit-author.test.ts) | ❌ код выхода 1 | 8 с | 8b28b33 | [лог](logs/2026-09-17T08-14-26Z-integration-bb2b.log) | (файл не выполнился) |
+| 17.09.2026 13:16 | integration (частично: tests/integration/audit-author.test.ts) | ✅ 3 из 3 | 9 с | 461b716 | [лог](logs/2026-09-17T08-16-52Z-integration-d586.log) |  |
+| 17.09.2026 13:31 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 3 из 18 | 6 с | a681438 +1 | [лог](logs/2026-09-17T08-31-11Z-unit-74b1.log) | next-env.d.ts от сборки: красный до правки |
+| 17.09.2026 13:32 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 18 из 18 | 5 с | a681438 +2 | [лог](logs/2026-09-17T08-32-45Z-unit-6bfc.log) | next-env.d.ts от сборки: зелёный |
+| 17.09.2026 13:32 | lint | ✅ без ошибок | 10 с | a681438 +2 | [лог](logs/2026-09-17T08-32-55Z-lint-3485.log) | repo-sync: файлы от сборки |
+| 17.09.2026 13:33 | typecheck | ✅ без ошибок | 13 с | a681438 +2 | [лог](logs/2026-09-17T08-33-05Z-typecheck-685a.log) | repo-sync: файлы от сборки |
+| 17.09.2026 13:44 | unit (частично: apps/api/src/desk) | ❌ упало 3 из 3 | 2 с | 28531f3 +1 | [лог](logs/2026-09-17T08-44-22Z-unit-7e6b.log) | просроченные заезды: красный до кода |
+| 17.09.2026 13:45 | unit (частично: apps/api/src/desk) | ✅ 3 из 3 | 2 с | 28531f3 +5 | [лог](logs/2026-09-17T08-45-23Z-unit-588a.log) | просроченные заезды: зелёный |
+| 17.09.2026 13:46 | typecheck | ✅ без ошибок | 16 с | 28531f3 +7 | [лог](logs/2026-09-17T08-46-41Z-typecheck-3f9c.log) | просроченные заезды |
+| 17.09.2026 13:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ✅ 25 из 25 | 1 мин 27 с | 28531f3 +7 | [лог](logs/2026-09-17T08-47-03Z-e2e-8bd1.log) | просроченные заезды в «Требуют внимания» |
+| 17.09.2026 13:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 95 | 8 мин 18 с | 28531f3 +7 | [лог](logs/2026-09-17T08-48-38Z-e2e-e791.log) | весь UI-набор после просроченных заездов |
+| 17.09.2026 13:56 | lint | ✅ без ошибок | 9 с | 28531f3 +7 | [лог](logs/2026-09-17T08-56-59Z-lint-cab8.log) | просроченные заезды |
+| 17.09.2026 13:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/premium.spec.ts tests/ui/quality.spec.ts) | ✅ 20 из 20 | 1 мин 10 с | 28531f3 +9 | [лог](logs/2026-09-17T08-57-30Z-e2e-d647.log) | счётчики фикстуры после новой брони |
+| 17.09.2026 13:58 | unit | ❌ упало 3 из 1014 | 1 мин 32 с | 28531f3 +6 | [лог](logs/2026-09-17T08-58-46Z-unit-a7e1.log) | просроченные заезды: весь набор |
+| 17.09.2026 14:49 | unit (частично: apps/api/src/channels/ari-delta-lost.test.ts apps/api/src/guard) | ❌ упало 2 из 33 | 2 с | 9b697fe +2 | [лог](logs/2026-09-17T09-49-14Z-unit-ff43.log) | потерянная дельта ARI: красный до кода |
+| 17.09.2026 14:50 | unit (частично: apps/api/src/channels/ari-delta-lost.test.ts apps/api/src/guard packages/domain/src/incidents) | ✅ 73 из 73 | 2 с | 9b697fe +8 | [лог](logs/2026-09-17T09-50-26Z-unit-8402.log) | потерянная дельта ARI: зелёный |
+| 17.09.2026 14:50 | typecheck | ❌ ошибок: 7 | 16 с | 9b697fe +8 | [лог](logs/2026-09-17T09-50-34Z-typecheck-6f3f.log) | потерянная дельта ARI |
+| 17.09.2026 14:50 | lint | ✅ без ошибок | 10 с | 9b697fe +8 | [лог](logs/2026-09-17T09-50-50Z-lint-0fd2.log) | потерянная дельта ARI |
+| 17.09.2026 14:51 | unit | ❌ упало 3 из 1019 | 1 мин 32 с | 9b697fe +8 | [лог](logs/2026-09-17T09-51-00Z-unit-671f.log) | потерянная дельта ARI: весь набор |
+| 17.09.2026 14:52 | typecheck | ❌ ошибок: 3 | 13 с | 9b697fe +8 | [лог](logs/2026-09-17T09-52-58Z-typecheck-484d.log) | потерянная дельта: типы подделок |
+| 17.09.2026 14:53 | typecheck | ✅ без ошибок | 13 с | 9b697fe +8 | [лог](logs/2026-09-17T09-53-25Z-typecheck-9f4f.log) | потерянная дельта: типы |
+| 17.09.2026 14:53 | unit (частично: apps/api/src/channels/ari-delta-lost.test.ts apps/api/src/guard) | ✅ 33 из 33 | 2 с | 9b697fe +8 | [лог](logs/2026-09-17T09-53-38Z-unit-f5b3.log) | потерянная дельта: зелёный после типов |
+| 17.09.2026 14:53 | lint | ✅ без ошибок | 9 с | 9b697fe +8 | [лог](logs/2026-09-17T09-53-51Z-lint-581d.log) | потерянная дельта ARI |
+| 17.09.2026 14:54 | unit | ❌ упало 3 из 1019 | 1 мин 32 с | 9b697fe +8 | [лог](logs/2026-09-17T09-54-01Z-unit-cf70.log) | потерянная дельта ARI: весь набор |
+| 17.09.2026 14:59 | unit (частично: apps/api/src/finance/finance-audit-transaction.test.ts) | ❌ упало 3 из 4 | 1 с | adffc9c +1 | [лог](logs/2026-09-17T09-59-38Z-unit-516f.log) | журнал финансов в транзакции: красный до кода |
+| 17.09.2026 15:01 | typecheck | ❌ ошибок: 2 | 13 с | adffc9c +3 | [лог](logs/2026-09-17T10-01-23Z-typecheck-5508.log) | журнал финансов в транзакции |
+| 17.09.2026 15:01 | typecheck | ✅ без ошибок | 13 с | adffc9c +3 | [лог](logs/2026-09-17T10-01-51Z-typecheck-4565.log) | журнал финансов в транзакции |
+| 17.09.2026 15:02 | unit (частично: apps/api/src/finance) | ❌ упало 5 из 14 | 2 с | adffc9c +3 | [лог](logs/2026-09-17T10-02-04Z-unit-c139.log) | журнал финансов в транзакции: зелёный |
+| 17.09.2026 15:02 | unit (частично: apps/api/src/finance) | ✅ 14 из 14 | 2 с | adffc9c +4 | [лог](logs/2026-09-17T10-02-34Z-unit-8dae.log) | журнал финансов в транзакции: подделка репозитория обновлена |
+| 17.09.2026 15:02 | typecheck | ✅ без ошибок | 13 с | adffc9c +4 | [лог](logs/2026-09-17T10-02-41Z-typecheck-2a12.log) | журнал финансов |
+| 17.09.2026 15:02 | lint | ✅ без ошибок | 9 с | adffc9c +4 | [лог](logs/2026-09-17T10-02-54Z-lint-af46.log) | журнал финансов |
+| 17.09.2026 15:03 | unit | ❌ упало 3 из 1023 | 1 мин 32 с | adffc9c +4 | [лог](logs/2026-09-17T10-03-03Z-unit-0d1c.log) | журнал финансов в транзакции: весь набор |
+| 17.09.2026 15:06 | e2e (частично: tests/e2e/finance.spec.ts) | ✅ 2 из 2 | 1 мин 19 с | 9147e94 | [лог](logs/2026-09-17T10-06-30Z-e2e-c8a1.log) |  |
+| 17.09.2026 15:35 | unit | ❌ упало 3 из 1024 | 1 мин 32 с | 8d5b4f1 +11 | [лог](logs/2026-09-17T10-35-04Z-unit-0497.log) | подтверждения вместо window.confirm: сторож правила и план перетаскивания |
+| 17.09.2026 15:36 | typecheck | ✅ без ошибок | 17 с | 8d5b4f1 +23 | [лог](logs/2026-09-17T10-36-44Z-typecheck-1a04.log) | подтверждения вместо window.confirm |
+| 17.09.2026 15:37 | lint | ✅ без ошибок | 9 с | 8d5b4f1 +23 | [лог](logs/2026-09-17T10-37-01Z-lint-b3c6.log) | подтверждения вместо window.confirm |
+| 17.09.2026 15:37 | e2e (частично: --config tests/ui/playwright.config.ts --reporter=list) | ❌ код выхода 1 | 5 мин 29 с | 8d5b4f1 +23 | [лог](logs/2026-09-17T10-37-15Z-e2e-b8a9.log) | UI-набор целиком: окна подтверждения на экранах |
+| 17.09.2026 15:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 97 из 97 | 7 мин 47 с | 8d5b4f1 +23 | [лог](logs/2026-09-17T10-43-05Z-e2e-15ac.log) | UI-набор целиком на окнах подтверждения (в два воркера фикстура одна на всех — прогон 15:37 упал не по коду) |
+| 17.09.2026 16:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 98 из 98 | 8 мин 14 с | a4c4376 +5 | [лог](logs/2026-09-17T11-04-33Z-e2e-c2d8.log) | гости на сегодня: весь список, не первые 25 |
+| 17.09.2026 16:12 | unit | ❌ упало 3 из 1026 | 1 мин 32 с | a4c4376 +4 | [лог](logs/2026-09-17T11-12-52Z-unit-1753.log) | гости на сегодня: размер страницы у справочника броней |
+| 17.09.2026 16:14 | typecheck | ✅ без ошибок | 18 с | a4c4376 +5 | [лог](logs/2026-09-17T11-14-24Z-typecheck-9cca.log) |  |
+| 17.09.2026 16:14 | lint | ✅ без ошибок | 10 с | a4c4376 +5 | [лог](logs/2026-09-17T11-14-42Z-lint-c620.log) |  |
+| 17.09.2026 16:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 101 из 101 | 8 мин 6 с | 8fcdffa +4 | [лог](logs/2026-09-17T11-19-28Z-e2e-2a1b.log) | подписи ведут туда, куда написано: услуги, адреса, две кнопки |
+| 17.09.2026 16:27 | typecheck | ✅ без ошибок | 13 с | 8fcdffa +4 | [лог](logs/2026-09-17T11-27-38Z-typecheck-d11d.log) |  |
+| 17.09.2026 16:27 | lint | ✅ без ошибок | 10 с | 8fcdffa +4 | [лог](logs/2026-09-17T11-27-52Z-lint-17ad.log) |  |
+| 17.09.2026 16:31 | unit | ❌ упало 3 из 1027 | 1 мин 32 с | fba8bee +10 | [лог](logs/2026-09-17T11-31-55Z-unit-c1f2.log) | «ушло в очередь каналов» — по ответу API |
+| 17.09.2026 16:33 | typecheck | ✅ без ошибок | 17 с | fba8bee +11 | [лог](logs/2026-09-17T11-33-27Z-typecheck-8568.log) |  |
+| 17.09.2026 16:33 | lint | ✅ без ошибок | 9 с | fba8bee +11 | [лог](logs/2026-09-17T11-33-44Z-lint-6e76.log) |  |
+| 17.09.2026 16:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 101 из 101 | 8 мин 8 с | fba8bee +11 | [лог](logs/2026-09-17T11-34-00Z-e2e-3e2e.log) | честное «ушло в очередь каналов» |
+| 17.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 102 из 102 | 8 мин 2 с | ab8af83 +2 | [лог](logs/2026-09-17T11-45-54Z-e2e-32cf.log) | предел периода доступности объясняется формой |
+| 17.09.2026 16:53 | typecheck | ✅ без ошибок | 13 с | ab8af83 +2 | [лог](logs/2026-09-17T11-53-56Z-typecheck-aea9.log) |  |
+| 17.09.2026 16:54 | lint | ✅ без ошибок | 10 с | ab8af83 +2 | [лог](logs/2026-09-17T11-54-10Z-lint-6cd7.log) |  |
+| 17.09.2026 17:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 104 из 104 | 8 мин 16 с | 09673c8 +5 | [лог](logs/2026-09-17T12-01-35Z-e2e-f1d0.log) | сбой шахматки на «Номерах» и обрезанная история неисправностей названы своими словами |
+| 17.09.2026 17:09 | typecheck | ✅ без ошибок | 14 с | 09673c8 +5 | [лог](logs/2026-09-17T12-09-52Z-typecheck-76b6.log) |  |
+| 17.09.2026 17:10 | lint | ✅ без ошибок | 9 с | 09673c8 +5 | [лог](logs/2026-09-17T12-10-06Z-lint-f5fa.log) |  |
+| 17.09.2026 17:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 107 из 107 | 8 мин 7 с | f7941a0 +4 | [лог](logs/2026-09-17T12-15-31Z-e2e-41ff.log) | демо брони, время по Алматы, стойкость каналов |
+| 17.09.2026 17:23 | typecheck | ✅ без ошибок | 13 с | f7941a0 +4 | [лог](logs/2026-09-17T12-23-43Z-typecheck-b18a.log) |  |
+| 17.09.2026 17:23 | lint | ✅ без ошибок | 9 с | f7941a0 +4 | [лог](logs/2026-09-17T12-23-56Z-lint-dcc6.log) |  |
+| 17.09.2026 17:24 | unit | ❌ упало 3 из 1027 | 1 мин 32 с | f7941a0 +3 | [лог](logs/2026-09-17T12-24-06Z-unit-9d80.log) | почасовой помощник Алматы |
+| 17.09.2026 17:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 108 из 108 | 8 мин 7 с | fbe7a2e +5 | [лог](logs/2026-09-17T12-27-58Z-e2e-55eb.log) | предел периода аналитики, время журнала из базы поясов |
+| 17.09.2026 17:36 | unit | ❌ упало 3 из 1028 | 1 мин 32 с | fbe7a2e +4 | [лог](logs/2026-09-17T12-36-06Z-unit-5ed2.log) | предел периода отчёта аналитики |
+| 17.09.2026 17:37 | typecheck | ✅ без ошибок | 13 с | fbe7a2e +5 | [лог](logs/2026-09-17T12-37-38Z-typecheck-c4c4.log) |  |
+| 17.09.2026 17:37 | lint | ✅ без ошибок | 9 с | fbe7a2e +5 | [лог](logs/2026-09-17T12-37-52Z-lint-22b0.log) |  |
+| 17.09.2026 19:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 109 из 109 | 9 мин 27 с | 238177d +5 | [лог](logs/2026-09-17T14-27-08Z-e2e-9480.log) | таймаут Channex, подтверждение оплаты |
+| 17.09.2026 19:36 | unit | ❌ упало 3 из 1030 | 1 мин 32 с | 238177d +4 | [лог](logs/2026-09-17T14-36-45Z-unit-77d7.log) | таймаут запроса в Channex |
+| 17.09.2026 19:38 | typecheck | ✅ без ошибок | 14 с | 238177d +5 | [лог](logs/2026-09-17T14-38-18Z-typecheck-2a2b.log) |  |
+| 17.09.2026 19:38 | lint | ✅ без ошибок | 12 с | 238177d +5 | [лог](logs/2026-09-17T14-38-32Z-lint-2f6e.log) |  |
+| 17.09.2026 19:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 110 | 9 мин 32 с | 31ee85c +8 | [лог](logs/2026-09-17T14-46-13Z-e2e-f61b.log) | пределы периодов и кэш настроек объекта |
+| 17.09.2026 19:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 110 из 110 | 9 мин 31 с | 31ee85c +8 | [лог](logs/2026-09-17T14-56-24Z-e2e-7e91.log) | пределы периодов, кэш настроек объекта |
+| 17.09.2026 20:06 | unit | ❌ упало 3 из 1031 | 1 мин 32 с | 31ee85c +7 | [лог](logs/2026-09-17T15-06-00Z-unit-9801.log) | пределы периодов, кэш настроек объекта |
+| 17.09.2026 20:07 | typecheck | ✅ без ошибок | 15 с | 31ee85c +8 | [лог](logs/2026-09-17T15-07-33Z-typecheck-6d86.log) |  |
+| 17.09.2026 20:07 | lint | ✅ без ошибок | 11 с | 31ee85c +8 | [лог](logs/2026-09-17T15-07-48Z-lint-c066.log) |  |
+| 17.09.2026 20:13 | unit | ❌ упало 3 из 1032 | 1 мин 32 с | ce9d860 +2 | [лог](logs/2026-09-17T15-13-51Z-unit-ec51.log) | журнал: сводка считается в базе, снимки не едут в список |
+| 17.09.2026 20:15 | typecheck | ✅ без ошибок | 15 с | ce9d860 +3 | [лог](logs/2026-09-17T15-15-24Z-typecheck-c273.log) |  |
+| 17.09.2026 20:15 | lint | ✅ без ошибок | 11 с | ce9d860 +3 | [лог](logs/2026-09-17T15-15-39Z-lint-904e.log) |  |
+| 17.09.2026 20:21 | integration | ✅ 32 из 32 | 9 с | 1d1fba4 +1 | [лог](logs/2026-09-17T15-21-05Z-integration-3187.log) | локальная база в контейнере (scripts/ops/local-db.sh) |
+| 17.09.2026 20:21 | unit | ❌ упало 3 из 1035 | 1 мин 32 с | 1d1fba4 +4 | [лог](logs/2026-09-17T15-21-59Z-unit-be8a.log) | локальная база: засев и защита от чужого адреса |
+| 17.09.2026 20:23 | typecheck | ✅ без ошибок | 19 с | 1d1fba4 +4 | [лог](logs/2026-09-17T15-23-35Z-typecheck-8a47.log) |  |
+| 17.09.2026 20:23 | lint | ✅ без ошибок | 11 с | 1d1fba4 +4 | [лог](logs/2026-09-17T15-23-55Z-lint-a0ec.log) |  |
+| 17.09.2026 20:49 | unit | ❌ упало 3 из 1035 | 1 мин 32 с | 130a088 +1 | [лог](logs/2026-09-17T15-49-45Z-unit-7c64.log) | локальный стенд: форма объекта 88 единиц и календарь цен |
+| 17.09.2026 20:51 | typecheck | ✅ без ошибок | 14 с | 130a088 +2 | [лог](logs/2026-09-17T15-51-17Z-typecheck-0ad2.log) |  |
+| 17.09.2026 20:51 | lint | ✅ без ошибок | 11 с | 130a088 +2 | [лог](logs/2026-09-17T15-51-32Z-lint-10a6.log) |  |
+| 17.09.2026 21:26 | typecheck | ✅ без ошибок | 15 с | 7703e49 +16 | [лог](logs/2026-09-17T16-26-22Z-typecheck-dbb4.log) |  |
+| 17.09.2026 21:26 | lint | ✅ без ошибок | 11 с | 7703e49 +16 | [лог](logs/2026-09-17T16-26-37Z-lint-3dc8.log) |  |
+| 19.09.2026 16:56 | typecheck | ❌ ошибок: 13 | 25 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-56-42Z-typecheck-e8c8.log) | TS2300 |
+| 19.09.2026 16:57 | typecheck | ✅ без ошибок | 20 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-57-30Z-typecheck-d84f.log) |  |
+| 19.09.2026 16:57 | lint | ❌ ошибок: 2 | 13 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-57-50Z-lint-f09f.log) | @typescript-eslint/no-unused-vars |
+| 19.09.2026 16:58 | lint | ✅ без ошибок | 12 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-58-19Z-lint-1c21.log) |  |
+| 19.09.2026 16:58 | unit | ❌ упало 2 из 1256, пропущено 3 | 1 мин 13 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-58-46Z-unit-8647.log) | деньги и журнал — одной транзакцией платёж: обе записи внутри одного $transaction, id платежа попадает в строку журнала |
+| 19.09.2026 17:00 | unit | ✅ 1253 из 1256, пропущено 3 | 1 мин 12 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-00-21Z-unit-9be2.log) |  |
+| 19.09.2026 17:02 | e2e | ❌ упало 2 из 25 | 1 мин 18 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-02-42Z-e2e-50c6.log) | шахматка показывает 88 ячеек, и занятость на экране совпадает с данными |
+| 19.09.2026 17:05 | unit (частично: tests/unit/test-data-source.test.ts) | ❌ упало 2 из 5 | 1 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-05-56Z-unit-47ab.log) | seedIsStale сид не с сегодняшнего дня (по Алматы) — устарел |
+| 19.09.2026 17:06 | unit (частично: tests/unit/test-data-source.test.ts) | ✅ 5 из 5 | 1 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-06-16Z-unit-c15a.log) |  |
+| 19.09.2026 17:06 | e2e | ✅ 25 из 25 | 49 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-06-28Z-e2e-78eb.log) |  |
+| 19.09.2026 17:07 | integration | ❌ упало 1 из 37, пропущено 5 | 11 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-07-49Z-integration-8667.log) | журнал действий: список (integration, DATABASE_URL required) сводка берётся из снимка: номер брони из after, код ячейки из before |
+| 19.09.2026 17:08 | integration | ✅ 32 из 37, пропущено 5 | 11 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-08-21Z-integration-a1a0.log) |  |
+| 19.09.2026 17:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 5bd5056 +50 | [лог](logs/2026-09-19T12-13-31Z-e2e-ae39.log) | (ошибка вне тестов) |

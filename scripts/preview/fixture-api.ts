@@ -39,6 +39,9 @@ const openAtLock = (p: string): boolean =>
   p.startsWith('/w/') ||
   p === '/auth/login' ||
   p === '/auth/logout' ||
+  p === '/auth/code' ||
+  p === '/auth/register' ||
+  p === '/auth/verify' ||
   p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
@@ -112,7 +115,17 @@ const guestSeed: GuestCard = {
   phone: null,
   email: 'guest@example.invalid',
   notes: 'Вымышленные данные для проверки интерфейса',
-  documents: [],
+  // Вымышленный документ (ADR-010): на нём проверяется вопрос перед удалением
+  documents: [
+    {
+      id: 'ui-document',
+      type: 'PASSPORT',
+      numberMasked: '•••• 4321',
+      issueCountry: 'KAZ',
+      issuedAt: null,
+      expiresAt: null,
+    },
+  ],
   stays: [
     {
       confirmationNumber: '20260913-TESTAA',
@@ -171,7 +184,9 @@ function initializeRecords() {
     card.primaryGuest!.label = `${lastName} ${firstName}`;
     card.items[0]!.guests[0]!.label = card.primaryGuest!.label;
   }
-  for (let i = 1; i < 8; i++) {
+  // i = 8 — «не заехал вовремя»: подтверждён, заезд был позавчера, выезд не сегодня. Такой брони не
+  // видно ни в заездах, ни в выездах, ни среди живущих — её показывает блок «Требуют внимания»
+  for (let i = 1; i < 9; i++) {
     const r = cardSeed();
     const g = structuredClone(guestSeed);
     const label = demo ? names[i]! : ['Посетитель Демо', 'Клиент Пример', 'Гость Учебный'][i % 3]!;
@@ -180,14 +195,14 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    r.status = i === 1 || i === 8 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
     r.channel = i % 2 ? 'Booking.com' : null;
     r.primaryGuest = { id: g.id, label, citizenship: g.citizenship, phone: g.phone };
     const unit = units.find(
-      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01'][i],
+      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01', 'F03'][i],
     )!;
     r.items[0] = {
       ...r.items[0]!,
@@ -825,25 +840,27 @@ function desk(date: string): DeskDay {
   const inHouse = active.filter(
     (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
   );
-  const overdue = active.filter(
+  // Не заехали вовремя — как в apps/api/src/desk/desk.service.ts: заезд был раньше, заселения нет,
+  // выезд не сегодня (иначе они уже в списке выездов)
+  const overdueArrivals = active.filter(
     (r) =>
+      (r.status === 'CONFIRMED' || r.status === 'TENTATIVE') &&
       r.arrivalDate < date &&
-      r.departureDate > date &&
-      (r.status === 'CONFIRMED' || r.status === 'TENTATIVE'),
+      r.departureDate !== date,
   );
   return {
     date,
     arrivals,
     departures,
     inHouse,
-    overdue,
+    overdueArrivals,
     counts: {
       arrivals: arrivals.length,
       departures: departures.length,
       inHouse: inHouse.length,
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
-      overdue: overdue.length,
+      overdueArrivals: overdueArrivals.length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -1173,14 +1190,34 @@ function report(): SiteReport {
  * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-049). Настоящих людей здесь нет (ADR-010):
  * один вымышленный сотрудник и пароль, который знает только эта фикстура.
  */
-const uiUser = {
+interface UiUser {
+  id: string;
+  email: string;
+  name: string | null;
+  organizationId: string;
+  organization: { name: string; status: string; trialEndsAt: string | null };
+}
+const uiUser: UiUser = {
   id: 'ui-user',
   email: 'admin@wetop.test',
   name: 'Дана Тестова',
   organizationId: 'ui-org',
+  organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
-const uiSessions = new Set<string>();
+/** Сессии обоих входов (Q-146): ключ → кто вошёл; по коду — вымышленная организация на пробном периоде */
+const uiSessions = new Map<string, UiUser>();
+const codeUser = (email: string): UiUser => ({
+  id: 'ui-code-user',
+  email,
+  name: null,
+  organizationId: 'org-fixture',
+  organization: {
+    name: 'Хостел «Пример»',
+    status: 'TRIAL',
+    trialEndsAt: new Date(Date.now() + 5 * 24 * 3600_000).toISOString(),
+  },
+});
 
 /**
  * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
@@ -1824,6 +1861,7 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
@@ -1878,6 +1916,33 @@ createServer(async (req, res) => {
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       return send(200, {});
     }
+    // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
+    // список на 25 строк. Как и design-seed, обычные тесты этих броней не видят, пока не позовут.
+    if (path === '/__test/crowd-seed') {
+      const count = Math.min(Number(url.searchParams.get('n') || 40), units.length);
+      for (let i = 0; i < count; i++) {
+        const unit = units[i]!;
+        const n = `CROWD${String(i + 1).padStart(2, '0')}`;
+        const { r, g } = designCard(
+          {
+            n,
+            label: `Гость Многолюдный-${String(i + 1).padStart(2, '0')}`,
+            status: 'CHECKED_IN',
+            source: 'DESK',
+            channel: null,
+            unit: unit.code,
+            from: 0,
+            to: 0,
+            price: '1000000',
+          },
+          add(today, -1),
+          add(today, 1),
+        );
+        extraCards.set(r.confirmationNumber, r);
+        extraGuests.set(g.id, g);
+      }
+      return send(200, { stays: count });
+    }
     if (path === '/__test/design-seed') {
       seedDesign();
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
@@ -1922,18 +1987,49 @@ createServer(async (req, res) => {
             ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
             : null,
         }));
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
         total: emptyFixture ? 0 : rows.length,
-        page: 1,
-        pageSize: 25,
-        rows: emptyFixture ? [] : rows,
+        page,
+        pageSize,
+        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);
-      return send(200, token && uiSessions.has(token) ? { user: uiUser } : { user: null });
+      return send(200, { user: (token && uiSessions.get(token)) || null });
+    }
+    // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
+    const noContent = () => {
+      res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
+      res.end();
+    };
+    if (path === '/auth/code' && req.method === 'POST') return noContent();
+    if (path === '/auth/register' && req.method === 'POST') {
+      if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
+        return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
+      if (!String(body['organizationName'] ?? '').trim())
+        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+      return noContent();
+    }
+    if (path === '/auth/verify' && req.method === 'POST') {
+      if (body['code'] !== '123456') return send(401, { message: 'Код не подошёл. Запросите новый.' });
+      const who = codeUser(String(body['email']).trim().toLowerCase());
+      const token = `ui-code-session-${uiSessions.size + 1}`;
+      uiSessions.set(token, who);
+      return send(200, {
+        token,
+        session: {
+          email: who.email,
+          organizationId: who.organizationId,
+          organizationName: who.organization.name,
+          organizationStatus: who.organization.status,
+          trialEndsAt: who.organization.trialEndsAt,
+        },
+      });
     }
     if (path === '/auth/password-reset/request' && req.method === 'POST') {
       // наружу ответ один и тот же, есть такая почта или нет
@@ -1957,7 +2053,7 @@ createServer(async (req, res) => {
       if (body['email'] !== uiUser.email || body['password'] !== uiPassword)
         return send(401, { message: 'Неверная почта или пароль' });
       const token = `ui-session-${uiSessions.size + 1}`;
-      uiSessions.add(token);
+      uiSessions.set(token, uiUser);
       return send(200, {
         token,
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
@@ -2004,8 +2100,10 @@ createServer(async (req, res) => {
     }
     if (path === '/rates/bulk') {
       priceChanges.push(...(body['changes'] as typeof priceChanges));
+      const changes = body['changes'] as Array<{ accommodationTypeCode?: string }>;
+      // как настоящий API: категория без сопоставления с Channex в очередь каналов не идёт
       return send(200, {
-        applied: (body['changes'] as unknown[]).length,
+        applied: changes.length,
         rateRows: 1,
         restrictionRows: 0,
         queued: ratesUnmapped ? 0 : (body['changes'] as unknown[]).length,

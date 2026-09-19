@@ -19,7 +19,7 @@ export interface DirectoryQuery {
   status?: string;
   q?: string;
   page?: string;
-  /** Строк на страницу, 1…200; по умолчанию 25. «Гости на сегодня» читают всех одной страницей */
+  /** Сколько строк на странице, 1…200. По умолчанию 25 — как было до «Гостей на сегодня» */
   pageSize?: string;
 }
 const DEFAULT_PAGE_SIZE = 25;
@@ -41,6 +41,8 @@ export class ReservationDirectory {
       new Date(date).toISOString().slice(0, 10) === date;
     const status = query.status || 'ALL';
     const page = Number(query.page || 1);
+    // Потолок держит один запрос в берегах: на объекте 88 мест, больше 200 броней в сутках не бывает
+    const pageSize = query.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(query.pageSize);
     if (
       !valid(from) ||
       !valid(to) ||
@@ -52,9 +54,8 @@ export class ReservationDirectory {
       throw new BadRequestException('Неизвестный статус');
     if (!Number.isInteger(page) || page < 1 || page > 10000)
       throw new BadRequestException('Некорректная страница');
-    const pageSize = query.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(query.pageSize);
     if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > MAX_PAGE_SIZE)
-      throw new BadRequestException(`pageSize — целое от 1 до ${MAX_PAGE_SIZE}`);
+      throw new BadRequestException(`Размер страницы — целое число от 1 до ${MAX_PAGE_SIZE}`);
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
     const property = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name)

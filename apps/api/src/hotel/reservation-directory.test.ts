@@ -47,19 +47,28 @@ describe('reservation directory is a bounded read projection', () => {
       }),
     );
   });
-  it('pageSize widens a page up to 200 rows (guests of the day) and refuses more', async () => {
+  /**
+   * «Гости» показывают всех, кто живёт сегодня: на объекте до 92 гостей, а страница в 25 строк
+   * молча обрезала список — смена видела первых 25 из ~80 и не знала, что остальные есть.
+   * Размер страницы задаёт вызывающий, но в пределах: без потолка один запрос вытянет всю базу.
+   */
+  it('размер страницы задаётся вызывающим, по умолчанию прежние 25', async () => {
     const { db, service } = fixture();
-    const result = await service.list({ from: '2026-09-15', to: '2026-09-15', pageSize: '200' });
+    const result = await service.list({ from: '2026-09-17', to: '2026-09-17', pageSize: '200' });
     expect(result).toMatchObject({ pageSize: 200, page: 1 });
     expect(db.reservation.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ take: 200, skip: 0 }),
     );
-    for (const pageSize of ['0', '201', '2.5', 'x']) {
-      const bad = fixture();
-      await expect(bad.service.list({ pageSize })).rejects.toBeInstanceOf(BadRequestException);
-      expect(bad.db.reservation.findMany).not.toHaveBeenCalled();
+  });
+
+  it('негодный размер страницы отклоняется до запроса к базе', async () => {
+    for (const params of [{ pageSize: '0' }, { pageSize: '201' }, { pageSize: '2.5' }, { pageSize: 'все' }]) {
+      const { db, service } = fixture();
+      await expect(service.list(params)).rejects.toBeInstanceOf(BadRequestException);
+      expect(db.reservation.findMany).not.toHaveBeenCalled();
     }
   });
+
   it('excludes voided finance entries in the read selection and preserves refunds', async () => {
     const { db, service } = fixture();
     db.reservation.findMany.mockResolvedValue([

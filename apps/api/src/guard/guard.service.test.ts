@@ -135,6 +135,7 @@ function setup(
       failedSinceSync: 0,
       lastFailedError: null,
       oldestPendingAt: null,
+      lostDeltaAt: null,
     },
     webhook: over.webhook ?? QUIET_WEBHOOK,
     stays: over.stays ?? NO_STAYS,
@@ -224,6 +225,7 @@ describe('GuardService.tick', () => {
         failedSinceSync: 3,
         lastFailedError: 'Channex POST /availability: HTTP 503',
         oldestPendingAt: null,
+        lostDeltaAt: null,
       },
     });
     const first = await t.guard.tick(NIGHT);
@@ -241,6 +243,43 @@ describe('GuardService.tick', () => {
     expect(t.sent).toEqual([]);
   });
 
+  /*
+   * Дельта остатков не встала в очередь (Б6, план wetop-domain §«Хвосты»). Команда записана, очередь пуста,
+   * поэтому ни «упавшая отправка», ни «застряла очередь» этого не видят: канал продолжает продавать по старому
+   * остатку до ночной полной выгрузки. Починка та же, что у упавшей отправки, — полная выгрузка: повторять
+   * потерянную дельту нечем, её содержимое нигде не сохранено.
+   */
+  it('дельта не встала в очередь после записи: полная выгрузка, после неё закрыта', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -600),
+        failedSinceSync: 0,
+        lastFailedError: null,
+        oldestPendingAt: null,
+        lostDeltaAt: plus(NIGHT, -5),
+      },
+    });
+    const first = await t.guard.tick(NIGHT);
+    expect(t.repo.rows[0]).toMatchObject({ kind: 'ari.delta.lost', status: 'FIXING' });
+    expect(t.calls).toEqual(['fullSync']);
+    expect(first.fixes[0]).toMatchObject({ kind: 'ari.delta.lost', ok: true });
+  });
+
+  it('потерянная дельта старше последней полной выгрузки — выгрузка её уже перекрыла, неисправности нет', async () => {
+    const t = setup({
+      outbox: {
+        lastFullSyncAt: plus(NIGHT, -60),
+        failedSinceSync: 0,
+        lastFailedError: null,
+        oldestPendingAt: null,
+        lostDeltaAt: plus(NIGHT, -600),
+      },
+    });
+    await t.guard.tick(NIGHT);
+    expect(t.repo.rows.filter((r) => r.kind === 'ari.delta.lost')).toEqual([]);
+    expect(t.calls).toEqual([]);
+  });
+
   it('проверка упала — её неисправность остаётся открытой, ошибка проверки видна в итоге прохода', async () => {
     const t = setup({
       outbox: {
@@ -248,6 +287,7 @@ describe('GuardService.tick', () => {
         failedSinceSync: 1,
         lastFailedError: 'HTTP 503',
         oldestPendingAt: null,
+        lostDeltaAt: null,
       },
     });
     t.guard.autofix = false;
@@ -339,6 +379,7 @@ describe('GuardService.tick', () => {
         failedSinceSync: 2,
         lastFailedError: 'HTTP 503',
         oldestPendingAt: null,
+        lostDeltaAt: null,
       },
     });
     t.guard.autofix = false;
@@ -641,6 +682,7 @@ describe('GuardService при остановленном ARI (CHANNEX_ARI=off, �
         failedSinceSync: 2,
         lastFailedError: 'Исходящий ARI остановлен',
         oldestPendingAt: plus(NIGHT, -20),
+        lostDeltaAt: null,
       },
       enabled: (what) => what !== 'ariOut',
     });

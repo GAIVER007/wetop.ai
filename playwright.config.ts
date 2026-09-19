@@ -23,6 +23,8 @@ const LIVE = process.env['E2E_CHANNEX_LIVE'] === '1';
  */
 const AUTH = !LIVE && authRun();
 const LIVE_ONLY = ['channex-certification.spec.ts'];
+/** Свой Chromium вместо браузеров Playwright: `CHROMIUM_PATH` (как у UI-набора и главной) или `E2E_BROWSER_EXECUTABLE` */
+const BROWSER_EXECUTABLE = process.env['E2E_BROWSER_EXECUTABLE'] || process.env['CHROMIUM_PATH'];
 const TEST_API = `http://127.0.0.1:${TEST_API_PORT}`;
 const TEST_WEB = `http://127.0.0.1:${TEST_WEB_PORT}`;
 const SPECS = resolve(import.meta.dirname, 'tests/e2e');
@@ -60,9 +62,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     // прямые запросы спеков к API идут как служебные: людей у них нет, а замок пропускает по ключу
     ...(AUTH ? { extraHTTPHeaders: { 'x-wetop-service-key': SERVICE_KEY } } : {}),
-    // Машина без браузеров Playwright, но со своим Chromium (облачная сессия, CI-образ): CHROMIUM_PATH=/путь/к/chrome
-    ...(process.env['CHROMIUM_PATH']
-      ? { launchOptions: { executablePath: process.env['CHROMIUM_PATH'] } }
+    // Машина без браузеров Playwright, но со своим Chromium (облачная сессия, CI-образ):
+    // CHROMIUM_PATH=/путь/к/chrome (как у UI-набора и главной) или E2E_BROWSER_EXECUTABLE
+    ...(BROWSER_EXECUTABLE
+      ? { launchOptions: { executablePath: BROWSER_EXECUTABLE } }
       : {}),
   },
   projects: LIVE

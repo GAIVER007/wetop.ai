@@ -9,6 +9,7 @@ import {
   Badge,
   Button,
   Input,
+  Notice,
   Panel,
   Row,
   Select,
@@ -25,6 +26,7 @@ import {
   stayExtraAction,
 } from './finance-actions';
 import { almatyDate } from '../../../lib/almaty';
+import { useConfirm } from '../../../components/use-confirm';
 
 const KIND_RU: Record<string, string> = {
   ACCOMMODATION: 'проживание',
@@ -121,11 +123,14 @@ function FolioPanel({
     run: command,
     pending: commandPending,
   } = useCommand<FinanceActionResult>(INIT);
+  const { ask, dialog } = useConfirm();
   const busy = chargePending || payPending || commandPending;
   const [kind, setKind] = useState('SERVICE');
   const open = folio.status === 'OPEN';
   const balance = BigInt(folio.balanceMinor);
   const error = chargeState.error ?? payState.error ?? other.error;
+  // Подтверждение последнего успеха: без него после оплаты экран просто очищал форму (§7.3)
+  const done = payState.message ?? chargeState.message ?? other.message;
   return (
     <Panel data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
@@ -401,12 +406,12 @@ function FolioPanel({
                 data-testid={`close-folio-${folio.id}`}
                 disabled={busy}
                 onClick={async () => {
-                  if (
-                    !window.confirm(
-                      'Закрыть счёт? Начислять и принимать оплату по нему будет нельзя.',
-                    )
-                  )
-                    return;
+                  const ok = await ask({
+                    title: 'Закрыть счёт?',
+                    body: 'Баланс нулевой. После закрытия по этому счёту нельзя ни начислить, ни принять оплату — новые начисления пойдут на другой счёт.',
+                    confirmLabel: 'Закрыть счёт',
+                  });
+                  if (!ok) return;
                   await command(() => closeFolioAction(number, folio.id));
                 }}
               >
@@ -420,6 +425,12 @@ function FolioPanel({
         </Stack>
       )}
       {error && <Alert>{error}</Alert>}
+      {!error && done && (
+        <Notice data-testid="finance-done" role="status">
+          {done}
+        </Notice>
+      )}
+      {dialog}
     </Panel>
   );
 }

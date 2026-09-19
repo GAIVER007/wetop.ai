@@ -542,3 +542,39 @@ describe('channexDecimalToMinor — цена Channex "14000.00" → тиыны �
     expect(() => channexDecimalToMinor('')).toThrow(/не десятичное/);
   });
 });
+
+/**
+ * Запрос в Channex не ждёт вечно (§7.3 плана wetop-domain).
+ *
+ * `fetch` без сигнала висит, пока соединение открыто: если Channex принял TCP и замолчал, экран
+ * «Подключения» и кнопки на «Каналах» ждали минутами, а с тремя повторами и паузами — ещё дольше.
+ * Таймаут делает молчание обычной сетевой ошибкой: повтор с backoff, потом внятный отказ.
+ */
+describe('таймаут запроса', () => {
+  it('каждому запросу передан сигнал прерывания', async () => {
+    const f = fakeFetch(() => ({ status: 200, body: { data: [] } }));
+    const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
+    await c.request('GET', '/properties');
+    expect(f.calls[0]!.init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('молчание Channex — сетевая ошибка с повторами, затем отказ со словом «таймаут»', async () => {
+    let attempts = 0;
+    const hang: typeof fetch = async (_input, init) => {
+      attempts += 1;
+      // как настоящий fetch: ждём, пока сигнал не прервёт запрос
+      return new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new Error('The operation was aborted')));
+      });
+    };
+    const c = new ChannexClient({
+      apiKey: 'k',
+      fetch: hang,
+      sleep: noSleep.sleep,
+      timeoutMs: 5,
+      maxRetries: 1,
+    });
+    await expect(c.request('GET', '/properties')).rejects.toThrow(/таймаут/i);
+    expect(attempts).toBe(2); // первый запрос и один повтор
+  });
+});

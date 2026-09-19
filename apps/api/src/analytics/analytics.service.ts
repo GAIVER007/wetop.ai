@@ -59,6 +59,8 @@ export interface SiteReport {
   devices: DevicesBreakdown;
 }
 
+/** Предел периода отчёта: 400 дней — чуть больше 13 месяцев хранения данных счётчика */
+const MAX_REPORT_DAYS = 400;
 const HOST_RE = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
 
 /** Публичный адрес API для кода счётчика; без него — локальный (разработка и e2e). */
@@ -211,6 +213,13 @@ export class AnalyticsService {
     else {
       if (!isIsoDate(from) || !isIsoDate(to)) throw new BadRequestException('даты: YYYY-MM-DD');
       if (from > to) throw new BadRequestException('начало периода позже конца');
+      // Данные счётчика хранятся 13 месяцев (`npm run analytics:retention`); без предела отчёт
+      // «с 2020 по 2030» тянул из базы всё и строил разбивку на тысячи дней (§7.3)
+      const days = Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000) + 1;
+      if (days > MAX_REPORT_DAYS)
+        throw new BadRequestException(
+          `период до ${MAX_REPORT_DAYS} дней: данные счётчика хранятся 13 месяцев`,
+        );
       period = { from, to };
     }
     const { startUtc, endUtcExclusive } = periodBoundsUtc(period.from, period.to, tz);

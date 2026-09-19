@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { roomiestCategory } from './pick-category';
 
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 /*
@@ -19,6 +20,7 @@ const plus = (n: number) => {
  */
 test('главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания»', async ({
   page,
+  request,
 }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
@@ -52,9 +54,11 @@ test('главная открывается с корня; заезд на да�
   const before = await card('c-arrivals');
 
   await page.goto(`/reservations/new?arrival=${day}&departure=${plus(7)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, day, plus(7)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-день');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

@@ -2,6 +2,8 @@
 import { useActionState, useState, useTransition } from 'react';
 import type { UnitCard } from '../../../lib/api';
 import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
+import { useConfirm } from '../../../components/use-confirm';
+import { displayDate } from '../../../lib/display-date';
 import {
   blockUnitAction,
   housekeepingAction,
@@ -28,6 +30,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
   );
   const [other, setOther] = useState<UnitActionResult>({ error: null });
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   return (
     <Stack>
       {other.error && <Alert>{other.error}</Alert>}
@@ -61,9 +64,16 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               size="sm"
               className="is-danger"
               disabled={pending || blockPending}
-              onClick={() => {
-                if (!window.confirm('Снять блокировку? Ячейка снова пойдёт в продажу на эти даты.'))
-                  return;
+              onClick={async () => {
+                // Снятая блокировка возвращает ячейку в продажу — её тут же может занять канал
+                const ok = await ask({
+                  title: `Снять блокировку с ячейки ${unit.code}?`,
+                  body: `${displayDate(b.dateFrom)} → ${displayDate(b.dateTo)} · ${
+                    TYPES.find(([k]) => k === b.type)?.[1] ?? b.type
+                  }${b.reason ? ` · ${b.reason}` : ''}. Ячейка вернётся в продажу, и её сможет занять бронь.`,
+                  confirmLabel: 'Снять блокировку',
+                });
+                if (!ok) return;
                 start(async () => setOther(await unblockUnitAction(unit.code, b.id)));
               }}
             >
@@ -111,6 +121,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         </form>
         {blockState.error && <Alert>{blockState.error}</Alert>}
       </Panel>
+      {dialog}
     </Stack>
   );
 }

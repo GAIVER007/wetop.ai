@@ -95,7 +95,8 @@ test('новые фильтры шахматки, список броней и �
   await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await page.goto('/reservations');
-  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(8);
+  // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
+  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
   await page
     .locator('.directory-filters')
     .getByRole('link', { name: 'Отменены', exact: true })

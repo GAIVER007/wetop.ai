@@ -8,6 +8,7 @@ import { stayLabels } from './stay-labels';
 import { assignUnitAction } from '../reservations/actions';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { Icon } from '../../components/icon';
+import { useConfirm } from '../../components/use-confirm';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -49,6 +50,7 @@ export function ChessboardGrid({
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
@@ -66,16 +68,17 @@ export function ChessboardGrid({
     e.dataTransfer.dropEffect = 'move';
     if (overUnit !== row.unit.code) setOverUnit(row.unit.code);
   };
-  const onDrop = (row: ChessboardRow) => (e: React.DragEvent) => {
+  const onDrop = (row: ChessboardRow) => async (e: React.DragEvent) => {
     if (!isOurs(e)) return;
     e.preventDefault();
     setOverUnit(null);
+    // dataTransfer живёт только до конца обработчика — читаем до любого await
     const payload = decodeDrag(e.dataTransfer.getData(DRAG_MIME)) ?? dragging.current;
     dragging.current = null;
     if (!payload) return;
     const plan = planMove(payload, { unitCode: row.unit.code });
     if (plan.kind === 'noop') return;
-    if (!window.confirm(plan.confirmText)) return;
+    if (!(await ask({ title: plan.title, body: plan.detail, confirmLabel: 'Переселить' }))) return;
     const fd = new FormData();
     fd.set('unitCode', plan.unitCode);
     fd.set('fromDate', plan.fromDate);
@@ -374,6 +377,7 @@ export function ChessboardGrid({
         </p>
       )}
       {error && <Alert data-testid="drag-error">{error}</Alert>}
+      {dialog}
     </>
   );
 }

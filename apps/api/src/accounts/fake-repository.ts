@@ -86,6 +86,25 @@ export class FakeAccountsRepository implements AccountsRepository {
     return this.accounts.find((a) => a.email === email) ?? null;
   }
 
+  async createAccount(input: {
+    email: string;
+    organizationName: string;
+    trialEndsAt: Date;
+  }): Promise<AccountRecord | null> {
+    if (this.accounts.some((a) => a.email === input.email)) return null;
+    this.seq += 1;
+    const account: AccountRecord = {
+      userId: `u-${this.seq}`,
+      email: input.email,
+      organizationId: `org-${this.seq}`,
+      organizationName: input.organizationName,
+      organizationStatus: 'TRIAL',
+      trialEndsAt: input.trialEndsAt,
+    };
+    this.accounts.push(account);
+    return account;
+  }
+
   async markLogin(userId: string, at: Date): Promise<void> {
     this.logins.push({ userId, at });
   }

@@ -14,9 +14,20 @@ import { ReservationStatus } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 
+/**
+ * Сколько держать настройки объекта в памяти API (волна 4 плана wetop-domain).
+ *
+ * Их читает `layout.tsx`, то есть каждая страница стойки: два запроса в базу Сингапура на каждый
+ * показ экрана, а пулер Supabase даёт 15 клиентов на проект. Название, часы и тарифы меняет импорт,
+ * не стойка, поэтому правка появится на экранах не позже чем через минуту.
+ */
+const SETTINGS_TTL_MS = () => Number(process.env.HOTEL_SETTINGS_TTL_MS ?? 60_000);
+
 /** Read-only projections of the approved model. No provider calls or financial mutations. */
 @Injectable()
 export class HotelService {
+  private cachedSettings: { at: number; value: Awaited<ReturnType<HotelService['readSettings']>> } | null = null;
+
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   private async property() {
@@ -38,6 +49,14 @@ export class HotelService {
   }
 
   async settings() {
+    const cached = this.cachedSettings;
+    if (cached && Date.now() - cached.at < SETTINGS_TTL_MS()) return cached.value;
+    const value = await this.readSettings();
+    this.cachedSettings = { at: Date.now(), value };
+    return value;
+  }
+
+  private async readSettings() {
     const property = await this.property();
     const ratePlans = await this.prisma.db.ratePlan.findMany({
       where: { propertyId: property.id },

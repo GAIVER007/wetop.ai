@@ -12,6 +12,7 @@ import {
   verifyPassword,
   type UserStatus,
 } from '@pms/domain';
+import { hashSecret } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
@@ -24,10 +25,28 @@ export interface SignedInUser {
   organizationId: string;
 }
 
+/** Организация сессии — то, что показывает экран входа: имя, состояние и пробный период (ADR-046, §13.1). */
+export interface SignedInOrganization {
+  name: string;
+  status: string;
+  trialEndsAt: string | null;
+}
+
 export interface LoginResult {
   token: string;
   expiresAt: string;
   user: SignedInUser;
+}
+
+/**
+ * Два отпечатка одного ключа, пока Q-146 открыт: вход по паролю пишет в `sessions.token_hash` SHA-256
+ * (ADR-049), вход по коду на почту — HMAC с `SESSION_SECRET` (ADR-046, `@pms/shared/auth-hash`).
+ * Замок API и `/auth/me` обязаны узнавать обе, иначе вошедший по коду получал бы 401 на каждый экран.
+ * Без `SESSION_SECRET` второго отпечатка нет — и сессий по коду тоже (их не из чего было выдать).
+ */
+export function codeSessionHash(token: string, env: Record<string, string | undefined> = process.env): string | null {
+  const secret = env.SESSION_SECRET?.trim();
+  return secret ? hashSecret(token, secret) : null;
 }
 
 /** Один и тот же ответ на неверную почту и на неверный пароль: форма входа не рассказывает, кто у нас есть. */
@@ -133,24 +152,26 @@ export class AuthService {
   async whoami(
     token: string,
     now = new Date(),
-  ): Promise<{ user: SignedInUser; expiresAt: string } | null> {
+  ): Promise<{ user: SignedInUser; organization: SignedInOrganization | null; expiresAt: string } | null> {
     const found = await this.session(token, now);
     if (!found) return null;
     await this.prisma.db.session.update({
       where: { id: found.session.id },
       data: { lastSeenAt: now },
     });
+    const org = found.session.organization;
     return {
       user: visible(found.user, found.session.organizationId),
+      organization: org
+        ? { name: org.name, status: org.status, trialEndsAt: org.trialEndsAt ? org.trialEndsAt.toISOString() : null }
+        : null,
       expiresAt: found.session.expiresAt.toISOString(),
     };
   }
 
   /** «Выйти». Идемпотентен: неизвестный или уже отозванный токен ничего не ломает и в журнал не пишет. */
   async logout(token: string, now = new Date()): Promise<void> {
-    const session = await this.prisma.db.session.findUnique({
-      where: { tokenHash: hashSessionToken(token) },
-    });
+    const session = await this.findByToken(token);
     if (!session || session.revokedAt !== null) return;
     await this.prisma.db.session.update({ where: { id: session.id }, data: { revokedAt: now } });
     await this.record(session.userId, 'user.logout', {});
@@ -182,12 +203,22 @@ export class AuthService {
     await this.record(full.id, 'user.password.changed', { sessionsRevoked: count });
   }
 
+  /** Строка сессии по ключу: сначала отпечаток пароля, потом — если задан секрет — отпечаток кода. */
+  private async findByToken(token: string) {
+    const byHash = (tokenHash: string) =>
+      this.prisma.db.session.findUnique({
+        where: { tokenHash },
+        include: { user: true, organization: true },
+      });
+    const own = await byHash(hashSessionToken(token));
+    if (own) return own;
+    const alt = codeSessionHash(token);
+    return alt ? byHash(alt) : null;
+  }
+
   private async session(token: string, now: Date) {
     if (!token) return null;
-    const session = await this.prisma.db.session.findUnique({
-      where: { tokenHash: hashSessionToken(token) },
-      include: { user: true },
-    });
+    const session = await this.findByToken(token);
     if (!session || !session.user) return null;
     if (sessionState(session, now) !== 'active') return null;
     if (session.user.status !== 'ACTIVE') return null;

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
+import { auditUserId } from '../accounts/actor';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
 export type HousekeepingStatus = 'DIRTY' | 'CLEAN' | 'INSPECTED';
@@ -194,7 +195,14 @@ export class PrismaUnitsRepository implements UnitsRepository {
   async audit(entityId: string, action: string, before: unknown, after: unknown) {
     const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
     await this.prisma.db.auditLog.create({
-      data: { entityType: 'InventoryUnit', entityId, action, before: j(before), after: j(after) },
+      data: {
+        userId: auditUserId(),
+        entityType: 'InventoryUnit',
+        entityId,
+        action,
+        before: j(before),
+        after: j(after),
+      },
     });
   }
 }

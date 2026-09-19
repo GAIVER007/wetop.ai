@@ -1,0 +1,192 @@
+# Модульные (unit) · 17.09.2026 00:08 Алматы · vm
+# коммит 275cdc2 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-16T19-08-04Z-unit-d6ce.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/repo-sync.test.ts (9 tests | 9 failed) 783ms
+   ❯ repo-sync.sh: связь папки с репозиторием (9)
+     × проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 96ms
+     × --pull подтягивает origin/main только fast-forward и потом отставания нет 88ms
+     × --pull не трогает дерево с незакоммиченными правками 89ms
+     × --pull с локальными коммитами не сливает, а просит отправить их 97ms
+     × --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 91ms
+     × --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 81ms
+     × без .env говорит, что его нет, но содержимое не читает и не печатает 73ms
+     × чужой remote или папка не под git — код 2 и ни одного действия 82ms
+     × находит вторую копию репозитория рядом с папкой 84ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to contain 'GAIVER007/wetop.ai'
+
+- Expected
++ Received
+
+- GAIVER007/wetop.ai
++ bash: /home/user/wetop.ai/scripts/ops/repo-sync.sh: No such file or directory
++
+
+ ❯ tests/unit/repo-sync.test.ts:164:17
+    162|     const sb = sandbox();
+    163|     const { code, out } = run(sb, []);
+    164|     expect(out).toContain('GAIVER007/wetop.ai');
+       |                 ^
+    165|     expect(out).toMatch(/отстаёт от origin\/main на 1/);
+    166|     expect(out).toContain('Pms Lux');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > --pull подтягивает origin/main только fast-forward и потом отставания нет
+AssertionError: expected 'd2689b2281b77d309bf57330f1fb81d478607…' to be '6b16cdbc341c4bc732bf2f7aa6f532c60674e…' // Object.is equality
+
+Expected: "6b16cdbc341c4bc732bf2f7aa6f532c60674eb3a"
+Received: "d2689b2281b77d309bf57330f1fb81d47860701c"
+
+ ❯ tests/unit/repo-sync.test.ts:178:49
+    176|     expect(git(sb.newDir, 'rev-parse', 'HEAD')).not.toBe(target);
+    177|     const { out } = run(sb, ['--pull']);
+    178|     expect(git(sb.newDir, 'rev-parse', 'HEAD')).toBe(target);
+       |                                                 ^
+    179|     expect(out).toMatch(/подтянул/);
+    180|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > --pull не трогает дерево с незакоммиченными правками
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to match /незакоммиченн/
+
+- Expected:
+/незакоммиченн/
+
++ Received:
+"bash: /home/user/wetop.ai/scripts/ops/repo-sync.sh: No such file or directory
+"
+
+ ❯ tests/unit/repo-sync.test.ts:189:17
+    187|     expect(git(sb.newDir, 'rev-parse', 'HEAD')).toBe(before);
+    188|     expect(readFileSync(join(sb.newDir, 'README.md'), 'utf8')).toBe('#…
+    189|     expect(out).toMatch(/незакоммиченн/);
+       |                 ^
+    190|     expect(code).toBe(1);
+    191|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > --pull с локальными коммитами не сливает, а просит отправить их
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to match /впереди origin\/main на 1/main на 1
+
+- Expected:
+/впереди origin\/main на 1/
+
++ Received:
+"bash: /home/user/wetop.ai/scripts/ops/repo-sync.sh: No such file or directory
+"
+
+ ❯ tests/unit/repo-sync.test.ts:201:17
+    199|     const { out } = run(sb, ['--pull']);
+    200|     expect(git(sb.newDir, 'rev-parse', 'HEAD')).toBe(before);
+    201|     expect(out).toMatch(/впереди origin\/main на 1/);
+       |                 ^
+    202|     expect(out).toMatch(/разошлись|git push/);
+    203|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > --relink переводит службы launchd на эту папку через uninstall.sh + install.sh
+AssertionError: api: папка в plist: expected '/tmp/repo-sync-NSUuIG/Pms Lux' to be '/tmp/repo-sync-NSUuIG/WETOP' // Object.is equality
+
+Expected: "/tmp/repo-sync-NSUuIG/WETOP"
+Received: "/tmp/repo-sync-NSUuIG/Pms Lux"
+
+ ❯ tests/unit/repo-sync.test.ts:212:75
+    210|       const file = join(agents, `kz.luxx.pms.${n}.plist`);
+    211|       expect(existsSync(file), `${n}: plist после relink`).toBe(true);
+    212|       expect(plistValue(file, 'WorkingDirectory'), `${n}: папка в plis…
+       |                                                                           ^
+    213|     }
+    214|     expect(calls).toMatch(/bootout \S*kz\.luxx\.pms\.api/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее
+Error: ENOENT: no such file or directory, open '/tmp/repo-sync-vHTsun/WETOP/.env'
+ ❯ tests/unit/repo-sync.test.ts:232:12
+    230|
+    231|     const first = run(sb, ['--from', old]);
+    232|     expect(readFileSync(join(sb.newDir, '.env'), 'utf8')).toBe('EXELY_…
+       |            ^
+    233|     expect(readFileSync(join(sb.newDir, 'project-input/exely/export.cs…
+    234|     expect(first.out).toMatch(/\.env/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > без .env говорит, что его нет, но содержимое не читает и не печатает
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to match /\.env/
+
+- Expected:
+/\.env/
+
++ Received:
+"bash: /home/user/wetop.ai/scripts/ops/repo-sync.sh: No such file or directory
+"
+
+ ❯ tests/unit/repo-sync.test.ts:246:17
+    244|     const sb = sandbox();
+    245|     const { out } = run(sb, []);
+    246|     expect(out).toMatch(/\.env/);
+       |                 ^
+    247|     expect(out).toMatch(/нет|отсутствует/);
+    248|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > чужой remote или папка не под git — код 2 и ни одного действия
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/repo-sync.test.ts:254:24
+    252|     git(sb.newDir, 'remote', 'set-url', 'origin', 'https://github.com/…
+    253|     const wrong = run(sb, ['--pull', '--relink']);
+    254|     expect(wrong.code).toBe(2);
+       |                        ^
+    255|     expect(wrong.out).toContain('someone/else');
+    256|     expect(wrong.calls).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: связь папки с репозиторием > находит вторую копию репозитория рядом с папкой
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to match /ещё одна копия/
+
+- Expected:
+/ещё одна копия/
+
++ Received:
+"bash: /home/user/wetop.ai/scripts/ops/repo-sync.sh: No such file or directory
+"
+
+ ❯ tests/unit/repo-sync.test.ts:269:17
+    267|     git(sb.dir, 'clone', '-q', sb.origin, sb.oldDir);
+    268|     const { out } = run(sb, []);
+    269|     expect(out).toMatch(/ещё одна копия/);
+       |                 ^
+    270|     expect(out).toContain(sb.oldDir);
+    271|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  19:08:04
+   Duration  1.01s (tests 90%, transform 8%, import 2%)
+
+JSON report written to /tmp/pms-test-2026-09-16T19-08-04Z-unit-d6ce.json
+
+# код выхода 1 · 2 с

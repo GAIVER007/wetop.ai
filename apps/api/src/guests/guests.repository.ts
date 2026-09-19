@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
+import { auditUserId } from '../accounts/actor';
 
 export interface GuestSummary {
   id: string;
@@ -212,7 +213,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
   }
   async audit(guestId: string, action: string, fields: string[]): Promise<void> {
     await this.prisma.db.auditLog.create({
-      data: { entityType: 'Guest', entityId: guestId, action, after: { fields } },
+      data: { userId: auditUserId(), entityType: 'Guest', entityId: guestId, action, after: { fields } },
     });
   }
 }

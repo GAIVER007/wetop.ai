@@ -51,6 +51,13 @@ export interface AuditRow {
 
 export const FAKE_ORG = 'org-1';
 
+export interface FakeOrganization {
+  id: string;
+  name: string;
+  status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
+  trialEndsAt: Date | null;
+}
+
 export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
   return {
     id: 'u-1',
@@ -75,9 +82,18 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     organizationId: FAKE_ORG,
     createdAt: new Date('2026-09-15T00:00:00Z'),
   }));
+  const organizations: FakeOrganization[] = [
+    { id: FAKE_ORG, name: 'Тестовый хостел', status: 'TRIAL', trialEndsAt: new Date('2026-09-22T00:00:00Z') },
+  ];
   let seq = 0;
 
   const db = {
+    organization: {
+      async findUnique({ where }: { where: { id: string } }) {
+        const row = organizations.find((o) => o.id === where.id);
+        return row ? { ...row } : null;
+      },
+    },
     user: {
       async findUnique({
         where,
@@ -168,11 +184,22 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         sessions.push(row);
         return { ...row };
       },
-      async findUnique({ where, include }: { where: { tokenHash: string }; include?: { user: boolean } }) {
+      async findUnique({
+        where,
+        include,
+      }: {
+        where: { tokenHash: string };
+        include?: { user?: boolean; organization?: boolean };
+      }) {
         const row = sessions.find((s) => s.tokenHash === where.tokenHash);
         if (!row) return null;
         const user = users.find((u) => u.id === row.userId);
-        return include?.user ? { ...row, user: user ? { ...user } : null } : { ...row };
+        const organization = organizations.find((o) => o.id === row.organizationId);
+        return {
+          ...row,
+          ...(include?.user ? { user: user ? { ...user } : null } : {}),
+          ...(include?.organization ? { organization: organization ? { ...organization } : null } : {}),
+        };
       },
       async update({ where, data }: { where: { id: string }; data: Partial<FakeSession> }) {
         const row = sessions.find((s) => s.id === where.id);
@@ -205,5 +232,5 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     },
   };
 
-  return { prisma: { db } as never, users, sessions, resets, memberships, audit, db };
+  return { prisma: { db } as never, users, sessions, resets, memberships, organizations, audit, db };
 }

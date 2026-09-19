@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
+import { hashSecret, newSessionToken } from '@pms/shared';
 import { AuthService } from './auth.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
@@ -117,6 +118,78 @@ describe('AuthService.whoami', () => {
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     users[0]!.status = 'BLOCKED';
     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+  });
+
+  it('называет организацию сессии: имя, состояние и пробный период — их показывает экран входа', async () => {
+    const { auth } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({
+      organization: { name: 'Тестовый хостел', status: 'TRIAL', trialEndsAt: '2026-09-22T00:00:00.000Z' },
+    });
+  });
+
+  /**
+   * Q-146: рядом живёт вход по коду на почту (ADR-046), и его сессии лежат в той же таблице, но с другим
+   * отпечатком — HMAC с `SESSION_SECRET`. Замок API ходит через `whoami`: не узнай он такую сессию,
+   * вошедший по коду получал бы 401 на каждый экран, а «Выйти» его сессию не гасило бы.
+   */
+  describe('сессия, открытая входом по коду (отпечаток HMAC)', () => {
+    const SECRET = 'секрет-для-прогона';
+    const withSecret = async (fn: () => Promise<void>) => {
+      const before = process.env.SESSION_SECRET;
+      process.env.SESSION_SECRET = SECRET;
+      try {
+        await fn();
+      } finally {
+        if (before === undefined) delete process.env.SESSION_SECRET;
+        else process.env.SESSION_SECRET = before;
+      }
+    };
+    const codeSession = (sessions: ReturnType<typeof service>['sessions']) => {
+      const token = newSessionToken();
+      sessions.push({
+        id: 's-code',
+        userId: 'u-1',
+        organizationId: FAKE_ORG,
+        tokenHash: hashSecret(token, SECRET),
+        userAgent: null,
+        issuedAt: NOW,
+        lastSeenAt: NOW,
+        expiresAt: new Date(NOW.getTime() + 30 * 86_400_000),
+        revokedAt: null,
+      });
+      return token;
+    };
+
+    it('whoami опознаёт её, когда секрет задан', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { id: 'u-1' } });
+      });
+    });
+
+    it('logout гасит её тем же путём, что и сессию по паролю', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        await auth.logout(token, NOW);
+        expect(sessions[0]!.revokedAt).toEqual(NOW);
+        await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+      });
+    });
+
+    it('без секрета второго отпечатка нет: такая сессия — никто, и ничего не падает', async () => {
+      const before = process.env.SESSION_SECRET;
+      delete process.env.SESSION_SECRET;
+      try {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+      } finally {
+        if (before !== undefined) process.env.SESSION_SECRET = before;
+      }
+    });
   });
 });
 

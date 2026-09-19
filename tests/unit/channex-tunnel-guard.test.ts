@@ -16,19 +16,39 @@ const PERMANENT = 'https://api.wetop.ai/channels/channex/webhook';
 
 let server: Server | null = null;
 
-/** Поддельный API PMS: отдаёт статус webhook с заданным постоянным адресом. */
-function fakeApi(expectedUrl: string | null, callbackUrl: string | null = null): Promise<number> {
+/** Поддельный API PMS: отдаёт статус webhook с заданным постоянным адресом (или ошибку statusCode). */
+function fakeApi(
+  expectedUrl: string | null,
+  callbackUrl: string | null = null,
+  statusCode = 200,
+): Promise<number> {
   return new Promise((done) => {
     server = createServer((req, res) => {
       const path = (req.url ?? '').split('?')[0];
+      if (path === '/channels/channex/webhook/status') {
+        res.writeHead(statusCode, { 'content-type': 'application/json' });
+        res.end(
+          statusCode === 200
+            ? JSON.stringify({ registered: true, callbackUrl, expectedUrl })
+            : JSON.stringify({ statusCode, message: 'Channex не ответил' }),
+        );
+        return;
+      }
       res.writeHead(200, { 'content-type': 'application/json' });
-      if (path === '/channels/channex/webhook/status')
-        res.end(JSON.stringify({ registered: true, callbackUrl, expectedUrl }));
-      else res.end(JSON.stringify({ ok: true }));
+      res.end(JSON.stringify({ ok: true }));
     });
-    server.listen(0, '127.0.0.1', () =>
-      done((server!.address() as { port: number }).port),
-    );
+    server.listen(0, '127.0.0.1', () => done((server!.address() as { port: number }).port));
+  });
+}
+
+/** Порт, на котором никто не слушает: API ещё не поднялся */
+function closedPort(): Promise<number> {
+  return new Promise((done) => {
+    const probe = createServer();
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address() as { port: number };
+      probe.close(() => done(port));
+    });
   });
 }
 
@@ -86,7 +106,10 @@ describe('scripts/ops/channex-tunnel.sh: постоянный адрес важ�
 
   it('в Channex записан одноразовый туннель — работаем как прежде', async () => {
     // домен настоящий по форме: скрипт узнаёт одноразовый туннель по нему, обращений к хосту нет
-    const port = await fakeApi(null, 'https://old-tunnel.trycloudflare.com/channels/channex/webhook');
+    const port = await fakeApi(
+      null,
+      'https://old-tunnel.trycloudflare.com/channels/channex/webhook',
+    );
     const { out } = await run(port);
     expect(out).not.toMatch(/постоянный адрес/i);
   }, 30_000);
@@ -101,5 +124,26 @@ describe('scripts/ops/channex-tunnel.sh: постоянный адрес важ�
     const port = await fakeApi(null);
     const { out } = await run(port);
     expect(out).not.toMatch(/постоянный адрес/i);
+  }, 30_000);
+
+  /*
+   * 16.09.2026, вечер: repo-sync.sh --relink переустановил службы, launchd поднял api и tunnel одновременно.
+   * curl к API не прошёл, пустой статус сошёл за «постоянного адреса нет», и быстрый туннель второй машины
+   * снова затёр api.wetop.ai в Channex. Пока статус недоступен, решать нечего: ждём API, не дождались — отказ.
+   * launchd (KeepAlive) перезапустит скрипт через 15 с, и защита сработает уже по настоящему ответу.
+   */
+  it('API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным', async () => {
+    const port = await closedPort();
+    const { code, out } = await run(port, { API_WAIT: '2' });
+    expect(out).toMatch(/статус webhook недоступен/i);
+    expect(out).not.toMatch(/туннель поднят|cloudflared не выдал/);
+    expect(code).toBe(3);
+  }, 30_000);
+
+  it('API отвечает ошибкой на статус (Channex молчит) — тоже отказ', async () => {
+    const port = await fakeApi(null, null, 502);
+    const { code, out } = await run(port, { API_WAIT: '2' });
+    expect(out).toMatch(/статус webhook недоступен/i);
+    expect(code).toBe(3);
   }, 30_000);
 });

@@ -41,6 +41,8 @@ export interface OutboxSignal {
   failedSinceSync: number;
   lastFailedError: string | null;
   oldestPendingAt: Date | null;
+  /** Когда дельта не встала в очередь после записанной команды (журнал `channex.deltaLost`, Б6) */
+  lostDeltaAt: Date | null;
 }
 
 export interface FailedEvent {

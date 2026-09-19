@@ -284,11 +284,57 @@ export interface SignedIn {
   name: string | null;
   /** Организация, под которой открыта сессия (§13.5) */
   organizationId: string;
+  /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
+  organization?: SignedInOrganization | null;
+}
+
+export interface SignedInOrganization {
+  name: string;
+  status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED' | (string & {});
+  trialEndsAt: string | null;
+}
+
+/** Ровно то, что API отдаёт вошедшему по коду (`POST /auth/verify`): без ключа, без внутренних номеров строк. */
+export interface AuthSession {
+  email: string;
+  organizationId: string;
+  organizationName: string;
+  organizationStatus: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
+  trialEndsAt: string | null;
+}
+/** Заголовки, которые стойка передаёт API от имени браузера: адрес посетителя для пределов и агент для списка сессий. */
+export interface AuthClientInfo {
+  ip: string | null;
+  userAgent: string | null;
+}
+function authHeaders(info: AuthClientInfo): Record<string, string> {
+  return {
+    'content-type': 'application/json',
+    ...(info.ip ? { 'cf-connecting-ip': info.ip } : {}),
+    ...(info.userAgent ? { 'user-agent': info.userAgent } : {}),
+  };
+}
+async function messageOf(res: Response): Promise<string> {
+  try {
+    const j = (await res.json()) as { message?: string | string[] };
+    if (j.message) return Array.isArray(j.message) ? j.message.join('; ') : j.message;
+  } catch {
+    /* тело не JSON */
+  }
+  return `HTTP ${res.status}`;
+}
+/** Отказ API с его же текстом (400 про форму, 401 про код); иначе — код ответа. */
+async function throwUnlessOk(res: Response): Promise<Response> {
+  if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  return res;
 }
 
 /**
- * Вход в стойку (DATA_MODEL §13.8, ADR-049). Токен кладёт в cookie серверное действие `login/actions.ts`:
- * сюда он потом попадает сам, заголовком (см. sessionHeader).
+ * Вход в стойку. Два способа живут рядом, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8,
+ * ADR-049) и по одноразовому коду на почту с регистрацией организации (ADR-046). Сессия у обоих одна:
+ * таблица `sessions` в API и кука `wetop_session` в стойке. Токен кладёт серверное действие
+ * `login/actions.ts`, сюда он потом попадает сам, заголовком (см. sessionHeader); `/auth/me` и
+ * `/auth/logout` общие — API узнаёт сессию любого входа.
  */
 export const authApi = {
   login: (body: { email: string; password: string }) =>
@@ -303,6 +349,41 @@ export const authApi = {
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
+  /** Код на почту: 204 всегда — есть адрес или нет, наружу не видно. Ошибка только если API недоступен. */
+  requestCode: async (email: string, info: AuthClientInfo): Promise<void> => {
+    await throwUnlessOk(
+      await backendFetch('/auth/code', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email }),
+      }),
+    );
+  },
+  /** Регистрация: 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
+  register: async (email: string, organizationName: string, info: AuthClientInfo): Promise<void> => {
+    await throwUnlessOk(
+      await backendFetch('/auth/register', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email, organizationName }),
+      }),
+    );
+  },
+  /** Проверка кода: 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
+  verify: async (
+    email: string,
+    code: string,
+    info: AuthClientInfo,
+  ): Promise<{ token: string; session: AuthSession }> => {
+    const res = await throwUnlessOk(
+      await backendFetch('/auth/verify', {
+        method: 'POST',
+        headers: authHeaders(info),
+        body: JSON.stringify({ email, code }),
+      }),
+    );
+    return (await res.json()) as { token: string; session: AuthSession };
+  },
 };
 
 /**
@@ -881,10 +962,10 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
-  /** Заезд был раньше этого дня, гость не заселён и не отмечен незаездом */
-  overdue: DeskRow[];
+  /** Не заехали вовремя: дата заезда прошла, заселения и незаезда нет */
+  overdueArrivals: DeskRow[];
   counts: {
-    overdue: number;
+    overdueArrivals: number;
     arrivals: number;
     departures: number;
     inHouse: number;
@@ -1056,3 +1137,4 @@ export const guardApi = {
     sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/resolve`, {}),
   tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
 };
+

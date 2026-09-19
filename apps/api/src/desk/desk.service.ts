@@ -25,15 +25,15 @@ export interface DeskDay {
   arrivals: DeskRow[];
   departures: DeskRow[];
   inHouse: DeskRow[];
-  /** Заезд был раньше этого дня, гость так и не заселён и не отмечен незаездом: ни заезд дня, ни живущий */
-  overdue: DeskRow[];
+  /** Дата заезда прошла, заселения и незаезда нет: ни в один список дня такое проживание не попадает */
+  overdueArrivals: DeskRow[];
   counts: {
     arrivals: number;
     departures: number;
     inHouse: number;
     toCheckIn: number;
     toCheckOut: number;
-    overdue: number;
+    overdueArrivals: number;
   };
   debtMinor: string;
 }
@@ -80,13 +80,14 @@ export class DeskService {
     const inHouse = stays
       .filter((s) => s.status === 'CHECKED_IN' && s.departureDate !== day)
       .map(row);
-    // Просроченные заезды (волна 3): раньше такие проживания на экране дня не появлялись вовсе
-    const overdue = stays
+    // Не заехали вовремя: место занято, а смена их не видит — ни в заездах (день не их), ни в живущих
+    // (не заселены), ни в выездах. Выезжающих сегодня не берём: они уже в списке выездов.
+    const overdueArrivals = stays
       .filter(
         (s) =>
+          (s.status === 'CONFIRMED' || s.status === 'TENTATIVE') &&
           s.arrivalDate < day &&
-          s.departureDate !== day &&
-          (s.status === 'CONFIRMED' || s.status === 'TENTATIVE'),
+          s.departureDate !== day,
       )
       .map(row);
     return {
@@ -94,7 +95,7 @@ export class DeskService {
       arrivals,
       departures,
       inHouse,
-      overdue,
+      overdueArrivals,
       counts: {
         arrivals: arrivals.length,
         departures: departures.length,
@@ -102,7 +103,7 @@ export class DeskService {
         toCheckIn: arrivals.filter((a) => a.status === 'CONFIRMED' || a.status === 'TENTATIVE')
           .length,
         toCheckOut: departures.filter((d) => d.status === 'CHECKED_IN').length,
-        overdue: overdue.length,
+        overdueArrivals: overdueArrivals.length,
       },
       // Только долги: переплата одного гостя не должна прятать долг другого
       debtMinor: departures

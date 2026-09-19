@@ -6,49 +6,85 @@ import { AuditService } from './audit.module';
 /**
  * Журнал действий (волна 3, plans/wetop-domain-2026-09-14.md §7.3). Поиск шёл в браузере по последним 200 строкам, а
  * синхронизация Exely пишет `exely.sync` каждые 5 минут — это ~17 часов, и вкладка «История» брони была пустой.
+ *
+ * Волна 4: список не тянет снимки брони. Из них берут одну короткую строку («номер брони»), а на массовой
+ * правке цен и на импорте снимок весит мегабайты — 200 строк уезжали целиком через пулер в Сингапур.
  */
-function fakePrisma(rows: unknown[] = []) {
-  const calls: Array<{ where: Record<string, unknown>; take: number; include?: unknown }> = [];
+interface SqlLike {
+  strings: readonly string[];
+  values: readonly unknown[];
+}
+const isSql = (v: unknown): v is SqlLike =>
+  typeof v === 'object' && v !== null && Array.isArray((v as SqlLike).strings);
+
+/** Разворачивает вложенные `Prisma.sql` в один текст и плоский список значений — как это делает Prisma. */
+function flatten(strings: readonly string[], values: readonly unknown[]) {
+  let sql = strings[0] ?? '';
+  const flat: unknown[] = [];
+  values.forEach((value, i) => {
+    if (isSql(value)) {
+      const inner = flatten(value.strings, value.values);
+      sql += inner.sql;
+      flat.push(...inner.values);
+    } else {
+      sql += '?';
+      flat.push(value);
+    }
+    sql += strings[i + 1] ?? '';
+  });
+  return { sql, values: flat };
+}
+
+/** База отвечает строками так, как их отдаёт SQL ниже: колонки в snake_case, автор уже подтянут из `users`. */
+function fakePrisma(rows: Array<Record<string, unknown>> = []) {
+  const queries: Array<{ sql: string; values: unknown[] }> = [];
   const prisma = {
     db: {
-      auditLog: {
-        async findMany(args: { where: Record<string, unknown>; take: number; include?: unknown }) {
-          calls.push(args);
-          return rows;
-        },
+      async $queryRaw(strings: readonly string[], ...values: unknown[]) {
+        queries.push(flatten(strings, values));
+        return rows;
       },
     },
   } as unknown as PrismaService;
-  return { service: new AuditService(prisma), calls };
+  return { service: new AuditService(prisma), queries };
 }
 
 const row = (over: Record<string, unknown> = {}) => ({
   id: 'a-1',
-  createdAt: new Date('2026-09-15T10:00:00Z'),
-  entityType: 'Reservation',
-  entityId: 'r-1',
+  created_at: new Date('2026-09-15T10:00:00Z'),
+  entity_type: 'Reservation',
+  entity_id: 'r-1',
   action: 'reservation.checkIn',
-  before: null,
-  after: { confirmationNumber: 'WT-1' },
-  user: null,
+  subject: 'WT-1',
+  author: null,
   ...over,
 });
 
 describe('AuditService.list', () => {
   it('ищет номер брони или код ячейки в базе по всей истории, а не в последних 200 строках', async () => {
-    const { service, calls } = fakePrisma();
+    const { service, queries } = fakePrisma();
     await service.list({ limit: 200, q: '20260914-513903-1263744450' });
-    const where = JSON.stringify(calls[0]!.where);
-    for (const key of ['confirmationNumber', 'code', 'uniqueId']) expect(where).toContain(key);
-    expect(where).toContain('20260914-513903-1263744450');
+    const { sql, values } = queries[0]!;
+    for (const key of ['confirmationNumber', 'code', 'uniqueId']) expect(sql).toContain(key);
+    expect(values).toContain('%20260914-513903-1263744450%');
   });
 
   it('служебные строки синхронизации Exely по умолчанию скрыты, по запросу — показаны', async () => {
-    const { service, calls } = fakePrisma();
+    const { service, queries } = fakePrisma();
     await service.list({ limit: 200 });
-    expect(JSON.stringify(calls[0]!.where)).toContain('exely.sync');
+    expect(JSON.stringify(queries[0]!.values)).toContain('exely.sync');
     await service.list({ limit: 200, system: true });
-    expect(JSON.stringify(calls[1]!.where)).not.toContain('exely.sync');
+    expect(JSON.stringify(queries[1]!.values)).not.toContain('exely.sync');
+  });
+
+  it('снимки брони наружу не едут: в выборке только короткие поля и сводка', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({ limit: 200 });
+    const select = queries[0]!.sql.slice(0, queries[0]!.sql.indexOf('FROM'));
+    // Выбираются короткие поля и сводка: снимки участвуют только внутри неё, отдельными колонками — нет
+    expect(select).toContain('SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(');
+    expect(select).toContain('AS "subject"');
+    expect(select.replace(/COALESCE\([^]*\)\s*AS "subject"/, '')).not.toMatch(/"(before|after)"/);
   });
 });
 
@@ -58,30 +94,41 @@ describe('AuditService.list', () => {
  */
 describe('AuditService.list — кто сделал', () => {
   it('отдаёт имя вошедшего рядом с действием', async () => {
-    const { service } = fakePrisma([
-      row({ user: { name: 'Айгуль Сеитова' } }),
-    ]);
+    const { service } = fakePrisma([row({ author: 'Айгуль Сеитова' })]);
     const [entry] = await service.list({ limit: 10 });
     expect(entry).toMatchObject({ action: 'reservation.checkIn', author: 'Айгуль Сеитова' });
   });
 
   it('действие без автора — это система: импорт, сторож, скрипт сверки', async () => {
-    const { service } = fakePrisma([row({ action: 'exely.sync', user: null })]);
+    const { service } = fakePrisma([row({ action: 'exely.sync', author: null })]);
     const [entry] = await service.list({ limit: 10, system: true });
     expect(entry!.author).toBeNull();
   });
 
   it('берёт из учётной записи только имя: почта сотрудника в журнал не выводится', async () => {
-    const { service, calls } = fakePrisma([row({ user: { name: 'Айгуль Сеитова' } })]);
+    const { service, queries } = fakePrisma([row({ author: 'Айгуль Сеитова' })]);
     const [entry] = await service.list({ limit: 10 });
     expect(entry!.author).toBe('Айгуль Сеитова');
-    expect(JSON.stringify(calls[0]!.include)).toContain('name');
-    expect(JSON.stringify(calls[0]!.include)).not.toContain('email');
+    const { sql } = queries[0]!;
+    // автор подтягивается из `users` тем же запросом — второго рейса за именем нет
+    expect(sql).toContain('LEFT JOIN "users" u ON u."id" = a."user_id"');
+    expect(sql).toContain('u."name" AS "author"');
+    expect(sql).not.toContain('email');
+  });
+
+  it('с объединением таблиц колонки названы по таблице: иначе Postgres спотыкается на created_at', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({ limit: 10, entityType: 'Reservation', action: 'reservation.' });
+    const { sql } = queries[0]!;
+    expect(sql).toContain('ORDER BY a."created_at" DESC');
+    expect(sql).toContain('a."entity_type" = ?');
+    expect(sql).toContain('a."action" LIKE ?');
+    expect(sql).not.toMatch(/(?<![a-z]\.)"created_at"/);
   });
 
   it('действия с учётными записями видны как обычные строки журнала', async () => {
     const { service } = fakePrisma([
-      row({ entityType: 'user', action: 'user.login', after: {}, user: { name: 'Дана Тестова' } }),
+      row({ entity_type: 'user', action: 'user.login', subject: null, author: 'Дана Тестова' }),
     ]);
     const [entry] = await service.list({ limit: 10 });
     expect(entry).toMatchObject({ entityType: 'user', action: 'user.login', author: 'Дана Тестова' });

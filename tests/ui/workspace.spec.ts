@@ -177,7 +177,9 @@ test('подключения показывают частичный сбой, �
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
   // значение — у своего факта: строгий getByText ловил второй элемент во время перерисовки страницы
-  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText('нельзя');
+  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText(
+    'нельзя',
+  );
   await page.goto('/hotel-settings/description');
   await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
@@ -336,7 +338,8 @@ test('карточка: профиль гостя и заселение прох
     .toBe('Проверенный');
   await page.goto(`/reservations/${booking}`);
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
-  await page.getByTestId('check-in-ui-item').click();
+  // Пока вкладка догружается, в DOM на миг есть скрытая копия панели действий — жмём видимую кнопку
+  await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
   await expect(page.getByTestId('stay-row')).toContainText('заселён');
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
@@ -570,11 +573,16 @@ test('обзор: задачи ведут к счетам, период не м�
   await page.goto('/today');
   const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  // долг уезжающего плюс «не заехал вовремя»: подтверждён, заезд был раньше, ни в одном списке дня его нет
+  await expect(tasks.locator('.attention-count')).toHaveText('2');
   await expect(tasks.getByRole('link', { name: /К оплате/ })).toHaveAttribute(
     'href',
     '/reservations/20260913-TEST4#booking-finance',
   );
+  const overdue = tasks.getByTestId('overdue-arrival');
+  await expect(overdue).toHaveCount(1);
+  await expect(overdue).toContainText('Не заехал');
+  await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
   const debt = await page.getByTestId('c-debt').innerText();
   const arrivals = await page.getByTestId('c-arrivals').innerText();
   // полоса стойки — всегда про сегодня, какой бы период ни был выбран сверху
@@ -583,9 +591,11 @@ test('обзор: задачи ведут к счетам, период не м�
   await expect(page.getByTestId('c-debt')).toHaveText(debt);
   await expect(page.getByTestId('c-arrivals')).toHaveText(arrivals);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText('1');
+  await expect(tasks.locator('.attention-count')).toHaveText('2');
   await expect(
-    page.getByRole('region', { name: 'Сегодня на стойке' }).getByRole('link', { name: 'Все брони дня' }),
+    page
+      .getByRole('region', { name: 'Сегодня на стойке' })
+      .getByRole('link', { name: 'Все брони дня' }),
   ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
@@ -621,7 +631,8 @@ test('финансы: неверные даты можно исправить б
   await expect(page.getByTestId('charged')).toHaveCount(0);
   await page.locator('input[name="to"]').fill('2026-09-30');
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
-  await expect(page.getByTestId('charged')).toBeVisible();
+  // Во время перехода Next держит в DOM уходящую страницу: смотрим ту, что видит человек
+  await expect(page.getByRole('main').getByTestId('charged')).toBeVisible();
 });
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
@@ -656,6 +667,7 @@ test('номера: статус уборки, блокировка и снят�
   await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
   page.once('dialog', (d) => void d.accept());
   await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Снять блокировку' }).click();
   await expect(page.getByTestId('block-row')).toHaveCount(0);
   const commands = await (await request.get(`${fixture}/__test/commands`)).json();
   expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
@@ -769,7 +781,9 @@ test('тарифы: добавить, удалить, сохранить и пр
   await expect(page.getByTestId('pending-changes')).toContainText('9100');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.getByTestId('apply-changes').click();
+  // Отправку в каналы экран обещает по ответу API, а не «всегда» (§7.3)
   await expect(page.getByTestId('bulk-done')).toContainText('Сохранено изменений: 1');
+  await expect(page.getByTestId('bulk-done')).toContainText('В очередь каналов ушло 1');
   await expect(page.getByTestId('price-2026-10-01-1')).toContainText('9 100');
 });
 
@@ -790,8 +804,8 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
   await page.goto('/analytics/setup');
-  page.once('dialog', (dialog) => dialog.accept());
   await page.getByTestId('site-delete').click();
+  await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Удалить сайт' }).click();
   await expect(page.getByTestId('site-card')).toHaveCount(0);
   await page.getByTestId('site-name').fill('Новый тестовый сайт');
   await page.getByTestId('site-hosts').fill('new.example.invalid');
@@ -863,4 +877,253 @@ test('пустые ответы дают нули; сбой API не выдаё�
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),
   ).toBeVisible();
   await expect(page.getByText('Соединение установлено')).toHaveCount(0);
+});
+
+/**
+ * Необратимое спрашивают окном подтверждения (DESIGN.md §8, §15; срез 7.3 плана дизайн-системы).
+ *
+ * До правки снятие блокировки и удаление документа гостя шли с одного клика: промах по строке — и
+ * койка вернулась в продажу или паспорт стёрт без следа на экране. Системное `window.confirm` тоже
+ * не годится: оно не скажет, что именно исчезнет.
+ */
+test('снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/units/R01');
+  await page.getByLabel('Блокировка с').fill('2026-10-01');
+  await page.getByLabel('До (не включая)').fill('2026-10-03');
+  await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
+  await page.getByRole('button', { name: 'Заблокировать', exact: true }).click();
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  const dialog = page.getByTestId('confirm-dialog');
+  await expect(dialog).toContainText('Снять блокировку');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByTestId('block-row')).toContainText('Тест ремонта');
+
+  await page.getByTestId('block-row').getByRole('button', { name: 'снять', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Снять блокировку' }).click();
+  await expect(page.getByTestId('block-row')).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(
+    commands.filter((c: { method: string }) => c.method === 'DELETE').map((c: { path: string }) => c.path),
+  ).toEqual(['/units/R01/blocks/ui-block']);
+});
+
+test('удаление документа гостя спрашивают: отказ оставляет документ на карточке', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/guests/ui-guest');
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
+  const dialog = page.getByTestId('confirm-dialog');
+  await expect(dialog).toContainText('Удалить документ');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(page.getByTestId('document-row')).toHaveCount(1);
+  expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
+
+  await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
+  await dialog.getByRole('button', { name: 'Удалить документ' }).click();
+  await expect(page.getByTestId('document-row')).toHaveCount(0);
+});
+
+/**
+ * «Гости» показывают всех, кто живёт сегодня (§7.3 плана wetop-domain).
+ *
+ * До правки экран читал первую страницу списка броней — 25 строк, — и остальных примерно 55 гостей
+ * смена не видела вовсе: подписи «показаны первые 25» на месте не было, а поиск требует знать имя.
+ */
+test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
+  const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
+  expect(seeded.stays).toBe(40);
+  await page.goto('/guests');
+  const rows = page.locator('.dir-table tbody tr');
+  // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
+  const shown = await rows.count();
+  expect(shown).toBeGreaterThan(40);
+  await expect(page.getByTestId('guests-today-count')).toContainText(`сегодня: ${shown} гост`);
+  await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
+});
+
+/**
+ * Подписи ведут туда, куда написано (§7.3 плана wetop-domain).
+ *
+ * «Как начислить услугу» звала вкладку карточки «Финансы», хотя она называется «Счета», и вела
+ * искать проживающего гостя на «Сегодня» — а срез 14 (ADR-047) убрал оттуда списки дня: гости
+ * живут на «Гостях». Администратор шёл по подписи и не находил ни вкладки, ни списка.
+ */
+test('настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей', async ({
+  page,
+}) => {
+  await page.goto('/hotel-settings/services');
+  const panel = page.getByTestId('service-hint');
+  await expect(panel).toContainText('«Счета»');
+  await expect(panel).not.toContainText('«Финансы»');
+  await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+  await expect(page).toHaveURL(/\/guests$/);
+  await expect(page.getByTestId('guests-today-count')).toBeVisible();
+});
+
+test('описание объекта: два адреса подписаны источником — PMS и Channex', async ({ page }) => {
+  await page.goto('/hotel-settings/description');
+  // Адресов на экране два: в PMS его меняет стойка, в Channex — кабинет канала. Без подписи
+  // при расхождении непонятно, какой из них правит администратор.
+  await expect(page.getByTestId('stored-property')).toContainText('Адрес в PMS');
+  await expect(page.getByText('Адрес в Channex')).toBeVisible();
+  await expect(page.getByText('Адрес', { exact: true })).toHaveCount(0);
+});
+
+test('кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони', async ({
+  page,
+}) => {
+  // «Добавить гостя» вела в форму брони, «Принять оплату» на «Деньгах» — в список броней:
+  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3).
+  await page.goto('/guests');
+  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь с гостем' });
+  await expect(newBooking).toBeVisible();
+  await newBooking.click();
+  await expect(page).toHaveURL(/\/reservations\/new$/);
+
+  await page.goto('/finance');
+  await expect(page.getByRole('main').getByRole('link', { name: 'Принять оплату' })).toHaveCount(0);
+  await page.getByRole('link', { name: 'Найти бронь для оплаты' }).click();
+  await expect(page).toHaveURL(/\/reservations$/);
+});
+
+/**
+ * Период доступности длиннее 62 ночей — ошибка формы, а не «нет связи» (§7.3 плана wetop-domain).
+ *
+ * API считает доступность той же шахматкой, а у неё потолок 62 дня за запрос: на 90 ночей он
+ * отвечал 400, экран падал в общую ошибку «Проверьте подключение и повторите запрос», и
+ * администратор чинил связь вместо того, чтобы укоротить период.
+ */
+test('доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи', async ({
+  page,
+}) => {
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2027-01-01');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('62');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  // форма на месте и даёт исправить период, а не только «повторить загрузку»
+  await expect(page.getByLabel('Заезд')).toHaveValue('2026-10-01');
+  await page.getByRole('link', { name: 'Неделя' }).click();
+  await expect(page.getByText('не больше 62 ночей')).toHaveCount(0);
+  await expect(page.getByText('Доступно на весь срок')).toBeVisible();
+});
+
+/**
+ * Сбой шахматки на «Номерах» виден как сбой, а не как «нет данных» (§7.3 плана wetop-domain).
+ *
+ * Занятость карточек и категорий считается шахматкой, и её ответ ловился `.catch(() => null)`:
+ * при любой ошибке каждая карточка писала «Нет данных», а каждая категория — «нет данных».
+ * Смена читала это как «в системе пусто» и шла заводить брони заново.
+ */
+test('номера: сбой шахматки назван сбоем, а не пустотой', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
+  await page.goto('/rooms');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
+  await expect(page.getByText('Нет данных')).toHaveCount(0);
+
+  await page.goto('/rooms/categories');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
+  await expect(page.getByText('нет данных')).toHaveCount(0);
+
+  // как только шахматка отвечает, занятость на месте и предупреждения нет
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/rooms/categories');
+  await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  await expect(page.getByText('занято').first()).toBeVisible();
+});
+
+/**
+ * «Демо бронирования» предупреждает, что бронь настоящая (§7.3 плана wetop-domain).
+ *
+ * Демо-страница виджета работает на живом API: `POST /w/book` создаёт обычную бронь, занимает
+ * место и открывает счёт. Ссылка звалась «демо», ничего об этом не говорила — и проверка
+ * виджета молча съедала койку.
+ */
+test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
+  await page.goto('/analytics/setup');
+  await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
+  // DESIGN.md §14: стрелок в конце текста ссылок нет
+  await expect(page.getByTestId('site-card')).not.toContainText('↗');
+});
+
+/**
+ * Время входящих событий Channex — по часам объекта (§7.3 плана wetop-domain, DESIGN.md §14).
+ *
+ * Лента печатала сырой ISO из базы: `2026-09-17T05:12` — это UTC, а стойка читает его как своё
+ * время и считает, что бронь пришла пять часов назад. Часового пояса рядом не было.
+ */
+test('подключения каналов: время события — по Алматы, а не сырой UTC', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`); // лента событий живёт в засеянных данных
+  await page.goto('/channels');
+  const rows = page.getByTestId('event-row');
+  await expect(rows.first()).toContainText('10:12'); // 05:12 UTC = 10:12 в Алматы
+  await expect(rows.first()).not.toContainText('05:12');
+});
+
+/**
+ * «Каналы» переживают сбой сводки фонда и не показывают пустую таблицу молча (§7.3).
+ *
+ * Страница читала сводку фонда без `catch`: её отказ уносил весь экран — вместе с очередью ARI
+ * и статусом webhook, то есть ровно тем, ради чего на него и заходят, когда что-то сломалось.
+ * А пустой маппинг выглядел как таблица из одной шапки: непонятно, то ли не настроено, то ли
+ * не загрузилось.
+ */
+test('каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/channels');
+  await expect(page.getByTestId('mapping-empty')).toContainText('Сопоставлений нет');
+
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
+  await page.goto('/channels');
+  await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
+  await expect(page.getByTestId('inventory-failed')).toBeVisible();
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+});
+
+test('журнал: время операции — тем же способом, что и везде (по Алматы)', async ({ page }) => {
+  // Было: ручная арифметика «+5 часов» и обрезанный ISO. Пояс объекта задаётся одним местом,
+  // иначе при переносе сервера в РК два экрана покажут разное время одного события.
+  await page.goto('/journal');
+  await expect(page.getByTestId('journal-row').first()).toContainText('13:30');
+});
+
+/**
+ * Форма оплаты подтверждает приём словами (§7.3 плана wetop-domain).
+ *
+ * После «Принять оплату» форма очищалась, и всё: администратор видел пустые поля и должен был
+ * сам искать в таблице, прошла ли оплата. Для денег молчание — худший ответ.
+ */
+test('счета: приём оплаты подтверждается суммой на экране', async ({ page }) => {
+  await page.goto('/reservations/20260913-TESTAA');
+  await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+  const payment = page.getByTestId('payment-form').filter({ visible: true }).first();
+  await payment.getByLabel('Сумма', { exact: true }).fill('1200');
+  await payment.getByRole('button', { name: 'Принять оплату', exact: true }).click();
+  await expect(page.getByTestId('finance-done')).toContainText('Оплата принята');
+  await expect(page.getByTestId('finance-done')).toContainText('1 200');
+});
+
+/**
+ * «Деньги за период» объясняют слишком длинный период формой, а не экраном «нет связи» (§7.4).
+ *
+ * Отчёт собирает начисления, оплаты и возвраты за период: без предела с экрана можно было
+ * попросить десять лет и уложить базу. Предел — 366 дней, и о нём должна сказать страница,
+ * сохранив даты, а не общий экран ошибки без формы.
+ */
+test('деньги за период: период длиннее года объясняется на странице', async ({ page }) => {
+  await page.goto('/finance?from=2020-01-01&to=2030-12-31');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('366');
+  await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
+  await expect(page.locator('input[name="from"]')).toHaveValue('2020-01-01');
 });

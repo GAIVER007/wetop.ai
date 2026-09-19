@@ -1,0 +1,18 @@
+# Модульные (unit) · 17.09.2026 00:16 Алматы · vm
+# коммит 275cdc2 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-16T19-16-41Z-unit-6d75.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/repo-sync.test.ts (9 tests) 1713ms
+   ✓ repo-sync.sh: связь папки с репозиторием (9)
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 408ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  19:16:42
+   Duration  1.90s (tests 95%, transform 4%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-16T19-16-41Z-unit-6d75.json
+
+# код выхода 0 · 3 с

@@ -91,6 +91,12 @@ export default async function ChannelsPage({
         </Link>
       }
     >
+      {!summary && (
+        <Alert boxed tone="warning" data-testid="inventory-failed">
+          Сводка фонда не загрузилась: категории ниже подписаны кодами. Очередь каналов и статус
+          webhook на этой странице читаются отдельно и верны.
+        </Alert>
+      )}
       {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
       <Stats min={150}>
         <Stat

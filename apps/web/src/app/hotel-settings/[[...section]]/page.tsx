@@ -111,7 +111,7 @@ async function ChannexContent({
             <Fact label="Почта" value={p?.email ?? 'Не указана'} />
             <Fact label="Сайт" value={p?.website ?? 'Не указан'} />
             <Fact
-              label="Адрес"
+              label="Адрес в Channex"
               value={[p?.address, p?.city, p?.country].filter(Boolean).join(', ') || 'Не указан'}
             />
           </Grid>
@@ -194,7 +194,7 @@ async function StoredSettings({ view }: { view: string }) {
         </>
       )}
       {view === 'description' && (
-        <Panel title="Сведения об объекте в PMS">
+        <Panel title="Сведения об объекте в PMS" data-testid="stored-property">
           <p className="note">
             Здесь — то, что знает PMS: название, адрес, валюта, часовой пояс. Описание для гостей,
             контакты и адрес ниже приходят из Channex и могут отличаться — их меняют в кабинете
@@ -203,10 +203,16 @@ async function StoredSettings({ view }: { view: string }) {
           <Grid min={250}>
             <Fact label="Название" value={p.name} />
             <Fact label="Юридическое название" value={p.legalName ?? 'Не указано'} />
-            <Fact label="Адрес" value={p.address ?? 'Не указан'} />
+            <Fact label="Адрес в PMS" value={p.address ?? 'Не указан'} />
             <Fact label="Валюта" value={p.currency} />
             <Fact label="Часовой пояс" value={p.timezone} />
           </Grid>
+          {/* На этом экране два адреса: здесь — тот, что хранит PMS, ниже — тот, что показывают
+              каналы. Подписи называют источник, иначе при расхождении непонятно, какой менять. */}
+          <p className="note">
+            Эти сведения хранит PMS: их видят стойка, счета и отчёты. Ниже — то же от Channex, для
+            гостей на сайтах каналов; оно меняется в кабинете Channex.
+          </p>
         </Panel>
       )}
       {view === 'penalties' && (
@@ -286,12 +292,12 @@ async function Services() {
           )}
         </tbody>
       </Table>
-      <Panel title="Как начислить услугу">
+      <Panel title="Как начислить услугу" data-testid="service-hint">
         <p>
-          Откройте бронь гостя → вкладка «Счета» → выберите услугу из каталога. Начисление попадёт в
+          Откройте бронь гостя, вкладка «Счета», выберите услугу из каталога. Начисление попадёт в
           счёт этой брони.
         </p>
-        <Link className="btn btn--secondary" href="/today">
+        <Link className="btn btn--secondary" href="/guests">
           Найти проживающего гостя
         </Link>
       </Panel>

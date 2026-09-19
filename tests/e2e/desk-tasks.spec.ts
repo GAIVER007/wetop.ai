@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -21,16 +22,18 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688';
 const money = (s: string) => Number(s.replace(/[^\d,]/g, '').replace(',', '.'));
 
 test('стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом', async ({
   page,
   context,
+  request,
 }) => {
   test.setTimeout(240_000);
   const arrival = plus(7);
   const departure = plus(9); // две ночи: продление на третью не должно пересчитать всё проживание
+  // две брони и переселение: свободных мест в категории нужно хотя бы три
+  const DORM = await roomiestCategory(request, arrival, departure, 3);
 
   // ── Овербукинг из интерфейса: две вкладки видят одну и ту же свободную койку ──────────────
   const url = `/reservations/new?arrival=${arrival}&departure=${departure}`;

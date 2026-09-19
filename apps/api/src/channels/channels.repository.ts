@@ -13,6 +13,7 @@ import type {
   LocalPropertyForChannex,
   LocalRatePlanForChannex,
 } from './setup-plan';
+import { auditUserId } from '../accounts/actor';
 
 /** Подмножество клиента Channex, которое нужно синхронизации; в тестах — фальшивка. */
 export type ChannexGateway = Pick<
@@ -286,6 +287,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     await this.prisma.db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: 'Property',
         entityId: p.id,
         action,

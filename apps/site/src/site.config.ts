@@ -12,8 +12,8 @@ export type SiteConfig = {
   /** Куда ведёт «Войти» — стойка WETOP. */
   appUrl: string;
   /**
-   * Куда ведёт «Попробовать бесплатно»: https://… (WhatsApp, Telegram, форма), mailto:… или tel:….
-   * Пусто — кнопки в шапке и на первом экране ведут к разделу «Как начать».
+   * Куда ведёт «Попробовать бесплатно»: https://… (регистрация в стойке, WhatsApp, Telegram, форма),
+   * mailto:… или tel:…. Пусто — кнопки в шапке и на первом экране ведут к разделу «Как начать».
    */
   trialHref: string;
   company: {
@@ -30,7 +30,8 @@ export type SiteConfig = {
 export const siteConfig: SiteConfig = {
   siteUrl: 'https://wetop.ai',
   appUrl: 'https://app.wetop.ai',
-  trialHref: '',
+  // Регистрация с пробным периодом на 7 дней (срез 13, ADR-046): своя страница стойки, не чужая форма.
+  trialHref: 'https://app.wetop.ai/register',
   company: {
     name: 'ТОО «MARKVISION AI»',
     city: 'Астана',

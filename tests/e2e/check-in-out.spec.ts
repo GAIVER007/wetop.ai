@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -18,13 +19,16 @@ const plus = (n: number) => {
 
 test('заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку', async ({
   page,
+  request,
 }) => {
   // сценарий длинный: бронь, карточка гостя, документ, заезд, шахматка, выезд, вторая бронь, незаезд
   test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688'); // dorm: остаток есть всегда
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(3), plus(4)));
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
@@ -88,9 +92,11 @@ test('заселить → карточка и шахматка показыва
 
   // незаезд
   await page.goto(`/reservations/new?arrival=${plus(5)}&departure=${plus(6)}`);
-  const f2 = page.getByTestId('new-reservation-form');
+  const f2 = page.getByRole('main').getByTestId('new-reservation-form');
   await f2.locator('select[name="source"]').selectOption('PHONE');
-  await f2.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await f2
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(5), plus(6)));
   const freeUnit = f2.locator('select[name="unitCode"]');
   await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
   await freeUnit.selectOption((await freeUnit.locator('option').nth(1).getAttribute('value'))!);

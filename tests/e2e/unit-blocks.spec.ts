@@ -1,4 +1,6 @@
 import { expect, test } from './fixtures';
+import { confirmAction } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -24,12 +26,13 @@ const TO = plus(42);
 
 test('заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка', async ({
   page,
+  request,
 }) => {
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   await page
     .getByTestId('new-reservation-form')
     .locator('select[name="accommodationTypeCode"]')
-    .selectOption('exely-5074688');
+    .selectOption(await roomiestCategory(request, FROM, TO));
   const unitCode = (await page
     .getByTestId('new-reservation-form')
     .locator('select[name="unitCode"] option')
@@ -67,9 +70,9 @@ test('заблокировать свободную койку на 2 ночи �
   await page.goto(`/units/${unitCode}`);
   // именно свою строку: на той же койке может лежать блок другого спека (даты разные, койка одна),
   // и тогда кнопок «снять» на странице две — клик по роли падал бы на strict mode
-  // снятие блокировки переспрашивает (волна 3): без ответа «ОК» Playwright отклоняет диалог
-  page.once('dialog', (d) => void d.accept());
+  // снятие блокировки переспрашивает (волна 3) — окном стойки, не window.confirm (DESIGN.md §8)
   await ownBlock.getByRole('button', { name: 'снять' }).click();
+  await confirmAction(page, 'Снять блокировку');
   await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   expect(

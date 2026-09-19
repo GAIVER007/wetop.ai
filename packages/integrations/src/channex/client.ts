@@ -15,6 +15,14 @@ export interface ChannexClientOptions {
   sleep?: (ms: number) => Promise<void>;
   /** Повторов на 429/5xx/сетевые ошибки (по умолчанию 3) */
   maxRetries?: number;
+  /**
+   * Сколько ждать ответа на один запрос, мс (по умолчанию 15 000).
+   *
+   * `fetch` без сигнала висит, пока открыто соединение: замолчавший Channex держал экран
+   * «Подключения» и кнопки «Каналов» минутами. Таймаут превращает молчание в обычную сетевую
+   * ошибку — повтор с backoff, затем внятный отказ.
+   */
+  timeoutMs?: number;
 }
 
 export class ChannexApiError extends Error {
@@ -230,6 +238,8 @@ export interface ChannexTaskResponse {
 export const CHANNEX_STAGING_URL = 'https://staging.channex.io/api/v1';
 const RATE_LIMIT_PAUSE_MS = 60_000; // rate-limits.md: «pause updates for the property for 1 minute»
 const MAX_BACKOFF_MS = 60_000;
+/** Ждём ответ на один запрос не дольше этого: замолчавший Channex не должен держать экран стойки */
+const DEFAULT_TIMEOUT_MS = 15_000;
 const PAGE_LIMIT = 100;
 
 /**
@@ -278,12 +288,14 @@ export class ChannexClient {
   private readonly fetchFn: typeof fetch;
   private readonly sleep: (ms: number) => Promise<void>;
   private readonly maxRetries: number;
+  private readonly timeoutMs: number;
 
   constructor(private readonly opts: ChannexClientOptions) {
     this.base = (opts.baseUrl ?? CHANNEX_STAGING_URL).replace(/\/$/, '');
     this.fetchFn = opts.fetch ?? fetch;
     this.sleep = opts.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
     this.maxRetries = opts.maxRetries ?? 3;
+    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
   /** Все запросы: ключ в `user-api-key`; 429 → пауза (retry-after или 1 минута); 5xx/сеть → backoff. */
@@ -303,6 +315,7 @@ export class ChannexClient {
             'content-type': 'application/json',
             accept: 'application/json',
           },
+          signal: AbortSignal.timeout(this.timeoutMs),
           ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         });
       } catch (e) {
@@ -311,7 +324,17 @@ export class ChannexClient {
           await this.sleep(Math.min(1000 * 2 ** attempt, MAX_BACKOFF_MS));
           continue;
         }
-        throw new ChannexApiError(`Channex ${path}: сеть — ${(e as Error).message}`, 0, path);
+        const aborted =
+          (e as Error).name === 'TimeoutError' ||
+          (e as Error).name === 'AbortError' ||
+          /abort/i.test((e as Error).message);
+        throw new ChannexApiError(
+          aborted
+            ? `Channex ${path}: таймаут ${this.timeoutMs} мс — ответа нет`
+            : `Channex ${path}: сеть — ${(e as Error).message}`,
+          0,
+          path,
+        );
       }
       if (res.ok) return (res.status === 204 ? {} : await res.json()) as T;
       const errBody = (await res.json().catch(() => ({}))) as {
@@ -581,6 +604,8 @@ export class ChannexClient {
     const res = await this.fetchFn(`${this.base}/photos/upload`, {
       method: 'POST',
       headers: { 'user-api-key': this.opts.apiKey, accept: 'application/json' },
+      // Файл идёт дольше обычного запроса, но ждать бесконечно нельзя и здесь
+      signal: AbortSignal.timeout(this.timeoutMs * 4),
       body: form,
     });
     if (!res.ok)

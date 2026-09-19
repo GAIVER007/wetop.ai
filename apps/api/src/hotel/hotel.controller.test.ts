@@ -48,6 +48,20 @@ describe('Hotel read projections', () => {
     expect(r.body.property).toEqual(property);
     expect(r.body.ratePlans).toEqual([]);
   });
+  /**
+   * Волна 4: настройки объекта читает КАЖДАЯ страница стойки (их запрашивает `layout.tsx`), а это
+   * два запроса в базу Сингапура на каждый показ экрана. Название, часы и тарифы меняет импорт,
+   * не стойка, поэтому короткий кэш в памяти API безопаснее лишней нагрузки на пулер.
+   */
+  it('настройки объекта читаются из базы один раз на окно кэша, а не на каждый запрос', async () => {
+    const first = await request(app.getHttpServer()).get('/hotel/settings').expect(200);
+    const afterFirst = findFirst.mock.calls.length;
+    const second = await request(app.getHttpServer()).get('/hotel/settings').expect(200);
+    expect(second.body).toEqual(first.body);
+    // второй запрос в то же окно базу не трогает; без кэша обращений было бы вдвое больше
+    expect(findFirst.mock.calls.length).toBe(afterFirst);
+  });
+
   it('aggregates by channel/source/currency with precise money and separate cancellations', async () => {
     groupBy.mockResolvedValue([
       {

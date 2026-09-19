@@ -2,6 +2,10 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { validDate } from '../../lib/hotel-api';
+import { nightsBetween } from '../../lib/plural';
+
+/** Тот же предел, что у `/finance/report`: год с запасом (волна 4) */
+const MAX_REPORT_DAYS = 366;
 import { financeApi, formatMinor } from '../../lib/api';
 import { Page } from '../../components/page';
 import {
@@ -53,18 +57,20 @@ export default async function FinanceReportPage({
   const def = currentMonth();
   const from = sp.from || def.from;
   const to = sp.to || def.to;
-  const valid = validDate(from) && validDate(to) && from <= to;
-  // Предел периода — в форме, как у API: год; сумма за несколько лет по дням — не задача этого экрана
-  const tooLong = valid && Date.parse(to) - Date.parse(from) > 365 * 86_400_000;
-  const r = valid && !tooLong ? await financeApi.report(from, to) : null;
+  const dates = validDate(from) && validDate(to) && from <= to;
+  // Тот же предел, что в API: иначе страница уходит в общий экран ошибки без дат и без формы (§7.4)
+  const tooLong = dates && nightsBetween(from, to) + 1 > MAX_REPORT_DAYS;
+  const valid = dates && !tooLong;
+  const r = valid ? await financeApi.report(from, to) : null;
   const cur = r?.currency ?? '';
   return (
     <Page
       title="Деньги за период"
+      // Оплату принимают на счёте брони; отсюда можно только пойти её искать (§7.3)
       actions={
         <Link href="/reservations" className="btn">
-          <Icon name="plus" />
-          Принять оплату
+          <Icon name="search" />
+          Найти бронь для оплаты
         </Link>
       }
     >
@@ -78,7 +84,13 @@ export default async function FinanceReportPage({
         <Button type="submit">Показать</Button>
       </form>
 
-      {!valid && (
+      {tooLong && (
+        <Alert boxed>
+          Период — не больше {MAX_REPORT_DAYS} дней за один запрос. Укоротите период: за год и
+          дольше это уже выгрузка, а не экран.
+        </Alert>
+      )}
+      {!dates && (
         <Alert boxed>Проверьте даты: окончание периода должно быть не раньше начала.</Alert>
       )}
       {tooLong && (

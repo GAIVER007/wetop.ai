@@ -12,6 +12,7 @@ import type { NightRate, ReservationSource, ReservationStatus, StayRestriction }
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
+import { auditUserId } from '../accounts/actor';
 
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
 export class AllocationOverlapError extends Error {
@@ -1187,6 +1188,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   async audit(entry: AuditEntry): Promise<void> {
     await this.db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,

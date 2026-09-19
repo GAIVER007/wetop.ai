@@ -670,6 +670,20 @@
 | 19.09.2026 16:53 | integration | ❌ код выхода 1 | 1 с | 1df6994 | [лог](logs/2026-09-19T11-53-55Z-integration-3a17.log) |  |
 | 19.09.2026 16:54 | integration | ✅ 35 из 35 | 14 с | 1df6994 | [лог](logs/2026-09-19T11-54-35Z-integration-276e.log) |  |
 | 19.09.2026 16:56 | e2e | ✅ 23 из 23 | 1 мин 12 с | df3aa80 | [лог](logs/2026-09-19T11-56-19Z-e2e-a162.log) |  |
+| 19.09.2026 17:10 | unit (частично: packages/domain/src/accounts/invite.test.ts packages/integrations/src/mail/invite-letter.test.ts apps/api/src/accounts/invites.controller.test.t | ❌ упало 6 из 6 | 3 с | 0933804 +3 | [лог](logs/2026-09-19T12-10-58Z-unit-475c.log) | приглашение: только для вошедшего без сессии — 401 и на создание, и на список |
+| 19.09.2026 17:11 | integration (частично: tests/integration/invites.test.ts) | ❌ упало 3 из 3 | 2 с | 0933804 +4 | [лог](logs/2026-09-19T12-11-01Z-integration-90c2.log) | invites repository (integration, DATABASE_URL required) создание → поиск по отпечатку → принятие → список без принятых и просроченных |
+| 19.09.2026 17:14 | unit (частично: packages/domain/src/accounts/invite.test.ts packages/integrations/src/mail/invite-letter.test.ts apps/api/src/accounts/invites.controller.test.t | ❌ упало 5 из 14 | 3 с | 0933804 +16 | [лог](logs/2026-09-19T12-14-54Z-unit-0bcf.log) | приглашение: создание и список вошедший зовёт по почте: 201, письмо со ссылкой на 7 суток, в базе только отпечаток |
+| 19.09.2026 17:14 | integration (частично: tests/integration/invites.test.ts) | ✅ 3 из 3 | 2 с | 0933804 +17 | [лог](logs/2026-09-19T12-14-57Z-integration-ec03.log) |  |
+| 19.09.2026 17:15 | unit (частично: packages/domain/src/accounts/invite.test.ts packages/integrations/src/mail/invite-letter.test.ts apps/api/src/accounts/invites.controller.test.t | ✅ 14 из 14 | 3 с | 0933804 +16 | [лог](logs/2026-09-19T12-15-30Z-unit-8312.log) |  |
+| 19.09.2026 22:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/invites.spec.ts) | ❌ упало 3 из 4 | 2 мин 19 с | 0933804 +17 | [лог](logs/2026-09-19T17-46-06Z-e2e-433b.log) | вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом |
+| 19.09.2026 22:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/invites.spec.ts) | ✅ 4 из 4 | 15 с | 0933804 +25 | [лог](logs/2026-09-19T17-48-25Z-e2e-d4bc.log) |  |
+| 19.09.2026 22:49 | unit | ❌ упало 3 из 1080, пропущено 38 | 1 мин 34 с | 0933804 +21 | [лог](logs/2026-09-19T17-49-13Z-unit-6f71.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 19.09.2026 22:50 | integration | ❌ код выхода 1 | 1 с | 0933804 +15 | [лог](logs/2026-09-19T17-50-48Z-integration-e891.log) |  |
+| 19.09.2026 22:51 | unit | ❌ упало 3 из 1080 | 1 мин 32 с | 0933804 +21 | [лог](logs/2026-09-19T17-51-31Z-unit-8271.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 19.09.2026 22:53 | integration | ✅ 38 из 38 | 12 с | 0933804 +15 | [лог](logs/2026-09-19T17-53-14Z-integration-e84b.log) |  |
+| 19.09.2026 22:54 | typecheck | ✅ без ошибок | 15 с | 0933804 +23 | [лог](logs/2026-09-19T17-54-15Z-typecheck-daf6.log) |  |
+| 19.09.2026 22:54 | lint | ✅ без ошибок | 10 с | 0933804 +23 | [лог](logs/2026-09-19T17-54-31Z-lint-2fc4.log) |  |
+| 19.09.2026 22:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 124 из 124 | 9 мин 9 с | 0933804 +22 | [лог](logs/2026-09-19T17-54-52Z-e2e-0371.log) |  |
 | 19.09.2026 18:07 | unit (частично: scripts/design/build-tokens.test.ts) | ❌ упало 1 из 12 | 1 с | 3ad7b47 +1 | [лог](logs/2026-09-19T13-07-50Z-unit-a979.log) | Редизайн A2 RED: контраст границ полей |
 | 19.09.2026 18:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 design-refresh) | ❌ упало 3 из 3 | 40 с | 3ad7b47 +2 | [лог](logs/2026-09-19T13-08-00Z-e2e-d24e.log) | Редизайн A RED: видимость действий и мобильные цели |
 | 19.09.2026 18:14 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 12 из 12 | 1 с | 3ad7b47 +9 | [лог](logs/2026-09-19T13-14-11Z-unit-eb1e.log) | Редизайн A2 GREEN: контраст границ полей |
@@ -694,3 +708,5 @@
 | 19.09.2026 23:00 | typecheck | ✅ без ошибок | 6 с | 48149c7 +5 | [лог](logs/2026-09-19T18-00-15Z-typecheck-9a1f.log) | C1: root API and web typecheck |
 | 19.09.2026 23:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-week.spec.ts --grep C1:) | ✅ 3 из 3 | 11 с | 48149c7 +5 | [лог](logs/2026-09-19T18-00-52Z-e2e-af44.log) | C1 final layout: preview allowance, help at all breakpoints and mobile last row |
 | 19.09.2026 23:02 | lint (частично: --ignore-pattern .agent-tmp/**) | ✅ без ошибок | 6 с | 48149c7 +5 | [лог](logs/2026-09-19T18-02-31Z-lint-1aea.log) | C1 final lint; historical local archive excluded |
+| 19.09.2026 23:06 | unit (частично: apps/web/src/design-rules.test.ts apps/api/src/accounts) | ✅ 70 из 70 | 3 с | 830329c | [лог](logs/2026-09-19T18-06-15Z-unit-0593.log) |  |
+| 19.09.2026 23:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/invites.spec.ts tests/ui/login-access.spec.ts tests/ui/design-refresh.spec.ts) | ✅ 16 из 16 | 46 с | 830329c | [лог](logs/2026-09-19T18-06-18Z-e2e-1b9a.log) |  |

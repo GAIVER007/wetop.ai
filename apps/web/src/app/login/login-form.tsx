@@ -4,8 +4,15 @@ import { useState, useTransition } from 'react';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
 import { daysLeft } from '@pms/domain';
-import type { AuthSession } from '../../lib/api';
-import { logoutAction, registerAction, requestCodeAction, verifyAction } from './actions';
+import type { AuthInvite, AuthSession } from '../../lib/api';
+import {
+  inviteAction,
+  logoutAction,
+  registerAction,
+  requestCodeAction,
+  verifyAction,
+} from './actions';
+import { displayDate } from '../../lib/display-date';
 
 export type LoginMode = 'login' | 'register';
 
@@ -14,21 +21,45 @@ export function LoginForm({
   accessEmail,
   session,
   mode: initialMode = 'login',
+  invites = [],
+  initialEmail = '',
+  initialStep = 'email',
 }: {
   demo: boolean;
   accessEmail: string | null;
   /** Своя сессия WETOP (срез 13). Имеет приоритет над Cloudflare Access: два входа сосуществуют. */
   session: AuthSession | null;
   mode?: LoginMode;
+  /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
+  invites?: AuthInvite[];
+  /** После принятия приглашения форма открывается сразу на шаге кода с известной почтой. */
+  initialEmail?: string;
+  initialStep?: 'email' | 'code';
 }) {
   const [mode, setMode] = useState<LoginMode>(initialMode);
-  const [step, setStep] = useState<'email' | 'code'>('email');
-  const [email, setEmail] = useState('');
+  const [step, setStep] = useState<'email' | 'code'>(initialStep);
+  const [email, setEmail] = useState(initialEmail);
   const [organizationName, setOrganizationName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [pending, startTransition] = useTransition();
   const { setTheme } = useTheme();
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteError, setInviteError] = useState('');
+  const [invited, setInvited] = useState<string[]>([]);
+
+  /** Приглашение по почте: строка «отправлено» добавляется к списку без перезагрузки страницы. */
+  function submitInvite() {
+    setInviteError('');
+    startTransition(async () => {
+      const r = await inviteAction(inviteEmail);
+      if (r.error) setInviteError(r.error);
+      else {
+        setInvited((list) => [r.email!, ...list]);
+        setInviteEmail('');
+      }
+    });
+  }
 
   /** Первый шаг: почта (и название организации при регистрации). Дальше — ввод кода из письма. */
   function submitEmail() {
@@ -121,6 +152,67 @@ export function LoginForm({
                   </button>
                 </form>
               </div>
+              {/* Приглашения (срез 13, этап 7): ролей нет — каждый вошедший зовёт в свою организацию */}
+              <section className="login-invites" aria-labelledby="invite-heading">
+                <h3 id="invite-heading">Пригласить администратора</h3>
+                <p className="muted">
+                  На почту придёт ссылка на 7 дней. Человек примет её и войдёт по коду, как все.
+                </p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    submitInvite();
+                  }}
+                >
+                  <label className="field">
+                    Почта приглашённого
+                    <input
+                      className="inp"
+                      type="email"
+                      name="inviteEmail"
+                      autoComplete="off"
+                      placeholder="admin@hotel.com"
+                      required
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                    />
+                  </label>
+                  {inviteError && (
+                    <p className="alert" role="alert">
+                      {inviteError}
+                    </p>
+                  )}
+                  <button className="btn btn--secondary" type="submit" disabled={pending}>
+                    Отправить приглашение
+                  </button>
+                </form>
+                {invited.length + invites.length > 0 ? (
+                  <ul className="login-invite-list" data-testid="invite-list">
+                    {invited.map((e) => (
+                      <li key={`new-${e}`}>
+                        <b>{e}</b> <span className="muted">приглашение отправлено</span>
+                      </li>
+                    ))}
+                    {invites
+                      .filter((i) => !invited.includes(i.email))
+                      .map((i) => (
+                        <li key={i.id}>
+                          <b>{i.email}</b>{' '}
+                          <span className="muted">
+                            ждёт ответа до{' '}
+                            <time dateTime={i.expiresAt}>
+                              {displayDate(i.expiresAt.slice(0, 10))}
+                            </time>
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <p className="muted" data-testid="invite-empty">
+                    Ожидающих приглашений нет.
+                  </p>
+                )}
+              </section>
             </>
           ) : accessEmail ? (
             <>

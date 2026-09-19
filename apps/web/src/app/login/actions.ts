@@ -1,12 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { ApiError, authApi } from '../../lib/api';
-import {
-  clientInfo,
-  forgetSessionToken,
-  sessionToken,
-  storeSessionToken,
-} from '../../lib/session';
+import { clientInfo, forgetSessionToken, sessionToken, storeSessionToken } from '../../lib/session';
 
 export interface AuthActionResult {
   error: string | null;
@@ -51,6 +46,38 @@ export async function verifyAction(email: string, code: string): Promise<AuthAct
   }
   // `redirect` бросает служебное исключение — снаружи `try`, чтобы не принять его за ошибку.
   redirect('/today');
+}
+
+export interface InviteActionResult {
+  error: string | null;
+  /** Кого позвали — для строки «приглашение отправлено». */
+  email: string | null;
+}
+
+/** Пригласить по почте (срез 13, этап 7). Ошибки формы приходят текстом из API; без сессии — тоже текстом. */
+export async function inviteAction(email: string): Promise<InviteActionResult> {
+  const token = await sessionToken();
+  if (!token) return { error: 'Сеанс закончился. Войдите заново.', email: null };
+  try {
+    const invite = await authApi.invite(token, email, await clientInfo());
+    return { error: null, email: invite.email };
+  } catch (e) {
+    return { error: errorText(e), email: null };
+  }
+}
+
+/**
+ * Принять приглашение по ссылке: членство заведено, код для входа ушёл на почту — дальше форма
+ * входа сразу на шаге кода с этой почтой. Мёртвая ссылка — текст API на той же странице.
+ */
+export async function acceptInviteAction(rawToken: string): Promise<AuthActionResult> {
+  let email: string;
+  try {
+    email = (await authApi.acceptInvite(rawToken, await clientInfo())).email;
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+  redirect(`/login?email=${encodeURIComponent(email)}&step=code`);
 }
 
 /** Выход: отметка в API (ключ мёртв, даже если его скопировали) и кука прочь. */

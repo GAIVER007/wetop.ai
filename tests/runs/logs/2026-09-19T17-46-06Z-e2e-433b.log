@@ -1,0 +1,126 @@
+# Сквозные (e2e) · 19.09.2026 22:46 Алматы · vm
+# коммит 0933804 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/invites.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 385ms. If /home/user/wetop.ai/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (17.7s)
+  ✓  2 tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет (667ms)
+  ✘  3 tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой (16.1s)
+  ✘  4 tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа (15.8s)
+
+
+  1) tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "Пригласить администратора"
+    Received string:    "WWETOP.AIСтойка, брони и каналы в одном окнеВесь объектпод контролем.Брони. Гости. Оплаты. Номера.В одной системе.Luxx Aparts · АлматыВы вошликак <email>Хостел «Пример»Пробный период: ещё 5 дн.Открыть рабочее местоВход по коду на почтуВыйти"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        34 × locator resolved to <main id="main-content" class="login-page">…</main>
+           - unexpected value "WWETOP.AIСтойка, брони и каналы в одном окнеВесь объектпод контролем.Брони. Гости. Оплаты. Номера.В одной системе.Luxx Aparts · АлматыВы вошликак <email>Хостел «Пример»Пробный период: ещё 5 дн.Открыть рабочее местоВход по коду на почтуВыйти"
+
+
+      22 |   await page.goto('/login');
+      23 |   const main = page.getByRole('main');
+    > 24 |   await expect(main).toContainText('Пригласить администратора');
+         |                      ^
+      25 |   const list = main.getByTestId('invite-list');
+      26 |   await expect(list).toContainText('<email>');
+      27 |   await expect(list).toContainText('ждёт ответа до');
+        at /home/user/wetop.ai/tests/ui/invites.spec.ts:24:22
+
+    Error Context: test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "Вас приглашают"
+    Received string:    "Страница не найденаПроверьте адрес или вернитесь к рабочему дню.Открыть «Сегодня»"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        3 × locator resolved to <main class="page" aria-busy="true" id="main-content" aria-label="Загрузка страницы">…</main>
+          - unexpected value "Загружаем данные…"
+        30 × locator resolved to <main tabindex="-1" id="main-content" class="page page--narrow">…</main>
+           - unexpected value "Страница не найденаПроверьте адрес или вернитесь к рабочему дню.Открыть «Сегодня»"
+
+
+      50 |   await page.goto('/invite/fixture-invite-token');
+      51 |   const main = page.getByRole('main');
+    > 52 |   await expect(main).toContainText('Вас приглашают');
+         |                      ^
+      53 |   await expect(main).toContainText('Хостел «Пример»');
+      54 |   await expect(main).toContainText('<email>');
+      55 |   await main.getByRole('button', { name: 'Принять приглашение' }).click();
+        at /home/user/wetop.ai/tests/ui/invites.spec.ts:52:22
+
+    Error Context: test-results/invites-ссылка-из-письма-к-b2221--на-шаге-кода-с-этой-почтой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-ссылка-из-письма-к-b2221--на-шаге-кода-с-этой-почтой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-ссылка-из-письма-к-b2221--на-шаге-кода-с-этой-почтой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа ─────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert')
+    Expected: "Приглашение не найдено, уже принято или его срок истёк."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('alert')
+
+
+      65 |   await page.goto('/invite/net-takogo');
+      66 |   const main = page.getByRole('main');
+    > 67 |   await expect(main.getByRole('alert')).toHaveText(
+         |                                         ^
+      68 |     'Приглашение не найдено, уже принято или его срок истёк.',
+      69 |   );
+      70 |   await expect(main.getByRole('link', { name: 'войдите по коду' })).toHaveAttribute(
+        at /home/user/wetop.ai/tests/ui/invites.spec.ts:67:41
+
+    Error Context: test-results/invites-мёртвая-ссылка-—-один-текст-и-путь-на-форму-входа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-мёртвая-ссылка-—-один-текст-и-путь-на-форму-входа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-мёртвая-ссылка-—-один-текст-и-путь-на-форму-входа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+    tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой 
+    tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа ──────────────
+  1 passed (2.3m)
+
+# код выхода 1 · 2 мин 19 с

@@ -30,6 +30,17 @@ export interface SessionRecord {
   revokedAt: Date | null;
 }
 
+/** Приглашение как оно лежит в базе (DATA_MODEL §13.6): ключа нет, только отпечаток. */
+export interface InviteRecord {
+  id: string;
+  organizationId: string;
+  organizationName: string;
+  email: string;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  createdAt: Date;
+}
+
 export interface AccountsRepository {
   /** Сколько кодов запрошено на этот адрес с момента `since`. Для предела 5 в час. */
   codesForEmailSince(email: string, since: Date): Promise<number>;
@@ -68,6 +79,26 @@ export interface AccountsRepository {
   }): Promise<void>;
   sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>;
   revokeSession(tokenHash: string, at: Date): Promise<void>;
+
+  // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
+  createInvite(input: {
+    organizationId: string;
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    createdBy: string;
+  }): Promise<InviteRecord>;
+  /** Не принятые и не просроченные на момент `now`, новые сверху. */
+  pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
+  inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null>;
+  markInviteAccepted(id: string, at: Date): Promise<void>;
+  /** Есть ли у адреса членство в этой организации (любой статус человека). */
+  isMember(email: string, organizationId: string): Promise<boolean>;
+  /**
+   * Вступление по приглашению: человек заводится, если его нет; членство — если его нет. Повторный
+   * вызов ничего не дублирует (составной ключ `memberships`). Возвращает учётку в этой организации.
+   */
+  joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord>;
 }
 
 export const ACCOUNTS_REPOSITORY = Symbol('ACCOUNTS_REPOSITORY');

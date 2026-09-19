@@ -305,6 +305,12 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .login-preview { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 20px; text-align: center; }
 .login-preview span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 10px; }
 .login-preview a { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; }
+/* Приглашения на экране входа (срез 13, этап 7) и страница по ссылке — одна колонка без «истории» слева */
+.login-invites { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 24px; }
+.login-invites h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; }
+.login-invites > p { margin: 0 0 16px; }
+.login-invite-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; font-size: var(--text-sm); }
+.login-page--single { grid-template-columns: 1fr; }
 @media(max-width:760px) { .login-page { grid-template-columns: 1fr; }.login-story { padding: 24px; }.login-message { padding: 32px 0 0; }.login-message h1 { font-size: 36px; }.login-property { display: none; }.login-form-panel { padding: 32px 24px 48px; }}
 /* Keep contiguous stay segments visually joined while every night remains draggable. */
 .board td.board__cell { padding: 0; height: 46px; border-right: 1px solid var(--border-soft); }

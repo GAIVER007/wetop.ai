@@ -1,0 +1,18 @@
+# Модульные (unit) · 19.09.2026 17:15 Алматы · vm
+# коммит 0933804 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T12-15-30Z-unit-8312.json' 'packages/domain/src/accounts/invite.test.ts' 'packages/integrations/src/mail/invite-letter.test.ts' 'apps/api/src/accounts/invites.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (3 tests) 8ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 7ms
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (6 tests) 261ms
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  12:15:31
+   Duration  1.85s (transform 57%, import 28%, tests 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-19T12-15-30Z-unit-8312.json
+
+# код выхода 0 · 3 с

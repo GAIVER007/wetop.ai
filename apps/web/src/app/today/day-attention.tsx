@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { formatMinor, type DeskDay } from '../../lib/api';
+import { type DeskDay } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 
 /** Ссылки на уже существующие действия. Один пункт на проживание, причины показаны вместе. */
@@ -82,7 +83,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
                 <strong>{r.guestLabel || r.confirmationNumber}</strong>
                 <small>
                   <span className="booking-number">{r.confirmationNumber}</span> · К оплате{' '}
-                  {formatMinor(r.balanceMinor)}
+                  {formatMoney(r.balanceMinor)}
                 </small>
               </span>
               <Icon name="chevron" />

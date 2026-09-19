@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
 
@@ -19,7 +20,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const minor = (t: string) => BigInt(t.replace(/[^\d−-]/g, '').replace('−', '-'));
+const minor = minorFromText;
 
 test('сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится', async ({
   page,
@@ -46,34 +47,42 @@ test('сутки гостя целиком: заезд, услуга на счё
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
   const stayPrice = minor(
-    await page.getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
   const balance = async () => {
     await cardTab(page, 'Счета');
-    return minor(await page.getByTestId('folio-balance').innerText());
+    return minor(await page.getByRole('main').getByTestId('folio-balance').innerText());
   };
   expect(await balance()).toBe(stayPrice);
 
   // 2. Гость: гражданство и документ — без них заселение запрещено
   await cardTab(page, 'Обзор');
-  await page.getByTestId('guest-link').click();
-  await page.getByTestId('guest-form').locator('input[name="citizenship"]').fill('KAZ');
-  await page.getByTestId('guest-form').getByRole('button', { name: 'Сохранить' }).click();
-  const doc = page.getByTestId('document-form');
+  await page.getByRole('main').getByTestId('guest-link').click();
+  await page
+    .getByRole('main')
+    .getByTestId('guest-form')
+    .locator('input[name="citizenship"]')
+    .fill('KAZ');
+  await page
+    .getByRole('main')
+    .getByTestId('guest-form')
+    .getByRole('button', { name: 'Сохранить' })
+    .click();
+  const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000777');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');
   await doc.getByRole('button', { name: 'Добавить' }).click();
-  await expect(page.getByTestId('document-row')).toContainText('****0777');
+  await expect(page.getByRole('main').getByTestId('document-row')).toContainText('****0777');
 
   // 3. Заезд
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-in-"]').click();
+  await page.getByRole('main').locator('[data-testid^="check-in-"]').click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
 
   // 4. Услуга на счёт
-  const panel = page.getByTestId('folio-panel');
+  const panel = page.getByRole('main').getByTestId('folio-panel');
   const charge = panel.getByTestId('charge-form');
   await cardTab(page, 'Счета');
   await charge.locator('select[name="kind"]').selectOption('SERVICE');
@@ -92,9 +101,9 @@ test('сутки гостя целиком: заезд, услуга на счё
 
   // 6. Выезд: долга нет, подтверждения не спрашивают
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-out-"]').click();
+  await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
   expect(await balance()).toBe(0n);
   await page.screenshot({ path: 'reports/screenshots/full-day.png', fullPage: true });
 
@@ -105,7 +114,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   await expect(panel.getByTestId('charge-row').first()).not.toContainText('сторнировано');
   const paid = minor(await panel.getByTestId('payment-row').locator('td').nth(2).innerText());
   expect(paid).toBe(withService);
-  await expect(page.getByTestId('folio-balance')).toContainText('оплачено');
+  await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('оплачено');
   // счёт закрыт и это подписано: иначе администратор видит счёт без форм и не понимает почему
-  await expect(page.getByTestId('folio-closed')).toContainText('счёт закрыт');
+  await expect(page.getByRole('main').getByTestId('folio-closed')).toContainText('счёт закрыт');
 });

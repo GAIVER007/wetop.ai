@@ -1,7 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { ApiError, reservationsApi } from '../../lib/api';
+import { ApiError, reservationsApi, type ActionPreview } from '../../lib/api';
 
 export interface ActionResult {
   error: string | null;
@@ -220,4 +220,20 @@ export async function stayAction(
   revalidatePath('/chessboard');
   revalidatePath(`/reservations/${number}`);
   return { error: null };
+}
+
+/**
+ * Предпросмотр действия для окна подтверждения (срез 7.3, Д5): только чтение, ничего не меняет.
+ * Отказ не мешает действию — окно откроется и честно скажет, что сумму посчитать не удалось.
+ */
+export async function previewAction(
+  number: string,
+  itemId: string,
+  query: Record<string, string>,
+): Promise<ActionPreview | null> {
+  try {
+    return await reservationsApi.preview(number, itemId, query);
+  } catch {
+    return null;
+  }
 }

@@ -1,3 +1,6 @@
+import type { ActionPreview } from './action-preview';
+export type { ActionPreview } from './action-preview';
+
 /**
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
@@ -113,6 +116,10 @@ export interface ChessboardCell {
   guestPhone?: string | null;
   isArrival?: boolean;
   isLastNight?: boolean;
+  /** Откуда бронь и сколько по ней не заплачено (срез 7.1): канал бейджем, долг плашкой суммы */
+  source?: string;
+  channel?: string | null;
+  balanceMinor?: string;
   blockType?: string;
   /** причина блокировки («ремонт: кондиционер») — показывается подсказкой на клетке */
   blockReason?: string | null;
@@ -124,6 +131,8 @@ export interface ChessboardRow {
     kind: 'ROOM' | 'BED';
     accommodationTypeCode: string;
     accommodationTypeName: string;
+    /** Убрана ли ячейка: бейдж в строке и фильтр «Уборка» (срез 7.1) */
+    housekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED';
   };
   cells: ChessboardCell[];
 }
@@ -305,6 +314,11 @@ export const reservationsApi = {
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend`,
       { nights, ...(ratePlanCode ? { ratePlanCode } : {}) },
     ),
+  /** Сколько будет стоить действие — до подтверждения (срез 7.3, Д5). Только чтение. */
+  preview: (number: string, itemId: string, query: Record<string, string>) =>
+    getJson<ActionPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/preview?${new URLSearchParams(query).toString()}`,
+    ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(
       'POST',
@@ -384,6 +398,9 @@ export const channelsApi = {
   connection: () => getJson<ChannelConnection>('/channels/channex/connection'),
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
+  /** Строки очереди: что именно уехало в Channex (срез 7.2) */
+  outboxMessages: (limit = 20) =>
+    getJson<OutboxMessage[]>(`/channels/channex/outbox/messages?limit=${limit}`),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
   /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
   sync: (days?: number) =>
@@ -445,6 +462,24 @@ export interface InboundEvent {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
+  /** Номер брони PMS, если ревизию удалось связать (срез 7.2); null — не разобрана */
+  reservationNumber?: string | null;
+}
+/** Сообщение очереди ARI: что уезжает в Channex и чем кончилось */
+export interface OutboxMessage {
+  id: string;
+  kind: 'AVAILABILITY' | 'RESTRICTIONS';
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  lines: number;
+  dateFrom: string | null;
+  dateTo: string | null;
+  roomTypeIds: string[];
+  ratePlanIds: string[];
 }
 export interface WebhookStatus {
   registered: boolean;

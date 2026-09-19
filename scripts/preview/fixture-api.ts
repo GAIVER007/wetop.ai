@@ -166,7 +166,16 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 || i === 8 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // Смена должна видеть это на клетке словом, не только жёлтым цветом.
+    r.status =
+      i === 2
+        ? 'TENTATIVE'
+        : i === 1 || i === 8
+          ? 'CONFIRMED'
+          : i === 4
+            ? 'CHECKED_OUT'
+            : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
@@ -413,6 +422,7 @@ function seedDesign() {
       processedAt: null,
       lastError:
         'Несколько перенесённых броней подходят: 20260913-TEST1, 20260913-TEST3 — разобрать руками (Q-109)',
+      reservationNumber: null,
     },
     {
       externalEventId: 'dsg-revision-ok-0002',
@@ -423,6 +433,7 @@ function seedDesign() {
       receivedAt: `${today}T06:01:03Z`,
       processedAt: `${today}T06:01:04Z`,
       lastError: null,
+      reservationNumber: '20260913-TEST1',
     },
     {
       externalEventId: 'dsg-revision-ok-0003',
@@ -433,6 +444,7 @@ function seedDesign() {
       receivedAt: `${today}T06:30:00Z`,
       processedAt: `${today}T06:30:01Z`,
       lastError: null,
+      reservationNumber: '20260913-TEST3',
     },
   ];
 }
@@ -479,7 +491,7 @@ let paymentLines: Array<{
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 const incidentSeed: Incident = {
   id: 'ui-incident',
-  kind: 'booking.unassigned',
+  kind: 'stay.unassigned',
   class: 'B',
   severity: 'WARNING',
   status: 'OPEN',
@@ -557,8 +569,11 @@ function desk(date: string): DeskDay {
 }
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
+  // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
+  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
+    housekeeping.get(code) ?? (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
   const rows = units.map((u) => ({
-    unit: { id: u.code, ...u },
+    unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
       const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
       if (block)
@@ -586,6 +601,10 @@ function board(from: string, to: string): Chessboard {
             itemStatus: it.status,
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
+            // канал и остаток к оплате — как отдаёт API после среза 7.1
+            source: r.source,
+            channel: r.channel,
+            balanceMinor: finance(r).balanceMinor,
           };
       }
       return { date, state: 'FREE' as const };
@@ -1065,6 +1084,60 @@ function read(path: string, q: URLSearchParams): unknown {
       total: { units: 88, available: available.length },
     };
   }
+  // Срез 7.3: предпросмотр действия — считает так же, как настоящий API, но ничего не меняет
+  if (path.startsWith('/reservations/') && path.endsWith('/preview')) {
+    const parts = path.split('/');
+    const r = getCard(decodeURIComponent(parts[2]!));
+    const item = r?.items.find((i) => i.id === decodeURIComponent(parts[4]!));
+    if (!r || !item) return undefined;
+    const action = q.get('action') ?? '';
+    const current = BigInt(item.priceMinor);
+    const night = 1_100_000n; // цена ночи в фикстуре: календарь тут один на все категории
+    if (action === 'cancel' || action === 'no_show')
+      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        voidedMinor: item.priceMinor,
+        // отмена заранее бесплатна, незаезд платный всегда (Q-103)
+        penaltyMinor: action === 'no_show' ? night.toString() : '0',
+        policy: 'FIRST_NIGHT',
+      };
+    if (action === 'extend')
+      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        nights: 1,
+        departureDate: add(item.departureDate, 1),
+        newPriceMinor: (current + night).toString(),
+        differenceMinor: night.toString(),
+      };
+    const unitCode = q.get('unitCode') ?? '';
+    const unit = units.find((u) => u.code === unitCode);
+    const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
+    const nights = BigInt(
+      Math.max(
+        1,
+        Math.round(
+          (Date.parse(`${item.departureDate}T00:00:00Z`) -
+            Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
+            86_400_000,
+        ),
+      ),
+    );
+    const moved = changesCategory ? nights * 1_500_000n : current;
+    return {
+      action: 'move',
+      currentPriceMinor: item.priceMinor,
+      currency: 'KZT',
+      changesCategory,
+      unitCode,
+      categoryName: unit?.accommodationTypeName,
+      newPriceMinor: moved.toString(),
+      differenceMinor: (moved - current).toString(),
+    };
+  }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
@@ -1205,6 +1278,55 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
     return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+  // Срез 7.2: строки очереди — что именно уехало в Channex и чем кончилось
+  if (path === '/channels/channex/outbox/messages')
+    return [
+      {
+        id: 'ui-outbox-1',
+        kind: 'AVAILABILITY',
+        status: 'PENDING',
+        attempts: 0,
+        taskId: null,
+        lastError: null,
+        createdAt: `${today}T06:40:00Z`,
+        sentAt: null,
+        lines: 5,
+        dateFrom: today,
+        dateTo: add(today, 4),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+      {
+        id: 'ui-outbox-2',
+        kind: 'RESTRICTIONS',
+        status: 'SENT',
+        attempts: 1,
+        taskId: 'ui-task-77',
+        lastError: null,
+        createdAt: `${today}T06:20:00Z`,
+        sentAt: `${today}T06:20:03Z`,
+        lines: 31,
+        dateFrom: today,
+        dateTo: add(today, 30),
+        roomTypeIds: [],
+        ratePlanIds: ['ui-rate-plan'],
+      },
+      {
+        id: 'ui-outbox-3',
+        kind: 'AVAILABILITY',
+        status: 'FAILED',
+        attempts: 3,
+        taskId: null,
+        lastError: 'Channex: 422 unprocessable entity — room_type_id не найден',
+        createdAt: `${today}T05:50:00Z`,
+        sentAt: null,
+        lines: 2,
+        dateFrom: today,
+        dateTo: add(today, 1),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+    ];
   if (path === '/channels/channex/events') return designEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };

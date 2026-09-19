@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ReservationsService,
   type AssignUnitDto,
@@ -76,6 +76,19 @@ export class ReservationsController {
     @Body() dto: { nights?: number; ratePlanCode?: string },
   ) {
     return this.service.extend(number, itemId, dto ?? {});
+  }
+
+  /**
+   * Сколько будет стоить действие — до подтверждения (срез 7.3, Д5). Только чтение: ничего не
+   * пишется, каналы не трогаются. `action`: move (нужен unitCode) | extend (nights) | cancel | no_show.
+   */
+  @Get(':number/items/:itemId/preview')
+  preview(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Query() q: { action?: string; unitCode?: string; nights?: string; ratePlanCode?: string },
+  ) {
+    return this.service.preview(number, itemId, q ?? {});
   }
 
   @Post(':number/items/:itemId/assign')

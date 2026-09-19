@@ -34,13 +34,18 @@ test('операция проживания блокирует повторно�
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route('**/reservations/20260913-TESTAA', async (route) => {
-    if (route.request().method() === 'POST') await held;
-    await route.continue();
-  });
   try {
     const extend = page.getByTestId('extend-ui-item');
     await extend.click();
+    // Срез 7.3: продление сначала спрашивает с суммой (предпросмотр — тоже POST на эту страницу,
+    // его держать нельзя); команда и блокировка кнопок начинаются с подтверждения
+    const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+    await expect(dialog).toContainText('Проживание станет');
+    await page.route('**/reservations/20260913-TESTAA', async (route) => {
+      if (route.request().method() === 'POST') await held;
+      await route.continue();
+    });
+    await dialog.getByRole('button', { name: 'Продлить' }).click();
     await expect(extend).toBeDisabled();
     await expect(page.getByTestId('check-in-ui-item')).toBeDisabled();
   } finally {

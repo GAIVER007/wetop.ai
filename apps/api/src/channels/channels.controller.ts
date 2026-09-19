@@ -171,6 +171,16 @@ export class ChannelsController {
     return this.repo.outboxSummary(PROVIDER);
   }
 
+  /**
+   * Строки очереди: что именно уехало в Channex и чем кончилось. Плитки над таблицей отвечают
+   * «сколько», эта таблица — «что» (срез 7.2, сцена показа сертификации).
+   */
+  @Get('outbox/messages')
+  outboxMessages(@Query('limit') limit?: string) {
+    const n = Number(limit ?? 20);
+    return this.repo.recentOutbox(PROVIDER, Number.isInteger(n) && n > 0 && n <= 200 ? n : 20);
+  }
+
   /** Отправить накопившееся сейчас (без ожидания фонового цикла). */
   @Post('outbox/flush')
   @HttpCode(200)

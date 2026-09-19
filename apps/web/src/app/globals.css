@@ -6,7 +6,6 @@
  * и там, где нужно действие (жёлтое «не сделано», красный «долг»); границы в 1 px вместо теней.
  */
 
-
 *,
 *::before,
 *::after {
@@ -51,78 +50,6 @@ h3 {
   outline-offset: 1px;
 }
 
-/* ---------- верхняя навигация ---------- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.topbar__inner {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-height: var(--topbar-h);
-  padding: 6px 20px;
-  flex-wrap: wrap;
-}
-.topbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--font-head);
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text);
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-.topbar__mark {
-  color: var(--text);
-  flex: none;
-}
-.topbar__brand:hover {
-  text-decoration: none;
-}
-.topbar__brand span {
-  color: var(--muted);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: -2px;
-}
-.topbar__nav {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-wrap: wrap;
-}
-.topbar__link {
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.topbar__link:hover {
-  background: var(--surface-muted);
-  text-decoration: none;
-}
-.topbar__link--active {
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-weight: 600;
-}
-.topbar__link--accent {
-  margin-left: 8px;
-  background: var(--primary);
-  color: var(--muted);
-  font-weight: 600;
-}
-.topbar__link--accent:hover {
-  background: var(--primary-hover);
-}
-
 /* ---------- страница ---------- */
 .page {
   max-width: 1100px;
@@ -159,7 +86,7 @@ h3 {
 }
 .page__title {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
   margin: 0;
@@ -629,6 +556,12 @@ textarea.inp {
   margin-right: 4px;
   vertical-align: -1px;
 }
+/* Глиф рядом с цветом: те же знаки стоят на плашках шахматки, цвет один смысл не несёт (§1 п. 4) */
+.legend__glyph {
+  margin-right: 4px;
+  font-weight: 700;
+  color: var(--text);
+}
 .list {
   margin: 0;
   padding-left: 18px;
@@ -744,7 +677,7 @@ textarea.inp {
   text-decoration: none;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .board__stay:hover {
   text-decoration: none;
@@ -758,7 +691,7 @@ textarea.inp {
   position: absolute;
   right: 2px;
   top: 3px;
-  font-size: 10px;
+  font-size: var(--text-xs);
   line-height: 10px;
 }
 
@@ -1073,9 +1006,6 @@ textarea.inp {
 }
 
 @media print {
-  .topbar {
-    display: none;
-  }
   body {
     background: var(--surface);
   }

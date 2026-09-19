@@ -95,7 +95,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel}</strong>
                 <small>
-                  {r.unitCode ?? 'Без номера'} · {r.confirmationNumber}
+                  {r.unitCode ?? '—'} · {r.confirmationNumber}
                 </small>
               </span>
               <Icon name="chevron" />

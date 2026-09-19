@@ -74,7 +74,7 @@ export default async function GuestsPage({
                 </td>
                 <td>{g.phone ?? '—'}</td>
                 <td>{g.email ?? '—'}</td>
-                <td>{g.citizenship ?? <span className="warn-text">нет</span>}</td>
+                <td>{g.citizenship ?? <span className="warn-text">—</span>}</td>
                 <td className="num">{g.staysCount}</td>
                 <td>{g.lastStay ?? '—'}</td>
               </tr>

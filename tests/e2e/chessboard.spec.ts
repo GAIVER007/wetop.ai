@@ -22,9 +22,11 @@ test('шахматка показывает 88 ячеек, и занятость
 
   await page.goto('/chessboard?from=2026-09-08&to=2026-09-21');
   await expect(page.getByRole('heading', { name: 'Шахматка' })).toBeVisible();
-  await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await expect(page.getByTestId('occupied-2026-09-08')).toHaveText(String(summary.occupied));
+  await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
+  await expect(page.getByRole('main').getByTestId('date-col')).toHaveCount(14);
+  await expect(page.getByRole('main').getByTestId('occupied-2026-09-08')).toHaveText(
+    String(summary.occupied),
+  );
   await page.screenshot({ path: 'reports/screenshots/chessboard-2026-09-08.png', fullPage: false });
 });
 
@@ -35,7 +37,7 @@ test('клик по занятой клетке открывает карточ�
   await first.click();
   await expect(page).toHaveURL(new RegExp(`/reservations/${number}`));
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
-  await expect(page.getByTestId('stay-row').first()).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toBeVisible();
   await page.screenshot({
     path: 'reports/screenshots/reservation-card-2026-09-08.png',
     fullPage: true,

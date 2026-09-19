@@ -1,9 +1,13 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { formatMinor, ratesApi } from '../../lib/api';
+import { ratesApi } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
+import { displayDate } from '../../lib/display-date';
 import { Page } from '../../components/page';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
+import { PriceCell } from './price-cell';
+import './rates.css';
 
 const monthRange = (ym: string) => {
   const [y, m] = ym.split('-').map(Number) as [number, number];
@@ -67,7 +71,8 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         </Button>
         {validMonth && (
           <span style={{ marginLeft: 8 }}>
-            <Link href={shift(-1)}>← месяц</Link> · <Link href={shift(1)}>месяц →</Link>
+            <Link href={shift(-1)}>Предыдущий месяц</Link>{' '}
+            <Link href={shift(1)}>Следующий месяц</Link>
           </span>
         )}
       </form>
@@ -85,11 +90,11 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                   {[
                     'Дата',
                     ...Array.from({ length: cal.capacityAdults }, (_, i) => `Цена, ${i + 1} гост.`),
-                    'Min stay',
-                    'Max stay',
-                    'Stop sell',
-                    'CTA',
-                    'CTD',
+                    'Мин. ночей',
+                    'Макс. ночей',
+                    'Стоп-продажа',
+                    'Закрыт заезд',
+                    'Закрыт выезд',
                   ].map((h) => (
                     <th key={h}>{h}</th>
                   ))}
@@ -108,18 +113,25 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                         !d.stopSell && weekend && 'is-weekend',
                       )}
                     >
-                      <td>
-                        {d.date} <span className="muted-2">{WD[wd]}</span>
+                      <td className="nowrap">
+                        <time dateTime={d.date}>{displayDate(d.date)}</time>{' '}
+                        <span className="muted-2">{WD[wd]}</span>
                       </td>
-                      {Array.from({ length: cal.capacityAdults }, (_, i) => (
-                        <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
-                          {d.prices[String(i + 1)] ? (
-                            formatMinor(d.prices[String(i + 1)]!, cal.currency)
-                          ) : (
-                            <span className="warn-text">нет</span>
-                          )}
-                        </td>
-                      ))}
+                      {Array.from({ length: cal.capacityAdults }, (_, i) => {
+                        const minor = d.prices[String(i + 1)];
+                        return (
+                          <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
+                            <PriceCell
+                              date={d.date}
+                              occupancy={i + 1}
+                              text={minor ? formatMoney(minor, cal.currency) : '—'}
+                              major={minor ? (BigInt(minor) / 100n).toString() : ''}
+                              accommodationTypeCode={category}
+                              ratePlanCode={ratePlan}
+                            />
+                          </td>
+                        );
+                      })}
                       <td>{d.minStay ?? '—'}</td>
                       <td>{d.maxStay ?? '—'}</td>
                       <td>{d.stopSell ? 'да' : '—'}</td>
@@ -131,7 +143,9 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
               </tbody>
             </Table>
           ) : (
-            <p className="empty">Нет категорий или тарифов.</p>
+            <p className="empty">
+              Категорий или тарифов нет — календарь цен пуст. Заведите тариф в настройках объекта.
+            </p>
           )}
         </div>
         {!error && (

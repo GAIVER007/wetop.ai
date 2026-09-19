@@ -136,15 +136,15 @@ export function BulkEditor(props: {
           <Field label="Гостей (occupancy)">
             <Input name="occupancy" type="number" min={1} max={capacity} placeholder="все" />
           </Field>
-          <Field label="Min stay">
+          <Field label="Мин. ночей">
             <Input name="minStay" type="number" min={0} />
           </Field>
-          <Field label="Max stay">
+          <Field label="Макс. ночей">
             <Input name="maxStay" type="number" min={0} />
           </Field>
           {(
             [
-              ['stopSell', 'Stop sell'],
+              ['stopSell', 'Стоп-продажа'],
               ['closedToArrival', 'Закрыт заезд (CTA)'],
               ['closedToDeparture', 'Закрыт выезд (CTD)'],
             ] as const
@@ -176,12 +176,14 @@ export function BulkEditor(props: {
               {r.days ? ` (${r.days.join(',')})` : ''}
               {r.price ? ` · цена ${r.price}` : ''}
               {r.occupancy ? ` (${r.occupancy} гост.)` : ''}
-              {r.minStay !== undefined ? ` · min ${r.minStay}` : ''}
-              {r.maxStay !== undefined ? ` · max ${r.maxStay}` : ''}
-              {r.stopSell !== undefined ? ` · stop sell ${r.stopSell ? 'да' : 'нет'}` : ''}
-              {r.closedToArrival !== undefined ? ` · CTA ${r.closedToArrival ? 'да' : 'нет'}` : ''}
+              {r.minStay !== undefined ? ` · мин. ${r.minStay}` : ''}
+              {r.maxStay !== undefined ? ` · макс. ${r.maxStay}` : ''}
+              {r.stopSell !== undefined ? ` · стоп-продажа ${r.stopSell ? 'да' : 'нет'}` : ''}
+              {r.closedToArrival !== undefined
+                ? ` · закрыт заезд ${r.closedToArrival ? 'да' : 'нет'}`
+                : ''}
               {r.closedToDeparture !== undefined
-                ? ` · CTD ${r.closedToDeparture ? 'да' : 'нет'}`
+                ? ` · закрыт выезд ${r.closedToDeparture ? 'да' : 'нет'}`
                 : ''}{' '}
               <Button
                 type="button"

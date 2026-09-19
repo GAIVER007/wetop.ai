@@ -2,12 +2,8 @@
 import { useActionState, useState } from 'react';
 import { useCommand } from '../../../lib/use-command';
 import { GroupPayment } from './group-payment';
-import {
-  formatMinor,
-  type FinanceFolio,
-  type ReservationFinance,
-  type ServiceOption,
-} from '../../../lib/api';
+import { type FinanceFolio, type ReservationFinance, type ServiceOption } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
 import {
   Alert,
   Badge,
@@ -78,9 +74,9 @@ export function FinancePanel({
       />
       {finance.folios.length > 1 && (
         <div data-testid="finance-total">
-          Итого по брони: начислено {formatMinor(finance.chargedMinor, finance.currency)}, оплачено{' '}
-          {formatMinor(finance.paidMinor, finance.currency)}, возвращено{' '}
-          {formatMinor(finance.refundedMinor, finance.currency)} →{' '}
+          Итого по брони: начислено {formatMoney(finance.chargedMinor, finance.currency)}, оплачено{' '}
+          {formatMoney(finance.paidMinor, finance.currency)}, возвращено{' '}
+          {formatMoney(finance.refundedMinor, finance.currency)} →{' '}
           <Balance minor={finance.balanceMinor} currency={finance.currency} />
         </div>
       )}
@@ -97,7 +93,7 @@ function Balance({ minor, currency }: { minor: string; currency: string }) {
   const label = n > 0n ? 'к оплате' : n < 0n ? 'переплата' : 'оплачено';
   return (
     <b className={cls} data-testid="folio-balance">
-      {formatMinor(minor, currency)} · {label}
+      {formatMoney(minor, currency)} · {label}
     </b>
   );
 }
@@ -148,10 +144,10 @@ function FolioPanel({
           <Badge data-testid="folio-closed">счёт закрыт — гость рассчитался и выехал</Badge>
         )}
         <span className="sub">
-          начислено {formatMinor(folio.chargedMinor, folio.currency)} · оплачено{' '}
-          {formatMinor(folio.paidMinor, folio.currency)}
+          начислено {formatMoney(folio.chargedMinor, folio.currency)} · оплачено{' '}
+          {formatMoney(folio.paidMinor, folio.currency)}
           {folio.refundedMinor !== '0'
-            ? ` · возвращено ${formatMinor(folio.refundedMinor, folio.currency)}`
+            ? ` · возвращено ${formatMoney(folio.refundedMinor, folio.currency)}`
             : ''}
         </span>
         <span className="ml-auto">
@@ -183,9 +179,9 @@ function FolioPanel({
               </td>
               <td>{c.serviceDate ?? '—'}</td>
               <td>
-                {c.quantity} × {formatMinor(c.unitPriceMinor, folio.currency)}
+                {c.quantity} × {formatMoney(c.unitPriceMinor, folio.currency)}
               </td>
-              <td className="num">{formatMinor(c.amountMinor, folio.currency)}</td>
+              <td className="num">{formatMoney(c.amountMinor, folio.currency)}</td>
               <td>
                 {open && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
                   <Button
@@ -231,8 +227,8 @@ function FolioPanel({
                   {p.status === 'VOIDED' ? ' · аннулирован' : ''}
                 </td>
                 <td>{almatyDate(p.paidAt)}</td>
-                <td className="num">{formatMinor(p.allocatedMinor, folio.currency)}</td>
-                <td className="num">{formatMinor(p.refundedMinor, folio.currency)}</td>
+                <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
+                <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
                 <td>
                   {open &&
                     p.status === 'COMPLETED' &&
@@ -256,7 +252,7 @@ function FolioPanel({
           {folio.refunds
             .map(
               (r) =>
-                `${formatMinor(r.amountMinor, folio.currency)} (${almatyDate(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
+                `${formatMoney(r.amountMinor, folio.currency)} (${almatyDate(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
             )
             .join('; ')}
         </div>
@@ -289,7 +285,7 @@ function FolioPanel({
                 {services.map((s) => (
                   <option key={s.code} value={s.code}>
                     {s.group ? `${s.group}: ` : ''}
-                    {s.nameRu} — {formatMinor(s.priceMinor, folio.currency)}
+                    {s.nameRu} — {formatMoney(s.priceMinor, folio.currency)}
                   </option>
                 ))}
               </Select>

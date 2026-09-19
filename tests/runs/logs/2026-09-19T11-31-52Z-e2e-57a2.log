@@ -1,0 +1,13 @@
+# Сквозные (e2e) · 19.09.2026 16:31 Алматы · vm
+# коммит 4e29fd3 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-blocks.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 274ms. If /home/user/wetop.ai/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (3.0s)
+
+  1 passed (1.5m)
+
+# код выхода 0 · 1 мин 34 с

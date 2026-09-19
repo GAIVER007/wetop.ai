@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
+import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
@@ -41,24 +42,26 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <TopNav
-            demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-            property={{
-              name: (
-                <Suspense fallback="Объект не загружен">
-                  <ProjectProperty field="name" />
-                </Suspense>
-              ),
-              address: (
-                <Suspense fallback="Настройки гостиницы">
-                  <ProjectProperty field="address" />
-                </Suspense>
-              ),
-            }}
-          >
-            {children}
-          </TopNav>
-          {drawer}
+          <ToastProvider>
+            <TopNav
+              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+              property={{
+                name: (
+                  <Suspense fallback="Объект не загружен">
+                    <ProjectProperty field="name" />
+                  </Suspense>
+                ),
+                address: (
+                  <Suspense fallback="Настройки гостиницы">
+                    <ProjectProperty field="address" />
+                  </Suspense>
+                ),
+              }}
+            >
+              {children}
+            </TopNav>
+            {drawer}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

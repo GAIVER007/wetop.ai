@@ -6,7 +6,8 @@ import { nightsBetween } from '../../lib/plural';
 
 /** Тот же предел, что у `/finance/report`: год с запасом (волна 4) */
 const MAX_REPORT_DAYS = 366;
-import { financeApi, formatMinor } from '../../lib/api';
+import { financeApi } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { Page } from '../../components/page';
 import {
   Alert,
@@ -96,12 +97,12 @@ export default async function FinanceReportPage({
       {r && (
         <>
           <Stats min={170}>
-            <Stat label="Начислено" value={formatMinor(r.chargedMinor, cur)} testId="charged" />
-            <Stat label="Оплачено" value={formatMinor(r.paidMinor, cur)} testId="paid" />
-            <Stat label="Возвращено" value={formatMinor(r.refundedMinor, cur)} testId="refunded" />
+            <Stat label="Начислено" value={formatMoney(r.chargedMinor, cur)} testId="charged" />
+            <Stat label="Оплачено" value={formatMoney(r.paidMinor, cur)} testId="paid" />
+            <Stat label="Возвращено" value={formatMoney(r.refundedMinor, cur)} testId="refunded" />
             <Stat
               label="Не собрано"
-              value={formatMinor(r.balanceMinor, cur)}
+              value={formatMoney(r.balanceMinor, cur)}
               testId="balance"
               hint="начислено − оплачено + возвращено"
             />
@@ -114,7 +115,7 @@ export default async function FinanceReportPage({
             rows={r.chargesByKind.map((x) => [
               KIND_RU[x.kind] ?? x.kind,
               String(x.count),
-              formatMinor(x.amountMinor, cur),
+              formatMoney(x.amountMinor, cur),
             ])}
           />
           <Report
@@ -124,7 +125,7 @@ export default async function FinanceReportPage({
             rows={r.paymentsByMethod.map((x) => [
               METHOD_RU[x.method] ?? x.method,
               String(x.count),
-              formatMinor(x.amountMinor, cur),
+              formatMoney(x.amountMinor, cur),
             ])}
           />
           <Report
@@ -134,7 +135,7 @@ export default async function FinanceReportPage({
             rows={r.accommodationByCategory.map((x) => [
               x.category,
               String(x.count),
-              formatMinor(x.amountMinor, cur),
+              formatMoney(x.amountMinor, cur),
             ])}
           />
         </>

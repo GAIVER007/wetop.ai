@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { type OutboxSummary, api, channelsApi } from '../../lib/api';
+import { type OutboxMessage, type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Alert, Badge, Help, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { ChannelButtons, RetryEventButton } from './buttons';
@@ -25,11 +25,28 @@ const VIA_RU: Record<string, string> = {
   PULL: 'опрос ленты',
   MANUAL: 'вручную',
 };
+/** Вид сообщения очереди словом: в базе это перечисление, на экране — что уезжает в канал */
+const OUTBOX_KIND_RU: Record<string, string> = {
+  AVAILABILITY: 'остатки',
+  RESTRICTIONS: 'цены и ограничения',
+};
+const OUTBOX_STATUS_RU: Record<string, string> = {
+  PENDING: 'ждёт отправки',
+  SENT: 'ушло',
+  FAILED: 'ошибка',
+};
+const OUTBOX_TONE: Record<string, 'ok' | 'danger' | 'info'> = {
+  SENT: 'ok',
+  FAILED: 'danger',
+  PENDING: 'info',
+};
 
 export default async function ChannelsPage() {
-  const [mapping, outbox, summary, webhook, events, connection] = await Promise.all([
+  const [mapping, outbox, messages, summary, webhook, events, connection] = await Promise.all([
     channelsApi.mapping(),
     channelsApi.outbox(),
+    // Строки очереди необязательны для остального экрана — их отказ не уносит статус webhook (§7.3)
+    channelsApi.outboxMessages(20).catch(() => null),
     // Сводка фонда нужна только чтобы подписать категории именами: её отказ не должен уносить
     // очередь ARI и статус webhook — именно за ними сюда и приходят, когда что-то сломалось (§7.3)
     api.inventorySummary().catch(() => null),
@@ -117,6 +134,7 @@ export default async function ChannelsPage() {
         </div>
       </div>
       <OverbookingAlarm outbox={outbox} />
+      <OutboxMessages messages={messages} mapping={mapping} names={byCode} />
       {webhook === null && (
         <Alert boxed>
           Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
@@ -147,17 +165,25 @@ export default async function ChannelsPage() {
       <Table size="sm" data-testid="events-table">
         <thead>
           <tr>
-            {['Событие', 'Тип', 'Как дошло', 'Статус', 'Попыток', 'Получено', 'Ошибка', ''].map(
-              (h) => (
-                <th key={h}>{h}</th>
-              ),
-            )}
+            {[
+              'Событие',
+              'Тип',
+              'Бронь',
+              'Как дошло',
+              'Статус',
+              'Попыток',
+              'Получено',
+              'Ошибка',
+              '',
+            ].map((h) => (
+              <th key={h}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {events?.length === 0 && (
             <tr>
-              <td colSpan={8} className="muted">
+              <td colSpan={9} className="muted">
                 событий пока нет
               </td>
             </tr>
@@ -168,6 +194,19 @@ export default async function ChannelsPage() {
                 {e.externalEventId.slice(0, 36)}
               </td>
               <td>{e.type}</td>
+              {/* Ревизия связана с бронью по unique_id — от события сразу к карточке (срез 7.2) */}
+              <td className="mono nowrap">
+                {e.reservationNumber ? (
+                  <Link
+                    href={`/reservations/${encodeURIComponent(e.reservationNumber)}`}
+                    data-testid="event-reservation"
+                  >
+                    {e.reservationNumber}
+                  </Link>
+                ) : (
+                  <span className="muted-2">—</span>
+                )}
+              </td>
               <td>{VIA_RU[e.receivedVia ?? 'PULL'] ?? e.receivedVia}</td>
               <td>
                 <Badge tone={EVENT_TONE[e.status] ?? 'neutral'}>
@@ -189,7 +228,7 @@ export default async function ChannelsPage() {
       <Table size="sm">
         <thead>
           <tr>
-            {['Категория', 'Room type (Channex)', 'Rate plan (Channex)'].map((h) => (
+            {['Категория', 'Категория в Channex', 'Тариф в Channex'].map((h) => (
               <th key={h}>{h}</th>
             ))}
           </tr>
@@ -219,6 +258,90 @@ export default async function ChannelsPage() {
     </Page>
   );
 }
+/**
+ * Строки очереди ARI (срез 7.2). Плитки выше отвечают «сколько», таблица — «что»: вид сообщения,
+ * за какие ночи, по какой категории или тарифу, чем кончилось. На сертификации это тот экран,
+ * который показывают вместе с дашбордом Channex.
+ */
+function OutboxMessages({
+  messages,
+  mapping,
+  names,
+}: {
+  messages: OutboxMessage[] | null;
+  mapping: Array<{
+    providerRoomTypeId?: string | null;
+    providerRatePlanId?: string | null;
+    localAccommodationTypeCode?: string | null;
+  }>;
+  names: Map<string, string>;
+}) {
+  /** Адрес Channex → имя категории: без этого в строке стоят идентификаторы, которые никому не говорят */
+  const label = (m: OutboxMessage) => {
+    const ids = [...m.roomTypeIds, ...m.ratePlanIds];
+    const codes = ids.map((id) => {
+      const row = mapping.find(
+        (x) => x.providerRoomTypeId === id || x.providerRatePlanId === id,
+      );
+      const code = row?.localAccommodationTypeCode ?? null;
+      return (code && names.get(code)) || code || `${id.slice(0, 8)}…`;
+    });
+    return [...new Set(codes)].join(', ');
+  };
+  return (
+    <>
+      <SectionTitle>Очередь отправок в Channex</SectionTitle>
+      {messages === null ? (
+        <Alert boxed>
+          Строки очереди не загрузились. Числа выше читаются отдельно и верны.
+        </Alert>
+      ) : (
+        <Table size="sm" data-testid="outbox-table">
+          <thead>
+            <tr>
+              {['Что уезжает', 'Категория или тариф', 'Ночи', 'Строк', 'Статус', 'Попыток', 'Задача Channex', 'Поставлено', 'Ошибка'].map(
+                (h) => (
+                  <th key={h}>{h}</th>
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {messages.length === 0 && (
+              <tr>
+                <td colSpan={9} className="muted" data-testid="outbox-empty">
+                  Очередь пуста: всё, что меняли, уже ушло в Channex.
+                </td>
+              </tr>
+            )}
+            {messages.map((m) => (
+              <tr key={m.id} data-testid="outbox-row">
+                <td>{OUTBOX_KIND_RU[m.kind] ?? m.kind}</td>
+                <td>{label(m) || <span className="muted-2">—</span>}</td>
+                <td className="nowrap">
+                  {m.dateFrom ? `${m.dateFrom} → ${m.dateTo}` : <span className="muted-2">—</span>}
+                </td>
+                <td className="num">{m.lines}</td>
+                <td>
+                  <Badge tone={OUTBOX_TONE[m.status] ?? 'neutral'}>
+                    {OUTBOX_STATUS_RU[m.status] ?? m.status}
+                  </Badge>
+                </td>
+                <td className="num">{m.attempts}</td>
+                <td className="mono" style={{ fontSize: 11 }}>
+                  {m.taskId ?? ''}
+                </td>
+                <td className="nowrap">{almatyMoment(m.createdAt)}</td>
+                <td className="danger-text">{m.lastError?.slice(0, 80) ?? ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+    </>
+  );
+}
+
 /**
  * T6: канал обязан узнать, что мест нет. Изменения уходят дельтами через очередь; если очередь встала
  * или дала ошибку, каналы продолжают продавать по старому остатку — это прямая дорога к овербукингу.

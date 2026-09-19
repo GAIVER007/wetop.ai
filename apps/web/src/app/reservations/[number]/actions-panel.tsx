@@ -24,6 +24,10 @@ import {
 } from '../actions';
 import { SOURCES } from '../sources';
 import { useConfirm } from '../../../components/use-confirm';
+import { previewLine, sumPreviews } from '../../../lib/action-preview';
+import { useToast } from '../../../components/toast';
+import { displayDate } from '../../../lib/display-date';
+import { previewAction } from '../actions';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
 
@@ -57,6 +61,7 @@ export function ReservationActions(props: {
     pending: cancelPending,
   } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
+  const { toast } = useToast();
   const [datesState, datesAction, datesPending] = useActionState<ActionResult, FormData>(
     changeDatesAction.bind(null, props.number),
     { error: null },
@@ -149,13 +154,24 @@ export function ReservationActions(props: {
               disabled={cancelPending}
               data-testid="cancel-reservation"
               onClick={async () => {
+                // Отменяются все живые проживания сразу — окно называет общую сумму (срез 7.3)
+                const active = props.items.filter(
+                  (it) => OPEN.has(it.status) || it.status === 'CHECKED_IN',
+                );
+                const previews = await Promise.all(
+                  active.map((it) => previewAction(props.number, it.id, { action: 'cancel' })),
+                );
                 const ok = await ask({
                   title: `Отменить бронь ${props.number}?`,
-                  body: 'Проживания станут отменёнными, ячейки освободятся, начисления сторнируются. По политике тарифа может начислиться штраф.',
+                  body: `Проживания станут отменёнными, ячейки освободятся. ${previewLine(sumPreviews(previews))}`,
                   confirmLabel: 'Отменить бронь',
                 });
                 if (!ok) return;
-                await cancel(() => cancelReservationAction(props.number));
+                await cancel(async () => {
+                  const r = await cancelReservationAction(props.number);
+                  if (!r.error) toast({ text: `Бронь ${props.number} отменена`, tone: 'success' });
+                  return r;
+                });
               }}
             >
               Отменить бронь
@@ -267,14 +283,17 @@ function StayButtons(props: {
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
+  const { toast } = useToast();
   // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирает администратор
   const [extendPlan, setExtendPlan] = useState('');
   const needsPlan = !props.item.ratePlanCode;
   const run = (action: 'check-in' | 'check-out' | 'no-show') => async () => {
     if (action === 'no-show') {
+      // Срез 7.3: штраф считает сервер теми же функциями, что и само действие, — окно называет число
+      const preview = await previewAction(props.number, props.item.id, { action: 'no_show' });
       const ok = await ask({
         title: `Отметить незаезд — ${props.item.accommodationTypeName}?`,
-        body: `Назначение ячейки ${props.item.unitCode ?? '—'} снимется, место вернётся в продажу. По политике тарифа может начислиться штраф.`,
+        body: `Назначение ячейки ${props.item.unitCode ?? '—'} снимется, место вернётся в продажу. ${previewLine(preview)}`,
         confirmLabel: 'Отметить незаезд',
       });
       if (!ok) return;
@@ -288,8 +307,24 @@ function StayButtons(props: {
           body: r.error,
           confirmLabel: 'Выселить с долгом',
         });
-        if (ok) return stayAction(props.number, props.item.id, action, true);
+        if (ok) {
+          const forced = await stayAction(props.number, props.item.id, action, true);
+          if (!forced.error)
+            toast({ text: `Выселен с долгом, ${props.item.unitCode ?? '—'}`, tone: 'warning' });
+          return forced;
+        }
       }
+      // §8 «сделал — и что?»: карточка перерисовывается молча, уведомление называет итог и ячейку
+      if (!r.error)
+        toast({
+          text:
+            action === 'check-in'
+              ? `Гость заселён, ${props.item.unitCode ?? '—'}`
+              : action === 'check-out'
+                ? `Гость выселен, ${props.item.unitCode ?? '—'}`
+                : `Незаезд отмечен, место ${props.item.unitCode ?? '—'} вернулось в продажу`,
+          tone: 'success',
+        });
       return r;
     });
   };
@@ -343,16 +378,32 @@ function StayButtons(props: {
             tone="info"
             data-testid={`extend-${props.item.id}`}
             disabled={pending || (needsPlan && !extendPlan)}
-            onClick={() =>
-              command(() =>
-                extendStayAction(
-                  props.number,
-                  props.item.id,
-                  1,
-                  needsPlan ? extendPlan : undefined,
-                ),
-              )
-            }
+            onClick={async () => {
+              // Продление добавляет деньги к счёту гостя — сумму называем до нажатия (срез 7.3)
+              const plan = needsPlan ? extendPlan : undefined;
+              const preview = await previewAction(props.number, props.item.id, {
+                action: 'extend',
+                nights: '1',
+                ...(plan ? { ratePlanCode: plan } : {}),
+              });
+              const ok = await ask({
+                title: `Продлить на ночь — ${props.item.accommodationTypeName}?`,
+                body: previewLine(preview),
+                confirmLabel: 'Продлить',
+              });
+              if (!ok) return;
+              await command(async () => {
+                const r = await extendStayAction(props.number, props.item.id, 1, plan);
+                if (!r.error)
+                  toast({
+                    text: preview?.departureDate
+                      ? `Продлено до ${displayDate(preview.departureDate)}`
+                      : 'Продлено на ночь',
+                    tone: 'success',
+                  });
+                return r;
+              });
+            }}
             title={
               needsPlan
                 ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'

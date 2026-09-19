@@ -170,6 +170,8 @@ function cardSeed(): ReservationCard {
     ],
   };
 }
+// seedDesign переименовывает категорию ради крайнего случая ширины — reset возвращает имена
+const BASE_CATEGORY_NAMES = new Map(categories.map((c) => [c.code, c.name]));
 let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
@@ -1967,6 +1969,10 @@ createServer(async (req, res) => {
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
+      for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
+      for (const u of units)
+        u.accommodationTypeName =
+          BASE_CATEGORY_NAMES.get(u.accommodationTypeCode) ?? u.accommodationTypeName;
       initializeRecords();
       priceChanges = [];
       showcase = false;

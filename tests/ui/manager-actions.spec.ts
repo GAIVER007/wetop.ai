@@ -70,13 +70,35 @@ test('карточка: «Продлить на ночь» знает сумму
   page,
   request,
 }) => {
+  // Падает только в CI (19–20.09, три прогона подряд), локально 5/5, трасса из артефакта недоступна:
+  // при отказе печатаем в лог ошибки страницы и состояние всех <dialog>
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') pageErrors.push(`console: ${message.text()}`);
+  });
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   const hint = page.getByRole('main').getByTestId('hint-extend-ui-item');
   await expect(hint).toHaveText(`до ${dd(plus(4))}, +8 000 ₸ на счёт`);
   await page.getByRole('main').getByTestId('extend-ui-item').click();
   const confirm = page.getByRole('dialog', { name: 'Продлить на ночь — Двухместный номер?' });
-  await expect(confirm).toBeVisible();
+  try {
+    await expect(confirm).toBeVisible();
+  } catch (error) {
+    const dialogs = await page.evaluate(() =>
+      [...document.querySelectorAll('dialog')].map((d) => ({
+        open: d.hasAttribute('open'),
+        title: d.getAttribute('aria-labelledby')
+          ? document.getElementById(d.getAttribute('aria-labelledby')!)?.textContent
+          : null,
+        text: d.textContent?.slice(0, 120),
+      })),
+    );
+    console.log('extend dialog missing; page errors:', JSON.stringify(pageErrors));
+    console.log('dialogs on page:', JSON.stringify(dialogs));
+    throw error;
+  }
   expect(await commands(page)).toEqual([]);
   await confirm.getByRole('button', { name: 'Продлить', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('done-extend-ui-item')).toHaveText(

@@ -1198,22 +1198,37 @@ test('новая бронь: резюме выбора обновляется п
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 700 });
-  await page.goto('/reservations/new?unit=M03');
+  await page.goto('/reservations/new');
   const form = page.getByRole('main').getByTestId('new-reservation-form');
   const summary = form.getByTestId('booking-summary');
   await expect(summary).toContainText('1 ночь');
-  await expect(summary).toContainText('Мужской общий номер');
-  await expect(summary).toContainText('M03');
   await expect(summary).not.toContainText('₸');
+  // категория и ячейка — те, что выбраны в самой форме (какие свободны, решает стенд, не тест)
+  const first = form.getByTestId('placement-fields').first();
+  const category = first.getByLabel('Категория *');
+  await category.selectOption('MALE');
+  const categoryName = (await category.locator('option:checked').textContent())!.replace(
+    /\s*\(свободно \d+\)\s*$/,
+    '',
+  );
+  const unitSelect = first.getByLabel('Ячейка');
+  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  await unitSelect.selectOption(unitCode);
+  await expect(summary).toContainText(categoryName);
+  await expect(summary).toContainText(`ячейка ${unitCode}`);
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
   // §14: «Фамилия Имя»
   await expect(summary).toContainText('Тестовая Айгуль');
-  await form.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
-  await expect(summary).toContainText('Двухместный номер');
-  await expect(summary).not.toContainText('M03');
+  await category.selectOption('ROOM');
+  const roomName = (await category.locator('option:checked').textContent())!.replace(
+    /\s*\(свободно \d+\)\s*$/,
+    '',
+  );
+  await expect(summary).toContainText(roomName);
+  await expect(summary).not.toContainText(`ячейка ${unitCode}`);
   // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
   await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
   await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();

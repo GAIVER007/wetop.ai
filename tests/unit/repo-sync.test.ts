@@ -269,7 +269,7 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     const sb = sandbox();
     const { out, calls } = run(sb, ['--relink']);
     const agents = join(sb.home, 'Library', 'LaunchAgents');
-    for (const n of ['api', 'web', 'exely-sync']) {
+    for (const n of ['api', 'web']) {
       const file = join(agents, `kz.luxx.pms.${n}.plist`);
       expect(existsSync(file), `${n}: plist после relink`).toBe(true);
       // на Mac os.tmpdir() — симлинк (/var → /private/var); скрипт и git работают с настоящим путём
@@ -277,6 +277,14 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
         realpathSync(sb.newDir),
       );
     }
+    // exely-sync снята вместе с автосинхронизацией Exely (ADR-052): install.sh такого имени не знает.
+    // Пока её plist попадал в перевод, install.sh падал на неизвестном имени и не переводил api и web
+    // (прогон 20.09.2026, три красные проверки). Теперь --relink снимает её, а не переустанавливает.
+    expect(
+      existsSync(join(agents, 'kz.luxx.pms.exely-sync.plist')),
+      'exely-sync: plist снят, а не переустановлен',
+    ).toBe(false);
+    expect(calls).not.toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.exely-sync\.plist/);
     expect(calls).toMatch(/bootout \S*kz\.luxx\.pms\.api/);
     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.api\.plist/);
     expect(out).not.toContain('нет доступа к папке проекта');
@@ -390,7 +398,7 @@ describe('repo-sync.sh: связь папки с репозиторием', () =
     expect(run(sb, []).out).not.toMatch(/install\.sh domain/);
   }, 60_000);
 
-  it('esbuild не той платформы: API и exely-sync падали бы на старте — просит npm ci', () => {
+  it('esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci', () => {
     // Ночь на 17.09.2026: после npm install на ноутбуке esbuild остался под другую платформу, tsx не стартовал,
     // API упал 101 раз подряд, а status.sh показывал «spawn scheduled». Нативные модули проверяем запуском node.
     const sb = sandbox();

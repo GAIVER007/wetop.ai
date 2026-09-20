@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { DashboardCharge, DashboardDay, DashboardPayment, DashboardStay } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { ChessboardService } from '../chessboard/chessboard.service';
 import { propertyIdRef } from '../database/property-ref';

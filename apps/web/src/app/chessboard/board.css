@@ -46,17 +46,20 @@
 .board-bar .board-help summary {
   color: var(--primary);
 }
+/* Раскрытая подсказка занимает свою строку планки. Поверх соседей (`position: absolute`) она
+   накрывала переключатель «Номера / Койки» и фильтры: щелчок по ним уходил в подсказку, а не в
+   кнопку (17.09 и 20.09.2026). */
+.board-bar .board-help[open] {
+  flex: 1 1 100%;
+  margin-left: 0;
+}
 .board-bar .board-help-content {
-  position: absolute;
-  right: 0;
-  z-index: 20;
+  width: 100%;
   margin-top: 8px;
   padding: 12px 14px;
-  width: min(560px, 75vw);
   background: var(--surface-elevated, var(--surface));
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: var(--shadow);
   color: var(--text-2);
 }
 .board-help-content .note {
@@ -73,9 +76,6 @@
 }
 .board-bar .board-help[open] summary::before {
   content: '−';
-}
-.board-bar .board-help {
-  position: relative;
 }
 .board-unassigned--empty {
   display: inline-flex;
@@ -393,11 +393,6 @@
     min-height: 60dvh;
     scroll-margin-top: calc(var(--header-h) + 16px);
   }
-  .board-bar .board-help-content {
-    position: static;
-    box-shadow: none;
-    width: 100%;
-  }
   .board-bar .board-help {
     width: 100%;
     margin-left: 0;
@@ -424,6 +419,7 @@
      под ними с зоной нажатия 3 px (axe target-size на 390 px, 19.09.2026). */
   .board-period .seg {
     flex: 1 1 100%;
+    min-width: 0;
   }
   .board-period .seg a {
     display: inline-flex;

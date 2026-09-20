@@ -1,0 +1,29 @@
+# Типы (typecheck) · 20.09.2026 12:00 Алматы · vm
+# коммит 9fe9ff5 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 246
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+apps/api/src/auth/auth.service.ts(102,28): error TS2339: Property 'passwordHash' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(103,30): error TS2339: Property 'failedAttempts' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(104,27): error TS2339: Property 'lockedUntil' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(189,62): error TS2339: Property 'passwordHash' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/password-reset.service.ts(76,30): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(101,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(146,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(151,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+tests/integration/password-login-columns.test.ts(52,21): error TS2339: Property 'passwordHash' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+tests/integration/password-login-columns.test.ts(53,21): error TS2339: Property 'failedAttempts' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+tests/integration/password-login-columns.test.ts(54,21): error TS2339: Property 'lockedUntil' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+tests/integration/password-login-columns.test.ts(91,18): error TS2339: Property 'passwordReset' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/password-login-columns.test.ts(112,25): error TS2339: Property 'passwordReset' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/password-login-columns.test.ts(128,18): error TS2339: Property 'passwordReset' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/password-login-columns.test.ts(129,18): error TS2339: Property 'passwordReset' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/password-login-columns.test.ts(135,18): error TS2339: Property 'passwordReset' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/auth/auth.service.ts(102,28): error TS2339: Property 'passwordHash' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(103,30): error TS2339: Property 'failedAttempts' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(104,27): error TS2339: Property 'lockedUntil' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/auth.service.ts(189,62): error TS2339: Property 'passwordHash' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; }'.
+apps/api/src/auth/password-reset.service.ts(76,30): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(101,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(146,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+apps/api/src/auth/password-reset.service.ts(151,26): error TS2339: Property 'passwordReset' does not exist on type 'Db'.
+
+# код выхода 1 · 24 с

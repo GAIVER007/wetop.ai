@@ -178,6 +178,20 @@ for n in api web tunnel domain awake exely-sync; do
   loaded=""
   launchctl print "gui/$UID_N/kz.luxx.pms.$n" >/dev/null 2>&1 && loaded=" (загружена)"
   [ "$n" = domain ] && domain_installed=1
+  # Служба exely-sync снята 19.09.2026 вместе с автосинхронизацией из Exely (ADR-052), и install.sh такого
+  # имени больше не знает. На машинах, где она стояла, plist остаётся лежать. Прогон 20.09.2026: он попадал
+  # в список на перевод, install.sh падал на неизвестном имени — и вместе с ним не переводились api и web,
+  # а значит не перезапускался API. Поэтому такой plist не переводим, а снимаем.
+  if [ "$n" = exely-sync ]; then
+    if [ "$RELINK" -eq 1 ]; then
+      bash "$ROOT/scripts/ops/launchd/uninstall.sh" exely-sync 2>&1 | sed 's/^/      /'
+      ok "служба exely-sync снята: автосинхронизации из Exely больше нет (ADR-052)"
+    else
+      bad "служба exely-sync$loaded осталась от снятой автосинхронизации Exely (ADR-052)"
+      need "снять: scripts/ops/launchd/uninstall.sh exely-sync (--relink снимет сам)"
+    fi
+    continue
+  fi
   # Быстрый туннель не запускается ни на одной машине, пока в Channex стоит постоянный адрес (отчёт 77c8085,
   # 16.09.2026): он уводит webhook на одноразовый адрес, который умирает вместе с ним. Вечером 16.09 --relink
   # переустановил его на втором компьютере разработчика, где wetop.yml нет, и адрес снова был перебит.
@@ -293,12 +307,12 @@ elif [ "$ROOT/package-lock.json" -nt "$ROOT/node_modules/.package-lock.json" ]; 
 else
   ok "зависимости соответствуют package-lock.json"
 fi
-# Нативные модули под эту платформу. esbuild нужен tsx, то есть API и exely-sync; swc — сборке стойки. Ночь на
+# Нативные модули под эту платформу. esbuild нужен tsx, то есть API и скриптам; swc — сборке стойки. Ночь на
 # 17.09.2026: после npm install на ноутбуке esbuild остался под другую платформу, API упал 101 раз подряд, а
 # status.sh показывал только «spawn scheduled». Проверка — попробовать загрузить модуль тем же node.
 if [ -d "$ROOT/node_modules" ] && command -v node >/dev/null 2>&1; then
   if [ -d "$ROOT/node_modules/esbuild" ] && ! (cd "$ROOT" && node -e "require('esbuild')" >/dev/null 2>&1); then
-    bad "esbuild не запускается на этой платформе — tsx, а с ним API и exely-sync, падают на старте"
+    bad "esbuild не запускается на этой платформе — tsx, а с ним API и скрипты, падают на старте"
     if [ "$FIX" -eq 1 ]; then
       if (cd "$ROOT" && npm ci); then
         ok "npm ci выполнен: зависимости ровно по package-lock.json"

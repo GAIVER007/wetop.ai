@@ -9,7 +9,7 @@ import type {
   SessionSource,
 } from '@pms/domain';
 import type { Prisma } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';

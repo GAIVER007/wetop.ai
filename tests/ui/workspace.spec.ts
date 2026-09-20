@@ -268,30 +268,31 @@ test('шахматка: фильтры, продолжение брони, вы�
 });
 
 /**
- * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
- * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
+ * Раскрытая подсказка над шахматкой не должна мешать работать: поверх планки она накрывала фильтры и
+ * переключатель «Номера / Койки» (обход стойки 17.09.2026), а закрываясь от щелчка вне — уводила
+ * кнопку из-под курсора, и нажимать приходилось дважды. Теперь она занимает свою строку, кнопки под
+ * ней срабатывают с первого раза, а закрывают её подпись и Escape.
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
-  page,
-}) => {
+test('шахматка: раскрытая подсказка не держит кнопки под собой', async ({ page }) => {
   await page.goto('/chessboard');
   const help = page.locator('details.board-help');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // щелчок вне подсказки — по заголовку экрана: с 19.09 (C1) строка фильтров стоит прямо под раскрытым
-  // текстом, и щелчок по ней попадает в саму подсказку, а не «вне»
-  await page.getByRole('heading', { level: 1 }).click();
-  await expect(help).not.toHaveAttribute('open', '');
-  // кнопки, которые она накрывала, снова под мышью
-  await page.getByRole('button', { name: 'Номера', exact: true }).click({ timeout: 5000 });
+  // фильтр срабатывает с первого нажатия, хотя подсказка раскрыта
+  await page.getByRole('button', { name: 'Номера', exact: true }).click();
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
+  await expect(help).toHaveAttribute('open', '');
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // Escape закрывает её так же, как щелчок вне
-  await help.locator('summary').click();
+  // всё это время подсказка открыта — закрывает её Escape
   await expect(help).toHaveAttribute('open', '');
   await page.keyboard.press('Escape');
+  await expect(help).not.toHaveAttribute('open', '');
+  // и собственная подпись
+  await help.locator('summary').click();
+  await expect(help).toHaveAttribute('open', '');
+  await help.locator('summary').click();
   await expect(help).not.toHaveAttribute('open', '');
 });
 
@@ -1156,6 +1157,21 @@ test('шахматка: фильтр «Уборка» показывает гр�
  * (`review-callout`). Здесь осталась третья сцена — правка цены в ячейке календаря. После слияния 19.09
  * их дубли из второй ветки ждали другие testid и другие слова — сведено к одному тесту на утверждение.
  */
+test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.goto('/channels');
+  const link = page
+    .getByRole('main')
+    .getByTestId('events-table')
+    // в строке две ссылки — сама ревизия и номер брони; у части событий брони ещё нет
+    .locator('a[href^="/reservations/"]')
+    .first();
+  await expect(link).toBeVisible();
+  const number = (await link.textContent())!.trim();
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`/reservations/${encodeURIComponent(number)}$`));
+});
+
 test('цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь', async ({
   page,
 }) => {

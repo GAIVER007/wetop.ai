@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { BoardHelp } from './board-help';
 import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
-import { BoardHelp } from './board-help';
 import { displayDate } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
@@ -185,7 +185,8 @@ export default async function ChessboardPage({
           </Button>
         </form>
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
-        {/* Закрывается щелчком вне и по Escape (17.09); при слиянии 19.09 страница взяла голый <details> из C1 */}
+        {/* Не голый <details>: подсказка обязана закрываться щелчком вне и по Escape (17.09.2026),
+            иначе раскрытой она стоит поверх планки и кнопки под ней нажать нельзя. */}
         <BoardHelp title="Как работать с шахматкой">
           <div className="board-help-content">
             <Legend

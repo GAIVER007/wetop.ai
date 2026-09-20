@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 19.09.2026 23:14 Алматы · vm
+# коммит eb6752b (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 10
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T18-14-51Z-integration-9b12.json' 'tests/integration/sessions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 202ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:14:52
+   Duration  803ms (tests 35%, import 34%, transform 30%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-19T18-14-51Z-integration-9b12.json
+
+# код выхода 0 · 2 с

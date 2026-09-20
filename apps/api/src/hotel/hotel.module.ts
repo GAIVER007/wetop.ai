@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
 /**

@@ -16,7 +16,10 @@ export type DeskPage = { status: number; url: string; html: string };
 export type DeskVerdict = { verdict: 'ok' | 'fail' | 'locked'; detail: string };
 
 export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolean): DeskVerdict {
-  let path = '';
+  // Без начального значения: eslint (no-useless-assignment) справедливо считает присваивание,
+  // которое сразу же перезаписывается в обеих ветках, лишним — а вместе с ним теряется и подсказка,
+  // что путь обязан быть заполнен.
+  let path: string;
   try {
     path = new URL(page.url).pathname;
   } catch {

@@ -32,6 +32,7 @@ export function LoginForm({
   passwordJustSet = false,
   mode: initialMode = 'password',
   invites = [],
+  registrationOpen = false,
   sessions = [],
   initialEmail = '',
 }: {
@@ -41,6 +42,11 @@ export function LoginForm({
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
+  /**
+   * Открыта ли самостоятельная регистрация. Закрыта, пока данные организаций не разделены (Q-152):
+   * только что заведённая организация видит объект этой гостиницы. Вход и приглашения — как были.
+   */
+  registrationOpen?: boolean;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
@@ -317,17 +323,39 @@ export function LoginForm({
                   </span>
                 )}
               </div>
-              <div className="login-preview">
-                <span>Ещё нет организации?</span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={pending}
-                  onClick={() => switchTo('register')}
-                >
-                  Регистрация
-                </button>
-              </div>
+              {registrationOpen && (
+                <div className="login-preview">
+                  <span>Ещё нет организации?</span>
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    disabled={pending}
+                    onClick={() => switchTo('register')}
+                  >
+                    Регистрация
+                  </button>
+                </div>
+              )}
+            </>
+          ) : !registrationOpen ? (
+            <>
+              {/* Закрыта, пока данные организаций не разделены (Q-152): без этого новая организация
+                  видит объект этой гостиницы. Говорим прямо и уводим туда, где человеку помогут. */}
+              <h1>Регистрация закрыта</h1>
+              <p>
+                Новые организации пока не заводятся самостоятельно. Если вы сотрудник объекта,
+                попросите владельца прислать приглашение — по ссылке из письма вы зададите себе
+                пароль.
+              </p>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => switchTo('password')}
+                data-testid="registration-closed-back"
+              >
+                Войти по паролю
+                <Icon name="arrow" width={16} />
+              </button>
             </>
           ) : (
             <>

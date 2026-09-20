@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
 
 import { AuthService } from './auth.service';
@@ -216,6 +216,20 @@ describe('AuthService.changePassword', () => {
  */
 describe('AuthService.register', () => {
   const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
+
+  // Самостоятельная регистрация закрыта по умолчанию (Q-152): без разделения данных новая
+  // организация видит объект этой гостиницы. Открывается явно, переменной окружения.
+  beforeEach(() => vi.stubEnv('REGISTRATION_OPEN', '1'));
+  afterEach(() => vi.unstubAllEnvs());
+
+  it('закрыта по умолчанию: без REGISTRATION_OPEN=1 никто не заводится', async () => {
+    vi.stubEnv('REGISTRATION_OPEN', '');
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register(NEW, NOW)).rejects.toThrow(/Самостоятельная регистрация закрыта/);
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+  });
 
   it('заводит организацию, человека и членство и сразу открывает сессию — как после входа', async () => {
     const { auth, users, sessions, memberships, organizations, audit } = service();

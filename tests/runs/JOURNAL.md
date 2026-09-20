@@ -1117,3 +1117,7 @@
 | 20.09.2026 19:00 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 14 с | 2a2933a +1 | [лог](logs/2026-09-20T14-00-31Z-e2e-8ac4.log) |  |
 | 20.09.2026 19:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 182 из 182 | 13 мин 32 с | e010a66 | [лог](logs/2026-09-20T14-01-32Z-e2e-ee83.log) |  |
 | 20.09.2026 19:15 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 13 с | e010a66 | [лог](logs/2026-09-20T14-15-04Z-e2e-22f7.log) |  |
+| 20.09.2026 19:18 | typecheck | ✅ без ошибок | 17 с | 26a7f21 | [лог](logs/2026-09-20T14-18-40Z-typecheck-84b7.log) |  |
+| 20.09.2026 19:18 | lint | ✅ без ошибок | 12 с | 26a7f21 | [лог](logs/2026-09-20T14-18-58Z-lint-8f1d.log) |  |
+| 20.09.2026 19:19 | unit | ✅ 1340 из 1343, пропущено 3 | 1 мин 12 с | 26a7f21 | [лог](logs/2026-09-20T14-19-11Z-unit-9287.log) |  |
+| 20.09.2026 19:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 13 мин 17 с | 26a7f21 | [лог](logs/2026-09-20T14-20-23Z-e2e-d532.log) |  |

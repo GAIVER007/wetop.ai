@@ -204,6 +204,16 @@ describe('deploy/compose.yml', () => {
 });
 
 describe('контекст сборки', () => {
+  it('runtime multer не содержит известные multipart DoS из версий до 2.3.0', () => {
+    const lock = JSON.parse(read('package-lock.json'));
+    const entries = Object.entries(lock.packages).filter(([name]) => name.endsWith('/multer'));
+    expect(entries.length).toBeGreaterThan(0);
+    for (const [, value] of entries) {
+      const version = (value as { version: string }).version;
+      const [major, minor] = version.split('.').map(Number);
+      expect(major! > 2 || (major === 2 && minor! >= 3), version).toBe(true);
+    }
+  });
   it('Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile', () => {
     expect(existsSync(join(ROOT, '.dockerignore'))).toBe(true);
     expect(existsSync(join(ROOT, 'deploy/.dockerignore'))).toBe(false);

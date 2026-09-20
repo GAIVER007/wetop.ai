@@ -1,0 +1,24 @@
+{
+  "source": "localhost Next and real API; read-only inventory",
+  "checkedAt": "2026-09-20T16:20:41.639Z",
+  "units": 88,
+  "categories": 5,
+  "checks": [
+    {
+      "theme": "light",
+      "loadMs": 768,
+      "rowsMatchApi": true,
+      "summaryMatchesApi": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "theme": "dark",
+      "loadMs": 4849,
+      "rowsMatchApi": true,
+      "summaryMatchesApi": true,
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

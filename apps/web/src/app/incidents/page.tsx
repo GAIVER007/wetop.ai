@@ -1,35 +1,20 @@
-import { guardApi, type Incident } from '../../lib/api';
+import { guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
-import { Alert, Badge, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Alert, Panel, SectionTitle, Stat, Stats, Table } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { GuardTickButton, IncidentButtons } from './buttons';
+import { GuardTickButton } from './buttons';
+import { IncidentList } from './incident-list';
+import { Suspense } from 'react';
+import { RefreshButton } from '../../components/refresh-button';
+import { ControlNavigation } from '../../components/control-navigation';
 import '../directory.css';
 
 /**
  * Неисправности системы — одно место (срез 11, ADR-028). Сторож проверяет систему раз в минуту и пишет сюда
  * всё, что сломалось. Технику он чинит сам; брони, места и деньги — только человек; ошибки кода — дежурный агент.
  */
-const CLASS_RU: Record<Incident['class'], string> = {
-  A: 'техника — сторож чинит сам',
-  B: 'данные — решает человек',
-  C: 'код — исправляет дежурный агент',
-};
-const STATUS_RU: Record<Incident['status'], string> = {
-  OPEN: 'замечена',
-  FIXING: 'сторож чинит',
-  ESCALATED: 'ждёт человека',
-  ACKNOWLEDGED: 'принято',
-  RESOLVED: 'закрыта',
-};
-const STATUS_TONE: Record<Incident['status'], 'info' | 'warn' | 'danger' | 'ok' | 'neutral'> = {
-  OPEN: 'info',
-  FIXING: 'info',
-  ESCALATED: 'danger',
-  ACKNOWLEDGED: 'warn',
-  RESOLVED: 'ok',
-};
 const RESOLVED_BY_RU = { GUARD: 'сторож', AGENT: 'дежурный агент', STAFF: 'вручную' } as const;
 
 /** Время по часам объекта: страница рендерится на сервере, у которого может быть другой пояс */
@@ -52,7 +37,33 @@ const HISTORY_LIMIT = 200;
  * пустые таблицы называют, что это значит и откуда возьмётся новая запись; время в `<time>`; на телефоне
  * строки складываются в карточки. Сторож, его проверки и действия по неисправностям не менялись.
  */
-export default async function IncidentsPage() {
+export default function IncidentsPage() {
+  return (
+    <Page
+      title="Неисправности"
+      subtitle="Состояние системы и задачи для команды."
+      actions={
+        <>
+          <RefreshButton />
+          <GuardTickButton />
+        </>
+      }
+    >
+      <ControlNavigation current="incidents" />
+      <Suspense
+        fallback={
+          <Panel role="status" data-testid="incidents-loading">
+            Читаем состояние сторожа…
+          </Panel>
+        }
+      >
+        <IncidentContent />
+      </Suspense>
+    </Page>
+  );
+}
+
+async function IncidentContent() {
   const [loadedStatus, open, all] = await Promise.all([
     guardApi.status().then(
       (r) => ({ ok: true as const, r }),
@@ -69,7 +80,7 @@ export default async function IncidentsPage() {
   );
   const tick = status?.lastTick ?? null;
   return (
-    <Page title="Неисправности" actions={<GuardTickButton />}>
+    <div className="control-page">
       {!loadedStatus.ok && (
         <LoadError testId="incidents-status-error" {...loadErrorProps(loadedStatus.e)} />
       )}
@@ -98,18 +109,16 @@ export default async function IncidentsPage() {
         />
       </Stats>
       {status && (
-        <div className="facts facts--card">
+        <div className="facts facts--card control-monitor">
           <div>
-            <div className="fact__label">Сторож</div>
+            <div className="fact__label">Мониторинг</div>
             <div className="fact__value" data-testid="guard-running">
-              {status.running ? 'работает, проход раз в минуту' : 'выключен (GUARD=off)'}
+              {status.running ? 'работает, проход раз в минуту' : 'выключен'}
             </div>
           </div>
           <div>
-            <div className="fact__label">Починка техники</div>
-            <div className="fact__value">
-              {status.autofix ? 'включена' : 'выключена (GUARD_AUTOFIX=off)'}
-            </div>
+            <div className="fact__label">Автовосстановление</div>
+            <div className="fact__value">{status.autofix ? 'включена' : 'выключено'}</div>
           </div>
           <div>
             <div className="fact__label">Последний проход</div>
@@ -126,7 +135,7 @@ export default async function IncidentsPage() {
             )}
           </div>
           <div>
-            <div className="fact__label">Будильник</div>
+            <div className="fact__label">Уведомления</div>
             <div className="fact__value">
               {status.notifier.configured
                 ? `Telegram, чатов: ${status.notifier.recipients}`
@@ -145,75 +154,41 @@ export default async function IncidentsPage() {
           Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.
         </Alert>
       )}
-      <Table size="sm" className="dir-table dir-table--incidents" data-testid="incidents-table">
-        <thead>
-          <tr>
-            {['Что случилось', 'Статус', 'Замечена', 'Что делал сторож', ''].map((h) => (
-              <th key={h}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {open?.length === 0 && (
-            <tr>
-              <td colSpan={5} className="empty-state" data-testid="incidents-empty">
-                Открытых неисправностей нет
-                {tick
-                  ? `: последний проход сторожа в ${atText(tick.at)} сделал ${pluralRu(tick.checked.length, ['проверку', 'проверки', 'проверок'])}, всё ответило.`
-                  : '.'}{' '}
-                {status?.running
-                  ? 'Сторож проверяет систему раз в минуту; новая запись появится здесь' +
-                    (status.notifier.configured
-                      ? ' и разбудит дежурного.'
-                      : ', будильник не настроен.')
-                  : 'Сторож выключен (GUARD=off) — новые неисправности здесь не появятся, пока его не включат.'}
-              </td>
-            </tr>
+      {open !== null && (
+        <IncidentList
+          incidents={open.map(
+            ({
+              id,
+              kind,
+              class: incidentClass,
+              severity,
+              status: incidentStatus,
+              title,
+              occurrences,
+              firstSeenAt,
+              lastSeenAt,
+              fixAttempts,
+              lastFixResult,
+              alertedAt,
+            }) => ({
+              id,
+              kind,
+              class: incidentClass,
+              severity,
+              status: incidentStatus,
+              title,
+              occurrences,
+              firstSeenAt,
+              lastSeenAt,
+              fixAttempts,
+              lastFixResult,
+              alertedAt,
+            }),
           )}
-          {open?.map((i) => (
-            <tr key={i.id} data-testid="incident-row" data-kind={i.kind} data-id={i.id}>
-              <td>
-                <Badge tone={i.severity === 'CRITICAL' ? 'danger' : 'warn'}>
-                  {i.severity === 'CRITICAL' ? 'срочно' : 'не срочно'}
-                </Badge>{' '}
-                {i.title}
-                <div className="cell-sub">{CLASS_RU[i.class]}</div>
-              </td>
-              <td>
-                <Badge tone={STATUS_TONE[i.status]} data-testid="incident-status">
-                  {STATUS_RU[i.status]}
-                </Badge>
-                {i.alertedAt && <div className="cell-sub">разбудил {at(i.alertedAt)}</div>}
-              </td>
-              <td className="nowrap">
-                {at(i.firstSeenAt)}
-                {/* Счётчик растёт на каждом проходе сторожа: у ошибки API это повторы, у остального — минуты,
-                    пока неисправность держится. «Замечена 47 раз» у брони без ячейки читалось бы как 47 случаев */}
-                {i.kind === 'api.error'
-                  ? i.occurrences > 1 && (
-                      <div className="cell-sub">повторилась {i.occurrences} раз</div>
-                    )
-                  : Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt) >= 60_000 && (
-                      <div className="cell-sub">
-                        держится{' '}
-                        {Math.round(
-                          (Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt)) / 60_000,
-                        )}{' '}
-                        мин
-                      </div>
-                    )}
-              </td>
-              <td>
-                {i.fixAttempts > 0 ? `${i.fixAttempts} попыт. — ` : ''}
-                {i.lastFixResult ?? (i.class === 'A' ? 'ждёт' : 'не чинит — не его класс')}
-              </td>
-              <td>
-                <IncidentButtons id={i.id} canAcknowledge={i.status !== 'ACKNOWLEDGED'} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+          total={status?.open.total ?? null}
+          emptyHint={`Открытых неисправностей нет.${tick ? ` Последний проход в ${atText(tick.at)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}.` : ''} ${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
+        />
+      )}
 
       <SectionTitle>Закрыты за сутки</SectionTitle>
       {truncated && (
@@ -229,7 +204,7 @@ export default async function IncidentsPage() {
       )}
       <Table
         size="sm"
-        className="dir-table dir-table--incidents-closed"
+        className="dir-table dir-table--incidents-closed control-table"
         data-testid="incidents-closed"
       >
         <thead>
@@ -261,6 +236,6 @@ export default async function IncidentsPage() {
           ))}
         </tbody>
       </Table>
-    </Page>
+    </div>
   );
 }

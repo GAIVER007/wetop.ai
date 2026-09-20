@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
-// Контракт меню: все существующие экраны остаются доступными ровно по разу.
+// Контракт меню: основные разделы доступны ровно по разу, настройки объекта — во внутренних вкладках.
 const routes = [
   '/today',
   '/chessboard',
@@ -19,12 +19,6 @@ const routes = [
   '/finance',
   '/management/statistics',
   '/hotel-settings',
-  '/hotel-settings/check-in',
-  '/hotel-settings/penalties',
-  '/hotel-settings/services',
-  '/hotel-settings/description',
-  '/hotel-settings/photos',
-  '/hotel-settings/amenities',
   '/connections',
   '/analytics/setup',
   '/incidents',
@@ -49,9 +43,7 @@ test('свёрнутая desktop-панель не скрывает подпис
   await expect(menu).not.toBeVisible();
 });
 
-test('разделы содержат все прежние ссылки без дублей; раскрываются с клавиатуры', async ({
-  page,
-}) => {
+test('разделы содержат основные ссылки без дублей; раскрываются с клавиатуры', async ({ page }) => {
   await page.goto('/today');
   const sidebar = page.locator('.workspace-sidebar');
   const groups = sidebar.locator('.sidebar-section-toggle');
@@ -90,13 +82,13 @@ test('разделы содержат все прежние ссылки без 
 test('компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел', async ({
   page,
 }) => {
-  await page.goto('/hotel-settings/photos');
+  await page.goto('/hotel-settings/services');
   const sidebar = page.locator('.workspace-sidebar');
   await expect(sidebar.getByRole('button', { name: 'Настройки', exact: true })).toHaveAttribute(
     'aria-expanded',
     'true',
   );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Фото');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Гостиница');
   await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
   await sidebar.getByRole('button', { name: 'Номерной фонд', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Свернуть панель', exact: true })).toBeVisible();
@@ -174,9 +166,7 @@ for (const theme of ['light', 'dark'] as const) {
       }
       if (mobile) {
         await menu.getByRole('button', { name: 'Настройки', exact: true }).click();
-        await menu
-          .getByRole('link', { name: 'Настройки сайта', exact: true })
-          .scrollIntoViewIfNeeded();
+        await menu.getByRole('link', { name: 'Сайт', exact: true }).scrollIntoViewIfNeeded();
         const close = menu.getByRole('button', { name: 'Закрыть: Навигация', exact: true });
         const rect = await close.boundingBox();
         expect(rect!.y).toBeGreaterThanOrEqual(0);

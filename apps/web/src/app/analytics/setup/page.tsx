@@ -13,61 +13,72 @@ export default async function AnalyticsSetupPage() {
   const localOnly = !scriptUrl || /127\.0\.0\.1|localhost/.test(scriptUrl);
   const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
   return (
-    <Page title="Подключение счётчика" actions={<Link href="/analytics">отчёт</Link>}>
-      <Stack>
-        {cards.length > 0 && localOnly && (
-          <Alert boxed tone="warning" data-testid="setup-local-warning">
-            Укажите постоянный публичный адрес API: текущий код доступен только локально.
-          </Alert>
-        )}
+    <Page
+      title="Настройки сайта"
+      subtitle="Домены, счётчик посещений и бронирование с сайта."
+      actions={
+        <Link className="btn btn--secondary" href="/analytics">
+          Аналитика сайта
+        </Link>
+      }
+    >
+      <div className="settings-site">
+        <Stack>
+          {cards.length > 0 && localOnly && (
+            <Alert boxed tone="warning" data-testid="setup-local-warning">
+              Укажите постоянный публичный адрес API: текущий код доступен только локально.
+            </Alert>
+          )}
 
-        {cards.length > 0 && insecure && (
-          <Alert boxed data-testid="setup-insecure-warning">
-            Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.
-          </Alert>
-        )}
+          {cards.length > 0 && insecure && (
+            <Alert boxed data-testid="setup-insecure-warning">
+              Укажите HTTPS-адрес API, чтобы счётчик работал на сайте.
+            </Alert>
+          )}
 
-        {cards.map((c) => (
-          <SiteCard key={c.site.id} card={c} plans={plans} />
-        ))}
+          {cards.map((c) => (
+            <SiteCard key={c.site.id} card={c} plans={plans} />
+          ))}
 
-        <Panel size="lg">
-          <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Добавить сайт'}</SectionTitle>
-          <CreateSiteForm />
-        </Panel>
+          <Panel size="lg">
+            <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Добавить сайт'}</SectionTitle>
+            <CreateSiteForm />
+          </Panel>
 
-        <Help title="Инструкция по установке">
-          <ol className="list hint--lg list--gap">
-            <li>
-              Вставьте код счётчика в &lt;head&gt; каждой страницы сайта (в Tilda и WordPress — поле
-              «HTML-код в head»).
-            </li>
-            <li>
-              Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык, часовой
-              пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и телефонов.
-            </li>
-            <li>
-              Если на сайте есть форма поиска дат, вызовите при поиске{' '}
-              <code>
-                pms(&apos;event&apos;, &apos;search&apos;, {'{'}arrival: &apos;2026-10-01&apos;,
-                departure: &apos;2026-10-03&apos;, adults: 2{'}'})
-              </code>{' '}
-              — так заполняется календарь спроса. Клики по телефону и WhatsApp:{' '}
-              <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code>,{' '}
-              <code>pms(&apos;event&apos;, &apos;whatsapp_click&apos;)</code>.
-            </li>
-            <li>
-              Нужен баннер согласия — добавьте атрибут <code>data-consent=&quot;wait&quot;</code> и
-              вызовите <code>pms(&apos;consent&apos;)</code> после согласия.
-            </li>
-            <li>
-              Нажмите «Проверить счётчик» после первого захода на сайт — здесь появится время
-              последнего события. Проверить без сайта: откройте «демо-страницу» с телефона и нажмите
-              кнопки на ней.
-            </li>
-          </ol>
-        </Help>
-      </Stack>
+          <Help title="Инструкция по установке">
+            <ol className="list hint--lg list--gap">
+              <li>
+                Вставьте код счётчика в &lt;head&gt; каждой страницы сайта (в Tilda и WordPress —
+                поле «HTML-код в head»).
+              </li>
+              <li>
+                Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык,
+                часовой пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и
+                телефонов.
+              </li>
+              <li>
+                Если на сайте есть форма поиска дат, вызовите при поиске{' '}
+                <code>
+                  pms(&apos;event&apos;, &apos;search&apos;, {'{'}arrival: &apos;2026-10-01&apos;,
+                  departure: &apos;2026-10-03&apos;, adults: 2{'}'})
+                </code>{' '}
+                — так заполняется календарь спроса. Клики по телефону и WhatsApp:{' '}
+                <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code>,{' '}
+                <code>pms(&apos;event&apos;, &apos;whatsapp_click&apos;)</code>.
+              </li>
+              <li>
+                Нужен баннер согласия — добавьте атрибут <code>data-consent=&quot;wait&quot;</code>{' '}
+                и вызовите <code>pms(&apos;consent&apos;)</code> после согласия.
+              </li>
+              <li>
+                Нажмите «Проверить счётчик» после первого захода на сайт — здесь появится время
+                последнего события. Проверить без сайта: откройте «демо-страницу» с телефона и
+                нажмите кнопки на ней.
+              </li>
+            </ol>
+          </Help>
+        </Stack>
+      </div>
     </Page>
   );
 }
@@ -88,15 +99,21 @@ function SiteCard({
     }
   };
   return (
-    <Panel size="lg" data-testid="site-card" data-key={site.publicKey}>
+    <Panel
+      size="lg"
+      className="site-settings-card"
+      data-testid="site-card"
+      data-key={site.publicKey}
+    >
       <Row gap="lg" className="row--baseline">
-        <b className="panel__title panel__title--lg" data-testid="site-card-name">
+        <h2 className="panel__title panel__title--lg" data-testid="site-card-name">
           {site.name}
-        </b>
+        </h2>
         <span className="sub">{site.hosts.join(', ')}</span>
         <Badge tone={site.status === 'ACTIVE' ? 'ok' : 'neutral'} data-testid="site-card-status">
-          {site.status === 'ACTIVE' ? 'включён' : 'на паузе'}
+          {site.status === 'ACTIVE' ? 'Счётчик включён' : 'Счётчик на паузе'}
         </Badge>
+        {site.status === 'ACTIVE' && !status.lastEventAt && <Badge>Ожидает первых событий</Badge>}
         {previewAvailable(snippet.demoUrl) ? (
           <a
             href={snippet.demoUrl}
@@ -114,7 +131,6 @@ function SiteCard({
         <Link href={`/analytics?site=${site.id}`}>Открыть отчёт</Link>
       </Row>
       <div className="facts">
-        <Fact label="Ключ" value={site.publicKey} testId="site-card-key" />
         <Fact
           label="Последнее событие"
           value={
@@ -131,6 +147,8 @@ function SiteCard({
         />
         <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
       </div>
+      <SiteButtons id={site.id} status={site.status} />
+      <h3 className="site-domains-heading">Домены сайта</h3>
       {site.hosts.some((h) => h.endsWith('.example')) && (
         <Alert tone="warning">
           Домен-заглушка: впишите настоящий адрес сайта, иначе приёмник и виджет не примут запросы с
@@ -138,17 +156,22 @@ function SiteCard({
         </Alert>
       )}
       <HostsForm id={site.id} hosts={site.hosts} />
-      <div className="hint--lg">Код для вставки в &lt;head&gt; сайта:</div>
-      <pre data-testid="site-card-snippet" className="code">
-        {snippet.code}
-      </pre>
-      <Row className="items-start">
-        <CopyButton text={snippet.code} />
-        <SiteButtons id={site.id} status={site.status} />
-      </Row>
+      <details className="settings-disclosure">
+        <summary>Установка счётчика</summary>
+        <div>
+          <Fact label="Публичный ключ сайта" value={site.publicKey} testId="site-card-key" />
+          <p className="settings-note">Вставьте код в &lt;head&gt; страниц сайта.</p>
+          <pre data-testid="site-card-snippet" className="code">
+            {snippet.code}
+          </pre>
+          <Row className="items-start">
+            <CopyButton text={snippet.code} />
+          </Row>
+        </div>
+      </details>
 
       <div className="divider">
-        <div className="panel__title block--bottom-xs">Бронирование с сайта</div>
+        <h3>Бронирование с сайта</h3>
         {plans ? (
           <BookingSettings
             id={site.id}
@@ -160,39 +183,39 @@ function SiteCard({
           <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
         )}
         {site.bookingEnabled && (
-          <>
-            <div className="hint--lg block--top block--bottom-xs">
-              Второй код — виджет: вставьте туда, где на сайте должна быть форма бронирования (тариф
-              «{site.bookingRatePlan?.name}», бронь сразу подтверждается, оплата при заселении):
+          <details className="settings-disclosure">
+            <summary>Установка виджета бронирования</summary>
+            <div>
+              <div className="hint--lg block--top block--bottom-xs">
+                Второй код — виджет: вставьте туда, где на сайте должна быть форма бронирования
+                (тариф «{site.bookingRatePlan?.name}», бронь сразу подтверждается, оплата при
+                заселении):
+              </div>
+              <pre data-testid="site-card-booking-snippet" className="code">
+                {snippet.bookingCode}
+              </pre>
+              <Row>
+                <CopyButton text={snippet.bookingCode} />
+                {previewAvailable(snippet.bookingDemoUrl) ? (
+                  <a
+                    href={snippet.bookingDemoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-testid="site-card-booking-demo"
+                  >
+                    демо бронирования
+                  </a>
+                ) : (
+                  <Badge>Демо виджета не подключено</Badge>
+                )}
+              </Row>
+              {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
+              <p className="note" data-testid="booking-demo-warning">
+                Бронь с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет счёт.
+                После проверки отмените её на карточке брони.
+              </p>
             </div>
-            <pre data-testid="site-card-booking-snippet" className="code">
-              {snippet.bookingCode}
-            </pre>
-            <p className="note">
-              Демо бронирования делает настоящую бронь: она попадёт в шахматку и уйдёт в каналы как
-              бронь с сайта. Проверяйте на вымышленном госте и отменяйте после проверки.
-            </p>
-            <Row>
-              <CopyButton text={snippet.bookingCode} />
-              {previewAvailable(snippet.bookingDemoUrl) ? (
-                <a
-                  href={snippet.bookingDemoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-testid="site-card-booking-demo"
-                >
-                  демо бронирования
-                </a>
-              ) : (
-                <Badge>Демо виджета не подключено</Badge>
-              )}
-            </Row>
-            {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
-            <p className="note" data-testid="booking-demo-warning">
-              Бронь с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет счёт.
-              После проверки отмените её на карточке брони.
-            </p>
-          </>
+          </details>
         )}
       </div>
     </Panel>

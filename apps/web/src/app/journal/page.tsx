@@ -1,12 +1,15 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { ControlNavigation } from '../../components/control-navigation';
+import { RefreshButton } from '../../components/refresh-button';
 import { almatyStamp } from '../../lib/almaty';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { Table, Input, Button, cx } from '../../components/ui';
+import { Table, Input, Button, Field, Badge, Panel, cx } from '../../components/ui';
 import '../directory.css';
 
 interface AuditRow {
@@ -86,11 +89,6 @@ export default async function JournalPage({
     ...(needle ? { q: needle } : {}),
     ...(showSystem ? { system: '1' } : {}),
   });
-  const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
-    (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
-  );
-  const rows = loaded.ok ? loaded.r : null;
   const href = (next: { type?: string | null; q?: string; system?: boolean }) => {
     const t = next.type === undefined ? type : next.type;
     const s = next.q === undefined ? needle : next.q;
@@ -109,19 +107,23 @@ export default async function JournalPage({
     type ? `раздел «${sectionLabel ?? type}»` : '',
     showSystem ? 'со служебными' : '',
   ].filter(Boolean);
-  const meta = rows
-    ? `${rows.length >= LIMIT ? `Последние ${LIMIT} операций` : needle || type ? pluralRu(rows.length, ['операция', 'операции', 'операций']) : `Последние ${pluralRu(rows.length, ['операция', 'операции', 'операций'])}`}${conditions.length ? `, ${conditions.join(', ')}` : ''}${needle ? ' (поиск по всей истории)' : ''}`
-    : null;
   return (
-    <Page title="Журнал действий">
-      <form method="get" className="row row--lg toolbar directory-toolbar">
-        <Input
-          key={`q-${needle}`}
-          name="q"
-          aria-label="Поиск в журнале"
-          placeholder="Номер брони"
-          defaultValue={needle}
-        />
+    <Page
+      title="Журнал действий"
+      subtitle="Кто и когда изменял данные гостиницы."
+      actions={<RefreshButton />}
+    >
+      <ControlNavigation current="journal" />
+      <form method="get" className="control-toolbar control-journal-search">
+        <Field label="Поиск в журнале">
+          <Input
+            key={`q-${needle}`}
+            name="q"
+            aria-label="Поиск в журнале"
+            placeholder="Номер брони"
+            defaultValue={needle}
+          />
+        </Field>
         <input name="type" type="hidden" value={type ?? ''} />
         <label className="check">
           <input
@@ -131,9 +133,14 @@ export default async function JournalPage({
             value="1"
             defaultChecked={showSystem}
           />{' '}
-          служебные (синхронизация Exely)
+          Служебные события
         </label>
         <Button tone="secondary">Найти</Button>
+        {(needle || type || showSystem) && (
+          <Link href="/journal" className="btn btn--ghost">
+            Сбросить фильтры
+          </Link>
+        )}
       </form>
       <nav className="directory-filters" aria-label="Раздел журнала">
         {FILTERS.map(([t, label]) => (
@@ -147,6 +154,55 @@ export default async function JournalPage({
           </Link>
         ))}
       </nav>
+      <Suspense
+        key={query.toString()}
+        fallback={
+          <Panel role="status" data-testid="journal-loading">
+            Загружаем журнал действий…
+          </Panel>
+        }
+      >
+        <JournalEntries
+          query={query.toString()}
+          conditions={conditions}
+          filtered={!!needle || !!type}
+          searching={!!needle}
+        />
+      </Suspense>
+    </Page>
+  );
+}
+
+const ENTITY_RU: Record<string, string> = {
+  Reservation: 'Бронь',
+  InventoryUnit: 'Номер / койка',
+  Guest: 'Гость',
+  Property: 'Гостиница',
+  TrackedSite: 'Сайт',
+  user: 'Сотрудник',
+};
+
+async function JournalEntries({
+  query,
+  conditions,
+  filtered,
+  searching,
+}: {
+  query: string;
+  conditions: string[];
+  filtered: boolean;
+  searching: boolean;
+}) {
+  const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
+    (r) => ({ ok: true as const, r }),
+    (e: unknown) => ({ ok: false as const, e }),
+  );
+  const rows = loaded.ok ? loaded.r : null;
+  const meta = rows
+    ? `${rows.length >= LIMIT ? `Последние ${LIMIT} операций` : filtered ? pluralRu(rows.length, ['операция', 'операции', 'операций']) : `Последние ${pluralRu(rows.length, ['операция', 'операции', 'операций'])}`}${conditions.length ? `, ${conditions.join(', ')}` : ''}${searching ? ' (поиск по всей истории)' : ''}`
+    : null;
+  return (
+    <div className="control-page">
       {meta && (
         <p className="directory-meta" data-testid="journal-meta">
           {meta}
@@ -157,7 +213,7 @@ export default async function JournalPage({
         <Table
           size="sm"
           nowrap
-          className="dir-table dir-table--journal"
+          className="dir-table dir-table--journal control-table"
           data-testid="journal-table"
         >
           <thead>
@@ -175,7 +231,9 @@ export default async function JournalPage({
                 </td>
                 <td>{r.author ?? <span className="muted-2">система</span>}</td>
                 <td>{ACTION_RU[r.action] ?? r.action}</td>
-                <td>{r.entityType}</td>
+                <td>
+                  <Badge>{ENTITY_RU[r.entityType] ?? r.entityType}</Badge>
+                </td>
                 <td>
                   {r.subject && r.entityType === 'Reservation' ? (
                     <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
@@ -202,6 +260,6 @@ export default async function JournalPage({
           </tbody>
         </Table>
       )}
-    </Page>
+    </div>
   );
 }

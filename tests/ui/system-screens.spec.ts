@@ -140,3 +140,101 @@ test('неисправности: сбой состояния сторожа с 
   await expect(main.getByTestId('incidents-loading')).toContainText('Читаем состояние сторожа');
   await expect(main.getByTestId('incidents-open')).toBeVisible({ timeout: 15_000 });
 });
+
+/**
+ * D4 «Статистика и аналитика сайта»: без счётчика — пустое состояние с шагом; отказ сервиса аналитики —
+ * сбой с повтором при тех же датах, отклонённый запрос — по-прежнему словами у формы; период словами в `<time>`,
+ * готовые отрезки чипами; «Статистика» при отказе шахматки оставляет дату и форму; оба экрана — загрузка словом.
+ */
+test('аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.goto('/analytics');
+  await expect(main.getByTestId('an-period')).toContainText(
+    /Период \d{2}\.\d{2}\.\d{4} → \d{2}\.\d{2}\.\d{4}, 7 дней/,
+  );
+  await expect(main.getByTestId('an-period').locator('time').first()).toHaveAttribute(
+    'datetime',
+    /^\d{4}-\d{2}-\d{2}$/,
+  );
+  await expect(main.getByRole('navigation', { name: 'Готовые периоды' })).toContainText(
+    'Прошлый месяц',
+  );
+  await expect(main.getByTestId('an-daily-table').locator('time').first()).toHaveAttribute(
+    'datetime',
+    /^\d{4}-\d{2}-\d{2}$/,
+  );
+  // сервис аналитики не ответил: форма и сайт на месте, вместо чисел сбой, повтор с теми же датами
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/analytics/sites/ui-site/report' },
+  });
+  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика сайта');
+  await expect(main.getByLabel('Аналитика: с')).toHaveValue('2026-09-01');
+  const failure = main.getByTestId('an-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.getByTestId('an-summary')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('an-summary')).toBeVisible();
+  await expect(page).toHaveURL(/from=2026-09-01/);
+  // без счётчика — не пустая страница, а шаг
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/analytics');
+  const noSites = main.getByTestId('an-no-sites');
+  await expect(noSites).toContainText('Счётчик ещё не подключён');
+  await expect(noSites.getByRole('link', { name: 'Подключить счётчик' })).toHaveAttribute(
+    'href',
+    '/analytics/setup',
+  );
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  // статистика: подпись даты словами; отказ шахматки оставляет форму и дату
+  await page.goto('/management/statistics?date=2026-09-25');
+  await expect(main.getByTestId('statistics-meta')).toContainText('Загрузка на 25.09.2026');
+  await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
+  await page.goto('/management/statistics?date=2026-09-25');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Статистика');
+  await expect(main.getByLabel('Дата')).toHaveValue('2026-09-25');
+  const statsFailure = main.getByTestId('statistics-error');
+  await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.locator('.stat__value')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await statsFailure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
+  await expect(page).toHaveURL(/date=2026-09-25/);
+  // телефон: таблица категорий карточкой, без прокрутки вбок
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/management/statistics');
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'статистика шире экрана телефона').toBeLessThanOrEqual(
+    layout.viewport + 1,
+  );
+  await expect(
+    main.getByTestId('statistics-table').locator('tbody tr').first().locator('td').nth(5),
+  ).toHaveCSS('grid-column-start', '2');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // загрузка словом на обоих экранах
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/analytics/sites/ui-site/report', delayMs: 2500 },
+  });
+  await page.goto('/analytics', { waitUntil: 'commit' });
+  await expect(main.getByTestId('an-loading')).toContainText('Считаем отчёт по сайту');
+  await expect(main.getByTestId('an-summary')).toBeVisible({ timeout: 15_000 });
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/chessboard', delayMs: 2500 },
+  });
+  await page.goto('/management/statistics', { waitUntil: 'commit' });
+  await expect(main.getByTestId('statistics-loading')).toContainText(
+    'Считаем загрузку по шахматке',
+  );
+  await expect(main.getByTestId('statistics-table')).toBeVisible({ timeout: 15_000 });
+});

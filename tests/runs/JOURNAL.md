@@ -1219,3 +1219,4 @@
 | 20.09.2026 19:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-system.spec.ts tests/ui/invites.spec.ts tests/ui/sessions.spec.ts tests/ui/login-access.sp | ✅ 38 из 38 | 1 мин 57 с | 02d7f77 +2 | [лог](logs/2026-09-20T14-02-45Z-e2e-a4c6.log) |  |
 | 20.09.2026 19:04 | e2e | ✅ 25 из 25 | 1 мин 4 с | 02d7f77 +2 | [лог](logs/2026-09-20T14-04-42Z-e2e-cbd1.log) |  |
 | 20.09.2026 19:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/sessions.spec.ts tests/ui/invites.spec.ts --workers=1) | ✅ 8 из 8 | 19 с | 5641877 +2 | [лог](logs/2026-09-20T14-10-44Z-e2e-6974.log) |  |
+| 20.09.2026 19:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-refresh.spec.ts --workers=1) | ✅ 7 из 7 | 1 мин 8 с | c3b0345 +1 | [лог](logs/2026-09-20T14-29-10Z-e2e-b5b8.log) |  |

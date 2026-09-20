@@ -1116,3 +1116,5 @@
 | 20.09.2026 18:01 | unit | ✅ 1324 из 1327, пропущено 3 | 1 мин 23 с | 5b83942 | [лог](logs/2026-09-20T13-01-13Z-unit-cc14.log) |  |
 | 20.09.2026 18:02 | integration | ✅ 45 из 45 | 13 с | 5b83942 | [лог](logs/2026-09-20T13-02-49Z-integration-b773.log) |  |
 | 20.09.2026 18:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 42 с | 5b83942 | [лог](logs/2026-09-20T13-03-08Z-e2e-3a64.log) |  |
+| 20.09.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 sessions.spec.ts fixture-isolation.spec.ts workspace.spec.ts --grep сеанс\|сброс после дизайн\|с | ✅ 12 из 12 | 1 мин 21 с | 8b130ff | [лог](logs/2026-09-20T13-21-37Z-e2e-3e30.log) |  |
+| 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-week.spec.ts --grep помещается на экране) | ✅ 2 из 2 | 40 с | 8b130ff +1 | [лог](logs/2026-09-20T13-24-22Z-e2e-3b50.log) |  |

@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { serviceFetch } from '../../lib/service-api';
 import { reportTarget } from '../../lib/desk-page';
-import { checkDay, verdict, type BoardSnapshot, type DayRow, type DaySnapshot } from './day-selfcheck';
+import { checkDay, verdict, type BoardSnapshot, type DaySnapshot } from './day-selfcheck';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });

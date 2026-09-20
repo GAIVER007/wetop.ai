@@ -93,15 +93,23 @@ describe('deploy/Dockerfile', () => {
 });
 
 describe('deploy/compose.yml', () => {
-  const services = ['api:', 'web:', 'cloudflared:', 'exely-sync:'];
+  const services = ['api:', 'web:', 'cloudflared:'];
 
-  it('поднимает четыре службы, которые на Mac держал launchd', () => {
+  it('поднимает три службы: API, стойка, туннель', () => {
     for (const s of services) expect(COMPOSE).toContain(`  ${s}`);
+  });
+
+  it('службы синхронизации с Exely нет: Exely перестал быть источником (ADR-052, 19.09.2026)', () => {
+    // Не косметика: пока служба была в compose, `up -d` поднимал её вместе со всеми и она тянула
+    // брони из системы, от которой отказались, — поверх ручных правок смены.
+    expect(withoutComments(COMPOSE)).not.toContain('exely-sync');
+    expect(withoutComments(COMPOSE)).not.toContain('cli-sync-day');
   });
 
   it('API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются', () => {
     expect(COMPOSE).toContain('image: pms-lux:latest');
-    expect(COMPOSE.match(/<<: \*app/g)?.length).toBeGreaterThanOrEqual(3);
+    // api и web; у cloudflared свой образ провайдера. Было три, пока в compose жил exely-sync (ADR-052)
+    expect(COMPOSE.match(/<<: \*app/g)?.length).toBeGreaterThanOrEqual(2);
   });
 
   it('туннель ровно один и никогда не масштабируется', () => {
@@ -163,10 +171,6 @@ describe('deploy/compose.yml', () => {
     expect(COMPOSE).toMatch(/expose: \['3000'\]/);
   });
 
-  it('у синхронизации Exely пул один: сумма пулов обязана быть меньше предела базы', () => {
-    expect(service('exely-sync')).toMatch(/DATABASE_POOL_MAX:\s*'?1'?/);
-  });
-
   it('выключатель ARI подхватывается файлом и не обязателен', () => {
     // scripts/ops/ari.sh stop кладёт deploy/ari.env, start его убирает. Файл необязателен:
     // его отсутствие — это «ARI включён», а не отказ compose подняться.
@@ -190,8 +194,6 @@ describe('deploy/compose.yml', () => {
     // Путь считается от рабочей папки службы, а не от корня образа (см. проверку про working_dir)
     expect(existsSync(join(ROOT, 'apps/api/src/main.ts'))).toBe(true);
     expect(service('api')).toContain("'src/main.ts'");
-    expect(existsSync(join(ROOT, 'scripts/imports/src/cli-sync-day.ts'))).toBe(true);
-    expect(service('exely-sync')).toContain('scripts/imports/src/cli-sync-day.ts --auto');
   });
 
   it('ключ туннеля монтируется только на чтение', () => {

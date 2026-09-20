@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useId, useState, type ReactNode } from 'react';
-import { navigation, activeNavigation, type NavigationItem } from '../../lib/navigation';
+import { sidebarSections, activeNavigation } from '../../lib/navigation';
 import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { cx } from '../ui';
@@ -9,67 +9,6 @@ import { cx } from '../ui';
 export interface PropertyIdentity {
   name: ReactNode;
   address: ReactNode;
-}
-function Entry({
-  item,
-  active,
-  close,
-}: {
-  item: NavigationItem;
-  active?: string | undefined;
-  close?: (() => void) | undefined;
-}) {
-  const id = useId();
-  const selected = item.children?.some((c) => c.href === active) || item.href === active;
-  const [expanded, setExpanded] = useState(!!selected);
-  useEffect(() => {
-    if (selected) setExpanded(true);
-  }, [selected]);
-  return (
-    <div className="nav-entry">
-      <div className="nav-entry-row">
-        <Link
-          href={item.href}
-          prefetch={false}
-          onClick={() => close?.()}
-          title={item.label}
-          aria-label={item.label}
-          className={cx('workspace-link', selected && 'is-active')}
-          aria-current={item.href === active ? 'page' : undefined}
-        >
-          <Icon name={item.icon} />
-          <span>{item.shortLabel ?? item.label}</span>
-        </Link>
-        {item.children && (
-          <button
-            className="nav-toggle"
-            aria-label={`Подразделы: ${item.label}`}
-            aria-expanded={expanded}
-            aria-controls={id}
-            onClick={() => setExpanded(!expanded)}
-          >
-            <Icon name="down" />
-          </button>
-        )}
-      </div>
-      {item.children && (
-        <div id={id} className="nav-children" hidden={!expanded}>
-          {item.children.map((c) => (
-            <Link
-              key={c.href}
-              href={c.href}
-              prefetch={false}
-              onClick={() => close?.()}
-              className={cx('nav-child', c.href === active && 'is-active')}
-              aria-current={c.href === active ? 'page' : undefined}
-            >
-              {c.label}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }
 export function Sidebar({
   path,
@@ -85,8 +24,16 @@ export function Sidebar({
   property?: PropertyIdentity | null;
 }) {
   const active = activeNavigation(path)?.href;
+  const activeSection = sidebarSections.find((section) =>
+    section.items.some((item) => item.href === active),
+  )?.id;
+  const [expanded, setExpanded] = useState<string | null>(activeSection ?? 'guests');
+  const id = useId();
+  useEffect(() => {
+    if (activeSection) setExpanded(activeSection);
+  }, [activeSection, path]);
   return (
-    <>
+    <div className={cx('sidebar-shell', collapsed && 'is-compact')}>
       <div className="brand-row">
         <Link
           className="workspace-brand"
@@ -121,17 +68,50 @@ export function Sidebar({
           <strong>{property?.name ?? 'Объект не загружен'}</strong>
           <span>{property?.address ?? 'Настройки гостиницы'}</span>
         </div>
-        <Icon name="down" width={14} />
+        <Icon name="chevron" width={14} />
       </Link>
       <nav className="workspace-links" aria-label="Разделы">
-        {navigation.map((group) => (
-          <div key={group.label}>
-            <div className="nav-group">{group.label}</div>
-            {group.items.map((item) => (
-              <Entry key={item.href} item={item} active={active} close={close} />
-            ))}
-          </div>
-        ))}
+        {sidebarSections.map((section) => {
+          const open = !collapsed && expanded === section.id;
+          const selected = activeSection === section.id;
+          const panelId = `${id}-${section.id}`;
+          return (
+            <div className="sidebar-section" key={section.id}>
+              <button
+                type="button"
+                className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+                aria-label={section.label}
+                aria-expanded={open}
+                aria-controls={panelId}
+                title={collapsed ? section.label : undefined}
+                onClick={() => {
+                  setExpanded(open ? null : section.id);
+                  if (collapsed) onCollapse?.();
+                }}
+              >
+                <Icon name={section.icon} />
+                <span>{section.label}</span>
+                <Icon className="sidebar-section-chevron" name="down" />
+              </button>
+              <div id={panelId} className="sidebar-section-links" hidden={!open}>
+                {section.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    prefetch={false}
+                    onClick={() => close?.()}
+                    title={item.label}
+                    className={cx('workspace-link', item.href === active && 'is-active')}
+                    aria-current={item.href === active ? 'page' : undefined}
+                  >
+                    <Icon name={item.icon} />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </nav>
       <div className="sidebar-bottom">
         {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
@@ -147,6 +127,6 @@ export function Sidebar({
           <Icon name="more" />
         </Link>
       </div>
-    </>
+    </div>
   );
 }

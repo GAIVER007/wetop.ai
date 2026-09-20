@@ -1394,3 +1394,10 @@
 | 20.09.2026 22:04 | e2e | ❌ код выхода 1 | 8 с | f308b09 | [лог](logs/2026-09-20T17-04-12Z-e2e-9c9b.log) | (ошибка вне тестов) |
 | 20.09.2026 22:04 | e2e | ✅ 25 из 25 | 1 мин 21 с | f308b09 | [лог](logs/2026-09-20T17-04-47Z-e2e-a9c7.log) |  |
 | 20.09.2026 22:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 244 из 244 | 18 мин 1 с | f308b09 | [лог](logs/2026-09-20T17-06-17Z-e2e-0ae2.log) |  |
+| 20.09.2026 22:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts --workers=1) | ❌ упало 1 из 1 | 29 с | bca839a +1 | [лог](logs/2026-09-20T17-00-59Z-e2e-6354.log) | RED: подписи мобильного меню после сворачивания desktop-панели |
+| 20.09.2026 22:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 10 с | bca839a +9 | [лог](logs/2026-09-20T17-06-15Z-e2e-549f.log) | GREEN: шесть групп навигации, ссылки, responsive и compact → mobile |
+| 20.09.2026 22:08 | lint | ✅ без ошибок | 52 с | bca839a +9 | [лог](logs/2026-09-20T17-08-26Z-lint-6180.log) | Навигация: качество кода |
+| 20.09.2026 22:08 | typecheck | ❌ ошибок: 1 | 1 мин 10 с | bca839a +9 | [лог](logs/2026-09-20T17-08-26Z-typecheck-38a4.log) | Навигация: frontend, API и тестовые типы |
+| 20.09.2026 22:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/workspace.spec.ts --grep свёрнутая desktop\|разделы содержат\|компактна | ✅ 8 из 8 | 1 мин 45 с | bca839a +9 | [лог](logs/2026-09-20T17-07-55Z-e2e-bab7.log) | Финальная навигация без линий: новые и прежние сценарии меню |
+| 20.09.2026 22:10 | typecheck | ✅ без ошибок | 34 с | bca839a +9 | [лог](logs/2026-09-20T17-10-43Z-typecheck-b751.log) | Исправлен импорт JSX-реестра в Node-наборе UI-тестов, конфигурация типов не менялась |
+| 20.09.2026 22:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts --grep разделы содержат --workers=1) | ✅ 1 из 1 | 27 с | bca839a +9 | [лог](logs/2026-09-20T17-11-05Z-e2e-b5b3.log) | Проверка состава меню после переноса ожидаемых маршрутов в Node-совместимый тест |

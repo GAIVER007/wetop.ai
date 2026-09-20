@@ -1096,3 +1096,4 @@
 | 20.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 185 из 185 | 11 мин 29 с | c2bdc3c | [лог](logs/2026-09-20T07-57-03Z-e2e-cd43.log) |  |
 | 20.09.2026 13:08 | e2e (частично: --config tests/ui/playwright.config.ts manager-actions chessboard-week chessboard-month chessboard-blocks premium design-reference --workers=1) | ❌ упало 1 из 39 | 4 мин 14 с | c2bdc3c +4 | [лог](logs/2026-09-20T08-08-48Z-e2e-96fb.log) | шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag |
 | 20.09.2026 13:15 | e2e (частично: --config tests/ui/playwright.config.ts manager-actions --workers=1) | ✅ 9 из 9 | 27 с | c2bdc3c +4 | [лог](logs/2026-09-20T08-15-27Z-e2e-0a05.log) |  |
+| 20.09.2026 13:17 | e2e (частично: --config tests/ui/playwright.config.ts real-data --workers=1) | ✅ 5 из 5 | 9 с | 976efc7 +1 | [лог](logs/2026-09-20T08-17-39Z-e2e-fcbe.log) |  |

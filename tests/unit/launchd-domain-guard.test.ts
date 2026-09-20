@@ -49,7 +49,10 @@ function run(opts: Case): string {
     writeFileSync(file, `#!/bin/bash\n${body}\n`);
     chmodSync(file, 0o755);
   };
-  writeFileSync(join(home, '.cloudflared', 'wetop.yml'), opts.config ?? readFileSync(EXAMPLE, 'utf8'));
+  writeFileSync(
+    join(home, '.cloudflared', 'wetop.yml'),
+    opts.config ?? readFileSync(EXAMPLE, 'utf8'),
+  );
   // cloudflared ищется по PATH_ENV скрипта, а он начинается с $HOME/.local/bin
   script(join(home, '.local', 'bin', 'cloudflared'), 'exit 0');
   script(join(bin, 'launchctl'), 'exit 113'); // ни одна задача не загружена
@@ -68,28 +71,53 @@ function run(opts: Case): string {
   return res.stdout + res.stderr;
 }
 
+/**
+ * Сроки здесь заданы явно. 20.09.2026 прогон на машине владельца дал красное на третьей проверке —
+ * «Test timed out in 5000ms», при том что раньше та же проверка проходила за 3,5–5,0 с. Дело не в
+ * логике: это единственный случай, где install.sh доходит до конца и успевает наплодить сотни
+ * подставных процессов, а срок по умолчанию у vitest — ровно 5 с. Проверка, которая краснеет от
+ * загрузки машины, хуже отсутствующей: ей перестают верить.
+ */
+const SHELL_TIMEOUT = 60_000;
+
 describe('install.sh domain: две проверки до установки', () => {
-  it('не ставит службу по нетронутому образцу с заглушками', () => {
-    const out = run({ httpCode: '000' });
-    expect(out).toContain('остались заглушки');
-    expect(out).not.toContain('загружен, журнал');
-  });
+  it(
+    'не ставит службу по нетронутому образцу с заглушками',
+    () => {
+      const out = run({ httpCode: '000' });
+      expect(out).toContain('остались заглушки');
+      expect(out).not.toContain('загружен, журнал');
+    },
+    SHELL_TIMEOUT,
+  );
 
-  it('не поднимает вторую копию, когда туннель уже держит другой cloudflared', () => {
-    const out = run({ config: FILLED, httpCode: '200' });
-    expect(out).toContain('туннель уже держит другой cloudflared');
-    expect(out).toContain('ALLOW_SECOND_TUNNEL=1');
-    expect(out).not.toContain('загружен, журнал');
-  });
+  it(
+    'не поднимает вторую копию, когда туннель уже держит другой cloudflared',
+    () => {
+      const out = run({ config: FILLED, httpCode: '200' });
+      expect(out).toContain('туннель уже держит другой cloudflared');
+      expect(out).toContain('ALLOW_SECOND_TUNNEL=1');
+      expect(out).not.toContain('загружен, журнал');
+    },
+    SHELL_TIMEOUT,
+  );
 
-  it('с заполненным конфигом и молчащим адресом обе проверки пропускают', () => {
-    const out = run({ config: FILLED, httpCode: '000' });
-    expect(out).not.toContain('остались заглушки');
-    expect(out).not.toContain('туннель уже держит другой cloudflared');
-  });
+  it(
+    'с заполненным конфигом и молчащим адресом обе проверки пропускают',
+    () => {
+      const out = run({ config: FILLED, httpCode: '000' });
+      expect(out).not.toContain('остались заглушки');
+      expect(out).not.toContain('туннель уже держит другой cloudflared');
+    },
+    SHELL_TIMEOUT,
+  );
 
-  it('ALLOW_SECOND_TUNNEL=1 — осознанный обход', () => {
-    const out = run({ config: FILLED, httpCode: '200', allowSecond: true });
-    expect(out).not.toContain('туннель уже держит другой cloudflared');
-  });
+  it(
+    'ALLOW_SECOND_TUNNEL=1 — осознанный обход',
+    () => {
+      const out = run({ config: FILLED, httpCode: '200', allowSecond: true });
+      expect(out).not.toContain('туннель уже держит другой cloudflared');
+    },
+    SHELL_TIMEOUT,
+  );
 });

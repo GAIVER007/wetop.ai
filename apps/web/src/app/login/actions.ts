@@ -112,17 +112,24 @@ export async function requestCodeAction(email: string): Promise<AuthActionResult
   }
 }
 
-/** Регистрация: организация с пробным периодом и код на почту. Ошибки формы приходят текстом из API. */
+/**
+ * Регистрация: почта, имя, пароль (ADR-053, решение владельца 20.09.2026). Письма и кода в этом
+ * пути нет — API сразу отдаёт ключ сессии, и человек оказывается на рабочем месте. Рабочее
+ * пространство называется именем человека: отдельного поля в форме владелец не просил.
+ */
 export async function registerAction(
   email: string,
-  organizationName: string,
+  name: string,
+  password: string,
 ): Promise<AuthActionResult> {
   try {
-    await authApi.register(email, organizationName, await clientInfo());
-    return { error: null };
+    const result = await authApi.register({ email, name, password });
+    await setSessionCookie(result.token, result.expiresAt);
   } catch (e) {
     return { error: errorText(e) };
   }
+  // `redirect` бросает служебное исключение — снаружи `try`, чтобы не принять его за ошибку.
+  redirect('/today');
 }
 
 /** Проверка кода. Удача — ключ в куку и на рабочее место; отказ — текст API, один на все причины. */

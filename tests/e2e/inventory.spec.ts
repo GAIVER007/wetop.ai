@@ -27,5 +27,7 @@ test('фильтр по категории оставляет только её 
   expect(double).toBeDefined();
   await page.goto(`/inventory?category=${encodeURIComponent(double.code)}`);
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(4);
-  await expect(page.getByRole('main').getByTestId('unit-row').first()).toContainText(double.name);
+  await expect(
+    page.getByRole('region', { name: double.name, exact: true }).getByTestId('unit-row'),
+  ).toHaveCount(4);
 });

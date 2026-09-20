@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-09-20T16:27:31.071Z",
+  "dependencyEvent": "mtime only; package content unchanged",
+  "apiPidUnchanged": true,
+  "health": {
+    "status": "ok",
+    "database": "up",
+    "uptimeSeconds": 76
+  }
+}

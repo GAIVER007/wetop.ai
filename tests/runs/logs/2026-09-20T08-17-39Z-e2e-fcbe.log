@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 20.09.2026 13:17 Алматы · vm
+# коммит 976efc7 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'real-data' '--workers=1'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (865ms)
+  ✓  2 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (963ms)
+  ✓  3 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (811ms)
+  ✓  4 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (610ms)
+  ✓  5 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (1.0s)
+
+  5 passed (8.0s)
+
+# код выхода 0 · 9 с

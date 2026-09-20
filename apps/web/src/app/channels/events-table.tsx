@@ -91,7 +91,7 @@ export function EventsTable({
           <RetryEventButton revisionId={failed.externalEventId} />
         </div>
       )}
-      <Table size="sm" data-testid="events-table">
+      <Table size="sm" className="dir-table dir-table--events" data-testid="events-table">
         <thead>
           <tr>
             {['Событие', 'Тип', 'Как дошло', 'Статус', 'Получено', 'Бронь', ''].map((h) => (
@@ -102,17 +102,26 @@ export function EventsTable({
         <tbody>
           {data === null && (
             <tr>
-              <td colSpan={7} className="muted">
-                события не загрузились
+              <td colSpan={7} className="empty-state" data-testid="events-failed">
+                События не загрузились: API не ответил. Брони из каналов при этом принимаются
+                отдельно; обновите страницу или откройте{' '}
+                <Link href="/incidents">неисправности</Link>.
               </td>
             </tr>
           )}
           {data?.rows.length === 0 && (
             <tr>
-              <td colSpan={7} className="muted">
-                {filter.q || filter.status || filter.type
-                  ? 'ничего не найдено'
-                  : 'событий пока нет'}
+              <td colSpan={7} className="empty-state" data-testid="events-empty">
+                {filter.q || filter.status || filter.type ? (
+                  <>
+                    По этим условиям ничего не найдено.{' '}
+                    <Link href={hrefFor({ q: '', status: '', type: '', page: 1 })}>
+                      Сбросить фильтры событий
+                    </Link>
+                  </>
+                ) : (
+                  'Событий пока нет: Channex ещё не присылал броней. Когда пришлёт, событие появится здесь, а бронь — на шахматке.'
+                )}
               </td>
             </tr>
           )}

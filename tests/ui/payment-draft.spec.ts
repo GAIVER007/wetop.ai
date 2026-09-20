@@ -54,3 +54,33 @@ for (const edited of [true, false]) {
     }
   });
 }
+
+/**
+ * D3 «Оплата в брони» (tasks/todo.md): перед кнопкой видно, сколько, чем и на какой счёт какой брони
+ * уходит платёж; не число не отправляется; у полей подписи; после успеха форма собирается заново.
+ */
+test('оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит', async ({
+  page,
+}) => {
+  await page.goto('/reservations/20260913-TESTAA');
+  await page.getByRole('tab', { name: 'Счета', exact: true }).click();
+  const payment = page.getByTestId('payment-form').first();
+  const digest = payment.getByTestId('payment-digest');
+  // подсказка из баланса первого счёта — уже в строке сути, способ по умолчанию — наличные
+  await expect(digest).toContainText('наличные');
+  await expect(digest).toContainText('брони 20260913-TESTAA');
+  await expect(digest).toContainText(/\d[\d\s]* ₸/);
+  await payment.getByLabel('Сумма', { exact: true }).fill('1250,50');
+  await payment.getByLabel('Способ оплаты').selectOption('KASPI');
+  await expect(digest).toContainText('1 250,50 ₸, Kaspi, на счёт «');
+  // не число — кнопка отключена, строка сути говорит почему
+  await payment.getByLabel('Сумма', { exact: true }).fill('12a');
+  await expect(digest).toContainText('не число');
+  await expect(payment.getByRole('button', { name: 'Принять оплату', exact: true })).toBeDisabled();
+  await payment.getByLabel('Сумма', { exact: true }).fill('1000');
+  await expect(payment.getByRole('button', { name: 'Принять оплату', exact: true })).toBeEnabled();
+  // подписи полей видны, не только aria-label
+  // подпись — это <label> вокруг поля: его текст включает и значение, поэтому ищем по началу
+  await expect(payment.locator('label.field--inline', { hasText: /^Способ/ })).toBeVisible();
+  await expect(payment.locator('label.field--inline', { hasText: /^Примечание/ })).toBeVisible();
+});

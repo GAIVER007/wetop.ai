@@ -65,8 +65,12 @@ test('поздняя загрузка гостиницы сохраняет вв
     await page.goto('/reservations/new', { waitUntil: 'commit' });
     await page.getByLabel('Имя *', { exact: true }).fill('Тестовый ввод');
     const menu = page.getByRole('button', { name: 'Меню администратора' });
-    await menu.click();
-    await expect(menu).toHaveAttribute('aria-expanded', 'true');
+    // страница ещё стримится (гостиница задержана): клик до гидратации кнопки теряется — на медленном
+    // раннере CI так и было (20.09, 184/185); повторяем клик, пока меню не раскроется
+    await expect(async () => {
+      await menu.click();
+      await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+    }).toPass({ timeout: 15_000 });
     await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
       'Объект не загружен',
     );

@@ -30,7 +30,9 @@ for (const path of PAGES) {
     await page.goto(path);
     // Выражение строкой, а не стрелкой: в корневом tsconfig нет библиотеки DOM, и `document` тут не типизирован
     const overflow = Number(
-      await page.evaluate('document.documentElement.scrollWidth - document.documentElement.clientWidth'),
+      await page.evaluate(
+        'document.documentElement.scrollWidth - document.documentElement.clientWidth',
+      ),
     );
     expect(overflow, 'ширина страницы больше экрана').toBeLessThanOrEqual(1);
   });
@@ -48,7 +50,9 @@ test('ссылка в мессенджере: заголовок, описани
     const image = (await meta('og:image'))!;
     const file = await request.get(new URL(image).pathname);
     expect(file.status(), `картинка ссылки ${image} не отдаётся`).toBe(200);
-    expect((await file.body()).length, 'картинка ссылки подозрительно мала').toBeGreaterThan(10_000);
+    expect((await file.body()).length, 'картинка ссылки подозрительно мала').toBeGreaterThan(
+      10_000,
+    );
   }
 });
 
@@ -62,4 +66,45 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
     expect(res.status(), `в sitemap.xml адрес, которого нет: ${url}`).toBe(200);
   }
   expect(await (await request.get('/robots.txt')).text()).toContain('sitemap.xml');
+});
+
+/**
+ * E2–E3 (20.09.2026, решения владельца С1–С3 по `plans/site-refresh-2026-09-20.md`): тексты «Как начать» говорят
+ * то же, что делает кнопка — регистрацию с пробным периодом, а не заявку и звонок; пункт «Блог» в шапке, меню и подвале
+ * не показывается, пока опубликованных статей нет (страница `/blog/` остаётся по адресу); подсказка «Новая бронь» на
+ * макете не выходит за карточку на 1440 px; в текстах сайта нет « · » (тот же голос, что у стойки, §14).
+ */
+test('главная: шаги под регистрацию, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const body = await page.locator('body').innerText();
+  expect(body).not.toContain(' · ');
+  expect(body).not.toMatch(/Оставьте заявку|мы свяжемся/);
+  const start = page.locator('#start');
+  await expect(start.getByRole('heading', { level: 3 }).first()).toHaveText('Регистрация');
+  await expect(start).toContainText('7 дней');
+  await expect(start.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+    'href',
+    /register/,
+  );
+  // блог: статей нет — пункта нет ни в шапке, ни в подвале; сама страница отдаётся
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Основная навигация' })
+      .getByRole('link', { name: 'Блог' }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
+  ).toHaveCount(0);
+  expect((await page.request.get('/blog/')).status()).toBe(200);
+  // подсказка «Новая бронь» — внутри карточки макета (после анимации появления: она сдвигает на 14 px)
+  await page
+    .locator('.mockup__toast')
+    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+  const card = await page.locator('.mockup__window').boundingBox();
+  const toast = await page.locator('.mockup__toast').boundingBox();
+  expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
+  expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
 });

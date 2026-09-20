@@ -3,6 +3,7 @@ import { useActionState } from 'react';
 import { Alert, Button, Field, Grid, Input, Select } from '../../../components/ui';
 import { type FinanceFolio } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
+import { displayDate } from '../../../lib/display-date';
 import { payGroupAction, type FinanceActionResult } from './finance-actions';
 
 export function GroupPayment({
@@ -61,7 +62,7 @@ export function GroupPayment({
         {open.map((f, i) => (
           <Field
             key={f.id}
-            label={`Счёт ${i + 1} · ${f.stay.accommodationTypeName} · ${f.stay.arrivalDate} — ${f.stay.departureDate} · баланс ${formatMoney(f.balanceMinor, f.currency)}`}
+            label={`Счёт ${i + 1}: ${f.stay.accommodationTypeName}, ${displayDate(f.stay.arrivalDate)} → ${displayDate(f.stay.departureDate)}, баланс ${formatMoney(f.balanceMinor, f.currency)}`}
           >
             <Input
               name={`allocation.${f.id}`}

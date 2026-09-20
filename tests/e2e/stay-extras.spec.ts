@@ -56,8 +56,8 @@ test('поздний выезд и ранний заезд начисляютс�
     .filter({ hasText: 'Поздний выезд' });
   await expect(late).toHaveCount(1);
   expect(money(await late.locator('td').nth(3).innerText())).toBe(half * 2);
-  // услуга датирована днём выезда
-  await expect(late).toContainText(plus(14));
+  // услуга датирована днём выезда: сырая дата — в datetime, человек видит «14 окт.» (§14, D3)
+  await expect(late.locator('time').first()).toHaveAttribute('datetime', plus(14));
 
   page.once('dialog', (d) => void d.accept('07:00')); // 06:00–11:59 → половина ночи
   await page.getByRole('main').locator('[data-testid^="early-check-in-"]').click();
@@ -66,7 +66,7 @@ test('поздний выезд и ранний заезд начисляютс�
     .getByTestId('charge-row')
     .filter({ hasText: 'Ранний заезд' });
   await expect(early).toHaveCount(1);
-  await expect(early).toContainText(plus(12));
+  await expect(early.locator('time').first()).toHaveAttribute('datetime', plus(12));
 
   // баланс вырос на целую ночь (выезд в 19:00) и половину (заезд в 07:00)
   expect(money(await page.getByRole('main').getByTestId('folio-balance').innerText())).toBe(

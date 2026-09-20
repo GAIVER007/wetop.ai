@@ -14,10 +14,13 @@ test('главная: новая бронь и резюме внимания д�
     await expect(create).toBeInViewport({ ratio: 1 });
     const attention = page.getByRole('link', { name: /Требуют внимания: / });
     await expect(attention).toBeInViewport({ ratio: 1 });
+    // Ссылка и её цель приходят разными потоковыми кусками (`Suspense`): пока секция «Требуют
+    // внимания» не в DOM, переход по якорю прокрутить некуда — на медленном раннере CI щелчок
+    // успевал раньше секции, и заголовок оставался за краем экрана (20.09.2026).
+    const heading = page.getByRole('heading', { name: 'Требуют внимания', exact: true });
+    await expect(heading).toBeAttached();
     await attention.click();
-    await expect(
-      page.getByRole('heading', { name: 'Требуют внимания', exact: true }),
-    ).toBeInViewport();
+    await expect(heading).toBeInViewport();
   }
 });
 

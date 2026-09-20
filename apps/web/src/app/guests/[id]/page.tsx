@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { notFoundOn404 } from '../../../lib/page-error';
-import { guestsApi } from '../../../lib/api';
+import { guestsApi, messengerLinks } from '../../../lib/api';
+import { hotelToday } from '../../../lib/hotel-api';
+import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
-import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
+import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
+import { Icon } from '../../../components/icon';
 import { GuestForms } from './guest-forms';
+import { stayNow } from './stay-now';
+import '../../directory.css';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -19,41 +24,57 @@ const STATUS_RU: Record<string, string> = {
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const g = await guestsApi.card(id).catch(notFoundOn404);
+  const messengers = messengerLinks(g.phone);
+  const today = hotelToday();
+  const stays = [...g.stays].sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate));
   return (
     <Page
       width="medium"
       crumbs={<Link href="/guests">← гости</Link>}
       title={`${g.lastName} ${g.firstName} ${g.middleName ?? ''}`.trim()}
     >
-      <div className="guest-summary">
-        <div className="guest-avatar" aria-hidden="true">
-          {g.firstName.slice(0, 1)}
-          {g.lastName.slice(0, 1)}
+      {/* Полоса фактов, как на карточке брони (B3): где гость сейчас, связь, гражданство, проживаний */}
+      <dl className="booking-head guest-head" data-testid="guest-head">
+        <div>
+          <dt>Сейчас</dt>
+          <dd data-testid="guest-stay-now">{stayNow(stays, today)}</dd>
         </div>
         <div>
-          <strong>{g.phone ?? 'Телефон не указан'}</strong>
-          <p>{g.email ?? 'Email не указан'}</p>
+          <dt>Телефон</dt>
+          <dd>
+            {g.phone ?? <span className="muted">—</span>}
+            {messengers && (
+              <span className="booking-head__contacts">
+                <a href={messengers.whatsapp} target="_blank" rel="noreferrer">
+                  WhatsApp
+                </a>
+                <a href={messengers.telegram} target="_blank" rel="noreferrer">
+                  Telegram
+                </a>
+              </span>
+            )}
+          </dd>
         </div>
-        <div className="guest-summary-fact">
-          <span>Проживаний в истории</span>
-          <strong>{g.stays.length}</strong>
+        <div>
+          <dt>Email</dt>
+          <dd>{g.email ?? <span className="muted">—</span>}</dd>
         </div>
-        <div className="guest-summary-fact">
-          <span>Гражданство</span>
-          <strong>{g.citizenship ?? 'Не заполнено'}</strong>
+        <div>
+          <dt>Гражданство</dt>
+          <dd>{g.citizenship ?? <span className="warn-text">—</span>}</dd>
         </div>
-      </div>
+        <div>
+          <dt>Проживаний</dt>
+          <dd>{g.stays.length}</dd>
+        </div>
+      </dl>
       <RecordTabs
         label="Разделы карточки гостя"
         tabs={[
           {
             id: 'guest-profile',
             label: 'Информация',
-            content: (
-              <>
-                <GuestForms guest={g} />
-              </>
-            ),
+            content: <GuestForms guest={g} />,
           },
           {
             id: 'guest-history',
@@ -61,40 +82,54 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
             content: (
               <>
                 <SectionTitle id="guest-history">История проживаний</SectionTitle>
-                <Table>
-                  <thead>
-                    <tr>
-                      {['Бронь', 'Категория', 'Ячейка', 'Заезд', 'Выезд', 'Статус'].map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {g.stays.length === 0 && (
+                {stays.length === 0 ? (
+                  <EmptyState icon={<Icon name="booking" />} title="Проживаний пока нет">
+                    Первое появится, когда гость будет заведён в бронь.
+                  </EmptyState>
+                ) : (
+                  <Table className="dir-table dir-table--history" nowrap>
+                    <thead>
                       <tr>
-                        <td colSpan={6} className="muted">
-                          нет
-                        </td>
+                        {['Бронь', 'Категория', 'Ячейка', 'Заезд', 'Выезд', 'Статус'].map((h) => (
+                          <th key={h}>{h}</th>
+                        ))}
                       </tr>
-                    )}
-                    {g.stays.map((s) => (
-                      <tr key={`${s.confirmationNumber}-${s.arrivalDate}`}>
-                        <td>
-                          <Link href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}>
-                            {s.confirmationNumber}
-                          </Link>
-                        </td>
-                        <td>{s.accommodationTypeName}</td>
-                        <td className="mono">{s.unitCode ?? '—'}</td>
-                        <td>{s.arrivalDate}</td>
-                        <td>{s.departureDate}</td>
-                        <td>
-                          <StatusBadge status={s.status} label={STATUS_RU[s.status] ?? s.status} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                    </thead>
+                    <tbody>
+                      {stays.map((s) => (
+                        <tr
+                          key={`${s.confirmationNumber}-${s.arrivalDate}`}
+                          data-testid="guest-stay-row"
+                        >
+                          <td>
+                            <Link
+                              className="dir-number"
+                              href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
+                              aria-label={`Открыть бронь ${s.confirmationNumber}`}
+                            >
+                              {s.confirmationNumber}
+                            </Link>
+                          </td>
+                          <td>{s.accommodationTypeName}</td>
+                          <td className="mono">{s.unitCode ?? '—'}</td>
+                          {/* §14: сырая дата — в datetime, человеку — «20 сент.» */}
+                          <td>
+                            <time dateTime={s.arrivalDate}>{displayDate(s.arrivalDate)}</time>
+                          </td>
+                          <td>
+                            <time dateTime={s.departureDate}>{displayDate(s.departureDate)}</time>
+                          </td>
+                          <td>
+                            <StatusBadge
+                              status={s.status}
+                              label={STATUS_RU[s.status] ?? s.status}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                )}
               </>
             ),
           },
@@ -103,7 +138,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
             label: 'Счета и услуги',
             content: (
               <div className="guest-account-links">
-                {g.stays.map((stay) => (
+                {stays.map((stay) => (
                   <Link
                     className="panel"
                     key={`${stay.confirmationNumber}-${stay.arrivalDate}`}
@@ -111,16 +146,17 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
                   >
                     <strong>{stay.confirmationNumber}</strong>
                     <span className="muted">
-                      {stay.arrivalDate} → {stay.departureDate}
+                      <time dateTime={stay.arrivalDate}>{displayDate(stay.arrivalDate)}</time>
+                      {' → '}
+                      <time dateTime={stay.departureDate}>{displayDate(stay.departureDate)}</time>
                     </span>
-                    <span>Счёт и дополнительные услуги →</span>
+                    <span>Счёт и дополнительные услуги</span>
                   </Link>
                 ))}
-                {!g.stays.length && (
-                  <div className="empty-state">
-                    <h3>Счетов пока нет</h3>
-                    <p>Здесь появятся счета по проживаниям гостя.</p>
-                  </div>
+                {!stays.length && (
+                  <EmptyState title="Счетов пока нет">
+                    Счёт открывается на проживание: здесь появятся счета по броням гостя.
+                  </EmptyState>
                 )}
               </div>
             ),

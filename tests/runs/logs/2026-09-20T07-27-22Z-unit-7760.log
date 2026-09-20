@@ -1,0 +1,16 @@
+# Модульные (unit) · 20.09.2026 12:27 Алматы · vm
+# коммит bc2b4aa (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-20T07-27-22Z-unit-7760.json' 'apps/web/src/design-rules.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 55ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  07:27:23
+   Duration  241ms (tests 45%, transform 43%, import 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-20T07-27-22Z-unit-7760.json
+
+# код выхода 0 · 1 с

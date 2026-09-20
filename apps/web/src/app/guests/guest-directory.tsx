@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { reservationDirectory, hotelToday, reservationStatuses } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
-import { StatusBadge, Table } from '../../components/ui';
+import { EmptyState, StatusBadge, Table } from '../../components/ui';
 import { messengerLinks } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
@@ -40,7 +40,7 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
         <Link href="/reservations">Все бронирования</Link>
       </div>
       {/* Одна строка на гостя: имя, как связаться, где живёт, когда, статус, бронь — без email и аватаров */}
-      <Table className="dir-table" nowrap>
+      <Table className="dir-table dir-table--guests-today" nowrap>
         <thead>
           <tr>
             <th>Гость</th>
@@ -116,16 +116,25 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
         </tbody>
       </Table>
       {!rows.length && (
-        <div className="empty-state">
-          <Icon name="guests" />
-          <h3>Гостей в этом списке пока нет</h3>
-          <p>Найдите гостя по имени, телефону или email.</p>
-        </div>
+        <EmptyState
+          data-testid="guests-today-empty"
+          icon={<Icon name="guests" />}
+          title="Гостей в этом списке пока нет"
+          actions={
+            status !== 'ALL' && (
+              <Link href="/guests" className="btn btn--secondary">
+                Все статусы
+              </Link>
+            )
+          }
+        >
+          Найдите гостя по имени, телефону или email — поле поиска выше.
+        </EmptyState>
       )}
       {data.total > data.pageSize && (
         <p className="muted small" role="status">
-          Броней на сегодня {data.total}, показаны гости из первых {data.pageSize}. Остальных
-          ищите по имени или телефону.
+          Броней на сегодня {data.total}, показаны гости из первых {data.pageSize}. Остальных ищите
+          по имени или телефону.
         </p>
       )}
     </>

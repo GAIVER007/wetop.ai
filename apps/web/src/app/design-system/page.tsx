@@ -8,19 +8,22 @@ import {
   Alert,
   Badge,
   Button,
+  EmptyState,
   Field,
   Input,
   Legend,
+  LoadingState,
   Notice,
   Panel,
   Select,
+  Skeleton,
   Stat,
   Stats,
   StatusBadge,
   Table,
 } from '../../components/ui';
 import { Tooltip } from '../../components/tooltip';
-import { ConfirmDemo, MenuDemo, ToastDemo, ToastStatic, TooltipDemo } from './demos';
+import { ConfirmDemo, ErrorDemo, MenuDemo, ToastDemo, ToastStatic, TooltipDemo } from './demos';
 import './kit.css';
 
 /**
@@ -595,6 +598,48 @@ function Kit() {
             </Alert>
             <Notice>Бронь создана, ячейка R04 назначена</Notice>
             <Notice tone="muted">Данные обновлены 15:44</Notice>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="states"
+        title="Пусто, загрузка, сбой"
+        where="ui.tsx · EmptyState, LoadingState, Skeleton; error-state.tsx · ErrorState (экран и панель, error.tsx)"
+      >
+        <State name="default" note="пусто: что пусто и что сделать, действие — ссылкой или кнопкой">
+          <EmptyState
+            icon={<Icon name="booking" />}
+            title="Бронирований не найдено"
+            actions={
+              <>
+                <Button tone="secondary">Все статусы</Button>
+                <Button tone="secondary">Сбросить фильтры</Button>
+              </>
+            }
+          >
+            На 20 сент., статус «Проживают», бронирований нет. Уберите условие или выберите другой
+            день.
+          </EmptyState>
+        </State>
+        <State
+          name="loading"
+          note="скелетоны формы содержимого, aria-busy и живая подпись; без крутилки"
+        >
+          <LoadingState label="Загружаем список броней…">
+            <Skeleton variant="title" />
+            <Skeleton />
+            <Skeleton />
+            <Skeleton variant="text" />
+          </LoadingState>
+        </State>
+        <State
+          name="error"
+          note="нет связи — повтор и путь к подключениям; отклонённый запрос — проверить адрес, повтор не поможет"
+        >
+          <div className="stack stack--sm">
+            <ErrorDemo digest="API_503" />
+            <ErrorDemo digest="API_404" />
           </div>
         </State>
       </Component>

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
 import { hashSecret, newSessionToken } from '@pms/shared';
 import { AuthService } from './auth.service';
@@ -307,6 +307,8 @@ describe('AuthService.changePassword', () => {
  * код на почту и потому не работала без настроенных MAIL_*; теперь человек входит сразу.
  */
 describe('AuthService.register', () => {
+  beforeEach(() => vi.stubEnv('SELF_REGISTRATION_ENABLED', '1'));
+  afterEach(() => vi.unstubAllEnvs());
   const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
 
   it('заводит организацию, человека и членство и сразу открывает сессию — как после входа', async () => {

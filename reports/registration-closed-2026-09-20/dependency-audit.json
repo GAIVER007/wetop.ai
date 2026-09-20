@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-09-20",
+  "command": "npm audit --package-lock-only --json",
+  "lockfileChanged": false,
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 2,
+    "high": 5,
+    "critical": 0,
+    "total": 7
+  },
+  "packages": [
+    {
+      "name": "@prisma/config",
+      "severity": "high",
+      "fixAvailable": {
+        "name": "prisma",
+        "version": "6.19.3",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "deepmerge-ts",
+      "severity": "high",
+      "fixAvailable": {
+        "name": "prisma",
+        "version": "6.19.3",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "exceljs",
+      "severity": "moderate",
+      "fixAvailable": {
+        "name": "exceljs",
+        "version": "3.4.0",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "lodash",
+      "severity": "high",
+      "fixAvailable": true
+    },
+    {
+      "name": "mysql2",
+      "severity": "high",
+      "fixAvailable": {
+        "name": "prisma",
+        "version": "6.19.3",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "prisma",
+      "severity": "high",
+      "fixAvailable": {
+        "name": "prisma",
+        "version": "6.19.3",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "uuid",
+      "severity": "moderate",
+      "fixAvailable": {
+        "name": "exceljs",
+        "version": "3.4.0",
+        "isSemVerMajor": true
+      }
+    }
+  ]
+}

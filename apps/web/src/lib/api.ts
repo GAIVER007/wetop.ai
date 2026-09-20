@@ -347,6 +347,7 @@ async function throwUnlessOk(res: Response): Promise<Response> {
  * `/auth/logout` общие — API узнаёт сессию любого входа.
  */
 export const authApi = {
+  options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   login: (body: { email: string; password: string }) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
   me: () => getJson<{ user: SignedIn | null; expiresAt?: string }>('/auth/me'),

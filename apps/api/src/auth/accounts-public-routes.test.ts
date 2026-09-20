@@ -38,8 +38,8 @@ describe('объединение входа по коду с включённы�
 
   /**
    * Регистрация переехала на AuthController вместе с решением владельца входить по паролю
-   * (20.09.2026, ADR-053). Она обязана быть без замка по той же причине, что и вход: этим
-   * маршрутом человек и заводится. Забыть здесь @Public — значит закрыть регистрацию совсем.
+   * (20.09.2026, ADR-053). @Public пропускает проверку сессии, но регистрация отдельно
+   * запрещена по умолчанию самим сервисом (ADR-055). Настройка не содержит данных людей.
    */
   function authGuardFor(method: keyof AuthController) {
     const auth = { whoami: vi.fn(async () => null) } as unknown as AuthService;
@@ -51,7 +51,7 @@ describe('объединение входа по коду с включённы�
     return new SessionGuard(new Reflector(), auth).canActivate(context);
   }
 
-  it.each(['login', 'register'] as const)(
+  it.each(['login', 'register', 'options'] as const)(
     '%s на AuthController доступен без сессии',
     async (method) => {
       await expect(authGuardFor(method)).resolves.toBe(true);

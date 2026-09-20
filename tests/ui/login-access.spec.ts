@@ -218,73 +218,83 @@ test('после входа экран входа показывает, кто �
 
 // ── Регистрация (ADR-053): почта, имя, пароль — и сразу внутрь, без письма ──
 
-test('на экране входа нет входа по коду: только пароль и кнопка регистрации', async ({ page }) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await expect(main.getByRole('button', { name: 'Войти по коду из письма' })).toHaveCount(0);
-  await expect(main.getByLabel('Код из письма')).toHaveCount(0);
-  await expect(main.getByRole('button', { name: 'Регистрация' })).toBeVisible();
-});
+test.describe('регистрация явно разрешена на изолированном стенде', () => {
+  test.beforeEach(async ({ request }) => {
+    await request.post('http://127.0.0.1:4311/__test/control', {
+      data: { registrationEnabled: true },
+    });
+  });
 
-test('кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю', async ({
-  page,
-}) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await main.getByRole('button', { name: 'Регистрация' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-  await expect(main.getByLabel('Email')).toBeVisible();
-  await expect(main.getByLabel('Имя')).toBeVisible();
-  await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
-  await expect(main).not.toContainText('Название организации');
+  test('на экране входа нет входа по коду: только пароль и кнопка регистрации', async ({
+    page,
+  }) => {
+    await page.goto('/login');
+    const main = page.getByRole('main');
+    await expect(main.getByRole('button', { name: 'Войти по коду из письма' })).toHaveCount(0);
+    await expect(main.getByLabel('Код из письма')).toHaveCount(0);
+    await expect(main.getByRole('button', { name: 'Регистрация' })).toBeVisible();
+  });
 
-  await main.getByRole('button', { name: 'Войти по паролю' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
-});
+  test('кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю', async ({
+    page,
+  }) => {
+    await page.goto('/login');
+    const main = page.getByRole('main');
+    await main.getByRole('button', { name: 'Регистрация' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+    await expect(main.getByLabel('Email')).toBeVisible();
+    await expect(main.getByLabel('Имя')).toBeVisible();
+    await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
+    await expect(main).not.toContainText('Название организации');
 
-test('/login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта', async ({
-  page,
-}) => {
-  await page.goto('/login?mode=register');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-});
+    await main.getByRole('button', { name: 'Войти по паролю' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
+  });
 
-test('регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly', async ({
-  page,
-  context,
-}) => {
-  await page.goto('/register');
-  const main = page.getByRole('main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-  await main.getByLabel('Email').fill('novyj@example.com');
-  await main.getByLabel('Имя').fill('Вячеслав Петров');
-  await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await page.waitForURL('**/today');
+  test('/login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта', async ({
+    page,
+  }) => {
+    await page.goto('/login?mode=register');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+  });
 
-  // письма и второго шага в этом пути нет: сессия открыта тем же способом, что при входе
-  const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
-  expect(cookie?.httpOnly).toBe(true);
-  expect(cookie?.sameSite).toBe('Lax');
-});
+  test('регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await page.waitForURL('**/today');
 
-test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
-  page,
-}) => {
-  await page.goto('/register');
-  const main = page.getByRole('main');
+    // письма и второго шага в этом пути нет: сессия открыта тем же способом, что при входе
+    const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
+    expect(cookie?.httpOnly).toBe(true);
+    expect(cookie?.sameSite).toBe('Lax');
+  });
 
-  // занятый адрес называется прямо — иначе человеку нечего ответить на вторую попытку
-  await main.getByLabel('Email').fill(EMAIL);
-  await main.getByLabel('Имя').fill('Вячеслав Петров');
-  await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');
-  await expect(page).toHaveURL(/\/register/);
+  test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
+    page,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
 
-  // короткий пароль форма отдаёт браузеру (minLength), длину проверяет и API — берём его текст
-  await main.getByLabel('Email').fill('novyj@example.com');
-  await main.getByLabel('Пароль', { exact: true }).fill('korotkij1');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await expect(page).toHaveURL(/\/register/);
+    // занятый адрес называется прямо — иначе человеку нечего ответить на вторую попытку
+    await main.getByLabel('Email').fill(EMAIL);
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');
+    await expect(page).toHaveURL(/\/register/);
+
+    // короткий пароль форма отдаёт браузеру (minLength), длину проверяет и API — берём его текст
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Пароль', { exact: true }).fill('korotkij1');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(page).toHaveURL(/\/register/);
+  });
 });

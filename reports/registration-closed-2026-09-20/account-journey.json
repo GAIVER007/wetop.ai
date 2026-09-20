@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-09-20T15:12:19.058Z",
+  "database": "isolated local PostgreSQL pms_test",
+  "mail": "in-memory only",
+  "checks": {
+    "anonymousDenied": true,
+    "registrationDefaultClosed": true,
+    "registrationDeniedWithoutWrites": true,
+    "registrationPersisted": true,
+    "passwordHashed": true,
+    "passwordLogin": true,
+    "existingEmailAlsoDenied": true,
+    "invitationSameOrganization": true,
+    "invitationPasswordLogin": true,
+    "passwordSetupSingleUse": true,
+    "noLoginCodeSent": true,
+    "twoMemberships": true,
+    "invitationSingleUse": true,
+    "existingEmployeeReadsInventory": true,
+    "logoutRevokesSession": true
+  },
+  "journeyPassed": true,
+  "syntheticUsersRemaining": 0
+}

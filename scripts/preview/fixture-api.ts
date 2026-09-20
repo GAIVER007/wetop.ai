@@ -38,6 +38,7 @@ const openAtLock = (p: string): boolean =>
   p.startsWith('/a/') ||
   p.startsWith('/w/') ||
   p === '/auth/login' ||
+  p === '/auth/options' ||
   p === '/auth/logout' ||
   p === '/auth/code' ||
   p === '/auth/register' ||
@@ -48,6 +49,7 @@ let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
 function resetUiAuth() {
+  registrationEnabled = false;
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -1232,6 +1234,7 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
+let registrationEnabled = false;
 /** Сессии обоих входов (Q-146): ключ → кто вошёл; по коду — вымышленная организация на пробном периоде */
 const uiSessions = new Map<string, UiUser>();
 const codeUser = (email: string): UiUser => ({
@@ -1987,6 +1990,8 @@ createServer(async (req, res) => {
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['registrationEnabled'] === 'boolean')
+        registrationEnabled = body['registrationEnabled'];
       if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
       if (
@@ -2212,7 +2217,13 @@ createServer(async (req, res) => {
     }
     if (path === '/auth/code' && req.method === 'POST') return noContent();
     // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
+    if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {
+      if (!registrationEnabled)
+        return send(403, {
+          message:
+            'Самостоятельная регистрация временно закрыта. Обратитесь к администратору объекта.',
+        });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
       const password = String(body['password'] ?? '');

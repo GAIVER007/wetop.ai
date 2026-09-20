@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
@@ -92,6 +98,19 @@ const visible = (
 export class AuthService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  /** ADR-055: единственный источник настройки для API и стойки, без данных пользователей. */
+  registrationOptions(): { registrationEnabled: boolean } {
+    return { registrationEnabled: process.env.SELF_REGISTRATION_ENABLED === '1' };
+  }
+
+  assertRegistrationOpen(): void {
+    if (!this.registrationOptions().registrationEnabled) {
+      throw new ForbiddenException(
+        'Самостоятельная регистрация временно закрыта. Обратитесь к администратору объекта.',
+      );
+    }
+  }
+
   async login(
     input: { email: string; password: string; userAgentFamily?: string | null },
     now = new Date(),
@@ -179,6 +198,8 @@ export class AuthService {
     input: { email: string; name: string; password: string; userAgentFamily?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
+    // Проверка до валидации, хеширования и БД; действует также для внутренних вызовов сервиса.
+    this.assertRegistrationOpen();
     const email = validEmail(input.email);
     if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
     if (!isPersonNameShaped(input.name)) {

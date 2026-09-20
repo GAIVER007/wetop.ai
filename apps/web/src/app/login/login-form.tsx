@@ -32,6 +32,7 @@ export function LoginForm({
   user,
   passwordJustSet = false,
   mode: initialMode = 'password',
+  registrationEnabled = false,
   invites = [],
   sessions = [],
   initialEmail = '',
@@ -43,6 +44,8 @@ export function LoginForm({
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
+  /** Серверное состояние API, не локальное разрешение. По умолчанию регистрация закрыта. */
+  registrationEnabled?: boolean;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
@@ -51,7 +54,8 @@ export function LoginForm({
   initialEmail?: string;
   initialStep?: 'email' | 'code';
 }) {
-  const [mode, setMode] = useState<LoginMode>(initialMode);
+  const [requestedMode, setMode] = useState<LoginMode>(initialMode);
+  const mode = registrationEnabled ? requestedMode : 'password';
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
@@ -392,17 +396,24 @@ export function LoginForm({
                   </span>
                 )}
               </div>
-              <div className="login-preview">
-                <span>Ещё нет организации?</span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={pending}
-                  onClick={() => switchTo('register')}
-                >
-                  Регистрация
-                </button>
-              </div>
+              {registrationEnabled ? (
+                <div className="login-preview">
+                  <span>Ещё нет организации?</span>
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    disabled={pending}
+                    onClick={() => switchTo('register')}
+                  >
+                    Регистрация
+                  </button>
+                </div>
+              ) : initialMode === 'register' ? (
+                <p role="status">
+                  Самостоятельная регистрация временно закрыта. Доступ сотрудникам выдаёт
+                  администратор объекта.
+                </p>
+              ) : null}
             </>
           ) : (
             <>

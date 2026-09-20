@@ -2,7 +2,7 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
-import { Alert, Button, Field, Input, StatusBadge, Table } from '../../components/ui';
+import { Alert, Button, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
 import { AmountChip } from '../../components/amount-chip';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -11,6 +11,7 @@ import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import '../directory.css';
+import './reservations.css';
 import {
   hotelToday,
   reservationDirectory,
@@ -67,7 +68,7 @@ export default async function ReservationsPage({
   return (
     <Page
       title="Брони"
-      subtitle="Бронирования и проживания в выбранном периоде"
+      width="full"
       actions={
         <Link href="/reservations/new" className="btn">
           <Icon name="plus" />
@@ -75,45 +76,67 @@ export default async function ReservationsPage({
         </Link>
       }
     >
-      <form className="directory-toolbar" method="get">
-        <div className="search-field">
-          <Icon name="search" />
-          <Input
-            name="q"
-            // key: при переходе по ссылке «Убрать поиск» React переиспользует поле, и defaultValue не
-            // обновился бы — поле показывало бы прежний запрос (CI 20.09)
-            key={`q-${q}`}
-            defaultValue={q}
-            placeholder="Гость, телефон или номер брони"
-            aria-label="Поиск броней"
-          />
-        </div>
-        <Field inline label="С">
-          <Input
-            key={`from-${from}`}
-            type="date"
-            name="from"
-            defaultValue={from}
-            aria-label="Период: с"
-          />
-        </Field>
-        <Field inline label="По">
-          <Input key={`to-${to}`} type="date" name="to" defaultValue={to} aria-label="Период: по" />
-        </Field>
-        <input type="hidden" name="status" value={status} />
-        <Button tone="secondary">Показать</Button>
-      </form>
-      <nav className="directory-filters" aria-label="Статусы броней">
-        {Object.entries(reservationStatuses).map(([id, label]) => (
-          <Link
-            key={id}
-            href={href({ status: id, page: '1' })}
-            className={status === id ? 'is-active' : ''}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <section className="reservations-controls" aria-label="Фильтры броней">
+        <form className="directory-toolbar" method="get">
+          <div className="search-field">
+            <Icon name="search" />
+            <Input
+              name="q"
+              // key: при переходе по ссылке «Убрать поиск» React переиспользует поле, и defaultValue не
+              // обновился бы — поле показывало бы прежний запрос (CI 20.09)
+              key={`q-${q}`}
+              defaultValue={q}
+              placeholder="Гость, телефон или номер брони"
+              aria-label="Поиск броней"
+            />
+          </div>
+          <Field inline label="С">
+            <Input
+              key={`from-${from}`}
+              type="date"
+              name="from"
+              defaultValue={from}
+              aria-label="Период: с"
+            />
+          </Field>
+          <Field inline label="По">
+            <Input
+              key={`to-${to}`}
+              type="date"
+              name="to"
+              defaultValue={to}
+              aria-label="Период: по"
+            />
+          </Field>
+          <Field label="Статус" className="reservations-status-mobile">
+            <Select
+              name="status"
+              key={`status-${status}`}
+              defaultValue={status}
+              aria-label="Статус брони"
+            >
+              {Object.entries(reservationStatuses).map(([id, label]) => (
+                <option key={id} value={id}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button tone="secondary">Показать</Button>
+        </form>
+        <nav className="directory-filters" aria-label="Статусы броней">
+          {Object.entries(reservationStatuses).map(([id, label]) => (
+            <Link
+              key={id}
+              href={href({ status: id, page: '1' })}
+              className={status === id ? 'is-active' : ''}
+              aria-current={status === id ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </section>
       {error && (
         <Alert boxed>
           {error} <Link href="/reservations">Сбросить фильтры</Link>
@@ -123,7 +146,7 @@ export default async function ReservationsPage({
         <LoadError testId="reservations-error" {...loadErrorProps(loadError)} />
       )}
       {result && (
-        <>
+        <section className="reservations-results" aria-label="Список бронирований">
           <p className="directory-meta" data-testid="directory-meta">
             {pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])} на{' '}
             {periodText}
@@ -133,6 +156,7 @@ export default async function ReservationsPage({
           {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
           {result.rows.length > 0 && (
             <Table
+              aria-label="Бронирования"
               data-testid="reservations-table"
               className="dir-table dir-table--reservations"
               nowrap
@@ -160,6 +184,7 @@ export default async function ReservationsPage({
                         <div className="dir-guest-cell">
                           <Link
                             className="dir-guest"
+                            prefetch={false}
                             href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
                             aria-label={`Открыть бронь ${r.confirmationNumber}`}
                           >
@@ -195,9 +220,11 @@ export default async function ReservationsPage({
                         )}
                       </td>
                       <td className="dir-stay">
-                        <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
-                        {' → '}
-                        <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                        <span className="reservations-stay-dates">
+                          <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                          {' → '}
+                          <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                        </span>
                         {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
                       </td>
                       <td>
@@ -275,7 +302,7 @@ export default async function ReservationsPage({
               )}
             </nav>
           )}
-        </>
+        </section>
       )}
     </Page>
   );

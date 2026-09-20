@@ -30,6 +30,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await main.getByRole('button', { name: 'Даты', exact: true }).click();
     for (const control of [
       main.getByLabel('Шахматка: с', { exact: true }),
       main.getByLabel('Шахматка: по', { exact: true }),
@@ -90,6 +91,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
 ] as const) {
   test(`переход календарной недели: ${from} → ${expectedFrom}`, async ({ page }) => {
     await page.goto(`/chessboard?from=${from}&to=${to}`);
+    await page.getByRole('button', { name: 'Даты', exact: true }).click();
     await page.getByLabel('Шахматка: с', { exact: true }).fill('2020-01-01');
     await page.getByRole('link', { name: direction, exact: true }).click();
     await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(expectedFrom);

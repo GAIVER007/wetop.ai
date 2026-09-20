@@ -1,0 +1,17 @@
+# Модульные (unit) · 20.09.2026 23:01 Алматы · MacBook-Air-Urij.local
+# коммит f8ad21e (codex/reservations-design)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T18-01-36Z-unit-af69.json' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (12 tests) 44ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 93ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  22:01:37
+   Duration  261ms (tests 53%, transform 33%, import 11%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T18-01-36Z-unit-af69.json
+
+# код выхода 0 · 2 с

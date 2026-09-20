@@ -48,6 +48,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
   test(`переключение целого месяца: ${from} → ${expectedFrom}`, async ({ page }) => {
     await page.goto(`/chessboard?from=${from}&to=${to}`);
     // A previously edited date must not survive navigation into a different month.
+    await page.getByRole('button', { name: 'Даты', exact: true }).click();
     await page.getByLabel('Шахматка: с', { exact: true }).fill('2026-01-15');
     await page.getByRole('link', { name: direction, exact: true }).click();
     await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(expectedFrom);
@@ -68,6 +69,7 @@ test('неделя, 14 дней, произвольный период и воз
   await page.getByRole('link', { name: '14 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByLabel('Шахматка: с', { exact: true }).fill('2028-02-10');
   await page.getByLabel('Шахматка: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();

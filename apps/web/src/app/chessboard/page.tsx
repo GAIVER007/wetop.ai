@@ -8,6 +8,7 @@ import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
 import { BoardHelp } from './board-help';
+import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
@@ -90,11 +91,17 @@ export default async function ChessboardPage({
     const period = monthPeriod(from, offset);
     return `/chessboard?from=${period.from}&to=${period.to}`;
   };
-  const monthLabel = new Intl.DateTimeFormat('ru-RU', {
+  const periodLabel = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
-  }).format(new Date(`${from}T00:00:00Z`));
+  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
+  const shortPeriodLabel = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).formatRange(new Date(`${from}T00:00:00Z`), new Date(`${to}T00:00:00Z`));
   /** Произвольное окно от сегодня; календарные режимы сохраняют границы недели/месяца. */
   const window = (days: number) => {
     const t = new Date(`${today}T00:00:00Z`);
@@ -113,13 +120,43 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Шахматка"
-      subtitle={`${isMonth ? monthLabel : `${displayDate(board.from)} — ${displayDate(board.to)}`} · Номера и койки · ${board.rows.length} мест`}
+      subtitle={`${board.rows.length} мест`}
       actions={
+        <Link className="btn" href="/reservations/new">
+          <Icon name="plus" />
+          Новая бронь
+        </Link>
+      }
+    >
+      <div className="board-controls">
         <div className="board-period">
-          <Link className="btn" href="/reservations/new">
-            <Icon name="plus" />
-            Новая бронь
-          </Link>
+          <span className="board-date-nav">
+            <Link
+              href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
+              className="icon-button"
+              aria-label={
+                isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
+              }
+            >
+              <Icon name="chevron" className="rotate-left" />
+            </Link>
+            <span className="board-period-label" title={periodLabel}>
+              <span className="board-period-full">{periodLabel}</span>
+              <span className="board-period-short">{shortPeriodLabel}</span>
+            </span>
+            <Link
+              href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
+              className="icon-button"
+              aria-label={
+                isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
+              }
+            >
+              <Icon name="chevron" />
+            </Link>
+            <Link href="/chessboard" className="btn btn--secondary">
+              Сегодня
+            </Link>
+          </span>{' '}
           <span className="seg" role="group" aria-label="Вид шахматки">
             <Link
               href={weekHref()}
@@ -143,71 +180,23 @@ export default async function ChessboardPage({
               Месяц
             </Link>
           </span>
-          <span className="board-date-nav">
-            <Link
-              href={isMonth ? monthHref(-1) : isWeek ? weekHref(-1) : shift(-board.dates.length)}
-              className="icon-button"
-              aria-label={
-                isMonth ? 'Предыдущий месяц' : isWeek ? 'Предыдущая неделя' : 'Предыдущий период'
-              }
-            >
-              <Icon name="chevron" className="rotate-left" />
-            </Link>
-            <Link href="/chessboard" className="btn btn--secondary">
-              Сегодня
-            </Link>
-            <Link
-              href={isMonth ? monthHref(1) : isWeek ? weekHref(1) : shift(board.dates.length)}
-              className="icon-button"
-              aria-label={
-                isMonth ? 'Следующий месяц' : isWeek ? 'Следующая неделя' : 'Следующий период'
-              }
-            >
-              <Icon name="chevron" />
-            </Link>
-          </span>
         </div>
-      }
-    >
-      {/* Частые действия видимы; расшифровка статусов и инструкции раскрываются по запросу. */}
-      <div className="board-bar">
-        <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
-          <label className="field field--inline">
-            <span>С</span>
-            <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
-          </label>
-          <label className="field field--inline">
-            <span>По</span>
-            <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
-          </label>
-          <Button tone="secondary" type="submit">
-            Применить
-          </Button>
-        </form>
-        {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
-        <BoardHelp title="Как работать с шахматкой">
-          <div className="board-help-content">
-            <Legend
-              data-testid="board-legend"
-              items={[
-                { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-                { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-                { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-                { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
-                { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-              ]}
-            />
-            <p className="note">
-              В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
-              занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
-              открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на
-              другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию
-              — только на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}.
-              Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с
-              карточки брони.
-            </p>
-          </div>
-        </BoardHelp>
+        <div className="board-bar">
+          <BoardDateRange key={`${board.from}-${board.to}`} from={board.from} to={board.to} />
+          <BoardHelp title="Как работать с шахматкой">
+            <div className="board-help-content">
+              <p className="note">
+                В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно
+                и занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой
+                клетке открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку
+                на другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую
+                категорию — только на всё проживание). Фильтры статусов считаются на{' '}
+                {displayDate(board.from)}. Брони без ячейки на сетке не видны — они в списке над
+                сеткой; ячейка назначается с карточки брони.
+              </p>
+            </div>
+          </BoardHelp>
+        </div>
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">
@@ -224,6 +213,19 @@ export default async function ChessboardPage({
       )}
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
+      <div className="board-footer">
+        <Legend
+          data-testid="board-legend"
+          items={[
+            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+          ]}
+        />
+        {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
+      </div>
     </Page>
   );
 }

@@ -247,7 +247,7 @@ export function ChessboardGrid({
     <>
       <div className="board-toolbar" data-filters-open={filtersOpen}>
         <label className="board-search field field--inline">
-          <span>Поиск</span>
+          <span className="board-search-label">Поиск</span>
           <Input
             aria-label="Поиск на шахматке"
             placeholder="Номер, койка, гость или бронь"
@@ -262,6 +262,7 @@ export function ChessboardGrid({
           aria-controls={filtersId}
           onClick={() => setFiltersOpen(!filtersOpen)}
         >
+          <Icon name="filter" />
           Фильтры{activeFilters > 0 ? ` · ${activeFilters}` : ''}
         </button>
         <div className="board-filter-fields" id={filtersId}>
@@ -282,7 +283,7 @@ export function ChessboardGrid({
           </label>
           <div className="seg" role="group" aria-label="Тип размещения">
             {[
-              ['', 'Все единицы'],
+              ['', 'Все места'],
               ['ROOM', 'Номера'],
               ['BED', 'Койко-места'],
             ].map(([id, label]) => (
@@ -327,7 +328,7 @@ export function ChessboardGrid({
           aria-live="polite"
           aria-atomic="true"
         >
-          Показано {rows.length} из {board.rows.length} единиц
+          Показано {rows.length} из {board.rows.length} мест
         </span>
         {(query || category || kind || state !== 'all') && (
           <button
@@ -386,7 +387,7 @@ export function ChessboardGrid({
           <thead>
             <tr>
               <th className="board__unit-head">
-                Номер / койка<div className="board__wd">Занято по дням →</div>
+                Номера и койки<div className="board__wd">Свободно / занято</div>
               </th>
               {board.dates.map((d) => (
                 <th
@@ -394,33 +395,38 @@ export function ChessboardGrid({
                   data-testid="date-col"
                   data-date={d}
                   scope="col"
-                  aria-label={`${d}, ${weekday(d)}, занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
+                  aria-label={`${d}, ${weekday(d)}, свободно ${board.summary[d]!.free}, занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
                   className={cx(d === today && 'is-today', isWeekend(d) && 'is-we')}
                 >
-                  <div className="board__d">{d.slice(8)}</div>
-                  <div className="board__wd">{weekday(d)}</div>
-                  <div
-                    className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
-                    title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
-                  >
-                    {board.summary[d]!.free === 0 ? (
-                      <>
-                        <span className="board__free-word">мест </span>нет
-                      </>
-                    ) : (
-                      <>
-                        <span className="board__free-word">своб. </span>
-                        {board.summary[d]!.free}
-                      </>
-                    )}
+                  <div className="board-day-date">
+                    <div className="board__d">{d.slice(8)}</div>
+                    <div className="board__wd">{weekday(d)}</div>
                   </div>
-                  <div
-                    className="board__occ"
-                    title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
-                  >
-                    {/* В testid только число занятых: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
-                    <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
-                    <span className="board-occ-total"> / {board.rows.length}</span>
+                  <div className="board-day-metrics">
+                    <div
+                      className={cx('board__free-count', board.summary[d]!.free === 0 && 'is-full')}
+                      title={`свободно ${board.summary[d]!.free} на ночь ${d}`}
+                    >
+                      {board.summary[d]!.free === 0 ? (
+                        <>
+                          <span className="board__free-word">мест </span>нет
+                        </>
+                      ) : (
+                        <>
+                          <span className="board__free-word">своб. </span>
+                          {board.summary[d]!.free}
+                        </>
+                      )}
+                    </div>
+                    <div
+                      className="board__occ"
+                      title={`занято ${board.summary[d]!.occupied} из ${board.rows.length}`}
+                    >
+                      <span className="board__occ-word">занято </span>
+                      {/* В testid только число занятых: по нему сверяют шахматку (tests/e2e/chessboard.spec.ts) */}
+                      <span data-testid={`occupied-${d}`}>{board.summary[d]!.occupied}</span>
+                      <span className="board-occ-total"> / {board.rows.length}</span>
+                    </div>
                   </div>
                 </th>
               ))}
@@ -620,7 +626,7 @@ function Cell({
             {label && (
               <span
                 className="board-stay-caption"
-                style={{ width: `calc(${label.span * 100}% - 40px)` }}
+                style={{ width: `calc(${label.span * 100}% - var(--board-caption-end, 40px))` }}
               >
                 {label.continues ? '← ' : ''}
                 <b className="board-stay-glyph" aria-hidden="true">

@@ -1,0 +1,99 @@
+import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { mkdirSync } from 'node:fs';
+
+const report = 'reports/reservations-design-2026-09-20';
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4311/__test/reset');
+});
+
+test('выбранный статус броней доступен с клавиатуры и объявлен текущим', async ({ page }) => {
+  await page.goto('/reservations');
+  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+  if (process.env.RESERVATIONS_DESIGN_BASELINE === '1') {
+    mkdirSync(report, { recursive: true });
+    await page.screenshot({ path: `${report}/before-1440.png`, caret: 'initial' });
+    await page.setViewportSize({ width: 390, height: 1000 });
+    await page.screenshot({ path: `${report}/before-390.png`, caret: 'initial' });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+  }
+  const statuses = page.getByRole('navigation', { name: 'Статусы броней' });
+  await expect(statuses.getByRole('link', { name: 'Все статусы', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  const confirmed = statuses.getByRole('link', { name: 'Подтверждены', exact: true });
+  await confirmed.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/status=CONFIRMED/);
+  await expect(confirmed).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByTestId('directory-meta')).toContainText('Подтверждены');
+});
+
+test('мобильный статус и поиск сохраняются в URL, карточка открывается из списка', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await page.goto('/reservations');
+  await page.getByLabel('Статус брони', { exact: true }).selectOption('CONFIRMED');
+  await page.getByLabel('Поиск броней').fill('Тестовый');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(page).toHaveURL(/status=CONFIRMED/);
+  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(1);
+  await page.reload();
+  await expect(page.getByLabel('Статус брони', { exact: true })).toHaveValue('CONFIRMED');
+  await expect(page.getByLabel('Поиск броней')).toHaveValue('Тестовый');
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('reservations-table')).toBeVisible();
+});
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`Брони: ${theme}, читаемый список на пяти ширинах`, async ({ page }) => {
+    test.setTimeout(120_000);
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('console', (e) => {
+      if (e.type() === 'error') errors.push(e.text());
+    });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await page.goto('/reservations');
+    // Переход в карточку подтверждает готовность клиента перед снимками.
+    await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.getByRole('heading', { name: 'Брони', level: 1 }).click();
+    await page.mouse.move(0, 0);
+    mkdirSync(report, { recursive: true });
+    for (const width of [1440, 1024, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const table = page.getByTestId('reservations-table');
+      await expect(table.locator('tbody tr')).toHaveCount(9);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      ).toBeLessThanOrEqual(1);
+      expect(
+        await table.locator('..').evaluate((el) => el.scrollWidth - el.clientWidth),
+      ).toBeLessThanOrEqual(1);
+      if (width <= 390) {
+        expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+        for (const control of [
+          page.getByLabel('Статус брони', { exact: true }),
+          page.getByLabel('Период: с'),
+          page.getByRole('button', { name: 'Показать', exact: true }),
+        ]) {
+          expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        }
+      }
+      const axe = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(
+        axe.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+      ).toEqual([]);
+      await page.screenshot({ path: `${report}/${theme}-${width}.png`, caret: 'initial' });
+    }
+    expect(errors).toEqual([]);
+  });
+}

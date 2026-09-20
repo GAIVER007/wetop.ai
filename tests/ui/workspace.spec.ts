@@ -455,7 +455,12 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  await page.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  // с 20.09 меню разложено по группам, открыта одна (ADR-057): «Неисправности» лежит в «Контроле»,
+  // и до раскрытия группы ссылки на экране нет — сперва раскрываем, как это делает navigation.spec
+  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
+  const toggle = control.getByRole('button');
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();

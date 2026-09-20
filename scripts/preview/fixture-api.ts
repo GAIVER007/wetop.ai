@@ -484,7 +484,13 @@ function seedDesign() {
     },
   ];
 }
-const allCards = () => [card, ...extraCards.values()];
+/**
+ * Стенд без единой брони, но с фондом, категориями и ценами — это состояние боевой базы после
+ * очистки 19.09.2026 (ADR-052) и до первой живой смены. Экраны обязаны в нём открываться и
+ * говорить, что броней нет, а не выглядеть сломанными.
+ */
+let noBookings = false;
+const allCards = () => (noBookings ? [] : [card, ...extraCards.values()]);
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
 function getGuest(id: string) {
@@ -1970,6 +1976,7 @@ createServer(async (req, res) => {
       rejectCreate = false;
       failPath = '';
       emptyFixture = false;
+      noBookings = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -1996,6 +2003,7 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      noBookings = body['noBookings'] === true;
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;

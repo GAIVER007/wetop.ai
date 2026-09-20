@@ -1076,3 +1076,4 @@
 | 20.09.2026 18:08 | e2e (частично: --config tests/ui/playwright.config.ts fixture-isolation.spec.ts manager-actions.spec.ts chessboard-month.spec.ts) | ❌ упало 1 из 18 | 2 мин 2 с | 059cb8a +8 | [лог](logs/2026-09-20T13-08-54Z-e2e-e173.log) | шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки |
 | 20.09.2026 18:11 | lint | ✅ без ошибок | 12 с | 059cb8a +8 | [лог](logs/2026-09-20T13-11-40Z-lint-5427.log) |  |
 | 20.09.2026 18:12 | typecheck | ✅ без ошибок | 15 с | 059cb8a +8 | [лог](logs/2026-09-20T13-12-12Z-typecheck-fcaa.log) |  |
+| 20.09.2026 18:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 fixture-isolation.spec.ts manager-actions.spec.ts chessboard-month.spec.ts) | ✅ 18 из 18 | 2 мин 37 с | 9796ec6 | [лог](logs/2026-09-20T13-13-41Z-e2e-7623.log) |  |

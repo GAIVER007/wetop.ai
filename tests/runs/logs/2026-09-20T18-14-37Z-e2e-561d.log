@@ -1,0 +1,164 @@
+# Сквозные (e2e) · 20.09.2026 23:14 Алматы · MacBook-Air-Urij.local
+# коммит 913cf0f (codex/section-loading-performance), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/loading-performance.spec.ts' 'tests/ui/requests.spec.ts'
+[WebServer] (node:52018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 2 workers
+
+(node:52103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/ui/requests.spec.ts:37:3 › экран /today: данные берутся одним запросом на путь (4.1s)
+(node:52160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/requests.spec.ts:37:3 › экран /chessboard: данные берутся одним запросом на путь (2.8s)
+  ✓   4 tests/ui/requests.spec.ts:37:3 › экран /reservations: данные берутся одним запросом на путь (2.4s)
+  ✓   5 tests/ui/requests.spec.ts:37:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.8s)
+  ✓   6 tests/ui/requests.spec.ts:37:3 › экран /guests: данные берутся одним запросом на путь (2.0s)
+[WebServer] (node:52228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/requests.spec.ts:37:3 › экран /rooms: данные берутся одним запросом на путь (2.4s)
+  ✘   2 tests/ui/loading-performance.spec.ts:11:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (18.1s)
+  ✘   8 tests/ui/requests.spec.ts:37:3 › экран /finance: данные берутся одним запросом на путь (493ms)
+(node:52234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  1) tests/ui/loading-performance.spec.ts:11:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.workspace-sidebar .workspace-property')
+    Expected substring: "Объект не загружен"
+    Received string:    "Luxx ApartsТестовый адрес, 1"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" locator('.workspace-sidebar .workspace-property') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar .workspace-property')
+        33 × locator resolved to <a class="workspace-property" href="/hotel-settings/description">…</a>
+           - unexpected value "Luxx ApartsТестовый адрес, 1"
+
+
+      16 |     await expect(page.getByTestId('kpi-occupancy')).toBeVisible({ timeout: 5000 });
+      17 |     await expect(page.getByTestId('c-arrivals')).toBeVisible({ timeout: 5000 });
+    > 18 |     await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText('Объект не загружен');
+         |                                                                          ^
+      19 |   } finally {
+      20 |     await request.post(`${API}/__test/control`, { data: { holdHotel: false } });
+      21 |   }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/loading-performance.spec.ts:18:74
+
+    Error Context: test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/requests.spec.ts:37:3 › экран /today: данные берутся одним запросом на путь ──────────
+
+    Error: путь с данными запрошен повторно за один показ /today: {"/auth/me":4,"/system/freshness":4,"/hotel/settings":2,"/desk/today":2,"/chessboard":2,"/desk/dashboard":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 18
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "/hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "/desk/today",
+    +     2,
+    +   ],
+    +   Array [
+    +     "/chessboard",
+    +     2,
+    +   ],
+    +   Array [
+    +     "/desk/dashboard",
+    +     2,
+    +   ],
+    + ]
+
+      42 |     const seen = JSON.stringify(byPath);
+      43 |     const twice = Object.entries(byPath).filter(([p, n]) => n > 1 && !SHELL.includes(p));
+    > 44 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      45 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(10);
+      46 |   });
+      47 | }
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/requests.spec.ts:44:88
+
+    Error Context: test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/requests.spec.ts:37:3 › экран /finance: данные берутся одним запросом на путь ────────
+
+    Test was interrupted.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance", waiting until "load"
+
+
+      37 |   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
+      38 |     await request.post(`${API}/__test/reset`);
+    > 39 |     await page.goto(screen);
+         |                ^
+      40 |     await page.waitForLoadState('networkidle');
+      41 |     const { total, byPath } = await hits(request);
+      42 |     const seen = JSON.stringify(byPath);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/requests.spec.ts:39:16
+
+    Error Context: test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-finance-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/loading-performance.spec.ts:11:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются 
+    tests/ui/requests.spec.ts:37:3 › экран /today: данные берутся одним запросом на путь ───────────
+  1 interrupted
+    tests/ui/requests.spec.ts:37:3 › экран /finance: данные берутся одним запросом на путь ─────────
+  4 did not run
+  5 passed (28.0s)
+
+# код выхода 130 · 29 с

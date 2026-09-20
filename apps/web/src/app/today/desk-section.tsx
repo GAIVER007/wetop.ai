@@ -24,14 +24,28 @@ export async function AttentionSection({ date }: { date: string }) {
 }
 
 export async function DeskSection({ date, today }: { date: string; today: string }) {
-  const day = await loadDeskDay(date);
-  if (day instanceof ApiError)
+  // Оба чтения зависят только от даты; дополнительное ожидание дня здесь не нужно.
+  const result = await Promise.all([
+    loadDeskDay(date).then((day) => {
+      if (day instanceof ApiError) throw day;
+      return day;
+    }),
+    chessboardApi.board(date, date).catch((error: unknown) => {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }),
+  ]).catch((error: unknown) => {
+    if (error instanceof ApiError) return error;
+    throw error;
+  });
+  // Отказ дня показываем сразу, не дожидаясь медленной шахматки.
+  if (result instanceof ApiError)
     return (
       <Alert tone="warning" boxed data-testid="desk-error">
-        Стойка на {date} не загрузилась: {day.message} Обновите страницу.
+        Стойка на {date} не загрузилась: {result.message} Обновите страницу.
       </Alert>
     );
-  const board = await chessboardApi.board(date, date).catch(() => null);
+  const [day, board] = result;
   return (
     <>
       <DeskStrip day={day} board={board} today={today} />

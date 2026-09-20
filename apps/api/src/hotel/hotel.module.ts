@@ -26,7 +26,11 @@ const SETTINGS_TTL_MS = () => Number(process.env.HOTEL_SETTINGS_TTL_MS ?? 60_000
 /** Read-only projections of the approved model. No provider calls or financial mutations. */
 @Injectable()
 export class HotelService {
-  private cachedSettings: { at: number; value: Awaited<ReturnType<HotelService['readSettings']>> } | null = null;
+  private cachedSettings: {
+    at: number;
+    value: Awaited<ReturnType<HotelService['readSettings']>>;
+  } | null = null;
+  private settingsRead: ReturnType<HotelService['readSettings']> | null = null;
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
@@ -51,9 +55,19 @@ export class HotelService {
   async settings() {
     const cached = this.cachedSettings;
     if (cached && Date.now() - cached.at < SETTINGS_TTL_MS()) return cached.value;
-    const value = await this.readSettings();
-    this.cachedSettings = { at: Date.now(), value };
-    return value;
+    // Несколько открывающихся страниц делят один промах существующего кэша.
+    // Ошибка очищает только незавершённое чтение и не мешает следующей попытке.
+    if (!this.settingsRead) {
+      this.settingsRead = this.readSettings()
+        .then((value) => {
+          this.cachedSettings = { at: Date.now(), value };
+          return value;
+        })
+        .finally(() => {
+          this.settingsRead = null;
+        });
+    }
+    return this.settingsRead;
   }
 
   private async readSettings() {

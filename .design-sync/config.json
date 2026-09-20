@@ -1,0 +1,79 @@
+{
+  "projectId": "296205e3-9f67-40ae-b63a-840a7c57fc7f",
+  "shape": "package",
+  "pkg": "@pms/web",
+  "globalName": "Wetop",
+  "entry": ".design-sync/ds/entry.tsx",
+  "srcDir": "apps/web/src/components",
+  "tsconfig": ".design-sync/ds/tsconfig.json",
+  "cssEntry": ".design-sync/ds/styles.generated.css",
+  "buildCmd": "node .design-sync/ds/build-css.mjs",
+  "guidelinesGlob": [
+    "DESIGN.md",
+    "design/*.md"
+  ],
+  "runtimeFontPrefixes": [
+    "Inter"
+  ],
+  "docsDir": ".design-sync/ds/docs",
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "Select": {
+      "cardMode": "column"
+    },
+    "Tooltip": {
+      "cardMode": "column"
+    },
+    "ConfirmDialog": {
+      "cardMode": "single",
+      "primaryStory": "CancelWithPenalty"
+    },
+    "Overlay": {
+      "cardMode": "single",
+      "primaryStory": "Drawer"
+    },
+    "ToastRegion": {
+      "cardMode": "single",
+      "primaryStory": "Tones"
+    }
+  },
+  "componentSrcMap": {
+    "Help": "apps/web/src/components/ui.tsx",
+    "Button": "apps/web/src/components/ui.tsx",
+    "Input": "apps/web/src/components/ui.tsx",
+    "Select": "apps/web/src/components/ui.tsx",
+    "Textarea": "apps/web/src/components/ui.tsx",
+    "Field": "apps/web/src/components/ui.tsx",
+    "Panel": "apps/web/src/components/ui.tsx",
+    "PanelTitle": "apps/web/src/components/ui.tsx",
+    "SectionTitle": "apps/web/src/components/ui.tsx",
+    "Stats": "apps/web/src/components/ui.tsx",
+    "Stat": "apps/web/src/components/ui.tsx",
+    "Fact": "apps/web/src/components/ui.tsx",
+    "Table": "apps/web/src/components/ui.tsx",
+    "Badge": "apps/web/src/components/ui.tsx",
+    "StatusBadge": "apps/web/src/components/ui.tsx",
+    "Alert": "apps/web/src/components/ui.tsx",
+    "Notice": "apps/web/src/components/ui.tsx",
+    "Row": "apps/web/src/components/ui.tsx",
+    "Stack": "apps/web/src/components/ui.tsx",
+    "Grid": "apps/web/src/components/ui.tsx",
+    "Legend": "apps/web/src/components/ui.tsx",
+    "EmptyState": "apps/web/src/components/ui.tsx",
+    "Skeleton": "apps/web/src/components/ui.tsx",
+    "LoadingState": "apps/web/src/components/ui.tsx",
+    "Icon": "apps/web/src/components/icon.tsx",
+    "Page": "apps/web/src/components/page.tsx",
+    "SectionCards": "apps/web/src/components/section-cards.tsx",
+    "FeaturePending": "apps/web/src/components/section-cards.tsx",
+    "RecordTabs": "apps/web/src/components/record-tabs.tsx",
+    "AmountChip": "apps/web/src/components/amount-chip.tsx",
+    "Overlay": "apps/web/src/components/overlay.tsx",
+    "ConfirmDialog": "apps/web/src/components/confirm-dialog.tsx",
+    "ActionMenu": "apps/web/src/components/action-menu.tsx",
+    "Tooltip": "apps/web/src/components/tooltip.tsx",
+    "ToastRegion": "apps/web/src/components/toast.tsx",
+    "ErrorState": "apps/web/src/components/error-state.tsx",
+    "LoadError": "apps/web/src/components/load-error.tsx"
+  }
+}

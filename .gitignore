@@ -80,3 +80,11 @@ design/reference/exely/*
 !design/reference/exely/.gitkeep
 tests/runs/.auth/
 .agent-tmp/
+
+# /design-sync — рабочее состояние синхронизации дизайн-системы (входные файлы .design-sync/ коммитятся)
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/ds/styles.generated.css

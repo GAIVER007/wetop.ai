@@ -2213,6 +2213,8 @@ createServer(async (req, res) => {
       return noContent();
     }
     // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
+    // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
+    if (path === '/auth/code' || path === '/auth/verify') return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {

@@ -1,9 +1,10 @@
 {
-  "checkedAt": "2026-09-20T15:12:19.058Z",
+  "checkedAt": "2026-09-20T15:21:31.592Z",
   "database": "isolated local PostgreSQL pms_test",
   "mail": "in-memory only",
   "checks": {
     "anonymousDenied": true,
+    "retiredCodeEndpointsAbsent": true,
     "registrationDefaultClosed": true,
     "registrationDeniedWithoutWrites": true,
     "registrationPersisted": true,

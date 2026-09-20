@@ -46,29 +46,33 @@ test('«Завершить все сеансы» гасит вход и возв
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
-test('ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль', async ({
+test('удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль', async ({
   page,
   request,
   context,
 }) => {
-  // Старые сессии не отозваны переходом ADR-053: проверяем уже выписанную cookie,
-  // не возвращая на экран убранный способ входа. Только синтетический loopback API.
-  const response = await request.post('http://127.0.0.1:4311/auth/verify', {
-    headers: { 'x-wetop-test-client': '1' },
-    data: { email: 'legacy@example.invalid', code: '123456' },
-  });
-  expect(response.ok()).toBe(true);
-  const { token } = (await response.json()) as { token: string };
-  await context.addCookies([{
-    name: 'wetop_session', value: token, url: 'http://127.0.0.1:3100',
-    httpOnly: true, sameSite: 'Lax', expires: Math.floor(Date.now() / 1000) + 86400,
-  }]);
+  // Вход по коду снят в main по ADR-053. Проверяем отсутствие старого пути, а не возвращаем его в fixture.
+  for (const path of ['/auth/code', '/auth/verify']) {
+    const response = await request.post(`http://127.0.0.1:4311${path}`, {
+      headers: { 'x-wetop-test-client': '1' },
+      data: { email: 'legacy@example.invalid', code: '123456' },
+    });
+    expect(response.status()).toBe(404);
+  }
+  await context.addCookies([
+    {
+      name: 'wetop_session',
+      value: 'retired-synthetic-session',
+      url: 'http://127.0.0.1:3100',
+      httpOnly: true,
+      sameSite: 'Lax',
+      expires: Math.floor(Date.now() / 1000) + 86400,
+    },
+  ]);
   await page.goto('/login');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
-  await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
-  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
-  expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+  await expect(main.getByTestId('session-list')).toHaveCount(0);
+  await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
 });
 
 test('без сессии списка сеансов нет', async ({ page }) => {

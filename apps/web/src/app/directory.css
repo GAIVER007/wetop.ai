@@ -841,9 +841,9 @@ a.dir-number:hover {
   .dir-table--mapping tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 12px;
+    gap: 4px 16px;
     align-items: baseline;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
   .dir-table--outbox tbody tr:last-child,
@@ -981,9 +981,9 @@ a.dir-number:hover {
   .dir-table--channel-report tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 12px;
+    gap: 4px 16px;
     align-items: baseline;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
   .dir-table--channel-report tbody tr:last-child {
@@ -1070,9 +1070,9 @@ a.dir-number:hover {
   .dir-table--incidents-closed tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 12px;
+    gap: 4px 16px;
     align-items: baseline;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
   .dir-table--journal tbody tr:last-child,
@@ -1195,9 +1195,9 @@ a.dir-number:hover {
   .dir-table--statistics tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 12px;
+    gap: 4px 16px;
     align-items: baseline;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
   .dir-table--statistics tbody tr:last-child {

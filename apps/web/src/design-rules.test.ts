@@ -103,7 +103,7 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
    * смыслов и отступы вне шкалы 4/8/16/24/32/40/48/64. Число не должно расти; починили —
    * опустите потолок в тесте, иначе он «зелёный» зря.
    */
-  it('« · » как разделитель в TSX не размножается (потолок 104 строки на 18.09)', () => {
+  it('« · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09)', () => {
     const lines = tsxFiles(SRC).reduce(
       (n, f) =>
         n +
@@ -112,9 +112,9 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
           .filter((l) => l.includes(' · ')).length,
       0,
     );
-    expect(lines).toBeLessThanOrEqual(104);
+    expect(lines).toBeLessThanOrEqual(70);
   });
-  it('отступов вне шкалы не прибавляется (потолок 475 значений на 18.09)', () => {
+  it('отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09)', () => {
     const offScale = cssFiles(SRC).reduce((n, f) => {
       const text = readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
       const values = [...text.matchAll(/(?:padding|margin|gap)(?:-[a-z]+)?:\s*([^;]+);/g)].flatMap(
@@ -122,7 +122,7 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
       );
       return n + values.filter((v) => ![0, 4, 8, 16, 24, 32, 40, 48, 64].includes(v)).length;
     }, 0);
-    expect(offScale).toBeLessThanOrEqual(475);
+    expect(offScale).toBeLessThanOrEqual(444);
   });
   it('деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам', () => {
     const guilty = tsxFiles(SRC)

@@ -814,11 +814,18 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of ['/chessboard', '/rooms', '/finance', '/channel-manager']) {
+  for (const route of ['/chessboard', '/rooms', '/channel-manager']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   }
+  // «Деньги за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
+  await page.goto('/finance');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+    'Деньги за период',
+  );
+  await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
+  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   /*
    * «Главная» с 16.09.2026 ведёт себя иначе намеренно (замечание владельца «выбираю период и нифига
    * не открывает»): экран открывается, а каждый неудавшийся блок называет причину сам. Правило этой
@@ -1316,4 +1323,45 @@ test('гости D1: выборка и пустота словами, стату
   expect(tableOverflow).toBeLessThanOrEqual(1);
   await main.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
   await expect(main.locator('.guest-account-links a').first()).toContainText('20260913-TESTAA');
+});
+
+/**
+ * D2 «Финансовый отчёт» (tasks/todo.md): период назван словами и переключается готовыми отрезками;
+ * начисления, деньги на руках и остаток — тремя блоками с пояснением к каждому числу; отказ API не
+ * выдаётся за нули; «Найти бронь для оплаты» ведёт в список броней.
+ */
+test('деньги D2: период словами, три блока с пояснениями, отказ не выглядит нулями', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/finance?from=2026-09-01&to=2026-09-30');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('finance-period')).toContainText('1 сент. → 30 сент., 30 дней');
+  await expect(main.getByTestId('finance-charges')).toContainText('Начислено гостям');
+  await expect(main.getByTestId('finance-charges').getByTestId('charged')).toHaveText('24 000 ₸');
+  await expect(main.getByTestId('finance-money').getByTestId('paid')).toHaveText('8 000 ₸');
+  await expect(main.getByTestId('finance-money')).toContainText('возвратов не было');
+  await expect(main.getByTestId('finance-due').getByTestId('balance')).toHaveText('16 000 ₸');
+  await expect(main.getByTestId('finance-due')).toContainText(
+    'Взыскать можно только на счёте брони',
+  );
+  // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
+  await main.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await expect(page).toHaveURL(/\/finance\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
+  await expect(main.getByRole('link', { name: 'Сегодня', exact: true })).toHaveClass(/is-active/);
+  await expect(main.getByTestId('finance-period')).toContainText(', 1 день');
+  // отказ API: заголовок, форма и период остаются, чисел нет, повтор возвращает их
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
+  await page.goto('/finance?from=2026-09-01&to=2026-09-30');
+  await expect(main.getByTestId('finance-period')).toBeVisible();
+  await expect(main.getByTestId('finance-error')).toContainText('Проверьте подключение');
+  await expect(main.getByTestId('charged')).toHaveCount(0);
+  await expect(main.locator('input[name="from"]')).toHaveValue('2026-09-01');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await main
+    .getByTestId('finance-error')
+    .getByRole('button', { name: 'Повторить загрузку' })
+    .click();
+  await expect(main.getByTestId('charged')).toHaveText('24 000 ₸');
+  await expect(main.getByTestId('finance-error')).toHaveCount(0);
 });

@@ -1344,6 +1344,8 @@ function read(path: string, q: URLSearchParams): unknown {
         balanceMinor: '0',
         chargesByKind: [],
         paymentsByMethod: [],
+        // как у API: возвраты отдаются всегда, и при пустом периоде тоже (D2 читает их число)
+        refunds: { count: 0, amountMinor: '0' },
         accommodationByCategory: [],
       };
   }

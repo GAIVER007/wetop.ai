@@ -31,6 +31,7 @@ for (const screen of [
   '/reservations/new?unit=M03',
   '/guests',
   '/rooms',
+  '/finance',
 ]) {
   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
     await request.post(`${API}/__test/reset`);

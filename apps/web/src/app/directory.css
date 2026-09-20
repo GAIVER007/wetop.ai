@@ -759,3 +759,25 @@ a.dir-number:hover {
     color: var(--muted);
   }
 }
+
+/* ---------- D2: деньги за период — начисления, деньги на руках и остаток тремя блоками ---------- */
+.finance-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+.finance-block {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+.finance-block .stats {
+  margin-bottom: 8px;
+}
+.finance-block--due {
+  border-color: var(--warning-border);
+}

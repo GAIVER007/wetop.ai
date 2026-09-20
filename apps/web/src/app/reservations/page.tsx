@@ -4,8 +4,8 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, StatusBadge, Table } from '../../components/ui';
 import { AmountChip } from '../../components/amount-chip';
-import { ApiError } from '../../lib/api-error';
-import { ReservationsLoadError } from './load-error';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import { messengerLinks } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
@@ -120,10 +120,7 @@ export default async function ReservationsPage({
         </Alert>
       )}
       {loadError !== null && (
-        <ReservationsLoadError
-          status={loadError instanceof ApiError ? loadError.status : undefined}
-          message={loadError instanceof Error ? loadError.message : String(loadError)}
-        />
+        <LoadError testId="reservations-error" {...loadErrorProps(loadError)} />
       )}
       {result && (
         <>

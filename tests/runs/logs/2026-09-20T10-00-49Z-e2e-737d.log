@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 20.09.2026 15:00 Алматы · vm
+# коммит 0dde1a4 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' '-g' 'менеджер каналов и подключения' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/channex-screens.spec.ts:384:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (15.8s)
+
+
+  1) tests/ui/channex-screens.spec.ts:384:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').locator('.page__subtitle')
+    Expected: "Брони по дате заезда: 1 сент. → 30 сент., 30 дней, все статусы"
+    Received: "По дате заезда"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').locator('.page__subtitle') with timeout 15000ms
+      - waiting for getByRole('main').locator('.page__subtitle')
+        34 × locator resolved to <div class="page__subtitle">По дате заезда</div>
+           - unexpected value "По дате заезда"
+
+
+      388 |   const main = page.getByRole('main');
+      389 |   await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+    > 390 |   await expect(main.locator('.page__subtitle')).toHaveText(
+          |                                                 ^
+      391 |     'Брони по дате заезда: 1 сент. → 30 сент., 30 дней, все статусы',
+      392 |   );
+      393 |   await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:390:49
+
+    Error Context: test-results/channex-screens-менеджер-к-2d4a6-ой-отчёт-с-причиной-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-менеджер-к-2d4a6-ой-отчёт-с-причиной-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-менеджер-к-2d4a6-ой-отчёт-с-причиной-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channex-screens.spec.ts:384:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+
+# код выхода 1 · 21 с

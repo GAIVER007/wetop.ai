@@ -374,3 +374,73 @@ test('каналы: сбой сводки очереди и сопоставле
   await expect(loading).toContainText('Загружаем очередь, webhook и события Channex');
   await expect(main.getByTestId('outbox-pending')).toBeVisible({ timeout: 15_000 });
 });
+
+/**
+ * D4 «Каналы и состояние соединений», часть 2: «Менеджер каналов» называет период словами, отказ отчёта
+ * оставляет форму (сбой вместо чисел, повтор с теми же условиями), пустой отчёт называет условие и путь к
+ * «все статусы», строка источника без « · », на телефоне строки читаются без прокрутки вбок; «Подключения»
+ * называют сопоставления словами и пустое время «—».
+ */
+test('менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await expect(main.locator('.page__subtitle')).toHaveText(
+    'Брони по дате заезда: 1 сент. → 30 сент., 30 дней, все статусы',
+  );
+  await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
+  await expect(main.getByTestId('channel-report')).toContainText('Канал продаж, KZT');
+  // пустой отчёт по статусу — условие и ссылка на все статусы
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30&status=NO_SHOW');
+  const empty = main.getByTestId('channel-report-empty');
+  await expect(empty).toContainText(
+    'Нет бронирований с заездом 1 сент. → 30 сент. со статусом «Незаезды»',
+  );
+  await empty.getByRole('link', { name: 'Показать все статусы' }).click();
+  await expect(page).toHaveURL(/status=ALL/);
+  await expect(main.getByTestId('channel-bookings')).toHaveText('48');
+  // отказ отчёта: заголовок, подпись и форма на месте, повтор возвращает числа с теми же условиями
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30&status=CONFIRMED');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
+  await expect(main.getByLabel('Статус брони')).toHaveValue('CONFIRMED');
+  const failure = main.getByTestId('channel-report-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.getByTestId('channel-bookings')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('channel-report-error')).toHaveCount(0);
+  await expect(main.getByTestId('channel-bookings')).toBeVisible();
+  await expect(page).toHaveURL(/status=CONFIRMED/);
+  // телефон: строки отчёта карточкой, без прокрутки вбок
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'отчёт шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
+  const row = main.getByTestId('channel-report').locator('tbody tr').first();
+  await expect(row.locator('td').nth(1)).toHaveCSS('grid-column-start', '2');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // подключения: сопоставления словами, пустое время — «—», без « · »
+  await page.goto('/connections');
+  await expect(main).toContainText('3 категории, 3 тарифа');
+  await expect(main).not.toContainText(' · ');
+  await expect(main.getByText('Последний webhook, по Алматы')).toBeVisible();
+  await expect(main).not.toContainText('Нет событий');
+  // загрузка словом, пока отчёт идёт
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/hotel/channel-report', delayMs: 2500 },
+  });
+  await page.goto('/channel-manager', { waitUntil: 'commit' });
+  const loading = main.getByTestId('channel-manager-loading');
+  await expect(loading).toBeVisible();
+  await expect(loading).toContainText('Загружаем отчёт по каналам');
+  await expect(main.getByTestId('channel-bookings')).toBeVisible({ timeout: 15_000 });
+});

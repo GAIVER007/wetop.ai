@@ -152,7 +152,11 @@ test('менеджер каналов: реальные фильтры, пуст
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
   await page.goto('/channel-manager');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
+  // D4 (20.09): отказ отчёта не уносит экран — форма и заголовок на месте, вместо чисел сбой словами
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+    'Менеджер каналов',
+  );
+  await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.getByTestId('channel-bookings')).toHaveCount(0);
 });
 
@@ -814,11 +818,18 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/rooms');
   for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
-  for (const route of ['/chessboard', '/rooms', '/channel-manager']) {
+  for (const route of ['/chessboard', '/rooms']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   }
+  // «Менеджер каналов» с D4 (20.09) остаётся на экране: заголовок и форма на месте, вместо чисел — сбой
+  await page.goto('/channel-manager');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+    'Менеджер каналов',
+  );
+  await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
+  await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   // «Деньги за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
   await page.goto('/finance');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(

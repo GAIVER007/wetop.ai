@@ -4,6 +4,8 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, StatusBadge, Table } from '../../components/ui';
 import { AmountChip } from '../../components/amount-chip';
+import { ApiError } from '../../lib/api-error';
+import { ReservationsLoadError } from './load-error';
 import { messengerLinks } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
@@ -41,7 +43,15 @@ export default async function ReservationsPage({
         : q.length > 120
           ? 'Поиск: не более 120 символов.'
           : null;
-  const result = !error ? await reservationDirectory({ from, to, status, q, page }) : null;
+  // Отказ API не выглядит как ноль броней (B5): список ловит его сам, заголовок и фильтры остаются
+  const loaded = !error
+    ? await reservationDirectory({ from, to, status, q, page }).then(
+        (r) => ({ ok: true as const, r }),
+        (e: unknown) => ({ ok: false as const, e }),
+      )
+    : null;
+  const result = loaded?.ok ? loaded.r : null;
+  const loadError = loaded && !loaded.ok ? loaded.e : null;
   const href = (values: Record<string, string>) =>
     `/reservations?${new URLSearchParams({ from, to, status, q, ...values })}`;
   // Выборка названа словами (B1): один день — одна дата, статус и запрос — только когда заданы
@@ -108,6 +118,12 @@ export default async function ReservationsPage({
         <Alert boxed>
           {error} <Link href="/reservations">Сбросить фильтры</Link>
         </Alert>
+      )}
+      {loadError !== null && (
+        <ReservationsLoadError
+          status={loadError instanceof ApiError ? loadError.status : undefined}
+          message={loadError instanceof Error ? loadError.message : String(loadError)}
+        />
       )}
       {result && (
         <>

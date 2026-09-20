@@ -509,6 +509,9 @@ function getGuest(id: string) {
 }
 let rejectCreate = false;
 let failPath = '';
+/** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
+let delayPath = '';
+let delayMs = 0;
 /** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
 let failStatus = 503;
 let emptyFixture = false;
@@ -1970,6 +1973,8 @@ createServer(async (req, res) => {
       commands = [];
       rejectCreate = false;
       failPath = '';
+      delayPath = '';
+      delayMs = 0;
       failStatus = 503;
       ratesUnmapped = false;
       incidentHistory = 0;
@@ -2004,6 +2009,8 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      delayPath = String(body['delayPath'] || '');
+      delayMs = Number(body['delayMs'] || 1500);
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';
@@ -2079,6 +2086,8 @@ createServer(async (req, res) => {
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
     if (path === '/__test/commands') return send(200, commands);
+    if (delayPath && path === delayPath)
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     if (path === failPath || failPath === '*')
       return send(
         failStatus,

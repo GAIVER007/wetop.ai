@@ -1102,3 +1102,4 @@
 | 20.09.2026 13:39 | unit (частично: apps/web/src/app/guests/[id]/stay-now.test.ts apps/web/src/design-rules.test.ts) | ✅ 16 из 16 | 1 с | 178885f +8 | [лог](logs/2026-09-20T08-39-52Z-unit-dd17.log) |  |
 | 20.09.2026 13:40 | e2e (частично: --config tests/ui/playwright.config.ts workspace quality accessibility requests premium --workers=1) | ✅ 90 из 90 | 6 мин 12 с | 178885f +9 | [лог](logs/2026-09-20T08-40-24Z-e2e-c485.log) |  |
 | 20.09.2026 13:46 | e2e (частично: --config tests/ui/playwright.config.ts workspace -g гости D1 --workers=1) | ❌ упало 1 из 1 | 21 с | 178885f +3 | [лог](logs/2026-09-20T08-46-53Z-e2e-0f8e.log) | гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне |
+| 20.09.2026 13:48 | e2e (частично: --config tests/ui/playwright.config.ts design-reference --workers=1) | ✅ 2 из 2 | 35 с | 3753889 | [лог](logs/2026-09-20T08-48-13Z-e2e-4f90.log) |  |

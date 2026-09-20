@@ -2237,12 +2237,29 @@ createServer(async (req, res) => {
       return noContent();
     }
     if (path === '/auth/code' && req.method === 'POST') return noContent();
+    // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
     if (path === '/auth/register' && req.method === 'POST') {
-      if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
-        return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
-      if (!String(body['organizationName'] ?? '').trim())
-        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
-      return noContent();
+      const email = String(body['email'] ?? '').trim();
+      const name = String(body['name'] ?? '').trim();
+      const password = String(body['password'] ?? '');
+      if (!email.includes('@'))
+        return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
+      if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      if (email.toLowerCase() === uiUser.email)
+        return send(400, {
+          message:
+            'Этот адрес уже зарегистрирован. Войдите по паролю или восстановите его на экране входа.',
+        });
+      const token = `ui-registered-${uiSessions.size + 1}`;
+      const who = { ...uiUser, email: email.toLowerCase(), name };
+      uiSessions.set(token, who);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: who,
+      });
     }
     if (path === '/auth/verify' && req.method === 'POST') {
       if (body['code'] !== '123456')

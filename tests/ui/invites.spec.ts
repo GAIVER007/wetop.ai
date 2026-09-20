@@ -1,17 +1,18 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Приглашения (срез 13, этап 7). Синтетический API (`scripts/preview/fixture-api.ts`) принимает код
- * 123456, знает один живой ключ приглашения — `fixture-invite-token` — и одно ожидающее приглашение.
+ * Приглашения (срез 13, этап 7). Синтетический API (`scripts/preview/fixture-api.ts`) знает пароль
+ * сотрудника, код 123456, один живой ключ приглашения — `fixture-invite-token` — и одно ожидающее.
+ * Код остался только здесь: принявший приглашение попадает на шаг кода, и пока приглашения не
+ * переведены на пароль, этот путь живой (ADR-053).
  * Это проверка экранов и серверных действий стойки; правила API закрыты тестами контроллера.
  */
+// Вход по коду с экрана снят 20.09.2026 (ADR-053): входим паролем, как все.
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login?mode=code');
-  const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('urij@example.com');
-  await main.getByRole('button', { name: 'Получить код' }).click();
-  await main.getByLabel('Код из письма').fill('123456');
-  await main.getByRole('button', { name: 'Войти' }).click();
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 

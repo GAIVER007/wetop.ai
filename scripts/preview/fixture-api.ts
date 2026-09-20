@@ -1903,7 +1903,11 @@ function read(path: string, q: URLSearchParams): unknown {
         author: null,
       },
     ];
-    return type ? entries.filter((e) => e.entityType === type) : entries;
+    // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
+    const needle = (q.get('q') || '').trim().toLowerCase();
+    return entries
+      .filter((e) => !type || e.entityType === type)
+      .filter((e) => !needle || (e.subject ?? '').toLowerCase().includes(needle));
   }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();

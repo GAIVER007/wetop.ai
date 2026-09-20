@@ -1043,3 +1043,136 @@ a.dir-number:hover {
     grid-row: 4;
   }
 }
+
+/* D4 «Журнал и неисправности»: строки складываются в карточки на телефоне; разметка и хуки прежние */
+@media (max-width: 600px) {
+  .tbl.dir-table--journal,
+  .dir-table--journal tbody,
+  .tbl.dir-table--incidents,
+  .dir-table--incidents tbody,
+  .tbl.dir-table--incidents-closed,
+  .dir-table--incidents-closed tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--journal thead,
+  .dir-table--incidents thead,
+  .dir-table--incidents-closed thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--journal tbody tr,
+  .dir-table--incidents tbody tr,
+  .dir-table--incidents-closed tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    align-items: baseline;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--journal tbody tr:last-child,
+  .dir-table--incidents tbody tr:last-child,
+  .dir-table--incidents-closed tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--journal tbody td,
+  .dir-table--incidents tbody td,
+  .dir-table--incidents-closed tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dir-table--journal tbody td.empty-state,
+  .dir-table--incidents tbody td.empty-state,
+  .dir-table--incidents-closed tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  /* журнал: действие и когда → кто → объект и что */
+  .dir-table--journal tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 500;
+  }
+  .dir-table--journal tbody td:nth-child(1) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  /* открытые неисправности: что случилось → статус и когда → что делал сторож → кнопки */
+  .dir-table--incidents tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--incidents tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--incidents tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    text-align: right;
+    color: var(--muted);
+  }
+  .dir-table--incidents tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--incidents tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  /* закрытые: что случилось → замечена и закрыта → кем */
+  .dir-table--incidents-closed tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--incidents-closed tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--incidents-closed tbody td:nth-child(2)::before {
+    content: 'замечена ';
+  }
+  .dir-table--incidents-closed tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--incidents-closed tbody td:nth-child(3)::before {
+    content: 'закрыта ';
+  }
+  .dir-table--incidents-closed tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+}

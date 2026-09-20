@@ -27,7 +27,8 @@ test('вошедший видит ожидающие приглашения и �
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
 
-  await main.getByLabel('Почта приглашённого').fill('urij@example.com');
+  // «уже в организации» стенд отвечает на почту самого вошедшего; входим теперь паролем, значит и адрес свой
+  await main.getByLabel('Почта приглашённого').fill('admin@wetop.test');
   await main.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(main.getByRole('alert')).toHaveText('Этот человек уже в организации.');
 

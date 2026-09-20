@@ -2,10 +2,13 @@ import { expect, test } from '@playwright/test';
 
 /**
  * «Где я вошёл» и «выйти везде» (срез 13, §3 п. 3; DATA_MODEL §13.5). Синтетический API
- * (`scripts/preview/fixture-api.ts`) знает пароль сотрудника и отдаёт две живые сессии: эту и телефон.
+ * (`scripts/preview/fixture-api.ts`) отдаёт две живые сессии: эту и телефон.
  * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
+ *
+ * Входим паролем: 20.09.2026 владелец выбрал его единственным способом (ADR-053), и вход по коду
+ * с экрана снят. Прежний тест «вошедший по паролю видит тот же список» держал сравнение двух
+ * способов входа; сравнивать больше не с чем, и он снят как повтор остальных.
  */
-// Вход по коду с экрана снят 20.09.2026 (ADR-053): входим паролем, как все.
 async function login(page: import('@playwright/test').Page) {
   await page.goto('/login');
   const main = page.getByRole('main');
@@ -41,20 +44,6 @@ test('«Завершить все сеансы» гасит вход и возв
   await page.waitForURL('**/login');
   await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
-});
-
-test('вошедший по паролю видит тот же список и ту же кнопку: сеансы — про человека, не про способ входа', async ({
-  page,
-}) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('admin@wetop.test');
-  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
-  await main.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
-  await page.goto('/login');
-  await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
-  await expect(main.getByRole('button', { name: 'Завершить все сеансы' })).toBeVisible();
 });
 
 test('без сессии списка сеансов нет', async ({ page }) => {

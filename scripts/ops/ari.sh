@@ -169,9 +169,14 @@ case "${1:-status}" in
     set_switch_off
     say "CHANNEX_ARI=off задан ($MODE), перезапускаю API"
     restart_api || exit 1
-    v=$(running_switch)
+    # `|| true` и умолчание: running_switch возвращает ненулевой код, когда API не ответил, а bash 3.2
+    # на macOS в этом случае оставлял v незаданным — при `set -u` скрипт падал с «v: unbound variable»
+    # вместо внятного «ARI НЕ остановлен» (поймано прогоном на машине владельца 20.09.2026).
+    # Кавычки здесь простые намеренно: многобайтные « » рядом с $v тот же bash 3.2 разбирает как часть имени.
+    v="$(running_switch || true)"
+    v="${v:-нет ответа}"
     if [ "$v" != "off" ]; then
-      say "ОШИБКА: API запущен, но выключатель в процессе = «$v» — ARI НЕ остановлен"
+      say "ОШИБКА: API запущен, но выключатель в процессе = '$v' — ARI НЕ остановлен"
       exit 1
     fi
     say "исходящий ARI остановлен: остатки и ограничения в Channex не уходят; очередь: $(queue)"
@@ -181,7 +186,8 @@ case "${1:-status}" in
     clear_switch
     say "CHANNEX_ARI снят ($MODE), перезапускаю API"
     restart_api || exit 1
-    v=$(running_switch)
+    v="$(running_switch || true)"
+    v="${v:-нет ответа}"
     if [ "$v" = "off" ]; then
       say "ОШИБКА: API всё ещё видит CHANNEX_ARI=off — проверить .env и настройки задачи"
       exit 1
@@ -192,7 +198,7 @@ case "${1:-status}" in
   status)
     echo "машина: $MODE"
     stored_switch
-    echo "API сейчас: CHANNEX_ARI=$(running_switch)"
+    echo "API сейчас: CHANNEX_ARI=$(running_switch || true)"
     echo "очередь: $(queue)"
     ;;
   *)

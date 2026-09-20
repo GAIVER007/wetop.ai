@@ -1071,3 +1071,12 @@
 | 20.09.2026 17:44 | unit | ✅ 1321 из 1324, пропущено 3 | 1 мин 12 с | 7bdd0e7 +4 | [лог](logs/2026-09-20T12-44-47Z-unit-496c.log) |  |
 | 20.09.2026 17:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 36 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-46-06Z-e2e-6e52.log) |  |
 | 20.09.2026 17:58 | integration | ✅ 45 из 45 | 14 с | 7bdd0e7 +1 | [лог](logs/2026-09-20T12-58-19Z-integration-a5a4.log) |  |
+| 20.09.2026 00:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 10 из 181 | 9 мин 37 с | 06729e9 | [лог](logs/2026-09-19T19-04-02Z-e2e-ed8c.log) | Full synthetic UI regression on merged main before server activation |
+| 20.09.2026 00:14 | unit (частично: tests/unit/deploy-server.test.ts) | ❌ упало 1 из 27 | 1 с | 06729e9 +1 | [лог](logs/2026-09-19T19-14-11Z-unit-b697.log) | RED: reject vulnerable runtime multer in lockfile |
+| 20.09.2026 00:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 fixture-state) | ❌ упало 2 из 2 | 5 с | 06729e9 +1 | [лог](logs/2026-09-19T19-14-21Z-e2e-cab7.log) | RED: fixture reset isolation and merged preview consistency |
+| 20.09.2026 00:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 fixture-state manager-actions quality workspace --grep (стенд:\|Продлить на ночь\|изменение убор | ❌ упало 2 из 12 | 37 с | 06729e9 +10 | [лог](logs/2026-09-19T19-16-32Z-e2e-1067.log) | GREEN: full-suite regressions: fixture isolation, non-blocking board help and preserved merged dialogs |
+| 20.09.2026 12:50 | lint | ✅ без ошибок | 5 с | 06729e9 +11 | [лог](logs/2026-09-20T07-50-06Z-lint-0df0.log) |  |
+| 20.09.2026 12:50 | unit | ❌ упало 2 из 1315, пропущено 207 | 1 мин 12 с | 06729e9 +7 | [лог](logs/2026-09-20T07-50-11Z-unit-b32a.log) | выключатель ARI на сервере файл записан, а процесс выключателя не видит — это ОШИБКА, а не успех |
+| 20.09.2026 16:56 | unit | ❌ упало 2 из 1315, пропущено 207 | 1 мин 16 с | 06729e9 +7 | [лог](logs/2026-09-20T11-56-17Z-unit-535c.log) | выключатель ARI на сервере файл записан, а процесс выключателя не видит — это ОШИБКА, а не успех |
+| 20.09.2026 17:07 | unit | ❌ упало 2 из 1317, пропущено 3 | 1 мин 15 с | 4363d96 +6 | [лог](logs/2026-09-20T12-07-10Z-unit-4066.log) | install.sh domain: две проверки до установки с заполненным конфигом и молчащим адресом обе проверки пропускают |
+| 20.09.2026 17:27 | unit | ✅ 1314 из 1317, пропущено 3 | 1 мин 16 с | da6f79f +6 | [лог](logs/2026-09-20T12-27-18Z-unit-0dd8.log) |  |

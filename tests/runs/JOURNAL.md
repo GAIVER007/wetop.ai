@@ -1300,3 +1300,5 @@
 | 20.09.2026 20:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/invites.spec.ts tests/ui/sessions.spec.ts tests/ui/login-access.spec.ts tests/ui/empty-base.spec. | ✅ 66 из 66 | 2 мин 39 с | b05b6ff +30 | [лог](logs/2026-09-20T15-19-25Z-e2e-4696.log) |  |
 | 20.09.2026 20:22 | unit | ✅ 1272 из 1275, пропущено 3 | 1 мин 12 с | 562edd1 | [лог](logs/2026-09-20T15-22-31Z-unit-2d7d.log) |  |
 | 20.09.2026 20:24 | e2e | ✅ 25 из 25 | 1 мин 6 с | 562edd1 | [лог](logs/2026-09-20T15-24-01Z-e2e-43e2.log) |  |
+| 20.09.2026 20:27 | integration | ❌ упало 1 из 45 | 13 с | d3f2981 | [лог](logs/2026-09-20T15-27-38Z-integration-3323.log) | audit author from session (integration, DATABASE_URL required) действие с ключом сессии подписано автором: user_id в audit_logs равен вошедшему |
+| 20.09.2026 20:29 | integration | ✅ 45 из 45 | 13 с | d3f2981 +1 | [лог](logs/2026-09-20T15-29-01Z-integration-a0cf.log) |  |

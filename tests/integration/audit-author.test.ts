@@ -7,13 +7,13 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { hashSecret, newSessionToken } from '@pms/shared';
+import { hashSessionToken } from '@pms/domain';
+import { newSessionToken } from '@pms/shared';
 import { AccountsModule } from '../../apps/api/src/accounts/accounts.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaGuestsRepository } from '../../apps/api/src/guests/guests.repository';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
-process.env.SESSION_SECRET ??= 'секрет-для-прогона';
 const url = process.env.DATABASE_URL;
 
 /**
@@ -62,7 +62,7 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
     await db.$executeRaw`INSERT INTO memberships (user_id, organization_id, created_at)
       VALUES (${userId}::uuid, ${orgId}::uuid, now())`;
     await db.$executeRaw`INSERT INTO sessions (id, token_hash, user_id, organization_id, issued_at, expires_at)
-      VALUES (${randomUUID()}::uuid, ${hashSecret(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '30 days')`;
+      VALUES (${randomUUID()}::uuid, ${hashSessionToken(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '30 days')`;
 
     // ProbeController живёт в корневом тестовом модуле, а PrismaService — внутри AccountsModule, откуда
     // он не экспортируется: без своей регистрации Nest отвечает «can't resolve dependencies of the

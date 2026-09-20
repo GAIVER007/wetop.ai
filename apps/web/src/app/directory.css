@@ -781,3 +781,32 @@ a.dir-number:hover {
 .finance-block--due {
   border-color: var(--warning-border);
 }
+
+/* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */
+.folio-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  gap: 8px;
+  align-items: start;
+}
+.folio-form {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+.folio-form--pay {
+  border-color: var(--success-soft);
+}
+.folio-form__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.folio-form .row {
+  align-items: flex-end;
+}
+.folio-form__submit {
+  justify-content: space-between;
+}

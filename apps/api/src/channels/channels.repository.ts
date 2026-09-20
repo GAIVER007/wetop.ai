@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { guardAriGateway } from './ari-switch';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';

@@ -9,7 +9,7 @@ import {
 } from '@pms/database';
 import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
 import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
 

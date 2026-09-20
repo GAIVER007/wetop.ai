@@ -6,7 +6,7 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { propertyIdRef } from '../database/property-ref';

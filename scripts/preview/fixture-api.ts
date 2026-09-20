@@ -1498,6 +1498,28 @@ createServer(async (req, res) => {
           ? send(200, authSession)
           : send(401, { message: 'Сессия закончилась. Войдите снова.' });
       if (path === '/auth/logout') return noContent();
+      // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон; отзыв — всегда 204.
+      if (path === '/auth/sessions') {
+        if (bearer !== 'Bearer fixture-session-token')
+          return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+        return send(200, [
+          {
+            id: 'sess-this',
+            issuedAt: new Date(Date.now() - 3600_000).toISOString(),
+            expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
+            device: 'Chrome, macOS',
+            current: true,
+          },
+          {
+            id: 'sess-phone',
+            issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
+            expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
+            device: 'Safari, iPhone',
+            current: false,
+          },
+        ]);
+      }
+      if (path === '/auth/logout-all') return noContent();
       // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
       const invitePreview = {
         organizationName: authSession.organizationName,

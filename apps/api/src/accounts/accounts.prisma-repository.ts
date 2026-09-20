@@ -6,6 +6,7 @@ import type {
   AccountsRepository,
   InviteRecord,
   LoginCodeRecord,
+  SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
 
@@ -183,6 +184,24 @@ export class PrismaAccountsRepository implements AccountsRepository {
       where: { tokenHash, revokedAt: null },
       data: { revokedAt: at },
     });
+  }
+
+  /** «Где я вошёл»: живые сессии человека, новые сверху. */
+  async sessionsForUser(userId: string, now: Date): Promise<SessionListRecord[]> {
+    return this.prisma.db.session.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: now } },
+      orderBy: { issuedAt: 'desc' },
+      select: { id: true, tokenHash: true, issuedAt: true, expiresAt: true, userAgent: true },
+    });
+  }
+
+  /** «Выйти везде»: отзыв всех живых строк человека одним запросом; чужие строки не трогаем. */
+  async revokeAllSessions(userId: string, at: Date): Promise<number> {
+    const r = await this.prisma.db.session.updateMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: at } },
+      data: { revokedAt: at },
+    });
+    return r.count;
   }
 
   // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────

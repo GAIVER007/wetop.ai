@@ -10,6 +10,7 @@ import {
   checkCode,
   checkInvite,
   checkSession,
+  describeUserAgent,
   expiresAt as codeExpiresAt,
   formatCode,
   inviteExpiresAt,
@@ -32,6 +33,15 @@ import type { Actor } from './actor';
 
 const HOUR_MS = 60 * 60 * 1000;
 const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
+
+/** Строка «где я вошёл»: устройство словами и пометка своего сеанса. Ключей и отпечатков нет. */
+export interface SessionRow {
+  id: string;
+  issuedAt: Date;
+  expiresAt: Date;
+  device: string;
+  current: boolean;
+}
 
 /** Что видит вошедший в списке приглашений и что получает в ответ на новое. Ключа здесь нет. */
 export interface InviteView {
@@ -238,6 +248,33 @@ export class AccountsService {
   async logout(token: string | null): Promise<void> {
     if (!token) return;
     await this.repo.revokeSession(hashSecret(token), new Date());
+  }
+
+  // ── «Где я вошёл» и «выйти везде» (§3 п. 3 плана, DATA_MODEL §13.5) ─────────────────────────
+
+  /** Живые сессии человека, своя помечена. `null` — сессии нет. Ключей и отпечатков наружу нет. */
+  async sessions(token: string | null): Promise<SessionRow[] | null> {
+    const who = await this.liveSession(token);
+    if (!who || !token) return null;
+    const own = hashSecret(token);
+    const rows = await this.repo.sessionsForUser(who.userId, new Date());
+    return rows.map((s) => ({
+      id: s.id,
+      issuedAt: s.issuedAt,
+      expiresAt: s.expiresAt,
+      device: describeUserAgent(s.userAgent),
+      current: hashEquals(s.tokenHash, own),
+    }));
+  }
+
+  /**
+   * «Выйти везде»: отзыв всех сессий человека, включая эту. Без сессии — пустое действие, как
+   * обычный выход: повтор с мёртвым ключом не ошибка.
+   */
+  async logoutEverywhere(token: string | null): Promise<number> {
+    const who = await this.liveSession(token);
+    if (!who) return 0;
+    return this.repo.revokeAllSessions(who.userId, new Date());
   }
 
   // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────

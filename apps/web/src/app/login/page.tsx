@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { ApiError, authApi, type AuthInvite } from '../../lib/api';
+import { ApiError, authApi, type AuthInvite, type AuthSessionRow } from '../../lib/api';
 import { clientInfo, currentSession, sessionToken } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { LoginForm } from './login-form';
@@ -10,6 +10,18 @@ async function pendingInvites(): Promise<AuthInvite[]> {
   if (!token) return [];
   try {
     return await authApi.invites(token, await clientInfo());
+  } catch (e) {
+    if (e instanceof ApiError) return [];
+    throw e;
+  }
+}
+
+/** «Где я вошёл» — живые сессии вошедшего; сбой списка экран входа тоже не роняет. */
+async function activeSessions(): Promise<AuthSessionRow[]> {
+  const token = await sessionToken();
+  if (!token) return [];
+  try {
+    return await authApi.sessions(token, await clientInfo());
   } catch (e) {
     if (e instanceof ApiError) return [];
     throw e;
@@ -32,6 +44,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       accessEmail={accessEmail}
       session={session}
       invites={session ? await pendingInvites() : []}
+      sessions={session ? await activeSessions() : []}
       // после принятия приглашения: почта уже известна, код уже выслан — сразу шаг кода
       initialEmail={q.email ?? ''}
       initialStep={q.step === 'code' && q.email ? 'code' : 'email'}

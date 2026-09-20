@@ -21,9 +21,7 @@ export interface StoredSession {
   revokedAt: Date | null;
 }
 
-export type SessionCheck =
-  | { ok: true }
-  | { ok: false; reason: 'expired' | 'revoked' };
+export type SessionCheck = { ok: true } | { ok: false; reason: 'expired' | 'revoked' };
 
 /**
  * Порядок важен: отозванную и заодно протухшую сессию называем отозванной. Отзыв — это
@@ -41,3 +39,37 @@ export function checkSession(stored: StoredSession, now: Date): SessionCheck {
  * и «срок вышел» для того, кто стоит у стойки, — одно и то же действие, войти заново.
  */
 export const SESSION_ENDED_MESSAGE = 'Сеанс закончился. Войдите заново.';
+
+/**
+ * Подпись сеанса для списка «где я вошёл» (§13.5: `user_agent` хранится ради этого списка).
+ * Строка агента человеку не читается — называем браузер и систему словами. Это подпись, а не
+ * право: ошибиться нестрашно, а незнакомое честно называется незнакомым, без сырой строки.
+ */
+export function describeUserAgent(userAgent: string | null | undefined): string {
+  const ua = userAgent?.trim() ?? '';
+  if (!ua) return 'неизвестное устройство';
+  const browser = /Edg\//.test(ua)
+    ? 'Edge'
+    : /Firefox\//.test(ua)
+      ? 'Firefox'
+      : /Chrome\/|CriOS\//.test(ua)
+        ? 'Chrome'
+        : /Safari\//.test(ua) && /Version\//.test(ua)
+          ? 'Safari'
+          : null;
+  const system = /iPhone/.test(ua)
+    ? 'iPhone'
+    : /iPad/.test(ua)
+      ? 'iPad'
+      : /Android/.test(ua)
+        ? 'Android'
+        : /Windows/.test(ua)
+          ? 'Windows'
+          : /Mac OS X|Macintosh/.test(ua)
+            ? 'macOS'
+            : /Linux/.test(ua)
+              ? 'Linux'
+              : null;
+  if (!browser && !system) return 'неизвестное устройство';
+  return [browser ?? 'браузер', system ?? 'неизвестная система'].join(', ');
+}

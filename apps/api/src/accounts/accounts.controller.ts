@@ -31,6 +31,7 @@ import {
   type InvitePreview,
   type InviteView,
   type Session,
+  type SessionRow,
 } from './accounts.service';
 import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie';
 
@@ -178,6 +179,38 @@ export class AccountsController {
     });
   }
 
+  // ── «Где я вошёл» и «выйти везде» (§13.5) ────────────────────────────────────────────────────
+
+  /** Живые сессии вошедшего: устройство словами, своя помечена. 401 без сессии. */
+  @Get('sessions')
+  async sessions(
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<SessionJson[]> {
+    const list = await this.accounts.sessions(tokenFrom(cookie, authorization));
+    if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    return list.map(sessionJson);
+  }
+
+  /** «Выйти везде»: все сессии человека отозваны, кука снята. Всегда 204, как обычный выход. */
+  @Post('logout-all')
+  @HttpCode(204)
+  async logoutAll(
+    @Res({ passthrough: true }) res: Response,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<void> {
+    await this.accounts.logoutEverywhere(tokenFrom(cookie, authorization));
+    const opts = cookieOptions(process.env, 0);
+    res.clearCookie(SESSION_COOKIE, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: opts.secure,
+      ...(opts.domain ? { domain: opts.domain } : {}),
+    });
+  }
+
   // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
 
   /**
@@ -231,6 +264,24 @@ export class AccountsController {
     if (!preview) throw new NotFoundException(INVITE_INVALID_MESSAGE);
     return previewJson(preview);
   }
+}
+
+interface SessionJson {
+  id: string;
+  issuedAt: string;
+  expiresAt: string;
+  device: string;
+  current: boolean;
+}
+
+function sessionJson(s: SessionRow): SessionJson {
+  return {
+    id: s.id,
+    issuedAt: s.issuedAt.toISOString(),
+    expiresAt: s.expiresAt.toISOString(),
+    device: s.device,
+    current: s.current,
+  };
 }
 
 interface InviteJson {

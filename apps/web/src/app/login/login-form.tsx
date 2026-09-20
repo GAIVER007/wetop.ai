@@ -4,10 +4,11 @@ import { useState, useTransition } from 'react';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
 import { daysLeft } from '@pms/domain';
-import type { AuthInvite, AuthSession } from '../../lib/api';
+import type { AuthInvite, AuthSession, AuthSessionRow } from '../../lib/api';
 import {
   inviteAction,
   logoutAction,
+  logoutAllAction,
   registerAction,
   requestCodeAction,
   verifyAction,
@@ -22,6 +23,7 @@ export function LoginForm({
   session,
   mode: initialMode = 'login',
   invites = [],
+  sessions = [],
   initialEmail = '',
   initialStep = 'email',
 }: {
@@ -32,6 +34,8 @@ export function LoginForm({
   mode?: LoginMode;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
+  /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
+  sessions?: AuthSessionRow[];
   /** После принятия приглашения форма открывается сразу на шаге кода с известной почтой. */
   initialEmail?: string;
   initialStep?: 'email' | 'code';
@@ -212,6 +216,31 @@ export function LoginForm({
                     Ожидающих приглашений нет.
                   </p>
                 )}
+              </section>
+              {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
+              <section className="login-invites" aria-labelledby="sessions-heading">
+                <h3 id="sessions-heading">Где вы вошли</h3>
+                {sessions.length > 0 ? (
+                  <ul className="login-invite-list" data-testid="session-list">
+                    {sessions.map((s) => (
+                      <li key={s.id}>
+                        <b>{s.device}</b>{' '}
+                        <span className="muted">
+                          вход{' '}
+                          <time dateTime={s.issuedAt}>{displayDate(s.issuedAt.slice(0, 10))}</time>
+                          {s.current ? ', этот сеанс' : ''}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="muted">Список сеансов недоступен.</p>
+                )}
+                <form action={logoutAllAction}>
+                  <button type="submit" className="btn btn--secondary">
+                    Завершить все сеансы
+                  </button>
+                </form>
               </section>
             </>
           ) : accessEmail ? (

@@ -80,6 +80,20 @@ export async function acceptInviteAction(rawToken: string): Promise<AuthActionRe
   redirect(`/login?email=${encodeURIComponent(email)}&step=code`);
 }
 
+/** «Выйти везде»: все сессии человека отозваны в API, включая эту; кука прочь; на форму входа. */
+export async function logoutAllAction(): Promise<void> {
+  const token = await sessionToken();
+  if (token) {
+    try {
+      await authApi.logoutAll(token, await clientInfo());
+    } catch {
+      // API недоступен — куку всё равно снимаем; остальные сеансы отзовутся, когда API ответит повтору
+    }
+  }
+  await forgetSessionToken();
+  redirect('/login');
+}
+
 /** Выход: отметка в API (ключ мёртв, даже если его скопировали) и кука прочь. */
 export async function logoutAction(): Promise<void> {
   const token = await sessionToken();

@@ -96,10 +96,14 @@ jobs:
           path: test-results
           if-no-files-found: ignore
 
-  ui:
-    name: стойка на синтетическом API (tests/ui)
+  ui-shard:
+    name: UI · часть ${{ matrix.shard }}/3
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -113,12 +117,30 @@ jobs:
       - name: Браузерные проверки без базы
         env:
           UI_BROWSER_CHANNEL: chromium
-        run: npx playwright test --config tests/ui/playwright.config.ts
+        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: ui-results
+          name: ui-results-${{ matrix.shard }}
           path: |
             test-results
             reports/ui-quality
           if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-visual-diffs-${{ matrix.shard }}
+          path: test-results/design-system-*/**/*.png
+          if-no-files-found: ignore
+
+  ui:
+    # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
+    name: стойка на синтетическом API (tests/ui)
+    needs: ui-shard
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Все части UI прошли
+        env:
+          UI_RESULT: ${{ needs.ui-shard.result }}
+        run: test "$UI_RESULT" = success

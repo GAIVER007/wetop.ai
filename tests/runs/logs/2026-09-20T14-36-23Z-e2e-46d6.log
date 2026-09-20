@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 20.09.2026 19:36 Алматы · MacBook-Air-Urij.local
+# коммит 0573c1f (codex/current-release-acceptance), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'invites.spec.ts' 'sessions.spec.ts'
+[WebServer] (node:71561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:71646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (10.0s)
+  ✓  2 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (3.0s)
+[WebServer] (node:71746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:71749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (7.4s)
+[WebServer] (node:71757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (3.2s)
+  ✓  5 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (4.4s)
+  ✓  6 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (8.2s)
+  ✓  7 tests/ui/sessions.spec.ts:49:1 › ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль (6.3s)
+  ✓  8 tests/ui/sessions.spec.ts:74:1 › без сессии списка сеансов нет (3.2s)
+  ✓  9 tests/ui/sessions.spec.ts:82:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (7.5s)
+
+  9 passed (1.2m)
+
+# код выхода 0 · 1 мин 18 с

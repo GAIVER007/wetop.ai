@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4311/__test/reset');
+});
+
 /**
  * «Где я вошёл» и «выйти везде» (срез 13, §3 п. 3; DATA_MODEL §13.5). Синтетический API
- * (`scripts/preview/fixture-api.ts`) отдаёт две живые сессии: эту и телефон.
+ * (`scripts/preview/fixture-api.ts`) принимает код 123456 и отдаёт две живые сессии: эту и телефон.
  * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
- *
- * Входим паролем: 20.09.2026 владелец выбрал его единственным способом (ADR-053), и вход по коду
- * с экрана снят. Прежний тест «вошедший по паролю видит тот же список» держал сравнение двух
- * способов входа; сравнивать больше не с чем, и он снят как повтор остальных.
  */
 async function login(page: import('@playwright/test').Page) {
   await page.goto('/login');
@@ -42,6 +42,31 @@ test('«Завершить все сеансы» гасит вход и возв
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
   await page.waitForURL('**/login');
+  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+});
+
+test('ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль', async ({
+  page,
+  request,
+  context,
+}) => {
+  // Старые сессии не отозваны переходом ADR-053: проверяем уже выписанную cookie,
+  // не возвращая на экран убранный способ входа. Только синтетический loopback API.
+  const response = await request.post('http://127.0.0.1:4311/auth/verify', {
+    headers: { 'x-wetop-test-client': '1' },
+    data: { email: 'legacy@example.invalid', code: '123456' },
+  });
+  expect(response.ok()).toBe(true);
+  const { token } = (await response.json()) as { token: string };
+  await context.addCookies([{
+    name: 'wetop_session', value: token, url: 'http://127.0.0.1:3100',
+    httpOnly: true, sameSite: 'Lax', expires: Math.floor(Date.now() / 1000) + 86400,
+  }]);
+  await page.goto('/login');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
+  await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
   await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });

@@ -86,13 +86,12 @@ const dates = (from: string, to: string) => {
   for (let d = from; d <= to && result.length < 366; d = add(d, 1)) result.push(d);
   return result;
 };
-const categories = [
+const categorySeed = [
   { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
-/** Имена категорий до крайних случаев: `design-seed` их переписывает, `__test/reset` возвращает. */
-const CATEGORY_NAMES = categories.map((c) => c.name);
+const categories = structuredClone(categorySeed);
 const units: InventoryUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
@@ -181,15 +180,6 @@ const extraGuests = new Map<string, GuestCard>();
 function initializeRecords() {
   extraCards.clear();
   extraGuests.clear();
-  // Крайние случаи `design-seed` переписывают имя категории прямо в общих списках: без возврата
-  // его видят все следующие спеки прогона, и окно продления называется чужой категорией.
-  categories.forEach((c, i) => {
-    c.name = CATEGORY_NAMES[i]!;
-  });
-  for (const u of units) {
-    const c = categories.find((x) => x.code === u.accommodationTypeCode);
-    if (c) u.accommodationTypeName = c.name;
-  }
   if (demo) {
     const [firstName, lastName] = names[0]!.split(' ');
     guest.firstName = firstName!;
@@ -1516,7 +1506,7 @@ function read(path: string, q: URLSearchParams): unknown {
     if (!r || !item) return undefined;
     const action = q.get('action') ?? '';
     const current = BigInt(item.priceMinor);
-    const night = 1_100_000n; // цена ночи в фикстуре: календарь тут один на все категории
+    const night = nightly(item.accommodationTypeCode);
     if (action === 'cancel' || action === 'no_show')
       return {
         action,
@@ -1984,6 +1974,11 @@ createServer(async (req, res) => {
       connectionState = 'READY';
       // A long browser run can cross midnight in the property's timezone.
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+      categories.splice(0, categories.length, ...structuredClone(categorySeed));
+      for (const unit of units)
+        unit.accommodationTypeName = categories.find(
+          (c) => c.code === unit.accommodationTypeCode,
+        )!.name;
       incident = structuredClone(incidentSeed);
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;

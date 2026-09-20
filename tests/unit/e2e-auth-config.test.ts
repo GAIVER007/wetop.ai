@@ -27,11 +27,19 @@ const api = (c: PlaywrightTestConfig): Stand | undefined => stands(c).find((s) =
 const web = (c: PlaywrightTestConfig): Stand | undefined => stands(c).find((s) => s.command.includes('next start'));
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   delete process.env['E2E_AUTH'];
   delete process.env['SERVICE_API_KEY'];
 });
 
 describe('конфиг e2e и замок API', () => {
+  it('изолированный API проверяет сессии без рабочего SESSION_SECRET', async () => {
+    vi.stubEnv('SESSION_SECRET', '');
+    vi.stubEnv('E2E_SESSION_SECRET', '');
+    const c = await config(true);
+    expect(api(c)?.env?.['SESSION_SECRET']).toBeTruthy();
+  });
+
   it('без переменной прогон идёт как раньше: замка нет, шага входа нет', async () => {
     const c = await config(false);
     expect(c.projects?.map((p) => p.name)).toEqual(['schema-guard', 'isolated']);

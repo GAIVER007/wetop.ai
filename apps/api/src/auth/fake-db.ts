@@ -131,7 +131,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       async create({
         data,
       }: {
-        data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil'> & {
+        data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt'> & {
           lastLoginAt?: Date | null;
         };
       }) {

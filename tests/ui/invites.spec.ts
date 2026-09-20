@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4311/__test/reset');
+});
+
 /**
  * Приглашения (срез 13, этап 7). Синтетический API (`scripts/preview/fixture-api.ts`) знает пароль
  * сотрудника, код 123456, один живой ключ приглашения — `fixture-invite-token` — и одно ожидающее.
- * Код остался только здесь: принявший приглашение попадает на шаг кода, и пока приглашения не
- * переведены на пароль, этот путь живой (ADR-053).
+ * Принявший приглашение задаёт пароль по одноразовой ссылке (ADR-053).
  * Это проверка экранов и серверных действий стойки; правила API закрыты тестами контроллера.
  */
 // Вход по коду с экрана снят 20.09.2026 (ADR-053): входим паролем, как все.
@@ -23,11 +26,11 @@ test('вошедший видит ожидающие приглашения и �
   await page.goto('/login');
   const main = page.getByRole('main');
   await expect(main).toContainText('Пригласить администратора');
+  await expect(main).not.toContainText('войдёт по коду');
   const list = main.getByTestId('invite-list');
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
 
-  // «уже в организации» стенд отвечает на почту самого вошедшего; входим теперь паролем, значит и адрес свой
   await main.getByLabel('Почта приглашённого').fill('admin@wetop.test');
   await main.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(main.getByRole('alert')).toHaveText('Этот человек уже в организации.');
@@ -54,6 +57,7 @@ test('ссылка из письма: кто зовёт и кого → прин
   await expect(main).toContainText('Вас приглашают');
   await expect(main).toContainText('Хостел «Пример»');
   await expect(main).toContainText('novyj@example.com');
+  await expect(main).not.toContainText('придёт код для входа');
   await main.getByRole('button', { name: 'Принять приглашение' }).click();
   // с 20.09.2026 вход один — по паролю (ADR-053): вместо кода на почту приглашённый сразу задаёт пароль
   await page.waitForURL('**/login/set-password?token=*');
@@ -70,7 +74,7 @@ test('мёртвая ссылка — один текст и путь на фо�
   await expect(main.getByRole('alert')).toHaveText(
     'Приглашение не найдено, уже принято или его срок истёк.',
   );
-  await expect(main.getByRole('link', { name: 'войдите по коду' })).toHaveAttribute(
+  await expect(main.getByRole('link', { name: 'войдите по паролю' })).toHaveAttribute(
     'href',
     '/login',
   );

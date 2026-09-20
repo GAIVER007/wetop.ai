@@ -134,13 +134,18 @@ test('три сессии двух посетителей доходят до п
           `${API}/analytics/sites/${siteId}/report?from=${today}&to=${today}`,
         );
         const report = await r.json();
-        return { summary: report.summary, demand: report.demand?.length ?? 0 };
+        // Pageviews and the later search event can be committed in different batches.
+        // Open the server-rendered report only after both have reached the database.
+        return { ...report.summary, demand: report.demand };
       },
       { timeout: 20_000 },
     )
     .toMatchObject({
-      summary: { sessions: 3, visitors: 2, pageviews: 4, mobileSessions: 1 },
-      demand: 1,
+      sessions: 3,
+      visitors: 2,
+      pageviews: 4,
+      mobileSessions: 1,
+      demand: [{ arrival: '2026-10-01', searches: 1 }],
     });
 
   // экран PMS

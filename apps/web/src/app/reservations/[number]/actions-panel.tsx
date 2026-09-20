@@ -211,6 +211,7 @@ export function ReservationActions(props: {
             }}
           >
             <p>Место вернётся в продажу и уйдёт в каналы.</p>
+            <p>Начисление за проживание сторнируется.</p>
             <p data-testid="cancel-penalty">
               {penaltyText(cancelPreview, 'cancel', props.currency)}
             </p>

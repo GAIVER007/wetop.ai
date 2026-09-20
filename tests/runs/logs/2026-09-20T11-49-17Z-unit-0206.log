@@ -1,0 +1,39 @@
+# Модульные (unit) · 20.09.2026 16:49 Алматы · MacBook-Air-Urij.local
+# коммит 06729e9 (codex/current-release-acceptance), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T11-49-17Z-unit-0206.json' 'tests/unit/local-db-start.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| tests/unit/local-db-start.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/local-db-start.test.ts [ tests/unit/local-db-start.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Expected `}` but found `:`
+    ╭─[ tests/unit/local-db-start.test.ts:21:28 ]
+    │
+ 21 │     if [ "${DATABASE_SCHEMA:-}" = pms_test ] && [ -f "$AUDIT_DIR/test-schema-populated" ]; then
+    │                            ┬
+    │                            ╰── `}` expected
+────╯
+
+  Plugin: vite:oxc
+  File: /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/unit/local-db-start.test.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:4103:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:4174:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:49:18
+   Duration  156ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T11-49-17Z-unit-0206.json
+
+# код выхода 1 · 2 с

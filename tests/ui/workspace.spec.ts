@@ -268,31 +268,26 @@ test('шахматка: фильтры, продолжение брони, вы�
 });
 
 /**
- * Раскрытая подсказка над шахматкой не должна мешать работать: поверх планки она накрывала фильтры и
- * переключатель «Номера / Койки» (обход стойки 17.09.2026), а закрываясь от щелчка вне — уводила
- * кнопку из-под курсора, и нажимать приходилось дважды. Теперь она занимает свою строку, кнопки под
- * ней срабатывают с первого раза, а закрывают её подпись и Escape.
+ * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
+ * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
  */
-test('шахматка: раскрытая подсказка не держит кнопки под собой', async ({ page }) => {
+test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+  page,
+}) => {
   await page.goto('/chessboard');
   const help = page.locator('details.board-help');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  // фильтр срабатывает с первого нажатия, хотя подсказка раскрыта
   await page.getByRole('button', { name: 'Номера', exact: true }).click();
+  await expect(help).not.toHaveAttribute('open', '');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
-  await expect(help).toHaveAttribute('open', '');
   await reset.click({ timeout: 5000 });
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
-  // всё это время подсказка открыта — закрывает её Escape
+  // Escape закрывает её так же, как щелчок вне
+  await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
   await page.keyboard.press('Escape');
-  await expect(help).not.toHaveAttribute('open', '');
-  // и собственная подпись
-  await help.locator('summary').click();
-  await expect(help).toHaveAttribute('open', '');
-  await help.locator('summary').click();
   await expect(help).not.toHaveAttribute('open', '');
 });
 
@@ -1157,14 +1152,52 @@ test('шахматка: фильтр «Уборка» показывает гр�
  * (`review-callout`). Здесь осталась третья сцена — правка цены в ячейке календаря. После слияния 19.09
  * их дубли из второй ветки ждали другие testid и другие слова — сведено к одному тесту на утверждение.
  */
+
+/**
+ * Вторая половина Q-135: ревизия из канала, которую не удалось сопоставить с бронью, остаётся
+ * событием `FAILED` и брони не создаёт. До этого её было видно только на «Подключениях» — стойка
+ * о ней не знала, а это входящая бронь, которую никто не разобрал.
+ */
+test('шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`); // в засеянных данных есть ревизия FAILED
+  await page.goto('/chessboard');
+  const notice = page.getByTestId('review-callout');
+  await expect(notice).toContainText('требует разбора');
+  await notice.getByRole('link').click();
+  await expect(page).toHaveURL(/\/channels$/);
+});
+
+/**
+ * Срез 7.2 — три сцены показа Channex на сертификации.
+ *
+ * (1) Очередь на экране была тремя числами: «в очереди 4» ничего не говорит о том, что именно
+ * уехало и за какие даты. (2) У входящей ревизии не было ссылки на бронь — номер искали руками.
+ * (3) Цена правилась только панелью массовой правки: на показе это три экрана вместо одного клика.
+ */
+test('каналы: очередь показана строками — что уехало, за какие даты и чем кончилось', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.goto('/channels');
+  const rows = page.getByTestId('outbox-row');
+  await expect(rows.first()).toBeVisible();
+  // вид сообщения словом, а не кодом перечисления
+  await expect(rows.filter({ hasText: 'остатки' }).first()).toBeVisible();
+  // отказ виден со своей причиной, а не одним счётчиком «ошибок»
+  const failed = page.getByTestId('outbox-row').filter({ hasText: 'ошибка' }).first();
+  await expect(failed).toContainText('422');
+});
+
 test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await page.goto('/channels');
   const link = page
-    .getByRole('main')
-    .getByTestId('events-table')
-    // в строке две ссылки — сама ревизия и номер брони; у части событий брони ещё нет
-    .locator('a[href^="/reservations/"]')
+    .getByTestId('event-row')
+    .getByRole('link', { name: '20260913-SHOWTN', exact: true })
     .first();
   await expect(link).toBeVisible();
   const number = (await link.textContent())!.trim();
@@ -1191,6 +1224,24 @@ test('цены: правка в ячейке календаря уходит т�
  * молча после нажатия. Окно подтверждения обязано назвать число — одно и то же с тем, что появится
  * на счёте (его даёт предпросмотр `GET …/preview`, считающий теми же функциями, что само действие).
  */
+test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page, request }) => {
+  await page.goto('/reservations/20260913-TEST1');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await page
+    .getByTestId(/^no-show-/)
+    .first()
+    .click();
+  const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(dialog).toContainText('Отметить незаезд');
+  await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
+    'Штраф 8 000 ₸ останется на счёте',
+  );
+  await dialog.getByRole('button', { name: 'Оставить', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.filter((c: { path: string }) => c.path.includes('/no-show'))).toEqual([]);
+});
+
 test('«+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет', async ({
   page,
   request,
@@ -1439,4 +1490,14 @@ test('номера D4: пустота фильтров словами со сб�
   await expect(loading.getByRole('status')).toHaveText('Загружаем номера и занятость…');
   await expect(page.getByRole('main').locator('.room-card').first()).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: {} });
+});
+
+test('отмена брони: окно называет, что сторнируется и будет ли штраф', async ({ page }) => {
+  await page.goto('/reservations/20260913-TEST1');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await page.getByTestId('cancel-reservation').click();
+  const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(dialog).toContainText('Начисление');
+  await expect(dialog).toContainText('сторнируется');
+  await expect(dialog).toContainText('₸');
 });

@@ -1118,3 +1118,7 @@
 | 20.09.2026 18:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 42 с | 5b83942 | [лог](logs/2026-09-20T13-03-08Z-e2e-3a64.log) |  |
 | 20.09.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 sessions.spec.ts fixture-isolation.spec.ts workspace.spec.ts --grep сеанс\|сброс после дизайн\|с | ✅ 12 из 12 | 1 мин 21 с | 8b130ff | [лог](logs/2026-09-20T13-21-37Z-e2e-3e30.log) |  |
 | 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-week.spec.ts --grep помещается на экране) | ✅ 2 из 2 | 40 с | 8b130ff +1 | [лог](logs/2026-09-20T13-24-22Z-e2e-3b50.log) |  |
+| 20.09.2026 18:26 | typecheck | ✅ без ошибок | 22 с | 4931030 | [лог](logs/2026-09-20T13-26-02Z-typecheck-7260.log) |  |
+| 20.09.2026 18:39 | integration | ❌ код выхода 1 | 2 с | 4931030 | [лог](logs/2026-09-20T13-39-45Z-integration-a2c5.log) |  |
+| 20.09.2026 18:40 | integration | ❌ код выхода 1 | 6 с | 4931030 | [лог](logs/2026-09-20T13-40-42Z-integration-44df.log) |  |
+| 20.09.2026 18:42 | integration | ✅ 45 из 45 | 14 с | 4931030 | [лог](logs/2026-09-20T13-42-36Z-integration-55eb.log) |  |

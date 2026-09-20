@@ -91,6 +91,8 @@ const categories = [
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
+/** Имена категорий до крайних случаев: `design-seed` их переписывает, `__test/reset` возвращает. */
+const CATEGORY_NAMES = categories.map((c) => c.name);
 const units: InventoryUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
@@ -177,6 +179,15 @@ const extraGuests = new Map<string, GuestCard>();
 function initializeRecords() {
   extraCards.clear();
   extraGuests.clear();
+  // Крайние случаи `design-seed` переписывают имя категории прямо в общих списках: без возврата
+  // его видят все следующие спеки прогона, и окно продления называется чужой категорией.
+  categories.forEach((c, i) => {
+    c.name = CATEGORY_NAMES[i]!;
+  });
+  for (const u of units) {
+    const c = categories.find((x) => x.code === u.accommodationTypeCode);
+    if (c) u.accommodationTypeName = c.name;
+  }
   if (demo) {
     const [firstName, lastName] = names[0]!.split(' ');
     guest.firstName = firstName!;

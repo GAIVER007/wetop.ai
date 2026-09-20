@@ -1,5 +1,9 @@
 import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
+import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+
+// имена сохранены: их зовут действия входа, спеки и посредник
+export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
 
 /**
  * Сессия стойки (DATA_MODEL §13.5, §13.8; ADR-046 и ADR-049 — Q-146 открыт, оба входа живут рядом).
@@ -11,9 +15,6 @@ import type { AuthClientInfo } from './api';
  * Пока `APP_AUTH_REQUIRED` не задан, стойка работает и без входа: иначе сквозные тесты, сторож и
  * демонстрационный режим встали бы разом. Охрану снаружи держит Cloudflare Access (ADR-045).
  */
-export const SESSION_COOKIE = 'wetop_session';
-/** Срок сессии по коду на почту — 30 суток, как в API (`SESSION_TTL_MS`); по паролю — смена, 12 часов (`expiresAt`). */
-export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 export const authRequired = () => process.env.APP_AUTH_REQUIRED === '1';
 
@@ -38,14 +39,6 @@ export async function sessionToken(): Promise<string | null> {
   } catch {
     return null;
   }
-}
-
-/**
- * `Secure` только по https: по http кука с этим признаком не доедет (Safari на 127.0.0.1 её отбросит,
- * и вход зациклится). Правило одно на стойку и API (`cookie.ts` в API): адрес берётся из `APP_URL`.
- */
-export function cookieSecure(env: Record<string, string | undefined>): boolean {
-  return env.APP_URL?.trim().startsWith('https://') ?? false;
 }
 
 /** Сессия по паролю: срок называет API (`expiresAt`), кука живёт ровно столько же. */

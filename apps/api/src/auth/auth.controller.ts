@@ -36,6 +36,21 @@ export class AuthController {
     });
   }
 
+  /**
+   * Регистрация: почта, имя, пароль — и человек сразу внутри (ADR-053, решение владельца 20.09.2026).
+   * Без входа по построению, как и вход. Ответ тот же, что у /auth/login: ключ, срок, кто вошёл.
+   */
+  @Public()
+  @Post('register')
+  register(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+    return this.auth.register({
+      email: text(body?.email, 'email'),
+      name: text(body?.name, 'name'),
+      password: text(body?.password, 'password', 200),
+      userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
+    });
+  }
+
   @Get('me')
   async me(@Headers() headers: Record<string, string>) {
     const token = tokenFromHeaders(headers);

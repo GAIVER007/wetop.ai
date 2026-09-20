@@ -29,16 +29,17 @@ async function activeSessions(): Promise<AuthSessionRow[]> {
 }
 
 /**
- * Экран входа. Замок один — своя сессия: Cloudflare Access снят 20.09.2026 (ADR-053, ADR-045 отменён),
- * заголовок с почтой от него больше не приходит, но чтение оставлено безвредным на случай возврата Access.
- * Способ входа выбран владельцем — пароль (Q-146 закрыт, ADR-053, DATA_MODEL §13.8). Режим `code` и
- * регистрация организации пока живут здесь же: подтверждение почты при регистрации идёт тем же кодом,
- * поэтому разделение этих сценариев вынесено в отдельную правку.
+ * Экран входа. Замка два: снаружи стойку закрывает Cloudflare Access (ADR-045), внутри — своя сессия.
+ * Своих входов тоже два, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8, ADR-049) —
+ * по умолчанию, и по коду на почту с регистрацией организации (ADR-046) — по переключателю или
+ * `?mode=code`. Почту из заголовка Access показываем и подставляем в поле, но сама по себе она
+ * никуда не пускает.
  */
 export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
   const user = await signedInUser();
-  const mode: LoginMode = q.mode === 'code' || (q.step === 'code' && q.email) ? 'code' : 'password';
+  // `?mode=register` открывает регистрацию сразу — с неё ведёт ссылка «Попробовать бесплатно» с сайта.
+  const mode: LoginMode = q.mode === 'register' ? 'register' : 'password';
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}

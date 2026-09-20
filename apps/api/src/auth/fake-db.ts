@@ -83,7 +83,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     createdAt: new Date('2026-09-15T00:00:00Z'),
   }));
   const organizations: FakeOrganization[] = [
-    { id: FAKE_ORG, name: 'Тестовый хостел', status: 'TRIAL', trialEndsAt: new Date('2026-09-22T00:00:00Z') },
+    {
+      id: FAKE_ORG,
+      name: 'Тестовый хостел',
+      status: 'TRIAL',
+      trialEndsAt: new Date('2026-09-22T00:00:00Z'),
+    },
   ];
   let seq = 0;
 
@@ -92,6 +97,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       async findUnique({ where }: { where: { id: string } }) {
         const row = organizations.find((o) => o.id === where.id);
         return row ? { ...row } : null;
+      },
+      async create({ data }: { data: Omit<FakeOrganization, 'id'> }) {
+        seq += 1;
+        const row: FakeOrganization = { id: `org-${seq + 1}`, ...data };
+        organizations.push(row);
+        return { ...row };
       },
     },
     user: {
@@ -103,7 +114,9 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         include?: { memberships?: unknown };
       }) {
         const found = users.find(
-          (u) => (where.email !== undefined && u.email === where.email) || (where.id !== undefined && u.id === where.id),
+          (u) =>
+            (where.email !== undefined && u.email === where.email) ||
+            (where.id !== undefined && u.id === where.id),
         );
         if (!found) return null;
         if (!include?.memberships) return { ...found };
@@ -115,8 +128,17 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         Object.assign(user, data);
         return { ...user };
       },
-      async create({ data }: { data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt'> }) {
-        if (users.some((u) => u.email === data.email)) throw new Error('почта занята');
+      async create({
+        data,
+      }: {
+        data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt'> & {
+          lastLoginAt?: Date | null;
+        };
+      }) {
+        if (users.some((u) => u.email === data.email)) {
+          // Так отвечает Postgres на нарушение уникальности users.email; регистрация ловит именно код.
+          throw Object.assign(new Error('почта занята'), { code: 'P2002' });
+        }
         seq += 1;
         const row: FakeUser = {
           id: `u-${seq + 1}`,
@@ -136,7 +158,13 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         resets.push(row);
         return { ...row };
       },
-      async findUnique({ where, include }: { where: { tokenHash: string }; include?: { user: boolean } }) {
+      async findUnique({
+        where,
+        include,
+      }: {
+        where: { tokenHash: string };
+        include?: { user: boolean };
+      }) {
         const row = resets.find((r) => r.tokenHash === where.tokenHash);
         if (!row) return null;
         const user = users.find((u) => u.id === row.userId);
@@ -171,7 +199,11 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       },
     },
     session: {
-      async create({ data }: { data: Omit<FakeSession, 'id' | 'issuedAt' | 'lastSeenAt' | 'revokedAt'> }) {
+      async create({
+        data,
+      }: {
+        data: Omit<FakeSession, 'id' | 'issuedAt' | 'lastSeenAt' | 'revokedAt'>;
+      }) {
         seq += 1;
         const row: FakeSession = {
           id: `s-${seq}`,
@@ -198,7 +230,9 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         return {
           ...row,
           ...(include?.user ? { user: user ? { ...user } : null } : {}),
-          ...(include?.organization ? { organization: organization ? { ...organization } : null } : {}),
+          ...(include?.organization
+            ? { organization: organization ? { ...organization } : null }
+            : {}),
         };
       },
       async update({ where, data }: { where: { id: string }; data: Partial<FakeSession> }) {
@@ -215,7 +249,10 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         data: Partial<FakeSession>;
       }) {
         const hit = sessions.filter(
-          (s) => s.userId === where.userId && s.revokedAt === null && (!where.id || s.id !== where.id.not),
+          (s) =>
+            s.userId === where.userId &&
+            s.revokedAt === null &&
+            (!where.id || s.id !== where.id.not),
         );
         hit.forEach((s) => Object.assign(s, data));
         return { count: hit.length };
@@ -232,5 +269,37 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     },
   };
 
-  return { prisma: { db } as never, users, sessions, resets, memberships, organizations, audit, db };
+  /**
+   * Транзакция у подставной базы. Откат нужен по-настоящему: регистрация заводит организацию раньше
+   * человека, и если почта занята, снаружи не должно остаться пустой организации. Подставная база
+   * без отката показала бы зелёное там, где настоящая база права, — поэтому откат здесь есть:
+   * запоминаем длины таблиц до вызова и обрезаем их обратно, если внутри бросили.
+   * Присваивается после объявления: внутри собственного литерала `db` сослаться на себя не может.
+   */
+  Object.assign(db, {
+    async $transaction<T>(fn: (tx: typeof db) => Promise<T>): Promise<T> {
+      const before = [organizations, users, memberships, sessions, resets, audit].map(
+        (t) => t.length,
+      );
+      try {
+        return await fn(db);
+      } catch (e) {
+        [organizations, users, memberships, sessions, resets, audit].forEach((table, i) =>
+          table.splice(before[i]!),
+        );
+        throw e;
+      }
+    },
+  });
+
+  return {
+    prisma: { db } as never,
+    users,
+    sessions,
+    resets,
+    memberships,
+    organizations,
+    audit,
+    db,
+  };
 }

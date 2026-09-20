@@ -22,6 +22,17 @@ export function sessionExpiresAt(issuedAt: Date): Date {
   return new Date(issuedAt.getTime() + SESSION_TTL_MS);
 }
 
+/**
+ * Продление при активности (§13.5). Срок сдвигается не чаще раза в сутки: иначе каждая страница
+ * стойки писала бы в базу, а даёт это ровно то же самое — человек, который работает, не выпадает.
+ */
+export const SESSION_RENEW_AFTER_MS = 24 * 60 * 60 * 1000;
+
+/** Пора ли сдвинуть срок живой сессии. `ttlMs` — её собственный срок: у входов они разные. */
+export function shouldRenewSession(expiresAt: Date, now: Date, ttlMs = SESSION_TTL_MS): boolean {
+  return expiresAt.getTime() - now.getTime() <= ttlMs - SESSION_RENEW_AFTER_MS;
+}
+
 export interface StoredSession {
   expiresAt: Date;
   revokedAt: Date | null;

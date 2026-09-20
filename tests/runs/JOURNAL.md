@@ -1122,3 +1122,14 @@
 | 20.09.2026 18:39 | integration | ❌ код выхода 1 | 2 с | 4931030 | [лог](logs/2026-09-20T13-39-45Z-integration-a2c5.log) |  |
 | 20.09.2026 18:40 | integration | ❌ код выхода 1 | 6 с | 4931030 | [лог](logs/2026-09-20T13-40-42Z-integration-44df.log) |  |
 | 20.09.2026 18:42 | integration | ✅ 45 из 45 | 14 с | 4931030 | [лог](logs/2026-09-20T13-42-36Z-integration-55eb.log) |  |
+| 20.09.2026 18:17 | unit (частично: packages/domain/src/accounts/session-renew.test.ts apps/api/src/auth/auth.service.test.ts) | ❌ упало 5 из 26 | 4 с | b0961ca +2 | [лог](logs/2026-09-20T13-17-25Z-unit-75d1.log) | AuthService.whoami сессия, открытая входом по коду (отпечаток HMAC) работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5) |
+| 20.09.2026 18:17 | unit (частично: packages/domain/src/accounts/session-renew.test.ts apps/api/src/auth) | ✅ 74 из 74 | 4 с | b0961ca +4 | [лог](logs/2026-09-20T13-17-59Z-unit-9896.log) |  |
+| 20.09.2026 18:18 | typecheck | ✅ без ошибок | 19 с | b0961ca +7 | [лог](logs/2026-09-20T13-18-59Z-typecheck-95ad.log) |  |
+| 20.09.2026 18:21 | lint | ✅ без ошибок | 10 с | b0961ca +8 | [лог](logs/2026-09-20T13-21-05Z-lint-09b5.log) |  |
+| 20.09.2026 18:21 | unit | ✅ 1333 из 1336, пропущено 3 | 1 мин 12 с | b0961ca +7 | [лог](logs/2026-09-20T13-21-15Z-unit-f51c.log) |  |
+| 20.09.2026 18:22 | integration | ❌ упало 1 из 45 | 13 с | b0961ca +4 | [лог](logs/2026-09-20T13-22-32Z-integration-7abc.log) | importReservations (integration, DATABASE_URL required) Q-127 / Q-128 (ADR-050, ADR-051): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Ex |
+| 20.09.2026 18:23 | integration | ✅ 45 из 45 | 13 с | b0961ca +4 | [лог](logs/2026-09-20T13-23-10Z-integration-36a8.log) |  |
+| 20.09.2026 18:24 | integration | ✅ 45 из 45 | 13 с | b0961ca +5 | [лог](logs/2026-09-20T13-24-28Z-integration-391e.log) |  |
+| 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 182 из 182 | 11 мин 50 с | b0961ca +9 | [лог](logs/2026-09-20T13-24-49Z-e2e-3d20.log) |  |
+| 20.09.2026 18:57 | typecheck | ❌ ошибок: 1 | 50 с | dba25c9 +25 | [лог](logs/2026-09-20T13-57-06Z-typecheck-df07.log) | TS2783 |
+| 20.09.2026 18:58 | typecheck | ✅ без ошибок | 1 мин 23 с | dba25c9 +25 | [лог](logs/2026-09-20T13-58-26Z-typecheck-cd06.log) |  |

@@ -123,12 +123,6 @@ a.dir-number:hover {
 .directory-meta {
   margin: 0 0 8px;
 }
-.empty-state__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
 
 /* слово у суммы видно только на телефоне: на desktop его несёт шапка колонки */
 .dir-cell-word {

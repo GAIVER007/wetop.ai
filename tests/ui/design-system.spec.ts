@@ -150,3 +150,27 @@ test('подсказка открывается фокусом и закрыва
   await page.keyboard.press('Escape');
   await expect(tip).toBeHidden();
 });
+
+/** B4 «Общие состояния»: пусто, загрузка и сбой различимы, ошибка называет следующий шаг. */
+test('состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес', async ({
+  page,
+}) => {
+  await page.goto('/design-system');
+  const section = page.getByTestId('kit-light').locator('section[data-component="states"]');
+  const empty = section.locator('.empty-state').first();
+  await expect(empty.getByRole('heading', { name: 'Бронирований не найдено' })).toBeVisible();
+  await expect(empty).toContainText('Уберите условие или выберите другой день');
+  await expect(empty.getByRole('button')).toHaveCount(2);
+  const loading = section.locator('[aria-busy="true"]');
+  await expect(loading.getByRole('status')).toHaveText('Загружаем список броней…');
+  await expect(loading.locator('.skeleton')).toHaveCount(4);
+  await expect(loading.locator('.skeleton').first()).toHaveAttribute('aria-hidden', 'true');
+  const alerts = section.getByRole('alert');
+  await expect(alerts).toHaveCount(2);
+  await expect(alerts.nth(0)).toContainText('Проверьте подключение');
+  await expect(alerts.nth(0).getByRole('button', { name: 'Повторить загрузку' })).toBeVisible();
+  await expect(alerts.nth(0).getByRole('link', { name: 'Подключения API' })).toBeVisible();
+  await expect(alerts.nth(1)).toContainText('код 404');
+  await expect(alerts.nth(1)).toContainText('проверьте адрес');
+  await expect(alerts.nth(1).getByRole('link', { name: 'Подключения API' })).toHaveCount(0);
+});

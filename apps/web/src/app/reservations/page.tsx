@@ -70,16 +70,25 @@ export default async function ReservationsPage({
           <Icon name="search" />
           <Input
             name="q"
+            // key: при переходе по ссылке «Убрать поиск» React переиспользует поле, и defaultValue не
+            // обновился бы — поле показывало бы прежний запрос (CI 20.09)
+            key={`q-${q}`}
             defaultValue={q}
             placeholder="Гость, телефон или номер брони"
             aria-label="Поиск броней"
           />
         </div>
         <Field inline label="С">
-          <Input type="date" name="from" defaultValue={from} aria-label="Период: с" />
+          <Input
+            key={`from-${from}`}
+            type="date"
+            name="from"
+            defaultValue={from}
+            aria-label="Период: с"
+          />
         </Field>
         <Field inline label="По">
-          <Input type="date" name="to" defaultValue={to} aria-label="Период: по" />
+          <Input key={`to-${to}`} type="date" name="to" defaultValue={to} aria-label="Период: по" />
         </Field>
         <input type="hidden" name="status" value={status} />
         <Button tone="secondary">Показать</Button>

@@ -317,7 +317,9 @@ export function Grid({
 export function Legend({
   items,
   ...rest
-}: HTMLAttributes<HTMLDivElement> & { items: Array<{ color: string; label: string; glyph?: string }> }) {
+}: HTMLAttributes<HTMLDivElement> & {
+  items: Array<{ color: string; label: string; glyph?: string }>;
+}) {
   return (
     <div className="legend" {...rest}>
       {items.map((i) => (
@@ -331,6 +333,74 @@ export function Legend({
           {i.label}
         </span>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Пустое состояние (DESIGN.md §8 и §14, B4): что пусто и что сделать. Заголовок — одна фраза о том,
+ * чего нет; текст — следующий шаг; `actions` — ссылки или кнопки, которые его делают. Иконка — из
+ * набора, 32 px, цвет акцента. На месте `.empty-state`, который экраны собирали каждый по-своему.
+ */
+export function EmptyState({
+  icon,
+  title,
+  actions,
+  className,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLElement> & {
+  icon?: ReactNode;
+  title?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <section className={cx('empty-state', className)} {...rest}>
+      {icon}
+      {title && <h3 className="empty-state__title">{title}</h3>}
+      {children && <p className="empty-state__text">{children}</p>}
+      {actions && <div className="empty-state__actions">{actions}</div>}
+    </section>
+  );
+}
+
+/**
+ * Скелетон: серая плашка формы будущего содержимого. Скрыт от читалки — о загрузке говорит
+ * `LoadingState`; при `prefers-reduced-motion` не мигает (общее правило в CSS).
+ */
+export function Skeleton({
+  variant = 'row',
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & {
+  variant?: 'title' | 'stat' | 'row' | 'text' | undefined;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cx('skeleton', `skeleton-${variant}`, className)}
+      {...rest}
+    />
+  );
+}
+
+/**
+ * Состояние загрузки блока или экрана: `aria-busy` на области, живая подпись для читалки и скелетоны
+ * той формы, что займёт содержимое (по умолчанию — строки таблицы). Слово, а не крутилка (§8).
+ */
+export function LoadingState({
+  label = 'Загружаем данные…',
+  rows = 3,
+  className,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { label?: string | undefined; rows?: number | undefined }) {
+  return (
+    <div className={cx('loading-state', className)} aria-busy="true" {...rest}>
+      {children ?? Array.from({ length: rows }, (_, i) => <Skeleton key={i} />)}
+      <span className="sr-only" role="status">
+        {label}
+      </span>
     </div>
   );
 }

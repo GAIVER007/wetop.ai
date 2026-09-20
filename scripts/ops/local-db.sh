@@ -60,7 +60,13 @@ start() {
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )
   # Тестам нужен объект и единица «1»: в public для скриптов и в pms_test, где работают тесты
   ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="" npx --yes tsx tests/tools/seed-local.ts >/dev/null )
-  ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="pms_test" npx --yes tsx tests/tools/seed-local.ts >/dev/null )
+  # С 19.09 test:schema сам засевает pms_test сидом из аудита (TEST_DATA=seed, tests/tools/test-seed.ts):
+  # проживания STAND-… на тех же койках нарушили бы запрет пересечений (23P01) — второй сид только в пустую схему
+  if [ "$("$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -d "$DBNAME" -tAc "SELECT count(*) FROM pms_test.reservation_items")" = "0" ]; then
+    ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="pms_test" npx --yes tsx tests/tools/seed-local.ts >/dev/null )
+  else
+    echo "pms_test уже засеяна сидом автотестов (test:schema) — seed-local для неё пропущен"
+  fi
   echo "База поднята. Прогон: DATABASE_URL='$URL' npm run test:record -- integration"
 }
 

@@ -124,18 +124,24 @@ test('три сессии двух посетителей доходят до п
     204,
   );
 
-  // приёмник пишет пачкой раз в секунду — ждём отчёт по API
+  // приёмник пишет пачкой раз в секунду — ждём отчёт по API. Ждём и событие поиска (строку
+  // спроса): оно уходит своей пачкой, и сводка сходилась раньше, чем оно ложилось в базу — экран
+  // открывался без строки спроса (CI 20.09, `an-demand-row` 0 из 1)
   await expect
     .poll(
       async () => {
         const r = await request.get(
           `${API}/analytics/sites/${siteId}/report?from=${today}&to=${today}`,
         );
-        return (await r.json()).summary;
+        const report = await r.json();
+        return { summary: report.summary, demand: report.demand?.length ?? 0 };
       },
       { timeout: 20_000 },
     )
-    .toMatchObject({ sessions: 3, visitors: 2, pageviews: 4, mobileSessions: 1 });
+    .toMatchObject({
+      summary: { sessions: 3, visitors: 2, pageviews: 4, mobileSessions: 1 },
+      demand: 1,
+    });
 
   // экран PMS
   await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);

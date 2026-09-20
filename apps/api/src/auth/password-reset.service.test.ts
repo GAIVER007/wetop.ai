@@ -203,3 +203,38 @@ describe('PasswordResetService.invite', () => {
     ).rejects.toThrow();
   });
 });
+
+/**
+ * Отказ почтовой службы (сверка 20.09.2026). До правки письмо слалось без `try/catch`: Resend
+ * отвечает ошибкой — ссылка уже выдана и погасила прежнюю, человек остаётся без обеих, а повтор
+ * упирается в «не чаще одного письма в пять минут».
+ */
+describe('почтовая служба отказала', () => {
+  const broken = {
+    async send() {
+      throw new Error('Resend: 503');
+    },
+  };
+
+  it('сброс пароля: живой ссылки не остаётся, и следующая попытка не упирается в ожидание', async () => {
+    const { reset, resets } = service([fakeUser()], broken);
+    await reset.request('admin@example.invalid', NOW);
+    expect(resets.every((r) => r.usedAt !== null), 'выданная ссылка погашена').toBe(true);
+
+    // повтор сразу же, без пятиминутного ожидания: первой отправки ведь не было
+    const box = sent();
+    const second = service([fakeUser()], box.mailer);
+    await second.reset.request('admin@example.invalid', NOW);
+    expect(box.letters).toHaveLength(1);
+  });
+
+  it('приглашение: ссылка возвращается владельцу с пометкой «не отправлено», а не теряется', async () => {
+    const { reset } = service([fakeUser()], broken);
+    const invite = await reset.invite(
+      { email: 'novyj@example.invalid', name: 'Новый сотрудник', organizationId: FAKE_ORG },
+      NOW,
+    );
+    expect(invite.sent).toBe(false);
+    expect(invite.link).toContain('/login/set-password?token=');
+  });
+});

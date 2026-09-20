@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { timingSafeEqual } from 'node:crypto';
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService, type SignedInUser } from './auth.service';
@@ -26,6 +27,19 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
  * записи в журнале от него идут без автора.
  */
+/**
+ * Сравнение служебного ключа за постоянное время (сверка 20.09.2026). Обычное `===` выходит на
+ * первом несовпавшем знаке, и по времени ответа ключ подбирается знак за знаком. Длину сравниваем
+ * отдельно — `timingSafeEqual` на строках разной длины бросает, и это само по себе подсказка,
+ * поэтому разную длину гасим заранее общим отказом.
+ */
+function sameKey(presented: string, expected: string): boolean {
+  const a = Buffer.from(presented, 'utf8');
+  const b = Buffer.from(expected, 'utf8');
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 @Injectable()
 export class SessionGuard implements CanActivate {
   constructor(
@@ -65,7 +79,7 @@ export class SessionGuard implements CanActivate {
     const serviceKey = process.env.SERVICE_API_KEY?.trim();
     const presented = request.headers['x-wetop-service-key'];
     if (typeof presented === 'string' && presented !== '') {
-      if (serviceKey && presented === serviceKey) {
+      if (serviceKey && sameKey(presented, serviceKey)) {
         request.service = true;
         return true;
       }

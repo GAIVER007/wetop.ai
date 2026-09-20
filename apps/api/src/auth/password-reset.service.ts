@@ -66,7 +66,18 @@ export class PasswordResetService {
 
     const link = await this.issue(user.id, now);
     const letter = passwordResetLetter({ link });
-    await this.mailer.send({ to: normalized, subject: letter.subject, text: letter.text });
+    try {
+      await this.mailer.send({ to: normalized, subject: letter.subject, text: letter.text });
+    } catch {
+      // Почтовая служба отказала. Ссылка уже выдана и погасила прежнюю — значит, человек остался
+      // без обеих. Гасим свежую сразу и не запоминаем отправку: следующая попытка выдаст новую,
+      // а не упрётся в «не чаще одного письма в пять минут» (сверка 20.09.2026).
+      await this.prisma.db.passwordReset.updateMany({
+        where: { userId: user.id, usedAt: null },
+        data: { usedAt: now },
+      });
+      return;
+    }
     this.lastSent.set(normalized, now.getTime());
   }
 
@@ -136,7 +147,13 @@ export class PasswordResetService {
     if (!this.mailer) return { link, sent: false };
 
     const letter = invitationLetter({ name, link });
-    await this.mailer.send({ to: email, subject: letter.subject, text: letter.text });
+    try {
+      await this.mailer.send({ to: email, subject: letter.subject, text: letter.text });
+    } catch {
+      // Учётная запись уже заведена, ссылка выдана. Отдаём её вызывающему (это CLI владельца) с
+      // пометкой «не отправлено» — ровно как при ненастроенной отправке, а не теряем молча.
+      return { link, sent: false };
+    }
     this.lastSent.set(email, now.getTime());
     return { link, sent: true };
   }

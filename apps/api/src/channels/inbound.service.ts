@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { guestForStorage } from '@pms/shared';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import {
-  BadGatewayException,
   BadRequestException,
   Inject,
   Injectable,
@@ -13,6 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
+import { gatewayFailure } from './gateway-failure';
 import {
   matchImportedReservation,
   penaltyAmount,
@@ -408,11 +408,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     try {
       return await fn();
     } catch (e) {
-      if (e instanceof channex.ChannexApiError) {
-        if (e.status === 503 && e.message.includes('CHANNEX_API_KEY'))
-          throw new ServiceUnavailableException(e.message);
-        throw new BadGatewayException(e.message);
-      }
+      if (e instanceof channex.ChannexApiError) throw gatewayFailure(e);
       throw e;
     }
   }

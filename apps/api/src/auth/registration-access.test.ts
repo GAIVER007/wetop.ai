@@ -24,7 +24,7 @@ describe('самостоятельная регистрация закрыта �
 
   beforeEach(async () => {
     vi.stubEnv('AUTH_REQUIRED', '1');
-    vi.stubEnv('SELF_REGISTRATION_ENABLED', undefined);
+    vi.stubEnv('REGISTRATION_OPEN', undefined);
     world = fakeDb();
     const module = await Test.createTestingModule({
       controllers: [AuthController],
@@ -48,7 +48,7 @@ describe('самостоятельная регистрация закрыта �
   it.each([undefined, '', '0', 'true', 'yes'])(
     'настройка %s: прямой HTTP-запрос получает 403 без записей',
     async (setting) => {
-      vi.stubEnv('SELF_REGISTRATION_ENABLED', setting);
+      vi.stubEnv('REGISTRATION_OPEN', setting);
       const before = structuredClone({
         users: world.users,
         organizations: world.organizations,
@@ -59,7 +59,7 @@ describe('самостоятельная регистрация закрыта �
       const transaction = vi.spyOn((world.prisma as PrismaService).db, '$transaction');
       const response = await request(app.getHttpServer()).post('/auth/register').send(NEW);
       expect(response.status).toBe(403);
-      expect(response.body.message).toContain('Самостоятельная регистрация временно закрыта');
+      expect(response.body.message).toContain('Самостоятельная регистрация закрыта');
       expect(response.body).not.toHaveProperty('token');
       expect(transaction).not.toHaveBeenCalled();
       expect({
@@ -87,7 +87,7 @@ describe('самостоятельная регистрация закрыта �
   });
 
   it('явное разрешение на изолированном стенде сохраняет регистрацию по паролю', async () => {
-    vi.stubEnv('SELF_REGISTRATION_ENABLED', '1');
+    vi.stubEnv('REGISTRATION_OPEN', '1');
     const options = await request(app.getHttpServer()).get('/auth/options');
     expect(options.body).toEqual({ registrationEnabled: true });
     const registration = await request(app.getHttpServer()).post('/auth/register').send(NEW);

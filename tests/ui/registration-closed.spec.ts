@@ -50,7 +50,7 @@ test('ранее открытая форма получает отказ чер�
   });
   await page.getByRole('button', { name: 'Создать организацию' }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
-    'Самостоятельная регистрация временно закрыта',
+    'Самостоятельная регистрация закрыта',
   );
   expect((await context.cookies()).some((cookie) => cookie.name === 'wetop_session')).toBe(false);
   await expect(page).toHaveURL(/\/register/);

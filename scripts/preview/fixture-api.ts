@@ -2221,7 +2221,7 @@ createServer(async (req, res) => {
       if (!registrationEnabled)
         return send(403, {
           message:
-            'Самостоятельная регистрация временно закрыта. Обратитесь к администратору объекта.',
+            'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.',
         });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();

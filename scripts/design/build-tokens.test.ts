@@ -16,6 +16,8 @@ import {
 
 const ROOT = resolve(__dirname, '../..');
 const tree = loadTokens(ROOT);
+/** Сам файл, до разбора: правила имён DTCG проверяются по исходному дереву, а не по нашему виду токенов. */
+const raw = JSON.parse(readFileSync(resolve(ROOT, 'design/tokens.json'), 'utf8')) as unknown;
 
 /**
  * Пары, которые не проходят порог сегодня. Значения токенов на шаге 2 не менялись (ADR-048, Д2), поэтому
@@ -115,6 +117,48 @@ describe('design/tokens.json', () => {
       expect((t.values['light'] as { value: number }).value).toBeGreaterThanOrEqual(12);
     }
   });
+  /**
+   * Имена по спецификации DTCG 2025.10 (раздел «Character restrictions», сверено 20.09.2026 —
+   * `design/docs/README.md`). `$` в начале отведён под свойства токена, `{`, `}` и `.` — под
+   * синтаксис ссылок, поэтому имя с ними делает файл нечитаемым для чужого инструмента.
+   * Своими глазами этого не увидеть: наш генератор такие имена проглатывает.
+   */
+  it('имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки', () => {
+    const bad: string[] = [];
+    const walk = (node: unknown, path: string): void => {
+      if (typeof node !== 'object' || node === null) return;
+      const entries = Object.entries(node as Record<string, unknown>);
+      if (entries.some(([k]) => k === '$value')) return;
+      for (const [name, child] of entries) {
+        if (name.startsWith('$')) continue;
+        if (/[{}.]/.test(name)) bad.push(`${path}${name}`);
+        walk(child, `${path}${name}.`);
+      }
+    };
+    walk(raw, '');
+    expect(bad).toEqual([]);
+  });
+
+  /** Тип не угадывается по значению (DTCG: «Tools MUST NOT attempt to guess the type»). */
+  it('у каждого листа есть $type — свой или унаследованный от группы', () => {
+    const missing: string[] = [];
+    const walk = (node: unknown, path: string, inherited: unknown): void => {
+      if (typeof node !== 'object' || node === null) return;
+      const row = node as Record<string, unknown>;
+      const type = row['$type'] ?? inherited;
+      if ('$value' in row) {
+        if (type === undefined) missing.push(path);
+        return;
+      }
+      for (const [name, child] of Object.entries(row)) {
+        if (name.startsWith('$')) continue;
+        walk(child, path ? `${path}.${name}` : name, type);
+      }
+    };
+    walk(raw, '', undefined);
+    expect(missing).toEqual([]);
+  });
+
   it('ссылка на несуществующий токен и цикл — ошибка с путём', () => {
     expect(() =>
       parseTokens({

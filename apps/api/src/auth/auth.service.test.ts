@@ -97,6 +97,14 @@ describe('AuthService.login', () => {
 });
 
 describe('AuthService.whoami', () => {
+  it('смена по паролю не продлевается работой: 12 часов и заново (ADR-049)', async () => {
+    const { auth, sessions } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    const was = sessions[0]!.expiresAt;
+    await auth.whoami(token, new Date(NOW.getTime() + 3 * 3_600_000));
+    expect(sessions[0]!.expiresAt).toEqual(was);
+  });
+
   it('живая сессия возвращает сотрудника и продлевает отметку активности', async () => {
     const { auth, sessions } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -188,6 +196,29 @@ describe('AuthService.whoami', () => {
         await auth.logout(token, NOW);
         expect(sessions[0]!.revokedAt).toEqual(NOW);
         await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+      });
+    });
+
+    it('работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5)', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        const later = new Date(NOW.getTime() + 86_400_000);
+        await auth.whoami(token, later);
+        expect(sessions[0]!.expiresAt).toEqual(new Date(later.getTime() + 30 * 86_400_000));
+        expect(sessions[0]!.lastSeenAt).toEqual(later);
+      });
+    });
+
+    it('в тот же день срок не трогаем: иначе каждая страница пишет в базу', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        const was = sessions[0]!.expiresAt;
+        const later = new Date(NOW.getTime() + 3_600_000);
+        await auth.whoami(token, later);
+        expect(sessions[0]!.expiresAt).toEqual(was);
+        expect(sessions[0]!.lastSeenAt).toEqual(later);
       });
     });
 

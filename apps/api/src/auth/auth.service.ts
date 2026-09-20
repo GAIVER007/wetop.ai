@@ -13,8 +13,11 @@ import {
   normalizePersonName,
   trialEndsAt,
   validEmail,
+  SESSION_TTL_MS,
+  sessionExpiresAt,
   sessionExpiry,
   sessionState,
+  shouldRenewSession,
   verifyPassword,
   workspaceNameFor,
   type UserStatus,
@@ -238,9 +241,14 @@ export class AuthService {
   } | null> {
     const found = await this.session(token, now);
     if (!found) return null;
+    // §13.5 «30 суток, продление при активности»: тем же запросом, которым отмечаем работу. Смену
+    // по паролю (ADR-049) не двигаем — она кончается через 12 часов намеренно.
+    const renew =
+      found.login === 'code' && shouldRenewSession(found.session.expiresAt, now, SESSION_TTL_MS);
+    const expiresAt = renew ? sessionExpiresAt(now) : found.session.expiresAt;
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now },
+      data: { lastSeenAt: now, ...(renew ? { expiresAt } : {}) },
     });
     const org = found.session.organization;
     return {
@@ -252,16 +260,16 @@ export class AuthService {
             trialEndsAt: org.trialEndsAt ? org.trialEndsAt.toISOString() : null,
           }
         : null,
-      expiresAt: found.session.expiresAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
     };
   }
 
   /** «Выйти». Идемпотентен: неизвестный или уже отозванный токен ничего не ломает и в журнал не пишет. */
   async logout(token: string, now = new Date()): Promise<void> {
-    const session = await this.findByToken(token);
-    if (!session || session.revokedAt !== null) return;
-    await this.prisma.db.session.update({ where: { id: session.id }, data: { revokedAt: now } });
-    await this.record(session.userId, 'user.logout', {});
+    const found = await this.findByToken(token);
+    if (!found || found.row.revokedAt !== null) return;
+    await this.prisma.db.session.update({ where: { id: found.row.id }, data: { revokedAt: now } });
+    await this.record(found.row.userId, 'user.logout', {});
   }
 
   /** Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. */
@@ -290,7 +298,11 @@ export class AuthService {
     await this.record(full.id, 'user.password.changed', { sessionsRevoked: count });
   }
 
-  /** Строка сессии по ключу: сначала отпечаток пароля, потом — если задан секрет — отпечаток кода. */
+  /**
+   * Строка сессии по ключу: сначала отпечаток пароля, потом — если задан секрет — отпечаток кода.
+   * Каким отпечатком нашли, тем и живёт сессия: у входов разные сроки (12 часов и 30 суток), и
+   * продлевать их по одному правилу нельзя.
+   */
   private async findByToken(token: string) {
     const byHash = (tokenHash: string) =>
       this.prisma.db.session.findUnique({
@@ -298,18 +310,20 @@ export class AuthService {
         include: { user: true, organization: true },
       });
     const own = await byHash(hashSessionToken(token));
-    if (own) return own;
+    if (own) return { row: own, login: 'password' as const };
     const alt = codeSessionHash(token);
-    return alt ? byHash(alt) : null;
+    if (!alt) return null;
+    const row = await byHash(alt);
+    return row ? { row, login: 'code' as const } : null;
   }
 
   private async session(token: string, now: Date) {
     if (!token) return null;
-    const session = await this.findByToken(token);
-    if (!session || !session.user) return null;
-    if (sessionState(session, now) !== 'active') return null;
-    if (session.user.status !== 'ACTIVE') return null;
-    return { session, user: session.user };
+    const found = await this.findByToken(token);
+    if (!found?.row.user) return null;
+    if (sessionState(found.row, now) !== 'active') return null;
+    if (found.row.user.status !== 'ACTIVE') return null;
+    return { session: found.row, user: found.row.user, login: found.login };
   }
 
   /** Журнал: кто и что сделал. Пароли и токены здесь не появляются никогда. */

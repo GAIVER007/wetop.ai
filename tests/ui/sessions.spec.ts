@@ -2,16 +2,16 @@ import { expect, test } from '@playwright/test';
 
 /**
  * «Где я вошёл» и «выйти везде» (срез 13, §3 п. 3; DATA_MODEL §13.5). Синтетический API
- * (`scripts/preview/fixture-api.ts`) принимает код 123456 и отдаёт две живые сессии: эту и телефон.
+ * (`scripts/preview/fixture-api.ts`) знает пароль сотрудника и отдаёт две живые сессии: эту и телефон.
  * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
  */
+// Вход по коду с экрана снят 20.09.2026 (ADR-053): входим паролем, как все.
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login?mode=code');
+  await page.goto('/login');
   const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('urij@example.com');
-  await main.getByRole('button', { name: 'Получить код' }).click();
-  await main.getByLabel('Код из письма').fill('123456');
-  await main.getByRole('button', { name: 'Войти' }).click();
+  await main.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await main.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 

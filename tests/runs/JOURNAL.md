@@ -1215,3 +1215,6 @@
 | 20.09.2026 18:23 | integration | ✅ 45 из 45 | 13 с | b0961ca +4 | [лог](logs/2026-09-20T13-23-10Z-integration-36a8.log) |  |
 | 20.09.2026 18:24 | integration | ✅ 45 из 45 | 13 с | b0961ca +5 | [лог](logs/2026-09-20T13-24-28Z-integration-391e.log) |  |
 | 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 182 из 182 | 11 мин 50 с | b0961ca +9 | [лог](logs/2026-09-20T13-24-49Z-e2e-3d20.log) |  |
+| 20.09.2026 19:02 | unit | ✅ 1339 из 1342, пропущено 3 | 1 мин 12 с | 02d7f77 +1 | [лог](logs/2026-09-20T14-02-52Z-unit-012b.log) |  |
+| 20.09.2026 19:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-system.spec.ts tests/ui/invites.spec.ts tests/ui/sessions.spec.ts tests/ui/login-access.sp | ✅ 38 из 38 | 1 мин 57 с | 02d7f77 +2 | [лог](logs/2026-09-20T14-02-45Z-e2e-a4c6.log) |  |
+| 20.09.2026 19:04 | e2e | ✅ 25 из 25 | 1 мин 4 с | 02d7f77 +2 | [лог](logs/2026-09-20T14-04-42Z-e2e-cbd1.log) |  |

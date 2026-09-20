@@ -1247,6 +1247,8 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
+/** Кто уже состоит в организации фикстуры, кроме самого вошедшего — приглашать их повторно нельзя */
+const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии обоих входов (Q-146): ключ → кто вошёл; по коду — вымышленная организация на пробном периоде */
 const uiSessions = new Map<string, UiUser>();
 const codeUser = (email: string): UiUser => ({
@@ -2174,7 +2176,9 @@ createServer(async (req, res) => {
           .toLowerCase();
         if (!email.includes('@'))
           return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
-        if (email === who.email) return send(400, { message: 'Этот человек уже в организации.' });
+        // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
+        if (email === who.email || uiMembers.has(email))
+          return send(400, { message: 'Этот человек уже в организации.' });
         return send(201, {
           id: `inv-${Date.now()}`,
           email,

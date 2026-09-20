@@ -61,7 +61,8 @@ for (const theme of ['light', 'dark'] as const) {
       const section = sections.nth(i);
       const name = await section.getAttribute('data-component');
       await section.scrollIntoViewIfNeeded();
-      await expect(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
+      // Собираем все расхождения за один прогон; любое из них по-прежнему проваливает тест.
+      await expect.soft(section).toHaveScreenshot(`${name}-${theme}-${process.platform}.png`, {
         animations: 'disabled',
         maxDiffPixelRatio: 0.002,
       });

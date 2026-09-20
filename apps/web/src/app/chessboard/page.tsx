@@ -7,6 +7,7 @@ import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
+import { BoardHelp } from './board-help';
 import { displayDate } from '../../lib/display-date';
 import { validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
@@ -184,8 +185,7 @@ export default async function ChessboardPage({
           </Button>
         </form>
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
-        <details className="board-help">
-          <summary>Как работать с шахматкой</summary>
+        <BoardHelp title="Как работать с шахматкой">
           <div className="board-help-content">
             <Legend
               data-testid="board-legend"
@@ -207,7 +207,7 @@ export default async function ChessboardPage({
               карточки брони.
             </p>
           </div>
-        </details>
+        </BoardHelp>
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">

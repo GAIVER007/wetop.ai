@@ -47,16 +47,12 @@
   color: var(--primary);
 }
 .board-bar .board-help-content {
-  position: absolute;
-  right: 0;
-  z-index: 20;
   margin-top: 8px;
   padding: 12px 14px;
-  width: min(560px, 75vw);
+  width: 100%;
   background: var(--surface-elevated, var(--surface));
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: var(--shadow);
   color: var(--text-2);
 }
 .board-help-content .note {
@@ -76,6 +72,10 @@
 }
 .board-bar .board-help {
   position: relative;
+}
+.board-bar .board-help[open] {
+  flex-basis: 100%;
+  margin-left: 0;
 }
 .board-unassigned--empty {
   display: inline-flex;
@@ -420,7 +420,7 @@
     grid-column: 1 / -1;
   }
   .board-period .seg {
-    flex: 1;
+    flex: 1 0 100%;
   }
   .board-period .seg a {
     display: inline-flex;

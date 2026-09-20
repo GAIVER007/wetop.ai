@@ -266,7 +266,9 @@ test('шахматка: фильтры, продолжение брони, вы�
  * Подсказка над шахматкой выводится поверх планки, поэтому открытой она накрывает строку фильтров:
  * до 17.09.2026 по кнопке «Сбросить» под ней нельзя было попасть мышью (найдено обходом стойки).
  */
-test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({ page }) => {
+test('шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой', async ({
+  page,
+}) => {
   await page.goto('/chessboard');
   const help = page.locator('details.board-help');
   await help.locator('summary').click();
@@ -1135,7 +1137,7 @@ test('шахматка: несопоставленные ревизии кана
 }) => {
   await request.post(`${fixture}/__test/design-seed`); // в засеянных данных есть ревизия FAILED
   await page.goto('/chessboard');
-  const notice = page.getByTestId('failed-revisions');
+  const notice = page.getByTestId('review-callout');
   await expect(notice).toContainText('требует разбора');
   await notice.getByRole('link').click();
   await expect(page).toHaveURL(/\/channels$/);
@@ -1152,21 +1154,24 @@ test('каналы: очередь показана строками — что 
   page,
   request,
 }) => {
-  await request.post(`${fixture}/__test/design-seed`);
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await page.goto('/channels');
   const rows = page.getByTestId('outbox-row');
   await expect(rows.first()).toBeVisible();
   // вид сообщения словом, а не кодом перечисления
-  await expect(rows.first()).toContainText('остатки');
+  await expect(rows.filter({ hasText: 'остатки' }).first()).toBeVisible();
   // отказ виден со своей причиной, а не одним счётчиком «ошибок»
   const failed = page.getByTestId('outbox-row').filter({ hasText: 'ошибка' }).first();
   await expect(failed).toContainText('422');
 });
 
 test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
-  await request.post(`${fixture}/__test/design-seed`);
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await page.goto('/channels');
-  const link = page.getByTestId('event-reservation').first();
+  const link = page
+    .getByTestId('event-row')
+    .getByRole('link', { name: '20260913-SHOWTN', exact: true })
+    .first();
   await expect(link).toBeVisible();
   const number = (await link.textContent())!.trim();
   await link.click();
@@ -1192,7 +1197,7 @@ test('цены: правка в ячейке календаря уходит т�
  * молча после нажатия. Окно подтверждения обязано назвать число — одно и то же с тем, что появится
  * на счёте (его даёт предпросмотр `GET …/preview`, считающий теми же функциями, что само действие).
  */
-test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page }) => {
+test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page, request }) => {
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   await page
@@ -1201,10 +1206,13 @@ test('незаезд: окно называет штраф суммой, а не
     .click();
   const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
   await expect(dialog).toContainText('Отметить незаезд');
-  await expect(dialog).toContainText('штраф');
-  await expect(dialog).toContainText('₸');
-  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
+    'Штраф 8 000 ₸ останется на счёте',
+  );
+  await dialog.getByRole('button', { name: 'Оставить', exact: true }).click();
   await expect(dialog).toHaveCount(0);
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.filter((c: { path: string }) => c.path.includes('/no-show'))).toEqual([]);
 });
 
 test('«+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет', async ({

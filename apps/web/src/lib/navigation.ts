@@ -119,20 +119,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/hotel-settings',
-        label: 'Настройка гостиницы',
+        label: 'Настройки гостиницы',
         shortLabel: 'Гостиница',
         icon: 'settings',
         description: 'Правила проживания, услуги и информация об объекте.',
         children: [
           {
-            href: '/hotel-settings/check-in',
-            label: 'Заезд и выезд',
-            icon: 'clock',
-            description: 'Расчётный час и часовой пояс объекта.',
-          },
-          {
             href: '/hotel-settings/penalties',
-            label: 'Штрафы',
+            label: 'Правила отмены',
             icon: 'journal',
             description: 'Политика отмены для каждого тарифного плана.',
           },
@@ -141,24 +135,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             label: 'Услуги',
             icon: 'plus',
             description: 'Каталог дополнительных услуг и цены.',
-          },
-          {
-            href: '/hotel-settings/description',
-            label: 'Описание',
-            icon: 'inventory',
-            description: 'Название, адрес, описание для гостей из Channex.',
-          },
-          {
-            href: '/hotel-settings/photos',
-            label: 'Фото',
-            icon: 'inventory',
-            description: 'Фотографии объекта из Channex.',
-          },
-          {
-            href: '/hotel-settings/amenities',
-            label: 'Удобства',
-            icon: 'check',
-            description: 'Удобства и правила объекта из Channex.',
           },
         ],
       },
@@ -248,15 +224,9 @@ export const sidebarSections: SidebarSection[] = [
     label: 'Настройки',
     icon: 'settings',
     items: [
-      menuItem('/hotel-settings', 'Настройки гостиницы'),
-      menuItem('/hotel-settings/check-in'),
-      menuItem('/hotel-settings/penalties'),
-      menuItem('/hotel-settings/services'),
-      menuItem('/hotel-settings/description'),
-      menuItem('/hotel-settings/photos'),
-      menuItem('/hotel-settings/amenities'),
+      menuItem('/hotel-settings', 'Гостиница'),
       menuItem('/connections'),
-      menuItem('/analytics/setup'),
+      menuItem('/analytics/setup', 'Сайт'),
     ],
   },
   {

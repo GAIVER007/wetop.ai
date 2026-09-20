@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 20.09.2026 18:39 Алматы · MacBook-Air-Urij.local
+# коммит 4931030 (codex/current-release-acceptance)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T13-39-45Z-integration-a2c5.json'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+No test files found, exiting with code 0
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T13-39-45Z-integration-a2c5.json
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect ECONNREFUSED 127.0.0.1:55443
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:52:18
+     50|   const log = opts.log ?? (() => undefined);
+     51|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     52|   const client = await pool.connect();
+       |                  ^
+     53|   try {
+     54|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:13:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 55443 }
+
+
+
+
+# код выхода 1 · 2 с

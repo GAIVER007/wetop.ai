@@ -13,6 +13,8 @@ export interface FakeUser {
   failedAttempts: number;
   lockedUntil: Date | null;
   lastLoginAt: Date | null;
+  /** NULL — почта не подтверждена: вход закрыт (решение владельца 20.09.2026) */
+  emailVerifiedAt: Date | null;
 }
 
 export interface FakeMembership {
@@ -41,6 +43,9 @@ export interface FakeReset {
   usedAt: Date | null;
 }
 
+/** Ссылка подтверждения почты — устроена так же, как ссылка на пароль. */
+export type FakeVerification = FakeReset;
+
 export interface AuditRow {
   userId: string | null;
   entityType: string;
@@ -68,6 +73,9 @@ export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
     failedAttempts: 0,
     lockedUntil: null,
     lastLoginAt: null,
+    // По умолчанию человек подтверждён: тесты входа про пароль, а не про письмо.
+    // Неподтверждённого заводят явно — `fakeUser({ emailVerifiedAt: null })`.
+    emailVerifiedAt: new Date('2026-09-15T00:00:00Z'),
     ...over,
   };
 }
@@ -75,6 +83,7 @@ export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
 export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const sessions: FakeSession[] = [];
   const resets: FakeReset[] = [];
+  const verifications: FakeVerification[] = [];
   const audit: AuditRow[] = [];
   // каждый заведённый человек состоит в одной организации — так его пускает §13.3
   const memberships: FakeMembership[] = users.map((u) => ({
@@ -131,8 +140,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       async create({
         data,
       }: {
-        data: Omit<FakeUser, 'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt'> & {
+        data: Omit<
+          FakeUser,
+          'id' | 'failedAttempts' | 'lockedUntil' | 'lastLoginAt' | 'emailVerifiedAt'
+        > & {
           lastLoginAt?: Date | null;
+          emailVerifiedAt?: Date | null;
         };
       }) {
         if (users.some((u) => u.email === data.email)) {
@@ -147,6 +160,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           ...data,
           // поле есть и в `data`, поэтому умолчание ставится после раскрытия, а не до него
           lastLoginAt: data.lastLoginAt ?? null,
+          // Заведённый через API человек почту ещё не подтверждал — как в настоящей базе
+          emailVerifiedAt: data.emailVerifiedAt ?? null,
         };
         users.push(row);
         return { ...row };
@@ -185,6 +200,49 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         data: Partial<FakeReset>;
       }) {
         const hit = resets.filter((r) => r.userId === where.userId && r.usedAt === null);
+        hit.forEach((r) => Object.assign(r, data));
+        return { count: hit.length };
+      },
+    },
+    emailVerification: {
+      async create({ data }: { data: Omit<FakeVerification, 'id' | 'usedAt'> }) {
+        seq += 1;
+        const row: FakeVerification = { id: `v-${seq}`, usedAt: null, ...data };
+        verifications.push(row);
+        return { ...row };
+      },
+      async findUnique({
+        where,
+        include,
+      }: {
+        where: { tokenHash: string };
+        // Подтверждение зовёт с вложенным include: человек и его членство одним запросом
+        include?: { user: boolean | { include?: { memberships?: unknown } } };
+      }) {
+        const row = verifications.find((r) => r.tokenHash === where.tokenHash);
+        if (!row) return null;
+        if (!include?.user) return { ...row };
+        const user = users.find((u) => u.id === row.userId);
+        if (!user) return { ...row, user: null };
+        return {
+          ...row,
+          user: { ...user, memberships: memberships.filter((m) => m.userId === user.id) },
+        };
+      },
+      async update({ where, data }: { where: { id: string }; data: Partial<FakeVerification> }) {
+        const row = verifications.find((r) => r.id === where.id);
+        if (!row) throw new Error('нет такой ссылки подтверждения');
+        Object.assign(row, data);
+        return { ...row };
+      },
+      async updateMany({
+        where,
+        data,
+      }: {
+        where: { userId: string; usedAt: null };
+        data: Partial<FakeVerification>;
+      }) {
+        const hit = verifications.filter((r) => r.userId === where.userId && r.usedAt === null);
         hit.forEach((r) => Object.assign(r, data));
         return { count: hit.length };
       },
@@ -279,13 +337,13 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
    */
   Object.assign(db, {
     async $transaction<T>(fn: (tx: typeof db) => Promise<T>): Promise<T> {
-      const before = [organizations, users, memberships, sessions, resets, audit].map(
+      const before = [organizations, users, memberships, sessions, resets, verifications, audit].map(
         (t) => t.length,
       );
       try {
         return await fn(db);
       } catch (e) {
-        [organizations, users, memberships, sessions, resets, audit].forEach((table, i) =>
+        [organizations, users, memberships, sessions, resets, verifications, audit].forEach((table, i) =>
           table.splice(before[i]!),
         );
         throw e;
@@ -298,6 +356,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     users,
     sessions,
     resets,
+    verifications,
     memberships,
     organizations,
     audit,

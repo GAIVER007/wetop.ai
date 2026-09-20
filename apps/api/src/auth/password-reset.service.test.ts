@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { hashSessionToken, verifyPassword } from '@pms/domain';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
+import { EmailVerificationService } from './email-verification.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
 const NOW = new Date('2026-09-15T10:00:00Z');
@@ -26,7 +27,10 @@ function service(users = [fakeUser()], mailer: unknown = sent().mailer) {
   return {
     ...world,
     reset: new PasswordResetService(world.prisma, mailer as never, APP),
-    auth: new AuthService(world.prisma),
+    auth: new AuthService(
+      world.prisma,
+      new EmailVerificationService(world.prisma, mailer as never, APP),
+    ),
   };
 }
 

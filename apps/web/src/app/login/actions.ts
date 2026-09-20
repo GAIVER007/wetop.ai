@@ -99,23 +99,58 @@ function errorText(e: unknown): string {
 // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCodeAction и verifyAction ушли вместе с ним.
 
 /**
- * Регистрация: почта, имя, пароль (ADR-053, решение владельца 20.09.2026). Письма и кода в этом
- * пути нет — API сразу отдаёт ключ сессии, и человек оказывается на рабочем месте. Рабочее
- * пространство называется именем человека: отдельного поля в форме владелец не просил.
+ * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Сессия здесь не открывается: API шлёт письмо,
+ * и человек уходит на экран «подтвердите почту». Рабочее пространство называется именем человека:
+ * отдельного поля в форме владелец не просил.
  */
 export async function registerAction(
   email: string,
   name: string,
   password: string,
 ): Promise<AuthActionResult> {
+  let sent: boolean;
   try {
     const result = await authApi.register({ email, name, password });
-    await setSessionCookie(result.token, result.expiresAt);
+    sent = result.sent;
   } catch (e) {
     return { error: errorText(e) };
   }
   // `redirect` бросает служебное исключение — снаружи `try`, чтобы не принять его за ошибку.
+  redirect(`/login/check-email?email=${encodeURIComponent(email)}${sent ? '' : '&sent=0'}`);
+}
+
+/**
+ * Подтверждение почты по ссылке из письма: API проверяет ссылку и сразу отдаёт сессию — пароль
+ * человек назвал при регистрации, спрашивать его второй раз незачем.
+ */
+export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
+  try {
+    const result = await authApi.verifyEmail({ token });
+    await setSessionCookie(result.token, result.expiresAt);
+  } catch (e) {
+    return { error: errorText(e) };
+  }
   redirect('/today');
+}
+
+export interface ResendState {
+  error: string | null;
+  sent: boolean;
+}
+
+/** «Выслать письмо заново». Ответ не говорит, есть ли такая почта: иначе форма проверяет чужие адреса. */
+export async function resendVerification(
+  _prev: ResendState,
+  form: FormData,
+): Promise<ResendState> {
+  const email = String(form.get('email') ?? '').trim();
+  if (!email) return { error: 'Введите почту', sent: false };
+  try {
+    await authApi.resendVerification({ email });
+  } catch (e) {
+    return { error: errorText(e), sent: false };
+  }
+  return { error: null, sent: true };
 }
 
 export interface InviteActionResult {

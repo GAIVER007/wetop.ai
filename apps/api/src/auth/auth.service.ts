@@ -10,6 +10,7 @@ import {
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
+  VERIFY_PENDING_MESSAGE,
   checkPassword,
   evaluateLogin,
   hashPassword,
@@ -26,6 +27,7 @@ import {
   type UserStatus,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { EmailVerificationService } from './email-verification.service';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -48,6 +50,18 @@ export interface LoginResult {
   token: string;
   expiresAt: string;
   user: SignedInUser;
+}
+
+/**
+ * Что возвращает регистрация. Сессии здесь нет намеренно: пока почта не подтверждена, входа нет
+ * (решение владельца 20.09.2026). Стойке нужен только адрес — чтобы показать «письмо ушло туда-то».
+ */
+export interface RegisterResult {
+  pendingVerification: true;
+  email: string;
+  name: string;
+  /** Письмо ушло. `false` — отправка не настроена: человеку нужен владелец, а не повтор. */
+  sent: boolean;
 }
 
 /**
@@ -93,7 +107,10 @@ const visible = (
  */
 @Injectable()
 export class AuthService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
+  ) {}
 
   /** ADR-055: единственный источник настройки для API и стойки, без данных пользователей. */
   registrationOptions(): { registrationEnabled: boolean } {
@@ -151,6 +168,11 @@ export class AuthService {
       throw new UnauthorizedException(WRONG);
     }
 
+    // Почта не подтверждена — вход закрыт (решение владельца 20.09.2026). Ответ отличается от WRONG
+    // намеренно: пароль человек уже назвал верно, скрывать от него нечего, а иначе он не поймёт,
+    // что делать. Стойка по этому ответу предлагает выслать письмо заново.
+    if (user.emailVerifiedAt === null) throw new ForbiddenException(VERIFY_PENDING_MESSAGE);
+
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     const organizationId = user.memberships[0]?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
@@ -178,9 +200,9 @@ export class AuthService {
   /**
    * Регистрация организации: почта, имя, пароль (решение владельца 20.09.2026, ADR-053, Q-146).
    *
-   * Письма в этом пути нет намеренно: прежняя регистрация слала код на почту и потому не работала,
-   * пока не настроены MAIL_* — а они не настроены. Человек входит сразу, как после обычного входа:
-   * тот же отпечаток сессии (SHA-256), тот же срок, та же кука.
+   * Сессия здесь не открывается: сначала человек подтверждает почту по ссылке из письма (решение
+   * владельца 20.09.2026). До 20.09.2026 регистрация входила сразу — так на чужой адрес мог
+   * зарегистрироваться кто угодно, а опечатка в своём оставляла учётную запись без сброса пароля.
    *
    * Три строки одной транзакцией: организация, человек, членство. Занятый адрес ловим нарушением
    * уникальности `users.email`, а не проверкой «есть ли такой» перед вставкой: две одновременные
@@ -190,9 +212,9 @@ export class AuthService {
    * осознанная: форме регистрации иначе нечего ответить человеку, который уже регистрировался.
    */
   async register(
-    input: { email: string; name: string; password: string; userAgentFamily?: string | null },
+    input: { email: string; name: string; password: string },
     now = new Date(),
-  ): Promise<LoginResult> {
+  ): Promise<RegisterResult> {
     this.assertRegistrationOpen();
     const email = validEmail(input.email);
     if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
@@ -225,23 +247,44 @@ export class AuthService {
       throw e;
     }
 
+    await this.record(created.userId, 'user.register', { via: 'password', verified: false });
+
+    const sent = await this.verification.sendFor({ userId: created.userId, email, name }, now);
+    return { pendingVerification: true, email, name, sent };
+  }
+
+  /**
+   * Открыть сессию человеку, который только что подтвердил почту. Отдельный вход: пароль здесь
+   * уже не спрашиваем — его назвали при регистрации, а владельцем ссылки только что доказано,
+   * что почта его.
+   */
+  async startSession(
+    input: { userId: string; organizationId: string; userAgentFamily?: string | null },
+    now = new Date(),
+  ): Promise<LoginResult> {
+    const user = await this.prisma.db.user.findUnique({ where: { id: input.userId } });
+    if (!user) throw new UnauthorizedException(WRONG);
+
     const token = newSessionToken();
     const expiresAt = sessionExpiry(now);
     await this.prisma.db.session.create({
       data: {
-        userId: created.userId,
-        organizationId: created.organizationId,
+        userId: user.id,
+        organizationId: input.organizationId,
         tokenHash: hashSessionToken(token),
         userAgent: input.userAgentFamily ?? null,
         expiresAt,
       },
     });
-    await this.record(created.userId, 'user.register', { via: 'password' });
+    await this.prisma.db.user.update({
+      where: { id: user.id },
+      data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
+    });
 
     return {
       token,
       expiresAt: expiresAt.toISOString(),
-      user: { id: created.userId, email, name, organizationId: created.organizationId },
+      user: visible(user, input.organizationId),
     };
   }
 

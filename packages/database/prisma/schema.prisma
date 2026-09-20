@@ -965,6 +965,9 @@ model User {
   status      UserStatus @default(ACTIVE)
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   lastLoginAt DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  /// Когда человек подтвердил почту по ссылке из письма (решение владельца 20.09.2026).
+  /// NULL — не подтвердил: вход закрыт. У заведённых до 20.09.2026 проставлено миграцией.
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
 
   /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
   /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
@@ -977,6 +980,7 @@ model User {
   sessions       Session[]
   invitesIssued  Invite[]        @relation("InviteCreatedBy")
   passwordResets PasswordReset[]
+  emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
 
   @@map("users")
@@ -995,6 +999,21 @@ model PasswordReset {
 
   @@index([userId])
   @@map("password_resets")
+}
+
+/// Ссылка подтверждения почты. В базе только хеш ссылки, срок 72 часа, ссылка одноразовая.
+/// Новая ссылка гасит прежние: одна живая ссылка на человека.
+model EmailVerification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("email_verifications")
 }
 
 /// Человек в организации. Ролей нет: ADR-023 в этой части в силе, контролем остаётся журнал действий.

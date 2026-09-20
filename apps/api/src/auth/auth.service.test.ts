@@ -3,14 +3,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
 
 import { AuthService } from './auth.service';
+import { EmailVerificationService } from './email-verification.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
 const PASSWORD = 'luxx-stoika-2026';
 const NOW = new Date('2026-09-15T10:00:00Z');
 
+const APP = 'https://app.wetop.ai';
+
 function service(users = [fakeUser()]) {
   const world = fakeDb(users);
-  return { auth: new AuthService(world.prisma), ...world };
+  const letters: Array<{ to: string; subject: string; text: string }> = [];
+  const mailer = {
+    async send(letter: { to: string; subject: string; text: string }) {
+      letters.push(letter);
+    },
+  };
+  const verification = new EmailVerificationService(world.prisma, mailer, APP);
+  return { auth: new AuthService(world.prisma, verification), verification, letters, ...world };
 }
 
 describe('AuthService.login', () => {
@@ -211,8 +221,8 @@ describe('AuthService.changePassword', () => {
 });
 
 /**
- * Регистрация: почта, имя, пароль (решение владельца 20.09.2026, ADR-053). Раньше регистрация слала
- * код на почту и потому не работала без настроенных MAIL_*; теперь человек входит сразу.
+ * Регистрация: почта, имя, пароль, письмо, подтверждение (решение владельца 20.09.2026, ADR-053,
+ * ADR-060). Вход открывается только после перехода по ссылке из письма.
  */
 describe('AuthService.register', () => {
   const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
@@ -230,18 +240,17 @@ describe('AuthService.register', () => {
     expect(organizations).toHaveLength(before.orgs);
   });
 
-  it('заводит организацию, человека и членство и сразу открывает сессию — как после входа', async () => {
-    const { auth, users, sessions, memberships, organizations, audit } = service();
+  it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
+    const { auth, users, sessions, memberships, organizations, audit, letters } = service();
     const result = await auth.register(NEW, NOW);
 
-    expect(result.user).toMatchObject({ email: 'novyi@example.invalid', name: 'Вячеслав Петров' });
-    expect(result.token).toHaveLength(43);
-    expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
+    expect(result).toMatchObject({ pendingVerification: true, email: 'novyi@example.invalid' });
+    expect(JSON.stringify(result), 'ключа сессии в ответе нет').not.toContain('token');
 
     const created = users.find((u) => u.email === 'novyi@example.invalid');
     expect(created, 'человек заведён').toBeDefined();
     expect(created!.name).toBe('Вячеслав Петров');
-    expect(created!.lastLoginAt).toEqual(NOW);
+    expect(created!.emailVerifiedAt, 'почта ещё не подтверждена').toBeNull();
     // пароль в базе только хешем, и сам он нигде не всплывает
     expect(created!.passwordHash).not.toContain(PASSWORD);
 
@@ -254,19 +263,62 @@ describe('AuthService.register', () => {
       true,
     );
 
-    // сессия того же вида, что у входа по паролю: в базе только хеш токена
-    const session = sessions.find((x) => x.userId === created!.id);
-    expect(session!.tokenHash).toBe(hashSessionToken(result.token));
-    expect(JSON.stringify(sessions)).not.toContain(result.token);
-    expect(audit.at(-1)).toMatchObject({ action: 'user.register', after: { via: 'password' } });
+    // сессии нет ни одной: пока не подтверждена почта, входа нет
+    expect(sessions.filter((x) => x.userId === created!.id)).toHaveLength(0);
+    expect(audit.at(-1)).toMatchObject({
+      action: 'user.register',
+      after: { via: 'password', verified: false },
+    });
+
+    // письмо ушло на тот же адрес, и ссылки из него в журнале нет
+    expect(letters).toHaveLength(1);
+    expect(letters[0]!.to).toBe('novyi@example.invalid');
+    expect(letters[0]!.text).toContain('/login/verify?token=');
   });
 
-  it('этой же парой почта-пароль сразу входят: регистрация не «наполовину»', async () => {
+  it('до подтверждения почты вход закрыт — и говорит, что делать', async () => {
     const { auth } = service();
     await auth.register(NEW, NOW);
     await expect(
       auth.login({ email: 'novyi@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow(/Почта не подтверждена/);
+  });
+
+  it('по ссылке из письма человек подтверждается и входит той же парой почта-пароль', async () => {
+    const { auth, verification, users, letters } = service();
+    await auth.register(NEW, NOW);
+
+    const link = /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text);
+    expect(link, 'ссылка в письме').not.toBeNull();
+    const token = decodeURIComponent(link![1]!.replace(/\+/g, '%20'));
+
+    const confirmed = await verification.confirm(token, NOW);
+    const session = await auth.startSession({ ...confirmed }, NOW);
+    expect(session.token).toHaveLength(43);
+    expect(session.user.email).toBe('novyi@example.invalid');
+    expect(users.find((u) => u.email === 'novyi@example.invalid')!.emailVerifiedAt).toEqual(NOW);
+
+    await expect(
+      auth.login({ email: 'novyi@example.invalid', password: PASSWORD }, NOW),
     ).resolves.toMatchObject({ user: { email: 'novyi@example.invalid' } });
+  });
+
+  it('ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход', async () => {
+    const { auth, verification, letters } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    // почтовый клиент ходит по ссылкам сам — повтор должен впускать, а не пугать отказом
+    await expect(verification.confirm(token, NOW)).resolves.toMatchObject({
+      organizationId: expect.any(String),
+    });
+  });
+
+  it('негодная ссылка отвечает отказом и никого не впускает', async () => {
+    const { verification } = service();
+    await expect(verification.confirm('нет-такой-ссылки', NOW)).rejects.toThrow(/Ссылка не годится/);
   });
 
   it('занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку', async () => {

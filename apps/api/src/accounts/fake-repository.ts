@@ -240,6 +240,29 @@ export class FakeAccountsRepository implements AccountsRepository {
     this.accounts.push(account);
     return account;
   }
+
+  /** Ссылки «задайте пароль» для приглашённых: по ним видно, что ушло человеку, без настоящей базы. */
+  passwordSetTokens: { email: string; tokenHash: string; expiresAt: Date }[] = [];
+  /** У кого пароль уже задан — такому ссылку не выдаём (это был бы сброс по чужому приглашению). */
+  withPassword = new Set<string>();
+
+  async issuePasswordSetToken(input: {
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    now: Date;
+  }): Promise<boolean> {
+    const known = this.accounts.some((a) => a.email === input.email);
+    if (!known || this.withPassword.has(input.email)) return false;
+    // прежние неиспользованные гасим: живой остаётся одна
+    this.passwordSetTokens = this.passwordSetTokens.filter((t) => t.email !== input.email);
+    this.passwordSetTokens.push({
+      email: input.email,
+      tokenHash: input.tokenHash,
+      expiresAt: input.expiresAt,
+    });
+    return true;
+  }
 }
 
 interface StoredInvite extends InviteRecord {

@@ -94,7 +94,7 @@ h1,h2,h3 { letter-spacing: -.035em; }
 .inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
 select.inp { appearance: none; padding-right: 32px; background-image: linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%); background-position: calc(100% - 17px) 50%,calc(100% - 13px) 50%; background-size: 4px 4px; background-repeat: no-repeat; }
 .field { color: var(--text-2); font-size: 13px; gap: 8px; }
-.panel,.stat,.attention-card,.section-card,.guest-summary,.facts--card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: none; }
+.panel,.stat,.attention-card,.section-card,.facts--card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: none; }
 .panel { padding: 20px; }
 .panel__title,.section-title { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -.02em; }
 .stats { gap: 16px; }
@@ -238,11 +238,6 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .record-tab-list button[aria-selected='true'] { color: var(--primary); border-bottom-color: var(--primary); }
 .record-tabs [role='tabpanel'][hidden] { display: none; }
 .record-tabs [role='tabpanel'] { outline-offset: 5px; }
-.guest-account-links { display: grid; gap: 12px; }
-.guest-account-links > a { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.guest-summary { padding: 24px; }
-.guest-avatar { border-radius: 50%; color: var(--primary); background: var(--primary-soft); }
-.guest-summary-fact span,.guest-summary p { color: var(--muted); }
 @media (max-width:600px) { .record-tab-list { gap: 20px; } }
 .directory-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 20px; }
 .search-field { position: relative; flex: 1; min-width: 180px; }

@@ -1251,3 +1251,69 @@ test('новая бронь: резюме выбора обновляется п
   }));
   expect(layout.content).toBeLessThanOrEqual(layout.viewport + 1);
 });
+
+/**
+ * D1 «Гости» (tasks/todo.md): поиск назван словами и пустой результат говорит, что сделать; статус
+ * пребывания на карточке — одной фразой; длинное имя переносится, а не режется и не уводит экран
+ * вбок; история и переход к брони доступны на телефоне.
+ */
+test('гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/guests?q=Тест');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('guests-meta')).toContainText('по запросу «Тест»');
+  const row = main.getByTestId('guests-table').locator('tbody tr').first();
+  await expect(row).toContainText('Гость Тестовый');
+  await expect(row.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
+  await expect(main.getByRole('link', { name: 'Убрать поиск' })).toBeVisible();
+
+  await page.goto('/guests?q=Нетакого');
+  const empty = main.getByTestId('guests-empty');
+  await expect(empty).toContainText('Гостей по запросу «Нетакого» не найдено');
+  await expect(empty.getByRole('link', { name: 'Новая бронь с гостем' })).toBeVisible();
+  await empty.getByRole('link', { name: 'Убрать поиск' }).click();
+  await expect(page).toHaveURL(/\/guests$/);
+  await expect(main.getByTestId('guests-today-count')).toBeVisible();
+
+  // длинное имя (вымышленное, ADR-010) — через ту же правку профиля, что делает стойка
+  await request.patch(`${fixture}/guests/ui-guest`, {
+    data: {
+      lastName: 'Абдрахманова-Сулейменова',
+      firstName: 'Айгерим-Гульназ',
+      middleName: 'Бауыржановна',
+    },
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guests?q=Абдрахманова');
+  await expect(main.getByTestId('guests-table')).toContainText('Абдрахманова-Сулейменова');
+  let overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+
+  // карточка: статус пребывания фразой над вкладками, история — с датами и ссылкой на бронь
+  await page.goto('/guests/ui-guest');
+  await expect(main.getByRole('heading', { level: 1 })).toContainText('Абдрахманова-Сулейменова');
+  await expect(main.getByTestId('guest-stay-now')).toContainText(/ожидается сегодня, R01|живёт/);
+  await expect(main.getByTestId('guest-head')).toContainText('KAZ');
+  overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  await main.getByRole('tab', { name: 'Проживания', exact: true }).click();
+  const stay = main.getByTestId('guest-stay-row').first();
+  await expect(stay).toContainText('R01');
+  await expect(stay.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
+  await expect(stay.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
+  const tableOverflow = await main
+    .getByTestId('guest-stay-row')
+    .first()
+    .locator('xpath=ancestor::div[contains(@class,"table-scroll")]')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(tableOverflow).toBeLessThanOrEqual(1);
+  await main.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
+  await expect(main.locator('.guest-account-links a').first()).toContainText('20260913-TESTAA');
+});

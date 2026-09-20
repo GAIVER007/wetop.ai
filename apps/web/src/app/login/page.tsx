@@ -2,7 +2,7 @@ import { ApiError, authApi, type AuthInvite, type AuthSessionRow } from '../../l
 import { clientInfo, sessionToken } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { LoginForm, type LoginMode } from './login-form';
-import { accessEmail, signedInUser } from './signed-in';
+import { accessEmail, registrationAvailable, signedInUser } from './signed-in';
 
 /** Ожидающие приглашения своей организации — только вошедшему; сбой списка экран входа не роняет. */
 async function pendingInvites(): Promise<AuthInvite[]> {
@@ -29,24 +29,17 @@ async function activeSessions(): Promise<AuthSessionRow[]> {
 }
 
 /**
- * Экран входа. Замка два: снаружи стойку закрывает Cloudflare Access (ADR-045), внутри — своя сессия.
- * Своих входов тоже два, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8, ADR-049) —
- * по умолчанию, и по коду на почту с регистрацией организации (ADR-046) — по переключателю или
- * `?mode=code`. Почту из заголовка Access показываем и подставляем в поле, но сама по себе она
- * никуда не пускает.
+ * Вход по паролю (ADR-053). Доступность самостоятельной регистрации определяет API (ADR-055).
+ * Прежние ссылки на регистрацию при закрытом доступе сохраняют вход сотрудников.
  */
 export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
-  const user = await signedInUser();
+  const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
   // `?mode=register` открывает регистрацию сразу — с неё ведёт ссылка «Попробовать бесплатно» с сайта.
   const mode: LoginMode = q.mode === 'register' ? 'register' : 'password';
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
-      // Самостоятельная регистрация закрыта, пока не разделены данные организаций (Q-152).
-      // Выключатель тот же, что у API (REGISTRATION_OPEN): если экран и API разойдутся, человек
-      // увидит отказ словами, а не пустую форму — но задавать их надо парой.
-      registrationOpen={process.env.APP_REGISTRATION_OPEN === '1'}
       accessEmail={await accessEmail()}
       user={user}
       invites={user?.organization ? await pendingInvites() : []}
@@ -55,6 +48,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       initialEmail={q.email ?? ''}
       passwordJustSet={q.password === 'set'}
       mode={mode}
+      registrationEnabled={registrationEnabled}
     />
   );
 }

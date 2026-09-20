@@ -38,6 +38,7 @@ const openAtLock = (p: string): boolean =>
   p.startsWith('/a/') ||
   p.startsWith('/w/') ||
   p === '/auth/login' ||
+  p === '/auth/options' ||
   p === '/auth/logout' ||
   p === '/auth/code' ||
   p === '/auth/register' ||
@@ -48,6 +49,7 @@ let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
 function resetUiAuth() {
+  registrationEnabled = true;
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -1243,6 +1245,7 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
+let registrationEnabled = true;
 /** Кто уже состоит в организации фикстуры, кроме самого вошедшего — приглашать их повторно нельзя */
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
@@ -2009,6 +2012,8 @@ createServer(async (req, res) => {
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['registrationEnabled'] === 'boolean')
+        registrationEnabled = body['registrationEnabled'];
       if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
       if (
@@ -2240,8 +2245,16 @@ createServer(async (req, res) => {
       return noContent();
     }
     // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
+    // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
+    if (path === '/auth/code' || path === '/auth/verify') return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
+    if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {
+      if (!registrationEnabled)
+        return send(403, {
+          message:
+            'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.',
+        });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
       const password = String(body['password'] ?? '');

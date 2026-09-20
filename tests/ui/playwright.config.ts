@@ -37,8 +37,6 @@ export default defineConfig({
       env: {
         APP_UI_TEST: '1',
         APP_DEMO_MODE: '',
-        // регистрация на стенде открыта: её сценарии проверяют форму, а не решение о запуске SaaS
-        APP_REGISTRATION_OPEN: '1',
         APP_API_URL: 'http://127.0.0.1:4311',
         APP_ALLOW_TEST_DATA: '1',
       },

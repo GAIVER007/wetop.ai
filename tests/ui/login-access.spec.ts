@@ -218,76 +218,77 @@ test('после входа экран входа показывает, кто �
 
 // ── Регистрация (ADR-053): почта, имя, пароль — и сразу внутрь, без письма ──
 
-// Регистрация на стенде открыта явно (APP_REGISTRATION_OPEN=1). На рабочем сервере она закрыта,
-// пока данные организаций не разделены (Q-152): закрытое состояние проверяет тест API
-// (auth.service.test.ts «закрыта по умолчанию»), здесь — что открытая форма работает.
-test('на экране входа нет входа по коду: только пароль и кнопка регистрации', async ({ page }) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await expect(main.getByRole('button', { name: 'Войти по коду из письма' })).toHaveCount(0);
-  await expect(main.getByLabel('Код из письма')).toHaveCount(0);
-  await expect(main.getByRole('button', { name: 'Регистрация' })).toBeVisible();
-});
+test.describe('регистрация доступна по умолчанию', () => {
+  test('на экране входа нет входа по коду: только пароль и кнопка регистрации', async ({
+    page,
+  }) => {
+    await page.goto('/login');
+    const main = page.getByRole('main');
+    await expect(main.getByRole('button', { name: 'Войти по коду из письма' })).toHaveCount(0);
+    await expect(main.getByLabel('Код из письма')).toHaveCount(0);
+    await expect(main.getByRole('button', { name: 'Регистрация' })).toBeVisible();
+  });
 
-test('кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю', async ({
-  page,
-}) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await main.getByRole('button', { name: 'Регистрация' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-  await expect(main.getByLabel('Email')).toBeVisible();
-  await expect(main.getByLabel('Имя')).toBeVisible();
-  await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
-  await expect(main).not.toContainText('Название организации');
+  test('кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю', async ({
+    page,
+  }) => {
+    await page.goto('/login');
+    const main = page.getByRole('main');
+    await main.getByRole('button', { name: 'Регистрация' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+    await expect(main.getByLabel('Email')).toBeVisible();
+    await expect(main.getByLabel('Имя')).toBeVisible();
+    await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
+    await expect(main).not.toContainText('Название организации');
 
-  await main.getByRole('button', { name: 'Войти по паролю' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
-});
+    await main.getByRole('button', { name: 'Войти по паролю' }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
+  });
 
-test('/login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта', async ({
-  page,
-}) => {
-  await page.goto('/login?mode=register');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-});
+  test('/login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта', async ({
+    page,
+  }) => {
+    await page.goto('/login?mode=register');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+  });
 
-test('регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly', async ({
-  page,
-  context,
-}) => {
-  await page.goto('/register');
-  const main = page.getByRole('main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
-  await main.getByLabel('Email').fill('novyj@example.com');
-  await main.getByLabel('Имя').fill('Вячеслав Петров');
-  await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await page.waitForURL('**/today');
+  test('регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await page.waitForURL('**/today');
 
-  // письма и второго шага в этом пути нет: сессия открыта тем же способом, что при входе
-  const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
-  expect(cookie?.httpOnly).toBe(true);
-  expect(cookie?.sameSite).toBe('Lax');
-});
+    // письма и второго шага в этом пути нет: сессия открыта тем же способом, что при входе
+    const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
+    expect(cookie?.httpOnly).toBe(true);
+    expect(cookie?.sameSite).toBe('Lax');
+  });
 
-test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
-  page,
-}) => {
-  await page.goto('/register');
-  const main = page.getByRole('main');
+  test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
+    page,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
 
-  // занятый адрес называется прямо — иначе человеку нечего ответить на вторую попытку
-  await main.getByLabel('Email').fill(EMAIL);
-  await main.getByLabel('Имя').fill('Вячеслав Петров');
-  await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');
-  await expect(page).toHaveURL(/\/register/);
+    // занятый адрес называется прямо — иначе человеку нечего ответить на вторую попытку
+    await main.getByLabel('Email').fill(EMAIL);
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');
+    await expect(page).toHaveURL(/\/register/);
 
-  // короткий пароль форма отдаёт браузеру (minLength), длину проверяет и API — берём его текст
-  await main.getByLabel('Email').fill('novyj@example.com');
-  await main.getByLabel('Пароль', { exact: true }).fill('korotkij1');
-  await main.getByRole('button', { name: 'Создать организацию' }).click();
-  await expect(page).toHaveURL(/\/register/);
+    // короткий пароль форма отдаёт браузеру (minLength), длину проверяет и API — берём его текст
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Пароль', { exact: true }).fill('korotkij1');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(page).toHaveURL(/\/register/);
+  });
 });

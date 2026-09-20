@@ -31,8 +31,8 @@ export function LoginForm({
   user,
   passwordJustSet = false,
   mode: initialMode = 'password',
+  registrationEnabled = false,
   invites = [],
-  registrationOpen = false,
   sessions = [],
   initialEmail = '',
 }: {
@@ -42,11 +42,8 @@ export function LoginForm({
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
-  /**
-   * Открыта ли самостоятельная регистрация. Закрыта, пока данные организаций не разделены (Q-152):
-   * только что заведённая организация видит объект этой гостиницы. Вход и приглашения — как были.
-   */
-  registrationOpen?: boolean;
+  /** Серверное состояние API. До получения настройки форму регистрации не показываем. */
+  registrationEnabled?: boolean;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
@@ -54,7 +51,8 @@ export function LoginForm({
   /** Почта, подставленная в поле: приходит из ссылки (`?email=`) или из заголовка Access. */
   initialEmail?: string;
 }) {
-  const [mode, setMode] = useState<LoginMode>(initialMode);
+  const [requestedMode, setMode] = useState<LoginMode>(initialMode);
+  const mode = registrationEnabled ? requestedMode : 'password';
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
@@ -309,7 +307,12 @@ export function LoginForm({
                 Забыли пароль?
               </Link>
               <div className="login-preview">
-                {accessEmail ? (
+                {!registrationEnabled && initialMode === 'register' ? (
+                  <span role="status">
+                    Самостоятельная регистрация временно закрыта. Доступ сотрудникам выдаёт
+                    администратор объекта.
+                  </span>
+                ) : accessEmail ? (
                   <>
                     <span>Cloudflare Access пропустил {accessEmail}</span>
                     {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
@@ -323,7 +326,7 @@ export function LoginForm({
                   </span>
                 )}
               </div>
-              {registrationOpen && (
+              {registrationEnabled && (
                 <div className="login-preview">
                   <span>Ещё нет организации?</span>
                   <button
@@ -336,26 +339,6 @@ export function LoginForm({
                   </button>
                 </div>
               )}
-            </>
-          ) : !registrationOpen ? (
-            <>
-              {/* Закрыта, пока данные организаций не разделены (Q-152): без этого новая организация
-                  видит объект этой гостиницы. Говорим прямо и уводим туда, где человеку помогут. */}
-              <h1>Регистрация закрыта</h1>
-              <p>
-                Новые организации пока не заводятся самостоятельно. Если вы сотрудник объекта,
-                попросите владельца прислать приглашение — по ссылке из письма вы зададите себе
-                пароль.
-              </p>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => switchTo('password')}
-                data-testid="registration-closed-back"
-              >
-                Войти по паролю
-                <Icon name="arrow" width={16} />
-              </button>
             </>
           ) : (
             <>

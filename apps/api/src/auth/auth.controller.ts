@@ -24,6 +24,12 @@ export class AuthController {
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
   ) {}
 
+  @Public()
+  @Get('options')
+  options() {
+    return this.auth.registrationOptions();
+  }
+
   /** Без входа по построению: этим маршрутом и входят. */
   @Public()
   @Post('login')
@@ -43,6 +49,7 @@ export class AuthController {
   @Public()
   @Post('register')
   register(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+    this.auth.assertRegistrationOpen();
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
@@ -89,7 +96,10 @@ export class AuthController {
   }
 
   @Post('password')
-  async password(@Headers() headers: Record<string, string>, @Body() body: Record<string, unknown>) {
+  async password(
+    @Headers() headers: Record<string, string>,
+    @Body() body: Record<string, unknown>,
+  ) {
     const token = tokenFromHeaders(headers);
     await this.auth.changePassword({
       token: token ?? '',

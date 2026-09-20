@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-09-20T15:27:59.432Z",
+  "source": "localhost frontend and real API, no guest writes",
+  "pages": [
+    {
+      "width": 390,
+      "visible": true,
+      "createButtons": 0,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "visible": true,
+      "createButtons": 0,
+      "horizontalOverflow": false
+    }
+  ],
+  "options": {
+    "status": 200,
+    "registrationEnabled": false
+  },
+  "emptyRegistrationStatus": 403,
+  "passed": true
+}

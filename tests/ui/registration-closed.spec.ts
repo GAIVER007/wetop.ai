@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post('http://127.0.0.1:4311/__test/control', {
+    data: { registrationEnabled: false },
+  });
 });
 
 for (const path of ['/login', '/register', '/login?mode=register']) {

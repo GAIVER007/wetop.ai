@@ -17,14 +17,14 @@ const NEW = {
   password: 'test-password-2026',
 };
 
-describe('самостоятельная регистрация закрыта до изоляции организаций (Q-152)', () => {
+describe('единая настройка самостоятельной регистрации (ADR-055)', () => {
   let app: INestApplication;
   let world: ReturnType<typeof fakeDb>;
   let auth: AuthService;
 
   beforeEach(async () => {
     vi.stubEnv('AUTH_REQUIRED', '1');
-    vi.stubEnv('REGISTRATION_OPEN', undefined);
+    vi.stubEnv('REGISTRATION_OPEN', '0');
     world = fakeDb();
     const module = await Test.createTestingModule({
       controllers: [AuthController],
@@ -45,7 +45,7 @@ describe('самостоятельная регистрация закрыта �
     vi.unstubAllEnvs();
   });
 
-  it.each([undefined, '', '0', 'true', 'yes'])(
+  it.each(['0', 'true', 'yes'])(
     'настройка %s: прямой HTTP-запрос получает 403 без записей',
     async (setting) => {
       vi.stubEnv('REGISTRATION_OPEN', setting);
@@ -86,15 +86,18 @@ describe('самостоятельная регистрация закрыта �
     expect(response.body).toEqual({ registrationEnabled: false });
   });
 
-  it('явное разрешение на изолированном стенде сохраняет регистрацию по паролю', async () => {
-    vi.stubEnv('REGISTRATION_OPEN', '1');
-    const options = await request(app.getHttpServer()).get('/auth/options');
-    expect(options.body).toEqual({ registrationEnabled: true });
-    const registration = await request(app.getHttpServer()).post('/auth/register').send(NEW);
-    expect(registration.status).toBe(201);
-    expect(registration.body.user.email).toBe(NEW.email);
-    const login = await request(app.getHttpServer()).post('/auth/login').send(NEW);
-    expect(login.status).toBe(201);
-    expect(login.body.user.id).toBe(registration.body.user.id);
-  });
+  it.each([undefined, '', ' ', '1', ' 1 '])(
+    'настройка %s: регистрация и повторный вход доступны',
+    async (setting) => {
+      vi.stubEnv('REGISTRATION_OPEN', setting);
+      const options = await request(app.getHttpServer()).get('/auth/options');
+      expect(options.body).toEqual({ registrationEnabled: true });
+      const registration = await request(app.getHttpServer()).post('/auth/register').send(NEW);
+      expect(registration.status).toBe(201);
+      expect(registration.body.user.email).toBe(NEW.email);
+      const login = await request(app.getHttpServer()).post('/auth/login').send(NEW);
+      expect(login.status).toBe(201);
+      expect(login.body.user.id).toBe(registration.body.user.id);
+    },
+  );
 });

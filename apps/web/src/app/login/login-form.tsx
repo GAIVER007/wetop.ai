@@ -42,7 +42,7 @@ export function LoginForm({
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
-  /** Серверное состояние API, не локальное разрешение. По умолчанию регистрация закрыта. */
+  /** Серверное состояние API. До получения настройки форму регистрации не показываем. */
   registrationEnabled?: boolean;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];

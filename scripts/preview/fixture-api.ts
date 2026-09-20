@@ -49,7 +49,7 @@ let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
 function resetUiAuth() {
-  registrationEnabled = false;
+  registrationEnabled = true;
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -1245,7 +1245,7 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
-let registrationEnabled = false;
+let registrationEnabled = true;
 /** Кто уже состоит в организации фикстуры, кроме самого вошедшего — приглашать их повторно нельзя */
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */

@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
@@ -52,6 +58,21 @@ export interface LoginResult {
 
 /** Один и тот же ответ на неверную почту и на неверный пароль: форма входа не рассказывает, кто у нас есть. */
 const WRONG = 'Неверная почта или пароль';
+/**
+ * Самостоятельная регистрация закрыта, пока её не откроют явно (`REGISTRATION_OPEN=1`).
+ *
+ * Причина названа приёмкой 20.09.2026 (Q-152): только что заведённая организация получает 200 на
+ * `/inventory/summary` — то есть видит объект этой гостиницы. Разделения данных между организациями
+ * ещё нет, а `/register` открыт всему интернету. До разделения открытая форма — это не «пробный
+ * период», а вход в чужую базу. Вход и приглашения сотрудников не затронуты.
+ */
+export const REGISTRATION_CLOSED_MESSAGE =
+  'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.';
+
+export function registrationOpen(env: Record<string, string | undefined> = process.env): boolean {
+  return env.REGISTRATION_OPEN?.trim() === '1';
+}
+
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
@@ -167,6 +188,7 @@ export class AuthService {
     input: { email: string; name: string; password: string; userAgentFamily?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
+    if (!registrationOpen()) throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
     const email = validEmail(input.email);
     if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
     if (!isPersonNameShaped(input.name)) {

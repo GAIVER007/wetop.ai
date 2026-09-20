@@ -1115,3 +1115,4 @@
 | 20.09.2026 14:19 | e2e (частично: --config tests/ui/playwright.config.ts workspace -g номера D4 --workers=1) | ❌ упало 1 из 1 | 21 с | 171022e +1 | [лог](logs/2026-09-20T09-19-29Z-e2e-af61.log) | номера D4: пустота фильтров словами со сбросом, телефон без прокрутки вбок, скелетон |
 | 20.09.2026 14:19 | e2e (частично: --config tests/ui/playwright.config.ts workspace premium quality accessibility requests --workers=1) | ✅ 93 из 93 | 6 мин 21 с | 171022e +5 | [лог](logs/2026-09-20T09-19-50Z-e2e-7c1f.log) |  |
 | 20.09.2026 14:26 | e2e (частично: --config tests/ui/playwright.config.ts design-reference --workers=1) | ✅ 2 из 2 | 34 с | 171022e +5 | [лог](logs/2026-09-20T09-26-45Z-e2e-9753.log) |  |
+| 20.09.2026 14:28 | e2e (частично: tests/e2e/stay-extras.spec.ts tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts tests/e2e/desk-edit.spec.ts tests/e2e/cancellation-penalty.spe | ✅ 6 из 6 | 24 с | 1bb311b +1 | [лог](logs/2026-09-20T09-28-32Z-e2e-9ea8.log) |  |

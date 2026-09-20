@@ -39,6 +39,8 @@
 
 | `payment-draft` после правки локатора | `2026-09-20T09-16-27Z-e2e-3f96.log` | GREEN 3/3 |
 
+| CI `db` на `171022e`: живой `stay-extras` ждал сырую дату «2026-10-14» в строке начисления, а D3 показывает «14 окт.» в `<time>` — спек читает `datetime`; локально с `finance`, `full-day`, `desk-edit`, `cancellation-penalty` | `2026-09-20T09-28-32Z-e2e-9ea8.log` | GREEN 6/6 |
+
 ## Границы
 
 Живые сквозные (`finance`, `full-day`, `desk-edit`, `stay-extras`) заполняют те же поля по `name` и `aria-label` —

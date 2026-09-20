@@ -51,15 +51,22 @@ const client = new channex.ChannexClient({ apiKey, baseUrl });
 
 const ARRIVAL = plus(20);
 const DEPARTURE = plus(21);
+// Перенос на сутки вперёд — «изменение брони» глазами канала
+const MOVED_ARRIVAL = plus(21);
+const MOVED_DEPARTURE = plus(22);
 const code = `WETOP-${Date.now().toString(36).toUpperCase()}`;
-const bookingBody = (status: 'new' | 'cancelled') => ({
+/**
+ * Тело ревизии. `modified` — тот же Update Booking, но с другими датами: Channex заводит ревизию
+ * со статусом `modified`, и именно её просит сценарий 11 сертификации (новая, изменённая, отменённая).
+ */
+const bookingBody = (status: 'new' | 'modified' | 'cancelled') => ({
   booking: {
-    ...(status === 'cancelled' ? { status } : {}),
+    ...(status === 'new' ? {} : { status }),
     property_id: m.providerPropertyId,
     ota_reservation_code: code,
     ota_name: OTA_NAME,
-    arrival_date: ARRIVAL,
-    departure_date: DEPARTURE,
+    arrival_date: status === 'modified' ? MOVED_ARRIVAL : ARRIVAL,
+    departure_date: status === 'modified' ? MOVED_DEPARTURE : DEPARTURE,
     currency: 'KZT',
     payment_collect: 'property',
     payment_type: 'bank_transfer',
@@ -69,7 +76,7 @@ const bookingBody = (status: 'new' | 'cancelled') => ({
       {
         room_type_id: m.providerRoomTypeId,
         rate_plan_id: m.providerRatePlanId,
-        days: { [ARRIVAL]: '9000.00' },
+        days: { [status === 'modified' ? MOVED_ARRIVAL : ARRIVAL]: '9000.00' },
         guests: [{ name: 'Гость', surname: 'Тест-WETOP' }],
         occupancy: { adults: 1, children: 0, infants: 0 },
       },
@@ -148,7 +155,24 @@ if (number) {
   check('после брони: остаток PMS = Channex, на 1 меньше', afterCreate.pms === afterCreate.channex && afterCreate.pms === availBefore.pms - 1, `PMS ${afterCreate.pms}, Channex ${afterCreate.channex}, за ${afterCreate.seconds} с`);
 }
 
-// 2. Отмена из канала — тот же Update Booking со статусом cancelled
+// 2. Изменение из канала: даты на сутки вперёд (сценарий 11 сертификации — ревизия `modified`)
+const tMod = Date.now();
+await client.request('PUT', `/bookings/${encodeURIComponent(bookingId)}`, bookingBody('modified'));
+if (number) {
+  let arrival = '';
+  for (let i = 0; i < 36 && arrival !== MOVED_ARRIVAL; i++) {
+    await sleep(5000);
+    arrival = (await get<{ arrivalDate: string }>(`/reservations/${encodeURIComponent(number)}`))
+      .arrivalDate;
+  }
+  check(
+    'изменение из канала дошло до PMS',
+    arrival === MOVED_ARRIVAL,
+    `заезд ${arrival || '—'} (ждали ${MOVED_ARRIVAL}) за ${Math.round((Date.now() - tMod) / 1000)} с`,
+  );
+}
+
+// 3. Отмена из канала — тот же Update Booking со статусом cancelled
 const t2 = Date.now();
 await client.request('PUT', `/bookings/${encodeURIComponent(bookingId)}`, bookingBody('cancelled'));
 if (number) {
@@ -160,6 +184,24 @@ if (number) {
   check('отмена из канала дошла до PMS', status === 'CANCELLED', `статус ${status} за ${Math.round((Date.now() - t2) / 1000)} с`);
   const afterCancel = await availabilityMatches();
   check('после отмены: остаток вернулся, PMS = Channex', afterCancel.pms === afterCancel.channex && afterCancel.pms === availBefore.pms, `PMS ${afterCancel.pms}, Channex ${afterCancel.channex}, за ${afterCancel.seconds} с`);
+}
+
+/**
+ * Для формы сертификации (сценарий 11) нужны идентификаторы самого Channex, а не наши номера броней:
+ * id брони и по одной ревизии на каждый статус. Печатаем их отдельным блоком, чтобы владельцу было
+ * что перенести в форму, не заходя в кабинет.
+ */
+try {
+  const revisions = await client.request<{
+    data: Array<{ id: string; attributes: { status?: string; inserted_at?: string } }>;
+  }>('GET', `/booking_revisions?filter[booking_id]=${encodeURIComponent(bookingId)}`);
+  console.log('\nДля формы сертификации, сценарий 11:');
+  console.log(`  Booking ID: ${bookingId}`);
+  for (const r of revisions.data ?? []) {
+    console.log(`  Revision ${r.attributes?.status ?? '—'}: ${r.id}  (${r.attributes?.inserted_at ?? ''})`);
+  }
+} catch (e) {
+  console.log(`\nСписок ревизий не прочитался: ${(e as Error).message}. Идентификаторы есть в кабинете Channex.`);
 }
 
 const at = new Date();

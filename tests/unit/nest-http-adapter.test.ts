@@ -21,7 +21,9 @@ const require_ = createRequire(import.meta.url);
 
 describe('сетевой слой Nest', () => {
   it('@nestjs/platform-express разрешается из того места, где лежит @nestjs/common', () => {
-    const common = dirname(require_.resolve('@nestjs/common/package.json'));
+    // Не `@nestjs/common/package.json`: карта `exports` пакета его не отдаёт, и Node ищет
+    // «package.json.js» — тест падал в CI на всех платформах (20.09.2026). Главный модуль лежит в корне пакета.
+    const common = dirname(require_.resolve('@nestjs/common'));
     expect(() => require_.resolve('@nestjs/platform-express', { paths: [common] })).not.toThrow();
   });
 

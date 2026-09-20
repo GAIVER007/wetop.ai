@@ -1,72 +1,4 @@
 /* Hotel information architecture: compact expandable navigation and section landing pages. */
-.nav-entry-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-.nav-entry-row .workspace-link {
-  flex: 1;
-  min-width: 0;
-}
-.nav-entry-row .workspace-link span {
-  line-height: 1.35;
-}
-.nav-toggle {
-  width: 30px;
-  min-width: 30px;
-  height: 38px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-.nav-toggle:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-}
-.nav-toggle svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.15s ease;
-}
-.nav-toggle[aria-expanded='true'] svg {
-  transform: rotate(90deg);
-}
-.workspace-link.has-active-child {
-  color: var(--success);
-}
-.nav-children {
-  margin: 0 0 7px 20px;
-  padding-left: 15px;
-  border-left: 1px solid var(--border);
-}
-.nav-child {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  padding: 9px 10px;
-  border-radius: 5px;
-  margin: 2px 0;
-  line-height: 1.35;
-}
-.nav-child:hover {
-  color: var(--text);
-  background: var(--surface-muted);
-  text-decoration: none;
-}
-.nav-child.is-active {
-  color: var(--success);
-  background: var(--success-soft);
-  font-weight: 500;
-}
-.nav-toggle:focus-visible,
-.nav-child:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
 .section-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
@@ -224,22 +156,11 @@
     padding: 18px;
     gap: 12px;
   }
-  .nav-toggle {
-    width: 38px;
-    min-width: 38px;
-    height: 44px;
-  }
-  .nav-child {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
   .channel-totals strong {
     font-size: 23px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nav-toggle svg,
   .section-card {
     transition: none;
   }

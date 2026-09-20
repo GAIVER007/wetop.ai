@@ -92,7 +92,7 @@ test('все разделы, карточки и печать открывают
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/today');
   const sidebar = page.locator('.workspace-sidebar');
-  const rooms = sidebar.getByRole('button', { name: 'Подразделы: Управление номерами' });
+  const rooms = sidebar.getByRole('button', { name: 'Номерной фонд', exact: true });
   await expect(rooms).toHaveAttribute('aria-expanded', 'false');
   await rooms.click();
   await expect(rooms).toHaveAttribute('aria-expanded', 'true');
@@ -110,7 +110,10 @@ test('вложенные разделы: раскрытие, один актив
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
-  await menu.getByRole('button', { name: 'Подразделы: Настройка гостиницы' }).click();
+  await expect(menu.getByRole('button', { name: 'Настройки', exact: true })).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  );
   await menu.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Услуги');
   await expect(menu).not.toBeVisible();

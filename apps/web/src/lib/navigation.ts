@@ -192,6 +192,81 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
 export const navigationItems = navigation.flatMap((group) =>
   group.items.flatMap((item) => [item, ...(item.children ?? [])]),
 );
+
+export interface SidebarSection {
+  id: string;
+  label: string;
+  icon: IconName;
+  items: NavigationItem[];
+}
+
+// Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
+// реестр по задачам сотрудника, не меняя заголовки страниц и их маршруты.
+function menuItem(href: string, label?: string): NavigationItem {
+  const item = navigationItems.find((entry) => entry.href === href);
+  if (!item) throw new Error(`Unknown navigation route: ${href}`);
+  return label ? { ...item, label } : item;
+}
+
+export const sidebarSections: SidebarSection[] = [
+  {
+    id: 'guests',
+    label: 'Работа с гостями',
+    icon: 'guests',
+    items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
+  },
+  {
+    id: 'inventory',
+    label: 'Номерной фонд',
+    icon: 'bed',
+    items: [
+      menuItem('/inventory', 'Номера и койки'),
+      menuItem('/rooms/categories', 'Категории номеров'),
+      menuItem('/rooms/availability', 'Доступность'),
+      menuItem('/rooms', 'Обзор номеров'),
+    ],
+  },
+  {
+    id: 'sales',
+    label: 'Продажи',
+    icon: 'rates',
+    items: [
+      menuItem('/rates'),
+      menuItem('/channel-manager'),
+      menuItem('/channels', 'Синхронизация каналов'),
+      menuItem('/analytics', 'Аналитика сайта'),
+    ],
+  },
+  {
+    id: 'finance',
+    label: 'Финансы и отчёты',
+    icon: 'money',
+    items: [menuItem('/finance'), menuItem('/management/statistics')],
+  },
+  {
+    id: 'settings',
+    label: 'Настройки',
+    icon: 'settings',
+    items: [
+      menuItem('/hotel-settings', 'Настройки гостиницы'),
+      menuItem('/hotel-settings/check-in'),
+      menuItem('/hotel-settings/penalties'),
+      menuItem('/hotel-settings/services'),
+      menuItem('/hotel-settings/description'),
+      menuItem('/hotel-settings/photos'),
+      menuItem('/hotel-settings/amenities'),
+      menuItem('/connections'),
+      menuItem('/analytics/setup'),
+    ],
+  },
+  {
+    id: 'control',
+    label: 'Контроль',
+    icon: 'shield',
+    items: [menuItem('/incidents'), menuItem('/journal')],
+  },
+];
+
 export function activeNavigation(path: string) {
   return navigationItems
     .filter((item) => path === item.href || path.startsWith(`${item.href}/`))

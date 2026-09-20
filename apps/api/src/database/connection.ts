@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Controller, Get, Header, Inject, Injectable, Module } from '@nestjs/common';
 import { databaseSchemaName } from '@pms/database';
 import type { DataConnection } from '@pms/shared';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from './prisma.provider';
 
 function databaseProvider(): DataConnection['database']['provider'] {

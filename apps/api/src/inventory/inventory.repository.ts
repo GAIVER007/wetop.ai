@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { InventoryImportPlan } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY, countActiveBlocks, readInventoryPlanFromDb } from '@pms/imports';
+import { countActiveBlocks, readInventoryPlanFromDb } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 
 export interface InventoryPropertyInfo {

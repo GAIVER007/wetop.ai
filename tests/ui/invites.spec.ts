@@ -27,7 +27,8 @@ test('вошедший видит ожидающие приглашения и �
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
 
-  await main.getByLabel('Почта приглашённого').fill('urij@example.com');
+  // «уже в организации» — это про того, кто вошёл: с 20.09 входят паролем, и это admin@wetop.test
+  await main.getByLabel('Почта приглашённого').fill('admin@wetop.test');
   await main.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(main.getByRole('alert')).toHaveText('Этот человек уже в организации.');
 

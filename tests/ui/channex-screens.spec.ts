@@ -229,3 +229,68 @@ test('приём брони: сбой сервера назван ошибкой
     /Проверьте подключение|Сервер отклонил/,
   );
 });
+
+/**
+ * D4 «Тарифы и ограничения» (план владельца 19.09): отказ API не уносит экран — заголовок, форма и
+ * массовое изменение остаются, вместо таблицы сбой с «Повторить загрузку»; пустой справочник назван
+ * пустым состоянием с причиной; пока календарь идёт, виден скелетон словом; месяц листается только
+ * кнопками-значками (текстовые дубли сняты); заголовки цен и ограничения — словами.
+ */
+test('цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  // заголовки словами, ограничения словами, одна пара кнопок месяца
+  await page.goto('/rates?month=2026-10');
+  const table = main.getByTestId('rates-table');
+  await expect(table.locator('th').nth(1)).toHaveText('Цена за 1 гостя');
+  await expect(table.locator('th').nth(2)).toHaveText('Цена за 2 гостей');
+  await expect(main.getByTestId('rate-row-2026-10-01')).toContainText('1 ночь');
+  await expect(main.getByRole('link', { name: 'Следующий месяц', exact: true })).toHaveCount(1);
+  await expect(main.getByRole('link', { name: 'Предыдущий месяц', exact: true })).toHaveCount(1);
+  // сбой календаря: форма, подпись и массовое изменение на месте, таблицы нет, повтор возвращает её
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates' } });
+  await page.goto('/rates?month=2026-10');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(main.getByLabel('Категория').first()).toBeVisible();
+  await expect(main.getByTestId('bulk-editor')).toBeVisible();
+  const failure = main.getByTestId('rates-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.getByTestId('rates-table')).toHaveCount(0);
+  await expect(main.getByTestId('rates-empty')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('rates-table')).toBeVisible();
+  await expect(main.getByTestId('rates-error')).toHaveCount(0);
+  await expect(page).toHaveURL(/month=2026-10/);
+  // сбой справочника: заголовок и повтор, без формы (заполнять нечего)
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/rates/options' },
+  });
+  await page.goto('/rates?month=2026-10');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(main.getByTestId('rates-error')).toBeVisible();
+  await expect(main.getByTestId('bulk-editor')).toHaveCount(0);
+  // пустой справочник — не сбой и не нули: причина и куда идти
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/rates');
+  const empty = main.getByTestId('rates-empty');
+  await expect(empty).toContainText('Календарь цен пуст');
+  await expect(empty).toContainText('Категорий ещё нет');
+  await expect(empty.getByRole('link', { name: 'Открыть тарифы объекта' })).toHaveAttribute(
+    'href',
+    '/hotel-settings/penalties',
+  );
+  await expect(main.getByTestId('rates-error')).toHaveCount(0);
+  // загрузка: скелетон с подписью словом, пока справочник идёт
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, delayPath: '/rates/options', delayMs: 2500 },
+  });
+  await page.goto('/rates?month=2026-10', { waitUntil: 'commit' });
+  const loading = main.getByTestId('rates-loading');
+  await expect(loading).toBeVisible();
+  await expect(loading).toContainText('Загружаем категории, тарифы и календарь цен');
+  await expect(main.getByTestId('rates-table')).toBeVisible({ timeout: 15_000 });
+  await expect(main.getByTestId('rates-loading')).toHaveCount(0);
+});

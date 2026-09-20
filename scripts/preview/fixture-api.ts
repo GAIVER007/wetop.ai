@@ -1297,6 +1297,8 @@ function read(path: string, q: URLSearchParams): unknown {
     } satisfies DataConnection;
   }
   if (emptyFixture) {
+    // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
+    if (path === '/rates/options') return { categories: [], ratePlans: [] };
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units'].includes(path)) return [];

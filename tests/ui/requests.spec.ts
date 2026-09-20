@@ -32,6 +32,7 @@ for (const screen of [
   '/guests',
   '/rooms',
   '/finance',
+  '/rates',
 ]) {
   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
     await request.post(`${API}/__test/reset`);

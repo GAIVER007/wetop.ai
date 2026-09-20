@@ -144,6 +144,29 @@ docker compose -f deploy/compose.yml logs -f api
 собранная стойка и клиент базы заведомо от одного кода. Отдельного `npm run build` и отдельной
 генерации клиента, как на Mac, здесь нет.
 
+### Скрипты на сервере берут код из образа, а не из клона
+
+Грабля, на которую наступили дважды 20.09.2026. Разовые скрипты (`scripts/reconciliation/…`)
+запускают так:
+
+```bash
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api   node --import tsx scripts/reconciliation/src/cli-…ts
+```
+
+`/app` внутри контейнера — это **слепок кода на момент сборки образа**, а не папка `/root/wetop`.
+Клон на сервере в контейнер не смонтирован. Значит, `git pull` сам по себе скрипт не обновляет:
+запустится прежняя версия, молча и без предупреждения. Порядок такой:
+
+```bash
+cd /root/wetop && git pull
+cd deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --build api web
+docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api node --import tsx scripts/…
+```
+
+Второй сюрприз того же семейства: внутри контейнера API `127.0.0.1:3000` — это он сам, а не стойка.
+Стойка — соседний контейнер, её адрес `http://web:3000`; скриптам, которые ходят на экраны, его
+передают через `-e WEB_URL=http://web:3000`.
+
 Секреты в образ не попадают: `.env` подаётся через `env_file`, ключ туннеля монтируется только на
 чтение (`SECURITY.md` §3). Проверки этих правил — `tests/unit/deploy-server.test.ts`.
 

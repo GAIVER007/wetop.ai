@@ -2203,6 +2203,13 @@ createServer(async (req, res) => {
         return send(404, {
           message: 'Приглашение не найдено, уже принято или его срок истёк.',
         });
+      // Принятие (ADR-053) отдаёт одноразовый ключ: приглашённый задаёт себе пароль, письма нет.
+      // Просмотр ссылки ключа не даёт — смотреть можно сколько угодно.
+      if (inviteMatch[2]) {
+        const token = 'fixture-set-password-token';
+        uiResetTokens.set(token, { used: false, expired: false });
+        return send(200, { ...invitePreview, setPasswordToken: token });
+      }
       return send(200, invitePreview);
     }
     if (path === '/auth/me') {

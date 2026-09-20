@@ -419,7 +419,7 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvitePreview;
   },
-  /** Принять: членство заведено, код для входа выслан. 404 с текстом на мёртвую ссылку. */
+  /** Принять: членство заведено, в ответ ключ «задайте пароль». 404 с текстом на мёртвую ссылку. */
   acceptInvite: async (rawToken: string, info: AuthClientInfo): Promise<AuthInvitePreview> => {
     const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
       method: 'POST',
@@ -1245,4 +1245,6 @@ export interface AuthInvitePreview {
   organizationName: string;
   email: string;
   expiresAt: string;
+  /** Только у принятия: ключ, по которому человек задаёт себе пароль. null — пароль у него уже есть. */
+  setPasswordToken?: string | null;
 }

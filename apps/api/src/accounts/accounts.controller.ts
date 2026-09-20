@@ -231,15 +231,15 @@ export class AccountsController {
     return previewJson(preview);
   }
 
-  /** Принять: членство заведено, код для входа выслан. Повтор по той же ссылке — 404. */
+  /**
+   * Принять: членство заведено, в ответ — ключ «задайте пароль» (ADR-053; раньше уходил код на почту).
+   * Повтор по той же ссылке — 404: ключ выдаётся один раз, вместе с вступлением.
+   */
   @Post('invites/:token/accept')
   @Public()
   @HttpCode(200)
-  async acceptInvite(
-    @Param('token') token: string,
-    @Headers('cf-connecting-ip') cfIp?: string,
-  ): Promise<InvitePreviewJson> {
-    const preview = await this.accounts.acceptInvite(token, clientIp(cfIp));
+  async acceptInvite(@Param('token') token: string): Promise<InvitePreviewJson> {
+    const preview = await this.accounts.acceptInvite(token);
     if (!preview) throw new NotFoundException(INVITE_INVALID_MESSAGE);
     return previewJson(preview);
   }
@@ -275,6 +275,8 @@ interface InvitePreviewJson {
   organizationName: string;
   email: string;
   expiresAt: string;
+  /** Только у принятия: ключ, по которому человек задаёт себе пароль. null — пароль у него уже есть. */
+  setPasswordToken?: string | null;
 }
 
 function inviteJson(i: InviteView): InviteJson {
@@ -292,5 +294,6 @@ function previewJson(p: InvitePreview): InvitePreviewJson {
     organizationName: p.organizationName,
     email: p.email,
     expiresAt: p.expiresAt.toISOString(),
+    ...(p.setPasswordToken === undefined ? {} : { setPasswordToken: p.setPasswordToken }),
   };
 }

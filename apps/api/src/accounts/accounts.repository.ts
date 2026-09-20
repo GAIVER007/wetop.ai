@@ -112,6 +112,20 @@ export interface AccountsRepository {
    * вызов ничего не дублирует (составной ключ `memberships`). Возвращает учётку в этой организации.
    */
   joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord>;
+  /**
+   * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие
+   * приглашения слало код на почту — но вход по коду с экрана снят, а почта может быть не настроена.
+   * Прежние неиспользованные ссылки этого человека гасятся: живой остаётся одна.
+   *
+   * `false` — ссылку не выдаём: человека нет, он заблокирован или пароль у него уже есть. Во втором
+   * случае звать его задавать пароль заново нельзя: это был бы сброс пароля по чужому приглашению.
+   */
+  issuePasswordSetToken(input: {
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    now: Date;
+  }): Promise<boolean>;
 }
 
 export const ACCOUNTS_REPOSITORY = Symbol('ACCOUNTS_REPOSITORY');

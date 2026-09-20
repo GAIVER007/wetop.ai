@@ -1035,21 +1035,6 @@ model Membership {
   @@map("memberships")
 }
 
-/// Одноразовый код входа. В базе только хеш; шесть цифр, 10 минут, три попытки (CHECK в миграции).
-/// requested_ip нужен для лимитов, не для профилирования: берётся из CF-Connecting-IP и только от loopback.
-model LoginCode {
-  id          String    @id @default(uuid()) @db.Uuid
-  email       String    @db.VarChar(320)
-  codeHash    String    @map("code_hash") @db.VarChar(64)
-  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
-  attempts    Int       @default(0) @db.SmallInt
-  usedAt      DateTime? @map("used_at") @db.Timestamptz(6)
-  requestedIp String?   @map("requested_ip") @db.VarChar(45)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  @@index([email, createdAt])
-  @@map("login_codes")
-}
 
 /// Активная сессия. В куке подписанное значение, не сам id. «Выйти везде» проставляет revoked_at всем строкам.
 model Session {

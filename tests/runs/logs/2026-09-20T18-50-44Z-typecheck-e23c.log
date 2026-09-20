@@ -1,0 +1,33 @@
+# Типы (typecheck) · 20.09.2026 23:50 Алматы · vm
+# коммит 5250bac (claude/trusting-ramanujan-gi6uzl)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(174,14): error TS2339: Property 'emailVerifiedAt' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; }'.
+apps/api/src/auth/email-verification.service.ts(76,52): error TS2339: Property 'emailVerifiedAt' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; lastLoginAt: Date | null; }'.
+apps/api/src/auth/email-verification.service.ts(89,30): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(117,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(133,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(138,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/channels/channels.repository.ts(225,27): error TS2345: Argument of type '{ id: string; createdAt: Date; name: string; currency: string; legalName: string | null; bin: string | null; address: string | null; timezone: string; checkInTime: string; checkOutTime: string; updatedAt: Date; }' is not assignable to parameter of type 'PropertyRef'.
+  Property 'organizationId' is missing in type '{ id: string; createdAt: Date; name: string; currency: string; legalName: string | null; bin: string | null; address: string | null; timezone: string; checkInTime: string; checkOutTime: string; updatedAt: Date; }' but required in type 'PropertyRef'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/auth/auth.service.ts(174,14): error TS2339: Property 'emailVerifiedAt' does not exist on type '{ memberships: { createdAt: Date; userId: string; organizationId: string; }[]; } & { id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; }'.
+apps/api/src/auth/email-verification.service.ts(76,52): error TS2339: Property 'emailVerifiedAt' does not exist on type '{ id: string; createdAt: Date; name: string | null; status: UserStatus; email: string; lastLoginAt: Date | null; passwordHash: string; failedAttempts: number; lockedUntil: Date | null; }'.
+apps/api/src/auth/email-verification.service.ts(89,30): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(117,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(133,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/auth/email-verification.service.ts(138,26): error TS2339: Property 'emailVerification' does not exist on type 'Db'.
+apps/api/src/channels/channels.repository.ts(225,27): error TS2345: Argument of type '{ id: string; createdAt: Date; name: string; currency: string; address: string | null; timezone: string; legalName: string | null; bin: string | null; checkInTime: string; checkOutTime: string; updatedAt: Date; }' is not assignable to parameter of type 'PropertyRef'.
+  Property 'organizationId' is missing in type '{ id: string; createdAt: Date; name: string; currency: string; address: string | null; timezone: string; legalName: string | null; bin: string | null; checkInTime: string; checkOutTime: string; updatedAt: Date; }' but required in type 'PropertyRef'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 24 с

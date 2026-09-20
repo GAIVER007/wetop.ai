@@ -1449,3 +1449,8 @@
 | 20.09.2026 23:38 | unit (частично: tests/unit/local-db-start.test.ts tests/unit/launchd-status.test.ts tests/unit/repo-sync.test.ts --maxWorkers=1) | ✅ 23 из 23 | 56 с | a16a79f | [лог](logs/2026-09-20T18-38-09Z-unit-5a48.log) | Same timeout bounds, isolated rerun of five overloaded shell-test failures |
 | 20.09.2026 23:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/loading-performance.spec.ts tests/ui/login-access.spec.ts --grep ошибка стойки\|Главна | ✅ 7 из 7 | 39 с | a16a79f +1 | [лог](logs/2026-09-20T18-39-48Z-e2e-9ad1.log) | Final focused: loading after rebase and scoped verification error locator |
 | 20.09.2026 23:41 | lint | ✅ без ошибок | 24 с | a16a79f +1 | [лог](logs/2026-09-20T18-41-29Z-lint-998a.log) | Final merged code and focused error locator |
+| 20.09.2026 23:50 | typecheck | ❌ ошибок: 14 | 24 с | 5250bac | [лог](logs/2026-09-20T18-50-44Z-typecheck-e23c.log) | TS2339 |
+| 20.09.2026 23:51 | lint | ✅ без ошибок | 16 с | 5250bac | [лог](logs/2026-09-20T18-51-08Z-lint-294b.log) |  |
+| 20.09.2026 23:51 | unit | ✅ 1317 из 1320, пропущено 3 | 1 мин 12 с | 5250bac | [лог](logs/2026-09-20T18-51-25Z-unit-c7de.log) |  |
+| 20.09.2026 23:52 | typecheck | ✅ без ошибок | 18 с | 5250bac | [лог](logs/2026-09-20T18-52-54Z-typecheck-924f.log) |  |
+| 20.09.2026 23:53 | unit | ✅ 1317 из 1320, пропущено 3 | 1 мин 12 с | 5250bac | [лог](logs/2026-09-20T18-53-18Z-unit-a404.log) |  |

@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 20.09.2026 18:05 Алматы · MacBook-Air-Urij.local
+# коммит 059cb8a (codex/current-release-acceptance), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'workspace.spec.ts' 'manager-actions.spec.ts' 'chessboard-week.spec.ts' 'chessboard-month.spec.ts' '--grep' 'подсказка закрывается|несопоставленные|очередь показана|входящая бронь|незаезд: окно|отмена брони: окно|Продлить на ночь|помещается на экране|обе темы'
+[WebServer] (node:56109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:56170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: light, обе панели и телефон (17.9s)
+  ✓  2 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: dark, обе панели и телефон (14.5s)
+[WebServer] (node:56284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/manager-actions.spec.ts:69:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (4.9s)
+[WebServer] (node:56287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/workspace.spec.ts:269:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (3.1s)
+  ✓  5 tests/ui/workspace.spec.ts:1134:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.0s)
+  ✓  6 tests/ui/workspace.spec.ts:1153:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.4s)
+[WebServer] (node:56320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/ui/workspace.spec.ts:1168:1 › каналы: входящая бронь ведёт на карточку брони (3.4s)
+[WebServer] (node:56325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  8 tests/ui/workspace.spec.ts:1200:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.7s)
+[WebServer] (node:56330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 tests/ui/workspace.spec.ts:1250:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.5s)
+
+  9 passed (1.0m)
+
+# код выхода 0 · 1 мин 2 с

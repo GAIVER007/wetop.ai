@@ -106,6 +106,9 @@ export default defineConfig({
             API_PORT: String(TEST_API_PORT),
             DATABASE_SCHEMA: TEST_SCHEMA,
             PII_ENCRYPTION_KEY,
+            // Accounts middleware also reads password sessions. The isolated stand must not
+            // depend on a private production secret just to accept a session cookie.
+            SESSION_SECRET: process.env['E2E_SESSION_SECRET'] || 'e2e-only-session-secret-not-for-production',
             // фоновая работа — только у рабочего API на этом Mac; тестовый ничего не шлёт наружу и никого не будит
             GUARD: 'off',
             CHANNEX_PULL: 'off',

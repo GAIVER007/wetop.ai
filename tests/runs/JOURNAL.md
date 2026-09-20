@@ -1037,3 +1037,23 @@
 | 19.09.2026 23:58 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 26 из 26 | 1 с | ca1f67a +4 | [лог](logs/2026-09-19T18-58-59Z-unit-572f.log) | GREEN: root dockerignore excludes secrets, local runtimes and server overlay |
 | 19.09.2026 23:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 channex-screens manager-actions dashboard-resilience design-refresh) | ✅ 21 из 21 | 42 с | ca1f67a +7 | [лог](logs/2026-09-19T18-59-10Z-e2e-1502.log) | GREEN: merged channels and manager actions, restored zero-price validation, visible Next Activity selectors |
 | 20.09.2026 00:00 | unit | ✅ 1311 из 1314, пропущено 3 | 1 мин 12 с | ca1f67a +4 | [лог](logs/2026-09-19T19-00-21Z-unit-6d66.log) | Final merged source: login refresh, API auth compatibility, price validation and effective Docker exclusions |
+| 20.09.2026 16:49 | unit (частично: tests/unit/local-db-start.test.ts) | ❌ код выхода 1 | 2 с | 06729e9 +1 | [лог](logs/2026-09-20T11-49-17Z-unit-0206.log) | RED: local-db repeats seed after test schema is populated |
+| 20.09.2026 16:49 | unit (частично: tests/unit/local-db-start.test.ts) | ❌ упало 1 из 1 | 4 с | 06729e9 +1 | [лог](logs/2026-09-20T11-49-34Z-unit-4a9c.log) | RED: second seed overlaps an already populated test schema |
+| 20.09.2026 16:50 | unit (частично: tests/unit/local-db-start.test.ts) | ✅ 1 из 1 | 3 с | 06729e9 +2 | [лог](logs/2026-09-20T11-50-01Z-unit-fcff.log) | GREEN: test:schema is the sole seed owner for pms_test |
+| 20.09.2026 16:50 | lint | ✅ без ошибок | 11 с | 06729e9 +2 | [лог](logs/2026-09-20T11-50-47Z-lint-ff55.log) |  |
+| 20.09.2026 16:52 | typecheck | ✅ без ошибок | 39 с | 06729e9 +2 | [лог](logs/2026-09-20T11-52-02Z-typecheck-939d.log) |  |
+| 20.09.2026 16:52 | e2e | ❌ упало 16 из 26, пропущено 3 | 1 мин 23 с | 06729e9 +1 | [лог](logs/2026-09-20T11-52-02Z-e2e-5b4b.log) | Acceptance of synchronized main: real API, local PostgreSQL, auth required |
+| 20.09.2026 16:54 | unit (частично: tests/unit/e2e-auth-config.test.ts) | ❌ упало 1 из 3 | 2 с | 06729e9 +3 | [лог](logs/2026-09-20T11-54-04Z-unit-f9d4.log) | RED: isolated auth API fails on session cookies when private SESSION_SECRET is empty |
+| 20.09.2026 16:54 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/local-db-start.test.ts) | ✅ 4 из 4 | 3 с | 06729e9 +3 | [лог](logs/2026-09-20T11-54-27Z-unit-2ae8.log) | GREEN: local auth stand is independent of private session configuration |
+| 20.09.2026 16:54 | e2e | ❌ упало 1 из 26, пропущено 2 | 2 мин 11 с | 06729e9 +2 | [лог](logs/2026-09-20T11-54-32Z-e2e-71c2.log) | Recheck after isolating the auth session key |
+| 20.09.2026 16:56 | unit | ❌ упало 10 из 1316, пропущено 3 | 1 мин 23 с | 06729e9 +3 | [лог](logs/2026-09-20T11-56-21Z-unit-16e7.log) | Regression check after repairing local database and isolated auth setup |
+| 20.09.2026 16:57 | e2e (частично: tests/e2e/web-analytics.spec.ts --workers=1) | ✅ 5 из 5 | 19 с | 06729e9 +2 | [лог](logs/2026-09-20T11-57-41Z-e2e-bf94.log) | Isolate the analytics persistence timing failure |
+| 20.09.2026 16:59 | unit | ❌ упало 2 из 1316, пропущено 3 | 1 мин 45 с | 06729e9 +3 | [лог](logs/2026-09-20T11-59-15Z-unit-caa4.log) | Bound local CPU concurrency after timeout failures in the unconstrained run |
+| 20.09.2026 17:04 | unit | ✅ 1313 из 1316, пропущено 3 | 2 мин 7 с | 06729e9 +4 | [лог](logs/2026-09-20T12-04-55Z-unit-c632.log) |  |
+| 20.09.2026 17:08 | e2e | ❌ упало 1 из 26 | 1 мин 50 с | 06729e9 +4 | [лог](logs/2026-09-20T12-08-15Z-e2e-a37b.log) | Current release acceptance; isolated local database; auth enabled; analytics batch wait fixed |
+| 20.09.2026 17:10 | e2e (частично: tests/e2e/check-in-out.spec.ts --workers=1) | ✅ 3 из 3 | 23 с | 06729e9 +4 | [лог](logs/2026-09-20T12-10-27Z-e2e-949c.log) | Check ECONNRESET from loopback GET; assertions and retries unchanged |
+| 20.09.2026 17:11 | lint | ✅ без ошибок | 23 с | 06729e9 +6 | [лог](logs/2026-09-20T12-11-06Z-lint-f391.log) |  |
+| 20.09.2026 17:11 | e2e | ✅ 26 из 26 | 1 мин 47 с | 06729e9 +4 | [лог](logs/2026-09-20T12-11-05Z-e2e-f2e4.log) | Final full acceptance on project Node 24 (.nvmrc), auth enabled, local database |
+| 20.09.2026 17:12 | typecheck | ✅ без ошибок | 42 с | 06729e9 +6 | [лог](logs/2026-09-20T12-12-15Z-typecheck-7499.log) |  |
+| 20.09.2026 17:13 | integration | ✅ 43 из 43 | 12 с | 06729e9 +2 | [лог](logs/2026-09-20T12-13-00Z-integration-2a13.log) | Current release acceptance on isolated PostgreSQL; no live data |
+| 20.09.2026 17:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 login-access invites password-reset) | ✅ 28 из 28 | 2 мин 22 с | 06729e9 +4 | [лог](logs/2026-09-20T12-13-34Z-e2e-edea.log) | Login registration invitations and password reset UI acceptance; synthetic API |

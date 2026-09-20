@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmCancelReservation } from './confirm';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
@@ -14,7 +14,7 @@ test('создать бронь с ячейкой → видна в шахмат
 }) => {
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
   await expect(page.getByRole('heading', { name: 'Новая бронь' })).toBeVisible();
-  const availabilityBefore = await page.getByTestId('availability').textContent();
+  const availabilityBefore = await page.getByRole('main').getByTestId('availability').textContent();
   const freeBefore = Number(/свободно (\d+)/.exec(availabilityBefore ?? '')?.[1]);
   expect(freeBefore).toBeGreaterThan(0);
 
@@ -32,7 +32,7 @@ test('создать бронь с ячейкой → видна в шахмат
 
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
-  await expect(page.getByTestId('stay-row').first()).toContainText(unitCode!);
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText(unitCode!);
   await page.screenshot({
     path: 'reports/screenshots/manual-reservation-card.png',
     fullPage: true,
@@ -45,15 +45,15 @@ test('создать бронь с ячейкой → видна в шахмат
   await page.screenshot({ path: 'reports/screenshots/manual-reservation-chessboard.png' });
 
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
-  const availabilityAfter = await page.getByTestId('availability').textContent();
+  const availabilityAfter = await page.getByRole('main').getByTestId('availability').textContent();
   expect(Number(/свободно (\d+)/.exec(availabilityAfter ?? '')?.[1])).toBe(freeBefore - 1);
 
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await page.goto(`/reservations/new?arrival=${ARRIVAL}&departure=${DEPARTURE}`);
-  const availabilityEnd = await page.getByTestId('availability').textContent();
+  const availabilityEnd = await page.getByRole('main').getByTestId('availability').textContent();
   expect(Number(/свободно (\d+)/.exec(availabilityEnd ?? '')?.[1])).toBe(freeBefore);
 });

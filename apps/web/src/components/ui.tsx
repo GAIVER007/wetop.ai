@@ -310,12 +310,24 @@ export function Grid({
   );
 }
 
-export function Legend({ items }: { items: Array<{ color: string; label: string }> }) {
+/**
+ * Легенда статусов. Глиф обязателен: смысл не держится только на цвете (DESIGN.md §1 п. 4, §9),
+ * и те же глифы стоят на плашках шахматки — легенда читается как подпись к ним.
+ */
+export function Legend({
+  items,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { items: Array<{ color: string; label: string; glyph?: string }> }) {
   return (
-    <div className="legend">
+    <div className="legend" {...rest}>
       {items.map((i) => (
         <span key={i.label}>
           <span className="legend__swatch" style={{ background: i.color }} />
+          {i.glyph && (
+            <b className="legend__glyph" aria-hidden="true">
+              {i.glyph}
+            </b>
+          )}
           {i.label}
         </span>
       ))}

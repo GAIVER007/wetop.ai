@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmCancelReservation } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -51,15 +51,18 @@ test('договор и счёт печатаются на RU и KZ: номер 
     'print-invoice-ru',
     'print-invoice-kz',
   ])
-    await expect(page.getByTestId(id)).toBeVisible();
+    await expect(page.getByRole('main').getByTestId(id)).toBeVisible();
 
   for (const kind of ['contract', 'invoice'] as const) {
     for (const lang of ['ru', 'kz'] as const) {
       await page.goto(`/reservations/${number}/print/${kind}?lang=${lang}`);
+      // печатная форма сама является landmark main — ищем по всей странице, ждём одну
       const main = page.getByTestId(`print-${kind}`);
+      // при переходе Next на миг держит и уходящую страницу: ждём, пока останется одна печатная форма
+      await expect(main).toHaveCount(1);
       await expect(main).toContainText(number);
       await expect(main).toContainText(TITLES[kind][lang]);
-      await expect(page.getByTestId('draft-banner')).toContainText('ЗАГОТОВКА');
+      await expect(page.getByRole('main').getByTestId('draft-banner')).toContainText('ЗАГОТОВКА');
       await page.screenshot({
         path: `reports/screenshots/print-${kind}-${lang}.png`,
         fullPage: true,
@@ -68,18 +71,18 @@ test('договор и счёт печатаются на RU и KZ: номер 
   }
   // счёт: начисление за проживание попало в строки, итог равен ему
   await page.goto(`/reservations/${number}/print/invoice?lang=ru`);
-  await expect(page.getByTestId('invoice-line')).toHaveCount(1);
-  await expect(page.getByTestId('invoice-line').first()).toHaveAttribute(
+  await expect(page.getByRole('main').getByTestId('invoice-line')).toHaveCount(1);
+  await expect(page.getByRole('main').getByTestId('invoice-line').first()).toHaveAttribute(
     'data-kind',
     'ACCOMMODATION',
   );
-  await expect(page.getByTestId('invoice-due')).toContainText('₸');
+  await expect(page.getByRole('main').getByTestId('invoice-due')).toContainText('₸');
 
   // прибрать за собой
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

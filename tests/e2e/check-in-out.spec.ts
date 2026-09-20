@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmAction, declineAction } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
@@ -40,28 +40,36 @@ test('заселить → карточка и шахматка показыва
   const number = page.url().split('/').pop()!;
   // без гражданства заселение блокируется (DATA_MODEL §3, eQonaq)
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-in-"]').click();
+  await page.getByRole('main').locator('[data-testid^="check-in-"]').click();
   await expect(page.getByRole('alert').first()).toContainText('гражданство');
   await cardTab(page, 'Обзор');
-  await page.getByTestId('guest-link').click();
+  await page.getByRole('main').getByTestId('guest-link').click();
   await expect(page).toHaveURL(/\/guests\//);
-  await page.getByTestId('guest-form').locator('input[name="citizenship"]').fill('KAZ');
-  await page.getByTestId('guest-form').getByRole('button', { name: 'Сохранить' }).click();
-  await expect(page.getByTestId('guest-form').locator('input[name="citizenship"]')).toHaveValue(
-    'KAZ',
-  );
-  const doc = page.getByTestId('document-form');
+  await page
+    .getByRole('main')
+    .getByTestId('guest-form')
+    .locator('input[name="citizenship"]')
+    .fill('KAZ');
+  await page
+    .getByRole('main')
+    .getByTestId('guest-form')
+    .getByRole('button', { name: 'Сохранить' })
+    .click();
+  await expect(
+    page.getByRole('main').getByTestId('guest-form').locator('input[name="citizenship"]'),
+  ).toHaveValue('KAZ');
+  const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000001');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');
   await doc.getByRole('button', { name: 'Добавить' }).click();
-  await expect(page.getByTestId('document-row')).toContainText('****0001');
+  await expect(page.getByRole('main').getByTestId('document-row')).toContainText('****0001');
   await page.screenshot({ path: 'reports/screenshots/guest-card.png', fullPage: true });
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-in-"]').click();
+  await page.getByRole('main').locator('[data-testid^="check-in-"]').click();
   // статус читаем в строке проживания: слово встречается ещё и в заголовке брони
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);
   const cell = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`).first();
   await expect(cell).toBeVisible();
@@ -72,22 +80,22 @@ test('заселить → карточка и шахматка показыва
   // Окно «Выселить с долгом?» (срез 7.3) называет сумму; «Оставить» — проверяем именно защиту:
   // статус обязан остаться «заселён».
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-out-"]').click();
-  await expect(page.getByTestId('debt-amount')).toContainText('Долг');
-  await confirmDialog(page, 'Оставить');
+  await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await declineAction(page);
+  await expect(page.getByRole('alert').first()).toContainText('долг');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
   await cardTab(page, 'Счета');
-  await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
+  await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('к оплате');
 
   // то же действие с подтверждением администратора — гость выселен, долг за ним остаётся
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="check-out-"]').click();
-  await confirmDialog(page, 'Выселить с долгом');
+  await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
+  await confirmAction(page, 'Выселить с долгом');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
   await cardTab(page, 'Счета');
-  await expect(page.getByTestId('folio-balance')).toContainText('к оплате');
+  await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('к оплате');
   await page.screenshot({ path: 'reports/screenshots/check-out-card.png', fullPage: true });
 
   // незаезд
@@ -106,10 +114,13 @@ test('заселить → карточка и шахматка показыва
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="no-show-"]').click();
-  await confirmDialog(page, 'Отметить незаезд');
+  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
+  await confirmAction(page, 'Отметить незаезд');
   // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');
-  await expect(page.getByTestId('stay-row').first()).toContainText('не назначена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
+  // §14: пустое значение — прочерк; ячейка снята, в колонке «—»
+  await expect(
+    page.getByRole('main').getByTestId('stay-row').first().locator('td').first(),
+  ).toHaveText('—');
 });

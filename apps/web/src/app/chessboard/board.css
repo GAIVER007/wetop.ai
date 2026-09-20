@@ -154,7 +154,7 @@
 .board-stay-caption {
   top: 0;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -182,20 +182,20 @@
   width: 30px;
   height: 30px;
   font-size: 17px;
-  font-weight: 650;
+  font-weight: 600;
 }
 .board th.is-today .board__d {
   background: var(--primary);
-  color: var(--on-primary, #fff);
+  color: var(--on-primary);
 }
 .board .board__wd {
   margin-top: 1px;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .board .board__free-count {
   margin-top: 3px;
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--success);
   font-variant-numeric: tabular-nums;
 }
@@ -204,7 +204,7 @@
 }
 .board .board__occ {
   margin-top: 1px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 400;
   color: var(--muted);
 }
@@ -256,7 +256,7 @@
   gap: 6px;
 }
 .board__unit > .muted-2 {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 /* Месяц и неделя: колонка 24 px — у шапки нет боковых отступов, слово «своб.» скрыто, числа мельче.
@@ -272,7 +272,7 @@
 }
 .board--month .board__free-count,
 .board--month .board__occ {
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
@@ -314,4 +314,67 @@
 /* «Разрешить» у брони без ячейки (срез 7.3): второй пункт длиннее ширины меню по умолчанию — иначе он обрезается */
 .board-unassigned .action-menu__list {
   min-width: 280px;
+}
+
+/*
+ * ── срез 7.1: канал, долг и уборка прямо на сетке ──
+ * Плашка брони узкая, поэтому порядок важен: имя, канал, долг, ночи. Имя ужимается первым, но не
+ * ниже 4,5 em; что не влезло — обрезает сама подпись (overflow: hidden выше), и справа пропадает
+ * менее важное, а не гость. Цвет плашки уже занят статусом брони, поэтому канал и сумма — словами
+ * (DESIGN.md §9), без своей заливки: на цветной плашке она ломала бы контраст.
+ */
+.board-stay-name {
+  min-width: 4.5em;
+}
+.board-stay-channel,
+.board .board-stay-due {
+  flex: none;
+  /* --text-xs: мельче 12 px в системе нет (DESIGN.md §6) */
+  font-size: var(--text-xs);
+  line-height: 16px;
+  white-space: nowrap;
+  color: inherit;
+}
+.board-stay-channel {
+  font-weight: var(--weight-semibold, 600);
+}
+.board .board-stay-due {
+  gap: var(--space-1);
+  padding: 0;
+  background: transparent;
+}
+.board .board-stay-due .amount-chip__value {
+  color: inherit;
+  font-weight: 700;
+}
+/* Месяц: колонка 24 px — на плашке помещается только имя, а в строке ячейки скрыт даже вид места */
+.board--month .board-stay-channel,
+.board--month .board-stay-due,
+.board--month .board-hk {
+  display: none;
+}
+@media (max-width: 600px) {
+  .board--week .board-stay-channel,
+  .board--week .board-stay-due {
+    display: none;
+  }
+}
+/* «грязно» в строке ячейки — тем же бейджем, что на карточке места */
+.board .board-hk {
+  font-size: var(--text-xs);
+  line-height: 16px;
+  gap: var(--space-1);
+}
+
+/* Штриховка блокировки. Селектор сильнее `.board__free` из premium.css (там сокращение `background`
+ * сбрасывало background-image, и блокировка выглядела ровной заливкой — план дизайн-системы §10 п. 3);
+ * инлайн-цвет клетки идёт через backgroundColor и штриховку не трогает. */
+.board .board__free.board-block {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    var(--danger-soft) 5px,
+    var(--danger-soft) 7px
+  );
 }

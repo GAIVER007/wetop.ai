@@ -27,8 +27,9 @@ for (const theme of ['light', 'dark'] as const) {
 
     // шахматка: неделя с крайними случаями — статусы, каналы, блокировки, «Без ячейки»
     await page.goto('/chessboard');
-    await expect(page.getByTestId('date-col')).toHaveCount(7);
-    await expect(page.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
+    const main = page.getByRole('main');
+    await expect(main.getByTestId('date-col')).toHaveCount(7);
+    await expect(main.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
     await shot(page, 'chessboard-week', theme);
 
     // шахматка: следующий месяц, заняты все 88 из 88
@@ -40,7 +41,7 @@ for (const theme of ['light', 'dark'] as const) {
     next.setUTCDate(0);
     const to = next.toISOString().slice(0, 10);
     await page.goto(`/chessboard?from=${from}&to=${to}`);
-    await expect(page.getByTestId('date-col').first()).toBeVisible();
+    await expect(main.getByTestId('date-col').first()).toBeVisible();
     await shot(page, 'chessboard-month-full', theme);
 
     // главная (в документе ментора — «служба приёма»)
@@ -51,7 +52,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // карточка брони панелью поверх шахматки, четыре вкладки
     await page.goto('/chessboard');
-    await page.getByTestId('stay-cell').first().click();
+    await main.getByTestId('stay-cell').first().click();
     const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
     await expect(drawer).toBeVisible();
     await shot(page, 'reservation-drawer-overview', theme);
@@ -79,14 +80,14 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/reservations/new?unit=M03');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Новая бронь');
     await shot(page, 'reservation-form-single', theme, true);
-    await page.getByLabel('Количество мест', { exact: true }).fill('3');
-    await expect(page.getByTestId('group-hint')).toBeVisible();
+    await page.getByRole('main').getByLabel('Количество мест', { exact: true }).fill('3');
+    await expect(page.getByRole('main').getByTestId('group-hint')).toBeVisible();
     await shot(page, 'reservation-form-group', theme, true);
 
     // цены и ограничения вместе с массовым изменением
     await page.goto('/rates');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
-    await expect(page.getByTestId('bulk-editor')).toBeVisible();
+    await expect(main.getByTestId('bulk-editor')).toBeVisible();
     await shot(page, 'rates', theme);
     await shot(page, 'rates-full', theme, true);
     // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
@@ -108,7 +109,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // журнал интеграции: очередь, события, ревизия с ошибкой
     await page.goto('/channels');
-    await expect(page.getByTestId('event-row')).toHaveCount(3);
+    await expect(main.getByTestId('event-row')).toHaveCount(3);
     await shot(page, 'channels', theme);
     await shot(page, 'channels-full', theme, true);
 

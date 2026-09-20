@@ -324,7 +324,18 @@ function makeFakes() {
           });
     },
     async recentEvents() {
-      return [];
+      return [
+        {
+          externalEventId: 'rev-1',
+          type: 'booking_new',
+          status: 'PROCESSED',
+          attempts: 1,
+          receivedVia: 'WEBHOOK' as const,
+          receivedAt: '2026-09-17T05:00:00.000Z',
+          processedAt: '2026-09-17T05:00:02.000Z',
+          lastError: null,
+        },
+      ];
     },
     // Срез 7.2: журнал с фильтрами и страница ревизии — на вымышленных событиях (ADR-010)
     async eventsPage(_p, q) {

@@ -144,6 +144,7 @@ export interface InboundEventRow {
   processedAt: string | null;
   lastError: string | null;
 }
+
 export interface EventsQuery {
   limit: number;
   offset: number;
@@ -429,6 +430,11 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
     return row?.createdAt ?? null;
   }
+  /**
+   * Журнал входящих. Из снимка ревизии наружу едет только `unique_id`: сам снимок — это вся бронь
+   * с проживаниями, и тянуть его ради одного поля незачем (волна 4). По `unique_id` подставляется
+   * номер брони PMS — на экране от ревизии сразу открывается бронь (срез 7.2).
+   */
   async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
     const rows = await this.prisma.db.externalEvent.findMany({
       where: { provider },

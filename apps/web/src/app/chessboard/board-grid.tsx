@@ -1,28 +1,34 @@
 'use client';
 import Link from 'next/link';
 import { Fragment, useMemo, useRef, useState, useTransition, type CSSProperties } from 'react';
+// messengerLinks — из ./format, а не из api.ts: та тянет за собой lib/session с `next/headers`,
+// который в клиентский бандл попадать не должен (сборка стойки падает на этом)
 import { messengerLinks } from '../../lib/format';
 import type { Chessboard, ChessboardCell, ChessboardRow } from '../../lib/api';
-import { Alert, Input, Select, cx } from '../../components/ui';
+import { Alert, Badge, Input, Select, cx } from '../../components/ui';
 import { stayLabels } from './stay-labels';
-import { assignUnitAction } from '../reservations/actions';
+import { assignUnitAction, previewAction } from '../reservations/actions';
+import { previewLine } from '../../lib/action-preview';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { Icon } from '../../components/icon';
+import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
+import { useToast } from '../../components/toast';
+import { blockTypeLabel } from '../../lib/block-types';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
 const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
+  TENTATIVE: 'не подтверждена',
   CONFIRMED: 'подтверждена, ждём',
   CHECKED_IN: 'заселён',
   CHECKED_OUT: 'выселен',
 };
-const BLOCK_RU: Record<string, string> = {
-  MAINTENANCE: 'ремонт',
-  CLEANING: 'уборка',
-  OTHER: 'блокировка',
-};
+/**
+ * Уборка: на сетке называем только то, с чем надо что-то делать — «грязно». «Убрано» и «проверено»
+ * на 88 строках были бы шумом, а фильтр «Уборка» показывает те же ячейки списком.
+ */
+const HK_DIRTY = 'DIRTY';
 
 /**
  * Сетка шахматки — клиентская часть.
@@ -51,6 +57,7 @@ export function ChessboardGrid({
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
+  const { toast } = useToast();
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
@@ -78,7 +85,20 @@ export function ChessboardGrid({
     if (!payload) return;
     const plan = planMove(payload, { unitCode: row.unit.code });
     if (plan.kind === 'noop') return;
-    if (!(await ask({ title: plan.title, body: plan.detail, confirmLabel: 'Переселить' }))) return;
+    // Переселение в другую категорию переоценивает всё проживание — сумму называем до подтверждения
+    // (срез 7.3, Д5): число считает API теми же функциями, что и само переселение.
+    const preview = await previewAction(payload.number, payload.itemId, {
+      action: 'move',
+      unitCode: plan.unitCode,
+    });
+    if (
+      !(await ask({
+        title: plan.title,
+        body: `${plan.detail} ${previewLine(preview)}`,
+        confirmLabel: 'Переселить',
+      }))
+    )
+      return;
     const fd = new FormData();
     fd.set('unitCode', plan.unitCode);
     fd.set('fromDate', plan.fromDate);
@@ -86,6 +106,8 @@ export function ChessboardGrid({
       // server action сам делает revalidatePath('/chessboard') — сетка перерисуется с сервера
       const r = await assignUnitAction(payload.number, payload.itemId, { error: null }, fd);
       setError(r.error);
+      if (!r.error)
+        toast({ text: `Бронь ${payload.number} переселена в ${plan.unitCode}`, tone: 'success' });
     });
   };
   const onDragEnd = () => {
@@ -100,8 +122,10 @@ export function ChessboardGrid({
       (!category || row.unit.accommodationTypeCode === category) &&
       (!kind || row.unit.kind === kind) &&
       (state === 'all' ||
+        // «Уборка» — это статус ячейки, а не блокировка: типа блокировки CLEANING в модели нет,
+        // и фильтр не срабатывал никогда (DESIGN.md §9, срез 7.1)
         (state === 'cleaning'
-          ? row.cells[0]?.state === 'BLOCKED' && row.cells[0]?.blockType === 'CLEANING'
+          ? row.unit.housekeepingStatus === 'DIRTY'
           : row.cells[0]?.state === state)) &&
       (!needle ||
         [
@@ -352,6 +376,17 @@ export function ChessboardGrid({
                         <span className="muted-2">
                           {row.unit.kind === 'BED' ? 'койка' : 'номер'}
                         </span>
+                        {row.unit.housekeepingStatus === HK_DIRTY && (
+                          <Badge
+                            tone="warn"
+                            className="board-hk"
+                            data-testid="unit-housekeeping"
+                            data-status={row.unit.housekeepingStatus}
+                            title="Ячейку надо убрать"
+                          >
+                            грязно
+                          </Badge>
+                        )}
                       </td>
                       {row.cells.map((c, index) => (
                         <Cell
@@ -408,11 +443,9 @@ function Cell({
     cell.state === 'OCCUPIED'
       ? `${cell.guestLabel ?? 'без имени'} · ${cell.confirmationNumber} · ${
           STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
-        }${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
+        }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
-        ? `${BLOCK_RU[cell.blockType ?? ''] ?? cell.blockType}${
-            cell.blockReason ? `: ${cell.blockReason}` : ''
-          }`
+        ? `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`
         : 'Свободно — создать бронь на эту дату';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   const draggable =
@@ -456,7 +489,7 @@ function Cell({
             className="board__stay"
             aria-label={title}
             style={{
-              background: bg,
+              backgroundColor: bg,
               borderRadius: radius,
               paddingLeft: cell.isArrival ? 6 : 2,
               cursor: draggable ? 'grab' : undefined,
@@ -474,6 +507,20 @@ function Cell({
                 <span className="board-stay-name">
                   {cell.guestLabel || cell.confirmationNumber}
                 </span>
+                {/* Канал — словом: цвет на плашке уже занят статусом брони (DESIGN.md §9) */}
+                {cell.channel && (
+                  <span className="board-stay-channel" data-testid="cell-channel">
+                    {cell.channel}
+                  </span>
+                )}
+                {cell.balanceMinor && BigInt(cell.balanceMinor) > 0n && (
+                  <AmountChip
+                    minor={cell.balanceMinor}
+                    tone="due"
+                    className="board-stay-due"
+                    data-testid="cell-due"
+                  />
+                )}
                 {label.span >= 2 && (
                   <span className="board-stay-nights">{nights(label.span, label.continues)}</span>
                 )}
@@ -511,7 +558,7 @@ function Cell({
         <Link
           href={`/units/${encodeURIComponent(unitCode)}`}
           className="board__free board-block"
-          style={{ background: bg }}
+          style={{ backgroundColor: bg }}
           aria-label={`${title} · ${unitCode}`}
         />
       )}

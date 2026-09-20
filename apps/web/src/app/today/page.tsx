@@ -5,10 +5,12 @@ import { ApiError } from '../../lib/api';
 import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
+import Link from 'next/link';
+import { Icon } from '../../components/icon';
 import { HotelClock } from './dashboard-widgets';
 import { PeriodBar } from './period-bar';
 import { DashboardSection, DashboardSkeleton } from './dashboard-section';
-import { DeskSection, DeskSkeleton } from './desk-section';
+import { AttentionSummarySection, DeskSection, DeskSkeleton } from './desk-section';
 
 /**
  * Главная собственника и управляющего (срез 14, plans/slice-14-dashboard-2026-09-16.md):
@@ -37,9 +39,25 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     <Page
       title="Главная"
       crumbs={<span className="eyebrow">{hotel?.property.name ?? 'Гостиница'}</span>}
-      subtitle="Показатели объекта за период и что происходит на стойке сегодня."
-      actions={<HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />}
+      subtitle="Загрузка, деньги и задачи вашего объекта."
+      actions={
+        <>
+          <Link href="/chessboard" className="btn btn--secondary">
+            Шахматка
+          </Link>
+          <Link href="/reservations/new" className="btn">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        </>
+      }
     >
+      <div className="dashboard-day">
+        <Suspense fallback={null}>
+          <AttentionSummarySection date={deskDate} />
+        </Suspense>
+        <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
+      </div>
       <PeriodBar period={period} today={today} />
       {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
       <Suspense fallback={<DashboardSkeleton />}>

@@ -10,13 +10,9 @@ import {
   unblockUnitAction,
   type UnitActionResult,
 } from './actions';
+import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 
-const TYPES: Array<[string, string]> = [
-  ['MAINTENANCE', 'ремонт'],
-  ['OUT_OF_ORDER', 'неисправна'],
-  ['MANAGEMENT', 'решение управляющего'],
-  ['OTHER', 'другое'],
-];
+const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 const HK: Array<[UnitCard['housekeepingStatus'], string]> = [
   ['DIRTY', 'грязно'],
   ['CLEAN', 'убрано'],
@@ -51,7 +47,9 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         </Row>
       </Panel>
       <Panel title="Блокировки (ремонт, вывод из продажи)">
-        {unit.blocks.length === 0 && <span className="sub">нет</span>}
+        {unit.blocks.length === 0 && (
+          <p className="sub">Блокировок нет — ячейка в продаже. Закрыть её можно формой ниже.</p>
+        )}
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
             <span>

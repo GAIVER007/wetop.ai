@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
+import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
 import { hotelApi } from '../lib/hotel-api';
@@ -42,29 +43,31 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <TopNav
-            demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-            account={
-              <Suspense fallback={null}>
-                <AccountMenu />
-              </Suspense>
-            }
-            property={{
-              name: (
-                <Suspense fallback="Объект не загружен">
-                  <ProjectProperty field="name" />
+          <ToastProvider>
+            <TopNav
+              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+              account={
+                <Suspense fallback={null}>
+                  <AccountMenu />
                 </Suspense>
-              ),
-              address: (
-                <Suspense fallback="Настройки гостиницы">
-                  <ProjectProperty field="address" />
-                </Suspense>
-              ),
-            }}
-          >
-            {children}
-          </TopNav>
-          {drawer}
+              }
+              property={{
+                name: (
+                  <Suspense fallback="Объект не загружен">
+                    <ProjectProperty field="name" />
+                  </Suspense>
+                ),
+                address: (
+                  <Suspense fallback="Настройки гостиницы">
+                    <ProjectProperty field="address" />
+                  </Suspense>
+                ),
+              }}
+            >
+              {children}
+            </TopNav>
+            {drawer}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

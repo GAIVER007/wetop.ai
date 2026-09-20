@@ -141,6 +141,7 @@ export function EventsTable({
                   <Link
                     href={`/reservations/${encodeURIComponent(e.confirmationNumber)}`}
                     className="bold"
+                    data-testid="event-reservation"
                   >
                     {e.confirmationNumber}
                   </Link>

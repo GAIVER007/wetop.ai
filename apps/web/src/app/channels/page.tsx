@@ -211,7 +211,7 @@ export default async function ChannelsPage({
       <Table size="sm">
         <thead>
           <tr>
-            {['Категория', 'Room type (Channex)', 'Rate plan (Channex)'].map((h) => (
+            {['Категория', 'Категория в Channex', 'Тариф в Channex'].map((h) => (
               <th key={h}>{h}</th>
             ))}
           </tr>

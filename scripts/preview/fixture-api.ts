@@ -42,6 +42,7 @@ const openAtLock = (p: string): boolean =>
   p === '/auth/code' ||
   p === '/auth/register' ||
   p === '/auth/verify' ||
+  /^\/auth\/invites\/[^/]+(\/accept)?$/.test(p) ||
   p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
@@ -195,7 +196,16 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 || i === 8 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // Смена должна видеть это на клетке словом, не только жёлтым цветом.
+    r.status =
+      i === 2
+        ? 'TENTATIVE'
+        : i === 1 || i === 8
+          ? 'CONFIRMED'
+          : i === 4
+            ? 'CHECKED_OUT'
+            : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
@@ -792,7 +802,7 @@ let paymentLines: Array<{
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 const incidentSeed: Incident = {
   id: 'ui-incident',
-  kind: 'booking.unassigned',
+  kind: 'stay.unassigned',
   class: 'B',
   severity: 'WARNING',
   status: 'OPEN',
@@ -870,8 +880,12 @@ function desk(date: string): DeskDay {
 }
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
+  // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
+  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
+    housekeeping.get(code) ??
+    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
   const rows = units.map((u) => ({
-    unit: { id: u.code, ...u },
+    unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
       const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
       if (block)
@@ -899,6 +913,10 @@ function board(from: string, to: string): Chessboard {
             itemStatus: it.status,
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
+            // канал и остаток к оплате — как отдаёт API после среза 7.1
+            source: r.source,
+            channel: r.channel,
+            balanceMinor: finance(r).balanceMinor,
           };
       }
       return { date, state: 'FREE' as const };
@@ -1459,81 +1477,58 @@ function read(path: string, q: URLSearchParams): unknown {
       total: { units: 88, available: available.length },
     };
   }
-  if (path.startsWith('/reservations/') && /-preview$/.test(path)) {
+  // Срез 7.3: предпросмотр действия — считает так же, как настоящий API, но ничего не меняет
+  if (path.startsWith('/reservations/') && path.endsWith('/preview')) {
     const parts = path.split('/');
-    const tail = parts[parts.length - 1];
     const r = getCard(decodeURIComponent(parts[2]!));
-    if (!r) return undefined;
-    if (tail === 'cancel-preview') {
-      const reason = q.get('reason') === 'no_show' ? 'no_show' : 'cancel';
-      const items = r.items
-        .filter((it) => (!q.get('itemId') || it.id === q.get('itemId')) && LIVE(it.status))
-        .map((it) => {
-          // штраф — первая ночь, и только с дня заезда (Q-103); до заезда отмена бесплатна
-          const dueNow = it.arrivalDate <= today;
-          return {
-            itemId: it.id,
-            unitCode: it.unitCode,
-            policy: 'FIRST_NIGHT',
-            dueNow,
-            penaltyMinor: (dueNow ? nightly(it.accommodationTypeCode) : 0n).toString(),
-          };
-        });
+    const item = r?.items.find((i) => i.id === decodeURIComponent(parts[4]!));
+    if (!r || !item) return undefined;
+    const action = q.get('action') ?? '';
+    const current = BigInt(item.priceMinor);
+    // те же nightly/nightsOf/unitBusy, что и у самих действий ниже: окно = начисление (Д5)
+    const night = nightly(item.accommodationTypeCode);
+    if (action === 'cancel' || action === 'no_show')
       return {
-        reason,
-        items,
-        totalPenaltyMinor: items.reduce((s, i) => s + BigInt(i.penaltyMinor), 0n).toString(),
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        voidedMinor: item.priceMinor,
+        // отмена заранее бесплатна, с дня заезда — первая ночь; незаезд платный всегда (Q-103)
+        penaltyMinor: action === 'no_show' || item.arrivalDate <= today ? night.toString() : '0',
+        policy: 'FIRST_NIGHT',
       };
-    }
-    const item = r.items.find((it) => it.id === parts[4]);
-    if (!item) return undefined;
-    const nights = nightsOf(item);
-    if (tail === 'move-preview') {
-      const unit = units.find((u) => u.code === q.get('unitCode'));
-      const from = categories.find((c) => c.code === item.accommodationTypeCode) ?? null;
-      if (!unit)
-        return {
-          unitCode: q.get('unitCode') ?? '',
-          changesCategory: false,
-          fromCategory: from && { code: from.code, name: from.name },
-          toCategory: null,
-          nights,
-          currentMinor: item.priceMinor,
-          newMinor: null,
-          ratePlanRequired: false,
-          problem: 'Ячейка не найдена',
-        };
-      const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
-      const changes = to.code !== item.accommodationTypeCode;
+    if (action === 'extend') {
+      const n = Math.max(1, Number(q.get('nights') ?? 1));
+      const departureDate = add(item.departureDate, n);
       return {
-        unitCode: unit.code,
-        changesCategory: changes,
-        fromCategory: from && { code: from.code, name: from.name },
-        toCategory: { code: to.code, name: to.name },
-        nights,
-        currentMinor: item.priceMinor,
-        newMinor: changes ? (nightly(to.code) * BigInt(nights)).toString() : item.priceMinor,
-        ratePlanRequired: false,
-        problem: null,
-      };
-    }
-    if (tail === 'extend-preview') {
-      const n = Math.max(1, Number(q.get('nights') || 1));
-      const departure = add(item.departureDate, n);
-      const added = nightly(item.accommodationTypeCode) * BigInt(n);
-      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
         nights: n,
-        departureDate: departure,
+        departureDate,
         unitCode: item.unitCode,
-        addedMinor: added.toString(),
-        newMinor: (BigInt(item.priceMinor) + added).toString(),
-        ratePlanRequired: !item.ratePlanCode && !q.get('ratePlanCode'),
-        nextNightsFree:
-          !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
-        problem: null,
+        nextNightsFree: !(
+          item.unitCode && unitBusy(item.unitCode, item.departureDate, departureDate, item)
+        ),
+        newPriceMinor: (current + night * BigInt(n)).toString(),
+        differenceMinor: (night * BigInt(n)).toString(),
       };
     }
-    return undefined;
+    const unitCode = q.get('unitCode') ?? '';
+    const unit = units.find((u) => u.code === unitCode);
+    const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
+    const moved =
+      changesCategory && unit ? nightly(unit.accommodationTypeCode) * BigInt(nightsOf(item)) : current;
+    return {
+      action: 'move',
+      currentPriceMinor: item.priceMinor,
+      currency: 'KZT',
+      changesCategory,
+      unitCode,
+      categoryName: unit?.accommodationTypeName,
+      newPriceMinor: moved.toString(),
+      differenceMinor: (moved - current).toString(),
+    };
   }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
@@ -2056,6 +2051,47 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (token) uiSessions.delete(token);
       return send(200, { ok: true });
+    }
+    // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
+    const invitePreview = {
+      organizationName: 'Хостел «Пример»', // организация входа по коду (codeUser)
+      email: 'novyj@example.com',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+    };
+    if (path === '/auth/invites') {
+      const token = sessionOf(req as never);
+      const me = token && uiSessions.get(token);
+      if (!me) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (req.method === 'POST') {
+        const email = String(body['email'] ?? '')
+          .trim()
+          .toLowerCase();
+        if (!email.includes('@'))
+          return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
+        if (email === me.email) return send(400, { message: 'Этот человек уже в организации.' });
+        return send(201, {
+          id: `inv-${Date.now()}`,
+          email,
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      return send(200, [
+        {
+          id: 'inv-fixture',
+          email: 'zhdet@example.com',
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date(Date.now() - 3600_000).toISOString(),
+        },
+      ]);
+    }
+    const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
+    if (inviteMatch) {
+      if (inviteMatch[1] !== 'fixture-invite-token')
+        return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      return send(200, invitePreview);
     }
 
     if (req.method === 'GET') {

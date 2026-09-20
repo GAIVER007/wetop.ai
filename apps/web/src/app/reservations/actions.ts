@@ -1,13 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import {
-  ApiError,
-  reservationsApi,
-  type CancelPreview,
-  type ExtendPreview,
-  type MovePreview,
-} from '../../lib/api';
+import { ApiError, reservationsApi, type ActionPreview } from '../../lib/api';
 
 export interface ActionResult {
   error: string | null;
@@ -228,39 +222,17 @@ export async function stayAction(
   return { error: null };
 }
 
-// ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение, `null` — не загрузился ──
-export async function movePreviewAction(
+/**
+ * Предпросмотр действия для окна подтверждения (срез 7.3, Д5): только чтение, ничего не меняет.
+ * Отказ не мешает действию — окно откроется и честно скажет, что сумму посчитать не удалось.
+ */
+export async function previewAction(
   number: string,
   itemId: string,
-  unitCode: string,
-  ratePlanCode?: string,
-): Promise<MovePreview | null> {
+  query: Record<string, string>,
+): Promise<ActionPreview | null> {
   try {
-    return await reservationsApi.movePreview(number, itemId, unitCode, ratePlanCode);
-  } catch {
-    return null;
-  }
-}
-
-export async function extendPreviewAction(
-  number: string,
-  itemId: string,
-  ratePlanCode?: string,
-): Promise<ExtendPreview | null> {
-  try {
-    return await reservationsApi.extendPreview(number, itemId, 1, ratePlanCode);
-  } catch {
-    return null;
-  }
-}
-
-export async function cancelPreviewAction(
-  number: string,
-  reason: 'cancel' | 'no_show',
-  itemId?: string,
-): Promise<CancelPreview | null> {
-  try {
-    return await reservationsApi.cancelPreview(number, reason, itemId);
+    return await reservationsApi.preview(number, itemId, query);
   } catch {
     return null;
   }

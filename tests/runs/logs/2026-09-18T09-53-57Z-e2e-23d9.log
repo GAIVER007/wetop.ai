@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 18.09.2026 14:53 Алматы · vm
+# коммит 55086c2 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 41
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/design-system.spec.ts'
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (2.3s)
+  ✓  2 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (7.5s)
+  ✓  3 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (7.3s)
+  ✓  4 tests/ui/design-system.spec.ts:72:1 › масштаб 200 %: нет горизонтальной прокрутки (1.3s)
+  ✓  5 tests/ui/design-system.spec.ts:93:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (1.9s)
+  ✓  6 tests/ui/design-system.spec.ts:115:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (2.9s)
+  ✓  7 tests/ui/design-system.spec.ts:130:1 › уведомление появляется в живой области и закрывается (1.7s)
+  ✓  8 tests/ui/design-system.spec.ts:142:1 › подсказка открывается фокусом и закрывается Escape (1.8s)
+
+  8 passed (31.1s)
+
+# код выхода 0 · 32 с

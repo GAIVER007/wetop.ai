@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 20.09.2026 17:01 Алматы · vm
+# коммит 6d036a1 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 112
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+Error: сид построен с пересечениями: 1
+
+   at ../tools/test-seed.ts:260
+
+  258 |         await importServices(tx, parseExelyServices(spravochniki), inv.propertyId);
+  259 |         const res = await importReservations(tx, records, { propertyId: inv.propertyId, anonymizeSalt: 'test-seed', today });
+> 260 |         if (res.conflicts.length) throw new Error(`сид построен с пересечениями: ${res.conflicts.length}`);
+      |                                         ^
+  261 |         const report = {
+  262 |           units: inv.unitsInDb,
+  263 |           ratePlans: rp.ratePlans.created + rp.ratePlans.updated,
+    at db.$transaction.timeout (/home/user/wetop.ai/tests/tools/test-seed.ts:260:41)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18)
+    at seedTestData (/home/user/wetop.ai/tests/tools/test-seed.ts:249:12)
+    at ensureTestSchema (/home/user/wetop.ai/tests/tools/test-schema.ts:99:18)
+    at globalSetup (/home/user/wetop.ai/tests/e2e-setup.ts:14:18)
+[уборка e2e] Броней автотестов с активными проживаниями: 4 (кандидатов по фамилии было 222)
+Освобождено броней: 4
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: выгрузка не нужна — исходящий ARI выключен (тестовый API или scripts/ops/ari.sh stop)
+Сайтов со счётчиком от автотестов: 0 — удалены
+[WebServer] (node:13549) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+
+
+# код выхода 1 · 12 с

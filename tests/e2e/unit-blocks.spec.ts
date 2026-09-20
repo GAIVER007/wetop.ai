@@ -30,40 +30,47 @@ test('заблокировать свободную койку на 2 ночи �
 }) => {
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   await page
+    .getByRole('main')
     .getByTestId('new-reservation-form')
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, FROM, TO));
   const unitCode = (await page
+    .getByRole('main')
     .getByTestId('new-reservation-form')
     .locator('select[name="unitCode"] option')
     .nth(1)
     .getAttribute('value'))!;
   const freeBefore = Number(
-    /свободно (\d+)/.exec((await page.getByTestId('availability').textContent()) ?? '')?.[1],
+    /свободно (\d+)/.exec(
+      (await page.getByRole('main').getByTestId('availability').textContent()) ?? '',
+    )?.[1],
   );
 
   await page.goto(`/units/${unitCode}`);
   await expect(page.getByRole('heading', { name: new RegExp(`Ячейка ${unitCode}`) })).toBeVisible();
-  const form = page.getByTestId('block-form');
+  const form = page.getByRole('main').getByTestId('block-form');
   await form.locator('input[name="dateFrom"]').fill(FROM);
   await form.locator('input[name="dateTo"]').fill(TO);
   await form.locator('select[name="type"]').selectOption('MAINTENANCE');
   await form.locator('input[name="reason"]').fill(REASON);
   await form.getByRole('button', { name: 'Заблокировать' }).click();
   // на койке могут лежать чужие блоки (другие тесты, стойка) — считаем только свой, по причине
-  const ownBlock = page.getByTestId('block-row').filter({ hasText: REASON });
+  const ownBlock = page.getByRole('main').getByTestId('block-row').filter({ hasText: REASON });
   await expect(ownBlock).toHaveCount(1);
   await page.screenshot({ path: 'reports/screenshots/unit-block-card.png', fullPage: true });
 
   await page.goto(`/chessboard?from=${FROM}&to=${TO}`);
   const row = page
+    .getByRole('main')
     .getByTestId('unit-row')
     .filter({ has: page.getByTestId('unit-link').filter({ hasText: unitCode }) });
   await expect(row.locator('td[data-state="BLOCKED"]')).toHaveCount(2);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   expect(
     Number(
-      /свободно (\d+)/.exec((await page.getByTestId('availability').textContent()) ?? '')?.[1],
+      /свободно (\d+)/.exec(
+        (await page.getByRole('main').getByTestId('availability').textContent()) ?? '',
+      )?.[1],
     ),
   ).toBe(freeBefore - 1);
 
@@ -72,18 +79,21 @@ test('заблокировать свободную койку на 2 ночи �
   // и тогда кнопок «снять» на странице две — клик по роли падал бы на strict mode
   // снятие блокировки переспрашивает (волна 3) — окном стойки, не window.confirm (DESIGN.md §8)
   await ownBlock.getByRole('button', { name: 'снять' }).click();
+  // с 17.09 снятие блокировки спрашивают окном: койка сразу возвращается в продажу (DESIGN.md §15)
   await confirmAction(page, 'Снять блокировку');
   await expect(ownBlock).toHaveCount(0);
   await page.goto(`/reservations/new?arrival=${FROM}&departure=${TO}`);
   expect(
     Number(
-      /свободно (\d+)/.exec((await page.getByTestId('availability').textContent()) ?? '')?.[1],
+      /свободно (\d+)/.exec(
+        (await page.getByRole('main').getByTestId('availability').textContent()) ?? '',
+      )?.[1],
     ),
   ).toBe(freeBefore);
 
   await page.goto(`/units/${unitCode}`);
-  await page.getByTestId('hk-CLEAN').click();
+  await page.getByRole('main').getByTestId('hk-CLEAN').click();
   await expect(page.getByText('Статус уборки: убрано')).toBeVisible();
-  await page.getByTestId('hk-DIRTY').click();
+  await page.getByRole('main').getByTestId('hk-DIRTY').click();
   await expect(page.getByText('Статус уборки: грязно')).toBeVisible();
 });

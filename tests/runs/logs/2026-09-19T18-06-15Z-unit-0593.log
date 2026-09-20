@@ -1,0 +1,21 @@
+# Модульные (unit) · 19.09.2026 23:06 Алматы · vm
+# коммит 830329c (claude/blissful-meitner-ipoauv)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T18-06-15Z-unit-0593.json' 'apps/web/src/design-rules.test.ts' 'apps/api/src/accounts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 59ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (3 tests) 8ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 7ms
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (6 tests) 221ms
+[Nest] 20533  - 09/19/2026, 6:06:18 PM   ERROR [AccountsService] MAIL_* не настроены — код сгенерирован, но письмо не отправлено
+ ✓ |unit| apps/api/src/accounts/accounts.controller.test.ts (38 tests) 394ms
+
+ Test Files  5 passed (5)
+      Tests  70 passed (70)
+   Start at  18:06:16
+   Duration  1.69s (transform 48%, import 30%, tests 21%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-19T18-06-15Z-unit-0593.json
+
+# код выхода 0 · 3 с

@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmDialog } from './confirm';
+import { confirmAction, confirmCancelReservation } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -51,7 +51,7 @@ test('групповая бронь на 2 койки → две клетки ш
 
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
-  const rows = page.getByTestId('stay-row');
+  const rows = page.getByRole('main').getByTestId('stay-row');
   await expect(rows).toHaveCount(2);
   const unitA = (await rows.nth(0).locator('td').first().innerText()).trim();
   const unitB = (await rows.nth(1).locator('td').first().innerText()).trim();
@@ -59,7 +59,7 @@ test('групповая бронь на 2 койки → две клетки ш
   expect(unitA).not.toContain('не назначена');
   expect(unitB).not.toContain('не назначена');
   // по счёту на каждое проживание
-  await expect(page.getByTestId('folio-panel')).toHaveCount(2);
+  await expect(page.getByRole('main').getByTestId('folio-panel')).toHaveCount(2);
   await page.screenshot({ path: 'reports/screenshots/group-reservation-card.png', fullPage: true });
 
   // ── Шахматка: две клетки с номером брони ──────────────────────────────────────────────────
@@ -69,14 +69,16 @@ test('групповая бронь на 2 койки → две клетки ш
 
   // ── Правка: заметки и источник ────────────────────────────────────────────────────────────
   await page.goto(`/reservations/${number}`);
-  const edit = page.getByTestId('edit-reservation-form');
+  const edit = page.getByRole('main').getByTestId('edit-reservation-form');
   await cardTab(page, 'Действия');
   await edit.locator('select[name="source"]').selectOption('WHATSAPP');
   await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ · поздний заезд, ключ у соседа');
   await edit.getByRole('button', { name: 'Сохранить' }).click();
   // текст есть и в подписи, и в поле ввода — проверяем именно подпись на карточке
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('reservation-notes')).toContainText('поздний заезд, ключ у соседа');
+  await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
+    'поздний заезд, ключ у соседа',
+  );
   await expect(page.locator('main')).toContainText('WhatsApp');
 
   // ── Правка: гостей на проживании — койка вмещает одного, двоих не записать ───────────────
@@ -86,10 +88,12 @@ test('групповая бронь на 2 койки → две клетки ш
   await guests.getByRole('button', { name: 'Сохранить' }).click();
   await expect(guests.getByRole('alert')).toContainText(/вместимость 1/);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-guests-count').first()).toContainText('· 1');
+  await expect(page.getByRole('main').getByTestId('stay-guests-count').first()).toContainText(
+    '· 1',
+  );
 
   // ── Ручное закрытие счёта: кнопки нет при долге, есть при нулевом балансе ─────────────────
-  const panel = page.getByTestId('folio-panel').first();
+  const panel = page.getByRole('main').getByTestId('folio-panel').first();
   await cardTab(page, 'Счета');
   await expect(panel.locator('[data-testid^="close-folio-"]')).toHaveCount(0);
   await panel.getByTestId('payment-form').getByRole('button', { name: 'Принять оплату' }).click();
@@ -102,8 +106,8 @@ test('групповая бронь на 2 койки → две клетки ш
 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

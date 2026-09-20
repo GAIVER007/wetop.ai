@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmDialog } from './confirm';
+import { confirmAction, confirmCancelReservation } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -48,12 +48,18 @@ test('перетаскивание клетки брони на свободну
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
-  await expect(page.getByTestId('stay-row').first().locator('td').first()).toHaveText(unitA);
+  await expect(
+    page.getByRole('main').getByTestId('stay-row').first().locator('td').first(),
+  ).toHaveText(unitA);
 
   // ── шахматка: тянем клетку заезда с A на строку B ─────────────────────────────────────────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  const rowA = page.locator(`[data-testid="unit-row"][data-unit-code="${unitA}"]`);
-  const rowB = page.locator(`[data-testid="unit-row"][data-unit-code="${unitB}"]`);
+  const rowA = page
+    .getByRole('main')
+    .locator(`[data-testid="unit-row"][data-unit-code="${unitA}"]`);
+  const rowB = page
+    .getByRole('main')
+    .locator(`[data-testid="unit-row"][data-unit-code="${unitB}"]`);
   const source = rowA.locator(`[data-testid="stay-cell"][data-date="${arrival}"]`);
   await expect(source).toHaveAttribute('data-number', number);
   // койка B на эти ночи свободна — иначе сервер откажет (409), и тест проверял бы не переезд
@@ -62,7 +68,7 @@ test('перетаскивание клетки брони на свободну
 
   await source.dragTo(rowB.locator(`td[data-date="${arrival}"]`));
   // вопрос стойки: номер брони в заголовке, ячейки и дата переезда — в теле
-  const confirm = page.getByTestId('confirm-dialog');
+  const confirm = page.getByRole('main').getByTestId('confirm-dialog');
   await expect(confirm).toContainText(`Переселить бронь ${number}?`);
   await expect(confirm).toContainText(unitB);
   await confirmAction(page, 'Переселить');
@@ -71,20 +77,20 @@ test('перетаскивание клетки брони на свободну
   await expect(rowB.locator(`[data-testid="stay-cell"][data-number="${number}"]`)).toHaveCount(2);
   await expect(rowA.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
   await expect(rowA.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
-  await expect(page.getByTestId('drag-error')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('drag-error')).toHaveCount(0);
   await page.screenshot({ path: 'reports/screenshots/chessboard-drag.png', fullPage: false });
 
   // ── карточка брони: ячейка B ──────────────────────────────────────────────────────────────
   await page.goto(`/reservations/${number}`);
   // ячейка — первая колонка строки проживания; проверять всю строку нельзя: там даты с теми же цифрами
-  const unitCell = page.getByTestId('stay-row').first().locator('td').first();
+  const unitCell = page.getByRole('main').getByTestId('stay-row').first().locator('td').first();
   await expect(unitCell).toHaveText(unitB);
   await expect(unitCell).not.toHaveText(unitA);
 
   // прибрать за собой: бронь отменяется, койка освобождается
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

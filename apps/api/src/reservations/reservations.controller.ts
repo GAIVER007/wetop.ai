@@ -78,34 +78,17 @@ export class ReservationsController {
     return this.service.extend(number, itemId, dto ?? {});
   }
 
-  // ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение теми же функциями ──
-  @Get(':number/items/:itemId/move-preview')
-  movePreview(
+  /**
+   * Сколько будет стоить действие — до подтверждения (срез 7.3, Д5). Только чтение: ничего не
+   * пишется, каналы не трогаются. `action`: move (нужен unitCode) | extend (nights) | cancel | no_show.
+   */
+  @Get(':number/items/:itemId/preview')
+  preview(
     @Param('number') number: string,
     @Param('itemId') itemId: string,
-    @Query('unitCode') unitCode?: string,
-    @Query('ratePlanCode') ratePlanCode?: string,
+    @Query() q: { action?: string; unitCode?: string; nights?: string; ratePlanCode?: string },
   ) {
-    return this.service.previewMove(number, itemId, { unitCode, ratePlanCode });
-  }
-
-  @Get(':number/items/:itemId/extend-preview')
-  extendPreview(
-    @Param('number') number: string,
-    @Param('itemId') itemId: string,
-    @Query('nights') nights?: string,
-    @Query('ratePlanCode') ratePlanCode?: string,
-  ) {
-    return this.service.previewExtend(number, itemId, { nights, ratePlanCode });
-  }
-
-  @Get(':number/cancel-preview')
-  cancelPreview(
-    @Param('number') number: string,
-    @Query('reason') reason?: string,
-    @Query('itemId') itemId?: string,
-  ) {
-    return this.service.previewCancel(number, { reason, itemId });
+    return this.service.preview(number, itemId, q ?? {});
   }
 
   @Post(':number/items/:itemId/assign')

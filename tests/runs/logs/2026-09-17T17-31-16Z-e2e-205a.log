@@ -1,0 +1,12 @@
+# Сквозные (e2e) · 17.09.2026 22:31 Алматы · vm
+# коммит a6434dd (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'очередь показана строками|входящая бронь ведёт'
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:962:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (946ms)
+  ✓  2 tests/ui/workspace.spec.ts:977:1 › каналы: входящая бронь ведёт на карточку брони (1.9s)
+
+  2 passed (7.1s)
+
+# код выхода 0 · 8 с

@@ -77,7 +77,7 @@ test('цены: месяц листается кнопками со значка
   await expect(page.locator('.page__subtitle')).toContainText('ноябрь 2026');
   const editor = page.getByTestId('bulk-editor');
   await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByLabel('Min stay').fill('3');
+  await editor.getByLabel('Мин. ночей').fill('3');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
   const pending = page.getByTestId('pending-changes');
   await expect(pending).toContainText('01.11 → 30.11.2026 — цена 9100, min stay 3');

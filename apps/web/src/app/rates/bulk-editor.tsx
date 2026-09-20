@@ -141,15 +141,15 @@ export function BulkEditor(props: {
           <Field label="Гостей (occupancy)">
             <Input name="occupancy" type="number" min={1} max={capacity} placeholder="все" />
           </Field>
-          <Field label="Min stay">
+          <Field label="Мин. ночей">
             <Input name="minStay" type="number" min={0} />
           </Field>
-          <Field label="Max stay">
+          <Field label="Макс. ночей">
             <Input name="maxStay" type="number" min={0} />
           </Field>
           {(
             [
-              ['stopSell', 'Stop sell'],
+              ['stopSell', 'Стоп-продажа'],
               ['closedToArrival', 'Закрыт заезд (CTA)'],
               ['closedToDeparture', 'Закрыт выезд (CTD)'],
             ] as const

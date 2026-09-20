@@ -7,6 +7,8 @@ import {
   Headers,
   HttpCode,
   Inject,
+  NotFoundException,
+  Param,
   Post,
   Res,
   UnauthorizedException,
@@ -14,6 +16,9 @@ import {
 import type { Response } from 'express';
 import {
   CODE_REJECTED_MESSAGE,
+  INVITE_ALREADY_MEMBER_MESSAGE,
+  INVITE_EMAIL_MESSAGE,
+  INVITE_INVALID_MESSAGE,
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_NAME_MESSAGE,
   SESSION_ENDED_MESSAGE,
@@ -21,7 +26,12 @@ import {
   isEmailShaped,
   isOrganizationNameShaped,
 } from '@pms/domain';
-import { AccountsService, type Session } from './accounts.service';
+import {
+  AccountsService,
+  type InvitePreview,
+  type InviteView,
+  type Session,
+} from './accounts.service';
 import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie';
 
 /**
@@ -30,7 +40,10 @@ import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie
  * из браузера. Кука имеет приоритет: если пришло и то и другое, доверяем тому, что браузер
  * подставил сам.
  */
-export function tokenFrom(cookieHeader: string | undefined, authorization: string | undefined): string | null {
+export function tokenFrom(
+  cookieHeader: string | undefined,
+  authorization: string | undefined,
+): string | null {
   return sessionFromCookieHeader(cookieHeader) ?? bearer(authorization);
 }
 
@@ -164,4 +177,90 @@ export class AccountsController {
       ...(opts.domain ? { domain: opts.domain } : {}),
     });
   }
+
+  // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
+
+  /**
+   * Пригласить по почте. Только для вошедшего (401 без сессии). Ошибки формы — 400 с текстом:
+   * приглашающий уже внутри, скрывать от него состав своей организации незачем.
+   */
+  @Post('invites')
+  @HttpCode(201)
+  async createInvite(
+    @Body() body: { email?: unknown },
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<InviteJson> {
+    const outcome = await this.accounts.createInvite(tokenFrom(cookie, authorization), body?.email);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (!outcome.ok) {
+      throw new BadRequestException(
+        outcome.reason === 'member' ? INVITE_ALREADY_MEMBER_MESSAGE : INVITE_EMAIL_MESSAGE,
+      );
+    }
+    return inviteJson(outcome.invite);
+  }
+
+  /** Ожидающие приглашения своей организации. Ключей в ответе нет — только кого и до когда. */
+  @Get('invites')
+  async invites(
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<InviteJson[]> {
+    const list = await this.accounts.pendingInvites(tokenFrom(cookie, authorization));
+    if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    return list.map(inviteJson);
+  }
+
+  /** Кто зовёт и кого — по ключу из ссылки. Мёртвая ссылка — 404 одним текстом, без подробностей. */
+  @Get('invites/:token')
+  async inviteByToken(@Param('token') token: string): Promise<InvitePreviewJson> {
+    const preview = await this.accounts.inviteByToken(token);
+    if (!preview) throw new NotFoundException(INVITE_INVALID_MESSAGE);
+    return previewJson(preview);
+  }
+
+  /** Принять: членство заведено, код для входа выслан. Повтор по той же ссылке — 404. */
+  @Post('invites/:token/accept')
+  @HttpCode(200)
+  async acceptInvite(
+    @Param('token') token: string,
+    @Headers('cf-connecting-ip') cfIp?: string,
+  ): Promise<InvitePreviewJson> {
+    const preview = await this.accounts.acceptInvite(token, clientIp(cfIp));
+    if (!preview) throw new NotFoundException(INVITE_INVALID_MESSAGE);
+    return previewJson(preview);
+  }
+}
+
+interface InviteJson {
+  id: string;
+  email: string;
+  expiresAt: string;
+  acceptedAt: string | null;
+  createdAt: string;
+}
+
+interface InvitePreviewJson {
+  organizationName: string;
+  email: string;
+  expiresAt: string;
+}
+
+function inviteJson(i: InviteView): InviteJson {
+  return {
+    id: i.id,
+    email: i.email,
+    expiresAt: i.expiresAt.toISOString(),
+    acceptedAt: i.acceptedAt ? i.acceptedAt.toISOString() : null,
+    createdAt: i.createdAt.toISOString(),
+  };
+}
+
+function previewJson(p: InvitePreview): InvitePreviewJson {
+  return {
+    organizationName: p.organizationName,
+    email: p.email,
+    expiresAt: p.expiresAt.toISOString(),
+  };
 }

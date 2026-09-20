@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmAction, confirmCancelReservation, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -42,14 +42,14 @@ test('стойка: занятую койку не продать дважды, 
   await second.goto(url);
 
   const fill = async (p: typeof page, lastName: string, unitCode: string) => {
-    const f = p.getByTestId('new-reservation-form').first();
-    await f.locator('select[name="source"]').first().selectOption('WALK_IN');
-    await f.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
-    await f.locator('select[name="unitCode"]').first().selectOption(unitCode);
-    await f.locator('input[name="firstName"]').first().fill('Гость');
-    await f.locator('input[name="lastName"]').first().fill(lastName);
-    await f.locator('textarea[name="notes"]').first().fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
-    await f.getByRole('button', { name: 'Создать бронь' }).first().click();
+    const f = p.getByRole('main').getByTestId('new-reservation-form');
+    await f.locator('select[name="source"]').selectOption('WALK_IN');
+    await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+    await f.locator('select[name="unitCode"]').selectOption(unitCode);
+    await f.locator('input[name="firstName"]').fill('Гость');
+    await f.locator('input[name="lastName"]').fill(lastName);
+    await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
+    await f.getByRole('button', { name: 'Создать бронь' }).click();
   };
 
   // Форма доезжает потоковым куском Next: пока он встраивается, та же разметка лежит в двух копиях —
@@ -61,8 +61,8 @@ test('стойка: занятую койку не продать дважды, 
     .nth(1)
     .getAttribute('value'))!;
   // вторая вкладка выбирает ту же койку: её список составлен до создания первой брони
-  const secondForm = second.getByTestId('new-reservation-form').first();
-  await secondForm.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
+  const secondForm = second.getByRole('main').getByTestId('new-reservation-form');
+  await secondForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   await expect(secondForm.locator(`select[name="unitCode"] option[value="${unit}"]`)).toHaveCount(
     1,
   );
@@ -85,27 +85,35 @@ test('стойка: занятую койку не продать дважды, 
   await second.close();
 
   // ── T2: «+ 1 ночь» ───────────────────────────────────────────────────────────────────────
-  const row = page.getByTestId('stay-row').first();
-  await expect(row).toContainText(departure);
+  const row = page.getByRole('main').getByTestId('stay-row').first();
+  // даты в строке — словами (§14), сырая дата лежит в datetime
+  await expect(row.locator('time').nth(1)).toHaveAttribute('datetime', departure);
   const priceBefore = money(await row.locator('td').nth(5).innerText());
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="extend-"]').click();
+  await page.getByRole('main').locator('[data-testid^="extend-"]').click();
+  // Срез 7.3: продление сначала называет цену новой ночи — то же число, что потом встанет на счёт
+  const ask = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(ask).toContainText('Новая ночь');
+  await expect(ask).toContainText('₸');
+  await confirmAction(page, 'Продлить');
   await cardTab(page, 'Обзор');
-  await expect(row).toContainText(plus(10));
+  await expect(row.locator('time').nth(1)).toHaveAttribute('datetime', plus(10));
   const priceAfter = money(await row.locator('td').nth(5).innerText());
   // добавлена ровно одна ночь к двум: цена выросла примерно на половину, а не пересчиталась целиком
   expect(priceAfter).toBeGreaterThan(priceBefore);
   expect(priceAfter).toBeLessThan(priceBefore * 1.75);
   // счёт за проживание переписан под новую цену — долг администратору виден сразу
   await cardTab(page, 'Счета');
-  expect(money(await page.getByTestId('folio-balance').innerText())).toBe(priceAfter);
+  expect(money(await page.getByRole('main').getByTestId('folio-balance').innerText())).toBe(
+    priceAfter,
+  );
   // форма изменения дат показывает новую дату выезда: иначе «Пересчитать и сохранить» молча
   // вернуло бы проживание на ночь назад
   await cardTab(page, 'Действия');
-  await expect(page.locator('input[name="departureDate"]')).toHaveValue(plus(10));
+  await expect(page.getByRole('main').locator('input[name="departureDate"]')).toHaveValue(plus(10));
 
   // ── T1: переселение в другую категорию с пересчётом ───────────────────────────────────────
-  const assign = page.getByTestId('assign-form');
+  const assign = page.getByRole('main').getByTestId('assign-form');
   const other = assign.locator('optgroup[label*="пересчётом"]').first();
   await expect(other).toHaveCount(1);
   const otherUnit = (await other.locator('option').first().getAttribute('value'))!;
@@ -113,9 +121,11 @@ test('стойка: занятую койку не продать дважды, 
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
   // чужая категория — окно с новой суммой до подтверждения (срез 7.3, Д5); сумму считает тот же код, что и запись
-  const moveAmount = page.getByRole('dialog').getByTestId('move-amount');
-  await expect(moveAmount).toContainText('Новая сумма за');
-  const shownNew = money(/Новая сумма за \S+ \S+ (.+?) \(было/.exec(await moveAmount.innerText())?.[1] ?? '');
+  const moveDialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+  await expect(moveDialog).toContainText('Цена проживания станет');
+  const shownNew = money(
+    /Цена проживания станет (.+?) вместо/.exec(await moveDialog.innerText())?.[1] ?? '',
+  );
   await confirmDialog(page, 'Переселить и пересчитать');
 
   await cardTab(page, 'Обзор');
@@ -125,13 +135,15 @@ test('стойка: занятую койку не продать дважды, 
   expect(priceMoved).not.toBe(priceAfter); // цена взята из календаря новой категории
   expect(priceMoved).toBe(shownNew); // окно показало ровно то, что легло на проживание
   await cardTab(page, 'Счета');
-  expect(money(await page.getByTestId('folio-balance').innerText())).toBe(priceMoved);
+  expect(money(await page.getByRole('main').getByTestId('folio-balance').innerText())).toBe(
+    priceMoved,
+  );
   await page.screenshot({ path: 'reports/screenshots/desk-move-extend.png', fullPage: true });
 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь');
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

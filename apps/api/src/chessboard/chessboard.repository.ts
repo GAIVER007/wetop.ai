@@ -6,6 +6,7 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
+import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
@@ -59,6 +60,8 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         kind: u.kind,
         accommodationTypeCode: u.accommodationType.code,
         accommodationTypeName: u.accommodationType.name,
+        // Срез 7.1: убрана ли ячейка — значок в строке, как в Exely у номера
+        housekeepingStatus: u.housekeepingStatus,
       }));
   }
 
@@ -130,20 +133,45 @@ export class PrismaChessboardRepository implements ChessboardRepository {
                 primaryGuest: { select: { firstName: true, lastName: true, phone: true } },
               },
             },
+            // Срез 7.1: остаток к оплате — тем же расчётом, что в списке броней и на карточке
+            folio: {
+              select: {
+                charges: { where: { voidedAt: null }, select: { amount: true } },
+                allocations: {
+                  where: { payment: { status: 'COMPLETED' } },
+                  select: { amount: true },
+                },
+                refunds: { select: { amount: true } },
+              },
+            },
           },
         },
       },
     });
-    return rows.map((a) => ({
-      unitId: a.inventoryUnitId,
-      startDate: d(a.startDate),
-      endDate: d(a.endDate),
-      itemId: a.reservationItemId,
-      itemStatus: a.reservationItem.status,
-      confirmationNumber: a.reservationItem.reservation.confirmationNumber,
-      guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
-      guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
-    }));
+    return rows.map((a) => {
+      const folio = a.reservationItem.folio;
+      // остаток = начислено − оплачено + возвращено; `folioBalance` отдаёт разбор, нужен один итог
+      const balance = folio
+        ? folioBalance({
+            charges: folio.charges.map((c) => ({ amountMinor: c.amount, voided: false })),
+            allocations: folio.allocations.map((x) => ({ amountMinor: x.amount })),
+            refunds: folio.refunds.map((x) => ({ amountMinor: x.amount })),
+          }).balanceMinor
+        : 0n;
+      return {
+        unitId: a.inventoryUnitId,
+        startDate: d(a.startDate),
+        endDate: d(a.endDate),
+        itemId: a.reservationItemId,
+        itemStatus: a.reservationItem.status,
+        confirmationNumber: a.reservationItem.reservation.confirmationNumber,
+        guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
+        guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
+        source: a.reservationItem.reservation.source,
+        channel: a.reservationItem.reservation.channel,
+        balanceMinor: balance.toString(),
+      };
+    });
   }
 
   async blocks(from: string, to: string): Promise<ChessboardBlock[]> {

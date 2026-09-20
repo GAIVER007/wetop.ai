@@ -69,12 +69,7 @@ export function TopNav({
         К содержимому
       </a>
       <aside className="workspace-sidebar">
-        <Sidebar
-          property={property}
-          path={path}
-          collapsed={collapsed}
-          onCollapse={collapse}
-        />
+        <Sidebar property={property} path={path} collapsed={collapsed} onCollapse={collapse} />
       </aside>
       <div className="workspace-body">
         <header className="workspace-header">
@@ -91,7 +86,10 @@ export function TopNav({
             onClick={() => setSearch(true)}
           >
             <Icon name="search" />
-            <span>Поиск гостя, брони, номера...</span>
+            <span className="workspace-search-full">Поиск гостя, брони, номера...</span>
+            <span className="workspace-search-short" aria-hidden="true">
+              Поиск
+            </span>
             <kbd>⌘ K</kbd>
           </button>
           <div className="header-tools">
@@ -197,11 +195,7 @@ export function TopNav({
         title="Навигация"
         className="mobile-navigation"
       >
-        <Sidebar
-          property={property}
-          path={path}
-          close={() => setMenu(false)}
-        />
+        <Sidebar property={property} path={path} close={() => setMenu(false)} />
       </Overlay>
       <GlobalSearch open={search} close={() => setSearch(false)} />
     </div>

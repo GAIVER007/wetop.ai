@@ -4,8 +4,10 @@ import { useActionState, useState, useTransition } from 'react';
 import { daysLeft } from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
-import type { SignedIn } from '../../lib/api';
+import type { AuthInvite, SignedIn } from '../../lib/api';
+import { displayDate } from '../../lib/display-date';
 import {
+  inviteAction,
   registerAction,
   requestCodeAction,
   signIn,
@@ -26,6 +28,9 @@ export function LoginForm({
   user,
   passwordJustSet = false,
   mode: initialMode = 'password',
+  invites = [],
+  initialEmail = '',
+  initialStep = 'email',
 }: {
   demo: boolean;
   accessEmail: string | null;
@@ -33,19 +38,40 @@ export function LoginForm({
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
+  /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
+  invites?: AuthInvite[];
+  /** После принятия приглашения форма открывается сразу на шаге кода с известной почтой. */
+  initialEmail?: string;
+  initialStep?: 'email' | 'code';
 }) {
   const [mode, setMode] = useState<LoginMode>(initialMode);
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
   // вход по коду: почта (и название организации) → код из письма
-  const [step, setStep] = useState<'email' | 'code'>('email');
-  const [email, setEmail] = useState(accessEmail ?? '');
+  const [step, setStep] = useState<'email' | 'code'>(initialStep);
+  const [email, setEmail] = useState(initialEmail || (accessEmail ?? ''));
   const [organizationName, setOrganizationName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [codePending, startTransition] = useTransition();
   const { setTheme } = useTheme();
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteError, setInviteError] = useState('');
+  const [invited, setInvited] = useState<string[]>([]);
+
+  /** Приглашение по почте: строка «отправлено» добавляется к списку без перезагрузки страницы. */
+  function submitInvite() {
+    setInviteError('');
+    startTransition(async () => {
+      const r = await inviteAction(inviteEmail);
+      if (r.error) setInviteError(r.error);
+      else {
+        setInvited((list) => [r.email!, ...list]);
+        setInviteEmail('');
+      }
+    });
+  }
 
   const switchTo = (next: LoginMode) => {
     setError('');
@@ -100,7 +126,7 @@ export function LoginForm({
           </span>
         </Link>
         <div className="login-message">
-          <span className="eyebrow">Hospitality, thoughtfully connected</span>
+          <span className="eyebrow">Стойка, брони и каналы в одном окне</span>
           <h1>
             Весь объект
             <br />
@@ -110,9 +136,6 @@ export function LoginForm({
             Брони. Гости. Оплаты. Номера.
             <br />В одной системе.
           </p>
-          <div className="login-orbit" aria-hidden="true">
-            <span className="ai-orb" />
-          </div>
         </div>
         <span className="login-property">
           <Icon name="inventory" width={16} />
@@ -151,12 +174,74 @@ export function LoginForm({
                 <span>Смена закончена?</span>
                 <button type="submit">Выйти</button>
               </form>
+              {/* Приглашения (срез 13, этап 7): ролей нет — каждый вошедший зовёт в свою организацию */}
+              <section className="login-invites" aria-labelledby="invite-heading">
+                <h3 id="invite-heading">Пригласить администратора</h3>
+                <p className="muted">
+                  На почту придёт ссылка на 7 дней. Человек примет её и войдёт по коду, как все.
+                </p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    submitInvite();
+                  }}
+                >
+                  <label className="field">
+                    Почта приглашённого
+                    <input
+                      className="inp"
+                      type="email"
+                      name="inviteEmail"
+                      autoComplete="off"
+                      placeholder="admin@hotel.com"
+                      required
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                    />
+                  </label>
+                  {inviteError && (
+                    <p className="alert" role="alert">
+                      {inviteError}
+                    </p>
+                  )}
+                  <button className="btn btn--secondary" type="submit" disabled={codePending}>
+                    Отправить приглашение
+                  </button>
+                </form>
+                {invited.length + invites.length > 0 ? (
+                  <ul className="login-invite-list" data-testid="invite-list">
+                    {invited.map((e) => (
+                      <li key={`new-${e}`}>
+                        <b>{e}</b> <span className="muted">приглашение отправлено</span>
+                      </li>
+                    ))}
+                    {invites
+                      .filter((i) => !invited.includes(i.email))
+                      .map((i) => (
+                        <li key={i.id}>
+                          <b>{i.email}</b>{' '}
+                          <span className="muted">
+                            ждёт ответа до{' '}
+                            <time dateTime={i.expiresAt}>
+                              {displayDate(i.expiresAt.slice(0, 10))}
+                            </time>
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <p className="muted" data-testid="invite-empty">
+                    Ожидающих приглашений нет.
+                  </p>
+                )}
+              </section>
             </>
           ) : step === 'code' ? (
             <>
               <h2>Код отправлен</h2>
               <p>
-                Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10 минут.
+                Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10
+                минут.
               </p>
               <form
                 onSubmit={(e) => {
@@ -340,7 +425,9 @@ export function LoginForm({
                 </button>
               </form>
               <div className="login-preview">
-                <span>{mode === 'register' ? 'Уже есть организация?' : 'Ещё нет организации?'}</span>
+                <span>
+                  {mode === 'register' ? 'Уже есть организация?' : 'Ещё нет организации?'}
+                </span>
                 <button
                   type="button"
                   className="btn btn--secondary"

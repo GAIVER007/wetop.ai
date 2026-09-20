@@ -73,17 +73,15 @@ test('главная открывается с корня; заезд на да�
   // бронь без ячейки — стойка должна видеть причину
   await expect(tasks.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
   // полоса стойки — на выбранную дату, и период тот же день
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText(
-    'На стойке',
-  );
-  await expect(page.getByLabel('Период: с')).toHaveValue(day);
+  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('На стойке');
+  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
   // на дату из прошлого показатели тоже строятся
   await page.goto('/today?date=2026-08-15');
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  await expect(page.getByLabel('Период: с')).toHaveValue('2026-08-15');
-  await expect(page.getByTestId('period-caption')).toContainText('15 августа');
+  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue('2026-08-15');
+  await expect(page.getByRole('main').getByTestId('period-caption')).toContainText('15 августа');
   expect(Number.isInteger(await card('c-arrivals'))).toBe(true);
 });

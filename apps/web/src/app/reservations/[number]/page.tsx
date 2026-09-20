@@ -2,16 +2,11 @@ import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { Icon } from '../../../components/icon';
 import { notFoundOn404 } from '../../../lib/page-error';
-import {
-  api,
-  chessboardApi,
-  financeApi,
-  formatMinor,
-  messengerLinks,
-  reservationsApi,
-} from '../../../lib/api';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { nightsBetween } from '../../../lib/plural';
+import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
+import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
@@ -147,11 +142,17 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                 <div className="facts facts--card" id="booking-overview">
                   <div>
                     <div className="fact__label">Заезд</div>
-                    <div className="fact__value">{r.arrivalDate}</div>
+                    <div className="fact__value">
+                      <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'numeric')}</time>
+                    </div>
                   </div>
                   <div>
                     <div className="fact__label">Выезд</div>
-                    <div className="fact__value">{r.departureDate}</div>
+                    <div className="fact__value">
+                      <time dateTime={r.departureDate}>
+                        {displayDate(r.departureDate, 'numeric')}
+                      </time>
+                    </div>
                   </div>
                   <div>
                     <div className="fact__label">Гостей</div>
@@ -162,7 +163,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   </div>
                   <div>
                     <div className="fact__label">Сумма</div>
-                    <div className="fact__value">{formatMinor(r.totalAmountMinor, r.currency)}</div>
+                    <div className="fact__value">{formatMoney(r.totalAmountMinor, r.currency)}</div>
                   </div>
                   <div>
                     <div className="fact__label">Заказчик</div>
@@ -217,18 +218,23 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                     {r.items.map((it) => (
                       <tr key={it.id} data-testid="stay-row">
                         <td className="mono">
-                          {it.unitCode ?? <span className="warn-text">не назначена</span>}
+                          {it.unitCode ?? <span className="warn-text">—</span>}
                         </td>
                         <td>{it.accommodationTypeName}</td>
-                        <td>{it.arrivalDate}</td>
-                        <td>{it.departureDate}</td>
+                        {/* §14: сырую дату видят тесты в datetime, человек — «20 сент.» */}
+                        <td className="nowrap">
+                          <time dateTime={it.arrivalDate}>{displayDate(it.arrivalDate)}</time>
+                        </td>
+                        <td className="nowrap">
+                          <time dateTime={it.departureDate}>{displayDate(it.departureDate)}</time>
+                        </td>
                         <td>
                           <StatusBadge
                             status={it.status}
                             label={STATUS_RU[it.status] ?? it.status}
                           />
                         </td>
-                        <td className="num">{formatMinor(it.priceMinor, r.currency)}</td>
+                        <td className="num">{formatMoney(it.priceMinor, r.currency)}</td>
                         <td>
                           {it.guests.map((g) => g.label).join(', ') || '—'}
                           <span className="hint" data-testid="stay-guests-count">
@@ -249,16 +255,16 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                 <div className="booking-payment-summary">
                   <div>
                     <span>Стоимость</span>
-                    <strong>{formatMinor(r.totalAmountMinor, r.currency)}</strong>
+                    <strong>{formatMoney(r.totalAmountMinor, r.currency)}</strong>
                   </div>
                   <div>
                     <span>Оплачено</span>
-                    <strong>{finance ? formatMinor(finance.paidMinor, r.currency) : '—'}</strong>
+                    <strong>{finance ? formatMoney(finance.paidMinor, r.currency) : '—'}</strong>
                   </div>
                   <div>
                     <span>К оплате</span>
                     <strong className="danger-text">
-                      {finance ? formatMinor(finance.balanceMinor, r.currency) : '—'}
+                      {finance ? formatMoney(finance.balanceMinor, r.currency) : '—'}
                     </strong>
                   </div>
                 </div>
@@ -341,7 +347,6 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
-                  currency={r.currency}
                   ratePlans={ratePlans ?? []}
                   items={r.items.map((it) => {
                     const byCategory =
@@ -369,14 +374,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       status: it.status,
                       accommodationTypeCode: it.accommodationTypeCode,
                       accommodationTypeName: it.accommodationTypeName,
-                      arrivalDate: it.arrivalDate,
-                      departureDate: it.departureDate,
                       unitCode: it.unitCode,
                       ratePlanCode: it.ratePlanCode ?? null,
-                      // остаток по счёту проживания — для окна «Выселить с долгом» (срез 7.3)
-                      debtMinor:
-                        finance?.folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ??
-                        null,
                       ratePlanName: it.ratePlanName ?? null,
                       adults: it.adults,
                       children: it.children,

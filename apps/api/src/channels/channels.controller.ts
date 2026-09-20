@@ -259,6 +259,7 @@ export class ChannelsController {
     return { ...(await this.repo.outboxSummary(PROVIDER)), ariStopped: isAriStopped() };
   }
 
+
   /** Отправить накопившееся сейчас (без ожидания фонового цикла). */
   @Post('outbox/flush')
   @HttpCode(200)

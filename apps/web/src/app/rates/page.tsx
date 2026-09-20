@@ -5,7 +5,7 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, Table, cx } from '../../components/ui';
 import { BulkEditor } from './bulk-editor';
-import { PriceCell, RatesToastScope } from './price-cell';
+import { PriceCell } from './price-cell';
 
 const monthRange = (ym: string) => {
   const [y, m] = ym.split('-').map(Number) as [number, number];
@@ -104,18 +104,18 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
       <div className="split">
         <div className="tbl-wrap stack stack--sm">
           {cal ? (
-            <RatesToastScope>
+            <>
               <Table size="sm" dense nowrap data-testid="rates-table">
                 <thead>
                   <tr>
                     {[
                       'Дата',
                       ...Array.from({ length: cal.capacityAdults }, (_, i) => guestsHeader(i + 1)),
-                      'Min stay',
-                      'Max stay',
-                      'Stop sell',
-                      'CTA',
-                      'CTD',
+                      'Мин. ночей',
+                      'Макс. ночей',
+                      'Стоп-продажа',
+                      'Закрыт заезд',
+                      'Закрыт выезд',
                     ].map((h) => (
                       <th key={h}>{h}</th>
                     ))}
@@ -124,14 +124,22 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                 <tbody>
                   {cal.days.map((d) => {
                     const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
+                    const weekend = wd === 0 || wd === 6;
                     return (
                       <tr
                         key={d.date}
                         data-testid={`rate-row-${d.date}`}
-                        className={cx(d.stopSell && 'is-stop')}
+                        className={cx(
+                          d.stopSell && 'is-stop',
+                          !d.stopSell && weekend && 'is-weekend',
+                        )}
                       >
-                        <td>
-                          {d.date.slice(8, 10)}.{d.date.slice(5, 7)}{' '}
+                        <td className="nowrap">
+                          {/* «01.10 чт»: в столбце на 31 строку короткая дата читается быстрее слов,
+                              сырая остаётся в datetime — её берут тесты и копирование (DESIGN.md §14) */}
+                          <time dateTime={d.date}>
+                            {d.date.slice(8, 10)}.{d.date.slice(5, 7)}
+                          </time>{' '}
                           <span className="muted-2">{WD[wd]}</span>
                         </td>
                         {Array.from({ length: cal.capacityAdults }, (_, i) => (
@@ -161,9 +169,11 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                 Стоп-продажа — словом в колонке, строка подсвечена. Цена правится в ячейке: клик,
                 Enter — сохранить, Esc — отмена.
               </p>
-            </RatesToastScope>
+            </>
           ) : (
-            <p className="empty">Нет категорий или тарифов.</p>
+            <p className="empty">
+              Категорий или тарифов нет — календарь цен пуст. Заведите тариф в настройках объекта.
+            </p>
           )}
         </div>
         {!error && (

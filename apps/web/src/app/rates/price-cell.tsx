@@ -1,15 +1,10 @@
 'use client';
-import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
-import { ToastProvider, useToast } from '../../components/toast';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { useToast } from '../../components/toast';
 import { Button, cx } from '../../components/ui';
 import { formatMoney, minorToInput } from '../../lib/money';
 import { displayDay } from '../../lib/display-date';
 import { bulkRatesAction } from './actions';
-
-/** Уведомления о сохранении цены живут над таблицей; сервер-компонент страницы оборачивает таблицу сюда. */
-export function RatesToastScope({ children }: { children: ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>;
-}
 
 /**
  * Правка цены в ячейке (срез 7.2, макет «Rates»): клик → поле, Enter сохраняет, Escape отменяет.

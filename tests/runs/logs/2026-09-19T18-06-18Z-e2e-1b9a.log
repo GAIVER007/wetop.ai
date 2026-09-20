@@ -1,0 +1,26 @@
+# Сквозные (e2e) · 19.09.2026 23:06 Алматы · vm
+# коммит 830329c (claude/blissful-meitner-ipoauv)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/invites.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/design-refresh.spec.ts'
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и резюме внимания доступны на первом экране (2.6s)
+  ✓   2 tests/ui/design-refresh.spec.ts:24:1 › период на телефоне: подписанные поля и цели не меньше 44 px (989ms)
+  ✓   3 tests/ui/design-refresh.spec.ts:42:1 › месячные показатели и задачи конкретного дня подписаны отдельно (991ms)
+  ✓   4 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (6.9s)
+  ✓   5 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (6.3s)
+  ✓   6 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (6.8s)
+  ✓   7 tests/ui/design-refresh.spec.ts:53:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (6.3s)
+  ✓   8 tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (1.7s)
+  ✓   9 tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет (585ms)
+  ✓  10 tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой (2.1s)
+  ✓  11 tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа (649ms)
+  ✓  12 tests/ui/login-access.spec.ts:11:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля (576ms)
+  ✓  13 tests/ui/login-access.spec.ts:29:1 › без Access: почта → код из письма → рабочее место; кука HttpOnly; выход гасит сессию (1.5s)
+  ✓  14 tests/ui/login-access.spec.ts:59:1 › неверный код — один и тот же текст отказа, форма остаётся на шаге кода (795ms)
+  ✓  15 tests/ui/login-access.spec.ts:70:1 › регистрация с /register: название и почта → код → рабочее место (1.1s)
+  ✓  16 tests/ui/login-access.spec.ts:83:1 › регистрация: ошибка формы приходит текстом из API и не уводит со страницы (715ms)
+
+  16 passed (45.2s)
+
+# код выхода 0 · 46 с

@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Input, StatusBadge, Table } from '../../components/ui';
-import { formatMinor, messengerLinks } from '../../lib/api';
+import { messengerLinks } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import '../directory.css';
@@ -164,12 +165,12 @@ export default async function ReservationsPage({
                         label={reservationStatuses[r.status] || r.status}
                       />
                     </td>
-                    <td className="num nowrap">{formatMinor(r.totalAmountMinor, r.currency)}</td>
+                    <td className="num nowrap">{formatMoney(r.totalAmountMinor, r.currency)}</td>
                     <td className="num nowrap">
                       {!r.hasFolios ? (
                         <span className="muted">—</span>
                       ) : debt ? (
-                        <span className="dir-debt">{formatMinor(r.balanceMinor, r.currency)}</span>
+                        <span className="dir-debt">{formatMoney(r.balanceMinor, r.currency)}</span>
                       ) : (
                         <span className="dir-paid">оплачено</span>
                       )}

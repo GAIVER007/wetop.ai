@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
+import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
-import { confirmDialog } from './confirm';
+import { confirmCancelReservation, confirmDialog } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
 
 /**
@@ -20,7 +21,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
+const minor = minorFromText;
 
 test('отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять', async ({
   page,
@@ -39,21 +40,21 @@ test('отмена заранее — без штрафа, незаезд — с
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
-  const panel = page.getByTestId('folio-panel');
+  const panel = page.getByRole('main').getByTestId('folio-panel');
   const stayTotal = minor(
-    await page.getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
   );
   const balance = async () => {
     await cardTab(page, 'Счета');
-    return minor(await page.getByTestId('folio-balance').innerText());
+    return minor(await page.getByRole('main').getByTestId('folio-balance').innerText());
   };
   expect(await balance()).toBe(stayTotal);
 
   // Отмена задолго до заезда: по правилу объекта (Q-103) штрафа нет, начисление просто сторнируется.
   // Окно подтверждения (срез 7.3, Д5) говорит об этом до нажатия — тем же кодом, что потом пишет счёт
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await confirmDialog(page, 'Отменить бронь', /Штраф не начисляется/);
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmCancelReservation(page);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -79,17 +80,21 @@ test('отмена заранее — без штрафа, незаезд — с
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
-  const stay2 = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  const stay2 = minor(
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+  );
   await cardTab(page, 'Действия');
-  await page.locator('[data-testid^="no-show-"]').click();
+  await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
   // сумма в окне = сумма начисления: предпросмотр и штраф считает одна функция (Д5)
-  await expect(page.getByTestId('no-show-penalty')).toContainText('останется на счёте'); // предпросмотр дошёл
-  const shownText = await page.getByTestId('no-show-penalty').innerText();
-  const shown = minor(shownText) * (shownText.includes(',') ? 1n : 100n); // окно печатает без тиынов
-  await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
+  const dialog = page.locator('dialog[open]');
+  await expect(dialog).toContainText(/вместо него штраф/); // предпросмотр дошёл, штраф назван
+  const shownText = (await dialog.innerText()).match(/вместо него штраф ([^.]+)/)![1]!;
+  const shown = minor(shownText); // «12 000 ₸» → тиыны, с тиынами — как есть
+  await confirmDialog(page, 'Отметить незаезд', /вместо него штраф/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page
+    .getByRole('main')
     .getByTestId('folio-panel')
     .getByTestId('charge-row')
     .filter({ hasText: 'Штраф за незаезд' });

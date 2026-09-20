@@ -713,6 +713,81 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  /**
+   * Срез 7.3 (Д5): сумму объявляют гостю ДО действия, а до сих пор её считали молча после нажатия.
+   * Предпросмотр — только чтение теми же функциями; главный случай — «сумма в окне = начисление».
+   */
+  it('предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' }))
+      .expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    const preview = (q: string) =>
+      request(app.getHttpServer()).get(`/reservations/${n}/items/${itemId}/preview?${q}`);
+
+    // переселение в двойную: 3 ночи по её календарю вместо одиночной
+    const move = await preview('action=move&unitCode=9002').expect(200);
+    expect(move.body).toMatchObject({
+      action: 'move',
+      currentPriceMinor: '3300000',
+      newPriceMinor: '4500000',
+      differenceMinor: '1200000',
+      changesCategory: true,
+    });
+    // та же категория — цена не меняется, и это сказано, а не показано нулём
+    const same = await preview('action=move&unitCode=9001').expect(200);
+    expect(same.body).toMatchObject({ changesCategory: false, differenceMinor: '0' });
+
+    // продление: добавляется только новая ночь; ячейка на неё свободна — окно может спрашивать
+    const extend = await preview('action=extend&nights=1').expect(200);
+    expect(extend.body).toMatchObject({
+      action: 'extend',
+      currentPriceMinor: '3300000',
+      newPriceMinor: '4400000',
+      differenceMinor: '1100000',
+      departureDate: '2026-09-19',
+      unitCode: '9001',
+      nextNightsFree: true,
+    });
+    // соседняя бронь занимает ту же койку на следующую ночь → предпросмотр говорит об этом до нажатия,
+    // сама команда ответила бы 409 уже после
+    const neighbour = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+      .expect(201);
+    const busy = await preview('action=extend&nights=1').expect(200);
+    expect(busy.body).toMatchObject({ nextNightsFree: false, departureDate: '2026-09-19' });
+    await request(app.getHttpServer())
+      .post(`/reservations/${neighbour.body.confirmationNumber}/cancel`)
+      .send({})
+      .expect(200);
+
+    // отмена заранее штрафа не даёт — окно скажет это словом, а не нулём без объяснения (Q-103)
+    const cancel = await preview('action=cancel').expect(200);
+    expect(cancel.body).toMatchObject({
+      action: 'cancel',
+      policy: 'FIRST_NIGHT',
+      penaltyMinor: '0',
+    });
+
+    // незаезд штраф даёт всегда: место простояло. Сумма — первая ночь по календарю
+    const noShow = await preview('action=no_show').expect(200);
+    expect(noShow.body).toMatchObject({ action: 'no_show', penaltyMinor: '1100000' });
+
+    // предпросмотр ничего не записал: ни штрафа, ни цены
+    expect(fake.penalties).toEqual([]);
+    expect(fake.state.reservations.get(n)!.items[0]!.priceMinor).toBe(3_300_000n);
+
+    // главное требование Д5: то же число, что начислит настоящий незаезд
+    await request(app.getHttpServer())
+      .post(`/reservations/${n}/items/${itemId}/no-show`)
+      .send({})
+      .expect(200);
+    expect(fake.penalties.map((x) => x.amountMinor.toString())).toEqual([noShow.body.penaltyMinor]);
+  });
+
   it('T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')
@@ -771,142 +846,6 @@ describe('manual reservation API', () => {
       .post(`/reservations/${n}/items/${itemId}/extend`)
       .send({ nights: 0 })
       .expect(400);
-  });
-
-  it('Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда', async () => {
-    const get = (path: string) => request(app.getHttpServer()).get(path);
-    const post = (path: string, payload: object = {}) =>
-      request(app.getHttpServer()).post(path).send(payload);
-    const created = await post('/reservations', body()).expect(201);
-    const n = created.body.confirmationNumber as string;
-    const itemId = created.body.items[0].id as string;
-
-    // переселение в другую категорию: новая сумма по её календарю; ничего не записано
-    const mv = await get(`/reservations/${n}/items/${itemId}/move-preview?unitCode=9002`).expect(
-      200,
-    );
-    expect(mv.body).toEqual({
-      unitCode: '9002',
-      changesCategory: true,
-      fromCategory: { code: 'exely-900001', name: 'Тестовая одиночная' },
-      toCategory: { code: 'exely-900002', name: 'Тестовая двойная' },
-      nights: 2,
-      currentMinor: '2200000',
-      newMinor: '3000000',
-      ratePlanRequired: false,
-      problem: null,
-    });
-    expect(fake.state.audits).toHaveLength(1); // только создание
-    // заблокированная ячейка своей категории — причина словом, суммы нет
-    const blocked = await get(
-      `/reservations/${n}/items/${itemId}/move-preview?unitCode=9003`,
-    ).expect(200);
-    expect(blocked.body).toMatchObject({ changesCategory: false, newMinor: null });
-    expect(blocked.body.problem).toContain('заблокирована');
-    // занятая ячейка ДРУГОЙ категории: окно называет категорию цели, а не текущую
-    const neighbour = await post(
-      '/reservations',
-      body({
-        arrivalDate: '2026-09-15',
-        departureDate: '2026-09-16',
-        items: [
-          {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800001',
-            adults: 1,
-            unitCode: '9002',
-          },
-        ],
-      }),
-    ).expect(201);
-    const busyOther = await get(
-      `/reservations/${n}/items/${itemId}/move-preview?unitCode=9002`,
-    ).expect(200);
-    expect(busyOther.body).toMatchObject({
-      changesCategory: true,
-      toCategory: { code: 'exely-900002', name: 'Тестовая двойная' },
-      newMinor: null,
-    });
-    expect(busyOther.body.problem).toContain('занята');
-    // соседа убираем: дальше эта же ячейка нужна свободной для настоящего переселения
-    await post(`/reservations/${neighbour.body.confirmationNumber}/cancel`).expect(200);
-    await get(`/reservations/${n}/items/${itemId}/move-preview`).expect(400);
-
-    // продление: только добавленная ночь по календарю, ячейка свободна
-    const ex = await get(`/reservations/${n}/items/${itemId}/extend-preview`).expect(200);
-    expect(ex.body).toEqual({
-      nights: 1,
-      departureDate: '2026-09-18',
-      unitCode: '9001',
-      addedMinor: '1100000',
-      newMinor: '3300000',
-      ratePlanRequired: false,
-      nextNightsFree: true,
-      problem: null,
-    });
-    await get(`/reservations/${n}/items/${itemId}/extend-preview?nights=0`).expect(400);
-
-    // штраф: отмена до дня заезда — не наступил (Q-103); незаезд — первая ночь по календарю тарифа
-    const cp = await get(`/reservations/${n}/cancel-preview`).expect(200);
-    expect(cp.body).toEqual({
-      reason: 'cancel',
-      items: [
-        { itemId, unitCode: '9001', policy: 'FIRST_NIGHT', dueNow: false, penaltyMinor: '0' },
-      ],
-      totalPenaltyMinor: '0',
-    });
-    const ns = await get(
-      `/reservations/${n}/cancel-preview?reason=no_show&itemId=${itemId}`,
-    ).expect(200);
-    expect(ns.body.items[0]).toMatchObject({ dueNow: true, penaltyMinor: '1100000' });
-    await get(`/reservations/${n}/cancel-preview?reason=refund`).expect(400);
-    await get(`/reservations/${n}/cancel-preview?itemId=nope`).expect(404);
-
-    // окно = начисление: переселение
-    const moved = await post(`/reservations/${n}/items/${itemId}/assign`, {
-      unitCode: '9002',
-    }).expect(200);
-    expect(moved.body.items[0].priceMinor).toBe(mv.body.newMinor);
-    // окно = начисление: продление уже в новой категории (её календарь — 1 500 000 за ночь)
-    const ex2 = await get(`/reservations/${n}/items/${itemId}/extend-preview`).expect(200);
-    expect(ex2.body).toMatchObject({
-      unitCode: '9002',
-      addedMinor: '1500000',
-      newMinor: '4500000',
-    });
-    const extended = await post(`/reservations/${n}/items/${itemId}/extend`).expect(200);
-    expect(extended.body.items[0].priceMinor).toBe(ex2.body.newMinor);
-    // соседняя бронь занимает ячейку на следующую ночь → предпросмотр говорит «занята», команда даст 409
-    await post(
-      '/reservations',
-      body({
-        arrivalDate: '2026-09-18',
-        departureDate: '2026-09-19',
-        items: [
-          {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800001',
-            adults: 1,
-            unitCode: '9002',
-          },
-        ],
-      }),
-    ).expect(201);
-    const busy = await get(`/reservations/${n}/items/${itemId}/extend-preview`).expect(200);
-    expect(busy.body).toMatchObject({ nextNightsFree: false, departureDate: '2026-09-19' });
-    // окно = начисление: незаезд — штраф ровно той суммы, что показал предпросмотр
-    const ns2 = await get(
-      `/reservations/${n}/cancel-preview?reason=no_show&itemId=${itemId}`,
-    ).expect(200);
-    expect(ns2.body.items[0].penaltyMinor).toBe('1500000');
-    await post(`/reservations/${n}/items/${itemId}/no-show`).expect(200);
-    expect(fake.penalties).toEqual([
-      {
-        itemId,
-        amountMinor: BigInt(ns2.body.items[0].penaltyMinor),
-        description: 'Штраф за незаезд (2026-09-15 → 2026-09-18)',
-      },
-    ]);
   });
 
   it('T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал', async () => {

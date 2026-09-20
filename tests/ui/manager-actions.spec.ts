@@ -12,7 +12,6 @@ const BOOKING = '20260913-TESTAA';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const plus = (n: number) =>
   new Date(Date.parse(`${today}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
-const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -32,11 +31,11 @@ test('карточка: переселение в другую категори�
   const assign = page.getByTestId('assign-form');
   await assign.locator('select[name="unitCode"]').selectOption('M03');
   await assign.getByRole('button', { name: 'Переселить' }).click();
-  const dialog = page.getByRole('dialog');
+  const dialog = page.locator('dialog[open]');
   await expect(dialog.getByRole('heading')).toHaveText('Переселить в мужской общий номер M03?');
-  await expect(dialog.getByTestId('move-amount')).toHaveText(
-    'Новая сумма за 3 ночи 12 000 ₸ (было 24 000 ₸)',
-  );
+  // сумма словами и целиком (срез 7.3, Д5): «станет столько вместо столько»
+  await expect(dialog).toContainText('Цена проживания станет 12 000 ₸ вместо 24 000 ₸');
+  await expect(dialog).toContainText('дешевле на 12 000 ₸');
   expect((await commands(page)).map((c) => c.path)).toEqual([]); // предпросмотр ничего не пишет
   await dialog.getByRole('button', { name: 'Переселить и пересчитать' }).click();
   await expect(page.getByTestId('assign-form')).toContainText('Переселить из M03');
@@ -51,25 +50,29 @@ test('карточка: переселение в другую категори�
   await page.getByTestId('assign-form').locator('select[name="unitCode"]').selectOption('M04');
   await page.getByTestId('assign-form').getByRole('button', { name: 'Переселить' }).click();
   await expect(page.getByTestId('assign-form')).toContainText('Переселить из M04');
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
 });
 
-test('карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной', async ({
+test('карточка: «+1 ночь» называет сумму до подтверждения; занятая ячейка — причина словом вместо окна', async ({
   page,
   request,
 }) => {
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
-  const hint = page.getByTestId('hint-extend-ui-item');
-  await expect(hint).toHaveText(`до ${dd(plus(4))}, +8 000 ₸ на счёт`);
   await page.getByTestId('extend-ui-item').click();
-  await expect(page.getByTestId('done-extend-ui-item')).toHaveText(
-    `Проживание продлено до ${dd(plus(4))}, +8 000 ₸ на счёт`,
-  );
+  const dialog = page.locator('dialog[open]');
+  await expect(dialog).toContainText('Новая ночь — 8 000 ₸. Проживание станет 32 000 ₸');
+  expect((await commands(page)).map((c) => c.path)).toEqual([]); // предпросмотр ничего не пишет
+  await dialog.getByRole('button', { name: 'Продлить' }).click();
+  await expect(page.getByTestId('toast-stack')).toContainText('Продлено до');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText(plus(4));
+  // дата выезда словами (§14), сырая — в datetime
+  await expect(page.getByTestId('stay-row').first().locator('time').nth(1)).toHaveAttribute(
+    'datetime',
+    plus(4),
+  );
   await expect(page.getByTestId('stay-row').first()).toContainText('32 000');
-  // соседняя бронь на R01 со следующей ночи — кнопка отключена, причина словом
+  // соседняя бронь на R01 со следующей ночи — окна нет, причина словом (сервер ответил бы 409 после)
   await request.post(`${fixture}/reservations`, {
     headers: { 'x-wetop-test-client': '1' },
     data: {
@@ -82,28 +85,33 @@ test('карточка: «Продлить на ночь» знает сумму
   });
   await page.reload();
   await cardTab(page, 'Действия');
-  await expect(page.getByTestId('extend-ui-item')).toBeDisabled();
-  await expect(page.getByTestId('hint-extend-ui-item')).toHaveText(
-    `R01 занята ${dd(plus(4))} — сначала переселите`,
-  );
+  await page.getByTestId('extend-ui-item').click();
+  await expect(page.getByRole('main')).toContainText('R01 занята');
+  await expect(page.getByRole('main')).toContainText('сначала переселите');
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  // второго продления не было: в списке команд, кроме соседней брони выше, только одно продление
+  expect(
+    (await commands(page)).filter((c) => c.path.endsWith('/extend')).map((c) => c.path),
+  ).toEqual([`/reservations/${BOOKING}/items/ui-item/extend`]);
 });
 
 test('карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm', async ({
   page,
   request,
 }) => {
-  // отмена в день заезда: штраф — первая ночь; «Оставить» ничего не пишет
+  // отмена в день заезда: штраф — первая ночь; «Оставить как есть» ничего не пишет
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   await page.getByTestId('cancel-reservation').click();
-  let dialog = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
-  await expect(dialog.getByTestId('cancel-penalty')).toHaveText('Штраф 8 000 ₸ останется на счёте');
-  await expect(dialog).toContainText('Место вернётся в продажу');
-  await dialog.getByRole('button', { name: 'Оставить' }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  let dialog = page.locator('dialog[open]');
+  await expect(dialog.getByRole('heading')).toHaveText(`Отменить бронь ${BOOKING}?`);
+  await expect(dialog).toContainText('Начисление 24 000 ₸ сторнируется, вместо него штраф 8 000 ₸');
+  await expect(dialog).toContainText('ячейки освободятся');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
   expect(await commands(page)).toEqual([]);
   await page.getByTestId('cancel-reservation').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+  await page.locator('dialog[open]').getByRole('button', { name: 'Отменить бронь' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
 
@@ -112,32 +120,28 @@ test('карточка: отмена, незаезд и выселение с д
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   await page.getByTestId('no-show-ui-item').click();
-  dialog = page.getByRole('dialog', { name: 'Отметить незаезд по R01?' });
-  await expect(dialog.getByTestId('no-show-penalty')).toHaveText(
-    'Штраф 8 000 ₸ останется на счёте',
-  );
+  dialog = page.locator('dialog[open]');
+  await expect(dialog.getByRole('heading')).toContainText('Отметить незаезд');
+  await expect(dialog).toContainText('вместо него штраф 8 000 ₸');
   await dialog.getByRole('button', { name: 'Отметить незаезд' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('незаезд');
-  await expect(page.getByTestId('stay-row').first()).toContainText('не назначена');
 
-  // выселение с долгом: первое нажатие — окно с суммой долга, «Оставить» держит гостя заселённым
+  // выселение с долгом: первое нажатие — окно с суммой долга, «Оставить как есть» держит гостя заселённым
   await request.post(`${fixture}/__test/reset`);
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   await page.getByTestId('check-in-ui-item').click();
   await page.getByTestId('check-out-ui-item').click();
-  dialog = page.getByRole('dialog', { name: 'Выселить с долгом?' });
-  await expect(dialog.getByTestId('debt-amount')).toHaveText('Долг 16 000 ₸ останется на счёте');
-  await dialog.getByRole('button', { name: 'Оставить' }).click();
+  dialog = page.locator('dialog[open]');
+  await expect(dialog.getByRole('heading')).toHaveText('Выселить с долгом?');
+  await expect(dialog).toContainText('долг 16 000 ₸');
+  await dialog.getByRole('button', { name: 'Оставить как есть' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('заселён');
   await cardTab(page, 'Действия');
   await page.getByTestId('check-out-ui-item').click();
-  await page
-    .getByRole('dialog', { name: 'Выселить с долгом?' })
-    .getByRole('button', { name: 'Выселить с долгом' })
-    .click();
+  await page.locator('dialog[open]').getByRole('button', { name: 'Выселить с долгом' }).click();
   await cardTab(page, 'Обзор');
   await expect(page.getByTestId('stay-row').first()).toContainText('выселен');
 });

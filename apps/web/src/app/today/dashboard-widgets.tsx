@@ -54,10 +54,6 @@ export function QuickActions({ day }: { day: DeskDay }) {
         <Icon name="plus" width={16} />
       </div>
       <div className="quick-actions-grid">
-        <Link href="/reservations/new" className="quick-action quick-action--primary">
-          <Icon name="plus" />
-          <span>Новая бронь</span>
-        </Link>
         {options.map(([label, icon]) => (
           <button
             className="quick-action"
@@ -95,7 +91,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel}</strong>
                 <small>
-                  {r.unitCode ?? 'Без номера'} · {r.confirmationNumber}
+                  {r.unitCode ?? '—'} · {r.confirmationNumber}
                 </small>
               </span>
               <Icon name="chevron" />

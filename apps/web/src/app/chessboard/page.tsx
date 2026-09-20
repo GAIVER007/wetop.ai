@@ -4,7 +4,7 @@ import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { ResolveMenu } from './resolve-menu';
 import { BoardHelp } from './board-help';
-import { pluralRu } from '../../lib/plural';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -174,12 +174,13 @@ export default async function ChessboardPage({
           </Button>
         </form>
         <Legend
+          data-testid="board-legend"
           items={[
-            { color: 'var(--st-confirmed)', label: 'подтверждена' },
-            { color: 'var(--st-checked-in)', label: 'заселён' },
-            { color: 'var(--st-checked-out)', label: 'выселен' },
-            { color: 'var(--st-tentative)', label: 'предварительная' },
-            { color: 'var(--st-blocked)', label: 'блокировка' },
+            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
           ]}
         />
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
@@ -253,7 +254,14 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
                   {s.confirmationNumber}
                 </Link>{' '}
                 <span className="muted">
-                  {s.arrivalDate} → {s.departureDate} · {STATUS_RU[s.status] ?? s.status}
+                  <time dateTime={s.arrivalDate}>{displayDate(s.arrivalDate)}</time> →{' '}
+                  <time dateTime={s.departureDate}>{displayDate(s.departureDate)}</time> ·{' '}
+                  {pluralRu(nightsBetween(s.arrivalDate, s.departureDate), [
+                    'ночь',
+                    'ночи',
+                    'ночей',
+                  ])}{' '}
+                  · {STATUS_RU[s.status] ?? s.status}
                 </span>{' '}
                 <ResolveMenu number={s.confirmationNumber} />
               </li>

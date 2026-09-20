@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Chessboard, DeskDay } from '../../lib/api';
-import { formatMinor } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 import { displayDate } from '../../lib/display-date';
 
@@ -68,7 +68,7 @@ export function DeskStrip({
         <div className={debt ? 'desk-stat desk-stat--debt' : 'desk-stat desk-stat--paid'}>
           <span className="desk-stat__label">Долг уезжающих</span>
           <strong className="desk-stat__value desk-stat__value--money" data-testid="c-debt">
-            {formatMinor(day.debtMinor)}
+            {formatMoney(day.debtMinor)}
           </strong>
           <span className="desk-stat__hint">
             {debt ? 'проверьте расчёт перед выездом' : 'все счета оплачены'}

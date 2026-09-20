@@ -7,7 +7,7 @@ import {
   sourceNames,
   validDate,
 } from '../../lib/hotel-api';
-import { formatMinor } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
 import { Page } from '../../components/page';
 import {
   Alert,
@@ -95,12 +95,12 @@ export default async function ChannelManagerPage({
           <Panel className="channel-value-panel" title="Стоимость выбранных броней">
             <div className="channel-totals">
               {[...money].map(([currency, value]) => (
-                <strong key={currency}>{formatMinor(value.toString(), currency)}</strong>
+                <strong key={currency}>{formatMoney(value.toString(), currency)}</strong>
               ))}
               {!money.size && <span className="muted">За этот период бронирований нет</span>}
             </div>
             {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
-            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты →</Link>
+            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
           </Panel>
           <Table data-testid="channel-report">
             <thead>
@@ -136,7 +136,7 @@ export default async function ChannelManagerPage({
                   </td>
                   <td className="num">{row.cancelled}</td>
                   <td className="num">{row.noShow}</td>
-                  <td className="num">{formatMinor(row.amountMinor, row.currency)}</td>
+                  <td className="num">{formatMoney(row.amountMinor, row.currency)}</td>
                   <td>
                     <div className="occupancy-meter">
                       <meter

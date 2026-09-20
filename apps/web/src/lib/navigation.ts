@@ -17,7 +17,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/today',
         label: 'Главная',
         icon: 'today',
-        description: 'Заезды, выезды и задачи смены.',
+        description: 'Загрузка, деньги за период и задачи дня.',
       },
       {
         href: '/chessboard',
@@ -76,51 +76,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/hotel-settings',
-        label: 'Настройка гостиницы',
-        shortLabel: 'Настройки',
-        icon: 'settings',
-        description: 'Правила проживания, услуги и информация об объекте.',
-        children: [
-          {
-            href: '/hotel-settings/check-in',
-            label: 'Заезд и выезд',
-            icon: 'clock',
-            description: 'Расчётный час и часовой пояс объекта.',
-          },
-          {
-            href: '/hotel-settings/penalties',
-            label: 'Штрафы',
-            icon: 'journal',
-            description: 'Политика отмены для каждого тарифного плана.',
-          },
-          {
-            href: '/hotel-settings/services',
-            label: 'Услуги',
-            icon: 'plus',
-            description: 'Каталог дополнительных услуг и цены.',
-          },
-          {
-            href: '/hotel-settings/description',
-            label: 'Описание',
-            icon: 'inventory',
-            description: 'Название, адрес, описание для гостей из Channex.',
-          },
-          {
-            href: '/hotel-settings/photos',
-            label: 'Фото',
-            icon: 'inventory',
-            description: 'Фотографии объекта из Channex.',
-          },
-          {
-            href: '/hotel-settings/amenities',
-            label: 'Удобства',
-            icon: 'check',
-            description: 'Удобства и правила объекта из Channex.',
-          },
-        ],
-      },
-      {
         href: '/management/statistics',
         label: 'Статистика',
         icon: 'analytics',
@@ -162,6 +117,51 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
     label: 'Система',
     items: [
+      {
+        href: '/hotel-settings',
+        label: 'Настройка гостиницы',
+        shortLabel: 'Гостиница',
+        icon: 'settings',
+        description: 'Правила проживания, услуги и информация об объекте.',
+        children: [
+          {
+            href: '/hotel-settings/check-in',
+            label: 'Заезд и выезд',
+            icon: 'clock',
+            description: 'Расчётный час и часовой пояс объекта.',
+          },
+          {
+            href: '/hotel-settings/penalties',
+            label: 'Штрафы',
+            icon: 'journal',
+            description: 'Политика отмены для каждого тарифного плана.',
+          },
+          {
+            href: '/hotel-settings/services',
+            label: 'Услуги',
+            icon: 'plus',
+            description: 'Каталог дополнительных услуг и цены.',
+          },
+          {
+            href: '/hotel-settings/description',
+            label: 'Описание',
+            icon: 'inventory',
+            description: 'Название, адрес, описание для гостей из Channex.',
+          },
+          {
+            href: '/hotel-settings/photos',
+            label: 'Фото',
+            icon: 'inventory',
+            description: 'Фотографии объекта из Channex.',
+          },
+          {
+            href: '/hotel-settings/amenities',
+            label: 'Удобства',
+            icon: 'check',
+            description: 'Удобства и правила объекта из Channex.',
+          },
+        ],
+      },
       {
         href: '/connections',
         label: 'Интеграции',

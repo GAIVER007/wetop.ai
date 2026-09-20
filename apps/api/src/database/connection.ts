@@ -4,6 +4,7 @@ import { databaseSchemaName } from '@pms/database';
 import type { DataConnection } from '@pms/shared';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from './prisma.provider';
+import { assertPropertyVisible } from './property-ref';
 
 function databaseProvider(): DataConnection['database']['provider'] {
   try {
@@ -40,6 +41,7 @@ export class DataConnectionService {
         select: {
           id: true,
           name: true,
+          organizationId: true,
           timezone: true,
           currency: true,
           _count: {
@@ -60,6 +62,9 @@ export class DataConnectionService {
           message: 'База подключена, но гостиница проекта не найдена.',
           database: { ...result.database, connected: true },
         };
+      // Чужой организации объекта здесь нет — как и во всём остальном API (ADR-061). Для неё это
+      // то же самое, что ненастроенная база: числа чужой гостиницы состояние связи не показывает.
+      assertPropertyVisible(property);
       const units = await this.prisma.db.inventoryUnit.count({
         where: { accommodationType: { propertyId: property.id } },
       });

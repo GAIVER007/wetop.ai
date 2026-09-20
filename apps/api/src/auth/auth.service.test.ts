@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
-import { hashSecret, newSessionToken } from '@pms/shared';
+
 import { AuthService } from './auth.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
@@ -97,14 +97,6 @@ describe('AuthService.login', () => {
 });
 
 describe('AuthService.whoami', () => {
-  it('смена по паролю не продлевается работой: 12 часов и заново (ADR-049)', async () => {
-    const { auth, sessions } = service();
-    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
-    const was = sessions[0]!.expiresAt;
-    await auth.whoami(token, new Date(NOW.getTime() + 3 * 3_600_000));
-    expect(sessions[0]!.expiresAt).toEqual(was);
-  });
-
   it('живая сессия возвращает сотрудника и продлевает отметку активности', async () => {
     const { auth, sessions } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -148,92 +140,8 @@ describe('AuthService.whoami', () => {
     });
   });
 
-  /**
-   * Q-146: рядом живёт вход по коду на почту (ADR-046), и его сессии лежат в той же таблице, но с другим
-   * отпечатком — HMAC с `SESSION_SECRET`. Замок API ходит через `whoami`: не узнай он такую сессию,
-   * вошедший по коду получал бы 401 на каждый экран, а «Выйти» его сессию не гасило бы.
-   */
-  describe('сессия, открытая входом по коду (отпечаток HMAC)', () => {
-    const SECRET = 'секрет-для-прогона';
-    const withSecret = async (fn: () => Promise<void>) => {
-      const before = process.env.SESSION_SECRET;
-      process.env.SESSION_SECRET = SECRET;
-      try {
-        await fn();
-      } finally {
-        if (before === undefined) delete process.env.SESSION_SECRET;
-        else process.env.SESSION_SECRET = before;
-      }
-    };
-    const codeSession = (sessions: ReturnType<typeof service>['sessions']) => {
-      const token = newSessionToken();
-      sessions.push({
-        id: 's-code',
-        userId: 'u-1',
-        organizationId: FAKE_ORG,
-        tokenHash: hashSecret(token, SECRET),
-        userAgent: null,
-        issuedAt: NOW,
-        lastSeenAt: NOW,
-        expiresAt: new Date(NOW.getTime() + 30 * 86_400_000),
-        revokedAt: null,
-      });
-      return token;
-    };
-
-    it('whoami опознаёт её, когда секрет задан', async () => {
-      await withSecret(async () => {
-        const { auth, sessions } = service();
-        const token = codeSession(sessions);
-        await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { id: 'u-1' } });
-      });
-    });
-
-    it('logout гасит её тем же путём, что и сессию по паролю', async () => {
-      await withSecret(async () => {
-        const { auth, sessions } = service();
-        const token = codeSession(sessions);
-        await auth.logout(token, NOW);
-        expect(sessions[0]!.revokedAt).toEqual(NOW);
-        await expect(auth.whoami(token, NOW)).resolves.toBeNull();
-      });
-    });
-
-    it('работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5)', async () => {
-      await withSecret(async () => {
-        const { auth, sessions } = service();
-        const token = codeSession(sessions);
-        const later = new Date(NOW.getTime() + 86_400_000);
-        await auth.whoami(token, later);
-        expect(sessions[0]!.expiresAt).toEqual(new Date(later.getTime() + 30 * 86_400_000));
-        expect(sessions[0]!.lastSeenAt).toEqual(later);
-      });
-    });
-
-    it('в тот же день срок не трогаем: иначе каждая страница пишет в базу', async () => {
-      await withSecret(async () => {
-        const { auth, sessions } = service();
-        const token = codeSession(sessions);
-        const was = sessions[0]!.expiresAt;
-        const later = new Date(NOW.getTime() + 3_600_000);
-        await auth.whoami(token, later);
-        expect(sessions[0]!.expiresAt).toEqual(was);
-        expect(sessions[0]!.lastSeenAt).toEqual(later);
-      });
-    });
-
-    it('без секрета второго отпечатка нет: такая сессия — никто, и ничего не падает', async () => {
-      const before = process.env.SESSION_SECRET;
-      delete process.env.SESSION_SECRET;
-      try {
-        const { auth, sessions } = service();
-        const token = codeSession(sessions);
-        await expect(auth.whoami(token, NOW)).resolves.toBeNull();
-      } finally {
-        if (before !== undefined) process.env.SESSION_SECRET = before;
-      }
-    });
-  });
+  // Сессии входа по коду (второй отпечаток, HMAC с SESSION_SECRET) сняты 20.09.2026 вместе с самим
+  // входом по коду (ADR-053): отпечаток остался один, SHA-256, и проверять здесь больше нечего.
 });
 
 describe('AuthService.logout', () => {

@@ -54,16 +54,8 @@ export async function setSessionCookie(token: string, expiresAt: string): Promis
   });
 }
 
-/** Сессия по коду на почту: срок в ответе API не приходит, берём его же умолчание — 30 суток. */
-export async function storeSessionToken(token: string): Promise<void> {
-  (await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: cookieSecure(process.env),
-    path: '/',
-    maxAge: SESSION_MAX_AGE_SECONDS,
-  });
-}
+// storeSessionToken снят 20.09.2026 вместе со входом по коду (ADR-053): куку ставит setSessionCookie
+// по сроку, который приходит от API вместе с ключом.
 
 export async function clearSessionCookie(): Promise<void> {
   const jar = await cookies();

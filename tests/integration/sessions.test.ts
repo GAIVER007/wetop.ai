@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { hashSecret, newSessionToken } from '@pms/shared';
+import { hashSessionToken } from '@pms/domain';
+import { newSessionToken } from '@pms/shared';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -31,12 +32,16 @@ describe.skipIf(!url)('sessions repository (integration, DATABASE_URL required)'
     organizationId: string,
     opts: { expiresAt?: Date; userAgent?: string } = {},
   ) =>
-    repo.createSession({
-      tokenHash: hashSecret(newSessionToken()),
-      userId,
-      organizationId,
-      expiresAt: opts.expiresAt ?? new Date(Date.now() + 30 * day),
-      userAgent: opts.userAgent ?? null,
+    // Сессии заводит AuthService своей таблицей; у репозитория учётных записей такого метода больше
+    // нет (ADR-053, вход по коду снят) — здесь пишем строку напрямую, как это делает AuthService.
+    db.session.create({
+      data: {
+        tokenHash: hashSessionToken(newSessionToken()),
+        userId,
+        organizationId,
+        expiresAt: opts.expiresAt ?? new Date(Date.now() + 30 * day),
+        userAgent: opts.userAgent ?? null,
+      },
     });
 
   beforeAll(async () => {

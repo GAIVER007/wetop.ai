@@ -303,14 +303,6 @@ export interface SignedInOrganization {
   trialEndsAt: string | null;
 }
 
-/** Ровно то, что API отдаёт вошедшему по коду (`POST /auth/verify`): без ключа, без внутренних номеров строк. */
-export interface AuthSession {
-  email: string;
-  organizationId: string;
-  organizationName: string;
-  organizationStatus: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
-  trialEndsAt: string | null;
-}
 /** Заголовки, которые стойка передаёт API от имени браузера: адрес посетителя для пределов и агент для списка сессий. */
 export interface AuthClientInfo {
   ip: string | null;
@@ -333,11 +325,6 @@ async function messageOf(res: Response): Promise<string> {
   }
   return `HTTP ${res.status}`;
 }
-/** Отказ API с его же текстом (400 про форму, 401 про код); иначе — код ответа. */
-async function throwUnlessOk(res: Response): Promise<Response> {
-  if (!res.ok) throw new ApiError(res.status, await messageOf(res));
-  return res;
-}
 
 /**
  * Вход в стойку. Два способа живут рядом, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8,
@@ -359,37 +346,13 @@ export const authApi = {
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
-  /** Код на почту: 204 всегда — есть адрес или нет, наружу не видно. Ошибка только если API недоступен. */
-  requestCode: async (email: string, info: AuthClientInfo): Promise<void> => {
-    await throwUnlessOk(
-      await backendFetch('/auth/code', {
-        method: 'POST',
-        headers: authHeaders(info),
-        body: JSON.stringify({ email }),
-      }),
-    );
-  },
+  // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
    * Регистрация: почта, имя, пароль (ADR-053). Ответ тот же, что у входа: ключ, срок, кто вошёл —
    * письма в этом пути нет. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
   register: (body: { email: string; name: string; password: string }) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/register', body),
-  /** Проверка кода: 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
-  verify: async (
-    email: string,
-    code: string,
-    info: AuthClientInfo,
-  ): Promise<{ token: string; session: AuthSession }> => {
-    const res = await throwUnlessOk(
-      await backendFetch('/auth/verify', {
-        method: 'POST',
-        headers: authHeaders(info),
-        body: JSON.stringify({ email, code }),
-      }),
-    );
-    return (await res.json()) as { token: string; session: AuthSession };
-  },
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {

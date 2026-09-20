@@ -7,7 +7,6 @@ import type {
   AccountRecord,
   AccountsRepository,
   InviteRecord,
-  LoginCodeRecord,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -21,11 +20,6 @@ export const ACCOUNT: AccountRecord = {
   trialEndsAt: new Date('2026-09-23T12:00:00.000Z'),
 };
 
-interface StoredCode extends LoginCodeRecord {
-  email: string;
-  ip: string | null;
-  createdAt: Date;
-}
 interface StoredSession {
   id: string;
   tokenHash: string;
@@ -38,53 +32,10 @@ interface StoredSession {
 }
 
 export class FakeAccountsRepository implements AccountsRepository {
-  readonly codes: StoredCode[] = [];
   readonly sessions: StoredSession[] = [];
   readonly logins: Array<{ userId: string; at: Date }> = [];
   accounts: AccountRecord[] = [ACCOUNT];
   private seq = 0;
-
-  async codesForEmailSince(email: string, since: Date): Promise<number> {
-    return this.codes.filter((c) => c.email === email && c.createdAt >= since).length;
-  }
-
-  async codesForIpSince(ip: string, since: Date): Promise<number> {
-    return this.codes.filter((c) => c.ip === ip && c.createdAt >= since).length;
-  }
-
-  async saveLoginCode(input: {
-    email: string;
-    codeHash: string;
-    expiresAt: Date;
-    ip: string | null;
-  }): Promise<void> {
-    this.seq += 1;
-    this.codes.push({
-      id: `c-${this.seq}`,
-      email: input.email,
-      codeHash: input.codeHash,
-      expiresAt: input.expiresAt,
-      ip: input.ip,
-      attempts: 0,
-      usedAt: null,
-      createdAt: new Date(),
-    });
-  }
-
-  async latestLoginCode(email: string): Promise<LoginCodeRecord | null> {
-    const own = this.codes.filter((c) => c.email === email);
-    return own.length ? (own[own.length - 1] as LoginCodeRecord) : null;
-  }
-
-  async markCodeAttempt(id: string): Promise<void> {
-    const c = this.codes.find((x) => x.id === id);
-    if (c) c.attempts += 1;
-  }
-
-  async markCodeUsed(id: string, at: Date): Promise<void> {
-    const c = this.codes.find((x) => x.id === id);
-    if (c) c.usedAt = at;
-  }
 
   async accountByEmail(email: string): Promise<AccountRecord | null> {
     return this.accounts.find((a) => a.email === email) ?? null;
@@ -113,17 +64,6 @@ export class FakeAccountsRepository implements AccountsRepository {
     this.logins.push({ userId, at });
   }
 
-  async createSession(input: {
-    tokenHash: string;
-    userId: string;
-    organizationId: string;
-    expiresAt: Date;
-    userAgent: string | null;
-  }): Promise<void> {
-    this.seq += 1;
-    this.sessions.push({ ...input, id: `s-${this.seq}`, issuedAt: new Date(), revokedAt: null });
-  }
-
   async sessionsForUser(userId: string, now: Date): Promise<SessionListRecord[]> {
     return this.sessions
       .filter((s) => s.userId === userId && s.revokedAt === null && s.expiresAt > now)
@@ -146,6 +86,22 @@ export class FakeAccountsRepository implements AccountsRepository {
       }
     }
     return n;
+  }
+
+  /**
+   * Завести сессию. В боевом репозитории такого метода больше нет: сессии заводит AuthService
+   * своей таблицей (ADR-053, вход по коду снят). Здесь он остался как средство подготовки тестов —
+   * им сеются живые ключи для проверок «где я вошёл», «выйти везде» и приглашений.
+   */
+  async createSession(input: {
+    tokenHash: string;
+    userId: string;
+    organizationId: string;
+    expiresAt: Date;
+    userAgent: string | null;
+  }): Promise<void> {
+    this.seq += 1;
+    this.sessions.push({ ...input, id: `s-${this.seq}`, issuedAt: new Date(), revokedAt: null });
   }
 
   async sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null> {

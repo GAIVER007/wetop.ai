@@ -46,23 +46,25 @@ test('«Завершить все сеансы» гасит вход и возв
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
-test('ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль', async ({
+/**
+ * Эта проверка пришла из приёмки 20.09.2026 в другом виде: она заводила сеанс через `/auth/verify`
+ * и держала обещание «старые сессии по коду не отозваны переходом на пароль». Маршрута больше нет —
+ * вход по коду снят целиком, вместе со вторым отпечатком ключа в замке. Обещание с ним и кончилось:
+ * сессия, выписанная кодом, после обновления сервера перестанет опознаваться.
+ *
+ * Почему это принято, а не спрятано: в рабочей базе таких сессий нет и быть не могло — почтовая
+ * служба не настроена ни разу (MAIL_* пусты), код никому не уходил, а база обнулена 19.09.2026.
+ * Держать в замке второй отпечаток ради сессий, которых не существует, — это мёртвый код в самом
+ * чувствительном месте. Проверяем то, что у людей действительно есть: сеанс по паролю переживает
+ * перезагрузку страницы и гасится «Завершить все сеансы».
+ */
+test('выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы»', async ({
   page,
-  request,
   context,
 }) => {
-  // Старые сессии не отозваны переходом ADR-053: проверяем уже выписанную cookie,
-  // не возвращая на экран убранный способ входа. Только синтетический loopback API.
-  const response = await request.post('http://127.0.0.1:4311/auth/verify', {
-    headers: { 'x-wetop-test-client': '1' },
-    data: { email: 'legacy@example.invalid', code: '123456' },
-  });
-  expect(response.ok()).toBe(true);
-  const { token } = (await response.json()) as { token: string };
-  await context.addCookies([{
-    name: 'wetop_session', value: token, url: 'http://127.0.0.1:3100',
-    httpOnly: true, sameSite: 'Lax', expires: Math.floor(Date.now() / 1000) + 86400,
-  }]);
+  await login(page);
+  await page.goto('/chessboard');
+  await expect(page.getByRole('main')).toBeVisible();
   await page.goto('/login');
   const main = page.getByRole('main');
   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');

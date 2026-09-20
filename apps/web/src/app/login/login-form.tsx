@@ -11,7 +11,6 @@ import {
   registerAction,
   signIn,
   signOut,
-  verifyAction,
   type LoginState,
 } from './actions';
 import { displayDate } from '../../lib/display-date';
@@ -21,8 +20,8 @@ import './login.css';
  * Что показывает экран: вход по паролю (ADR-049, ADR-053 — владелец выбрал его 20.09.2026) или
  * регистрацию новой организации — почта, имя, пароль, без письма.
  *
- * Вход и приглашения используют пароль. Старый шаг кода пока поддерживает прежние прямые
- * ссылки, но навигация приложения к нему больше не ведёт (ADR-053).
+ * Входа по коду на почту больше нет нигде: 20.09.2026 он снят с экрана, а 20.09 же приглашения
+ * переведены на пароль — принявший ссылку задаёт себе пароль сам. Код удалён целиком (ADR-053).
  */
 export type LoginMode = 'password' | 'register';
 
@@ -33,36 +32,37 @@ export function LoginForm({
   passwordJustSet = false,
   mode: initialMode = 'password',
   invites = [],
+  registrationOpen = false,
   sessions = [],
   initialEmail = '',
-  initialStep = 'email',
 }: {
   demo: boolean;
   accessEmail: string | null;
-  /** Своя сессия WETOP любым из двух входов. Имеет приоритет над Cloudflare Access: два замка сосуществуют. */
+  /** Своя сессия WETOP. Cloudflare Access снят 20.09.2026 — замок остался один (ADR-053). */
   user: SignedIn | null;
   passwordJustSet?: boolean;
   mode?: LoginMode;
+  /**
+   * Открыта ли самостоятельная регистрация. Закрыта, пока данные организаций не разделены (Q-152):
+   * только что заведённая организация видит объект этой гостиницы. Вход и приглашения — как были.
+   */
+  registrationOpen?: boolean;
   /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
   invites?: AuthInvite[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
   sessions?: AuthSessionRow[];
-  /** Почта из ссылки; шаг кода сохранён для совместимости с прежними ссылками. */
+  /** Почта, подставленная в поле: приходит из ссылки (`?email=`) или из заголовка Access. */
   initialEmail?: string;
-  initialStep?: 'email' | 'code';
 }) {
   const [mode, setMode] = useState<LoginMode>(initialMode);
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
-  // шаг кода остаётся только для пришедшего по приглашению; обычный вход и регистрация его не видят
-  const [step, setStep] = useState<'email' | 'code'>(initialStep);
   const [email, setEmail] = useState(initialEmail || accessEmail || '');
   const [personName, setPersonName] = useState('');
   const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
   const [error, setError] = useState('');
-  const [codePending, startTransition] = useTransition();
+  const [registerPending, startTransition] = useTransition();
   const { setTheme } = useTheme();
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteError, setInviteError] = useState('');
@@ -94,15 +94,6 @@ export function LoginForm({
     setError('');
     startTransition(async () => {
       const r = await registerAction(email, personName, password);
-      if (r.error) setError(r.error);
-    });
-  }
-
-  /** Второй шаг: код. При удаче действие само уводит на рабочее место. */
-  function submitCode() {
-    setError('');
-    startTransition(async () => {
-      const r = await verifyAction(email, code);
       if (r.error) setError(r.error);
     });
   }
@@ -195,7 +186,7 @@ export function LoginForm({
                       {inviteError}
                     </p>
                   )}
-                  <button className="btn btn--secondary" type="submit" disabled={codePending}>
+                  <button className="btn btn--secondary" type="submit" disabled={registerPending}>
                     Отправить приглашение
                   </button>
                 </form>
@@ -251,66 +242,6 @@ export function LoginForm({
                   </button>
                 </form>
               </section>
-            </>
-          ) : step === 'code' ? (
-            <>
-              <h1>Код отправлен</h1>
-              <p>
-                Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10
-                минут.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submitCode();
-                }}
-              >
-                <label className="field">
-                  Код из письма
-                  <input
-                    className="inp"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    name="code"
-                    pattern="\d{6}"
-                    maxLength={6}
-                    placeholder="000000"
-                    required
-                    autoFocus
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  />
-                </label>
-                {error && (
-                  <p className="alert" role="alert">
-                    {error}
-                  </p>
-                )}
-                <button
-                  className="btn"
-                  type="submit"
-                  disabled={codePending}
-                  aria-busy={codePending}
-                >
-                  {codePending ? 'Входим…' : 'Войти'}
-                  <Icon name="arrow" width={16} />
-                </button>
-              </form>
-              <div className="login-preview">
-                <span>Письмо не пришло? Проверьте «Спам» или запросите код заново.</span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={codePending}
-                  onClick={() => {
-                    setCode('');
-                    setError('');
-                    setStep('email');
-                  }}
-                >
-                  Другая почта или новый код
-                </button>
-              </div>
             </>
           ) : mode === 'password' ? (
             <>
@@ -392,17 +323,39 @@ export function LoginForm({
                   </span>
                 )}
               </div>
-              <div className="login-preview">
-                <span>Ещё нет организации?</span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={pending}
-                  onClick={() => switchTo('register')}
-                >
-                  Регистрация
-                </button>
-              </div>
+              {registrationOpen && (
+                <div className="login-preview">
+                  <span>Ещё нет организации?</span>
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    disabled={pending}
+                    onClick={() => switchTo('register')}
+                  >
+                    Регистрация
+                  </button>
+                </div>
+              )}
+            </>
+          ) : !registrationOpen ? (
+            <>
+              {/* Закрыта, пока данные организаций не разделены (Q-152): без этого новая организация
+                  видит объект этой гостиницы. Говорим прямо и уводим туда, где человеку помогут. */}
+              <h1>Регистрация закрыта</h1>
+              <p>
+                Новые организации пока не заводятся самостоятельно. Если вы сотрудник объекта,
+                попросите владельца прислать приглашение — по ссылке из письма вы зададите себе
+                пароль.
+              </p>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => switchTo('password')}
+                data-testid="registration-closed-back"
+              >
+                Войти по паролю
+                <Icon name="arrow" width={16} />
+              </button>
             </>
           ) : (
             <>
@@ -463,7 +416,7 @@ export function LoginForm({
                       type="button"
                       aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
                       aria-pressed={show}
-                      disabled={codePending}
+                      disabled={registerPending}
                       onClick={() => setShow(!show)}
                     >
                       {show ? 'Скрыть' : 'Показать'}
@@ -478,10 +431,10 @@ export function LoginForm({
                 <button
                   className="btn"
                   type="submit"
-                  disabled={codePending}
-                  aria-busy={codePending}
+                  disabled={registerPending}
+                  aria-busy={registerPending}
                 >
-                  {codePending ? 'Создаём…' : 'Создать организацию'}
+                  {registerPending ? 'Создаём…' : 'Создать организацию'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
@@ -490,7 +443,7 @@ export function LoginForm({
                 <button
                   type="button"
                   className="btn btn--secondary"
-                  disabled={codePending}
+                  disabled={registerPending}
                   onClick={() => switchTo('password')}
                 >
                   Войти по паролю

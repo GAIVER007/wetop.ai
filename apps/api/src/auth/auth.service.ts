@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
@@ -13,16 +19,12 @@ import {
   normalizePersonName,
   trialEndsAt,
   validEmail,
-  SESSION_TTL_MS,
-  sessionExpiresAt,
   sessionExpiry,
   sessionState,
-  shouldRenewSession,
   verifyPassword,
   workspaceNameFor,
   type UserStatus,
 } from '@pms/domain';
-import { hashSecret } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
@@ -49,21 +51,28 @@ export interface LoginResult {
 }
 
 /**
- * Два отпечатка одного ключа, пока Q-146 открыт: вход по паролю пишет в `sessions.token_hash` SHA-256
- * (ADR-049), вход по коду на почту — HMAC с `SESSION_SECRET` (ADR-046, `@pms/shared/auth-hash`).
- * Замок API и `/auth/me` обязаны узнавать обе, иначе вошедший по коду получал бы 401 на каждый экран.
- * Без `SESSION_SECRET` второго отпечатка нет — и сессий по коду тоже (их не из чего было выдать).
+ * Отпечаток ключа сессии один — SHA-256 (ADR-049). До 20.09.2026 рядом жил второй, HMAC с
+ * `SESSION_SECRET`: им помечались сессии входа по коду на почту. Вход по коду снят (ADR-053),
+ * новых таких сессий не появляется, и `SESSION_SECRET` замку больше не нужен.
  */
-export function codeSessionHash(
-  token: string,
-  env: Record<string, string | undefined> = process.env,
-): string | null {
-  const secret = env.SESSION_SECRET?.trim();
-  return secret ? hashSecret(token, secret) : null;
-}
 
 /** Один и тот же ответ на неверную почту и на неверный пароль: форма входа не рассказывает, кто у нас есть. */
 const WRONG = 'Неверная почта или пароль';
+/**
+ * Самостоятельная регистрация закрыта, пока её не откроют явно (`REGISTRATION_OPEN=1`).
+ *
+ * Причина названа приёмкой 20.09.2026 (Q-152): только что заведённая организация получает 200 на
+ * `/inventory/summary` — то есть видит объект этой гостиницы. Разделения данных между организациями
+ * ещё нет, а `/register` открыт всему интернету. До разделения открытая форма — это не «пробный
+ * период», а вход в чужую базу. Вход и приглашения сотрудников не затронуты.
+ */
+export const REGISTRATION_CLOSED_MESSAGE =
+  'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.';
+
+export function registrationOpen(env: Record<string, string | undefined> = process.env): boolean {
+  return env.REGISTRATION_OPEN?.trim() === '1';
+}
+
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
@@ -179,6 +188,7 @@ export class AuthService {
     input: { email: string; name: string; password: string; userAgentFamily?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
+    if (!registrationOpen()) throw new ForbiddenException(REGISTRATION_CLOSED_MESSAGE);
     const email = validEmail(input.email);
     if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
     if (!isPersonNameShaped(input.name)) {
@@ -241,15 +251,15 @@ export class AuthService {
   } | null> {
     const found = await this.session(token, now);
     if (!found) return null;
-    // §13.5 «30 суток, продление при активности»: тем же запросом, которым отмечаем работу. Смену
-    // по паролю (ADR-049) не двигаем — она кончается через 12 часов намеренно.
-    const renew =
-      found.login === 'code' && shouldRenewSession(found.session.expiresAt, now, SESSION_TTL_MS);
-    const expiresAt = renew ? sessionExpiresAt(now) : found.session.expiresAt;
+    // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
+    // кончается через 12 часов намеренно (ADR-049). Вход по коду снят 20.09.2026 — продлевать стало
+    // нечего, и ветка убрана, чтобы не выглядеть работающей. Продлевать ли смену по паролю — вопрос
+    // к владельцу (Q-152), а не решение правки-сноса: `shouldRenewSession` в домене остался на месте.
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now, ...(renew ? { expiresAt } : {}) },
+      data: { lastSeenAt: now },
     });
+    const expiresAt = found.session.expiresAt;
     const org = found.session.organization;
     return {
       user: visible(found.user, found.session.organizationId),
@@ -310,11 +320,7 @@ export class AuthService {
         include: { user: true, organization: true },
       });
     const own = await byHash(hashSessionToken(token));
-    if (own) return { row: own, login: 'password' as const };
-    const alt = codeSessionHash(token);
-    if (!alt) return null;
-    const row = await byHash(alt);
-    return row ? { row, login: 'code' as const } : null;
+    return own ? { row: own } : null;
   }
 
   private async session(token: string, now: Date) {
@@ -323,7 +329,7 @@ export class AuthService {
     if (!found?.row.user) return null;
     if (sessionState(found.row, now) !== 'active') return null;
     if (found.row.user.status !== 'ACTIVE') return null;
-    return { session: found.row, user: found.row.user, login: found.login };
+    return { session: found.row, user: found.row.user };
   }
 
   /** Журнал: кто и что сделал. Пароли и токены здесь не появляются никогда. */

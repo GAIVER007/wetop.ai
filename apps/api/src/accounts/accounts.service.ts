@@ -1,25 +1,15 @@
 import 'reflect-metadata';
-import { randomInt } from 'node:crypto';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
-  CODE_LENGTH,
-  CODE_REJECTED_MESSAGE,
   INVITE_TTL_MS,
-  MAX_CODES_PER_EMAIL_PER_HOUR,
-  MAX_CODES_PER_IP_PER_HOUR,
-  checkCode,
   checkInvite,
   checkSession,
   describeUserAgent,
-  expiresAt as codeExpiresAt,
-  formatCode,
   hashSessionToken,
   inviteExpiresAt,
-  isCodeShaped,
   isEmailShaped,
   normalizeEmail,
   resetExpiry,
-  sessionExpiresAt,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -30,9 +20,6 @@ import {
   type SessionRecord,
 } from './accounts.repository';
 import type { Actor } from './actor';
-
-const HOUR_MS = 60 * 60 * 1000;
-const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
 
 /** Строка «где я вошёл»: устройство словами и пометка своего сеанса. Ключей и отпечатков нет. */
 export interface SessionRow {
@@ -68,20 +55,6 @@ export interface InvitePreview {
 export type InviteOutcome =
   { ok: true; invite: InviteView } | { ok: false; reason: 'email' | 'member' };
 
-/** Кого пустили внутрь. Ровно то, что экран показывает вошедшему. */
-export interface Session {
-  email: string;
-  organizationId: string;
-  organizationName: string;
-  organizationStatus: SessionRecord['organizationStatus'];
-  trialEndsAt: Date | null;
-}
-
-export interface VerifyResult {
-  token: string;
-  session: Session;
-}
-
 @Injectable()
 export class AccountsService {
   private readonly log = new Logger(AccountsService.name);
@@ -97,135 +70,15 @@ export class AccountsService {
     @Optional() @Inject('APP_URL') private readonly appUrl: string = '',
   ) {}
 
-  /**
-   * Запрос кода. Наружу эта операция всегда выглядит одинаково: неважно, есть такой адрес,
-   * нет его, или человек долбится в лимит. Иначе форма входа превращается в справочник —
-   * перебором выясняется, кто наши клиенты. Поэтому здесь нет ни одного `throw`.
-   */
-  async requestCode(rawEmail: unknown, ip: string | null): Promise<void> {
-    if (typeof rawEmail !== 'string') return;
-    const email = normalizeEmail(rawEmail);
-    if (!isEmailShaped(email)) return;
-    if (await this.overLimit(email, ip)) return;
-
-    // Незнакомому адресу код не шлём и в базе не заводим — иначе таблица кодов растёт от перебора.
-    // Наружу разницы всё равно нет: ответ тот же самый.
-    if ((await this.repo.accountByEmail(email)) === null) return;
-    await this.issueCode(email, ip);
-  }
-
-  // Регистрация из этого пути снята 20.09.2026: владелец выбрал вход по паролю (ADR-053), и
-  // /auth/register теперь заводит организацию с паролем сразу (AuthService.register), без письма.
-  // Запрос кода и проверка кода ниже остаются: по ним всё ещё входят те, у кого код на руках.
-
-  private async overLimit(email: string, ip: string | null): Promise<boolean> {
-    const since = new Date(Date.now() - HOUR_MS);
-    if ((await this.repo.codesForEmailSince(email, since)) >= MAX_CODES_PER_EMAIL_PER_HOUR) {
-      this.log.warn(
-        `код не выслан: предел на адрес исчерпан (${MAX_CODES_PER_EMAIL_PER_HOUR}/час)`,
-      );
-      return true;
-    }
-    if (ip && (await this.repo.codesForIpSince(ip, since)) >= MAX_CODES_PER_IP_PER_HOUR) {
-      this.log.warn(
-        `код не выслан: предел на адрес сети исчерпан (${MAX_CODES_PER_IP_PER_HOUR}/час)`,
-      );
-      return true;
-    }
-    return false;
-  }
-
-  /** Код в базу, письмо человеку. Пределы и существование адреса проверены до вызова. */
-  private async issueCode(email: string, ip: string | null): Promise<void> {
-    const code = formatCode(randomInt(0, 10 ** CODE_LENGTH));
-    const now = new Date();
-    await this.repo.saveLoginCode({
-      email,
-      codeHash: hashSecret(code),
-      expiresAt: codeExpiresAt(now),
-      ip,
-    });
-
-    try {
-      if (!this.mailReady) {
-        this.log.error('MAIL_* не настроены — код сгенерирован, но письмо не отправлено');
-        return;
-      }
-      await this.sender.send(mail.loginCodeLetter(email, code, CODE_TTL_MS_FOR_LETTER));
-    } catch (e) {
-      // Письмо не ушло — код в базе останется и протухнет сам. Наружу всё равно молчим.
-      this.log.error(`письмо с кодом не отправлено: ${(e as Error).message}`);
-    }
-  }
-
-  /**
-   * Проверка кода. Причина отказа наружу одна на все случаи (CODE_REJECTED_MESSAGE):
-   * по тексту нельзя понять, был ли код, протух он, исчерпаны попытки или просто не тот.
-   */
-  async verify(
-    rawEmail: unknown,
-    rawCode: unknown,
-    userAgent: string | null,
-  ): Promise<VerifyResult | null> {
-    if (typeof rawEmail !== 'string' || typeof rawCode !== 'string') return null;
-    const email = normalizeEmail(rawEmail);
-    const code = rawCode.trim();
-    if (!isEmailShaped(email) || !isCodeShaped(code)) return null;
-
-    const stored = await this.repo.latestLoginCode(email);
-    if (!stored) return null;
-
-    const matches = hashEquals(stored.codeHash, hashSecret(code));
-    const now = new Date();
-    const verdict = checkCode(stored, matches, now);
-    if (!verdict.ok) {
-      // Попытку засчитываем только за неугаданный код. Протухший и использованный не тратят
-      // попытки: считать их значило бы дать чужому человеку способ погасить чужой код.
-      if (verdict.reason === 'mismatch') await this.repo.markCodeAttempt(stored.id);
-      return null;
-    }
-
-    const account = await this.repo.accountByEmail(email);
-    if (!account) return null;
-
-    await this.repo.markCodeUsed(stored.id, now);
-    await this.repo.markLogin(account.userId, now);
-
-    const token = newSessionToken();
-    await this.repo.createSession({
-      tokenHash: hashSecret(token),
-      userId: account.userId,
-      organizationId: account.organizationId,
-      expiresAt: sessionExpiresAt(now),
-      userAgent,
-    });
-    return { token, session: toSession(account) };
-  }
-
-  /** Кто вошёл. `null` — сессии нет, она протухла или её отозвали; разницы наружу нет. */
-  async whoIs(token: string | null): Promise<Session | null> {
-    if (!token) return null;
-    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
-    if (!stored) return null;
-    if (!checkSession(stored, new Date()).ok) return null;
-    return toSession(stored);
-  }
+  // Вход по одноразовому коду на почту снят 20.09.2026 (ADR-053, решение владельца по Q-146).
+  // Вместе с ним отсюда ушли запрос кода, его выдача, проверка и пределы на перебор: выдавать
+  // больше нечего, а маршруты /auth/code и /auth/verify сняты с контроллера. Приглашения теперь
+  // ведут к паролю (acceptInvite ниже), регистрация — тоже (AuthService.register).
 
   /** Автор для журнала действий: внутренний номер человека и организации. Наружу не отдаётся. */
   async actorFor(token: string): Promise<Actor | null> {
-    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
-    if (!stored) return null;
-    if (!checkSession(stored, new Date()).ok) return null;
-    return { userId: stored.userId, organizationId: stored.organizationId };
-  }
-
-  /**
-   * Выход. Не «забыть на клиенте», а отметка в базе: после неё прежний ключ мёртв, даже если
-   * кто-то успел его скопировать. Повторный выход по тому же ключу — не ошибка.
-   */
-  async logout(token: string | null): Promise<void> {
-    if (!token) return;
-    await this.repo.revokeSession(hashSecret(token), new Date());
+    const stored = await this.liveSession(token);
+    return stored ? { userId: stored.userId, organizationId: stored.organizationId } : null;
   }
 
   // ── «Где я вошёл» и «выйти везде» (§3 п. 3 плана, DATA_MODEL §13.5) ─────────────────────────
@@ -303,13 +156,12 @@ export class AccountsService {
   }
 
   /**
-   * Отпечатки ключа обоих входов, пока живут оба (Q-146): по коду — HMAC с `SESSION_SECRET`
-   * (`hashSecret`), по паролю — SHA-256 (`hashSessionToken`, ADR-049). Приглашения, список «где я
-   * вошёл» и «выйти везде» относятся к человеку, а не к способу входа, поэтому свою сессию ищем по обоим —
-   * как замок `AuthService.findByToken`, только в обратном порядке.
+   * Отпечаток ключа сессии — SHA-256 (`hashSessionToken`, ADR-049). До 20.09.2026 рядом жил второй,
+   * HMAC с `SESSION_SECRET`: им помечались сессии входа по коду. Вход по коду снят, новых таких
+   * сессий не появляется, и искать по второму отпечатку больше нечего.
    */
   private tokenHashes(token: string): string[] {
-    return [hashSecret(token), hashSessionToken(token)];
+    return [hashSessionToken(token)];
   }
 
   /** Живая сессия целиком: автор для `created_by` и организация для письма. Наружу не отдаётся. */
@@ -387,21 +239,3 @@ function toInviteView(i: InviteRecord): InviteView {
     createdAt: i.createdAt,
   };
 }
-
-function toSession(a: {
-  email: string;
-  organizationId: string;
-  organizationName: string;
-  organizationStatus: SessionRecord['organizationStatus'];
-  trialEndsAt: Date | null;
-}): Session {
-  return {
-    email: a.email,
-    organizationId: a.organizationId,
-    organizationName: a.organizationName,
-    organizationStatus: a.organizationStatus,
-    trialEndsAt: a.trialEndsAt,
-  };
-}
-
-export { CODE_REJECTED_MESSAGE };

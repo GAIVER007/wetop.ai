@@ -5,7 +5,6 @@ import type {
   AccountRecord,
   AccountsRepository,
   InviteRecord,
-  LoginCodeRecord,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -17,50 +16,6 @@ import type {
 @Injectable()
 export class PrismaAccountsRepository implements AccountsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-
-  async codesForEmailSince(email: string, since: Date): Promise<number> {
-    return this.prisma.db.loginCode.count({ where: { email, createdAt: { gte: since } } });
-  }
-
-  async codesForIpSince(ip: string, since: Date): Promise<number> {
-    return this.prisma.db.loginCode.count({
-      where: { requestedIp: ip, createdAt: { gte: since } },
-    });
-  }
-
-  async saveLoginCode(input: {
-    email: string;
-    codeHash: string;
-    expiresAt: Date;
-    ip: string | null;
-  }): Promise<void> {
-    await this.prisma.db.loginCode.create({
-      data: {
-        email: input.email,
-        codeHash: input.codeHash,
-        expiresAt: input.expiresAt,
-        requestedIp: input.ip,
-      },
-    });
-  }
-
-  /** Последний по времени. Старые не удаляем: по ним считаются часовые пределы. */
-  async latestLoginCode(email: string): Promise<LoginCodeRecord | null> {
-    const row = await this.prisma.db.loginCode.findFirst({
-      where: { email },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, codeHash: true, expiresAt: true, attempts: true, usedAt: true },
-    });
-    return row ?? null;
-  }
-
-  async markCodeAttempt(id: string): Promise<void> {
-    await this.prisma.db.loginCode.update({ where: { id }, data: { attempts: { increment: 1 } } });
-  }
-
-  async markCodeUsed(id: string, at: Date): Promise<void> {
-    await this.prisma.db.loginCode.update({ where: { id }, data: { usedAt: at } });
-  }
 
   /**
    * Пользователь и его организация. Организаций у человека может быть несколько (приглашения,
@@ -135,24 +90,6 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
   async markLogin(userId: string, at: Date): Promise<void> {
     await this.prisma.db.user.update({ where: { id: userId }, data: { lastLoginAt: at } });
-  }
-
-  async createSession(input: {
-    tokenHash: string;
-    userId: string;
-    organizationId: string;
-    expiresAt: Date;
-    userAgent: string | null;
-  }): Promise<void> {
-    await this.prisma.db.session.create({
-      data: {
-        tokenHash: input.tokenHash,
-        userId: input.userId,
-        organizationId: input.organizationId,
-        expiresAt: input.expiresAt,
-        userAgent: input.userAgent?.slice(0, 400) ?? null,
-      },
-    });
   }
 
   async sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null> {

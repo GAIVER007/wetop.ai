@@ -43,13 +43,16 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
+      // Самостоятельная регистрация закрыта, пока не разделены данные организаций (Q-152).
+      // Выключатель тот же, что у API (REGISTRATION_OPEN): если экран и API разойдутся, человек
+      // увидит отказ словами, а не пустую форму — но задавать их надо парой.
+      registrationOpen={process.env.APP_REGISTRATION_OPEN === '1'}
       accessEmail={await accessEmail()}
       user={user}
       invites={user?.organization ? await pendingInvites() : []}
       // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)
       sessions={user ? await activeSessions() : []}
       initialEmail={q.email ?? ''}
-      initialStep={q.step === 'code' && q.email ? 'code' : 'email'}
       passwordJustSet={q.password === 'set'}
       mode={mode}
     />

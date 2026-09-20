@@ -1,13 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { ApiError, authApi } from '../../lib/api';
-import {
-  clearSessionCookie,
-  clientInfo,
-  sessionToken,
-  setSessionCookie,
-  storeSessionToken,
-} from '../../lib/session';
+import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
 
 /**
  * Серверные действия экрана входа. Два входа живут рядом, пока владелец не выбрал (Q-146):
@@ -102,15 +96,7 @@ function errorText(e: unknown): string {
   return 'Нет связи с сервером. Попробуйте ещё раз.';
 }
 
-/** Запрос кода. Ответ API одинаков для любого адреса — форма просто переходит к вводу кода. */
-export async function requestCodeAction(email: string): Promise<AuthActionResult> {
-  try {
-    await authApi.requestCode(email, await clientInfo());
-    return { error: null };
-  } catch (e) {
-    return { error: errorText(e) };
-  }
-}
+// Вход по коду на почту снят 20.09.2026 (ADR-053): requestCodeAction и verifyAction ушли вместе с ним.
 
 /**
  * Регистрация: почта, имя, пароль (ADR-053, решение владельца 20.09.2026). Письма и кода в этом
@@ -125,18 +111,6 @@ export async function registerAction(
   try {
     const result = await authApi.register({ email, name, password });
     await setSessionCookie(result.token, result.expiresAt);
-  } catch (e) {
-    return { error: errorText(e) };
-  }
-  // `redirect` бросает служебное исключение — снаружи `try`, чтобы не принять его за ошибку.
-  redirect('/today');
-}
-
-/** Проверка кода. Удача — ключ в куку и на рабочее место; отказ — текст API, один на все причины. */
-export async function verifyAction(email: string, code: string): Promise<AuthActionResult> {
-  try {
-    const { token } = await authApi.verify(email, code, await clientInfo());
-    await storeSessionToken(token);
   } catch (e) {
     return { error: errorText(e) };
   }

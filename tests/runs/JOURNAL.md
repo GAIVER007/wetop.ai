@@ -1172,3 +1172,4 @@
 | 20.09.2026 20:12 | typecheck | ❌ ошибок: 1 | 1 мин 43 с | 0ed8c75 +14 | [лог](logs/2026-09-20T15-12-19Z-typecheck-18a7.log) | Q-152: root TypeScript validation |
 | 20.09.2026 20:13 | lint | ✅ без ошибок | 1 мин 16 с | 0ed8c75 +14 | [лог](logs/2026-09-20T15-13-06Z-lint-2f88.log) | Q-152: ESLint before publishing registration restriction |
 | 20.09.2026 20:15 | typecheck | ✅ без ошибок | 15 с | 0ed8c75 +14 | [лог](logs/2026-09-20T15-15-06Z-typecheck-1617.log) | Q-152: all TypeScript projects after typing the fake Prisma boundary |
+| 20.09.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 207 из 207 | 12 мин 10 с | 0ed8c75 +2 | [лог](logs/2026-09-20T14-58-44Z-e2e-45ad.log) |  |

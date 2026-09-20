@@ -49,27 +49,31 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-  repo.codes.length = 0;
   repo.sessions.length = 0;
   repo.logins.length = 0;
   repo.accounts = [ACCOUNT];
   sender.clear();
+  tokenSeq = 0;
 });
 
-function codeFromLetter(): string {
-  const m = /Код для входа: (\d{6})/.exec(sender.last?.text ?? '');
-  if (!m) throw new Error('в письме нет кода');
-  return m[1]!;
-}
-
+/**
+ * Сессию для проверок заводим прямо в подставном репозитории: с 20.09.2026 (ADR-053) входа по коду
+ * нет, а вход по паролю живёт в AuthService со своей таблицей — этому контроллеру он не подчиняется.
+ * Отпечаток — SHA-256, тот же, каким помечает сессии вход по паролю.
+ */
+let tokenSeq = 0;
 async function login(userAgent: string, email = ACCOUNT.email): Promise<string> {
-  await request(app.getHttpServer()).post('/auth/code').send({ email }).expect(204);
-  const res = await request(app.getHttpServer())
-    .post('/auth/verify')
-    .set('User-Agent', userAgent)
-    .send({ email, code: codeFromLetter() })
-    .expect(200);
-  return res.body.token as string;
+  tokenSeq += 1;
+  const token = `session-token-${tokenSeq}`;
+  const account = repo.accounts.find((a) => a.email === email) ?? ACCOUNT;
+  await repo.createSession({
+    tokenHash: hashSessionToken(token),
+    userId: account.userId,
+    organizationId: account.organizationId,
+    expiresAt: new Date(Date.now() + 30 * 24 * 3600_000),
+    userAgent,
+  });
+  return token;
 }
 
 describe('список сессий', () => {
@@ -104,10 +108,8 @@ describe('список сессий', () => {
   it('отозванная и чужая сессии в списке не показываются', async () => {
     const mac = await login(MAC);
     const phone = await login(PHONE);
-    await request(app.getHttpServer())
-      .post('/auth/logout')
-      .set('Authorization', `Bearer ${phone}`)
-      .expect(204);
+    // выход одной сессии делает AuthController (ADR-053): здесь важно лишь состояние в базе
+    await repo.revokeSession(hashSessionToken(phone), new Date());
     repo.accounts.push({ ...ACCOUNT, userId: 'u-other', email: 'drugoy@example.com' });
     await login(MAC, 'drugoy@example.com');
     const res = await request(app.getHttpServer())
@@ -136,12 +138,12 @@ describe('выйти везде', () => {
 
     for (const dead of [mac, phone]) {
       await request(app.getHttpServer())
-        .get('/auth/me')
+        .get('/auth/sessions')
         .set('Authorization', `Bearer ${dead}`)
         .expect(401);
     }
     await request(app.getHttpServer())
-      .get('/auth/me')
+      .get('/auth/sessions')
       .set('Authorization', `Bearer ${other}`)
       .expect(200);
 
@@ -158,8 +160,8 @@ describe('выйти везде', () => {
   });
 });
 
-describe('оба входа рядом (Q-146)', () => {
-  it('сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду', async () => {
+describe('сессии по паролю (ADR-049, ADR-053)', () => {
+  it('своя помечена, чужая видна, «выйти везде» гасит обе', async () => {
     const mac = await login(MAC);
     const parol = 'parol-session-token';
     await repo.createSession({
@@ -183,7 +185,7 @@ describe('оба входа рядом (Q-146)', () => {
       .set('Authorization', `Bearer ${parol}`)
       .expect(204);
     await request(app.getHttpServer())
-      .get('/auth/me')
+      .get('/auth/sessions')
       .set('Authorization', `Bearer ${mac}`)
       .expect(401);
   });

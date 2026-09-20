@@ -46,7 +46,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)
       sessions={user ? await activeSessions() : []}
       initialEmail={q.email ?? ''}
-      initialStep={q.step === 'code' && q.email ? 'code' : 'email'}
       passwordJustSet={q.password === 'set'}
       mode={mode}
       registrationEnabled={registrationEnabled}

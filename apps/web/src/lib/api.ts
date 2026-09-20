@@ -437,6 +437,22 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvitePreview;
   },
+  // ── «Где я вошёл» и «выйти везде» (срез 13, §13.5) ────────────────────────────────────────────
+  /** Живые сессии вошедшего, устройство словами, своя помечена. 401 — сессии нет. */
+  sessions: async (token: string, info: AuthClientInfo): Promise<AuthSessionRow[]> => {
+    const res = await backendFetch('/auth/sessions', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthSessionRow[];
+  },
+  /** 204 всегда: все сессии человека отозваны, включая эту; мёртвый ключ — не ошибка. */
+  logoutAll: async (token: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch('/auth/logout-all', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
 };
 
 /**
@@ -1215,6 +1231,15 @@ export const guardApi = {
     sendJson<Incident>('POST', `/guard/incidents/${encodeURIComponent(id)}/resolve`, {}),
   tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
 };
+
+/** Строка «Где вы вошли» (`GET /auth/sessions`): ни ключа, ни отпечатка, ни сырой строки агента. */
+export interface AuthSessionRow {
+  id: string;
+  issuedAt: string;
+  expiresAt: string;
+  device: string;
+  current: boolean;
+}
 
 export interface AuthInvite {
   id: string;

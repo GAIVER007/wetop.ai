@@ -30,6 +30,15 @@ export interface SessionRecord {
   revokedAt: Date | null;
 }
 
+/** Строка списка «где я вошёл» (§13.5). Отпечаток нужен только чтобы отметить свой сеанс; наружу не едет. */
+export interface SessionListRecord {
+  id: string;
+  tokenHash: string;
+  issuedAt: Date;
+  expiresAt: Date;
+  userAgent: string | null;
+}
+
 /** Приглашение как оно лежит в базе (DATA_MODEL §13.6): ключа нет, только отпечаток. */
 export interface InviteRecord {
   id: string;
@@ -79,6 +88,10 @@ export interface AccountsRepository {
   }): Promise<void>;
   sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>;
   revokeSession(tokenHash: string, at: Date): Promise<void>;
+  /** Живые сессии человека (не отозванные, не протухшие на `now`), новые сверху — «где я вошёл». */
+  sessionsForUser(userId: string, now: Date): Promise<SessionListRecord[]>;
+  /** «Выйти везде»: отзыв всех живых строк человека. Возвращает, сколько отозвано. */
+  revokeAllSessions(userId: string, at: Date): Promise<number>;
 
   // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
   createInvite(input: {

@@ -2177,6 +2177,32 @@ createServer(async (req, res) => {
       res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
       res.end();
     };
+    // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон, любым входом; отзыв гасит все ключи.
+    if (path === '/auth/sessions') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      return send(200, [
+        {
+          id: 'sess-this',
+          issuedAt: new Date(Date.now() - 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
+          device: 'Chrome, macOS',
+          current: true,
+        },
+        {
+          id: 'sess-phone',
+          issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
+          device: 'Safari, iPhone',
+          current: false,
+        },
+      ]);
+    }
+    if (path === '/auth/logout-all' && req.method === 'POST') {
+      uiSessions.clear();
+      return noContent();
+    }
     if (path === '/auth/code' && req.method === 'POST') return noContent();
     if (path === '/auth/register' && req.method === 'POST') {
       if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))

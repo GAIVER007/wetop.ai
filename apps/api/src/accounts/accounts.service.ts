@@ -10,8 +10,10 @@ import {
   checkCode,
   checkInvite,
   checkSession,
+  describeUserAgent,
   expiresAt as codeExpiresAt,
   formatCode,
+  hashSessionToken,
   inviteExpiresAt,
   isCodeShaped,
   isEmailShaped,
@@ -32,6 +34,15 @@ import type { Actor } from './actor';
 
 const HOUR_MS = 60 * 60 * 1000;
 const CODE_TTL_MS_FOR_LETTER = 10 * 60 * 1000;
+
+/** Строка «где я вошёл»: устройство словами и пометка своего сеанса. Ключей и отпечатков нет. */
+export interface SessionRow {
+  id: string;
+  issuedAt: Date;
+  expiresAt: Date;
+  device: string;
+  current: boolean;
+}
 
 /** Что видит вошедший в списке приглашений и что получает в ответ на новое. Ключа здесь нет. */
 export interface InviteView {
@@ -240,6 +251,33 @@ export class AccountsService {
     await this.repo.revokeSession(hashSecret(token), new Date());
   }
 
+  // ── «Где я вошёл» и «выйти везде» (§3 п. 3 плана, DATA_MODEL §13.5) ─────────────────────────
+
+  /** Живые сессии человека, своя помечена. `null` — сессии нет. Ключей и отпечатков наружу нет. */
+  async sessions(token: string | null): Promise<SessionRow[] | null> {
+    const who = await this.liveSession(token);
+    if (!who || !token) return null;
+    const own = this.tokenHashes(token);
+    const rows = await this.repo.sessionsForUser(who.userId, new Date());
+    return rows.map((s) => ({
+      id: s.id,
+      issuedAt: s.issuedAt,
+      expiresAt: s.expiresAt,
+      device: describeUserAgent(s.userAgent),
+      current: own.some((hash) => hashEquals(s.tokenHash, hash)),
+    }));
+  }
+
+  /**
+   * «Выйти везде»: отзыв всех сессий человека, включая эту. Без сессии — пустое действие, как
+   * обычный выход: повтор с мёртвым ключом не ошибка.
+   */
+  async logoutEverywhere(token: string | null): Promise<number> {
+    const who = await this.liveSession(token);
+    if (!who) return 0;
+    return this.repo.revokeAllSessions(who.userId, new Date());
+  }
+
   // ── Приглашения (этап 7, DATA_MODEL §13.6) ──────────────────────────────────────────────────
 
   /**
@@ -287,12 +325,24 @@ export class AccountsService {
     return (await this.repo.pendingInvites(who.organizationId, new Date())).map(toInviteView);
   }
 
+  /**
+   * Отпечатки ключа обоих входов, пока живут оба (Q-146): по коду — HMAC с `SESSION_SECRET`
+   * (`hashSecret`), по паролю — SHA-256 (`hashSessionToken`, ADR-049). Приглашения, список «где я
+   * вошёл» и «выйти везде» относятся к человеку, а не к способу входа, поэтому свою сессию ищем по обоим —
+   * как замок `AuthService.findByToken`, только в обратном порядке.
+   */
+  private tokenHashes(token: string): string[] {
+    return [hashSecret(token), hashSessionToken(token)];
+  }
+
   /** Живая сессия целиком: автор для `created_by` и организация для письма. Наружу не отдаётся. */
   private async liveSession(token: string | null): Promise<SessionRecord | null> {
     if (!token) return null;
-    const stored = await this.repo.sessionByTokenHash(hashSecret(token));
-    if (!stored) return null;
-    return checkSession(stored, new Date()).ok ? stored : null;
+    for (const hash of this.tokenHashes(token)) {
+      const stored = await this.repo.sessionByTokenHash(hash);
+      if (stored) return checkSession(stored, new Date()).ok ? stored : null;
+    }
+    return null;
   }
 
   /** Кто зовёт и кого — для страницы по ссылке. `null` на любую мёртвую ссылку, без подробностей. */

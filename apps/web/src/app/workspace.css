@@ -125,14 +125,6 @@ svg {
 .workspace-links {
   padding-top: 2px;
 }
-.nav-group {
-  margin: 24px 12px 10px;
-  color: var(--muted);
-  /* §14: без капса — кириллица заглавными читается хуже; §6: не мельче 12 px */
-  font-size: var(--text-xs);
-  letter-spacing: 0.02em;
-  font-weight: 500;
-}
 .workspace-link {
   display: flex;
   align-items: center;
@@ -190,9 +182,6 @@ svg {
 }
 .sidebar-freshness .freshness--warn {
   color: var(--warning);
-}
-.is-collapsed .sidebar-freshness {
-  display: none;
 }
 .desk-avatar {
   display: grid;

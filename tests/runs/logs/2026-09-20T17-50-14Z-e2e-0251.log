@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 20.09.2026 22:50 Алматы · MacBook-Air-Urij.local
+# коммит 0c0de4a (codex/reservations-design), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/reservations-design.spec.ts' '--grep' 'выбранный статус' '--workers=1'
+[WebServer] (node:46588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:46682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (17.8s)
+
+
+  1) tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('navigation', { name: 'Статусы броней' }).getByRole('link', { name: 'Все статусы', exact: true })
+    Expected: "page"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('navigation', { name: 'Статусы броней' }).getByRole('link', { name: 'Все статусы', exact: true }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Статусы броней' }).getByRole('link', { name: 'Все статусы', exact: true })
+        33 × locator resolved to <a class="is-active" href="/reservations?from=2026-09-20&to=2026-09-20&status=ALL&q=&page=1">Все статусы</a>
+           - unexpected value "null"
+
+
+      19 |   }
+      20 |   const statuses = page.getByRole('navigation', { name: 'Статусы броней' });
+    > 21 |   await expect(statuses.getByRole('link', { name: 'Все статусы', exact: true })).toHaveAttribute('aria-current', 'page');
+         |                                                                                  ^
+      22 |   const confirmed = statuses.getByRole('link', { name: 'Подтверждены', exact: true });
+      23 |   await confirmed.focus();
+      24 |   await page.keyboard.press('Enter');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/reservations-design.spec.ts:21:82
+
+    Error Context: test-results/reservations-design-выбран-f6f1b-авиатуры-и-объявлен-текущим/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-design-выбран-f6f1b-авиатуры-и-объявлен-текущим/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-design-выбран-f6f1b-авиатуры-и-объявлен-текущим/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим 
+
+# код выхода 1 · 30 с

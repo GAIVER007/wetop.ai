@@ -1,0 +1,70 @@
+{
+  "checkedAt": "2026-09-20T12:24:45.238Z",
+  "mode": "read only, loopback frontend connected to Supabase",
+  "routes": [
+    {
+      "path": "/today",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/today"
+    },
+    {
+      "path": "/chessboard",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/chessboard"
+    },
+    {
+      "path": "/inventory",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/inventory"
+    },
+    {
+      "path": "/reservations",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/reservations"
+    },
+    {
+      "path": "/guests",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/guests"
+    },
+    {
+      "path": "/finance",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/finance"
+    },
+    {
+      "path": "/connections",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/connections"
+    },
+    {
+      "path": "/channel-manager",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/channel-manager"
+    },
+    {
+      "path": "/analytics",
+      "status": 200,
+      "mainVisible": true,
+      "dataErrorVisible": false,
+      "finalPath": "/analytics"
+    }
+  ],
+  "apiHealthStatus": 200
+}

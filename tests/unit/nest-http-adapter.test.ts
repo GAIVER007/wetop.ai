@@ -8,22 +8,24 @@
  * и вложенную копию не видит. Наружу это выглядит как «process.exit(1)» без объяснения, а счётчик
  * показывает «пропущено», а не «упало»: дыру легко принять за зелёный прогон.
  *
- * Проверяем не «пакет установлен», а «разрешается из того же места, что и @nestjs/common» — это и есть
+ * Проверяем не «пакет установлен», а «разрешается оттуда, где лежит @nestjs/common» — это и есть
  * условие, которое ломается. Объявление в корневом package.json держит раскладку при следующем npm ci.
  */
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const require_ = createRequire(import.meta.url);
 
 describe('сетевой слой Nest', () => {
-  it('@nestjs/platform-express разрешается из того места, где лежит @nestjs/common', () => {
-    // Nest's exports map does not expose package.json; use the exported entry point.
-    const common = dirname(require_.resolve('@nestjs/common'));
-    expect(() => require_.resolve('@nestjs/platform-express', { paths: [common] })).not.toThrow();
+  it('@nestjs/platform-express разрешается оттуда, где лежит @nestjs/common', () => {
+    // Берём точку входа, а не package.json: он закрыт полем exports и по имени не разрешается.
+    const insideCommon = dirname(require_.resolve('@nestjs/common'));
+    expect(() =>
+      require_.resolve('@nestjs/platform-express', { paths: [insideCommon] }),
+    ).not.toThrow();
   });
 
   it('корневой package.json объявляет platform-express — иначе npm ci снова спрячет его в apps/api', () => {

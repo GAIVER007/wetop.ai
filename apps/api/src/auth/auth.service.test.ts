@@ -34,7 +34,13 @@ describe('AuthService.login', () => {
 
     expect(users[0]!.lastLoginAt).toEqual(NOW);
     expect(audit).toEqual([
-      { userId: 'u-1', entityType: 'user', entityId: 'u-1', action: 'user.login', after: { via: 'password' } },
+      {
+        userId: 'u-1',
+        entityType: 'user',
+        entityId: 'u-1',
+        action: 'user.login',
+        after: { via: 'password' },
+      },
     ]);
   });
 
@@ -47,9 +53,9 @@ describe('AuthService.login', () => {
 
   it('неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал', async () => {
     const { auth, sessions, audit, users } = service();
-    await expect(auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
     expect(sessions).toHaveLength(0);
     expect(users[0]!.failedAttempts).toBe(1);
     expect(JSON.stringify(audit)).not.toContain('не тот');
@@ -57,9 +63,9 @@ describe('AuthService.login', () => {
 
   it('неизвестная почта отвечает тем же текстом, что и неверный пароль', async () => {
     const { auth } = service();
-    await expect(auth.login({ email: 'нет-такой@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'нет-такой@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
   });
 
   it('мусор вместо почты не пускает', async () => {
@@ -72,23 +78,33 @@ describe('AuthService.login', () => {
   it(`после ${MAX_FAILED_ATTEMPTS} промахов вход заперт, и верный пароль тоже не пускает`, async () => {
     const { auth, users } = service();
     for (let i = 0; i < MAX_FAILED_ATTEMPTS; i += 1) {
-      await expect(auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW)).rejects.toThrow();
+      await expect(
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW),
+      ).rejects.toThrow();
     }
     expect(users[0]!.lockedUntil).not.toBeNull();
-    await expect(auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      /Вход заперт/,
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow(/Вход заперт/);
   });
 
   it('заблокированного сотрудника не пускает', async () => {
     const { auth } = service([fakeUser({ status: 'BLOCKED' })]);
-    await expect(auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
   });
 });
 
 describe('AuthService.whoami', () => {
+  it('смена по паролю не продлевается работой: 12 часов и заново (ADR-049)', async () => {
+    const { auth, sessions } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    const was = sessions[0]!.expiresAt;
+    await auth.whoami(token, new Date(NOW.getTime() + 3 * 3_600_000));
+    expect(sessions[0]!.expiresAt).toEqual(was);
+  });
+
   it('живая сессия возвращает сотрудника и продлевает отметку активности', async () => {
     const { auth, sessions } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
@@ -124,7 +140,11 @@ describe('AuthService.whoami', () => {
     const { auth } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     await expect(auth.whoami(token, NOW)).resolves.toMatchObject({
-      organization: { name: 'Тестовый хостел', status: 'TRIAL', trialEndsAt: '2026-09-22T00:00:00.000Z' },
+      organization: {
+        name: 'Тестовый хостел',
+        status: 'TRIAL',
+        trialEndsAt: '2026-09-22T00:00:00.000Z',
+      },
     });
   });
 
@@ -176,6 +196,29 @@ describe('AuthService.whoami', () => {
         await auth.logout(token, NOW);
         expect(sessions[0]!.revokedAt).toEqual(NOW);
         await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+      });
+    });
+
+    it('работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5)', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        const later = new Date(NOW.getTime() + 86_400_000);
+        await auth.whoami(token, later);
+        expect(sessions[0]!.expiresAt).toEqual(new Date(later.getTime() + 30 * 86_400_000));
+        expect(sessions[0]!.lastSeenAt).toEqual(later);
+      });
+    });
+
+    it('в тот же день срок не трогаем: иначе каждая страница пишет в базу', async () => {
+      await withSecret(async () => {
+        const { auth, sessions } = service();
+        const token = codeSession(sessions);
+        const was = sessions[0]!.expiresAt;
+        const later = new Date(NOW.getTime() + 3_600_000);
+        await auth.whoami(token, later);
+        expect(sessions[0]!.expiresAt).toEqual(was);
+        expect(sessions[0]!.lastSeenAt).toEqual(later);
       });
     });
 
@@ -232,7 +275,10 @@ describe('AuthService.changePassword', () => {
     const before = users[0]!.passwordHash;
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     await expect(
-      auth.changePassword({ token, currentPassword: 'не тот', newPassword: 'ekinshi-parol-2026' }, NOW),
+      auth.changePassword(
+        { token, currentPassword: 'не тот', newPassword: 'ekinshi-parol-2026' },
+        NOW,
+      ),
     ).rejects.toThrow('Неверный текущий пароль');
     expect(users[0]!.passwordHash).toBe(before);
   });

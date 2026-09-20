@@ -1,0 +1,121 @@
+# Модульные (unit) · 20.09.2026 18:17 Алматы · vm
+# коммит b0961ca (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-20T13-17-25Z-unit-75d1.json' 'packages/domain/src/accounts/session-renew.test.ts' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/session-renew.test.ts (4 tests | 4 failed) 7ms
+   ❯ shouldRenewSession (4)
+     × сессия открыта только что — продлевать нечего 4ms
+     × в тот же день работы срок не трогаем 1ms
+     × прошли сутки — срок сдвигается 0ms
+     × свой срок у сессии другой длины: смена по паролю 12 часов не продлевается по правилу 30 суток 0ms
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (22 tests | 1 failed) 1827ms
+   ✓ AuthService.login (7)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 85ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 75ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 76ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 74ms
+     ✓ мусор вместо почты не пускает 76ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 224ms
+     ✓ заблокированного сотрудника не пускает 37ms
+   ❯ AuthService.whoami (10)
+     ✓ смена по паролю не продлевается работой: 12 часов и заново (ADR-049) 75ms
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 77ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 75ms
+     ✓ сессия заблокированного сотрудника больше не годится 74ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 75ms
+     ❯ сессия, открытая входом по коду (отпечаток HMAC) (5)
+       ✓ whoami опознаёт её, когда секрет задан 38ms
+       ✓ logout гасит её тем же путём, что и сессию по паролю 37ms
+       × работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5) 44ms
+       ✓ в тот же день срок не трогаем: иначе каждая страница пишет в базу 38ms
+       ✓ без секрета второго отпечатка нет: такая сессия — никто, и ничего не падает 38ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 76ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 236ms
+     ✓ неверный текущий пароль ничего не меняет 133ms
+     ✓ слабый новый пароль отклоняется с объяснением 122ms
+     ✓ без годной сессии пароль не сменить 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.whoami > сессия, открытая входом по коду (отпечаток HMAC) > работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5)
+AssertionError: expected 2026-10-15T10:00:00.000Z to deeply equal 2026-10-16T10:00:00.000Z
+
+- Expected
++ Received
+
+- 2026-10-16T10:00:00.000Z
++ 2026-10-15T10:00:00.000Z
+
+ ❯ apps/api/src/auth/auth.service.test.ts:208:40
+    206|         const later = new Date(NOW.getTime() + 86_400_000);
+    207|         await auth.whoami(token, later);
+    208|         expect(sessions[0]!.expiresAt).toEqual(new Date(later.getTime(…
+       |                                        ^
+    209|         expect(sessions[0]!.lastSeenAt).toEqual(later);
+    210|       });
+ ❯ withSecret apps/api/src/auth/auth.service.test.ts:162:9
+ ❯ apps/api/src/auth/auth.service.test.ts:203:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/session-renew.test.ts > shouldRenewSession > сессия открыта только что — продлевать нечего
+TypeError: shouldRenewSession is not a function
+ ❯ packages/domain/src/accounts/session-renew.test.ts:13:12
+     11| describe('shouldRenewSession', () => {
+     12|   it('сессия открыта только что — продлевать нечего', () => {
+     13|     expect(shouldRenewSession(new Date(NOW.getTime() + SESSION_TTL_MS)…
+       |            ^
+     14|   });
+     15|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/session-renew.test.ts > shouldRenewSession > в тот же день работы срок не трогаем
+TypeError: shouldRenewSession is not a function
+ ❯ packages/domain/src/accounts/session-renew.test.ts:17:12
+     15|
+     16|   it('в тот же день работы срок не трогаем', () => {
+     17|     expect(shouldRenewSession(inDays(29.5), NOW)).toBe(false);
+       |            ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/session-renew.test.ts > shouldRenewSession > прошли сутки — срок сдвигается
+TypeError: shouldRenewSession is not a function
+ ❯ packages/domain/src/accounts/session-renew.test.ts:21:12
+     19|
+     20|   it('прошли сутки — срок сдвигается', () => {
+     21|     expect(shouldRenewSession(inDays(29), NOW)).toBe(true);
+       |            ^
+     22|     expect(shouldRenewSession(inDays(1), NOW)).toBe(true);
+     23|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/session-renew.test.ts > shouldRenewSession > свой срок у сессии другой длины: смена по паролю 12 часов не продлевается по правилу 30 суток
+TypeError: shouldRenewSession is not a function
+ ❯ packages/domain/src/accounts/session-renew.test.ts:27:12
+     25|   it('свой срок у сессии другой длины: смена по паролю 12 часов не про…
+     26|     const shift = 12 * 3_600_000;
+     27|     expect(shouldRenewSession(new Date(NOW.getTime() + shift), NOW, sh…
+       |            ^
+     28|   });
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 21 passed (26)
+   Start at  13:17:26
+   Duration  2.85s (tests 64%, transform 26%, import 10%)
+
+JSON report written to /tmp/pms-test-2026-09-20T13-17-25Z-unit-75d1.json
+
+# код выхода 1 · 4 с

@@ -1,15 +1,25 @@
 import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
+  REGISTRATION_EMAIL_MESSAGE,
+  REGISTRATION_PERSON_NAME_MESSAGE,
+  REGISTRATION_TAKEN_MESSAGE,
   checkPassword,
   evaluateLogin,
   hashPassword,
   hashSessionToken,
+  isPersonNameShaped,
   newSessionToken,
+  normalizePersonName,
+  trialEndsAt,
   validEmail,
+  SESSION_TTL_MS,
+  sessionExpiresAt,
   sessionExpiry,
   sessionState,
+  shouldRenewSession,
   verifyPassword,
+  workspaceNameFor,
   type UserStatus,
 } from '@pms/domain';
 import { hashSecret } from '@pms/shared';
@@ -44,7 +54,10 @@ export interface LoginResult {
  * Замок API и `/auth/me` обязаны узнавать обе, иначе вошедший по коду получал бы 401 на каждый экран.
  * Без `SESSION_SECRET` второго отпечатка нет — и сессий по коду тоже (их не из чего было выдать).
  */
-export function codeSessionHash(token: string, env: Record<string, string | undefined> = process.env): string | null {
+export function codeSessionHash(
+  token: string,
+  env: Record<string, string | undefined> = process.env,
+): string | null {
   const secret = env.SESSION_SECRET?.trim();
   return secret ? hashSecret(token, secret) : null;
 }
@@ -148,33 +161,115 @@ export class AuthService {
     return { token, expiresAt: expiresAt.toISOString(), user: visible(user, organizationId) };
   }
 
+  /**
+   * Регистрация организации: почта, имя, пароль (решение владельца 20.09.2026, ADR-053, Q-146).
+   *
+   * Письма в этом пути нет намеренно: прежняя регистрация слала код на почту и потому не работала,
+   * пока не настроены MAIL_* — а они не настроены. Человек входит сразу, как после обычного входа:
+   * тот же отпечаток сессии (SHA-256), тот же срок, та же кука.
+   *
+   * Три строки одной транзакцией: организация, человек, членство. Занятый адрес ловим нарушением
+   * уникальности `users.email`, а не проверкой «есть ли такой» перед вставкой: две одновременные
+   * регистрации на один адрес иначе завели бы две организации.
+   *
+   * Занятый адрес называется прямо. Это отличается от входа, где ответ один на все отказы, и разница
+   * осознанная: форме регистрации иначе нечего ответить человеку, который уже регистрировался.
+   */
+  async register(
+    input: { email: string; name: string; password: string; userAgentFamily?: string | null },
+    now = new Date(),
+  ): Promise<LoginResult> {
+    const email = validEmail(input.email);
+    if (!email) throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
+    if (!isPersonNameShaped(input.name)) {
+      throw new BadRequestException(REGISTRATION_PERSON_NAME_MESSAGE);
+    }
+    const strength = checkPassword(input.password);
+    if (!strength.ok) throw new BadRequestException(`Пароль не годится: ${strength.reason}`);
+
+    const name = normalizePersonName(input.name);
+    const passwordHash = hashPassword(input.password);
+    let created: { userId: string; organizationId: string };
+    try {
+      created = await this.prisma.db.$transaction(async (tx) => {
+        const org = await tx.organization.create({
+          data: { name: workspaceNameFor(name), status: 'TRIAL', trialEndsAt: trialEndsAt(now) },
+          select: { id: true },
+        });
+        const user = await tx.user.create({
+          data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
+          select: { id: true },
+        });
+        await tx.membership.create({ data: { userId: user.id, organizationId: org.id } });
+        return { userId: user.id, organizationId: org.id };
+      });
+    } catch (e) {
+      if (typeof e === 'object' && e !== null && (e as { code?: unknown }).code === 'P2002') {
+        throw new BadRequestException(REGISTRATION_TAKEN_MESSAGE);
+      }
+      throw e;
+    }
+
+    const token = newSessionToken();
+    const expiresAt = sessionExpiry(now);
+    await this.prisma.db.session.create({
+      data: {
+        userId: created.userId,
+        organizationId: created.organizationId,
+        tokenHash: hashSessionToken(token),
+        userAgent: input.userAgentFamily ?? null,
+        expiresAt,
+      },
+    });
+    await this.record(created.userId, 'user.register', { via: 'password' });
+
+    return {
+      token,
+      expiresAt: expiresAt.toISOString(),
+      user: { id: created.userId, email, name, organizationId: created.organizationId },
+    };
+  }
+
   /** Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий. */
   async whoami(
     token: string,
     now = new Date(),
-  ): Promise<{ user: SignedInUser; organization: SignedInOrganization | null; expiresAt: string } | null> {
+  ): Promise<{
+    user: SignedInUser;
+    organization: SignedInOrganization | null;
+    expiresAt: string;
+  } | null> {
     const found = await this.session(token, now);
     if (!found) return null;
+    // §13.5 «30 суток, продление при активности»: тем же запросом, которым отмечаем работу. Смену
+    // по паролю (ADR-049) не двигаем — она кончается через 12 часов намеренно.
+    const renew =
+      found.login === 'code' && shouldRenewSession(found.session.expiresAt, now, SESSION_TTL_MS);
+    const expiresAt = renew ? sessionExpiresAt(now) : found.session.expiresAt;
     await this.prisma.db.session.update({
       where: { id: found.session.id },
-      data: { lastSeenAt: now },
+      data: { lastSeenAt: now, ...(renew ? { expiresAt } : {}) },
     });
     const org = found.session.organization;
     return {
       user: visible(found.user, found.session.organizationId),
       organization: org
-        ? { name: org.name, status: org.status, trialEndsAt: org.trialEndsAt ? org.trialEndsAt.toISOString() : null }
+        ? {
+            name: org.name,
+            status: org.status,
+            trialEndsAt: org.trialEndsAt ? org.trialEndsAt.toISOString() : null,
+          }
         : null,
-      expiresAt: found.session.expiresAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
     };
   }
 
   /** «Выйти». Идемпотентен: неизвестный или уже отозванный токен ничего не ломает и в журнал не пишет. */
   async logout(token: string, now = new Date()): Promise<void> {
-    const session = await this.findByToken(token);
-    if (!session || session.revokedAt !== null) return;
-    await this.prisma.db.session.update({ where: { id: session.id }, data: { revokedAt: now } });
-    await this.record(session.userId, 'user.logout', {});
+    const found = await this.findByToken(token);
+    if (!found || found.row.revokedAt !== null) return;
+    await this.prisma.db.session.update({ where: { id: found.row.id }, data: { revokedAt: now } });
+    await this.record(found.row.userId, 'user.logout', {});
   }
 
   /** Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. */
@@ -203,7 +298,11 @@ export class AuthService {
     await this.record(full.id, 'user.password.changed', { sessionsRevoked: count });
   }
 
-  /** Строка сессии по ключу: сначала отпечаток пароля, потом — если задан секрет — отпечаток кода. */
+  /**
+   * Строка сессии по ключу: сначала отпечаток пароля, потом — если задан секрет — отпечаток кода.
+   * Каким отпечатком нашли, тем и живёт сессия: у входов разные сроки (12 часов и 30 суток), и
+   * продлевать их по одному правилу нельзя.
+   */
   private async findByToken(token: string) {
     const byHash = (tokenHash: string) =>
       this.prisma.db.session.findUnique({
@@ -211,22 +310,28 @@ export class AuthService {
         include: { user: true, organization: true },
       });
     const own = await byHash(hashSessionToken(token));
-    if (own) return own;
+    if (own) return { row: own, login: 'password' as const };
     const alt = codeSessionHash(token);
-    return alt ? byHash(alt) : null;
+    if (!alt) return null;
+    const row = await byHash(alt);
+    return row ? { row, login: 'code' as const } : null;
   }
 
   private async session(token: string, now: Date) {
     if (!token) return null;
-    const session = await this.findByToken(token);
-    if (!session || !session.user) return null;
-    if (sessionState(session, now) !== 'active') return null;
-    if (session.user.status !== 'ACTIVE') return null;
-    return { session, user: session.user };
+    const found = await this.findByToken(token);
+    if (!found?.row.user) return null;
+    if (sessionState(found.row, now) !== 'active') return null;
+    if (found.row.user.status !== 'ACTIVE') return null;
+    return { session: found.row, user: found.row.user, login: found.login };
   }
 
   /** Журнал: кто и что сделал. Пароли и токены здесь не появляются никогда. */
-  private async record(userId: string, action: string, after: Record<string, unknown>): Promise<void> {
+  private async record(
+    userId: string,
+    action: string,
+    after: Record<string, unknown>,
+  ): Promise<void> {
     const json = JSON.parse(JSON.stringify(after));
     await this.prisma.db.auditLog.create({
       data: { userId, entityType: 'user', entityId: userId, action, after: json },

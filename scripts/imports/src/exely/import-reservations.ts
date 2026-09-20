@@ -383,6 +383,9 @@ export async function importReservations(
           accommodationType: { select: { code: true } },
           folio: { select: { allocations: { where: { payment: { status: 'COMPLETED' } }, select: { amount: true } } } },
         },
+        // Порядок задаём сами: без него PostgreSQL отдаёт строки как удобно, и отчёт
+        // синхронизации перечисляет исчезнувшие проживания каждый раз по-новому.
+        orderBy: { exelyRoomStayId: 'asc' },
       });
       for (const item of gone) {
         if (present.has(item.exelyRoomStayId!)) continue;

@@ -9,7 +9,6 @@ import {
   inviteAction,
   logoutAllAction,
   registerAction,
-  requestCodeAction,
   signIn,
   signOut,
   verifyAction,
@@ -19,10 +18,14 @@ import { displayDate } from '../../lib/display-date';
 import './login.css';
 
 /**
- * Способ входа. Пока владелец не выбрал один (Q-146), на экране живут оба: по паролю (ADR-049) —
- * по умолчанию, и по коду на почту (ADR-046); регистрация — тот же код, но сначала организация.
+ * Что показывает экран: вход по паролю (ADR-049, ADR-053 — владелец выбрал его 20.09.2026) или
+ * регистрацию новой организации — почта, имя, пароль, без письма.
+ *
+ * Входа по коду на экране больше нет. Сам код не удалён: по нему всё ещё заходит человек, который
+ * только что принял приглашение по ссылке (acceptInviteAction уводит на `?step=code`). Перевести
+ * приглашения на пароль — отдельная работа, до неё шаг кода остаётся достижимым только оттуда.
  */
-export type LoginMode = 'password' | 'code' | 'register';
+export type LoginMode = 'password' | 'register';
 
 export function LoginForm({
   demo,
@@ -53,10 +56,11 @@ export function LoginForm({
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
-  // вход по коду: почта (и название организации) → код из письма
+  // шаг кода остаётся только для пришедшего по приглашению; обычный вход и регистрация его не видят
   const [step, setStep] = useState<'email' | 'code'>(initialStep);
   const [email, setEmail] = useState(initialEmail || accessEmail || '');
-  const [organizationName, setOrganizationName] = useState('');
+  const [personName, setPersonName] = useState('');
+  const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [codePending, startTransition] = useTransition();
@@ -83,16 +87,15 @@ export function LoginForm({
     setMode(next);
   };
 
-  /** Первый шаг: почта (и название организации при регистрации). Дальше — ввод кода из письма. */
-  function submitEmail() {
+  /**
+   * Регистрация: почта, имя, пароль. При удаче действие само ставит куку и уводит на рабочее место —
+   * второго шага и письма здесь нет (ADR-053).
+   */
+  function submitRegister() {
     setError('');
     startTransition(async () => {
-      const r =
-        mode === 'register'
-          ? await registerAction(email, organizationName)
-          : await requestCodeAction(email);
+      const r = await registerAction(email, personName, password);
       if (r.error) setError(r.error);
-      else setStep('code');
     });
   }
 
@@ -391,55 +394,30 @@ export function LoginForm({
                 )}
               </div>
               <div className="login-preview">
-                <span>Другой способ входа</span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={pending}
-                  onClick={() => switchTo('code')}
-                >
-                  Войти по коду из письма
-                </button>
+                <span>Ещё нет организации?</span>
                 <button
                   type="button"
                   className="btn btn--secondary"
                   disabled={pending}
                   onClick={() => switchTo('register')}
                 >
-                  Попробовать бесплатно
+                  Регистрация
                 </button>
               </div>
             </>
           ) : (
             <>
-              <h1>{mode === 'register' ? 'Попробовать бесплатно' : 'Вход в WETOP'}</h1>
+              <h1>Регистрация</h1>
               <p>
-                {mode === 'register'
-                  ? 'Семь дней пробного периода. Пароль не нужен: код для входа придёт на почту.'
-                  : 'Войдите по коду из письма'}
+                Семь дней пробного периода. Входить будете этой же почтой и паролем — письма и кода
+                не нужно.
               </p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  submitEmail();
+                  submitRegister();
                 }}
               >
-                {mode === 'register' && (
-                  <label className="field">
-                    Название организации
-                    <input
-                      className="inp"
-                      type="text"
-                      autoComplete="organization"
-                      name="organizationName"
-                      placeholder="Хостел «Пример»"
-                      required
-                      maxLength={200}
-                      value={organizationName}
-                      onChange={(e) => setOrganizationName(e.target.value)}
-                    />
-                  </label>
-                )}
                 <label className="field">
                   Email
                   <input
@@ -453,6 +431,46 @@ export function LoginForm({
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </label>
+                <label className="field">
+                  Имя
+                  <input
+                    className="inp"
+                    type="text"
+                    autoComplete="name"
+                    name="name"
+                    placeholder="Как к вам обращаться"
+                    required
+                    maxLength={200}
+                    value={personName}
+                    onChange={(e) => setPersonName(e.target.value)}
+                  />
+                </label>
+                <label className="field">
+                  Пароль
+                  <span className="password-control">
+                    <input
+                      className="inp"
+                      type={show ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      name="password"
+                      aria-label="Пароль"
+                      required
+                      minLength={10}
+                      placeholder="Не короче 10 знаков"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
+                      aria-pressed={show}
+                      disabled={codePending}
+                      onClick={() => setShow(!show)}
+                    >
+                      {show ? 'Скрыть' : 'Показать'}
+                    </button>
+                  </span>
+                </label>
                 {error && (
                   <p className="alert" role="alert">
                     {error}
@@ -464,26 +482,12 @@ export function LoginForm({
                   disabled={codePending}
                   aria-busy={codePending}
                 >
-                  {codePending
-                    ? 'Отправляем…'
-                    : mode === 'register'
-                      ? 'Создать организацию'
-                      : 'Получить код'}
+                  {codePending ? 'Создаём…' : 'Создать организацию'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
               <div className="login-preview">
-                <span>
-                  {mode === 'register' ? 'Уже есть организация?' : 'Ещё нет организации?'}
-                </span>
-                <button
-                  type="button"
-                  className="btn btn--secondary"
-                  disabled={codePending}
-                  onClick={() => switchTo(mode === 'register' ? 'code' : 'register')}
-                >
-                  {mode === 'register' ? 'Войти по коду' : 'Попробовать бесплатно'}
-                </button>
+                <span>Уже есть учётная запись?</span>
                 <button
                   type="button"
                   className="btn btn--secondary"

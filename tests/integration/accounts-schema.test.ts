@@ -64,13 +64,8 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
     }
   });
 
-  it('число попыток кода больше трёх база не принимает', async (ctx) => {
-    if (!migrated) return ctx.skip();
-    await expect(
-      db.$executeRaw`INSERT INTO login_codes (id, email, code_hash, expires_at, attempts, created_at)
-        VALUES (${randomUUID()}::uuid, ${mail()}, ${'x'.repeat(64)}, now() + interval '10 minutes', 4, now())`,
-    ).rejects.toThrow();
-  });
+  // Таблица `login_codes` снята 20.09.2026 вместе со входом по коду (ADR-053, миграция
+  // 20260920000017): проверять её ограничения больше нечего, а хранила она почту и IP.
 
   it('сессию нельзя привязать к несуществующей организации', async (ctx) => {
     if (!migrated) return ctx.skip();

@@ -88,6 +88,22 @@ describe('SessionGuard', () => {
       await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).rejects.toThrow();
     });
 
+    it('ключ той же длины, но другой, не пускает — сравнение идёт до конца, а не до первого знака', async () => {
+      // Сверка 20.09.2026: обычное `===` выходит на первом несовпавшем знаке, и по времени ответа
+      // ключ подбирается знак за знаком. Здесь проверяем поведение, время меряет не тест.
+      process.env.SERVICE_API_KEY = 'ключ-сторожа';
+      const { ctx } = context({ 'x-wetop-service-key': 'ключ-сторожб' });
+      await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).rejects.toThrow();
+    });
+
+    it('ключ другой длины не пускает и не роняет замок', async () => {
+      process.env.SERVICE_API_KEY = 'ключ-сторожа';
+      const { ctx } = context({ 'x-wetop-service-key': 'ключ' });
+      await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).rejects.toThrow(
+        /Служебный ключ не подходит/,
+      );
+    });
+
     it('когда служебный ключ в окружении не задан, служебный заголовок ничего не даёт', async () => {
       const { ctx } = context({ 'x-wetop-service-key': '' });
       await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).rejects.toThrow();

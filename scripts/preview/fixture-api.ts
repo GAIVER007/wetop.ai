@@ -91,6 +91,8 @@ const categories = [
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
+/** Имена категорий до крайних случаев: `design-seed` их переписывает, `__test/reset` возвращает. */
+const CATEGORY_NAMES = categories.map((c) => c.name);
 const units: InventoryUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
@@ -177,6 +179,15 @@ const extraGuests = new Map<string, GuestCard>();
 function initializeRecords() {
   extraCards.clear();
   extraGuests.clear();
+  // Крайние случаи `design-seed` переписывают имя категории прямо в общих списках: без возврата
+  // его видят все следующие спеки прогона, и окно продления называется чужой категорией.
+  categories.forEach((c, i) => {
+    c.name = CATEGORY_NAMES[i]!;
+  });
+  for (const u of units) {
+    const c = categories.find((x) => x.code === u.accommodationTypeCode);
+    if (c) u.accommodationTypeName = c.name;
+  }
   if (demo) {
     const [firstName, lastName] = names[0]!.split(' ');
     guest.firstName = firstName!;
@@ -2171,6 +2182,32 @@ createServer(async (req, res) => {
       res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
       res.end();
     };
+    // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон, любым входом; отзыв гасит все ключи.
+    if (path === '/auth/sessions') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      return send(200, [
+        {
+          id: 'sess-this',
+          issuedAt: new Date(Date.now() - 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
+          device: 'Chrome, macOS',
+          current: true,
+        },
+        {
+          id: 'sess-phone',
+          issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
+          device: 'Safari, iPhone',
+          current: false,
+        },
+      ]);
+    }
+    if (path === '/auth/logout-all' && req.method === 'POST') {
+      uiSessions.clear();
+      return noContent();
+    }
     if (path === '/auth/code' && req.method === 'POST') return noContent();
     if (path === '/auth/register' && req.method === 'POST') {
       if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))

@@ -8,6 +8,7 @@ import type {
   AccountsRepository,
   InviteRecord,
   LoginCodeRecord,
+  SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
 
@@ -26,9 +27,11 @@ interface StoredCode extends LoginCodeRecord {
   createdAt: Date;
 }
 interface StoredSession {
+  id: string;
   tokenHash: string;
   userId: string;
   organizationId: string;
+  issuedAt: Date;
   expiresAt: Date;
   revokedAt: Date | null;
   userAgent: string | null;
@@ -117,7 +120,32 @@ export class FakeAccountsRepository implements AccountsRepository {
     expiresAt: Date;
     userAgent: string | null;
   }): Promise<void> {
-    this.sessions.push({ ...input, revokedAt: null });
+    this.seq += 1;
+    this.sessions.push({ ...input, id: `s-${this.seq}`, issuedAt: new Date(), revokedAt: null });
+  }
+
+  async sessionsForUser(userId: string, now: Date): Promise<SessionListRecord[]> {
+    return this.sessions
+      .filter((s) => s.userId === userId && s.revokedAt === null && s.expiresAt > now)
+      .sort((a, b) => b.issuedAt.getTime() - a.issuedAt.getTime() || b.id.localeCompare(a.id))
+      .map((s) => ({
+        id: s.id,
+        tokenHash: s.tokenHash,
+        issuedAt: s.issuedAt,
+        expiresAt: s.expiresAt,
+        userAgent: s.userAgent,
+      }));
+  }
+
+  async revokeAllSessions(userId: string, at: Date): Promise<number> {
+    let n = 0;
+    for (const s of this.sessions) {
+      if (s.userId === userId && s.revokedAt === null && s.expiresAt > at) {
+        s.revokedAt = at;
+        n += 1;
+      }
+    }
+    return n;
   }
 
   async sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null> {

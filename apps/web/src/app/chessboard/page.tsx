@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { BoardHelp } from './board-help';
 import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
@@ -184,8 +185,9 @@ export default async function ChessboardPage({
           </Button>
         </form>
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
-        <details className="board-help">
-          <summary>Как работать с шахматкой</summary>
+        {/* Не голый <details>: подсказка обязана закрываться щелчком вне и по Escape (17.09.2026),
+            иначе раскрытой она стоит поверх планки и кнопки под ней нажать нельзя. */}
+        <BoardHelp title="Как работать с шахматкой">
           <div className="board-help-content">
             <Legend
               data-testid="board-legend"
@@ -207,7 +209,7 @@ export default async function ChessboardPage({
               карточки брони.
             </p>
           </div>
-        </details>
+        </BoardHelp>
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">

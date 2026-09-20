@@ -1,0 +1,17 @@
+# Модульные (unit) · 19.09.2026 23:13 Алматы · vm
+# коммит eb6752b (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T18-13-58Z-unit-9722.json' 'packages/domain/src/accounts/session-device.test.ts' 'apps/api/src/accounts/sessions.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (5 tests) 221ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  18:13:58
+   Duration  1.43s (transform 56%, import 28%, tests 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-19T18-13-58Z-unit-9722.json
+
+# код выхода 0 · 2 с

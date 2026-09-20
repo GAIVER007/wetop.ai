@@ -1,0 +1,35 @@
+# Модульные (unit) · 20.09.2026 12:01 Алматы · vm
+# коммит 9fe9ff5 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 199
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-20T07-01-22Z-unit-c1d3.json' 'apps/api/src/accounts' 'apps/api/src/auth' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 245ms
+[Nest] 2541  - 09/20/2026, 7:01:24 AM   ERROR [AccountsService] MAIL_* не настроены — код сгенерирован, но письмо не отправлено
+ ✓ |unit| apps/api/src/accounts/accounts.controller.test.ts (38 tests) 399ms
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (6 tests) 211ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (19 tests) 1624ms
+ ✓ |unit| packages/domain/src/accounts/accounts.test.ts (23 tests) 586ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (16 tests) 869ms
+ ✓ |unit| packages/domain/src/accounts/login-code.test.ts (29 tests) 10ms
+ ✓ |unit| packages/domain/src/accounts/reset.test.ts (9 tests) 6ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (8 tests) 14ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 10ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (11 tests) 6ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (12 tests) 11ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 3ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (6 tests) 4ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (3 tests) 9ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (9 tests) 10ms
+
+ Test Files  19 passed (19)
+      Tests  223 passed (223)
+   Start at  07:01:23
+   Duration  3.71s (tests 48%, import 32%, transform 20%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-20T07-01-22Z-unit-c1d3.json
+
+# код выхода 0 · 4 с

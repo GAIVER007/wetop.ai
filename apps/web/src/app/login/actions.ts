@@ -168,3 +168,14 @@ export async function acceptInviteAction(rawToken: string): Promise<AuthActionRe
   }
   redirect(`/login?email=${encodeURIComponent(email)}&step=code`);
 }
+
+/**
+ * «Выйти везде» (§13.5): все сессии человека отозваны в API, включая эту, каким бы входом они ни были
+ * открыты; кука прочь; на форму входа. Сбой API куку не спасает — человек просил выйти.
+ */
+export async function logoutAllAction(): Promise<void> {
+  const token = await sessionToken();
+  if (token) await authApi.logoutAll(token, await clientInfo()).catch(() => undefined);
+  await clearSessionCookie();
+  redirect('/login');
+}

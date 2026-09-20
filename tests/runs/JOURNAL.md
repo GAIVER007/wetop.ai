@@ -991,6 +991,20 @@
 | 19.09.2026 23:02 | lint (частично: --ignore-pattern .agent-tmp/**) | ✅ без ошибок | 6 с | 48149c7 +5 | [лог](logs/2026-09-19T18-02-31Z-lint-1aea.log) | C1 final lint; historical local archive excluded |
 | 19.09.2026 23:06 | unit (частично: apps/web/src/design-rules.test.ts apps/api/src/accounts) | ✅ 70 из 70 | 3 с | 830329c | [лог](logs/2026-09-19T18-06-15Z-unit-0593.log) |  |
 | 19.09.2026 23:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/invites.spec.ts tests/ui/login-access.spec.ts tests/ui/design-refresh.spec.ts) | ✅ 16 из 16 | 46 с | 830329c | [лог](logs/2026-09-19T18-06-18Z-e2e-1b9a.log) |  |
+| 19.09.2026 23:10 | unit (частично: packages/domain/src/accounts/session-device.test.ts apps/api/src/accounts/sessions.controller.test.ts) | ❌ упало 7 из 7 | 2 с | eb6752b +2 | [лог](logs/2026-09-19T18-10-13Z-unit-d4c5.log) | список сессий без сессии — 401 |
+| 19.09.2026 23:10 | integration (частично: tests/integration/sessions.test.ts) | ❌ упало 2 из 2 | 2 с | eb6752b +3 | [лог](logs/2026-09-19T18-10-16Z-integration-9b30.log) | sessions repository (integration, DATABASE_URL required) в списке только живые сессии этого человека, новые сверху, с агентом |
+| 19.09.2026 23:13 | unit (частично: packages/domain/src/accounts/session-device.test.ts apps/api/src/accounts/sessions.controller.test.ts) | ✅ 7 из 7 | 2 с | eb6752b +13 | [лог](logs/2026-09-19T18-13-58Z-unit-9722.log) |  |
+| 19.09.2026 23:14 | integration (частично: tests/integration/sessions.test.ts) | ❌ упало 1 из 2 | 2 с | eb6752b +10 | [лог](logs/2026-09-19T18-14-00Z-integration-b19e.log) | sessions repository (integration, DATABASE_URL required) «выйти везде» отзывает все строки человека, чужие живы; повтор — ноль строк |
+| 19.09.2026 23:14 | unit (частично: packages/domain/src/accounts/session-device.test.ts apps/api/src/accounts/sessions.controller.test.ts apps/api/src/accounts/invites.controller.t | ✅ 51 из 51 | 2 с | eb6752b +13 | [лог](logs/2026-09-19T18-14-48Z-unit-6a5c.log) |  |
+| 19.09.2026 23:14 | integration (частично: tests/integration/sessions.test.ts) | ✅ 2 из 2 | 2 с | eb6752b +10 | [лог](logs/2026-09-19T18-14-51Z-integration-9b12.log) |  |
+| 19.09.2026 23:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/sessions.spec.ts) | ❌ упало 2 из 3 | 1 мин 9 с | eb6752b +9 | [лог](logs/2026-09-19T18-15-12Z-e2e-b451.log) | вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса |
+| 19.09.2026 23:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/sessions.spec.ts) | ✅ 3 из 3 | 9 с | eb6752b +14 | [лог](logs/2026-09-19T18-16-22Z-e2e-a994.log) |  |
+| 19.09.2026 23:17 | typecheck | ✅ без ошибок | 19 с | eb6752b +15 | [лог](logs/2026-09-19T18-17-08Z-typecheck-422f.log) |  |
+| 19.09.2026 23:17 | lint | ✅ без ошибок | 9 с | eb6752b +15 | [лог](logs/2026-09-19T18-17-28Z-lint-7f03.log) |  |
+| 19.09.2026 23:17 | unit | ❌ упало 3 из 1088 | 1 мин 32 с | eb6752b +13 | [лог](logs/2026-09-19T18-17-38Z-unit-da2a.log) | launchd install.sh проверка доступа дожидается node, когда bash первым пишет «Operation not permitted» |
+| 19.09.2026 23:19 | integration | ✅ 40 из 40 | 12 с | eb6752b +10 | [лог](logs/2026-09-19T18-19-10Z-integration-09fd.log) |  |
+| 19.09.2026 23:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 134 | 9 мин 39 с | eb6752b +14 | [лог](logs/2026-09-19T18-19-23Z-e2e-1825.log) | axe и эталонные снимки секций: light |
+| 20.09.2026 11:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-system.spec.ts) | ✅ 8 из 8 | 32 с | eb6752b +14 | [лог](logs/2026-09-20T06-52-39Z-e2e-dfbe.log) |  |
 | 19.09.2026 16:56 | typecheck | ❌ ошибок: 13 | 25 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-56-42Z-typecheck-e8c8.log) | TS2300 |
 | 19.09.2026 16:57 | typecheck | ✅ без ошибок | 20 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-57-30Z-typecheck-d84f.log) |  |
 | 19.09.2026 16:57 | lint | ❌ ошибок: 2 | 13 с | 5bd5056 +50 | [лог](logs/2026-09-19T11-57-50Z-lint-f09f.log) | @typescript-eslint/no-unused-vars |
@@ -1037,6 +1051,26 @@
 | 19.09.2026 23:58 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 26 из 26 | 1 с | ca1f67a +4 | [лог](logs/2026-09-19T18-58-59Z-unit-572f.log) | GREEN: root dockerignore excludes secrets, local runtimes and server overlay |
 | 19.09.2026 23:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 channex-screens manager-actions dashboard-resilience design-refresh) | ✅ 21 из 21 | 42 с | ca1f67a +7 | [лог](logs/2026-09-19T18-59-10Z-e2e-1502.log) | GREEN: merged channels and manager actions, restored zero-price validation, visible Next Activity selectors |
 | 20.09.2026 00:00 | unit | ✅ 1311 из 1314, пропущено 3 | 1 мин 12 с | ca1f67a +4 | [лог](logs/2026-09-19T19-00-21Z-unit-6d66.log) | Final merged source: login refresh, API auth compatibility, price validation and effective Docker exclusions |
+| 20.09.2026 12:00 | typecheck | ❌ ошибок: 24 | 24 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-00-09Z-typecheck-a55a.log) | TS2339 |
+| 20.09.2026 12:01 | unit (частично: apps/api/src/accounts/sessions.controller.test.ts) | ❌ упало 1 из 6 | 4 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-18Z-unit-0ab2.log) | оба входа рядом (Q-146) сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду |
+| 20.09.2026 12:01 | unit (частично: apps/api/src/accounts apps/api/src/auth packages/domain/src/accounts) | ✅ 223 из 223 | 4 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-22Z-unit-c1d3.log) |  |
+| 20.09.2026 12:01 | typecheck | ✅ без ошибок | 15 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-27Z-typecheck-60be.log) |  |
+| 20.09.2026 12:01 | lint | ✅ без ошибок | 14 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-43Z-lint-2869.log) |  |
+| 20.09.2026 12:02 | integration | ✅ 45 из 45 | 13 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-02-15Z-integration-c3dc.log) |  |
+| 20.09.2026 12:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/sessions.spec.ts tests/ui/invites.spec.ts tests/ui/login-access.spec.ts) | ✅ 23 из 23 | 1 мин 18 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-02-28Z-e2e-5eaf.log) |  |
+| 20.09.2026 12:04 | unit | ✅ 1321 из 1324, пропущено 3 | 1 мин 12 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-04-01Z-unit-33da.log) |  |
+| 20.09.2026 12:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 13 из 185 | 15 мин 2 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-05-44Z-e2e-453a.log) | доступность всех разделов: light, 390px |
+| 20.09.2026 17:15 | typecheck | ✅ без ошибок | 30 с | 7bdd0e7 +4 | [лог](logs/2026-09-20T12-15-23Z-typecheck-8122.log) |  |
+| 20.09.2026 17:15 | lint | ✅ без ошибок | 14 с | 7bdd0e7 +4 | [лог](logs/2026-09-20T12-15-53Z-lint-8cb3.log) |  |
+| 20.09.2026 17:16 | unit | ❌ упало 1 из 1324, пропущено 6 | 1 мин 16 с | 7bdd0e7 +3 | [лог](logs/2026-09-20T12-16-11Z-unit-7f5b.log) | repo-sync.sh: связь папки с репозиторием проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 |
+| 20.09.2026 17:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 181 | 12 мин 8 с | 7bdd0e7 +4 | [лог](logs/2026-09-20T12-15-22Z-e2e-2eb3.log) | карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной |
+| 20.09.2026 17:29 | typecheck | ❌ ошибок: 1 | 16 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-29-30Z-typecheck-8540.log) | TS2375 |
+| 20.09.2026 17:29 | typecheck | ✅ без ошибок | 16 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-29-56Z-typecheck-3153.log) |  |
+| 20.09.2026 17:30 | lint | ✅ без ошибок | 10 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-30-12Z-lint-9cbc.log) |  |
+| 20.09.2026 17:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 181 | 11 мин 47 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-30-30Z-e2e-6c3c.log) | карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной |
+| 20.09.2026 17:44 | unit | ✅ 1321 из 1324, пропущено 3 | 1 мин 12 с | 7bdd0e7 +4 | [лог](logs/2026-09-20T12-44-47Z-unit-496c.log) |  |
+| 20.09.2026 17:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 36 с | 7bdd0e7 +5 | [лог](logs/2026-09-20T12-46-06Z-e2e-6e52.log) |  |
+| 20.09.2026 17:58 | integration | ✅ 45 из 45 | 14 с | 7bdd0e7 +1 | [лог](logs/2026-09-20T12-58-19Z-integration-a5a4.log) |  |
 | 20.09.2026 00:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 10 из 181 | 9 мин 37 с | 06729e9 | [лог](logs/2026-09-19T19-04-02Z-e2e-ed8c.log) | Full synthetic UI regression on merged main before server activation |
 | 20.09.2026 00:14 | unit (частично: tests/unit/deploy-server.test.ts) | ❌ упало 1 из 27 | 1 с | 06729e9 +1 | [лог](logs/2026-09-19T19-14-11Z-unit-b697.log) | RED: reject vulnerable runtime multer in lockfile |
 | 20.09.2026 00:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 fixture-state) | ❌ упало 2 из 2 | 5 с | 06729e9 +1 | [лог](logs/2026-09-19T19-14-21Z-e2e-cab7.log) | RED: fixture reset isolation and merged preview consistency |
@@ -1046,3 +1080,8 @@
 | 20.09.2026 16:56 | unit | ❌ упало 2 из 1315, пропущено 207 | 1 мин 16 с | 06729e9 +7 | [лог](logs/2026-09-20T11-56-17Z-unit-535c.log) | выключатель ARI на сервере файл записан, а процесс выключателя не видит — это ОШИБКА, а не успех |
 | 20.09.2026 17:07 | unit | ❌ упало 2 из 1317, пропущено 3 | 1 мин 15 с | 4363d96 +6 | [лог](logs/2026-09-20T12-07-10Z-unit-4066.log) | install.sh domain: две проверки до установки с заполненным конфигом и молчащим адресом обе проверки пропускают |
 | 20.09.2026 17:27 | unit | ✅ 1314 из 1317, пропущено 3 | 1 мин 16 с | da6f79f +6 | [лог](logs/2026-09-20T12-27-18Z-unit-0dd8.log) |  |
+| 20.09.2026 18:00 | typecheck | ✅ без ошибок | 21 с | 5b83942 | [лог](logs/2026-09-20T13-00-41Z-typecheck-73cc.log) |  |
+| 20.09.2026 18:01 | lint | ✅ без ошибок | 11 с | 5b83942 | [лог](logs/2026-09-20T13-01-02Z-lint-6564.log) |  |
+| 20.09.2026 18:01 | unit | ✅ 1324 из 1327, пропущено 3 | 1 мин 23 с | 5b83942 | [лог](logs/2026-09-20T13-01-13Z-unit-cc14.log) |  |
+| 20.09.2026 18:02 | integration | ✅ 45 из 45 | 13 с | 5b83942 | [лог](logs/2026-09-20T13-02-49Z-integration-b773.log) |  |
+| 20.09.2026 18:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 42 с | 5b83942 | [лог](logs/2026-09-20T13-03-08Z-e2e-3a64.log) |  |

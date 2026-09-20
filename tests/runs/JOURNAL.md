@@ -1426,3 +1426,6 @@
 | 20.09.2026 22:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-states.spec.ts tests/ui/premium.spec.ts --grep  | ✅ 9 из 9 | 1 мин 11 с | 0c0de4a +4 | [лог](logs/2026-09-20T17-53-43Z-e2e-942d.log) | Брони: новый дизайн, статусы, поиск, карточки, ошибки и адаптивность |
 | 20.09.2026 22:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-design.spec.ts tests/ui/quality.spec.ts --workers=1) | ✅ 18 из 18 | 1 мин 22 с | 0c0de4a +4 | [лог](logs/2026-09-20T17-56-25Z-e2e-1445.log) | Брони: финальная компоновка и регрессии форм, карточек, ошибок |
 | 20.09.2026 23:01 | unit (частично: apps/web/src/design-rules.test.ts scripts/design/build-tokens.test.ts) | ✅ 25 из 25 | 2 с | f8ad21e | [лог](logs/2026-09-20T18-01-36Z-unit-af69.log) | Брони: повтор после добавления нового CSS в Git, чтобы git ls-files включил его в проверку токенов |
+| 20.09.2026 23:09 | typecheck | ✅ без ошибок | 19 с | 981bf2b | [лог](logs/2026-09-20T18-09-15Z-typecheck-d772.log) |  |
+| 20.09.2026 23:09 | lint | ✅ без ошибок | 13 с | 981bf2b | [лог](logs/2026-09-20T18-09-34Z-lint-b3f0.log) |  |
+| 20.09.2026 23:09 | unit | ✅ 1295 из 1298, пропущено 3 | 1 мин 12 с | 981bf2b | [лог](logs/2026-09-20T18-09-48Z-unit-9d3b.log) |  |

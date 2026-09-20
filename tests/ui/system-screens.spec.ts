@@ -238,3 +238,60 @@ test('аналитика и статистика: пустое состояни�
   );
   await expect(main.getByTestId('statistics-table')).toBeVisible({ timeout: 15_000 });
 });
+
+/**
+ * D4 «Настройки объекта и сайта»: отказ чтения Channex или настроек — сбой с повтором, а не общий экран; строка
+ * источника без « · » и время в `<time>`; пустые значения «—»; пустые справочники называют, откуда они берутся;
+ * загрузка словом. Формы «Подключения счётчика» не трогались.
+ */
+test('настройки гостиницы: сбой с повтором, источник словами, пустые справочники с причиной, загрузка словом', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.goto('/hotel-settings/description');
+  const source = main.getByTestId('content-source');
+  await expect(source).not.toContainText(' · ');
+  await expect(source).toContainText('прочитано в');
+  await expect(source.locator('time')).toHaveAttribute('datetime', /T/);
+  await expect(source.getByRole('link', { name: 'Прочитать заново' })).toBeVisible();
+  // пустой сайт в Channex — «—», а не «Не указан»
+  await expect(main.locator('.fact__label:text-is("Сайт") + .fact__value')).toHaveText('—');
+  await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
+  // штрафы: подпись тарифа без « · »
+  await page.goto('/hotel-settings/penalties');
+  await expect(main.getByTestId('rate-plans-table')).toContainText('BASE, KZT');
+  await expect(main.getByTestId('rate-plans-table')).not.toContainText(' · ');
+  // отказ чтения Channex: заголовок и крошки на месте, сбой с повтором
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/channels/channex/content' },
+  });
+  await page.goto('/hotel-settings/photos');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Фото');
+  const failure = main.getByTestId('content-load-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('content-photos')).toBeVisible();
+  await expect(main.getByTestId('content-load-error')).toHaveCount(0);
+  // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
+  await page.goto('/hotel-settings/services');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Услуги');
+  await expect(main.getByTestId('services-error')).toContainText(
+    'Проверьте подключение и повторите запрос',
+  );
+  await expect(main.getByTestId('services-table')).toHaveCount(0);
+  // пустой справочник услуг — откуда он берётся
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/hotel-settings/services');
+  await expect(main.getByTestId('services-empty')).toContainText('приходит из справочника Exely');
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  // загрузка словом
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/channels/channex/content', delayMs: 2500 },
+  });
+  await page.goto('/hotel-settings/amenities', { waitUntil: 'commit' });
+  await expect(main.getByTestId('settings-loading')).toContainText('Читаем настройки объекта');
+  await expect(main.getByTestId('content-facilities')).toBeVisible({ timeout: 15_000 });
+});

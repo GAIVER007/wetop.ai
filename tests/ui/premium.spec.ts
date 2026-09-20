@@ -138,6 +138,7 @@ test('новые страницы и обе темы: адаптивность �
     '/incidents',
     '/analytics',
     '/management/statistics',
+    '/hotel-settings/services',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });

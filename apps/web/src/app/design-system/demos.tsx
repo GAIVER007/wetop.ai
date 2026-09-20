@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { ActionMenu } from '../../components/action-menu';
 import { ConfirmDialog } from '../../components/confirm-dialog';
+import { ErrorState } from '../../components/error-state';
 import { ToastProvider, ToastRegion, useToast } from '../../components/toast';
 import { Tooltip } from '../../components/tooltip';
 import { Button } from '../../components/ui';
@@ -132,6 +133,20 @@ export function TooltipDemo() {
           нет гражданства
         </span>
       </Tooltip>
+    </div>
+  );
+}
+
+/**
+ * Экран сбоя из каталога: `Error` нельзя передать из серверного компонента, поэтому он собирается
+ * здесь. `digest` — как у `ApiError`: `API_503` — нет связи, `API_404` — отклонённый запрос.
+ */
+export function ErrorDemo({ digest }: { digest: string }) {
+  const [attempt, setAttempt] = useState(0);
+  const error = Object.assign(new Error('Синтетический отказ API'), { digest });
+  return (
+    <div data-attempt={attempt}>
+      <ErrorState error={error} retry={() => setAttempt((n) => n + 1)} />
     </div>
   );
 }

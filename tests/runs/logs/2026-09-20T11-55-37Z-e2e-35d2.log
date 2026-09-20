@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 20.09.2026 16:55 Алматы · vm
+# коммит ae71503 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/system-screens.spec.ts' '-g' 'настройки гостиницы' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/system-screens.spec.ts:247:1 › настройки гостиницы: сбой с повтором, источник словами, пустые справочники с причиной, загрузка словом (16.1s)
+
+
+  1) tests/ui/system-screens.spec.ts:247:1 › настройки гостиницы: сбой с повтором, источник словами, пустые справочники с причиной, загрузка словом 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('content-source')
+    Expected substring: not " · "
+    Received string: "Источник: Channex (тестовый объект staging) · прочитано в 16:55 по Алматы · прочитать заново. Изменить можно в кабинете Channex."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "not toContainText" getByRole('main').getByTestId('content-source') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('content-source')
+        34 × locator resolved to <p class="note" data-testid="content-source">…</p>
+           - unexpected value "Источник: Channex (тестовый объект staging) · прочитано в 16:55 по Алматы · прочитать заново. Изменить можно в кабинете Channex."
+
+
+      252 |   await page.goto('/hotel-settings/description');
+      253 |   const source = main.getByTestId('content-source');
+    > 254 |   await expect(source).not.toContainText(' · ');
+          |                            ^
+      255 |   await expect(source).toContainText('прочитано в');
+      256 |   await expect(source.locator('time')).toHaveAttribute('datetime', /T/);
+      257 |   await expect(source.getByRole('link', { name: 'Прочитать заново' })).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:254:28
+
+    Error Context: test-results/system-screens-настройки-г-8d68a--с-причиной-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-настройки-г-8d68a--с-причиной-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-настройки-г-8d68a--с-причиной-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/system-screens.spec.ts:247:1 › настройки гостиницы: сбой с повтором, источник словами, пустые справочники с причиной, загрузка словом 
+
+# код выхода 1 · 21 с

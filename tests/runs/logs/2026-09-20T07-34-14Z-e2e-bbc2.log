@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 20.09.2026 12:34 Алматы · vm
+# коммит bc2b4aa (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'design-system' '--update-snapshots' '--workers=1'
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (2.2s)
+  ✓  2 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (7.3s)
+  ✓  3 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (6.8s)
+  ✓  4 tests/ui/design-system.spec.ts:72:1 › масштаб 200 %: нет горизонтальной прокрутки (1.2s)
+  ✓  5 tests/ui/design-system.spec.ts:93:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (1.9s)
+  ✓  6 tests/ui/design-system.spec.ts:115:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (2.7s)
+  ✓  7 tests/ui/design-system.spec.ts:130:1 › уведомление появляется в живой области и закрывается (1.5s)
+  ✓  8 tests/ui/design-system.spec.ts:142:1 › подсказка открывается фокусом и закрывается Escape (1.8s)
+  ✓  9 tests/ui/design-system.spec.ts:155:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (1.6s)
+
+  9 passed (30.8s)
+
+# код выхода 0 · 32 с

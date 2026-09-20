@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 20.09.2026 15:01 Алматы · vm
+# коммит 0dde1a4 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/real-data.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/requests.spec.ts' '-g' 'менеджер каналов|подключени|пустые ответы|источник и агрегаты|название гостиницы|переполн|каждый экран|экраны|доступность|один запрос|Нет связи' '--workers=1'
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (43.3s)
+  ✓   2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (40.8s)
+  ✓   3 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px (36.4s)
+  ✓   4 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px (36.3s)
+  ✓   5 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 1440px (5.3s)
+  ✓   6 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 1440px (4.6s)
+  ✓   7 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 390px (4.4s)
+  ✓   8 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 390px (4.4s)
+  ✓   9 tests/ui/channex-screens.spec.ts:384:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (5.7s)
+  ✓  10 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (789ms)
+  ✓  11 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (800ms)
+  ✓  12 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (16.0s)
+  ✓  13 tests/ui/workspace.spec.ts:120:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (1.6s)
+  ✓  14 tests/ui/workspace.spec.ts:138:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (2.0s)
+  ✓  15 tests/ui/workspace.spec.ts:163:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (1.9s)
+  ✓  16 tests/ui/workspace.spec.ts:548:1 › обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия (2.3s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:74:38)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:57:13)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:326:26)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  17 tests/ui/workspace.spec.ts:810:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (4.5s)
+  ✓  18 tests/ui/workspace.spec.ts:983:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.2s)
+  ✓  19 tests/ui/workspace.spec.ts:1042:1 › подключения каналов: время события — по Алматы, а не сырой UTC (781ms)
+
+  19 passed (3.6m)
+
+# код выхода 0 · 3 мин 39 с

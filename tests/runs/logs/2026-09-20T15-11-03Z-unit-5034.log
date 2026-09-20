@@ -1,0 +1,57 @@
+# Модульные (unit) · 20.09.2026 20:11 Алматы · MacBook-Air-Urij.local
+# коммит 0ed8c75 (codex/pause-self-registration), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T15-11-03Z-unit-5034.json' 'apps/web/src/app/login/signed-in.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests | 2 failed) 12ms
+   × неполный или неразрешающий ответ API null закрывает регистрацию 8ms
+   ✓ неполный или неразрешающий ответ API {} закрывает регистрацию 1ms
+   ✓ неполный или неразрешающий ответ API {"registrationEnabled":"true"} закрывает регистрацию 0ms
+   ✓ неполный или неразрешающий ответ API {"registrationEnabled":false} закрывает регистрацию 0ms
+   ✓ сбой ответа API Error: API unavailable закрывает регистрацию 0ms
+   × сбой ответа API SyntaxError: Invalid JSON закрывает регистрацию 1ms
+   ✓ явное разрешение API открывает форму 0ms
+   ✓ служебные исключения Next не поглощаются как отказ API 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > неполный или неразрешающий ответ API null закрывает регистрацию
+AssertionError: promise rejected "TypeError: Cannot read properties of null…" instead of resolving
+ ❯ apps/web/src/app/login/signed-in.test.ts:11:42
+      9|   async (body) => {
+     10|     vi.spyOn(authApi, 'options').mockResolvedValue(body as Awaited<Ret…
+     11|     await expect(registrationAvailable()).resolves.toBe(false);
+       |                                          ^
+     12|   },
+     13| );
+
+Caused by: TypeError: Cannot read properties of null (reading 'registrationEnabled')
+ ❯ registrationAvailable apps/web/src/app/login/signed-in.ts:7:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/login/signed-in.test.ts > сбой ответа API SyntaxError: Invalid JSON закрывает регистрацию
+AssertionError: promise rejected "SyntaxError: Invalid JSON" instead of resolving
+ ❯ apps/web/src/app/login/signed-in.test.ts:19:42
+     17|   async (error) => {
+     18|     vi.spyOn(authApi, 'options').mockRejectedValue(error);
+     19|     await expect(registrationAvailable()).resolves.toBe(false);
+       |                                          ^
+     20|   },
+     21| );
+
+Caused by: SyntaxError: Invalid JSON
+ ❯ apps/web/src/app/login/signed-in.test.ts:15:48
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  19:11:07
+   Duration  372ms (import 47%, transform 43%, tests 7%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T15-11-03Z-unit-5034.json
+
+# код выхода 1 · 4 с

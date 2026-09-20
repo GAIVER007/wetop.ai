@@ -7,20 +7,17 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { newSessionToken } from '@pms/shared';
-import { hashSessionToken } from '@pms/domain';
+import { hashSessionToken, newSessionToken } from '@pms/domain';
+
 import { AccountsModule } from '../../apps/api/src/accounts/accounts.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaGuestsRepository } from '../../apps/api/src/guests/guests.repository';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
-process.env.SESSION_SECRET ??= 'секрет-для-прогона';
 const url = process.env.DATABASE_URL;
 
 /**
  * Срез 13, этап 8: `audit_logs.user_id` получает автора действия (обещано ADR-023, сделано ADR-046).
- * Отпечаток ключа сессии — SHA-256 (`hashSessionToken`, ADR-049): второй отпечаток (HMAC входа по коду)
- * снят вместе с самим входом по коду 20.09.2026, и сессия, записанная им, перестала находиться.
  * Живая база: сессия лежит в `sessions`, middleware учётных записей находит её по `Bearer`, а
  * хранилище гостей пишет строку журнала тем же кодом, что и стойка. Без ключа автор — `null`.
  */
@@ -64,8 +61,10 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
       VALUES (${userId}::uuid, ${email}, 'ACTIVE', now())`;
     await db.$executeRaw`INSERT INTO memberships (user_id, organization_id, created_at)
       VALUES (${userId}::uuid, ${orgId}::uuid, now())`;
+    // ADR-053: действующие сессии пароля хранят SHA-256; прежний HMAC входа по коду снят.
     await db.$executeRaw`INSERT INTO sessions (id, token_hash, user_id, organization_id, issued_at, expires_at)
-      VALUES (${randomUUID()}::uuid, ${hashSessionToken(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '30 days')`;
+      VALUES (${randomUUID()}::uuid, ${hashSessionToken(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '12 hours')`;
+
 
     // ProbeController живёт в корневом тестовом модуле, а PrismaService — внутри AccountsModule, откуда
     // он не экспортируется: без своей регистрации Nest отвечает «can't resolve dependencies of the

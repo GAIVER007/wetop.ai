@@ -73,6 +73,35 @@ test('выписанный ранее сеанс по паролю продол�
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
+test('удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль', async ({
+  page,
+  request,
+  context,
+}) => {
+  // Вход по коду снят в main по ADR-053. Проверяем отсутствие старого пути, а не возвращаем его в fixture.
+  for (const path of ['/auth/code', '/auth/verify']) {
+    const response = await request.post(`http://127.0.0.1:4311${path}`, {
+      headers: { 'x-wetop-test-client': '1' },
+      data: { email: 'legacy@example.invalid', code: '123456' },
+    });
+    expect(response.status()).toBe(404);
+  }
+  await context.addCookies([
+    {
+      name: 'wetop_session',
+      value: 'retired-synthetic-session',
+      url: 'http://127.0.0.1:3100',
+      httpOnly: true,
+      sameSite: 'Lax',
+      expires: Math.floor(Date.now() / 1000) + 86400,
+    },
+  ]);
+  await page.goto('/login');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('session-list')).toHaveCount(0);
+  await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
+});
+
 test('без сессии списка сеансов нет', async ({ page }) => {
   await page.goto('/login');
   const main = page.getByRole('main');

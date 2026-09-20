@@ -1,7 +1,11 @@
 import { guardApi, type Incident } from '../../lib/api';
+import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { Alert, Badge, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import { GuardTickButton, IncidentButtons } from './buttons';
+import '../directory.css';
 
 /**
  * Неисправности системы — одно место (срез 11, ADR-028). Сторож проверяет систему раз в минуту и пишет сюда
@@ -29,26 +33,35 @@ const STATUS_TONE: Record<Incident['status'], 'info' | 'warn' | 'danger' | 'ok' 
 const RESOLVED_BY_RU = { GUARD: 'сторож', AGENT: 'дежурный агент', STAFF: 'вручную' } as const;
 
 /** Время по часам объекта: страница рендерится на сервере, у которого может быть другой пояс */
-const at = (iso: string | null) =>
-  iso
-    ? new Date(iso).toLocaleString('ru-RU', {
-        timeZone: 'Asia/Almaty',
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '—';
+const atText = (iso: string) =>
+  new Date(iso).toLocaleString('ru-RU', {
+    timeZone: 'Asia/Almaty',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+/** Время словами внутри `<time>`: сырое значение остаётся тестам и копированию (§14) */
+const at = (iso: string | null) => (iso ? <time dateTime={iso}>{atText(iso)}</time> : '—');
 
 /** Сколько записей истории читаем: если пришло ровно столько, список обрезан — и это написано на экране */
 const HISTORY_LIMIT = 200;
 
+/**
+ * D4 (план владельца 19.09): отказ состояния сторожа — `LoadError` с повтором, а не строка «API не отвечает»;
+ * пустые таблицы называют, что это значит и откуда возьмётся новая запись; время в `<time>`; на телефоне
+ * строки складываются в карточки. Сторож, его проверки и действия по неисправностям не менялись.
+ */
 export default async function IncidentsPage() {
-  const [status, open, all] = await Promise.all([
-    guardApi.status().catch(() => null),
+  const [loadedStatus, open, all] = await Promise.all([
+    guardApi.status().then(
+      (r) => ({ ok: true as const, r }),
+      (e: unknown) => ({ ok: false as const, e }),
+    ),
     guardApi.incidents('open').catch(() => null),
     guardApi.incidents('all', HISTORY_LIMIT).catch(() => null),
   ]);
+  const status = loadedStatus.ok ? loadedStatus.r : null;
   const truncated = all !== null && all.length >= HISTORY_LIMIT;
   const dayAgo = Date.now() - 24 * 3_600_000;
   const closed = all?.filter(
@@ -57,7 +70,9 @@ export default async function IncidentsPage() {
   const tick = status?.lastTick ?? null;
   return (
     <Page title="Неисправности" actions={<GuardTickButton />}>
-      {!status && <Alert boxed>API не отвечает. Подключение к системе недоступно.</Alert>}
+      {!loadedStatus.ok && (
+        <LoadError testId="incidents-status-error" {...loadErrorProps(loadedStatus.e)} />
+      )}
       {status && !status.notifier.configured && (
         <Alert boxed tone="warning" data-testid="notifier-missing">
           Уведомления не настроены. Неисправности доступны только здесь.
@@ -130,7 +145,7 @@ export default async function IncidentsPage() {
           Список неисправностей не загрузился. Обновите страницу — текущее состояние неизвестно.
         </Alert>
       )}
-      <Table size="sm" data-testid="incidents-table">
+      <Table size="sm" className="dir-table dir-table--incidents" data-testid="incidents-table">
         <thead>
           <tr>
             {['Что случилось', 'Статус', 'Замечена', 'Что делал сторож', ''].map((h) => (
@@ -141,8 +156,17 @@ export default async function IncidentsPage() {
         <tbody>
           {open?.length === 0 && (
             <tr>
-              <td colSpan={5} className="muted">
-                неисправностей нет
+              <td colSpan={5} className="empty-state" data-testid="incidents-empty">
+                Открытых неисправностей нет
+                {tick
+                  ? `: последний проход сторожа в ${atText(tick.at)} сделал ${pluralRu(tick.checked.length, ['проверку', 'проверки', 'проверок'])}, всё ответило.`
+                  : '.'}{' '}
+                {status?.running
+                  ? 'Сторож проверяет систему раз в минуту; новая запись появится здесь' +
+                    (status.notifier.configured
+                      ? ' и разбудит дежурного.'
+                      : ', будильник не настроен.')
+                  : 'Сторож выключен (GUARD=off) — новые неисправности здесь не появятся, пока его не включат.'}
               </td>
             </tr>
           )}
@@ -203,7 +227,11 @@ export default async function IncidentsPage() {
           История неисправностей не загрузилась. Это не означает, что закрытых записей нет.
         </Alert>
       )}
-      <Table size="sm" data-testid="incidents-closed">
+      <Table
+        size="sm"
+        className="dir-table dir-table--incidents-closed"
+        data-testid="incidents-closed"
+      >
         <thead>
           <tr>
             {['Что случилось', 'Замечена', 'Закрыта', 'Кем'].map((h) => (
@@ -214,8 +242,9 @@ export default async function IncidentsPage() {
         <tbody>
           {closed?.length === 0 && (
             <tr>
-              <td colSpan={4} className="muted">
-                за сутки ничего не закрывалось
+              <td colSpan={4} className="empty-state" data-testid="incidents-closed-empty">
+                За сутки ничего не закрывалось: ни сторож, ни человек не закрывали записей. Закрытые
+                раньше — в истории API, здесь только последние 24 часа.
               </td>
             </tr>
           )}

@@ -8,6 +8,7 @@ import {
   Alert,
   Badge,
   Button,
+  Field,
   Input,
   Notice,
   Panel,
@@ -26,6 +27,7 @@ import {
   stayExtraAction,
 } from './finance-actions';
 import { almatyDate } from '../../../lib/almaty';
+import { displayDate } from '../../../lib/display-date';
 import { useConfirm } from '../../../components/use-confirm';
 
 const KIND_RU: Record<string, string> = {
@@ -47,6 +49,16 @@ const METHODS: Array<[string, string]> = [
 ];
 const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 const INIT: FinanceActionResult = { error: null, ok: 0 };
+/** «1.25» / «1,25» / «12000» → тиыны строкой; иначе null — сумма ещё не число */
+export const decimalToMinor = (raw: string): string | null => {
+  const m = raw
+    .trim()
+    .replace(/\s+/g, '')
+    .match(/^(-?)(\d+)(?:[.,](\d{1,2}))?$/);
+  if (!m) return null;
+  const [, sign, whole, frac = ''] = m;
+  return `${sign}${BigInt(whole!) * 100n + BigInt(frac.padEnd(2, '0'))}`;
+};
 const toDecimal = (minor: string) => {
   const neg = minor.startsWith('-');
   const d = minor.replace('-', '').padStart(3, '0');
@@ -135,8 +147,10 @@ function FolioPanel({
     <Panel data-testid="folio-panel" style={{ gap: 10 }}>
       <Row gap="lg" className="row--baseline">
         <b className="panel__title panel__title--lg">
-          Счёт: {folio.stay.accommodationTypeName}, {folio.stay.arrivalDate} →{' '}
-          {folio.stay.departureDate}
+          Счёт — {folio.stay.accommodationTypeName},{' '}
+          <time dateTime={folio.stay.arrivalDate}>{displayDate(folio.stay.arrivalDate)}</time>
+          {' → '}
+          <time dateTime={folio.stay.departureDate}>{displayDate(folio.stay.departureDate)}</time>
         </b>
         {!open && (
           // Без подписи закрытый счёт выглядел просто как счёт без форм: администратор не понимал,
@@ -144,10 +158,10 @@ function FolioPanel({
           <Badge data-testid="folio-closed">счёт закрыт — гость рассчитался и выехал</Badge>
         )}
         <span className="sub">
-          начислено {formatMoney(folio.chargedMinor, folio.currency)} · оплачено{' '}
+          начислено {formatMoney(folio.chargedMinor, folio.currency)}, оплачено{' '}
           {formatMoney(folio.paidMinor, folio.currency)}
           {folio.refundedMinor !== '0'
-            ? ` · возвращено ${formatMoney(folio.refundedMinor, folio.currency)}`
+            ? `, возвращено ${formatMoney(folio.refundedMinor, folio.currency)}`
             : ''}
         </span>
         <span className="ml-auto">
@@ -174,10 +188,15 @@ function FolioPanel({
               className={c.voidedAt ? 'is-void' : undefined}
             >
               <td>
-                <span className="hint">{KIND_RU[c.kind] ?? c.kind} · </span>
-                {c.description}
+                <span className="hint">{KIND_RU[c.kind] ?? c.kind}</span> {c.description}
               </td>
-              <td>{c.serviceDate ?? '—'}</td>
+              <td>
+                {c.serviceDate ? (
+                  <time dateTime={c.serviceDate}>{displayDate(c.serviceDate)}</time>
+                ) : (
+                  '—'
+                )}
+              </td>
               <td>
                 {c.quantity} × {formatMoney(c.unitPriceMinor, folio.currency)}
               </td>
@@ -222,9 +241,9 @@ function FolioPanel({
               <tr key={p.paymentId} data-testid="payment-row">
                 <td>
                   {methodRu(p.method)}
-                  {p.note ? ` · ${p.note}` : ''}
-                  {p.externalReference ? ` · ${p.externalReference}` : ''}
-                  {p.status === 'VOIDED' ? ' · аннулирован' : ''}
+                  {p.note ? `, ${p.note}` : ''}
+                  {p.externalReference ? `, ${p.externalReference}` : ''}
+                  {p.status === 'VOIDED' ? ' — аннулирован' : ''}
                 </td>
                 <td>{almatyDate(p.paidAt)}</td>
                 <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
@@ -260,109 +279,100 @@ function FolioPanel({
 
       {open && (
         <Stack gap="sm">
-          <form
-            key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
-            action={chargeAction}
-            data-testid="charge-form"
-            className="row"
-          >
-            <Select
-              name="kind"
-              aria-label="Вид начисления"
-              value={kind}
-              onChange={(e) => setKind(e.target.value)}
+          <div className="folio-forms">
+            {/* D3: у каждого поля подпись, начисление и оплата — две подписанные группы, не один ряд полей */}
+            <form
+              key={`c${chargeState.ok}-${chargeState.attempt ?? 0}`}
+              action={chargeAction}
+              data-testid="charge-form"
+              className="folio-form"
             >
-              <option value="SERVICE">услуга</option>
-              <option value="PENALTY">штраф</option>
-              <option value="ADJUSTMENT">корректировка</option>
-            </Select>
-            {kind === 'SERVICE' ? (
-              <Select
-                name="serviceCode"
-                aria-label="Услуга"
-                defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
-              >
-                {services.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.group ? `${s.group}: ` : ''}
-                    {s.nameRu} — {formatMoney(s.priceMinor, folio.currency)}
-                  </option>
-                ))}
-              </Select>
-            ) : (
-              <Input
-                name="description"
-                aria-label="Описание начисления"
-                defaultValue={chargeState.values?.description ?? ''}
-                placeholder="за что"
-                required
-                className="inp--w180"
-              />
-            )}
-            <Input
-              name="quantity"
-              aria-label="Количество"
-              type="number"
-              min={1}
-              step={1}
-              defaultValue={chargeState.values?.quantity ?? 1}
-              className="inp--w64"
-              title="количество"
+              <b className="folio-form__title">Начислить на счёт</b>
+              <div className="row">
+                <Field inline label="Вид">
+                  <Select
+                    name="kind"
+                    aria-label="Вид начисления"
+                    value={kind}
+                    onChange={(e) => setKind(e.target.value)}
+                  >
+                    <option value="SERVICE">услуга</option>
+                    <option value="PENALTY">штраф</option>
+                    <option value="ADJUSTMENT">корректировка</option>
+                  </Select>
+                </Field>
+                {kind === 'SERVICE' ? (
+                  <Field inline label="Услуга">
+                    <Select
+                      name="serviceCode"
+                      aria-label="Услуга"
+                      defaultValue={chargeState.values?.serviceCode ?? services[0]?.code}
+                    >
+                      {services.map((s) => (
+                        <option key={s.code} value={s.code}>
+                          {s.group ? `${s.group}: ` : ''}
+                          {s.nameRu} — {formatMoney(s.priceMinor, folio.currency)}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                ) : (
+                  <Field inline label="За что">
+                    <Input
+                      name="description"
+                      aria-label="Описание начисления"
+                      defaultValue={chargeState.values?.description ?? ''}
+                      placeholder="за что"
+                      required
+                      className="inp--w180"
+                    />
+                  </Field>
+                )}
+                <Field inline label="Кол-во">
+                  <Input
+                    name="quantity"
+                    aria-label="Количество"
+                    type="number"
+                    min={1}
+                    step={1}
+                    defaultValue={chargeState.values?.quantity ?? 1}
+                    className="inp--w64"
+                  />
+                </Field>
+                {kind !== 'SERVICE' && (
+                  <Field inline label="Цена">
+                    <Input
+                      name="unitPrice"
+                      aria-label="Цена за единицу"
+                      defaultValue={chargeState.values?.unitPrice ?? ''}
+                      placeholder={kind === 'ADJUSTMENT' ? 'сумма (можно −)' : 'сумма'}
+                      required
+                      className="inp--w120"
+                    />
+                  </Field>
+                )}
+                <Field inline label="Дата">
+                  <Input
+                    name="serviceDate"
+                    aria-label="Дата услуги"
+                    type="date"
+                    defaultValue={chargeState.values?.serviceDate ?? today}
+                  />
+                </Field>
+                <Button type="submit" disabled={busy}>
+                  Начислить
+                </Button>
+              </div>
+            </form>
+            <PaymentForm
+              key={`p${payState.ok}-${payState.attempt ?? 0}`}
+              number={number}
+              folio={folio}
+              action={payFormAction}
+              values={payState.values}
+              busy={busy}
             />
-            {kind !== 'SERVICE' && (
-              <Input
-                name="unitPrice"
-                aria-label="Цена за единицу"
-                defaultValue={chargeState.values?.unitPrice ?? ''}
-                placeholder={kind === 'ADJUSTMENT' ? 'сумма (можно −)' : 'сумма'}
-                required
-                className="inp--w120"
-              />
-            )}
-            <Input
-              name="serviceDate"
-              aria-label="Дата услуги"
-              type="date"
-              defaultValue={chargeState.values?.serviceDate ?? today}
-            />
-            <Button type="submit" disabled={busy}>
-              Начислить
-            </Button>
-          </form>
-          <form
-            key={`p${payState.ok}-${payState.attempt ?? 0}`}
-            action={payFormAction}
-            data-testid="payment-form"
-            className="row"
-          >
-            <Select
-              name="method"
-              aria-label="Способ оплаты"
-              disabled={busy}
-              defaultValue={payState.values?.method ?? 'CASH'}
-            >
-              {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
-                <option key={k} value={k}>
-                  {t}
-                </option>
-              ))}
-            </Select>
-            <PaymentAmount
-              balanceMinor={folio.balanceMinor}
-              initialValue={payState.values?.amount}
-              disabled={busy}
-            />
-            <Input
-              name="note"
-              aria-label="Примечание"
-              disabled={busy}
-              defaultValue={payState.values?.note ?? ''}
-              placeholder="примечание"
-            />
-            <Button type="submit" tone="success" disabled={busy}>
-              Принять оплату
-            </Button>
-          </form>
+          </div>
           {/* ADR-021: ранний заезд и поздний выезд — услуга одной кнопкой, половина ночи по умолчанию */}
           <Row>
             {(
@@ -435,28 +445,84 @@ function FolioPanel({
   );
 }
 
-/** A balance refresh may suggest an amount, but must never replace an operator's draft. */
-function PaymentAmount({
-  balanceMinor,
-  initialValue,
-  disabled,
+/**
+ * Приём оплаты (D3): подписанные поля и строка сути перед кнопкой — сколько, чем и на какой счёт какой
+ * брони уходит. Кнопка одна, на время отправки отключена: второй платёж тем же нажатием не создаётся.
+ * Отказ сохраняет ввод (`values` из server action), успех перерисовывает форму заново (ключ снаружи).
+ */
+function PaymentForm({
+  number,
+  folio,
+  action,
+  values,
+  busy,
 }: {
-  balanceMinor: string;
-  initialValue: string | undefined;
-  disabled: boolean;
+  number: string;
+  folio: FinanceFolio;
+  action: (fd: FormData) => void;
+  values: Record<string, string> | undefined;
+  busy: boolean;
 }) {
-  const [draft, setDraft] = useState<string | null>(initialValue ?? null);
+  const [method, setMethod] = useState(values?.method ?? 'CASH');
+  const suggested = BigInt(folio.balanceMinor) > 0n ? toDecimal(folio.balanceMinor) : '';
+  const [draft, setDraft] = useState<string | null>(values?.amount ?? null);
+  const amount = draft ?? suggested;
+  const minor = decimalToMinor(amount);
+  const digest =
+    amount === ''
+      ? 'Введите сумму'
+      : `${minor ? formatMoney(minor, folio.currency) : `${amount} — не число`}, ${methodRu(method)}, на счёт «${folio.stay.accommodationTypeName}» брони ${number}`;
   return (
-    <Input
-      name="amount"
-      aria-label="Сумма"
-      placeholder="сумма"
-      required
-      disabled={disabled}
-      value={draft ?? (BigInt(balanceMinor) > 0n ? toDecimal(balanceMinor) : '')}
-      onChange={(event) => setDraft(event.target.value)}
-      className="inp--w120"
-    />
+    <form action={action} data-testid="payment-form" className="folio-form folio-form--pay">
+      <b className="folio-form__title">Принять оплату</b>
+      <div className="row">
+        <Field inline label="Способ">
+          <Select
+            name="method"
+            aria-label="Способ оплаты"
+            disabled={busy}
+            value={method}
+            onChange={(e) => setMethod(e.target.value)}
+          >
+            {METHODS.filter(([k]) => k !== 'EXTERNAL').map(([k, t]) => (
+              <option key={k} value={k}>
+                {t}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field inline label="Сумма">
+          {/* подсказка из баланса не перебивает ввод администратора */}
+          <Input
+            name="amount"
+            aria-label="Сумма"
+            placeholder="сумма"
+            required
+            disabled={busy}
+            value={amount}
+            onChange={(event) => setDraft(event.target.value)}
+            className="inp--w120"
+          />
+        </Field>
+        <Field inline label="Примечание">
+          <Input
+            name="note"
+            aria-label="Примечание"
+            disabled={busy}
+            defaultValue={values?.note ?? ''}
+            placeholder="примечание"
+          />
+        </Field>
+      </div>
+      <div className="row folio-form__submit">
+        <span className="hint" data-testid="payment-digest">
+          {digest}
+        </span>
+        <Button type="submit" tone="success" disabled={busy || minor === null}>
+          Принять оплату
+        </Button>
+      </div>
+    </form>
   );
 }
 

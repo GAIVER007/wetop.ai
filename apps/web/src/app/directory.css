@@ -112,9 +112,1152 @@ a.dir-number:hover {
 .directory-toolbar {
   margin-bottom: 14px;
 }
+/* B1 (20.09.2026): у дат видимые подписи «С» и «По», а не только aria-label */
+.directory-toolbar .field--inline .inp {
+  width: 145px;
+}
 .directory-filters {
   margin-bottom: 14px;
 }
+/* Выборка названа одним предложением: «9 бронирований на 20 сент., статус «Проживают»» */
 .directory-meta {
-  margin-bottom: 10px;
+  margin: 0 0 8px;
+}
+
+/* слово у суммы видно только на телефоне: на desktop его несёт шапка колонки */
+.dir-cell-word {
+  display: none;
+}
+
+/*
+ * Телефон (B1): семь колонок в 390 px не помещаются, и таблица уезжала в прокрутку вбок — видны были
+ * только гость, источник и место. Строка складывается в карточку: гость и статус, проживание, место и
+ * источник, стоимость и «к оплате». Разметка та же (`tbody tr`, ссылка «Открыть бронь N»), шапка
+ * остаётся для чтения с экрана, но не рисуется; цели фильтров статуса — 44 px (DESIGN.md §11).
+ */
+@media (max-width: 600px) {
+  .directory-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+  .directory-toolbar .search-field {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .directory-toolbar .field--inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+  }
+  .directory-toolbar .field--inline .inp {
+    width: 100%;
+    min-height: var(--touch-target);
+  }
+  .directory-toolbar > .btn {
+    grid-column: 1 / -1;
+    min-height: var(--touch-target);
+  }
+  .directory-filters a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    padding: 0;
+  }
+  /* таблица и тело — блоки: иначе строки-сетки внутри табличной раскладки держат ширину колонок */
+  .tbl.dir-table--reservations,
+  .dir-table--reservations tbody {
+    display: block;
+    width: 100%;
+    min-width: 0; /* у .tbl min-width 520 px ради прокрутки широких таблиц — здесь строки складываются */
+  }
+  .dir-table--reservations thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--reservations tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--reservations tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--reservations tbody td,
+  .tbl--nowrap.dir-table--reservations tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--reservations tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--reservations tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--reservations tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .dir-table--reservations tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--reservations tbody td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .dir-table--reservations tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 4;
+    text-align: left;
+    color: var(--muted);
+  }
+  .dir-cell-word {
+    display: inline;
+  }
+  .dir-table--reservations tbody td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+  }
+  .dir-guest {
+    white-space: normal;
+  }
+}
+
+/*
+ * Форма новой брони (B2, 20.09.2026). Три шага в одном ряду — даты (отдельная GET-форма), размещение,
+ * гость; резюме выбора и «Создать бронь» держатся у нижнего края окна, пока форма прокручена:
+ * на 1440×1000 кнопка стояла на y≈1260, на телефоне — на 2069 (замер владельца 19.09).
+ */
+.booking-dates {
+  margin-bottom: 16px;
+}
+.booking-dates__availability {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+.booking-form.panel--lg {
+  /* подвал ниже бьёт отступ панели отрицательными полями: каскад даёт .panel 20 px (premium.css),
+     поэтому значение закрепляем здесь и одно на обоих */
+  padding: 24px;
+}
+.booking-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--layer-sticky);
+  /* панель формы — grid: без min-width: 0 неразрывная строка сути растянула бы единственную колонку
+     (и все поля формы) шире экрана телефона */
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 -24px -24px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.booking-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 16px;
+  margin: 0;
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+.booking-footer__digest {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.booking-summary dt {
+  color: var(--muted);
+}
+.booking-summary dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.booking-summary__line {
+  display: block;
+}
+.booking-footer__actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .booking-form.panel--lg {
+    padding: 16px;
+  }
+  .booking-footer {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 -16px -16px;
+    padding: 16px;
+    /* над нижней навигацией (fixed, ≈67 px + безопасная зона), а не под ней */
+    bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+  .booking-footer__actions {
+    align-items: stretch;
+    text-align: left;
+  }
+  .booking-footer .btn {
+    min-height: var(--touch-target);
+  }
+}
+
+/* ---------- B3: карточка брони — полоса фактов над вкладками, следующее действие, печать ---------- */
+.booking-head {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px 24px;
+  margin: 0 0 24px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.booking-head > div {
+  min-width: 0;
+}
+.booking-head dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.booking-head dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.booking-head dd small,
+.booking-head__sub {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.booking-head dd small.warn-text,
+.booking-head__sub.warn-text {
+  color: var(--warning);
+}
+/* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
+.booking-head__guest {
+  grid-column: 1 / -1;
+}
+.booking-head__guest dd a {
+  color: var(--primary);
+}
+.booking-head__contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.booking-head__contacts a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.booking-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+.booking-print {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+}
+.booking-print__label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-right: 8px;
+}
+/* опасное действие — своя панель с рамкой тона, кнопка названа глаголом (§14) */
+.panel--danger {
+  border-color: var(--danger-border);
+}
+/* проживания в панели 480 px: семь колонок не помещаются, строка складывается в карточку;
+   на телефоне — то же для страницы целиком */
+
+.booking-drawer .tbl.dir-table--stays,
+.booking-drawer .dir-table--stays tbody {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.booking-drawer .dir-table--stays thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.booking-drawer .dir-table--stays tbody tr {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.booking-drawer .dir-table--stays tbody tr:last-child {
+  border-bottom: 0;
+}
+.booking-drawer .dir-table--stays tbody td {
+  display: block;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  white-space: normal;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(2) {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  color: var(--muted);
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(5) {
+  grid-column: 4;
+  grid-row: 1;
+  justify-self: end;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(3)::after {
+  content: ' →';
+  color: var(--muted);
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(4) {
+  grid-column: 2 / 4;
+  grid-row: 2;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(6) {
+  grid-column: 4;
+  grid-row: 2;
+  justify-self: end;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(7) {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+@media (max-width: 600px) {
+  .tbl.dir-table--stays,
+  .dir-table--stays tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--stays thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--stays tbody tr {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--stays tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--stays tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--stays tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--stays tbody td:nth-child(2) {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    color: var(--muted);
+  }
+  .dir-table--stays tbody td:nth-child(5) {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--stays tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--stays tbody td:nth-child(3)::after {
+    content: ' →';
+    color: var(--muted);
+  }
+  .dir-table--stays tbody td:nth-child(4) {
+    grid-column: 2 / 4;
+    grid-row: 2;
+  }
+  .dir-table--stays tbody td:nth-child(6) {
+    grid-column: 4;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .dir-table--stays tbody td:nth-child(7) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+
+/* ---------- D1: гости — справочник по шаблону броней, карточка с полосой фактов ---------- */
+/* длинные имена переносятся, а не режутся и не растягивают таблицу */
+.dir-table--guests td:first-child,
+.dir-table--guests-today td:first-child {
+  white-space: normal;
+  max-width: 320px;
+}
+.dir-table--guests td:first-child .dir-guest strong,
+.dir-table--guests-today td:first-child .dir-guest strong {
+  overflow-wrap: anywhere;
+}
+.guest-head {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.guest-head > div:first-child {
+  grid-column: 1 / -1;
+}
+.guest-account-links {
+  display: grid;
+  gap: 8px;
+}
+.guest-account-links > a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .tbl.dir-table--guests,
+  .dir-table--guests tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--guests thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--guests tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--guests tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--guests tbody td,
+  .tbl--nowrap.dir-table--guests tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--guests tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--guests tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+  .dir-table--guests tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--guests tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .dir-table--guests tbody td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--guests tbody td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .tbl.dir-table--guests-today,
+  .dir-table--guests-today tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--guests-today thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--guests-today tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--guests-today tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--guests-today tbody td,
+  .tbl--nowrap.dir-table--guests-today tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--guests-today tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--guests-today tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--guests-today tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .dir-table--guests-today tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--guests-today tbody td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .dir-table--guests-today tbody td:nth-child(6) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .tbl.dir-table--history,
+  .dir-table--history tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--history thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--history tbody tr {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--history tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--history tbody td,
+  .tbl--nowrap.dir-table--history tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--history tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--history tbody td:nth-child(2) {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    color: var(--muted);
+  }
+  .dir-table--history tbody td:nth-child(6) {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--history tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--history tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .dir-table--history tbody td:nth-child(5) {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .dir-table--history tbody td:nth-child(4)::after {
+    content: ' →';
+    color: var(--muted);
+  }
+}
+
+/* ---------- D2: деньги за период — начисления, деньги на руках и остаток тремя блоками ---------- */
+.finance-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+.finance-block {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+.finance-block .stats {
+  margin-bottom: 8px;
+}
+.finance-block--due {
+  border-color: var(--warning-border);
+}
+
+/* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */
+.folio-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  gap: 8px;
+  align-items: start;
+}
+.folio-form {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+.folio-form--pay {
+  border-color: var(--success-soft);
+}
+.folio-form__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.folio-form .row {
+  align-items: flex-end;
+}
+.folio-form__submit {
+  justify-content: space-between;
+}
+
+/*
+ * D4 «Каналы»: очередь в Channex и входящие события на телефоне складываются в карточки-строки —
+ * семь колонок в 390 px уезжали в прокрутку вбок, без прокрутки были видны только вид и категория.
+ * Разметка и хуки прежние; шапка остаётся для чтения с экрана.
+ */
+@media (max-width: 600px) {
+  .tbl.dir-table--outbox,
+  .dir-table--outbox tbody,
+  .tbl.dir-table--events,
+  .dir-table--events tbody,
+  .tbl.dir-table--mapping,
+  .dir-table--mapping tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--outbox thead,
+  .dir-table--events thead,
+  .dir-table--mapping thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--outbox tbody tr,
+  .dir-table--events tbody tr,
+  .dir-table--mapping tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--outbox tbody tr:last-child,
+  .dir-table--events tbody tr:last-child,
+  .dir-table--mapping tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--outbox tbody td,
+  .dir-table--events tbody td,
+  .dir-table--mapping tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dir-table--outbox tbody td.empty-state,
+  .dir-table--events tbody td.empty-state,
+  .dir-table--mapping tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  /* очередь: что и статус → категории → даты и когда поставлено → task id и попытки */
+  .dir-table--outbox tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--outbox tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+  .dir-table--outbox tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--outbox tbody td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 4;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(5)::before {
+    content: 'попыток ';
+  }
+  /* события: событие и статус → тип и как дошло → бронь и когда получено → действие */
+  .dir-table--events tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--events tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+  .dir-table--events tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--events tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--events tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--events tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--events tbody td:nth-child(7) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .dir-table--events tbody td:nth-child(7):empty {
+    display: none;
+  }
+  /* сопоставления: категория → категория и тариф в Channex */
+  .dir-table--mapping tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--mapping tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--mapping tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+}
+
+/* D4 «Менеджер каналов»: шесть колонок отчёта на телефоне — карточкой: источник и брони, деньги, отмены и незаезды, доля */
+@media (max-width: 600px) {
+  .tbl.dir-table--channel-report,
+  .dir-table--channel-report tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--channel-report thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--channel-report tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--channel-report tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--channel-report tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+  }
+  .dir-table--channel-report tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  .dir-table--channel-report tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .dir-table--channel-report tbody td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--channel-report tbody td:nth-child(2)::after {
+    content: ' брон.';
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .dir-table--channel-report tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .dir-table--channel-report tbody td:nth-child(3),
+  .dir-table--channel-report tbody td:nth-child(4) {
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--channel-report tbody td:nth-child(3) {
+    grid-column: 1;
+  }
+  .dir-table--channel-report tbody td:nth-child(3)::before {
+    content: 'отмен ';
+  }
+  .dir-table--channel-report tbody td:nth-child(4) {
+    grid-column: 2;
+    justify-self: end;
+  }
+  .dir-table--channel-report tbody td:nth-child(4)::before {
+    content: 'незаездов ';
+  }
+  .dir-table--channel-report tbody td:nth-child(6) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+}
+
+/* D4 «Журнал и неисправности»: строки складываются в карточки на телефоне; разметка и хуки прежние */
+@media (max-width: 600px) {
+  .tbl.dir-table--journal,
+  .dir-table--journal tbody,
+  .tbl.dir-table--incidents,
+  .dir-table--incidents tbody,
+  .tbl.dir-table--incidents-closed,
+  .dir-table--incidents-closed tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--journal thead,
+  .dir-table--incidents thead,
+  .dir-table--incidents-closed thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--journal tbody tr,
+  .dir-table--incidents tbody tr,
+  .dir-table--incidents-closed tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--journal tbody tr:last-child,
+  .dir-table--incidents tbody tr:last-child,
+  .dir-table--incidents-closed tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--journal tbody td,
+  .dir-table--incidents tbody td,
+  .dir-table--incidents-closed tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dir-table--journal tbody td.empty-state,
+  .dir-table--incidents tbody td.empty-state,
+  .dir-table--incidents-closed tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  /* журнал: действие и когда → кто → объект и что */
+  .dir-table--journal tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 500;
+  }
+  .dir-table--journal tbody td:nth-child(1) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--journal tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  /* открытые неисправности: что случилось → статус и когда → что делал сторож → кнопки */
+  .dir-table--incidents tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--incidents tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--incidents tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    text-align: right;
+    color: var(--muted);
+  }
+  .dir-table--incidents tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+  .dir-table--incidents tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  /* закрытые: что случилось → замечена и закрыта → кем */
+  .dir-table--incidents-closed tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--incidents-closed tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--incidents-closed tbody td:nth-child(2)::before {
+    content: 'замечена ';
+  }
+  .dir-table--incidents-closed tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--incidents-closed tbody td:nth-child(3)::before {
+    content: 'закрыта ';
+  }
+  .dir-table--incidents-closed tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    color: var(--muted);
+  }
+}
+
+/* D4 «Статистика»: шесть колонок загрузки по категориям на телефоне — карточкой */
+@media (max-width: 600px) {
+  .tbl.dir-table--statistics,
+  .dir-table--statistics tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--statistics thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--statistics tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--statistics tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--statistics tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+  }
+  .dir-table--statistics tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  .dir-table--statistics tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 500;
+  }
+  .dir-table--statistics tbody td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--statistics tbody td:nth-child(2),
+  .dir-table--statistics tbody td:nth-child(3),
+  .dir-table--statistics tbody td:nth-child(4),
+  .dir-table--statistics tbody td:nth-child(5) {
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--statistics tbody td:nth-child(2) {
+    grid-column: 1;
+  }
+  .dir-table--statistics tbody td:nth-child(2)::before {
+    content: 'всего ';
+  }
+  .dir-table--statistics tbody td:nth-child(3) {
+    grid-column: 2;
+    justify-self: end;
+  }
+  .dir-table--statistics tbody td:nth-child(3)::before {
+    content: 'занято ';
+  }
+  .dir-table--statistics tbody td:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--statistics tbody td:nth-child(4)::before {
+    content: 'свободно ';
+  }
+  .dir-table--statistics tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .dir-table--statistics tbody td:nth-child(5)::before {
+    content: 'закрыто ';
+  }
 }

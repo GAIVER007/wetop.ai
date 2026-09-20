@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 20.09.2026 21:10 Алматы · MacBook-Air-Urij.local
+# коммит 0a61f8e (codex/inventory-catalog), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'inventory-catalog.spec.ts' '--grep' 'каталог: поиск' '--workers=1'
+[WebServer] (node:22550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22629) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:22642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (45.4s)
+
+
+  1) tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Койко-места', exact: true })
+
+
+      12 |   const main = page.getByRole('main');
+      13 |   await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    > 14 |   await main.getByRole('button', { name: 'Койко-места', exact: true }).click();
+         |                                                                        ^
+      15 |   await expect(main.getByTestId('unit-row')).toHaveCount(72);
+      16 |   await main.getByRole('searchbox', { name: 'Поиск по номерному фонду' }).fill('M01');
+      17 |   await expect(main.getByTestId('unit-row')).toHaveCount(1);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/inventory-catalog.spec.ts:14:72
+
+    Error Context: test-results/inventory-catalog-каталог--ad8fe-сброс-и-сохранение-фильтров/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-каталог--ad8fe-сброс-и-сохранение-фильтров/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-каталог--ad8fe-сброс-и-сохранение-фильтров/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров 
+
+# код выхода 1 · 59 с

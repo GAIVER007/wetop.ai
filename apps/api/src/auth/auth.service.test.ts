@@ -217,13 +217,12 @@ describe('AuthService.changePassword', () => {
 describe('AuthService.register', () => {
   const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
 
-  // Самостоятельная регистрация закрыта по умолчанию (Q-152): без разделения данных новая
-  // организация видит объект этой гостиницы. Открывается явно, переменной окружения.
-  beforeEach(() => vi.stubEnv('REGISTRATION_OPEN', '1'));
+  // Решение владельца 20.09.2026: регистрация доступна без дополнительных настроек.
+  beforeEach(() => vi.stubEnv('REGISTRATION_OPEN', undefined));
   afterEach(() => vi.unstubAllEnvs());
 
-  it('закрыта по умолчанию: без REGISTRATION_OPEN=1 никто не заводится', async () => {
-    vi.stubEnv('REGISTRATION_OPEN', '');
+  it('явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу', async () => {
+    vi.stubEnv('REGISTRATION_OPEN', '0');
     const { auth, users, organizations } = service();
     const before = { users: users.length, orgs: organizations.length };
     await expect(auth.register(NEW, NOW)).rejects.toThrow(/Самостоятельная регистрация закрыта/);

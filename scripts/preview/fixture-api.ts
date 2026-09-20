@@ -38,6 +38,7 @@ const openAtLock = (p: string): boolean =>
   p.startsWith('/a/') ||
   p.startsWith('/w/') ||
   p === '/auth/login' ||
+  p === '/auth/options' ||
   p === '/auth/logout' ||
   p === '/auth/code' ||
   p === '/auth/register' ||
@@ -48,6 +49,7 @@ let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
 function resetUiAuth() {
+  registrationEnabled = true;
   uiPassword = 'ui-test-parol';
   uiSessions.clear();
   uiResetTokens.clear();
@@ -171,6 +173,8 @@ function cardSeed(): ReservationCard {
     ],
   };
 }
+// seedDesign переименовывает категорию ради крайнего случая ширины — reset возвращает имена
+const BASE_CATEGORY_NAMES = new Map(categories.map((c) => [c.code, c.name]));
 let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
@@ -514,6 +518,9 @@ function getGuest(id: string) {
 }
 let rejectCreate = false;
 let failPath = '';
+/** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
+let delayPath = '';
+let delayMs = 0;
 /** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
 let failStatus = 503;
 let emptyFixture = false;
@@ -1238,6 +1245,9 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
+let registrationEnabled = true;
+/** Кто уже состоит в организации фикстуры, кроме самого вошедшего — приглашать их повторно нельзя */
+const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
 
@@ -1288,6 +1298,9 @@ function read(path: string, q: URLSearchParams): unknown {
     } satisfies DataConnection;
   }
   if (emptyFixture) {
+    // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
+    if (path === '/rates/options') return { categories: [], ratePlans: [] };
+    if (path === '/finance/services') return [];
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units'].includes(path)) return [];
@@ -1335,6 +1348,8 @@ function read(path: string, q: URLSearchParams): unknown {
         balanceMinor: '0',
         chargesByKind: [],
         paymentsByMethod: [],
+        // как у API: возвраты отдаются всегда, и при пустом периоде тоже (D2 читает их число)
+        refunds: { count: 0, amountMinor: '0' },
         accommodationByCategory: [],
       };
   }
@@ -1890,7 +1905,11 @@ function read(path: string, q: URLSearchParams): unknown {
         author: null,
       },
     ];
-    return type ? entries.filter((e) => e.entityType === type) : entries;
+    // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
+    const needle = (q.get('q') || '').trim().toLowerCase();
+    return entries
+      .filter((e) => !type || e.entityType === type)
+      .filter((e) => !needle || (e.subject ?? '').toLowerCase().includes(needle));
   }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
@@ -1959,11 +1978,21 @@ createServer(async (req, res) => {
           (c) => c.code === unit.accommodationTypeCode,
         )!.name;
       incident = structuredClone(incidentSeed);
+      // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
+      for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
+      for (const u of units)
+        u.accommodationTypeName =
+          BASE_CATEGORY_NAMES.get(u.accommodationTypeCode) ?? u.accommodationTypeName;
       card = cardSeed();
       guest = structuredClone(guestSeed);
       commands = [];
       rejectCreate = false;
       failPath = '';
+      delayPath = '';
+      delayMs = 0;
+      failStatus = 503;
+      ratesUnmapped = false;
+      incidentHistory = 0;
       emptyFixture = false;
       noBookings = false;
       housekeeping.clear();
@@ -1983,6 +2012,8 @@ createServer(async (req, res) => {
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['registrationEnabled'] === 'boolean')
+        registrationEnabled = body['registrationEnabled'];
       if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
       if (
@@ -1997,6 +2028,8 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      delayPath = String(body['delayPath'] || '');
+      delayMs = Number(body['delayMs'] || 1500);
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';
@@ -2072,6 +2105,8 @@ createServer(async (req, res) => {
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
     if (path === '/__test/commands') return send(200, commands);
+    if (delayPath && path === delayPath)
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     if (path === failPath || failPath === '*')
       return send(
         failStatus,
@@ -2138,7 +2173,9 @@ createServer(async (req, res) => {
           .toLowerCase();
         if (!email.includes('@'))
           return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
-        if (email === who.email) return send(400, { message: 'Этот человек уже в организации.' });
+        // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
+        if (email === who.email || uiMembers.has(email))
+          return send(400, { message: 'Этот человек уже в организации.' });
         return send(201, {
           id: `inv-${Date.now()}`,
           email,
@@ -2208,8 +2245,16 @@ createServer(async (req, res) => {
       return noContent();
     }
     // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
+    // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
+    if (path === '/auth/code' || path === '/auth/verify') return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
+    if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {
+      if (!registrationEnabled)
+        return send(403, {
+          message:
+            'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.',
+        });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
       const password = String(body['password'] ?? '');

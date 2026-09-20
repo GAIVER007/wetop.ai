@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 20.09.2026 17:02 Алматы · vm
+# коммит 13365db (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/system-screens.spec.ts' '-g' 'вход и профиль' '--workers=1'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (16.8s)
+
+
+  1) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: "как Дана Тестова, <email>"
+    Received string:    "WWETOP.AIВы вошликак Дана Тестова · <email> ApartsОткрыть рабочее местоСмена закончена?ВыйтиПригласить администратораНа почту придёт ссылка на 7 дней. Человек примет её и войдёт по коду, как все.Почта приглашённогоОтправить приглашение<email> ждёт ответа до 27 сент.Рабочее пространство отеля и хостелаРабочий день —под контролемПроверяйте заезды и выезды, размещайте гостей и отслеживайте оплаты в WETOP.Планы на сменуЗаезды, выезды и задачи, которые требуют внимания.Размещение на одном экранеНомера, койки и брони в наглядной шахматке.Понятные расчётыНачисления, оплаты и остаток по каждой брони."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        33 × locator resolved to <main id="main-content" class="login-page login-page--entry">…</main>
+           - unexpected value "WWETOP.AIВы вошликак Дана Тестова · <email> ApartsОткрыть рабочее местоСмена закончена?ВыйтиПригласить администратораНа почту придёт ссылка на 7 дней. Человек примет её и войдёт по коду, как все.Почта приглашённогоОтправить приглашение<email> ждёт ответа до 27 сент.Рабочее пространство отеля и хостелаРабочий день —под контролемПроверяйте заезды и выезды, размещайте гостей и отслеживайте оплаты в WETOP.Планы на сменуЗаезды, выезды и задачи, которые требуют внимания.Размещение на одном экранеНомера, койки и брони в наглядной шахматке.Понятные расчётыНачисления, оплаты и остаток по каждой брони."
+
+
+      314 |   await expect(page).toHaveURL(/\/today/);
+      315 |   await page.goto('/login');
+    > 316 |   await expect(main).toContainText('как Дана Тестова, <email>');
+          |                      ^
+      317 |   await expect(main).not.toContainText(' · ');
+      318 |   // приглашение: API не ответил — сбой с повтором, повтор открывает приглашение
+      319 |   await request.post(`${fixture}/__test/control`, {
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:316:22
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+# код выхода 1 · 22 с

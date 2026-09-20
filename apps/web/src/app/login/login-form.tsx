@@ -307,7 +307,12 @@ export function LoginForm({
                 Забыли пароль?
               </Link>
               <div className="login-preview">
-                {accessEmail ? (
+                {!registrationEnabled && initialMode === 'register' ? (
+                  <span role="status">
+                    Самостоятельная регистрация временно закрыта. Доступ сотрудникам выдаёт
+                    администратор объекта.
+                  </span>
+                ) : accessEmail ? (
                   <>
                     <span>Cloudflare Access пропустил {accessEmail}</span>
                     {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
@@ -321,7 +326,7 @@ export function LoginForm({
                   </span>
                 )}
               </div>
-              {registrationEnabled ? (
+              {registrationEnabled && (
                 <div className="login-preview">
                   <span>Ещё нет организации?</span>
                   <button
@@ -333,12 +338,7 @@ export function LoginForm({
                     Регистрация
                   </button>
                 </div>
-              ) : initialMode === 'register' ? (
-                <p role="status">
-                  Самостоятельная регистрация временно закрыта. Доступ сотрудникам выдаёт
-                  администратор объекта.
-                </p>
-              ) : null}
+              )}
             </>
           ) : (
             <>

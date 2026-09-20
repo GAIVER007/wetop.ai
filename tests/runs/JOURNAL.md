@@ -1179,3 +1179,4 @@
 | 20.09.2026 20:21 | unit | ✅ 1285 из 1288, пропущено 3 | 2 мин 13 с | 8ac3933 +1 | [лог](logs/2026-09-20T15-21-48Z-unit-6cc9.log) | Q-152 final full unit suite after main sync, two workers to avoid local process contention |
 | 20.09.2026 20:24 | lint | ✅ без ошибок | 12 с | 8ac3933 +2 | [лог](logs/2026-09-20T15-24-59Z-lint-a088.log) | Q-152 final combined main: lint |
 | 20.09.2026 20:24 | typecheck | ✅ без ошибок | 19 с | 8ac3933 +2 | [лог](logs/2026-09-20T15-24-59Z-typecheck-5ff8.log) | Q-152 final combined main: TypeScript root, API and web |
+| 20.09.2026 20:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/registration-closed.spec.ts --workers=1) | ✅ 5 из 5 | 37 с | 890cfda +1 | [лог](logs/2026-09-20T15-27-34Z-e2e-683e.log) | Q-152: final registration notice shown once after visual review |

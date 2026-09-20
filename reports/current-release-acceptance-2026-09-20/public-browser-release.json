@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-09-20T14:08:33.865Z",
+  "mode": "anonymous read-only browser",
+  "routes": [
+    {
+      "path": "/login",
+      "httpStatus": 200,
+      "finalPath": "/login",
+      "passwordFields": 1,
+      "dataError": 0
+    },
+    {
+      "path": "/today",
+      "httpStatus": 200,
+      "finalPath": "/login",
+      "passwordFields": 1,
+      "dataError": 0
+    }
+  ]
+}

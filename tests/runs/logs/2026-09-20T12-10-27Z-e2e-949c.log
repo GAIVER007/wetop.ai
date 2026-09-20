@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 20.09.2026 17:10 Алматы · MacBook-Air-Urij.local
+# коммит 06729e9 (codex/current-release-acceptance), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/check-in-out.spec.ts' '--workers=1'
+[WebServer] (node:29353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[pms_test] миграций применено 0 из 15; данные от 2026-09-20T11:50:19.862Z (сид)
+
+Running 3 tests using 1 worker
+
+(node:29438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (275ms)
+(node:29441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [auth] › tests/e2e/_auth.setup.ts:18:1 › вход сотрудника автотестов: замок включён, сессия в cookie стойки (828ms)
+(node:29479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29354) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  3 [isolated] › tests/e2e/check-in-out.spec.ts:20:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (8.4s)
+[уборка e2e] Броней автотестов с активными проживаниями: 3 (кандидатов по фамилии было 226)
+  свежих, моложе 15 мин, оставлено: 5 — уберёт следующая уборка
+Освобождено броней: 3
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: выгрузка не нужна — исходящий ARI выключен (тестовый API или scripts/ops/ari.sh stop)
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  3 passed (20.8s)
+
+# код выхода 0 · 23 с

@@ -26,7 +26,7 @@ URL="postgresql://postgres@127.0.0.1:${PORT}/${DBNAME}"
 
 bin() {
   local dir
-  for dir in /usr/lib/postgresql/*/bin /usr/local/pgsql/bin "$(dirname "$(command -v pg_ctl 2>/dev/null || echo /nonexistent)")"; do
+  for dir in "$(dirname "$(command -v pg_ctl 2>/dev/null || echo /nonexistent)")" /usr/lib/postgresql/*/bin /usr/local/pgsql/bin; do
     [ -x "$dir/pg_ctl" ] && { echo "$dir"; return 0; }
   done
   echo "local-db: PostgreSQL не найдена — поставьте сервер (Linux: postgresql, macOS: brew install postgresql@16)" >&2
@@ -58,9 +58,9 @@ start() {
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )
-  # Тестам нужен объект и единица «1»: в public для скриптов и в pms_test, где работают тесты
+  # public нужен локальным скриптам. pms_test уже заполнен test:schema выше:
+  # второй seed-local добавляет другие проживания на те же ячейки и падает по overlap.
   ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="" npx --yes tsx tests/tools/seed-local.ts >/dev/null )
-  ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="pms_test" npx --yes tsx tests/tools/seed-local.ts >/dev/null )
   echo "База поднята. Прогон: DATABASE_URL='$URL' npm run test:record -- integration"
 }
 

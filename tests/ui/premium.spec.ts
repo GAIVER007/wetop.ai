@@ -230,7 +230,7 @@ test('список броней: выборка названа, пустой р�
   await expect(row).toContainText('Подтверждены');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
-  const chip = await main.locator('.directory-filters a').first().boundingBox();
+  const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();
   expect(chip!.height).toBeGreaterThanOrEqual(44);
   const layout = await page.evaluate(() => ({
     viewport: window.innerWidth,

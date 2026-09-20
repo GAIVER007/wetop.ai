@@ -94,8 +94,11 @@ test('вложенные разделы: раскрытие, один актив
   const sidebar = page.locator('.workspace-sidebar');
   const rooms = sidebar.getByRole('button', { name: 'Номерной фонд', exact: true });
   await expect(rooms).toHaveAttribute('aria-expanded', 'false');
-  await rooms.click();
-  await expect(rooms).toHaveAttribute('aria-expanded', 'true');
+  // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
+  await expect(async () => {
+    await rooms.click();
+    await expect(rooms).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+  }).toPass({ timeout: 15_000 });
   await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);

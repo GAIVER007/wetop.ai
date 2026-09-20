@@ -13,7 +13,7 @@ import {
 } from '@pms/domain';
 import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PROVIDER } from '../channels/ari-publisher';
 import { isAriStopped } from '../channels/ari-switch';
 import {

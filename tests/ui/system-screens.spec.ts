@@ -240,40 +240,33 @@ test('аналитика и статистика: пустое состояни�
 });
 
 /**
- * D4 «Настройки объекта и сайта»: отказ чтения Channex или настроек — сбой с повтором, а не общий экран; строка
- * источника без « · » и время в `<time>`; пустые значения «—»; пустые справочники называют, откуда они берутся;
- * загрузка словом. Формы «Подключения счётчика» не трогались.
+ * Настройки объекта: ошибки с повтором не скрывают навигацию; пустые значения — «—»,
+ * справочники объясняют источник, загрузка обозначена текстом. Контент каналов не дублируется.
  */
-test('настройки гостиницы: сбой с повтором, источник словами, пустые справочники с причиной, загрузка словом', async ({
+test('настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings/description');
-  const source = main.getByTestId('content-source');
-  await expect(source).not.toContainText(' · ');
-  await expect(source).toContainText('прочитано в');
-  await expect(source.locator('time')).toHaveAttribute('datetime', /T/);
-  await expect(source.getByRole('link', { name: 'Прочитать заново' })).toBeVisible();
-  // пустой сайт в Channex — «—», а не «Не указан»
-  await expect(main.locator('.fact__label:text-is("Сайт") + .fact__value')).toHaveText('—');
+  await expect(page).toHaveURL(/\/hotel-settings$/);
+  await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
   // штрафы: подпись тарифа без « · »
   await page.goto('/hotel-settings/penalties');
   await expect(main.getByTestId('rate-plans-table')).toContainText('BASE, KZT');
   await expect(main.getByTestId('rate-plans-table')).not.toContainText(' · ');
-  // отказ чтения Channex: заголовок и крошки на месте, сбой с повтором
-  await request.post(`${fixture}/__test/control`, {
-    data: { failPath: '/channels/channex/content' },
-  });
-  await page.goto('/hotel-settings/photos');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Фото');
-  const failure = main.getByTestId('content-load-error');
+  // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
+  await page.goto('/hotel-settings');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки гостиницы');
+  await expect(main.getByRole('navigation', { name: 'Настройки гостиницы' })).toBeVisible();
+  const failure = main.getByTestId('settings-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
-  await expect(main.getByTestId('content-photos')).toBeVisible();
-  await expect(main.getByTestId('content-load-error')).toHaveCount(0);
+  await expect(main.getByTestId('stored-property')).toBeVisible();
+  await expect(main.getByTestId('settings-error')).toHaveCount(0);
   // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
   await page.goto('/hotel-settings/services');
@@ -289,11 +282,11 @@ test('настройки гостиницы: сбой с повтором, ис�
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом
   await request.post(`${fixture}/__test/control`, {
-    data: { delayPath: '/channels/channex/content', delayMs: 2500 },
+    data: { delayPath: '/finance/services', delayMs: 2500 },
   });
-  await page.goto('/hotel-settings/amenities', { waitUntil: 'commit' });
+  await page.goto('/hotel-settings/services', { waitUntil: 'commit' });
   await expect(main.getByTestId('settings-loading')).toContainText('Читаем настройки объекта');
-  await expect(main.getByTestId('content-facilities')).toBeVisible({ timeout: 15_000 });
+  await expect(main.getByTestId('services-table')).toBeVisible({ timeout: 15_000 });
 });
 
 /**

@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 21.09.2026 00:33 Алматы · MacBook-Air-Urij.local
+# коммит dc1635d (codex/settings-simplification), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/settings-simplification.spec.ts' '--grep' 'короткое меню|старые страницы'
+[WebServer] (node:89263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:89673) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (24.5s)
+(node:89902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:89935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/settings-simplification.spec.ts:25:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (17.3s)
+
+
+  1) tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: locator('.workspace-sidebar').getByRole('button', { name: 'Настройки', exact: true }) }).locator('a')
+    Timeout: 15000ms
+    - Expected  - 5
+    + Received  + 1
+
+    - Array [
+    -   "Гостиница",
+    -   "Интеграции",
+    -   "Сайт",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: locator('.workspace-sidebar').getByRole('button', { name: 'Настройки', exact: true }) }).locator('a') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: locator('.workspace-sidebar').getByRole('button', { name: 'Настройки', exact: true }) }).locator('a')
+        32 × locator resolved to 0 elements
+
+
+      10 |   const sidebar = page.locator('.workspace-sidebar');
+      11 |   const group = sidebar.locator('.sidebar-section').filter({ has: sidebar.getByRole('button', { name: 'Настройки', exact: true }) });
+    > 12 |   await expect(group.locator('a')).toHaveText(['Гостиница', 'Интеграции', 'Сайт']);
+         |                                    ^
+      13 |   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
+      14 |   await expect(page.getByTestId('stay-settings')).toContainText('14:00');
+      15 |   const tabs = page.getByRole('navigation', { name: 'Настройки гостиницы', exact: true });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/settings-simplification.spec.ts:12:36
+
+    Error Context: test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/settings-simplification.spec.ts:25:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/connections#channex-connection$/
+    Received string:  "http://127.0.0.1:3100/hotel-settings/photos"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        33 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/hotel-settings/photos"
+
+
+      27 |   for (const route of ['photos', 'amenities']) {
+      28 |     await page.goto(`/hotel-settings/${route}`);
+    > 29 |     await expect(page).toHaveURL(/\/connections#channex-connection$/);
+         |                        ^
+      30 |     await expect(page.getByTestId('channel-content-location')).toBeVisible();
+      31 |   }
+      32 |   await page.goto('/hotel-settings/description');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/settings-simplification.spec.ts:29:24
+
+    Error Context: test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+    tests/ui/settings-simplification.spec.ts:25:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex 
+
+# код выхода 1 · 1 мин 10 с

@@ -1,4 +1,6 @@
-import { resolve } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, resolve } from 'node:path';
 
 /**
  * Экраны стойки для скриптов сверки (живой круг Channex, обход экранов).
@@ -49,4 +51,25 @@ export function deskHeaders(env: NodeJS.ProcessEnv = process.env): Record<string
 export function reportTarget(root: string, env: NodeJS.ProcessEnv, file: string): string {
   const dir = env['REPORTS_DIR']?.trim();
   return dir ? resolve(dir, file) : resolve(root, 'reports', file);
+}
+
+/**
+ * Записать отчёт, не роняя прогон из-за места записи (20.09.2026: внутри образа папка проекта
+ * только для чтения, и `mkdir /app/reports` убил цикл уже ПОСЛЕ того, как всё было проверено,
+ * а идентификаторы для сертификации — напечатаны). Отчёт — это след работы, а не сама работа:
+ * если писать некуда, уходим во временную папку и говорим об этом вслух.
+ */
+export function writeReport(target: string, text: string): string {
+  try {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, text);
+    return target;
+  } catch (e) {
+    const fallback = resolve(tmpdir(), target.split('/').pop() ?? 'report.md');
+    writeFileSync(fallback, text);
+    console.warn(
+      `отчёт в ${target} записать не вышло (${(e as Error).message}); положил в ${fallback}`,
+    );
+    return fallback;
+  }
 }

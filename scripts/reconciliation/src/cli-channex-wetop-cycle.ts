@@ -6,12 +6,11 @@
  * Запуск: npx tsx scripts/reconciliation/src/cli-channex-wetop-cycle.ts [categoryCode]
  * Пишет reports/wetop-channex-staging-YYYY-MM-DD.md. Код выхода 1, если хоть одна проверка не прошла.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
 import { serviceFetch } from '../../lib/service-api';
-import { deskHeaders, judgeDeskPage, reportTarget } from '../../lib/desk-page';
+import { deskHeaders, judgeDeskPage, reportTarget, writeReport } from '../../lib/desk-page';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -345,7 +344,5 @@ const out = reportTarget(
   process.env,
   `wetop-channex-staging-${at.toISOString().slice(0, 10)}.md`,
 );
-mkdirSync(dirname(out), { recursive: true });
-writeFileSync(out, md);
-console.log(`→ ${out}`);
+console.log(`→ ${writeReport(out, md)}`);
 process.exit(failed.length ? 1 : 0);

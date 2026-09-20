@@ -145,8 +145,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           failedAttempts: 0,
           lockedUntil: null,
           ...data,
-          // `data` может нести lastLoginAt (регистрация ставит его сразу), поэтому умолчание —
-          // после развёртывания, иначе TypeScript видит поле дважды (TS2783) и typecheck:api красный
+          // поле есть и в `data`, поэтому умолчание ставится после раскрытия, а не до него
           lastLoginAt: data.lastLoginAt ?? null,
         };
         users.push(row);

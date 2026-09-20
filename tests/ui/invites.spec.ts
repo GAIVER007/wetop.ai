@@ -46,7 +46,7 @@ test('без сессии формы приглашения нет', async ({ pa
   await expect(main).not.toContainText('Пригласить администратора');
 });
 
-test('ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой', async ({
+test('ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им', async ({
   page,
 }) => {
   await page.goto('/invite/fixture-invite-token');
@@ -55,12 +55,13 @@ test('ссылка из письма: кто зовёт и кого → прин
   await expect(main).toContainText('Хостел «Пример»');
   await expect(main).toContainText('novyj@example.com');
   await main.getByRole('button', { name: 'Принять приглашение' }).click();
-  await page.waitForURL('**/login?email=novyj%40example.com&step=code');
-  await expect(main).toContainText('Код отправлен');
-  await expect(main).toContainText('novyj@example.com');
-  await main.getByLabel('Код из письма').fill('123456');
-  await main.getByRole('button', { name: 'Войти' }).click();
-  await page.waitForURL('**/today');
+  // с 20.09.2026 вход один — по паролю (ADR-053): вместо кода на почту приглашённый сразу задаёт пароль
+  await page.waitForURL('**/login/set-password?token=*');
+  await page.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+  await page.getByLabel('Пароль ещё раз', { exact: true }).fill('novyj-parol-2026');
+  await page.getByRole('button', { name: 'Сохранить пароль' }).click();
+  await page.waitForURL('**/login?password=set');
+  await expect(main).toContainText('Пароль сохранён');
 });
 
 test('мёртвая ссылка — один текст и путь на форму входа', async ({ page }) => {

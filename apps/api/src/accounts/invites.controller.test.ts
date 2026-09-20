@@ -24,7 +24,7 @@ import { ACCOUNT, FakeAccountsRepository } from './fake-repository';
  * Срез 13, этап 7: приглашения в организацию (DATA_MODEL §13.6, ADR-046, ролей нет — ADR-023).
  *
  * Пригласить может только вошедший; письмо несёт ссылку на 7 суток, в базе — только отпечаток ключа;
- * принятие создаёт человека и членство и высылает обычный код для входа: вход остаётся одним путём.
+ * принятие создаёт человека и членство и выдаёт ключ «задайте пароль»: вход остаётся одним путём.
  */
 const APP_URL = 'https://app.example.com';
 const INVITEE = 'novyj@example.com';
@@ -166,7 +166,7 @@ describe('приглашение: проверка и принятие по сс
     expect(unknown.body.message).toBe(INVITE_INVALID_MESSAGE);
   });
 
-  it('принятие: членство заведено, ушёл код для входа, вход даёт сессию в этой организации; второй раз — 404', async () => {
+  it('принятие: членство заведено, выдан ключ «задайте пароль», письма нет; второй раз — 404', async () => {
     const token = await login();
     await invite(token, INVITEE).expect(201);
     const rawToken = linkFromLetter(INVITEE).split('/invite/')[1]!;
@@ -182,12 +182,20 @@ describe('приглашение: проверка и принятие по сс
       organizationId: ACCOUNT.organizationId,
     });
 
-    const verified = await request(app.getHttpServer())
-      .post('/auth/verify')
-      .send({ email: INVITEE, code: codeFromLetter(INVITEE) })
-      .expect(200);
-    expect(verified.body.session.organizationId).toBe(ACCOUNT.organizationId);
-    expect(verified.body.session.email).toBe(INVITEE);
+    // С 20.09.2026 вход один — по паролю (ADR-053). Кода на почту здесь больше нет: приглашённый
+    // получает одноразовый ключ прямо в ответе и задаёт себе пароль сам. Письма в этом пути нет —
+    // значит принятие работает и когда почтовая служба не настроена, а она может быть не настроена.
+    expect(typeof accepted.body.setPasswordToken).toBe('string');
+    expect(accepted.body.setPasswordToken.length).toBeGreaterThan(20);
+    // (коды в repo.codes есть — их запросил вход владельца в начале теста; важно, что приглашённому не ушло)
+    expect(
+      repo.codes.filter((c) => c.email === INVITEE),
+      'приглашённому код не уходит',
+    ).toHaveLength(0);
+    // в базе — только отпечаток ключа, сам ключ не хранится
+    expect(repo.passwordSetTokens).toHaveLength(1);
+    expect(repo.passwordSetTokens[0]!.email).toBe(INVITEE);
+    expect(JSON.stringify(repo.passwordSetTokens)).not.toContain(accepted.body.setPasswordToken);
 
     const again = await request(app.getHttpServer())
       .post(`/auth/invites/${rawToken}/accept`)

@@ -163,17 +163,23 @@ export async function inviteAction(email: string): Promise<InviteActionResult> {
 }
 
 /**
- * Принять приглашение по ссылке: членство заведено, код для входа ушёл на почту — дальше форма
- * входа сразу на шаге кода с этой почтой. Мёртвая ссылка — текст API на той же странице.
+ * Принять приглашение по ссылке: членство заведено, а вместе с ним человек получает одноразовый ключ
+ * и сразу задаёт себе пароль (ADR-053). Письма в этом пути нет: сама ссылка-приглашение и есть
+ * доказательство, что перед нами приглашённый. Если пароль у него уже есть (позвали во вторую
+ * организацию), ключа не будет — тогда обычный экран входа. Мёртвая ссылка — текст API на той же странице.
  */
 export async function acceptInviteAction(rawToken: string): Promise<AuthActionResult> {
-  let email: string;
+  let invite: { email: string; setPasswordToken?: string | null };
   try {
-    email = (await authApi.acceptInvite(rawToken, await clientInfo())).email;
+    invite = await authApi.acceptInvite(rawToken, await clientInfo());
   } catch (e) {
     return { error: errorText(e) };
   }
-  redirect(`/login?email=${encodeURIComponent(email)}&step=code`);
+  redirect(
+    invite.setPasswordToken
+      ? `/login/set-password?token=${encodeURIComponent(invite.setPasswordToken)}`
+      : `/login?email=${encodeURIComponent(invite.email)}`,
+  );
 }
 
 /**

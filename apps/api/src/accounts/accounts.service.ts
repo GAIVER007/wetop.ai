@@ -18,6 +18,7 @@ import {
   isCodeShaped,
   isEmailShaped,
   normalizeEmail,
+  resetExpiry,
   sessionExpiresAt,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
@@ -56,6 +57,12 @@ export interface InvitePreview {
   organizationName: string;
   email: string;
   expiresAt: Date;
+  /**
+   * Появляется только при принятии: одноразовый ключ, по которому приглашённый задаёт себе пароль.
+   * `null` — пароль у него уже есть (позвали во вторую организацию), тогда он просто входит им.
+   * При просмотре ссылки ключа нет: смотреть можно сколько угодно, выдаётся он один раз.
+   */
+  setPasswordToken?: string | null;
 }
 
 export type InviteOutcome =
@@ -333,24 +340,32 @@ export class AccountsService {
    * Код не уходит, если адрес исчерпал часовой предел: членство всё равно заведено, код можно
    * запросить с формы входа.
    */
-  async acceptInvite(rawToken: string, ip: string | null): Promise<InvitePreview | null> {
+  async acceptInvite(rawToken: string): Promise<InvitePreview | null> {
     const invite = await this.liveInvite(rawToken);
     if (!invite) return null;
     await this.repo.joinOrganization({
       email: invite.email,
       organizationId: invite.organizationId,
     });
-    await this.repo.markInviteAccepted(invite.id, new Date());
-    if (
-      !(await this.overLimit(invite.email, ip)) &&
-      (await this.repo.accountByEmail(invite.email))
-    ) {
-      await this.issueCode(invite.email, ip);
-    }
+    const now = new Date();
+    await this.repo.markInviteAccepted(invite.id, now);
+    // Раньше здесь уходил код на почту. С 20.09.2026 вход один — по паролю (ADR-053), и код с экрана
+    // снят; вдобавок письмо требует настроенной почтовой службы, а её может не быть. Поэтому выдаём
+    // одноразовую ссылку «задайте пароль» прямо в ответ: сама ссылка-приглашение и есть доказательство,
+    // что перед нами приглашённый, — второго такого же секрета в письме не нужно.
+    const token = newSessionToken();
+    const issued = await this.repo.issuePasswordSetToken({
+      email: invite.email,
+      tokenHash: hashSessionToken(token),
+      expiresAt: resetExpiry(now),
+      now,
+    });
     return {
       organizationName: invite.organizationName,
       email: invite.email,
       expiresAt: invite.expiresAt,
+      // null — пароль у человека уже есть: он просто входит им, задавать заново нечего
+      setPasswordToken: issued ? token : null,
     };
   }
 

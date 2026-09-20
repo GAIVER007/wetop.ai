@@ -295,3 +295,51 @@ test('настройки гостиницы: сбой с повтором, ис�
   await expect(main.getByTestId('settings-loading')).toContainText('Читаем настройки объекта');
   await expect(main.getByTestId('content-facilities')).toBeVisible({ timeout: 15_000 });
 });
+
+/**
+ * D4 «Вход, регистрация и профиль»: экран «Вы вошли» без « · »; отказ API на странице приглашения — сбой с
+ * повтором, а не общий экран (мёртвая ссылка по-прежнему одним текстом); загрузка приглашения словом; «Доступ» в
+ * настройках рабочего места говорит правду о входе. Сами формы входа, регистрации и сброса не менялись
+ * (`login-access`, `invites`, `password-reset`).
+ */
+test('вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await expect(page).toHaveURL(/\/today/);
+  await page.goto('/login');
+  await expect(main).toContainText('как Дана Тестова, admin@wetop.test');
+  await expect(main).not.toContainText(' · ');
+  // приглашение: API не ответил — сбой с повтором, повтор открывает приглашение
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/auth/invites/fixture-invite-token' },
+  });
+  await page.goto('/invite/fixture-invite-token');
+  await expect(main).toContainText('Приглашение не прочиталось');
+  const failure = main.getByTestId('invite-load-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.getByRole('button', { name: 'Принять приглашение' })).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main).toContainText('Вас приглашают');
+  await expect(main.getByRole('button', { name: 'Принять приглашение' })).toBeVisible();
+  // загрузка словом
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/auth/invites/fixture-invite-token', delayMs: 2500 },
+  });
+  await page.goto('/invite/fixture-invite-token', { waitUntil: 'commit' });
+  await expect(main.getByTestId('invite-loading')).toContainText('Проверяем приглашение');
+  await expect(main).toContainText('Вас приглашают', { timeout: 15_000 });
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  // профиль: «Доступ» говорит правду о входе, а не «появится после подключения авторизации»
+  await page.goto('/profile');
+  await main.getByRole('tab', { name: 'Доступ' }).click();
+  await expect(main.getByTestId('profile-access')).toContainText('Ролей пока нет');
+  await expect(main).not.toContainText('появится после подключения авторизации');
+  await expect(main.getByRole('link', { name: 'Экран входа' })).toHaveAttribute('href', '/login');
+});

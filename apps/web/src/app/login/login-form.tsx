@@ -137,7 +137,7 @@ export function LoginForm({
               <h1>Вы вошли</h1>
               <p>
                 как <b>{user.name ?? user.email}</b>
-                {user.name ? ` · ${user.email}` : ''}
+                {user.name ? `, ${user.email}` : ''}
                 {user.organization && (
                   <>
                     <br />

@@ -1133,3 +1133,6 @@
 | 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 182 из 182 | 11 мин 50 с | b0961ca +9 | [лог](logs/2026-09-20T13-24-49Z-e2e-3d20.log) |  |
 | 20.09.2026 18:57 | typecheck | ❌ ошибок: 1 | 50 с | dba25c9 +25 | [лог](logs/2026-09-20T13-57-06Z-typecheck-df07.log) | TS2783 |
 | 20.09.2026 18:58 | typecheck | ✅ без ошибок | 1 мин 23 с | dba25c9 +25 | [лог](logs/2026-09-20T13-58-26Z-typecheck-cd06.log) |  |
+| 20.09.2026 19:00 | integration | ✅ 45 из 45 | 53 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-integration-df36.log) |  |
+| 20.09.2026 19:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 login-access.spec.ts invites.spec.ts sessions.spec.ts) | ❌ упало 4 из 24 | 5 мин 56 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-e2e-6be1.log) | вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом |
+| 20.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 1 мин 29 с | 8da62d5 +2 | [лог](logs/2026-09-20T14-07-32Z-e2e-c80f.log) |  |

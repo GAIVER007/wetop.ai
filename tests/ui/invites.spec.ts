@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4311/__test/reset');
+});
+
 /**
  * Приглашения (срез 13, этап 7). Синтетический API (`scripts/preview/fixture-api.ts`) знает пароль
  * сотрудника, код 123456, один живой ключ приглашения — `fixture-invite-token` — и одно ожидающее.
@@ -27,7 +31,7 @@ test('вошедший видит ожидающие приглашения и �
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
 
-  await main.getByLabel('Почта приглашённого').fill('urij@example.com');
+  await main.getByLabel('Почта приглашённого').fill('admin@wetop.test');
   await main.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(main.getByRole('alert')).toHaveText('Этот человек уже в организации.');
 

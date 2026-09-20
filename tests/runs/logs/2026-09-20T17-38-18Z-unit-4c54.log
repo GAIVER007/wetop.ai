@@ -1,0 +1,17 @@
+# Модульные (unit) · 20.09.2026 22:38 Алматы · MacBook-Air-Urij.local
+# коммит 755e9a4 (codex/chessboard-design), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T17-38-18Z-unit-4c54.json' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (12 tests) 132ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 303ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  21:38:19
+   Duration  573ms (tests 63%, transform 26%, import 9%, worker 3%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T17-38-18Z-unit-4c54.json
+
+# код выхода 0 · 2 с

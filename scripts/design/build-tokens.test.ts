@@ -72,6 +72,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--week-unit-width',
       '--month-unit-width',
       '--month-min-width',
+      '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя
       '--space-', // `var(--space-${n})` на странице /design-system — тоже шаблон
       '--text-', //  `var(--text-${s})` там же

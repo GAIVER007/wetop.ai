@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 20.09.2026 22:34 Алматы · MacBook-Air-Urij.local
+# коммит 755e9a4 (codex/chessboard-design), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-design.spec.ts' '--grep' 'дизайн шахматки: light' '--workers=1'
+[WebServer] (node:42366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42423) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:42489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-design.spec.ts:54:3 › дизайн шахматки: light, компактное управление и доступная сетка (7.5s)
+
+
+  1) tests/ui/chessboard-design.spec.ts:54:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    12
+
+      81 |       // Длинная категория не должна заходить на число мест в узкой первой колонке.
+      82 |       for (const name of await page.locator('.board-group-name-text').all()) {
+    > 83 |         expect(await name.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+         |                                                                              ^
+      84 |       }
+      85 |       const audit = await new AxeBuilder({ page })
+      86 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-design.spec.ts:83:78
+
+    Error Context: test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-design-дизайн-ш-39fab-правление-и-доступная-сетка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-design.spec.ts:54:3 › дизайн шахматки: light, компактное управление и доступная сетка 
+
+# код выхода 1 · 18 с

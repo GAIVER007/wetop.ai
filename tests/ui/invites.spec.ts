@@ -40,9 +40,7 @@ test('вошедший видит ожидающие приглашения и �
 test('без сессии формы приглашения нет', async ({ page }) => {
   await page.goto('/login');
   const main = page.getByRole('main');
-  // по умолчанию вход по паролю (Q-146, умолчание (в)); вход по коду — переключателем
-  await main.getByRole('button', { name: 'Войти по коду из письма' }).click();
-  await expect(main.getByRole('button', { name: 'Получить код' })).toBeVisible();
+  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   await expect(main).not.toContainText('Пригласить администратора');
 });
 

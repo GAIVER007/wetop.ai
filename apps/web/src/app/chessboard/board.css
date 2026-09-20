@@ -8,16 +8,24 @@
  *  — название категории обрезалось многоточием, выходные красились «зелёным» (цвет свободного).
  */
 
-/* ── планка над сеткой: период · легенда · без ячейки · как работать ── */
+/* C1: короткая планка периода, подписанные фильтры, инструкции по запросу. */
+.page:has(> .board-wrap) > .page__head {
+  margin-bottom: 8px;
+}
 .board-bar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 18px;
+  gap: 8px 16px;
   margin: 0 0 10px;
 }
 .board-bar .board-range-form {
   margin: 0;
+  gap: 8px;
+}
+.board-range-form .field {
+  margin: 0;
+  gap: 6px;
 }
 .board-bar .board-range-form .inp {
   width: 140px;
@@ -33,22 +41,38 @@
   height: 10px;
 }
 .board-bar .board-help {
-  margin: 0;
+  margin: 0 0 0 auto;
 }
 .board-bar .board-help summary {
   color: var(--primary);
 }
-.board-bar .board-help[open] .note {
+.board-bar .board-help-content {
   position: absolute;
+  right: 0;
   z-index: 20;
   margin-top: 8px;
   padding: 12px 14px;
-  max-width: 560px;
+  width: min(560px, 75vw);
   background: var(--surface-elevated, var(--surface));
   border: 1px solid var(--border);
   border-radius: 10px;
   box-shadow: var(--shadow);
   color: var(--text-2);
+}
+.board-help-content .note {
+  margin-bottom: 0;
+}
+.board-bar .board-help summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-h);
+}
+.board-bar .board-help summary::before {
+  content: '+';
+  margin-right: 6px;
+}
+.board-bar .board-help[open] summary::before {
+  content: '−';
 }
 .board-bar .board-help {
   position: relative;
@@ -72,11 +96,33 @@
 /* ── фильтры и поиск в одну строку ── */
 .board-toolbar {
   gap: 8px 12px;
-  padding: 10px 14px;
+  padding: 10px 12px;
 }
-.board-toolbar > .inp {
-  min-width: 220px;
-  min-height: 34px;
+.board-filter-fields {
+  display: contents;
+}
+.board-filter-toggle {
+  display: none;
+}
+.board-toolbar .field {
+  margin: 0;
+  min-width: 0;
+  gap: 8px;
+}
+.board-search {
+  flex: 1 1 260px;
+}
+.board-category {
+  flex: 0 1 300px;
+}
+.board-toolbar .field > .inp {
+  min-width: 0;
+  width: 100%;
+  border-color: var(--border-input);
+  background-color: var(--surface);
+}
+.board-toolbar .field > span {
+  flex: none;
 }
 .board-toolbar .seg {
   padding: 2px;
@@ -89,6 +135,12 @@
   display: inline-flex;
   gap: 4px;
   flex-wrap: wrap;
+  align-items: center;
+}
+.board-filter-date {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-right: 8px;
 }
 .board-toolbar .filter-chip {
   min-height: 30px;
@@ -290,6 +342,33 @@
   text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
+  .board-filter-toggle {
+    display: inline-flex;
+  }
+  .board-toolbar .board-result {
+    margin-left: auto;
+  }
+  .board-filter-fields {
+    display: none;
+  }
+  .board-toolbar[data-filters-open='true'] .board-filter-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  .board-toolbar .board-filter-toggle {
+    order: 1;
+  }
+  .board-toolbar .board-result {
+    order: 2;
+  }
+  .board-toolbar .board-filter-fields {
+    order: 3;
+  }
+  .board-toolbar > .btn--ghost {
+    order: 4;
+  }
   .board--week .board-stay-nights,
   .board--week .board__free-word {
     display: none;
@@ -302,18 +381,85 @@
 }
 
 @media (max-width: 960px) {
-  .page:has(> .board-wrap) > .board-wrap {
-    min-height: 60dvh;
+  /* На узком экране контролы переносятся. Фиксированная высота страницы обрезала низ сетки:
+     даже прокрутка до F36 оставляла последнюю строку вне доступной области. */
+  .page:has(> .board-wrap) {
+    height: auto;
+    overflow: visible;
   }
-  .board-bar .board-help[open] .note {
+  .page:has(> .board-wrap) > .board-wrap {
+    flex: none;
+    height: 60dvh;
+    min-height: 60dvh;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .board-bar .board-help-content {
     position: static;
     box-shadow: none;
+    width: 100%;
+  }
+  .board-bar .board-help {
+    width: 100%;
+    margin-left: 0;
   }
 }
 
-/* «Разрешить» у брони без ячейки (срез 7.3): второй пункт длиннее ширины меню по умолчанию — иначе он обрезается */
-.board-unassigned .action-menu__list {
-  min-width: 280px;
+@media (max-width: 600px) {
+  .page:has(> .board-wrap) {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+  .board-bar .board-range-form {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .board-bar .board-range-form .inp {
+    width: 100%;
+    min-height: var(--touch-target);
+  }
+  .board-range-form > .btn {
+    grid-column: 1 / -1;
+  }
+  .board-period .seg {
+    flex: 1;
+  }
+  .board-period .seg a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: var(--touch-target);
+  }
+  .board-date-nav .icon-button {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
+  .board-search,
+  .board-category {
+    flex: 1 1 100%;
+  }
+  .board-toolbar .field > span {
+    width: 76px;
+  }
+  .board-toolbar .seg {
+    width: 100%;
+  }
+  .board-toolbar .segment-button {
+    flex: 1;
+    min-height: var(--touch-target);
+  }
+  .board-toolbar .board-state-filters {
+    width: 100%;
+    gap: 8px;
+    overflow: visible;
+  }
+  .board-filter-date {
+    width: 100%;
+  }
+  .board-toolbar .filter-chip,
+  .board-bar .board-help summary {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
 }
 
 /*
@@ -377,4 +523,9 @@
     var(--danger-soft) 5px,
     var(--danger-soft) 7px
   );
+}
+
+/* «Разрешить» у брони без ячейки (срез 7.3): второй пункт длиннее ширины меню по умолчанию — иначе он обрезается */
+.board-unassigned .action-menu__list {
+  min-width: 280px;
 }

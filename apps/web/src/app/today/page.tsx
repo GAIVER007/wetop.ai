@@ -10,7 +10,7 @@ import { Icon } from '../../components/icon';
 import { HotelClock } from './dashboard-widgets';
 import { PeriodBar } from './period-bar';
 import { DashboardSection, DashboardSkeleton } from './dashboard-section';
-import { AttentionSummarySection, DeskSection, DeskSkeleton } from './desk-section';
+import { AttentionSection, DeskSection, DeskSkeleton } from './desk-section';
 
 /**
  * Главная собственника и управляющего (срез 14, plans/slice-14-dashboard-2026-09-16.md):
@@ -53,8 +53,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       }
     >
       <div className="dashboard-day">
-        <Suspense fallback={null}>
-          <AttentionSummarySection date={deskDate} />
+        <Suspense fallback={<span className="muted">Загружаем задачи дня…</span>}>
+          <AttentionSection date={deskDate} />
         </Suspense>
         <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
       </div>

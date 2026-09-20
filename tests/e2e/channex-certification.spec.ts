@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmCancelReservation } from './confirm';
+import { confirmDialog } from './confirm';
 
 /**
  * Сертификационные сценарии Channex (docs/channex/site/api-v.1-documentation/pms-certification-tests.md),
@@ -166,7 +166,9 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-14', stopSell: 'true' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-16', stopSell: 'true' });
     await save(page);
-    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('закрыто'); // stop sell словом (срез 7.2)
+    await expect(page.getByRole('main').getByTestId('rate-row-2026-11-14')).toContainText(
+      'закрыто',
+    ); // stop sell словом (срез 7.2)
     await flush(page, '6. Stop Sell Update');
   });
 
@@ -232,7 +234,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await page.goto(`/reservations/${number}`);
     await cardTab(page, 'Действия');
     await page.getByRole('main').getByTestId('cancel-reservation').click();
-    await confirmCancelReservation(page);
+    await confirmDialog(page, 'Отменить бронь');
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

@@ -6,30 +6,25 @@ import { QuickActions } from './dashboard-widgets';
 import { DeskStrip } from './desk-strip';
 
 /**
- * День стойки читается один раз на показ экрана, хотя нужен двум кускам (сводка «Требуют внимания»
- * в шапке и полоса стойки): `cache` React склеивает вызовы внутри одного рендера, и сторож
- * `tests/ui/requests.spec.ts` («путь с данными — один запрос на показ») остаётся в силе.
+ * Полоса стойки и задачи смены — своим куском: показателям за период они не нужны, и ждать их незачем.
+ * Отказ API называется словами, а не пустым экраном (замечание владельца 16.09.2026).
  */
-const deskDay = cache((date: string) =>
+const loadDeskDay = cache((date: string) =>
   deskApi.today(date).catch((error: unknown) => {
     if (error instanceof ApiError) return error;
     throw error;
   }),
 );
 
-/** Сводка «Требуют внимания: N» в шапке главной; при отказе стойки молчит — отказ назовёт полоса ниже. */
-export async function AttentionSummarySection({ date }: { date: string }) {
-  const day = await deskDay(date);
-  if (day instanceof ApiError) return null;
+/** Сводка сверху и полоса стойки используют один запрос в рамках серверного рендера. */
+export async function AttentionSection({ date }: { date: string }) {
+  const day = await loadDeskDay(date);
+  if (day instanceof ApiError) return <span className="muted">Задачи дня не загрузились</span>;
   return <AttentionSummary day={day} date={date} />;
 }
 
-/**
- * Полоса стойки и задачи смены — своим куском: показателям за период они не нужны, и ждать их незачем.
- * Отказ API называется словами, а не пустым экраном (замечание владельца 16.09.2026).
- */
 export async function DeskSection({ date, today }: { date: string; today: string }) {
-  const day = await deskDay(date);
+  const day = await loadDeskDay(date);
   if (day instanceof ApiError)
     return (
       <Alert tone="warning" boxed data-testid="desk-error">

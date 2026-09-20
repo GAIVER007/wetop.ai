@@ -33,6 +33,7 @@ import {
   type Session,
 } from './accounts.service';
 import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie';
+import { Public } from '../auth/public.decorator';
 
 /**
  * Откуда берём ключ. Основной способ — кука: она `HttpOnly`, и чужой скрипт на странице её не
@@ -95,6 +96,7 @@ export class AccountsController {
    * ответ один. Иначе перебором по форме входа составляется список наших клиентов.
    */
   @Post('code')
+  @Public()
   @HttpCode(204)
   async requestCode(
     @Body() body: { email?: unknown },
@@ -109,6 +111,7 @@ export class AccountsController {
    * у нас такой адрес. Всё остальное — 204, как у запроса кода: занят адрес или нет, наружу не видно.
    */
   @Post('register')
+  @Public()
   @HttpCode(204)
   async register(
     @Body() body: { email?: unknown; organizationName?: unknown },
@@ -127,6 +130,7 @@ export class AccountsController {
 
   /** Проверить код и войти. Отказ — всегда один и тот же текст, без подробностей. */
   @Post('verify')
+  @Public()
   @HttpCode(200)
   async verify(
     @Body() body: { email?: unknown; code?: unknown },
@@ -214,6 +218,7 @@ export class AccountsController {
 
   /** Кто зовёт и кого — по ключу из ссылки. Мёртвая ссылка — 404 одним текстом, без подробностей. */
   @Get('invites/:token')
+  @Public()
   async inviteByToken(@Param('token') token: string): Promise<InvitePreviewJson> {
     const preview = await this.accounts.inviteByToken(token);
     if (!preview) throw new NotFoundException(INVITE_INVALID_MESSAGE);
@@ -222,6 +227,7 @@ export class AccountsController {
 
   /** Принять: членство заведено, код для входа выслан. Повтор по той же ссылке — 404. */
   @Post('invites/:token/accept')
+  @Public()
   @HttpCode(200)
   async acceptInvite(
     @Param('token') token: string,

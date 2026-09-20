@@ -5,7 +5,6 @@ import { daysLeft } from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
 import type { AuthInvite, SignedIn } from '../../lib/api';
-import { displayDate } from '../../lib/display-date';
 import {
   inviteAction,
   registerAction,
@@ -15,6 +14,8 @@ import {
   verifyAction,
   type LoginState,
 } from './actions';
+import { displayDate } from '../../lib/display-date';
+import './login.css';
 
 /**
  * Способ входа. Пока владелец не выбрал один (Q-146), на экране живут оба: по паролю (ADR-049) —
@@ -50,7 +51,7 @@ export function LoginForm({
 
   // вход по коду: почта (и название организации) → код из письма
   const [step, setStep] = useState<'email' | 'code'>(initialStep);
-  const [email, setEmail] = useState(initialEmail || (accessEmail ?? ''));
+  const [email, setEmail] = useState(initialEmail || accessEmail || '');
   const [organizationName, setOrganizationName] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -108,7 +109,7 @@ export function LoginForm({
   };
 
   return (
-    <main className="login-page" id="main-content">
+    <main className="login-page login-page--entry" id="main-content">
       <button
         className="icon-button login-theme"
         aria-label="Переключить тему"
@@ -118,30 +119,14 @@ export function LoginForm({
       >
         <Icon name="sun" />
       </button>
-      <section className="login-story">
-        <Link className="workspace-brand" href="/today">
+      <header className="login-brand">
+        <Link className="workspace-brand" href="/login" aria-label="WETOP — вход в систему">
           <span className="workspace-mark">W</span>
           <span className="brand-name">
             WETOP<span>.AI</span>
           </span>
         </Link>
-        <div className="login-message">
-          <span className="eyebrow">Стойка, брони и каналы в одном окне</span>
-          <h1>
-            Весь объект
-            <br />
-            под контролем.
-          </h1>
-          <p>
-            Брони. Гости. Оплаты. Номера.
-            <br />В одной системе.
-          </p>
-        </div>
-        <span className="login-property">
-          <Icon name="inventory" width={16} />
-          Luxx Aparts · Алматы
-        </span>
-      </section>
+      </header>
       <section className="login-form-panel">
         <div className="login-form">
           <span className="round-icon">
@@ -149,7 +134,7 @@ export function LoginForm({
           </span>
           {user ? (
             <>
-              <h2>Вы вошли</h2>
+              <h1>Вы вошли</h1>
               <p>
                 как <b>{user.name ?? user.email}</b>
                 {user.name ? ` · ${user.email}` : ''}
@@ -238,7 +223,7 @@ export function LoginForm({
             </>
           ) : step === 'code' ? (
             <>
-              <h2>Код отправлен</h2>
+              <h1>Код отправлен</h1>
               <p>
                 Если адрес <b>{email}</b> нам знаком, письмо с кодом уже идёт. Код действует 10
                 минут.
@@ -270,8 +255,13 @@ export function LoginForm({
                     {error}
                   </p>
                 )}
-                <button className="btn" type="submit" disabled={codePending}>
-                  Войти
+                <button
+                  className="btn"
+                  type="submit"
+                  disabled={codePending}
+                  aria-busy={codePending}
+                >
+                  {codePending ? 'Входим…' : 'Войти'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
@@ -280,6 +270,7 @@ export function LoginForm({
                 <button
                   type="button"
                   className="btn btn--secondary"
+                  disabled={codePending}
                   onClick={() => {
                     setCode('');
                     setError('');
@@ -292,14 +283,18 @@ export function LoginForm({
             </>
           ) : mode === 'password' ? (
             <>
-              <h2>Добро пожаловать</h2>
-              <p>Войдите в рабочее пространство</p>
+              <h1>Вход в WETOP</h1>
+              <p>Используйте почту и пароль вашей учётной записи</p>
               {passwordJustSet && (
                 <p className="alert alert--ok" role="status">
                   Пароль сохранён. Войдите с ним.
                 </p>
               )}
-              <form action={submit}>
+              <form
+                action={submit}
+                aria-busy={pending}
+                aria-describedby={state.error ? 'login-error' : undefined}
+              >
                 <label className="field">
                   Email
                   <input
@@ -308,7 +303,9 @@ export function LoginForm({
                     autoComplete="username"
                     name="email"
                     placeholder="you@hotel.com"
-                    defaultValue={accessEmail ?? ''}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    readOnly={pending}
                     required
                   />
                 </label>
@@ -321,12 +318,15 @@ export function LoginForm({
                       autoComplete="current-password"
                       name="password"
                       aria-label="Пароль"
+                      readOnly={pending}
                       required
                       placeholder="Введите пароль"
                     />
                     <button
                       type="button"
                       aria-label={show ? 'Скрыть пароль' : 'Показать пароль'}
+                      aria-pressed={show}
+                      disabled={pending}
                       onClick={() => setShow(!show)}
                     >
                       {show ? 'Скрыть' : 'Показать'}
@@ -334,12 +334,12 @@ export function LoginForm({
                   </span>
                 </label>
                 {state.error && (
-                  <p className="alert" role="alert">
+                  <p className="alert" role="alert" id="login-error">
                     {state.error}
                   </p>
                 )}
-                <button className="btn" type="submit" disabled={pending}>
-                  {pending ? 'Проверяем…' : 'Войти'}
+                <button className="btn" type="submit" disabled={pending} aria-busy={pending}>
+                  {pending ? 'Входим…' : 'Войти'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
@@ -354,17 +354,27 @@ export function LoginForm({
                     <a href="/cdn-cgi/access/logout">Выйти из Access</a>
                   </>
                 ) : (
-                  <span>{demo ? 'Демонстрационный режим' : 'Пароль выдаёт владелец объекта'}</span>
+                  <span>
+                    {demo
+                      ? 'Демонстрационный режим'
+                      : 'Нет доступа? Обратитесь к владельцу или администратору объекта.'}
+                  </span>
                 )}
               </div>
               <div className="login-preview">
                 <span>Другой способ входа</span>
-                <button type="button" className="btn btn--secondary" onClick={() => switchTo('code')}>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  disabled={pending}
+                  onClick={() => switchTo('code')}
+                >
                   Войти по коду из письма
                 </button>
                 <button
                   type="button"
                   className="btn btn--secondary"
+                  disabled={pending}
                   onClick={() => switchTo('register')}
                 >
                   Попробовать бесплатно
@@ -373,7 +383,7 @@ export function LoginForm({
             </>
           ) : (
             <>
-              <h2>{mode === 'register' ? 'Попробовать бесплатно' : 'Добро пожаловать'}</h2>
+              <h1>{mode === 'register' ? 'Попробовать бесплатно' : 'Вход в WETOP'}</h1>
               <p>
                 {mode === 'register'
                   ? 'Семь дней пробного периода. Пароль не нужен: код для входа придёт на почту.'
@@ -419,8 +429,17 @@ export function LoginForm({
                     {error}
                   </p>
                 )}
-                <button className="btn" type="submit" disabled={codePending}>
-                  {mode === 'register' ? 'Создать организацию' : 'Получить код'}
+                <button
+                  className="btn"
+                  type="submit"
+                  disabled={codePending}
+                  aria-busy={codePending}
+                >
+                  {codePending
+                    ? 'Отправляем…'
+                    : mode === 'register'
+                      ? 'Создать организацию'
+                      : 'Получить код'}
                   <Icon name="arrow" width={16} />
                 </button>
               </form>
@@ -431,6 +450,7 @@ export function LoginForm({
                 <button
                   type="button"
                   className="btn btn--secondary"
+                  disabled={codePending}
                   onClick={() => switchTo(mode === 'register' ? 'code' : 'register')}
                 >
                   {mode === 'register' ? 'Войти по коду' : 'Попробовать бесплатно'}
@@ -438,6 +458,7 @@ export function LoginForm({
                 <button
                   type="button"
                   className="btn btn--secondary"
+                  disabled={codePending}
                   onClick={() => switchTo('password')}
                 >
                   Войти по паролю
@@ -454,6 +475,39 @@ export function LoginForm({
               </div>
             </>
           )}
+        </div>
+      </section>
+      <section className="login-story" aria-labelledby="login-story-title">
+        <div className="login-message">
+          <span className="eyebrow">Рабочее пространство отеля и хостела</span>
+          <h2 id="login-story-title">
+            Рабочий день —<br />
+            под контролем
+          </h2>
+          <p>Проверяйте заезды и выезды, размещайте гостей и отслеживайте оплаты в WETOP.</p>
+          <ul className="login-features">
+            <li>
+              <Icon name="arrival" />
+              <div>
+                <strong>Планы на смену</strong>
+                <span>Заезды, выезды и задачи, которые требуют внимания.</span>
+              </div>
+            </li>
+            <li>
+              <Icon name="board" />
+              <div>
+                <strong>Размещение на одном экране</strong>
+                <span>Номера, койки и брони в наглядной шахматке.</span>
+              </div>
+            </li>
+            <li>
+              <Icon name="receipt" />
+              <div>
+                <strong>Понятные расчёты</strong>
+                <span>Начисления, оплаты и остаток по каждой брони.</span>
+              </div>
+            </li>
+          </ul>
         </div>
       </section>
     </main>

@@ -181,7 +181,9 @@ test('подключения показывают частичный сбой, �
     'нельзя',
   );
   await page.goto('/hotel-settings/description');
-  await expect(page.getByTestId('content-description')).toContainText('Вымышленное описание');
+  await expect(page.getByRole('main').getByTestId('content-description')).toContainText(
+    'Вымышленное описание',
+  );
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
@@ -1133,10 +1135,10 @@ test('шахматка: несопоставленные ревизии кана
 }) => {
   await request.post(`${fixture}/__test/design-seed`); // в засеянных данных есть ревизия FAILED
   await page.goto('/chessboard');
-  const notice = page.getByTestId('review-callout');
+  const notice = page.getByTestId('failed-revisions');
   await expect(notice).toContainText('требует разбора');
-  await notice.getByRole('link', { name: 'Разобрать' }).click();
-  await expect(page).toHaveURL(/\/channels/);
+  await notice.getByRole('link').click();
+  await expect(page).toHaveURL(/\/channels$/);
 });
 
 /**
@@ -1150,20 +1152,19 @@ test('каналы: очередь показана строками — что 
   page,
   request,
 }) => {
-  // витрина показа Channex: очередь и входящие события (срез 7.2); экран и фильтры — channex-screens.spec
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await request.post(`${fixture}/__test/design-seed`);
   await page.goto('/channels');
   const rows = page.getByTestId('outbox-row');
   await expect(rows.first()).toBeVisible();
   // вид сообщения словом, а не кодом перечисления
-  await expect(rows.filter({ hasText: 'остатки' }).first()).toBeVisible();
+  await expect(rows.first()).toContainText('остатки');
   // отказ виден со своей причиной, а не одним счётчиком «ошибок»
-  const failed = rows.filter({ hasText: 'ошибка' }).first();
+  const failed = page.getByTestId('outbox-row').filter({ hasText: 'ошибка' }).first();
   await expect(failed).toContainText('422');
 });
 
 test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await request.post(`${fixture}/__test/design-seed`);
   await page.goto('/channels');
   const link = page.getByTestId('event-reservation').first();
   await expect(link).toBeVisible();
@@ -1172,6 +1173,25 @@ test('каналы: входящая бронь ведёт на карточку
   await expect(page).toHaveURL(new RegExp(`/reservations/${encodeURIComponent(number)}$`));
 });
 
+test('цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь', async ({
+  page,
+}) => {
+  await page.goto('/rates');
+  const cell = page.getByTestId('rates-table').getByTestId('price-cell-edit').first();
+  await cell.click();
+  const input = page.getByTestId('price-cell-input');
+  await input.fill('15000');
+  await page.getByRole('button', { name: 'Сохранить цену' }).click();
+  const said = page.getByTestId('price-cell-result');
+  await expect(said).toContainText('Цена сохранена');
+  await expect(said).toContainText('в очередь каналов');
+});
+
+/**
+ * Срез 7.3 (Д5): сумму администратор объявляет гостю ДО действия, а система до сих пор считала её
+ * молча после нажатия. Окно подтверждения обязано назвать число — одно и то же с тем, что появится
+ * на счёте (его даёт предпросмотр `GET …/preview`, считающий теми же функциями, что само действие).
+ */
 test('незаезд: окно называет штраф суммой, а не «может начислиться»', async ({ page }) => {
   await page.goto('/reservations/20260913-TEST1');
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();

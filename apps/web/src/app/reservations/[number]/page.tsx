@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { Icon } from '../../../components/icon';
 import { notFoundOn404 } from '../../../lib/page-error';
-import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { nightsBetween } from '../../../lib/plural';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { nightsBetween } from '../../../lib/plural';
 import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
@@ -135,8 +135,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                 {r.status === 'TENTATIVE' && (
                   // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
                   <Alert boxed tone="warning" data-testid="tentative-callout">
-                    Бронь не подтверждена: пришла предварительной из канала или Exely, и подтверждение
-                    приходит оттуда же. Место за ней держится и второй раз не продаётся.
+                    Бронь не подтверждена: пришла предварительной из канала или Exely, и
+                    подтверждение приходит оттуда же. Место за ней держится и второй раз не
+                    продаётся.
                   </Alert>
                 )}
                 <div className="facts facts--card" id="booking-overview">
@@ -347,6 +348,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
+                  currency={r.currency}
                   ratePlans={ratePlans ?? []}
                   items={r.items.map((it) => {
                     const byCategory =
@@ -374,8 +376,14 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       status: it.status,
                       accommodationTypeCode: it.accommodationTypeCode,
                       accommodationTypeName: it.accommodationTypeName,
+                      arrivalDate: it.arrivalDate,
+                      departureDate: it.departureDate,
                       unitCode: it.unitCode,
                       ratePlanCode: it.ratePlanCode ?? null,
+                      // остаток по счёту проживания — для окна «Выселить с долгом» (срез 7.3)
+                      debtMinor:
+                        finance?.folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ??
+                        null,
                       ratePlanName: it.ratePlanName ?? null,
                       adults: it.adults,
                       children: it.children,

@@ -45,12 +45,12 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <TopNav
-              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
               account={
                 <Suspense fallback={null}>
                   <AccountMenu />
                 </Suspense>
               }
+              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
               property={{
                 name: (
                   <Suspense fallback="Объект не загружен">

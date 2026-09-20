@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmCancelReservation, confirmDialog } from './confirm';
+import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -121,10 +121,10 @@ test('стойка: занятую койку не продать дважды, 
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
   // чужая категория — окно с новой суммой до подтверждения (срез 7.3, Д5); сумму считает тот же код, что и запись
-  const moveDialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
-  await expect(moveDialog).toContainText('Цена проживания станет');
+  const moveAmount = page.getByRole('dialog').getByTestId('move-amount');
+  await expect(moveAmount).toContainText('Новая сумма за');
   const shownNew = money(
-    /Цена проживания станет (.+?) вместо/.exec(await moveDialog.innerText())?.[1] ?? '',
+    /Новая сумма за \S+ \S+ (.+?) \(было/.exec(await moveAmount.innerText())?.[1] ?? '',
   );
   await confirmDialog(page, 'Переселить и пересчитать');
 
@@ -143,7 +143,7 @@ test('стойка: занятую койку не продать дважды, 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

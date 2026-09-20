@@ -1,7 +1,7 @@
 /**
  * Деньги на экране по DESIGN.md §14: «12 500 ₸» без тиынов, если сумма целая; «12 500,50 ₸», если нет.
  * На входе строка в тиынах (ADR-008) — float здесь нет. Отрицательное — с минусом «−» (U+2212).
- * `formatMinor` из lib/format.ts печатает копейки всегда и остаётся для счёта; здесь — для плашек,
+ * `formatMinor` из lib/api.ts печатает копейки всегда и остаётся для счёта; здесь — для плашек,
  * таблиц и показателей, где тиыны только шумят.
  */
 export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
@@ -24,4 +24,12 @@ export function minorToInput(minor: string): string {
   const whole = digits.slice(0, -2);
   const fraction = digits.slice(-2);
   return `${negative ? '-' : ''}${whole}${fraction === '00' ? '' : `.${fraction}`}`;
+}
+
+/** Печатные формы: тиыны показываются всегда, без float-арифметики. */
+export function formatMinor(minor: string, currency = 'KZT'): string {
+  const neg = minor.startsWith('-');
+  const digits = minor.replace('-', '').padStart(3, '0');
+  const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
 }

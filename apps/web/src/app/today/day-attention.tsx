@@ -64,7 +64,8 @@ export function DayAttention({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel || r.confirmationNumber}</strong>
                 <small>
-                  <span className="booking-number">{r.confirmationNumber}</span> · Не заехал {displayDate(r.arrivalDate)}: заселить или отметить незаезд
+                  <span className="booking-number">{r.confirmationNumber}</span> · Не заехал{' '}
+                  {displayDate(r.arrivalDate)}: заселить или отметить незаезд
                   {r.blockedReason ? ` · ${r.blockedReason}` : ''}
                 </small>
               </span>

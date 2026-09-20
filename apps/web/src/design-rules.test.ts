@@ -126,14 +126,7 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
   });
   it('деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам', () => {
     const guilty = tsxFiles(SRC)
-      .filter(
-        (f) =>
-          !/\/print\//.test(f) &&
-          !/lib\/api\.ts$/.test(f) &&
-          !/lib\/money\.ts$/.test(f) &&
-          // сама функция живёт здесь: api.ts её только реэкспортирует, клиентские компоненты берут отсюда
-          !/lib\/format\.ts$/.test(f),
-      )
+      .filter((f) => !/\/print\//.test(f) && !/lib\/api\.ts$/.test(f) && !/lib\/money\.ts$/.test(f))
       .filter((f) => /\bformatMinor\s*\(/.test(readFileSync(f, 'utf8')))
       .map((f) => relative(SRC, f));
     expect(guilty).toEqual([]);

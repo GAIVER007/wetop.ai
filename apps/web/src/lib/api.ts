@@ -370,7 +370,11 @@ export const authApi = {
     );
   },
   /** Регистрация: 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
-  register: async (email: string, organizationName: string, info: AuthClientInfo): Promise<void> => {
+  register: async (
+    email: string,
+    organizationName: string,
+    info: AuthClientInfo,
+  ): Promise<void> => {
     await throwUnlessOk(
       await backendFetch('/auth/register', {
         method: 'POST',
@@ -394,24 +398,21 @@ export const authApi = {
     );
     return (await res.json()) as { token: string; session: AuthSession };
   },
-
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
-    const res = await throwUnlessOk(
-      await backendFetch('/auth/invites', { headers: authHeaders(info, token) }),
-    );
+    const res = await backendFetch('/auth/invites', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite[];
   },
   /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
   invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
-    const res = await throwUnlessOk(
-      await backendFetch('/auth/invites', {
-        method: 'POST',
-        headers: authHeaders(info, token),
-        body: JSON.stringify({ email }),
-      }),
-    );
+    const res = await backendFetch('/auth/invites', {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
   },
   /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
@@ -423,35 +424,65 @@ export const authApi = {
       headers: authHeaders(info),
     });
     if (res.status === 404) return null;
-    await throwUnlessOk(res);
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvitePreview;
   },
   /** Принять: членство заведено, код для входа выслан. 404 с текстом на мёртвую ссылку. */
   acceptInvite: async (rawToken: string, info: AuthClientInfo): Promise<AuthInvitePreview> => {
-    const res = await throwUnlessOk(
-      await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
-        method: 'POST',
-        headers: authHeaders(info),
-        body: '{}',
-      }),
-    );
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(rawToken)}/accept`, {
+      method: 'POST',
+      headers: authHeaders(info),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvitePreview;
   },
 };
-/** Приглашение в организацию (DATA_MODEL §13.6): в базе только отпечаток ключа, ключ — в письме. */
-export interface AuthInvite {
-  id: string;
-  email: string;
-  expiresAt: string;
-  acceptedAt: string | null;
-  createdAt: string;
-}
-export interface AuthInvitePreview {
-  organizationName: string;
-  email: string;
-  expiresAt: string;
-}
 
+/**
+ * Предпросмотр сумм до подтверждения (срез 7.3, Д5): считает сервер теми же функциями, что и запись,
+ * ничего не пишет. `null` в сумме — посчитать нельзя (нет тарифа), причина в `problem`.
+ */
+export interface MovePreview {
+  unitCode: string;
+  changesCategory: boolean;
+  fromCategory: { code: string; name: string } | null;
+  toCategory: { code: string; name: string } | null;
+  nights: number;
+  currentMinor: string;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  problem: string | null;
+}
+export interface ExtendPreview {
+  nights: number;
+  departureDate: string;
+  unitCode: string | null;
+  addedMinor: string | null;
+  newMinor: string | null;
+  ratePlanRequired: boolean;
+  /** Ячейка свободна на добавленные ночи (без брони и блокировки); без ячейки — true */
+  nextNightsFree: boolean;
+  problem: string | null;
+}
+export interface CancelPreview {
+  reason: 'cancel' | 'no_show';
+  items: Array<{
+    itemId: string;
+    unitCode: string | null;
+    policy: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
+    /** Наступил ли момент штрафа (Q-103): отмена до дня заезда бесплатна */
+    dueNow: boolean;
+    penaltyMinor: string;
+  }>;
+  totalPenaltyMinor: string;
+}
+const query = (params: Record<string, string | number | undefined>) => {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') q.set(k, String(v));
+  const s = q.toString();
+  return s ? `?${s}` : '';
+};
 export const reservationsApi = {
   ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
   availability: (arrival: string, departure: string) =>
@@ -495,6 +526,19 @@ export const reservationsApi = {
   preview: (number: string, itemId: string, query: Record<string, string>) =>
     getJson<ActionPreview>(
       `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/preview?${new URLSearchParams(query).toString()}`,
+    ),
+  /** Срез 7.3, Д5: сумма до подтверждения — только чтение */
+  movePreview: (number: string, itemId: string, unitCode: string, ratePlanCode?: string) =>
+    getJson<MovePreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/move-preview${query({ unitCode, ratePlanCode })}`,
+    ),
+  extendPreview: (number: string, itemId: string, nights = 1, ratePlanCode?: string) =>
+    getJson<ExtendPreview>(
+      `/reservations/${encodeURIComponent(number)}/items/${encodeURIComponent(itemId)}/extend-preview${query({ nights, ratePlanCode })}`,
+    ),
+  cancelPreview: (number: string, reason: 'cancel' | 'no_show', itemId?: string) =>
+    getJson<CancelPreview>(
+      `/reservations/${encodeURIComponent(number)}/cancel-preview${query({ reason, itemId })}`,
     ),
   assign: (number: string, itemId: string, body: unknown) =>
     sendJson<ReservationCard>(
@@ -576,6 +620,8 @@ export const channelsApi = {
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
   /** Строки очереди: что именно уехало в Channex (срез 7.2) */
+  outboxMessages: (limit = 20) =>
+    getJson<OutboxMessage[]>(`/channels/channex/outbox/messages?limit=${limit}`),
   setup: () => sendJson<unknown>('POST', '/channels/channex/setup', {}),
   /** Без `days` — глубина по умолчанию API (DEFAULT_SYNC_DAYS = 500, сертификация Channex §1) */
   sync: (days?: number) =>
@@ -654,6 +700,7 @@ export interface InboundEvent {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
+  reservationNumber?: string | null;
   /** Номер брони на стороне канала (`unique_id` ревизии) и канал — срез 7.2 */
   uniqueId?: string | null;
   otaName?: string | null;
@@ -669,6 +716,22 @@ export interface EventsQuery {
 }
 export type OutboxRowStatus = 'PENDING' | 'SENT' | 'FAILED';
 /** Строка очереди `channel_outbox` для журнала интеграции (срез 7.2) */
+export interface OutboxMessage {
+  id: string;
+  kind: 'AVAILABILITY' | 'RESTRICTIONS';
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  lines: number;
+  dateFrom: string | null;
+  dateTo: string | null;
+  roomTypeIds: string[];
+  ratePlanIds: string[];
+}
+
 export interface OutboxRow {
   id: string;
   kind: 'AVAILABILITY' | 'RESTRICTIONS';
@@ -1153,3 +1216,16 @@ export const guardApi = {
   tick: () => sendJson<{ observed: unknown[]; resolved: number }>('POST', '/guard/tick', {}),
 };
 
+export interface AuthInvite {
+  id: string;
+  email: string;
+  expiresAt: string;
+  acceptedAt: string | null;
+  createdAt: string;
+}
+
+export interface AuthInvitePreview {
+  organizationName: string;
+  email: string;
+  expiresAt: string;
+}

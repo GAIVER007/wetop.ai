@@ -334,8 +334,27 @@ function makeFakes() {
           receivedAt: '2026-09-17T05:00:00.000Z',
           processedAt: '2026-09-17T05:00:02.000Z',
           lastError: null,
+          // срез 7.2: показ Channex — от ревизии сразу к броне, номер не ищут руками
+          reservationNumber: '20260917-BDC-1',
         },
       ];
+    },
+    async recentOutbox() {
+      return outbox.map((o) => ({
+        id: o.id,
+        kind: o.kind,
+        status: o.status as 'PENDING' | 'SENT' | 'FAILED',
+        attempts: o.attempts,
+        taskId: o.taskId ?? null,
+        lastError: o.lastError ?? null,
+        createdAt: '2026-09-17T05:00:00.000Z',
+        sentAt: null,
+        lines: o.payload.length,
+        dateFrom: '2026-09-20',
+        dateTo: '2026-09-22',
+        roomTypeIds: ['rt-1'],
+        ratePlanIds: [],
+      }));
     },
     // Срез 7.2: журнал с фильтрами и страница ревизии — на вымышленных событиях (ADR-010)
     async eventsPage(_p, q) {
@@ -766,6 +785,24 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     delete process.env.PUBLIC_API_URL;
     delete process.env.CHANNEX_WEBHOOK_SECRET;
   });
+  /**
+   * Срез 7.2, сцена сертификации: на экране видно не три числа, а что именно уехало в Channex и
+   * какой броне соответствует входящая ревизия.
+   */
+  it('очередь отдаётся строками, а ревизия — с номером брони PMS', async () => {
+    await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
+    await request(app.getHttpServer())
+      .post('/channels/channex/availability/changed')
+      .send({ categoryCodes: ['exely-900001'], from: fakes.today, toExclusive: fakes.d(3) })
+      .expect(200);
+    const q = await request(app.getHttpServer())
+      .get('/channels/channex/outbox/messages?limit=5')
+      .expect(200);
+    expect(q.body.length).toBeGreaterThan(0);
+    expect(q.body[0]).toMatchObject({ kind: 'AVAILABILITY', status: 'PENDING' });
+    expect(q.body[0].lines).toBeGreaterThan(0);
+  });
+
   it('срез 7.2: журнал событий — фильтр по статусу, поиск по номеру брони, постраничность, бронь у ревизии', async () => {
     const all = await request(app.getHttpServer()).get('/channels/channex/events').expect(200);
     expect(all.body.total).toBe(2);

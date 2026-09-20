@@ -110,43 +110,46 @@ describe.skipIf(!url)('журнал каналов: очередь строка�
     await db.$disconnect();
   });
 
-  it('ревизия несёт номер брони PMS, несопоставленная — null; поиск по номеру брони находит ревизию', async () => {
-    const { rows: events, total } = await repo.eventsPage(provider, { limit: 10, offset: 0 });
-    expect(total).toBe(2);
+  it('ревизия несёт номер брони PMS, несопоставленная — null', async () => {
+    const events = await repo.recentEvents(provider, 10);
     const linked = events.find((e) => e.externalEventId === `${mark}-rev-linked`);
     const orphan = events.find((e) => e.externalEventId === `${mark}-rev-orphan`);
     expect(linked).toMatchObject({
       type: 'booking_new',
       status: 'PROCESSED',
       receivedVia: 'WEBHOOK',
-      uniqueId,
-      confirmationNumber: number,
+      reservationNumber: number,
     });
     expect(orphan).toMatchObject({
       status: 'FAILED',
       attempts: 6,
       lastError: 'не сопоставлена',
-      confirmationNumber: null,
+      reservationNumber: null,
     });
-    // номер брони PMS → externalId брони → unique_id ревизии: так ищут на показе сертификации
-    const byNumber = await repo.eventsPage(provider, { limit: 10, offset: 0, q: number });
-    expect(byNumber.rows.map((e) => e.externalEventId)).toEqual([`${mark}-rev-linked`]);
-    const failedOnly = await repo.eventsPage(provider, { limit: 10, offset: 0, status: 'FAILED' });
-    expect(failedOnly.rows.map((e) => e.externalEventId)).toEqual([`${mark}-rev-orphan`]);
   });
 
-  it('строка очереди отдаёт сообщение целиком: вид, статус, попытки, ошибка и сам payload', async () => {
-    const rows = await repo.outboxRows(provider, { limit: 10 });
+  it('строка очереди говорит, что именно уехало: вид, число строк, крайние даты, адреса Channex', async () => {
+    const rows = await repo.recentOutbox(provider, 10);
     const availability = rows.find((r) => r.kind === 'AVAILABILITY');
     const restrictions = rows.find((r) => r.kind === 'RESTRICTIONS');
-    expect(availability).toMatchObject({ status: 'PENDING', attempts: 0, sentAt: null });
-    expect(Array.isArray(availability?.payload) ? availability?.payload.length : 0).toBe(2);
+    expect(availability).toMatchObject({
+      status: 'PENDING',
+      attempts: 0,
+      lines: 2,
+      dateFrom: '2027-12-09',
+      dateTo: '2027-12-12',
+      roomTypeIds: ['rt-1', 'rt-2'],
+      ratePlanIds: [],
+      sentAt: null,
+    });
     expect(restrictions).toMatchObject({
       status: 'FAILED',
       attempts: 3,
       lastError: 'Channex: 422',
+      lines: 1,
+      dateFrom: '2027-12-15',
+      dateTo: '2027-12-15',
+      ratePlanIds: ['rp-1'],
     });
-    const failed = await repo.outboxRows(provider, { status: 'FAILED', limit: 10 });
-    expect(failed.map((r) => r.kind)).toEqual(['RESTRICTIONS']);
   });
 });

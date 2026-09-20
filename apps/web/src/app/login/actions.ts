@@ -168,4 +168,3 @@ export async function acceptInviteAction(rawToken: string): Promise<AuthActionRe
   }
   redirect(`/login?email=${encodeURIComponent(email)}&step=code`);
 }
-

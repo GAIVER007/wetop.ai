@@ -22,7 +22,10 @@ for (const path of ['/today', '/chessboard', '/reservations']) {
   test(`без входа ${path} уводит на экран входа`, async ({ page }) => {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
+    // Next сохраняет скрытое дерево при потоковом redirect; проверяем единственный видимый main.
+    const main = page.getByRole('main');
+    await expect(main).toHaveCount(1);
+    await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
   });
 }
 

@@ -16,7 +16,6 @@ import {
   chooseTestDataSource,
   copyOrder,
   pendingMigrations,
-  refreshPlan,
   seedIsStale,
   selectExpressions,
   type ColumnInfo,
@@ -93,13 +92,10 @@ export async function ensureTestSchema(
     // сид живёт вокруг «сегодня»: вчерашний сид сегодня пуст, и спеки шахматки видели бы занято 0
     const stale = !empty && seedIsStale(stamp, today);
     if (stale) log(`сид от ${stamp} устарел к ${today} — засеваю заново`);
-    const { refill, wipeFirst } = refreshPlan({ empty, stale, refresh: !!opts.refresh });
-    if (refill) {
+    if (opts.refresh || empty || stale) {
       const source = chooseTestDataSource(process.env.TEST_DATA, await liveHasData(client));
       if (source === 'copy') copied = await copyLiveData(client, log);
       else {
-        // Поверх прежнего сида импорт упрётся в пересечение ячеек: даты сдвинулись, а строки ещё вчерашние
-        if (wipeFirst) await wipeTestData(client, log);
         seeded = await seedTestData(connectionString(), TEST_SCHEMA, log);
         await client.query(
           `INSERT INTO ${S}."_test_meta" (key, value) VALUES ('refreshed_at', $1)
@@ -133,21 +129,6 @@ async function liveHasData(client: pg.PoolClient): Promise<boolean> {
 }
 
 /** Все таблицы public → pms_test одной транзакцией: либо полная согласованная копия, либо ничего. */
-/**
- * Прежние данные схемы прочь: служебные таблицы (миграции, отметка `refreshed_at`) остаются — они не
- * данные. Нужно перед повторным засевом; копия рабочих данных чистит за собой сама, внутри транзакции.
- */
-async function wipeTestData(client: pg.PoolClient, log: (line: string) => void): Promise<void> {
-  const tables = (
-    await client.query<{ tablename: string }>('SELECT tablename FROM pg_tables WHERE schemaname = $1', [TEST_SCHEMA])
-  ).rows
-    .map((r) => r.tablename)
-    .filter((t) => !SERVICE_TABLES.has(t));
-  if (!tables.length) return;
-  await client.query(`TRUNCATE ${tables.map((t) => `${S}.${q(t)}`).join(', ')} CASCADE`);
-  log(`прежние данные схемы сняты: таблиц ${tables.length}`);
-}
-
 async function copyLiveData(
   client: pg.PoolClient,
   log: (line: string) => void,

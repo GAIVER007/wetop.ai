@@ -37,6 +37,8 @@ project-input/interviews/*
 !project-input/interviews/.gitkeep
 
 # --- Node ---
+# Локальная рабочая копия завершённой сессии, не часть исходников проекта.
+.agent-tmp/
 node_modules/
 dist/
 build/

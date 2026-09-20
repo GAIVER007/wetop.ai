@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
-import { confirmCancelReservation, confirmDialog } from './confirm';
+import { confirmDialog } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
 
 /**
@@ -54,7 +54,7 @@ test('отмена заранее — без штрафа, незаезд — с
   // Окно подтверждения (срез 7.3, Д5) говорит об этом до нажатия — тем же кодом, что потом пишет счёт
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь', /Штраф не начисляется/);
   await expect(page.getByText('отменена').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const accommodation = panel.getByTestId('charge-row').filter({ hasText: 'проживание' }).first();
@@ -86,11 +86,12 @@ test('отмена заранее — без штрафа, незаезд — с
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
   // сумма в окне = сумма начисления: предпросмотр и штраф считает одна функция (Д5)
-  const dialog = page.locator('dialog[open]');
-  await expect(dialog).toContainText(/вместо него штраф/); // предпросмотр дошёл, штраф назван
-  const shownText = (await dialog.innerText()).match(/вместо него штраф ([^.]+)/)![1]!;
-  const shown = minor(shownText); // «12 000 ₸» → тиыны, с тиынами — как есть
-  await confirmDialog(page, 'Отметить незаезд', /вместо него штраф/);
+  await expect(page.getByRole('main').getByTestId('no-show-penalty')).toContainText(
+    'останется на счёте',
+  ); // предпросмотр дошёл
+  const shownText = await page.getByRole('main').getByTestId('no-show-penalty').innerText();
+  const shown = minor(shownText); // общий помощник уже переводит и целые тенге, и тиыны
+  await confirmDialog(page, 'Отметить незаезд', /Штраф .* останется на счёте/);
   await expect(page.getByText('незаезд').first()).toBeVisible();
   await cardTab(page, 'Счета');
   const penalty = page

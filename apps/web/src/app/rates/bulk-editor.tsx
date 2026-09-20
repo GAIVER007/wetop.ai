@@ -176,11 +176,15 @@ export function BulkEditor(props: {
           {rows.map((r, i) => {
             const facts = [
               r.price ? `цена ${r.price}${r.occupancy ? ` (${r.occupancy} гост.)` : ''}` : '',
-              r.minStay !== undefined ? `min stay ${r.minStay}` : '',
-              r.maxStay !== undefined ? `max stay ${r.maxStay}` : '',
-              r.stopSell !== undefined ? `stop sell ${r.stopSell ? 'да' : 'нет'}` : '',
-              r.closedToArrival !== undefined ? `CTA ${r.closedToArrival ? 'да' : 'нет'}` : '',
-              r.closedToDeparture !== undefined ? `CTD ${r.closedToDeparture ? 'да' : 'нет'}` : '',
+              r.minStay !== undefined ? `мин. ночей ${r.minStay}` : '',
+              r.maxStay !== undefined ? `макс. ночей ${r.maxStay}` : '',
+              r.stopSell !== undefined ? `стоп-продажа ${r.stopSell ? 'да' : 'нет'}` : '',
+              r.closedToArrival !== undefined
+                ? `закрыт заезд ${r.closedToArrival ? 'да' : 'нет'}`
+                : '',
+              r.closedToDeparture !== undefined
+                ? `закрыт выезд ${r.closedToDeparture ? 'да' : 'нет'}`
+                : '',
             ].filter(Boolean);
             const period =
               r.dateTo !== r.dateFrom

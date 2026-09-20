@@ -16,8 +16,6 @@ export interface ActionPreview {
   categoryName?: string;
   nights?: number;
   departureDate?: string;
-  /** продление: свободна ли ячейка на добавленные ночи — иначе кнопка говорит «сначала переселите» до окна */
-  nextNightsFree?: boolean;
   penaltyMinor?: string;
   policy?: string;
   voidedMinor?: string;

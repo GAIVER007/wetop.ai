@@ -1,4 +1,10 @@
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { mkdirSync } from 'node:fs';
+
+test.beforeEach(async ({ request }) => {
+  await request.post('http://127.0.0.1:4311/__test/reset');
+});
 
 /**
  * Экран входа. Замка два: Cloudflare Access снаружи (ADR-045) и своя сессия внутри. Своих входов тоже
@@ -15,12 +21,17 @@ const PASSWORD = 'ui-test-parol';
 
 test('форма входа просит почту и пароль', async ({ page }) => {
   await page.goto('/login');
-  await expect(page.getByRole('main')).toContainText('Войдите в рабочее пространство');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
+  await expect(page.getByRole('main')).toContainText(
+    'Используйте почту и пароль вашей учётной записи',
+  );
   await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
 });
 
-test('верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа', async ({ page }) => {
+test('верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа', async ({
+  page,
+}) => {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill(EMAIL);
   await page.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
@@ -45,11 +56,131 @@ test('неверный пароль не пускает и не говорит, 
   await page.getByLabel('Пароль', { exact: true }).fill('не тот пароль');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
 
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Неверная почта или пароль');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'Неверная почта или пароль',
+  );
   await expect(page).toHaveURL(/\/login/);
+  await expect(page.getByLabel('Email', { exact: true })).toHaveValue(EMAIL);
 });
 
-test('за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают', async ({ page }) => {
+test('форма первой на телефоне: вход и помощь доступны без прокрутки', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/login');
+  await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeInViewport({
+    ratio: 1,
+  });
+  await expect(page.getByRole('link', { name: 'Забыли пароль?' })).toBeInViewport({ ratio: 1 });
+  const email = await page.getByLabel('Email', { exact: true }).boundingBox();
+  const story = await page.locator('.login-message').boundingBox();
+  expect(email!.y).toBeLessThan(story!.y);
+});
+
+test('сбой API сохраняет почту, повторный вход после восстановления работает', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill(EMAIL);
+  await page.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
+  await request.post('http://127.0.0.1:4311/__test/control', { data: { failPath: '/auth/login' } });
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toBeVisible();
+  await expect(page.getByLabel('Email', { exact: true })).toHaveValue(EMAIL);
+  await request.post('http://127.0.0.1:4311/__test/control', { data: { failPath: '' } });
+  await page.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await expect(page).toHaveURL(/\/today/);
+});
+
+test('клавиатура, видимость пароля и ожидание без повторной отправки', async ({ page }) => {
+  await page.goto('/login');
+  const email = page.getByLabel('Email', { exact: true });
+  const password = page.getByLabel('Пароль', { exact: true });
+  await expect(email).toHaveAttribute('autocomplete', 'username');
+  await expect(password).toHaveAttribute('autocomplete', 'current-password');
+  await email.fill(EMAIL);
+  await email.press('Tab');
+  await expect(password).toBeFocused();
+  await password.fill(PASSWORD);
+  await password.press('Tab');
+  const toggle = page.getByRole('button', { name: 'Показать пароль' });
+  await expect(toggle).toBeFocused();
+  const inputBox = await password.boundingBox();
+  const toggleBox = await toggle.boundingBox();
+  expect(toggleBox!.y).toBeGreaterThanOrEqual(inputBox!.y);
+  expect(toggleBox!.y + toggleBox!.height).toBeLessThanOrEqual(inputBox!.y + inputBox!.height);
+  await toggle.press('Enter');
+  await expect(password).toHaveAttribute('type', 'text');
+  await page.getByRole('button', { name: 'Скрыть пароль' }).press('Enter');
+  await expect(password).toHaveAttribute('type', 'password');
+
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let submits = 0;
+  await page.route('**/login', async (route) => {
+    if (route.request().method() === 'POST') {
+      submits++;
+      await gate;
+    }
+    await route.continue();
+  });
+  try {
+    await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    const pending = page.getByRole('button', { name: 'Входим…', exact: true });
+    await expect(pending).toBeDisabled();
+    await expect(pending).toHaveAttribute('aria-busy', 'true');
+    await password.press('Enter');
+    expect(submits).toBe(1);
+  } finally {
+    release();
+  }
+  await expect(page).toHaveURL(/\/today/);
+});
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`вход: доступность, адаптивность и reduced motion — ${theme}`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    const directory = 'reports/login-refresh-2026-09-19';
+    mkdirSync(directory, { recursive: true });
+    for (const [width, height] of [
+      [320, 844],
+      [375, 812],
+      [390, 844],
+      [768, 1024],
+      [844, 390],
+      [1440, 1000],
+      [720, 500],
+    ]) {
+      await page.setViewportSize({ width: width!, height: height! });
+      await page.goto('/login');
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+      for (const control of await page.locator('main input, main button, main a').all()) {
+        if (!(await control.isVisible())) continue;
+        const box = await control.boundingBox();
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(box!.width).toBeGreaterThanOrEqual(44);
+      }
+      const result = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(
+        result.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
+      ).toEqual([]);
+      if ([390, 1440].includes(width!))
+        await page.screenshot({ path: `${directory}/login-${theme}-${width}.png`, fullPage: true });
+    }
+  });
+}
+
+test('за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают', async ({
+  page,
+}) => {
   await page.setExtraHTTPHeaders({ 'cf-access-authenticated-user-email': 'admin@example.invalid' });
   await page.goto('/login');
   const main = page.getByRole('main');
@@ -63,7 +194,9 @@ test('за Cloudflare Access почта подставлена в поле, но
   await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
 });
 
-test('после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место', async ({ page }) => {
+test('после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место', async ({
+  page,
+}) => {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill(EMAIL);
   await page.getByLabel('Пароль', { exact: true }).fill(PASSWORD);
@@ -150,7 +283,9 @@ test('регистрация с /register: название и почта → к
   await page.waitForURL('**/today');
 });
 
-test('регистрация: ошибка формы приходит текстом из API и не уводит со страницы', async ({ page }) => {
+test('регистрация: ошибка формы приходит текстом из API и не уводит со страницы', async ({
+  page,
+}) => {
   await page.goto('/register');
   const main = page.getByRole('main');
   await main.getByLabel('Название организации').fill('   ');

@@ -1,6 +1,6 @@
 import { ApiError, authApi, type AuthInvite } from '../../lib/api';
-import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { clientInfo, sessionToken } from '../../lib/session';
+import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { LoginForm, type LoginMode } from './login-form';
 import { accessEmail, signedInUser } from './signed-in';
 
@@ -25,21 +25,18 @@ async function pendingInvites(): Promise<AuthInvite[]> {
  */
 export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
-  const passwordJustSet = q['password'] === 'set';
-  // после принятия приглашения: почта уже известна, код уже выслан — сразу шаг кода
-  const initialStep = q['step'] === 'code' && q['email'] ? 'code' : 'email';
-  const mode: LoginMode = q['mode'] === 'code' || initialStep === 'code' ? 'code' : 'password';
   const user = await signedInUser();
+  const mode: LoginMode = q.mode === 'code' || (q.step === 'code' && q.email) ? 'code' : 'password';
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
       accessEmail={await accessEmail()}
       user={user}
-      passwordJustSet={passwordJustSet}
+      invites={user?.organization ? await pendingInvites() : []}
+      initialEmail={q.email ?? ''}
+      initialStep={q.step === 'code' && q.email ? 'code' : 'email'}
+      passwordJustSet={q.password === 'set'}
       mode={mode}
-      invites={user ? await pendingInvites() : []}
-      initialEmail={q['email'] ?? ''}
-      initialStep={initialStep}
     />
   );
 }

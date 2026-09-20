@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { channex } from '@pms/integrations';
+import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
@@ -105,6 +106,8 @@ export interface ChannelsRepository {
   }>;
   /** Журнал входящих событий канала (ADR-007): что пришло, обработалось ли, сколько попыток, ошибка */
   recentEvents(provider: string, limit: number): Promise<InboundEventRow[]>;
+  /** Строки очереди ARI: что именно уехало в Channex (срез 7.2, сцена показа сертификации) */
+  recentOutbox(provider: string, limit: number): Promise<OutboxMessageRow[]>;
   /** Срез 7.2: страница журнала с фильтрами, поиском по номеру брони / unique_id и связью с бронью */
   eventsPage(
     provider: string,
@@ -143,8 +146,33 @@ export interface InboundEventRow {
   receivedAt: string;
   processedAt: string | null;
   lastError: string | null;
+  /**
+   * Номер брони PMS, если ревизию удалось связать: ищется по `unique_id` ревизии в `externalId`
+   * брони — тем же ключом, которым приём связывает бронь (срез 7.2). `null` — ревизия не разобрана
+   * или бронь удалена.
+   */
+  reservationNumber: string | null;
 }
 
+/** Одно сообщение очереди ARI: что уезжает, чем кончилось (`channel_outbox`, только чтение) */
+export interface OutboxMessageRow {
+  id: string;
+  kind: OutboxKind;
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  /** сколько строк значений внутри сообщения */
+  lines: number;
+  /** крайние даты по всем строкам: за какие ночи изменение */
+  dateFrom: string | null;
+  dateTo: string | null;
+  /** адреса Channex внутри сообщения: по ним экран подписывает категорию и тариф именами */
+  roomTypeIds: string[];
+  ratePlanIds: string[];
+}
 export interface EventsQuery {
   limit: number;
   offset: number;
@@ -436,32 +464,82 @@ export class PrismaChannelsRepository implements ChannelsRepository {
    * номер брони PMS — на экране от ревизии сразу открывается бронь (срез 7.2).
    */
   async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
-    const rows = await this.prisma.db.externalEvent.findMany({
-      where: { provider },
-      orderBy: { receivedAt: 'desc' },
-      take: limit,
-      select: {
-        externalEventId: true,
-        type: true,
-        status: true,
-        attemptCount: true,
-        receivedVia: true,
-        receivedAt: true,
-        processedAt: true,
-        lastError: true,
-      },
-    });
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        external_event_id: string;
+        type: string;
+        status: string;
+        attempt_count: number;
+        received_via: 'WEBHOOK' | 'PULL' | 'MANUAL';
+        received_at: Date;
+        processed_at: Date | null;
+        last_error: string | null;
+        unique_id: string | null;
+      }>
+    >(Prisma.sql`
+      SELECT external_event_id, type, status::text AS status, attempt_count,
+             received_via::text AS received_via, received_at, processed_at, last_error,
+             CASE WHEN jsonb_typeof(payload) = 'object' THEN payload->>'unique_id' END AS unique_id
+        FROM external_events
+       WHERE provider = ${provider}
+       ORDER BY received_at DESC
+       LIMIT ${limit}
+    `);
+    const uniqueIds = [...new Set(rows.map((r) => r.unique_id).filter((x): x is string => !!x))];
+    const numbers = uniqueIds.length
+      ? await this.prisma.db.reservation.findMany({
+          where: { externalId: { in: uniqueIds } },
+          select: { externalId: true, confirmationNumber: true },
+        })
+      : [];
+    const byExternalId = new Map(numbers.map((r) => [r.externalId, r.confirmationNumber]));
     return rows.map((r) => ({
-      externalEventId: r.externalEventId,
+      externalEventId: r.external_event_id,
       type: r.type,
       status: r.status,
-      attempts: r.attemptCount,
-      receivedVia: r.receivedVia,
-      receivedAt: r.receivedAt.toISOString(),
-      processedAt: r.processedAt?.toISOString() ?? null,
-      lastError: r.lastError,
+      attempts: r.attempt_count,
+      receivedVia: r.received_via,
+      receivedAt: r.received_at.toISOString(),
+      processedAt: r.processed_at?.toISOString() ?? null,
+      lastError: r.last_error,
+      reservationNumber: (r.unique_id && byExternalId.get(r.unique_id)) ?? null,
     }));
   }
+  /**
+   * Строки очереди ARI. Сводка по payload считается здесь: наружу едут числа и даты, а не сами
+   * значения — сообщение полной выгрузки содержит тысячи строк.
+   */
+  async recentOutbox(provider: string, limit: number): Promise<OutboxMessageRow[]> {
+    const rows = await this.prisma.db.channelOutbox.findMany({
+      where: { provider },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+    return rows.map((r) => {
+      const values = Array.isArray(r.payload) ? (r.payload as Array<Record<string, unknown>>) : [];
+      const str = (v: unknown) => (typeof v === 'string' ? v : null);
+      const dates = values.flatMap((v) => [str(v['date_from']), str(v['date_to'])].filter(Boolean));
+      const ids = (key: string) => [
+        ...new Set(values.map((v) => str(v[key])).filter((x): x is string => !!x)),
+      ];
+      return {
+        id: r.id,
+        kind: r.kind,
+        status: r.status,
+        attempts: r.attempts,
+        taskId: r.taskId,
+        lastError: r.lastError,
+        createdAt: r.createdAt.toISOString(),
+        sentAt: r.sentAt?.toISOString() ?? null,
+        lines: values.length,
+        dateFrom: dates.length ? (dates as string[]).reduce((a, b) => (a < b ? a : b)) : null,
+        dateTo: dates.length ? (dates as string[]).reduce((a, b) => (a > b ? a : b)) : null,
+        roomTypeIds: ids('room_type_id'),
+        ratePlanIds: ids('rate_plan_id'),
+      };
+    });
+  }
+
   async eventsPage(
     provider: string,
     q: EventsQuery,
@@ -548,6 +626,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         lastError: r.lastError,
         uniqueId: facts[i]!.uniqueId,
         otaName: facts[i]!.otaName,
+        reservationNumber: facts[i]!.uniqueId
+          ? (numberByExternal.get(facts[i]!.uniqueId) ?? null)
+          : null,
         confirmationNumber: facts[i]!.uniqueId
           ? (numberByExternal.get(facts[i]!.uniqueId) ?? null)
           : null,
@@ -569,6 +650,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       processedAt: r.processedAt?.toISOString() ?? null,
       lastError: r.lastError,
       payload: r.payload,
+      reservationNumber: null,
     };
   }
   async reservationCardByExternalId(externalId: string) {

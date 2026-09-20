@@ -22,7 +22,7 @@ const ROOT = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
 const DOCKERFILE = read('deploy/Dockerfile');
 const COMPOSE = read('deploy/compose.yml');
-const DOCKERIGNORE = read('deploy/.dockerignore');
+const DOCKERIGNORE = read('.dockerignore');
 
 /** Только то, что исполняется: в пояснениях те же слова стоят намеренно. */
 const withoutComments = (text: string): string =>
@@ -55,12 +55,16 @@ function service(name: string): string {
 
 /** Адреса, которыми compose меряет живость: `node -e "fetch('…')"` — node есть в любом образе, wget и curl нет. */
 function healthUrls(): string[] {
-  return [...COMPOSE.matchAll(/fetch\('(http:\/\/127\.0\.0\.1:\d+\/[^']*)'\)/g)].map((m) => m[1] ?? '');
+  return [...COMPOSE.matchAll(/fetch\('(http:\/\/127\.0\.0\.1:\d+\/[^']*)'\)/g)].map(
+    (m) => m[1] ?? '',
+  );
 }
 
 describe('deploy/Dockerfile', () => {
   it('копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся', () => {
-    const missing = workspacePackages().filter((p) => !DOCKERFILE.includes(`COPY ${p}/package.json`));
+    const missing = workspacePackages().filter(
+      (p) => !DOCKERFILE.includes(`COPY ${p}/package.json`),
+    );
     expect(missing, `нет в deploy/Dockerfile: ${missing.join(', ')}`).toEqual([]);
   });
 
@@ -128,6 +132,23 @@ describe('deploy/compose.yml', () => {
     expect(service('api')).toMatch(/API_HOST:\s*'?0\.0\.0\.0'?/);
   });
 
+  it('API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает', () => {
+    // 18.09.2026 на сервере: команда из корня давала «Parameter decorators only work when experimental
+    // decorators are enabled» и контейнер валился по кругу. На Mac не видно — launchd зовёт
+    // workspace-скрипт, который уже стоит в apps/api.
+    const api = service('api');
+    expect(api).toMatch(/working_dir:\s*\/app\/apps\/api/);
+    expect(api, 'команда считается от рабочей папки, путь от корня — та же ошибка').not.toMatch(
+      /command:.*apps\/api\/src\/main\.ts/,
+    );
+  });
+
+  it('у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию', () => {
+    // 18–19.09.2026: вторая копия PMS с пулом по умолчанию выбрала остаток Session pooler Supabase
+    // (15 клиентов на проект), и боевая стойка отвечала 500 — 609 раз на одной карточке брони.
+    expect(service('api')).toMatch(/DATABASE_POOL_MAX:/);
+  });
+
   it('стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1', () => {
     const web = service('web');
     expect(web).toContain('--hostname');
@@ -170,8 +191,9 @@ describe('deploy/compose.yml', () => {
   });
 
   it('команды служб зовут то, что есть в репозитории', () => {
+    // Путь считается от рабочей папки службы, а не от корня образа (см. проверку про working_dir)
     expect(existsSync(join(ROOT, 'apps/api/src/main.ts'))).toBe(true);
-    expect(service('api')).toContain("'apps/api/src/main.ts'");
+    expect(service('api')).toContain("'src/main.ts'");
     expect(existsSync(join(ROOT, 'scripts/imports/src/cli-sync-day.ts'))).toBe(true);
     expect(service('exely-sync')).toContain('scripts/imports/src/cli-sync-day.ts --auto');
   });
@@ -182,6 +204,20 @@ describe('deploy/compose.yml', () => {
 });
 
 describe('контекст сборки', () => {
+  it('runtime multer не содержит известные multipart DoS из версий до 2.3.0', () => {
+    const lock = JSON.parse(read('package-lock.json'));
+    const entries = Object.entries(lock.packages).filter(([name]) => name.endsWith('/multer'));
+    expect(entries.length).toBeGreaterThan(0);
+    for (const [, value] of entries) {
+      const version = (value as { version: string }).version;
+      const [major, minor] = version.split('.').map(Number);
+      expect(major! > 2 || (major === 2 && minor! >= 3), version).toBe(true);
+    }
+  });
+  it('Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile', () => {
+    expect(existsSync(join(ROOT, '.dockerignore'))).toBe(true);
+    expect(existsSync(join(ROOT, 'deploy/.dockerignore'))).toBe(false);
+  });
   it('секреты в образ не попадают', () => {
     for (const p of ['.env', 'deploy/cloudflared/', '*.pem', '*.key', 'secrets/']) {
       expect(DOCKERIGNORE, `нет в .dockerignore: ${p}`).toContain(p);

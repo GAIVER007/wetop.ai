@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 19.09.2026 22:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 48149c7 (main), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'chessboard-week.spec.ts' '--grep' 'подсказка не выходит'
+[WebServer] (node:58447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:58518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:58523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/chessboard-week.spec.ts:61:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (17.2s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:61:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByTestId('unit-link').last()
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByTestId('unit-link').last() with timeout 15000ms
+      - waiting for getByTestId('unit-link').last()
+        33 × locator resolved to <a href="/units/F36" data-testid="unit-link" class="unit board-unit-link">…</a>
+           - unexpected value "viewport ratio 0"
+
+
+      77 |   await page.mouse.move(4, 500);
+      78 |   await page.mouse.wheel(0, 2000);
+    > 79 |   await expect(page.getByTestId('unit-link').last()).toBeInViewport({ ratio: 1 });
+         |                                                      ^
+      80 | });
+      81 |
+      82 | for (const [from, to, direction, expectedFrom, expectedTo] of [
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/chessboard-week.spec.ts:79:54
+
+    Error Context: test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-C1-подсказ-3366f--места-доступны-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-week.spec.ts:61:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне 
+
+# код выхода 1 · 24 с

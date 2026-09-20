@@ -1204,3 +1204,5 @@
 | 20.09.2026 18:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-system.spec.ts --workers=1) | ❌ упало 2 из 9 | 37 с | 123e6a6 +50 | [лог](logs/2026-09-20T13-33-23Z-e2e-e3df.log) | axe и эталонные снимки секций: light |
 | 20.09.2026 18:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 2 мин 8 с | 123e6a6 +50 | [лог](logs/2026-09-20T13-34-12Z-e2e-f851.log) |  |
 | 20.09.2026 18:40 | unit | ✅ 1332 из 1335, пропущено 3 | 1 мин 13 с | 0f0a1e4 +2 | [лог](logs/2026-09-20T13-40-04Z-unit-ac48.log) |  |
+| 20.09.2026 18:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 4 из 205 | 15 мин 39 с | 0f0a1e4 +1 | [лог](logs/2026-09-20T13-39-16Z-e2e-3dd2.log) | axe и эталонные снимки секций: light |
+| 20.09.2026 18:54 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 7 из 7 | 13 с | 88904c2 | [лог](logs/2026-09-20T13-54-56Z-e2e-dd35.log) |  |

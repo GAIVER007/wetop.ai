@@ -1,5 +1,6 @@
 import { createServer, type Server } from 'node:http';
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Срез 8, гейт (план §11): вымышленный сайт http://test-site.localhost:3999 отдаёт HTTP-сервер теста, код

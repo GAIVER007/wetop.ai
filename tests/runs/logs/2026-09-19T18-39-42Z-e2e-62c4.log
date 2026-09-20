@@ -1,0 +1,137 @@
+# Сквозные (e2e) · 19.09.2026 23:39 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8098096 (main), незакоммиченных файлов набора: 222
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'login-access' 'password-reset' 'invites' 'chessboard-week'
+[WebServer] (node:78599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 33 tests using 1 worker
+
+(node:78689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/chessboard-week.spec.ts:9:1 › C1: сетка начинается до 350 px, фильтры объясняют дату статуса (2.4s)
+  ✓   2 tests/ui/chessboard-week.spec.ts:22:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (3.2s)
+  ✓   3 tests/ui/chessboard-week.spec.ts:61:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (1.4s)
+  ✓   4 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (2.0s)
+  ✓   5 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (1.9s)
+  ✓   6 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (2.3s)
+[WebServer] (node:78779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/chessboard-week.spec.ts:110:1 › в неделе работают бронь, категории и создание на воскресенье (3.1s)
+  ✓   8 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: light, обе панели и телефон (8.6s)
+  ✓   9 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: dark, обе панели и телефон (7.8s)
+  ✓  10 tests/ui/chessboard-week.spec.ts:178:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (811ms)
+  ✘  11 tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (45.3s)
+(node:79041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет (16.0s)
+(node:79148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой (5.2s)
+[WebServer] (node:79185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа (840ms)
+  ✓  15 tests/ui/login-access.spec.ts:16:1 › форма входа просит почту и пароль (451ms)
+  ✓  16 tests/ui/login-access.spec.ts:23:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (919ms)
+  ✓  17 tests/ui/login-access.spec.ts:42:1 › неверный пароль не пускает и не говорит, что именно не так (535ms)
+  ✓  18 tests/ui/login-access.spec.ts:52:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (455ms)
+  ✓  19 tests/ui/login-access.spec.ts:66:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (934ms)
+  ✓  20 tests/ui/login-access.spec.ts:87:1 › по коду: почта → код из письма → рабочее место; кука HttpOnly; выход гасит сессию (1.0s)
+  ✓  21 tests/ui/login-access.spec.ts:120:1 › по коду: /login?mode=code открывает форму кода сразу (491ms)
+  ✓  22 tests/ui/login-access.spec.ts:129:1 › неверный код — один и тот же текст отказа, форма остаётся на шаге кода (646ms)
+  ✓  23 tests/ui/login-access.spec.ts:140:1 › регистрация с /register: название и почта → код → рабочее место (892ms)
+  ✓  24 tests/ui/login-access.spec.ts:153:1 › регистрация: ошибка формы приходит текстом из API и не уводит со страницы (658ms)
+  ✓  25 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (669ms)
+  ✓  26 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (1.3s)
+  ✓  27 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (904ms)
+  ✓  28 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (594ms)
+  ✓  29 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (635ms)
+  ✓  30 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (576ms)
+  ✓  31 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (450ms)
+  ✓  32 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (569ms)
+  ✓  33 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (512ms)
+
+
+  1) tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Получить код' })
+
+
+      10 |   const main = page.getByRole('main');
+      11 |   await main.getByLabel('Email').fill('<email>');
+    > 12 |   await main.getByRole('button', { name: 'Получить код' }).click();
+         |                                                            ^
+      13 |   await main.getByLabel('Код из письма').fill('123456');
+      14 |   await main.getByRole('button', { name: 'Войти' }).click();
+      15 |   await page.waitForURL('**/today');
+        at login (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/invites.spec.ts:12:60)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/invites.spec.ts:21:3
+
+    Error Context: test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-вошедший-видит-ожи-e818b-очте-ошибки-формы-—-текстом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет ──────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByRole('button', { name: 'Получить код' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByRole('button', { name: 'Получить код' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('button', { name: 'Получить код' })
+
+
+      41 |   await page.goto('/login');
+      42 |   const main = page.getByRole('main');
+    > 43 |   await expect(main.getByRole('button', { name: 'Получить код' })).toBeVisible();
+         |                                                                    ^
+      44 |   await expect(main).not.toContainText('Пригласить администратора');
+      45 | });
+      46 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/invites.spec.ts:43:68
+
+    Error Context: test-results/invites-без-сессии-формы-приглашения-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/invites-без-сессии-формы-приглашения-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/invites-без-сессии-формы-приглашения-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом 
+    tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет ───────────────────────────────
+  31 passed (2.0m)
+
+# код выхода 1 · 2 мин 3 с

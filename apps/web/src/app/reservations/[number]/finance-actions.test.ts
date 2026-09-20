@@ -54,3 +54,24 @@ it('сохраняет поля отдельной оплаты после от�
   expect(success).toMatchObject({ error: null });
   expect(success.values).toBeUndefined();
 });
+
+it('отказ API с кодом поля показывается администратору подписью поля, а не именем в коде', async () => {
+  const { payAction, addChargeAction } = await import('./finance-actions');
+  vi.spyOn(financeApi, 'pay').mockRejectedValueOnce(
+    new ApiError(400, 'amount — сумма, например 12000 или 456.50'),
+  );
+  const pay = new FormData();
+  pay.set('amount', 'abc');
+  pay.set('method', 'CASH');
+  expect(await payAction('TEST', 'folio', { error: null, ok: 0 }, pay)).toMatchObject({
+    error: 'Поле «Сумма»: сумма, например 12000 или 456.50',
+  });
+  vi.spyOn(financeApi, 'addCharge').mockRejectedValueOnce(
+    new ApiError(400, 'description — за что начисление'),
+  );
+  const charge = new FormData();
+  charge.set('kind', 'ADJUSTMENT');
+  expect(await addChargeAction('TEST', 'folio', { error: null, ok: 0 }, charge)).toMatchObject({
+    error: 'Поле «Описание»: за что начисление',
+  });
+});

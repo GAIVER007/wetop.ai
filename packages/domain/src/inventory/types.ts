@@ -42,7 +42,10 @@ export interface InventoryCategorySummary {
   code: string;
   name: string;
   units: number;
+  /** Сумма вместимости единиц категории */
   maxGuests: number;
+  /** Вместимость одной единицы категории (койка — 1, номер — вместимость комнаты); предел «гостей» в формах */
+  capacityAdults: number;
 }
 
 export interface InventorySummary {

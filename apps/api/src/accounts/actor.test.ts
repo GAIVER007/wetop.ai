@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { withSignedInUser } from '../auth/request-context';
 import { auditUserId, currentActor, runAsActor } from './actor';
 
 const ACTOR = { userId: 'u-1', organizationId: 'org-1' };
@@ -30,5 +31,22 @@ describe('actor', () => {
       }),
     ]);
     expect(seen.sort()).toEqual(['a', 'b']);
+  });
+
+  // Q-146: вошедший по паролю приходит не через middleware, а через замок SessionGuard — автор тот же
+  it('вошедший по паролю (контекст запроса замка) — тоже автор строки журнала', async () => {
+    await withSignedInUser('u-9', async () => {
+      expect(currentActor()).toBeNull();
+      expect(auditUserId()).toBe('u-9');
+    });
+    expect(auditUserId()).toBeNull();
+  });
+
+  it('если известны оба, побеждает автор из middleware — он и есть сессия запроса', async () => {
+    await withSignedInUser('u-9', async () => {
+      await runAsActor(ACTOR, async () => {
+        expect(auditUserId()).toBe('u-1');
+      });
+    });
   });
 });

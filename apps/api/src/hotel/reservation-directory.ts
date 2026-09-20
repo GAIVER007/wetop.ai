@@ -12,6 +12,7 @@ import { ReservationStatus } from '@pms/database';
 import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 export interface DirectoryQuery {
   from?: string;
   to?: string;
@@ -21,6 +22,8 @@ export interface DirectoryQuery {
   /** Сколько строк на странице, 1…200. По умолчанию 25 — как было до «Гостей на сегодня» */
   pageSize?: string;
 }
+const DEFAULT_PAGE_SIZE = 25;
+const MAX_PAGE_SIZE = 200;
 @Injectable()
 export class ReservationDirectory {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
@@ -39,7 +42,7 @@ export class ReservationDirectory {
     const status = query.status || 'ALL';
     const page = Number(query.page || 1);
     // Потолок держит один запрос в берегах: на объекте 88 мест, больше 200 броней в сутках не бывает
-    const pageSize = Number(query.pageSize || 25);
+    const pageSize = query.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(query.pageSize);
     if (
       !valid(from) ||
       !valid(to) ||
@@ -51,14 +54,13 @@ export class ReservationDirectory {
       throw new BadRequestException('Неизвестный статус');
     if (!Number.isInteger(page) || page < 1 || page > 10000)
       throw new BadRequestException('Некорректная страница');
-    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200)
-      throw new BadRequestException('Размер страницы — целое число от 1 до 200');
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > MAX_PAGE_SIZE)
+      throw new BadRequestException(`Размер страницы — целое число от 1 до ${MAX_PAGE_SIZE}`);
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
-    const property = await this.prisma.db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const property = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name)
+      .then((id) => ({ id }))
+      .catch(() => null);
     if (!property) throw new NotFoundException('Гостиница ещё не настроена');
     const where = {
       propertyId: property.id,

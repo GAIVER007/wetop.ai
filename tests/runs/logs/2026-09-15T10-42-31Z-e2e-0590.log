@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 15.09.2026 15:42 Алматы · vm
+# коммит 96184af (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'статус уборки|удаление документа|ограничено вместимостью|несопоставленная категория|история обрезана|подсказка про услуги'
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:476:1 › номера: статус уборки, блокировка и снятие сохраняются (3.3s)
+  ✓  2 tests/ui/workspace.spec.ts:509:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.3s)
+  ✓  3 tests/ui/workspace.spec.ts:537:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (956ms)
+  ✘  4 tests/ui/workspace.spec.ts:546:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (45.1s)
+  ✓  5 tests/ui/workspace.spec.ts:564:1 › неисправности: когда история обрезана, это написано (1.4s)
+  ✓  6 tests/ui/workspace.spec.ts:572:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (996ms)
+
+
+  1) tests/ui/workspace.spec.ts:546:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bulk-editor').getByLabel('Категория', { exact: true })
+
+
+      551 |   const editor = page.getByTestId('bulk-editor');
+      552 |   await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
+    > 553 |   await editor.getByLabel('Категория', { exact: true }).selectOption('ROOM');
+          |                                                         ^
+      554 |   await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '2');
+      555 |   await request.post(`${fixture}/__test/control`, { data: { ratesUnmapped: true } });
+      556 |   await editor.getByLabel('Цена за ночь').fill('9100');
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:553:57
+
+    Error Context: test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:546:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+  5 passed (59.4s)
+
+# код выхода 1 · 1 мин

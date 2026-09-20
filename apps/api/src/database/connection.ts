@@ -95,6 +95,7 @@ class DataConnectionController {
   }
 }
 
+// Живость API (`GET /health`) живёт в ../health/health.module.ts — слито 18.09.2026 из двух реализаций.
 @Module({
   controllers: [DataConnectionController],
   providers: [PrismaService, DataConnectionService],

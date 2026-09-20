@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import type { RateChangeInput } from '../../lib/api';
+import { displayDay, displayPeriod } from '../../lib/display-date';
 import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
 import { bulkRatesAction } from './actions';
 
@@ -33,10 +34,12 @@ export function BulkEditor(props: {
   const [rows, setRows] = useState<RateChangeInput[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-  // «Гостей» ограничено вместимостью выбранной категории (было жёстко 2)
   const [category, setCategory] = useState(props.defaults.accommodationTypeCode);
-  const capacity = props.categories.find((c) => c.code === category)?.capacityAdults ?? 1;
+  const capacity = Math.max(
+    1,
+    props.categories.find((c) => c.code === category)?.capacityAdults ?? 1,
+  );
+  const [pending, start] = useTransition();
   /** Без action-формы: React 19 сбрасывает поля после action асинхронно, и сброс гонится со следующим вводом. */
   const add = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,12 +79,14 @@ export function BulkEditor(props: {
       const res = await bulkRatesAction(rows);
       if (res.error) setError(res.error);
       else {
-        // Обещать отправку в каналы можно только по ответу API: категория или тариф без
-        // сопоставления с Channex меняются лишь в PMS, каналы о них не узнают (§7.3)
+        // «Ушло в каналы» — только если очередь действительно пополнилась: несопоставленные с Channex
+        // категории и тарифы издатель пропускает (волна 3)
         setDone(
-          res.queued
-            ? `Сохранено изменений: ${res.applied}. В очередь каналов ушло ${res.queued} одним сообщением.`
-            : `Сохранено изменений: ${res.applied}. В каналы ничего не ушло: эти категория и тариф через каналы не продаются.`,
+          `Сохранено изменений: ${res.applied}. ${
+            res.queued
+              ? `В очередь каналов ушло ${res.queued} одним сообщением.`
+              : 'В каналы не ушло: категория или тариф не сопоставлены с Channex.'
+          }`,
         );
         setRows([]);
       }
@@ -95,7 +100,7 @@ export function BulkEditor(props: {
           <Field label="Категория">
             <Select
               name="accommodationTypeCode"
-              defaultValue={props.defaults.accommodationTypeCode}
+              value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
               {props.categories.map((c) => (
@@ -122,7 +127,7 @@ export function BulkEditor(props: {
           </Field>
         </Grid>
         <div className="row hint">
-          дни:
+          Дни недели:
           {DAYS.map(([d, t]) => (
             <label key={d} className="check">
               <input type="checkbox" name={`day-${d}`} defaultChecked /> {t}
@@ -167,34 +172,47 @@ export function BulkEditor(props: {
         </div>
       </form>
       {rows.length > 0 && (
-        <ul data-testid="pending-changes" className="list list--gap hint--lg">
-          {rows.map((r, i) => (
-            <li key={i}>
-              {name(r.accommodationTypeCode, props.categories)} ·{' '}
-              {name(r.ratePlanCode, props.ratePlans)} · {r.dateFrom}
-              {r.dateTo !== r.dateFrom ? ` → ${r.dateTo}` : ''}
-              {r.days ? ` (${r.days.join(',')})` : ''}
-              {r.price ? ` · цена ${r.price}` : ''}
-              {r.occupancy ? ` (${r.occupancy} гост.)` : ''}
-              {r.minStay !== undefined ? ` · мин. ${r.minStay}` : ''}
-              {r.maxStay !== undefined ? ` · макс. ${r.maxStay}` : ''}
-              {r.stopSell !== undefined ? ` · стоп-продажа ${r.stopSell ? 'да' : 'нет'}` : ''}
-              {r.closedToArrival !== undefined
-                ? ` · закрыт заезд ${r.closedToArrival ? 'да' : 'нет'}`
-                : ''}
-              {r.closedToDeparture !== undefined
-                ? ` · закрыт выезд ${r.closedToDeparture ? 'да' : 'нет'}`
-                : ''}{' '}
-              <Button
-                type="button"
-                tone="ghost"
-                onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
-              >
-                ×
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <ol data-testid="pending-changes" className="pending-list">
+          {rows.map((r, i) => {
+            const facts = [
+              r.price ? `цена ${r.price}${r.occupancy ? ` (${r.occupancy} гост.)` : ''}` : '',
+              r.minStay !== undefined ? `мин. ночей ${r.minStay}` : '',
+              r.maxStay !== undefined ? `макс. ночей ${r.maxStay}` : '',
+              r.stopSell !== undefined ? `стоп-продажа ${r.stopSell ? 'да' : 'нет'}` : '',
+              r.closedToArrival !== undefined
+                ? `закрыт заезд ${r.closedToArrival ? 'да' : 'нет'}`
+                : '',
+              r.closedToDeparture !== undefined
+                ? `закрыт выезд ${r.closedToDeparture ? 'да' : 'нет'}`
+                : '',
+            ].filter(Boolean);
+            const period =
+              r.dateTo !== r.dateFrom
+                ? displayPeriod(r.dateFrom, r.dateTo)
+                : displayDay(r.dateFrom);
+            const days = r.days
+              ? ` (${r.days.map((d) => DAYS.find(([k]) => k === d)?.[1] ?? d).join(', ')})`
+              : '';
+            return (
+              <li key={i} className="pending-list__row">
+                <span>
+                  {name(r.accommodationTypeCode, props.categories)},{' '}
+                  {name(r.ratePlanCode, props.ratePlans)}: {period}
+                  {days} — {facts.join(', ')}
+                </span>
+                <Button
+                  type="button"
+                  tone="ghost"
+                  size="xs"
+                  aria-label={`Убрать строку ${i + 1}`}
+                  onClick={() => setRows((x) => x.filter((_, j) => j !== i))}
+                >
+                  ×
+                </Button>
+              </li>
+            );
+          })}
+        </ol>
       )}
       <Row gap="lg">
         <Button

@@ -9,6 +9,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -16,7 +17,7 @@ const apiKey = process.env.CHANNEX_API_KEY?.trim();
 if (!apiKey) throw new Error('CHANNEX_API_KEY пуст');
 const api = process.env.APP_API_URL ?? 'http://localhost:3001';
 
-const mapping = (await (await fetch(`${api}/channels/channex/mapping`)).json()) as Array<{
+const mapping = (await (await serviceFetch(`${api}/channels/channex/mapping`)).json()) as Array<{
   providerPropertyId: string;
 }>;
 const propertyId = mapping[0]?.providerPropertyId;

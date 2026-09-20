@@ -4,6 +4,7 @@ import type { DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { mergeRestrictions } from './restriction-merge';
+import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export interface RateCalendarDay {
@@ -79,11 +80,7 @@ export function expandDates(from: string, to: string, days?: string[]): string[]
 export class PrismaRatesRepository implements RatesRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   private async propertyId(): Promise<string> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
-    return p.id;
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
   async categories() {
     const propertyId = await this.propertyId();

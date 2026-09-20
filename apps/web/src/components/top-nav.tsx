@@ -13,10 +13,13 @@ export function TopNav({
   children,
   demo = false,
   property = null,
+  account = null,
 }: {
   children: ReactNode;
   demo?: boolean;
   property?: PropertyIdentity | null;
+  /** «Кто на смене» и «Выйти» — серверный кусок, см. components/shell/account-menu.tsx */
+  account?: ReactNode;
 }) {
   const path = usePathname() ?? '';
   const [search, setSearch] = useState(false);
@@ -150,10 +153,12 @@ export function TopNav({
                       <Icon name="system" />
                       Тема устройства
                     </button>
-                    <Link href="/login">
-                      <Icon name="departure" />
-                      Экран входа
-                    </Link>
+                    {account ?? (
+                      <Link href="/login">
+                        <Icon name="departure" />
+                        Экран входа
+                      </Link>
+                    )}
                   </div>
                 </>
               )}

@@ -73,6 +73,8 @@ export interface ReservationItemImportRecord {
   priceMinor: bigint;
   /** Оплачено в Exely на момент переноса (minor units); 0 — не оплачено */
   paidMinor: bigint;
+  /** Возвращено гостю в Exely (minor units); нужно для удержания при отмене (ADR-051) */
+  refundMinor: bigint;
   status: ReservationStatusCode;
   adults: number;
   children: number;
@@ -239,6 +241,7 @@ export function normalizeExelyReservation(
       paidMinor:
         toMinorUnits(s.totalPrice.amount.value, where) -
         toMinorUnits(s.totalPrice.payAmount.value, where),
+      refundMinor: toMinorUnits(s.totalPrice.refundAmount.value, where),
       status,
       adults: s.guestCount?.adults ?? 0,
       children: s.guestCount?.children ?? 0,

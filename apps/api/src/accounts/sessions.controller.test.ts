@@ -5,7 +5,7 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { SESSION_ENDED_MESSAGE } from '@pms/domain';
+import { SESSION_ENDED_MESSAGE, hashSessionToken } from '@pms/domain';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { AccountsController } from './accounts.controller';
@@ -155,5 +155,36 @@ describe('выйти везде', () => {
     await login(MAC);
     await request(app.getHttpServer()).post('/auth/logout-all').expect(204);
     expect(repo.sessions.filter((s) => s.revokedAt !== null)).toHaveLength(0);
+  });
+});
+
+describe('оба входа рядом (Q-146)', () => {
+  it('сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду', async () => {
+    const mac = await login(MAC);
+    const parol = 'parol-session-token';
+    await repo.createSession({
+      tokenHash: hashSessionToken(parol),
+      userId: ACCOUNT.userId,
+      organizationId: ACCOUNT.organizationId,
+      expiresAt: new Date(Date.now() + 12 * 3600_000),
+      userAgent: PHONE,
+    });
+    const res = await request(app.getHttpServer())
+      .get('/auth/sessions')
+      .set('Authorization', `Bearer ${parol}`)
+      .expect(200);
+    const byDevice = Object.fromEntries(
+      (res.body as Array<{ device: string; current: boolean }>).map((s) => [s.device, s.current]),
+    );
+    expect(byDevice).toEqual({ 'Chrome, macOS': false, 'Safari, iPhone': true });
+
+    await request(app.getHttpServer())
+      .post('/auth/logout-all')
+      .set('Authorization', `Bearer ${parol}`)
+      .expect(204);
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${mac}`)
+      .expect(401);
   });
 });

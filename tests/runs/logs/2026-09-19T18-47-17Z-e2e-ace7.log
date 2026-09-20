@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 19.09.2026 23:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит ca1f67a (main), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'login-access'
+[WebServer] (node:90053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90083) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:90135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/login-access.spec.ts:22:1 › форма входа просит почту и пароль (1.3s)
+  ✓   2 tests/ui/login-access.spec.ts:32:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (1.2s)
+  ✓   3 tests/ui/login-access.spec.ts:53:1 › неверный пароль не пускает и не говорит, что именно не так (880ms)
+  ✓   4 tests/ui/login-access.spec.ts:66:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (531ms)
+  ✓   5 tests/ui/login-access.spec.ts:78:1 › сбой API сохраняет почту, повторный вход после восстановления работает (886ms)
+  ✓   6 tests/ui/login-access.spec.ts:95:1 › клавиатура, видимость пароля и ожидание без повторной отправки (822ms)
+  ✓   7 tests/ui/login-access.spec.ts:139:3 › вход: доступность, адаптивность и reduced motion — light (4.2s)
+  ✓   8 tests/ui/login-access.spec.ts:139:3 › вход: доступность, адаптивность и reduced motion — dark (3.8s)
+  ✓   9 tests/ui/login-access.spec.ts:177:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (468ms)
+  ✓  10 tests/ui/login-access.spec.ts:193:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (923ms)
+  ✓  11 tests/ui/login-access.spec.ts:216:1 › по коду: почта → код из письма → рабочее место; кука HttpOnly; выход гасит сессию (1.2s)
+  ✓  12 tests/ui/login-access.spec.ts:249:1 › по коду: /login?mode=code открывает форму кода сразу (500ms)
+  ✓  13 tests/ui/login-access.spec.ts:258:1 › неверный код — один и тот же текст отказа, форма остаётся на шаге кода (686ms)
+  ✓  14 tests/ui/login-access.spec.ts:269:1 › регистрация с /register: название и почта → код → рабочее место (1.1s)
+  ✓  15 tests/ui/login-access.spec.ts:282:1 › регистрация: ошибка формы приходит текстом из API и не уводит со страницы (689ms)
+
+  15 passed (24.4s)
+
+# код выхода 0 · 25 с

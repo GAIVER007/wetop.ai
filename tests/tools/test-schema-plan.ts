@@ -76,3 +76,30 @@ export function selectExpressions(
 export function hardcodedLiveAddress(line: string): boolean {
   return /(127\.0\.0\.1|localhost):300[01]\b/.test(line) && !line.includes('??');
 }
+
+export type TestDataSource = 'copy' | 'seed';
+
+/**
+ * Откуда брать данные для pms_test: `TEST_DATA=copy` — копия рабочей схемы public (Mac владельца, как было),
+ * `TEST_DATA=seed` — сид из кода (любая машина, CI). Без переменной: копия, если в public есть объект, иначе сид.
+ * Неизвестное значение — ошибка, а не тихое умолчание.
+ */
+export function chooseTestDataSource(env: string | undefined, liveHasData: boolean): TestDataSource {
+  if (env === undefined || env === '') return liveHasData ? 'copy' : 'seed';
+  if (env === 'copy' || env === 'seed') return env;
+  throw new Error(`TEST_DATA=${env}: допустимо только copy или seed`);
+}
+
+/**
+ * Сид держит занятость вокруг «сегодня» (−10…+2 ночей, `test-seed.ts`), а с +3 начинаются окна спеков:
+ * сид, засеянный позавчера, к сегодняшнему дню пуст (19.09.2026: занято 0 на сиде от 16.09). Отметка
+ * `refreshed_at` у сида кончается словом «(сид)»; день сравниваем по Алматы — сутки объекта. Копия
+ * рабочих данных не стареет: у неё даты настоящие.
+ */
+export function seedIsStale(refreshedAt: string | null, today: string): boolean {
+  if (!refreshedAt || !refreshedAt.endsWith('(сид)')) return false;
+  const at = Date.parse(refreshedAt.replace(/\s*\(сид\)$/, ''));
+  if (!Number.isFinite(at)) return true;
+  const seededOn = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date(at));
+  return seededOn !== today;
+}

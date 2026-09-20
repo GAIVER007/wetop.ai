@@ -5,6 +5,9 @@ import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
+import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
+import { stayFacts } from '../chessboard/stay-facts';
 import type { LocalDailyRate, LocalRestriction } from './ari';
 import type {
   LocalCategoryForChannex,
@@ -105,6 +108,25 @@ export interface ChannelsRepository {
   recentEvents(provider: string, limit: number): Promise<InboundEventRow[]>;
   /** Строки очереди ARI: что именно уехало в Channex (срез 7.2, сцена показа сертификации) */
   recentOutbox(provider: string, limit: number): Promise<OutboxMessageRow[]>;
+  /** Срез 7.2: страница журнала с фильтрами, поиском по номеру брони / unique_id и связью с бронью */
+  eventsPage(
+    provider: string,
+    q: EventsQuery,
+  ): Promise<{ rows: InboundEventListRow[]; total: number }>;
+  /** Одно событие с сохранённой ревизией (payload) — для страницы «Приём брони из канала» */
+  eventByRevision(
+    provider: string,
+    revisionId: string,
+  ): Promise<(InboundEventRow & { payload: unknown }) | null>;
+  /** Карточка брони по unique_id ревизии плюс остаток счёта по проживаниям (тем же folioBalance) */
+  reservationCardByExternalId(
+    externalId: string,
+  ): Promise<{ card: ReservationCard; balances: Record<string, string> } | null>;
+  /** Строки очереди ARI для журнала интеграции (срез 7.2) */
+  outboxRows(
+    provider: string,
+    q: { status?: OutboxStatus | undefined; limit: number },
+  ): Promise<OutboxListRow[]>;
   /** Когда последний раз событие пришло этим путём (сторож webhook); typePrefix — например 'booking' */
   lastEventAt(
     provider: string,
@@ -150,6 +172,32 @@ export interface OutboxMessageRow {
   /** адреса Channex внутри сообщения: по ним экран подписывает категорию и тариф именами */
   roomTypeIds: string[];
   ratePlanIds: string[];
+}
+export interface EventsQuery {
+  limit: number;
+  offset: number;
+  status?: string | undefined;
+  type?: string | undefined;
+  /** номер брони PMS или unique_id канала, подстрокой */
+  q?: string | undefined;
+}
+export interface InboundEventListRow extends InboundEventRow {
+  uniqueId: string | null;
+  otaName: string | null;
+  /** бронь PMS, связанная с ревизией по externalId = unique_id (ADR-024) */
+  confirmationNumber: string | null;
+}
+export type OutboxStatus = 'PENDING' | 'SENT' | 'FAILED';
+export interface OutboxListRow {
+  id: string;
+  kind: OutboxKind;
+  payload: unknown;
+  status: OutboxStatus;
+  attempts: number;
+  taskId: string | null;
+  lastError: string | null;
+  createdAt: string;
+  sentAt: string | null;
 }
 export type OutboxKind = 'AVAILABILITY' | 'RESTRICTIONS';
 export interface OutboxRow {
@@ -265,10 +313,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     }));
   }
   async audit(action: string, after: unknown): Promise<void> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     await this.prisma.db.auditLog.create({
       data: {
         userId: auditUserId(),
@@ -280,10 +325,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
   }
   async categoryUnits(): Promise<Array<{ code: string; active: number; capacityAdults: number }>> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       select: {
@@ -385,10 +427,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     });
   }
   async ratePlanIdsByCode(): Promise<Record<string, string>> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
     const rows = await this.prisma.db.ratePlan.findMany({
       where: { propertyId: p.id },
       select: { code: true, id: true },
@@ -499,6 +538,174 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         ratePlanIds: ids('rate_plan_id'),
       };
     });
+  }
+
+  async eventsPage(
+    provider: string,
+    q: EventsQuery,
+  ): Promise<{ rows: InboundEventListRow[]; total: number }> {
+    const needle = q.q?.trim();
+    // Поиск по номеру брони PMS: номер → externalId брони → unique_id ревизии (payload)
+    const byNumber = needle
+      ? await this.prisma.db.reservation.findMany({
+          where: {
+            property: { name: LUXX_APARTS_PROPERTY.name },
+            externalId: { not: null },
+            OR: [
+              { confirmationNumber: { contains: needle } },
+              { externalId: { contains: needle } },
+            ],
+          },
+          select: { externalId: true },
+          take: 50,
+        })
+      : [];
+    const externalIds = byNumber.map((r) => r.externalId).filter((x): x is string => !!x);
+    const where = {
+      provider,
+      ...(q.status
+        ? { status: q.status as 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED' }
+        : {}),
+      ...(q.type ? { type: q.type } : {}),
+      ...(needle
+        ? {
+            OR: [
+              { externalEventId: { contains: needle } },
+              { payload: { path: ['unique_id'], string_contains: needle } },
+              ...externalIds.map((id) => ({ payload: { path: ['unique_id'], equals: id } })),
+            ],
+          }
+        : {}),
+    };
+    const [total, rows] = await Promise.all([
+      this.prisma.db.externalEvent.count({ where }),
+      this.prisma.db.externalEvent.findMany({
+        where,
+        orderBy: { receivedAt: 'desc' },
+        skip: q.offset,
+        take: q.limit,
+        select: {
+          externalEventId: true,
+          type: true,
+          status: true,
+          attemptCount: true,
+          receivedVia: true,
+          receivedAt: true,
+          processedAt: true,
+          lastError: true,
+          payload: true,
+        },
+      }),
+    ]);
+    const facts = rows.map((r) => {
+      const p =
+        r.payload && typeof r.payload === 'object' ? (r.payload as Record<string, unknown>) : {};
+      return {
+        uniqueId: typeof p['unique_id'] === 'string' ? (p['unique_id'] as string) : null,
+        otaName: typeof p['ota_name'] === 'string' ? (p['ota_name'] as string) : null,
+      };
+    });
+    const ids = [...new Set(facts.map((f) => f.uniqueId).filter((x): x is string => !!x))];
+    const linked = ids.length
+      ? await this.prisma.db.reservation.findMany({
+          where: { property: { name: LUXX_APARTS_PROPERTY.name }, externalId: { in: ids } },
+          select: { externalId: true, confirmationNumber: true },
+        })
+      : [];
+    const numberByExternal = new Map(linked.map((r) => [r.externalId, r.confirmationNumber]));
+    return {
+      total,
+      rows: rows.map((r, i) => ({
+        externalEventId: r.externalEventId,
+        type: r.type,
+        status: r.status,
+        attempts: r.attemptCount,
+        receivedVia: r.receivedVia,
+        receivedAt: r.receivedAt.toISOString(),
+        processedAt: r.processedAt?.toISOString() ?? null,
+        lastError: r.lastError,
+        uniqueId: facts[i]!.uniqueId,
+        otaName: facts[i]!.otaName,
+        reservationNumber: facts[i]!.uniqueId
+          ? (numberByExternal.get(facts[i]!.uniqueId) ?? null)
+          : null,
+        confirmationNumber: facts[i]!.uniqueId
+          ? (numberByExternal.get(facts[i]!.uniqueId) ?? null)
+          : null,
+      })),
+    };
+  }
+  async eventByRevision(provider: string, revisionId: string) {
+    const r = await this.prisma.db.externalEvent.findUnique({
+      where: { provider_externalEventId: { provider, externalEventId: revisionId } },
+    });
+    if (!r) return null;
+    return {
+      externalEventId: r.externalEventId,
+      type: r.type,
+      status: r.status,
+      attempts: r.attemptCount,
+      receivedVia: r.receivedVia,
+      receivedAt: r.receivedAt.toISOString(),
+      processedAt: r.processedAt?.toISOString() ?? null,
+      lastError: r.lastError,
+      payload: r.payload,
+      reservationNumber: null,
+    };
+  }
+  async reservationCardByExternalId(externalId: string) {
+    const property = await this.prisma.db.property.findFirstOrThrow({
+      where: { name: LUXX_APARTS_PROPERTY.name },
+      select: { id: true },
+    });
+    const r = await this.prisma.db.reservation.findFirst({
+      where: { propertyId: property.id, externalId },
+      select: { confirmationNumber: true },
+    });
+    if (!r) return null;
+    const card = await loadReservationCard(this.prisma.db, property.id, r.confirmationNumber);
+    if (!card) return null;
+    const items = await this.prisma.db.reservationItem.findMany({
+      where: { reservation: { propertyId: property.id, confirmationNumber: r.confirmationNumber } },
+      select: {
+        id: true,
+        reservation: { select: { source: true, channel: true } },
+        folio: {
+          select: {
+            charges: { select: { amount: true, voidedAt: true } },
+            allocations: { select: { amount: true } },
+            refunds: { select: { amount: true } },
+          },
+        },
+      },
+    });
+    const balances: Record<string, string> = {};
+    for (const it of items) {
+      const b = stayFacts(it).balanceMinor;
+      if (b !== undefined) balances[it.id] = b;
+    }
+    return { card, balances };
+  }
+  async outboxRows(
+    provider: string,
+    q: { status?: OutboxStatus | undefined; limit: number },
+  ): Promise<OutboxListRow[]> {
+    const rows = await this.prisma.db.channelOutbox.findMany({
+      where: { provider, ...(q.status ? { status: q.status } : {}) },
+      orderBy: { createdAt: 'desc' },
+      take: q.limit,
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      payload: r.payload,
+      status: r.status,
+      attempts: r.attempts,
+      taskId: r.taskId,
+      lastError: r.lastError,
+      createdAt: r.createdAt.toISOString(),
+      sentAt: r.sentAt?.toISOString() ?? null,
+    }));
   }
   async outboxSummary(provider: string) {
     const [pending, failed, sent, last, oldest] = await Promise.all([

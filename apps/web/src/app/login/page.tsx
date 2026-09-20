@@ -1,8 +1,8 @@
-import { headers } from 'next/headers';
 import { ApiError, authApi, type AuthInvite, type AuthSessionRow } from '../../lib/api';
-import { clientInfo, currentSession, sessionToken } from '../../lib/session';
+import { clientInfo, sessionToken } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { LoginForm } from './login-form';
+import { LoginForm, type LoginMode } from './login-form';
+import { accessEmail, signedInUser } from './signed-in';
 
 /** Ожидающие приглашения своей организации — только вошедшему; сбой списка экран входа не роняет. */
 async function pendingInvites(): Promise<AuthInvite[]> {
@@ -29,25 +29,28 @@ async function activeSessions(): Promise<AuthSessionRow[]> {
 }
 
 /**
- * Два входа сосуществуют (ADR-046): свой — по коду на почту, кука `wetop_session`; и Cloudflare Access
- * на app.wetop.ai (plans/wetop-domain-2026-09-14.md §3), который передаёт почту заголовком. Заголовок Access
- * только для показа — права по нему не выдаются (стойка слушает 127.0.0.1, снаружи к ней ведёт лишь туннель,
- * который сам проверяет токен Access).
+ * Экран входа. Замка два: снаружи стойку закрывает Cloudflare Access (ADR-045), внутри — своя сессия.
+ * Своих входов тоже два, пока владелец не выбрал (Q-146): по паролю (DATA_MODEL §13.8, ADR-049) —
+ * по умолчанию, и по коду на почту с регистрацией организации (ADR-046) — по переключателю или
+ * `?mode=code`. Почту из заголовка Access показываем и подставляем в поле, но сама по себе она
+ * никуда не пускает.
  */
 export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const accessEmail = (await headers()).get('cf-access-authenticated-user-email')?.trim() || null;
   const q = normalizeSearchParams(await searchParams);
-  const session = await currentSession();
+  const user = await signedInUser();
+  const mode: LoginMode = q.mode === 'code' || (q.step === 'code' && q.email) ? 'code' : 'password';
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
-      accessEmail={accessEmail}
-      session={session}
-      invites={session ? await pendingInvites() : []}
-      sessions={session ? await activeSessions() : []}
-      // после принятия приглашения: почта уже известна, код уже выслан — сразу шаг кода
+      accessEmail={await accessEmail()}
+      user={user}
+      invites={user?.organization ? await pendingInvites() : []}
+      // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)
+      sessions={user ? await activeSessions() : []}
       initialEmail={q.email ?? ''}
       initialStep={q.step === 'code' && q.email ? 'code' : 'email'}
+      passwordJustSet={q.password === 'set'}
+      mode={mode}
     />
   );
 }

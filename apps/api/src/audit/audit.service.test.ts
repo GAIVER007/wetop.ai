@@ -35,18 +35,30 @@ function flatten(strings: readonly string[], values: readonly unknown[]) {
   return { sql, values: flat };
 }
 
-function fakePrisma() {
+/** База отвечает строками так, как их отдаёт SQL ниже: колонки в snake_case, автор уже подтянут из `users`. */
+function fakePrisma(rows: Array<Record<string, unknown>> = []) {
   const queries: Array<{ sql: string; values: unknown[] }> = [];
   const prisma = {
     db: {
       async $queryRaw(strings: readonly string[], ...values: unknown[]) {
         queries.push(flatten(strings, values));
-        return [];
+        return rows;
       },
     },
   } as unknown as PrismaService;
   return { service: new AuditService(prisma), queries };
 }
+
+const row = (over: Record<string, unknown> = {}) => ({
+  id: 'a-1',
+  created_at: new Date('2026-09-15T10:00:00Z'),
+  entity_type: 'Reservation',
+  entity_id: 'r-1',
+  action: 'reservation.checkIn',
+  subject: 'WT-1',
+  author: null,
+  ...over,
+});
 
 describe('AuditService.list', () => {
   it('ищет номер брони или код ячейки в базе по всей истории, а не в последних 200 строках', async () => {
@@ -70,8 +82,55 @@ describe('AuditService.list', () => {
     await service.list({ limit: 200 });
     const select = queries[0]!.sql.slice(0, queries[0]!.sql.indexOf('FROM'));
     // Выбираются короткие поля и сводка: снимки участвуют только внутри неё, отдельными колонками — нет
-    expect(select).toContain('SELECT "id", "created_at", "entity_type", "entity_id", "action", COALESCE(');
+    expect(select).toContain('SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(');
     expect(select).toContain('AS "subject"');
     expect(select.replace(/COALESCE\([^]*\)\s*AS "subject"/, '')).not.toMatch(/"(before|after)"/);
+  });
+});
+
+/**
+ * Автор действия (DATA_MODEL §13 шаг 1, ADR-046). ADR-023 обещал: «когда появится вход по пользователям,
+ * к записи добавится, кто именно» — журнал должен это показывать, иначе записанный автор никому не виден.
+ */
+describe('AuditService.list — кто сделал', () => {
+  it('отдаёт имя вошедшего рядом с действием', async () => {
+    const { service } = fakePrisma([row({ author: 'Айгуль Сеитова' })]);
+    const [entry] = await service.list({ limit: 10 });
+    expect(entry).toMatchObject({ action: 'reservation.checkIn', author: 'Айгуль Сеитова' });
+  });
+
+  it('действие без автора — это система: импорт, сторож, скрипт сверки', async () => {
+    const { service } = fakePrisma([row({ action: 'exely.sync', author: null })]);
+    const [entry] = await service.list({ limit: 10, system: true });
+    expect(entry!.author).toBeNull();
+  });
+
+  it('берёт из учётной записи только имя: почта сотрудника в журнал не выводится', async () => {
+    const { service, queries } = fakePrisma([row({ author: 'Айгуль Сеитова' })]);
+    const [entry] = await service.list({ limit: 10 });
+    expect(entry!.author).toBe('Айгуль Сеитова');
+    const { sql } = queries[0]!;
+    // автор подтягивается из `users` тем же запросом — второго рейса за именем нет
+    expect(sql).toContain('LEFT JOIN "users" u ON u."id" = a."user_id"');
+    expect(sql).toContain('u."name" AS "author"');
+    expect(sql).not.toContain('email');
+  });
+
+  it('с объединением таблиц колонки названы по таблице: иначе Postgres спотыкается на created_at', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({ limit: 10, entityType: 'Reservation', action: 'reservation.' });
+    const { sql } = queries[0]!;
+    expect(sql).toContain('ORDER BY a."created_at" DESC');
+    expect(sql).toContain('a."entity_type" = ?');
+    expect(sql).toContain('a."action" LIKE ?');
+    expect(sql).not.toMatch(/(?<![a-z]\.)"created_at"/);
+  });
+
+  it('действия с учётными записями видны как обычные строки журнала', async () => {
+    const { service } = fakePrisma([
+      row({ entity_type: 'user', action: 'user.login', subject: null, author: 'Дана Тестова' }),
+    ]);
+    const [entry] = await service.list({ limit: 10 });
+    expect(entry).toMatchObject({ entityType: 'user', action: 'user.login', author: 'Дана Тестова' });
   });
 });

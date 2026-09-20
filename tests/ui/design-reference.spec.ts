@@ -90,6 +90,22 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(main.getByTestId('bulk-editor')).toBeVisible();
     await shot(page, 'rates', theme);
     await shot(page, 'rates-full', theme, true);
+    // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
+    // выпадающий список фильтра, и экран уезжал вбок на 94 px — найдено обходом стойки 17.09.2026
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/rates');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
+    const ratesLayout = await page.evaluate(() => {
+      const w = globalThis as unknown as {
+        innerWidth: number;
+        document: { documentElement: { scrollWidth: number } };
+      };
+      return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+    });
+    expect(ratesLayout.content, 'цены шире экрана телефона').toBeLessThanOrEqual(
+      ratesLayout.viewport + 1,
+    );
+    await page.setViewportSize({ width: 1440, height: 1000 });
 
     // журнал интеграции: очередь, события, ревизия с ошибкой
     await page.goto('/channels');

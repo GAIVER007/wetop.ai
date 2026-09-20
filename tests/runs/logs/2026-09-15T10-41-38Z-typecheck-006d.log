@@ -1,0 +1,26 @@
+# Типы (typecheck) · 15.09.2026 15:41 Алматы · vm
+# коммит 96184af (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 20
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+scripts/reconciliation/src/inventory-compare.test.ts(12,5): error TS2741: Property 'capacityAdults' is missing in type '{ code: string; name: string; units: number; maxGuests: number; }' but required in type 'InventoryCategorySummary'.
+scripts/reconciliation/src/inventory-compare.test.ts(13,5): error TS2741: Property 'capacityAdults' is missing in type '{ code: string; name: string; units: number; maxGuests: number; }' but required in type 'InventoryCategorySummary'.
+scripts/reconciliation/src/inventory-compare.test.ts(14,5): error TS2741: Property 'capacityAdults' is missing in type '{ code: string; name: string; units: number; maxGuests: number; }' but required in type 'InventoryCategorySummary'.
+scripts/reconciliation/src/inventory-compare.test.ts(32,9): error TS2322: Type 'InventoryCategorySummary | { code: string; name: string; units: number; maxGuests: number; }' is not assignable to type 'InventoryCategorySummary'.
+  Property 'capacityAdults' is missing in type '{ code: string; name: string; units: number; maxGuests: number; }' but required in type 'InventoryCategorySummary'.
+scripts/reconciliation/src/inventory-compare.test.ts(35,9): error TS2741: Property 'capacityAdults' is missing in type '{ code: string; name: string; units: number; maxGuests: number; }' but required in type 'InventoryCategorySummary'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/units/units.controller.test.ts(87,11): error TS2322: Type '() => Promise<void>' is not assignable to type '(changes: LocalRateChange[], tx?: unknown) => Promise<number>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<number>'.
+    Type 'void' is not assignable to type 'number'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 16 с

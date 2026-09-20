@@ -1,0 +1,104 @@
+# Модульные (unit) · 15.09.2026 15:38 Алматы · vm
+# коммит 96184af (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T10-38-14Z-unit-1b3e.json' 'packages/domain/src/inventory/summarize.test.ts' 'apps/api/src/rates/rates.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/inventory/summarize.test.ts (1 test | 1 failed) 16ms
+   ❯ summarizeInventoryPlan (1)
+     × counts units by kind and category and the max guests 15ms
+[Nest] 20847  - 09/15/2026, 10:38:17 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:255:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:183:28
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:174:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests | 1 failed) 273ms
+   ❯ rates API (8)
+     ✓ expandDates honours weekday filter 3ms
+     ✓ GET /rates returns the calendar for a category × tariff 29ms
+     × POST /rates/bulk applies several changes in one transaction and publishes ONE batch (certification tests 3–8) 21ms
+     ✓ rejects bad input with 400: no changes, bad date, nothing to change, occupancy above capacity 17ms
+     ✓ rejects a zero price with 400: channels refuse it (Channex «rate must be greater than 0») 6ms
+     ✓ min stay 0 and max stay 0 mean «no restriction»: stored and published as null, never as 0 4ms
+     ✓ a price for fewer guests carries its occupancy and the category capacity to the channel publisher 4ms
+     ✓ prices, audit and the channel batch are one transaction: if queueing for channels fails, prices are not saved 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rates.controller.test.ts > rates API > POST /rates/bulk applies several changes in one transaction and publishes ONE batch (certification tests 3–8)
+AssertionError: expected { applied: 3, rateRows: 3, …(1) } to match object { applied: 3, rateRows: 3, queued: 3 }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "applied": 3,
+-   "queued": 3,
+    "rateRows": 3,
+  }
+
+ ❯ apps/api/src/rates/rates.controller.test.ts:147:22
+    145|     // queued — сколько значений действительно ушло в очередь каналов …
+    146|     // «ушло в каналы» для несопоставленных категорий и тарифов)
+    147|     expect(res.body).toMatchObject({ applied: 3, rateRows: 3, queued: …
+       |                      ^
+    148|     expect(fakes.applied[1]).toMatchObject({
+    149|       accommodationTypeId: 't2',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/inventory/summarize.test.ts > summarizeInventoryPlan > counts units by kind and category and the max guests
+AssertionError: expected { totalUnits: 4, rooms: 2, …(4) } to deeply equal { totalUnits: 4, rooms: 2, …(4) }
+
+- Expected
++ Received
+
+@@ -1,24 +1,21 @@
+  {
+    "beds": 2,
+    "byCategory": [
+      {
+-       "capacityAdults": 1,
+        "code": "a",
+        "maxGuests": 1,
+        "name": "Одиночная",
+        "units": 1,
+      },
+      {
+-       "capacityAdults": 2,
+        "code": "b",
+        "maxGuests": 2,
+        "name": "Двойная",
+        "units": 1,
+      },
+      {
+-       "capacityAdults": 1,
+        "code": "d",
+        "maxGuests": 2,
+        "name": "Dorm",
+        "units": 2,
+      },
+
+ ❯ packages/domain/src/inventory/summarize.test.ts:76:15
+     74|   it('counts units by kind and category and the max guests', () => {
+     75|     const s = summarizeInventoryPlan(plan);
+     76|     expect(s).toEqual({
+       |               ^
+     77|       totalUnits: 4,
+     78|       rooms: 2,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 7 passed (9)
+   Start at  10:38:15
+   Duration  2.01s (transform 55%, import 29%, tests 15%)
+
+JSON report written to /tmp/pms-test-2026-09-15T10-38-14Z-unit-1b3e.json
+
+# код выхода 1 · 3 с

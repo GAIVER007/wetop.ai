@@ -1,6 +1,10 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
+import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
+
+const MAX_PERIOD_DAYS = 366;
+const periodDays = (from: string, to: string) =>
+  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
 import { Page } from '../../components/page';
 import {
   Alert,
@@ -52,11 +56,23 @@ export default async function AnalyticsPage({
   if (!site) return <NoSites />;
   let report: SiteReport | null = null;
   let error: string | null = null;
-  try {
-    report = await analyticsApi.report(site.id, sp.from, sp.to);
-  } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
-  }
+  if (sp.from && sp.to && periodDays(sp.from, sp.to) > MAX_PERIOD_DAYS)
+    // Предел периода — в стойке: отчёт по дням за несколько лет никому не нужен и долго считается
+    error = `Период отчёта — не больше года (${MAX_PERIOD_DAYS} дней). Выберите более короткий отрезок.`;
+  else
+    try {
+      report = await analyticsApi.report(site.id, sp.from, sp.to);
+    } catch (e) {
+      // ApiError несёт текст отказа API (даты, порядок, сайт); прочее — общий совет
+      error =
+        e instanceof ApiError
+          ? e.status < 500
+            ? `Отчёт не построен: ${e.message}`
+            : 'Отчёт не построен: сервис аналитики не ответил. Повторите позже.'
+          : e instanceof Error
+            ? e.message
+            : String(e);
+    }
   return (
     <Page
       title="Аналитика сайта"

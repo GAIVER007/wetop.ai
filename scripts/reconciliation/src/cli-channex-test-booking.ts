@@ -6,6 +6,7 @@
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -17,7 +18,7 @@ if (!baseUrl.includes('staging')) throw new Error(`Только staging: ${baseU
 const category = process.argv[2] ?? 'exely-5074688';
 const nights = Number(process.argv[3] ?? 1);
 const api = process.env.APP_API_URL ?? 'http://localhost:3001';
-const mapping = (await (await fetch(`${api}/channels/channex/mapping`)).json()) as Array<{
+const mapping = (await (await serviceFetch(`${api}/channels/channex/mapping`)).json()) as Array<{
   localAccommodationTypeCode: string | null;
   providerPropertyId: string;
   providerRoomTypeId: string | null;

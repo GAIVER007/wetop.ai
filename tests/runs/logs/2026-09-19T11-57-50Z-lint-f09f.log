@@ -1,0 +1,12 @@
+# Линтер (lint) · 19.09.2026 16:57 Алматы · vm
+# коммит 5bd5056 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 124
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/hotel/reservation-directory.ts
+  25:7  error  'DEFAULT_PAGE_SIZE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  26:7  error  'MAX_PAGE_SIZE' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 13 с

@@ -6,6 +6,12 @@
 *.key
 .n8n_token
 
+# Ключ туннеля на сервере — обычный .json рядом с конфигом, под *.pem и *.key не попадает
+deploy/cloudflared/
+!deploy/cloudflared.example.yml
+# Состояние выключателя ARI на конкретной машине (scripts/ops/ari.sh), не код
+deploy/ari.env
+
 # --- Claude Code: личное не едет в репозиторий ---
 # settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,
 # туда пишутся абсолютные пути и команды целиком; worktrees — рабочие копии сессий.
@@ -31,6 +37,8 @@ project-input/interviews/*
 !project-input/interviews/.gitkeep
 
 # --- Node ---
+# Локальная рабочая копия завершённой сессии, не часть исходников проекта.
+.agent-tmp/
 node_modules/
 dist/
 build/
@@ -70,3 +78,5 @@ tests/runs/.locks/
 # --- Дизайн-система: скриншоты Exely с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
 design/reference/exely/*
 !design/reference/exely/.gitkeep
+tests/runs/.auth/
+.agent-tmp/

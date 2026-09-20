@@ -4,6 +4,7 @@ import type { DashboardCharge, DashboardDay, DashboardPayment, DashboardStay } f
 import { LUXX_APARTS_PROPERTY } from '@pms/imports';
 import { PrismaService } from '../database/prisma.provider';
 import { ChessboardService } from '../chessboard/chessboard.service';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface DashboardBoard {
   categories: Array<{ code: string; name: string; units: number }>;
@@ -46,12 +47,9 @@ export class PrismaDashboardRepository implements DashboardRepository {
     @Inject(ChessboardService) private readonly chessboard: ChessboardService,
   ) {}
 
-  private async propertyId(): Promise<string> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
-    return p.id;
+  /** id объекта — из памяти процесса: дашборд спрашивал его восемь раз за один запрос */
+  private propertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
 
   /** Та же шахматка, что на экране, кусками по 62 дня (её потолок за запрос) */

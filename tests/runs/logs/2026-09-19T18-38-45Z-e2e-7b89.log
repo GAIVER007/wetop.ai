@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 19.09.2026 23:38 Алматы · Noutbuk-Vyacheslav.local
+# коммит 8098096 (main), незакоммиченных файлов набора: 222
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts'
+[WebServer] (node:77984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:78064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:78068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа (1.6s)
+(node:78106) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа (973ms)
+(node:78124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/login-lock.spec.ts:22:3 › без входа /reservations уводит на экран входа (1.5s)
+  ✓  4 tests/ui/login-lock.spec.ts:29:1 › после входа рабочее место открывается, «Выйти» закрывает двери снова (3.8s)
+
+
+  1) tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа ─────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel('Пароль', { exact: true })
+    Expected: visible
+    Error: strict mode violation: getByLabel('Пароль', { exact: true }) resolved to 2 elements:
+        1) <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/> aka getByRole('textbox', { name: 'Пароль' })
+        2) <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/> aka locator('div').filter({ hasText: 'WWETOP.AI' }).getByPlaceholder('Введите пароль')
+
+    Call log:
+      - Expect "toBeVisible" getByLabel('Пароль', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Пароль', { exact: true })
+        2 × locator resolved to <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/>
+          - unexpected value "hidden"
+
+
+      23 |     await page.goto(path);
+      24 |     await expect(page).toHaveURL(/\/login/);
+    > 25 |     await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
+         |                                                              ^
+      26 |   });
+      27 | }
+      28 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/login-lock.spec.ts:25:62
+
+    Error Context: test-results/login-lock-без-входа-today-уводит-на-экран-входа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-lock-без-входа-today-уводит-на-экран-входа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-lock-без-входа-today-уводит-на-экран-входа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel('Пароль', { exact: true })
+    Expected: visible
+    Error: strict mode violation: getByLabel('Пароль', { exact: true }) resolved to 2 elements:
+        1) <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/> aka getByRole('textbox', { name: 'Пароль' })
+        2) <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/> aka locator('div').filter({ hasText: 'WWETOP.AI' }).getByPlaceholder('Введите пароль')
+
+    Call log:
+      - Expect "toBeVisible" getByLabel('Пароль', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Пароль', { exact: true })
+        - locator resolved to <input class="inp" required="" type="password" name="password" aria-label="Пароль" placeholder="Введите пароль" autocomplete="current-password"/>
+        - unexpected value "hidden"
+
+
+      23 |     await page.goto(path);
+      24 |     await expect(page).toHaveURL(/\/login/);
+    > 25 |     await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
+         |                                                              ^
+      26 |   });
+      27 | }
+      28 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/login-lock.spec.ts:25:62
+
+    Error Context: test-results/login-lock-без-входа-chessboard-уводит-на-экран-входа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-lock-без-входа-chessboard-уводит-на-экран-входа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-lock-без-входа-chessboard-уводит-на-экран-входа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа ──────────────────────
+    tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа ─────────────────
+  2 passed (15.4s)
+
+# код выхода 1 · 16 с

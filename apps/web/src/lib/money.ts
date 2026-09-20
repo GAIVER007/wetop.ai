@@ -13,3 +13,23 @@ export function formatMoney(minor: string | bigint, currency = 'KZT'): string {
   const tail = cents ? `,${String(cents).padStart(2, '0')}` : '';
   return `${neg ? '−' : ''}${whole}${tail} ${currency === 'KZT' ? '₸' : currency}`;
 }
+
+/**
+ * Тиыны строкой → значение поля ввода без потери копеек: `123450` → `1234.50`, `800000` → `8000`.
+ * Иначе поле правки цены показывало бы округлённую сумму, и слепой Enter переписывал бы цену.
+ */
+export function minorToInput(minor: string): string {
+  const negative = minor.startsWith('-');
+  const digits = minor.replace('-', '').padStart(3, '0');
+  const whole = digits.slice(0, -2);
+  const fraction = digits.slice(-2);
+  return `${negative ? '-' : ''}${whole}${fraction === '00' ? '' : `.${fraction}`}`;
+}
+
+/** Печатные формы: тиыны показываются всегда, без float-арифметики. */
+export function formatMinor(minor: string, currency = 'KZT'): string {
+  const neg = minor.startsWith('-');
+  const digits = minor.replace('-', '').padStart(3, '0');
+  const int = digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${neg ? '−' : ''}${int},${digits.slice(-2)} ${currency === 'KZT' ? '₸' : currency}`;
+}

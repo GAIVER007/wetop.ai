@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { currentUserId } from '../auth/request-context';
 
 /**
  * Кто действует в текущем запросе (срез 13, этап 8; ADR-023 обещал автора в `audit_logs`).
@@ -24,7 +25,14 @@ export function currentActor(): Actor | null {
   return storage.getStore() ?? null;
 }
 
-/** Для строки журнала: `user_id` автора или `null`. Одно место, чтобы семь хранилищ не расходились. */
+/**
+ * Для строки журнала: `user_id` автора или `null`. Одно место, чтобы семь хранилищ не расходились.
+ *
+ * Два входа живут рядом (Q-146): вошедшего по коду на почту сюда кладёт `ActorMiddleware`, вошедшего
+ * по паролю — замок `SessionGuard` через контекст запроса (`auth/request-context`). Хранилища зовут
+ * одну функцию и получают автора в обоих случаях; явный `null` отсюда расширение Prisma не перебивает,
+ * поэтому второй источник читается здесь, а не в нём.
+ */
 export function auditUserId(): string | null {
-  return currentActor()?.userId ?? null;
+  return currentActor()?.userId ?? currentUserId();
 }

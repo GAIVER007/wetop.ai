@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmCancelReservation } from './confirm';
+import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -52,8 +52,10 @@ test('стойка: занятую койку не продать дважды, 
     await f.getByRole('button', { name: 'Создать бронь' }).click();
   };
 
-  const firstForm = page.getByRole('main').getByTestId('new-reservation-form');
-  await firstForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+  // Форма доезжает потоковым куском Next: пока он встраивается, та же разметка лежит в двух копиях —
+  // работаем с видимой первой, как и на других экранах
+  const firstForm = page.getByTestId('new-reservation-form').first();
+  await firstForm.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
   const unit = (await firstForm
     .locator('select[name="unitCode"] option')
     .nth(1)
@@ -118,12 +120,20 @@ test('стойка: занятую койку не продать дважды, 
   const otherCategory = (await other.getAttribute('label'))!.replace(' — с пересчётом цены', '');
   await assign.locator('select[name="unitCode"]').selectOption(otherUnit);
   await assign.getByRole('button', { name: 'Переселить' }).click();
+  // чужая категория — окно с новой суммой до подтверждения (срез 7.3, Д5); сумму считает тот же код, что и запись
+  const moveAmount = page.getByRole('dialog').getByTestId('move-amount');
+  await expect(moveAmount).toContainText('Новая сумма за');
+  const shownNew = money(
+    /Новая сумма за \S+ \S+ (.+?) \(было/.exec(await moveAmount.innerText())?.[1] ?? '',
+  );
+  await confirmDialog(page, 'Переселить и пересчитать');
 
   await cardTab(page, 'Обзор');
   await expect(row).toContainText(otherUnit);
   await expect(row).toContainText(otherCategory);
   const priceMoved = money(await row.locator('td').nth(5).innerText());
   expect(priceMoved).not.toBe(priceAfter); // цена взята из календаря новой категории
+  expect(priceMoved).toBe(shownNew); // окно показало ровно то, что легло на проживание
   await cardTab(page, 'Счета');
   expect(money(await page.getByRole('main').getByTestId('folio-balance').innerText())).toBe(
     priceMoved,
@@ -133,7 +143,7 @@ test('стойка: занятую койку не продать дважды, 
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

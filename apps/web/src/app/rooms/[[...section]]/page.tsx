@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { RoomGrid } from '../room-grid';
 import { notFound } from 'next/navigation';
 import { api, chessboardApi, reservationsApi } from '../../../lib/api';
-import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
+import { hotelToday, nextDay, plusDays, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
 import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
@@ -161,6 +161,8 @@ async function Availability({
   // Доступность считается той же шахматкой: у неё потолок 62 дня за запрос. Проверяем здесь,
   // иначе API отвечает 400 и экран падает в общую ошибку «нет связи» (§7.3)
   const tooLong = dates && nightsBetween(arrival, departure) > MAX_CHESSBOARD_DAYS;
+  // тот же предел — в самом поле даты: браузер не даст выбрать выезд дальше горизонта
+  const lastDeparture = validDate(arrival) ? plusDays(arrival, MAX_CHESSBOARD_DAYS) : undefined;
   const valid = dates && !tooLong;
   const [r, inventory] = valid
     ? await Promise.all([reservationsApi.availability(arrival, departure), api.inventorySummary()])
@@ -188,7 +190,13 @@ async function Availability({
           <Input type="date" name="arrival" defaultValue={arrival} required />
         </Field>
         <Field label="Выезд">
-          <Input type="date" name="departure" defaultValue={departure} required />
+          <Input
+            type="date"
+            name="departure"
+            defaultValue={departure}
+            required
+            {...(lastDeparture ? { max: lastDeparture } : {})}
+          />
         </Field>
         <Button type="submit">Проверить доступность</Button>
       </form>

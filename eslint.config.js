@@ -5,6 +5,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   {
     ignores: [
+      '.agent-tmp/**',
       '**/node_modules/**',
       '**/dist/**',
       '**/.next/**',
@@ -48,6 +49,15 @@ export default tseslint.config(
     languageOptions: {
       globals: Object.fromEntries(
         ['process', 'console', 'setInterval', 'setTimeout'].map((g) => [g, 'readonly']),
+      ),
+    },
+  },
+  {
+    // Скрипты главной wetop.ai: чистый Node без сборки (их запускают `node scripts/site/…`).
+    files: ['scripts/site/*.mjs'],
+    languageOptions: {
+      globals: Object.fromEntries(
+        ['process', 'console', 'URL', 'setTimeout', 'fetch'].map((g) => [g, 'readonly']),
       ),
     },
   },

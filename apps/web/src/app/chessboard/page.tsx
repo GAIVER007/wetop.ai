@@ -1,8 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, type UnassignedStay } from '../../lib/api';
+import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
 import { Alert, Button, Input, Legend, cx } from '../../components/ui';
 import { ChessboardGrid } from './board-grid';
@@ -52,8 +53,13 @@ export default async function ChessboardPage({
     return (
       <Page title="Шахматка">
         <form method="get" className="row toolbar">
-          <Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
-          <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+          <label className="field">
+            С<Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
+          </label>
+          <label className="field">
+            По
+            <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+          </label>
           <Button>Показать</Button>
         </form>
         <Alert boxed>
@@ -62,15 +68,15 @@ export default async function ChessboardPage({
         </Alert>
       </Page>
     );
-  // Ревизии канала, которые не удалось сопоставить с бронью (ADR-024, Q-109): брони по ним нет,
-  // а место, возможно, продано. Стойка узнаёт о них здесь, а не только на «Подключениях» (Q-135).
-  const [board, failedRevisions] = await Promise.all([
+  // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
+  // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
+  const [board, incidents, events] = await Promise.all([
     chessboardApi.board(from, to),
-    channelsApi
-      .events(30)
-      .then((events) => events.filter((e) => e.status === 'FAILED').length)
-      .catch(() => 0),
+    guardApi.incidents('open').catch(() => null),
+    channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
   ]);
+  const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
+  const failedEvents = events?.total ?? 0;
   const month = monthPeriod(from);
   const isMonth = from === month.from && to === month.to;
   const week = weekPeriod(from);
@@ -113,7 +119,7 @@ export default async function ChessboardPage({
             <Icon name="plus" />
             Новая бронь
           </Link>
-          <span className="seg">
+          <span className="seg" role="group" aria-label="Вид шахматки">
             <Link
               href={weekHref()}
               className={cx(isWeek && 'is-on')}
@@ -121,7 +127,11 @@ export default async function ChessboardPage({
             >
               Неделя
             </Link>
-            <Link href={window(14)} className={cx(board.dates.length === 14 && 'is-on')}>
+            <Link
+              href={window(14)}
+              className={cx(board.dates.length === 14 && 'is-on')}
+              aria-current={board.dates.length === 14 ? 'true' : undefined}
+            >
               14 дней
             </Link>
             <Link
@@ -158,50 +168,60 @@ export default async function ChessboardPage({
         </div>
       }
     >
-      {/* Одна планка вместо четырёх рядов: период, легенда, «без ячейки», подсказка — сетке остаётся экран */}
+      {/* Частые действия видимы; расшифровка статусов и инструкции раскрываются по запросу. */}
       <div className="board-bar">
         <form key={`${board.from}-${board.to}`} method="get" className="board-range-form">
           <label className="field field--inline">
-            Период
+            <span>С</span>
             <Input type="date" name="from" defaultValue={board.from} aria-label="Шахматка: с" />
           </label>
-          <span className="muted">—</span>
-          <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+          <label className="field field--inline">
+            <span>По</span>
+            <Input type="date" name="to" defaultValue={board.to} aria-label="Шахматка: по" />
+          </label>
           <Button tone="secondary" type="submit">
             Применить
           </Button>
         </form>
-        <Legend
-          data-testid="board-legend"
-          items={[
-            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
-            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-          ]}
-        />
-        {failedRevisions > 0 && (
-          <Alert boxed tone="warning" data-testid="failed-revisions">
-            Входящая бронь требует разбора:{' '}
-            {pluralRu(failedRevisions, ['ревизия', 'ревизии', 'ревизий'])} из канала не удалось
-            сопоставить с бронью — места по ним не заняты.{' '}
-            <Link href="/channels">Открыть журнал интеграции</Link>
-          </Alert>
-        )}
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
         <details className="board-help">
           <summary>Как работать с шахматкой</summary>
-          <p className="note">
-            В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
-            занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
-            открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на другую
-            строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию — только
-            на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}. Брони без
-            ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с карточки брони.
-          </p>
+          <div className="board-help-content">
+            <Legend
+              data-testid="board-legend"
+              items={[
+                { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+                { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+                { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+                { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+                { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+              ]}
+            />
+            <p className="note">
+              В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно и
+              занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой клетке
+              открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку на
+              другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую категорию
+              — только на всё проживание). Фильтры статусов считаются на {displayDate(board.from)}.
+              Брони без ячейки на сетке не видны — они в списке над сеткой; ячейка назначается с
+              карточки брони.
+            </p>
+          </div>
         </details>
       </div>
+      {overbooked.length > 0 && (
+        <Alert boxed data-testid="overbooked-callout">
+          Продано сверх мест: {overbooked.map((i) => i.title).join('; ')}.{' '}
+          <a href="#unassigned-stays">Разрешить</a>
+        </Alert>
+      )}
+      {failedEvents > 0 && (
+        <Alert boxed tone="warning" data-testid="review-callout">
+          Входящая бронь требует разбора:{' '}
+          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана
+          автоматически. <Link href="/channels">Разобрать</Link>
+        </Alert>
+      )}
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
     </Page>
@@ -222,6 +242,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
   }
   return (
     <section
+      id="unassigned-stays"
       data-testid="unassigned-stays"
       data-count={stays.length}
       className={cx('board-unassigned', !stays.length && 'board-unassigned--empty')}
@@ -257,6 +278,7 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
                   ])}{' '}
                   · {STATUS_RU[s.status] ?? s.status}
                 </span>
+                <ResolveMenu number={s.confirmationNumber} />
               </li>
             ))}
           </ul>

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { roomiestCategory } from './pick-category';
 
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -30,19 +30,22 @@ test('главная открывается с корня; заезд на да�
     'aria-current',
     'page',
   );
-  await expect(page.getByRole('main').getByTestId('kpi-occupancy')).toContainText('%');
-  await expect(page.getByRole('main').getByTestId('kpi-revenue')).toContainText('₸');
-  await expect(page.getByRole('main').getByTestId('chart-categories')).toBeVisible();
+  // Показатели доезжают отдельным потоковым куском: пока он встраивается, та же разметка есть в двух
+  // копиях — читаем только видимую область показателей, как и полосу стойки ниже
+  const kpi = page.getByRole('region', { name: 'Показатели за период' });
+  await expect(kpi.getByTestId('kpi-occupancy')).toContainText('%');
+  await expect(kpi.getByTestId('kpi-revenue')).toContainText('₸');
+  await expect(page.getByTestId('chart-categories').first()).toBeVisible();
   // месяц: столбики по дням, сравнение с прошлым отрезком
-  await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
-  await expect(page.getByRole('main').getByTestId('chart-daily')).toBeVisible();
-  await expect(page.getByRole('main').getByTestId('kpi-compare')).toContainText(
+  await page.getByRole('link', { name: 'Этот месяц', exact: true }).first().click();
+  await expect(page.getByTestId('chart-daily').first()).toBeVisible();
+  await expect(page.getByTestId('kpi-compare').first()).toContainText(
     'Сравнение с предыдущим периодом',
   );
 
-  // при переходе Next держит уходящую страницу в DOM — считаем плитку внутри main, а не по всей странице
-  const card = async (id: string) =>
-    Number(await page.getByRole('main').getByTestId(id).innerText());
+  // Только видимая полоса стойки: пока её кусок доезжает потоком, та же разметка лежит в скрытом сегменте
+  const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
+  const card = async (id: string) => Number(await strip.getByTestId(id).innerText());
 
   // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
   // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.

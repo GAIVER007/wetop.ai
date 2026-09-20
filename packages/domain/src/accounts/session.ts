@@ -1,4 +1,10 @@
 /**
+ * Сроки сессий. В коде два входа, пока владелец не выбрал (Q-146), и у них разные сроки — это не
+ * случайность и не дубль: вход по одноразовому коду (ADR-046) держит сессию 30 дней, вход по паролю
+ * (ADR-049) — смену в 12 часов. Когда способ выберут, лишнее уйдёт вместе со своим входом.
+ */
+
+/**
  * Сессия входа (срез 13, ADR-046, DATA_MODEL §13). Чистые правила: ни базы, ни HTTP.
  *
  * Сам ключ сессии здесь не рождается и не проверяется — это забота `@pms/shared/auth-hash`.
@@ -72,4 +78,24 @@ export function describeUserAgent(userAgent: string | null | undefined): string 
               : null;
   if (!browser && !system) return 'неизвестное устройство';
   return [browser ?? 'браузер', system ?? 'неизвестная система'].join(', ');
+}
+
+// ─────────── вход по паролю (ADR-049) ───────────
+
+/** Вход по паролю (ADR-049): смена на стойке — 12 часов, потом вход спрашивают заново. */
+export const SESSION_HOURS = 12;
+
+export type SessionState = 'active' | 'expired' | 'revoked';
+
+export function sessionExpiry(from: Date): Date {
+  return new Date(from.getTime() + SESSION_HOURS * 3_600_000);
+}
+
+/** Годна ли сессия. Отзыв («Выйти», смена пароля) сильнее срока: отозванная не пускает и до истечения. */
+export function sessionState(
+  session: { expiresAt: Date; revokedAt: Date | null },
+  now = new Date(),
+): SessionState {
+  if (session.revokedAt !== null) return 'revoked';
+  return session.expiresAt.getTime() > now.getTime() ? 'active' : 'expired';
 }

@@ -5,6 +5,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StayRestriction } from '@pms/domain';
 import { ANALYTICS_REPOSITORY } from '../analytics/analytics.repository';
+import { CollectService } from '../analytics/collect.service';
 import { FakeAnalyticsRepository, SITE, SITE_PAUSED } from '../analytics/fake-repository';
 import { ARI_PUBLISHER } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
@@ -24,6 +25,22 @@ import { WebBookingService } from './web-booking.service';
  */
 const ORIGIN = 'http://test-site.local';
 const TODAY = new Date('2026-09-12T06:00:00Z'); // 11:00 Алматы
+const CHROME =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+/** Первый просмотр демо-страницы тем же посетителем и сессией, что потом бронирует */
+const firstPageview = () =>
+  JSON.stringify({
+    k: SITE.publicKey,
+    v: 'visitor-0001',
+    s: 'session-0001',
+    t: 'pageview',
+    u: 'http://test-site.local/',
+    r: '',
+    w: 1440,
+    l: 'ru-RU',
+    z: 'Asia/Almaty',
+    ti: 'Главная',
+  });
 
 const types = [
   {
@@ -183,8 +200,10 @@ describe('виджет бронирования /w/*', () => {
     vi.useRealTimers();
     await app.close();
   });
-  beforeEach(() => {
+  beforeEach(async () => {
+    await app.get(CollectService).flush();
     created.dtos = [];
+    sites.recorded = [];
     sites.linked = [];
     sites.audits = [];
     service.resetLimits();
@@ -306,6 +325,9 @@ describe('виджет бронирования /w/*', () => {
   });
 
   it('бронь: DTO для ReservationsService — WEBSITE, тариф сайта, autoAssign, псевдоним гостя; сессия связана; журнал', async () => {
+    // просмотр страницы уже записан — сессия есть, к ней и привязываемся
+    await app.get(CollectService).accept(firstPageview(), { userAgent: CHROME, origin: ORIGIN });
+    await app.get(CollectService).flush();
     const r = await post(booking()).expect(201);
     expect(r.body).toEqual({
       confirmationNumber: '20260912-ABC123',
@@ -346,6 +368,21 @@ describe('виджет бронирования /w/*', () => {
       { siteId: SITE.id, sessionKey: 'session-0001', confirmationNumber: '20260912-ABC123' },
     ]);
     expect(sites.audits.map((a) => a.action)).toContain('analytics.site.booking');
+  });
+
+  it('бронь сразу после первого просмотра: очередь счётчика записана до привязки, источник брони не теряется (гонка 15.09.2026)', async () => {
+    // Приёмник пишет события пачкой раз в секунду; посетитель на быстрой сети бронирует раньше — сессии в базе ещё нет.
+    // Воспроизведено на изолированном стенде: хит → сразу /w/book → reservation_id пуст, через 2 с — привязан.
+    const collect = app.get(CollectService);
+    expect(await collect.accept(firstPageview(), { userAgent: CHROME, origin: ORIGIN })).toBe('queued');
+    expect(sites.recorded).toHaveLength(0);
+    await post(booking()).expect(201);
+    expect(sites.recorded.map((h) => h.sessionKey)).toEqual(['session-0001']);
+    expect(sites.linked).toEqual([
+      { siteId: SITE.id, sessionKey: 'session-0001', confirmationNumber: '20260912-ABC123' },
+    ]);
+    const audit = sites.audits.find((a) => a.action === 'analytics.site.booking');
+    expect(audit?.details).toMatchObject({ linkedSession: true });
   });
 
   it('honeypot, кривая форма и чужой домен — без брони', async () => {

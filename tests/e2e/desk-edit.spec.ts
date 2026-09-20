@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
-import { confirmAction, confirmCancelReservation } from './confirm';
+import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
@@ -107,7 +107,7 @@ test('групповая бронь на 2 койки → две клетки ш
   // прибрать за собой: бронь отменяется, койки освобождаются
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('cancel-reservation').click();
-  await confirmCancelReservation(page);
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

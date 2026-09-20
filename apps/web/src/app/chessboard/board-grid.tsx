@@ -1,13 +1,17 @@
 'use client';
 import Link from 'next/link';
-import { Fragment, useMemo, useRef, useState, useTransition, type CSSProperties } from 'react';
 import {
-  messengerLinks,
-  type Chessboard,
-  type ChessboardCell,
-  type ChessboardRow,
-} from '../../lib/api';
+  Fragment,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type CSSProperties,
+} from 'react';
+import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
 import { Alert, Badge, Input, Select, cx } from '../../components/ui';
+import { messengerLinks } from '../../lib/format';
 import { stayLabels } from './stay-labels';
 import { assignUnitAction, previewAction } from '../reservations/actions';
 import { previewLine } from '../../lib/action-preview';
@@ -17,6 +21,7 @@ import { AmountChip } from '../../components/amount-chip';
 import { useConfirm } from '../../components/use-confirm';
 import { useToast } from '../../components/toast';
 import { blockTypeLabel } from '../../lib/block-types';
+import { displayDate } from '../../lib/display-date';
 
 /** Из этих статусов сервер разрешает назначение ячейки (assertCanAssign); остальные клетки не тянутся. */
 const DRAGGABLE = new Set(['TENTATIVE', 'CONFIRMED', 'CHECKED_IN']);
@@ -54,6 +59,9 @@ export function ChessboardGrid({
   const [category, setCategory] = useState('');
   const [kind, setKind] = useState('');
   const [state, setState] = useState('all');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filtersId = useId();
+  const activeFilters = Number(!!category) + Number(!!kind) + Number(state !== 'all');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
@@ -155,64 +163,88 @@ export function ChessboardGrid({
   const dayWidth = board.dates.length > 14 ? 64 : 104;
   return (
     <>
-      <div className="board-toolbar">
-        <Input
-          aria-label="Поиск на шахматке"
-          placeholder="Номер, койка, гость или бронь"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Select
-          aria-label="Категория на шахматке"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+      <div className="board-toolbar" data-filters-open={filtersOpen}>
+        <label className="board-search field field--inline">
+          <span>Поиск</span>
+          <Input
+            aria-label="Поиск на шахматке"
+            placeholder="Номер, койка, гость или бронь"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+        <button
+          type="button"
+          className="btn btn--secondary board-filter-toggle"
+          aria-expanded={filtersOpen}
+          aria-controls={filtersId}
+          onClick={() => setFiltersOpen(!filtersOpen)}
         >
-          <option value="">Все категории</option>
-          {allGroups.map((g) => (
-            <option key={g.code} value={g.code}>
-              {g.name}
-            </option>
-          ))}
-        </Select>
-        <div className="seg" aria-label="Тип размещения">
-          {[
-            ['', 'Все единицы'],
-            ['ROOM', 'Номера'],
-            ['BED', 'Койко-места'],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              className={cx('segment-button', kind === id && 'is-on')}
-              aria-pressed={kind === id}
-              onClick={() => setKind(id!)}
+          Фильтры{activeFilters > 0 ? ` · ${activeFilters}` : ''}
+        </button>
+        <div className="board-filter-fields" id={filtersId}>
+          <label className="board-category field field--inline">
+            <span>Категория</span>
+            <Select
+              aria-label="Категория на шахматке"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             >
-              {label}
-            </button>
-          ))}
+              <option value="">Все категории</option>
+              {allGroups.map((g) => (
+                <option key={g.code} value={g.code}>
+                  {g.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <div className="seg" role="group" aria-label="Тип размещения">
+            {[
+              ['', 'Все единицы'],
+              ['ROOM', 'Номера'],
+              ['BED', 'Койко-места'],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                className={cx('segment-button', kind === id && 'is-on')}
+                aria-pressed={kind === id}
+                onClick={() => setKind(id!)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div
+            className="board-state-filters"
+            role="group"
+            aria-label="Статус на первую дату периода"
+            title={`Статус считается на ${board.from}`}
+          >
+            <span className="board-filter-date">Статус на {displayDate(board.from)}</span>
+            {[
+              ['all', 'Все'],
+              ['FREE', 'Свободные'],
+              ['OCCUPIED', 'Занятые'],
+              ['cleaning', 'Уборка'],
+              ['BLOCKED', 'Недоступны'],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                className={cx('filter-chip', state === id && 'is-selected')}
+                aria-pressed={state === id}
+                onClick={() => setState(id!)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div
-          className="board-state-filters"
-          aria-label="Статус на первую дату периода"
-          title={`Статус считается на ${board.from}`}
+        <span
+          className="muted small board-result"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
         >
-          {[
-            ['all', 'Все'],
-            ['FREE', 'Свободные'],
-            ['OCCUPIED', 'Занятые'],
-            ['cleaning', 'Уборка'],
-            ['BLOCKED', 'Недоступны'],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              className={cx('filter-chip', state === id && 'is-selected')}
-              aria-pressed={state === id}
-              onClick={() => setState(id!)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <span className="muted small">
           Показано {rows.length} из {board.rows.length} единиц
         </span>
         {(query || category || kind || state !== 'all') && (

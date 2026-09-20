@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 17.09.2026 00:40 Алматы · vm
+# коммит efc8113 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/manager-actions.spec.ts'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.1s)
+  ✓  2 tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (2.6s)
+  ✓  3 tests/ui/manager-actions.spec.ts:91:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (5.7s)
+  ✓  4 tests/ui/manager-actions.spec.ts:145:1 › карточка: предварительная бронь названа словом, место за ней держится (795ms)
+  ✓  5 tests/ui/manager-actions.spec.ts:155:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (2.6s)
+
+  5 passed (18.9s)
+
+# код выхода 0 · 20 с

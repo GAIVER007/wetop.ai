@@ -40,8 +40,8 @@ const at = (iso: string | null) =>
       })
     : '—';
 
-/** Сколько записей истории читаем; если пришло ровно столько, значит могло быть и больше */
-const HISTORY_LIMIT = 60;
+/** Сколько записей истории читаем: если пришло ровно столько, список обрезан — и это написано на экране */
+const HISTORY_LIMIT = 200;
 
 export default async function IncidentsPage() {
   const [status, open, all] = await Promise.all([
@@ -194,8 +194,8 @@ export default async function IncidentsPage() {
       <SectionTitle>Закрыты за сутки</SectionTitle>
       {truncated && (
         <p className="note" data-testid="incidents-truncated" role="status">
-          История читается по {HISTORY_LIMIT} записям, и их пришло ровно столько: закрытых за сутки
-          могло быть больше, чем в таблице.
+          Показаны последние {HISTORY_LIMIT} записей истории, и их пришло ровно столько: закрытых за
+          сутки могло быть больше, чем в таблице.
         </p>
       )}
       {all === null && (

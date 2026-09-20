@@ -21,13 +21,40 @@ import type {
   SiteReport,
   Incident,
   InboundEvent,
+  OutboxRow,
+  RevisionFacts,
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
+/**
+ * Замок как у настоящего API при `AUTH_REQUIRED=1` (ADR-049): без сессии — 401 на всё, кроме входа и
+ * публичных путей счётчика и виджета. Нужен набору `tests/ui/playwright.auth.config.ts`, который
+ * проверяет стойку такой, какой она станет после включения замка на машине стойки.
+ */
+const authLock = process.env.FIXTURE_AUTH_LOCK === '1';
+/** Пути, открытые и при замке: ими входят, ими управляет сам прогон, их зовёт сайт (ADR-025, ADR-026). */
+const openAtLock = (p: string): boolean =>
+  p.startsWith('/__test/') ||
+  p.startsWith('/a/') ||
+  p.startsWith('/w/') ||
+  p === '/auth/login' ||
+  p === '/auth/logout' ||
+  p === '/auth/code' ||
+  p === '/auth/register' ||
+  p === '/auth/verify' ||
+  p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+function resetUiAuth() {
+  uiPassword = 'ui-test-parol';
+  uiSessions.clear();
+  uiResetTokens.clear();
+  uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+  uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+}
+
 function setHotelHold(value: boolean) {
   holdHotel = value;
   if (!value) {
@@ -35,7 +62,9 @@ function setHotelHold(value: boolean) {
     hotelWaiters.clear();
   }
 }
-const port = demo ? 4312 : 4311;
+// Порт можно задать (`FIXTURE_PORT`): отдельный набор со включённым замком поднимает свой стенд
+// и не спорит с обычным прогоном за 4311 (`tests/ui/playwright.auth.config.ts`).
+const port = Number(process.env.FIXTURE_PORT) || (demo ? 4312 : 4311);
 const names = [
   'Daniel Kim',
   'Maria Lopez',
@@ -351,6 +380,12 @@ function designCard(d: (typeof DESIGN_STAYS)[number], arrival: string, departure
   return { r, g };
 }
 function seedDesign() {
+  // Крайний случай ширины: на объекте названия категорий длиннее, чем в базовой фикстуре, и на
+  // телефоне выпадающий список фильтра растягивал экран (обход стойки 17.09.2026)
+  categories[0]!.name = 'Одноместная комната с окном и балконом';
+  for (const u of units)
+    if (u.accommodationTypeCode === categories[0]!.code)
+      u.accommodationTypeName = categories[0]!.name;
   for (const d of DESIGN_STAYS) {
     const { r, g } = designCard(d, add(today, d.from), add(today, d.to));
     extraCards.set(r.confirmationNumber, r);
@@ -472,12 +507,296 @@ function getGuest(id: string) {
 }
 let rejectCreate = false;
 let failPath = '';
+/** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
+let failStatus = 503;
 let emptyFixture = false;
-let fullIncidentHistory = false;
+/** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
+let ratesUnmapped = false;
+/** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
+let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
-let priceChanges: Array<{ dateFrom: string; dateTo: string; price?: string }> = [];
+let priceChanges: Array<{
+  dateFrom: string;
+  dateTo: string;
+  price?: string;
+  occupancy?: number;
+  stopSell?: boolean;
+  minStay?: number;
+}> = [];
+/**
+ * Витрина каналов (срез 7.2, макеты «Integration» и «Inbound»): события с фильтрами и второй страницей,
+ * факты ревизий без персональных данных (ADR-018), строки очереди в Channex. Включается `showcase: true`
+ * в `POST /__test/control` вместе с витриной конфликтов среза 7.3. Все брони и гости вымышленные (ADR-010).
+ */
+let showcase = false;
+let showcaseEvents: InboundEvent[] = [];
+const showcaseRevisions = new Map<string, RevisionFacts>();
+let showcaseOutbox: OutboxRow[] = [];
+function showcaseCard(
+  number: string,
+  o: { unit: string; status: string; channel: string; nights: number; price: string },
+): ReservationCard {
+  const unit = units.find((u) => u.code === o.unit)!;
+  const r = cardSeed();
+  r.confirmationNumber = number;
+  r.source = 'OTA';
+  r.channel = o.channel;
+  r.status = o.status;
+  r.departureDate = add(today, o.nights);
+  r.totalAmountMinor = o.price;
+  r.primaryGuest = { id: 'ui-guest', label: 'Гость Тестовый', citizenship: 'KAZ', phone: null };
+  r.items[0] = {
+    ...r.items[0]!,
+    id: `ui-item-${number.slice(-6).toLowerCase()}`,
+    status: o.status,
+    departureDate: r.departureDate,
+    unitCode: unit.code,
+    accommodationTypeCode: unit.accommodationTypeCode,
+    accommodationTypeName: unit.accommodationTypeName,
+    priceMinor: o.price,
+  };
+  return r;
+}
+function applyChannelShowcase() {
+  const t = (n: number) => add(today, n);
+  showcase = true;
+  // Две перенесённые брони Booking.com с одинаковым составом (Q-109) и отменённая Expedia
+  for (const r of [
+    showcaseCard('20260913-SHOWTN', {
+      unit: 'R06',
+      status: 'TENTATIVE',
+      channel: 'Booking.com',
+      nights: 2,
+      price: '1600000',
+    }),
+    showcaseCard('20260913-SHOWEX', {
+      unit: 'M03',
+      status: 'CONFIRMED',
+      channel: 'Booking.com',
+      nights: 2,
+      price: '800000',
+    }),
+    showcaseCard('20260913-SHOWCX', {
+      unit: 'R07',
+      status: 'CANCELLED',
+      channel: 'Expedia',
+      nights: 2,
+      price: '1600000',
+    }),
+  ])
+    extraCards.set(r.confirmationNumber, r);
+  showcaseEvents = [
+    {
+      externalEventId: 'ui-rev-failed',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'FAILED',
+      attempts: 6,
+      receivedAt: `${today}T05:12:40Z`,
+      processedAt: null,
+      lastError:
+        'Несколько перенесённых броней подходят: 20260913-SHOWTN, 20260913-SHOWEX — разберите руками (Q-109)',
+      uniqueId: 'BDC-4821-7731',
+      otaName: 'Booking.com',
+      confirmationNumber: null,
+    },
+    {
+      externalEventId: 'ui-rev-modified',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_modification',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T04:58:03Z`,
+      processedAt: `${today}T04:58:05Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
+    },
+    {
+      externalEventId: 'ui-rev-cancelled',
+      receivedVia: 'PULL',
+      type: 'booking_cancellation',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T03:20:11Z`,
+      processedAt: `${today}T03:20:12Z`,
+      lastError: null,
+      uniqueId: 'EXP-90210',
+      otaName: 'Expedia',
+      confirmationNumber: '20260913-SHOWCX',
+    },
+    {
+      // Проверка webhook Channex приходит с двоеточиями в номере — экран обязан её открыть
+      externalEventId: 'test:2026-09-16T18:35:20.672058Z:74234e98afe7',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T02:50:00Z`,
+      processedAt: `${today}T02:50:01Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
+    },
+    {
+      externalEventId: 'ui-rev-new-2',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T02:41:07Z`,
+      processedAt: `${today}T02:41:09Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
+    },
+    // Хвост обработанных событий — чтобы была вторая страница («показано 20 из 32»)
+    ...Array.from({ length: 28 }, (_, i) => ({
+      externalEventId: `ui-rev-auto-${String(i + 1).padStart(2, '0')}`,
+      receivedVia: (i % 5 === 0 ? 'PULL' : 'WEBHOOK') as 'PULL' | 'WEBHOOK',
+      type: i % 7 === 3 ? 'booking_cancellation' : 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${t(-1 - Math.floor(i / 4))}T${String(20 - (i % 4) * 3).padStart(2, '0')}:1${i % 10}:00Z`,
+      processedAt: `${t(-1 - Math.floor(i / 4))}T${String(20 - (i % 4) * 3).padStart(2, '0')}:1${i % 10}:02Z`,
+      lastError: null,
+      uniqueId: `HW-AUTO-${1000 + i}`,
+      otaName: 'Hostelworld',
+      confirmationNumber: null,
+    })),
+  ];
+  const facts = (o: Partial<RevisionFacts>): RevisionFacts => ({
+    uniqueId: null,
+    otaName: null,
+    otaReservationCode: null,
+    status: null,
+    arrivalDate: null,
+    departureDate: null,
+    adults: 1,
+    children: 0,
+    amount: null,
+    currency: 'KZT',
+    paymentCollect: 'ota',
+    rooms: [],
+    ...o,
+  });
+  const room = {
+    checkinDate: today,
+    checkoutDate: t(2),
+    roomTypeId: 'ui-rt-room',
+    ratePlanId: 'ui-rp-room',
+    adults: 1,
+    amount: '16000.00',
+  };
+  showcaseRevisions.clear();
+  showcaseRevisions.set(
+    'ui-rev-failed',
+    facts({
+      uniqueId: 'BDC-4821-7731',
+      otaName: 'Booking.com',
+      otaReservationCode: '4821773100',
+      status: 'new',
+      arrivalDate: today,
+      departureDate: t(2),
+      amount: '16000.00',
+      rooms: [room],
+    }),
+  );
+  for (const id of [
+    'ui-rev-new-2',
+    'ui-rev-modified',
+    'test:2026-09-16T18:35:20.672058Z:74234e98afe7',
+  ])
+    showcaseRevisions.set(
+      id,
+      facts({
+        uniqueId: 'BDC-5510-2201',
+        otaName: 'Booking.com',
+        otaReservationCode: '5510220100',
+        status: id === 'ui-rev-new-2' ? 'new' : 'modified',
+        arrivalDate: today,
+        departureDate: t(2),
+        amount: '16000.00',
+        rooms: [room],
+      }),
+    );
+  showcaseRevisions.set(
+    'ui-rev-cancelled',
+    facts({
+      uniqueId: 'EXP-90210',
+      otaName: 'Expedia',
+      otaReservationCode: '90210',
+      status: 'cancelled',
+      arrivalDate: today,
+      departureDate: t(2),
+      amount: '16000.00',
+      paymentCollect: 'property',
+    }),
+  );
+  showcaseOutbox = [
+    {
+      id: 'ui-out-1',
+      kind: 'RESTRICTIONS',
+      status: 'SENT',
+      attempts: 1,
+      taskId: 'ui-task-4f2a',
+      lastError: null,
+      createdAt: `${today}T04:09:40Z`,
+      sentAt: `${today}T04:10:02Z`,
+      dateFrom: t(-9),
+      dateTo: t(-8),
+      roomTypes: ['ROOM'],
+      messages: 2,
+    },
+    {
+      id: 'ui-out-2',
+      kind: 'AVAILABILITY',
+      status: 'PENDING',
+      attempts: 0,
+      taskId: null,
+      lastError: null,
+      createdAt: `${today}T04:11:15Z`,
+      sentAt: null,
+      dateFrom: today,
+      dateTo: t(1),
+      roomTypes: ['FEMALE'],
+      messages: 2,
+    },
+    {
+      id: 'ui-out-3',
+      kind: 'AVAILABILITY',
+      status: 'FAILED',
+      attempts: 3,
+      taskId: null,
+      lastError: 'Channex ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
+      createdAt: `${today}T03:58:30Z`,
+      sentAt: null,
+      dateFrom: t(1),
+      dateTo: t(3),
+      roomTypes: ['ROOM'],
+      messages: 3,
+    },
+    {
+      id: 'ui-out-4',
+      kind: 'RESTRICTIONS',
+      status: 'PENDING',
+      attempts: 0,
+      taskId: null,
+      lastError: null,
+      createdAt: `${today}T04:12:03Z`,
+      sentAt: null,
+      dateFrom: t(6),
+      dateTo: t(8),
+      roomTypes: ['MALE', 'FEMALE'],
+      messages: 6,
+    },
+  ];
+}
 let siteDeleted = false;
 let groupFixture = false;
 let paid = new Map<string, bigint>();
@@ -722,6 +1041,28 @@ function dashboard(from: string, to: string) {
   const prev = previousPeriod(from, to);
   return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
 }
+/** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
+const nightly = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
+const nightsOf = (it: { arrivalDate: string; departureDate: string }) =>
+  Math.max(1, Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000));
+const LIVE = (status: string) => !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(status);
+const tenge = (minor: bigint) =>
+  `${(minor / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
+/** Ячейка занята другим проживанием или блоком на ночи [from, to) */
+const unitBusy = (code: string, from: string, to: string, except?: { id: string }) =>
+  allCards().some((o) =>
+    o.items.some(
+      (x) =>
+        x.id !== except?.id &&
+        x.unitCode === code &&
+        LIVE(x.status) &&
+        x.arrivalDate < to &&
+        x.departureDate > from,
+    ),
+  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo >= from);
+const retotal = (r: ReservationCard) => {
+  r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
+};
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =
@@ -870,6 +1211,64 @@ function report(): SiteReport {
     devices: { devices: [], browsers: [], os: [] },
   };
 }
+
+/**
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-049). Настоящих людей здесь нет (ADR-010):
+ * один вымышленный сотрудник и пароль, который знает только эта фикстура.
+ */
+interface UiUser {
+  id: string;
+  email: string;
+  name: string | null;
+  organizationId: string;
+  organization: { name: string; status: string; trialEndsAt: string | null };
+}
+const uiUser: UiUser = {
+  id: 'ui-user',
+  email: 'admin@wetop.test',
+  name: 'Дана Тестова',
+  organizationId: 'ui-org',
+  organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
+};
+let uiPassword = 'ui-test-parol';
+/** Сессии обоих входов (Q-146): ключ → кто вошёл; по коду — вымышленная организация на пробном периоде */
+const uiSessions = new Map<string, UiUser>();
+const codeUser = (email: string): UiUser => ({
+  id: 'ui-code-user',
+  email,
+  name: null,
+  organizationId: 'org-fixture',
+  organization: {
+    name: 'Хостел «Пример»',
+    status: 'TRIAL',
+    trialEndsAt: new Date(Date.now() + 5 * 24 * 3600_000).toISOString(),
+  },
+});
+
+/**
+ * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
+ * лишние рейсы к API, на машине владельца стоит лишние сотни миллисекунд — и это видно только счётчиком.
+ * Читается тестом (`tests/ui/requests.spec.ts`), обнуляется вместе с остальной фикстурой.
+ */
+const hits = new Map<string, number>();
+const countHit = (path: string): void => {
+  if (path.startsWith('/__test/')) return;
+  hits.set(path, (hits.get(path) ?? 0) + 1);
+};
+/** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
+const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
+uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+
+function sessionOf(req: { headers: Record<string, unknown> }): string | null {
+  const direct = req.headers['x-wetop-session'];
+  if (typeof direct === 'string' && direct !== '') return direct;
+  const header = req.headers['authorization'];
+  if (typeof header === 'string' && header.toLowerCase().startsWith('bearer '))
+    return header.slice(7).trim();
+  return null;
+}
+
 function read(path: string, q: URLSearchParams): unknown {
   if (path === '/system/connection') {
     const ready = connectionState === 'READY';
@@ -955,18 +1354,18 @@ function read(path: string, q: URLSearchParams): unknown {
       open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
     };
   if (path === '/guard/incidents') {
-    if (q.get('status') === 'open' && incident.status === 'RESOLVED') return [];
-    if (fullIncidentHistory && q.get('status') === 'all') {
-      const limit = Number(q.get('limit') || 100);
-      return Array.from({ length: limit }, (_, i) => ({
-        ...incident,
-        id: `ui-incident-${i}`,
-        status: 'RESOLVED',
-        resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
-        resolvedBy: 'GUARD',
-      }));
-    }
-    return [incident];
+    if (q.get('status') !== 'open' && incidentHistory > 0)
+      return Array.from(
+        { length: Math.min(incidentHistory, Number(q.get('limit')) || 100) },
+        (_, i) => ({
+          ...incident,
+          id: `ui-incident-${i}`,
+          status: 'RESOLVED',
+          resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
+          resolvedBy: 'STAFF',
+        }),
+      );
+    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
   }
   if (path === '/hotel/settings')
     return {
@@ -1046,6 +1445,7 @@ function read(path: string, q: URLSearchParams): unknown {
         name: c.name,
         units: c.count,
         maxGuests: c.count * c.capacityAdults,
+        capacityAdults: c.capacityAdults,
       })),
     };
   if (path === '/inventory/units')
@@ -1139,6 +1539,82 @@ function read(path: string, q: URLSearchParams): unknown {
       differenceMinor: (moved - current).toString(),
     };
   }
+  if (path.startsWith('/reservations/') && /-preview$/.test(path)) {
+    const parts = path.split('/');
+    const tail = parts[parts.length - 1];
+    const r = getCard(decodeURIComponent(parts[2]!));
+    if (!r) return undefined;
+    if (tail === 'cancel-preview') {
+      const reason = q.get('reason') === 'no_show' ? 'no_show' : 'cancel';
+      const items = r.items
+        .filter((it) => (!q.get('itemId') || it.id === q.get('itemId')) && LIVE(it.status))
+        .map((it) => {
+          // штраф — первая ночь, и только с дня заезда (Q-103); до заезда отмена бесплатна
+          const dueNow = it.arrivalDate <= today;
+          return {
+            itemId: it.id,
+            unitCode: it.unitCode,
+            policy: 'FIRST_NIGHT',
+            dueNow,
+            penaltyMinor: (dueNow ? nightly(it.accommodationTypeCode) : 0n).toString(),
+          };
+        });
+      return {
+        reason,
+        items,
+        totalPenaltyMinor: items.reduce((s, i) => s + BigInt(i.penaltyMinor), 0n).toString(),
+      };
+    }
+    const item = r.items.find((it) => it.id === parts[4]);
+    if (!item) return undefined;
+    const nights = nightsOf(item);
+    if (tail === 'move-preview') {
+      const unit = units.find((u) => u.code === q.get('unitCode'));
+      const from = categories.find((c) => c.code === item.accommodationTypeCode) ?? null;
+      if (!unit)
+        return {
+          unitCode: q.get('unitCode') ?? '',
+          changesCategory: false,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: null,
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: 'Ячейка не найдена',
+        };
+      const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
+      const changes = to.code !== item.accommodationTypeCode;
+      return {
+        unitCode: unit.code,
+        changesCategory: changes,
+        fromCategory: from && { code: from.code, name: from.name },
+        toCategory: { code: to.code, name: to.name },
+        nights,
+        currentMinor: item.priceMinor,
+        newMinor: changes ? (nightly(to.code) * BigInt(nights)).toString() : item.priceMinor,
+        ratePlanRequired: false,
+        problem: null,
+      };
+    }
+    if (tail === 'extend-preview') {
+      const n = Math.max(1, Number(q.get('nights') || 1));
+      const departure = add(item.departureDate, n);
+      const added = nightly(item.accommodationTypeCode) * BigInt(n);
+      return {
+        nights: n,
+        departureDate: departure,
+        unitCode: item.unitCode,
+        addedMinor: added.toString(),
+        newMinor: (BigInt(item.priceMinor) + added).toString(),
+        ratePlanRequired: !item.ratePlanCode && !q.get('ratePlanCode'),
+        nextNightsFree:
+          !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+        problem: null,
+      };
+    }
+    return undefined;
+  }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
@@ -1185,21 +1661,27 @@ function read(path: string, q: URLSearchParams): unknown {
       currency: 'KZT',
       capacityAdults:
         categories.find((c) => c.code === q.get('accommodationTypeCode'))?.capacityAdults ?? 1,
-      days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date) => ({
-        date,
-        prices: {
-          '1': parseMoney(
-            [...priceChanges].reverse().find((c) => c.dateFrom <= date && c.dateTo >= date)
-              ?.price || '8000',
-          ).toString(),
-          '2': '1000000',
-        },
-        minStay: 1,
-        maxStay: null,
-        stopSell: false,
-        closedToArrival: false,
-        closedToDeparture: false,
-      })),
+      days: dates(q.get('from') || today, q.get('to') || add(today, 13)).map((date, idx) => {
+        const forDay = [...priceChanges]
+          .reverse()
+          .filter((c) => c.dateFrom <= date && c.dateTo >= date);
+        // цена на одно число гостей: строка без occupancy — на всех, с occupancy — только на своё
+        const price = (occ: number, fallback: string) =>
+          parseMoney(
+            forDay.find((c) => c.price && (!c.occupancy || c.occupancy === occ))?.price || fallback,
+          ).toString();
+        const stop = forDay.find((c) => c.stopSell !== undefined)?.stopSell;
+        return {
+          date,
+          prices: { '1': price(1, '8000'), '2': price(2, '10000') },
+          minStay: forDay.find((c) => c.minStay !== undefined)?.minStay ?? 1,
+          maxStay: null,
+          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка строки
+          stopSell: stop ?? (showcase && (idx === 5 || idx === 11)),
+          closedToArrival: false,
+          closedToDeparture: false,
+        };
+      }),
     };
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
@@ -1278,7 +1760,55 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
-    return { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+    return showcase
+      ? {
+          pending: 2,
+          failed: 1,
+          sent: 405,
+          lastSentAt: `${today}T09:12:00Z`,
+          lastTaskId: 'ui-task-4f2a',
+        }
+      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+  if (path === '/channels/channex/outbox/rows') {
+    const st = q.get('status');
+    return showcaseOutbox.filter((r) => !st || r.status === st);
+  }
+  if (path === '/channels/channex/events') {
+    // как у настоящего API: фильтры, поиск по событию / unique_id / номеру брони, страница
+    const source = showcase ? showcaseEvents : designEvents;
+    const st = q.get('status'),
+      type = q.get('type'),
+      needle = (q.get('q') || '').trim().toLowerCase();
+    const limit = Number(q.get('limit') || 20),
+      offset = Number(q.get('offset') || 0);
+    const rows = source.filter(
+      (e) =>
+        (!st || e.status === st) &&
+        (!type || e.type === type) &&
+        (!needle ||
+          e.externalEventId.toLowerCase().includes(needle) ||
+          (e.uniqueId ?? '').toLowerCase().includes(needle) ||
+          (e.confirmationNumber ?? '').toLowerCase().includes(needle)),
+    );
+    return { rows: rows.slice(offset, offset + limit), total: rows.length };
+  }
+  if (path.startsWith('/channels/channex/events/')) {
+    const id = decodeURIComponent(path.split('/')[4]!);
+    const event = showcaseEvents.find((e) => e.externalEventId === id);
+    const facts = showcaseRevisions.get(id);
+    if (!event || !facts) return undefined;
+    const reservation = event.confirmationNumber ? getCard(event.confirmationNumber) : undefined;
+    const fin = reservation ? finance(reservation) : null;
+    return {
+      event,
+      facts,
+      categoryByRoomType: { 'ui-rt-room': 'ROOM', 'ui-rt-male': 'MALE', 'ui-rt-female': 'FEMALE' },
+      reservation: reservation ?? null,
+      balances: Object.fromEntries(
+        (fin?.folios ?? []).map((f) => [f.reservationItemId, f.balanceMinor]),
+      ),
+    };
+  }
   // Срез 7.2: строки очереди — что именно уехало в Channex и чем кончилось
   if (path === '/channels/channex/outbox/messages')
     return [
@@ -1328,20 +1858,44 @@ function read(path: string, q: URLSearchParams): unknown {
         ratePlanIds: [],
       },
     ];
-  if (path === '/channels/channex/events') return designEvents;
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
-  if (path === '/audit')
-    return [
+  if (path === '/audit') {
+    // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
+    const type = q.get('entityType');
+    const entries = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
         entityType: 'Reservation',
         entityId: 'ui-item',
-        action: 'CREATE',
+        action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-login',
+        at: `${today}T08:00:00Z`,
+        entityType: 'user',
+        entityId: uiUser.id,
+        action: 'user.login',
+        subject: null,
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-system',
+        at: `${today}T07:45:00Z`,
+        entityType: 'Property',
+        entityId: 'ui-property',
+        action: 'channex.fullSync',
+        subject: null,
+        // без автора: так ходят импорт, сторож и скрипты сверки
+        author: null,
       },
     ];
+    return type ? entries.filter((e) => e.entityType === type) : entries;
+  }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
   if (path === '/analytics/sites/ui-site')
@@ -1376,16 +1930,28 @@ createServer(async (req, res) => {
       });
       res.end(JSON.stringify(data));
     };
+    countHit(path);
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    if (path === '/__test/hits')
+      return send(200, {
+        total: [...hits.values()].reduce((a, b) => a + b, 0),
+        byPath: Object.fromEntries([...hits].sort((a, b) => b[1] - a[1])),
+      });
     if (
       !path.startsWith('/__test/') &&
       req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
     ) {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
+    if (authLock && !openAtLock(path)) {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+    }
     if (path === '/__test/reset') {
+      hits.clear();
+      resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -1398,12 +1964,15 @@ createServer(async (req, res) => {
       rejectCreate = false;
       failPath = '';
       emptyFixture = false;
-      fullIncidentHistory = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
       initializeRecords();
       priceChanges = [];
+      showcase = false;
+      showcaseEvents = [];
+      showcaseOutbox = [];
+      showcaseRevisions.clear();
       site = structuredClone(siteSeed);
       siteDeleted = false;
       groupFixture = false;
@@ -1422,10 +1991,47 @@ createServer(async (req, res) => {
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
-      fullIncidentHistory = body['fullIncidentHistory'] === true;
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
+      if (body['tentative'] === true) {
+        card.status = 'TENTATIVE';
+        card.items[0]!.status = 'TENTATIVE';
+      }
+      // витрина конфликтов (срез 7.3, Д3–Д4): бронь без ячейки, ночь сверх мест, неразобранная ревизия
+      if (body['showcase'] === true) {
+        const show = cardSeed();
+        show.confirmationNumber = '20260913-SHOWUN';
+        show.source = 'OTA';
+        show.channel = 'Booking.com';
+        show.departureDate = add(today, 1);
+        show.items[0] = {
+          ...show.items[0]!,
+          id: 'ui-item-showun',
+          accommodationTypeCode: 'MALE',
+          accommodationTypeName: categories[1]!.name,
+          departureDate: add(today, 1),
+          unitCode: null,
+          priceMinor: '400000',
+        };
+        show.totalAmountMinor = '400000';
+        extraCards.set(show.confirmationNumber, show);
+        incident.kind = 'stay.overbooked';
+        incident.title = `${categories[1]!.name} продан сверх мест на ночь ${today}: 37 на 36`;
+        incident.subjectType = 'AccommodationType';
+        incident.subjectId = 'MALE';
+        // события, очередь и ревизии витрины каналов (срез 7.2); неразобранная ревизия — `ui-rev-failed`
+        applyChannelShowcase();
+      }
+      failStatus = Number(body['failStatus']) || 503;
+      ratesUnmapped = body['ratesUnmapped'] === true;
+      incidentHistory = Number(body['incidents']) || 0;
+      // долгое проживание: на объекте живут по три месяца, а доступность считается не дальше 62 ночей
+      if (body['longStay'] === true) {
+        card.departureDate = add(today, 90);
+        card.items[0]!.departureDate = card.departureDate;
+      }
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
@@ -1463,110 +2069,13 @@ createServer(async (req, res) => {
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
     if (path === '/__test/commands') return send(200, commands);
-    // ── Вход по коду (срез 13): код всегда 123456, ключ один. Не проверка API, а декорация для экрана.
-    if (path.startsWith('/auth/')) {
-      const noContent = () => {
-        res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
-        res.end();
-      };
-      const authSession = {
-        email: 'urij@example.com',
-        organizationId: 'org-fixture',
-        organizationName: 'Хостел «Пример»',
-        organizationStatus: 'TRIAL',
-        trialEndsAt: new Date(Date.now() + 5 * 24 * 3600_000).toISOString(),
-      };
-      if (path === '/auth/code' && req.method === 'POST') return noContent();
-      if (path === '/auth/register' && req.method === 'POST') {
-        if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
-          return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
-        if (!String(body['organizationName'] ?? '').trim())
-          return send(400, { message: 'Укажите название организации, до 200 знаков.' });
-        return noContent();
-      }
-      if (path === '/auth/verify' && req.method === 'POST') {
-        if (body['code'] !== '123456')
-          return send(401, { message: 'Код не подошёл. Запросите новый.' });
-        return send(200, {
-          token: 'fixture-session-token',
-          session: { ...authSession, email: String(body['email']).trim().toLowerCase() },
-        });
-      }
-      const bearer = String(req.headers['authorization'] ?? '');
-      if (path === '/auth/me')
-        return bearer === 'Bearer fixture-session-token'
-          ? send(200, authSession)
-          : send(401, { message: 'Сессия закончилась. Войдите снова.' });
-      if (path === '/auth/logout') return noContent();
-      // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон; отзыв — всегда 204.
-      if (path === '/auth/sessions') {
-        if (bearer !== 'Bearer fixture-session-token')
-          return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-        return send(200, [
-          {
-            id: 'sess-this',
-            issuedAt: new Date(Date.now() - 3600_000).toISOString(),
-            expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
-            device: 'Chrome, macOS',
-            current: true,
-          },
-          {
-            id: 'sess-phone',
-            issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
-            expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
-            device: 'Safari, iPhone',
-            current: false,
-          },
-        ]);
-      }
-      if (path === '/auth/logout-all') return noContent();
-      // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
-      const invitePreview = {
-        organizationName: authSession.organizationName,
-        email: 'novyj@example.com',
-        expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
-      };
-      if (path === '/auth/invites') {
-        if (bearer !== 'Bearer fixture-session-token')
-          return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-        if (req.method === 'POST') {
-          const email = String(body['email'] ?? '')
-            .trim()
-            .toLowerCase();
-          if (!email.includes('@'))
-            return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
-          if (email === authSession.email)
-            return send(400, { message: 'Этот человек уже в организации.' });
-          return send(201, {
-            id: `inv-${Date.now()}`,
-            email,
-            expiresAt: invitePreview.expiresAt,
-            acceptedAt: null,
-            createdAt: new Date().toISOString(),
-          });
-        }
-        return send(200, [
-          {
-            id: 'inv-fixture',
-            email: 'zhdet@example.com',
-            expiresAt: invitePreview.expiresAt,
-            acceptedAt: null,
-            createdAt: new Date(Date.now() - 3600_000).toISOString(),
-          },
-        ]);
-      }
-      const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
-      if (inviteMatch) {
-        if (inviteMatch[1] !== 'fixture-invite-token')
-          return send(404, {
-            message: 'Приглашение не найдено, уже принято или его срок истёк.',
-          });
-        return send(200, invitePreview);
-      }
-      return send(404, {});
-    }
     if (path === failPath || failPath === '*')
-      return send(503, { message: 'Синтетический сбой API' });
+      return send(
+        failStatus,
+        failStatus >= 500
+          ? { message: 'Синтетический сбой API' }
+          : { message: 'Синтетический отказ API: запрос отклонён' },
+      );
     if (path === '/hotel/settings' && holdHotel)
       await new Promise<void>((resolve) => hotelWaiters.add(resolve));
     if (path === '/hotel/reservations' && req.method === 'GET') {
@@ -1610,6 +2119,144 @@ createServer(async (req, res) => {
         rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }
+    // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
+    const invitePreview = {
+      organizationName: 'Хостел «Пример»',
+      email: 'novyj@example.com',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+    };
+    if (path === '/auth/invites') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : null;
+      if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (req.method === 'POST') {
+        const email = String(body['email'] ?? '')
+          .trim()
+          .toLowerCase();
+        if (!email.includes('@'))
+          return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
+        if (email === who.email) return send(400, { message: 'Этот человек уже в организации.' });
+        return send(201, {
+          id: `inv-${Date.now()}`,
+          email,
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      return send(200, [
+        {
+          id: 'inv-fixture',
+          email: 'zhdet@example.com',
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date(Date.now() - 3600_000).toISOString(),
+        },
+      ]);
+    }
+    const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
+    if (inviteMatch) {
+      if (inviteMatch[1] !== 'fixture-invite-token')
+        return send(404, {
+          message: 'Приглашение не найдено, уже принято или его срок истёк.',
+        });
+      return send(200, invitePreview);
+    }
+    if (path === '/auth/me') {
+      const token = sessionOf(req as never);
+      return send(200, { user: (token && uiSessions.get(token)) || null });
+    }
+    // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
+    const noContent = () => {
+      res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
+      res.end();
+    };
+    // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон, любым входом; отзыв гасит все ключи.
+    if (path === '/auth/sessions') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      return send(200, [
+        {
+          id: 'sess-this',
+          issuedAt: new Date(Date.now() - 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
+          device: 'Chrome, macOS',
+          current: true,
+        },
+        {
+          id: 'sess-phone',
+          issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
+          device: 'Safari, iPhone',
+          current: false,
+        },
+      ]);
+    }
+    if (path === '/auth/logout-all' && req.method === 'POST') {
+      uiSessions.clear();
+      return noContent();
+    }
+    if (path === '/auth/code' && req.method === 'POST') return noContent();
+    if (path === '/auth/register' && req.method === 'POST') {
+      if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
+        return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
+      if (!String(body['organizationName'] ?? '').trim())
+        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
+      return noContent();
+    }
+    if (path === '/auth/verify' && req.method === 'POST') {
+      if (body['code'] !== '123456')
+        return send(401, { message: 'Код не подошёл. Запросите новый.' });
+      const who = codeUser(String(body['email']).trim().toLowerCase());
+      const token = `ui-code-session-${uiSessions.size + 1}`;
+      uiSessions.set(token, who);
+      return send(200, {
+        token,
+        session: {
+          email: who.email,
+          organizationId: who.organizationId,
+          organizationName: who.organization.name,
+          organizationStatus: who.organization.status,
+          trialEndsAt: who.organization.trialEndsAt,
+        },
+      });
+    }
+    if (path === '/auth/password-reset/request' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/password-reset/confirm' && req.method === 'POST') {
+      const token = String(body['token'] ?? '');
+      const password = String(body['password'] ?? '');
+      const link = uiResetTokens.get(token);
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите новую' });
+      if (link.used) return send(401, { message: 'Ссылка уже использована: запросите новую' });
+      if (link.expired) return send(401, { message: 'Срок ссылки истёк: запросите новую' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      link.used = true;
+      uiPassword = password;
+      uiSessions.clear();
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/login' && req.method === 'POST') {
+      if (body['email'] !== uiUser.email || body['password'] !== uiPassword)
+        return send(401, { message: 'Неверная почта или пароль' });
+      const token = `ui-session-${uiSessions.size + 1}`;
+      uiSessions.set(token, uiUser);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: uiUser,
+      });
+    }
+    if (path === '/auth/logout' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (token) uiSessions.delete(token);
+      return send(200, { ok: true });
+    }
+
     if (req.method === 'GET') {
       const result = read(path, url.searchParams);
       return send(
@@ -1650,7 +2297,7 @@ createServer(async (req, res) => {
         applied: changes.length,
         rateRows: 1,
         restrictionRows: 0,
-        queued: changes.filter((c) => c.accommodationTypeCode !== 'NOCHANNEL').length,
+        queued: ratesUnmapped ? 0 : (body['changes'] as unknown[]).length,
       });
     }
     if (path === '/analytics/sites' && req.method === 'POST') {
@@ -1668,6 +2315,16 @@ createServer(async (req, res) => {
     }
     if (path === '/channels/channex/pull')
       return send(200, { received: 0, acknowledged: 0, outcomes: [] });
+    if (path.startsWith('/channels/channex/events/') && path.endsWith('/retry')) {
+      const id = decodeURIComponent(path.split('/')[4]!);
+      const event = showcaseEvents.find((e) => e.externalEventId === id);
+      if (!event) return send(404, { message: 'Событие не найдено' });
+      return send(200, {
+        result: event.status === 'FAILED' ? 'failed' : 'skipped_duplicate',
+        confirmationNumber: event.confirmationNumber ?? null,
+        ...(event.status === 'FAILED' ? { error: event.lastError } : {}),
+      });
+    }
     if (path === '/channels/channex/outbox/flush') return send(200, { sent: [], errors: [] });
     if (path === '/channels/channex/sync')
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
@@ -1759,13 +2416,28 @@ createServer(async (req, res) => {
       extraGuests.set(g.id, g);
       return send(201, r);
     }
-    if (path.startsWith('/guests/') && path.includes('/documents/') && req.method === 'DELETE') {
-      const [, , id, , documentId] = path.split('/');
-      const g =
-        decodeURIComponent(id!) === guest.id ? guest : extraGuests.get(decodeURIComponent(id!));
+    if (path.startsWith('/guests/') && path.split('/')[3] === 'documents') {
+      const [, , rawId, , docId] = path.split('/');
+      const id = decodeURIComponent(rawId!);
+      const g = id === guest.id ? guest : extraGuests.get(id);
       if (!g) return send(404, { message: 'Гость не найден' });
-      g.documents = g.documents.filter((d) => d.id !== decodeURIComponent(documentId!));
-      return send(200, getGuest(decodeURIComponent(id!)));
+      if (req.method === 'DELETE') {
+        g.documents = g.documents.filter((d) => d.id !== docId);
+        return send(200, getGuest(id));
+      }
+      const number = String(body['number'] ?? '');
+      g.documents = [
+        ...g.documents,
+        {
+          id: `ui-doc-${g.documents.length + 1}`,
+          type: String(body['type'] ?? 'PASSPORT'),
+          numberMasked: `****${number.slice(-4)}`,
+          issueCountry: body['issueCountry'] ? String(body['issueCountry']) : null,
+          issuedAt: body['issuedAt'] ? String(body['issuedAt']) : null,
+          expiresAt: body['expiresAt'] ? String(body['expiresAt']) : null,
+        },
+      ];
+      return send(201, getGuest(id));
     }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);
@@ -1784,6 +2456,64 @@ createServer(async (req, res) => {
       const r = getCard(decodeURIComponent(number!));
       if (!r) return send(404, { message: 'Бронь не найдена' });
       const item = r.items.find((it) => it.id === itemId);
+      if (path.split('/')[3] === 'cancel') {
+        for (const it of r.items)
+          if (LIVE(it.status)) {
+            it.status = 'CANCELLED';
+            it.unitCode = null;
+          }
+        r.status = 'CANCELLED';
+        return send(200, r);
+      }
+      if (item && action === 'no-show') {
+        item.status = 'NO_SHOW';
+        item.unitCode = null;
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'NO_SHOW';
+        return send(200, r);
+      }
+      if (item && action === 'check-out') {
+        const folio = finance(r).folios.find((f) => f.reservationItemId === item.id);
+        const balance = folio ? BigInt(folio.balanceMinor) : 0n;
+        if (balance > 0n && body['withDebt'] !== true)
+          return send(409, {
+            message: `На счёте долг ${tenge(balance)}: примите оплату или выселите с подтверждением`,
+          });
+        item.status = 'CHECKED_OUT';
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'CHECKED_OUT';
+        return send(200, r);
+      }
+      if (item && action === 'extend') {
+        const n = Math.max(1, Number(body['nights'] ?? 1));
+        if (!item.ratePlanCode && !body['ratePlanCode'])
+          return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
+        const departure = add(item.departureDate, n);
+        if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
+          return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
+        item.priceMinor = (
+          BigInt(item.priceMinor) +
+          nightly(item.accommodationTypeCode) * BigInt(n)
+        ).toString();
+        item.departureDate = departure;
+        if (departure > r.departureDate) r.departureDate = departure;
+        retotal(r);
+        return send(200, r);
+      }
+      if (item && action === 'assign') {
+        const unit = units.find((u) => u.code === body['unitCode']);
+        if (!unit) return send(404, { message: 'Ячейка не найдена' });
+        if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
+          return send(409, { message: `Ячейка ${unit.code} уже занята` });
+        if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
+          item.accommodationTypeCode = unit.accommodationTypeCode;
+          item.accommodationTypeName = unit.accommodationTypeName;
+          item.priceMinor = (
+            nightly(unit.accommodationTypeCode) * BigInt(nightsOf(item))
+          ).toString();
+        }
+        item.unitCode = unit.code;
+        retotal(r);
+        return send(200, r);
+      }
       if (item && action === 'check-in') {
         item.status = 'CHECKED_IN';
         r.status = 'CHECKED_IN';

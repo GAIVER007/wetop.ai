@@ -6,6 +6,83 @@ test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
 });
 
+test('C1: сетка начинается до 350 px, фильтры объясняют дату статуса', async ({ page }) => {
+  await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+  const box = await page.locator('.board-wrap').boundingBox();
+  expect(box!.y).toBeLessThanOrEqual(350);
+  await expect(page.getByText('Статус на 14 сент.', { exact: true })).toBeVisible();
+  await page.getByLabel('Поиск на шахматке').fill('Несуществующее место');
+  await expect(page.getByTestId('unit-row')).toHaveCount(0);
+  await expect(page.getByText(/По вашему запросу ничего не найдено/)).toBeVisible();
+  await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+});
+
+test('C1: мобильные даты, виды и фильтры имеют цели 44 px', async ({ page }) => {
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/chessboard');
+    const main = page.getByRole('main');
+    await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    const toggle = main.getByRole('button', { name: 'Фильтры', exact: true });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    for (const control of [
+      main.getByLabel('Шахматка: с', { exact: true }),
+      main.getByLabel('Шахматка: по', { exact: true }),
+      main.getByRole('button', { name: 'Применить', exact: true }),
+      main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
+      main.getByRole('link', { name: 'Неделя', exact: true }),
+      main.getByRole('button', { name: 'Свободные', exact: true }),
+    ]) {
+      await expect(control).toBeVisible();
+      const box = await control.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+    }
+    await expect(page.locator('.board-range-form').getByText('С', { exact: true })).toBeVisible();
+    await expect(page.locator('.board-range-form').getByText('По', { exact: true })).toBeVisible();
+    await main.getByLabel('Категория на шахматке').selectOption('ROOM');
+    await expect(main.getByTestId('unit-row')).toHaveCount(16);
+    await main.getByRole('button', { name: 'Фильтры · 1', exact: true }).click();
+    await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+    await main.getByRole('button', { name: 'Сбросить', exact: true }).click();
+    await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    await expect(main.getByRole('button', { name: 'Фильтры', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  }
+});
+
+test('C1: подсказка не выходит за экран, последние места доступны на телефоне', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  const help = page.locator('.board-help-content');
+  await expect(help).toBeVisible();
+  for (const width of [1440, 1024, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const helpBox = await help.boundingBox();
+    expect(helpBox!.x).toBeGreaterThanOrEqual(0);
+    expect(helpBox!.x + helpBox!.width).toBeLessThanOrEqual(width);
+  }
+  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 844 });
+  // Scroll the grid to its bottom, then the page as a touch user would.
+  // scrollIntoView alone would conceal overflow:hidden by scrolling it programmatically.
+  await page.locator('.board-wrap').evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  await page.mouse.move(4, 500);
+  await page.mouse.wheel(0, 2000);
+  await expect(page.getByTestId('unit-link').last()).toBeInViewport({ ratio: 1 });
+});
+
 for (const [from, to, direction, expectedFrom, expectedTo] of [
   ['2026-09-28', '2026-10-04', 'Следующая неделя', '2026-10-05', '2026-10-11'],
   ['2026-12-28', '2027-01-03', 'Следующая неделя', '2027-01-04', '2027-01-10'],

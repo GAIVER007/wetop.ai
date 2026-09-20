@@ -5,6 +5,8 @@ import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { nightsBetween } from '../../../lib/plural';
 import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
@@ -34,7 +36,15 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
-  // Справочники — не бронь: их сбой не должен прятать карточку за экраном ошибки (волна 3)
+  // Доступность считается не дальше 62 ночей (ADR: предел шахматки). У долгих проживаний — а это
+  // рабочий случай, на объекте живут по три месяца — запрос заведомо отклоняется, и карточка писала
+  // «не загрузилась. Обновите карточку»: совет бесполезный, обновление ничего не изменит.
+  // Такие периоды не запрашиваем вовсе и говорим, что делать (найдено обходом стойки 17.09.2026).
+  const tooLong = (it: { arrivalDate: string; departureDate: string }) =>
+    nightsBetween(it.arrivalDate, it.departureDate) > MAX_CHESSBOARD_DAYS;
+  const longPeriods = [...periods.values()].filter(tooLong).length;
+  // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
+  // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
     reservationsApi.ratePlans().catch(() => null),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
@@ -42,7 +52,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
     api.inventorySummary().catch(() => null),
     Promise.all(
       [...periods.values()].map((it) =>
-        reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
+        tooLong(it)
+          ? Promise.resolve(null)
+          : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
       ),
     ),
   ]);
@@ -120,6 +132,14 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             label: 'Обзор',
             content: (
               <>
+                {r.status === 'TENTATIVE' && (
+                  // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
+                  <Alert boxed tone="warning" data-testid="tentative-callout">
+                    Бронь не подтверждена: пришла предварительной из канала или Exely, и
+                    подтверждение приходит оттуда же. Место за ней держится и второй раз не
+                    продаётся.
+                  </Alert>
+                )}
                 <div className="facts facts--card" id="booking-overview">
                   <div>
                     <div className="fact__label">Заезд</div>
@@ -297,16 +317,28 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             content: (
               <>
                 <SectionTitle id="booking-actions">Действия с бронированием</SectionTitle>
-                {ratePlans === null && (
-                  <Alert boxed tone="warning">
-                    Справочник тарифов не загрузился — смена дат и продление пересчитать цену не
-                    смогут. Обновите карточку.
+                {longPeriods > 0 && (
+                  <Alert boxed tone="warning" data-testid="stay-too-long">
+                    Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных ячеек на весь
+                    срок не строится. Назначайте и переселяйте с шахматки на нужные даты.
                   </Alert>
                 )}
-                {periodResults.some((v) => v === null) && (
+                {periodResults.filter((v, i) => v === null && !tooLong([...periods.values()][i]!))
+                  .length > 0 && (
                   <Alert boxed tone="warning">
                     Доступность части периодов не загрузилась. Обновите карточку перед назначением
                     ячейки.
+                  </Alert>
+                )}
+                {ratePlans === null && (
+                  <Alert boxed tone="warning" data-testid="rate-plans-missing">
+                    Справочник тарифов не загрузился: смена тарифа, «+1 ночь» и смена дат ждут
+                    обновления страницы.
+                  </Alert>
+                )}
+                {summary === null && (
+                  <Alert boxed tone="warning">
+                    Сводка фонда не загрузилась: категории в переселении показаны кодами.
                   </Alert>
                 )}
                 <ReservationActions
@@ -316,6 +348,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   notes={r.notes}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
+                  currency={r.currency}
                   ratePlans={ratePlans ?? []}
                   items={r.items.map((it) => {
                     const byCategory =
@@ -343,8 +376,14 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       status: it.status,
                       accommodationTypeCode: it.accommodationTypeCode,
                       accommodationTypeName: it.accommodationTypeName,
+                      arrivalDate: it.arrivalDate,
+                      departureDate: it.departureDate,
                       unitCode: it.unitCode,
                       ratePlanCode: it.ratePlanCode ?? null,
+                      // остаток по счёту проживания — для окна «Выселить с долгом» (срез 7.3)
+                      debtMinor:
+                        finance?.folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ??
+                        null,
                       ratePlanName: it.ratePlanName ?? null,
                       adults: it.adults,
                       children: it.children,

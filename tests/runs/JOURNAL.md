@@ -1180,3 +1180,6 @@
 | 20.09.2026 20:24 | lint | ✅ без ошибок | 12 с | 8ac3933 +2 | [лог](logs/2026-09-20T15-24-59Z-lint-a088.log) | Q-152 final combined main: lint |
 | 20.09.2026 20:24 | typecheck | ✅ без ошибок | 19 с | 8ac3933 +2 | [лог](logs/2026-09-20T15-24-59Z-typecheck-5ff8.log) | Q-152 final combined main: TypeScript root, API and web |
 | 20.09.2026 20:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/registration-closed.spec.ts --workers=1) | ✅ 5 из 5 | 37 с | 890cfda +1 | [лог](logs/2026-09-20T15-27-34Z-e2e-683e.log) | Q-152: final registration notice shown once after visual review |
+| 20.09.2026 20:33 | unit (частично: apps/api/src/auth apps/api/src/accounts apps/web/src/app/login --maxWorkers=2) | ✅ 114 из 114 | 5 с | fd231b9 | [лог](logs/2026-09-20T15-33-14Z-unit-da6d.log) | Final merge: single REGISTRATION_OPEN policy shared by API and frontend |
+| 20.09.2026 20:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/registration-closed.spec.ts tests/ui/sessions.spec.ts --workers=1) | ✅ 11 из 11 | 21 с | fd231b9 | [лог](logs/2026-09-20T15-33-15Z-e2e-1969.log) | Final merge: closed registration and both session regressions retained from main |
+| 20.09.2026 20:34 | typecheck | ✅ без ошибок | 11 с | fd231b9 | [лог](logs/2026-09-20T15-34-12Z-typecheck-c91e.log) | Final merge: TypeScript for shared API registration policy |

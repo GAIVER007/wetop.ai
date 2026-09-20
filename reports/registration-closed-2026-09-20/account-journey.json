@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-20T15:21:31.592Z",
+  "checkedAt": "2026-09-20T15:33:43.817Z",
   "database": "isolated local PostgreSQL pms_test",
   "mail": "in-memory only",
   "checks": {

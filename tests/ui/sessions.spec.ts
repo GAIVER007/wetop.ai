@@ -10,13 +10,11 @@ test.beforeEach(async ({ request }) => {
  * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
  */
 async function login(page: import('@playwright/test').Page) {
-  // Вход по коду остался на пути приглашения (ADR-053), переключателя на /login больше нет.
-  await page.goto('/invite/fixture-invite-token');
-  await page.getByRole('button', { name: 'Принять приглашение' }).click();
-  await page.waitForURL('**/login?email=novyj%40example.com&step=code');
+  await page.goto('/login');
   const main = page.getByRole('main');
-  await main.getByLabel('Код из письма').fill('123456');
-  await main.getByRole('button', { name: 'Войти' }).click();
+  await main.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await main.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
@@ -48,18 +46,29 @@ test('«Завершить все сеансы» гасит вход и возв
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
-test('вошедший по паролю видит тот же список и ту же кнопку: сеансы — про человека, не про способ входа', async ({
+test('ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль', async ({
   page,
+  request,
+  context,
 }) => {
+  // Старые сессии не отозваны переходом ADR-053: проверяем уже выписанную cookie,
+  // не возвращая на экран убранный способ входа. Только синтетический loopback API.
+  const response = await request.post('http://127.0.0.1:4311/auth/verify', {
+    headers: { 'x-wetop-test-client': '1' },
+    data: { email: 'legacy@example.invalid', code: '123456' },
+  });
+  expect(response.ok()).toBe(true);
+  const { token } = (await response.json()) as { token: string };
+  await context.addCookies([{
+    name: 'wetop_session', value: token, url: 'http://127.0.0.1:3100',
+    httpOnly: true, sameSite: 'Lax', expires: Math.floor(Date.now() / 1000) + 86400,
+  }]);
   await page.goto('/login');
   const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('admin@wetop.test');
-  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
-  await main.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
-  await page.goto('/login');
   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
-  await expect(main.getByRole('button', { name: 'Завершить все сеансы' })).toBeVisible();
+  await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
+  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
 test('без сессии списка сеансов нет', async ({ page }) => {

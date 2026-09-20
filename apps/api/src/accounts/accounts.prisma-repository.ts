@@ -286,6 +286,27 @@ export class PrismaAccountsRepository implements AccountsRepository {
       };
     });
   }
+
+  async issuePasswordSetToken(input: {
+    email: string;
+    tokenHash: string;
+    expiresAt: Date;
+    now: Date;
+  }): Promise<boolean> {
+    const user = await this.prisma.db.user.findUnique({
+      where: { email: input.email },
+      select: { id: true, status: true, passwordHash: true },
+    });
+    if (!user || user.status !== 'ACTIVE' || user.passwordHash !== '') return false;
+    await this.prisma.db.passwordReset.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: input.now },
+    });
+    await this.prisma.db.passwordReset.create({
+      data: { userId: user.id, tokenHash: input.tokenHash, expiresAt: input.expiresAt },
+    });
+    return true;
+  }
 }
 
 const INVITE_SELECT = {

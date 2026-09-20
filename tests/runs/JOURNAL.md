@@ -1136,3 +1136,8 @@
 | 20.09.2026 19:00 | integration | ✅ 45 из 45 | 53 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-integration-df36.log) |  |
 | 20.09.2026 19:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 login-access.spec.ts invites.spec.ts sessions.spec.ts) | ❌ упало 4 из 24 | 5 мин 56 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-e2e-6be1.log) | вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом |
 | 20.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 1 мин 29 с | 8da62d5 +2 | [лог](logs/2026-09-20T14-07-32Z-e2e-c80f.log) |  |
+| 20.09.2026 19:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 sessions.spec.ts --grep вошедший видит, где) | ❌ упало 1 из 1 | 1 мин 47 с | 0573c1f +10 | [лог](logs/2026-09-20T14-30-50Z-e2e-b105.log) | вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса |
+| 20.09.2026 19:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 46 с | 0573c1f +11 | [лог](logs/2026-09-20T14-33-32Z-e2e-1097.log) |  |
+| 20.09.2026 19:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts --grep мёртвая ссылка) | ❌ упало 1 из 1 | 36 с | 0573c1f +11 | [лог](logs/2026-09-20T14-34-42Z-e2e-a33b.log) | мёртвая ссылка — один текст и путь на форму входа |
+| 20.09.2026 19:36 | typecheck | ✅ без ошибок | 1 мин 17 с | 0573c1f +13 | [лог](logs/2026-09-20T14-36-23Z-typecheck-b149.log) |  |
+| 20.09.2026 19:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 1 мин 18 с | 0573c1f +13 | [лог](logs/2026-09-20T14-36-23Z-e2e-46d6.log) |  |

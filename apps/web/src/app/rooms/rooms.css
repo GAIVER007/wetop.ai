@@ -160,3 +160,94 @@
   color: var(--muted);
   white-space: nowrap;
 }
+
+/* ── телефон (D4): таблицы категорий и доступности складываются в карточки, разметка та же ── */
+@media (max-width: 600px) {
+  .tbl.dir-table--categories,
+  .dir-table--categories tbody,
+  .tbl.dir-table--availability,
+  .dir-table--availability tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--categories thead,
+  .dir-table--availability thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--categories tbody tr,
+  .dir-table--availability tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--categories tbody tr:last-child,
+  .dir-table--availability tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--categories tbody td,
+  .dir-table--availability tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  /* категории: имя | гостей; состав; сегодня; действия */
+  .dir-table--categories tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--categories tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--categories tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--categories tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  .dir-table--categories tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .cat-today {
+    white-space: normal;
+  }
+  /* доступность: имя | доступно; занятость; какие места; создать бронь */
+  .dir-table--availability tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--availability tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--availability tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .dir-table--availability tbody td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  .dir-table--availability tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .avail-codes {
+    white-space: normal;
+  }
+}

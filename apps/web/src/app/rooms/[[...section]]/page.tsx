@@ -83,7 +83,7 @@ async function Categories() {
   return (
     <>
       {!board && <Alert boxed>{BOARD_FAILED}</Alert>}
-      <Table className="dir-table" nowrap>
+      <Table className="dir-table dir-table--categories" nowrap data-testid="categories-table">
         <thead>
           <tr>
             <th>Категория</th>
@@ -119,9 +119,9 @@ async function Categories() {
                         aria-label={`Занято ${t.occupied} из ${t.units}`}
                       />
                       <span>
-                        занято {t.occupied} · свободно{' '}
+                        занято {t.occupied}, свободно{' '}
                         <b className={cx(t.free === 0 && 'is-zero')}>{t.free}</b>
-                        {t.blocked > 0 && ` · закрыто ${t.blocked}`}
+                        {t.blocked > 0 && `, закрыто ${t.blocked}`}
                       </span>
                     </div>
                   ) : (
@@ -138,7 +138,10 @@ async function Categories() {
           })}
           {!r.byCategory.length && (
             <tr>
-              <td colSpan={5}>Категории ещё не добавлены.</td>
+              <td colSpan={5} className="muted">
+                Категории ещё не добавлены: состав и вместимость приходят из Exely при импорте
+                фонда.
+              </td>
             </tr>
           )}
         </tbody>
@@ -234,7 +237,11 @@ async function Availability({
             />
             <Stat label="Всего в фонде" value={r.total.units} />
           </Stats>
-          <Table className="dir-table" nowrap>
+          <Table
+            className="dir-table dir-table--availability"
+            nowrap
+            data-testid="availability-table"
+          >
             <thead>
               <tr>
                 <th>Категория</th>

@@ -1365,3 +1365,51 @@ test('деньги D2: период словами, три блока с поя�
   await expect(main.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(main.getByTestId('finance-error')).toHaveCount(0);
 });
+
+/**
+ * D4 «Номера и категории» (tasks/todo.md): пустой результат фильтров — общим `EmptyState` со сбросом;
+ * карточки без « · » и стрелок; таблицы категорий и доступности на телефоне без прокрутки вбок;
+ * пока фонд идёт — скелетон с подписью словом.
+ */
+test('номера D4: пустота фильтров словами со сбросом, телефон без прокрутки вбок, скелетон', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/rooms');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('rooms-shown')).toContainText('Показано 16 из 88');
+  await main.getByLabel('Поиск номеров').fill('нет такого');
+  const empty = main.getByTestId('rooms-empty');
+  await expect(empty).toContainText('Нет подходящих номеров');
+  await expect(empty).toContainText('«нет такого»');
+  await empty.getByRole('button', { name: 'Сбросить фильтры' }).click();
+  await expect(main.getByTestId('rooms-shown')).toContainText('из 88');
+  await expect(main.locator('.room-card').first()).toBeVisible();
+  await expect(main.locator('.room-card-footer').first()).not.toContainText('·');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of [
+    '/rooms/categories',
+    '/rooms/availability?arrival=2026-10-01&departure=2026-10-04',
+  ]) {
+    await page.goto(route);
+    await expect(main.locator('.dir-table tbody tr').first()).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, route).toBeLessThanOrEqual(1);
+  }
+  await expect(
+    main.getByRole('link', { name: 'Создать бронь', exact: true }).first(),
+  ).toBeVisible();
+
+  await request.post(`${fixture}/__test/control`, {
+    data: { delayPath: '/inventory/units', delayMs: 2500 },
+  });
+  await page.goto('/rooms', { waitUntil: 'commit' });
+  const loading = page.getByTestId('rooms-loading');
+  await expect(loading).toBeVisible();
+  await expect(loading.getByRole('status')).toHaveText('Загружаем номера и занятость…');
+  await expect(page.getByRole('main').locator('.room-card').first()).toBeVisible();
+  await request.post(`${fixture}/__test/control`, { data: {} });
+});

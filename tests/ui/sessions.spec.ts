@@ -2,16 +2,18 @@ import { expect, test } from '@playwright/test';
 
 /**
  * «Где я вошёл» и «выйти везде» (срез 13, §3 п. 3; DATA_MODEL §13.5). Синтетический API
- * (`scripts/preview/fixture-api.ts`) принимает код 123456 и отдаёт две живые сессии: эту и телефон.
- * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
+ * (`scripts/preview/fixture-api.ts`) отдаёт две живые сессии: эту и телефон. Проверка экрана и
+ * серверных действий стойки; правила API закрыты тестами контроллера.
+ *
+ * Вход — почтой и паролем (ADR-053, 20.09.2026): список сеансов и «выйти везде» относятся к
+ * человеку, а не к способу входа, поэтому экран от смены способа не изменился.
  */
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login?mode=code');
+  await page.goto('/login');
   const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('urij@example.com');
-  await main.getByRole('button', { name: 'Получить код' }).click();
-  await main.getByLabel('Код из письма').fill('123456');
-  await main.getByRole('button', { name: 'Войти' }).click();
+  await main.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await main.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
@@ -41,20 +43,6 @@ test('«Завершить все сеансы» гасит вход и возв
   await page.waitForURL('**/login');
   await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
-});
-
-test('вошедший по паролю видит тот же список и ту же кнопку: сеансы — про человека, не про способ входа', async ({
-  page,
-}) => {
-  await page.goto('/login');
-  const main = page.getByRole('main');
-  await main.getByLabel('Email').fill('admin@wetop.test');
-  await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
-  await main.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
-  await page.goto('/login');
-  await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
-  await expect(main.getByRole('button', { name: 'Завершить все сеансы' })).toBeVisible();
 });
 
 test('без сессии списка сеансов нет', async ({ page }) => {

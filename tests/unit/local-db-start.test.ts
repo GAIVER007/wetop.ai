@@ -43,4 +43,4 @@ it('local-db start does not add a second set of stays to the populated test sche
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-});
+}, 15_000); // The child has its own 10 s bound; report its result before the runner times out.

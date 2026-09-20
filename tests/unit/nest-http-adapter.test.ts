@@ -21,7 +21,8 @@ const require_ = createRequire(import.meta.url);
 
 describe('сетевой слой Nest', () => {
   it('@nestjs/platform-express разрешается из того места, где лежит @nestjs/common', () => {
-    const common = dirname(require_.resolve('@nestjs/common/package.json'));
+    // Nest's exports map does not expose package.json; use the exported entry point.
+    const common = dirname(require_.resolve('@nestjs/common'));
     expect(() => require_.resolve('@nestjs/platform-express', { paths: [common] })).not.toThrow();
   });
 

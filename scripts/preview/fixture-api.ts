@@ -43,6 +43,7 @@ const openAtLock = (p: string): boolean =>
   p === '/auth/code' ||
   p === '/auth/register' ||
   p === '/auth/verify' ||
+  p.startsWith('/auth/email/') ||
   p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
@@ -1263,6 +1264,8 @@ const countHit = (path: string): void => {
 };
 /** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
 const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
+/** Ссылки подтверждения почты (ADR-060): выдаются регистрацией, гасятся переходом. */
+const uiVerifications = new Map<string, { email: string; name: string; used: boolean }>();
 uiResetTokens.set('ui-reset-token', { used: false, expired: false });
 uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
 
@@ -2247,7 +2250,7 @@ createServer(async (req, res) => {
     // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
     // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
     if (path === '/auth/code' || path === '/auth/verify') return send(404, { message: 'Not Found' });
-    // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
+    // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)
@@ -2268,8 +2271,21 @@ createServer(async (req, res) => {
           message:
             'Этот адрес уже зарегистрирован. Войдите по паролю или восстановите его на экране входа.',
         });
+      // Сессии здесь нет: она появится после перехода по ссылке из письма (ADR-060)
+      const link = `ui-verify-${uiVerifications.size + 1}`;
+      uiVerifications.set(link, { email: email.toLowerCase(), name, used: false });
+      return send(200, { pendingVerification: true, email: email.toLowerCase(), name, sent: true });
+    }
+    if (path === '/auth/email/resend' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/email/verify' && req.method === 'POST') {
+      const link = uiVerifications.get(String(body['token'] ?? ''));
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите письмо заново.' });
+      link.used = true;
       const token = `ui-registered-${uiSessions.size + 1}`;
-      const who = { ...uiUser, email: email.toLowerCase(), name };
+      const who = { ...uiUser, email: link.email, name: link.name };
       uiSessions.set(token, who);
       return send(200, {
         token,

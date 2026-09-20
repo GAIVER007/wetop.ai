@@ -349,11 +349,25 @@ export const authApi = {
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
   // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
-   * Регистрация: почта, имя, пароль (ADR-053). Ответ тот же, что у входа: ключ, срок, кто вошёл —
-   * письма в этом пути нет. 400 с текстом приходит на кривую форму и на занятый адрес.
+   * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
+   * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
   register: (body: { email: string; name: string; password: string }) =>
-    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/register', body),
+    sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
+      'POST',
+      '/auth/register',
+      body,
+    ),
+  /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
+  verifyEmail: (body: { token: string }) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/email/verify',
+      body,
+    ),
+  /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
+  resendVerification: (body: { email: string }) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body),
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {

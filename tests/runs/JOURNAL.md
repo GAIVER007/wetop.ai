@@ -1297,3 +1297,6 @@
 | 20.09.2026 20:14 | unit | ✅ 1345 из 1348, пропущено 3 | 1 мин 12 с | 50d8e23 | [лог](logs/2026-09-20T15-14-33Z-unit-d18a.log) |  |
 | 20.09.2026 20:16 | e2e | ✅ 25 из 25 | 1 мин 6 с | 50d8e23 | [лог](logs/2026-09-20T15-16-21Z-e2e-8aca.log) |  |
 | 20.09.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 207 из 207 | 12 мин 10 с | 0ed8c75 +2 | [лог](logs/2026-09-20T14-58-44Z-e2e-45ad.log) |  |
+| 20.09.2026 20:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/invites.spec.ts tests/ui/sessions.spec.ts tests/ui/login-access.spec.ts tests/ui/empty-base.spec. | ✅ 66 из 66 | 2 мин 39 с | b05b6ff +30 | [лог](logs/2026-09-20T15-19-25Z-e2e-4696.log) |  |
+| 20.09.2026 20:22 | unit | ✅ 1272 из 1275, пропущено 3 | 1 мин 12 с | 562edd1 | [лог](logs/2026-09-20T15-22-31Z-unit-2d7d.log) |  |
+| 20.09.2026 20:24 | e2e | ✅ 25 из 25 | 1 мин 6 с | 562edd1 | [лог](logs/2026-09-20T15-24-01Z-e2e-43e2.log) |  |

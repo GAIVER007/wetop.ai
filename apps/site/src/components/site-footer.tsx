@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
 import { companyName, loginLink } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { typo } from './typo';
 
@@ -9,6 +10,8 @@ export function SiteFooter() {
   // Год сборки: сайт статический, пересобирается при каждой выкладке.
   const year = new Date().getFullYear();
   const owner = companyName() || t.meta.siteName;
+  // «Блог» в подвале — только при опубликованных статьях (С2, 20.09.2026)
+  const hasPosts = getPublishedPosts().length > 0;
 
   return (
     <footer className="site-footer">
@@ -21,9 +24,11 @@ export function SiteFooter() {
         </div>
         <nav aria-label={t.a11y.footerNav}>
           <ul className="site-footer__links">
-            <li>
-              <Link href="/blog/">{t.nav.blog}</Link>
-            </li>
+            {hasPosts ? (
+              <li>
+                <Link href="/blog/">{t.nav.blog}</Link>
+              </li>
+            ) : null}
             <li>
               <a href={loginLink().href}>{t.nav.login}</a>
             </li>

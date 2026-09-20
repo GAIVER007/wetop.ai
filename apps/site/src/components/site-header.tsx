@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
 import { loginLink, trialLink } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { MobileMenu } from './mobile-menu';
 
@@ -9,11 +10,13 @@ export function SiteHeader() {
   const login = loginLink();
   const trial = trialLink();
   // Якоря ведут на главную: из блога ссылка «Возможности» открывает главную сразу на нужном разделе.
+  // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
+  const hasPosts = getPublishedPosts().length > 0;
   const links = [
     { href: '/#audience', label: t.nav.audience },
     { href: '/#features', label: t.nav.features },
     { href: '/#start', label: t.nav.start },
-    { href: '/blog/', label: t.nav.blog },
+    ...(hasPosts ? [{ href: '/blog/', label: t.nav.blog }] : []),
   ];
 
   return (

@@ -1052,7 +1052,7 @@ test('каналы: сбой сводки фонда не уносит очер�
   request,
 }) => {
   await page.goto('/channels');
-  await expect(page.getByTestId('mapping-empty')).toContainText('сопоставлений пока нет');
+  await expect(page.getByTestId('mapping-empty')).toContainText(/сопоставлений пока нет/i);
 
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/channels');

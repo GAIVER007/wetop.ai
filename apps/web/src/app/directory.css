@@ -810,3 +810,155 @@ a.dir-number:hover {
 .folio-form__submit {
   justify-content: space-between;
 }
+
+/*
+ * D4 «Каналы»: очередь в Channex и входящие события на телефоне складываются в карточки-строки —
+ * семь колонок в 390 px уезжали в прокрутку вбок, без прокрутки были видны только вид и категория.
+ * Разметка и хуки прежние; шапка остаётся для чтения с экрана.
+ */
+@media (max-width: 600px) {
+  .tbl.dir-table--outbox,
+  .dir-table--outbox tbody,
+  .tbl.dir-table--events,
+  .dir-table--events tbody,
+  .tbl.dir-table--mapping,
+  .dir-table--mapping tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--outbox thead,
+  .dir-table--events thead,
+  .dir-table--mapping thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--outbox tbody tr,
+  .dir-table--events tbody tr,
+  .dir-table--mapping tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    align-items: baseline;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--outbox tbody tr:last-child,
+  .dir-table--events tbody tr:last-child,
+  .dir-table--mapping tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--outbox tbody td,
+  .dir-table--events tbody td,
+  .dir-table--mapping tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dir-table--outbox tbody td.empty-state,
+  .dir-table--events tbody td.empty-state,
+  .dir-table--mapping tbody td.empty-state {
+    grid-column: 1 / -1;
+    padding: var(--space-4) 0;
+  }
+  /* очередь: что и статус → категории → даты и когда поставлено → task id и попытки */
+  .dir-table--outbox tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--outbox tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+  .dir-table--outbox tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--outbox tbody td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 4;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--outbox tbody td:nth-child(5)::before {
+    content: 'попыток ';
+  }
+  /* события: событие и статус → тип и как дошло → бронь и когда получено → действие */
+  .dir-table--events tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--events tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    text-align: right;
+  }
+  .dir-table--events tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--events tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--events tbody td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dir-table--events tbody td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .dir-table--events tbody td:nth-child(7) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .dir-table--events tbody td:nth-child(7):empty {
+    display: none;
+  }
+  /* сопоставления: категория → категория и тариф в Channex */
+  .dir-table--mapping tbody td:nth-child(1) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dir-table--mapping tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+    color: var(--muted);
+  }
+  .dir-table--mapping tbody td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    color: var(--muted);
+  }
+}

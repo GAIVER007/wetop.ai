@@ -133,6 +133,7 @@ test('новые страницы и обе темы: адаптивность �
     '/connections',
     '/hotel-settings',
     '/channel-manager',
+    '/channels',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });

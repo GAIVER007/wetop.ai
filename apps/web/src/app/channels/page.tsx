@@ -3,10 +3,13 @@ import { type OutboxRowStatus, type OutboxSummary, api, channelsApi } from '../.
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { Page } from '../../components/page';
 import { Alert, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import { ChannelButtons } from './buttons';
 import { OutboxTable } from './outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from './events-table';
 import { almatyDateTime } from './format';
+import '../directory.css';
 
 /** Время по часам объекта: сервер стойки может стоять не в Алматы */
 const almatyTime = new Intl.DateTimeFormat('ru-RU', {
@@ -18,9 +21,19 @@ const almatyTime = new Intl.DateTimeFormat('ru-RU', {
 const checkedAt = (iso: string | null | undefined) =>
   iso ? `, проверено ${almatyTime.format(new Date(iso))} по Алматы` : '';
 
+/** Ответ API как есть или причина отказа: экран остаётся, вместо данных — сбой со следующим шагом (D4) */
+const settle = <T,>(p: Promise<T>) =>
+  p.then(
+    (r) => ({ ok: true as const, r }),
+    (e: unknown) => ({ ok: false as const, e }),
+  );
+
 /**
  * Каналы продаж (Channex): состояние, ручные действия, очередь в Channex и входящие события
  * (срез 7.2, макет «Integration»). Фильтры — в адресе, чтобы страницу можно было открыть по ссылке.
+ * D4 (план владельца 19.09): отказ сводки очереди или сопоставлений не уносит экран — на их месте
+ * `LoadError` с «Повторить загрузку», остальное (webhook, кнопки, строки очереди, события) читается и
+ * показывается отдельно; пустые таблицы называют причину и следующий шаг.
  */
 export default async function ChannelsPage({
   searchParams,
@@ -36,10 +49,10 @@ export default async function ChannelsPage({
     q: (sp.q ?? '').trim(),
     page: Math.max(1, Number(sp.page) || 1),
   };
-  const [mapping, outbox, summary, webhook, eventsPage, outboxRows, connection] = await Promise.all(
-    [
-      channelsApi.mapping(),
-      channelsApi.outbox(),
+  const [loadedMapping, loadedOutbox, summary, webhook, eventsPage, outboxRows, connection] =
+    await Promise.all([
+      settle(channelsApi.mapping()),
+      settle(channelsApi.outbox()),
       // сводка фонда нужна только для названий категорий: без неё страница остаётся, категории — кодами
       api.inventorySummary().catch(() => null),
       channelsApi.webhookStatus().catch(() => null),
@@ -54,8 +67,9 @@ export default async function ChannelsPage({
         .catch(() => null),
       channelsApi.outboxRows(queue || undefined).catch(() => null),
       channelsApi.connection().catch(() => null),
-    ],
-  );
+    ]);
+  const mapping = loadedMapping.ok ? loadedMapping.r : [];
+  const outbox = loadedOutbox.ok ? loadedOutbox.r : null;
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
   const categoryName = (code: string) => byCode.get(code) ?? code;
@@ -84,7 +98,7 @@ export default async function ChannelsPage({
   return (
     <Page
       title="Каналы продаж — Channex"
-      subtitle={`Объект ${property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}, ${webhookWord}, последняя задача ${outbox.lastTaskId ?? 'не было'}`}
+      subtitle={`Объект ${property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}, ${webhookWord}${outbox ? `, последняя задача ${outbox.lastTaskId ?? 'не было'}` : ''}`}
       actions={
         <Link href="/connections" className="btn btn--secondary">
           Проверить соединение
@@ -98,28 +112,36 @@ export default async function ChannelsPage({
         </Alert>
       )}
       {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
-      <Stats min={150}>
-        <Stat
-          label="В очереди"
-          value={String(outbox.pending)}
-          testId="outbox-pending"
-          hint="ждут отправки"
+      {outbox ? (
+        <Stats min={150}>
+          <Stat
+            label="В очереди"
+            value={String(outbox.pending)}
+            testId="outbox-pending"
+            hint="ждут отправки"
+          />
+          <Stat
+            label="Отправлено"
+            value={String(outbox.sent)}
+            testId="outbox-sent"
+            hint={
+              outbox.lastSentAt ? `последняя ${almatyDateTime(outbox.lastSentAt)}` : 'ещё не было'
+            }
+          />
+          <Stat
+            label="Ошибок"
+            value={String(outbox.failed)}
+            tone={outbox.failed > 0 ? 'alarm' : undefined}
+            hint={outbox.failed > 0 ? 'повтор по расписанию воркера' : 'нет'}
+          />
+        </Stats>
+      ) : (
+        // Сводка очереди не пришла: числа не выдаются за нули, webhook и строки ниже читаются отдельно
+        <LoadError
+          testId="outbox-error"
+          {...loadErrorProps(loadedOutbox.ok ? null : loadedOutbox.e)}
         />
-        <Stat
-          label="Отправлено"
-          value={String(outbox.sent)}
-          testId="outbox-sent"
-          hint={
-            outbox.lastSentAt ? `последняя ${almatyDateTime(outbox.lastSentAt)}` : 'ещё не было'
-          }
-        />
-        <Stat
-          label="Ошибок"
-          value={String(outbox.failed)}
-          tone={outbox.failed > 0 ? 'alarm' : undefined}
-          hint={outbox.failed > 0 ? 'повтор по расписанию воркера' : 'нет'}
-        />
-      </Stats>
+      )}
       <div className="facts facts--card">
         <div>
           <div className="fact__label">Объект Channex</div>
@@ -164,11 +186,11 @@ export default async function ChannelsPage({
         <div>
           <div className="fact__label">Последняя задача Channex</div>
           <div className="fact__value mono break-all" data-testid="outbox-last-task">
-            {outbox.lastTaskId ?? '—'}
+            {outbox ? (outbox.lastTaskId ?? '—') : 'не загрузилось'}
           </div>
         </div>
       </div>
-      <OverbookingAlarm outbox={outbox} />
+      {outbox && <OverbookingAlarm outbox={outbox} />}
       {webhook === null && (
         <Alert boxed>
           Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
@@ -208,32 +230,36 @@ export default async function ChannelsPage({
       </div>
 
       <SectionTitle>Маппинг категорий и тарифов</SectionTitle>
-      <Table size="sm">
-        <thead>
-          <tr>
-            {['Категория', 'Категория в Channex', 'Тариф в Channex'].map((h) => (
-              <th key={h}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {mapped.length === 0 && (
+      {loadedMapping.ok ? (
+        <Table size="sm" className="dir-table dir-table--mapping">
+          <thead>
             <tr>
-              <td colSpan={3} className="muted" data-testid="mapping-empty">
-                сопоставлений пока нет: категории и тарифы появятся здесь после «Создать объект в
-                Channex»
-              </td>
+              {['Категория', 'Категория в Channex', 'Тариф в Channex'].map((h) => (
+                <th key={h}>{h}</th>
+              ))}
             </tr>
-          )}
-          {mapped.map((m) => (
-            <tr key={m.id} data-testid="mapping-row">
-              <td>{categoryName(m.localAccommodationTypeCode ?? '')}</td>
-              <td className="mono">{m.providerRoomTypeId}</td>
-              <td className="mono">{m.providerRatePlanId}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {mapped.length === 0 && (
+              <tr>
+                <td colSpan={3} className="empty-state" data-testid="mapping-empty">
+                  Сопоставлений пока нет: категории и тарифы появятся здесь после «Создать объект в
+                  Channex». Пока их нет, цены и остатки в каналы не уходят.
+                </td>
+              </tr>
+            )}
+            {mapped.map((m) => (
+              <tr key={m.id} data-testid="mapping-row">
+                <td>{categoryName(m.localAccommodationTypeCode ?? '')}</td>
+                <td className="mono">{m.providerRoomTypeId}</td>
+                <td className="mono">{m.providerRatePlanId}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      ) : (
+        <LoadError testId="mapping-error" {...loadErrorProps(loadedMapping.e)} />
+      )}
     </Page>
   );
 }

@@ -294,3 +294,83 @@ test('цены: сбой календаря оставляет форму и м�
   await expect(main.getByTestId('rates-table')).toBeVisible({ timeout: 15_000 });
   await expect(main.getByTestId('rates-loading')).toHaveCount(0);
 });
+
+/**
+ * D4 «Каналы и состояние соединений»: отказ сводки очереди или сопоставлений не уносит экран — webhook,
+ * кнопки, строки очереди и события читаются отдельно, на месте пропавшего — сбой с «Повторить загрузку»;
+ * пустая очередь и пустые события называют причину и следующий шаг; загрузка — словом; на телефоне
+ * строки очереди и событий читаются без прокрутки вбок.
+ */
+test('каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  // сбой сводки очереди: плиток нет и нули не выдуманы, webhook и строки очереди на месте
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/channels/channex/outbox' },
+  });
+  await page.goto('/channels');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж — Channex');
+  const failure = main.getByTestId('outbox-error');
+  await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+  await expect(main.getByTestId('outbox-pending')).toHaveCount(0);
+  await expect(main.getByTestId('webhook-status')).toBeVisible();
+  await expect(main.getByTestId('outbox-table').getByTestId('outbox-row')).toHaveCount(4);
+  await expect(main.getByTestId('events-table').getByTestId('event-row').first()).toBeVisible();
+  await expect(main.getByTestId('outbox-last-task')).toHaveText('не загрузилось');
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
+  await expect(main.getByTestId('outbox-pending')).toHaveText('2');
+  await expect(main.getByTestId('outbox-error')).toHaveCount(0);
+  // сбой сопоставлений: таблицы маппинга нет, всё остальное на месте
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/channels/channex/mapping' },
+  });
+  await page.goto('/channels');
+  await expect(main.getByTestId('mapping-error')).toBeVisible();
+  await expect(main.getByTestId('mapping-empty')).toHaveCount(0);
+  await expect(main.getByTestId('outbox-pending')).toHaveText('2');
+  // пустая очередь и фильтр без строк — причина и шаг, а не «таких строк нет»
+  // (`control` витрину не снимает — строки очереди живут до `reset`)
+  await request.post(`${fixture}/__test/reset`);
+  await page.goto('/channels?queue=FAILED');
+  const emptyQueue = main.getByTestId('outbox-empty');
+  await expect(emptyQueue).toContainText('Строк со статусом «ошибка» нет');
+  await emptyQueue.getByRole('link', { name: 'Показать все строки' }).click();
+  await expect(page).toHaveURL(/\/channels$/);
+  await expect(main.getByTestId('outbox-empty')).toContainText('Очередь пуста');
+  // события: по условиям ничего — сброс фильтров возвращает ленту
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.goto('/channels?status=RECEIVED&type=booking_cancellation&q=нет-такого');
+  const emptyEvents = main.getByTestId('events-empty');
+  await expect(emptyEvents).toContainText('ничего не найдено');
+  await emptyEvents.getByRole('link', { name: 'Сбросить фильтры событий' }).click();
+  await expect(main.getByTestId('events-table').getByTestId('event-row').first()).toBeVisible();
+  // телефон: строки очереди и событий видны без прокрутки вбок, статус в той же строке
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/channels');
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'каналы шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
+  const row = main.getByTestId('outbox-table').getByTestId('outbox-row').first();
+  const box = await row.boundingBox();
+  const status = await row.locator('td').nth(3).boundingBox();
+  expect(box && status && status.x + status.width <= box.x + box.width + 1).toBe(true);
+  await expect(row.locator('td').nth(4)).toHaveCSS('grid-column-start', '2');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // загрузка словом, пока сводка идёт
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, delayPath: '/channels/channex/outbox', delayMs: 2500 },
+  });
+  await page.goto('/channels', { waitUntil: 'commit' });
+  const loading = main.getByTestId('channels-loading');
+  await expect(loading).toBeVisible();
+  await expect(loading).toContainText('Загружаем очередь, webhook и события Channex');
+  await expect(main.getByTestId('outbox-pending')).toBeVisible({ timeout: 15_000 });
+});

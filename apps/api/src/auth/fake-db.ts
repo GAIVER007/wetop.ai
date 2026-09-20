@@ -144,8 +144,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           id: `u-${seq + 1}`,
           failedAttempts: 0,
           lockedUntil: null,
-          lastLoginAt: null,
           ...data,
+          lastLoginAt: data.lastLoginAt ?? null,
         };
         users.push(row);
         return { ...row };

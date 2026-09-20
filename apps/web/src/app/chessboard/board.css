@@ -532,3 +532,37 @@
 .board-unassigned .action-menu__list {
   min-width: 280px;
 }
+
+/* C2: меню действий на плашке — кнопка «⋯» у правого края первой видимой клетки проживания,
+   брат ссылки-плашки (перетаскивание и клик по плашке не задеты); цель 24 px (DESIGN.md §11) */
+.board td.board__cell {
+  position: relative;
+}
+.board-stay-menu {
+  position: absolute;
+  top: 6px;
+  z-index: 2;
+}
+.board-stay-menu .action-menu__button {
+  width: 24px;
+  height: 24px;
+  min-width: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+}
+.board-stay-menu .action-menu__button:hover,
+.board-stay-menu .action-menu__button[aria-expanded='true'] {
+  background: var(--surface);
+  border-color: var(--border);
+}
+/* месяц (колонка 24 px) и телефон: на плашке нет места — действия остаются в карточке брони */
+.board--month .board-stay-menu {
+  display: none;
+}
+@media (max-width: 600px) {
+  .board-stay-menu {
+    display: none;
+  }
+}

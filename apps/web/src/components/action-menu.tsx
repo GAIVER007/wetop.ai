@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Icon } from './icon';
 import { cx } from './ui';
 
@@ -21,11 +21,14 @@ export function ActionMenu({
   label = 'Действия',
   size,
   className,
+  style,
 }: {
   items: ActionMenuItem[];
   label?: string;
   size?: 'sm' | undefined;
   className?: string | undefined;
+  /** положение на плашке шахматки задаётся данными (ширина отрезка) — единственный инлайн-стиль */
+  style?: CSSProperties | undefined;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -54,7 +57,7 @@ export function ActionMenu({
     setActive(next);
   };
   return (
-    <span className={cx('action-menu', className)}>
+    <span className={cx('action-menu', className)} style={style}>
       <button
         ref={button}
         type="button"

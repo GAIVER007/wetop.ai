@@ -336,3 +336,62 @@ test('карточка B3 на телефоне: полоса и прожива�
     .evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(tableOverflow).toBeLessThanOrEqual(1);
 });
+
+/**
+ * C2 «Действия без перетаскивания» (tasks/todo.md): на плашке шахматки — меню «⋯» с теми же действиями,
+ * что у карточки и перетаскивания: продлить (сумма до подтверждения), переселить (форма карточки),
+ * отменить (штраф до подтверждения), открыть карточку. Всё с клавиатуры; Escape возвращает фокус на
+ * кнопку; меню — брат ссылки-плашки, клик по плашке по-прежнему открывает карточку.
+ */
+test('шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const main = page.getByRole('main');
+  const plate = main.locator(`[data-testid="stay-cell"][data-number="${BOOKING}"]`).first();
+  await expect(plate).toBeVisible();
+  const cell = plate.locator('xpath=..');
+  const button = cell.getByRole('button', { name: 'Действия: Гость Тестовый' });
+  await expect(button).toBeVisible();
+  // кнопка не внутри ссылки: клик по плашке открывает карточку, клик по кнопке — меню
+  expect(await button.evaluate((el) => !!el.closest('a'))).toBe(false);
+
+  // с клавиатуры: стрелка вниз открывает меню, первый пункт в фокусе, Escape возвращает фокус
+  await button.focus();
+  await page.keyboard.press('ArrowDown');
+  const menu = page.getByRole('menu', { name: 'Действия: Гость Тестовый' });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole('menuitem', { name: 'Открыть карточку' })).toBeFocused();
+  await expect(menu.getByRole('menuitem', { name: 'Переселить' })).toHaveAttribute(
+    'href',
+    `/reservations/${BOOKING}#booking-actions`,
+  );
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(button).toBeFocused();
+
+  // продление: сумма до подтверждения, команда та же, что у карточки
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await expect(menu.getByRole('menuitem', { name: 'Продлить на ночь' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const extend = page.getByRole('dialog', { name: `Продлить на ночь — Гость Тестовый, R01?` });
+  await expect(extend).toContainText(/Новая ночь — \d[\d\s]* ₸\. Проживание станет/);
+  await extend.getByRole('button', { name: 'Продлить' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'продлена на ночь, R01' })).toBeVisible();
+  const sent = await commands(page);
+  expect(sent.some((c) => c.path.endsWith('/extend'))).toBe(true);
+  // сетку после продления перерисовывает router.refresh(); на синтетической доске соседние ночи R01
+  // заняты другими бронями фикстуры, поэтому новую клетку здесь не ищем — это доказывает живой desk-tasks
+
+  // отмена: штраф назван до подтверждения, «Оставить» ничего не меняет
+  await button.click();
+  await menu.getByRole('menuitem', { name: 'Отменить бронь' }).click();
+  const cancel = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
+  await expect(cancel).toContainText('Место R01 вернётся в продажу');
+  await expect(cancel).toContainText('Штраф 8 000 ₸ останется на счёте');
+  await cancel.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(cancel).toBeHidden();
+  await expect(plate).toBeVisible();
+  expect((await commands(page)).some((c) => c.path.endsWith('/cancel'))).toBe(false);
+});

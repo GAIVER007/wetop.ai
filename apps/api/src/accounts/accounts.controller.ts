@@ -19,12 +19,8 @@ import {
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
-  REGISTRATION_EMAIL_MESSAGE,
-  REGISTRATION_NAME_MESSAGE,
   SESSION_ENDED_MESSAGE,
   SESSION_TTL_MS,
-  isEmailShaped,
-  isOrganizationNameShaped,
 } from '@pms/domain';
 import {
   AccountsService,
@@ -103,29 +99,6 @@ export class AccountsController {
     @Headers('cf-connecting-ip') cfIp?: string,
   ): Promise<void> {
     await this.accounts.requestCode(body?.email, clientIp(cfIp));
-  }
-
-  /**
-   * Регистрация: организация с пробным периодом на 7 дней и код на почту. Ошибки формы (пустое
-   * название, не похожая на почту строка) — 400 с текстом: это про ввод человека, не про то, есть ли
-   * у нас такой адрес. Всё остальное — 204, как у запроса кода: занят адрес или нет, наружу не видно.
-   */
-  @Post('register')
-  @Public()
-  @HttpCode(204)
-  async register(
-    @Body() body: { email?: unknown; organizationName?: unknown },
-    @Headers('cf-connecting-ip') cfIp?: string,
-  ): Promise<void> {
-    const email = body?.email;
-    const name = body?.organizationName;
-    if (typeof email !== 'string' || !isEmailShaped(email)) {
-      throw new BadRequestException(REGISTRATION_EMAIL_MESSAGE);
-    }
-    if (typeof name !== 'string' || !isOrganizationNameShaped(name)) {
-      throw new BadRequestException(REGISTRATION_NAME_MESSAGE);
-    }
-    await this.accounts.register(email, name, clientIp(cfIp));
   }
 
   /** Проверить код и войти. Отказ — всегда один и тот же текст, без подробностей. */

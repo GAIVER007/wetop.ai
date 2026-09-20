@@ -34,7 +34,13 @@ describe('AuthService.login', () => {
 
     expect(users[0]!.lastLoginAt).toEqual(NOW);
     expect(audit).toEqual([
-      { userId: 'u-1', entityType: 'user', entityId: 'u-1', action: 'user.login', after: { via: 'password' } },
+      {
+        userId: 'u-1',
+        entityType: 'user',
+        entityId: 'u-1',
+        action: 'user.login',
+        after: { via: 'password' },
+      },
     ]);
   });
 
@@ -47,9 +53,9 @@ describe('AuthService.login', () => {
 
   it('неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал', async () => {
     const { auth, sessions, audit, users } = service();
-    await expect(auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
     expect(sessions).toHaveLength(0);
     expect(users[0]!.failedAttempts).toBe(1);
     expect(JSON.stringify(audit)).not.toContain('не тот');
@@ -57,9 +63,9 @@ describe('AuthService.login', () => {
 
   it('неизвестная почта отвечает тем же текстом, что и неверный пароль', async () => {
     const { auth } = service();
-    await expect(auth.login({ email: 'нет-такой@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'нет-такой@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
   });
 
   it('мусор вместо почты не пускает', async () => {
@@ -72,19 +78,21 @@ describe('AuthService.login', () => {
   it(`после ${MAX_FAILED_ATTEMPTS} промахов вход заперт, и верный пароль тоже не пускает`, async () => {
     const { auth, users } = service();
     for (let i = 0; i < MAX_FAILED_ATTEMPTS; i += 1) {
-      await expect(auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW)).rejects.toThrow();
+      await expect(
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW),
+      ).rejects.toThrow();
     }
     expect(users[0]!.lockedUntil).not.toBeNull();
-    await expect(auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      /Вход заперт/,
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow(/Вход заперт/);
   });
 
   it('заблокированного сотрудника не пускает', async () => {
     const { auth } = service([fakeUser({ status: 'BLOCKED' })]);
-    await expect(auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)).rejects.toThrow(
-      'Неверная почта или пароль',
-    );
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow('Неверная почта или пароль');
   });
 });
 
@@ -124,7 +132,11 @@ describe('AuthService.whoami', () => {
     const { auth } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     await expect(auth.whoami(token, NOW)).resolves.toMatchObject({
-      organization: { name: 'Тестовый хостел', status: 'TRIAL', trialEndsAt: '2026-09-22T00:00:00.000Z' },
+      organization: {
+        name: 'Тестовый хостел',
+        status: 'TRIAL',
+        trialEndsAt: '2026-09-22T00:00:00.000Z',
+      },
     });
   });
 
@@ -232,7 +244,10 @@ describe('AuthService.changePassword', () => {
     const before = users[0]!.passwordHash;
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
     await expect(
-      auth.changePassword({ token, currentPassword: 'не тот', newPassword: 'ekinshi-parol-2026' }, NOW),
+      auth.changePassword(
+        { token, currentPassword: 'не тот', newPassword: 'ekinshi-parol-2026' },
+        NOW,
+      ),
     ).rejects.toThrow('Неверный текущий пароль');
     expect(users[0]!.passwordHash).toBe(before);
   });
@@ -253,5 +268,79 @@ describe('AuthService.changePassword', () => {
         NOW,
       ),
     ).rejects.toThrow(/Войдите/);
+  });
+});
+
+/**
+ * Регистрация: почта, имя, пароль (решение владельца 20.09.2026, ADR-053). Раньше регистрация слала
+ * код на почту и потому не работала без настроенных MAIL_*; теперь человек входит сразу.
+ */
+describe('AuthService.register', () => {
+  const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
+
+  it('заводит организацию, человека и членство и сразу открывает сессию — как после входа', async () => {
+    const { auth, users, sessions, memberships, organizations, audit } = service();
+    const result = await auth.register(NEW, NOW);
+
+    expect(result.user).toMatchObject({ email: 'novyi@example.invalid', name: 'Вячеслав Петров' });
+    expect(result.token).toHaveLength(43);
+    expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
+
+    const created = users.find((u) => u.email === 'novyi@example.invalid');
+    expect(created, 'человек заведён').toBeDefined();
+    expect(created!.name).toBe('Вячеслав Петров');
+    expect(created!.lastLoginAt).toEqual(NOW);
+    // пароль в базе только хешем, и сам он нигде не всплывает
+    expect(created!.passwordHash).not.toContain(PASSWORD);
+
+    // рабочее пространство названо именем человека: отдельного поля в форме нет
+    const org = organizations.find((o) => o.name === 'Вячеслав Петров');
+    expect(org, 'организация заведена').toBeDefined();
+    expect(org!.status).toBe('TRIAL');
+    expect(org!.trialEndsAt!.getTime()).toBeGreaterThan(NOW.getTime());
+    expect(memberships.some((m) => m.userId === created!.id && m.organizationId === org!.id)).toBe(
+      true,
+    );
+
+    // сессия того же вида, что у входа по паролю: в базе только хеш токена
+    const session = sessions.find((x) => x.userId === created!.id);
+    expect(session!.tokenHash).toBe(hashSessionToken(result.token));
+    expect(JSON.stringify(sessions)).not.toContain(result.token);
+    expect(audit.at(-1)).toMatchObject({ action: 'user.register', after: { via: 'password' } });
+  });
+
+  it('этой же парой почта-пароль сразу входят: регистрация не «наполовину»', async () => {
+    const { auth } = service();
+    await auth.register(NEW, NOW);
+    await expect(
+      auth.login({ email: 'novyi@example.invalid', password: PASSWORD }, NOW),
+    ).resolves.toMatchObject({ user: { email: 'novyi@example.invalid' } });
+  });
+
+  it('занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку', async () => {
+    const { auth, organizations } = service();
+    const before = organizations.length;
+    await expect(auth.register({ ...NEW, email: 'admin@example.invalid' }, NOW)).rejects.toThrow(
+      /уже зарегистрирован/,
+    );
+    expect(organizations, 'организация не заведена').toHaveLength(before);
+  });
+
+  it('короткий пароль не принимается, и организация от такой попытки не остаётся', async () => {
+    const { auth, organizations, users } = service();
+    const before = { orgs: organizations.length, users: users.length };
+    await expect(auth.register({ ...NEW, password: '123' }, NOW)).rejects.toThrow(
+      /Пароль не годится/,
+    );
+    expect(organizations).toHaveLength(before.orgs);
+    expect(users).toHaveLength(before.users);
+  });
+
+  it('пустое имя и строка, не похожая на почту, — отказ с понятным текстом', async () => {
+    const { auth } = service();
+    await expect(auth.register({ ...NEW, name: '   ' }, NOW)).rejects.toThrow(/Укажите имя/);
+    await expect(auth.register({ ...NEW, email: 'не-почта' }, NOW)).rejects.toThrow(
+      /Укажите почту/,
+    );
   });
 });

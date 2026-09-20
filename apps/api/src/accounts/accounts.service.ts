@@ -16,9 +16,7 @@ import {
   isCodeShaped,
   isEmailShaped,
   normalizeEmail,
-  normalizeOrganizationName,
   sessionExpiresAt,
-  trialEndsAt,
 } from '@pms/domain';
 import { hashEquals, hashSecret, newSessionToken } from '@pms/shared';
 import { mail } from '@pms/integrations';
@@ -98,37 +96,9 @@ export class AccountsService {
     await this.issueCode(email, ip);
   }
 
-  /**
-   * Регистрация. Форма ввода уже проверена контроллером; здесь, как и в `requestCode`, ни одного
-   * `throw`: занятый адрес, новый адрес, исчерпанный предел — наружу всё одно и то же.
-   * Пределы проверяются до создания организации: иначе перебором адресов заводятся тысячи
-   * пустых организаций. Занятому адресу новая организация не заводится — уходит код в его старую.
-   */
-  async register(rawEmail: string, rawOrganizationName: string, ip: string | null): Promise<void> {
-    const email = normalizeEmail(rawEmail);
-    const organizationName = normalizeOrganizationName(rawOrganizationName);
-    if (!isEmailShaped(email) || !organizationName) return;
-    if (await this.overLimit(email, ip)) return;
-
-    let account = await this.repo.accountByEmail(email);
-    if (account === null) {
-      const now = new Date();
-      account = await this.repo.createAccount({
-        email,
-        organizationName,
-        trialEndsAt: trialEndsAt(now),
-      });
-      if (account === null) {
-        // Адрес занят, но `accountByEmail` его не отдал: человек заблокирован или без организации.
-        // Такому код не шлём, наружу молчим — как и при обычном запросе кода.
-        return;
-      }
-      this.log.log(
-        `зарегистрирована организация ${account.organizationId}, пробный период до ${account.trialEndsAt?.toISOString()}`,
-      );
-    }
-    await this.issueCode(email, ip);
-  }
+  // Регистрация из этого пути снята 20.09.2026: владелец выбрал вход по паролю (ADR-053), и
+  // /auth/register теперь заводит организацию с паролем сразу (AuthService.register), без письма.
+  // Запрос кода и проверка кода ниже остаются: по ним всё ещё входят те, у кого код на руках.
 
   private async overLimit(email: string, ip: string | null): Promise<boolean> {
     const since = new Date(Date.now() - HOUR_MS);

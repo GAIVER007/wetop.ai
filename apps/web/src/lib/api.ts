@@ -369,20 +369,12 @@ export const authApi = {
       }),
     );
   },
-  /** Регистрация: 400 с текстом про форму (почта, название), иначе 204 — как у запроса кода. */
-  register: async (
-    email: string,
-    organizationName: string,
-    info: AuthClientInfo,
-  ): Promise<void> => {
-    await throwUnlessOk(
-      await backendFetch('/auth/register', {
-        method: 'POST',
-        headers: authHeaders(info),
-        body: JSON.stringify({ email, organizationName }),
-      }),
-    );
-  },
+  /**
+   * Регистрация: почта, имя, пароль (ADR-053). Ответ тот же, что у входа: ключ, срок, кто вошёл —
+   * письма в этом пути нет. 400 с текстом приходит на кривую форму и на занятый адрес.
+   */
+  register: (body: { email: string; name: string; password: string }) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/register', body),
   /** Проверка кода: 200 с ключом и сессией, 401 с одним и тем же текстом на любой отказ. */
   verify: async (
     email: string,

@@ -22,6 +22,7 @@ import type {
   Incident,
   InboundEvent,
   OutboxRow,
+  OutboxMessage,
   RevisionFacts,
 } from '../../apps/web/src/lib/api';
 
@@ -86,11 +87,12 @@ const dates = (from: string, to: string) => {
   for (let d = from; d <= to && result.length < 366; d = add(d, 1)) result.push(d);
   return result;
 };
-const categories = [
+const categorySeed = [
   { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
+const categories = structuredClone(categorySeed);
 const units: InventoryUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
@@ -103,6 +105,7 @@ const units: InventoryUnit[] = categories.flatMap((c) =>
     isDorm: c.code !== 'ROOM',
   })),
 );
+const unitSeed = structuredClone(units);
 const plans = [{ code: 'BASE', name: 'Стандартный', currency: 'KZT', active: true }];
 const guestSeed: GuestCard = {
   id: 'ui-guest',
@@ -1493,7 +1496,7 @@ function read(path: string, q: URLSearchParams): unknown {
     if (!r || !item) return undefined;
     const action = q.get('action') ?? '';
     const current = BigInt(item.priceMinor);
-    const night = 1_100_000n; // цена ночи в фикстуре: календарь тут один на все категории
+    const night = nightly(item.accommodationTypeCode);
     if (action === 'cancel' || action === 'no_show')
       return {
         action,
@@ -1771,11 +1774,23 @@ function read(path: string, q: URLSearchParams): unknown {
       : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
   if (path === '/channels/channex/outbox/rows') {
     const st = q.get('status');
-    return showcaseOutbox.filter((r) => !st || r.status === st);
+    const rows = showcase
+      ? showcaseOutbox
+      : designEvents.length
+        ? (read('/channels/channex/outbox/messages', q) as OutboxMessage[]).map((r) => ({
+            ...r,
+            roomTypes: r.roomTypeIds,
+            messages: r.lines,
+          }))
+        : [];
+    return rows.filter((r) => !st || r.status === st);
   }
   if (path === '/channels/channex/events') {
     // как у настоящего API: фильтры, поиск по событию / unique_id / номеру брони, страница
-    const source = showcase ? showcaseEvents : designEvents;
+    const source = (showcase ? showcaseEvents : designEvents).map((e) => ({
+      ...e,
+      confirmationNumber: e.confirmationNumber ?? e.reservationNumber ?? null,
+    }));
     const st = q.get('status'),
       type = q.get('type'),
       needle = (q.get('q') || '').trim().toLowerCase();
@@ -1952,6 +1967,8 @@ createServer(async (req, res) => {
     if (path === '/__test/reset') {
       hits.clear();
       resetUiAuth();
+      categories.splice(0, categories.length, ...structuredClone(categorySeed));
+      units.splice(0, units.length, ...structuredClone(unitSeed));
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -2172,12 +2189,29 @@ createServer(async (req, res) => {
       res.end();
     };
     if (path === '/auth/code' && req.method === 'POST') return noContent();
+    // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
     if (path === '/auth/register' && req.method === 'POST') {
-      if (typeof body['email'] !== 'string' || !String(body['email']).includes('@'))
-        return send(400, { message: 'Укажите почту, на которую придёт код для входа.' });
-      if (!String(body['organizationName'] ?? '').trim())
-        return send(400, { message: 'Укажите название организации, до 200 знаков.' });
-      return noContent();
+      const email = String(body['email'] ?? '').trim();
+      const name = String(body['name'] ?? '').trim();
+      const password = String(body['password'] ?? '');
+      if (!email.includes('@'))
+        return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
+      if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      if (email.toLowerCase() === uiUser.email)
+        return send(400, {
+          message:
+            'Этот адрес уже зарегистрирован. Войдите по паролю или восстановите его на экране входа.',
+        });
+      const token = `ui-registered-${uiSessions.size + 1}`;
+      const who = { ...uiUser, email: email.toLowerCase(), name };
+      uiSessions.set(token, who);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: who,
+      });
     }
     if (path === '/auth/verify' && req.method === 'POST') {
       if (body['code'] !== '123456')

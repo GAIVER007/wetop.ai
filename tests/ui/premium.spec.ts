@@ -187,7 +187,7 @@ test('список броней: выборка названа, пустой р�
   const meta = main.getByTestId('directory-meta');
   await expect(meta).toContainText('9 бронирований');
   // один день — одна дата словами, без «20 сент. — 20 сент.»
-  await expect(meta).toContainText(/на \d{1,2} [а-яё]+\./);
+  await expect(meta).toContainText(/на \d{1,2} [а-яё]+\.?/); // «мая» — без точки
   await expect(meta).not.toContainText('—');
   // подписи дат видны, не только aria-label
   await expect(main.locator('.directory-toolbar').getByText('С', { exact: true })).toBeVisible();
@@ -220,7 +220,7 @@ test('список броней: выборка названа, пустой р�
     .evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
-  await expect(row).toContainText(/\d{1,2} [а-яё]+\./);
+  await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
   await expect(row).toContainText('Подтверждены');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();

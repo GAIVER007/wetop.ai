@@ -1960,19 +1960,23 @@ createServer(async (req, res) => {
       // A long browser run can cross midnight in the property's timezone.
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
       incident = structuredClone(incidentSeed);
+      // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
+      for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
+      for (const u of units)
+        u.accommodationTypeName =
+          BASE_CATEGORY_NAMES.get(u.accommodationTypeCode) ?? u.accommodationTypeName;
       card = cardSeed();
       guest = structuredClone(guestSeed);
       commands = [];
       rejectCreate = false;
       failPath = '';
+      failStatus = 503;
+      ratesUnmapped = false;
+      incidentHistory = 0;
       emptyFixture = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
-      for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
-      for (const u of units)
-        u.accommodationTypeName =
-          BASE_CATEGORY_NAMES.get(u.accommodationTypeCode) ?? u.accommodationTypeName;
       initializeRecords();
       priceChanges = [];
       showcase = false;

@@ -1072,3 +1072,6 @@
 | 20.09.2026 01:50 | e2e (частично: --config tests/ui/playwright.config.ts workspace quality design-system manager-actions --workers=1) | ✅ 82 из 82 | 3 мин 51 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-50-38Z-e2e-b53f.log) |  |
 | 20.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts accessibility --workers=1) | ✅ 8 из 8 | 4 мин 43 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-54-30Z-e2e-b05c.log) |  |
 | 20.09.2026 01:59 | e2e (частично: --config tests/ui/playwright.config.ts design-reference chessboard-week chessboard-month --workers=1) | ✅ 22 из 22 | 4 мин 7 с | 6cdcc43 +4 | [лог](logs/2026-09-19T20-59-13Z-e2e-5413.log) |  |
+| 20.09.2026 11:43 | unit (частично: apps/web/src/design-rules.test.ts) | ✅ 13 из 13 | 3 с | 9943b60 +4 | [лог](logs/2026-09-20T06-43-34Z-unit-fcf3.log) |  |
+| 20.09.2026 11:43 | e2e (частично: --config tests/ui/playwright.config.ts premium quality workspace manager-actions requests accessibility design-reference --workers=1) | ❌ упало 1 из 97 | 7 мин 45 с | 9943b60 +5 | [лог](logs/2026-09-20T06-43-49Z-e2e-aa55.log) | подключения показывают частичный сбой, неподключённые функции не имитируют сохранение |
+| 20.09.2026 11:52 | e2e (частично: --config tests/ui/playwright.config.ts workspace --workers=1) | ✅ 54 из 54 | 1 мин 49 с | 9943b60 +6 | [лог](logs/2026-09-20T06-52-20Z-e2e-f60c.log) |  |

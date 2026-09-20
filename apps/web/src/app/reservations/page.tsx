@@ -45,7 +45,13 @@ export default async function ReservationsPage({
   const href = (values: Record<string, string>) =>
     `/reservations?${new URLSearchParams({ from, to, status, q, ...values })}`;
   // Выборка названа словами (B1): один день — одна дата, статус и запрос — только когда заданы
-  const periodText = from === to ? displayDate(from) : `${displayDate(from)} — ${displayDate(to)}`;
+  // отрезок — «→», как в строках ниже (§14); через год — обе даты с годом
+  const withYear = from.slice(0, 4) !== to.slice(0, 4);
+  const periodText =
+    from === to
+      ? displayDate(from)
+      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
+  const pageOutOfRange = (result?.total ?? 0) > 0 && result?.rows.length === 0;
   const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
   const queryText = q ? `, по запросу «${q}»` : '';
   return (
@@ -70,10 +76,10 @@ export default async function ReservationsPage({
           />
         </div>
         <Field inline label="С">
-          <Input type="date" name="from" defaultValue={from} />
+          <Input type="date" name="from" defaultValue={from} aria-label="Период: с" />
         </Field>
         <Field inline label="По">
-          <Input type="date" name="to" defaultValue={to} />
+          <Input type="date" name="to" defaultValue={to} aria-label="Период: по" />
         </Field>
         <input type="hidden" name="status" value={status} />
         <Button tone="secondary">Показать</Button>
@@ -104,101 +110,115 @@ export default async function ReservationsPage({
           </p>
           {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
           {result.rows.length > 0 && (
-            <Table data-testid="reservations-table" className="dir-table" nowrap>
-            <thead>
-              <tr>
-                <th>Гость</th>
-                <th>Источник</th>
-                <th>Место</th>
-                <th>Проживание</th>
-                <th>Статус</th>
-                <th className="num">Стоимость</th>
-                <th className="num">К оплате</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.rows.map((r) => {
-                const nights = nightsBetween(r.arrivalDate, r.departureDate);
-                const debt = r.hasFolios && BigInt(r.balanceMinor) > 0n;
-                const wa = messengerLinks(r.primaryGuest?.phone ?? null);
-                return (
-                  <tr key={r.confirmationNumber}>
-                    <td>
-                      {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
-                      <div className="dir-guest-cell">
-                        <Link
-                          className="dir-guest"
-                          href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
-                          aria-label={`Открыть бронь ${r.confirmationNumber}`}
-                        >
-                          <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
-                          <span className="dir-number">{r.confirmationNumber}</span>
-                        </Link>
-                        {wa && (
-                          <a
-                            className="dir-wa"
-                            href={wa.whatsapp}
-                            target="_blank"
-                            rel="noreferrer"
-                            aria-label={`WhatsApp: ${r.primaryGuest?.label ?? ''}`}
+            <Table
+              data-testid="reservations-table"
+              className="dir-table dir-table--reservations"
+              nowrap
+            >
+              <thead>
+                <tr>
+                  <th>Гость</th>
+                  <th>Источник</th>
+                  <th>Место</th>
+                  <th>Проживание</th>
+                  <th>Статус</th>
+                  <th className="num">Стоимость</th>
+                  <th className="num">К оплате</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result.rows.map((r) => {
+                  const nights = nightsBetween(r.arrivalDate, r.departureDate);
+                  const debt = r.hasFolios && BigInt(r.balanceMinor) > 0n;
+                  const wa = messengerLinks(r.primaryGuest?.phone ?? null);
+                  return (
+                    <tr key={r.confirmationNumber}>
+                      <td>
+                        {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
+                        <div className="dir-guest-cell">
+                          <Link
+                            className="dir-guest"
+                            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+                            aria-label={`Открыть бронь ${r.confirmationNumber}`}
                           >
-                            WA
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="source-tag">
-                        {r.channel || sourceNames[r.source] || r.source}
-                      </span>
-                    </td>
-                    <td>
-                      {r.unitCodes.length ? (
-                        <span className="dir-unit">
-                          <Icon name="bed" />
-                          {r.unitCodes.join(', ')}
+                            <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
+                            <span className="dir-number">{r.confirmationNumber}</span>
+                          </Link>
+                          {wa && (
+                            <a
+                              className="dir-wa"
+                              href={wa.whatsapp}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`WhatsApp: ${r.primaryGuest?.label ?? ''}`}
+                            >
+                              WA
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="source-tag">
+                          {r.channel || sourceNames[r.source] || r.source}
                         </span>
-                      ) : (
-                        <span className="warn-text">не назначено</span>
-                      )}
-                    </td>
-                    <td className="dir-stay">
-                      <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
-                      {' → '}
-                      <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
-                      {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
-                    </td>
-                    <td>
-                      <StatusBadge
-                        status={r.status}
-                        label={reservationStatuses[r.status] || r.status}
-                      />
-                    </td>
-                    <td className="num nowrap">{formatMoney(r.totalAmountMinor, r.currency)}</td>
-                    <td className="num nowrap">
-                      {!r.hasFolios ? (
-                        <span className="muted">—</span>
-                      ) : debt ? (
-                        <AmountChip tone="due" minor={r.balanceMinor} currency={r.currency} />
-                      ) : (
-                        <span className="dir-paid">оплачено</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
+                      </td>
+                      <td>
+                        {r.unitCodes.length ? (
+                          <span className="dir-unit">
+                            <Icon name="bed" />
+                            {r.unitCodes.join(', ')}
+                          </span>
+                        ) : (
+                          <span className="warn-text">не назначено</span>
+                        )}
+                      </td>
+                      <td className="dir-stay">
+                        <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                        {' → '}
+                        <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
+                        {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+                      </td>
+                      <td>
+                        <StatusBadge
+                          status={r.status}
+                          label={reservationStatuses[r.status] || r.status}
+                        />
+                      </td>
+                      <td className="num nowrap">
+                        <span className="dir-cell-word">стоимость </span>
+                        {formatMoney(r.totalAmountMinor, r.currency)}
+                      </td>
+                      <td className="num nowrap">
+                        {!r.hasFolios ? (
+                          <span className="muted">—</span>
+                        ) : debt ? (
+                          <AmountChip tone="due" minor={r.balanceMinor} currency={r.currency} />
+                        ) : (
+                          <span className="dir-paid">оплачено</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
           )}
           {!result.rows.length && (
             <div className="empty-state" data-testid="reservations-empty">
               <Icon name="booking" />
               <h3>Бронирований не найдено</h3>
-              <p>
-                На {periodText}
-                {statusText}
-                {queryText} броней нет. Уберите условие или выберите другой день.
-              </p>
+              {pageOutOfRange ? (
+                <p>
+                  На этой странице бронирований нет: страниц меньше, чем номер в адресе.{' '}
+                  <Link href={href({ page: '1' })}>К первой странице</Link>
+                </p>
+              ) : (
+                <p>
+                  На {periodText}
+                  {statusText}
+                  {queryText} бронирований нет. Уберите условие или выберите другой день.
+                </p>
+              )}
               <div className="empty-state__actions">
                 {q && (
                   <Link href={href({ q: '', page: '1' })} className="btn btn--secondary">
@@ -218,20 +238,20 @@ export default async function ReservationsPage({
           )}
           {result.total > result.pageSize && (
             <nav className="pagination" aria-label="Страницы броней">
-            {result.page > 1 && (
-              <Link className="btn btn--secondary" href={href({ page: String(result.page - 1) })}>
-                Назад
-              </Link>
-            )}
-            <span>
-              Страница {result.page} из {Math.max(1, Math.ceil(result.total / result.pageSize))}
-            </span>
-            {result.page * result.pageSize < result.total && (
-              <Link className="btn btn--secondary" href={href({ page: String(result.page + 1) })}>
-                Далее
-              </Link>
-            )}
-          </nav>
+              {result.page > 1 && (
+                <Link className="btn btn--secondary" href={href({ page: String(result.page - 1) })}>
+                  Назад
+                </Link>
+              )}
+              <span>
+                Страница {result.page} из {Math.max(1, Math.ceil(result.total / result.pageSize))}
+              </span>
+              {result.page * result.pageSize < result.total && (
+                <Link className="btn btn--secondary" href={href({ page: String(result.page + 1) })}>
+                  Далее
+                </Link>
+              )}
+            </nav>
           )}
         </>
       )}

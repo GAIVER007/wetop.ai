@@ -61,10 +61,12 @@ export default async function NewReservationPage({
         {availability ? (
           <p data-testid="availability" className="booking-dates__availability">
             {pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])}, свободно{' '}
-            {availability.total.available} из {availability.total.units} ячеек:{' '}
-            {(summary?.byCategory ?? [])
-              .map((c) => `${c.name} ${availability.byCategory[c.code]?.available ?? 0}`)
-              .join(', ')}
+            {availability.total.available} из {availability.total.units} ячеек
+            {summary?.byCategory.length
+              ? `: ${summary.byCategory
+                  .map((c) => `${c.name} — ${availability.byCategory[c.code]?.available ?? 0}`)
+                  .join(', ')}`
+              : ''}
             .
           </p>
         ) : (

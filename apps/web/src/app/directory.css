@@ -130,6 +130,11 @@ a.dir-number:hover {
   gap: 8px;
 }
 
+/* слово у суммы видно только на телефоне: на desktop его несёт шапка колонки */
+.dir-cell-word {
+  display: none;
+}
+
 /*
  * Телефон (B1): семь колонок в 390 px не помещаются, и таблица уезжала в прокрутку вбок — видны были
  * только гость, источник и место. Строка складывается в карточку: гость и статус, проживание, место и
@@ -167,66 +172,69 @@ a.dir-number:hover {
     padding: 0;
   }
   /* таблица и тело — блоки: иначе строки-сетки внутри табличной раскладки держат ширину колонок */
-  .tbl.dir-table,
-  .dir-table tbody {
+  .tbl.dir-table--reservations,
+  .dir-table--reservations tbody {
     display: block;
     width: 100%;
     min-width: 0; /* у .tbl min-width 520 px ради прокрутки широких таблиц — здесь строки складываются */
   }
-  .dir-table thead {
+  .dir-table--reservations thead {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip-path: inset(50%);
   }
-  .dir-table tbody tr {
+  .dir-table--reservations tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 4px 16px;
     padding: 8px 16px;
     border-bottom: 1px solid var(--border-soft);
   }
-  .dir-table tbody tr:last-child {
+  .dir-table--reservations tbody tr:last-child {
     border-bottom: 0;
   }
-  .dir-table tbody td,
-  .tbl--nowrap.dir-table tbody td {
+  .dir-table--reservations tbody td,
+  .tbl--nowrap.dir-table--reservations tbody td {
     display: block;
     padding: 0;
     border: 0;
     min-width: 0;
     white-space: normal;
   }
-  .dir-table tbody td:nth-child(1) {
+  .dir-table--reservations tbody td:nth-child(1) {
     grid-column: 1;
     grid-row: 1;
   }
-  .dir-table tbody td:nth-child(5) {
+  .dir-table--reservations tbody td:nth-child(5) {
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
   }
-  .dir-table tbody td:nth-child(4) {
+  .dir-table--reservations tbody td:nth-child(4) {
     grid-column: 1 / -1;
     grid-row: 2;
   }
-  .dir-table tbody td:nth-child(3) {
+  .dir-table--reservations tbody td:nth-child(3) {
     grid-column: 1;
     grid-row: 3;
   }
-  .dir-table tbody td:nth-child(2) {
+  .dir-table--reservations tbody td:nth-child(2) {
     grid-column: 2;
     grid-row: 3;
     justify-self: end;
   }
-  .dir-table tbody td:nth-child(6) {
+  .dir-table--reservations tbody td:nth-child(6) {
     grid-column: 1;
     grid-row: 4;
     text-align: left;
     color: var(--muted);
   }
-  .dir-table tbody td:nth-child(7) {
+  .dir-cell-word {
+    display: inline;
+  }
+  .dir-table--reservations tbody td:nth-child(7) {
     grid-column: 2;
     grid-row: 4;
     justify-self: end;
@@ -249,10 +257,15 @@ a.dir-number:hover {
   color: var(--text-2);
   font-size: var(--text-sm);
 }
+.booking-form.panel--lg {
+  /* подвал ниже бьёт отступ панели отрицательными полями: каскад даёт .panel 20 px (premium.css),
+     поэтому значение закрепляем здесь и одно на обоих */
+  padding: 24px;
+}
 .booking-footer {
   position: sticky;
   bottom: 0;
-  z-index: 2;
+  z-index: var(--layer-sticky);
   /* панель формы — grid: без min-width: 0 неразрывная строка сути растянула бы единственную колонку
      (и все поля формы) шире экрана телефона */
   min-width: 0;
@@ -304,13 +317,16 @@ a.dir-number:hover {
   text-align: right;
 }
 @media (max-width: 600px) {
+  .booking-form.panel--lg {
+    padding: 16px;
+  }
   .booking-footer {
     flex-direction: column;
     align-items: stretch;
     margin: 0 -16px -16px;
     padding: 16px;
-    /* над нижней навигацией (fixed, ~64 px + безопасная зона), а не под ней */
-    bottom: calc(64px + env(safe-area-inset-bottom));
+    /* над нижней навигацией (fixed, ≈67 px + безопасная зона), а не под ней */
+    bottom: calc(68px + env(safe-area-inset-bottom));
   }
   .booking-footer__actions {
     align-items: stretch;

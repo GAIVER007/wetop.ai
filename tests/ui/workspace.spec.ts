@@ -176,10 +176,11 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('main').getByTestId('content-source')).toContainText('Channex');
   await page.goto('/hotel-settings/amenities');
   await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
-  // значение — у своего факта: строгий getByText ловил второй элемент во время перерисовки страницы
-  await expect(page.locator('.fact__label:text-is("Животные") + .fact__value')).toHaveText(
-    'нельзя',
-  );
+  // значение — у своего факта и внутри main: при переходе Next держит уходящую страницу в DOM,
+  // и тот же факт находился дважды (TESTING.md §3)
+  await expect(
+    page.getByRole('main').locator('.fact__label:text-is("Животные") + .fact__value'),
+  ).toHaveText('нельзя');
   await page.goto('/hotel-settings/description');
   await expect(page.getByRole('main').getByTestId('content-description')).toContainText(
     'Вымышленное описание',

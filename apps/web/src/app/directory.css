@@ -336,3 +336,222 @@ a.dir-number:hover {
     min-height: var(--touch-target);
   }
 }
+
+/* ---------- B3: карточка брони — полоса фактов над вкладками, следующее действие, печать ---------- */
+.booking-head {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px 24px;
+  margin: 0 0 24px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.booking-head > div {
+  min-width: 0;
+}
+.booking-head dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.booking-head dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.booking-head dd small,
+.booking-head__sub {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.booking-head dd small.warn-text,
+.booking-head__sub.warn-text {
+  color: var(--warning);
+}
+/* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
+.booking-head__guest {
+  grid-column: 1 / -1;
+}
+.booking-head__guest dd a {
+  color: var(--primary);
+}
+.booking-head__contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.booking-head__contacts a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.booking-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+.booking-print {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+}
+.booking-print__label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-right: 8px;
+}
+/* опасное действие — своя панель с рамкой тона, кнопка названа глаголом (§14) */
+.panel--danger {
+  border-color: var(--danger-border);
+}
+/* проживания в панели 480 px: семь колонок не помещаются, строка складывается в карточку;
+   на телефоне — то же для страницы целиком */
+
+.booking-drawer .tbl.dir-table--stays,
+.booking-drawer .dir-table--stays tbody {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.booking-drawer .dir-table--stays thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.booking-drawer .dir-table--stays tbody tr {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.booking-drawer .dir-table--stays tbody tr:last-child {
+  border-bottom: 0;
+}
+.booking-drawer .dir-table--stays tbody td {
+  display: block;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  white-space: normal;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(2) {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  color: var(--muted);
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(5) {
+  grid-column: 4;
+  grid-row: 1;
+  justify-self: end;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(3)::after {
+  content: ' →';
+  color: var(--muted);
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(4) {
+  grid-column: 2 / 4;
+  grid-row: 2;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(6) {
+  grid-column: 4;
+  grid-row: 2;
+  justify-self: end;
+}
+.booking-drawer .dir-table--stays tbody td:nth-child(7) {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+@media (max-width: 600px) {
+  .tbl.dir-table--stays,
+  .dir-table--stays tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--stays thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--stays tbody tr {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--stays tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--stays tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--stays tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--stays tbody td:nth-child(2) {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    color: var(--muted);
+  }
+  .dir-table--stays tbody td:nth-child(5) {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--stays tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dir-table--stays tbody td:nth-child(3)::after {
+    content: ' →';
+    color: var(--muted);
+  }
+  .dir-table--stays tbody td:nth-child(4) {
+    grid-column: 2 / 4;
+    grid-row: 2;
+  }
+  .dir-table--stays tbody td:nth-child(6) {
+    grid-column: 4;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .dir-table--stays tbody td:nth-child(7) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}

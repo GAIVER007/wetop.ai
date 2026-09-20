@@ -253,3 +253,86 @@ test('шахматка: плашки «сверх мест» и «требует
   await cardTab(page, 'Действия');
   await expect(page.getByRole('main').getByTestId('assign-form')).toBeVisible();
 });
+
+/**
+ * B3 «Карточка брони» (tasks/todo.md): сверху — гость, даты, место, гостей, стоимость и остаток одной
+ * полосой над вкладками; следующее действие смены первым в «Обзоре»; проживания в панели 480 px без
+ * прокрутки вбок; опасное действие названо до окна; Escape закрывает панель и возвращает фокус туда,
+ * откуда её открыли (DESIGN.md §12) — контекст списка сохранён.
+ */
+test('карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус', async ({
+  page,
+}) => {
+  await page.goto('/reservations');
+  const opener = page.getByRole('link', { name: `Открыть бронь ${BOOKING}` });
+  await opener.click();
+  const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+  await expect(drawer).toBeVisible();
+  const head = drawer.getByTestId('booking-head');
+  await expect(head.getByTestId('guest-link')).toHaveText('Гость Тестовый');
+  await expect(head).toContainText('гражданство KAZ');
+  await expect(head).toContainText(`${dd(today)} → ${dd(plus(3))}`);
+  await expect(head).toContainText('3 ночи');
+  await expect(head.getByTestId('booking-place')).toHaveText('R01');
+  // плашка суммы: слово и число — два span без пробела в DOM (AmountChip)
+  await expect(head.getByTestId('booking-due')).toHaveText(/к оплате\s*16 000 ₸/);
+  // полоса видна и из вкладки «Счета» — она над вкладками
+  await drawer.getByRole('tab', { name: 'Счета', exact: true }).click();
+  await expect(head).toBeVisible();
+  await drawer.getByRole('tab', { name: 'Обзор', exact: true }).click();
+  // проживания: семь колонок сложены в карточку, панель не прокручивается вбок
+  const stays = drawer.getByTestId('stays-table');
+  await expect(stays.getByTestId('stay-row')).toHaveCount(1);
+  await expect(stays.getByTestId('stay-row')).toContainText('Двухместный номер');
+  const overflow = await stays
+    .locator('xpath=..')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const drawerOverflow = await drawer.evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(drawerOverflow).toBeLessThanOrEqual(1);
+  // печатные формы — ссылки словами, без « · », внизу обзора
+  await expect(drawer.getByRole('link', { name: 'Договор KZ' })).toBeVisible();
+  // следующее действие ведёт во вкладку, не в историю: одно нажатие Escape закроет панель
+  await drawer.getByRole('link', { name: 'Продлить или переселить' }).click();
+  await expect(drawer.getByRole('tab', { name: 'Действия', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  // опасное действие названо до окна
+  const cancelPanel = drawer.getByTestId('cancel-panel');
+  await expect(cancelPanel).toContainText('Отмена брони');
+  await expect(cancelPanel).toContainText('место вернётся в продажу');
+  const cancelButton = cancelPanel.getByTestId('cancel-reservation');
+  await cancelButton.click();
+  const confirm = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
+  await expect(confirm.getByTestId('cancel-penalty')).toHaveText(
+    'Штраф 8 000 ₸ останется на счёте',
+  );
+  await page.keyboard.press('Escape');
+  await expect(confirm).toBeHidden();
+  await expect(cancelButton).toBeFocused();
+  await expect(drawer).toBeVisible();
+  // Escape закрывает панель, список под ней остаётся, фокус — на ссылке, откуда открыли
+  await page.keyboard.press('Escape');
+  await expect(drawer).toBeHidden();
+  await expect(page).toHaveURL(/\/reservations(\?|$)/);
+  await expect(page.getByRole('main').getByTestId('reservations-table')).toBeVisible();
+  await expect(opener).toBeFocused();
+});
+
+test('карточка B3 на телефоне: полоса и проживания без прокрутки вбок', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/reservations/${BOOKING}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('booking-head')).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  const stays = main.getByTestId('stays-table');
+  await expect(stays.getByTestId('stay-row')).toContainText('R01');
+  const tableOverflow = await stays
+    .locator('xpath=..')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(tableOverflow).toBeLessThanOrEqual(1);
+});

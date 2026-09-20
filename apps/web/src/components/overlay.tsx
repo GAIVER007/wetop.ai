@@ -37,6 +37,10 @@ export function Overlay({
       className={`ui-overlay ${drawer ? 'ui-drawer' : ''} ${className}`}
       aria-labelledby={titleId}
       onCancel={(e) => {
+        // Нативный cancel не всплывает, но React доставляет его и родителям по дереву компонентов:
+        // Escape в окне подтверждения внутри панели закрывал и панель (найдено B3, 20.09).
+        // Панель реагирует только на свой cancel — одно нажатие закрывает одно окно (DESIGN.md §12).
+        if (e.target !== e.currentTarget) return;
         e.preventDefault();
         onClose();
       }}

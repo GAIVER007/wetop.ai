@@ -92,7 +92,29 @@ export function ReservationActions(props: {
   const canEdit = OPEN.has(props.status);
   return (
     <section data-testid="reservation-actions" className="stack stack--mt">
-      <EditForm number={props.number} source={props.source} notes={props.notes} />
+      {props.items
+        .filter(
+          (it) =>
+            it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
+        )
+        .map((it) => (
+          <Stack key={it.id} gap="sm">
+            <StayButtons
+              number={props.number}
+              currency={props.currency}
+              item={it}
+              ratePlans={props.ratePlans}
+            />
+            <GuestsForm number={props.number} item={it} />
+            <AssignForm
+              number={props.number}
+              currency={props.currency}
+              item={it}
+              arrivalDate={props.arrivalDate}
+              ratePlans={props.ratePlans}
+            />
+          </Stack>
+        ))}
       {canEdit && (
         // Поля неконтролируемые: defaultValue применяется только при монтировании, поэтому после
         // «Продлить на ночь» или переселения форма показывала бы прежние даты, а сохранение молча
@@ -151,31 +173,15 @@ export function ReservationActions(props: {
           {datesState.error && <Alert>{datesState.error}</Alert>}
         </form>
       )}
-      {props.items
-        .filter(
-          (it) =>
-            it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
-        )
-        .map((it) => (
-          <Stack key={it.id} gap="sm">
-            <StayButtons
-              number={props.number}
-              currency={props.currency}
-              item={it}
-              ratePlans={props.ratePlans}
-            />
-            <GuestsForm number={props.number} item={it} />
-            <AssignForm
-              number={props.number}
-              currency={props.currency}
-              item={it}
-              arrivalDate={props.arrivalDate}
-              ratePlans={props.ratePlans}
-            />
-          </Stack>
-        ))}
+      <EditForm number={props.number} source={props.source} notes={props.notes} />
       {canEdit && (
-        <div className="panel">
+        // Опасное действие названо до окна: что необратимо и что покажем перед подтверждением (B3)
+        <div className="panel panel--danger" data-testid="cancel-panel">
+          <PanelTitle>Отмена брони</PanelTitle>
+          <p className="hint">
+            Необратимо: место вернётся в продажу и уйдёт в каналы. Штраф по тарифу, если он положен,
+            покажем до подтверждения.
+          </p>
           <div>
             <Button
               type="button"

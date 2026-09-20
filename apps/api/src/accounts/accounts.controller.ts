@@ -15,18 +15,15 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
-  CODE_REJECTED_MESSAGE,
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
   SESSION_ENDED_MESSAGE,
-  SESSION_TTL_MS,
 } from '@pms/domain';
 import {
   AccountsService,
   type InvitePreview,
   type InviteView,
-  type Session,
   type SessionRow,
 } from './accounts.service';
 import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie';
@@ -66,95 +63,14 @@ export function clientIp(cfIp: string | undefined): string | null {
   return v ? v : null;
 }
 
-interface SessionView {
-  email: string;
-  organizationId: string;
-  organizationName: string;
-  organizationStatus: string;
-  trialEndsAt: string | null;
-}
-
-function view(s: Session): SessionView {
-  return {
-    email: s.email,
-    organizationId: s.organizationId,
-    organizationName: s.organizationName,
-    organizationStatus: s.organizationStatus,
-    trialEndsAt: s.trialEndsAt ? s.trialEndsAt.toISOString() : null,
-  };
-}
-
 @Controller('auth')
 export class AccountsController {
   constructor(@Inject(AccountsService) private readonly accounts: AccountsService) {}
 
-  /**
-   * Запросить код. Всегда 204, что бы ни случилось: есть такой адрес, нет его, исчерпан предел —
-   * ответ один. Иначе перебором по форме входа составляется список наших клиентов.
-   */
-  @Post('code')
-  @Public()
-  @HttpCode(204)
-  async requestCode(
-    @Body() body: { email?: unknown },
-    @Headers('cf-connecting-ip') cfIp?: string,
-  ): Promise<void> {
-    await this.accounts.requestCode(body?.email, clientIp(cfIp));
-  }
-
-  /** Проверить код и войти. Отказ — всегда один и тот же текст, без подробностей. */
-  @Post('verify')
-  @Public()
-  @HttpCode(200)
-  async verify(
-    @Body() body: { email?: unknown; code?: unknown },
-    @Res({ passthrough: true }) res: Response,
-    @Headers('user-agent') userAgent?: string,
-  ): Promise<{ token: string; session: SessionView }> {
-    const result = await this.accounts.verify(body?.email, body?.code, userAgent?.trim() || null);
-    if (!result) throw new UnauthorizedException(CODE_REJECTED_MESSAGE);
-    const opts = cookieOptions(process.env, Math.floor(SESSION_TTL_MS / 1000));
-    res.cookie(SESSION_COOKIE, result.token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: opts.secure,
-      maxAge: opts.maxAgeSeconds * 1000,
-      ...(opts.domain ? { domain: opts.domain } : {}),
-    });
-    // Ключ отдаём и телом: стойка ходит в API и со своего сервера, где куки браузера нет.
-    return { token: result.token, session: view(result.session) };
-  }
-
-  /** Кто вошёл. Экрану `/login` нужно это, чтобы понимать, показывать форму или рабочее место. */
-  @Get('me')
-  async me(
-    @Headers('cookie') cookie?: string,
-    @Headers('authorization') authorization?: string,
-  ): Promise<SessionView> {
-    const session = await this.accounts.whoIs(tokenFrom(cookie, authorization));
-    if (!session) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
-    return view(session);
-  }
-
-  /** Выход. Всегда 204: выйти повторно или с чужим ключом — не ошибка, а пустое действие. */
-  @Post('logout')
-  @HttpCode(204)
-  async logout(
-    @Res({ passthrough: true }) res: Response,
-    @Headers('cookie') cookie?: string,
-    @Headers('authorization') authorization?: string,
-  ): Promise<void> {
-    await this.accounts.logout(tokenFrom(cookie, authorization));
-    const opts = cookieOptions(process.env, 0);
-    res.clearCookie(SESSION_COOKIE, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: opts.secure,
-      ...(opts.domain ? { domain: opts.domain } : {}),
-    });
-  }
+  // Вход по коду на почту снят 20.09.2026 (ADR-053): маршруты POST /auth/code и POST /auth/verify
+  // убраны вместе с ним. Здесь же висели GET /auth/me и POST /auth/logout — они не отвечали никому:
+  // AuthModule подключён раньше AccountsModule, и те же пути перехватывал AuthController, который
+  // понимает отпечаток сессии по паролю. Сняты как мёртвые, чтобы двух хозяев у одного пути не было.
 
   // ── «Где я вошёл» и «выйти везде» (§13.5) ────────────────────────────────────────────────────
 

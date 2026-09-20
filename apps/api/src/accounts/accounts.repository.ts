@@ -10,15 +10,6 @@ export interface AccountRecord {
   trialEndsAt: Date | null;
 }
 
-/** Одноразовый код в том виде, в каком он лежит в базе: сам код здесь не хранится, только отпечаток. */
-export interface LoginCodeRecord {
-  id: string;
-  codeHash: string;
-  expiresAt: Date;
-  attempts: number;
-  usedAt: Date | null;
-}
-
 export interface SessionRecord {
   userId: string;
   email: string;
@@ -51,20 +42,8 @@ export interface InviteRecord {
 }
 
 export interface AccountsRepository {
-  /** Сколько кодов запрошено на этот адрес с момента `since`. Для предела 5 в час. */
-  codesForEmailSince(email: string, since: Date): Promise<number>;
-  /** Сколько кодов запрошено с этого адреса сети. Для предела 20 в час. */
-  codesForIpSince(ip: string, since: Date): Promise<number>;
-  saveLoginCode(input: {
-    email: string;
-    codeHash: string;
-    expiresAt: Date;
-    ip: string | null;
-  }): Promise<void>;
-  /** Последний непогашенный код для адреса. Старые коды не удаляем — по ним считаются пределы. */
-  latestLoginCode(email: string): Promise<LoginCodeRecord | null>;
-  markCodeAttempt(id: string): Promise<void>;
-  markCodeUsed(id: string, at: Date): Promise<void>;
+  // Коды на почту (пределы, выдача, проверка) сняты 20.09.2026 вместе со входом по коду (ADR-053).
+  // Там же снят createSession: сессии заводит только AuthService, а читать их отсюда по-прежнему нужно.
 
   accountByEmail(email: string): Promise<AccountRecord | null>;
   /**
@@ -79,13 +58,6 @@ export interface AccountsRepository {
   }): Promise<AccountRecord | null>;
   markLogin(userId: string, at: Date): Promise<void>;
 
-  createSession(input: {
-    tokenHash: string;
-    userId: string;
-    organizationId: string;
-    expiresAt: Date;
-    userAgent: string | null;
-  }): Promise<void>;
   sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>;
   revokeSession(tokenHash: string, at: Date): Promise<void>;
   /** Живые сессии человека (не отозванные, не протухшие на `now`), новые сверху — «где я вошёл». */

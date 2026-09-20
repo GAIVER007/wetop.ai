@@ -8,7 +8,7 @@ import { SessionGuard } from './auth.guard';
 import type { AuthService } from './auth.service';
 
 /** Реальный guard и метаданные контроллера: вход не должен требовать уже существующего входа. */
-describe('объединение входа по коду с включённым SessionGuard', () => {
+describe('публичные маршруты при включённом SessionGuard', () => {
   beforeEach(() => vi.stubEnv('AUTH_REQUIRED', '1'));
   afterEach(() => vi.unstubAllEnvs());
 
@@ -22,7 +22,7 @@ describe('объединение входа по коду с включённы�
     return new SessionGuard(new Reflector(), auth).canActivate(context);
   }
 
-  it.each(['requestCode', 'verify', 'inviteByToken', 'acceptInvite'] as const)(
+  it.each(['inviteByToken', 'acceptInvite'] as const)(
     '%s доступен без сессии, проверку кода/ссылки выполняет сам обработчик',
     async (method) => {
       await expect(guardFor(method)).resolves.toBe(true);

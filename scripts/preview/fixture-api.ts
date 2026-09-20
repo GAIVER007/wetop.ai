@@ -484,7 +484,13 @@ function seedDesign() {
     },
   ];
 }
-const allCards = () => [card, ...extraCards.values()];
+/**
+ * Стенд без единой брони, но с фондом, категориями и ценами — это состояние боевой базы после
+ * очистки 19.09.2026 (ADR-052) и до первой живой смены. Экраны обязаны в нём открываться и
+ * говорить, что броней нет, а не выглядеть сломанными.
+ */
+let noBookings = false;
+const allCards = () => (noBookings ? [] : [card, ...extraCards.values()]);
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
 function getGuest(id: string) {
@@ -1232,19 +1238,8 @@ const uiUser: UiUser = {
   organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
 };
 let uiPassword = 'ui-test-parol';
-/** Сессии обоих входов (Q-146): ключ → кто вошёл; по коду — вымышленная организация на пробном периоде */
+/** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
-const codeUser = (email: string): UiUser => ({
-  id: 'ui-code-user',
-  email,
-  name: null,
-  organizationId: 'org-fixture',
-  organization: {
-    name: 'Хостел «Пример»',
-    status: 'TRIAL',
-    trialEndsAt: new Date(Date.now() + 5 * 24 * 3600_000).toISOString(),
-  },
-});
 
 /**
  * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
@@ -1970,6 +1965,7 @@ createServer(async (req, res) => {
       rejectCreate = false;
       failPath = '';
       emptyFixture = false;
+      noBookings = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -1996,6 +1992,7 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      noBookings = body['noBookings'] === true;
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
@@ -2210,7 +2207,7 @@ createServer(async (req, res) => {
       uiSessions.clear();
       return noContent();
     }
-    if (path === '/auth/code' && req.method === 'POST') return noContent();
+    // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
     // Регистрация по паролю (ADR-053): почта, имя, пароль — и сразу сессия, как после входа.
     if (path === '/auth/register' && req.method === 'POST') {
       const email = String(body['email'] ?? '').trim();
@@ -2233,23 +2230,6 @@ createServer(async (req, res) => {
         token,
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
         user: who,
-      });
-    }
-    if (path === '/auth/verify' && req.method === 'POST') {
-      if (body['code'] !== '123456')
-        return send(401, { message: 'Код не подошёл. Запросите новый.' });
-      const who = codeUser(String(body['email']).trim().toLowerCase());
-      const token = `ui-code-session-${uiSessions.size + 1}`;
-      uiSessions.set(token, who);
-      return send(200, {
-        token,
-        session: {
-          email: who.email,
-          organizationId: who.organizationId,
-          organizationName: who.organization.name,
-          organizationStatus: who.organization.status,
-          trialEndsAt: who.organization.trialEndsAt,
-        },
       });
     }
     if (path === '/auth/password-reset/request' && req.method === 'POST') {

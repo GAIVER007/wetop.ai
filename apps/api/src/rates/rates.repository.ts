@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { DbTx } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { mergeRestrictions } from './restriction-merge';
 import { propertyIdRef } from '../database/property-ref';

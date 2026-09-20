@@ -85,7 +85,7 @@ function install(sb: Sandbox, args: string[]) {
     timeout: 90_000,
   });
   const calls = existsSync(sb.calls) ? readFileSync(sb.calls, 'utf8') : '';
-  return { out: `${res.stdout}${res.stderr}`, calls };
+  return { out: `${res.stdout}${res.stderr}`, calls, code: res.status };
 }
 
 describe('launchd install.sh', () => {
@@ -111,10 +111,12 @@ describe('launchd install.sh', () => {
     return readFileSync(file!, 'utf8');
   };
 
-  it('задача синхронизации Exely берёт одно соединение, чтобы не съесть пулер', () => {
-    expect(dryPlist('exely-sync')).toMatch(
-      /<key>DATABASE_POOL_MAX<\/key><string>1<\/string>/,
-    );
+  it('задачи exely-sync больше нет: Exely перестал быть источником (ADR-052)', () => {
+    // Пока задача принималась, её легко было поставить обратно одной командой — и она снова начала бы
+    // тянуть брони из системы, от которой отказались, поверх ручных правок смены.
+    const { out, code } = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'exely-sync']);
+    expect(code, `install.sh принял снятую задачу:\n${out}`).not.toBe(0);
+    expect(out).toContain('неизвестно: exely-sync');
   });
 
   it('службам пул не урезаем: у API он свой', () => {
@@ -142,24 +144,6 @@ describe('launchd install.sh', () => {
     expect(out).toContain('загружен');
     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.web\.plist/);
   }, 60_000);
-
-  it('exely-sync (ADR-032, владелец 13.09.2026): раз в 5 минут, без KeepAlive, одним процессом node --import tsx', () => {
-    const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0 });
-    const { out } = install(sb, ['--dry', 'exely-sync']);
-    const plistPath = out.match(/(\/\S+kz\.luxx\.pms\.exely-sync\.plist) собран и проверен/)?.[1];
-    expect(plistPath, out).toBeTruthy();
-    const plist = readFileSync(plistPath!, 'utf8');
-    expect(plist).toMatch(/<key>StartInterval<\/key><integer>300<\/integer>/);
-    expect(plist).toMatch(/<key>KeepAlive<\/key><false\/>/);
-    expect(plist).toContain('<string>--import</string>');
-    expect(plist).toContain('<string>scripts/imports/src/cli-sync-day.ts</string>');
-    expect(plist).toContain('<string>--auto</string>');
-    // стойку и остальные задачи интервал не касается
-    const web = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'web']).out;
-    const webPlist = readFileSync(web.match(/(\/\S+kz\.luxx\.pms\.web\.plist) собран/)![1]!, 'utf8');
-    expect(webPlist).not.toContain('StartInterval');
-    expect(webPlist).toMatch(/<key>KeepAlive<\/key><true\/>/);
-  });
 
   onMac('переустановка ждёт, пока launchd снимет прежний экземпляр, и только потом загружает', () => {
     const sb = sandbox({ nodeDelaySec: 0, releaseSec: 0, unloadSec: 3 });

@@ -7,10 +7,11 @@
  * Пишет reports/wetop-channex-staging-YYYY-MM-DD.md. Код выхода 1, если хоть одна проверка не прошла.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
 import { serviceFetch } from '../../lib/service-api';
+import { deskHeaders, judgeDeskPage, reportTarget } from '../../lib/desk-page';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -28,9 +29,10 @@ const get = async <T>(path: string): Promise<T> => {
   if (!res.ok) throw new Error(`API ${path}: HTTP ${res.status}`);
   return (await res.json()) as T;
 };
+// Стойка за замком (ADR-053): сессию даёт WEB_SESSION_COOKIE, без неё экранная проверка помечается пропущенной
 const page = async (path: string) => {
-  const res = await fetch(`${WEB}${path}`, { signal: AbortSignal.timeout(120_000) });
-  return { status: res.status, html: await res.text() };
+  const res = await fetch(`${WEB}${path}`, { headers: deskHeaders(), signal: AbortSignal.timeout(120_000) });
+  return { status: res.status, url: res.url, html: await res.text() };
 };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const plus = (n: number) => new Date(Date.now() + (n * 24 + 5) * 3600 * 1000).toISOString().slice(0, 10);
@@ -104,10 +106,16 @@ async function availabilityMatches(): Promise<{ pms: number; channex: number; se
   }
 }
 
-const checks: Array<{ step: string; ok: boolean; detail: string }> = [];
+const checks: Array<{ step: string; ok: boolean | null; detail: string }> = [];
 const check = (step: string, ok: boolean, detail: string) => {
   checks.push({ step, ok, detail });
   console.log(`${ok ? 'ок  ' : 'FAIL'} ${step}: ${detail}`);
+};
+// Экран стойки: ок / FAIL / пропущено (замок без сессии) — третий исход не красный и не зелёный
+const checkPage = (step: string, p: { status: number; url: string; html: string }, expected: (html: string) => boolean) => {
+  const v = judgeDeskPage(p, expected);
+  checks.push({ step, ok: v.verdict === 'locked' ? null : v.verdict === 'ok', detail: v.detail });
+  console.log(`${v.verdict === 'ok' ? 'ок  ' : v.verdict === 'locked' ? 'проп' : 'FAIL'} ${step}: ${v.detail}`);
 };
 
 // 0. До брони
@@ -132,12 +140,10 @@ if (number) {
     `/reservations/${encodeURIComponent(number)}`,
   );
   check('карточка в API: канал и статус', card.source === 'OTA' && card.status === 'CONFIRMED', `source ${card.source}, channel ${card.channel}, status ${card.status}, ячейка ${card.items[0]?.unitCode ?? 'без ячейки'}`);
-  const cardPage = await page(`/reservations/${encodeURIComponent(number)}`);
-  check('WETOP: карточка брони', cardPage.status === 200 && cardPage.html.includes(number) && !cardPage.html.includes('Не удалось загрузить данные'), `HTTP ${cardPage.status}`);
-  const board = await page(`/chessboard?from=${ARRIVAL}&to=${ARRIVAL}`);
-  check('WETOP: бронь на шахматке', board.html.includes(encodeURIComponent(number)) || board.html.includes(number), `HTTP ${board.status}`);
-  const report = await page(`/channel-manager?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`);
-  check('WETOP: «Менеджер каналов» видит канал', report.status === 200 && report.html.includes(card.channel ?? OTA_NAME), `HTTP ${report.status}`);
+  const n = number;
+  checkPage('WETOP: карточка брони', await page(`/reservations/${encodeURIComponent(n)}`), (h) => h.includes(n) && !h.includes('Не удалось загрузить данные'));
+  checkPage('WETOP: бронь на шахматке', await page(`/chessboard?from=${ARRIVAL}&to=${ARRIVAL}`), (h) => h.includes(encodeURIComponent(n)) || h.includes(n));
+  checkPage('WETOP: «Менеджер каналов» видит канал', await page(`/channel-manager?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`), (h) => h.includes(card.channel ?? OTA_NAME));
   const afterCreate = await availabilityMatches();
   check('после брони: остаток PMS = Channex, на 1 меньше', afterCreate.pms === afterCreate.channex && afterCreate.pms === availBefore.pms - 1, `PMS ${afterCreate.pms}, Channex ${afterCreate.channex}, за ${afterCreate.seconds} с`);
 }
@@ -157,22 +163,26 @@ if (number) {
 }
 
 const at = new Date();
-const failed = checks.filter((c) => !c.ok);
+const failed = checks.filter((c) => c.ok === false);
+const skipped = checks.filter((c) => c.ok === null);
 const md = [
   `# WETOP + Channex staging: живой цикл брони канала (${at.toISOString().slice(0, 10)})`,
   '',
   `Снято ${at.toISOString().slice(0, 16).replace('T', ' ')} UTC. Канал ${OTA_NAME} (Booking CRS API, staging), категория \`${category}\`,`,
   `ночь ${ARRIVAL}, код ${code}${number ? `, бронь PMS \`${number}\`` : ''}. Гость вымышленный, бронь отменена в конце цикла.`,
   '',
-  failed.length === 0 ? '**RESULT: OK** — бронь канала прошла через PMS и экраны WETOP туда и обратно, остаток сходится.' : `**RESULT: FAIL** — не прошло проверок: ${failed.length}.`,
+  failed.length === 0
+    ? `**RESULT: OK** — бронь канала прошла через PMS${skipped.length ? '' : ' и экраны WETOP'} туда и обратно, остаток сходится.${skipped.length ? ` Экранных проверок пропущено: ${skipped.length} (стойка за замком, задайте WEB_SESSION_COOKIE).` : ''}`
+    : `**RESULT: FAIL** — не прошло проверок: ${failed.length}.`,
   '',
   '| Шаг | Итог | Подробности |',
   '|---|---|---|',
-  ...checks.map((c) => `| ${c.step} | ${c.ok ? 'ок' : '**FAIL**'} | ${c.detail} |`),
+  ...checks.map((c) => `| ${c.step} | ${c.ok === null ? 'пропущено' : c.ok ? 'ок' : '**FAIL**'} | ${c.detail} |`),
   '',
 ].join('\n');
-mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
-const out = resolve(ROOT, `reports/wetop-channex-staging-${at.toISOString().slice(0, 10)}.md`);
+// В образе папка проекта только для чтения — отчёт идёт в REPORTS_DIR, если он задан
+const out = reportTarget(ROOT, process.env, `wetop-channex-staging-${at.toISOString().slice(0, 10)}.md`);
+mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, md);
 console.log(`→ ${out}`);
 process.exit(failed.length ? 1 : 0);

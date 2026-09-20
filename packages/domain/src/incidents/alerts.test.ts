@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alertDue, formatAlert, type AlertCandidate } from './alerts';
+import { alertDue, effectiveSeverity, formatAlert, type AlertCandidate } from './alerts';
 
 /**
  * Будильник (план среза 11, §6): CRITICAL — сразу в любое время и повторно каждые 30 минут, пока человек
@@ -84,5 +84,39 @@ describe('formatAlert', () => {
     const text = formatAlert(many, at(3));
     expect(text.length).toBeLessThanOrEqual(4000);
     expect(text).toMatch(/ещё \d+/);
+  });
+});
+
+/**
+ * 16–19.09.2026 туннель лежал трое суток, а «адрес webhook не отвечает» открывалось и закрывалось само,
+ * будило один раз и затихало. Правило: неисправность, висящая больше суток, становится срочной, что бы
+ * ни было записано в политике вида — будит ночью и повторяет каждые 30 минут, пока не нажали «Принято».
+ */
+describe('залежавшаяся неисправность становится срочной', () => {
+  const DAY = 24 * 3600_000;
+  it('WARNING старше суток будит ночью и повторно, как CRITICAL', () => {
+    const now = at(3);
+    const stale = c({
+      severity: 'WARNING',
+      kind: 'feed.stale',
+      firstSeenAt: new Date(now.getTime() - DAY - 3600_000),
+      alertedAt: new Date(now.getTime() - 40 * 60_000),
+    });
+    expect(effectiveSeverity(stale, now)).toBe('CRITICAL');
+    expect(alertDue(stale, now)).toBe(true);
+  });
+  it('WARNING моложе суток остаётся WARNING: ночью ждёт утра', () => {
+    const now = at(3);
+    const fresh = c({ severity: 'WARNING', kind: 'feed.stale', firstSeenAt: new Date(now.getTime() - 2 * 3600_000) });
+    expect(effectiveSeverity(fresh, now)).toBe('WARNING');
+    expect(alertDue(fresh, now)).toBe(false);
+  });
+  it('в сообщении залежавшаяся помечена красным и сроком', () => {
+    const now = at(12);
+    const stale = c({ severity: 'WARNING', kind: 'feed.stale', title: 'Лента Channex не опрашивалась', firstSeenAt: new Date(now.getTime() - 3 * DAY) });
+    const text = formatAlert([stale], now);
+    expect(text).toContain('🔴');
+    expect(text).toContain('висит 3 дн.');
+    expect(text).toContain('срочных: 1');
   });
 });

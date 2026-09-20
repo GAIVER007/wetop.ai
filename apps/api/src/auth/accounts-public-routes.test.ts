@@ -28,7 +28,10 @@ describe('объединение входа по коду с включённы�
     },
   );
 
-  it.each(['createInvite', 'invites'] as const)('%s остаётся закрыт без сессии', async (method) => {
-    await expect(guardFor(method)).rejects.toThrow('Войдите в систему');
-  });
+  it.each(['createInvite', 'invites', 'sessions', 'logoutAll'] as const)(
+    '%s остаётся закрыт без сессии',
+    async (method) => {
+      await expect(guardFor(method)).rejects.toThrow('Войдите в систему');
+    },
+  );
 });

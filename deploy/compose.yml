@@ -7,8 +7,6 @@
 #   cloudflared — именованный туннель: app.wetop.ai и api.wetop.ai. Адреса при переезде не меняются,
 #                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
 #                 Поднимается ПОСЛЕ сверки двух баз, отдельно: up -d cloudflared (план, шаг 4).
-#   exely-sync  — синхронизация с Exely (ADR-032), раз в 5 минут, как задача launchd на Mac
-#                 (scripts/ops/launchd/install.sh: StartInterval 300, владелец 13.09.2026).
 #
 # Портов наружу НЕ публикуем (expose, не ports): снаружи объект виден только через туннель. Внутри сети
 # compose службы зовут друг друга по имени, поэтому API и стойка слушают здесь 0.0.0.0 — на Mac умолчание
@@ -20,7 +18,7 @@
 # База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
 # Боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15).
 #
-# Запуск:   docker compose -f deploy/compose.yml up -d --build api web exely-sync
+# Запуск:   docker compose -f deploy/compose.yml up -d --build api web
 # Обновить: git pull && docker compose -f deploy/compose.yml up -d --build
 # Смотреть: docker compose -f deploy/compose.yml ps ; docker compose -f deploy/compose.yml logs -f api
 name: pms-lux
@@ -109,16 +107,5 @@ services:
       api: { condition: service_healthy }
       web: { condition: service_healthy }
 
-  # Пул на одно соединение: прогон последовательный, а лишние клиенты переполняют пулер
-  # и роняют запросы стойки в 500 (15.09.2026, TESTING.md §1).
-  # В день двойного ввода службу снимают: docker compose -f deploy/compose.yml stop exely-sync
-  exely-sync:
-    <<: *app
-    command:
-      - sh
-      - -c
-      - 'while true; do node --import tsx scripts/imports/src/cli-sync-day.ts --auto || true; sleep 300; done'
-    environment:
-      DATABASE_POOL_MAX: '1'
-    depends_on:
-      api: { condition: service_healthy }
+# Службы exely-sync здесь больше нет: Exely перестал быть источником данных 19.09.2026 (ADR-052).
+# Брони приходят из Channex webhook'ом и заводятся на стойке; синхронизировать нечего.

@@ -12,7 +12,8 @@ import { resolve } from 'node:path';
  *  - отчёт пишется в `REPORTS_DIR`, если задан (в образе папка проекта только для чтения), иначе в
  *    `reports/` проекта.
  */
-export type DeskPage = { status: number; url: string; html: string };
+/** `status: 0` и `unreachable` — до стойки не достучались вовсе (нет службы по этому адресу). */
+export type DeskPage = { status: number; url: string; html: string; unreachable?: string };
 export type DeskVerdict = { verdict: 'ok' | 'fail' | 'locked'; detail: string };
 
 export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolean): DeskVerdict {
@@ -27,6 +28,14 @@ export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolea
   }
   if (path === '/login' || path.startsWith('/login/')) {
     return { verdict: 'locked', detail: 'стойка за замком: нет сессии, проверка пропущена' };
+  }
+  // Стойки по этому адресу нет вовсе (прогон изнутри контейнера API, другая машина, служба лежит).
+  // Это пропуск, а не отказ: цикл проверяет путь брони, а не доступность стойки отсюда.
+  if (page.status === 0) {
+    return {
+      verdict: 'locked',
+      detail: `стойка недоступна отсюда: ${page.unreachable ?? page.url}`,
+    };
   }
   const ok = page.status === 200 && expected(page.html);
   return { verdict: ok ? 'ok' : 'fail', detail: `HTTP ${page.status}` };

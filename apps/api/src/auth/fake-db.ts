@@ -145,6 +145,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           failedAttempts: 0,
           lockedUntil: null,
           ...data,
+          // поле есть и в `data`, поэтому умолчание ставится после раскрытия, а не до него
           lastLoginAt: data.lastLoginAt ?? null,
         };
         users.push(row);

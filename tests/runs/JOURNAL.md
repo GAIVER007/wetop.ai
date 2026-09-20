@@ -1222,3 +1222,16 @@
 | 20.09.2026 19:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-refresh.spec.ts --workers=1) | ✅ 7 из 7 | 1 мин 8 с | c3b0345 +1 | [лог](logs/2026-09-20T14-29-10Z-e2e-b5b8.log) |  |
 | 20.09.2026 19:31 | unit | ✅ 1339 из 1342, пропущено 3 | 1 мин 13 с | b6895cc | [лог](logs/2026-09-20T14-31-42Z-unit-7e26.log) |  |
 | 20.09.2026 19:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/invites.spec.ts tests/ui/sessions.spec.ts tests/ui/login-access.spec.ts tests/ui/system-screens.s | ✅ 35 из 35 | 2 мин 15 с | b6895cc | [лог](logs/2026-09-20T14-32-55Z-e2e-93d7.log) |  |
+| 20.09.2026 18:37 | typecheck | ❌ ошибок: 1 | 19 с | a38b83c | [лог](logs/2026-09-20T13-37-57Z-typecheck-e5e6.log) | TS2783 |
+| 20.09.2026 18:38 | lint | ✅ без ошибок | 10 с | a38b83c | [лог](logs/2026-09-20T13-38-17Z-lint-e75a.log) |  |
+| 20.09.2026 18:38 | unit | ✅ 1336 из 1339, пропущено 3 | 1 мин 12 с | a38b83c | [лог](logs/2026-09-20T13-38-28Z-unit-63ad.log) |  |
+| 20.09.2026 18:39 | typecheck | ✅ без ошибок | 16 с | a38b83c +1 | [лог](logs/2026-09-20T13-39-59Z-typecheck-3c23.log) |  |
+| 20.09.2026 18:40 | unit (частично: apps/api/src/auth) | ✅ 77 из 77 | 4 с | a38b83c +1 | [лог](logs/2026-09-20T13-40-15Z-unit-8ef2.log) |  |
+| 20.09.2026 18:40 | integration | ✅ 45 из 45 | 13 с | a38b83c +1 | [лог](logs/2026-09-20T13-40-29Z-integration-0f9c.log) |  |
+| 20.09.2026 18:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 4 из 182 | 14 мин 16 с | a38b83c +1 | [лог](logs/2026-09-20T13-40-50Z-e2e-7991.log) | вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом |
+| 20.09.2026 18:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 44 с | a38b83c +3 | [лог](logs/2026-09-20T13-57-27Z-e2e-971f.log) |  |
+| 20.09.2026 19:10 | typecheck | ✅ без ошибок | 16 с | 84bb579 | [лог](logs/2026-09-20T14-10-18Z-typecheck-4055.log) |  |
+| 20.09.2026 19:10 | lint | ✅ без ошибок | 10 с | 84bb579 | [лог](logs/2026-09-20T14-10-35Z-lint-eda0.log) |  |
+| 20.09.2026 19:10 | unit | ✅ 1336 из 1339, пропущено 3 | 1 мин 12 с | 84bb579 | [лог](logs/2026-09-20T14-10-46Z-unit-92eb.log) |  |
+| 20.09.2026 19:12 | integration | ✅ 45 из 45 | 13 с | 84bb579 | [лог](logs/2026-09-20T14-12-10Z-integration-65ad.log) |  |
+| 20.09.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 50 с | 84bb579 | [лог](logs/2026-09-20T14-12-24Z-e2e-5868.log) |  |

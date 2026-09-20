@@ -7,8 +7,8 @@ import { AcceptForm } from './accept-form';
 
 /**
  * Страница по ссылке из письма-приглашения (срез 13, этап 7). Ключ живёт только в адресе и в
- * письме; страница показывает, кто зовёт и кого, и одной кнопкой принимает. Дальше — обычный
- * вход по коду: он уже выслан на эту почту. Мёртвая ссылка — один текст, без подробностей.
+ * письме; страница показывает, кто зовёт и кого, и одной кнопкой принимает. Дальше — установка
+ * пароля или вход с существующим паролем. Мёртвая ссылка — один текст, без подробностей.
  */
 export default async function InvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -29,7 +29,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
                   <time dateTime={preview.expiresAt}>
                     {displayDate(preview.expiresAt.slice(0, 10))}
                   </time>
-                  . После принятия на эту почту придёт код для входа.
+                  . После принятия вы сможете войти по паролю.
                 </span>
               </p>
               <AcceptForm token={rawToken} />
@@ -40,7 +40,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
               <p role="alert">{INVITE_INVALID_MESSAGE}</p>
               <p className="muted">
                 Попросите новую ссылку у того, кто вас приглашал, или{' '}
-                <Link href="/login">войдите по коду</Link>, если уже состоите в организации.
+                <Link href="/login">войдите по паролю</Link>, если уже состоите в организации.
               </p>
             </>
           )}

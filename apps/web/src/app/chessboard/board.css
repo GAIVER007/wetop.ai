@@ -400,6 +400,16 @@
 }
 
 @media (max-width: 600px) {
+  .board--week .board-group-name-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  .board--week .board-group-toggle > .muted {
+    flex-shrink: 0;
+  }
   .page:has(> .board-wrap) {
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }

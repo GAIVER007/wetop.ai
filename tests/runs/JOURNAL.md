@@ -1051,6 +1051,31 @@
 | 19.09.2026 23:58 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 26 из 26 | 1 с | ca1f67a +4 | [лог](logs/2026-09-19T18-58-59Z-unit-572f.log) | GREEN: root dockerignore excludes secrets, local runtimes and server overlay |
 | 19.09.2026 23:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 channex-screens manager-actions dashboard-resilience design-refresh) | ✅ 21 из 21 | 42 с | ca1f67a +7 | [лог](logs/2026-09-19T18-59-10Z-e2e-1502.log) | GREEN: merged channels and manager actions, restored zero-price validation, visible Next Activity selectors |
 | 20.09.2026 00:00 | unit | ✅ 1311 из 1314, пропущено 3 | 1 мин 12 с | ca1f67a +4 | [лог](logs/2026-09-19T19-00-21Z-unit-6d66.log) | Final merged source: login refresh, API auth compatibility, price validation and effective Docker exclusions |
+| 20.09.2026 16:49 | unit (частично: tests/unit/local-db-start.test.ts) | ❌ код выхода 1 | 2 с | 06729e9 +1 | [лог](logs/2026-09-20T11-49-17Z-unit-0206.log) | RED: local-db repeats seed after test schema is populated |
+| 20.09.2026 16:49 | unit (частично: tests/unit/local-db-start.test.ts) | ❌ упало 1 из 1 | 4 с | 06729e9 +1 | [лог](logs/2026-09-20T11-49-34Z-unit-4a9c.log) | RED: second seed overlaps an already populated test schema |
+| 20.09.2026 16:50 | unit (частично: tests/unit/local-db-start.test.ts) | ✅ 1 из 1 | 3 с | 06729e9 +2 | [лог](logs/2026-09-20T11-50-01Z-unit-fcff.log) | GREEN: test:schema is the sole seed owner for pms_test |
+| 20.09.2026 16:50 | lint | ✅ без ошибок | 11 с | 06729e9 +2 | [лог](logs/2026-09-20T11-50-47Z-lint-ff55.log) |  |
+| 20.09.2026 16:52 | typecheck | ✅ без ошибок | 39 с | 06729e9 +2 | [лог](logs/2026-09-20T11-52-02Z-typecheck-939d.log) |  |
+| 20.09.2026 16:52 | e2e | ❌ упало 16 из 26, пропущено 3 | 1 мин 23 с | 06729e9 +1 | [лог](logs/2026-09-20T11-52-02Z-e2e-5b4b.log) | Acceptance of synchronized main: real API, local PostgreSQL, auth required |
+| 20.09.2026 16:54 | unit (частично: tests/unit/e2e-auth-config.test.ts) | ❌ упало 1 из 3 | 2 с | 06729e9 +3 | [лог](logs/2026-09-20T11-54-04Z-unit-f9d4.log) | RED: isolated auth API fails on session cookies when private SESSION_SECRET is empty |
+| 20.09.2026 16:54 | unit (частично: tests/unit/e2e-auth-config.test.ts tests/unit/local-db-start.test.ts) | ✅ 4 из 4 | 3 с | 06729e9 +3 | [лог](logs/2026-09-20T11-54-27Z-unit-2ae8.log) | GREEN: local auth stand is independent of private session configuration |
+| 20.09.2026 16:54 | e2e | ❌ упало 1 из 26, пропущено 2 | 2 мин 11 с | 06729e9 +2 | [лог](logs/2026-09-20T11-54-32Z-e2e-71c2.log) | Recheck after isolating the auth session key |
+| 20.09.2026 16:56 | unit | ❌ упало 10 из 1316, пропущено 3 | 1 мин 23 с | 06729e9 +3 | [лог](logs/2026-09-20T11-56-21Z-unit-16e7.log) | Regression check after repairing local database and isolated auth setup |
+| 20.09.2026 16:57 | e2e (частично: tests/e2e/web-analytics.spec.ts --workers=1) | ✅ 5 из 5 | 19 с | 06729e9 +2 | [лог](logs/2026-09-20T11-57-41Z-e2e-bf94.log) | Isolate the analytics persistence timing failure |
+| 20.09.2026 16:59 | unit | ❌ упало 2 из 1316, пропущено 3 | 1 мин 45 с | 06729e9 +3 | [лог](logs/2026-09-20T11-59-15Z-unit-caa4.log) | Bound local CPU concurrency after timeout failures in the unconstrained run |
+| 20.09.2026 17:04 | unit | ✅ 1313 из 1316, пропущено 3 | 2 мин 7 с | 06729e9 +4 | [лог](logs/2026-09-20T12-04-55Z-unit-c632.log) |  |
+| 20.09.2026 17:08 | e2e | ❌ упало 1 из 26 | 1 мин 50 с | 06729e9 +4 | [лог](logs/2026-09-20T12-08-15Z-e2e-a37b.log) | Current release acceptance; isolated local database; auth enabled; analytics batch wait fixed |
+| 20.09.2026 17:10 | e2e (частично: tests/e2e/check-in-out.spec.ts --workers=1) | ✅ 3 из 3 | 23 с | 06729e9 +4 | [лог](logs/2026-09-20T12-10-27Z-e2e-949c.log) | Check ECONNRESET from loopback GET; assertions and retries unchanged |
+| 20.09.2026 17:11 | lint | ✅ без ошибок | 23 с | 06729e9 +6 | [лог](logs/2026-09-20T12-11-06Z-lint-f391.log) |  |
+| 20.09.2026 17:11 | e2e | ✅ 26 из 26 | 1 мин 47 с | 06729e9 +4 | [лог](logs/2026-09-20T12-11-05Z-e2e-f2e4.log) | Final full acceptance on project Node 24 (.nvmrc), auth enabled, local database |
+| 20.09.2026 17:12 | typecheck | ✅ без ошибок | 42 с | 06729e9 +6 | [лог](logs/2026-09-20T12-12-15Z-typecheck-7499.log) |  |
+| 20.09.2026 17:13 | integration | ✅ 43 из 43 | 12 с | 06729e9 +2 | [лог](logs/2026-09-20T12-13-00Z-integration-2a13.log) | Current release acceptance on isolated PostgreSQL; no live data |
+| 20.09.2026 17:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 login-access invites password-reset) | ✅ 28 из 28 | 2 мин 22 с | 06729e9 +4 | [лог](logs/2026-09-20T12-13-34Z-e2e-edea.log) | Login registration invitations and password reset UI acceptance; synthetic API |
+| 20.09.2026 17:19 | unit (частично: tests/unit/nest-http-adapter.test.ts tests/unit/ari-server.test.ts tests/unit/ari-switch-server.test.ts tests/unit/local-db-start.test.ts tests/ | ❌ упало 2 из 17 | 14 с | cc9654a | [лог](logs/2026-09-20T12-19-44Z-unit-f848.log) | After npm ci on upstream 4363d96: Nest resolution ARI and isolated stand regressions |
+| 20.09.2026 17:19 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 39 с | cc9654a | [лог](logs/2026-09-20T12-19-44Z-e2e-c3c6.log) | Final auth lock UI check after npm ci on upstream 4363d96 |
+| 20.09.2026 17:20 | unit (частично: tests/unit/nest-http-adapter.test.ts tests/unit/ari-server.test.ts tests/unit/ari-switch-server.test.ts tests/unit/local-db-start.test.ts tests/ | ✅ 17 из 17 | 6 с | cc9654a +2 | [лог](logs/2026-09-20T12-20-39Z-unit-5d57.log) | Fix regression probe to resolve public Nest entry point; preserve child timeout and all assertions |
+| 20.09.2026 17:21 | unit | ✅ 1315 из 1318, пропущено 3 | 1 мин 56 с | cc9654a +2 | [лог](logs/2026-09-20T12-21-17Z-unit-b00e.log) | Final complete unit acceptance after upstream 4363d96 and clean npm ci on Node 24 |
+| 20.09.2026 17:27 | unit (частично: tests/unit/nest-http-adapter.test.ts) | ✅ 2 из 2 | 2 с | b74e2c2 +1 | [лог](logs/2026-09-20T12-27-16Z-unit-131e.log) | Resolve parallel equivalent Nest probe fix in favor of main da6f79f |
 | 20.09.2026 12:00 | typecheck | ❌ ошибок: 24 | 24 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-00-09Z-typecheck-a55a.log) | TS2339 |
 | 20.09.2026 12:01 | unit (частично: apps/api/src/accounts/sessions.controller.test.ts) | ❌ упало 1 из 6 | 4 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-18Z-unit-0ab2.log) | оба входа рядом (Q-146) сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду |
 | 20.09.2026 12:01 | unit (частично: apps/api/src/accounts apps/api/src/auth packages/domain/src/accounts) | ✅ 223 из 223 | 4 с | 9fe9ff5 +50 | [лог](logs/2026-09-20T07-01-22Z-unit-c1d3.log) |  |
@@ -1087,6 +1112,12 @@
 | 20.09.2026 17:59 | integration | ✅ 38 из 43, пропущено 5 | 13 с | ab621cf | [лог](logs/2026-09-20T12-59-45Z-integration-7082.log) |  |
 | 20.09.2026 17:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 15 из 181 | 14 мин 33 с | ab621cf | [лог](logs/2026-09-20T12-59-58Z-e2e-b916.log) | доступность всех разделов: light, 390px |
 | 20.09.2026 18:14 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 4 из 4 | 12 с | ab621cf | [лог](logs/2026-09-20T13-14-32Z-e2e-3581.log) |  |
+| 20.09.2026 18:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 workspace.spec.ts manager-actions.spec.ts chessboard-week.spec.ts chessboard-month.spec.ts --g | ✅ 9 из 9 | 1 мин 2 с | 059cb8a +5 | [лог](logs/2026-09-20T13-05-44Z-e2e-9c64.log) |  |
+| 20.09.2026 18:07 | e2e (частично: --config tests/ui/playwright.config.ts fixture-isolation.spec.ts) | ❌ упало 2 из 2 | 6 с | 059cb8a +6 | [лог](logs/2026-09-20T13-07-53Z-e2e-8716.log) | сброс после дизайн-сценария восстанавливает названия категорий и ячеек |
+| 20.09.2026 18:08 | e2e (частично: --config tests/ui/playwright.config.ts fixture-isolation.spec.ts manager-actions.spec.ts chessboard-month.spec.ts) | ❌ упало 1 из 18 | 2 мин 2 с | 059cb8a +8 | [лог](logs/2026-09-20T13-08-54Z-e2e-e173.log) | шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки |
+| 20.09.2026 18:11 | lint | ✅ без ошибок | 12 с | 059cb8a +8 | [лог](logs/2026-09-20T13-11-40Z-lint-5427.log) |  |
+| 20.09.2026 18:12 | typecheck | ✅ без ошибок | 15 с | 059cb8a +8 | [лог](logs/2026-09-20T13-12-12Z-typecheck-fcaa.log) |  |
+| 20.09.2026 18:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 fixture-isolation.spec.ts manager-actions.spec.ts chessboard-month.spec.ts) | ✅ 18 из 18 | 2 мин 37 с | 9796ec6 | [лог](logs/2026-09-20T13-13-41Z-e2e-7623.log) |  |
 | 20.09.2026 18:00 | typecheck | ✅ без ошибок | 21 с | 5b83942 | [лог](logs/2026-09-20T13-00-41Z-typecheck-73cc.log) |  |
 | 20.09.2026 18:01 | lint | ✅ без ошибок | 11 с | 5b83942 | [лог](logs/2026-09-20T13-01-02Z-lint-6564.log) |  |
 | 20.09.2026 18:01 | unit | ✅ 1324 из 1327, пропущено 3 | 1 мин 23 с | 5b83942 | [лог](logs/2026-09-20T13-01-13Z-unit-cc14.log) |  |
@@ -1099,6 +1130,12 @@
 | 20.09.2026 18:38 | typecheck | ✅ без ошибок | 17 с | d1d1b24 | [лог](logs/2026-09-20T13-38-19Z-typecheck-c18f.log) |  |
 | 20.09.2026 18:38 | lint | ✅ без ошибок | 12 с | d1d1b24 | [лог](logs/2026-09-20T13-38-37Z-lint-097c.log) |  |
 | 20.09.2026 18:38 | unit | ✅ 1330 из 1333, пропущено 3 | 1 мин 12 с | d1d1b24 | [лог](logs/2026-09-20T13-38-49Z-unit-908c.log) |  |
+| 20.09.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 sessions.spec.ts fixture-isolation.spec.ts workspace.spec.ts --grep сеанс\|сброс после дизайн\|с | ✅ 12 из 12 | 1 мин 21 с | 8b130ff | [лог](logs/2026-09-20T13-21-37Z-e2e-3e30.log) |  |
+| 20.09.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-week.spec.ts --grep помещается на экране) | ✅ 2 из 2 | 40 с | 8b130ff +1 | [лог](logs/2026-09-20T13-24-22Z-e2e-3b50.log) |  |
+| 20.09.2026 18:26 | typecheck | ✅ без ошибок | 22 с | 4931030 | [лог](logs/2026-09-20T13-26-02Z-typecheck-7260.log) |  |
+| 20.09.2026 18:39 | integration | ❌ код выхода 1 | 2 с | 4931030 | [лог](logs/2026-09-20T13-39-45Z-integration-a2c5.log) |  |
+| 20.09.2026 18:40 | integration | ❌ код выхода 1 | 6 с | 4931030 | [лог](logs/2026-09-20T13-40-42Z-integration-44df.log) |  |
+| 20.09.2026 18:42 | integration | ✅ 45 из 45 | 14 с | 4931030 | [лог](logs/2026-09-20T13-42-36Z-integration-55eb.log) |  |
 | 20.09.2026 18:17 | unit (частично: packages/domain/src/accounts/session-renew.test.ts apps/api/src/auth/auth.service.test.ts) | ❌ упало 5 из 26 | 4 с | b0961ca +2 | [лог](logs/2026-09-20T13-17-25Z-unit-75d1.log) | AuthService.whoami сессия, открытая входом по коду (отпечаток HMAC) работа продлевает срок: через сутки сессия снова живёт 30 суток (§13.5) |
 | 20.09.2026 18:17 | unit (частично: packages/domain/src/accounts/session-renew.test.ts apps/api/src/auth) | ✅ 74 из 74 | 4 с | b0961ca +4 | [лог](logs/2026-09-20T13-17-59Z-unit-9896.log) |  |
 | 20.09.2026 18:18 | typecheck | ✅ без ошибок | 19 с | b0961ca +7 | [лог](logs/2026-09-20T13-18-59Z-typecheck-95ad.log) |  |
@@ -1121,6 +1158,16 @@
 | 20.09.2026 19:18 | lint | ✅ без ошибок | 12 с | 26a7f21 | [лог](logs/2026-09-20T14-18-58Z-lint-8f1d.log) |  |
 | 20.09.2026 19:19 | unit | ✅ 1340 из 1343, пропущено 3 | 1 мин 12 с | 26a7f21 | [лог](logs/2026-09-20T14-19-11Z-unit-9287.log) |  |
 | 20.09.2026 19:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 13 мин 17 с | 26a7f21 | [лог](logs/2026-09-20T14-20-23Z-e2e-d532.log) |  |
+| 20.09.2026 18:57 | typecheck | ❌ ошибок: 1 | 50 с | dba25c9 +25 | [лог](logs/2026-09-20T13-57-06Z-typecheck-df07.log) | TS2783 |
+| 20.09.2026 18:58 | typecheck | ✅ без ошибок | 1 мин 23 с | dba25c9 +25 | [лог](logs/2026-09-20T13-58-26Z-typecheck-cd06.log) |  |
+| 20.09.2026 19:00 | integration | ✅ 45 из 45 | 53 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-integration-df36.log) |  |
+| 20.09.2026 19:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 login-access.spec.ts invites.spec.ts sessions.spec.ts) | ❌ упало 4 из 24 | 5 мин 56 с | 8da62d5 | [лог](logs/2026-09-20T14-00-57Z-e2e-6be1.log) | вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом |
+| 20.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 1 мин 29 с | 8da62d5 +2 | [лог](logs/2026-09-20T14-07-32Z-e2e-c80f.log) |  |
+| 20.09.2026 19:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 sessions.spec.ts --grep вошедший видит, где) | ❌ упало 1 из 1 | 1 мин 47 с | 0573c1f +10 | [лог](logs/2026-09-20T14-30-50Z-e2e-b105.log) | вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса |
+| 20.09.2026 19:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 46 с | 0573c1f +11 | [лог](logs/2026-09-20T14-33-32Z-e2e-1097.log) |  |
+| 20.09.2026 19:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts --grep мёртвая ссылка) | ❌ упало 1 из 1 | 36 с | 0573c1f +11 | [лог](logs/2026-09-20T14-34-42Z-e2e-a33b.log) | мёртвая ссылка — один текст и путь на форму входа |
+| 20.09.2026 19:36 | typecheck | ✅ без ошибок | 1 мин 17 с | 0573c1f +13 | [лог](logs/2026-09-20T14-36-23Z-typecheck-b149.log) |  |
+| 20.09.2026 19:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 invites.spec.ts sessions.spec.ts) | ✅ 9 из 9 | 1 мин 18 с | 0573c1f +13 | [лог](logs/2026-09-20T14-36-23Z-e2e-46d6.log) |  |
 | 20.09.2026 18:37 | typecheck | ❌ ошибок: 1 | 19 с | a38b83c | [лог](logs/2026-09-20T13-37-57Z-typecheck-e5e6.log) | TS2783 |
 | 20.09.2026 18:38 | lint | ✅ без ошибок | 10 с | a38b83c | [лог](logs/2026-09-20T13-38-17Z-lint-e75a.log) |  |
 | 20.09.2026 18:38 | unit | ✅ 1336 из 1339, пропущено 3 | 1 мин 12 с | a38b83c | [лог](logs/2026-09-20T13-38-28Z-unit-63ad.log) |  |
@@ -1139,3 +1186,12 @@
 | 20.09.2026 19:36 | unit | ✅ 1340 из 1343, пропущено 3 | 1 мин 12 с | a310fe2 | [лог](logs/2026-09-20T14-36-57Z-unit-db32.log) |  |
 | 20.09.2026 19:38 | e2e | ✅ 25 из 25 | 1 мин 14 с | 3491265 | [лог](logs/2026-09-20T14-38-52Z-e2e-372a.log) |  |
 | 20.09.2026 19:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 13 мин 19 с | 3491265 | [лог](logs/2026-09-20T14-40-07Z-e2e-8e57.log) |  |
+| 20.09.2026 19:32 | typecheck | ✅ без ошибок | 20 с | 2ecd6fe | [лог](logs/2026-09-20T14-32-09Z-typecheck-0fd0.log) |  |
+| 20.09.2026 19:32 | lint | ✅ без ошибок | 10 с | 2ecd6fe | [лог](logs/2026-09-20T14-32-29Z-lint-f67b.log) |  |
+| 20.09.2026 19:32 | unit | ✅ 1336 из 1339, пропущено 3 | 1 мин 12 с | 2ecd6fe | [лог](logs/2026-09-20T14-32-40Z-unit-a146.log) |  |
+| 20.09.2026 19:43 | typecheck | ✅ без ошибок | 29 с | 2ecd6fe +3 | [лог](logs/2026-09-20T14-43-52Z-typecheck-fbad.log) |  |
+| 20.09.2026 19:44 | lint | ✅ без ошибок | 15 с | 2ecd6fe +3 | [лог](logs/2026-09-20T14-44-22Z-lint-43d2.log) |  |
+| 20.09.2026 19:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 181 из 181 | 11 мин 53 с | 2ecd6fe | [лог](logs/2026-09-20T14-34-05Z-e2e-ab6a.log) |  |
+| 20.09.2026 19:52 | unit | ✅ 1340 из 1343, пропущено 3 | 1 мин 12 с | 2ecd6fe +3 | [лог](logs/2026-09-20T14-52-43Z-unit-907f.log) |  |
+| 20.09.2026 19:53 | typecheck | ✅ без ошибок | 21 с | 2ecd6fe +3 | [лог](logs/2026-09-20T14-53-55Z-typecheck-57dc.log) |  |
+| 20.09.2026 19:54 | lint | ✅ без ошибок | 10 с | 2ecd6fe +3 | [лог](logs/2026-09-20T14-54-17Z-lint-cbd0.log) |  |

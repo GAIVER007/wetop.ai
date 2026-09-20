@@ -1,0 +1,135 @@
+# Сквозные (e2e) · 20.09.2026 23:55 Алматы · vm
+# коммит 3ad1756 (claude/trusting-ramanujan-gi6uzl)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[WebServer] [Nest] 28547  - 09/20/2026, 6:55:07 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+[WebServer] Invalid `db.property.findFirst()` invocation in
+[WebServer] /home/user/wetop.ai/scripts/imports/src/exely/read-inventory-from-db.ts:16:38
+[WebServer] 
+[WebServer]   13   /** Сам объект: API держит дерево фонда в памяти и дальше считает только блокировки */
+[WebServer]   14   property: { id: string; name: string; timezone: string; currency: string };
+[WebServer]   15 } | null> {
+[WebServer] → 16   const property = await db.property.findFirst(
+[WebServer] The column `properties.organization_id` does not exist in the current database.
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async readInventoryPlanFromDb (/home/user/wetop.ai/scripts/imports/src/exely/read-inventory-from-db.ts:16:20)
+[WebServer]     at async PrismaInventoryRepository.read (/home/user/wetop.ai/apps/api/src/inventory/inventory.repository.ts:51:20)
+[WebServer]     at async InventoryService.load (/home/user/wetop.ai/apps/api/src/inventory/inventory.service.ts:31:19)
+[WebServer]     at async InventoryService.summary (/home/user/wetop.ai/apps/api/src/inventory/inventory.service.ts:38:19) {
+[WebServer]   code: 'P2022',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Property',
+[WebServer]     driverAdapterError: DriverAdapterError: ColumnNotFound
+[WebServer]         at PrismaPgAdapter.onError (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+[WebServer]         at PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+[WebServer]         at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]         at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]         at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:149:29)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:228:41)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:273:41)
+[WebServer]         at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:121:23)
+[WebServer]         at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12) {
+[WebServer]       cause: {
+[WebServer]         originalCode: '42703',
+[WebServer]         originalMessage: 'column properties.organization_id does not exist',
+[WebServer]         kind: 'ColumnNotFound',
+[WebServer]         column: 'properties.organization_id'
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 28547  - 09/20/2026, 6:55:07 PM   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+[WebServer] Invalid `db.property.findFirst()` invocation in
+[WebServer] /home/user/wetop.ai/scripts/imports/src/exely/read-inventory-from-db.ts:16:38
+[WebServer] 
+[WebServer]   13   /** Сам объект: API держит дерево фонда в памяти и дальше считает только блокировки */
+[WebServer]   14   property: { id: string; name: string; timezone: string; currency: string };
+[WebServer]   15 } | null> {
+[WebServer] → 16   const property = await db.property.findFirst(
+[WebServer] The column `properties.organization_id` does not exist in the current database.
+[WebServer]     at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13)
+[WebServer]     at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12)
+[WebServer]     at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async a (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24)
+[WebServer]     at async readInventoryPlanFromDb (/home/user/wetop.ai/scripts/imports/src/exely/read-inventory-from-db.ts:16:20)
+[WebServer]     at async PrismaInventoryRepository.read (/home/user/wetop.ai/apps/api/src/inventory/inventory.repository.ts:51:20)
+[WebServer]     at async InventoryService.load (/home/user/wetop.ai/apps/api/src/inventory/inventory.service.ts:31:19)
+[WebServer]     at async InventoryService.units (/home/user/wetop.ai/apps/api/src/inventory/inventory.service.ts:47:19) {
+[WebServer]   code: 'P2022',
+[WebServer]   meta: {
+[WebServer]     modelName: 'Property',
+[WebServer]     driverAdapterError: DriverAdapterError: ColumnNotFound
+[WebServer]         at PrismaPgAdapter.onError (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+[WebServer]         at PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+[WebServer]         at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]         at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]         at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:149:29)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:228:41)
+[WebServer]         at async e.interpretNode (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:273:41)
+[WebServer]         at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:121:23)
+[WebServer]         at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12) {
+[WebServer]       cause: {
+[WebServer]         originalCode: '42703',
+[WebServer]         originalMessage: 'column properties.organization_id does not exist',
+[WebServer]         kind: 'ColumnNotFound',
+[WebServer]         column: 'properties.organization_id'
+[WebServer]       }
+[WebServer]     }
+[WebServer]   },
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 500
+[WebServer]     at f (.next/server/chunks/ssr/_0oxffuv._.js:1:1561)
+[WebServer]     at async h (.next/server/chunks/ssr/apps_web_src_app_inventory_071i6uz._.js:1:642) {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+[pms_test] миграций применено 3 из 18; данные от 2026-09-20T12:02:17.040Z (сид)
+
+Running 25 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (48ms)
+[WebServer] (node:28547) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:26:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (4.3s)
+  ✓   3 [isolated] › tests/e2e/check-in-out.spec.ts:20:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (7.2s)
+  ✓   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (3.5s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:28:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (3.9s)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (1.4s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › клик по занятой клетке открывает карточку брони с проживаниями (1.7s)
+  ✓   8 [isolated] › tests/e2e/desk-day.spec.ts:21:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (3.4s)
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (4.5s)
+  ✓  10 [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (3.9s)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (3.3s)
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (4.4s)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (853ms)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (749ms)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (444ms)
+  ✓  16 [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (3.0s)
+  ✓  17 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.6s)
+  ✓  18 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (3.3s)
+  ✓  19 [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (3.5s)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (2.8s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (2.2s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › страница подключения: код с ключом, «Проверить счётчик» видит события (820ms)
+  ✓  23 [isolated] › tests/e2e/web-analytics.spec.ts:196:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.6s)
+  ✓  24 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (1.4s)
+  ✓  25 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (483ms)
+[уборка e2e] Броней автотестов с активными проживаниями: 4 (кандидатов по фамилии было 226)
+  свежих, моложе 15 мин, оставлено: 4 — уберёт следующая уборка
+Освобождено броней: 4
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Остатки в канале: выгрузка не нужна — исходящий ARI выключен (тестовый API или scripts/ops/ari.sh stop)
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  25 passed (1.2m)
+
+# код выхода 0 · 1 мин 14 с

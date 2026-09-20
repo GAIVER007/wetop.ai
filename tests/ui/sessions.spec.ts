@@ -64,3 +64,22 @@ test('без сессии списка сеансов нет', async ({ page }) 
   await expect(main.getByTestId('session-list')).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Завершить все сеансы' })).toHaveCount(0);
 });
+
+test('кука сессии выписывается заново при работе: срок отсчитывается от последней страницы', async ({
+  page,
+  context,
+}) => {
+  await login(page);
+  const seen = async () =>
+    (await context.cookies()).find((c) => c.name === 'wetop_session')!.expires;
+  const first = await seen();
+  expect(first).toBeGreaterThan(0);
+  // на сервере срок сессии двигает сама работа (§13.5); в браузере — эта же кука с новым сроком
+  await page.waitForTimeout(1100);
+  await page.goto('/chessboard');
+  await expect(page.getByRole('main').getByTestId('unit-row').first()).toBeVisible();
+  expect(await seen()).toBeGreaterThan(first);
+  const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session')!;
+  expect(cookie.httpOnly).toBe(true);
+  expect(cookie.sameSite).toBe('Lax');
+});

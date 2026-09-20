@@ -1388,3 +1388,6 @@
 | 20.09.2026 21:22 | e2e (частично: --config .agent-tmp/inventory-readonly.config.ts --workers=1) | ❌ упало 2 из 2 | 48 с | 0a61f8e +6 | [лог](logs/2026-09-20T16-22-17Z-e2e-2849.log) | Read-only legacy inventory acceptance against running frontend and real API; no seeds, auth setup or writes |
 | 20.09.2026 21:27 | e2e (частично: --config .agent-tmp/inventory-readonly.config.ts --workers=1) | ✅ 2 из 2 | 14 с | 0a61f8e +7 | [лог](logs/2026-09-20T16-27-31Z-e2e-6741.log) | GREEN: real inventory after excluding node_modules watch events; read-only UI and API |
 | 20.09.2026 21:28 | unit (частично: scripts/preview/real-config.test.ts) | ✅ 24 из 24 | 1 с | 0a61f8e +5 | [лог](logs/2026-09-20T16-28-42Z-unit-ce8f.log) | Local preview connection and safety settings preserved with dependency watch exclusion |
+| 20.09.2026 22:01 | typecheck | ✅ без ошибок | 27 с | 3dd0b63 | [лог](logs/2026-09-20T17-01-16Z-typecheck-32e7.log) |  |
+| 20.09.2026 22:01 | lint | ✅ без ошибок | 16 с | 3dd0b63 | [лог](logs/2026-09-20T17-01-44Z-lint-689f.log) |  |
+| 20.09.2026 22:02 | unit | ✅ 1295 из 1298, пропущено 3 | 1 мин 12 с | 3dd0b63 | [лог](logs/2026-09-20T17-02-01Z-unit-a998.log) |  |

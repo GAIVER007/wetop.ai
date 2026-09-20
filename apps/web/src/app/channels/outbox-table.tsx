@@ -54,7 +54,7 @@ export function OutboxTable({
           </Link>
         ))}
       </div>
-      <Table size="sm" data-testid="outbox-table">
+      <Table size="sm" className="dir-table dir-table--outbox" data-testid="outbox-table">
         <thead>
           <tr>
             {['Что', 'Категории', 'Даты', 'Статус', 'Попыток', 'Task id', 'Создано'].map((h) => (
@@ -65,15 +65,24 @@ export function OutboxTable({
         <tbody>
           {rows === null && (
             <tr>
-              <td colSpan={7} className="muted">
-                очередь не загрузилась
+              <td colSpan={7} className="empty-state" data-testid="outbox-rows-failed">
+                Строки очереди не загрузились: API не ответил. Числа в плитках выше читаются
+                отдельно; обновите страницу или откройте{' '}
+                <Link href="/incidents">неисправности</Link>.
               </td>
             </tr>
           )}
           {rows?.length === 0 && (
             <tr>
-              <td colSpan={7} className="muted">
-                {filter ? 'таких строк нет' : 'очередь пуста'}
+              <td colSpan={7} className="empty-state" data-testid="outbox-empty">
+                {filter ? (
+                  <>
+                    Строк со статусом «{STATUS_RU[filter]}» нет.{' '}
+                    <Link href={hrefFor('')}>Показать все строки</Link>
+                  </>
+                ) : (
+                  'Очередь пуста: все изменения цен и остатков уже ушли в Channex. Новая строка появится после правки цены, брони или блокировки.'
+                )}
               </td>
             </tr>
           )}

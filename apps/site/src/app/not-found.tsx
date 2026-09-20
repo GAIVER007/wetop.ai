@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getPublishedPosts } from '../lib/posts';
 import { typo } from '../components/typo';
 import { getDictionary } from '../i18n';
 
@@ -25,9 +26,11 @@ export default function NotFound() {
           <Link className="btn btn--primary" href="/">
             {t.notFound.home}
           </Link>
-          <Link className="btn btn--secondary" href="/blog/">
-            {t.notFound.blog}
-          </Link>
+          {getPublishedPosts().length > 0 ? (
+            <Link className="btn btn--secondary" href="/blog/">
+              {t.notFound.blog}
+            </Link>
+          ) : null}
         </div>
       </div>
     </section>

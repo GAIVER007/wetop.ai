@@ -64,7 +64,8 @@ test('групповая бронь на 2 койки → две клетки ш
 
   // ── Шахматка: две клетки с номером брони ──────────────────────────────────────────────────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  await expect(page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`)).toHaveCount(2);
+  // только плашки: с C2 (20.09) в клетке есть и ссылки меню «⋯» (карточка, «Переселить») — они не клетки
+  await expect(page.locator(`[data-testid="stay-cell"][data-number="${number}"]`)).toHaveCount(2);
   await page.screenshot({ path: 'reports/screenshots/group-reservation-chessboard.png' });
 
   // ── Правка: заметки и источник ────────────────────────────────────────────────────────────

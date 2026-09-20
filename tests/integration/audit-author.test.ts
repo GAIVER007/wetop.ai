@@ -8,12 +8,12 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { hashSessionToken, newSessionToken } from '@pms/domain';
+
 import { AccountsModule } from '../../apps/api/src/accounts/accounts.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaGuestsRepository } from '../../apps/api/src/guests/guests.repository';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
-process.env.SESSION_SECRET ??= 'секрет-для-прогона';
 const url = process.env.DATABASE_URL;
 
 /**
@@ -64,6 +64,7 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
     // ADR-053: действующие сессии пароля хранят SHA-256; прежний HMAC входа по коду снят.
     await db.$executeRaw`INSERT INTO sessions (id, token_hash, user_id, organization_id, issued_at, expires_at)
       VALUES (${randomUUID()}::uuid, ${hashSessionToken(token)}, ${userId}::uuid, ${orgId}::uuid, now(), now() + interval '12 hours')`;
+
 
     // ProbeController живёт в корневом тестовом модуле, а PrismaService — внутри AccountsModule, откуда
     // он не экспортируется: без своей регистрации Nest отвечает «can't resolve dependencies of the

@@ -13,7 +13,16 @@ import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../
 import { Alert, Badge, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { stayLabels } from './stay-labels';
-import { assignUnitAction, previewAction } from '../reservations/actions';
+import {
+  assignUnitAction,
+  cancelPreviewAction,
+  cancelReservationAction,
+  extendStayAction,
+  previewAction,
+} from '../reservations/actions';
+import { useRouter } from 'next/navigation';
+import { ActionMenu } from '../../components/action-menu';
+import { penaltyText } from '../../lib/penalty-text';
 import { previewLine } from '../../lib/action-preview';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
 import { Icon } from '../../components/icon';
@@ -36,6 +45,36 @@ const STATUS_RU: Record<string, string> = {
  * на 88 строках были бы шумом, а фильтр «Уборка» показывает те же ячейки списком.
  */
 const HK_DIRTY = 'DIRTY';
+
+/** Что нужно меню плашки (C2): номер, проживание, ячейка, имя для заголовка окна и статус для доступности пунктов */
+interface StayMenuPayload {
+  number: string;
+  itemId: string;
+  unitCode: string;
+  guest: string;
+  status: string;
+}
+/** Пункты меню плашки: карточка, продление, переселение (форма карточки), отмена — те же пути, что у карточки */
+function stayMenuItems(
+  p: StayMenuPayload,
+  onExtend: (p: StayMenuPayload) => void,
+  onCancel: (p: StayMenuPayload) => void,
+) {
+  const card = `/reservations/${encodeURIComponent(p.number)}`;
+  const live = DRAGGABLE.has(p.status);
+  const expected = p.status === 'CONFIRMED' || p.status === 'TENTATIVE';
+  return [
+    { label: 'Открыть карточку', href: card },
+    { label: 'Продлить на ночь', onSelect: () => onExtend(p), disabled: !live },
+    { label: 'Переселить', href: `${card}#booking-actions`, disabled: !live },
+    {
+      label: 'Отменить бронь',
+      onSelect: () => onCancel(p),
+      tone: 'danger' as const,
+      disabled: !expected,
+    },
+  ];
+}
 
 /**
  * Сетка шахматки — клиентская часть.
@@ -123,6 +162,49 @@ export function ChessboardGrid({
   const onDragEnd = () => {
     dragging.current = null;
     setOverUnit(null);
+  };
+
+  // C2: те же действия, что перетаскивание и карточка, — пунктами меню на плашке (DESIGN.md §12).
+  // Логика не своя: предпросмотр и команда — те же server actions, что зовёт карточка брони.
+  const router = useRouter();
+  const extendStay = async (p: StayMenuPayload) => {
+    const summary = await previewAction(p.number, p.itemId, { action: 'extend', nights: '1' });
+    if (
+      !(await ask({
+        title: `Продлить на ночь — ${p.guest}, ${p.unitCode}?`,
+        body: previewLine(summary),
+        confirmLabel: 'Продлить',
+      }))
+    )
+      return;
+    start(async () => {
+      const r = await extendStayAction(p.number, p.itemId, 1);
+      setError(r.error);
+      if (!r.error) {
+        toast({ text: `Бронь ${p.number} продлена на ночь, ${p.unitCode}`, tone: 'success' });
+        router.refresh();
+      }
+    });
+  };
+  const cancelStay = async (p: StayMenuPayload) => {
+    const preview = await cancelPreviewAction(p.number, 'cancel');
+    if (
+      !(await ask({
+        title: `Отменить бронь ${p.number}?`,
+        body: `Место ${p.unitCode} вернётся в продажу и уйдёт в каналы. ${penaltyText(preview, 'cancel')}`,
+        confirmLabel: 'Отменить бронь',
+        tone: 'danger',
+      }))
+    )
+      return;
+    start(async () => {
+      const r = await cancelReservationAction(p.number);
+      setError(r.error);
+      if (!r.error) {
+        toast({ text: `Бронь ${p.number} отменена`, tone: 'success' });
+        router.refresh();
+      }
+    });
   };
 
   const allGroups = groupByCategory(board.rows);
@@ -431,6 +513,8 @@ export function ChessboardGrid({
                           today={today}
                           onDragStart={onDragStart}
                           onDragEnd={onDragEnd}
+                          onExtend={extendStay}
+                          onCancel={cancelStay}
                         />
                       ))}
                     </tr>
@@ -458,6 +542,8 @@ function Cell({
   today,
   onDragStart,
   onDragEnd,
+  onExtend,
+  onCancel,
 }: {
   cell: ChessboardCell;
   label: { span: number; continues: boolean; lastDate: string } | undefined;
@@ -465,6 +551,8 @@ function Cell({
   today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  onExtend: (payload: StayMenuPayload) => void;
+  onCancel: (payload: StayMenuPayload) => void;
 }) {
   // цвет клетки зависит от данных — единственный инлайн-стиль сетки; значения из токенов globals.css
   const bg =
@@ -532,7 +620,7 @@ function Cell({
             {label && (
               <span
                 className="board-stay-caption"
-                style={{ width: `calc(${label.span * 100}% - 12px)` }}
+                style={{ width: `calc(${label.span * 100}% - 40px)` }}
               >
                 {label.continues ? '← ' : ''}
                 <b className="board-stay-glyph" aria-hidden="true">
@@ -561,6 +649,26 @@ function Cell({
               </span>
             )}
           </Link>
+          {/* C2: меню действий — брат ссылки, а не её потомок: клик по плашке и перетаскивание не задеты */}
+          {label && cell.confirmationNumber && cell.itemId && (
+            <ActionMenu
+              className="board-stay-menu"
+              size="sm"
+              label={`Действия: ${cell.guestLabel || cell.confirmationNumber}`}
+              items={stayMenuItems(
+                {
+                  number: cell.confirmationNumber,
+                  itemId: cell.itemId,
+                  unitCode,
+                  guest: cell.guestLabel || cell.confirmationNumber,
+                  status: cell.itemStatus ?? '',
+                },
+                onExtend,
+                onCancel,
+              )}
+              style={{ left: `calc(${label.span * 100}% - 30px)` }}
+            />
+          )}
           {cell.isArrival && messengerLinks(cell.guestPhone) && (
             <a
               href={messengerLinks(cell.guestPhone)!.whatsapp}

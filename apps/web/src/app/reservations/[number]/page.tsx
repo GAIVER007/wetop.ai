@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { Icon } from '../../../components/icon';
+import { AmountChip } from '../../../components/amount-chip';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { nightsBetween } from '../../../lib/plural';
+import { nightsBetween, pluralRu } from '../../../lib/plural';
 import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
+import '../../directory.css';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -30,7 +32,11 @@ const SOURCE_RU: Record<string, string> = {
   WEBSITE: 'сайт',
 };
 
-/** Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение. */
+/**
+ * Карточка брони + действия стойки (шаг 3.5): даты, отмена, назначение/переселение.
+ * B3 (план владельца 19.09): сверху — гость, даты, место, гостей, стоимость и остаток к оплате одной
+ * полосой над вкладками; в «Обзоре» первыми — следующие действия смены; печатные формы — внизу обзора.
+ */
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
@@ -64,66 +70,126 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const print = (path: string) =>
     `/reservations/${encodeURIComponent(r.confirmationNumber)}/print${path}`;
   const guestMessengers = messengerLinks(r.primaryGuest?.phone);
+  // Полоса сверху: место — по живым проживаниям (отменённые и незаезд места не занимают)
+  const nights = nightsBetween(r.arrivalDate, r.departureDate);
+  const liveItems = r.items.filter((it) => it.status !== 'CANCELLED' && it.status !== 'NO_SHOW');
+  const unitCodes = [...new Set(liveItems.map((it) => it.unitCode).filter(Boolean))] as string[];
+  const unassigned = liveItems.filter((it) => !it.unitCode).length;
+  const due = finance ? BigInt(finance.balanceMinor) : null;
+  const printLinks: Array<[string, string, string]> = [
+    ['print-ru', '?lang=ru', 'Регистрационная карта RU'],
+    ['print-kz', '?lang=kz', 'Регистрационная карта KZ'],
+    ['print-contract-ru', '/contract?lang=ru', 'Договор RU'],
+    ['print-contract-kz', '/contract?lang=kz', 'Договор KZ'],
+    ['print-invoice-ru', '/invoice?lang=ru', 'Счёт RU'],
+    ['print-invoice-kz', '/invoice?lang=kz', 'Счёт KZ'],
+  ];
   return (
     <Page
       width="medium"
-      crumbs={
-        <>
-          <Link href="/chessboard">← шахматка</Link>
-          <span className="ml-auto">
-            печать:{' '}
-            <Link href={print('?lang=ru')} data-testid="print-ru">
-              регистрационная карта RU
-            </Link>{' '}
-            ·{' '}
-            <Link href={print('?lang=kz')} data-testid="print-kz">
-              KZ
-            </Link>
-            {/* заготовки печатных форм — содержание заменит образец владельца */} · договор{' '}
-            <Link href={print('/contract?lang=ru')} data-testid="print-contract-ru">
-              RU
-            </Link>{' '}
-            ·{' '}
-            <Link href={print('/contract?lang=kz')} data-testid="print-contract-kz">
-              KZ
-            </Link>{' '}
-            · счёт{' '}
-            <Link href={print('/invoice?lang=ru')} data-testid="print-invoice-ru">
-              RU
-            </Link>{' '}
-            ·{' '}
-            <Link href={print('/invoice?lang=kz')} data-testid="print-invoice-kz">
-              KZ
-            </Link>
-          </span>
-        </>
-      }
+      crumbs={<Link href="/chessboard">← шахматка</Link>}
       title={`Бронь ${r.confirmationNumber}`}
       subtitle={
         <>
-          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} /> ·{' '}
-          {SOURCE_RU[r.source] ?? r.source}
-          {r.channel ? ` · ${r.channel}` : ''}
+          <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
+          <span>
+            {SOURCE_RU[r.source] ?? r.source}
+            {r.channel ? `, ${r.channel}` : ''}
+          </span>
         </>
       }
     >
       {/*
-       * Даты, гости и заказчик — факты, а не показатели: строка «подпись — значение» вместо плиток.
-       * Плитками остаются только числа, которые требуют действия (см. экран «Сегодня»).
+       * Гость, даты, место, гостей, стоимость и остаток — то, что смена ищет первым, поэтому полоса стоит
+       * над вкладками и видна из любой из них. Факты, а не показатели: «подпись — значение» (§14).
        */}
-      <div className="booking-person">
-        <span className="guest-initials">
-          {r.primaryGuest?.label
-            .split(' ')
-            .slice(0, 2)
-            .map((n) => n[0])
-            .join('') || 'Г'}
-        </span>
-        <div>
-          <h2>{r.primaryGuest?.label ?? 'Гость без имени'}</h2>
-          <span>{r.primaryGuest?.phone ?? r.channel ?? 'Прямое бронирование'}</span>
+      <dl className="booking-head" data-testid="booking-head">
+        <div className="booking-head__guest">
+          <dt>Гость</dt>
+          <dd>
+            {r.primaryGuest ? (
+              <Link href={`/guests/${r.primaryGuest.id}`} data-testid="guest-link">
+                {r.primaryGuest.label}
+              </Link>
+            ) : (
+              'Гость без имени'
+            )}
+            {r.primaryGuest && (
+              <span
+                className={
+                  r.primaryGuest.citizenship ? 'booking-head__sub' : 'booking-head__sub warn-text'
+                }
+              >
+                {r.primaryGuest.citizenship
+                  ? `гражданство ${r.primaryGuest.citizenship}`
+                  : 'гражданство не указано'}
+              </span>
+            )}
+            {(r.primaryGuest?.phone || guestMessengers) && (
+              <span className="booking-head__contacts">
+                {r.primaryGuest?.phone && (
+                  <a href={`tel:${r.primaryGuest.phone}`}>{r.primaryGuest.phone}</a>
+                )}
+                {guestMessengers && (
+                  <>
+                    <a href={guestMessengers.whatsapp} target="_blank" rel="noreferrer">
+                      WhatsApp
+                    </a>
+                    <a href={guestMessengers.telegram} target="_blank" rel="noreferrer">
+                      Telegram
+                    </a>
+                  </>
+                )}
+              </span>
+            )}
+          </dd>
         </div>
-      </div>
+        <div>
+          <dt>Даты</dt>
+          <dd>
+            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'numeric')}</time>
+            {' → '}
+            <time dateTime={r.departureDate}>{displayDate(r.departureDate, 'numeric')}</time>
+            {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
+          </dd>
+        </div>
+        <div>
+          <dt>Место</dt>
+          <dd className="mono" data-testid="booking-place">
+            {unitCodes.length ? unitCodes.join(', ') : <span className="warn-text">—</span>}
+            {unassigned > 0 && unitCodes.length > 0 && (
+              <small className="warn-text">
+                {pluralRu(unassigned, ['проживание', 'проживания', 'проживаний'])} без ячейки
+              </small>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Гостей</dt>
+          <dd>
+            {r.adults}
+            {r.children ? ` + ${r.children} дет.` : ''}
+          </dd>
+        </div>
+        <div>
+          <dt>Стоимость</dt>
+          <dd>{formatMoney(r.totalAmountMinor, r.currency)}</dd>
+        </div>
+        <div>
+          <dt>К оплате</dt>
+          <dd data-testid="booking-due">
+            {finance && due !== null ? (
+              due > 0n ? (
+                <AmountChip tone="due" minor={finance.balanceMinor} currency={r.currency} />
+              ) : (
+                <AmountChip tone="paid" minor={finance.paidMinor} currency={r.currency} />
+              )
+            ) : (
+              <span className="muted">—</span>
+            )}
+          </dd>
+        </div>
+      </dl>
       <RecordTabs
         label="Разделы карточки брони"
         tabs={[
@@ -131,7 +197,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             id: 'booking-overview',
             label: 'Обзор',
             content: (
-              <>
+              <div id="booking-overview">
                 {r.status === 'TENTATIVE' && (
                   // срез 7.3, Д4: «не подтверждена» словом и цветом внимания, не только бейджем
                   <Alert boxed tone="warning" data-testid="tentative-callout">
@@ -140,70 +206,25 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                     продаётся.
                   </Alert>
                 )}
-                <div className="facts facts--card" id="booking-overview">
-                  <div>
-                    <div className="fact__label">Заезд</div>
-                    <div className="fact__value">
-                      <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'numeric')}</time>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="fact__label">Выезд</div>
-                    <div className="fact__value">
-                      <time dateTime={r.departureDate}>
-                        {displayDate(r.departureDate, 'numeric')}
-                      </time>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="fact__label">Гостей</div>
-                    <div className="fact__value">
-                      {r.adults}
-                      {r.children ? ` + ${r.children} дет.` : ''}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="fact__label">Сумма</div>
-                    <div className="fact__value">{formatMoney(r.totalAmountMinor, r.currency)}</div>
-                  </div>
-                  <div>
-                    <div className="fact__label">Заказчик</div>
-                    <div className="fact__value">
-                      {r.primaryGuest ? (
-                        <Link href={`/guests/${r.primaryGuest.id}`} data-testid="guest-link">
-                          {r.primaryGuest.label}
-                        </Link>
-                      ) : (
-                        '—'
-                      )}
-                    </div>
-                    {r.primaryGuest && (
-                      <div
-                        className={r.primaryGuest.citizenship ? 'cell-sub' : 'cell-sub warn-text'}
-                      >
-                        {r.primaryGuest.citizenship
-                          ? `гражданство ${r.primaryGuest.citizenship}`
-                          : 'гражданство не указано'}
-                        {guestMessengers && (
-                          <>
-                            {' · '}
-                            <a href={guestMessengers.whatsapp} target="_blank" rel="noreferrer">
-                              WhatsApp
-                            </a>
-                            {' · '}
-                            <a href={guestMessengers.telegram} target="_blank" rel="noreferrer">
-                              Telegram
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                {/* Следующее действие смены — первым; ссылки на вкладки ловит RecordTabs (без записи в историю) */}
+                <div className="booking-next" data-testid="booking-next">
+                  <a
+                    href="#booking-finance"
+                    className={due !== null && due > 0n ? 'btn' : 'btn btn--secondary'}
+                  >
+                    <Icon name="money" />
+                    Принять оплату
+                  </a>
+                  <a href="#booking-actions" className="btn btn--secondary">
+                    <Icon name="clock" />
+                    Продлить или переселить
+                  </a>
                 </div>
                 <SectionTitle first id="booking-stays">
                   Проживания
                 </SectionTitle>
-                <Table>
+                {/* В панели 480 px и на телефоне строка складывается в карточку (CSS .dir-table--stays), разметка та же */}
+                <Table className="dir-table dir-table--stays" data-testid="stays-table">
                   <thead>
                     <tr>
                       {['Ячейка', 'Категория', 'Заезд', 'Выезд', 'Статус', 'Цена', 'Гости'].map(
@@ -253,37 +274,20 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                     <b>Заметки:</b> {r.notes}
                   </p>
                 )}
-                <div className="booking-payment-summary">
-                  <div>
-                    <span>Стоимость</span>
-                    <strong>{formatMoney(r.totalAmountMinor, r.currency)}</strong>
-                  </div>
-                  <div>
-                    <span>Оплачено</span>
-                    <strong>{finance ? formatMoney(finance.paidMinor, r.currency) : '—'}</strong>
-                  </div>
-                  <div>
-                    <span>К оплате</span>
-                    <strong className="danger-text">
-                      {finance ? formatMoney(finance.balanceMinor, r.currency) : '—'}
-                    </strong>
-                  </div>
-                </div>
-                <div className="booking-shortcuts">
-                  <a href="#booking-finance" className="btn">
-                    <Icon name="money" />
-                    Принять оплату
-                  </a>
-                  <a href="#booking-actions" className="btn btn--secondary">
-                    <Icon name="clock" />
-                    Продлить / переселить
-                  </a>
-                  <Link href={print('/invoice?lang=ru')} className="btn btn--secondary">
-                    <Icon name="receipt" />
-                    Создать счёт
-                  </Link>
-                </div>
-              </>
+                <nav className="booking-print" aria-label="Печатные формы">
+                  <span className="booking-print__label">Печать</span>
+                  {printLinks.map(([id, path, label]) => (
+                    <Link
+                      key={id}
+                      className="btn btn--secondary btn--sm"
+                      href={print(path)}
+                      data-testid={id}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
             ),
           },
           {

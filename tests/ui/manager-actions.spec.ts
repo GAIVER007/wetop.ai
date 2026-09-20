@@ -70,13 +70,35 @@ test('карточка: «Продлить на ночь» знает сумму
   page,
   request,
 }) => {
+  // Падает только в CI (19–20.09, три прогона подряд), локально 5/5, трасса из артефакта недоступна:
+  // при отказе печатаем в лог ошибки страницы и состояние всех <dialog>
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') pageErrors.push(`console: ${message.text()}`);
+  });
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   const hint = page.getByRole('main').getByTestId('hint-extend-ui-item');
   await expect(hint).toHaveText(`до ${dd(plus(4))}, +8 000 ₸ на счёт`);
   await page.getByRole('main').getByTestId('extend-ui-item').click();
   const confirm = page.getByRole('dialog', { name: 'Продлить на ночь — Двухместный номер?' });
-  await expect(confirm).toBeVisible();
+  try {
+    await expect(confirm).toBeVisible();
+  } catch (error) {
+    const dialogs = await page.evaluate(() =>
+      [...document.querySelectorAll('dialog')].map((d) => ({
+        open: d.hasAttribute('open'),
+        title: d.getAttribute('aria-labelledby')
+          ? document.getElementById(d.getAttribute('aria-labelledby')!)?.textContent
+          : null,
+        text: d.textContent?.slice(0, 120),
+      })),
+    );
+    console.log('extend dialog missing; page errors:', JSON.stringify(pageErrors));
+    console.log('dialogs on page:', JSON.stringify(dialogs));
+    throw error;
+  }
   expect(await commands(page)).toEqual([]);
   await confirm.getByRole('button', { name: 'Продлить', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('done-extend-ui-item')).toHaveText(
@@ -230,4 +252,146 @@ test('шахматка: плашки «сверх мест» и «требует
   await expect(page).toHaveURL(/\/reservations\/20260913-SHOWUN#booking-actions$/);
   await cardTab(page, 'Действия');
   await expect(page.getByRole('main').getByTestId('assign-form')).toBeVisible();
+});
+
+/**
+ * B3 «Карточка брони» (tasks/todo.md): сверху — гость, даты, место, гостей, стоимость и остаток одной
+ * полосой над вкладками; следующее действие смены первым в «Обзоре»; проживания в панели 480 px без
+ * прокрутки вбок; опасное действие названо до окна; Escape закрывает панель и возвращает фокус туда,
+ * откуда её открыли (DESIGN.md §12) — контекст списка сохранён.
+ */
+test('карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус', async ({
+  page,
+}) => {
+  await page.goto('/reservations');
+  const opener = page.getByRole('link', { name: `Открыть бронь ${BOOKING}` });
+  await opener.click();
+  const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+  await expect(drawer).toBeVisible();
+  const head = drawer.getByTestId('booking-head');
+  await expect(head.getByTestId('guest-link')).toHaveText('Гость Тестовый');
+  await expect(head).toContainText('гражданство KAZ');
+  await expect(head).toContainText(`${dd(today)} → ${dd(plus(3))}`);
+  await expect(head).toContainText('3 ночи');
+  await expect(head.getByTestId('booking-place')).toHaveText('R01');
+  // плашка суммы: слово и число — два span без пробела в DOM (AmountChip)
+  await expect(head.getByTestId('booking-due')).toHaveText(/к оплате\s*16 000 ₸/);
+  // полоса видна и из вкладки «Счета» — она над вкладками
+  await drawer.getByRole('tab', { name: 'Счета', exact: true }).click();
+  await expect(head).toBeVisible();
+  await drawer.getByRole('tab', { name: 'Обзор', exact: true }).click();
+  // проживания: семь колонок сложены в карточку, панель не прокручивается вбок
+  const stays = drawer.getByTestId('stays-table');
+  await expect(stays.getByTestId('stay-row')).toHaveCount(1);
+  await expect(stays.getByTestId('stay-row')).toContainText('Двухместный номер');
+  const overflow = await stays
+    .locator('xpath=..')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const drawerOverflow = await drawer.evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(drawerOverflow).toBeLessThanOrEqual(1);
+  // печатные формы — ссылки словами, без « · », внизу обзора
+  await expect(drawer.getByRole('link', { name: 'Договор KZ' })).toBeVisible();
+  // следующее действие ведёт во вкладку, не в историю: одно нажатие Escape закроет панель
+  await drawer.getByRole('link', { name: 'Продлить или переселить' }).click();
+  await expect(drawer.getByRole('tab', { name: 'Действия', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  // опасное действие названо до окна
+  const cancelPanel = drawer.getByTestId('cancel-panel');
+  await expect(cancelPanel).toContainText('Отмена брони');
+  await expect(cancelPanel).toContainText('место вернётся в продажу');
+  const cancelButton = cancelPanel.getByTestId('cancel-reservation');
+  await cancelButton.click();
+  const confirm = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
+  await expect(confirm.getByTestId('cancel-penalty')).toHaveText(
+    'Штраф 8 000 ₸ останется на счёте',
+  );
+  await page.keyboard.press('Escape');
+  await expect(confirm).toBeHidden();
+  await expect(cancelButton).toBeFocused();
+  await expect(drawer).toBeVisible();
+  // Escape закрывает панель, список под ней остаётся, фокус — на ссылке, откуда открыли
+  await page.keyboard.press('Escape');
+  await expect(drawer).toBeHidden();
+  await expect(page).toHaveURL(/\/reservations(\?|$)/);
+  await expect(page.getByRole('main').getByTestId('reservations-table')).toBeVisible();
+  await expect(opener).toBeFocused();
+});
+
+test('карточка B3 на телефоне: полоса и проживания без прокрутки вбок', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/reservations/${BOOKING}`);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('booking-head')).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  const stays = main.getByTestId('stays-table');
+  await expect(stays.getByTestId('stay-row')).toContainText('R01');
+  const tableOverflow = await stays
+    .locator('xpath=..')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(tableOverflow).toBeLessThanOrEqual(1);
+});
+
+/**
+ * C2 «Действия без перетаскивания» (tasks/todo.md): на плашке шахматки — меню «⋯» с теми же действиями,
+ * что у карточки и перетаскивания: продлить (сумма до подтверждения), переселить (форма карточки),
+ * отменить (штраф до подтверждения), открыть карточку. Всё с клавиатуры; Escape возвращает фокус на
+ * кнопку; меню — брат ссылки-плашки, клик по плашке по-прежнему открывает карточку.
+ */
+test('шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  const main = page.getByRole('main');
+  const plate = main.locator(`[data-testid="stay-cell"][data-number="${BOOKING}"]`).first();
+  await expect(plate).toBeVisible();
+  const cell = plate.locator('xpath=..');
+  const button = cell.getByRole('button', { name: 'Действия: Гость Тестовый' });
+  await expect(button).toBeVisible();
+  // кнопка не внутри ссылки: клик по плашке открывает карточку, клик по кнопке — меню
+  expect(await button.evaluate((el) => !!el.closest('a'))).toBe(false);
+
+  // с клавиатуры: стрелка вниз открывает меню, первый пункт в фокусе, Escape возвращает фокус
+  await button.focus();
+  await page.keyboard.press('ArrowDown');
+  const menu = page.getByRole('menu', { name: 'Действия: Гость Тестовый' });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole('menuitem', { name: 'Открыть карточку' })).toBeFocused();
+  await expect(menu.getByRole('menuitem', { name: 'Переселить' })).toHaveAttribute(
+    'href',
+    `/reservations/${BOOKING}#booking-actions`,
+  );
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(button).toBeFocused();
+
+  // продление: сумма до подтверждения, команда та же, что у карточки
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await expect(menu.getByRole('menuitem', { name: 'Продлить на ночь' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const extend = page.getByRole('dialog', { name: `Продлить на ночь — Гость Тестовый, R01?` });
+  await expect(extend).toContainText(/Новая ночь — \d[\d\s]* ₸\. Проживание станет/);
+  await extend.getByRole('button', { name: 'Продлить' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'продлена на ночь, R01' })).toBeVisible();
+  const sent = await commands(page);
+  expect(sent.some((c) => c.path.endsWith('/extend'))).toBe(true);
+  // сетку после продления перерисовывает router.refresh(); на синтетической доске соседние ночи R01
+  // заняты другими бронями фикстуры, поэтому новую клетку здесь не ищем — это доказывает живой desk-tasks
+
+  // отмена: штраф назван до подтверждения, «Оставить» ничего не меняет
+  await button.click();
+  await menu.getByRole('menuitem', { name: 'Отменить бронь' }).click();
+  const cancel = page.getByRole('dialog', { name: `Отменить бронь ${BOOKING}?` });
+  await expect(cancel).toContainText('Место R01 вернётся в продажу');
+  await expect(cancel).toContainText('Штраф 8 000 ₸ останется на счёте');
+  await cancel.getByRole('button', { name: 'Оставить как есть' }).click();
+  await expect(cancel).toBeHidden();
+  await expect(plate).toBeVisible();
+  expect((await commands(page)).some((c) => c.path.endsWith('/cancel'))).toBe(false);
 });

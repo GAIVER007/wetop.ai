@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { Chessboard, ChessboardCell, InventoryUnit } from '../../lib/api';
 import { Icon } from '../../components/icon';
-import { Input, StatusBadge } from '../../components/ui';
+import { EmptyState, Input, StatusBadge } from '../../components/ui';
 import { displayDate } from '../../lib/display-date';
 
 /**
@@ -93,8 +93,8 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
           <option value="OCCUPIED">Занятые</option>
           <option value="BLOCKED">Недоступные</option>
         </select>
-        <span className="muted small">
-          {rows.length} из {units.length}
+        <span className="muted small" data-testid="rooms-shown">
+          Показано {rows.length} из {units.length}
         </span>
       </div>
       <div className={`room-cards ${view === 'list' ? 'room-cards--list' : ''}`}>
@@ -120,34 +120,40 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
               <div className="room-card-note">
                 {c ? note(c) : board ? 'нет данных на сегодня' : 'занятость не загрузилась'}
               </div>
+              {/* §14: без стрелки в конце ссылки и без « · » как разделителя смыслов */}
               <div className="room-card-footer">
                 <span>
-                  {u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'} · {u.roomCapacity}{' '}
+                  {u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'}, {u.roomCapacity}{' '}
                   {u.roomCapacity === 1 ? 'место' : u.roomCapacity < 5 ? 'места' : 'мест'} в комнате
                 </span>
-                <Icon name="arrow" width={16} />
               </div>
             </Link>
           );
         })}
       </div>
       {!rows.length && (
-        <div className="empty-state">
-          <Icon name="bed" />
-          <h3>Нет подходящих номеров</h3>
-          <p>Измените поиск или выберите другой статус.</p>
-          <button
-            className="btn btn--secondary"
-            onClick={() => {
-              setKind('');
-              setCategory('');
-              setStatus('ALL');
-              setQ('');
-            }}
-          >
-            Сбросить фильтры
-          </button>
-        </div>
+        <EmptyState
+          data-testid="rooms-empty"
+          icon={<Icon name="bed" />}
+          title="Нет подходящих номеров"
+          actions={
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={() => {
+                setKind('');
+                setCategory('');
+                setStatus('ALL');
+                setQ('');
+              }}
+            >
+              Сбросить фильтры
+            </button>
+          }
+        >
+          Под поиск «{q.trim() || '…'}» и выбранные тип, категорию и статус не подходит ни одна
+          единица. Измените условие или сбросьте фильтры.
+        </EmptyState>
       )}
     </section>
   );
@@ -182,8 +188,8 @@ function note(cells: ChessboardCell[]): string {
     const who = first.guestLabel || first.confirmationNumber || 'гость';
     const ends = last < cells.length - 1 || cells[last]!.isLastNight;
     return ends
-      ? `${who} · выезд ${displayDate(nextDay(cells[last]!.date))}`
-      : `${who} · после ${displayDate(cells[last]!.date)}`;
+      ? `${who}, выезд ${displayDate(nextDay(cells[last]!.date))}`
+      : `${who}, после ${displayDate(cells[last]!.date)}`;
   }
   if (first.state === 'BLOCKED') {
     const kind =

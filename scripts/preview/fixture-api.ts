@@ -1258,9 +1258,15 @@ const uiSessions = new Map<string, UiUser>();
  * Читается тестом (`tests/ui/requests.spec.ts`), обнуляется вместе с остальной фикстурой.
  */
 const hits = new Map<string, number>();
-const countHit = (path: string): void => {
+const requestHits = new Map<string, number>();
+const countHit = (url: URL, method: string): void => {
+  const path = url.pathname;
   if (path.startsWith('/__test/')) return;
   hits.set(path, (hits.get(path) ?? 0) + 1);
+  const query = new URLSearchParams(url.searchParams);
+  query.sort();
+  const key = `${method} ${path}${query.size ? `?${query}` : ''}`;
+  requestHits.set(key, (requestHits.get(key) ?? 0) + 1);
 };
 /** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
 const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
@@ -1948,7 +1954,7 @@ createServer(async (req, res) => {
       });
       res.end(JSON.stringify(data));
     };
-    countHit(path);
+    countHit(url, req.method ?? 'GET');
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
@@ -1956,6 +1962,7 @@ createServer(async (req, res) => {
       return send(200, {
         total: [...hits.values()].reduce((a, b) => a + b, 0),
         byPath: Object.fromEntries([...hits].sort((a, b) => b[1] - a[1])),
+        byRequest: Object.fromEntries(requestHits),
       });
     if (
       !path.startsWith('/__test/') &&
@@ -1969,6 +1976,7 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/reset') {
       hits.clear();
+      requestHits.clear();
       resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';

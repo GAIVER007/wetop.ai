@@ -296,7 +296,7 @@ test.describe('регистрация доступна по умолчанию',
   test('негодная ссылка подтверждения: отказ текстом на той же странице', async ({ page }) => {
     await page.goto('/login/verify?token=нет-такой-ссылки');
     await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
-    await expect(page.getByRole('alert')).toContainText('Ссылка не годится');
+    await expect(page.getByRole('main').getByRole('alert')).toContainText('Ссылка не годится');
   });
 
   test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({

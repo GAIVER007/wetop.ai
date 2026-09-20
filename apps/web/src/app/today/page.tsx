@@ -12,6 +12,23 @@ import { PeriodBar } from './period-bar';
 import { DashboardSection, DashboardSkeleton } from './dashboard-section';
 import { AttentionSection, DeskSection, DeskSkeleton } from './desk-section';
 
+async function loadHotel() {
+  return hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
+}
+
+async function PropertyName() {
+  const hotel = await loadHotel();
+  return hotel?.property.name ?? 'Гостиница';
+}
+
+async function PropertyClock() {
+  const hotel = await loadHotel();
+  return <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />;
+}
+
 /**
  * Главная собственника и управляющего (срез 14, plans/slice-14-dashboard-2026-09-16.md):
  * показатели за период из шахматки и счетов, ниже — что происходит на стойке сегодня.
@@ -31,14 +48,16 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   // Полоса стойки: явная ?date=, иначе выбранный день, иначе сегодня объекта
   const deskDate =
     sp.date && validDate(sp.date) ? sp.date : period.from === period.to ? period.from : today;
-  const hotel = await hotelApi.settings().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
-  });
   return (
     <Page
       title="Главная"
-      crumbs={<span className="eyebrow">{hotel?.property.name ?? 'Гостиница'}</span>}
+      crumbs={
+        <span className="eyebrow">
+          <Suspense fallback="Гостиница">
+            <PropertyName />
+          </Suspense>
+        </span>
+      }
       subtitle="Загрузка, деньги и задачи вашего объекта."
       actions={
         <>
@@ -56,7 +75,15 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         <Suspense fallback={<span className="muted">Загружаем задачи дня…</span>}>
           <AttentionSection date={deskDate} />
         </Suspense>
-        <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />
+        <Suspense
+          fallback={
+            <span className="hotel-clock">
+              <Icon name="clock" width={14} />— <span>Время гостиницы</span>
+            </span>
+          }
+        >
+          <PropertyClock />
+        </Suspense>
       </div>
       <PeriodBar period={period} today={today} />
       {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}

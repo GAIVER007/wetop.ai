@@ -70,7 +70,7 @@ test('мёртвая ссылка — один текст и путь на фо�
   await expect(main.getByRole('alert')).toHaveText(
     'Приглашение не найдено, уже принято или его срок истёк.',
   );
-  await expect(main.getByRole('link', { name: 'войдите по коду' })).toHaveAttribute(
+  await expect(main.getByRole('link', { name: 'войдите' })).toHaveAttribute(
     'href',
     '/login',
   );

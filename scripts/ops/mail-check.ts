@@ -33,8 +33,15 @@ if (config.provider !== 'resend') {
   process.exit(1);
 }
 
-const TEN_MINUTES = 10 * 60 * 1000;
-const letter = mail.loginCodeLetter(to, '666666', TEN_MINUTES);
+// Письмо с кодом для входа снято 20.09.2026 вместе с самим входом по коду (ADR-053). Проверяем
+// отправителя приглашением — единственным письмом, которое система теперь шлёт сама.
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+const letter = mail.inviteLetter(
+  to,
+  'Проверка отправителя',
+  'https://app.wetop.ai/invite/proverka',
+  SEVEN_DAYS,
+);
 const sender = new mail.ResendMailSender({ config });
 
 console.log(`Отправляю на ${to} с ${config.from}...`);

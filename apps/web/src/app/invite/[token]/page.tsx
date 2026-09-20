@@ -40,7 +40,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
               <p role="alert">{INVITE_INVALID_MESSAGE}</p>
               <p className="muted">
                 Попросите новую ссылку у того, кто вас приглашал, или{' '}
-                <Link href="/login">войдите по коду</Link>, если уже состоите в организации.
+                <Link href="/login">войдите</Link>, если уже состоите в организации.
               </p>
             </>
           )}

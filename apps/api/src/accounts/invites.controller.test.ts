@@ -11,6 +11,7 @@ import {
   INVITE_INVALID_MESSAGE,
   INVITE_TTL_MS,
   SESSION_ENDED_MESSAGE,
+  hashSessionToken,
 } from '@pms/domain';
 import { mail } from '@pms/integrations';
 import { hashSecret } from '@pms/shared';
@@ -56,20 +57,12 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-  repo.codes.length = 0;
   repo.sessions.length = 0;
   repo.logins.length = 0;
   repo.invites.length = 0;
   repo.accounts = [ACCOUNT];
   sender.clear();
 });
-
-function codeFromLetter(to: string): string {
-  const text = sender.to(to).at(-1)?.text ?? '';
-  const m = /Код для входа: (\d{6})/.exec(text);
-  if (!m) throw new Error(`в письме на ${to} нет кода: ${text}`);
-  return m[1]!;
-}
 
 function linkFromLetter(to: string): string {
   const text = sender.to(to).at(-1)?.text ?? '';
@@ -78,13 +71,20 @@ function linkFromLetter(to: string): string {
   return m[1]!;
 }
 
+/**
+ * Сессию заводим прямо в подставном репозитории: входа по коду больше нет (ADR-053), а вход по
+ * паролю живёт в AuthService — этому контроллеру он не подчиняется. Отпечаток тот же, SHA-256.
+ */
 async function login(): Promise<string> {
-  await request(app.getHttpServer()).post('/auth/code').send({ email: ACCOUNT.email }).expect(204);
-  const res = await request(app.getHttpServer())
-    .post('/auth/verify')
-    .send({ email: ACCOUNT.email, code: codeFromLetter(ACCOUNT.email) })
-    .expect(200);
-  return res.body.token as string;
+  const token = 'invites-session-token';
+  await repo.createSession({
+    tokenHash: hashSessionToken(token),
+    userId: ACCOUNT.userId,
+    organizationId: ACCOUNT.organizationId,
+    expiresAt: new Date(Date.now() + 12 * 3600_000),
+    userAgent: null,
+  });
+  return token;
 }
 
 /** Не `async`: наружу нужен сам запрос supertest с его `.expect`, а не обещание вокруг него. */
@@ -187,11 +187,8 @@ describe('приглашение: проверка и принятие по сс
     // значит принятие работает и когда почтовая служба не настроена, а она может быть не настроена.
     expect(typeof accepted.body.setPasswordToken).toBe('string');
     expect(accepted.body.setPasswordToken.length).toBeGreaterThan(20);
-    // (коды в repo.codes есть — их запросил вход владельца в начале теста; важно, что приглашённому не ушло)
-    expect(
-      repo.codes.filter((c) => c.email === INVITEE),
-      'приглашённому код не уходит',
-    ).toHaveLength(0);
+    // писем приглашённому ровно одно — само приглашение; принятие второго письма не шлёт (ADR-053)
+    expect(sender.to(INVITEE), 'принятие письма не шлёт').toHaveLength(1);
     // в базе — только отпечаток ключа, сам ключ не хранится
     expect(repo.passwordSetTokens).toHaveLength(1);
     expect(repo.passwordSetTokens[0]!.email).toBe(INVITEE);

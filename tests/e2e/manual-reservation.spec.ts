@@ -40,7 +40,8 @@ test('создать бронь с ячейкой → видна в шахмат
   const number = page.url().split('/').pop()!;
 
   await page.goto(`/chessboard?from=${ARRIVAL}&to=${DEPARTURE}`);
-  const cellLink = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`);
+  // только плашки: с C2 (20.09) в клетке есть и ссылки меню «⋯» — они не клетки
+  const cellLink = page.locator(`[data-testid="stay-cell"][data-number="${number}"]`);
   await expect(cellLink.first()).toBeVisible();
   await page.screenshot({ path: 'reports/screenshots/manual-reservation-chessboard.png' });
 

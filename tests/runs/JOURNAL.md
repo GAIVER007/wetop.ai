@@ -1138,3 +1138,5 @@
 | 20.09.2026 17:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/system-screens.spec.ts -g вход и профиль --workers=1) | ❌ упало 1 из 1 | 22 с | 13365db +1 | [лог](logs/2026-09-20T12-02-17Z-e2e-032e.log) | вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами |
 | 20.09.2026 17:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/system-screens.spec.ts tests/ui/login-access.spec.ts tests/ui/invites.spec.ts tests/ui/password-r | ✅ 36 из 36 | 3 мин 53 с | 13365db +5 | [лог](logs/2026-09-20T12-02-56Z-e2e-e4bc.log) |  |
 | 20.09.2026 17:09 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 6 из 6 | 10 с | 32d715d | [лог](logs/2026-09-20T12-09-37Z-e2e-3d62.log) |  |
+| 20.09.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 200 из 200 | 13 мин 12 с | 874a079 | [лог](logs/2026-09-20T12-11-57Z-e2e-245d.log) |  |
+| 20.09.2026 17:26 | e2e | ✅ 25 из 25 | 1 мин 5 с | c438f89 | [лог](logs/2026-09-20T12-26-46Z-e2e-6422.log) |  |

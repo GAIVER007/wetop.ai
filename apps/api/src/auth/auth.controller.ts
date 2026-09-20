@@ -3,6 +3,7 @@ import { BadRequestException, Body, Controller, Get, Headers, Inject, Post } fro
 import { deviceFromUserAgent } from '@pms/domain';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
+import { EmailVerificationService } from './email-verification.service';
 import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
 
@@ -22,6 +23,7 @@ export class AuthController {
   constructor(
     @Inject(AuthService) private readonly auth: AuthService,
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
+    @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
   ) {}
 
   @Public()
@@ -43,19 +45,41 @@ export class AuthController {
   }
 
   /**
-   * Регистрация: почта, имя, пароль — и человек сразу внутри (ADR-053, решение владельца 20.09.2026).
-   * Без входа по построению, как и вход. Ответ тот же, что у /auth/login: ключ, срок, кто вошёл.
+   * Регистрация: почта, имя, пароль. Сессии в ответе нет — сначала письмо и подтверждение почты
+   * (решение владельца 20.09.2026). Без входа по построению, как и вход.
    */
   @Public()
   @Post('register')
-  register(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+  register(@Body() body: Record<string, unknown>) {
     this.auth.assertRegistrationOpen();
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
       password: text(body?.password, 'password', 200),
+    });
+  }
+
+  /**
+   * Переход по ссылке из письма: подтверждаем почту и сразу впускаем — человек уже назвал пароль
+   * при регистрации, спрашивать его второй раз незачем. Ответ тот же, что у /auth/login.
+   */
+  @Public()
+  @Post('email/verify')
+  async verifyEmail(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+    const confirmed = await this.verification.confirm(text(body?.token, 'token', 200));
+    return this.auth.startSession({
+      userId: confirmed.userId,
+      organizationId: confirmed.organizationId,
       userAgentFamily: deviceFromUserAgent(userAgent ?? null, null).browser,
     });
+  }
+
+  /** «Выслать письмо заново». Ответ всегда одинаковый: по нему не узнать, есть ли такая почта. */
+  @Public()
+  @Post('email/resend')
+  async resendEmail(@Body() body: Record<string, unknown>) {
+    await this.verification.resend(text(body?.email, 'email'));
+    return { ok: true };
   }
 
   @Get('me')

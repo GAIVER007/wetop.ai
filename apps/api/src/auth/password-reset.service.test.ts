@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { hashSessionToken, verifyPassword } from '@pms/domain';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
+import { EmailVerificationService } from './email-verification.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
 
 const NOW = new Date('2026-09-15T10:00:00Z');
@@ -26,7 +27,10 @@ function service(users = [fakeUser()], mailer: unknown = sent().mailer) {
   return {
     ...world,
     reset: new PasswordResetService(world.prisma, mailer as never, APP),
-    auth: new AuthService(world.prisma),
+    auth: new AuthService(
+      world.prisma,
+      new EmailVerificationService(world.prisma, mailer as never, APP),
+    ),
   };
 }
 
@@ -197,5 +201,40 @@ describe('PasswordResetService.invite', () => {
     await expect(
       reset.invite({ email: 'не-почта', name: 'Имя', organizationId: FAKE_ORG }, NOW),
     ).rejects.toThrow();
+  });
+});
+
+/**
+ * Отказ почтовой службы (сверка 20.09.2026). До правки письмо слалось без `try/catch`: Resend
+ * отвечает ошибкой — ссылка уже выдана и погасила прежнюю, человек остаётся без обеих, а повтор
+ * упирается в «не чаще одного письма в пять минут».
+ */
+describe('почтовая служба отказала', () => {
+  const broken = {
+    async send() {
+      throw new Error('Resend: 503');
+    },
+  };
+
+  it('сброс пароля: живой ссылки не остаётся, и следующая попытка не упирается в ожидание', async () => {
+    const { reset, resets } = service([fakeUser()], broken);
+    await reset.request('admin@example.invalid', NOW);
+    expect(resets.every((r) => r.usedAt !== null), 'выданная ссылка погашена').toBe(true);
+
+    // повтор сразу же, без пятиминутного ожидания: первой отправки ведь не было
+    const box = sent();
+    const second = service([fakeUser()], box.mailer);
+    await second.reset.request('admin@example.invalid', NOW);
+    expect(box.letters).toHaveLength(1);
+  });
+
+  it('приглашение: ссылка возвращается владельцу с пометкой «не отправлено», а не теряется', async () => {
+    const { reset } = service([fakeUser()], broken);
+    const invite = await reset.invite(
+      { email: 'novyj@example.invalid', name: 'Новый сотрудник', organizationId: FAKE_ORG },
+      NOW,
+    );
+    expect(invite.sent).toBe(false);
+    expect(invite.link).toContain('/login/set-password?token=');
   });
 });

@@ -252,7 +252,7 @@ test.describe('регистрация доступна по умолчанию',
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
   });
 
-  test('регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly', async ({
+  test('регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии', async ({
     page,
     context,
   }) => {
@@ -263,12 +263,40 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByLabel('Имя').fill('Вячеслав Петров');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
     await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await page.waitForURL('**/login/check-email**');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText('Проверьте почту');
+    await expect(page.getByRole('main')).toContainText('novyj@example.com');
+
+    // до подтверждения почты сессии нет: куки выдавать не за что (ADR-060)
+    expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
+  });
+
+  test('ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await page.waitForURL('**/login/check-email**');
+
+    // стенд выдаёт ссылки подтверждения по порядку — первой регистрации достаётся первая
+    await page.goto('/login/verify?token=ui-verify-1');
+    await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
     await page.waitForURL('**/today');
 
-    // письма и второго шага в этом пути нет: сессия открыта тем же способом, что при входе
     const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe('Lax');
+  });
+
+  test('негодная ссылка подтверждения: отказ текстом на той же странице', async ({ page }) => {
+    await page.goto('/login/verify?token=нет-такой-ссылки');
+    await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toContainText('Ссылка не годится');
   });
 
   test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({

@@ -5,7 +5,7 @@ import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { assertPropertyVisible, propertyIdRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { stayFacts } from '../chessboard/stay-facts';
 import type { LocalDailyRate, LocalRestriction } from './ari';
@@ -222,6 +222,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     const p = await this.prisma.db.property.findFirstOrThrow({
       where: { name: LUXX_APARTS_PROPERTY.name },
     });
+    assertPropertyVisible(p);
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       orderBy: { code: 'asc' },
@@ -656,8 +657,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async reservationCardByExternalId(externalId: string) {
     const property = await this.prisma.db.property.findFirstOrThrow({
       where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
+      select: { id: true, name: true, organizationId: true },
     });
+    assertPropertyVisible(property);
     const r = await this.prisma.db.reservation.findFirst({
       where: { propertyId: property.id, externalId },
       select: { confirmationNumber: true },

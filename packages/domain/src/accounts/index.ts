@@ -7,6 +7,7 @@ export * from './email';
 export * from './login';
 export * from './password';
 export * from './reset';
+export * from './email-verification';
 export * from './trial';
 export * from './session';
 export * from './registration';

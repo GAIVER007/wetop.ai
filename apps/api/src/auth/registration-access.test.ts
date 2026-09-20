@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './auth.guard';
 import { PasswordResetService } from './password-reset.service';
+import { EmailVerificationService } from './email-verification.service';
 import { fakeDb } from './fake-db';
 
 const NEW = {
@@ -32,6 +33,10 @@ describe('единая настройка самостоятельной рег�
         AuthService,
         { provide: PrismaService, useValue: world.prisma },
         { provide: PasswordResetService, useValue: {} },
+        {
+          provide: EmailVerificationService,
+          useValue: { async sendFor() { return true; }, async resend() {}, async confirm() { throw new Error('не звали'); } },
+        },
       ],
     }).compile();
     app = module.createNestApplication();
@@ -94,10 +99,11 @@ describe('единая настройка самостоятельной рег�
       expect(options.body).toEqual({ registrationEnabled: true });
       const registration = await request(app.getHttpServer()).post('/auth/register').send(NEW);
       expect(registration.status).toBe(201);
-      expect(registration.body.user.email).toBe(NEW.email);
+      expect(registration.body).toMatchObject({ pendingVerification: true, email: NEW.email });
+      // Вход до подтверждения почты закрыт — и это не «регистрация не сработала» (ADR-060)
       const login = await request(app.getHttpServer()).post('/auth/login').send(NEW);
-      expect(login.status).toBe(201);
-      expect(login.body.user.id).toBe(registration.body.user.id);
+      expect(login.status).toBe(403);
+      expect(login.body.message).toContain('Почта не подтверждена');
     },
   );
 });

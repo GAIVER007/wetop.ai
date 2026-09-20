@@ -5,6 +5,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-reset.service';
+import { EmailVerificationService } from './email-verification.service';
 
 /**
  * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Отправка писем настраивается ключом в окружении:
@@ -17,6 +18,7 @@ import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-r
     PrismaService,
     AuthService,
     PasswordResetService,
+    EmailVerificationService,
     {
       provide: MAILER,
       useFactory: (): Mailer | null => {
@@ -29,6 +31,6 @@ import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-r
       useFactory: (): string => process.env.PUBLIC_APP_URL?.trim() || 'https://app.wetop.ai',
     },
   ],
-  exports: [AuthService, PasswordResetService],
+  exports: [AuthService, PasswordResetService, EmailVerificationService],
 })
 export class AuthModule {}

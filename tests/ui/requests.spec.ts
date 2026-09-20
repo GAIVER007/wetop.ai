@@ -5,7 +5,10 @@ import { expect, test } from '@playwright/test';
  * Алматы, каждый лишний запрос — задержка сети на пустом месте. Счётчик в фикстуре (`/__test/hits`)
  * показывает правду по каждому пути.
  *
- * Правило: путь с данными экрана не запрашивается дважды за один показ, и всего запросов не больше десяти.
+ * Правило: одинаковый GET с теми же параметрами не повторяется. Открытые неисправности и история —
+ * разные выборки, хотя pathname общий. Прежний бюджет десять запросов сохранён для прежних экранов.
+ * Впервые добавленный /channels имеет восемь отдельных источников и четыре запроса оболочки в dev:
+ * его исходный бюджет 12. Это не основание удалять нужные проверки Channex ради числа в тесте.
  * Два пути исключены намеренно: `/system/freshness` браузер опрашивает сам раз в минуту, а `/auth/me`
  * рисуется в двух местах оболочки (панель и меню профиля); плюс стенд работает на `next dev`, где React
  * умышленно вызывает эффекты и рендер по два раза — это шум разработки, а не рейсы живой стойки.
@@ -13,6 +16,7 @@ import { expect, test } from '@playwright/test';
 interface Hits {
   total: number;
   byPath: Record<string, number>;
+  byRequest: Record<string, number>;
 }
 
 const API = 'http://127.0.0.1:4311';
@@ -28,20 +32,42 @@ for (const screen of [
   '/today',
   '/chessboard',
   '/reservations',
-  '/reservations/new?unit=M03',
   '/guests',
   '/rooms',
-  '/finance',
+  '/inventory',
+  '/rooms/categories',
+  '/rooms/availability',
   '/rates',
+  '/management/statistics',
+  '/finance',
+  '/channel-manager',
+  '/channels',
+  '/analytics',
+  '/hotel-settings',
+  '/hotel-settings/check-in',
+  '/hotel-settings/penalties',
+  '/hotel-settings/services',
+  '/hotel-settings/description',
+  '/hotel-settings/photos',
+  '/hotel-settings/amenities',
+  '/connections',
+  '/analytics/setup',
+  '/incidents',
+  '/journal',
+  '/reservations/new?unit=M03',
 ]) {
   test(`экран ${screen}: данные берутся одним запросом на путь`, async ({ page, request }) => {
     await request.post(`${API}/__test/reset`);
     await page.goto(screen);
     await page.waitForLoadState('networkidle');
-    const { total, byPath } = await hits(request);
-    const seen = JSON.stringify(byPath);
-    const twice = Object.entries(byPath).filter(([p, n]) => n > 1 && !SHELL.includes(p));
+    const { total, byRequest } = await hits(request);
+    const seen = JSON.stringify(byRequest);
+    const twice = Object.entries(byRequest).filter(
+      ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+    );
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
-    expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(10);
+    expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      screen === '/channels' ? 12 : 10,
+    );
   });
 }

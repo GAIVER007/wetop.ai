@@ -2,7 +2,7 @@ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-pa
 import Link from 'next/link';
 import { RoomGrid } from '../room-grid';
 import { notFound } from 'next/navigation';
-import { api, chessboardApi, reservationsApi } from '../../../lib/api';
+import { ApiError, api, chessboardApi, reservationsApi } from '../../../lib/api';
 import { hotelToday, nextDay, plusDays, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
@@ -53,8 +53,24 @@ export default async function RoomsPage({
     </Page>
   );
 }
+/**
+ * Номерной фонд не ответил. Это не пустая база: пустой фонд показывает нули, а не отсутствие цифр.
+ * Текст отказа берём как есть — API говорит по-человечески (например, «объект не настроен для вашей
+ * организации», ADR-059), и прятать это за общим «что-то пошло не так» незачем.
+ */
+const FUND_FAILED = 'Номерной фонд не загрузился';
+
 async function RoomTotals() {
-  const r = await api.inventorySummary();
+  const r = await api.inventorySummary().catch((e: unknown) => {
+    if (e instanceof ApiError) return e;
+    throw e;
+  });
+  if (r instanceof ApiError)
+    return (
+      <Alert boxed>
+        {FUND_FAILED}: {r.message}
+      </Alert>
+    );
   return (
     <Stats>
       <Stat label="Частных номеров" value={r.rooms} />
@@ -72,10 +88,22 @@ const BOARD_FAILED =
 async function Categories() {
   const today = hotelToday();
   const [r, units, board] = await Promise.all([
-    api.inventorySummary(),
-    api.inventoryUnits(),
+    api.inventorySummary().catch((e: unknown) => {
+      if (e instanceof ApiError) return e;
+      throw e;
+    }),
+    api.inventoryUnits().catch((e: unknown) => {
+      if (e instanceof ApiError) return e;
+      throw e;
+    }),
     chessboardApi.board(today, today).catch(() => null),
   ]);
+  if (r instanceof ApiError || units instanceof ApiError)
+    return (
+      <Alert boxed>
+        {FUND_FAILED}: {(r instanceof ApiError ? r : (units as ApiError)).message}
+      </Alert>
+    );
   const beds = new Map<string, number>();
   for (const u of units)
     if (u.kind === 'BED')

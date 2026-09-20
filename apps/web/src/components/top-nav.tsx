@@ -9,6 +9,7 @@ import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
 import { activeNavigation } from '../lib/navigation';
+import { DataFreshnessProvider } from './data-freshness';
 export function TopNav({
   children,
   demo = false,
@@ -64,140 +65,142 @@ export function TopNav({
     { href: '/chessboard', label: 'Шахматка', icon: 'board' },
   ] as const;
   return (
-    <div className={cx('workspace', collapsed && 'is-collapsed')}>
-      <a className="skip-link" href="#main-content">
-        К содержимому
-      </a>
-      <aside className="workspace-sidebar">
-        <Sidebar property={property} path={path} collapsed={collapsed} onCollapse={collapse} />
-      </aside>
-      <div className="workspace-body">
-        <header className="workspace-header">
-          <button
-            className="icon-button mobile-menu"
-            onClick={() => setMenu(true)}
-            aria-label="Открыть меню"
-          >
-            <Icon name="menu" />
-          </button>
-          <button
-            className="workspace-search"
-            aria-label="Найти гостя или бронь"
-            onClick={() => setSearch(true)}
-          >
-            <Icon name="search" />
-            <span className="workspace-search-full">Поиск гостя, брони, номера...</span>
-            <span className="workspace-search-short" aria-hidden="true">
-              Поиск
-            </span>
-            <kbd>⌘ K</kbd>
-          </button>
-          <div className="header-tools">
-            {demo && (
-              <span
-                className="demo-indicator"
-                title="Вымышленные данные. Изменения не отправляются во внешние сервисы."
-              >
-                Демо
-              </span>
-            )}
+    <DataFreshnessProvider>
+      <div className={cx('workspace', collapsed && 'is-collapsed')}>
+        <a className="skip-link" href="#main-content">
+          К содержимому
+        </a>
+        <aside className="workspace-sidebar">
+          <Sidebar property={property} path={path} collapsed={collapsed} onCollapse={collapse} />
+        </aside>
+        <div className="workspace-body">
+          <header className="workspace-header">
             <button
-              className="icon-button theme-switch"
-              aria-label="Переключить тему"
-              title="Светлая / тёмная тема"
-              onClick={() =>
-                setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
-              }
+              className="icon-button mobile-menu"
+              onClick={() => setMenu(true)}
+              aria-label="Открыть меню"
             >
-              <Icon name="sun" className="theme-sun" />
-              <Icon name="moon" className="theme-moon" />
+              <Icon name="menu" />
             </button>
-            <div className="profile-menu">
-              <button
-                className="profile-trigger"
-                aria-label="Меню администратора"
-                aria-expanded={profile}
-                aria-controls="profile-dropdown"
-                onClick={() => setProfile(!profile)}
-              >
-                <span className="desk-avatar">АД</span>
-                <span className="profile-caption">
-                  <strong>Администратор</strong>
-                  <small>{property?.name ?? 'Объект не загружен'}</small>
+            <button
+              className="workspace-search"
+              aria-label="Найти гостя или бронь"
+              onClick={() => setSearch(true)}
+            >
+              <Icon name="search" />
+              <span className="workspace-search-full">Поиск гостя, брони, номера...</span>
+              <span className="workspace-search-short" aria-hidden="true">
+                Поиск
+              </span>
+              <kbd>⌘ K</kbd>
+            </button>
+            <div className="header-tools">
+              {demo && (
+                <span
+                  className="demo-indicator"
+                  title="Вымышленные данные. Изменения не отправляются во внешние сервисы."
+                >
+                  Демо
                 </span>
-                <Icon name="down" width={14} />
-              </button>
-              {profile && (
-                <>
-                  <button
-                    className="dropdown-dismiss"
-                    aria-label="Закрыть меню профиля"
-                    onClick={() => setProfile(false)}
-                  />
-                  <div className="profile-dropdown" id="profile-dropdown">
-                    <span className="eyebrow">Рабочее пространство</span>
-                    <Link href="/profile">
-                      <Icon name="guests" />
-                      Профиль и предпочтения
-                    </Link>
-                    <Link href="/hotel-settings">
-                      <Icon name="settings" />
-                      Настройки объекта
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setTheme('system');
-                        setProfile(false);
-                      }}
-                    >
-                      <Icon name="system" />
-                      Тема устройства
-                    </button>
-                    {account ?? (
-                      <Link href="/login">
-                        <Icon name="departure" />
-                        Экран входа
-                      </Link>
-                    )}
-                  </div>
-                </>
               )}
+              <button
+                className="icon-button theme-switch"
+                aria-label="Переключить тему"
+                title="Светлая / тёмная тема"
+                onClick={() =>
+                  setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
+                }
+              >
+                <Icon name="sun" className="theme-sun" />
+                <Icon name="moon" className="theme-moon" />
+              </button>
+              <div className="profile-menu">
+                <button
+                  className="profile-trigger"
+                  aria-label="Меню администратора"
+                  aria-expanded={profile}
+                  aria-controls="profile-dropdown"
+                  onClick={() => setProfile(!profile)}
+                >
+                  <span className="desk-avatar">АД</span>
+                  <span className="profile-caption">
+                    <strong>Администратор</strong>
+                    <small>{property?.name ?? 'Объект не загружен'}</small>
+                  </span>
+                  <Icon name="down" width={14} />
+                </button>
+                {profile && (
+                  <>
+                    <button
+                      className="dropdown-dismiss"
+                      aria-label="Закрыть меню профиля"
+                      onClick={() => setProfile(false)}
+                    />
+                    <div className="profile-dropdown" id="profile-dropdown">
+                      <span className="eyebrow">Рабочее пространство</span>
+                      <Link href="/profile">
+                        <Icon name="guests" />
+                        Профиль и предпочтения
+                      </Link>
+                      <Link href="/hotel-settings">
+                        <Icon name="settings" />
+                        Настройки объекта
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setTheme('system');
+                          setProfile(false);
+                        }}
+                      >
+                        <Icon name="system" />
+                        Тема устройства
+                      </button>
+                      {account ?? (
+                        <Link href="/login">
+                          <Icon name="departure" />
+                          Экран входа
+                        </Link>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </header>
-        {demo && (
-          <div className="demo-banner" role="status">
-            Демонстрационный режим{' '}
-            <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
-          </div>
-        )}
-        {children}
+          </header>
+          {demo && (
+            <div className="demo-banner" role="status">
+              Демонстрационный режим{' '}
+              <span>Вымышленные гости и брони · внешние сервисы не вызываются</span>
+            </div>
+          )}
+          {children}
+        </div>
+        <nav className="bottom-navigation" aria-label="Основная навигация">
+          {nav.map((n) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
+            >
+              <Icon name={n.icon} />
+              <span>{n.label}</span>
+            </Link>
+          ))}
+          <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
+            <Icon name="more" />
+            <span>Ещё</span>
+          </button>
+        </nav>
+        <Overlay
+          open={menu}
+          onClose={() => setMenu(false)}
+          title="Навигация"
+          className="mobile-navigation"
+        >
+          <Sidebar property={property} path={path} close={() => setMenu(false)} />
+        </Overlay>
+        <GlobalSearch open={search} close={() => setSearch(false)} />
       </div>
-      <nav className="bottom-navigation" aria-label="Основная навигация">
-        {nav.map((n) => (
-          <Link
-            key={n.href}
-            href={n.href}
-            className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-          >
-            <Icon name={n.icon} />
-            <span>{n.label}</span>
-          </Link>
-        ))}
-        <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
-          <Icon name="more" />
-          <span>Ещё</span>
-        </button>
-      </nav>
-      <Overlay
-        open={menu}
-        onClose={() => setMenu(false)}
-        title="Навигация"
-        className="mobile-navigation"
-      >
-        <Sidebar property={property} path={path} close={() => setMenu(false)} />
-      </Overlay>
-      <GlobalSearch open={search} close={() => setSearch(false)} />
-    </div>
+    </DataFreshnessProvider>
   );
 }

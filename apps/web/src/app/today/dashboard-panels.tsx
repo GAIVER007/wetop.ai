@@ -186,8 +186,10 @@ export function PaymentsPanel({ period }: { period: DashboardPeriod }) {
           ))}
           {!rows.length && (
             <tr>
+              {/* Пустое говорит, что пусто, и предлагает действие (DESIGN.md §14, разбор 20.09) */}
               <td colSpan={3} className="muted">
-                Платежей за период нет.
+                Платежей за период нет.{' '}
+                <Link href="/reservations?status=CHECKED_IN">Найти бронь для оплаты</Link>
               </td>
             </tr>
           )}

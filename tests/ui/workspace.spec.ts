@@ -154,7 +154,7 @@ test('менеджер каналов: реальные фильтры, пуст
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/status=CANCELLED/);
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
-  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/channel-manager?from=2026-09-30&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
@@ -816,7 +816,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/channel-manager');
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
-  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
   for (const id of ['charged', 'paid', 'refunded', 'balance'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');

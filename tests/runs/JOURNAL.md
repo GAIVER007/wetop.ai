@@ -1428,3 +1428,9 @@
 | 21.09.2026 21:53 | lint | ✅ без ошибок | 13 с | deb65bc +9 | [лог](logs/2026-09-21T16-53-35Z-lint-f97d.log) | guests words and chips |
 | 21.09.2026 21:53 | unit | ❌ упало 1 из 1336, пропущено 3 | 1 мин 18 с | deb65bc +6 | [лог](logs/2026-09-21T16-53-49Z-unit-da43.log) | guests and chips |
 | 21.09.2026 21:55 | unit | ✅ 1333 из 1336, пропущено 3 | 1 мин 12 с | deb65bc +6 | [лог](logs/2026-09-21T16-55-23Z-unit-711f.log) | guests and chips (rerun after timeout of repo-sync sandbox) |
+| 21.09.2026 22:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts --grep менеджер каналов) | ❌ упало 1 из 2 | 30 с | 02e4b8e +1 | [лог](logs/2026-09-21T17-02-10Z-e2e-82fd.log) | RED: channel manager before the fix |
+| 21.09.2026 22:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts) | ❌ упало 1 из 10 | 54 с | 02e4b8e +3 | [лог](logs/2026-09-21T17-03-32Z-e2e-4cf0.log) | GREEN: channel manager summary |
+| 21.09.2026 22:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts) | ✅ 10 из 10 | 46 с | 02e4b8e +3 | [лог](logs/2026-09-21T17-04-37Z-e2e-a882.log) | GREEN: channel manager summary |
+| 21.09.2026 22:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts tests/ui/e | ❌ упало 9 из 115 | 6 мин 50 с | 02e4b8e +4 | [лог](logs/2026-09-21T17-06-28Z-e2e-5e74.log) | channel manager: neighbouring suites |
+| 21.09.2026 22:13 | lint | ✅ без ошибок | 14 с | 02e4b8e +4 | [лог](logs/2026-09-21T17-13-50Z-lint-fef8.log) | channel manager summary |
+| 21.09.2026 22:14 | unit | ✅ 1333 из 1336, пропущено 3 | 1 мин 12 с | 02e4b8e +2 | [лог](logs/2026-09-21T17-14-10Z-unit-8078.log) | channel manager summary |

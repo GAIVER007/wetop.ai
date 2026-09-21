@@ -12,6 +12,50 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
 });
 
+/**
+ * «Менеджер каналов» (21.09.2026, продолжение правки «чтобы каши не было»).
+ *
+ * Было: ряд из четырёх плиток, где четвёртая — «Источников продаж 4» — повторяла число строк таблицы
+ * под ней; следом панель «Стоимость выбранных броней» высотой ~230 px ради одного числа, и до таблицы
+ * оставалось 690 px экрана; у каждой строки — кружок-монограмма с первой буквой канала, хотя в
+ * справочниках от аватаров отказались (DESIGN.md §8) и логотипы каналов не вставляем (§7); пустой отчёт
+ * рисовался ячейкой внутри таблицы с шапкой из шести колонок.
+ */
+test('менеджер каналов: стоимость — плитка в ряду, без дубля числа источников и без монограмм', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/channel-manager');
+
+  // стоимость стоит рядом с остальными числами, отдельной панели под неё нет
+  await expect(main.getByTestId('channel-amount')).toContainText('1 920 000');
+  await expect(main.locator('.channel-value-panel')).toHaveCount(0);
+  // плитка «Источников продаж» повторяла число строк таблицы — снята
+  await expect(main.getByText('Источников продаж')).toHaveCount(0);
+
+  // таблица видна сразу, а не после 690 px сводки
+  const top = await main
+    .getByTestId('channel-report')
+    .evaluate((el) => el.getBoundingClientRect().top);
+  expect(top, 'таблица каналов начинается слишком низко').toBeLessThanOrEqual(560);
+
+  // строка называет канал словами: кружков с буквой нет
+  await expect(main.locator('.channel-monogram')).toHaveCount(0);
+  await expect(main.getByTestId('channel-report')).toContainText('Booking.com');
+
+  // подпись периода без двоеточия
+  await expect(main.getByTestId('channel-period')).not.toContainText(':');
+
+  // пустой отчёт — общее пустое состояние, шапки из шести колонок над ним нет
+  await request.post(`${fixture}/__test/control`, { data: { empty: true } });
+  await page.goto('/channel-manager');
+  await expect(main.getByTestId('channel-report-empty')).toBeVisible();
+  await expect(main.getByRole('columnheader')).toHaveCount(0);
+  await request.post(`${fixture}/__test/control`, { data: {} });
+});
+
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({
   page,
   request,
@@ -387,8 +431,9 @@ test('менеджер каналов и подключения: период с
 }) => {
   const main = page.getByRole('main');
   await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  // 21.09: подпись периода без двоеточия — «Брони с заездом …» (§14)
   await expect(main.locator('.page__subtitle')).toHaveText(
-    'Брони по дате заезда: 1 сент. → 30 сент., 30 дней, все статусы',
+    'Брони с заездом 1 сент. → 30 сент., 30 дней, все статусы',
   );
   await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
   await expect(main.getByTestId('channel-report')).toContainText('Канал продаж, KZT');

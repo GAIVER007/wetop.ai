@@ -16,15 +16,16 @@ import { loadErrorProps } from '../../lib/load-error';
 import {
   Alert,
   Button,
+  EmptyState,
   Field,
   Input,
   Help,
-  Panel,
   Select,
   Stat,
   Stats,
   Table,
 } from '../../components/ui';
+import { Icon } from '../../components/icon';
 import '../directory.css';
 
 /**
@@ -63,7 +64,7 @@ export default async function ChannelManagerPage({
       : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`
     : '';
   const subtitle = valid
-    ? `Брони по дате заезда: ${periodText}, ${pluralRu(nightsBetween(from, to) + 1, ['день', 'дня', 'дней'])}, ${reservationStatuses[status]!.toLowerCase()}`
+    ? `Брони с заездом ${periodText}, ${pluralRu(nightsBetween(from, to) + 1, ['день', 'дня', 'дней'])}, ${reservationStatuses[status]!.toLowerCase()}`
     : undefined;
   const totals = report?.rows.reduce(
     (r, row) => ({
@@ -79,7 +80,7 @@ export default async function ChannelManagerPage({
   return (
     <Page
       title="Менеджер каналов"
-      subtitle={subtitle}
+      subtitle={subtitle ? <span data-testid="channel-period">{subtitle}</span> : undefined}
       actions={
         <Link href="/channels" className="btn btn--secondary">
           Настроить синхронизацию
@@ -112,92 +113,103 @@ export default async function ChannelManagerPage({
       )}
       {report && totals && (
         <>
-          <Stats>
+          {/*
+           * 21.09: четвёртой плиткой стояло «Источников продаж», повторявшее число строк таблицы, а
+           * стоимость занимала отдельную панель на 230 px ради одного числа — до таблицы оставалось
+           * 690 px экрана. Стоимость встала в тот же ряд, пояснение и ссылка — подписью под ней.
+           */}
+          <Stats min={200}>
             <Stat label="Бронирований" value={totals.count} testId="channel-bookings" />
             <Stat label="Отмен" value={totals.cancelled} />
             <Stat label="Незаездов" value={totals.noShow} />
             <Stat
-              label="Источников продаж"
-              value={new Set(report.rows.map((r) => JSON.stringify([r.source, r.channel]))).size}
+              label="Стоимость броней"
+              testId="channel-amount"
+              value={
+                money.size ? (
+                  <span className="channel-amount">
+                    {[...money].map(([currency, value]) => (
+                      <span key={currency}>{formatMoney(value.toString(), currency)}</span>
+                    ))}
+                  </span>
+                ) : (
+                  '—'
+                )
+              }
+              hint={
+                <>
+                  {status === 'ALL' && money.size ? 'включая отмены и незаезды. ' : ''}
+                  <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
+                </>
+              }
             />
           </Stats>
-          <Panel className="channel-value-panel" title="Стоимость выбранных броней">
-            <div className="channel-totals">
-              {[...money].map(([currency, value]) => (
-                <strong key={currency}>{formatMoney(value.toString(), currency)}</strong>
-              ))}
-              {!money.size && <span className="muted">За этот период бронирований нет</span>}
-            </div>
-            {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
-            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
-          </Panel>
-          <Table className="dir-table dir-table--channel-report" data-testid="channel-report">
-            <thead>
-              <tr>
-                <th>Источник</th>
-                <th className="num">Брони</th>
-                <th className="num">Отмены</th>
-                <th className="num">Незаезды</th>
-                <th className="num">Стоимость броней</th>
-                <th>Доля броней</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.rows.map((row) => (
-                <tr key={JSON.stringify([row.source, row.channel, row.currency])}>
-                  <td>
-                    <div className="channel-name">
-                      <span
-                        className={`channel-monogram ${row.source === 'OTA' ? 'channel-monogram--ota' : ''}`}
-                      >
-                        {(row.channel ?? sourceNames[row.source] ?? row.source).slice(0, 1)}
-                      </span>
-                      <div>
-                        <strong>{row.channel ?? sourceNames[row.source] ?? row.source}</strong>
-                        <div className="cell-sub">
-                          {sourceNames[row.source] ?? row.source}, {row.currency}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="num">
-                    <strong>{row.count}</strong>
-                  </td>
-                  <td className="num">{row.cancelled}</td>
-                  <td className="num">{row.noShow}</td>
-                  <td className="num">{formatMoney(row.amountMinor, row.currency)}</td>
-                  <td>
-                    <div className="occupancy-meter">
-                      <meter
-                        min="0"
-                        max={totals.count || 1}
-                        value={row.count}
-                        aria-label={`Доля: ${row.count} из ${totals.count} броней`}
-                      />
-                      <span>
-                        {totals.count ? Math.round((row.count / totals.count) * 100) : 0}%
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {!report.rows.length && (
+          {report.rows.length > 0 && (
+            <Table className="dir-table dir-table--channel-report" data-testid="channel-report">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="empty-state" data-testid="channel-report-empty">
-                    Нет бронирований с заездом {periodText}
-                    {status !== 'ALL' && ` со статусом «${reservationStatuses[status]}»`}.{' '}
-                    {status !== 'ALL' ? (
-                      <Link href={`/channel-manager?from=${from}&to=${to}&status=ALL`}>
-                        Показать все статусы
-                      </Link>
-                    ) : (
-                      'Расширьте период: источники появляются по сохранённым броням.'
-                    )}
-                  </td>
+                  <th>Источник</th>
+                  <th className="num">Брони</th>
+                  <th className="num">Отмены</th>
+                  <th className="num">Незаезды</th>
+                  <th className="num">Стоимость броней</th>
+                  <th>Доля броней</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {report.rows.map((row) => (
+                  <tr key={JSON.stringify([row.source, row.channel, row.currency])}>
+                    <td>
+                      {/* Канал различается названием: кружок с первой буквой — тот же аватар, от которого
+                        справочники отказались 15.09, а логотипы каналов мы не вставляем (§7) */}
+                      <strong>{row.channel ?? sourceNames[row.source] ?? row.source}</strong>
+                      <div className="cell-sub">
+                        {sourceNames[row.source] ?? row.source}, {row.currency}
+                      </div>
+                    </td>
+                    <td className="num">
+                      <strong>{row.count}</strong>
+                    </td>
+                    <td className="num">{row.cancelled}</td>
+                    <td className="num">{row.noShow}</td>
+                    <td className="num">{formatMoney(row.amountMinor, row.currency)}</td>
+                    <td>
+                      <div className="occupancy-meter">
+                        <meter
+                          min="0"
+                          max={totals.count || 1}
+                          value={row.count}
+                          aria-label={`Доля: ${row.count} из ${totals.count} броней`}
+                        />
+                        <span>
+                          {totals.count ? Math.round((row.count / totals.count) * 100) : 0}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+          {!report.rows.length && (
+            <EmptyState
+              icon={<Icon name="channels" />}
+              title={`Нет бронирований с заездом ${periodText}${status !== 'ALL' ? ` со статусом «${reservationStatuses[status]}»` : ''}`}
+              data-testid="channel-report-empty"
+              actions={
+                status !== 'ALL' ? (
+                  <Link
+                    href={`/channel-manager?from=${from}&to=${to}&status=ALL`}
+                    className="btn btn--secondary"
+                  >
+                    Показать все статусы
+                  </Link>
+                ) : undefined
+              }
+            >
+              Расширьте период: источники появляются по сохранённым броням.
+            </EmptyState>
+          )}
           <Help title="Как считаются показатели">
             Одна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники
             появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает,

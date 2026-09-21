@@ -793,6 +793,11 @@ a.dir-number:hover {
 .finance-block .stats {
   margin-bottom: 8px;
 }
+/* Таблицы блока — три колонки в панели 335 px: общий `.table-scroll > .tbl { min-width: 520px }`
+   уводил колонку «Сумма» в прокрутку без признака (21.09) */
+.finance-block .table-scroll > .tbl {
+  min-width: 0;
+}
 .finance-block--due {
   border-color: var(--warning-border);
 }

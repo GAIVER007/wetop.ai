@@ -269,7 +269,7 @@ function Report({
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
-      <Table data-testid={testId}>
+      <Table size="sm" data-testid={testId}>
         <thead>
           <tr>
             {head.map((h, i) => (

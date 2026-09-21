@@ -28,10 +28,38 @@
 .reservations-controls .inp {
   font-size: var(--text-sm);
 }
+/* Два ряда чипов под формой: «Период» и «Статус». Слово слева отличает ряды друг от друга —
+   без него два одинаковых ряда читались как один длинный список (owner 21.09). */
+.reservations-quick {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+}
+.reservations-quick__word {
+  align-self: center;
+  padding-right: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+/* Статус, которого в периоде нет: чип остаётся на месте, но не зовёт нажать */
+.reservations-controls .directory-filters a.reservations-chip--zero {
+  color: var(--muted);
+}
+.reservations-count {
+  margin-left: var(--space-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.reservations-controls .directory-filters a.is-active .reservations-count {
+  color: inherit;
+}
+.reservations-reset {
+  white-space: nowrap;
+}
 .reservations-controls .directory-filters {
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin: var(--space-4) 0 0;
+  margin: 0;
   border: 0;
   overflow: visible;
 }
@@ -270,7 +298,9 @@
     grid-column: 2;
     align-self: end;
   }
-  .reservations-controls .directory-filters {
+  /* Телефон: ряды чипов убраны, как и было. Статус там задаёт выпадающий список формы, а первая
+     строка списка должна оставаться видимой без прокрутки (reservations-design.spec, 450 px). */
+  .reservations-quick {
     display: none;
   }
   .reservations-results .dir-guest,

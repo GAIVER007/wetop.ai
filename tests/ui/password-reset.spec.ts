@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Приглашение и сброс пароля (DATA_MODEL §13.8, ADR-049, решение владельца 15.09.2026 — письма через

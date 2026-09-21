@@ -61,13 +61,9 @@ function makeWithProbe(opts: {
     probed.push(url);
     return opts.reachable;
   };
-  return {
-    svc: new WebhookHealthService(repo, inbound, sync, probe),
-    pulls,
-    probed,
-    statusCalls,
-    opts,
-  };
+  const svc = new WebhookHealthService(repo, inbound, sync, probe);
+  svc.retryDelayMs = 0;
+  return { svc, pulls, probed, statusCalls, opts };
 }
 
 describe('WebhookHealthService', () => {
@@ -117,12 +113,35 @@ describe('WebhookHealthService — проба зарегистрированно
     const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
     expect(h.suspect).toBe(true);
     expect(h.kind).toBe('unreachable');
-    expect(probed).toEqual(['https://tunnel.example/channels/channex/webhook']);
+    // две неудачи подряд: после первой сторож переспрашивает, а не объявляет адрес мёртвым
+    expect(probed).toEqual([
+      'https://tunnel.example/channels/channex/webhook',
+      'https://tunnel.example/channels/channex/webhook',
+    ]);
     expect(pulls).toHaveLength(1);
     const s = svc.snapshot();
     expect(s.callbackReachable).toBe(false);
     expect(s.callbackProbedUrl).toBe('https://tunnel.example/channels/channex/webhook');
     expect(s.callbackCheckedAt).toBe('2026-09-13T09:00:00.000Z');
+  });
+
+  it('единичный пропуск пробы — не неисправность: повторная проба ответила, подозрения нет', async () => {
+    const { svc, probed, opts } = makeWithProbe({
+      webhook: utc('2026-09-13T07:18:00Z'),
+      pullBooking: null,
+      callbackUrl: 'https://tunnel.example/channels/channex/webhook',
+      reachable: false,
+    });
+    // первая проба не отвечает, вторая — отвечает (20–21.09.2026: так выглядели все шесть «отказов» за день)
+    let calls = 0;
+    (svc as unknown as { probe: (url: string) => Promise<boolean> }).probe = async () => {
+      probed.push('x');
+      return ++calls > 1 ? true : opts.reachable;
+    };
+    const h = await svc.tick(utc('2026-09-13T09:00:00Z'));
+    expect(h.suspect).toBe(false);
+    expect(probed).toHaveLength(2);
+    expect(svc.snapshot().callbackReachable).toBe(true);
   });
 
   it('Д4: в Channex стоит не постоянный адрес PMS — подозрение, даже если тот адрес отвечает', async () => {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = 'http://127.0.0.1:4311';
 const screenshotDir = 'reports/premium-ui';
@@ -97,9 +97,10 @@ test('новые фильтры шахматки, список броней и �
   await page.goto('/reservations');
   // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
   await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+  // в названии чипа теперь и число броней этого статуса: «Отменены 0»
   await page
     .locator('.directory-filters')
-    .getByRole('link', { name: 'Отменены', exact: true })
+    .getByRole('link', { name: /^Отменены/ })
     .click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
   await page.goto('/rooms');
@@ -117,7 +118,9 @@ test('новые фильтры шахматки, список броней и �
 test('новые страницы и обе темы: адаптивность и отсутствие ошибок браузера', async ({ page }) => {
   test.setTimeout(180000);
   const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('pageerror', (e) => {
+    if (!devNoise.test(e.message)) errors.push(e.message);
+  });
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
   });

@@ -13,6 +13,13 @@ export default tseslint.config(
       'apps/site/out/**',
       'coverage/**',
       'playwright-report/**',
+      // Рабочие папки инструментов дизайн-системы: порождаются заново, в git их нет (.gitignore).
+      // Без этих строк `npm run lint` на машине владельца давал 2625 ошибок в чужой сборке —
+      // и настоящие замечания в них тонули (разбор 21.09.2026).
+      '.design-sync/**',
+      '.ds-sync/**',
+      'ds-bundle/**',
+      '.omx/**',
     ],
   },
   js.configs.recommended,

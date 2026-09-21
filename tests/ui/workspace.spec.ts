@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -27,9 +27,12 @@ test('все разделы, карточки и печать открывают
   test.setTimeout(180_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  // отказ measure приходит и как console.error, и как необработанное исключение страницы
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) errors.push(error.message);
+  });
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error' && !devNoise.test(message.text())) errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
@@ -94,8 +97,11 @@ test('вложенные разделы: раскрытие, один актив
   const sidebar = page.locator('.workspace-sidebar');
   const rooms = sidebar.getByRole('button', { name: 'Номерной фонд', exact: true });
   await expect(rooms).toHaveAttribute('aria-expanded', 'false');
-  await rooms.click();
-  await expect(rooms).toHaveAttribute('aria-expanded', 'true');
+  // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
+  await expect(async () => {
+    await rooms.click();
+    await expect(rooms).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+  }).toPass({ timeout: 15_000 });
   await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
@@ -183,11 +189,12 @@ test('подключения показывают частичный сбой, �
   for (const section of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${section}`);
     await expect(page).toHaveURL(/\/connections#channex-connection$/);
-    await expect(page.getByTestId('channel-content-location')).toBeVisible();
+    // при переходе Next на миг держит уходящую страницу в скрытом узле стрима — ищем в видимом main
+    await expect(page.getByRole('main').getByTestId('channel-content-location')).toBeVisible();
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
@@ -256,9 +263,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
-  await page.getByLabel('Категория на шахматке').selectOption('MALE');
+  // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
+  const board = page.getByRole('main');
+  await board.getByLabel('Категория на шахматке').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
-  await page.getByLabel('Поиск на шахматке').fill('M03');
+  await board.getByLabel('Поиск на шахматке').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   await expect(page).toHaveURL(/unit=M03/);
@@ -455,16 +464,19 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
-  // главная стримится, и клик по группе меню до гидрации теряется (тот же класс, что real-data.spec
-  // 20.09): жмём, пока ссылка раздела не раскроется
+  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет. Главная
+  // стримится, и клик по группе до гидрации теряется (тот же класс, что real-data.spec 20.09) —
+  // жмём, пока ссылка не раскроется, но только если группа свёрнута: иначе щелчок её закроет
+  // (правка ветки PR #28)
+  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
+  const toggle = control.getByRole('button');
   await expect(async () => {
-    await sidebar.getByRole('button', { name: 'Контроль', exact: true }).click();
-    await expect(sidebar.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
       timeout: 1_500,
     });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();
@@ -1083,7 +1095,8 @@ test('каналы: сбой сводки фонда не уносит очер�
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/channels');
   await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
-  await expect(page.getByTestId('inventory-failed')).toBeVisible();
+  // повторный заход на тот же адрес: уходящая страница на миг остаётся в скрытом узле стрима
+  await expect(page.getByRole('main').getByTestId('inventory-failed')).toBeVisible();
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
 });
 

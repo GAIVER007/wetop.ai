@@ -2267,14 +2267,17 @@ createServer(async (req, res) => {
         to = url.searchParams.get('to') || from;
       const status = url.searchParams.get('status') || 'ALL';
       const q = (url.searchParams.get('q') || '').toLocaleLowerCase('ru');
-      const rows = allCards()
-        .filter(
-          (r) =>
-            r.arrivalDate <= to &&
-            r.departureDate >= from &&
-            (status === 'ALL' || r.status === status) &&
-            `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
-        )
+      const inPeriod = allCards().filter(
+        (r) =>
+          r.arrivalDate <= to &&
+          r.departureDate >= from &&
+          `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
+      );
+      // Числа на чипах статусов — как в API: по отбору без самого статуса
+      const counts: Record<string, number> = { ALL: emptyFixture ? 0 : inPeriod.length };
+      if (!emptyFixture) for (const r of inPeriod) counts[r.status] = (counts[r.status] ?? 0) + 1;
+      const rows = inPeriod
+        .filter((r) => status === 'ALL' || r.status === status)
         .map((r) => ({
           confirmationNumber: r.confirmationNumber,
           status: r.status,
@@ -2300,6 +2303,7 @@ createServer(async (req, res) => {
         total: emptyFixture ? 0 : rows.length,
         page,
         pageSize,
+        counts,
         rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }

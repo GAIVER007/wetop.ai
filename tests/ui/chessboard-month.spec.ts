@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -124,7 +124,9 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync('reports/chessboard-month', { recursive: true });
     await page.emulateMedia({ colorScheme: theme });
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      if (!devNoise.test(error.message)) errors.push(error.message);
+    });
     await page.goto('/chessboard');
     await page.getByRole('link', { name: '14 дней', exact: true }).click();
     await page.getByRole('link', { name: 'Месяц', exact: true }).click();

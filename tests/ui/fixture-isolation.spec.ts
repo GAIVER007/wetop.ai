@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const fixture = 'http://127.0.0.1:4311';
 const headers = { 'x-wetop-test-client': '1' };

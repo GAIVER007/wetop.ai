@@ -62,11 +62,12 @@ export class ReservationDirectory {
       .then((id) => ({ id }))
       .catch(() => null);
     if (!property) throw new NotFoundException('Гостиница ещё не настроена');
-    const where = {
+    // Отбор без статуса: по нему же считаются числа на чипах, чтобы «Проживают 3» было видно
+    // до нажатия — смена не перебирает семь статусов вслепую (поручение владельца 21.09)
+    const whereBase = {
       propertyId: property.id,
       arrivalDate: { lte: new Date(to) },
       departureDate: { gte: new Date(from) },
-      ...(status !== 'ALL' ? { status: status as ReservationStatus } : {}),
       ...(q
         ? {
             OR: [
@@ -86,7 +87,11 @@ export class ReservationDirectory {
           }
         : {}),
     };
-    const [total, rows] = await Promise.all([
+    const where = {
+      ...whereBase,
+      ...(status !== 'ALL' ? { status: status as ReservationStatus } : {}),
+    };
+    const [total, rows, grouped] = await Promise.all([
       this.prisma.db.reservation.count({ where }),
       this.prisma.db.reservation.findMany({
         where,
@@ -126,13 +131,26 @@ export class ReservationDirectory {
           },
         },
       }),
+      this.prisma.db.reservation.groupBy({
+        by: ['status'],
+        where: whereBase,
+        _count: { _all: true },
+      }),
     ]);
+    const counts: Record<string, number> = { ALL: 0 };
+    let all = 0;
+    for (const g of grouped as { status: string; _count: { _all: number } }[]) {
+      counts[g.status] = g._count._all;
+      all += g._count._all;
+    }
+    counts['ALL'] = all;
     return {
       from,
       to,
       total,
       page,
       pageSize,
+      counts,
       rows: rows.map((r) => {
         const folios = r.items.flatMap((it) => (it.folio ? [it.folio] : []));
         const balance = folioBalance({

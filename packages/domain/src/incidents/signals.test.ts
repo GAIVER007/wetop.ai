@@ -6,6 +6,8 @@ import {
   latestReportResults,
   narrowsTestSelection,
   overbookedNights,
+  reportIsFresh,
+  suiteRunIsFresh,
 } from './signals';
 
 /** Сигналы, из которых сторож собирает неисправности: текст ошибки, отчёты сверок, журнал тестов, овербукинг. */
@@ -19,6 +21,8 @@ describe('classifyError', () => {
       'connect ECONNREFUSED 127.0.0.1:5432',
       "P1001: Can't reach database server",
       'The operation was aborted due to timeout',
+      // P1017 приходит без кода в тексте — только фразой (api.error от 20.09.2026)
+      'Invalid `this.prisma.db.externalEvent.findFirst()` invocation in\n\n→ 443   const row = await …\nServer has closed the connection.',
     ])
       expect(classifyError(t), t).toBe('transient');
   });
@@ -71,6 +75,26 @@ describe('latestReportResults', () => {
  * показывая чужой красный прогон, и `test:status` вечно требовал гнать заново.
  * Частичным прогон делает только сужение набора тестов, а не то, КАК он запущен.
  */
+/**
+ * В контейнере /app — слепок на момент сборки образа: отчёт и журнал тестов там не меняются, и без
+ * возрастного порога «сверка дала FAIL» повторяла бы день сборки вечно (разбор 21.09.2026).
+ */
+describe('reportIsFresh / suiteRunIsFresh', () => {
+  const now = new Date('2026-09-21T12:00:00Z');
+  it('вчерашний отчёт годен, позавчерашний — уже слепок; без даты в имени — не годен', () => {
+    expect(reportIsFresh('double-entry-2026-09-21.md', now)).toBe(true);
+    expect(reportIsFresh('double-entry-2026-09-20.md', now)).toBe(true);
+    expect(reportIsFresh('double-entry-2026-09-19.md', now)).toBe(false);
+    expect(reportIsFresh('double-entry.md', now)).toBe(false);
+    expect(reportIsFresh('double-entry-2026-02-30.md', now)).toBe(false);
+  });
+  it('прогон тестов: не старше двух суток — годен, старше или без времени — нет', () => {
+    expect(suiteRunIsFresh('2026-09-20T10:00:00.000Z', now)).toBe(true);
+    expect(suiteRunIsFresh('2026-09-19T11:00:00.000Z', now)).toBe(false);
+    expect(suiteRunIsFresh('вчера', now)).toBe(false);
+  });
+});
+
 describe('narrowsTestSelection', () => {
   it('число воркеров, отчёт, повторы и таймаут набор не сужают', () => {
     for (const args of [

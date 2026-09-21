@@ -16,7 +16,10 @@ concurrency:
 jobs:
   fast:
     name: lint · typecheck · unit · главная
-    runs-on: ubuntu-24.04
+    # Свой раннер на сервере (scripts/ops/ci-runner). 21.09.2026 включённые минуты GitHub были выбраны,
+    # бюджет Actions стоит $0 со «Stop usage», и проверки перестали запускаться вовсе — падали за две
+    # секунды с «job was not started». На self-hosted минуты не тарифицируются.
+    runs-on: [self-hosted, linux, x64, wetop]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +46,9 @@ jobs:
 
   db:
     name: миграции · integration · e2e на чистом PostgreSQL 16
+    # Единственная задача, оставшаяся на раннерах GitHub: ей нужен `services: postgres`, то есть Docker
+    # внутри раннера. Давать своему раннеру сокет Docker нельзя — это root на машине, где рядом чужие
+    # проекты. Пока минуты не восстановлены, эта проверка молчит; это известное ограничение.
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
@@ -98,7 +104,9 @@ jobs:
 
   ui-shard:
     name: UI · часть ${{ matrix.shard }}/3
-    runs-on: ubuntu-24.04
+    # Три части UI — основной расход минут; базы им не нужно, поэтому они и уходят на свой раннер.
+    # Раннер один и берёт задачи по очереди: части идут не параллельно, а друг за другом.
+    runs-on: [self-hosted, linux, x64, wetop]
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -138,7 +146,7 @@ jobs:
     name: стойка на синтетическом API (tests/ui)
     needs: ui-shard
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, wetop]
     steps:
       - name: Все части UI прошли
         env:

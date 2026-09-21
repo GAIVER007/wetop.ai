@@ -33,6 +33,8 @@ function run(extraEnv: Record<string, string>, args: string[] = []) {
 }
 
 describe.skipIf(!asRoot)('deploy/server-bootstrap.sh (root, Linux)', () => {
+  // Голая копия репозитория клонируется по-настоящему: на загруженной машине (167 файлов набора
+  // разом) это дольше 10 с по умолчанию, и подготовка падала по сроку, хотя сам скрипт цел
   beforeAll(() => {
     const dir = mkdtempSync(join(tmpdir(), 'bootstrap-'));
     // mkdtemp даёт 0700 от root: пользователь системы не смог бы даже войти в каталог с голой копией
@@ -41,7 +43,7 @@ describe.skipIf(!asRoot)('deploy/server-bootstrap.sh (root, Linux)', () => {
     // «GitHub» на этой машине: голая копия текущего репозитория со всеми ветками
     spawnSync('git', ['clone', '--bare', '--quiet', ROOT, bare]);
     branch = spawnSync('git', ['-C', ROOT, 'branch', '--show-current'], { encoding: 'utf8' }).stdout.trim();
-  });
+  }, 120_000);
   afterAll(() => {
     spawnSync('deluser', ['--remove-home', USER], { stdio: 'ignore' });
     if (bare) rmSync(resolve(bare, '..'), { recursive: true, force: true });

@@ -127,6 +127,8 @@ function setup(
     notifier: boolean;
     events: Awaited<ReturnType<GuardProbes['failedEvents']>>;
     enabled: GuardProbes['enabled'];
+    reports: GuardProbes['reports'];
+    failingSuites: GuardProbes['failingSuites'];
   }> = {},
 ) {
   const state = {
@@ -169,8 +171,8 @@ function setup(
     },
     failedEvents: async () => state.events,
     stays: async () => state.stays,
-    reports: () => [],
-    failingSuites: () => [],
+    reports: over.reports ?? (() => []),
+    failingSuites: over.failingSuites ?? (() => []),
     webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
     lastExelySyncAt: async () => state.exelySyncAt,
     channelAvailability: async () => state.avail,
@@ -693,5 +695,48 @@ describe('GuardService при остановленном ARI (CHANNEX_ARI=off, �
     expect(t.repo.rows[0]).toMatchObject({ status: 'ESCALATED' });
     expect(t.repo.rows[0]!.title).toMatch(/CHANNEX_ARI=off/);
     expect(t.repo.rows[0]!.lastFixResult).toMatch(/ARI остановлен вручную/);
+  });
+});
+
+/**
+ * Отчёты сверок и журнал тестов сторож читает файлами рядом с кодом. В контейнере /app — слепок на
+ * момент сборки образа, файлы там не меняются: «сверка дала FAIL» и «падает набор» висели бы вечно,
+ * повторяя день сборки, и будили бы дежурного по состоянию недельной давности (разбор 21.09.2026).
+ */
+describe('локальные файлы: отчёты и журнал тестов', () => {
+  const FAILED_REPORT = () => [
+    {
+      kind: 'double-entry',
+      file: 'double-entry-2026-09-20.md',
+      result: 'FAIL' as const,
+      line: 'RESULT: FAIL',
+    },
+  ];
+  const FAILED_SUITE = () => [
+    { suite: 'e2e', failures: 3, first: 'шахматка', startedAt: '2026-09-20T10:00:00.000Z' },
+  ];
+
+  it('когда файлы живые — FAIL сверки и красный набор становятся неисправностями', async () => {
+    const t = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
+    await t.guard.tick(NIGHT);
+    expect(t.repo.rows.map((r) => r.kind).sort()).toEqual(['reconciliation.fail', 'tests.failing']);
+  });
+
+  it('слепок образа: отчёт и прогон старше двух суток неисправностями не становятся', async () => {
+    // остальные датчики стенда живут в ночи 13.09 и при позднем «сейчас» шумят своим — смотрим только файлы
+    const FILE_KINDS = new Set(['reconciliation.fail', 'tests.failing']);
+    const fileKinds = (rows: { kind: string }[]) =>
+      rows
+        .map((r) => r.kind)
+        .filter((k) => FILE_KINDS.has(k))
+        .sort();
+    const t = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
+    // данные от 20.09, проход 21.09 — вчерашние, ещё описывают сегодняшнее положение
+    await t.guard.tick(new Date('2026-09-21T12:00:00Z'));
+    expect(fileKinds(t.repo.rows)).toEqual(['reconciliation.fail', 'tests.failing']);
+    // те же файлы через двое суток — это уже слепок образа, собранного 20.09
+    const later = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
+    await later.guard.tick(new Date('2026-09-23T12:00:00Z'));
+    expect(fileKinds(later.repo.rows)).toEqual([]);
   });
 });

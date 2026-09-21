@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * D4 «Журнал и неисправности» (tasks/todo.md): выборка журнала названа словами, разделы — чипами, отказ API не

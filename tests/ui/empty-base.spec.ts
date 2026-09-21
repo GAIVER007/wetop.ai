@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * База без броней, но с фондом — состояние боевой PMS после очистки 19.09.2026 (ADR-052) и до
@@ -29,7 +29,7 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/journal', title: /Журнал/ },
   { route: '/incidents', title: /Неисправност/ },
   { route: '/channels', title: /Подключени|Channex|Каналы/ },
-  { route: '/connections', title: /Подключени/ },
+  { route: '/connections', title: /Интеграции/ },
   { route: '/analytics', title: /Аналитика/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
   { route: '/channel-manager', title: /Менеджер каналов|Каналы/ },

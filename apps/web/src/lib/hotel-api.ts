@@ -138,6 +138,8 @@ export interface ReservationDirectoryResult {
   total: number;
   page: number;
   pageSize: number;
+  /** Сколько броней в периоде по каждому статусу; ALL — все. Старый API его не присылает. */
+  counts?: Record<string, number>;
   rows: ReservationListRow[];
 }
 export const reservationDirectory = (query: Record<string, string>) =>

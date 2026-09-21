@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Стойка с включённым замком: `APP_AUTH_REQUIRED=1`, а синтетический API отвечает 401 без сессии.

@@ -41,6 +41,16 @@ for (const [name, width, height] of [
           return th.getBoundingClientRect().right - scroller.getBoundingClientRect().right;
         });
         expect(overhang, `${id}: «Сумма» за краем панели`).toBeLessThanOrEqual(1);
+        // деньги не переносятся на две строки («24 000» / «₸») даже в узкой панели
+        const wrapped = await table.locator('tbody td.num').evaluateAll(
+          (cells) =>
+            cells.filter((td) => {
+              const range = document.createRange();
+              range.selectNodeContents(td);
+              return range.getClientRects().length > 1;
+            }).length,
+        );
+        expect(wrapped, `${id}: сумма перенесена на две строки`).toBe(0);
       }
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

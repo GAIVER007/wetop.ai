@@ -798,6 +798,11 @@ a.dir-number:hover {
 .finance-block .table-scroll > .tbl {
   min-width: 0;
 }
+/* деньги — одной строкой: в узкой панели «24 000 ₸» переносилось на две */
+.finance-block .tbl td.num,
+.finance-block .tbl th.num {
+  white-space: nowrap;
+}
 .finance-block--due {
   border-color: var(--warning-border);
 }

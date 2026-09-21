@@ -44,6 +44,12 @@
 | Первый прогон после правок: тест ждал «Сумму» в окне телефона, а таблица ниже экрана — проверка переписана на край панели | ❌ 1 из 3 | `2026-09-21T18-53-26Z-e2e-4c13.log` |
 | GREEN | ✅ 3 из 3 | `2026-09-21T18-54-10Z-e2e-1bea.log` |
 
-Соседние наборы (`workspace`, `housekeeping`, `payment-draft`, `premium`, `accessibility`, `requests`, `empty-base`,
-`quality`, `navigation`), unit и lint в момент этого коммита ещё шли; их итог и перенос суммы «24 000 ₸» на две
-строки в узкой панели (деньги не переносятся — `nowrap`) — следующим коммитом.
+| RED: сумма «24 000 ₸» переносилась на две строки в узкой панели | ❌ 2 из 3 | `2026-09-21T19-05-28Z-e2e-7837.log` |
+| GREEN: `nowrap` у денежных ячеек блока | ✅ 3 из 3 | `2026-09-21T19-05-43Z-e2e-2edf.log` |
+| Соседние наборы: `workspace`, `housekeeping`, `payment-draft`, `premium`, `accessibility`, `requests`, `empty-base`, `quality`, `navigation` | 138 из 148 — все десять красных прежние и чужие | `2026-09-21T18-54-57Z-e2e-2f7b.log` |
+| unit | ✅ 1333 из 1336 (3 — macOS) | `2026-09-21T19-06-14Z-unit-faf7.log` |
+| lint | ✅ | `2026-09-21T19-07-26Z-lint-f335.log` |
+
+Десять красных — те же прежние чужие, что весь день: четыре `accessibility` и четыре `requests` на
+`/hotel-settings/check-in`, `/description`, `/photos`, `/amenities`, `empty-base` на `/connections`,
+`quality` «неподключённые внешние демо».

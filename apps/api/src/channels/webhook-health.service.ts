@@ -34,6 +34,13 @@ export const CALLBACK_PROBE = Symbol('CALLBACK_PROBE');
 /** Как часто дёргать Channex за адресом и проверять его: чаще незачем, страховочный опрос и так раз в 5 минут */
 export const PROBE_EVERY_MS = 5 * 60_000;
 export const PROBE_TIMEOUT_MS = 5_000;
+/**
+ * Одна неудачная проба — ещё не мёртвый адрес. 20–21.09.2026 единичные пропуски (ответ через
+ * Cloudflare и туннель не уложился в 5 с) по шесть раз за день рождали «адрес не отвечает» на
+ * ровно четыре минуты — до следующей пробы; каждый — две неисправности и будильник. Мёртвым адрес
+ * считается после второй неудачи подряд с паузой между попытками.
+ */
+export const PROBE_RETRY_MS = 10_000;
 
 /**
  * Живой адрес — это ответ нашего приложения: webhook принимает только POST, и 404 на GET означает,
@@ -89,6 +96,8 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
     expectedUrl: null,
   };
   private readonly probe: CallbackProbe;
+  /** Пауза перед повторной пробой; тесты ставят 0 */
+  retryDelayMs = PROBE_RETRY_MS;
   constructor(
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
     @Inject(InboundBookingsService) private readonly inbound: InboundBookingsService,
@@ -124,7 +133,11 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
         this.callback = { url, reachable: false, checkedAt: now, expectedUrl };
         return;
       }
-      const reachable = await this.probe(url, PROBE_TIMEOUT_MS);
+      let reachable = await this.probe(url, PROBE_TIMEOUT_MS);
+      if (!reachable) {
+        await new Promise((r) => setTimeout(r, this.retryDelayMs));
+        reachable = await this.probe(url, PROBE_TIMEOUT_MS);
+      }
       if (reachable !== this.callback.reachable)
         this.log.log(`адрес webhook ${url}: ${reachable ? 'отвечает' : 'НЕ отвечает'}`);
       this.callback = { url, reachable, checkedAt: now, expectedUrl };

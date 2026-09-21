@@ -13,13 +13,13 @@ import {
   EmptyState,
   Field,
   Grid,
-  Input,
   SectionTitle,
   Select,
   Stat,
   Stats,
   Table,
 } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { DailyChart } from './daily-chart';
 import '../directory.css';
 
@@ -151,20 +151,19 @@ function PeriodForm({
         )}
         {sites.length === 1 && <input type="hidden" name="site" value={site.id} />}
         <Field inline label="С">
-          <Input
+          <DateInput
             key={`from-${from ?? ''}`}
             aria-label="Аналитика: с"
-            type="date"
             name="from"
             defaultValue={from ?? period?.from}
           />
         </Field>
         <Field inline label="По">
-          <Input
+          <DateInput
             key={`to-${to ?? ''}`}
             aria-label="Аналитика: по"
-            type="date"
             name="to"
+            rangeFromName="from"
             defaultValue={to ?? period?.to}
           />
         </Field>

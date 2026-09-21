@@ -18,13 +18,13 @@ import {
   Button,
   EmptyState,
   Field,
-  Input,
   Help,
   Select,
   Stat,
   Stats,
   Table,
 } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
 import '../directory.css';
 
@@ -89,10 +89,10 @@ export default async function ChannelManagerPage({
     >
       <form method="get" className="row toolbar" data-testid="channel-period-form">
         <Field label="Заезд с">
-          <Input type="date" name="from" defaultValue={from} required />
+          <DateInput name="from" defaultValue={from} required />
         </Field>
         <Field label="Заезд по">
-          <Input type="date" name="to" defaultValue={to} required />
+          <DateInput name="to" rangeFromName="from" defaultValue={to} required />
         </Field>
         <Field label="Статус брони">
           <Select name="status" defaultValue={status}>

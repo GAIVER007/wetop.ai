@@ -29,9 +29,9 @@ test('главная: календарь открывается кнопкой, 
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('сентябрь 2026');
   // фокус — на выбранном дне; вправо на день и Enter
-  await expect(dialog.getByRole('button', { name: '1 сентября 2026' })).toBeFocused();
+  await expect(dialog.getByRole('button', { name: '1 сентября 2026', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
-  await expect(dialog.getByRole('button', { name: '2 сентября 2026' })).toBeFocused();
+  await expect(dialog.getByRole('button', { name: '2 сентября 2026', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
   await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-09');

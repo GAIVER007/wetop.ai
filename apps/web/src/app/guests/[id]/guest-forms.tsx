@@ -15,6 +15,7 @@ import {
   Stack,
   Textarea,
 } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import {
   addDocumentAction,
   deleteDocumentAction,
@@ -78,8 +79,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
             />
           </Field>
           <Field label="Дата рождения">
-            <Input
-              type="date"
+            <DateInput
               name="birthDate"
               defaultValue={pState.values?.birthDate ?? guest.birthDate ?? ''}
             />
@@ -188,10 +188,10 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
             className="inp--w90 inp--upper"
           />
           <Field label="Дата выдачи">
-            <Input type="date" name="issuedAt" defaultValue={dState.values?.issuedAt ?? ''} />
+            <DateInput name="issuedAt" defaultValue={dState.values?.issuedAt ?? ''} />
           </Field>
           <Field label="Действителен до">
-            <Input type="date" name="expiresAt" defaultValue={dState.values?.expiresAt ?? ''} />
+            <DateInput name="expiresAt" defaultValue={dState.values?.expiresAt ?? ''} />
           </Field>
           <Button type="submit" disabled={dPending || deletePending}>
             Добавить

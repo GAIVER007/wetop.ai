@@ -2,6 +2,7 @@
 import { useActionState, useState, useTransition } from 'react';
 import type { UnitCard } from '../../../lib/api';
 import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { useConfirm } from '../../../components/use-confirm';
 import { displayDate } from '../../../lib/display-date';
 import {
@@ -102,17 +103,16 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
           className="row unit-block-form"
         >
           <Field label="Блокировка с">
-            <Input
-              type="date"
+            <DateInput
               name="dateFrom"
               defaultValue={blockState.values?.dateFrom ?? today}
               required
             />
           </Field>
           <Field label="До (не включая)">
-            <Input
-              type="date"
+            <DateInput
               name="dateTo"
+              rangeFromName="dateFrom"
               defaultValue={blockState.values?.dateTo ?? ''}
               required
             />

@@ -4,6 +4,7 @@ import type { RateChangeInput } from '../../lib/api';
 import { displayDay, displayPeriod } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { bulkRatesAction } from './actions';
 
 const DAYS: Array<[string, string]> = [
@@ -121,10 +122,15 @@ export function BulkEditor(props: {
             </Select>
           </Field>
           <Field label="С даты">
-            <Input type="date" name="dateFrom" defaultValue={props.defaults.dateFrom} required />
+            <DateInput name="dateFrom" defaultValue={props.defaults.dateFrom} required />
           </Field>
           <Field label="По дату">
-            <Input type="date" name="dateTo" defaultValue={props.defaults.dateTo} required />
+            <DateInput
+              name="dateTo"
+              rangeFromName="dateFrom"
+              defaultValue={props.defaults.dateTo}
+              required
+            />
           </Field>
         </Grid>
         {/* Подпись своей строкой, семь дней — одним рядом: в общем `.row` «вс» переносилось (21.09) */}

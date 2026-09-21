@@ -1,6 +1,7 @@
 'use client';
 import { useId, useState } from 'react';
-import { Button, Input } from '../../components/ui';
+import { Button } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
 
 /** Ручной период раскрывается по запросу, чтобы оставлять место календарю. */
@@ -23,11 +24,11 @@ export function BoardDateRange({ from, to }: { from: string; to: string }) {
       <form id={id} method="get" className="board-range-form">
         <label className="field field--inline">
           <span>С</span>
-          <Input type="date" name="from" defaultValue={from} aria-label="Шахматка: с" />
+          <DateInput name="from" defaultValue={from} aria-label="Шахматка: с" />
         </label>
         <label className="field field--inline">
           <span>По</span>
-          <Input type="date" name="to" defaultValue={to} aria-label="Шахматка: по" />
+          <DateInput name="to" rangeFromName="from" defaultValue={to} aria-label="Шахматка: по" />
         </label>
         <Button tone="secondary" type="submit">
           Применить

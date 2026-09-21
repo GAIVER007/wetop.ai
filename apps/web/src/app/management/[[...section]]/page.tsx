@@ -8,7 +8,8 @@ import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { displayDate } from '../../../lib/display-date';
-import { Alert, Help, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
+import { Alert, Help, Button, Field, Stat, Stats, Table } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import '../../directory.css';
 
 export default async function ManagementPage({
@@ -47,7 +48,7 @@ async function Statistics({ date }: { date: string }) {
   const form = (
     <form method="get" className="row row--lg toolbar directory-toolbar">
       <Field inline label="Дата">
-        <Input key={`date-${date}`} type="date" name="date" defaultValue={date} required />
+        <DateInput key={`date-${date}`} name="date" defaultValue={date} required />
       </Field>
       <Button type="submit">Показать</Button>
     </form>

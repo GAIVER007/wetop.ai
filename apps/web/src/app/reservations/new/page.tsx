@@ -2,7 +2,8 @@ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-pa
 import Link from 'next/link';
 import { api, reservationsApi } from '../../../lib/api';
 import { Page } from '../../../components/page';
-import { Alert, Button, Field, Input } from '../../../components/ui';
+import { Alert, Button, Field } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { pluralRu } from '../../../lib/plural';
 import { NewReservationForm } from './form';
 import '../../directory.css';
@@ -49,10 +50,10 @@ export default async function NewReservationPage({
         <form method="get" className="row row--end row--lg booking-dates__form">
           {q.unit && <input type="hidden" name="unit" value={q.unit} />}
           <Field label="Заезд">
-            <Input type="date" name="arrival" defaultValue={arrival} />
+            <DateInput name="arrival" defaultValue={arrival} />
           </Field>
           <Field label="Выезд">
-            <Input type="date" name="departure" defaultValue={departure} />
+            <DateInput name="departure" rangeFromName="arrival" defaultValue={departure} />
           </Field>
           <Button type="submit" tone="secondary">
             Проверить доступность

@@ -1565,3 +1565,8 @@
 | 22.09.2026 00:10 | unit | ❌ упало 4 из 1371, пропущено 3 | 1 мин 12 с | 48672a0 | [лог](logs/2026-09-21T19-10-25Z-unit-77dc.log) | merged tree: branch + origin/main 0369751 |
 | 22.09.2026 00:11 | lint | ✅ без ошибок | 14 с | 48672a0 | [лог](logs/2026-09-21T19-11-37Z-lint-0515.log) | merged tree: branch + origin/main 0369751 |
 | 22.09.2026 00:14 | unit | ✅ 1368 из 1371, пропущено 3 | 1 мин 13 с | a0eaef0 +2 | [лог](logs/2026-09-21T19-14-01Z-unit-ea30.log) | merged tree after layer tokens in board.css and the slop baseline update |
+| 22.09.2026 00:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui) | ⏹ прерван | 20 мин 2 с | a0eaef0 | [лог](logs/2026-09-21T19-11-56Z-e2e-1d12.log) | full UI set on the merged tree |
+| 22.09.2026 00:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/date-field.spec.ts) | ❌ упало 2 из 3 | 1 мин 40 с | 0371e37 | [лог](logs/2026-09-21T19-32-02Z-e2e-e9d0.log) | RED: date field before the calendar component |
+| 22.09.2026 00:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/date-field.spec.ts) | ❌ упало 1 из 3 | 13 с | 0371e37 +17 | [лог](logs/2026-09-21T19-33-58Z-e2e-9a25.log) | GREEN: date field with the desk calendar |
+| 22.09.2026 00:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/date-field.spec.ts) | ❌ упало 1 из 3 | 28 с | 0371e37 +18 | [лог](logs/2026-09-21T19-34-29Z-e2e-c36c.log) | GREEN: date field with the desk calendar |
+| 22.09.2026 00:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/date-field.spec.ts) | ✅ 3 из 3 | 11 с | 0371e37 +18 | [лог](logs/2026-09-21T19-37-01Z-e2e-0371.log) | GREEN: date field with the desk calendar |

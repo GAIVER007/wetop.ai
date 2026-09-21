@@ -1627,3 +1627,161 @@ td.empty-state {
     min-height: var(--touch-target);
   }
 }
+
+/* ---------- поле даты с календарём (DESIGN.md §8, 21.09) ----------
+   Родное поле остаётся; кнопка справа открывает месяц в стиле стойки. На телефоне и при грубом
+   указателе кнопки нет: родной календарь системы там удобнее. */
+.date-field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.date-field__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 40px;
+}
+.date-field__input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+.date-field__button {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.date-field__button:hover,
+.date-field__button[aria-expanded='true'] {
+  background: var(--row-hover);
+  color: var(--text);
+}
+.date-field__pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--layer-overlay);
+  width: 296px;
+  padding: 8px;
+  background: var(--surface-elevated, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating, var(--shadow));
+  color: var(--text);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  text-align: left;
+}
+.date-field__pop--right {
+  left: auto;
+  right: 0;
+}
+.date-field__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px 8px;
+}
+.date-field__head strong {
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+.date-field__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.date-field__nav:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+.date-field__nav--prev svg {
+  transform: rotate(180deg);
+}
+.date-field__grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.date-field__grid th {
+  padding: 4px 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--muted);
+  text-align: center;
+}
+.date-field__grid td {
+  padding: 0;
+  text-align: center;
+}
+.date-field__day {
+  width: 40px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.date-field__day:hover {
+  background: var(--row-hover);
+}
+.date-field__day.is-other {
+  color: var(--muted);
+}
+.date-field__day.is-range {
+  border-radius: 0;
+  background: var(--primary-soft);
+}
+.date-field__day.is-today {
+  border-color: var(--primary);
+}
+.date-field__day.is-selected {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.date-field__day:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.date-field__foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 4px 0;
+}
+@media (max-width: 600px), (pointer: coarse) {
+  .date-field__button {
+    display: none;
+  }
+  .date-field__input {
+    padding-right: 0;
+  }
+  .date-field__input::-webkit-calendar-picker-indicator {
+    display: block;
+  }
+}

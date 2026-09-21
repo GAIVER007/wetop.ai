@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseTestDataSource, seedIsStale } from '../tools/test-schema-plan';
+import { chooseTestDataSource, refreshPlan, seedIsStale } from '../tools/test-schema-plan';
 
 /** Выбор источника данных для pms_test (plans/tests-without-live-db-2026-09-15.md, шаг 2) */
 describe('chooseTestDataSource', () => {
@@ -33,5 +33,39 @@ describe('seedIsStale', () => {
   it('копия рабочих данных не стареет, как и отсутствие отметки', () => {
     expect(seedIsStale('2026-09-10T10:00:00.000Z', '2026-09-19')).toBe(false);
     expect(seedIsStale(null, '2026-09-19')).toBe(false);
+  });
+});
+
+/**
+ * Пересев поверх прежнего сида. 20.09.2026 сквозной прогон встал ещё до первого спека: сид от 19.09
+ * устарел, `ensureTestSchema` засеял заново — и импорт упёрся в «сид построен с пересечениями: 1».
+ * Причина: сид кладёт те же брони на сдвинутые даты, и пока часть строк ещё вчерашняя, новая дата
+ * налезает на соседнюю ячейку. Значит, пересев по непустой схеме обязан сначала снять прежние данные;
+ * первый засев по пустой схеме чистить нечего, а копия рабочих данных чистит за собой сама.
+ */
+describe('refreshPlan', () => {
+  it('пустая схема — засеять, чистить нечего', () => {
+    expect(refreshPlan({ empty: true, stale: false, refresh: false })).toEqual({
+      refill: true,
+      wipeFirst: false,
+    });
+  });
+  it('устаревший сид — засеять заново и сперва снять прежние данные', () => {
+    expect(refreshPlan({ empty: false, stale: true, refresh: false })).toEqual({
+      refill: true,
+      wipeFirst: true,
+    });
+  });
+  it('явное обновление по непустой схеме — тоже с очисткой', () => {
+    expect(refreshPlan({ empty: false, stale: false, refresh: true })).toEqual({
+      refill: true,
+      wipeFirst: true,
+    });
+  });
+  it('свежий сид на месте — не трогаем вовсе', () => {
+    expect(refreshPlan({ empty: false, stale: false, refresh: false })).toEqual({
+      refill: false,
+      wipeFirst: false,
+    });
   });
 });

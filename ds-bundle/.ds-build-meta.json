@@ -1,0 +1,11 @@
+{
+  "namespace": "Wetop",
+  "source": "@pms/web@0.0.0",
+  "shape": "package",
+  "provider": null,
+  "componentCount": 37,
+  "skippedStoryIds": [],
+  "runtimeFontPrefixes": [
+    "Inter"
+  ]
+}

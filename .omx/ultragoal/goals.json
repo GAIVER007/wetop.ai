@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-19T13:36:27.503Z",
+  "updatedAt": "2026-09-19T18:06:13.055Z",
+  "briefPath": ".omx/ultragoal/brief.md",
+  "goalsPath": ".omx/ultragoal/goals.json",
+  "ledgerPath": ".omx/ultragoal/ledger.jsonl",
+  "codexGoalMode": "aggregate",
+  "goals": [
+    {
+      "id": "G001",
+      "title": "Проверить текущую связь",
+      "objective": "Выполнить безопасный read-only аудит UI, API, базы, доменов и Channex; зафиксировать факты и границы в плане.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:53.324Z",
+      "startedAt": "2026-09-19T13:36:34.708Z",
+      "completedAt": "2026-09-19T13:36:53.324Z",
+      "evidence": "Read-only GET audit in plans/design-and-connections-2026-09-19.md: local API/database READY; public API 530; domain service absent; Channex staging READY but callback unreachable. No code, services, DNS, imports or provider writes changed."
+    },
+    {
+      "id": "G002",
+      "title": "Подтверждение расширенного плана",
+      "objective": "Получить явное подтверждение plans/design-and-connections-2026-09-19.md до изменения кода по новому плану и до восстановления публичного туннеля; не подменять подтверждение общим пожеланием.",
+      "status": "failed",
+      "attempt": 1,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:37:02.524Z",
+      "startedAt": "2026-09-19T13:36:53.461Z",
+      "failedAt": "2026-09-19T13:37:02.524Z",
+      "failureReason": "Needs explicit user approval of the expanded plan under AGENTS.md section 1 and restoration of the existing public domain tunnel (resumes inbound webhook and public widget). Plan prepared at plans/design-and-connections-2026-09-19.md. No implementation or external mutation performed; awaiting first user decision, not a technical failure."
+    },
+    {
+      "id": "G003-c1",
+      "title": "Шахматка C1",
+      "objective": "Выполнить C1 согласно tasks/todo.md и новому порядку: компактные даты, фильтры, легенда, 88 строк, все виды, desktop/mobile и обе темы; сохранить бизнес-логику.",
+      "status": "in_progress",
+      "attempt": 1,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T17:53:46.356Z",
+      "startedAt": "2026-09-19T17:53:46.356Z"
+    },
+    {
+      "id": "G004-b1-b5",
+      "title": "Брони B1-B5",
+      "objective": "Последовательно выполнить отдельные срезы списка, создания, карточки и общих состояний по tasks/todo.md, с тестами и доказательствами.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G005-c2",
+      "title": "Шахматка C2",
+      "objective": "После B3 сделать существующие действия доступными без drag, сохранив предпросмотр и подтверждения; выполнить контрольную точку C.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G006",
+      "title": "Гости и фонд",
+      "objective": "Отдельными срезами выполнить D1 и номера/категории из D4, с проверками поиска, карточек, доступности и мобильного интерфейса.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G007",
+      "title": "Тарифы и финансы",
+      "objective": "Выполнить D2-D3 и UI тарифов без изменений денежной или ценовой логики; доказать сохранение сумм и обработку отказов.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G008",
+      "title": "Каналы и системные разделы",
+      "objective": "Пройти каналы, подключения, неисправности, журнал, статистику, аналитику, настройки, профиль и вход отдельными проверяемыми срезами D4.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G009",
+      "title": "Публичный сайт",
+      "objective": "Выполнить локальный аудит E1, получить подтверждение композиции и выполнить E2-E3; сохранить содержание и SEO, не публиковать без отдельного разрешения.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G010",
+      "title": "Проверить существующий серверный путь",
+      "objective": "Учесть ca4d478 и reports/domain-move-2026-09-19.md: перенос на Hostinger выполнен отдельно. Не запускать второй туннель Mac. Проверить публичные пути read-only; при разрешенном доступе подтвердить состояние сервера и единственность коннектора. Без изменений DNS, ключей, БД, служб, Exely, провайдеров. Недоступные проверки явно оставить незавершенными.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T18:06:13.055Z",
+      "steeringEvidence": "New local commit ca4d478 and fresh public GET: website and JS 200, private reservations 404, app redirects to Access. Original Mac restart would conflict with the new server topology.",
+      "steeringRationale": "New repository evidence supersedes the original restoration operation while preserving the connection objective and side-effect boundaries."
+    },
+    {
+      "id": "G011-staging",
+      "title": "Доказать staging доставку",
+      "objective": "Согласовать ограниченный staging цикл и доказать создание, изменение, отмену и отсутствие дублей через постоянный webhook; без production ARI и cutover. Без разрешения/доступа цель не завершать.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    },
+    {
+      "id": "G012-main",
+      "title": "Финальная приёмка и main",
+      "objective": "Пройти полный набор проверок F, cleanup и повторные проверки, независимые последовательные code-reviewer и architect, архитектурные инварианты, зафиксировать доказательства; push проверенных изменений в main, открыть локальный просмотр. Не закрывать aggregate при незавершённых этапах.",
+      "status": "pending",
+      "attempt": 0,
+      "createdAt": "2026-09-19T13:36:27.503Z",
+      "updatedAt": "2026-09-19T13:36:27.503Z"
+    }
+  ],
+  "codexObjective": "Complete the durable ultragoal plan in .omx/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .omx/ultragoal/ledger.jsonl as the audit trail.",
+  "activeGoalId": "G003-c1"
+}

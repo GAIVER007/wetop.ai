@@ -27,7 +27,7 @@ export function OccupancyChart({ period, today }: { period: DashboardPeriod; tod
                 <i style={{ width: `${c.percent}%` }} />
               </span>
               <span className="hbars__value">
-                {c.occupiedNights} из {c.units} · {formatPercent(c.percent)}
+                {c.occupiedNights} из {c.units}, {formatPercent(c.percent)}
               </span>
             </li>
           ))}
@@ -50,7 +50,7 @@ export function OccupancyChart({ period, today }: { period: DashboardPeriod; tod
           пик <strong>{formatPercent(max)}</strong>
         </span>
         <span>
-          заезды <strong>{formatInt(period.arrivals.count)}</strong> · выезды{' '}
+          заезды <strong>{formatInt(period.arrivals.count)}</strong>, выезды{' '}
           <strong>{formatInt(period.departures.count)}</strong>
         </span>
       </div>
@@ -108,19 +108,33 @@ export function SourcesPanel({ period }: { period: DashboardPeriod }) {
           ))}
         </ul>
       )}
-      <p className="muted dash-note">По дате заезда, без отменённых и незаездов. Сумма — стоимость броней.</p>
+      <p className="muted dash-note">
+        По дате заезда, без отменённых и незаездов. Сумма — стоимость броней.
+      </p>
     </Panel>
   );
 }
 
+/**
+ * Таблица по категориям. При периоде в один день загрузку по категориям уже рисуют полосы в панели выше —
+ * та же колонка здесь была дублем (21.09), поэтому она есть только у периода длиннее дня. На телефоне
+ * строка складывается в карточку (`.dash-table--categories`): пять колонок в 390 px уезжали в прокрутку
+ * без признака, и видны были только категория и загрузка.
+ */
 export function CategoriesPanel({ period }: { period: DashboardPeriod }) {
+  const withOccupancy = period.nights > 1;
+  const columns = withOccupancy ? 5 : 4;
   return (
     <Panel title="По категориям" className="dash-panel dash-panel--table">
-      <Table className="dash-table" nowrap data-testid="categories-table">
+      <Table
+        className={cx('dash-table', 'dash-table--categories', withOccupancy && 'has-occupancy')}
+        nowrap
+        data-testid="categories-table"
+      >
         <thead>
           <tr>
             <th>Категория</th>
-            <th>Загрузка</th>
+            {withOccupancy && <th>Загрузка</th>}
             <th className="num">Ночей продано</th>
             <th className="num">Выручка</th>
             <th className="num">Средняя ночь</th>
@@ -133,27 +147,36 @@ export function CategoriesPanel({ period }: { period: DashboardPeriod }) {
                 {c.name}
                 <div className="muted">{pluralRu(c.units, ['место', 'места', 'мест'])}</div>
               </td>
-              <td>
-                <span className="occupancy-meter">
-                  <meter
-                    min="0"
-                    max="100"
-                    value={c.percent}
-                    aria-label={`Загрузка ${formatPercent(c.percent)}`}
-                  />
-                  <span>{formatPercent(c.percent)}</span>
-                </span>
-              </td>
+              {withOccupancy && (
+                <td className="dash-table__occupancy">
+                  <span className="occupancy-meter">
+                    <meter
+                      min="0"
+                      max="100"
+                      value={c.percent}
+                      aria-label={`Загрузка ${formatPercent(c.percent)}`}
+                    />
+                    <span>{formatPercent(c.percent)}</span>
+                  </span>
+                </td>
+              )}
               <td className="num" title={`из ${formatInt(c.unitNights)} возможных`}>
+                <span className="dash-cell-word">ночей </span>
                 {formatInt(c.occupiedNights)}
               </td>
-              <td className="num">{wholeTenge(c.revenueMinor)}</td>
-              <td className="num">{c.adrMinor ? wholeTenge(c.adrMinor) : '—'}</td>
+              <td className="num">
+                <span className="dash-cell-word">выручка </span>
+                {wholeTenge(c.revenueMinor)}
+              </td>
+              <td className="num">
+                <span className="dash-cell-word">средняя ночь </span>
+                {c.adrMinor ? wholeTenge(c.adrMinor) : '—'}
+              </td>
             </tr>
           ))}
           {!period.categories.length && (
             <tr>
-              <td colSpan={5} className="muted">
+              <td colSpan={columns} className="muted">
                 Нет категорий.
               </td>
             </tr>

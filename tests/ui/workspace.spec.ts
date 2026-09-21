@@ -456,7 +456,14 @@ test('неисправности из обновлённого main: приня�
 }) => {
   await page.goto('/today');
   const sidebar = page.locator('.workspace-sidebar');
-  await sidebar.getByRole('button', { name: 'Контроль', exact: true }).click();
+  // главная стримится, и клик по группе меню до гидрации теряется (тот же класс, что real-data.spec
+  // 20.09): жмём, пока ссылка раздела не раскроется
+  await expect(async () => {
+    await sidebar.getByRole('button', { name: 'Контроль', exact: true }).click();
+    await expect(sidebar.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
+      timeout: 1_500,
+    });
+  }).toPass({ timeout: 15_000 });
   await sidebar.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');

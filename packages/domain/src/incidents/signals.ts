@@ -33,6 +33,28 @@ export interface ReportResult {
   line: string | null;
 }
 
+/**
+ * Данные с диска стареют молча. В контейнере `/app` — слепок на момент сборки образа: файлы там
+ * больше не меняются, и «сверка дала FAIL» или «падает набор» повторяли бы день сборки вечно,
+ * будя дежурного по состоянию недельной давности (разбор 21.09.2026). Поэтому смотрим не на
+ * выключатель в окружении, а на возраст самих данных: двое суток — это вчерашний отчёт, который
+ * ещё описывает сегодняшнее положение, и уже не слепок образа, собранного позавчера.
+ */
+export const LOCAL_FILE_FRESH_MS = 48 * 3_600_000;
+
+/** Отчёт за день из имени файла: `<вид>-ГГГГ-ММ-ДД.md`. Без даты в имени — судить не о чем. */
+export function reportIsFresh(file: string, now: Date): boolean {
+  const day = /-(\d{4}-\d{2}-\d{2})\.md$/.exec(file)?.[1];
+  const at = day ? Date.parse(`${day}T00:00:00Z`) : NaN;
+  return Number.isFinite(at) && now.getTime() - at <= LOCAL_FILE_FRESH_MS;
+}
+
+/** Прогон набора тестов: время начала пишет сам журнал. */
+export function suiteRunIsFresh(startedAt: string, now: Date): boolean {
+  const at = Date.parse(startedAt);
+  return Number.isFinite(at) && now.getTime() - at <= LOCAL_FILE_FRESH_MS;
+}
+
 /** Последний отчёт каждого вида (`<вид>-YYYY-MM-DD.md`, как у утреннего отчёта) и его строка RESULT */
 export function latestReportResults(
   files: string[],

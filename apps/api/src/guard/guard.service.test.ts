@@ -722,13 +722,21 @@ describe('локальные файлы: отчёты и журнал тесто
     expect(t.repo.rows.map((r) => r.kind).sort()).toEqual(['reconciliation.fail', 'tests.failing']);
   });
 
-  it('GUARD_LOCAL_FILES=off — ни одной неисправности из слепка образа', async () => {
-    const t = setup({
-      reports: FAILED_REPORT,
-      failingSuites: FAILED_SUITE,
-      enabled: (what) => what !== 'localFiles',
-    });
-    await t.guard.tick(NIGHT);
-    expect(t.repo.rows).toEqual([]);
+  it('слепок образа: отчёт и прогон старше двух суток неисправностями не становятся', async () => {
+    // остальные датчики стенда живут в ночи 13.09 и при позднем «сейчас» шумят своим — смотрим только файлы
+    const FILE_KINDS = new Set(['reconciliation.fail', 'tests.failing']);
+    const fileKinds = (rows: { kind: string }[]) =>
+      rows
+        .map((r) => r.kind)
+        .filter((k) => FILE_KINDS.has(k))
+        .sort();
+    const t = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
+    // данные от 20.09, проход 21.09 — вчерашние, ещё описывают сегодняшнее положение
+    await t.guard.tick(new Date('2026-09-21T12:00:00Z'));
+    expect(fileKinds(t.repo.rows)).toEqual(['reconciliation.fail', 'tests.failing']);
+    // те же файлы через двое суток — это уже слепок образа, собранного 20.09
+    const later = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
+    await later.guard.tick(new Date('2026-09-23T12:00:00Z'));
+    expect(fileKinds(later.repo.rows)).toEqual([]);
   });
 });

@@ -72,8 +72,7 @@ export class NestGuardProbes implements GuardProbes {
   }
 
   enabled(
-    what:
-      'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut' | 'localFiles',
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
   ): boolean {
     if (what === 'ariOut') return !isAriStopped();
     const flag = {
@@ -83,7 +82,6 @@ export class NestGuardProbes implements GuardProbes {
       exelySync: 'GUARD_EXELY_SYNC',
       web: 'GUARD_WEB',
       ari: 'GUARD_ARI',
-      localFiles: 'GUARD_LOCAL_FILES',
     }[what];
     return process.env[flag] !== 'off';
   }

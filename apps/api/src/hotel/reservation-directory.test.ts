@@ -4,7 +4,11 @@ import { ReservationDirectory } from './reservation-directory';
 const fixture = () => {
   const db = {
     property: { findFirst: vi.fn().mockResolvedValue({ id: 'p' }) },
-    reservation: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
+    reservation: {
+      count: vi.fn().mockResolvedValue(0),
+      findMany: vi.fn().mockResolvedValue([]),
+      groupBy: vi.fn().mockResolvedValue([]),
+    },
   };
   return { db, service: new ReservationDirectory({ db } as never) };
 };
@@ -62,11 +66,33 @@ describe('reservation directory is a bounded read projection', () => {
   });
 
   it('негодный размер страницы отклоняется до запроса к базе', async () => {
-    for (const params of [{ pageSize: '0' }, { pageSize: '201' }, { pageSize: '2.5' }, { pageSize: 'все' }]) {
+    for (const params of [
+      { pageSize: '0' },
+      { pageSize: '201' },
+      { pageSize: '2.5' },
+      { pageSize: 'все' },
+    ]) {
       const { db, service } = fixture();
       await expect(service.list(params)).rejects.toBeInstanceOf(BadRequestException);
       expect(db.reservation.findMany).not.toHaveBeenCalled();
     }
+  });
+
+  /**
+   * Числа на чипах статусов: считаются по тому же отбору без статуса, иначе выбранный статус
+   * обнулил бы остальные и смена видела бы «Проживают 0» при трёх проживающих.
+   */
+  it('считает брони по статусам отбором без самого статуса', async () => {
+    const { db, service } = fixture();
+    db.reservation.groupBy.mockResolvedValue([
+      { status: 'CONFIRMED', _count: { _all: 4 } },
+      { status: 'CHECKED_IN', _count: { _all: 3 } },
+    ] as never);
+    const result = await service.list({ status: 'CHECKED_IN' });
+    expect(result.counts).toEqual({ ALL: 7, CONFIRMED: 4, CHECKED_IN: 3 });
+    const args = db.reservation.groupBy.mock.calls[0]![0];
+    expect(args.by).toEqual(['status']);
+    expect(args.where.status).toBeUndefined();
   });
 
   it('excludes voided finance entries in the read selection and preserves refunds', async () => {

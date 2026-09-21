@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -266,9 +266,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
-  await page.getByLabel('Категория на шахматке').selectOption('MALE');
+  // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
+  const board = page.getByRole('main');
+  await board.getByLabel('Категория на шахматке').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
-  await page.getByLabel('Поиск на шахматке').fill('M03');
+  await board.getByLabel('Поиск на шахматке').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   await expect(page).toHaveURL(/unit=M03/);

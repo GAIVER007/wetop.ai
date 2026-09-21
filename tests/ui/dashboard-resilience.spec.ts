@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Главная не должна пропадать целиком, когда показатели за период не пришли (замечание владельца

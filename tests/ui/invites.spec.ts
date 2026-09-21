@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');

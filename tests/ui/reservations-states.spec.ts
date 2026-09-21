@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * B5 «Состояния в списке броней» (tasks/todo.md): отказ API не выглядит как ноль броней — заголовок,

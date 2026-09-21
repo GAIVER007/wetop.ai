@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 

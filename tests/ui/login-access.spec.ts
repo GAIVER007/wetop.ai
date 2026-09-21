@@ -283,9 +283,9 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await page.waitForURL('**/login/check-email**');
 
-    // стенд выдаёт ссылки подтверждения по порядку — первой регистрации достаётся первая
+    // стенд выдаёт ссылки подтверждения по порядку — первой регистрации достаётся первая.
+    // Страница подтверждает почту сама при открытии, без кнопки — сразу уводит на рабочее место.
     await page.goto('/login/verify?token=ui-verify-1');
-    await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
     await page.waitForURL('**/today');
 
     const cookie = (await context.cookies()).find((c) => c.name === 'wetop_session');
@@ -294,9 +294,10 @@ test.describe('регистрация доступна по умолчанию',
   });
 
   test('негодная ссылка подтверждения: отказ текстом на той же странице', async ({ page }) => {
+    // Подтверждение идёт само при открытии; негодный токен — отказ текстом, кнопка «Подтвердить ещё раз»
     await page.goto('/login/verify?token=нет-такой-ссылки');
-    await page.getByRole('button', { name: 'Подтвердить почту и войти' }).click();
     await expect(page.getByRole('main').getByRole('alert')).toContainText('Ссылка не годится');
+    await expect(page.getByRole('button', { name: 'Подтвердить ещё раз' })).toBeVisible();
   });
 
   test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({

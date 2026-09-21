@@ -13,6 +13,15 @@
  *   npx tsx scripts/reconciliation/src/cli-channex-booking-demo.ts cancel <bookingId>  # одну
  *
  * Только staging (ADR-010, гость вымышленный). Код выхода 1, если бронь не доехала или не отменилась.
+ *
+ * Если память показа потеряна (контейнер пересоздан, файл затёрт), восстанавливать её надо по
+ * `booking_id` из входящего события, а НЕ по `id`: в теле вебхука `id` — это ревизия брони
+ * (`is_crs_revision: true`), и `PUT /bookings/<ревизия>` Channex отвечает 403 (проверено 21.09.2026).
+ * `POST /bookings` возвращает как раз идентификатор брони, поэтому обычный путь этого не касается.
+ *
+ *   select payload->>'unique_id' as number, payload->>'booking_id' as booking_id,
+ *          payload->>'ota_reservation_code' as code, payload->>'property_id' as property_id
+ *   from external_events where payload->>'unique_id' = 'BDC-DEMO-…';
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

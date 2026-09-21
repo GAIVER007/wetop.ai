@@ -61,9 +61,14 @@ test('разделы содержат основные ссылки без ду�
   expect(links.sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
-  await sales.focus();
-  await page.keyboard.press('Space');
-  await expect(sales).toHaveAttribute('aria-expanded', 'true');
+  // /today стримится, а панель — клиентский компонент: до гидрации у кнопки нет обработчика, и Space
+  // теряется (тот же класс, что клик в real-data.spec 20.09 и workspace.spec 21.09) — жмём, пока
+  // раздел не раскроется
+  await expect(async () => {
+    await sales.focus();
+    await page.keyboard.press('Space');
+    await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
   await expect(sidebar.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
   await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');

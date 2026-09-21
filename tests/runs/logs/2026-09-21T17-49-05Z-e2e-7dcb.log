@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 21.09.2026 22:49 Алматы · vm
+# коммит 483932d (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/system-screens.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/settings-simplification.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 154 tests using 1 worker
+
+  ✘    1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (51.5s)
+  ✘    2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (48.5s)
+  ✘    3 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px (45.3s)
+  ✘    4 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px (46.9s)
+  ✘    5 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 1440px (16.4s)
+  ✘    6 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 1440px (16.5s)
+  ✘    7 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 390px (16.4s)
+  ✘    8 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 390px (16.3s)
+  ✓    9 tests/ui/empty-base.spec.ts:39:3 › пустая база: /today открывается и объясняет пустоту (1.1s)
+  ✓   10 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.4s)
+  ✓   11 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (785ms)
+  ✓   12 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (790ms)
+  ✘   13 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (15.7s)
+  ✘   14 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (15.8s)
+  ✘   15 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (15.8s)
+  ✓   16 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rates открывается и объясняет пустоту (1.1s)
+  ✓   17 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.1s)
+  ✘   18 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/statistics открывается и объясняет пустоту (15.7s)
+  ✓   19 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (899ms)
+  ✓   20 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (745ms)
+  ✓   21 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (812ms)
+  ✘   22 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (15.8s)
+  ✓   23 tests/ui/empty-base.spec.ts:39:3 › пустая база: /analytics открывается и объясняет пустоту (1.0s)
+  ✘   24 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (15.7s)
+  ✓   25 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channel-manager открывается и объясняет пустоту (924ms)
+  ✓   26 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.2s)
+  ✓   27 tests/ui/empty-base.spec.ts:60:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.0s)
+  ✓   28 tests/ui/navigation.spec.ts:33:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.4s)
+  ✓   29 tests/ui/navigation.spec.ts:46:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.0s)
+  ✓   30 tests/ui/navigation.spec.ts:82:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (1.6s)
+  ✓   31 tests/ui/navigation.spec.ts:107:1 › все пункты меню открывают существующие страницы (11.1s)
+  ✓   32 tests/ui/navigation.spec.ts:131:3 › навигация ровная, адаптивная и доступная: light (4.9s)
+  ✓   33 tests/ui/navigation.spec.ts:131:3 › навигация ровная, адаптивная и доступная: dark (4.7s)
+  ✓   34 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.4s)
+  ✓   35 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (3.3s)
+  ✘   36 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (16.8s)
+  ✘   37 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (19.9s)
+  ✘   38 tests/ui/premium.spec.ts:117:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.2m)
+  ✓   39 tests/ui/premium.spec.ts:171:1 › вход не пускает с чужой почтой и чужим паролем (1.1s)
+  ✓   40 tests/ui/premium.spec.ts:188:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (3.0s)
+  ✓   41 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (1.8s)
+  ✓   42 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (833ms)
+  ✓   43 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.1s)
+  ✘   44 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (45.1s)
+  ✘   45 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (45.1s)
+  ✓   46 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.2s)
+  ✘   47 tests/ui/quality.spec.ts:91:1 › список гостей и вторая бронь открывают собственные карточки (16.2s)
+  ✘   48 tests/ui/quality.spec.ts:103:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (45.1s)
+  ✘   49 tests/ui/quality.spec.ts:126:1 › изменение уборки относится только к выбранному номеру (45.1s)
+  ✘   50 tests/ui/quality.spec.ts:136:1 › неподключённые внешние демо не ведут на несуществующие страницы (15.8s)
+  ✘   51 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: профиль гостя (45.1s)
+  ✘   52 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: документ гостя (45.1s)
+[WebServer] ⨯ Error: API /analytics/sites: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async AnalyticsPage (src/app/analytics/page.tsx:65:17)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   53 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: блокировка номера (45.1s)
+
+# код выхода —, сигнал SIGTERM · 15 мин 30 с

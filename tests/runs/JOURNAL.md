@@ -1494,3 +1494,6 @@
 | 21.09.2026 13:50 | lint | ✅ без ошибок | 14 с | 41f5b39 +14 | [лог](logs/2026-09-21T08-50-38Z-lint-c772.log) | incidents redesign |
 | 21.09.2026 13:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/incidents-design.spec.ts tests/ui/control-design.spec.ts tests/ui/system-screens.spec | ✅ 14 из 14 | 1 мин 14 с | 41f5b39 +14 | [лог](logs/2026-09-21T08-50-59Z-e2e-879e.log) | GREEN after format and control token fix |
 | 21.09.2026 14:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 296 из 296 | 9 мин 58 с | 535cc8c | [лог](logs/2026-09-21T09-44-17Z-e2e-fe19.log) |  |
+| 21.09.2026 13:14 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ❌ упало 1 из 118 | 4 с | c8ef0de | [лог](logs/2026-09-21T08-14-01Z-unit-acac.log) | SessionGuard метка публичного маршрута читается тем же ключом, которым её ставит декоратор |
+| 21.09.2026 13:15 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ❌ упало 1 из 118 | 3 с | c8ef0de | [лог](logs/2026-09-21T08-15-24Z-unit-341e.log) | SessionGuard метка публичного маршрута читается тем же ключом, которым её ставит декоратор |
+| 21.09.2026 13:16 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ✅ 122 из 122 | 2 с | 5a224b1 | [лог](logs/2026-09-21T08-16-30Z-unit-2974.log) |  |

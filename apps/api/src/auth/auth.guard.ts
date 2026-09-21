@@ -1,6 +1,13 @@
 import 'reflect-metadata';
 import { timingSafeEqual } from 'node:crypto';
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService, type SignedInUser } from './auth.service';
 import { PUBLIC_ROUTE } from './public.decorator';
@@ -40,6 +47,23 @@ function sameKey(presented: string, expected: string): boolean {
   return timingSafeEqual(a, b);
 }
 
+/**
+ * Ключ только на чтение сторожа (`GUARD_READ_KEY`, срез 12 шаг 12.3). Дежурный агент на сервере должен
+ * видеть неисправности, но не должен уметь ничего больше: служебный ключ `SERVICE_API_KEY` открывает
+ * весь API, включая переселения и платежи, и класть его в контейнер с ИИ нельзя. Этот ключ пускает
+ * только читать сторожа — GET /guard/status и GET /guard/incidents. Всё остальное, включая «принято»,
+ * «решено» и /guard/tick, для него закрыто: закрывать неисправность класса Б обязан человек
+ * (plans/slice-11-guardian.md §7).
+ */
+const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
+
+function guardReadAllowed(method: unknown, url: unknown): boolean {
+  if (method !== 'GET') return false;
+  if (typeof url !== 'string') return false;
+  const path = url.split('?')[0]!.replace(/\/+$/, '');
+  return GUARD_READ_ALLOWED.includes(path);
+}
+
 @Injectable()
 export class SessionGuard implements CanActivate {
   constructor(
@@ -72,16 +96,26 @@ export class SessionGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<{
       headers: Record<string, unknown>;
+      method?: unknown;
+      url?: unknown;
       user?: SignedInUser;
       service?: boolean;
     }>();
 
     const serviceKey = process.env.SERVICE_API_KEY?.trim();
+    const readKey = process.env.GUARD_READ_KEY?.trim();
     const presented = request.headers['x-wetop-service-key'];
     if (typeof presented === 'string' && presented !== '') {
       if (serviceKey && sameKey(presented, serviceKey)) {
         request.service = true;
         return true;
+      }
+      if (readKey && sameKey(presented, readKey)) {
+        if (guardReadAllowed(request.method, request.url)) {
+          request.service = true;
+          return true;
+        }
+        throw new ForbiddenException('Ключ дежурного агента читает только неисправности сторожа');
       }
       throw new UnauthorizedException('Служебный ключ не подходит');
     }

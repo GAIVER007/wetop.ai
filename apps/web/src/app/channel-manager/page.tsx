@@ -7,8 +7,12 @@ import {
   sourceNames,
   validDate,
 } from '../../lib/hotel-api';
-import { formatMinor } from '../../lib/api';
+import { formatMoney } from '../../lib/money';
+import { displayDate } from '../../lib/display-date';
+import { nightsBetween, pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import {
   Alert,
   Button,
@@ -21,7 +25,13 @@ import {
   Stats,
   Table,
 } from '../../components/ui';
+import '../directory.css';
 
+/**
+ * Отчёт по каналам продаж за период по дате заезда. D4 (план владельца 19.09): период назван словами,
+ * отказ API не уносит экран — форма и подпись остаются, вместо чисел `LoadError`; пустой отчёт называет
+ * условие; на телефоне строки складываются в карточки. Расчёт на сервере не менялся.
+ */
 export default async function ChannelManagerPage({
   searchParams,
 }: {
@@ -38,7 +48,23 @@ export default async function ChannelManagerPage({
     from <= to &&
     (Date.parse(to) - Date.parse(from)) / 86400000 <= 365 &&
     Object.hasOwn(reservationStatuses, status);
-  const report = valid ? await hotelApi.channelReport(from, to, status) : null;
+  const loaded = valid
+    ? await hotelApi.channelReport(from, to, status).then(
+        (r) => ({ ok: true as const, r }),
+        (e: unknown) => ({ ok: false as const, e }),
+      )
+    : null;
+  const report = loaded?.ok ? loaded.r : null;
+  const loadError: unknown = loaded && !loaded.ok ? loaded.e : null;
+  const withYear = from.slice(0, 4) !== to.slice(0, 4);
+  const periodText = valid
+    ? from === to
+      ? displayDate(from, 'numeric')
+      : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`
+    : '';
+  const subtitle = valid
+    ? `Брони по дате заезда: ${periodText}, ${pluralRu(nightsBetween(from, to) + 1, ['день', 'дня', 'дней'])}, ${reservationStatuses[status]!.toLowerCase()}`
+    : undefined;
   const totals = report?.rows.reduce(
     (r, row) => ({
       count: r.count + row.count,
@@ -53,7 +79,7 @@ export default async function ChannelManagerPage({
   return (
     <Page
       title="Менеджер каналов"
-      subtitle="По дате заезда"
+      subtitle={subtitle}
       actions={
         <Link href="/channels" className="btn btn--secondary">
           Настроить синхронизацию
@@ -81,6 +107,9 @@ export default async function ChannelManagerPage({
       {!valid && (
         <Alert boxed>Выберите корректные даты, период до 366 дней и статус из списка.</Alert>
       )}
+      {loadError !== null && (
+        <LoadError testId="channel-report-error" {...loadErrorProps(loadError)} />
+      )}
       {report && totals && (
         <>
           <Stats>
@@ -95,14 +124,14 @@ export default async function ChannelManagerPage({
           <Panel className="channel-value-panel" title="Стоимость выбранных броней">
             <div className="channel-totals">
               {[...money].map(([currency, value]) => (
-                <strong key={currency}>{formatMinor(value.toString(), currency)}</strong>
+                <strong key={currency}>{formatMoney(value.toString(), currency)}</strong>
               ))}
               {!money.size && <span className="muted">За этот период бронирований нет</span>}
             </div>
             {status === 'ALL' && <p className="note">Включая отмены и незаезды</p>}
-            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты</Link>
+            <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
           </Panel>
-          <Table data-testid="channel-report">
+          <Table className="dir-table dir-table--channel-report" data-testid="channel-report">
             <thead>
               <tr>
                 <th>Источник</th>
@@ -136,7 +165,7 @@ export default async function ChannelManagerPage({
                   </td>
                   <td className="num">{row.cancelled}</td>
                   <td className="num">{row.noShow}</td>
-                  <td className="num">{formatMinor(row.amountMinor, row.currency)}</td>
+                  <td className="num">{formatMoney(row.amountMinor, row.currency)}</td>
                   <td>
                     <div className="occupancy-meter">
                       <meter
@@ -154,7 +183,17 @@ export default async function ChannelManagerPage({
               ))}
               {!report.rows.length && (
                 <tr>
-                  <td colSpan={6}>Нет бронирований с выбранными датами заезда и статусом.</td>
+                  <td colSpan={6} className="empty-state" data-testid="channel-report-empty">
+                    Нет бронирований с заездом {periodText}
+                    {status !== 'ALL' && ` со статусом «${reservationStatuses[status]}»`}.{' '}
+                    {status !== 'ALL' ? (
+                      <Link href={`/channel-manager?from=${from}&to=${to}&status=ALL`}>
+                        Показать все статусы
+                      </Link>
+                    ) : (
+                      'Расширьте период: источники появляются по сохранённым броням.'
+                    )}
+                  </td>
                 </tr>
               )}
             </tbody>

@@ -1,0 +1,65 @@
+# Сквозные (e2e) · 20.09.2026 20:07 Алматы · MacBook-Air-Urij.local
+# коммит 0ed8c75 (codex/pause-self-registration), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/registration-closed.spec.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/invites.spec.ts' 'tests/ui/sessions.spec.ts' '--workers=1'
+[WebServer] (node:79514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79575) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 29 tests using 1 worker
+
+(node:79583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (14.4s)
+  ✓   2 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (4.5s)
+[WebServer] (node:79706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:79707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (5.5s)
+[WebServer] (node:79715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (3.6s)
+  ✓   5 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (1.6s)
+  ✓   6 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (4.9s)
+  ✓   7 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (3.8s)
+  ✓   8 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (2.2s)
+  ✓   9 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (3.5s)
+  ✓  10 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (4.4s)
+  ✓  11 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (15.6s)
+  ✓  12 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (12.8s)
+  ✓  13 tests/ui/login-access.spec.ts:182:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (2.1s)
+  ✓  14 tests/ui/login-access.spec.ts:198:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (3.2s)
+  ✓  15 tests/ui/login-access.spec.ts:228:3 › регистрация явно разрешена на изолированном стенде › на экране входа нет входа по коду: только пароль и кнопка регистрации (1.6s)
+  ✓  16 tests/ui/login-access.spec.ts:238:3 › регистрация явно разрешена на изолированном стенде › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (2.1s)
+  ✓  17 tests/ui/login-access.spec.ts:254:3 › регистрация явно разрешена на изолированном стенде › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (1.9s)
+  ✓  18 tests/ui/login-access.spec.ts:261:3 › регистрация явно разрешена на изолированном стенде › регистрация с /register: почта, имя, пароль → сразу рабочее место; кука HttpOnly (2.8s)
+  ✓  19 tests/ui/login-access.spec.ts:280:3 › регистрация явно разрешена на изолированном стенде › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (2.5s)
+  ✓  20 tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /login оставляет вход сотрудников (1.8s)
+  ✓  21 tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /register оставляет вход сотрудников (1.7s)
+  ✓  22 tests/ui/registration-closed.spec.ts:8:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (1.7s)
+  ✓  23 tests/ui/registration-closed.spec.ts:24:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (1.8s)
+  ✓  24 tests/ui/registration-closed.spec.ts:36:1 › ранее открытая форма получает отказ через server action без новой сессии (2.3s)
+  ✓  25 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (3.0s)
+  ✓  26 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (3.6s)
+  ✓  27 tests/ui/sessions.spec.ts:49:1 › ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль (2.8s)
+  ✓  28 tests/ui/sessions.spec.ts:74:1 › без сессии списка сеансов нет (1.9s)
+  ✓  29 tests/ui/sessions.spec.ts:82:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (7.0s)
+
+  29 passed (2.3m)
+
+# код выхода 0 · 2 мин 18 с

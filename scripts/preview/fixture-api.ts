@@ -1,6 +1,12 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { createServer } from 'node:http';
-import { parseMoney, assertAllocationsMatch } from '@pms/domain';
+import {
+  parseMoney,
+  assertAllocationsMatch,
+  buildDashboard,
+  previousPeriod,
+  type DashboardPeriod,
+} from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import type {
   Chessboard,
@@ -20,10 +26,38 @@ import type {
 } from '../../apps/web/src/lib/api';
 
 const demo = process.env.WETOP_PREVIEW_MODE === 'demo';
+/**
+ * Замок как у настоящего API при `AUTH_REQUIRED=1` (ADR-049): без сессии — 401 на всё, кроме входа и
+ * публичных путей счётчика и виджета. Нужен набору `tests/ui/playwright.auth.config.ts`, который
+ * проверяет стойку такой, какой она станет после включения замка на машине стойки.
+ */
+const authLock = process.env.FIXTURE_AUTH_LOCK === '1';
+/** Пути, открытые и при замке: ими входят, ими управляет сам прогон, их зовёт сайт (ADR-025, ADR-026). */
+const openAtLock = (p: string): boolean =>
+  p.startsWith('/__test/') ||
+  p.startsWith('/a/') ||
+  p.startsWith('/w/') ||
+  p === '/auth/login' ||
+  p === '/auth/options' ||
+  p === '/auth/logout' ||
+  p === '/auth/code' ||
+  p === '/auth/register' ||
+  p === '/auth/verify' ||
+  p.startsWith('/auth/email/') ||
+  p.startsWith('/auth/password-reset/');
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
 const hotelWaiters = new Set<() => void>();
+function resetUiAuth() {
+  registrationEnabled = true;
+  uiPassword = 'ui-test-parol';
+  uiSessions.clear();
+  uiResetTokens.clear();
+  uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+  uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+}
+
 function setHotelHold(value: boolean) {
   holdHotel = value;
   if (!value) {
@@ -31,7 +65,9 @@ function setHotelHold(value: boolean) {
     hotelWaiters.clear();
   }
 }
-const port = demo ? 4312 : 4311;
+// Порт можно задать (`FIXTURE_PORT`): отдельный набор со включённым замком поднимает свой стенд
+// и не спорит с обычным прогоном за 4311 (`tests/ui/playwright.auth.config.ts`).
+const port = Number(process.env.FIXTURE_PORT) || (demo ? 4312 : 4311);
 const names = [
   'Daniel Kim',
   'Maria Lopez',
@@ -53,13 +89,12 @@ const dates = (from: string, to: string) => {
   for (let d = from; d <= to && result.length < 366; d = add(d, 1)) result.push(d);
   return result;
 };
-const categories = [
+const categorySeed = [
   { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
-/** Цена ночи по категории в синтетическом API: номер 8 000 ₸, койка 4 000 ₸ (тиыны) */
-const nightRate = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
+const categories = structuredClone(categorySeed);
 const units: InventoryUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
@@ -84,7 +119,17 @@ const guestSeed: GuestCard = {
   phone: null,
   email: 'guest@example.invalid',
   notes: 'Вымышленные данные для проверки интерфейса',
-  documents: [],
+  // Вымышленный документ (ADR-010): на нём проверяется вопрос перед удалением
+  documents: [
+    {
+      id: 'ui-document',
+      type: 'PASSPORT',
+      numberMasked: '•••• 4321',
+      issueCountry: 'KAZ',
+      issuedAt: null,
+      expiresAt: null,
+    },
+  ],
   stays: [
     {
       confirmationNumber: '20260913-TESTAA',
@@ -129,6 +174,8 @@ function cardSeed(): ReservationCard {
     ],
   };
 }
+// seedDesign переименовывает категорию ради крайнего случая ширины — reset возвращает имена
+const BASE_CATEGORY_NAMES = new Map(categories.map((c) => [c.code, c.name]));
 let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
@@ -143,7 +190,9 @@ function initializeRecords() {
     card.primaryGuest!.label = `${lastName} ${firstName}`;
     card.items[0]!.guests[0]!.label = card.primaryGuest!.label;
   }
-  for (let i = 1; i < 8; i++) {
+  // i = 8 — «не заехал вовремя»: подтверждён, заезд был позавчера, выезд не сегодня. Такой брони не
+  // видно ни в заездах, ни в выездах, ни среди живущих — её показывает блок «Требуют внимания»
+  for (let i = 1; i < 9; i++) {
     const r = cardSeed();
     const g = structuredClone(guestSeed);
     const label = demo ? names[i]! : ['Посетитель Демо', 'Клиент Пример', 'Гость Учебный'][i % 3]!;
@@ -152,14 +201,23 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    r.status = i === 1 ? 'CONFIRMED' : i === 4 ? 'CHECKED_OUT' : 'CHECKED_IN';
+    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // Смена должна видеть это на клетке словом, не только жёлтым цветом.
+    r.status =
+      i === 2
+        ? 'TENTATIVE'
+        : i === 1 || i === 8
+          ? 'CONFIRMED'
+          : i === 4
+            ? 'CHECKED_OUT'
+            : 'CHECKED_IN';
     r.arrivalDate = i < 3 ? today : add(today, -2);
     r.departureDate = i === 3 || i === 4 ? today : add(today, 3);
     r.source = i % 2 ? 'OTA' : 'PHONE';
     r.channel = i % 2 ? 'Booking.com' : null;
     r.primaryGuest = { id: g.id, label, citizenship: g.citizenship, phone: g.phone };
     const unit = units.find(
-      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01'][i],
+      (u) => u.code === ['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01', 'F03'][i],
     )!;
     r.items[0] = {
       ...r.items[0]!,
@@ -177,7 +235,267 @@ function initializeRecords() {
   }
 }
 initializeRecords();
-const allCards = () => [card, ...extraCards.values()];
+/**
+ * Крайние случаи для дизайн-системы (plans/design-system-2026-09-14.md, шаг 1). Включаются только
+ * `POST /__test/design-seed`, обычные UI-тесты их не видят. Все имена вымышленные (ADR-010).
+ */
+let designEvents: InboundEvent[] = [];
+const DESIGN_STAYS: Array<{
+  n: string;
+  label: string;
+  status: string;
+  source: string;
+  channel: string | null;
+  unit: string | null;
+  from: number;
+  to: number;
+  price: string;
+}> = [
+  {
+    n: 'DSG-TENT',
+    label: 'Ақбота Нұрсұлтанқызы Әбдіғаппарова',
+    status: 'TENTATIVE',
+    source: 'OTA',
+    channel: 'Trip.com',
+    unit: 'R06',
+    from: 1,
+    to: 4,
+    price: '3600000',
+  },
+  {
+    n: 'DSG-CANC',
+    label: 'Посетитель Отменённый',
+    status: 'CANCELLED',
+    source: 'OTA',
+    channel: 'Agoda',
+    unit: 'R07',
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-NOSH',
+    label: 'Клиент Незаезд',
+    status: 'NO_SHOW',
+    source: 'OTA',
+    channel: 'Expedia',
+    unit: 'R07',
+    from: -1,
+    to: 1,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-HWL',
+    label: 'Constantine-Alexander Featherstonehaugh-Wentworth',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Hostelworld',
+    unit: 'M03',
+    from: 0,
+    to: 6,
+    price: '2700000',
+  },
+  {
+    n: 'DSG-OVK',
+    label: 'Анна-Мария Константинопольская-Щербатова',
+    status: 'CHECKED_IN',
+    source: 'OTA',
+    channel: 'Ostrovok',
+    unit: 'F02',
+    from: -3,
+    to: 2,
+    price: '2250000',
+  },
+  {
+    n: 'DSG-BDC',
+    label: 'Гость Букинг',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: 'M04',
+    from: 2,
+    to: 3,
+    price: '450000',
+  },
+  {
+    n: 'DSG-WEB',
+    label: 'Гость Сайт',
+    status: 'CONFIRMED',
+    source: 'WEBSITE',
+    channel: null,
+    unit: 'M05',
+    from: 1,
+    to: 2,
+    price: '450000',
+  },
+  {
+    n: 'DSG-DESK',
+    label: 'Гость Стойка',
+    status: 'CHECKED_IN',
+    source: 'DESK',
+    channel: null,
+    unit: 'R08',
+    from: -1,
+    to: 1,
+    price: '1600000',
+  },
+  // проживание без ячейки — строка «Без ячейки» над сеткой (Д3)
+  {
+    n: 'DSG-UNAS',
+    label: 'Гость Без-Ячейки',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Booking.com',
+    unit: null,
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+];
+function designCard(d: (typeof DESIGN_STAYS)[number], arrival: string, departure: string) {
+  const unit = d.unit ? units.find((u) => u.code === d.unit)! : null;
+  const category = unit
+    ? categories.find((c) => c.code === unit.accommodationTypeCode)!
+    : categories[0]!;
+  const words = d.label.split(' ');
+  const g = structuredClone(guestSeed);
+  g.id = `ui-guest-${d.n}`;
+  g.lastName = words[0]!;
+  g.firstName = words.slice(1).join(' ') || 'Гость';
+  const r = cardSeed();
+  r.confirmationNumber = `20260916-${d.n}`;
+  r.status = d.status;
+  r.source = d.source;
+  r.channel = d.channel;
+  r.arrivalDate = arrival;
+  r.departureDate = departure;
+  r.totalAmountMinor = d.price;
+  r.primaryGuest = { id: g.id, label: d.label, citizenship: 'KAZ', phone: null };
+  r.items[0] = {
+    ...r.items[0]!,
+    id: `ui-item-${d.n}`,
+    status: d.status,
+    arrivalDate: arrival,
+    departureDate: departure,
+    priceMinor: d.price,
+    unitCode: unit?.code ?? null,
+    accommodationTypeCode: category.code,
+    accommodationTypeName: category.name,
+    guests: [{ label: d.label, isPrimary: true }],
+  };
+  return { r, g };
+}
+function seedDesign() {
+  // Крайний случай ширины: на объекте названия категорий длиннее, чем в базовой фикстуре, и на
+  // телефоне выпадающий список фильтра растягивал экран (обход стойки 17.09.2026)
+  categories[0]!.name = 'Одноместная комната с окном и балконом';
+  for (const u of units)
+    if (u.accommodationTypeCode === categories[0]!.code)
+      u.accommodationTypeName = categories[0]!.name;
+  for (const d of DESIGN_STAYS) {
+    const { r, g } = designCard(d, add(today, d.from), add(today, d.to));
+    extraCards.set(r.confirmationNumber, r);
+    extraGuests.set(g.id, g);
+  }
+  // месяц, в котором заняты все 88 из 88: следующий календарный месяц, по одному проживанию на ячейку
+  const next = new Date(`${today}T00:00:00Z`);
+  next.setUTCDate(1);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  const monthFrom = next.toISOString().slice(0, 10);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  const monthTo = next.toISOString().slice(0, 10);
+  units.forEach((u, i) => {
+    const d = {
+      n: `FULL${String(i + 1).padStart(2, '0')}`,
+      label: `Гость Полный-${String(i + 1).padStart(2, '0')}`,
+      status: 'CONFIRMED',
+      source: i % 3 ? 'OTA' : 'DESK',
+      channel: i % 3 ? (['Booking.com', 'Trip.com', 'Agoda'][i % 3] ?? null) : null,
+      unit: u.code,
+      from: 0,
+      to: 0,
+      price: u.kind === 'ROOM' ? '24800000' : '13950000',
+    };
+    const { r, g } = designCard(d, monthFrom, monthTo);
+    extraCards.set(r.confirmationNumber, r);
+    extraGuests.set(g.id, g);
+  });
+  // блокировки с причиной и три статуса уборки
+  blocks.set('R09', [
+    {
+      id: 'dsg-block-1',
+      dateFrom: today,
+      dateTo: add(today, 3),
+      type: 'MAINTENANCE',
+      reason: 'ремонт: кондиционер',
+    },
+  ]);
+  blocks.set('M06', [
+    {
+      id: 'dsg-block-2',
+      dateFrom: add(today, -1),
+      dateTo: add(today, 1),
+      type: 'OUT_OF_ORDER',
+      reason: 'нет матраса',
+    },
+  ]);
+  blocks.set('F03', [
+    {
+      id: 'dsg-block-3',
+      dateFrom: add(today, 1),
+      dateTo: add(today, 5),
+      type: 'MANAGEMENT',
+      reason: 'резерв владельца',
+    },
+  ]);
+  housekeeping.set('R01', 'DIRTY');
+  housekeeping.set('R02', 'INSPECTED');
+  housekeeping.set('M01', 'DIRTY');
+  // входящая ревизия с ошибкой (ADR-024, Q-109) и обычная обработанная
+  designEvents = [
+    {
+      externalEventId: 'dsg-revision-failed-0001',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'FAILED',
+      attempts: 6,
+      receivedAt: `${today}T05:12:40Z`,
+      processedAt: null,
+      lastError:
+        'Несколько перенесённых броней подходят: 20260913-TEST1, 20260913-TEST3 — разобрать руками (Q-109)',
+      reservationNumber: null,
+    },
+    {
+      externalEventId: 'dsg-revision-ok-0002',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_modification',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T06:01:03Z`,
+      processedAt: `${today}T06:01:04Z`,
+      lastError: null,
+      reservationNumber: '20260913-TEST1',
+    },
+    {
+      externalEventId: 'dsg-revision-ok-0003',
+      receivedVia: 'PULL',
+      type: 'booking_cancellation',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T06:30:00Z`,
+      processedAt: `${today}T06:30:01Z`,
+      lastError: null,
+      reservationNumber: '20260913-TEST3',
+    },
+  ];
+}
+/**
+ * Стенд без единой брони, но с фондом, категориями и ценами — это состояние боевой базы после
+ * очистки 19.09.2026 (ADR-052) и до первой живой смены. Экраны обязаны в нём открываться и
+ * говорить, что броней нет, а не выглядеть сломанными.
+ */
+let noBookings = false;
+const allCards = () => (noBookings ? [] : [card, ...extraCards.values()]);
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
 function getGuest(id: string) {
@@ -201,7 +519,16 @@ function getGuest(id: string) {
 }
 let rejectCreate = false;
 let failPath = '';
+/** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
+let delayPath = '';
+let delayMs = 0;
+/** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
+let failStatus = 503;
 let emptyFixture = false;
+/** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
+let ratesUnmapped = false;
+/** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
+let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
@@ -213,284 +540,76 @@ let priceChanges: Array<{
   stopSell?: boolean;
   minStay?: number;
 }> = [];
-let siteDeleted = false;
-let groupFixture = false;
-let paid = new Map<string, bigint>();
-let paymentLines: Array<{
-  folioId: string;
-  amountMinor: string;
-  method: string;
-  note: string | null;
-  id: string;
-}> = [];
-let commands: Array<{ method: string; path: string; body: unknown }> = [];
-const incidentSeed: Incident = {
-  id: 'ui-incident',
-  kind: 'booking.unassigned',
-  class: 'B',
-  severity: 'WARNING',
-  status: 'OPEN',
-  title: 'Тестовая бронь без назначенной ячейки',
-  subjectType: 'Reservation',
-  subjectId: 'ui-item',
-  occurrences: 1,
-  firstSeenAt: `${today}T07:00:00Z`,
-  lastSeenAt: `${today}T07:00:00Z`,
-  fixAttempts: 0,
-  lastFixAt: null,
-  lastFixResult: null,
-  alertedAt: null,
-  acknowledgedAt: null,
-  resolvedAt: null,
-  resolvedBy: null,
-};
-let incident = structuredClone(incidentSeed);
-
-// ── Витрина крайних случаев для дизайн-системы (план design-system-2026-09-14, шаг 1) ──
-// Включается только `POST /__test/control { showcase: true }`; обычные UI-тесты её не видят.
-// Все имена вымышленные (ADR-010): проверяем длину, кириллицу, латиницу и казахские буквы.
+/**
+ * Витрина каналов (срез 7.2, макеты «Integration» и «Inbound»): события с фильтрами и второй страницей,
+ * факты ревизий без персональных данных (ADR-018), строки очереди в Channex. Включается `showcase: true`
+ * в `POST /__test/control` вместе с витриной конфликтов среза 7.3. Все брони и гости вымышленные (ADR-010).
+ */
 let showcase = false;
 let showcaseEvents: InboundEvent[] = [];
-/** Факты ревизий витрины без ПД (срез 7.2, страница «Приём брони из канала») */
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
-let showcaseIncidents: Incident[] = [];
-const fillerSurnames = [
-  'Учебный',
-  'Пример',
-  'Демо',
-  'Образец',
-  'Тестов',
-  'Макетов',
-  'Условный',
-  'Проверочный',
-];
-const fillerNames = ['Гость', 'Посетитель', 'Клиент', 'Жилец', 'Постоялец'];
-function showcaseCard(opts: {
-  number: string;
-  guest: string;
-  status: string;
-  source: string;
-  channel: string | null;
-  unit: string | null;
-  category?: string;
-  arrival: string;
-  departure: string;
-  notes?: string | null;
-}) {
+function showcaseCard(
+  number: string,
+  o: { unit: string; status: string; channel: string; nights: number; price: string },
+): ReservationCard {
+  const unit = units.find((u) => u.code === o.unit)!;
   const r = cardSeed();
-  const g = structuredClone(guestSeed);
-  const words = opts.guest.split(' ');
-  g.id = `ui-show-guest-${opts.number}`;
-  g.lastName = words[0]!;
-  g.firstName = words[1] ?? '';
-  g.middleName = words[2] ?? null;
-  r.confirmationNumber = opts.number;
-  r.status = opts.status;
-  r.source = opts.source;
-  r.channel = opts.channel;
-  r.arrivalDate = opts.arrival;
-  r.departureDate = opts.departure;
-  r.notes = opts.notes ?? null;
-  r.primaryGuest = { id: g.id, label: opts.guest, citizenship: g.citizenship, phone: g.phone };
-  const unit = opts.unit ? units.find((u) => u.code === opts.unit) : undefined;
-  const category = categories.find(
-    (c) => c.code === (unit?.accommodationTypeCode ?? opts.category ?? 'ROOM'),
-  )!;
-  const nights = Math.max(
-    1,
-    Math.round((Date.parse(opts.departure) - Date.parse(opts.arrival)) / 86400000),
-  );
+  r.confirmationNumber = number;
+  r.source = 'OTA';
+  r.channel = o.channel;
+  r.status = o.status;
+  r.departureDate = add(today, o.nights);
+  r.totalAmountMinor = o.price;
+  r.primaryGuest = { id: 'ui-guest', label: 'Гость Тестовый', citizenship: 'KAZ', phone: null };
   r.items[0] = {
     ...r.items[0]!,
-    id: `ui-show-item-${opts.number}`,
-    status: r.status,
-    arrivalDate: r.arrivalDate,
+    id: `ui-item-${number.slice(-6).toLowerCase()}`,
+    status: o.status,
     departureDate: r.departureDate,
-    unitCode: unit?.code ?? null,
-    accommodationTypeCode: category.code,
-    accommodationTypeName: category.name,
-    priceMinor: (800000n * BigInt(nights)).toString(),
-    guests: [{ label: opts.guest, isPrimary: true }],
+    unitCode: unit.code,
+    accommodationTypeCode: unit.accommodationTypeCode,
+    accommodationTypeName: unit.accommodationTypeName,
+    priceMinor: o.price,
   };
-  r.totalAmountMinor = r.items[0].priceMinor;
-  extraCards.set(r.confirmationNumber, r);
-  extraGuests.set(g.id, g);
+  return r;
 }
-/** Занимает все свободные ячейки по фильтру на окно [from, to) — ночь сверх мест и «88 из 88». */
-function fillWindow(from: string, to: string, tag: string, filter: (u: InventoryUnit) => boolean) {
-  const free = units.filter(
-    (u) =>
-      filter(u) &&
-      !allCards().some((r) =>
-        r.items.some(
-          (it) =>
-            it.unitCode === u.code &&
-            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
-            it.arrivalDate < to &&
-            it.departureDate > from,
-        ),
-      ) &&
-      !blocksFor(u.code).some((b) => b.dateFrom < to && b.dateTo >= from),
-  );
-  free.forEach((u, i) =>
-    showcaseCard({
-      number: `20260913-${tag}${String(i + 1).padStart(2, '0')}`,
-      guest: `${fillerSurnames[i % fillerSurnames.length]} ${
-        fillerNames[Math.floor(i / fillerSurnames.length) % fillerNames.length]
-      }`,
-      status: i % 3 ? 'CONFIRMED' : 'CHECKED_IN',
-      source: i % 2 ? 'OTA' : 'DESK',
-      channel: i % 2 ? ['Booking.com', 'Trip.com', 'Agoda'][i % 3]! : null,
-      unit: u.code,
-      arrival: from,
-      departure: to,
-    }),
-  );
-}
-function applyShowcase() {
-  showcase = true;
+function applyChannelShowcase() {
   const t = (n: number) => add(today, n);
-  // Статусы, каналы, источники, имена
-  showcaseCard({
-    number: '20260913-SHOWTN',
-    guest: 'Әбдірахманова Гүлнұр Қайратқызы',
-    status: 'TENTATIVE',
-    source: 'OTA',
-    channel: 'Booking.com',
-    unit: 'R06',
-    arrival: today,
-    departure: t(2),
-    notes: 'Перенесена из Exely, не подтверждена',
-  });
-  showcaseCard({
-    number: '20260913-SHOWCX',
-    guest: 'Нұрсұлтанұлы Ерғали',
-    status: 'CANCELLED',
-    source: 'OTA',
-    channel: 'Trip.com',
-    unit: 'R07',
-    arrival: t(1),
-    departure: t(3),
-  });
-  showcaseCard({
-    number: '20260913-SHOWNS',
-    guest: 'Smith John',
-    status: 'NO_SHOW',
-    source: 'OTA',
-    channel: 'Agoda',
-    unit: 'R07',
-    arrival: t(-1),
-    departure: t(1),
-  });
-  showcaseCard({
-    number: '20260913-SHOWEX',
-    guest: 'Constantinopolous-Wentworth Alexandria Genevieve',
-    status: 'CONFIRMED',
-    source: 'OTA',
-    channel: 'Expedia',
-    unit: 'M03',
-    arrival: t(1),
-    departure: t(6),
-  });
-  showcaseCard({
-    number: '20260913-SHOWHW',
-    guest: 'Оганесян-Петросянц Александра Владимировна',
-    status: 'CHECKED_IN',
-    source: 'OTA',
-    channel: 'Hostelworld',
-    unit: 'M04',
-    arrival: t(-3),
-    departure: t(2),
-  });
-  showcaseCard({
-    number: '20260913-SHOWOS',
-    guest: 'Ким Дана',
-    status: 'CONFIRMED',
-    source: 'OTA',
-    channel: 'Ostrovok',
-    unit: 'F02',
-    arrival: t(2),
-    departure: t(4),
-  });
-  showcaseCard({
-    number: '20260913-SHOWDK',
-    guest: 'Сериков Арман Болатұлы',
-    status: 'CONFIRMED',
-    source: 'DESK',
-    channel: null,
-    unit: 'F03',
-    arrival: today,
-    departure: t(1),
-  });
-  showcaseCard({
-    number: '20260913-SHOWWB',
-    guest: 'Müller-Lüdenscheidt Friedrich',
-    status: 'CONFIRMED',
-    source: 'WEBSITE',
-    channel: null,
-    unit: 'R08',
-    arrival: t(3),
-    departure: t(5),
-  });
-  // Блокировки с причиной и три статуса уборки
-  blocks.set('R09', [
-    {
-      id: 'ui-show-block-1',
-      dateFrom: today,
-      dateTo: t(2),
-      type: 'MAINTENANCE',
-      reason: 'кондиционер',
-    },
-  ]);
-  blocks.set('R10', [
-    {
-      id: 'ui-show-block-2',
-      dateFrom: t(1),
-      dateTo: t(4),
-      type: 'OUT_OF_ORDER',
-      reason: 'протечка',
-    },
-  ]);
-  blocks.set('F04', [
-    {
-      id: 'ui-show-block-3',
-      dateFrom: today,
-      dateTo: t(6),
-      type: 'MANAGEMENT',
-      reason: 'резерв для персонала',
-    },
-  ]);
-  blocks.set('F05', [
-    { id: 'ui-show-block-4', dateFrom: t(2), dateTo: t(3), type: 'OTHER', reason: '' },
-  ]);
-  housekeeping.set('R01', 'DIRTY');
-  housekeeping.set('R02', 'CLEAN');
-  housekeeping.set('R03', 'INSPECTED');
-  // Ночь категории сверх мест: все мужские койки заняты сегодня плюс проживание без ячейки (Q-107, Q-119)
-  fillWindow(today, t(1), 'FULLM', (u) => u.accommodationTypeCode === 'MALE');
-  showcaseCard({
-    number: '20260913-SHOWUN',
-    guest: 'Бекболатов Дәулет',
-    status: 'CONFIRMED',
-    source: 'OTA',
-    channel: 'Booking.com',
-    unit: null,
-    category: 'MALE',
-    arrival: today,
-    departure: t(3),
-  });
-  // Неделя, в которую заняты все 88 из 88 — видна в месяце
-  fillWindow(t(21), t(28), 'FULLW', () => true);
-  // Входящая ревизия с ошибкой и очередь
+  showcase = true;
+  // Две перенесённые брони Booking.com с одинаковым составом (Q-109) и отменённая Expedia
+  for (const r of [
+    showcaseCard('20260913-SHOWTN', {
+      unit: 'R06',
+      status: 'TENTATIVE',
+      channel: 'Booking.com',
+      nights: 2,
+      price: '1600000',
+    }),
+    showcaseCard('20260913-SHOWEX', {
+      unit: 'M03',
+      status: 'CONFIRMED',
+      channel: 'Booking.com',
+      nights: 2,
+      price: '800000',
+    }),
+    showcaseCard('20260913-SHOWCX', {
+      unit: 'R07',
+      status: 'CANCELLED',
+      channel: 'Expedia',
+      nights: 2,
+      price: '1600000',
+    }),
+  ])
+    extraCards.set(r.confirmationNumber, r);
   showcaseEvents = [
     {
       externalEventId: 'ui-rev-failed',
       receivedVia: 'WEBHOOK',
       type: 'booking_new',
       status: 'FAILED',
-      attempts: 3,
-      receivedAt: `${today}T05:12:41Z`,
+      attempts: 6,
+      receivedAt: `${today}T05:12:40Z`,
       processedAt: null,
       lastError:
         'Несколько перенесённых броней подходят: 20260913-SHOWTN, 20260913-SHOWEX — разберите руками (Q-109)',
@@ -523,6 +642,20 @@ function applyShowcase() {
       uniqueId: 'EXP-90210',
       otaName: 'Expedia',
       confirmationNumber: '20260913-SHOWCX',
+    },
+    {
+      // Проверка webhook Channex приходит с двоеточиями в номере — экран обязан её открыть
+      externalEventId: 'test:2026-09-16T18:35:20.672058Z:74234e98afe7',
+      receivedVia: 'WEBHOOK',
+      type: 'booking_new',
+      status: 'PROCESSED',
+      attempts: 1,
+      receivedAt: `${today}T02:50:00Z`,
+      processedAt: `${today}T02:50:01Z`,
+      lastError: null,
+      uniqueId: 'BDC-5510-2201',
+      otaName: 'Booking.com',
+      confirmationNumber: '20260913-SHOWTN',
     },
     {
       externalEventId: 'ui-rev-new-2',
@@ -567,6 +700,14 @@ function applyShowcase() {
     rooms: [],
     ...o,
   });
+  const room = {
+    checkinDate: today,
+    checkoutDate: t(2),
+    roomTypeId: 'ui-rt-room',
+    ratePlanId: 'ui-rp-room',
+    adults: 1,
+    amount: '16000.00',
+  };
   showcaseRevisions.clear();
   showcaseRevisions.set(
     'ui-rev-failed',
@@ -578,19 +719,14 @@ function applyShowcase() {
       arrivalDate: today,
       departureDate: t(2),
       amount: '16000.00',
-      rooms: [
-        {
-          checkinDate: today,
-          checkoutDate: t(2),
-          roomTypeId: 'ui-rt-room',
-          ratePlanId: 'ui-rp-room',
-          adults: 1,
-          amount: '16000.00',
-        },
-      ],
+      rooms: [room],
     }),
   );
-  for (const id of ['ui-rev-new-2', 'ui-rev-modified'])
+  for (const id of [
+    'ui-rev-new-2',
+    'ui-rev-modified',
+    'test:2026-09-16T18:35:20.672058Z:74234e98afe7',
+  ])
     showcaseRevisions.set(
       id,
       facts({
@@ -601,16 +737,7 @@ function applyShowcase() {
         arrivalDate: today,
         departureDate: t(2),
         amount: '16000.00',
-        rooms: [
-          {
-            checkinDate: today,
-            checkoutDate: t(2),
-            roomTypeId: 'ui-rt-room',
-            ratePlanId: 'ui-rp-room',
-            adults: 1,
-            amount: '16000.00',
-          },
-        ],
+        rooms: [room],
       }),
     );
   showcaseRevisions.set(
@@ -684,25 +811,122 @@ function applyShowcase() {
       messages: 6,
     },
   ];
-  showcaseIncidents = [
-    {
-      ...structuredClone(incidentSeed),
-      id: 'ui-show-incident-unassigned',
-      kind: 'stay.unassigned',
-      title: 'Проживание без ячейки на сегодня: 20260913-SHOWUN',
-      subjectId: 'ui-show-item-20260913-SHOWUN',
-    },
-    {
-      ...structuredClone(incidentSeed),
-      id: 'ui-show-incident-overbooked',
-      kind: 'stay.overbooked',
-      severity: 'CRITICAL',
-      title: 'Мужской общий номер продан сверх мест на ночь ' + today + ': 37 на 36',
-      subjectType: 'AccommodationType',
-      subjectId: 'MALE',
-    },
-  ];
 }
+let siteDeleted = false;
+let groupFixture = false;
+let paid = new Map<string, bigint>();
+let paymentLines: Array<{
+  folioId: string;
+  amountMinor: string;
+  method: string;
+  note: string | null;
+  id: string;
+}> = [];
+let commands: Array<{ method: string; path: string; body: unknown }> = [];
+const incidentSeed: Incident = {
+  id: 'ui-incident',
+  kind: 'stay.unassigned',
+  class: 'B',
+  severity: 'WARNING',
+  status: 'OPEN',
+  title: 'Тестовая бронь без назначенной ячейки',
+  subjectType: 'Reservation',
+  subjectId: 'ui-item',
+  occurrences: 1,
+  firstSeenAt: `${today}T07:00:00Z`,
+  lastSeenAt: `${today}T07:00:00Z`,
+  fixAttempts: 0,
+  lastFixAt: null,
+  lastFixResult: null,
+  alertedAt: null,
+  acknowledgedAt: null,
+  resolvedAt: null,
+  resolvedBy: null,
+};
+let incident = structuredClone(incidentSeed);
+
+/**
+ * Смена видит не одну неисправность, а несколько разом (снимок владельца 21.09.2026): срочная
+ * техника, ошибка кода и данные, плюс закрытые за сутки. `POST /__test/control {"incidentsMix": true}`
+ * даёт это состояние, не трогая одиночный сид, на котором стоят прежние спеки.
+ */
+const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString();
+const mixIncidents = (): Incident[] => [
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-down',
+    kind: 'desk.down',
+    class: 'A',
+    severity: 'CRITICAL',
+    status: 'ESCALATED',
+    title: 'Стойка PMS не отвечает',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 1226,
+    firstSeenAt: hoursAgo(20.5),
+    lastSeenAt: new Date().toISOString(),
+    fixAttempts: 2,
+    lastFixAt: hoursAgo(20),
+    lastFixResult: 'перезапуск стойки на этой машине не настроен (нет launchd)',
+    alertedAt: hoursAgo(20.4),
+  },
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-http',
+    kind: 'api.error',
+    class: 'C',
+    severity: 'WARNING',
+    status: 'ESCALATED',
+    title: 'Ошибка программы (HTTP 500) на GET /system/freshness',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 47,
+    firstSeenAt: hoursAgo(11),
+    lastSeenAt: hoursAgo(0.2),
+    alertedAt: hoursAgo(4),
+  },
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-exely',
+    kind: 'exely.sync.stale',
+    class: 'B',
+    severity: 'WARNING',
+    status: 'ACKNOWLEDGED',
+    title: 'Синхронизации суток из Exely не было ни разу',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 998,
+    firstSeenAt: hoursAgo(16.6),
+    lastSeenAt: new Date().toISOString(),
+    alertedAt: hoursAgo(0.5),
+    acknowledgedAt: hoursAgo(0.3),
+  },
+];
+const mixClosed = (): Incident[] =>
+  [
+    ['Webhook Channex под подозрением: адрес не отвечает', 'GUARD', 0.3, 0.25] as const,
+    [
+      'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',
+      'GUARD',
+      0.4,
+      0.25,
+    ] as const,
+    ['Стойка PMS не отвечает', 'GUARD', 21, 20.9] as const,
+  ].map(([title, by, seen, closed], i) => ({
+    ...structuredClone(incidentSeed),
+    id: `ui-incident-closed-${i}`,
+    kind: 'desk.down',
+    class: 'A' as const,
+    status: 'RESOLVED' as const,
+    title,
+    firstSeenAt: hoursAgo(seen),
+    lastSeenAt: hoursAgo(closed),
+    resolvedAt: hoursAgo(closed),
+    resolvedBy: by,
+  }));
+/** Дополнительные неисправности сверх одиночного сида: пусто, пока режим не включён */
+let extraIncidents: Incident[] = [];
+let guardTick = false;
 
 function desk(date: string): DeskDay {
   const rows = allCards().flatMap((r) =>
@@ -732,17 +956,27 @@ function desk(date: string): DeskDay {
   const inHouse = active.filter(
     (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
   );
+  // Не заехали вовремя — как в apps/api/src/desk/desk.service.ts: заезд был раньше, заселения нет,
+  // выезд не сегодня (иначе они уже в списке выездов)
+  const overdueArrivals = active.filter(
+    (r) =>
+      (r.status === 'CONFIRMED' || r.status === 'TENTATIVE') &&
+      r.arrivalDate < date &&
+      r.departureDate !== date,
+  );
   return {
     date,
     arrivals,
     departures,
     inHouse,
+    overdueArrivals,
     counts: {
       arrivals: arrivals.length,
       departures: departures.length,
       inHouse: inHouse.length,
       toCheckIn: arrivals.filter((r) => r.status !== 'CHECKED_IN').length,
       toCheckOut: departures.filter((r) => r.status === 'CHECKED_IN').length,
+      overdueArrivals: overdueArrivals.length,
     },
     debtMinor: departures
       .filter((r) => r.status === 'CHECKED_IN' && BigInt(r.balanceMinor) > 0n)
@@ -752,8 +986,12 @@ function desk(date: string): DeskDay {
 }
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
+  // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
+  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
+    housekeeping.get(code) ??
+    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
   const rows = units.map((u) => ({
-    unit: { id: u.code, ...u, housekeeping: housekeeping.get(u.code) ?? 'CLEAN' },
+    unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
       const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
       if (block)
@@ -778,14 +1016,13 @@ function board(from: string, to: string): Chessboard {
             itemId: it.id,
             confirmationNumber: r.confirmationNumber,
             guestLabel: r.primaryGuest?.label ?? 'Гость',
-            guestPhone: r.primaryGuest?.phone ?? null,
             itemStatus: it.status,
-            source: r.source,
-            channel: r.channel,
-            balanceMinor:
-              finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),
+            // канал и остаток к оплате — как отдаёт API после среза 7.1
+            source: r.source,
+            channel: r.channel,
+            balanceMinor: finance(r).balanceMinor,
           };
       }
       return { date, state: 'FREE' as const };
@@ -848,15 +1085,82 @@ function board(from: string, to: string): Chessboard {
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
           status: it.status,
-          guestLabel: r.primaryGuest?.label ?? 'Гость',
-          source: r.source,
-          channel: r.channel,
-          balanceMinor:
-            finance(r).folios.find((f) => f.reservationItemId === it.id)?.balanceMinor ?? '0',
         })),
     ),
   };
 }
+/**
+ * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
+ * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
+ */
+function dashboardPeriod(from: string, to: string): DashboardPeriod {
+  const b = board(from, to);
+  const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
+  return buildDashboard({
+    from,
+    to,
+    categories: categories.map((c) => ({ code: c.code, name: c.name, units: c.count })),
+    days: b.dates.map((date) => ({
+      date,
+      ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
+      byCategory: b.byCategory[date] ?? {},
+    })),
+    unassigned: b.unassigned.length,
+    stays: allCards().flatMap((r) =>
+      r.items.map((it) => ({
+        arrivalDate: it.arrivalDate,
+        departureDate: it.departureDate,
+        status: it.status,
+        adults: it.adults,
+        children: it.children,
+        priceMinor: BigInt(it.priceMinor),
+        source: r.source,
+        channel: r.channel,
+        categoryCode: it.accommodationTypeCode,
+      })),
+    ),
+    charges: allCards().flatMap((r) =>
+      r.items
+        .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
+        .map((it) => ({
+          kind: 'ACCOMMODATION' as const,
+          amountMinor: BigInt(it.priceMinor),
+          categoryCode: it.accommodationTypeCode,
+        })),
+    ),
+    payments:
+      from <= today && today <= to
+        ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
+        : [],
+    refundsMinor: 0n,
+  });
+}
+function dashboard(from: string, to: string) {
+  const prev = previousPeriod(from, to);
+  return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
+}
+/** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
+const nightly = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
+const nightsOf = (it: { arrivalDate: string; departureDate: string }) =>
+  Math.max(1, Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000));
+const LIVE = (status: string) => !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(status);
+const tenge = (minor: bigint) =>
+  `${(minor / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
+/** Ячейка занята другим проживанием или блоком на ночи [from, to) */
+const unitBusy = (code: string, from: string, to: string, except?: { id: string }) =>
+  allCards().some((o) =>
+    o.items.some(
+      (x) =>
+        x.id !== except?.id &&
+        x.unitCode === code &&
+        LIVE(x.status) &&
+        x.arrivalDate < to &&
+        x.departureDate > from,
+    ),
+  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo >= from);
+const retotal = (r: ReservationCard) => {
+  r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
+};
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =
@@ -1005,6 +1309,64 @@ function report(): SiteReport {
     devices: { devices: [], browsers: [], os: [] },
   };
 }
+
+/**
+ * Вход в стойку для проверок интерфейса (DATA_MODEL §13.8, ADR-049). Настоящих людей здесь нет (ADR-010):
+ * один вымышленный сотрудник и пароль, который знает только эта фикстура.
+ */
+interface UiUser {
+  id: string;
+  email: string;
+  name: string | null;
+  organizationId: string;
+  organization: { name: string; status: string; trialEndsAt: string | null };
+}
+const uiUser: UiUser = {
+  id: 'ui-user',
+  email: 'admin@wetop.test',
+  name: 'Дана Тестова',
+  organizationId: 'ui-org',
+  organization: { name: 'Luxx Aparts', status: 'ACTIVE', trialEndsAt: null },
+};
+let uiPassword = 'ui-test-parol';
+let registrationEnabled = true;
+/** Кто уже состоит в организации фикстуры, кроме самого вошедшего — приглашать их повторно нельзя */
+const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
+/** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
+const uiSessions = new Map<string, UiUser>();
+
+/**
+ * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
+ * лишние рейсы к API, на машине владельца стоит лишние сотни миллисекунд — и это видно только счётчиком.
+ * Читается тестом (`tests/ui/requests.spec.ts`), обнуляется вместе с остальной фикстурой.
+ */
+const hits = new Map<string, number>();
+const requestHits = new Map<string, number>();
+const countHit = (url: URL, method: string): void => {
+  const path = url.pathname;
+  if (path.startsWith('/__test/')) return;
+  hits.set(path, (hits.get(path) ?? 0) + 1);
+  const query = new URLSearchParams(url.searchParams);
+  query.sort();
+  const key = `${method} ${path}${query.size ? `?${query}` : ''}`;
+  requestHits.set(key, (requestHits.get(key) ?? 0) + 1);
+};
+/** Одноразовые ссылки на пароль: токен → годна ли ещё (проверки сброса, DATA_MODEL §13 шаг 1) */
+const uiResetTokens = new Map<string, { used: boolean; expired: boolean }>();
+/** Ссылки подтверждения почты (ADR-060): выдаются регистрацией, гасятся переходом. */
+const uiVerifications = new Map<string, { email: string; name: string; used: boolean }>();
+uiResetTokens.set('ui-reset-token', { used: false, expired: false });
+uiResetTokens.set('ui-reset-expired', { used: false, expired: true });
+
+function sessionOf(req: { headers: Record<string, unknown> }): string | null {
+  const direct = req.headers['x-wetop-session'];
+  if (typeof direct === 'string' && direct !== '') return direct;
+  const header = req.headers['authorization'];
+  if (typeof header === 'string' && header.toLowerCase().startsWith('bearer '))
+    return header.slice(7).trim();
+  return null;
+}
+
 function read(path: string, q: URLSearchParams): unknown {
   if (path === '/system/connection') {
     const ready = connectionState === 'READY';
@@ -1028,6 +1390,9 @@ function read(path: string, q: URLSearchParams): unknown {
     } satisfies DataConnection;
   }
   if (emptyFixture) {
+    // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
+    if (path === '/rates/options') return { categories: [], ratePlans: [] };
+    if (path === '/finance/services') return [];
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units'].includes(path)) return [];
@@ -1042,6 +1407,30 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard') {
+      const from = q.get('from') || today,
+        to = q.get('to') || today;
+      const zero = (f: string, t: string) =>
+        buildDashboard({
+          from: f,
+          to: t,
+          categories: [],
+          days: dates(f, t).map((date) => ({
+            date,
+            occupied: 0,
+            free: 0,
+            blocked: 0,
+            byCategory: {},
+          })),
+          unassigned: 0,
+          stays: [],
+          charges: [],
+          payments: [],
+          refundsMinor: 0n,
+        });
+      const prev = previousPeriod(from, to);
+      return { current: zero(from, to), previous: zero(prev.from, prev.to) };
+    }
     if (path === '/finance/report')
       return {
         currency: 'KZT',
@@ -1051,25 +1440,52 @@ function read(path: string, q: URLSearchParams): unknown {
         balanceMinor: '0',
         chargesByKind: [],
         paymentsByMethod: [],
+        // как у API: возвраты отдаются всегда, и при пустом периоде тоже (D2 читает их число)
+        refunds: { count: 0, amountMinor: '0' },
         accommodationByCategory: [],
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
-  if (path === '/guard/status')
+  if (path === '/guard/status') {
+    const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
       running: true,
-      autofix: false,
+      autofix: guardTick,
       propertyLive: true,
       notifier: { configured: true, recipients: 1 },
       dbDownSince: null,
-      lastTick: null,
-      open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
+      lastTick: guardTick
+        ? {
+            at: new Date(Date.now() - 90_000).toISOString(),
+            durationMs: 420,
+            dbOk: true,
+            checked: Array.from({ length: 13 }, (_, i) => `check-${i + 1}`),
+            checkErrors: [],
+            alertError: null,
+          }
+        : null,
+      open: {
+        total: live.length,
+        critical: live.filter((i) => i.severity === 'CRITICAL').length,
+        escalated: live.filter((i) => i.status === 'ESCALATED').length,
+      },
     };
-  if (path === '/guard/incidents')
-    return [
-      ...(q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident]),
-      ...showcaseIncidents,
-    ];
+  }
+  if (path === '/guard/incidents') {
+    if (q.get('status') !== 'open' && incidentHistory > 0)
+      return Array.from(
+        { length: Math.min(incidentHistory, Number(q.get('limit')) || 100) },
+        (_, i) => ({
+          ...incident,
+          id: `ui-incident-${i}`,
+          status: 'RESOLVED',
+          resolvedAt: new Date(Date.now() - i * 60_000).toISOString(),
+          resolvedBy: 'STAFF',
+        }),
+      );
+    const rows = [incident, ...extraIncidents];
+    return q.get('status') === 'open' ? rows.filter((i) => i.status !== 'RESOLVED') : rows;
+  }
   if (path === '/hotel/settings')
     return {
       property: {
@@ -1148,11 +1564,13 @@ function read(path: string, q: URLSearchParams): unknown {
         name: c.name,
         units: c.count,
         maxGuests: c.count * c.capacityAdults,
+        capacityAdults: c.capacityAdults,
       })),
     };
   if (path === '/inventory/units')
     return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
   if (path === '/desk/today') return desk(q.get('date') || today);
+  if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return plans;
   if (path === '/availability') {
@@ -1186,98 +1604,135 @@ function read(path: string, q: URLSearchParams): unknown {
       total: { units: 88, available: available.length },
     };
   }
-  // Предпросмотр сумм до подтверждения (срез 7.3, Д5) — цены синтетические: ROOM 8 000 ₸, койка 4 000 ₸ за ночь
-  if (path.startsWith('/reservations/') && /-preview$/.test(path)) {
-    const [, , rawNumber, , itemId, tail] = path.split('/');
-    const r = getCard(decodeURIComponent(rawNumber!));
-    if (!r) return undefined;
-    const nights = (a: string, b: string) =>
-      Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 86400000));
-    const busy = (unitCode: string, from: string, to: string, exceptItem: string) =>
-      allCards().some((c) =>
-        c.items.some(
-          (it) =>
-            it.id !== exceptItem &&
-            it.unitCode === unitCode &&
-            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
-            it.arrivalDate < to &&
-            it.departureDate > from,
-        ),
-      );
-    if (tail === 'move-preview' || tail === 'extend-preview') {
-      const item = r.items.find((it) => it.id === itemId);
-      if (!item) return undefined;
-      const n = nights(item.arrivalDate, item.departureDate);
-      if (tail === 'move-preview') {
-        const unitCode = q.get('unitCode') ?? '';
-        const unit = units.find((u) => u.code === unitCode);
-        const toCat = categories.find((c) => c.code === unit?.accommodationTypeCode);
-        const fromCat = categories.find((c) => c.code === item.accommodationTypeCode);
-        const changes = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
-        const problem = !unit
-          ? `Ячейка ${unitCode} не найдена или неактивна`
-          : busy(unitCode, item.arrivalDate, item.departureDate, item.id)
-            ? `Ячейка ${unitCode} занята на эти даты`
-            : null;
-        return {
-          unitCode,
-          changesCategory: changes,
-          fromCategory: fromCat ? { code: fromCat.code, name: fromCat.name } : null,
-          toCategory: toCat
-            ? { code: toCat.code, name: toCat.name }
-            : fromCat
-              ? { code: fromCat.code, name: fromCat.name }
-              : null,
-          nights: n,
-          currentMinor: item.priceMinor,
-          newMinor: problem
-            ? null
-            : changes
-              ? (nightRate(toCat!.code) * BigInt(n)).toString()
-              : item.priceMinor,
-          ratePlanRequired: false,
-          problem,
-        };
-      }
-      const departureDate = add(item.departureDate, 1);
-      const added = nightRate(item.accommodationTypeCode);
-      const free = item.unitCode
-        ? !busy(item.unitCode, item.departureDate, departureDate, item.id)
-        : true;
+  // Срез 7.3: предпросмотр действия — считает так же, как настоящий API, но ничего не меняет
+  if (path.startsWith('/reservations/') && path.endsWith('/preview')) {
+    const parts = path.split('/');
+    const r = getCard(decodeURIComponent(parts[2]!));
+    const item = r?.items.find((i) => i.id === decodeURIComponent(parts[4]!));
+    if (!r || !item) return undefined;
+    const action = q.get('action') ?? '';
+    const current = BigInt(item.priceMinor);
+    const night = nightly(item.accommodationTypeCode);
+    if (action === 'cancel' || action === 'no_show')
       return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
+        voidedMinor: item.priceMinor,
+        // отмена заранее бесплатна, незаезд платный всегда (Q-103)
+        penaltyMinor: action === 'no_show' ? night.toString() : '0',
+        policy: 'FIRST_NIGHT',
+      };
+    if (action === 'extend')
+      return {
+        action,
+        currentPriceMinor: item.priceMinor,
+        currency: 'KZT',
         nights: 1,
-        departureDate,
-        unitCode: item.unitCode,
-        addedMinor: added.toString(),
-        newMinor: (BigInt(item.priceMinor) + added).toString(),
+        departureDate: add(item.departureDate, 1),
+        newPriceMinor: (current + night).toString(),
+        differenceMinor: night.toString(),
+      };
+    const unitCode = q.get('unitCode') ?? '';
+    const unit = units.find((u) => u.code === unitCode);
+    const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
+    const nights = BigInt(
+      Math.max(
+        1,
+        Math.round(
+          (Date.parse(`${item.departureDate}T00:00:00Z`) -
+            Date.parse(`${item.arrivalDate}T00:00:00Z`)) /
+            86_400_000,
+        ),
+      ),
+    );
+    const moved = changesCategory ? nights * 1_500_000n : current;
+    return {
+      action: 'move',
+      currentPriceMinor: item.priceMinor,
+      currency: 'KZT',
+      changesCategory,
+      unitCode,
+      categoryName: unit?.accommodationTypeName,
+      newPriceMinor: moved.toString(),
+      differenceMinor: (moved - current).toString(),
+    };
+  }
+  if (path.startsWith('/reservations/') && /-preview$/.test(path)) {
+    const parts = path.split('/');
+    const tail = parts[parts.length - 1];
+    const r = getCard(decodeURIComponent(parts[2]!));
+    if (!r) return undefined;
+    if (tail === 'cancel-preview') {
+      const reason = q.get('reason') === 'no_show' ? 'no_show' : 'cancel';
+      const items = r.items
+        .filter((it) => (!q.get('itemId') || it.id === q.get('itemId')) && LIVE(it.status))
+        .map((it) => {
+          // штраф — первая ночь, и только с дня заезда (Q-103); до заезда отмена бесплатна
+          const dueNow = it.arrivalDate <= today;
+          return {
+            itemId: it.id,
+            unitCode: it.unitCode,
+            policy: 'FIRST_NIGHT',
+            dueNow,
+            penaltyMinor: (dueNow ? nightly(it.accommodationTypeCode) : 0n).toString(),
+          };
+        });
+      return {
+        reason,
+        items,
+        totalPenaltyMinor: items.reduce((s, i) => s + BigInt(i.penaltyMinor), 0n).toString(),
+      };
+    }
+    const item = r.items.find((it) => it.id === parts[4]);
+    if (!item) return undefined;
+    const nights = nightsOf(item);
+    if (tail === 'move-preview') {
+      const unit = units.find((u) => u.code === q.get('unitCode'));
+      const from = categories.find((c) => c.code === item.accommodationTypeCode) ?? null;
+      if (!unit)
+        return {
+          unitCode: q.get('unitCode') ?? '',
+          changesCategory: false,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: null,
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: 'Ячейка не найдена',
+        };
+      const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
+      const changes = to.code !== item.accommodationTypeCode;
+      return {
+        unitCode: unit.code,
+        changesCategory: changes,
+        fromCategory: from && { code: from.code, name: from.name },
+        toCategory: { code: to.code, name: to.name },
+        nights,
+        currentMinor: item.priceMinor,
+        newMinor: changes ? (nightly(to.code) * BigInt(nights)).toString() : item.priceMinor,
         ratePlanRequired: false,
-        nextNightsFree: free,
         problem: null,
       };
     }
-    if (path.split('/')[3] === 'cancel-preview') {
-      const reason = q.get('reason') === 'no_show' ? 'no_show' : 'cancel';
-      const wanted = q.get('itemId');
-      const items = r.items.filter(
-        (it) => !['CANCELLED', 'NO_SHOW'].includes(it.status) && (!wanted || it.id === wanted),
-      );
-      if (wanted && items.length === 0) return undefined;
-      const rows = items.map((it) => {
-        const dueNow = reason === 'no_show' || it.arrivalDate <= today;
-        return {
-          itemId: it.id,
-          unitCode: it.unitCode,
-          policy: 'FIRST_NIGHT' as const,
-          dueNow,
-          penaltyMinor: dueNow ? nightRate(it.accommodationTypeCode).toString() : '0',
-        };
-      });
+    if (tail === 'extend-preview') {
+      const n = Math.max(1, Number(q.get('nights') || 1));
+      const departure = add(item.departureDate, n);
+      const added = nightly(item.accommodationTypeCode) * BigInt(n);
       return {
-        reason,
-        items: rows,
-        totalPenaltyMinor: rows.reduce((sum, x) => sum + BigInt(x.penaltyMinor), 0n).toString(),
+        nights: n,
+        departureDate: departure,
+        unitCode: item.unitCode,
+        addedMinor: added.toString(),
+        newMinor: (BigInt(item.priceMinor) + added).toString(),
+        ratePlanRequired: !item.ratePlanCode && !q.get('ratePlanCode'),
+        nextNightsFree:
+          !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+        problem: null,
       };
     }
+    return undefined;
   }
   if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
   if (path === '/guests')
@@ -1329,6 +1784,7 @@ function read(path: string, q: URLSearchParams): unknown {
         const forDay = [...priceChanges]
           .reverse()
           .filter((c) => c.dateFrom <= date && c.dateTo >= date);
+        // цена на одно число гостей: строка без occupancy — на всех, с occupancy — только на своё
         const price = (occ: number, fallback: string) =>
           parseMoney(
             forDay.find((c) => c.price && (!c.occupancy || c.occupancy === occ))?.price || fallback,
@@ -1437,12 +1893,14 @@ function read(path: string, q: URLSearchParams): unknown {
     return showcaseOutbox.filter((r) => !st || r.status === st);
   }
   if (path === '/channels/channex/events') {
+    // как у настоящего API: фильтры, поиск по событию / unique_id / номеру брони, страница
+    const source = showcase ? showcaseEvents : designEvents;
     const st = q.get('status'),
       type = q.get('type'),
       needle = (q.get('q') || '').trim().toLowerCase();
     const limit = Number(q.get('limit') || 20),
       offset = Number(q.get('offset') || 0);
-    const rows = showcaseEvents.filter(
+    const rows = source.filter(
       (e) =>
         (!st || e.status === st) &&
         (!type || e.type === type) &&
@@ -1470,19 +1928,97 @@ function read(path: string, q: URLSearchParams): unknown {
       ),
     };
   }
+  // Срез 7.2: строки очереди — что именно уехало в Channex и чем кончилось
+  if (path === '/channels/channex/outbox/messages')
+    return [
+      {
+        id: 'ui-outbox-1',
+        kind: 'AVAILABILITY',
+        status: 'PENDING',
+        attempts: 0,
+        taskId: null,
+        lastError: null,
+        createdAt: `${today}T06:40:00Z`,
+        sentAt: null,
+        lines: 5,
+        dateFrom: today,
+        dateTo: add(today, 4),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+      {
+        id: 'ui-outbox-2',
+        kind: 'RESTRICTIONS',
+        status: 'SENT',
+        attempts: 1,
+        taskId: 'ui-task-77',
+        lastError: null,
+        createdAt: `${today}T06:20:00Z`,
+        sentAt: `${today}T06:20:03Z`,
+        lines: 31,
+        dateFrom: today,
+        dateTo: add(today, 30),
+        roomTypeIds: [],
+        ratePlanIds: ['ui-rate-plan'],
+      },
+      {
+        id: 'ui-outbox-3',
+        kind: 'AVAILABILITY',
+        status: 'FAILED',
+        attempts: 3,
+        taskId: null,
+        lastError: 'Channex: 422 unprocessable entity — room_type_id не найден',
+        createdAt: `${today}T05:50:00Z`,
+        sentAt: null,
+        lines: 2,
+        dateFrom: today,
+        dateTo: add(today, 1),
+        roomTypeIds: ['ui-room-type'],
+        ratePlanIds: [],
+      },
+    ];
   if (path === '/channels/channex/webhook/status')
     return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
-  if (path === '/audit')
-    return [
+  if (path === '/audit') {
+    // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
+    const type = q.get('entityType');
+    const entries = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
         entityType: 'Reservation',
         entityId: 'ui-item',
-        action: 'CREATE',
+        action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-login',
+        at: `${today}T08:00:00Z`,
+        entityType: 'user',
+        entityId: uiUser.id,
+        action: 'user.login',
+        subject: null,
+        author: uiUser.name,
+      },
+      {
+        id: 'ui-audit-system',
+        at: `${today}T07:45:00Z`,
+        entityType: 'Property',
+        entityId: 'ui-property',
+        action: 'channex.fullSync',
+        subject: null,
+        // без автора: так ходят импорт, сторож и скрипты сверки
+        author: null,
       },
     ];
+    // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
+    const needle = (q.get('q') || '').trim().toLowerCase();
+    return entries
+      .filter((e) => !type || e.entityType === type)
+      .filter((e) => !needle || (e.subject ?? '').toLowerCase().includes(needle));
+  }
   if (path === '/analytics/sites') return siteDeleted ? [] : [site];
   if (path.endsWith('/report') && path.startsWith('/analytics/')) return report();
   if (path === '/analytics/sites/ui-site')
@@ -1517,45 +2053,79 @@ createServer(async (req, res) => {
       });
       res.end(JSON.stringify(data));
     };
+    countHit(url, req.method ?? 'GET');
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
+    if (path === '/__test/hits')
+      return send(200, {
+        total: [...hits.values()].reduce((a, b) => a + b, 0),
+        byPath: Object.fromEntries([...hits].sort((a, b) => b[1] - a[1])),
+        byRequest: Object.fromEntries(requestHits),
+      });
     if (
       !path.startsWith('/__test/') &&
       req.headers[demo ? 'x-wetop-demo-client' : 'x-wetop-test-client'] !== '1'
     ) {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
+    if (authLock && !openAtLock(path)) {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
+    }
     if (path === '/__test/reset') {
+      hits.clear();
+      requestHits.clear();
+      resetUiAuth();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
       // A long browser run can cross midnight in the property's timezone.
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+      categories.splice(0, categories.length, ...structuredClone(categorySeed));
+      for (const unit of units)
+        unit.accommodationTypeName = categories.find(
+          (c) => c.code === unit.accommodationTypeCode,
+        )!.name;
       incident = structuredClone(incidentSeed);
+      extraIncidents = [];
+      guardTick = false;
+      // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
+      for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
+      for (const u of units)
+        u.accommodationTypeName =
+          BASE_CATEGORY_NAMES.get(u.accommodationTypeCode) ?? u.accommodationTypeName;
       card = cardSeed();
       guest = structuredClone(guestSeed);
       commands = [];
       rejectCreate = false;
       failPath = '';
+      delayPath = '';
+      delayMs = 0;
+      failStatus = 503;
+      ratesUnmapped = false;
+      incidentHistory = 0;
       emptyFixture = false;
+      noBookings = false;
       housekeeping.clear();
       blocks.clear();
+      designEvents = [];
       initializeRecords();
       priceChanges = [];
+      showcase = false;
+      showcaseEvents = [];
+      showcaseOutbox = [];
+      showcaseRevisions.clear();
       site = structuredClone(siteSeed);
       siteDeleted = false;
       groupFixture = false;
       paid = new Map();
       paymentLines = [];
-      showcase = false;
-      showcaseEvents = [];
-      showcaseOutbox = [];
-      showcaseRevisions.clear();
-      showcaseIncidents = [];
       return send(200, {});
     }
     if (path === '/__test/control') {
+      if (typeof body['registrationEnabled'] === 'boolean')
+        registrationEnabled = body['registrationEnabled'];
       if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
       if (
@@ -1565,18 +2135,101 @@ createServer(async (req, res) => {
       )
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
+      noBookings = body['noBookings'] === true;
+      // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       failPath = String(body['failPath'] || '');
+      delayPath = String(body['delayPath'] || '');
+      delayMs = Number(body['delayMs'] || 1500);
+      // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
+      if (body['tentative'] === true) {
+        card.status = 'TENTATIVE';
+        card.items[0]!.status = 'TENTATIVE';
+      }
+      // витрина конфликтов (срез 7.3, Д3–Д4): бронь без ячейки, ночь сверх мест, неразобранная ревизия
+      if (body['showcase'] === true) {
+        const show = cardSeed();
+        show.confirmationNumber = '20260913-SHOWUN';
+        show.source = 'OTA';
+        show.channel = 'Booking.com';
+        show.departureDate = add(today, 1);
+        show.items[0] = {
+          ...show.items[0]!,
+          id: 'ui-item-showun',
+          accommodationTypeCode: 'MALE',
+          accommodationTypeName: categories[1]!.name,
+          departureDate: add(today, 1),
+          unitCode: null,
+          priceMinor: '400000',
+        };
+        show.totalAmountMinor = '400000';
+        extraCards.set(show.confirmationNumber, show);
+        incident.kind = 'stay.overbooked';
+        incident.title = `${categories[1]!.name} продан сверх мест на ночь ${today}: 37 на 36`;
+        incident.subjectType = 'AccommodationType';
+        incident.subjectId = 'MALE';
+        // события, очередь и ревизии витрины каналов (срез 7.2); неразобранная ревизия — `ui-rev-failed`
+        applyChannelShowcase();
+      }
+      failStatus = Number(body['failStatus']) || 503;
+      ratesUnmapped = body['ratesUnmapped'] === true;
+      incidentHistory = Number(body['incidents']) || 0;
+      if (body['incidentsMix'] === true) {
+        extraIncidents = [...mixIncidents(), ...mixClosed()];
+        guardTick = true;
+      }
+      // долгое проживание: на объекте живут по три месяца, а доступность считается не дальше 62 ночей
+      if (body['longStay'] === true) {
+        card.departureDate = add(today, 90);
+        card.items[0]!.departureDate = card.departureDate;
+      }
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
-      if (body['showcase'] === true && !showcase) applyShowcase();
       return send(200, {});
     }
+    // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
+    // список на 25 строк. Как и design-seed, обычные тесты этих броней не видят, пока не позовут.
+    if (path === '/__test/crowd-seed') {
+      const count = Math.min(Number(url.searchParams.get('n') || 40), units.length);
+      for (let i = 0; i < count; i++) {
+        const unit = units[i]!;
+        const n = `CROWD${String(i + 1).padStart(2, '0')}`;
+        const { r, g } = designCard(
+          {
+            n,
+            label: `Гость Многолюдный-${String(i + 1).padStart(2, '0')}`,
+            status: 'CHECKED_IN',
+            source: 'DESK',
+            channel: null,
+            unit: unit.code,
+            from: 0,
+            to: 0,
+            price: '1000000',
+          },
+          add(today, -1),
+          add(today, 1),
+        );
+        extraCards.set(r.confirmationNumber, r);
+        extraGuests.set(g.id, g);
+      }
+      return send(200, { stays: count });
+    }
+    if (path === '/__test/design-seed') {
+      seedDesign();
+      return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
+    }
     if (path === '/__test/commands') return send(200, commands);
+    if (delayPath && path === delayPath)
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     if (path === failPath || failPath === '*')
-      return send(503, { message: 'Синтетический сбой API' });
+      return send(
+        failStatus,
+        failStatus >= 500
+          ? { message: 'Синтетический сбой API' }
+          : { message: 'Синтетический отказ API: запрос отклонён' },
+      );
     if (path === '/hotel/settings' && holdHotel)
       await new Promise<void>((resolve) => hotelWaiters.add(resolve));
     if (path === '/hotel/reservations' && req.method === 'GET') {
@@ -1584,14 +2237,17 @@ createServer(async (req, res) => {
         to = url.searchParams.get('to') || from;
       const status = url.searchParams.get('status') || 'ALL';
       const q = (url.searchParams.get('q') || '').toLocaleLowerCase('ru');
-      const rows = allCards()
-        .filter(
-          (r) =>
-            r.arrivalDate <= to &&
-            r.departureDate >= from &&
-            (status === 'ALL' || r.status === status) &&
-            `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
-        )
+      const inPeriod = allCards().filter(
+        (r) =>
+          r.arrivalDate <= to &&
+          r.departureDate >= from &&
+          `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
+      );
+      // Числа на чипах статусов — как в API: по отбору без самого статуса
+      const counts: Record<string, number> = { ALL: emptyFixture ? 0 : inPeriod.length };
+      if (!emptyFixture) for (const r of inPeriod) counts[r.status] = (counts[r.status] ?? 0) + 1;
+      const rows = inPeriod
+        .filter((r) => status === 'ALL' || r.status === status)
         .map((r) => ({
           confirmationNumber: r.confirmationNumber,
           status: r.status,
@@ -1609,15 +2265,187 @@ createServer(async (req, res) => {
             ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
             : null,
         }));
+      const pageSize = Number(url.searchParams.get('pageSize') || 25);
+      const page = Number(url.searchParams.get('page') || 1);
       return send(200, {
         from,
         to,
         total: emptyFixture ? 0 : rows.length,
-        page: 1,
-        pageSize: 25,
-        rows: emptyFixture ? [] : rows,
+        page,
+        pageSize,
+        counts,
+        rows: emptyFixture ? [] : rows.slice((page - 1) * pageSize, page * pageSize),
       });
     }
+    // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
+    const invitePreview = {
+      organizationName: 'Хостел «Пример»',
+      email: 'novyj@example.com',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+    };
+    if (path === '/auth/invites') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : null;
+      if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (req.method === 'POST') {
+        const email = String(body['email'] ?? '')
+          .trim()
+          .toLowerCase();
+        if (!email.includes('@'))
+          return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
+        // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
+        if (email === who.email || uiMembers.has(email))
+          return send(400, { message: 'Этот человек уже в организации.' });
+        return send(201, {
+          id: `inv-${Date.now()}`,
+          email,
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      return send(200, [
+        {
+          id: 'inv-fixture',
+          email: 'zhdet@example.com',
+          expiresAt: invitePreview.expiresAt,
+          acceptedAt: null,
+          createdAt: new Date(Date.now() - 3600_000).toISOString(),
+        },
+      ]);
+    }
+    const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
+    if (inviteMatch) {
+      if (inviteMatch[1] !== 'fixture-invite-token')
+        return send(404, {
+          message: 'Приглашение не найдено, уже принято или его срок истёк.',
+        });
+      // Принятие (ADR-053) отдаёт одноразовый ключ: приглашённый задаёт себе пароль, письма нет.
+      // Просмотр ссылки ключа не даёт — смотреть можно сколько угодно.
+      if (inviteMatch[2]) {
+        const token = 'fixture-set-password-token';
+        uiResetTokens.set(token, { used: false, expired: false });
+        return send(200, { ...invitePreview, setPasswordToken: token });
+      }
+      return send(200, invitePreview);
+    }
+    if (path === '/auth/me') {
+      const token = sessionOf(req as never);
+      return send(200, { user: (token && uiSessions.get(token)) || null });
+    }
+    // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
+    const noContent = () => {
+      res.writeHead(204, { 'x-wetop-data-source': 'synthetic' });
+      res.end();
+    };
+    // ── «Где я вошёл» и «выйти везде» (§13.5): эта сессия и телефон, любым входом; отзыв гасит все ключи.
+    if (path === '/auth/sessions') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      return send(200, [
+        {
+          id: 'sess-this',
+          issuedAt: new Date(Date.now() - 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 29 * 24 * 3600_000).toISOString(),
+          device: 'Chrome, macOS',
+          current: true,
+        },
+        {
+          id: 'sess-phone',
+          issuedAt: new Date(Date.now() - 2 * 24 * 3600_000).toISOString(),
+          expiresAt: new Date(Date.now() + 27 * 24 * 3600_000).toISOString(),
+          device: 'Safari, iPhone',
+          current: false,
+        },
+      ]);
+    }
+    if (path === '/auth/logout-all' && req.method === 'POST') {
+      uiSessions.clear();
+      return noContent();
+    }
+    // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
+    // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
+    if (path === '/auth/code' || path === '/auth/verify')
+      return send(404, { message: 'Not Found' });
+    // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
+    if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    if (path === '/auth/register' && req.method === 'POST') {
+      if (!registrationEnabled)
+        return send(403, {
+          message:
+            'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.',
+        });
+      const email = String(body['email'] ?? '').trim();
+      const name = String(body['name'] ?? '').trim();
+      const password = String(body['password'] ?? '');
+      if (!email.includes('@'))
+        return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
+      if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      if (email.toLowerCase() === uiUser.email)
+        return send(400, {
+          message:
+            'Этот адрес уже зарегистрирован. Войдите по паролю или восстановите его на экране входа.',
+        });
+      // Сессии здесь нет: она появится после перехода по ссылке из письма (ADR-060)
+      const link = `ui-verify-${uiVerifications.size + 1}`;
+      uiVerifications.set(link, { email: email.toLowerCase(), name, used: false });
+      return send(200, { pendingVerification: true, email: email.toLowerCase(), name, sent: true });
+    }
+    if (path === '/auth/email/resend' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/email/verify' && req.method === 'POST') {
+      const link = uiVerifications.get(String(body['token'] ?? ''));
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите письмо заново.' });
+      link.used = true;
+      const token = `ui-registered-${uiSessions.size + 1}`;
+      const who = { ...uiUser, email: link.email, name: link.name };
+      uiSessions.set(token, who);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: who,
+      });
+    }
+    if (path === '/auth/password-reset/request' && req.method === 'POST') {
+      // наружу ответ один и тот же, есть такая почта или нет
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/password-reset/confirm' && req.method === 'POST') {
+      const token = String(body['token'] ?? '');
+      const password = String(body['password'] ?? '');
+      const link = uiResetTokens.get(token);
+      if (!link) return send(401, { message: 'Ссылка не годится: запросите новую' });
+      if (link.used) return send(401, { message: 'Ссылка уже использована: запросите новую' });
+      if (link.expired) return send(401, { message: 'Срок ссылки истёк: запросите новую' });
+      if (password.trim().length < 10)
+        return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      link.used = true;
+      uiPassword = password;
+      uiSessions.clear();
+      return send(200, { ok: true });
+    }
+    if (path === '/auth/login' && req.method === 'POST') {
+      if (body['email'] !== uiUser.email || body['password'] !== uiPassword)
+        return send(401, { message: 'Неверная почта или пароль' });
+      const token = `ui-session-${uiSessions.size + 1}`;
+      uiSessions.set(token, uiUser);
+      return send(200, {
+        token,
+        expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
+        user: uiUser,
+      });
+    }
+    if (path === '/auth/logout' && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (token) uiSessions.delete(token);
+      return send(200, { ok: true });
+    }
+
     if (req.method === 'GET') {
       const result = read(path, url.searchParams);
       return send(
@@ -1652,10 +2480,13 @@ createServer(async (req, res) => {
     }
     if (path === '/rates/bulk') {
       priceChanges.push(...(body['changes'] as typeof priceChanges));
+      const changes = body['changes'] as Array<{ accommodationTypeCode?: string }>;
+      // как настоящий API: категория без сопоставления с Channex в очередь каналов не идёт
       return send(200, {
-        applied: (body['changes'] as unknown[]).length,
+        applied: changes.length,
         rateRows: 1,
         restrictionRows: 0,
+        queued: ratesUnmapped ? 0 : (body['changes'] as unknown[]).length,
       });
     }
     if (path === '/analytics/sites' && req.method === 'POST') {
@@ -1689,6 +2520,20 @@ createServer(async (req, res) => {
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
+    const guardAction = /^\/guard\/incidents\/([^/]+)\/(acknowledge|resolve)$/.exec(path);
+    if (guardAction && guardAction[1] !== 'ui-incident') {
+      const target = extraIncidents.find((i) => i.id === guardAction[1]);
+      if (!target) return send(404, { message: 'Неисправность не найдена' });
+      if (guardAction[2] === 'acknowledge') {
+        target.status = 'ACKNOWLEDGED';
+        target.acknowledgedAt = new Date().toISOString();
+      } else {
+        target.status = 'RESOLVED';
+        target.resolvedBy = 'STAFF';
+        target.resolvedAt = new Date().toISOString();
+      }
+      return send(200, target);
+    }
     if (path === '/guard/incidents/ui-incident/acknowledge') {
       incident.status = 'ACKNOWLEDGED';
       incident.acknowledgedAt = new Date().toISOString();
@@ -1774,6 +2619,29 @@ createServer(async (req, res) => {
       extraGuests.set(g.id, g);
       return send(201, r);
     }
+    if (path.startsWith('/guests/') && path.split('/')[3] === 'documents') {
+      const [, , rawId, , docId] = path.split('/');
+      const id = decodeURIComponent(rawId!);
+      const g = id === guest.id ? guest : extraGuests.get(id);
+      if (!g) return send(404, { message: 'Гость не найден' });
+      if (req.method === 'DELETE') {
+        g.documents = g.documents.filter((d) => d.id !== docId);
+        return send(200, getGuest(id));
+      }
+      const number = String(body['number'] ?? '');
+      g.documents = [
+        ...g.documents,
+        {
+          id: `ui-doc-${g.documents.length + 1}`,
+          type: String(body['type'] ?? 'PASSPORT'),
+          numberMasked: `****${number.slice(-4)}`,
+          issueCountry: body['issueCountry'] ? String(body['issueCountry']) : null,
+          issuedAt: body['issuedAt'] ? String(body['issuedAt']) : null,
+          expiresAt: body['expiresAt'] ? String(body['expiresAt']) : null,
+        },
+      ];
+      return send(201, getGuest(id));
+    }
     if (path.startsWith('/guests/') && req.method === 'PATCH') {
       const id = decodeURIComponent(path.split('/')[2]!);
       const g = id === guest.id ? guest : extraGuests.get(id);
@@ -1791,79 +2659,67 @@ createServer(async (req, res) => {
       const r = getCard(decodeURIComponent(number!));
       if (!r) return send(404, { message: 'Бронь не найдена' });
       const item = r.items.find((it) => it.id === itemId);
-      const stayNights = (a: string, b: string) =>
-        Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 86400000));
-      if (path.split('/')[3] === 'cancel' && path.split('/').length === 4) {
+      if (path.split('/')[3] === 'cancel') {
+        for (const it of r.items)
+          if (LIVE(it.status)) {
+            it.status = 'CANCELLED';
+            it.unitCode = null;
+          }
         r.status = 'CANCELLED';
-        for (const it of r.items) {
-          it.status = 'CANCELLED';
-          it.unitCode = null;
-        }
-        return send(200, r);
-      }
-      if (item && action === 'check-in') {
-        item.status = 'CHECKED_IN';
-        r.status = 'CHECKED_IN';
         return send(200, r);
       }
       if (item && action === 'no-show') {
         item.status = 'NO_SHOW';
         item.unitCode = null;
-        r.status = r.items.every((it) => ['NO_SHOW', 'CANCELLED'].includes(it.status))
-          ? 'NO_SHOW'
-          : r.status;
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'NO_SHOW';
         return send(200, r);
       }
       if (item && action === 'check-out') {
-        const debt = BigInt(
-          finance(r).folios.find((f) => f.reservationItemId === item.id)?.balanceMinor ?? '0',
-        );
-        if (debt > 0n && body['withDebt'] !== true)
+        const folio = finance(r).folios.find((f) => f.reservationItemId === item.id);
+        const balance = folio ? BigInt(folio.balanceMinor) : 0n;
+        if (balance > 0n && body['withDebt'] !== true)
           return send(409, {
-            message: `На счёте долг ${(debt / 100n).toString()} ₸. Выселить с долгом?`,
+            message: `На счёте долг ${tenge(balance)}: примите оплату или выселите с подтверждением`,
           });
         item.status = 'CHECKED_OUT';
-        r.status = r.items.every((it) =>
-          ['CHECKED_OUT', 'CANCELLED', 'NO_SHOW'].includes(it.status),
-        )
-          ? 'CHECKED_OUT'
-          : r.status;
+        if (r.items.every((it) => !LIVE(it.status))) r.status = 'CHECKED_OUT';
         return send(200, r);
       }
       if (item && action === 'extend') {
-        const n = Number(body['nights'] ?? 1);
-        item.departureDate = add(item.departureDate, n);
+        const n = Math.max(1, Number(body['nights'] ?? 1));
+        if (!item.ratePlanCode && !body['ratePlanCode'])
+          return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
+        const departure = add(item.departureDate, n);
+        if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
+          return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
         item.priceMinor = (
           BigInt(item.priceMinor) +
-          nightRate(item.accommodationTypeCode) * BigInt(n)
+          nightly(item.accommodationTypeCode) * BigInt(n)
         ).toString();
-        r.departureDate = r.items.reduce(
-          (m, it) => (it.departureDate > m ? it.departureDate : m),
-          r.departureDate,
-        );
-        r.totalAmountMinor = r.items
-          .reduce((sum, it) => sum + BigInt(it.priceMinor), 0n)
-          .toString();
+        item.departureDate = departure;
+        if (departure > r.departureDate) r.departureDate = departure;
+        retotal(r);
         return send(200, r);
       }
       if (item && action === 'assign') {
-        const unit = units.find((u) => u.code === String(body['unitCode'] ?? ''));
-        if (!unit)
-          return send(422, {
-            message: `Ячейка ${String(body['unitCode'])} не найдена или неактивна`,
-          });
+        const unit = units.find((u) => u.code === body['unitCode']);
+        if (!unit) return send(404, { message: 'Ячейка не найдена' });
+        if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
+          return send(409, { message: `Ячейка ${unit.code} уже занята` });
         if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
           item.accommodationTypeCode = unit.accommodationTypeCode;
           item.accommodationTypeName = unit.accommodationTypeName;
           item.priceMinor = (
-            nightRate(unit.accommodationTypeCode) *
-            BigInt(stayNights(item.arrivalDate, item.departureDate))
+            nightly(unit.accommodationTypeCode) * BigInt(nightsOf(item))
           ).toString();
-          r.totalAmountMinor = r.items
-            .reduce((sum, it) => sum + BigInt(it.priceMinor), 0n)
-            .toString();
         }
         item.unitCode = unit.code;
+        retotal(r);
+        return send(200, r);
+      }
+      if (item && action === 'check-in') {
+        item.status = 'CHECKED_IN';
+        r.status = 'CHECKED_IN';
         return send(200, r);
       }
       if (item && req.method === 'PATCH') {

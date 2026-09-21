@@ -1,0 +1,18 @@
+# Типы (typecheck) · 20.09.2026 22:08 Алматы · MacBook-Air-Urij.local
+# коммит bca839a (codex/navigation-sections), незакоммиченных файлов набора: 9
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/web/src/lib/navigation.ts(1,31): error TS6142: Module '../components/icon' was resolved to '/Users/urijzapojnov/Documents/ChatGPT/WETOP/apps/web/src/components/icon.tsx', but '--jsx' is not set.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 10 с

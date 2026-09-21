@@ -1,10 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmAction, confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
- * той же категории. Проверяется то, что видит стойка: окно подтверждения с номером брони и ячейкой,
- * после подтверждения — на карточке брони новая ячейка, на шахматке новая клетка занята, старая свободна.
+ * той же категории. Проверяется то, что видит стойка: вопрос с номером брони и ячейкой, после
+ * подтверждения — на карточке брони новая ячейка, на шахматке новая клетка занята, старая свободна.
  * Гость вымышленный (ADR-010), бронь отменяется в конце; метка E2E-АВТОТЕСТ — для уборки и сверок.
  */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -19,18 +21,20 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688'; // dorm: свободные койки одной категории есть всегда
 
 test('перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   const arrival = plus(12);
   const departure = plus(14); // две ночи: обе клетки должны переехать
+  // Категория — та, где больше всего свободных мест: нужна вторая свободная койка той же категории
+  const DORM = await roomiestCategory(request, arrival, departure, 2);
 
   // ── бронь на койке A ──────────────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
@@ -44,12 +48,18 @@ test('перетаскивание клетки брони на свободну
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
   const number = page.url().split('/').pop()!;
-  await expect(page.getByTestId('stay-row').first().locator('td').first()).toHaveText(unitA);
+  await expect(
+    page.getByRole('main').getByTestId('stay-row').first().locator('td').first(),
+  ).toHaveText(unitA);
 
   // ── шахматка: тянем клетку заезда с A на строку B ─────────────────────────────────────────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  const rowA = page.locator(`[data-testid="unit-row"][data-unit-code="${unitA}"]`);
-  const rowB = page.locator(`[data-testid="unit-row"][data-unit-code="${unitB}"]`);
+  const rowA = page
+    .getByRole('main')
+    .locator(`[data-testid="unit-row"][data-unit-code="${unitA}"]`);
+  const rowB = page
+    .getByRole('main')
+    .locator(`[data-testid="unit-row"][data-unit-code="${unitB}"]`);
   const source = rowA.locator(`[data-testid="stay-cell"][data-date="${arrival}"]`);
   await expect(source).toHaveAttribute('data-number', number);
   // койка B на эти ночи свободна — иначе сервер откажет (409), и тест проверял бы не переезд
@@ -57,29 +67,30 @@ test('перетаскивание клетки брони на свободну
   await expect(rowB.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
 
   await source.dragTo(rowB.locator(`td[data-date="${arrival}"]`));
-  // окно подтверждения вместо window.confirm (DESIGN.md §15): вопрос с номером брони и ячейкой
-  const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading')).toHaveText(`Переселить бронь ${number} в ${unitB}?`);
-  await dialog.getByRole('button', { name: 'Переселить' }).click();
+  // вопрос стойки: номер брони в заголовке, ячейки и дата переезда — в теле
+  const confirm = page.getByRole('main').getByTestId('confirm-dialog');
+  await expect(confirm).toContainText(`Переселить бронь ${number}?`);
+  await expect(confirm).toContainText(unitB);
+  await confirmAction(page, 'Переселить');
 
   // после переселения сетка перерисована с сервера: обе ночи на B, A свободна, ошибки нет
   await expect(rowB.locator(`[data-testid="stay-cell"][data-number="${number}"]`)).toHaveCount(2);
   await expect(rowA.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
   await expect(rowA.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
-  await expect(page.getByTestId('drag-error')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('drag-error')).toHaveCount(0);
   await page.screenshot({ path: 'reports/screenshots/chessboard-drag.png', fullPage: false });
 
   // ── карточка брони: ячейка B ──────────────────────────────────────────────────────────────
   await page.goto(`/reservations/${number}`);
   // ячейка — первая колонка строки проживания; проверять всю строку нельзя: там даты с теми же цифрами
-  const unitCell = page.getByTestId('stay-row').first().locator('td').first();
+  const unitCell = page.getByRole('main').getByTestId('stay-row').first().locator('td').first();
   await expect(unitCell).toHaveText(unitB);
   await expect(unitCell).not.toHaveText(unitA);
 
   // прибрать за собой: бронь отменяется, койка освобождается
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

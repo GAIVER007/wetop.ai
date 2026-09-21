@@ -1,0 +1,16 @@
+# Модульные (unit) · 19.09.2026 23:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит ca1f67a (main), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-19T18-48-07Z-unit-b18a.json' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| scripts/design/build-tokens.test.ts (12 tests) 18ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  11:48:07
+   Duration  117ms (transform 45%, tests 32%, import 19%, worker 4%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-19T18-48-07Z-unit-b18a.json
+
+# код выхода 0 · 1 с

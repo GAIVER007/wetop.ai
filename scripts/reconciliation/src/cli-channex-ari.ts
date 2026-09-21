@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -24,7 +25,7 @@ const plus = (d: string, n: number) => {
 };
 const to = plus(today, days - 1);
 
-const mapping = (await (await fetch(`${api}/channels/channex/mapping`)).json()) as Array<{
+const mapping = (await (await serviceFetch(`${api}/channels/channex/mapping`)).json()) as Array<{
   localAccommodationTypeCode: string | null;
   providerPropertyId: string;
   providerRoomTypeId: string | null;
@@ -51,7 +52,7 @@ for (let i = 0; i < days; i += 1) {
   const date = plus(today, i);
   const next = plus(date, 1);
   const av = (await (
-    await fetch(`${api}/availability?arrival=${date}&departure=${next}`)
+    await serviceFetch(`${api}/availability?arrival=${date}&departure=${next}`)
   ).json()) as {
     byCategory: Record<string, { available: number }>;
   };

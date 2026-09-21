@@ -1,5 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Exely: проживание без назначения
@@ -21,19 +23,20 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-const DORM = 'exely-5074688'; // dorm: места в категории есть всегда (Q-107 не откажет)
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 
 test('бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   const arrival = plus(16);
   const departure = plus(18);
+  const DORM = await roomiestCategory(request, arrival, departure);
 
   // ── бронь без ячейки из формы ─────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const optionText = await form
@@ -53,7 +56,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
 
   // ── шахматка: блок над сеткой ─────────────────────────────────────────────────────────────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  const block = page.getByTestId('unassigned-stays');
+  const block = page.getByRole('main').getByTestId('unassigned-stays');
   await expect(block).toBeVisible();
   const count = Number(await block.getAttribute('data-count'));
   expect(count).toBeGreaterThanOrEqual(1);
@@ -61,11 +64,10 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await expect(block).toContainText(categoryName);
   const item = block.locator(`[data-testid="unassigned-stay"][data-number="${number}"]`);
   await expect(item).toHaveCount(1);
-  // период по DESIGN.md §14: «14.09 → 17.09.2026»; статус словом «ждём», заказчик назван (срез 7.1)
-  const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}`;
-  await expect(item).toContainText(`${dd(arrival)} → ${dd(departure)}.${departure.slice(0, 4)}`);
-  await expect(item).toContainText('ждём');
-  await expect(item).toContainText('Тест-без-ячейки');
+  // даты словами (§14), сырые — в datetime
+  await expect(item.locator('time').nth(0)).toHaveAttribute('datetime', arrival);
+  await expect(item.locator('time').nth(1)).toHaveAttribute('datetime', departure);
+  await expect(item).toContainText('подтверждена');
   await expect(item.getByRole('link', { name: number })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
@@ -94,12 +96,12 @@ test('бронь без ячейки видна в блоке «Без ячей�
 
   // ── прибрать за собой: отмена, и бронь уходит из блока ────────────────────────────────────
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   await expect(
-    page.getByTestId('unassigned-stays').locator(`[data-number="${number}"]`),
+    page.getByRole('main').getByTestId('unassigned-stays').locator(`[data-number="${number}"]`),
   ).toHaveCount(0);
 });

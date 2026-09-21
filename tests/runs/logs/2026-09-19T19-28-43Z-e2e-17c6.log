@@ -1,0 +1,154 @@
+# Сквозные (e2e) · 20.09.2026 00:28 Алматы · vm
+# коммит d064256 (claude/relaxed-carson-ekb1gc)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'accessibility' 'chessboard-month' 'chessboard-week' 'design-system' 'manager-actions'
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (1.3m)
+  ✓   2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (1.0m)
+  ✘   3 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px (59.6s)
+  ✘   4 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px (59.2s)
+  ✓   5 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 1440px (9.3s)
+  ✓   6 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 1440px (8.0s)
+  ✓   7 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 390px (6.9s)
+  ✓   8 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 390px (6.2s)
+  ✓   9 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.1s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (5.3s)
+  ✓  11 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.6s)
+  ✓  12 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.6s)
+  ✓  13 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.6s)
+  ✓  14 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.5s)
+  ✓  15 tests/ui/chessboard-month.spec.ts:65:1 › неделя, 14 дней, произвольный период и возврат к месяцу (6.4s)
+  ✓  16 tests/ui/chessboard-month.spec.ts:84:1 › в месяце открываются брони, свободные даты и группы номеров (8.3s)
+  ✘  17 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (10.2s)
+
+
+  1) tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px ─────────────────
+
+    Error: /chessboard
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Target has insufficient size because it is partially obscured (smallest space is 17.3px by 50px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3px instead of at least 24px.",
+    +         "target": Array [
+    +           "a[aria-current=\"true\"]",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      89 |             route,
+      90 |           )
+    > 91 |           .toEqual([]);
+         |            ^
+      92 |       }
+      93 |       expect(errors).toEqual([]);
+      94 |       writeFileSync(
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:91:12
+
+    Error Context: test-results/accessibility-доступность-всех-разделов-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-всех-разделов-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-всех-разделов-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px ──────────────────
+
+    Error: /chessboard
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "summary": "Fix any of the following:
+    +   Target has insufficient size because it is partially obscured (smallest space is 17.3px by 50px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3px instead of at least 24px.",
+    +         "target": Array [
+    +           "a[aria-current=\"true\"]",
+    +         ],
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      89 |             route,
+      90 |           )
+    > 91 |           .toEqual([]);
+         |            ^
+      92 |       }
+      93 |       expect(errors).toEqual([]);
+      94 |       writeFileSync(
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:91:12
+
+    Error Context: test-results/accessibility-доступность-всех-разделов-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-всех-разделов-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-всех-разделов-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность ────
+
+    Test was interrupted.
+
+    Error: page.evaluate: Test ended.
+
+      144 |       });
+      145 |       expect(layout.content).toBeLessThanOrEqual(width + 1);
+    > 146 |       const result = await new AxeBuilder({ page })
+          |                      ^
+      147 |         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      148 |         .analyze();
+      149 |       report.push({ width, layout, violations: result.violations });
+        at AxeBuilder.analyze (/home/user/wetop.ai/node_modules/@axe-core/playwright/dist/index.mjs:202:42)
+        at /home/user/wetop.ai/tests/ui/chessboard-month.spec.ts:146:22
+
+    Error Context: test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-месячная--fd8e6-t-читаемость-и-адаптивность/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px ──────────────────
+    tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px ───────────────────
+  1 interrupted
+    tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность ─────
+  25 did not run
+  14 passed (6.1m)
+
+# код выхода 130 · 6 мин 8 с

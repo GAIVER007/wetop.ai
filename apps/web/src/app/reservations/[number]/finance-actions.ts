@@ -6,11 +6,33 @@ export interface FinanceActionResult {
   error: string | null;
   /** метка последнего успешного действия — чтобы клиент мог сбросить форму */
   ok: number;
+  /** что именно прошло: для денег молчание после успеха — худший ответ (§7.3) */
+  message?: string;
   values?: Record<string, string>;
   attempt?: number;
 }
+/** Подписи полей формы: отказ API называет поле кодом (`amount — …`), администратор видит подпись */
+const FIELD_LABELS: Record<string, string> = {
+  amount: 'Сумма',
+  method: 'Способ оплаты',
+  note: 'Примечание',
+  kind: 'Вид начисления',
+  serviceCode: 'Услуга',
+  description: 'Описание',
+  quantity: 'Количество',
+  unitPrice: 'Цена',
+  serviceDate: 'Дата услуги',
+  reason: 'Причина',
+  allocations: 'Распределение по счетам',
+  extra: 'Доплата',
+};
+const humanize = (message: string) => {
+  const m = /^([A-Za-z]+) — (.+)$/s.exec(message);
+  const label = m && FIELD_LABELS[m[1]!];
+  return label ? `Поле «${label}»: ${m![2]}` : message;
+};
 const describe = (e: unknown) =>
-  e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
+  e instanceof ApiError ? humanize(e.message) : e instanceof Error ? e.message : String(e);
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
   return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
@@ -28,9 +50,16 @@ const rejected = (
     keys.map((key) => [key, typeof fd.get(key) === 'string' ? (fd.get(key) as string) : '']),
   ),
 });
-const done = (number: string): FinanceActionResult => {
+const done = (number: string, message?: string): FinanceActionResult => {
   revalidatePath(`/reservations/${number}`);
-  return { error: null, ok: Date.now() };
+  return { error: null, ok: Date.now(), ...(message ? { message } : {}) };
+};
+
+/** «12500» → «12 500 ₸» (DESIGN.md §14); не число — возвращаем как ввели, без выдумок */
+const money = (amount: string | undefined): string => {
+  const n = Number((amount ?? '').replace(',', '.'));
+  if (!Number.isFinite(n)) return `${amount ?? ''} ₸`.trim();
+  return `${new Intl.NumberFormat('ru-RU').format(n)} ₸`;
 };
 
 export async function addChargeAction(
@@ -58,7 +87,7 @@ export async function addChargeAction(
       'serviceDate',
     ]);
   }
-  return done(number);
+  return done(number, 'Начисление добавлено в счёт.');
 }
 export async function voidChargeAction(
   number: string,
@@ -100,7 +129,7 @@ export async function payAction(
   } catch (e) {
     return rejected(e, _prev, fd, ['method', 'amount', 'note']);
   }
-  return done(number);
+  return done(number, `Оплата принята: ${money(s(fd, 'amount'))}. Баланс счёта ниже пересчитан.`);
 }
 
 /** Один платёж на выбранные открытые счета. Совпадение сумм проверяет существующий API. */

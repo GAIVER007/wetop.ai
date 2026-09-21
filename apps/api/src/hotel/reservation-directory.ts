@@ -10,20 +10,25 @@ import {
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
 import { folioBalance } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 export interface DirectoryQuery {
   from?: string;
   to?: string;
   status?: string;
   q?: string;
   page?: string;
+  /** Сколько строк на странице, 1…200. По умолчанию 25 — как было до «Гостей на сегодня» */
+  pageSize?: string;
 }
+const DEFAULT_PAGE_SIZE = 25;
+const MAX_PAGE_SIZE = 200;
 @Injectable()
 export class ReservationDirectory {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   async list(query: DirectoryQuery) {
-    for (const key of ['from', 'to', 'status', 'q', 'page'] as const) {
+    for (const key of ['from', 'to', 'status', 'q', 'page', 'pageSize'] as const) {
       if (query[key] !== undefined && typeof query[key] !== 'string')
         throw new BadRequestException('Параметры поиска должны быть строками');
     }
@@ -36,6 +41,8 @@ export class ReservationDirectory {
       new Date(date).toISOString().slice(0, 10) === date;
     const status = query.status || 'ALL';
     const page = Number(query.page || 1);
+    // Потолок держит один запрос в берегах: на объекте 88 мест, больше 200 броней в сутках не бывает
+    const pageSize = query.pageSize === undefined ? DEFAULT_PAGE_SIZE : Number(query.pageSize);
     if (
       !valid(from) ||
       !valid(to) ||
@@ -47,18 +54,20 @@ export class ReservationDirectory {
       throw new BadRequestException('Неизвестный статус');
     if (!Number.isInteger(page) || page < 1 || page > 10000)
       throw new BadRequestException('Некорректная страница');
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > MAX_PAGE_SIZE)
+      throw new BadRequestException(`Размер страницы — целое число от 1 до ${MAX_PAGE_SIZE}`);
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
-    const property = await this.prisma.db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
+    const property = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name)
+      .then((id) => ({ id }))
+      .catch(() => null);
     if (!property) throw new NotFoundException('Гостиница ещё не настроена');
-    const where = {
+    // Отбор без статуса: по нему же считаются числа на чипах, чтобы «Проживают 3» было видно
+    // до нажатия — смена не перебирает семь статусов вслепую (поручение владельца 21.09)
+    const whereBase = {
       propertyId: property.id,
       arrivalDate: { lte: new Date(to) },
       departureDate: { gte: new Date(from) },
-      ...(status !== 'ALL' ? { status: status as ReservationStatus } : {}),
       ...(q
         ? {
             OR: [
@@ -78,12 +87,16 @@ export class ReservationDirectory {
           }
         : {}),
     };
-    const [total, rows] = await Promise.all([
+    const where = {
+      ...whereBase,
+      ...(status !== 'ALL' ? { status: status as ReservationStatus } : {}),
+    };
+    const [total, rows, grouped] = await Promise.all([
       this.prisma.db.reservation.count({ where }),
       this.prisma.db.reservation.findMany({
         where,
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
         orderBy: [{ arrivalDate: 'desc' }, { id: 'asc' }],
         select: {
           confirmationNumber: true,
@@ -118,13 +131,26 @@ export class ReservationDirectory {
           },
         },
       }),
+      this.prisma.db.reservation.groupBy({
+        by: ['status'],
+        where: whereBase,
+        _count: { _all: true },
+      }),
     ]);
+    const counts: Record<string, number> = { ALL: 0 };
+    let all = 0;
+    for (const g of grouped as { status: string; _count: { _all: number } }[]) {
+      counts[g.status] = g._count._all;
+      all += g._count._all;
+    }
+    counts['ALL'] = all;
     return {
       from,
       to,
       total,
       page,
-      pageSize: 25,
+      pageSize,
+      counts,
       rows: rows.map((r) => {
         const folios = r.items.flatMap((it) => (it.folio ? [it.folio] : []));
         const balance = folioBalance({

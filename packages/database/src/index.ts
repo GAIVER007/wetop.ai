@@ -59,6 +59,7 @@ export function isOverlapViolation(e: unknown): boolean {
 
 export {
   ensureFolioWithAccommodation,
+  ensureSingleActiveCharge,
   recordExternalPayment,
   recordImportedPayment,
 } from './folio';

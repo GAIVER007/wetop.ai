@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Срез 9, гейт (план §7): демо-страница с виджетом на адресе API → цены по категориям на завтра →
@@ -6,7 +6,8 @@ import { expect, test } from '@playwright/test';
  * Бронь настоящая (занимает ячейку) — в конце отменяется через API, как со стойки; комментарий гостя
  * содержит метку E2E-АВТОТЕСТ, по ней уборка e2e найдёт бронь, если тест сорвётся.
  */
-const API = 'http://127.0.0.1:3001';
+// Адрес API из конфига прогона: изолированный стенд :3101 (playwright.config.ts), рабочий :3001 — только вручную
+const API = process.env['APP_API_URL'] ?? 'http://127.0.0.1:3001';
 const DESKTOP_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
@@ -87,11 +88,15 @@ test('виджет: цены на завтра, бронь одноместно�
   await page.goto(`/reservations/${number}`);
   // номер брони есть и в заголовке, и во вкладке «История» (PR #2) — проверяем заголовок карточки
   await expect(page.getByRole('heading', { name: `Бронь ${number}` })).toBeVisible();
-  await expect(page.getByText('сайт', { exact: false }).first()).toBeVisible();
-  await expect(page.getByTestId('reservation-notes')).toContainText(
+  // источник — в подзаголовке карточки; искать «сайт» по всей странице нельзя: с 20.09 в боковом
+  // меню есть «Аналитика сайта», она стоит раньше в DOM и скрыта в свёрнутой группе (ADR-057)
+  await expect(page.getByRole('main').locator('.page__subtitle')).toContainText('сайт');
+  await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
     'E2E-АВТОТЕСТ: бронь из виджета',
   );
-  await expect(page.getByTestId('reservation-notes')).toContainText('Бронь с сайта');
+  await expect(page.getByRole('main').getByTestId('reservation-notes')).toContainText(
+    'Бронь с сайта',
+  );
   await page.screenshot({ path: 'reports/screenshots/web-booking-card.png', fullPage: true });
 });
 
@@ -112,10 +117,10 @@ test('аналитика: бронь связана с сессией счётч
     )
     .toBe(1);
   await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
-  await expect(page.getByTestId('an-bookings')).toHaveText('1');
-  await expect(page.getByTestId('an-source-bookings').first()).toHaveText('1');
+  await expect(page.getByRole('main').getByTestId('an-bookings')).toHaveText('1');
+  await expect(page.getByRole('main').getByTestId('an-source-bookings').first()).toHaveText('1');
   // поиск дат из виджета попал в календарь спроса
   await expect(
-    page.locator(`[data-testid="an-demand-row"][data-arrival="${arrival}"]`),
+    page.getByRole('main').locator(`[data-testid="an-demand-row"][data-arrival="${arrival}"]`),
   ).toHaveCount(1);
 });

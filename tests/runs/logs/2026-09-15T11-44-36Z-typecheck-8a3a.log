@@ -1,0 +1,23 @@
+# Типы (typecheck) · 15.09.2026 16:44 Алматы · vm
+# коммит 3a06f7f (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 12
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/reservations/[number]/finance-actions.test.ts(59,22): error TS2339: Property 'chargeAction' does not exist on type 'typeof import("/home/user/wetop.ai/apps/web/src/app/reservations/[number]/finance-actions")'.
+apps/web/src/app/reservations/[number]/finance-actions.test.ts(69,24): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(object: { report: (from: string, to: string) => Promise<PeriodReport>; reservation: (number: string) => Promise<ReservationFinance>; ... 6 more ...; refund: (paymentId: string, body: unknown) => Promise<...>; }, key: "pay" | ... 7 more ... | "refund"): Mock<...>', gave the following error.
+    Argument of type '"charge"' is not assignable to parameter of type '"pay" | "report" | "reservation" | "services" | "addCharge" | "voidCharge" | "addStayExtra" | "closeFolio" | "refund"'.
+  Overload 2 of 4, '(object: { report: (from: string, to: string) => Promise<PeriodReport>; reservation: (number: string) => Promise<ReservationFinance>; ... 6 more ...; refund: (paymentId: string, body: unknown) => Promise<...>; }, key: never): never', gave the following error.
+    Argument of type '"charge"' is not assignable to parameter of type 'never'.
+
+# код выхода 1 · 14 с

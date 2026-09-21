@@ -84,7 +84,9 @@ function makeFakes() {
     async reservationChanged(c) {
       published.push(c);
     },
-    async ratesChanged() {},
+    async ratesChanged() {
+      return 0;
+    },
   };
   return { repo, publisher, blocks, published, audits };
 }

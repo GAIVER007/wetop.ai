@@ -1,0 +1,18 @@
+/**
+ * Чистые помощники показа: деньги и ссылки в мессенджеры. Отдельно от `api.ts`, потому что клиент API
+ * читает cookie сессии через `next/headers` и в клиентские компоненты попадать не должен, а эти две
+ * функции нужны и на стороне браузера.
+ */
+export { formatMinor } from './money';
+/**
+ * T5: ссылки в мессенджеры по телефону гостя. Телефон приводим к цифрам — оба сервиса ждут
+ * международный формат без плюса и разделителей. Пустой или слишком короткий номер ссылок не даёт.
+ */
+export function messengerLinks(phone: string | null | undefined): {
+  whatsapp: string;
+  telegram: string;
+} | null {
+  const digits = (phone ?? '').replace(/\D/g, '');
+  if (digits.length < 10) return null;
+  return { whatsapp: `https://wa.me/${digits}`, telegram: `https://t.me/+${digits}` };
+}

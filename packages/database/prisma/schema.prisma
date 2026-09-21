@@ -23,6 +23,9 @@ datasource db {
 /// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
 model Property {
   id           String   @id @default(uuid()) @db.Uuid
+  /// Чей это объект (ADR-061). NULL — ничей: такой объект не виден никому из вошедших,
+  /// он доступен только служебным ходокам (скрипты владельца, сторож, импорт).
+  organizationId String? @map("organization_id") @db.Uuid
   name         String
   legalName    String?  @map("legal_name")
   bin          String?
@@ -38,6 +41,7 @@ model Property {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  organization       Organization?       @relation(fields: [organizationId], references: [id])
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -486,6 +490,7 @@ model Restriction {
 model AuditLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   entityType String   @map("entity_type")
   entityId   String   @map("entity_id")
   action     String
@@ -951,6 +956,7 @@ model Organization {
   memberships Membership[]
   sessions    Session[]
   invites     Invite[]
+  properties  Property[]
 
   @@map("organizations")
 }
@@ -964,12 +970,55 @@ model User {
   status      UserStatus @default(ACTIVE)
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   lastLoginAt DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  /// Когда человек подтвердил почту по ссылке из письма (решение владельца 20.09.2026).
+  /// NULL — не подтвердил: вход закрыт. У заведённых до 20.09.2026 проставлено миграцией.
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
 
-  memberships   Membership[]
-  sessions      Session[]
-  invitesIssued Invite[]     @relation("InviteCreatedBy")
+  /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
+  /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
+  passwordHash   String    @default("") @map("password_hash")
+  /// Промахи подряд; после пяти вход заперт до locked_until (домен accounts)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
+
+  memberships    Membership[]
+  sessions       Session[]
+  invitesIssued  Invite[]        @relation("InviteCreatedBy")
+  passwordResets PasswordReset[]
+  emailVerifications EmailVerification[]
+  auditLogs      AuditLog[]
 
   @@map("users")
+}
+
+/// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
+/// В базе только хеш токена — утечка базы не даёт задать пароль.
+model PasswordReset {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("password_resets")
+}
+
+/// Ссылка подтверждения почты. В базе только хеш ссылки, срок 72 часа, ссылка одноразовая.
+/// Новая ссылка гасит прежние: одна живая ссылка на человека.
+model EmailVerification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("email_verifications")
 }
 
 /// Человек в организации. Ролей нет: ADR-023 в этой части в силе, контролем остаётся журнал действий.
@@ -986,31 +1035,19 @@ model Membership {
   @@map("memberships")
 }
 
-/// Одноразовый код входа. В базе только хеш; шесть цифр, 10 минут, три попытки (CHECK в миграции).
-/// requested_ip нужен для лимитов, не для профилирования: берётся из CF-Connecting-IP и только от loopback.
-model LoginCode {
-  id          String    @id @default(uuid()) @db.Uuid
-  email       String    @db.VarChar(320)
-  codeHash    String    @map("code_hash") @db.VarChar(64)
-  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
-  attempts    Int       @default(0) @db.SmallInt
-  usedAt      DateTime? @map("used_at") @db.Timestamptz(6)
-  requestedIp String?   @map("requested_ip") @db.VarChar(45)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  @@index([email, createdAt])
-  @@map("login_codes")
-}
 
 /// Активная сессия. В куке подписанное значение, не сам id. «Выйти везде» проставляет revoked_at всем строкам.
 model Session {
   id             String    @id @default(uuid()) @db.Uuid
+  tokenHash      String    @unique @map("token_hash") @db.VarChar(64)
   userId         String    @map("user_id") @db.Uuid
   organizationId String    @map("organization_id") @db.Uuid
   issuedAt       DateTime  @default(now()) @map("issued_at") @db.Timestamptz(6)
   expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
   userAgent      String?   @map("user_agent") @db.VarChar(400)
   revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
+  /// Когда сессию видели последний раз: заполняется при проверке токена (§13.9)
+  lastSeenAt     DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(6)
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])

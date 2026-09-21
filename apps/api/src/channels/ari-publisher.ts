@@ -18,8 +18,23 @@ export interface AriPublisher {
   /**
    * Изменились цены/ограничения (в наших терминах) → перевести по маппингу и поставить в очередь одним сообщением.
    * `tx` — транзакция команды: очередь пишется вместе с ценами, иначе цены сохранятся, а в каналы не уйдут (Б5).
+   * Возвращает число значений, вставших в очередь: 0 — ничего не сопоставлено, стойка так и пишет.
    */
-  ratesChanged(changes: LocalRateChange[], tx?: unknown): Promise<void>;
+  /**
+   * Возвращает, сколько изменений встало в очередь каналов. Не всё, что сохранено, туда идёт:
+   * категория или тариф без сопоставления с Channex не продаются каналом, а цена «на одного гостя»
+   * в двухместной категории не цена номера (Б3). Экран показывает это число, чтобы не обещать
+   * отправку, которой не было (§7.3).
+   */
+  ratesChanged(changes: LocalRateChange[], tx?: unknown): Promise<number>;
+  /**
+   * След для сторожа: дельта не встала в очередь после записанной команды (Б6). Очередь пуста, поэтому
+   * «упавшая отправка» и «застряла очередь» этого не увидят — сторож читает журнал (`channex.deltaLost`).
+   */
+  deltaLost?(
+    change: { categoryCodes: string[]; from: string; toExclusive: string },
+    error: string,
+  ): Promise<void>;
 }
 /** Одно изменение цен/ограничений в терминах PMS (без ID провайдера). */
 export interface LocalRateChange {
@@ -54,10 +69,20 @@ export async function publishAfterCommit(
   try {
     await publisher.reservationChanged(change);
   } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
     new Logger('AriPublisher').error(
       `Дельта доступности не встала в очередь после записи команды (${change.categoryCodes.join(', ')} ` +
-        `${change.from} → ${change.toExclusive}): ${e instanceof Error ? e.message : String(e)}`,
+        `${change.from} → ${change.toExclusive}): ${error}`,
     );
+    // Журнал в базе, а не только в файле: из него сторож узнаёт, что остаток в канале устарел, и делает
+    // полную выгрузку. Сбой самой записи следа команду тоже не роняет — она уже записана.
+    try {
+      await publisher.deltaLost?.(change, error);
+    } catch (e2) {
+      new Logger('AriPublisher').error(
+        `След потерянной дельты не записан: ${e2 instanceof Error ? e2.message : String(e2)}`,
+      );
+    }
   }
 }
 
@@ -73,6 +98,14 @@ const plusDays = (iso: string, n: number) => {
 @Injectable()
 export class OutboxAriPublisher implements AriPublisher {
   constructor(@Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository) {}
+
+  /** Строка журнала о потерянной дельте: её читает сторож (`OutboxSignal.lostDeltaAt`, ADR-028) */
+  async deltaLost(
+    change: { categoryCodes: string[]; from: string; toExclusive: string },
+    error: string,
+  ): Promise<void> {
+    await this.repo.audit('channex.deltaLost', { ...change, error });
+  }
 
   async reservationChanged(change: {
     categoryCodes: string[];
@@ -112,8 +145,8 @@ export class OutboxAriPublisher implements AriPublisher {
     if (values.length) await this.repo.enqueueOutbox(PROVIDER, 'AVAILABILITY', values);
   }
 
-  async ratesChanged(changes: LocalRateChange[], tx?: unknown): Promise<void> {
-    if (changes.length === 0) return;
+  async ratesChanged(changes: LocalRateChange[], tx?: unknown): Promise<number> {
+    if (changes.length === 0) return 0;
     const repo = tx !== undefined && this.repo.withClient ? this.repo.withClient(tx) : this.repo;
     const mappings = await repo.mappings(PROVIDER);
     const plans = await repo.ratePlanIdsByCode();
@@ -151,11 +184,14 @@ export class OutboxAriPublisher implements AriPublisher {
       if (changesSomething) values.push(v);
     }
     if (values.length) await repo.enqueueOutbox(PROVIDER, 'RESTRICTIONS', values);
+    return values.length;
   }
 }
 
 /** Заглушка для тестов модулей, которым Channex не нужен. */
 export class NoopAriPublisher implements AriPublisher {
   async reservationChanged(): Promise<void> {}
-  async ratesChanged(): Promise<void> {}
+  async ratesChanged(): Promise<number> {
+    return 0;
+  }
 }

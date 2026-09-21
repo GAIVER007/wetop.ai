@@ -80,9 +80,9 @@ describe('summarizeInventoryPlan', () => {
       maxGuests: 5,
       physicalRooms: 4,
       byCategory: [
-        { code: 'a', name: 'Одиночная', units: 1, maxGuests: 1 },
-        { code: 'b', name: 'Двойная', units: 1, maxGuests: 2 },
-        { code: 'd', name: 'Dorm', units: 2, maxGuests: 2 },
+        { code: 'a', name: 'Одиночная', units: 1, maxGuests: 1, capacityAdults: 1 },
+        { code: 'b', name: 'Двойная', units: 1, maxGuests: 2, capacityAdults: 2 },
+        { code: 'd', name: 'Dorm', units: 2, maxGuests: 2, capacityAdults: 1 },
       ],
     });
   });

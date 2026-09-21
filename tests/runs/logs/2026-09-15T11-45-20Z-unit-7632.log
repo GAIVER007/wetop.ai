@@ -1,0 +1,18 @@
+# Модульные (unit) · 15.09.2026 16:45 Алматы · vm
+# коммит 3a06f7f (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T11-45-20Z-unit-7632.json' 'apps/web/src/app/reservations/[number]/finance-actions.test.ts' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/hotel/reservation-directory.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 73ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (5 tests) 15ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 264ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  11:45:21
+   Duration  1.46s (transform 56%, import 29%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-15T11-45-20Z-unit-7632.json
+
+# код выхода 0 · 2 с

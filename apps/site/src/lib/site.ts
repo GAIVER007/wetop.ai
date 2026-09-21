@@ -34,8 +34,13 @@ export function absoluteUrl(path: string, config: SiteConfig = siteConfig): stri
   return new URL(path, `${siteUrl(config)}/`).toString();
 }
 
+/**
+ * «Войти» ведёт на экран входа стойки, а не в её корень: корень редиректом бросает в `/today`, и человек
+ * проваливается сразу в рабочий день смены. На `/login` видно, под какой почтой пустил Cloudflare Access,
+ * и есть выход (ADR-045, Д5).
+ */
 export function loginLink(config: SiteConfig = siteConfig): SiteLink {
-  return { href: checkHttpUrl('appUrl', config.appUrl), external: true };
+  return { href: `${checkHttpUrl('appUrl', config.appUrl)}/login`, external: true };
 }
 
 /** «Попробовать бесплатно»: ссылка владельца, а пока её нет — раздел «Как начать». */

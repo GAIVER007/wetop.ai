@@ -74,6 +74,9 @@ try {
           resolve(root, 'node_modules/tsx/dist/cli.mjs'),
           'watch',
           '--clear-screen=false',
+          // В workspace зависимости выше cwd API; события в них не должны ронять запросы.
+          '--exclude',
+          resolve(root, 'node_modules/**'),
           'src/main.ts',
         ],
         resolve(root, 'apps/api'),

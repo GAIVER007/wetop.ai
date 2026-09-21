@@ -17,7 +17,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/today',
         label: 'Главная',
         icon: 'today',
-        description: 'Заезды, выезды и задачи смены.',
+        description: 'Загрузка, деньги за период и задачи дня.',
       },
       {
         href: '/chessboard',
@@ -76,51 +76,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/hotel-settings',
-        label: 'Настройка гостиницы',
-        shortLabel: 'Настройки',
-        icon: 'settings',
-        description: 'Правила проживания, услуги и информация об объекте.',
-        children: [
-          {
-            href: '/hotel-settings/check-in',
-            label: 'Заезд и выезд',
-            icon: 'clock',
-            description: 'Расчётный час и часовой пояс объекта.',
-          },
-          {
-            href: '/hotel-settings/penalties',
-            label: 'Штрафы',
-            icon: 'journal',
-            description: 'Политика отмены для каждого тарифного плана.',
-          },
-          {
-            href: '/hotel-settings/services',
-            label: 'Услуги',
-            icon: 'plus',
-            description: 'Каталог дополнительных услуг и цены.',
-          },
-          {
-            href: '/hotel-settings/description',
-            label: 'Описание',
-            icon: 'inventory',
-            description: 'Название, адрес, описание для гостей из Channex.',
-          },
-          {
-            href: '/hotel-settings/photos',
-            label: 'Фото',
-            icon: 'inventory',
-            description: 'Фотографии объекта из Channex.',
-          },
-          {
-            href: '/hotel-settings/amenities',
-            label: 'Удобства',
-            icon: 'check',
-            description: 'Удобства и правила объекта из Channex.',
-          },
-        ],
-      },
-      {
         href: '/management/statistics',
         label: 'Статистика',
         icon: 'analytics',
@@ -163,6 +118,27 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Система',
     items: [
       {
+        href: '/hotel-settings',
+        label: 'Настройки гостиницы',
+        shortLabel: 'Гостиница',
+        icon: 'settings',
+        description: 'Правила проживания, услуги и информация об объекте.',
+        children: [
+          {
+            href: '/hotel-settings/penalties',
+            label: 'Правила отмены',
+            icon: 'journal',
+            description: 'Политика отмены для каждого тарифного плана.',
+          },
+          {
+            href: '/hotel-settings/services',
+            label: 'Услуги',
+            icon: 'plus',
+            description: 'Каталог дополнительных услуг и цены.',
+          },
+        ],
+      },
+      {
         href: '/connections',
         label: 'Интеграции',
         icon: 'channels',
@@ -192,6 +168,75 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
 export const navigationItems = navigation.flatMap((group) =>
   group.items.flatMap((item) => [item, ...(item.children ?? [])]),
 );
+
+export interface SidebarSection {
+  id: string;
+  label: string;
+  icon: IconName;
+  items: NavigationItem[];
+}
+
+// Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
+// реестр по задачам сотрудника, не меняя заголовки страниц и их маршруты.
+function menuItem(href: string, label?: string): NavigationItem {
+  const item = navigationItems.find((entry) => entry.href === href);
+  if (!item) throw new Error(`Unknown navigation route: ${href}`);
+  return label ? { ...item, label } : item;
+}
+
+export const sidebarSections: SidebarSection[] = [
+  {
+    id: 'guests',
+    label: 'Работа с гостями',
+    icon: 'guests',
+    items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
+  },
+  {
+    id: 'inventory',
+    label: 'Номерной фонд',
+    icon: 'bed',
+    items: [
+      menuItem('/inventory', 'Номера и койки'),
+      menuItem('/rooms/categories', 'Категории номеров'),
+      menuItem('/rooms/availability', 'Доступность'),
+      menuItem('/rooms', 'Обзор номеров'),
+    ],
+  },
+  {
+    id: 'sales',
+    label: 'Продажи',
+    icon: 'rates',
+    items: [
+      menuItem('/rates'),
+      menuItem('/channel-manager'),
+      menuItem('/channels', 'Синхронизация каналов'),
+      menuItem('/analytics', 'Аналитика сайта'),
+    ],
+  },
+  {
+    id: 'finance',
+    label: 'Финансы и отчёты',
+    icon: 'money',
+    items: [menuItem('/finance'), menuItem('/management/statistics')],
+  },
+  {
+    id: 'settings',
+    label: 'Настройки',
+    icon: 'settings',
+    items: [
+      menuItem('/hotel-settings', 'Гостиница'),
+      menuItem('/connections'),
+      menuItem('/analytics/setup', 'Сайт'),
+    ],
+  },
+  {
+    id: 'control',
+    label: 'Контроль',
+    icon: 'shield',
+    items: [menuItem('/incidents'), menuItem('/journal')],
+  },
+];
+
 export function activeNavigation(path: string) {
   return navigationItems
     .filter((item) => path === item.href || path.startsWith(`${item.href}/`))

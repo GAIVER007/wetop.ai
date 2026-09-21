@@ -1,0 +1,76 @@
+
+> @pms/web@0.0.0 build
+> next build
+
+▲ Next.js 16.3.4 (Turbopack)
+✓ Running next.config.ts took 128ms
+- Experiments (use with caution):
+  · serverActions
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.7s
+  Running TypeScript ...
+  Finished TypeScript in 16.0s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/29) ...
+  Generating static pages using 7 workers (7/29) 
+  Generating static pages using 7 workers (14/29) 
+  Generating static pages using 7 workers (21/29) 
+✓ Generating static pages using 7 workers (29/29) in 2.3s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /(.)reservations/[number]
+├ ƒ /(.)reservations/new
+├ ƒ /[...catchAll]
+├ ƒ /analytics
+├ ƒ /analytics/setup
+├ ƒ /api/freshness
+├ ƒ /channel-manager
+├ ƒ /channels
+├ ƒ /channels/events/[revisionId]
+├ ƒ /chessboard
+├ ƒ /connections
+├ ○ /design-system
+├ ƒ /finance
+├ ƒ /guests
+├ ƒ /guests/[id]
+├ ƒ /hotel-settings/[[...section]]
+├ ○ /icon.svg
+├ ƒ /incidents
+├ ƒ /inventory
+├ ƒ /invite/[token]
+├ ƒ /journal
+├ ƒ /login
+├ ƒ /login/check-email
+├ ƒ /login/reset
+├ ƒ /login/set-password
+├ ƒ /login/verify
+├ ƒ /management/[[...section]]
+├ ƒ /profile
+├ ƒ /rates
+├ ƒ /register
+├ ƒ /reservations
+├ ƒ /reservations/[number]
+├ ƒ /reservations/[number]/print
+├ ƒ /reservations/[number]/print/contract
+├ ƒ /reservations/[number]/print/invoice
+├ ƒ /reservations/new
+├ ƒ /rooms/[[...section]]
+├ ƒ /today
+└ ƒ /units/[code]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

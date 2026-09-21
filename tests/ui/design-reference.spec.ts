@@ -1,157 +1,129 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
- * Скриншоты текущих экранов для дизайн-системы (plans/design-system-2026-09-14.md, шаг 1).
- * Снимаются на синтетическом API с витриной крайних случаев (`showcase`): только там псевдонимы
- * гарантированы (ADR-010). Файлы — design/reference/current/<экран>-<тема>.png, 1440×1000.
+ * Снимки текущих экранов для дизайн-системы (plans/design-system-2026-09-14.md, шаг 1; ADR-048).
+ * Синтетический API + `POST /__test/design-seed`: на снимках только псевдонимы. Результат —
+ * design/reference/current/<экран>-<тема>.png, 1440×1000. Это не эталон Playwright: эталоны
+ * страницы компонентов живут в design/reference/kit (шаг 4).
  */
 const fixture = 'http://127.0.0.1:4311';
 const dir = 'design/reference/current';
-const themes = ['light', 'dark'] as const;
+const booking = '20260913-TESTAA';
 
-test.beforeEach(async ({ request }) => {
-  await request.post(`${fixture}/__test/reset`);
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
-  mkdirSync(dir, { recursive: true });
-});
-
-async function theme(page: Page, name: (typeof themes)[number]) {
-  await page.emulateMedia({ colorScheme: name });
-}
-async function shot(page: Page, name: string, themeName: string) {
-  await expect(page.locator('html')).toHaveAttribute('data-theme', themeName);
-  // Два снимка одного экрана должны совпадать попиксельно (scripts/design/src/compare-shots.ts):
-  // курсор в угол, без каретки, переходы CSS доведены до конца, значок dev-оверлея Next спрятан.
-  await page.mouse.move(0, 0);
-  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
-  await page.screenshot({
-    caret: 'hide',
-    animations: 'disabled',
-    path: `${dir}/${name}-${themeName}.png`,
-  });
+async function shot(page: Page, name: string, theme: string, fullPage = false) {
+  await page.screenshot({ caret: 'initial', path: `${dir}/${name}-${theme}.png`, fullPage });
 }
 
-for (const t of themes) {
-  test(`шахматка: неделя и месяц (${t})`, async ({ page }) => {
-    await theme(page, t);
+for (const theme of ['light', 'dark'] as const) {
+  test(`экраны для дизайн-системы: ${theme}`, async ({ page, request }) => {
+    test.setTimeout(240_000);
+    mkdirSync(dir, { recursive: true });
+    await request.post(`${fixture}/__test/reset`);
+    const seeded = await request.post(`${fixture}/__test/design-seed`);
+    expect(seeded.ok()).toBe(true);
+    await page.emulateMedia({ colorScheme: theme });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
+    // шахматка: неделя с крайними случаями — статусы, каналы, блокировки, «Без ячейки»
     await page.goto('/chessboard');
-    await expect(page.getByTestId('stay-cell').first()).toBeVisible();
-    await expect(page.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
-    await shot(page, 'chessboard-week', t);
-    await page.getByRole('link', { name: 'Месяц', exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
-    expect(await page.getByTestId('date-col').count()).toBeGreaterThanOrEqual(28);
-    await shot(page, 'chessboard-month', t);
-  });
+    const main = page.getByRole('main');
+    await expect(main.getByTestId('date-col')).toHaveCount(7);
+    await expect(main.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '1');
+    await shot(page, 'chessboard-week', theme);
 
-  test(`обзор дня (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // шахматка: следующий месяц, заняты все 88 из 88
+    const next = new Date(Date.now() + 5 * 3600_000);
+    next.setUTCDate(1);
+    next.setUTCMonth(next.getUTCMonth() + 1);
+    const from = next.toISOString().slice(0, 10);
+    next.setUTCMonth(next.getUTCMonth() + 1);
+    next.setUTCDate(0);
+    const to = next.toISOString().slice(0, 10);
+    await page.goto(`/chessboard?from=${from}&to=${to}`);
+    await expect(main.getByTestId('date-col').first()).toBeVisible();
+    await shot(page, 'chessboard-month-full', theme);
+
+    // главная (в документе ментора — «служба приёма»)
     await page.goto('/today');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Обзор дня');
-    await shot(page, 'today', t);
-  });
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Главная');
+    await shot(page, 'today', theme);
+    await shot(page, 'today-full', theme, true);
 
-  test(`карточка брони панелью, четыре вкладки (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // карточка брони панелью поверх шахматки, четыре вкладки
     await page.goto('/chessboard');
-    await page.getByTestId('stay-cell').first().click();
+    await main.getByTestId('stay-cell').first().click();
     const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
     await expect(drawer).toBeVisible();
-    const tabs = drawer.getByRole('tablist', { name: 'Разделы карточки брони' });
-    for (const [id, name] of [
-      ['overview', 'Обзор'],
-      ['folios', 'Счета'],
-      ['actions', 'Действия'],
-      ['history', 'История'],
+    await shot(page, 'reservation-drawer-overview', theme);
+    for (const [tab, name] of [
+      ['Счета', 'folio'],
+      ['Действия', 'actions'],
+      ['История', 'history'],
     ] as const) {
-      const tab = tabs.getByRole('tab', { name, exact: true });
-      if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
-      await expect(tab).toHaveAttribute('aria-selected', 'true');
-      await shot(page, `booking-card-${id}`, t);
+      await drawer.getByRole('tab', { name: tab, exact: true }).click();
+      await shot(page, `reservation-drawer-${name}`, theme);
     }
-  });
+    await page.keyboard.press('Escape');
 
-  test(`карточка гостя (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // карточка брони отдельной страницей — целиком
+    await page.goto(`/reservations/${booking}`);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Бронь');
+    await shot(page, 'reservation-page-full', theme, true);
+
+    // карточка гостя
     await page.goto('/guests/ui-guest');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Гость');
-    await shot(page, 'guest', t);
-  });
+    await shot(page, 'guest', theme);
 
-  test(`форма брони: одно размещение и группа (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // форма брони: одно размещение и группа
     await page.goto('/reservations/new?unit=M03');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Новая бронь');
-    await shot(page, 'reservation-new', t);
-    await page.getByLabel('Количество мест').first().fill('3');
-    await expect(page.getByTestId('group-hint').first()).toBeVisible();
-    await shot(page, 'reservation-new-group', t);
-  });
+    await shot(page, 'reservation-form-single', theme, true);
+    await page.getByRole('main').getByLabel('Количество мест', { exact: true }).fill('3');
+    await expect(page.getByRole('main').getByTestId('group-hint')).toBeVisible();
+    await shot(page, 'reservation-form-group', theme, true);
 
-  test(`цены и ограничения с массовым изменением (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // цены и ограничения вместе с массовым изменением
     await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены и ограничения');
-    await expect(page.getByTestId('rates-table')).toBeVisible();
-    await shot(page, 'rates', t);
-    const editor = page.getByTestId('bulk-editor');
-    await editor.getByLabel('Цена за ночь').fill('9100');
-    await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-    await expect(page.getByTestId('pending-changes')).toContainText('9100');
-    await shot(page, 'rates-bulk', t);
-    // Ячейка в правке: поле с подсказкой «Enter — сохранить, Esc — отмена» (макет «Rates»)
-    const cell = page.getByTestId('rates-table').getByTestId(/^price-\d{4}-\d{2}-05-1$/);
-    await cell.getByRole('button').click();
-    await expect(cell.getByRole('textbox')).toBeFocused();
-    await shot(page, 'rates-edit', t);
-  });
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
+    await expect(main.getByTestId('bulk-editor')).toBeVisible();
+    await shot(page, 'rates', theme);
+    await shot(page, 'rates-full', theme, true);
+    // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
+    // выпадающий список фильтра, и экран уезжал вбок на 94 px — найдено обходом стойки 17.09.2026
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/rates');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
+    const ratesLayout = await page.evaluate(() => {
+      const w = globalThis as unknown as {
+        innerWidth: number;
+        document: { documentElement: { scrollWidth: number } };
+      };
+      return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+    });
+    expect(ratesLayout.content, 'цены шире экрана телефона').toBeLessThanOrEqual(
+      ratesLayout.viewport + 1,
+    );
+    await page.setViewportSize({ width: 1440, height: 1000 });
 
-  test(`журнал интеграции Channex (${t})`, async ({ page }) => {
-    await theme(page, t);
+    // журнал интеграции: очередь, события, ревизия с ошибкой
     await page.goto('/channels');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Каналы продаж');
-    await expect(page.getByTestId('events-table')).toContainText('новая бронь');
-    await shot(page, 'channels', t);
-  });
+    await expect(main.getByTestId('event-row')).toHaveCount(3);
+    await shot(page, 'channels', theme);
+    await shot(page, 'channels-full', theme, true);
 
-  test(`действия управляющего: окно переселения с суммой и «Разрешить» (${t})`, async ({
-    page,
-  }) => {
-    await theme(page, t);
-    // карточка: вкладка «Действия», окно «Переселить в другую категорию» с новой суммой (макет MoveStay)
-    await page.goto('/reservations/20260913-TESTAA');
-    await page
-      .getByRole('tablist', { name: 'Разделы карточки брони' })
-      .getByRole('tab', { name: 'Действия', exact: true })
-      .click();
-    await expect(page.getByTestId('extend-hint-ui-item')).toContainText('на счёт');
-    await shot(page, 'booking-actions', t);
-    const assign = page.getByTestId('assign-form');
-    // первая свободная ячейка другой категории: в витрине мужские койки заняты, список берём с экрана
-    const other = assign.locator('optgroup[label*="пересчётом"]').first();
-    await assign
-      .locator('select[name="unitCode"]')
-      .selectOption((await other.locator('option').first().getAttribute('value'))!);
-    await assign.getByRole('button', { name: 'Переселить' }).click();
-    await expect(page.getByRole('dialog').getByTestId('move-amount')).toContainText('Новая сумма');
-    await shot(page, 'booking-move-dialog', t);
-    // шахматка: плашки конфликтов и меню «Разрешить» (макеты Tentative, Resolve)
-    await page.goto('/chessboard');
-    await expect(page.getByTestId('overbooked-callout')).toBeVisible();
-    await page.getByTestId('unassigned-stays').getByRole('button', { name: 'Разрешить' }).click();
-    await expect(page.getByRole('menu')).toBeVisible();
-    await shot(page, 'chessboard-resolve', t);
-  });
+    // список броней и гости — одной строкой (правки 15.09)
+    await page.goto('/reservations');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await shot(page, 'reservations', theme);
+    await page.goto('/guests');
+    await shot(page, 'guests', theme);
 
-  test(`приём брони из канала (${t})`, async ({ page }) => {
-    await theme(page, t);
-    await page.goto('/channels/events/ui-rev-new-2');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
-    await expect(page.getByTestId('revision-reservation')).toBeVisible();
-    await shot(page, 'channels-inbound', t);
+    // неисправности и номера — блоки состояния
+    await page.goto('/incidents');
+    await shot(page, 'incidents', theme);
+    await page.goto('/rooms');
+    await shot(page, 'rooms', theme);
   });
 }

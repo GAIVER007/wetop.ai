@@ -1,77 +1,9 @@
 /* Hotel information architecture: compact expandable navigation and section landing pages. */
-.nav-entry-row {
-  display: flex;
-  align-items: center;
-  gap: 0px;
-}
-.nav-entry-row .workspace-link {
-  flex: 1;
-  min-width: 0;
-}
-.nav-entry-row .workspace-link span {
-  line-height: 1.35;
-}
-.nav-toggle {
-  width: 30px;
-  min-width: 30px;
-  height: 38px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-.nav-toggle:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-}
-.nav-toggle svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.15s ease;
-}
-.nav-toggle[aria-expanded='true'] svg {
-  transform: rotate(90deg);
-}
-.workspace-link.has-active-child {
-  color: var(--success);
-}
-.nav-children {
-  margin: 0 0 8px 24px;
-  padding-left: 16px;
-  border-left: 1px solid var(--border);
-}
-.nav-child {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  padding: 8px 8px;
-  border-radius: var(--radius-sm);
-  margin: 4px 0;
-  line-height: 1.35;
-}
-.nav-child:hover {
-  color: var(--text);
-  background: var(--surface-muted);
-  text-decoration: none;
-}
-.nav-child.is-active {
-  color: var(--success);
-  background: var(--success-soft);
-  font-weight: 500;
-}
-.nav-toggle:focus-visible,
-.nav-child:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
 .section-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
   gap: 16px;
-  margin: 24px 0;
+  margin: 20px 0;
 }
 .section-card {
   display: flex;
@@ -80,7 +12,7 @@
   padding: 24px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-control);
+  border-radius: 12px;
   color: var(--text);
   transition:
     border-color 0.15s,
@@ -89,7 +21,7 @@
 }
 .section-card:hover {
   border-color: var(--border);
-
+  box-shadow: 0 3px 16px var(--overlay);
   text-decoration: none;
 }
 .section-card > div {
@@ -99,7 +31,7 @@
 .section-card-title {
   font-size: 15px;
   font-weight: 600;
-  margin: 4px 0 8px;
+  margin: 2px 0 7px;
 }
 .section-card p {
   font-size: 13px;
@@ -113,12 +45,12 @@
   width: 42px;
   height: 42px;
   flex-shrink: 0;
-  border-radius: var(--radius-control);
+  border-radius: 11px;
   background: var(--success-soft);
   color: var(--success);
 }
 .section-card-arrow {
-  margin-top: 16px;
+  margin-top: 12px;
   width: 16px;
   color: var(--muted);
 }
@@ -126,9 +58,9 @@
   padding: 48px 24px;
   border: 1px solid var(--border);
   background: var(--surface);
-  border-radius: var(--radius-control);
+  border-radius: 12px;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .feature-pending .section-card-icon {
   margin: 0 auto 16px;
@@ -139,25 +71,25 @@
 }
 .feature-pending p {
   max-width: 580px;
-  margin: 16px auto 0;
+  margin: 14px auto 0;
   color: var(--text-2);
   line-height: 1.7;
 }
 .connection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 .connection-grid .panel {
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
 }
 .connection-grid .panel p {
   line-height: 1.7;
-  margin: 4px 0 16px;
+  margin: 4px 0 12px;
 }
 .connection-grid .panel > a {
   margin-top: auto;
@@ -169,8 +101,8 @@
 .channel-totals {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 24px;
-  margin: 8px 0 16px;
+  gap: 14px 28px;
+  margin: 10px 0 14px;
 }
 .channel-totals strong {
   font-size: 26px;
@@ -181,7 +113,7 @@
 .channel-name {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 .channel-monogram {
   display: grid;
@@ -189,7 +121,7 @@
   width: 34px;
   height: 34px;
   flex-shrink: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background: var(--success-soft);
   color: var(--success);
   font-weight: 600;
@@ -201,7 +133,7 @@
 .occupancy-meter {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 12px;
   color: var(--text-2);
 }
@@ -210,7 +142,7 @@
   height: 8px;
   border: 0;
   background: var(--success-soft);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
 }
 .occupancy-meter meter::-webkit-meter-bar {
   background: var(--success-soft);
@@ -221,25 +153,14 @@
 }
 @media (max-width: 600px) {
   .section-card {
-    padding: 16px;
-    gap: 8px;
-  }
-  .nav-toggle {
-    width: 38px;
-    min-width: 38px;
-    height: 44px;
-  }
-  .nav-child {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
+    padding: 18px;
+    gap: 12px;
   }
   .channel-totals strong {
     font-size: 23px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nav-toggle svg,
   .section-card {
     transition: none;
   }
@@ -249,7 +170,7 @@
 .section-card {
   align-items: center;
   min-height: 94px;
-  padding: 24px;
+  padding: 20px;
 }
 .section-card-title {
   margin: 0;
@@ -261,14 +182,14 @@
   margin-top: 0;
 }
 .context-help {
-  margin: 24px 0;
+  margin: 20px 0;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.65;
 }
 .context-help > summary {
   cursor: pointer;
-  padding: 8px 0;
+  padding: 10px 0;
   font-weight: 500;
   width: fit-content;
 }
@@ -295,7 +216,7 @@
 }
 .connection-grid .panel {
   padding: 24px;
-  gap: 16px;
+  gap: 18px;
 }
 .connection-grid .grid {
   width: 100%;
@@ -343,12 +264,12 @@
   background: var(--surface-muted);
 }
 .photo-card figcaption {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 13px;
   color: var(--muted);
 }
 .facility-list {
   columns: 2 220px;
-  margin: 0 0 16px;
-  padding-left: 16px;
+  margin: 0 0 12px;
+  padding-left: 18px;
 }

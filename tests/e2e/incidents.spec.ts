@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { createPrismaClient } from '@pms/database';
 
 /**
@@ -42,7 +42,7 @@ test('неисправность на экране: «Принято» — ст�
     (await db.systemIncident.findUniqueOrThrow({ where: { id: inc.id } })).status;
 
   await page.goto('/incidents');
-  const row = page.locator(`[data-testid="incident-row"][data-id="${inc.id}"]`);
+  const row = page.getByRole('main').locator(`[data-testid="incident-row"][data-id="${inc.id}"]`);
   await expect(row).toContainText(MARK);
   await expect(row).toContainText('код — исправляет дежурный агент');
   await expect(row.getByTestId('incident-status')).toHaveText('ждёт человека');
@@ -58,5 +58,5 @@ test('неисправность на экране: «Принято» — ст�
   const closed = await db.systemIncident.findUniqueOrThrow({ where: { id: inc.id } });
   expect(closed.resolvedBy).toBe('STAFF');
   expect(closed.resolvedAt).not.toBeNull();
-  await expect(page.getByTestId('incidents-closed')).toContainText(MARK);
+  await expect(page.getByRole('main').getByTestId('incidents-closed')).toContainText(MARK);
 });

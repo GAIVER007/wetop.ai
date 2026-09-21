@@ -1,0 +1,50 @@
+/*
+ * Срез 7.2: цена правится прямо в ячейке календаря. Поле и кнопки всплывают над таблицей
+ * (absolute), иначе строка таблицы прыгает на 40 px и колонка растягивается под кнопки.
+ */
+.price-cell {
+  position: relative;
+}
+.price-cell__value {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed var(--border);
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+.price-cell__value:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.price-editor {
+  position: absolute;
+  z-index: var(--layer-overlay, 40);
+  top: calc(100% + var(--space-1));
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--surface-elevated, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  box-shadow: var(--shadow-floating, var(--shadow));
+}
+.price-editor .inp {
+  width: 110px;
+  min-height: 32px;
+  text-align: right;
+}
+.price-cell__result {
+  max-width: 224px;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: var(--leading-base, 1.4);
+  text-align: right;
+  white-space: normal;
+}

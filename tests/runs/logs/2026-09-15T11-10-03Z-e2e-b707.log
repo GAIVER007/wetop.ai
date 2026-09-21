@@ -1,0 +1,166 @@
+# Сквозные (e2e) · 15.09.2026 16:10 Алматы · vm
+# коммит 84acbd7 (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'не заехавший вовремя|дольше 62 ночей|период дольше года|сбое справочника тарифов'
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/workspace.spec.ts:357:1 › сегодня: гость, не заехавший вовремя, виден отдельным списком и в «Требуют внимания» (16.5s)
+  ✘  2 tests/ui/workspace.spec.ts:373:1 › номера: доступность дольше 62 ночей останавливает форма, а не ошибка API (16.2s)
+  ✘  3 tests/ui/workspace.spec.ts:380:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (15.9s)
+[WebServer] ⨯ Error: API /rate-plans: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:90:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:66)
+[WebServer]   88 |   const res = await backendFetch(path);
+[WebServer]   89 |   if (!res.ok) {
+[WebServer] > 90 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   91 |   }
+[WebServer]   92 |   return (await res.json()) as T;
+[WebServer]   93 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  4 tests/ui/workspace.spec.ts:397:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (16.3s)
+
+
+  1) tests/ui/workspace.spec.ts:357:1 › сегодня: гость, не заехавший вовремя, виден отдельным списком и в «Требуют внимания» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('group-overdue')
+    Expected substring: "20260913-TEST1"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('group-overdue') with timeout 15000ms
+      - waiting for getByTestId('group-overdue')
+
+
+      363 |   await request.post(`${fixture}/__test/control`, { data: { overdue: true } });
+      364 |   await page.goto('/today');
+    > 365 |   await expect(page.getByTestId('group-overdue')).toContainText('20260913-TEST1');
+          |                                                   ^
+      366 |   const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+      367 |   await expect(tasks.getByRole('link', { name: /Не заехал/ })).toHaveAttribute(
+      368 |     'href',
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:365:51
+
+    Error Context: test-results/workspace-сегодня-гость-не-25041-ском-и-в-«Требуют-внимания»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сегодня-гость-не-25041-ском-и-в-«Требуют-внимания»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сегодня-гость-не-25041-ском-и-в-«Требуют-внимания»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/workspace.spec.ts:373:1 › номера: доступность дольше 62 ночей останавливает форма, а не ошибка API 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Доступность"
+    Received: "Доступность номеров"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Доступность номеров</h1>
+           - unexpected value "Доступность номеров"
+
+
+      373 | test('номера: доступность дольше 62 ночей останавливает форма, а не ошибка API', async ({ page }) => {
+      374 |   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2027-01-01');
+    > 375 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Доступность');
+          |                                                         ^
+      376 |   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше чем на 62 ночи');
+      377 |   await expect(page.getByLabel('Выезд')).toHaveAttribute('max', '2026-12-02');
+      378 | });
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:375:57
+
+    Error Context: test-results/workspace-номера-доступнос-5c1e6-ивает-форма-а-не-ошибка-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-номера-доступнос-5c1e6-ивает-форма-а-не-ошибка-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-номера-доступнос-5c1e6-ивает-форма-а-не-ошибка-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/workspace.spec.ts:380:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert')
+    Expected substring: "не больше года"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('alert')
+
+
+      383 | }) => {
+      384 |   await page.goto('/analytics?from=2025-01-01&to=2026-12-31');
+    > 385 |   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
+          |                                                           ^
+      386 |   await request.post(`${fixture}/__test/control`, {
+      387 |     data: { failPath: '/analytics/sites/ui-site/report', failStatus: 400 },
+      388 |   });
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:385:59
+
+    Error Context: test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/workspace.spec.ts:397:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('tab', { name: 'Обзор', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('tab', { name: 'Обзор', exact: true }) with timeout 15000ms
+      - waiting for getByRole('tab', { name: 'Обзор', exact: true })
+
+
+      401 |   await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
+      402 |   await page.goto('/reservations/20260913-TESTAA');
+    > 403 |   await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toBeVisible();
+          |                                                                       ^
+      404 |   await expect(
+      405 |     page.getByRole('main').getByRole('alert').filter({ hasText: 'Справочник тарифов не загрузился' }),
+      406 |   ).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:403:71
+
+    Error Context: test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/workspace.spec.ts:357:1 › сегодня: гость, не заехавший вовремя, виден отдельным списком и в «Требуют внимания» 
+    tests/ui/workspace.spec.ts:373:1 › номера: доступность дольше 62 ночей останавливает форма, а не ошибка API 
+    tests/ui/workspace.spec.ts:380:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+    tests/ui/workspace.spec.ts:397:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+
+# код выхода 1 · 1 мин 13 с

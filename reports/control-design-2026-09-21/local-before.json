@@ -1,0 +1,50 @@
+[
+  {
+    "route": "/hotel-settings",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 903,
+    "totalMs": 2916,
+    "bytes": 64726
+  },
+  {
+    "route": "/hotel-settings",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 208,
+    "totalMs": 208,
+    "bytes": 64640
+  },
+  {
+    "route": "/incidents",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 417,
+    "totalMs": 2257,
+    "bytes": 260494
+  },
+  {
+    "route": "/incidents",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 95,
+    "totalMs": 1610,
+    "bytes": 260494
+  },
+  {
+    "route": "/journal",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 215,
+    "totalMs": 489,
+    "bytes": 73582
+  },
+  {
+    "route": "/journal",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 125,
+    "totalMs": 322,
+    "bytes": 73582
+  }
+]

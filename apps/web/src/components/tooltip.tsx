@@ -1,54 +1,67 @@
 'use client';
-import { cloneElement, useId, useState, type ReactElement, type ReactNode } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  useId,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { cx } from './ui';
 
 /**
- * Подсказка (DESIGN.md §8, план §3.2 «подсказка открывается и фокусом с клавиатуры»): замена
- * нативному `title`, который виден только мышью. Открывается по наведению и по фокусу, закрывается
- * по Escape; связана с элементом через `aria-describedby`, поэтому читается вслух. Только для
- * пояснений — смысл, без которого нельзя работать, пишется словом рядом (§1 п. 4).
+ * Подсказка (DESIGN.md §8, §12): открывается наведением и фокусом с клавиатуры, закрывается Escape.
+ * Замена нативному `title`, который не доступен с клавиатуры и на планшете. Смысл не должен держаться
+ * только на подсказке (§1 п. 4): в неё идёт уточнение, а не единственное слово статуса.
  */
 export function Tooltip({
   text,
   children,
-  side = 'top',
+  placement = 'top',
+  className,
 }: {
   text: ReactNode;
+  /** один элемент, принимающий фокус: кнопка, ссылка, span с tabIndex */
   children: ReactElement<Record<string, unknown>>;
-  side?: 'top' | 'bottom' | undefined;
+  placement?: 'top' | 'bottom' | undefined;
+  className?: string | undefined;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
-  const show = () => setOpen(true);
-  const hide = () => setOpen(false);
-  const child = children.props;
-  const trigger = cloneElement(children, {
-    'aria-describedby': open ? id : (child['aria-describedby'] as string | undefined),
+  if (!isValidElement(children)) return children;
+  const child = children as ReactElement<Record<string, unknown>>;
+  const trigger = cloneElement(child, {
+    'aria-describedby': open ? id : undefined,
     onMouseEnter: (e: unknown) => {
-      show();
-      (child['onMouseEnter'] as ((e: unknown) => void) | undefined)?.(e);
+      (child.props['onMouseEnter'] as ((e: unknown) => void) | undefined)?.(e);
+      setOpen(true);
     },
     onMouseLeave: (e: unknown) => {
-      hide();
-      (child['onMouseLeave'] as ((e: unknown) => void) | undefined)?.(e);
+      (child.props['onMouseLeave'] as ((e: unknown) => void) | undefined)?.(e);
+      setOpen(false);
     },
     onFocus: (e: unknown) => {
-      show();
-      (child['onFocus'] as ((e: unknown) => void) | undefined)?.(e);
+      (child.props['onFocus'] as ((e: unknown) => void) | undefined)?.(e);
+      setOpen(true);
     },
     onBlur: (e: unknown) => {
-      hide();
-      (child['onBlur'] as ((e: unknown) => void) | undefined)?.(e);
+      (child.props['onBlur'] as ((e: unknown) => void) | undefined)?.(e);
+      setOpen(false);
     },
     onKeyDown: (e: { key: string }) => {
-      if (e.key === 'Escape') hide();
-      (child['onKeyDown'] as ((e: unknown) => void) | undefined)?.(e);
+      (child.props['onKeyDown'] as ((e: unknown) => void) | undefined)?.(e);
+      if (e.key === 'Escape') setOpen(false);
     },
   });
   return (
-    <span className="tooltip-anchor">
+    <span className={cx('tooltip-host', className)}>
       {trigger}
-      <span role="tooltip" id={id} hidden={!open} className={cx('tooltip', `tooltip--${side}`)}>
+      <span
+        role="tooltip"
+        id={id}
+        className={cx('tooltip', `tooltip--${placement}`, open && 'is-open')}
+        aria-hidden={!open}
+      >
         {text}
       </span>
     </span>

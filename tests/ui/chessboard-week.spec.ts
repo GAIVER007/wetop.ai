@@ -1,9 +1,87 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
+});
+
+test('C1: сетка начинается до 350 px, фильтры объясняют дату статуса', async ({ page }) => {
+  await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+  const box = await page.locator('.board-wrap').boundingBox();
+  expect(box!.y).toBeLessThanOrEqual(350);
+  await expect(page.getByText('Статус на 14 сент.', { exact: true })).toBeVisible();
+  await page.getByLabel('Поиск на шахматке').fill('Несуществующее место');
+  await expect(page.getByTestId('unit-row')).toHaveCount(0);
+  await expect(page.getByText(/По вашему запросу ничего не найдено/)).toBeVisible();
+  await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+  await expect(page.getByTestId('unit-row')).toHaveCount(88);
+});
+
+test('C1: мобильные даты, виды и фильтры имеют цели 44 px', async ({ page }) => {
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/chessboard');
+    const main = page.getByRole('main');
+    await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    const toggle = main.getByRole('button', { name: 'Фильтры', exact: true });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await main.getByRole('button', { name: 'Даты', exact: true }).click();
+    for (const control of [
+      main.getByLabel('Шахматка: с', { exact: true }),
+      main.getByLabel('Шахматка: по', { exact: true }),
+      main.getByRole('button', { name: 'Применить', exact: true }),
+      main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
+      main.getByRole('link', { name: 'Неделя', exact: true }),
+      main.getByRole('button', { name: 'Свободные', exact: true }),
+    ]) {
+      await expect(control).toBeVisible();
+      const box = await control.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+    }
+    await expect(page.locator('.board-range-form').getByText('С', { exact: true })).toBeVisible();
+    await expect(page.locator('.board-range-form').getByText('По', { exact: true })).toBeVisible();
+    await main.getByLabel('Категория на шахматке').selectOption('ROOM');
+    await expect(main.getByTestId('unit-row')).toHaveCount(16);
+    await main.getByRole('button', { name: 'Фильтры · 1', exact: true }).click();
+    await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+    await main.getByRole('button', { name: 'Сбросить', exact: true }).click();
+    await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    await expect(main.getByRole('button', { name: 'Фильтры', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  }
+});
+
+test('C1: подсказка не выходит за экран, последние места доступны на телефоне', async ({
+  page,
+}) => {
+  await page.goto('/chessboard');
+  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  const help = page.locator('.board-help-content');
+  await expect(help).toBeVisible();
+  for (const width of [1440, 1024, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const helpBox = await help.boundingBox();
+    expect(helpBox!.x).toBeGreaterThanOrEqual(0);
+    expect(helpBox!.x + helpBox!.width).toBeLessThanOrEqual(width);
+  }
+  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 844 });
+  // Scroll the grid to its bottom, then the page as a touch user would.
+  // scrollIntoView alone would conceal overflow:hidden by scrolling it programmatically.
+  await page.locator('.board-wrap').evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  await page.mouse.move(4, 500);
+  await page.mouse.wheel(0, 2000);
+  await expect(page.getByTestId('unit-link').last()).toBeInViewport({ ratio: 1 });
 });
 
 for (const [from, to, direction, expectedFrom, expectedTo] of [
@@ -13,6 +91,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
 ] as const) {
   test(`переход календарной недели: ${from} → ${expectedFrom}`, async ({ page }) => {
     await page.goto(`/chessboard?from=${from}&to=${to}`);
+    await page.getByRole('button', { name: 'Даты', exact: true }).click();
     await page.getByLabel('Шахматка: с', { exact: true }).fill('2020-01-01');
     await page.getByRole('link', { name: direction, exact: true }).click();
     await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(expectedFrom);
@@ -47,7 +126,12 @@ test('в неделе работают бронь, категории и соз�
   await group.click();
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   const sunday = await page.getByTestId('date-col').last().getAttribute('data-date');
-  await page.locator('[data-unit-code="R03"] [data-testid="free-cell"]').last().click();
+  // Брони фикстуры ставятся от «сегодня» (заезд сегодня, три ночи), и с четверга воскресенье у
+  // R01–R03 занято — тест падал по дню недели. Берём первую комнату, у которой воскресенье свободно.
+  const sundayFree = page.locator(`td[data-date="${sunday}"] [data-testid="free-cell"]`);
+  const row = page.getByTestId('unit-row').filter({ has: sundayFree }).first();
+  const unitCode = await row.getAttribute('data-unit-code');
+  await row.locator(`td[data-date="${sunday}"] [data-testid="free-cell"]`).click();
   const form = page.getByTestId('new-reservation-form');
   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(sunday!);
   const monday = new Date(`${sunday}T00:00:00Z`);
@@ -55,7 +139,7 @@ test('в неделе работают бронь, категории и соз�
   await expect(form.locator('[name="departureDate"]')).toHaveValue(
     monday.toISOString().slice(0, 10),
   );
-  await expect(form.locator('[name="unitCode"]')).toHaveValue('R03');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(unitCode!);
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -64,7 +148,9 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync('reports/chessboard-week', { recursive: true });
     await page.emulateMedia({ colorScheme: theme });
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      if (!devNoise.test(error.message)) errors.push(error.message);
+    });
     await page.goto('/chessboard');
     const report = [];
     for (const width of [1440, 1024, 812, 768, 390, 320]) {

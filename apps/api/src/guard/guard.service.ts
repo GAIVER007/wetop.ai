@@ -51,7 +51,13 @@ const FEED_STALE_MS = 15 * MIN;
 /** Дельта ждёт отправки дольше — воркер не работает или Channex не принимает */
 const OUTBOX_STUCK_MS = 15 * MIN;
 /** Виды, которые чинятся отправкой в Channex: при остановленном ARI сторож их не чинит (Q-126) */
-const ARI_KINDS = new Set(['outbox.failed', 'outbox.stuck', 'sync.missing', 'ari.oversell']);
+const ARI_KINDS = new Set([
+  'outbox.failed',
+  'outbox.stuck',
+  'sync.missing',
+  'ari.oversell',
+  'ari.delta.lost',
+]);
 /** Полная выгрузка раз в сутки после 03:00; 26 часов — сутки плюс запас на час выгрузки */
 const SYNC_MISSING_MS = 26 * 60 * MIN;
 /** Синхронизация суток из Exely на время двойного ввода — раз в сутки; 26 часов — сутки плюс запас */
@@ -377,7 +383,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     if (channex)
       await run(
         'channex.outbox',
-        ariOut ? ['outbox.failed', 'outbox.stuck'] : ['outbox.stuck'],
+        ariOut ? ['outbox.failed', 'outbox.stuck', 'ari.delta.lost'] : ['outbox.stuck'],
         async () => {
           const o = await this.probes.outbox();
           const out: Observation[] = [];
@@ -388,6 +394,22 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
               details: {
                 lastFullSyncAt: o.lastFullSyncAt?.toISOString() ?? null,
                 lastError: o.lastFailedError,
+              },
+            });
+          // Дельта не встала в очередь после записанной команды: в очереди её нет, поэтому две проверки выше
+          // её не видят. Полная выгрузка перекрывает потерянное, поэтому смотрим только след новее выгрузки.
+          if (
+            ariOut &&
+            o.lostDeltaAt &&
+            (!o.lastFullSyncAt || o.lostDeltaAt.getTime() > o.lastFullSyncAt.getTime())
+          )
+            out.push({
+              kind: 'ari.delta.lost',
+              title:
+                'Изменение остатков не встало в очередь после записи команды — канал продаёт по старому остатку',
+              details: {
+                lostDeltaAt: o.lostDeltaAt.toISOString(),
+                lastFullSyncAt: o.lastFullSyncAt?.toISOString() ?? null,
               },
             });
           if (o.oldestPendingAt && now.getTime() - o.oldestPendingAt.getTime() >= OUTBOX_STUCK_MS)
@@ -468,7 +490,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       return out;
     });
 
-    const reports = this.probes.reports();
+    // Отчёты сверок и журнал тестов — файлы рядом с кодом; в контейнере это слепок дня сборки
+    const localFiles = this.probes.enabled('localFiles');
+    const reports = localFiles ? this.probes.reports() : null;
     if (reports)
       await run('reports', ['reconciliation.fail'], () =>
         reports
@@ -482,7 +506,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           })),
       );
 
-    const suites = this.probes.failingSuites();
+    const suites = localFiles ? this.probes.failingSuites() : null;
     if (suites)
       await run('tests', ['tests.failing'], () =>
         suites.map((t) => ({
@@ -577,6 +601,10 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       case 'outbox.stuck':
         if (!this.probes.enabled('ariOut')) return null;
         return { key: 'flush', run: safe(() => this.fixes.flushOutbox()) };
+      // Повторить потерянную дельту нечем: её содержимое нигде не сохранено — только полная выгрузка
+      case 'ari.delta.lost':
+        if (!this.probes.enabled('ariOut')) return null;
+        return { key: 'fullSync', run: safe(() => this.fixes.fullSync()) };
       case 'event.failed':
         return inc.subjectId
           ? {

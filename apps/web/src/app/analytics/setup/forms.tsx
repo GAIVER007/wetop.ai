@@ -11,7 +11,6 @@ import {
   Stack,
   Textarea,
 } from '../../../components/ui';
-import { ConfirmDialog } from '../../../components/confirm-dialog';
 import {
   bookingSettingsAction,
   createSiteAction,
@@ -19,6 +18,7 @@ import {
   siteAction,
   type SiteActionResult,
 } from '../actions';
+import { useConfirm } from '../../../components/use-confirm';
 
 export function CreateSiteForm() {
   const [state, action, pending] = useActionState<SiteActionResult | null, FormData>(
@@ -64,8 +64,8 @@ export function CreateSiteForm() {
 
 export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PAUSED' }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   const run = (kind: 'pause' | 'resume' | 'delete' | 'check') =>
     start(async () => setResult(await siteAction(id, kind)));
   return (
@@ -92,30 +92,23 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
           type="button"
           tone="secondary"
           className="is-danger"
-          onClick={() => setConfirmDelete(true)}
+          onClick={async () => {
+            const ok = await ask({
+              title: 'Удалить сайт?',
+              body: 'Вместе с сайтом исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.',
+              confirmLabel: 'Удалить сайт',
+            });
+            if (ok) run('delete');
+          }}
           disabled={pending}
           data-testid="site-delete"
         >
           Удалить
         </Button>
       </Row>
-      {/* Окно вместо window.confirm (DESIGN.md §15): что именно исчезнет, сказано до нажатия */}
-      <ConfirmDialog
-        open={confirmDelete}
-        title="Удалить сайт и всю накопленную статистику?"
-        consequence="Счётчик на сайте перестанет собирать посещения, отчёты за прошлые месяцы исчезнут. Удаление необратимо."
-        confirmLabel="Удалить сайт"
-        cancelLabel="Оставить"
-        tone="danger"
-        pending={pending ? 'Удаляю…' : undefined}
-        onConfirm={() => {
-          setConfirmDelete(false);
-          run('delete');
-        }}
-        onCancel={() => setConfirmDelete(false)}
-      />
       {result?.error && <Alert>{result.error}</Alert>}
       {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
+      {dialog}
     </Stack>
   );
 }

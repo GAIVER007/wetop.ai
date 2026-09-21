@@ -6,10 +6,10 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { folioBalance, LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
-import { stayFacts } from './stay-facts';
+import { propertyIdRef } from '../database/property-ref';
 
 export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
@@ -35,25 +35,14 @@ export const CHESSBOARD_REPOSITORY = Symbol('CHESSBOARD_REPOSITORY');
 const d = (x: Date) => x.toISOString().slice(0, 10);
 const guestLabel = (g: { firstName: string; lastName: string } | null | undefined) =>
   g ? `${g.firstName} ${g.lastName}`.trim() : '';
-/** Счёт проживания одним включением: остаток на полосе считает stayFacts тем же folioBalance, что и /finance */
-const FOLIO_ROWS = {
-  select: {
-    charges: { select: { amount: true, voidedAt: true } },
-    allocations: { select: { amount: true } },
-    refunds: { select: { amount: true } },
-  },
-} as const;
 
 @Injectable()
 export class PrismaChessboardRepository implements ChessboardRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  private async propertyId(): Promise<string> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true },
-    });
-    return p.id;
+  /** id объекта — из памяти процесса: рейс в базу за ним на каждый запрос стоил дороже самих данных */
+  private propertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
 
   async units(): Promise<ChessboardUnit[]> {
@@ -70,7 +59,8 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         kind: u.kind,
         accommodationTypeCode: u.accommodationType.code,
         accommodationTypeName: u.accommodationType.name,
-        housekeeping: u.housekeepingStatus,
+        // Срез 7.1: убрана ли ячейка — значок в строке, как в Exely у номера
+        housekeepingStatus: u.housekeepingStatus,
       }));
   }
 
@@ -113,16 +103,8 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         arrivalDate: true,
         departureDate: true,
         status: true,
-        reservation: {
-          select: {
-            confirmationNumber: true,
-            source: true,
-            channel: true,
-            primaryGuest: { select: { firstName: true, lastName: true } },
-          },
-        },
+        reservation: { select: { confirmationNumber: true } },
         accommodationType: { select: { code: true, name: true } },
-        folio: FOLIO_ROWS,
       },
     });
     return rows.map((r) => ({
@@ -132,8 +114,6 @@ export class PrismaChessboardRepository implements ChessboardRepository {
       arrivalDate: d(r.arrivalDate),
       departureDate: d(r.departureDate),
       status: r.status,
-      guestLabel: guestLabel(r.reservation.primaryGuest),
-      ...stayFacts(r),
     }));
   }
 
@@ -152,22 +132,45 @@ export class PrismaChessboardRepository implements ChessboardRepository {
                 primaryGuest: { select: { firstName: true, lastName: true, phone: true } },
               },
             },
-            folio: FOLIO_ROWS,
+            // Срез 7.1: остаток к оплате — тем же расчётом, что в списке броней и на карточке
+            folio: {
+              select: {
+                charges: { where: { voidedAt: null }, select: { amount: true } },
+                allocations: {
+                  where: { payment: { status: 'COMPLETED' } },
+                  select: { amount: true },
+                },
+                refunds: { select: { amount: true } },
+              },
+            },
           },
         },
       },
     });
-    return rows.map((a) => ({
-      unitId: a.inventoryUnitId,
-      startDate: d(a.startDate),
-      endDate: d(a.endDate),
-      itemId: a.reservationItemId,
-      itemStatus: a.reservationItem.status,
-      confirmationNumber: a.reservationItem.reservation.confirmationNumber,
-      guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
-      guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
-      ...stayFacts(a.reservationItem),
-    }));
+    return rows.map((a) => {
+      const folio = a.reservationItem.folio;
+      // остаток = начислено − оплачено + возвращено; `folioBalance` отдаёт разбор, нужен один итог
+      const balance = folio
+        ? folioBalance({
+            charges: folio.charges.map((c) => ({ amountMinor: c.amount, voided: false })),
+            allocations: folio.allocations.map((x) => ({ amountMinor: x.amount })),
+            refunds: folio.refunds.map((x) => ({ amountMinor: x.amount })),
+          }).balanceMinor
+        : 0n;
+      return {
+        unitId: a.inventoryUnitId,
+        startDate: d(a.startDate),
+        endDate: d(a.endDate),
+        itemId: a.reservationItemId,
+        itemStatus: a.reservationItem.status,
+        confirmationNumber: a.reservationItem.reservation.confirmationNumber,
+        guestLabel: guestLabel(a.reservationItem.reservation.primaryGuest),
+        guestPhone: a.reservationItem.reservation.primaryGuest?.phone ?? null,
+        source: a.reservationItem.reservation.source,
+        channel: a.reservationItem.reservation.channel,
+        balanceMinor: balance.toString(),
+      };
+    });
   }
 
   async blocks(from: string, to: string): Promise<ChessboardBlock[]> {

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import type { Chessboard, DeskDay } from '../../lib/api';
+import type { DeskDay } from '../../lib/api';
 import { Icon, type IconName } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 export function HotelClock({ timezone }: { timezone: string }) {
@@ -54,10 +54,6 @@ export function QuickActions({ day }: { day: DeskDay }) {
         <Icon name="plus" width={16} />
       </div>
       <div className="quick-actions-grid">
-        <Link href="/reservations/new" className="quick-action quick-action--primary">
-          <Icon name="plus" />
-          <span>Новая бронь</span>
-        </Link>
         {options.map(([label, icon]) => (
           <button
             className="quick-action"
@@ -95,7 +91,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
               <span>
                 <strong>{r.guestLabel}</strong>
                 <small>
-                  {r.unitCode ?? 'Без номера'}, {r.confirmationNumber}
+                  {r.unitCode ?? '—'} · {r.confirmationNumber}
                 </small>
               </span>
               <Icon name="chevron" />
@@ -117,62 +113,6 @@ export function QuickActions({ day }: { day: DeskDay }) {
           )}
         </div>
       </Overlay>
-    </section>
-  );
-}
-/** Загрузка объекта на дату: занято / свободно / недоступно, как их считает шахматка. Без графиков — стойке они не нужны. */
-export function OccupancyRing({ board, date }: { board: Chessboard | null; date: string }) {
-  if (!board)
-    return (
-      <section className="panel">
-        <p className="muted">Не удалось загрузить статистику размещения.</p>
-        <Link href="/management/statistics">Открыть статистику</Link>
-      </section>
-    );
-  const summary = board.summary[date] ?? { occupied: 0, free: 0, blocked: 0 };
-  const total = summary.occupied + summary.free + summary.blocked;
-  const percent = total ? Math.round((summary.occupied / total) * 100) : 0;
-  return (
-    <section className="chart-card">
-      <div className="card-heading">
-        <h2>Загрузка объекта</h2>
-        <Link href="/management/statistics" aria-label="Статистика загрузки">
-          <Icon name="external" width={16} />
-        </Link>
-      </div>
-      <div className="occupancy-content">
-        <div
-          className="occupancy-ring"
-          style={{
-            background: `conic-gradient(var(--primary) ${percent}%, var(--border-soft) 0)`,
-          }}
-          role="img"
-          aria-label={`Занято ${percent}% единиц продажи`}
-        >
-          <div>
-            <strong>
-              {percent}
-              <small>%</small>
-            </strong>
-            <span>Загружено</span>
-          </div>
-        </div>
-        <div className="chart-legend">
-          <div>
-            <i className="legend-blue" />
-            Занято<strong>{summary.occupied}</strong>
-          </div>
-          <div>
-            <i className="legend-green" />
-            Свободно<strong>{summary.free}</strong>
-          </div>
-          <div>
-            <i className="legend-gray" />
-            Недоступно<strong>{summary.blocked}</strong>
-          </div>
-          <small>{total} номеров и койко-мест</small>
-        </div>
-      </div>
     </section>
   );
 }

@@ -1,7 +1,8 @@
 # ЧТО ДЕЛАЕМ ПРЯМО СЕЙЧАС
 
-Состояние на 11.09.2026. Срезы 1–7 сделаны и доказаны, переезд упирается в решения и действия владельца.
-Хронология — `CLAUDE.md` §2; сводный отчёт дня по Channex — `reports/channex-day-2026-09-11.md`.
+Состояние на 15.09.2026. Срезы 1–11 сделаны и доказаны, переезд упирается в пять условий допуска `CUTOVER.md`,
+все — за владельцем. Хронология — `CLAUDE.md` §2 (с 13.09) и `docs/history.md` (09–13.09); сводка на дату и граница «с любой машины / только с Mac» —
+`HANDOFF.md` §1.
 
 ---
 
@@ -11,8 +12,10 @@
 |---|---|---|
 | Развернуть базу в Казахстане и назвать регламент бэкапов | без этого ни один настоящий канал не подключается: гости каналов пишутся псевдонимами (ADR-018), стойка не увидит, кто приехал; тот же хостинг даст постоянный адрес для webhook | `CUTOVER.md` «Условие допуска», Q-070, Q-073 |
 | Отправить форму сертификации Channex и запросить созвон | production Channex не открывают до сертификации; срока проверки у них нет, подавать сейчас | `plans/channex-certification-pack-2026-09-11.md` |
-| Выбрать провайдера ККМ и положить его документацию в `docs/fiscal/` | Gate 7; адаптер пишется только по документации (AGENTS.md §5) | Q-050, `docs/fiscal/README.md` |
-| Вернуть eQonaq в работу: письмо оператору готово | Gate 7; пока подача вручную, PMS печатает регистрационную карту | `outbox/02-eqonaq.md`, `docs/eqonaq/README.md` |
+| ~~Выбрать провайдера ККМ~~ — **снято владельцем 12.09.2026:** фискальный чек не нужен, оплаты онлайн картой (Q-050 закрыт) | — | `docs/fiscal/README.md` |
+| eQonaq: решить, подавать ли заявку до переезда (согласование 1,5–2 месяца, часы не идут до подачи) | Gate 7; пока подача вручную, PMS печатает регистрационную карту | Q-122, `outbox/02-eqonaq.md`, `docs/eqonaq/README.md` |
+| Назвать ночного дежурного и вписать `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | условие допуска 3: сторож чинит технику сам, но брони и деньги отдаёт человеку — без чата и имени будить некого | Q-123, `CUTOVER.md` «Условия допуска» |
+| Применить миграции учётных записей и завести себе вход | вход по логину и паролю (ADR-049) и по коду на почту (ADR-046) сделаны 15–16.09.2026, но к dev-БД миграции не применены и ни одного сотрудника в базе нет: `npx prisma migrate deploy --schema packages/database/prisma/schema.prisma`, затем `PMS_NEW_PASSWORD='…' npm run accounts -- create --email=… --name='…' --role=owner`; какой вход оставить — Q-146 | `reports/accounts-2026-09-15.md` §4, Q-146 |
 | Список коек по четырём dorm-комнатам | `PhysicalRoom` сейчас 1:1 с ячейкой | Q-095 |
 | Цены Островка на 2027 | тарифы Островка кончаются 31.12.2026 | Q-101 |
 | Образцы печатных форм объекта | заменят наши заготовки RU/KZ | `project-input/forms/README.md` |
@@ -46,13 +49,32 @@
 ## 3. Как поднять локально
 
 ```bash
+scripts/ops/repo-sync.sh                       # та ли папка: remote, отставание от GitHub, службы launchd, .env; --fix чинит
 npm install                                    # Node 24; ключи владелец вписывает в .env по .env.example
+npm run generate -w @pms/database              # Prisma Client; без него typecheck даёт сотни ошибок (см. ниже)
 npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте, значения не печатает
 npm run dev -w apps/api                        # API 127.0.0.1:3001
 npm run dev -w apps/web                        # стойка 127.0.0.1:3000
 scripts/ops/channex-tunnel.sh                  # публичный адрес и регистрация webhook Channex (staging)
 npm test && npm run e2e                        # доказательства: модульные, интеграционные, Playwright
 ```
+
+Без ключей и без dev-БД — на любой машине с PostgreSQL 16 (расширение `btree_gist`), схему и данные тесты создают сами
+(сид, `tests/README.md`):
+
+```bash
+npm run generate -w @pms/database && npm run lint && npm run typecheck && npx vitest run --project unit
+DATABASE_URL=postgresql://pms@127.0.0.1:5432/pms_dev npm run test:record -- integration
+npm run build -w apps/web && DATABASE_URL=postgresql://pms@127.0.0.1:5432/pms_dev npm run test:record -- e2e
+```
+
+То же самое на каждый пуш делает GitHub Actions (`.github/workflows/checks.yml`).
+
+С 17.09.2026 `npm install` генерирует Prisma Client сам (`postinstall` в `@pms/database`): до этого на свежем
+клоне без `npm run generate -w @pms/database` все результаты запросов имели тип `any`, `npm run typecheck`
+падал пятью сотнями ошибок `TS7006`, а на машине стойки старый клиент ронял журнал действий в 500 при
+применённой миграции (`docs/deploy.md` §1). Ручная генерация по-прежнему нужна после правки `schema.prisma`
+без переустановки. Генерации база не нужна — только схема.
 
 Правила: `.env` агенту не читается (`.claude/settings.json`), значения ключей вписывает только владелец;
 `PII_STORAGE` пуст везде, кроме базы в Казахстане (`CUTOVER.md`); Exely, OTA и Channex production не трогать (AGENTS.md §9).

@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 19.09.2026 16:54 Алматы · vm
+# коммит 1df6994 (claude/blissful-meitner-ipoauv)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-19T11-54-35Z-integration-276e.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (5 tests) 997ms
+   ✓ importReservations (integration, DATABASE_URL required) (5)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 570ms
+(node:14207) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 530ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 493ms
+(node:14215) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 458ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 418ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 453ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 398ms
+   ✓ importPriceCalendar (integration, DATABASE_URL required) (2)
+     ✓ writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back 320ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 320ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (3 tests) 319ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 240ms
+(node:14267) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 264ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 231ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 235ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 228ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (5 tests) 207ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 216ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 149ms
+
+ Test Files  15 passed (15)
+      Tests  35 passed (35)
+   Start at  11:54:36
+   Duration  12.55s (tests 52%, import 34%, transform 13%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-19T11-54-35Z-integration-276e.json
+
+# код выхода 0 · 14 с

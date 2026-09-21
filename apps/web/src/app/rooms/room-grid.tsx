@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { Chessboard, ChessboardCell, InventoryUnit } from '../../lib/api';
 import { Icon } from '../../components/icon';
-import { Input, StatusBadge } from '../../components/ui';
+import { EmptyState, Input, StatusBadge } from '../../components/ui';
 import { displayDate } from '../../lib/display-date';
 
 /**
@@ -93,8 +93,8 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
           <option value="OCCUPIED">Занятые</option>
           <option value="BLOCKED">Недоступные</option>
         </select>
-        <span className="muted small">
-          {rows.length} из {units.length}
+        <span className="muted small" data-testid="rooms-shown">
+          Показано {rows.length} из {units.length}
         </span>
       </div>
       <div className={`room-cards ${view === 'list' ? 'room-cards--list' : ''}`}>
@@ -114,38 +114,46 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
                   <Icon name={u.kind === 'ROOM' ? 'inventory' : 'bed'} />
                   {u.code}
                 </strong>
-                <StatusBadge status={badgeStatus(state)} label={badgeLabel(cell)} />
+                <StatusBadge status={badgeStatus(state)} label={badgeLabel(cell, board !== null)} />
               </div>
               <p className="room-card-cat">{u.accommodationTypeName}</p>
-              <div className="room-card-note">{c ? note(c) : 'нет данных на сегодня'}</div>
+              <div className="room-card-note">
+                {c ? note(c) : board ? 'нет данных на сегодня' : 'занятость не загрузилась'}
+              </div>
+              {/* §14: без стрелки в конце ссылки и без « · » как разделителя смыслов */}
               <div className="room-card-footer">
                 <span>
                   {u.kind === 'ROOM' ? 'Отдельный номер' : 'Койко-место'}, {u.roomCapacity}{' '}
                   {u.roomCapacity === 1 ? 'место' : u.roomCapacity < 5 ? 'места' : 'мест'} в комнате
                 </span>
-                <Icon name="arrow" width={16} />
               </div>
             </Link>
           );
         })}
       </div>
       {!rows.length && (
-        <div className="empty-state">
-          <Icon name="bed" />
-          <h3>Нет подходящих номеров</h3>
-          <p>Измените поиск или выберите другой статус.</p>
-          <button
-            className="btn btn--secondary"
-            onClick={() => {
-              setKind('');
-              setCategory('');
-              setStatus('ALL');
-              setQ('');
-            }}
-          >
-            Сбросить фильтры
-          </button>
-        </div>
+        <EmptyState
+          data-testid="rooms-empty"
+          icon={<Icon name="bed" />}
+          title="Нет подходящих номеров"
+          actions={
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={() => {
+                setKind('');
+                setCategory('');
+                setStatus('ALL');
+                setQ('');
+              }}
+            >
+              Сбросить фильтры
+            </button>
+          }
+        >
+          Под поиск «{q.trim() || '…'}» и выбранные тип, категорию и статус не подходит ни одна
+          единица. Измените условие или сбросьте фильтры.
+        </EmptyState>
       )}
     </section>
   );
@@ -154,8 +162,9 @@ export function RoomGrid({ units, board }: { units: InventoryUnit[]; board: Ches
 function badgeStatus(state: string | undefined): string {
   return state === 'OCCUPIED' ? 'CHECKED_IN' : state === 'BLOCKED' ? 'TENTATIVE' : 'CHECKED_OUT';
 }
-function badgeLabel(cell: ChessboardCell | undefined): string {
-  if (!cell) return 'Нет данных';
+function badgeLabel(cell: ChessboardCell | undefined, boardLoaded = true): string {
+  // Пустая клетка значит разное: шахматка не ответила или единицы нет на доске (§7.3)
+  if (!cell) return boardLoaded ? 'Нет данных' : 'Занятость не загрузилась';
   if (cell.state === 'OCCUPIED') return 'Занят';
   if (cell.state === 'FREE') return 'Свободен';
   return cell.blockType === 'CLEANING'

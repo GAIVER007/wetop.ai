@@ -2,19 +2,17 @@
 import { useActionState, useState, useTransition } from 'react';
 import type { UnitCard } from '../../../lib/api';
 import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
+import { useConfirm } from '../../../components/use-confirm';
+import { displayDate } from '../../../lib/display-date';
 import {
   blockUnitAction,
   housekeepingAction,
   unblockUnitAction,
   type UnitActionResult,
 } from './actions';
+import { BLOCK_TYPE_RU } from '../../../lib/block-types';
 
-const TYPES: Array<[string, string]> = [
-  ['MAINTENANCE', 'ремонт'],
-  ['OUT_OF_ORDER', 'неисправна'],
-  ['MANAGEMENT', 'решение управляющего'],
-  ['OTHER', 'другое'],
-];
+const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 const HK: Array<[UnitCard['housekeepingStatus'], string]> = [
   ['DIRTY', 'грязно'],
   ['CLEAN', 'убрано'],
@@ -28,6 +26,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
   );
   const [other, setOther] = useState<UnitActionResult>({ error: null });
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
   return (
     <Stack>
       {other.error && <Alert>{other.error}</Alert>}
@@ -48,12 +47,14 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         </Row>
       </Panel>
       <Panel title="Блокировки (ремонт, вывод из продажи)">
-        {unit.blocks.length === 0 && <span className="sub">нет</span>}
+        {unit.blocks.length === 0 && (
+          <p className="sub">Блокировок нет — ячейка в продаже. Закрыть её можно формой ниже.</p>
+        )}
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
             <span>
-              {b.dateFrom} → {b.dateTo}, {TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}
-              {b.reason ? `, ${b.reason}` : ''}
+              {b.dateFrom} → {b.dateTo} · {TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}
+              {b.reason ? ` · ${b.reason}` : ''}
             </span>
             <Button
               type="button"
@@ -61,7 +62,18 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               size="sm"
               className="is-danger"
               disabled={pending || blockPending}
-              onClick={() => start(async () => setOther(await unblockUnitAction(unit.code, b.id)))}
+              onClick={async () => {
+                // Снятая блокировка возвращает ячейку в продажу — её тут же может занять канал
+                const ok = await ask({
+                  title: `Снять блокировку с ячейки ${unit.code}?`,
+                  body: `${displayDate(b.dateFrom)} → ${displayDate(b.dateTo)} · ${
+                    TYPES.find(([k]) => k === b.type)?.[1] ?? b.type
+                  }${b.reason ? ` · ${b.reason}` : ''}. Ячейка вернётся в продажу, и её сможет занять бронь.`,
+                  confirmLabel: 'Снять блокировку',
+                });
+                if (!ok) return;
+                start(async () => setOther(await unblockUnitAction(unit.code, b.id)));
+              }}
             >
               снять
             </Button>
@@ -107,6 +119,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         </form>
         {blockState.error && <Alert>{blockState.error}</Alert>}
       </Panel>
+      {dialog}
     </Stack>
   );
 }

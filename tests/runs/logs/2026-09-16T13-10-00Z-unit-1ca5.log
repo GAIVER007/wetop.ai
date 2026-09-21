@@ -1,0 +1,21 @@
+# Модульные (unit) · 16.09.2026 18:10 Алматы · MacBook-Air-Urij.local
+# коммит c20f55b (main), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T13-10-00Z-unit-1ca5.json' 'apps/api/src/accounts' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓  unit  packages/domain/src/accounts/session.test.ts (6 tests) 7ms
+ ✓  unit  apps/api/src/accounts/cookie.test.ts (10 tests) 7ms
+ ✓  unit  packages/domain/src/accounts/trial.test.ts (11 tests) 7ms
+ ✓  unit  packages/domain/src/accounts/login-code.test.ts (29 tests) 10ms
+[Nest] 44142  - 09/16/2026, 5:10:02 PM   ERROR [AccountsService] MAIL_* не настроены — код сгенерирован, но письмо не отправлено
+ ✓  unit  apps/api/src/accounts/accounts.controller.test.ts (29 tests) 261ms
+
+ Test Files  5 passed (5)
+      Tests  85 passed (85)
+   Start at  17:10:01
+   Duration  1.23s (transform 40%, import 38%, tests 21%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-16T13-10-00Z-unit-1ca5.json
+
+# код выхода 0 · 3 с

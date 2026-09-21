@@ -25,13 +25,15 @@
 [План и соответствие API](plans/hostel-frontend-2026-09-13.md) ·
 [Браузерные проверки без БД](tests/ui/README.md).
 
-## Статус на 12.09.2026
+## Статус на 15.09.2026
 
 Срезы 1–7 (фонд, шахматка, тарифы и ручная бронь, Channex, стойка, финансы, печатные формы) сделаны
 и доказаны сверками с Exely. Срез 8 «Аналитика сайта» (свой счётчик посещений, ADR-025) и срез 9 «Бронирование с сайта» (виджет, ADR-026)
 сделаны 12.09.2026 — `reports/web-analytics-2026-09-12.md`, `reports/web-booking-2026-09-12.md`; на настоящий
-сайт ставятся после постоянного адреса API (Q-112). Хронология по дням и что ждёт владельца — [CLAUDE.md](CLAUDE.md) §2,
-что делать прямо сейчас — [ONBOARDING.md](ONBOARDING.md).
+сайт ставятся после постоянного адреса API (Q-112). 13–14.09: сторож системы (срез 11), автосинхронизация из Exely,
+WETOP на живых данных, домен `wetop.ai` (ADR-045). 15.09: миграции проверены на чистом PostgreSQL 16 с откатом,
+главная wetop.ai получила карточку ссылки и свой набор проверок; integration и e2e идут на пустом PostgreSQL без `.env` (сид) и в GitHub Actions на каждый PR. Хронология по дням и что ждёт владельца —
+[CLAUDE.md](CLAUDE.md) §2, что делать прямо сейчас — [ONBOARDING.md](ONBOARDING.md), сводка на дату — [HANDOFF.md](HANDOFF.md).
 
 | Гейт | Состояние |
 |---|---|
@@ -41,11 +43,11 @@
 | 4 Front Desk | ✅ полный день гостя — `tests/e2e/full-day.spec.ts`, `desk-tasks.spec.ts` |
 | 5 Channex Sandbox | 🟡 обе стороны живьём, шесть каналов, webhook — `reports/channex-day-2026-09-11.md`; форма сертификации за владельцем |
 | 6 Finance | ✅ 1449 из 1449 балансов до тиына — `reports/balances-2026-09-08.md` |
-| 7 Kazakhstan | ❌ не начат: провайдер ККМ не выбран (Q-050), eQonaq отложен владельцем; в коде только порты |
+| 7 Kazakhstan | ❌ не начат: фискальный чек снят владельцем 12.09 (Q-050 закрыт), eQonaq — решение о подаче за владельцем (Q-122); в коде только порты |
 | 8 Parallel Day | 🟡 механизм сошёлся, смена людьми назначена на 17.09 — `plans/parallel-day-2026-09-17.md` |
 | 9–10 OTA | ❌ до сертификации Channex и базы в Казахстане — `CUTOVER.md`, условие допуска |
 
-[DATA_MODEL.md](DATA_MODEL.md) v1.2 утверждён полностью (§6 Folio — 09.09.2026, ADR-014; §11 Аналитика сайта и бронирование с сайта — 12.09.2026, ADR-025, ADR-026).
+[DATA_MODEL.md](DATA_MODEL.md) v1.4 утверждён полностью (§6 Folio — 09.09.2026, ADR-014; §11 Аналитика сайта и бронирование с сайта — 12.09.2026, ADR-025, ADR-026; §12 неисправности и гражданство `VARCHAR(3)` — 13.09.2026).
 
 ## Запуск
 
@@ -62,6 +64,7 @@
 Порядок подключения и ограничения — [в отчёте](reports/real-data/README.md).
 
 ```bash
+scripts/ops/repo-sync.sh                       # та ли папка: remote, отставание от GitHub, службы launchd, .env; --fix чинит
 npm install                                    # Node 24 (.nvmrc); ключи владелец вписывает в .env по .env.example
 npx tsx scripts/imports/src/cli-check-env.ts   # секреты на месте; значения не печатает
 npm run dev -w apps/api                        # API на 127.0.0.1:3001
@@ -72,7 +75,16 @@ npm run e2e                                    # Playwright, 18 файлов с�
 npm run morning                                # утренний отчёт в reports/morning/
 npm run analytics:retention -- --dry           # счётчик сайта: сессии старше 13 месяцев (без --dry — удалить)
 npm run reconcile:day -- 2026-09-17            # двойной ввод: сутки против живого Exely
+npm run accounts -- list                       # сотрудники: кто заведён, когда входил
+npm run accounts -- invite --email=… --name='…' --role=desk   # пароль сотрудник задаёт сам по ссылке из письма
 ```
+
+Вход в стойку — по логину и паролю (ADR-049): учётные записи в нашей базе, пароли хешами `scrypt`, сессия
+12 часов. Первого сотрудника заводит владелец командой выше; миграция `20260915000013_accounts` применяется
+отдельно (`reports/accounts-2026-09-15.md` §4). Приглашения и сброс пароля уходят письмом, когда вписан
+`RESEND_API_KEY` (`docs/mail/README.md`); без ключа команда печатает одноразовую ссылку. Замок непубличных
+маршрутов API включается `AUTH_REQUIRED=1` и пока выключен — порядок включения в
+`plans/slice-13-accounts-saas.md` §7а.
 
 ## Навигация
 
@@ -106,7 +118,7 @@ plans/                 планы срезов и дней, пакет серт�
 reports/               доказательства: сверки, отчёты дней, скриншоты, утренние отчёты
 apps/web               Next.js стойка: «Сегодня», шахматка, брони, гости, счета, тарифы, каналы, журнал, печать RU/KZ; общая навигация, токены `app/tokens.css` и компоненты `src/components` (ADR-027)
 apps/api               NestJS API (localhost:3001): inventory, units, chessboard, reservations, guests, desk, finance, rates, channels
-packages/database      Prisma schema, 8 миграций
+packages/database      Prisma schema, 12 миграций (все с down.sql)
 packages/domain        бизнес-правила: доступность, ограничения, финансы, штрафы, шахматка
 packages/integrations  Exely (импорт по API), Channex (клиент, ARI, webhook), порты eQonaq и fiscal без реализации (ADR-004)
 packages/shared        общие типы и утилиты

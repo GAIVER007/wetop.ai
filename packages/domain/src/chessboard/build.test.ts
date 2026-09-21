@@ -182,52 +182,46 @@ describe('buildChessboard: проживания без ячейки (парит�
   });
 });
 
-describe('buildChessboard: срез 7.1 — канал, остаток счёта, уборка и заказчик на доске (DESIGN.md §8, §9)', () => {
-  const rich: ChessboardInput = {
+/**
+ * Срез 7.1: на клетке видно то, ради чего администратор сейчас открывает карточку — из какого канала
+ * бронь, сколько по ней не заплачено и убрана ли ячейка. Всё три факта уже есть в базе; шахматка их
+ * только передаёт. Документ ментора 14.09 берёт это из Exely: бейдж канала и красная плашка суммы на
+ * полосе брони, значок уборки у номера.
+ */
+describe('buildChessboard: канал, долг и уборка', () => {
+  const withExtras: ChessboardInput = {
     ...input,
-    units: input.units.map((u, i) => ({ ...u, housekeeping: (['DIRTY', 'CLEAN', 'INSPECTED'] as const)[i]! })),
-    allocations: [
-      { ...input.allocations[0]!, source: 'OTA', channel: 'Booking.com', balanceMinor: '1600000' },
-      { ...input.allocations[1]!, source: 'DESK', channel: null, balanceMinor: '0' },
-    ],
-    unassigned: [
-      {
-        confirmationNumber: 'U-9',
-        categoryCode: 'exely-900003',
-        categoryName: 'Тестовый dorm',
-        arrivalDate: '2026-09-12',
-        departureDate: '2026-09-13',
-        status: 'CONFIRMED',
-        guestLabel: 'Гость Тест-без-ячейки',
-        source: 'OTA',
-        channel: 'Trip.com',
-        balanceMinor: '400000',
-      },
-    ],
+    units: input.units.map((u, i) =>
+      i === 1 ? { ...u, housekeepingStatus: 'DIRTY' as const } : u,
+    ),
+    allocations: input.allocations.map((a) =>
+      a.itemId === 'i2'
+        ? { ...a, source: 'OTA' as const, channel: 'Booking.com', balanceMinor: '1250000' }
+        : a,
+    ),
   };
-  it('клетка проживания несёт канал, источник и остаток к оплате — плашка и бейдж на полосе', () => {
-    const b = buildChessboard(rich);
-    const cell = b.rows[0]!.cells[0]!; // u1, 2026-09-10 — проживание A
-    expect(cell).toMatchObject({ source: 'OTA', channel: 'Booking.com', balanceMinor: '1600000' });
-    const desk = b.rows[1]!.cells[1]!; // u2, 2026-09-11 — проживание B
-    expect(desk).toMatchObject({ source: 'DESK', channel: null, balanceMinor: '0' });
+
+  it('канал и остаток к оплате едут на каждую клетку проживания', () => {
+    const b = buildChessboard(withExtras);
+    const row = b.rows.find((r) => r.unit.code === '9010')!;
+    const busy = row.cells.filter((c) => c.state === 'OCCUPIED');
+    expect(busy).toHaveLength(3); // ночи 11, 12 и 13 сентября — проживание 11→14
+    for (const cell of busy)
+      expect(cell).toMatchObject({ channel: 'Booking.com', balanceMinor: '1250000' });
   });
-  it('строка ячейки несёт статус уборки — бейдж словом и фильтр «Уборка» по настоящему статусу', () => {
-    const b = buildChessboard(rich);
-    expect(b.rows.map((r) => r.unit.housekeeping)).toEqual(['DIRTY', 'CLEAN', 'INSPECTED']);
+
+  it('статус уборки — свойство ячейки, а не клетки', () => {
+    const b = buildChessboard(withExtras);
+    expect(b.rows.find((r) => r.unit.code === '9010')!.unit.housekeepingStatus).toBe('DIRTY');
+    // у ячейки без статуса поля просто нет — экран покажет строку без бейджа
+    expect(b.rows.find((r) => r.unit.code === '9001')!.unit.housekeepingStatus).toBeUndefined();
   });
-  it('строка «Без ячейки» несёт заказчика, канал и остаток', () => {
-    const b = buildChessboard(rich);
-    expect(b.unassigned[0]).toMatchObject({
-      guestLabel: 'Гость Тест-без-ячейки',
-      channel: 'Trip.com',
-      balanceMinor: '400000',
-    });
-  });
-  it('без новых полей на входе клетка их не выдумывает', () => {
+
+  it('без этих полей шахматка работает как раньше: клетка их не выдумывает', () => {
     const b = buildChessboard(input);
-    const cell = b.rows[0]!.cells[0]!;
-    expect('channel' in cell).toBe(false);
-    expect('balanceMinor' in cell).toBe(false);
+    const cell = b.rows.find((r) => r.unit.code === '9010')!.cells[1]!;
+    expect(cell.state).toBe('OCCUPIED');
+    expect(cell.channel).toBeUndefined();
+    expect(cell.balanceMinor).toBeUndefined();
   });
 });

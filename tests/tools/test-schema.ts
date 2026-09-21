@@ -10,7 +10,17 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import pg from 'pg';
-import { TEST_SCHEMA, copyOrder, pendingMigrations, selectExpressions, type ColumnInfo } from './test-schema-plan';
+import { seedTestData, type SeedReport } from './test-seed';
+import {
+  TEST_SCHEMA,
+  chooseTestDataSource,
+  copyOrder,
+  pendingMigrations,
+  refreshPlan,
+  seedIsStale,
+  selectExpressions,
+  type ColumnInfo,
+} from './test-schema-plan';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const MIGRATIONS = resolve(ROOT, 'packages/database/prisma/migrations');
@@ -23,6 +33,8 @@ export interface TestSchemaReport {
   migrated: string[];
   totalMigrations: number;
   copied: Array<{ table: string; rows: number; live: number }> | null;
+  /** Данные пришли из сида (plans/tests-without-live-db-2026-09-15.md), а не копией public */
+  seeded: SeedReport | null;
   refreshedAt: string | null;
 }
 
@@ -73,13 +85,36 @@ export async function ensureTestSchema(
     const empty =
       Number((await client.query<{ n: string }>(`SELECT count(*) AS n FROM ${S}."properties"`)).rows[0]!.n) === 0;
     let copied: TestSchemaReport['copied'] = null;
-    if (opts.refresh || empty) copied = await copyLiveData(client, log);
+    let seeded: TestSchemaReport['seeded'] = null;
+    const stamp = (
+      await client.query<{ value: string }>(`SELECT value FROM ${S}."_test_meta" WHERE key = 'refreshed_at'`)
+    ).rows[0]?.value ?? null;
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+    // сид живёт вокруг «сегодня»: вчерашний сид сегодня пуст, и спеки шахматки видели бы занято 0
+    const stale = !empty && seedIsStale(stamp, today);
+    if (stale) log(`сид от ${stamp} устарел к ${today} — засеваю заново`);
+    const { refill, wipeFirst } = refreshPlan({ empty, stale, refresh: !!opts.refresh });
+    if (refill) {
+      const source = chooseTestDataSource(process.env.TEST_DATA, await liveHasData(client));
+      if (source === 'copy') copied = await copyLiveData(client, log);
+      else {
+        // Поверх прежнего сида импорт упрётся в пересечение ячеек: даты сдвинулись, а строки ещё вчерашние
+        if (wipeFirst) await wipeTestData(client, log);
+        seeded = await seedTestData(connectionString(), TEST_SCHEMA, log);
+        await client.query(
+          `INSERT INTO ${S}."_test_meta" (key, value) VALUES ('refreshed_at', $1)
+           ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+          [`${new Date().toISOString()} (сид)`],
+        );
+      }
+    }
     const meta = await client.query<{ value: string }>(`SELECT value FROM ${S}."_test_meta" WHERE key = 'refreshed_at'`);
     return {
       created: !existed,
       migrated: pending,
       totalMigrations: all.length,
       copied,
+      seeded,
       refreshedAt: meta.rows[0]?.value ?? null,
     };
   } finally {
@@ -88,7 +123,31 @@ export async function ensureTestSchema(
   }
 }
 
+/** В рабочей схеме public есть объект — значит, есть что копировать; нет таблицы или строк — сид */
+async function liveHasData(client: pg.PoolClient): Promise<boolean> {
+  const table = await client.query(
+    "SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'properties'",
+  );
+  if (table.rowCount === 0) return false;
+  return Number((await client.query<{ n: string }>('SELECT count(*) AS n FROM public."properties"')).rows[0]!.n) > 0;
+}
+
 /** Все таблицы public → pms_test одной транзакцией: либо полная согласованная копия, либо ничего. */
+/**
+ * Прежние данные схемы прочь: служебные таблицы (миграции, отметка `refreshed_at`) остаются — они не
+ * данные. Нужно перед повторным засевом; копия рабочих данных чистит за собой сама, внутри транзакции.
+ */
+async function wipeTestData(client: pg.PoolClient, log: (line: string) => void): Promise<void> {
+  const tables = (
+    await client.query<{ tablename: string }>('SELECT tablename FROM pg_tables WHERE schemaname = $1', [TEST_SCHEMA])
+  ).rows
+    .map((r) => r.tablename)
+    .filter((t) => !SERVICE_TABLES.has(t));
+  if (!tables.length) return;
+  await client.query(`TRUNCATE ${tables.map((t) => `${S}.${q(t)}`).join(', ')} CASCADE`);
+  log(`прежние данные схемы сняты: таблиц ${tables.length}`);
+}
+
 async function copyLiveData(
   client: pg.PoolClient,
   log: (line: string) => void,

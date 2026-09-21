@@ -1,0 +1,98 @@
+# Интеграционные (integration) · 15.09.2026 12:44 Алматы · vm
+# коммит 790f3cc (claude/epic-goldberg-743uda), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T07-44-50Z-integration-ab18.json' 'tests/integration/reservations-import.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/reservations-import.test.ts (6 tests | 6 failed) 437ms
+   ❯ importReservations (integration, DATABASE_URL required) (6)
+     × imports bookings idempotently with anonymized guests and allocations on real units; rolled back 217ms
+     × проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется 50ms
+     × Q-127 / Q-128 (ADR-046, ADR-047): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Exely оплата — начислением 41ms
+     × Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет 39ms
+     × ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет 40ms
+     × Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом 33ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > imports bookings idempotently with anonymized guests and allocations on real units; rolled back
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:215:6
+    213|         { timeout: 120_000, maxWait: 30_000 },
+    214|       ),
+    215|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    216|   }, 180_000);
+    217|   it('проживание сменило категорию в Exely — прежняя пересадка в старо…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:282:6
+    280|         { timeout: 120_000, maxWait: 30_000 },
+    281|       ),
+    282|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    283|   }, 180_000);
+    284|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-127 / Q-128 (ADR-046, ADR-047): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Exely оплата — начислением
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:384:6
+    382|         { timeout: 120_000, maxWait: 30_000 },
+    383|       ),
+    384|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    385|   }, 180_000);
+    386|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:429:6
+    427|         { timeout: 120_000, maxWait: 30_000 },
+    428|       ),
+    429|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    430|   }, 180_000);
+    431|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:492:6
+    490|         { timeout: 120_000, maxWait: 30_000 },
+    491|       ),
+    492|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    493|   }, 180_000);
+    494|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом
+AssertionError: expected ReferenceError: ensureRetentionCharge is … to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:527:6
+    525|         { timeout: 120_000, maxWait: 30_000 },
+    526|       ),
+    527|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    528|   }, 180_000);
+    529| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  07:44:50
+   Duration  1.69s (tests 45%, transform 43%, import 12%)
+
+JSON report written to /tmp/pms-test-2026-09-15T07-44-50Z-integration-ab18.json
+
+# код выхода 1 · 2 с

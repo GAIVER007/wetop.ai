@@ -1,7 +1,5 @@
 import type { SVGProps } from 'react';
 import {
-  Bell,
-  MessageSquare,
   LogIn,
   LogOut,
   BedDouble,
@@ -26,7 +24,6 @@ import {
   Settings2,
   Sun,
   Moon,
-  Sparkles,
   PanelLeftClose,
   PanelLeftOpen,
   CalendarCheck,
@@ -68,7 +65,6 @@ const icons = {
   settings: Settings2,
   sun: Sun,
   moon: Moon,
-  ai: Sparkles,
   collapse: PanelLeftClose,
   expand: PanelLeftOpen,
   booking: CalendarCheck,
@@ -77,10 +73,6 @@ const icons = {
   more: Ellipsis,
   external: ArrowUpRight,
   system: Monitor,
-  /** уведомление стойки (toast) */
-  bell: Bell,
-  /** переписка с гостем: WhatsApp с полосы на шахматке */
-  messages: MessageSquare,
   mail: Mail,
   phone: Phone,
   receipt: Receipt,
@@ -90,6 +82,8 @@ const icons = {
   shield: ShieldCheck,
 };
 export type IconName = keyof typeof icons;
+/** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */
+export const iconNames = Object.keys(icons) as IconName[];
 export function Icon({ name, ...props }: SVGProps<SVGSVGElement> & { name: IconName }) {
   const Component = icons[name];
   return <Component width={20} height={20} strokeWidth={1.7} aria-hidden="true" {...props} />;

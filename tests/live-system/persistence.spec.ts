@@ -115,6 +115,8 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
       expect(encrypted.numberEncrypted.includes(syntheticDocument)).toBe(false);
       await page.reload();
       await expect(page.getByTestId('document-row')).toContainText(syntheticDocument.slice(-4));
+      // удаление документа переспрашивает (волна 3): без «ОК» Playwright отклоняет диалог
+      page.once('dialog', (d) => void d.accept());
       await page
         .getByTestId('document-row')
         .getByRole('button', { name: 'удалить', exact: true })
@@ -266,6 +268,7 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
         `/availability?arrival=${arrival}&departure=${departure}`,
       );
       expect(available.byCategory[category]!.availableUnitCodes.includes(unit)).toBe(false);
+      page.once('dialog', (d) => void d.accept());
       await block.getByRole('button', { name: 'снять', exact: true }).click();
       await expect.poll(() => db.inventoryBlock.count({ where: { reason: marker } })).toBe(0);
       const restored = await read<StayAvailability>(

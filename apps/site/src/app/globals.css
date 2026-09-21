@@ -505,7 +505,7 @@ button {
   color: var(--success);
 }
 .hero__visual {
-  padding-bottom: 28px;
+  padding-bottom: 0;
 }
 
 /* ---------- макет шахматки ---------- */
@@ -686,11 +686,11 @@ button {
   font-size: 0.75rem;
   font-weight: 600;
 }
-/* Уведомление у правого края: слева в нижней строке остаётся видна подпись «Без ячейки». */
+/* Уведомление внутри карточки, в правом нижнем углу над строкой «Без ячейки»: за карточку не выходит (С3, 20.09.2026) */
 .mockup__toast {
   position: absolute;
-  right: -16px;
-  bottom: -26px;
+  right: 12px;
+  bottom: 10px;
   z-index: 2;
   display: flex;
   align-items: center;

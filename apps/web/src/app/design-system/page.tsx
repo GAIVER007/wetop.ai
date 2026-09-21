@@ -1,541 +1,975 @@
+import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { AmountBadge } from '../../components/amount-badge';
-import { Icon } from '../../components/icon';
 import { Page } from '../../components/page';
-import { developmentOnly } from '../../lib/dev-only';
-import { Alert, Badge, Button, Field, Input, Notice, Select, Stat, Stats, Table, cx } from '../../components/ui';
-import { LiveActionMenu, LiveConfirm, LiveToast, LiveTooltip, StaticToast } from './showcase';
+import { AmountChip } from '../../components/amount-chip';
+import { Icon, iconNames } from '../../components/icon';
+import { RecordTabs } from '../../components/record-tabs';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Legend,
+  LoadingState,
+  Notice,
+  Panel,
+  Select,
+  Skeleton,
+  Stat,
+  Stats,
+  StatusBadge,
+  Table,
+} from '../../components/ui';
+import { Tooltip } from '../../components/tooltip';
+import { ConfirmDemo, ErrorDemo, MenuDemo, ToastDemo, ToastStatic, TooltipDemo } from './demos';
+import './kit.css';
 
 /**
- * Страница компонентов дизайн-системы (DESIGN.md §8; план design-system-2026-09-14, шаг 4).
- * Только при разработке: в production-сборке отвечает 404 (`notFound`, документация Next «functions/not-found»).
- * 31 компонент из DESIGN.md, у интерактивных — восемь состояний. Снимки страницы — эталон Playwright
- * (`design/reference/kit`), данные вымышленные (ADR-010).
+ * Страница компонентов (DESIGN.md, план шаг 4). Только при разработке: в production-сборке — 404.
+ * Показывает токены и все компоненты §8 в восьми состояниях, в светлой и тёмной теме на одном
+ * экране. Снимки секций — эталон Playwright (design/reference/kit, tests/ui/design-system.spec.ts).
+ * Состояния «наведение», «фокус» и «нажатие» — живые: наведите, нажмите Tab, удерживайте кнопку;
+ * тест снимает их сам.
  */
-export const metadata = { title: 'Дизайн-система · WETOP' };
+export const dynamic = 'force-static';
 
 const STATES = [
-  ['normal', 'обычное'],
+  ['default', 'обычное'],
   ['hover', 'наведение'],
-  ['active', 'нажатие'],
   ['focus', 'фокус'],
+  ['active', 'нажатие'],
   ['disabled', 'отключено'],
   ['loading', 'загрузка'],
   ['error', 'ошибка'],
   ['selected', 'выбрано'],
 ] as const;
-type StateKey = (typeof STATES)[number][0];
-type Cells = Record<StateKey, ReactNode>;
+export type StateName = (typeof STATES)[number][0];
 
-/** Восемь состояний интерактивного компонента. Строка вместо образца — объяснение, почему состояния нет. */
-function States({ cells }: { cells: Partial<Cells> & Record<StateKey, ReactNode | string> }) {
+const COLOR_TOKENS = [
+  ['bg', 'фон страницы'],
+  ['surface', 'панель'],
+  ['surface-muted', 'приглушённая'],
+  ['surface-elevated', 'над страницей'],
+  ['border', 'граница'],
+  ['border-soft', 'линия строки'],
+  ['border-input', 'граница поля'],
+  ['text', 'текст'],
+  ['text-2', 'второстепенный'],
+  ['muted', 'подсказка'],
+  ['primary', 'акцент'],
+  ['primary-soft', 'бледный акцент'],
+  ['success', 'норма'],
+  ['success-soft', ''],
+  ['warning', 'внимание'],
+  ['warning-soft', ''],
+  ['danger', 'тревога'],
+  ['danger-soft', ''],
+  ['chip-bg', 'нейтральный бейдж'],
+  ['row-hover', 'строка под курсором'],
+  ['focus', 'кольцо фокуса'],
+] as const;
+const STATUS_TOKENS = [
+  ['st-confirmed', 'подтверждена', '•'],
+  ['st-checked-in', 'заселён', '✓'],
+  ['st-checked-out', 'выселен', '✕'],
+  ['st-tentative', 'предварительная', '?'],
+  ['st-blocked', 'блокировка', '▨'],
+] as const;
+
+function State({ name, children, note }: { name: StateName; children: ReactNode; note?: string }) {
+  const label = STATES.find(([n]) => n === name)![1];
   return (
-    <div className="ds-states">
-      {STATES.map(([key, name]) => {
-        const cell = cells[key];
-        return (
-          <div key={key} className="ds-state" data-state={key}>
-            <span className="ds-state__name">{name}</span>
-            {typeof cell === 'string' ? <span className="ds-state__note">{cell}</span> : cell}
-          </div>
-        );
-      })}
+    <div className="kit-state" data-state={name}>
+      <div className="kit-state__label">
+        {label}
+        {note && <span className="kit-state__note"> — {note}</span>}
+      </div>
+      <div className="kit-state__body">{children}</div>
     </div>
   );
 }
 
-function Section({
+function Component({
   id,
-  name,
-  note,
+  title,
+  where,
   interactive,
   children,
 }: {
   id: string;
-  name: string;
-  note: ReactNode;
+  title: string;
+  where: string;
   interactive?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="ds-section" data-component={id} data-interactive={interactive ? 'true' : undefined}>
-      <h2>{name}</h2>
-      <p>{note}</p>
-      {children}
+    <section
+      className="kit-component"
+      data-component={id}
+      data-interactive={interactive ? 'true' : undefined}
+      aria-labelledby={`kit-${id}`}
+    >
+      <h3 id={`kit-${id}`} className="kit-component__title">
+        {title}
+      </h3>
+      <p className="kit-component__where">{where}</p>
+      <div className="kit-states">{children}</div>
     </section>
   );
 }
 
-const stay = (status: 'confirmed' | 'checked-in' | 'checked-out' | 'tentative', word: string, name: string, extra?: string) => (
-  <a href="#cell" className={cx('board__stay')} style={{ background: `var(--st-${status})` }} data-status={status}>
-    <b>{name}</b>
-    <small>· {word}</small>
-    {extra && <small>· {extra}</small>}
-  </a>
-);
+function Kit() {
+  return (
+    <>
+      <section className="kit-component" data-component="tokens" aria-labelledby="kit-tokens">
+        <h3 id="kit-tokens" className="kit-component__title">
+          Токены
+        </h3>
+        <p className="kit-component__where">
+          design/tokens.json → tokens.css. Цвет через семантику, отступы из шкалы, радиус по уровню.
+        </p>
+        <div className="kit-swatches">
+          {COLOR_TOKENS.map(([name, label]) => (
+            <div key={name} className="kit-swatch">
+              <span className="kit-swatch__color" style={{ background: `var(--${name})` }} />
+              <code>--{name}</code>
+              {label && <span className="kit-swatch__label">{label}</span>}
+            </div>
+          ))}
+        </div>
+        <div className="kit-row">
+          {STATUS_TOKENS.map(([name, label, glyph]) => (
+            <span key={name} className="kit-status" style={{ background: `var(--${name})` }}>
+              <b>{glyph}</b> {label}
+            </span>
+          ))}
+        </div>
+        <div className="kit-row kit-spaces">
+          {[1, 2, 4, 6, 8, 10, 12, 16].map((n) => (
+            <span key={n} className="kit-space" title={`--space-${n}`}>
+              <i style={{ width: `var(--space-${n})` }} />
+              <code>{n * 4}</code>
+            </span>
+          ))}
+        </div>
+        <div className="kit-row">
+          {(['xs', 'sm', 'control', '', 'lg'] as const).map((r) => (
+            <span
+              key={r || 'md'}
+              className="kit-radius"
+              style={{ borderRadius: `var(--radius${r ? `-${r}` : ''})` }}
+            >
+              --radius{r ? `-${r}` : ''}
+            </span>
+          ))}
+        </div>
+        <div className="kit-type">
+          {(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'] as const).map((s) => (
+            <div key={s} style={{ fontSize: `var(--text-${s})` }}>
+              <code>--text-{s}</code> Ақбота Әбдіғаппарова · 12 500 ₸ · 20.09.2026
+            </div>
+          ))}
+        </div>
+      </section>
 
-const COMPONENTS = [
-  'sidebar', 'page-title', 'search', 'button', 'cell', 'unit-row', 'category-row', 'date-header', 'booking-card', 'guest-card',
-  'booking-form', 'day-tile', 'table', 'tabs', 'view-switch', 'date-picker', 'dropdown', 'drawer', 'announcement', 'unassigned-row',
-  'channel-badge', 'sync-indicator', 'tasks-block', 'housekeeping-block', 'skeleton', 'empty-state', 'action-menu', 'confirm-dialog',
-  'toast', 'tooltip', 'amount-badge',
-] as const;
+      <section className="kit-component" data-component="icons" aria-labelledby="kit-icons">
+        <h3 id="kit-icons" className="kit-component__title">
+          Иконки
+        </h3>
+        <p className="kit-component__where">
+          Lucide через components/icon.tsx: 20 px, линия 1,7; 16 px в тексте.
+        </p>
+        <div className="kit-icons">
+          {iconNames.map((n) => (
+            <span key={n} className="kit-icon">
+              <Icon name={n} />
+              <code>{n}</code>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <Component
+        id="button"
+        title="Кнопка"
+        where="ui.tsx · Button; 38 px, sm 30, xs 24; залита только главная"
+        interactive
+      >
+        <State name="default">
+          <div className="row">
+            <Button type="button">Создать бронь</Button>
+            <Button type="button" tone="secondary">
+              Отмена
+            </Button>
+            <Button type="button" tone="danger">
+              Отменить бронь
+            </Button>
+            <Button type="button" tone="warning">
+              Незаезд
+            </Button>
+            <Button type="button" tone="success">
+              Заселить
+            </Button>
+            <Button type="button" tone="info">
+              Подробнее
+            </Button>
+            <Button type="button" tone="secondary" size="sm">
+              Малая
+            </Button>
+            <Button type="button" tone="secondary" size="xs">
+              Крошечная
+            </Button>
+          </div>
+        </State>
+        <State name="hover" note="наведите">
+          <Button type="button" data-live="hover">
+            Создать бронь
+          </Button>
+        </State>
+        <State name="focus" note="Tab">
+          <Button type="button" data-live="focus">
+            Создать бронь
+          </Button>
+        </State>
+        <State name="active" note="удерживайте">
+          <Button type="button" data-live="active">
+            Создать бронь
+          </Button>
+        </State>
+        <State name="disabled">
+          <Button type="button" disabled>
+            Создать бронь
+          </Button>
+        </State>
+        <State name="loading" note="текст на кнопке, без крутилки">
+          <Button type="button" disabled aria-busy="true">
+            Сохраняю…
+          </Button>
+        </State>
+        <State name="error">
+          <div className="row">
+            <Button type="button">Создать бронь</Button>
+            <Alert>Ячейка R01 уже занята на 16–19 сент.</Alert>
+          </div>
+        </State>
+        <State name="selected" note="переключатель вида">
+          <span className="seg">
+            <a href="#week" className="is-on" aria-current="page">
+              Неделя
+            </a>
+            <a href="#two-weeks">14 дней</a>
+            <a href="#month">Месяц</a>
+          </span>
+        </State>
+      </Component>
+
+      <Component
+        id="input"
+        title="Поле, выбор, текст"
+        where="ui.tsx · Input / Select / Textarea / Field; 38 px, на телефоне 16 px"
+        interactive
+      >
+        <State name="default">
+          <div className="row">
+            <Field label="Заезд">
+              <Input type="date" defaultValue="2026-09-20" />
+            </Field>
+            <Field label="Категория">
+              <Select defaultValue="ROOM">
+                <option value="ROOM">Двухместный номер</option>
+                <option value="MALE">Мужской общий</option>
+              </Select>
+            </Field>
+            <Field label="Фамилия">
+              <Input placeholder="Фамилия" />
+            </Field>
+          </div>
+        </State>
+        <State name="hover" note="наведите">
+          <Input placeholder="Фамилия" data-live="hover" aria-label="Фамилия" />
+        </State>
+        <State name="focus" note="Tab">
+          <Input placeholder="Фамилия" data-live="focus" aria-label="Фамилия" />
+        </State>
+        <State name="active" note="ввод">
+          <Input defaultValue="Әбдіғаппар" aria-label="Фамилия" />
+        </State>
+        <State name="disabled">
+          <Input defaultValue="20260913-TESTAA" disabled aria-label="Номер брони" />
+        </State>
+        <State name="loading">
+          <Input
+            defaultValue="Проверяю доступность…"
+            readOnly
+            aria-busy="true"
+            aria-label="Ячейка"
+          />
+        </State>
+        <State name="error">
+          <Field label="Гражданство">
+            <Input defaultValue="" aria-invalid="true" aria-describedby="kit-inp-err" />
+            <Alert id="kit-inp-err">Заселение без гражданства не пройдёт</Alert>
+          </Field>
+        </State>
+        <State name="selected">
+          <label className="check">
+            <input type="checkbox" defaultChecked /> завтрак включён
+          </label>
+        </State>
+      </Component>
+
+      <Component
+        id="badge"
+        title="Бейдж статуса"
+        where="ui.tsx · Badge / StatusBadge; точка + слово"
+      >
+        <State name="default">
+          <div className="row">
+            <StatusBadge status="TENTATIVE" label="предварительная" />
+            <StatusBadge status="CONFIRMED" label="подтверждена" />
+            <StatusBadge status="CHECKED_IN" label="заселён" />
+            <StatusBadge status="CHECKED_OUT" label="выселен" />
+            <StatusBadge status="CANCELLED" label="отменена" />
+            <StatusBadge status="NO_SHOW" label="незаезд" />
+            <Badge>стойка</Badge>
+            <Badge tone="info">Booking.com</Badge>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="amount-chip"
+        title="Плашка суммы"
+        where="amount-chip.tsx · AmountChip; слово + сумма, тиыны только когда есть"
+      >
+        <State name="default">
+          <div className="row">
+            <AmountChip minor="1250000" tone="due" />
+            <AmountChip minor="2400000" tone="paid" />
+            <AmountChip minor="800000" tone="refund" />
+            <AmountChip minor="1250050" />
+            <AmountChip minor="0" tone="paid" label="долга нет" />
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="stat"
+        title="Плитка показателя"
+        where="ui.tsx · Stat; белая, цвет только у значения, когда нужно действие"
+      >
+        <State name="default">
+          <Stats min={150}>
+            <Stat label="Заезды" value="20" hint="10 ожидают заселения" />
+            <Stat label="Свободно" value="19" hint="номеров и коек" />
+            <Stat label="Не заселены" value="4" tone="warn" hint="после 18:00 — незаезд" />
+            <Stat label="Долг уезжающих" value="155 357 ₸" tone="alarm" hint="проверьте расчёт" />
+          </Stats>
+        </State>
+      </Component>
+
+      <Component id="panel" title="Панель" where="ui.tsx · Panel; рамка 1 px, радиус 16, без тени">
+        <State name="default">
+          <Panel title="Заметки и источник">
+            <p className="hint">Пожелание: тихая комната. Источник — телефон.</p>
+          </Panel>
+        </State>
+        <State name="loading" note="скелетон">
+          <div className="skeleton skeleton-row" aria-hidden="true" />
+        </State>
+        <State name="error" note="пустое состояние">
+          <div className="empty-state">
+            <Icon name="booking" />
+            <h3>Броней на эту дату нет</h3>
+            <p>Выберите другой день или создайте бронь.</p>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="table"
+        title="Таблица"
+        where="ui.tsx · Table; шапка 42 px, строка 38–42, прокрутка внутри с фокусом"
+        interactive
+      >
+        <State name="default">
+          <Table size="sm" aria-label="Брони дня">
+            <thead>
+              <tr>
+                <th>Гость</th>
+                <th>Проживание</th>
+                <th>Статус</th>
+                <th className="num">К оплате</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="#g1">Ақбота Әбдіғаппарова</a>
+                  <br />
+                  <span className="mono small muted">20260916-DSG-TENT</span>
+                </td>
+                <td>17 сент. → 20 сент. · 3 ночи</td>
+                <td>
+                  <StatusBadge status="TENTATIVE" label="предварительная" />
+                </td>
+                <td className="num">
+                  <AmountChip minor="3600000" tone="due" />
+                </td>
+              </tr>
+              <tr className="is-active">
+                <td>
+                  <a href="#g2">Гость Стойка</a>
+                </td>
+                <td>15 сент. → 17 сент. · 2 ночи</td>
+                <td>
+                  <StatusBadge status="CHECKED_IN" label="заселён" />
+                </td>
+                <td className="num">
+                  <AmountChip minor="0" tone="paid" label="оплачено" />
+                </td>
+              </tr>
+              <tr className="is-void">
+                <td>
+                  <a href="#g3">Посетитель Отменённый</a>
+                </td>
+                <td>16 сент. → 18 сент. · 2 ночи</td>
+                <td>
+                  <StatusBadge status="CANCELLED" label="отменена" />
+                </td>
+                <td className="num">—</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="hover" note="наведите на строку">
+          <Table size="sm" aria-label="Строка под курсором">
+            <tbody>
+              <tr data-live="hover">
+                <td>Гость Стойка</td>
+                <td>15 сент. → 17 сент.</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="focus" note="Tab на область прокрутки">
+          <Table size="sm" aria-label="Фокус на таблице" data-live="focus">
+            <tbody>
+              <tr>
+                <td>Гость Стойка</td>
+                <td>15 сент. → 17 сент.</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="active" note="строка-ссылка">
+          <Table size="sm" aria-label="Нажатие">
+            <tbody>
+              <tr>
+                <td>
+                  <a href="#g2" data-live="active">
+                    Гость Стойка
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="disabled" note="строка отменённой брони">
+          <Table size="sm" aria-label="Отменённая">
+            <tbody>
+              <tr className="is-void">
+                <td>Посетитель Отменённый</td>
+                <td>16 сент. → 18 сент.</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+        <State name="loading">
+          <div className="skeleton skeleton-row" aria-hidden="true" />
+        </State>
+        <State name="error">
+          <Alert boxed>Не удалось загрузить брони: ответ сервера не получен</Alert>
+        </State>
+        <State name="selected">
+          <Table size="sm" aria-label="Выбранная">
+            <tbody>
+              <tr className="is-active">
+                <td>Гость Стойка</td>
+                <td>15 сент. → 17 сент.</td>
+              </tr>
+            </tbody>
+          </Table>
+        </State>
+      </Component>
+
+      <Component
+        id="tabs"
+        title="Вкладки"
+        where="record-tabs.tsx · RecordTabs; стрелки, Home/End; счётчик в подписи"
+        interactive
+      >
+        <State name="default">
+          <RecordTabs
+            label="Разделы карточки"
+            tabs={[
+              {
+                id: 'overview',
+                label: 'Обзор',
+                content: <p className="hint">Даты, гости, заказчик.</p>,
+              },
+              {
+                id: 'folio',
+                label: 'Счета · 2',
+                content: <p className="hint">Два счёта, долг 12 500 ₸.</p>,
+              },
+              {
+                id: 'actions',
+                label: 'Действия',
+                content: <p className="hint">Заселить, продлить, переселить.</p>,
+              },
+            ]}
+          />
+        </State>
+        <State name="hover" note="наведите">
+          <div className="record-tab-list" role="presentation">
+            <button type="button" data-live="hover">
+              Обзор
+            </button>
+          </div>
+        </State>
+        <State name="focus" note="Tab">
+          <div className="record-tab-list" role="presentation">
+            <button type="button" data-live="focus">
+              Обзор
+            </button>
+          </div>
+        </State>
+        <State name="active" note="нажатие">
+          <div className="record-tab-list" role="presentation">
+            <button type="button" data-live="active">
+              Обзор
+            </button>
+          </div>
+        </State>
+        <State name="disabled">
+          <div className="record-tab-list" role="presentation">
+            <button type="button" disabled>
+              История
+            </button>
+          </div>
+        </State>
+        <State name="loading">
+          <div className="record-tab-list" role="presentation">
+            <button type="button" aria-busy="true">
+              Счета · …
+            </button>
+          </div>
+        </State>
+        <State name="error">
+          <div className="record-tab-list" role="presentation">
+            <button type="button">
+              Счета · <span className="danger-text">ошибка</span>
+            </button>
+          </div>
+        </State>
+        <State name="selected">
+          <div className="record-tab-list" role="tablist" aria-label="Выбранная вкладка">
+            <button type="button" aria-selected="true" role="tab">
+              Счета · 2
+            </button>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="alert"
+        title="Сообщения"
+        where="ui.tsx · Alert (role=alert) / Notice; плашка-объявление — Alert boxed"
+      >
+        <State name="default">
+          <div className="stack stack--sm">
+            <Alert>Ячейка R01 уже занята на 16–19 сент.</Alert>
+            <Alert boxed>Не удалось сохранить: ответ сервера не получен</Alert>
+            <Alert boxed tone="warning">
+              Webhook Channex не отвечает 12 минут — брони подбирает опрос ленты
+            </Alert>
+            <Notice>Бронь создана, ячейка R04 назначена</Notice>
+            <Notice tone="muted">Данные обновлены 15:44</Notice>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="states"
+        title="Пусто, загрузка, сбой"
+        where="ui.tsx · EmptyState, LoadingState, Skeleton; error-state.tsx · ErrorState (экран и панель, error.tsx)"
+      >
+        <State name="default" note="пусто: что пусто и что сделать, действие — ссылкой или кнопкой">
+          <EmptyState
+            icon={<Icon name="booking" />}
+            title="Бронирований не найдено"
+            actions={
+              <>
+                <Button tone="secondary">Все статусы</Button>
+                <Button tone="secondary">Сбросить фильтры</Button>
+              </>
+            }
+          >
+            На 20 сент., статус «Проживают», бронирований нет. Уберите условие или выберите другой
+            день.
+          </EmptyState>
+        </State>
+        <State
+          name="loading"
+          note="скелетоны формы содержимого, aria-busy и живая подпись; без крутилки"
+        >
+          <LoadingState label="Загружаем список броней…">
+            <Skeleton variant="title" />
+            <Skeleton />
+            <Skeleton />
+            <Skeleton variant="text" />
+          </LoadingState>
+        </State>
+        <State
+          name="error"
+          note="нет связи — повтор и путь к подключениям; отклонённый запрос — проверить адрес, повтор не поможет"
+        >
+          <div className="stack stack--sm">
+            <ErrorDemo digest="API_503" />
+            <ErrorDemo digest="API_404" />
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="action-menu"
+        title="Меню действий"
+        where="action-menu.tsx · ActionMenu; замена перетаскиванию: Переселить / Продлить / Отменить"
+        interactive
+      >
+        <State name="default">
+          <MenuDemo />
+        </State>
+        <State name="hover" note="наведите на кнопку">
+          <button
+            type="button"
+            className="btn btn--secondary action-menu__button"
+            aria-label="Действия"
+            data-live="hover"
+          >
+            <Icon name="more" />
+          </button>
+        </State>
+        <State name="focus" note="Tab">
+          <button
+            type="button"
+            className="btn btn--secondary action-menu__button"
+            aria-label="Действия"
+            data-live="focus"
+          >
+            <Icon name="more" />
+          </button>
+        </State>
+        <State name="active" note="нажатие">
+          <button
+            type="button"
+            className="btn btn--secondary action-menu__button"
+            aria-label="Действия"
+            data-live="active"
+          >
+            <Icon name="more" />
+          </button>
+        </State>
+        <State name="disabled">
+          <button
+            type="button"
+            className="btn btn--secondary action-menu__button"
+            aria-label="Действия"
+            disabled
+          >
+            <Icon name="more" />
+          </button>
+        </State>
+        <State name="loading" note="пока команда идёт">
+          <button
+            type="button"
+            className="btn btn--secondary action-menu__button"
+            aria-label="Действия"
+            disabled
+            aria-busy="true"
+          >
+            <Icon name="more" />
+          </button>
+        </State>
+        <State name="error" note="пункт недоступен — с причиной">
+          <div className="action-menu__list is-open kit-static" role="presentation">
+            <span className="action-menu__item" aria-disabled="true">
+              Заселить — нет гражданства
+            </span>
+            <span className="action-menu__item action-menu__item--danger">Отменить бронь…</span>
+          </div>
+        </State>
+        <State name="selected" note="открытое меню, пункт под курсором">
+          <div className="action-menu__list is-open kit-static" role="presentation">
+            <span className="action-menu__item">Переселить…</span>
+            <span className="action-menu__item kit-hover">Продлить на ночь</span>
+            <span className="action-menu__item action-menu__item--danger">Отменить бронь…</span>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="confirm-dialog"
+        title="Окно подтверждения"
+        where="confirm-dialog.tsx · ConfirmDialog; только для необратимого, кнопка названа действием"
+        interactive
+      >
+        <State name="default" note="статичный показ">
+          <div className="confirm-dialog confirm-dialog--static" role="presentation">
+            <div className="confirm-dialog__body">
+              <div className="confirm-dialog__title">Переселить в R04 на 16–19 сент.?</div>
+              <div className="confirm-dialog__text">
+                Категория та же, цена не меняется: <strong>24 000 ₸</strong> за 3 ночи.
+              </div>
+              <div className="confirm-dialog__actions">
+                <Button type="button" tone="secondary">
+                  Оставить как есть
+                </Button>
+                <Button type="button">Переселить</Button>
+              </div>
+            </div>
+          </div>
+        </State>
+        <State name="hover" note="живое окно: наведите на кнопку внутри">
+          <ConfirmDemo />
+        </State>
+        <State name="focus" note="в живом окне фокус на «Оставить как есть», Escape — отказ">
+          <span className="hint">см. живое окно выше</span>
+        </State>
+        <State name="active" note="нажатие на кнопку действия в живом окне">
+          <span className="hint">см. живое окно выше</span>
+        </State>
+        <State name="disabled" note="во время команды обе кнопки отключены">
+          <div className="confirm-dialog confirm-dialog--static" role="presentation">
+            <div className="confirm-dialog__body">
+              <div className="confirm-dialog__title">Отменить бронь 20260913-TESTAA?</div>
+              <div className="confirm-dialog__actions">
+                <Button type="button" tone="secondary" disabled>
+                  Оставить как есть
+                </Button>
+                <Button type="button" tone="danger" disabled>
+                  Выполняю…
+                </Button>
+              </div>
+            </div>
+          </div>
+        </State>
+        <State name="loading" note="то же: «Выполняю…»">
+          <span className="hint">см. «отключено»</span>
+        </State>
+        <State name="error" note="ошибка команды остаётся в окне">
+          <div className="confirm-dialog confirm-dialog--static" role="presentation">
+            <div className="confirm-dialog__body">
+              <div className="confirm-dialog__title">Отменить бронь 20260913-TESTAA?</div>
+              <Alert>Ответ сервера не получен. Обновите данные и проверьте результат.</Alert>
+              <div className="confirm-dialog__actions">
+                <Button type="button" tone="secondary">
+                  Оставить как есть
+                </Button>
+                <Button type="button" tone="danger">
+                  Отменить бронь
+                </Button>
+              </div>
+            </div>
+          </div>
+        </State>
+        <State name="selected" note="со штрафом: сумма в окне">
+          <div className="confirm-dialog confirm-dialog--static" role="presentation">
+            <div className="confirm-dialog__body">
+              <div className="confirm-dialog__title">Отменить бронь 20260913-TESTAA?</div>
+              <div className="confirm-dialog__text">
+                По политике тарифа будет начислен штраф <strong>8 000 ₸</strong>; предоплата 24 000
+                ₸ останется на счёте.
+              </div>
+              <div className="confirm-dialog__actions">
+                <Button type="button" tone="secondary">
+                  Оставить как есть
+                </Button>
+                <Button type="button" tone="danger">
+                  Отменить бронь
+                </Button>
+              </div>
+            </div>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="toast"
+        title="Уведомление"
+        where="toast.tsx · ToastProvider / useToast; правый верх, 4 с, aria-live"
+        interactive
+      >
+        <State name="default" note="четыре тона">
+          <ToastStatic />
+        </State>
+        <State name="hover" note="живые: нажмите и наведите на ×">
+          <ToastDemo />
+        </State>
+        <State name="focus" note="Tab на ×">
+          <div className="toast-region toast-region--static">
+            <div className="toast toast--success">
+              <span className="toast__text">Гость заселён, R01</span>
+              <button
+                type="button"
+                className="toast__close"
+                aria-label="Закрыть уведомление"
+                data-live="focus"
+              >
+                <Icon name="close" width={16} height={16} />
+              </button>
+            </div>
+          </div>
+        </State>
+        <State name="active" note="нажатие на ×">
+          <div className="toast-region toast-region--static">
+            <div className="toast toast--success">
+              <span className="toast__text">Гость заселён, R01</span>
+              <button
+                type="button"
+                className="toast__close"
+                aria-label="Закрыть уведомление"
+                data-live="active"
+              >
+                <Icon name="close" width={16} height={16} />
+              </button>
+            </div>
+          </div>
+        </State>
+        <State name="disabled" note="у уведомления нет отключённого состояния">
+          <span className="hint">—</span>
+        </State>
+        <State name="loading" note="действие ещё идёт — уведомления нет, текст на кнопке">
+          <span className="hint">—</span>
+        </State>
+        <State name="error" note="без таймера, закрывается рукой">
+          <div className="toast-region toast-region--static">
+            <div className="toast toast--danger" role="status">
+              <span className="toast__text">
+                Ответ сервера не получен. Обновите данные и проверьте результат.
+              </span>
+              <button type="button" className="toast__close" aria-label="Закрыть уведомление">
+                <Icon name="close" width={16} height={16} />
+              </button>
+            </div>
+          </div>
+        </State>
+        <State name="selected" note="успех">
+          <div className="toast-region toast-region--static">
+            <div className="toast toast--success" role="status">
+              <span className="toast__text">Остаток отправлен в Channex</span>
+              <button type="button" className="toast__close" aria-label="Закрыть уведомление">
+                <Icon name="close" width={16} height={16} />
+              </button>
+            </div>
+          </div>
+        </State>
+      </Component>
+
+      <Component
+        id="tooltip"
+        title="Подсказка"
+        where="tooltip.tsx · Tooltip; наведение и фокус, Escape закрывает"
+        interactive
+      >
+        <State name="default" note="закрытая">
+          <TooltipDemo />
+        </State>
+        <State name="hover" note="наведите">
+          <span className="hint">см. выше</span>
+        </State>
+        <State name="focus" note="Tab">
+          <span className="hint">см. выше</span>
+        </State>
+        <State name="active" note="открытая, статично">
+          <span className="tooltip-host kit-tooltip-open">
+            <Button type="button" tone="secondary">
+              Оплачено каналом
+            </Button>
+            <span className="tooltip tooltip--top is-open" role="presentation">
+              Предоплата 24 000 ₸ пришла из Booking.com 12 сент.
+            </span>
+          </span>
+        </State>
+        <State name="disabled" note="подсказка у отключённой кнопки объясняет, почему">
+          <Tooltip text="Заселение без гражданства не пройдёт">
+            <span tabIndex={0} className="kit-disabled-host">
+              <Button type="button" disabled>
+                Заселить
+              </Button>
+            </span>
+          </Tooltip>
+        </State>
+        <State name="loading" note="нет">
+          <span className="hint">—</span>
+        </State>
+        <State name="error" note="нет: ошибка — не подсказка, а alert">
+          <span className="hint">—</span>
+        </State>
+        <State name="selected" note="снизу">
+          <span className="tooltip-host kit-tooltip-open">
+            <span className="badge badge--warn">нет гражданства</span>
+            <span className="tooltip tooltip--bottom is-open" role="presentation">
+              Поле обязательно с 12.09
+            </span>
+          </span>
+        </State>
+      </Component>
+
+      <Component
+        id="legend"
+        title="Легенда шахматки"
+        where="ui.tsx · Legend; цветные квадраты + слово (глифы добавит срез 7.1)"
+      >
+        <State name="default">
+          <Legend
+            items={[
+              { color: 'var(--st-confirmed)', label: 'подтверждена' },
+              { color: 'var(--st-checked-in)', label: 'заселён' },
+              { color: 'var(--st-checked-out)', label: 'выселен' },
+              { color: 'var(--st-tentative)', label: 'предварительная' },
+              { color: 'var(--st-blocked)', label: 'блокировка' },
+            ]}
+          />
+        </State>
+      </Component>
+    </>
+  );
+}
 
 export default function DesignSystemPage() {
-  developmentOnly();
+  if (process.env.NODE_ENV === 'production') notFound();
   return (
     <Page
       title="Дизайн-система"
-      subtitle={`${COMPONENTS.length} компонент из DESIGN.md §8 в восьми состояниях. Только при разработке; данные вымышленные.`}
+      subtitle="Компоненты стойки в восьми состояниях, светлая и тёмная тема. Правила — DESIGN.md. Только при разработке."
       width="full"
     >
-      <nav className="ds-nav" aria-label="Компоненты">
-        {COMPONENTS.map((c) => (
-          <a key={c} href={`#${c}`}>
-            {c}
-          </a>
-        ))}
-      </nav>
-
-      <Section id="palette" name="Токены: цвета" note="Семантика из design/tokens.json; примитивы в CSS не выходят. Имя = переменная.">
-        <div className="ds-swatches" data-testid="palette">
-          {['bg', 'surface', 'surface-muted', 'surface-elevated', 'border', 'border-input', 'text', 'text-2', 'muted', 'primary', 'primary-soft', 'ring-color', 'success', 'success-soft', 'warning', 'warning-soft', 'danger', 'danger-soft', 'st-confirmed', 'st-checked-in', 'st-checked-out', 'st-tentative', 'st-blocked', 'chip-bg'].map((v) => (
-            <div key={v} className="ds-swatch">
-              <i style={{ background: `var(--${v})` }} />
-              --{v}
-            </div>
-          ))}
+      <div className="kit-themes">
+        <div className="kit-theme" data-theme="light" data-testid="kit-light">
+          <h2 className="kit-theme__title">Светлая тема</h2>
+          <Kit />
         </div>
-      </Section>
-
-      <Section id="sidebar" name="Боковое меню" note="Пункт меню: значок и слово; активный — подложкой акцента и полосой слева. Группы без капса (DESIGN.md §14 — сейчас капс, шаг 4)." interactive>
-        <States
-          cells={{
-            normal: <div className="ds-sidebar"><a className="workspace-link" href="#sidebar"><Icon name="board" />Шахматка</a></div>,
-            hover: <div className="ds-sidebar"><a className="workspace-link is-hover" href="#sidebar"><Icon name="board" />Шахматка</a></div>,
-            active: 'то же, что наведение: переход происходит сразу',
-            focus: <div className="ds-sidebar"><a className="workspace-link is-focus" href="#sidebar"><Icon name="board" />Шахматка</a></div>,
-            disabled: <div className="ds-sidebar"><span className="workspace-link" aria-disabled="true" style={{ opacity: 0.55 }}><Icon name="channels" />Интеграции <Badge>ещё не подключено</Badge></span></div>,
-            loading: 'нет: меню не грузится отдельно от страницы',
-            error: 'нет: ошибка показывается на странице, не в меню',
-            selected: <div className="ds-sidebar"><a className="workspace-link is-active" aria-current="page" href="#sidebar"><Icon name="board" />Шахматка</a></div>,
-          }}
-        />
-      </Section>
-
-      <Section id="page-title" name="Заголовок страницы" note="Одна строка h1 (на неё стоят e2e), подзаголовок с числами дня, действия справа. Без подписи капсом над заголовком.">
-        <div className="ds-sample">
-          <header className="page__head">
-            <div className="page__heading">
-              <h3 className="page__title" style={{ margin: 0 }}>Шахматка</h3>
-              <div className="page__subtitle">14 сент. — 20 сент. · Номера и койки · 88 мест</div>
-            </div>
-            <nav className="page__actions">
-              <Button type="button"><Icon name="plus" />Новая бронь</Button>
-            </nav>
-          </header>
+        <div className="kit-theme" data-theme="dark" data-testid="kit-dark">
+          <h2 className="kit-theme__title">Тёмная тема</h2>
+          <Kit />
         </div>
-      </Section>
-
-      <Section id="search" name="Поиск" note="Поле с лупой в шапке: гость, бронь, номер. ⌘K / Ctrl+K открывает быстрый поиск (§12)." interactive>
-        <States
-          cells={{
-            normal: <Input placeholder="Поиск гостя, брони, номера…" aria-label="Поиск" />,
-            hover: <Input className="is-hover" placeholder="Поиск гостя, брони, номера…" aria-label="Поиск" />,
-            active: 'то же, что фокус',
-            focus: <Input className="is-focus" defaultValue="Әбдірахманова" aria-label="Поиск" />,
-            disabled: <Input disabled placeholder="Поиск недоступен без API" aria-label="Поиск" />,
-            loading: <Input defaultValue="Әбдір" aria-label="Поиск" aria-busy="true" placeholder="Ищем…" />,
-            error: <Input aria-invalid="true" defaultValue="%%%" aria-label="Поиск" aria-describedby="search-err" />,
-            selected: 'нет: результат выбирается в списке под полем',
-          }}
-        />
-        <p id="search-err" className="ds-freshness" style={{ marginTop: 8 }}>ошибка: запрос из символов, которых нет в именах и номерах</p>
-      </Section>
-
-      <Section id="button" name="Кнопка" note="Залита только главная (DESIGN.md §8: сейчас залиты все тона — шаг 4); остальные — белые с цветной подписью. Загрузка — текстом на кнопке." interactive>
-        <States
-          cells={{
-            normal: <Button type="button">Принять оплату</Button>,
-            hover: <Button type="button" className="is-hover">Принять оплату</Button>,
-            active: <Button type="button" className="is-active">Принять оплату</Button>,
-            focus: <Button type="button" className="is-focus">Принять оплату</Button>,
-            disabled: <Button type="button" disabled>Принять оплату</Button>,
-            loading: <Button type="button" disabled aria-busy="true">Принимаю…</Button>,
-            error: <Button type="button" tone="danger">Повторить</Button>,
-            selected: <Button type="button" tone="info" aria-pressed="true">Сегодня</Button>,
-          }}
-        />
-        <div className="ds-inline" style={{ marginTop: 16 }}>
-          <Button type="button" tone="secondary">Второстепенная</Button>
-          <Button type="button" tone="danger">Отменить со штрафом</Button>
-          <Button type="button" tone="success">Заселить</Button>
-          <Button type="button" tone="warning">Незаезд</Button>
-          <Button type="button" tone="ghost">Снять</Button>
-          <Button type="button" size="sm">Маленькая</Button>
-          <Button type="button" size="xs">Крошечная</Button>
-          <button type="button" className="icon-button" aria-label="Обновить"><Icon name="refresh" /></button>
-        </div>
-      </Section>
-
-      <Section id="cell" name="Клетка брони" note="Полоса с заезда до последней ночи: заливка статуса плюс слово (DESIGN.md §9). Перетаскивание дублируется меню действий." interactive>
-        <States
-          cells={{
-            normal: <table className="ds-board"><tbody><tr><td>{stay('confirmed', 'ждём', 'Сериков Арман')}</td></tr></tbody></table>,
-            hover: <table className="ds-board"><tbody><tr><td>{stay('confirmed', 'ждём', 'Сериков Арман')}</td></tr></tbody></table>,
-            active: <table className="ds-board"><tbody><tr><td><a href="#cell" className="board__stay is-active" style={{ background: 'var(--st-checked-in)', outline: '2px dashed var(--primary)' }}><b>Ким Дана</b><small>· переносим</small></a></td></tr></tbody></table>,
-            focus: <table className="ds-board"><tbody><tr><td><a href="#cell" className="board__stay is-focus" style={{ background: 'var(--st-confirmed)' }}><b>Сериков Арман</b><small>· ждём</small></a></td></tr></tbody></table>,
-            disabled: <table className="ds-board"><tbody><tr><td>{stay('checked-out', 'выехал', 'Smith John')}</td></tr></tbody></table>,
-            loading: <table className="ds-board"><tbody><tr><td><a href="#cell" className="board__stay" style={{ background: 'var(--st-confirmed)', outline: '2px dotted var(--muted)' }} aria-busy="true"><b>Сериков Арман</b><small>· переселяем…</small></a></td></tr></tbody></table>,
-            error: <table className="ds-board"><tbody><tr><td><a href="#cell" className="board__stay" style={{ background: 'var(--st-tentative)' }}><b>Бекболатов Дәулет</b><small>· не подтверждена</small></a></td></tr></tbody></table>,
-            selected: <table className="ds-board"><tbody><tr><td><a href="#cell" className="board__stay is-focus" aria-current="true" style={{ background: 'var(--st-checked-in)' }}><b>Ким Дана</b><small>· заселён</small><AmountBadge amountMinor="1600000" kind="due" /></a></td></tr></tbody></table>,
-          }}
-        />
-        <p className="ds-freshness" style={{ marginTop: 8 }}>наведение и обычное состояние клетки совпадают намеренно: полосу выделяет только фокус и рамка при наведении на компьютере</p>
-      </Section>
-
-      <Section id="unit-row" name="Строка номера и койки" note="Код ячейки, вид (номер / койка) и статус уборки словом. Код — основным шрифтом, не моноширинным (§14).">
-        <div className="ds-sample ds-sample--tight">
-          <table className="ds-board">
-            <tbody>
-              <tr>
-                <td style={{ width: 200 }}><a href="#unit-row"><Icon name="inventory" width={16} height={16} /> R01</a> <span className="muted-2">номер</span> <Badge tone="warn">грязно</Badge></td>
-                <td>{stay('checked-in', 'заселён', 'Гость Тестовый')}</td>
-                <td />
-                <td />
-              </tr>
-              <tr>
-                <td><a href="#unit-row"><Icon name="bed" width={16} height={16} /> M03</a> <span className="muted-2">койка</span> <Badge tone="ok">убрано</Badge></td>
-                <td />
-                <td>{stay('confirmed', 'ждём', 'Constantinopolous-Wentworth Alexandria')}</td>
-                <td />
-              </tr>
-              <tr>
-                <td><a href="#unit-row"><Icon name="inventory" width={16} height={16} /> R09</a> <span className="muted-2">номер</span> <Badge tone="info">проверено</Badge></td>
-                <td><span className="ds-block" title="ремонт: кондиционер" /></td>
-                <td><span className="ds-block" /></td>
-                <td />
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section id="category-row" name="Строка категории" note="Сворачивает ячейки категории и показывает свободные места по ночам; ноль — красным и словом «нет».">
-        <div className="ds-sample ds-sample--tight">
-          <table className="ds-board">
-            <tbody>
-              <tr className="board__group">
-                <td style={{ width: 200 }}><button type="button" className="board-group-toggle" aria-expanded="true"><Icon name="down" width={16} height={16} /> Мужской общий номер <span className="muted">36</span></button></td>
-                <td className="board__group-free">11</td>
-                <td className="board__group-free is-full" title="мест нет">0 · нет</td>
-                <td className="board__group-free">14</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section id="date-header" name="Заголовок даты" note="Число крупно, день недели мелко, занято/всего. Сегодня — подложкой акцента; выходные — нейтральные (не зелёные, §9).">
-        <div className="ds-sample ds-sample--tight">
-          <table className="ds-board">
-            <thead>
-              <tr>
-                <th style={{ width: 200 }}>Номер / койка</th>
-                <th><span className="board__d">13</span> <span className="board__wd">вс</span><div className="board__occ">64 / 88</div></th>
-                <th style={{ background: 'var(--primary-soft)' }}><span className="board__d" style={{ color: 'var(--primary)' }}>14</span> <span className="board__wd">пн · сегодня</span><div className="board__occ">42 / 88</div></th>
-                <th><span className="board__d">15</span> <span className="board__wd">вт</span><div className="board__occ">9 / 88</div></th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-      </Section>
-
-      <Section id="booking-card" name="Карточка брони" note="Панель сбоку: номер, статус словом, гость, вкладки Обзор / Счета / Действия / История, сумма и остаток плашкой.">
-        <div className="ds-sample">
-          <div className="ds-inline"><strong>Бронь 20260913-SHOWTN</strong> <Badge tone="warn">не подтверждена</Badge> <Badge tone="info">Booking.com</Badge></div>
-          <p style={{ margin: '8px 0' }}>Әбдірахманова Гүлнұр Қайратқызы · 14.09.2026 → 16.09.2026 · 2 ночи · R06</p>
-          <div className="ds-inline"><AmountBadge amountMinor="2400000" kind="prepaid" /><AmountBadge amountMinor="0" kind="paid" /></div>
-        </div>
-      </Section>
-
-      <Section id="guest-card" name="Карточка гостя" note="Профиль, документы (номер маскирован), история проживаний. Гражданство обязательно к заселению.">
-        <div className="ds-sample">
-          <div className="ds-inline"><strong>Нұрсұлтанұлы Ерғали</strong> <Badge>KAZ</Badge> <Badge tone="warn">нет документа</Badge></div>
-          <p style={{ margin: '8px 0', color: 'var(--text-2)' }}>Телефон не указан · 3 проживания · последнее 12.09.2026</p>
-        </div>
-      </Section>
-
-      <Section id="booking-form" name="Форма брони" note="Одно размещение или группа: категория, тариф, гостей, мест, ячейка. Шаги «01/02» — только для шагов формы (§14).">
-        <div className="ds-sample">
-          <div className="ds-inline">
-            <Field label="Категория *"><Select defaultValue="MALE"><option value="MALE">Мужской общий номер (свободно 11)</option></Select></Field>
-            <Field label="Тариф *"><Select defaultValue="BASE"><option value="BASE">Базовый (KZT)</option></Select></Field>
-            <Field label="Гостей"><Input type="number" defaultValue={1} min={1} max={2} className="inp--w64" /></Field>
-            <Field label="Количество мест"><Input type="number" defaultValue={3} min={1} className="inp--w64" /></Field>
-          </div>
-          <p className="ds-freshness" style={{ marginTop: 8 }}>3 проживания на первых свободных ячейках по номеру</p>
-        </div>
-      </Section>
-
-      <Section id="day-tile" name="Плитка сводки дня" note="Число крупно, подпись, подсказка; тревога — красным словом и числом. Без значка в цветном квадрате (§15).">
-        <Stats min={180}>
-          <Stat label="Проживают" value="55" hint="активных размещений" />
-          <Stat label="Заезды сегодня" value="24" hint="17 ожидают заселения" />
-          <Stat label="Долг уезжающих" value="16 000 ₸" hint="1 счёт" tone="alarm" />
-          <Stat label="Свободно" value="33" hint="номеров и коек" size="compact" />
-        </Stats>
-      </Section>
-
-      <Section id="table" name="Таблица" note="Плотная, 13 px; строка под курсором подложкой; выбранная — подложкой акцента. Прокрутка по горизонтали — область с фокусом." interactive>
-        <Table size="sm" dense nowrap aria-label="Пример таблицы">
-          <thead><tr><th>Состояние</th><th>Бронь</th><th>Гость</th><th>Статус</th><th className="num">Сумма</th></tr></thead>
-          <tbody>
-            <tr data-state="normal"><td>обычное</td><td>20260913-SHOWDK</td><td>Сериков Арман</td><td><Badge tone="info">ждём</Badge></td><td className="num">8 000 ₸</td></tr>
-            <tr className="is-hover" data-state="hover"><td>наведение</td><td>20260913-SHOWHW</td><td>Оганесян-Петросянц Александра</td><td><Badge tone="ok">заселён</Badge></td><td className="num">40 000 ₸</td></tr>
-            <tr data-state="active"><td>нажатие</td><td colSpan={4}>то же, что наведение: строка открывает карточку сразу</td></tr>
-            <tr data-state="focus"><td>фокус</td><td><a href="#table" className="is-focus">20260913-SHOWOS</a></td><td>Ким Дана</td><td><Badge tone="info">ждём</Badge></td><td className="num">16 000 ₸</td></tr>
-            <tr data-state="disabled" style={{ color: 'var(--muted)' }}><td>отключено</td><td>20260913-SHOWCX</td><td>Нұрсұлтанұлы Ерғали</td><td><Badge tone="danger">отменена</Badge></td><td className="num">—</td></tr>
-            <tr data-state="loading"><td>загрузка</td><td colSpan={4}><span className="skeleton skeleton-row" style={{ display: 'block', height: 18 }} /></td></tr>
-            <tr data-state="error"><td>ошибка</td><td colSpan={4}><span role="alert" className="alert">Не удалось загрузить список: API не ответил за 60 с</span></td></tr>
-            <tr className="is-selected" data-state="selected" aria-selected="true"><td>выбрано</td><td>20260913-SHOWTN</td><td>Әбдірахманова Гүлнұр</td><td><Badge tone="warn">не подтверждена</Badge></td><td className="num">24 000 ₸</td></tr>
-          </tbody>
-        </Table>
-      </Section>
-
-      <Section id="tabs" name="Вкладки со счётчиком" note="Активная — подчёркиванием акцента; счётчик у вкладки списка (заезды 24). Стрелки переключают (§12)." interactive>
-        <States
-          cells={{
-            normal: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="false">Выезды <Badge>27</Badge></button></div>,
-            hover: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="false" style={{ color: 'var(--text)' }}>Выезды <Badge>27</Badge></button></div>,
-            active: 'то же, что выбрано: вкладка переключается сразу',
-            focus: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="false" className="is-focus">Выезды <Badge>27</Badge></button></div>,
-            disabled: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="false" disabled>Счета <Badge>0</Badge></button></div>,
-            loading: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="false">История <Badge>…</Badge></button></div>,
-            error: 'нет: ошибка показывается в содержимом вкладки',
-            selected: <div className="record-tab-list" role="tablist"><button type="button" role="tab" aria-selected="true">Заезды <Badge tone="info">24</Badge></button></div>,
-          }}
-        />
-      </Section>
-
-      <Section id="view-switch" name="Переключатель вида" note="Неделя / 14 дней / Месяц (ADR-039). Выбранное — поверхностью с тенью, `aria-current`." interactive>
-        <States
-          cells={{
-            normal: <span className="seg"><a href="#view-switch">Неделя</a><a href="#view-switch">14 дней</a><a href="#view-switch">Месяц</a></span>,
-            hover: <span className="seg"><a href="#view-switch">Неделя</a><a href="#view-switch" className="is-hover">14 дней</a><a href="#view-switch">Месяц</a></span>,
-            active: 'то же, что выбрано',
-            focus: <span className="seg"><a href="#view-switch">Неделя</a><a href="#view-switch" className="is-focus">14 дней</a><a href="#view-switch">Месяц</a></span>,
-            disabled: 'нет: все три вида всегда доступны',
-            loading: 'нет: вид меняется адресом страницы, загрузка — скелетон сетки',
-            error: 'нет',
-            selected: <span className="seg"><a href="#view-switch" className="is-on" aria-current="true">Неделя</a><a href="#view-switch">14 дней</a><a href="#view-switch">Месяц</a></span>,
-          }}
-        />
-      </Section>
-
-      <Section id="date-picker" name="Выбор даты с «Сегодня» и стрелками" note="Поле даты, стрелки на период, кнопка «Сегодня». Показ — 14.09.2026 (§14; нативное поле показывает формат ОС — шаг 7.4)." interactive>
-        <States
-          cells={{
-            normal: <div className="ds-inline"><button type="button" className="icon-button" aria-label="Предыдущая неделя"><Icon name="chevron" style={{ transform: 'rotate(180deg)' }} /></button><Input type="date" defaultValue="2026-09-14" aria-label="Дата" /><button type="button" className="icon-button" aria-label="Следующая неделя"><Icon name="chevron" /></button><Button type="button" tone="secondary">Сегодня</Button></div>,
-            hover: <div className="ds-inline"><Input type="date" defaultValue="2026-09-14" className="is-hover" aria-label="Дата" /><Button type="button" tone="secondary" className="is-hover">Сегодня</Button></div>,
-            active: 'то же, что фокус: открывается календарь ОС',
-            focus: <div className="ds-inline"><Input type="date" defaultValue="2026-09-14" className="is-focus" aria-label="Дата" /></div>,
-            disabled: <div className="ds-inline"><Input type="date" defaultValue="2026-09-14" disabled aria-label="Дата" /></div>,
-            loading: 'нет: дата применяется кнопкой, загрузка — на кнопке «Применить»',
-            error: <div className="ds-inline"><Input type="date" defaultValue="2026-09-20" aria-invalid="true" aria-label="Дата" /><span className="ds-freshness">выезд раньше заезда</span></div>,
-            selected: <div className="ds-inline"><Button type="button" tone="info" aria-pressed="true">Сегодня</Button></div>,
-          }}
-        />
-      </Section>
-
-      <Section id="dropdown" name="Выпадающий фильтр" note="Select и чипы: статус, источник или канал. Способа гарантии и тегов нет (Q-131)." interactive>
-        <States
-          cells={{
-            normal: <Select defaultValue="ALL" aria-label="Статус"><option value="ALL">Все статусы</option><option>ждём</option><option>заселён</option></Select>,
-            hover: <Select defaultValue="ALL" aria-label="Статус" className="is-hover"><option value="ALL">Все статусы</option></Select>,
-            active: 'то же, что фокус: список открыт',
-            focus: <Select defaultValue="ALL" aria-label="Статус" className="is-focus"><option value="ALL">Все статусы</option></Select>,
-            disabled: <Select disabled defaultValue="ALL" aria-label="Статус"><option value="ALL">Все статусы</option></Select>,
-            loading: <Select disabled defaultValue="…" aria-label="Статус" aria-busy="true"><option value="…">Загружаем справочник…</option></Select>,
-            error: <Select aria-invalid="true" defaultValue="ALL" aria-label="Статус"><option value="ALL">Справочник не загрузился</option></Select>,
-            selected: <div className="ds-inline"><button type="button" className="filter-chip is-selected" aria-pressed="true">Занятые</button><button type="button" className="filter-chip">Свободные</button></div>,
-          }}
-        />
-      </Section>
-
-      <Section id="drawer" name="Панель сбоку" note="Карточка брони поверх шахматки: 480 px, затемнение, тень слоя, Escape закрывает и возвращает фокус. Живой пример — любая клетка на /chessboard.">
-        <div className="ds-sample" style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 0, padding: 0, overflow: 'hidden', minHeight: 140 }}>
-          <div style={{ background: 'var(--overlay)' }} aria-label="шахматка под затемнением" role="img" />
-          <div style={{ background: 'var(--surface-elevated)', boxShadow: 'var(--shadow-floating)', padding: 16 }}>
-            <div className="ds-inline" style={{ justifyContent: 'space-between' }}><strong>Бронирование</strong><button type="button" className="icon-button" aria-label="Закрыть: Бронирование"><Icon name="close" /></button></div>
-            <p className="ds-freshness">панель сбоку · Escape закрывает</p>
-          </div>
-        </div>
-      </Section>
-
-      <Section id="announcement" name="Плашка-объявление" note="Ошибка — role=alert (на нём e2e); предупреждение и успех — тоном. Текст говорит, что делать.">
-        <div style={{ display: 'grid', gap: 8 }}>
-          <Alert boxed>Не удалось сохранить: место уже занято. Выберите другую ячейку.</Alert>
-          <Alert tone="warning" boxed>Каналы могут не знать об остатках: ошибок отправки 1. Нажмите «Отправить очередь сейчас».</Alert>
-          <Alert tone="success" boxed>Полная выгрузка отправлена: 500 дней, 3 задачи.</Alert>
-          <Notice>Сохранено изменений: 1</Notice>
-        </div>
-      </Section>
-
-      <Section id="unassigned-row" name="Строка «Без ячейки»" note="Проживание без койки в диапазоне доски (паритет с «Без номера» Exely) — конфликт по Д3, действие «Назначить». Станет строкой сетки на шаге 7.1.">
-        <div className="ds-sample">
-          <div className="ds-inline">
-            <Icon name="incidents" width={16} height={16} style={{ color: 'var(--warning)' }} />
-            <strong style={{ color: 'var(--warning)' }}>Без ячейки: 1</strong>
-            <span>Мужской общий номер · <a href="#unassigned-row" style={{ textDecoration: 'underline' }}>20260913-SHOWUN</a> · 14.09.2026 → 17.09.2026 · ждём</span>
-            <Button type="button" size="sm" tone="secondary">Назначить</Button>
-          </div>
-        </div>
-      </Section>
-
-      <Section id="channel-badge" name="Бейдж канала" note="Каналы различаются названием и значком, не цветом (документ). Стойка и сайт — тоже словом.">
-        <div className="ds-inline">
-          {['Booking.com', 'Trip.com', 'Agoda', 'Expedia', 'Hostelworld', 'Ostrovok', 'стойка', 'сайт', 'телефон'].map((c) => (
-            <Badge key={c}><Icon name={['стойка', 'телефон'].includes(c) ? 'phone' : c === 'сайт' ? 'external' : 'channels'} width={12} height={12} /> {c}</Badge>
-          ))}
-        </div>
-      </Section>
-
-      <Section id="sync-indicator" name="Индикатор синхронизации Channex" note="Строка свежести в меню: время последней синхронизации Exely, событие Channex, очередь. Задержка — словом и цветом внимания.">
-        <div style={{ display: 'grid', gap: 8 }}>
-          <span className="ds-freshness">Exely 22:35 · Channex 22:31 · очередь 0</span>
-          <span className="ds-freshness ds-freshness--warn">Exely 21:10 (25 мин назад) · Channex — · очередь 2, ошибок 1</span>
-          <span className="ds-freshness ds-freshness--warn">Нет связи с API</span>
-        </div>
-      </Section>
-
-      <Section id="tasks-block" name="Блок задач смены = «Требуют внимания»" note="Считается из данных дня: без ячейки, без гражданства, долг уезжающих. Задач со сроками нет (Q-132).">
-        <section className="attention-card" style={{ maxWidth: 420 }}>
-          <div className="attention-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><h3 style={{ margin: 0, fontSize: 14 }}>Требуют внимания</h3><span className="attention-count" style={{ display: 'inline-grid', placeItems: 'center', borderRadius: 999 }}>2</span></div>
-          <div className="attention-list">
-            <a href="#tasks-block" className="attention-item" style={{ display: 'flex', alignItems: 'center' }}><span className="attention-icon" style={{ display: 'inline-grid', placeItems: 'center', borderRadius: 8 }}><Icon name="guests" /></span><span><strong>Бекболатов Дәулет</strong><br /><small>назначить койку</small></span></a>
-            <a href="#tasks-block" className="attention-item" style={{ display: 'flex', alignItems: 'center' }}><span className="attention-icon" style={{ display: 'inline-grid', placeItems: 'center', borderRadius: 8 }}><Icon name="money" /></span><span><strong>Клиент Пример</strong><br /><small>к оплате 16 000 ₸</small></span></a>
-          </div>
-        </section>
-      </Section>
-
-      <Section id="housekeeping-block" name="Блок уборки" note="Три статуса словом: грязно, убрано, проверено; ремонт — блокировка с причиной, не статус уборки (§9).">
-        <div className="ds-inline">
-          <Badge tone="warn">грязно</Badge>
-          <Badge tone="ok">убрано</Badge>
-          <Badge tone="info">проверено</Badge>
-          <Badge tone="danger">ремонт: кондиционер</Badge>
-          <Button type="button" size="sm" tone="secondary">Отметить убранной</Button>
-        </div>
-      </Section>
-
-      <Section id="skeleton" name="Скелетон" note="Единственная анимация без действия — загрузка (§13). Форма повторяет плитку, строку и заголовок.">
-        <div style={{ display: 'grid', gap: 8, maxWidth: 480 }}>
-          <span className="skeleton skeleton-title" style={{ display: 'block' }} />
-          <span className="skeleton skeleton-row" style={{ display: 'block' }} />
-          <span className="skeleton skeleton-row" style={{ display: 'block' }} />
-        </div>
-      </Section>
-
-      <Section id="empty-state" name="Пустое состояние" note="Значок, заголовок, что сделать. Пусто и ошибка — разные состояния (пусто не значит сбой).">
-        <div className="empty-state" style={{ border: '1px dashed var(--border)' }}>
-          <Icon name="check" />
-          <h3>Заездов на сегодня нет</h3>
-          <p>Следующий заезд — завтра, 15.09.2026: 12 проживаний.</p>
-          <Button type="button" tone="secondary" size="sm">Открыть завтра</Button>
-        </div>
-      </Section>
-
-      <Section id="action-menu" name="Меню действий" note="Кнопка «Действия» или «⋯» → Переселить, Продлить, Заселить, Отменить со штрафом. Замена перетаскиванию (§12). Роли menu / menuitem." interactive>
-        <div className="ds-sample" style={{ minHeight: 200 }}>
-          <LiveActionMenu />
-        </div>
-        <States
-          cells={{
-            normal: <span className="btn btn--secondary">Действия <Icon name="down" width={16} height={16} /></span>,
-            hover: <span className="btn btn--secondary is-hover">Действия <Icon name="down" width={16} height={16} /></span>,
-            active: <div className="action-menu__list" style={{ position: 'static' }}><span className="action-menu__item is-hover"><Icon name="bed" width={16} height={16} /><span>Переселить</span></span><span className="action-menu__item"><Icon name="plus" width={16} height={16} /><span>Продлить на ночь</span></span></div>,
-            focus: <div className="action-menu__list" style={{ position: 'static' }}><span className="action-menu__item is-focus"><Icon name="bed" width={16} height={16} /><span>Переселить</span></span></div>,
-            disabled: <div className="action-menu__list" style={{ position: 'static' }}><span className="action-menu__item" aria-disabled="true"><Icon name="arrival" width={16} height={16} /><span>Заселить<small>нет гражданства</small></span></span></div>,
-            loading: 'нет: действие уходит в окно подтверждения или на кнопку с текстом «…»',
-            error: 'нет: ошибка действия показывается уведомлением',
-            selected: <div className="action-menu__list" style={{ position: 'static' }}><span className="action-menu__item action-menu__item--danger is-hover"><Icon name="incidents" width={16} height={16} /><span>Отменить со штрафом</span></span></div>,
-          }}
-        />
-      </Section>
-
-      <Section id="confirm-dialog" name="Окно подтверждения" note="Только для необратимого: переселение в другую категорию, отмена со штрафом. Сумма и последствие видны до нажатия (Д5). Заменяет window.confirm." interactive>
-        <div className="ds-sample">
-          <LiveConfirm />
-        </div>
-        <States
-          cells={{
-            normal: <span className="ds-state__note">кнопка «Отменить со штрафом» — образец выше</span>,
-            hover: 'кнопки окна — как у компонента «Кнопка»',
-            active: 'кнопки окна — как у компонента «Кнопка»',
-            focus: 'при открытии фокус на главной кнопке окна; Escape = отмена',
-            disabled: 'обе кнопки заблокированы, пока идёт действие',
-            loading: <span className="btn" aria-busy="true">Отменяю…</span>,
-            error: <span role="alert" className="alert">Штраф не начислен: политика тарифа не задана (Q-103)</span>,
-            selected: 'нет: окно либо подтверждено, либо закрыто',
-          }}
-        />
-      </Section>
-
-      <Section id="toast" name="Уведомление" note="Результат действия виден: «Проживание продлено», «Оплата принята». Уходит через 6 с; ошибка — до закрытия. role=status." interactive>
-        <div className="ds-sample">
-          <LiveToast />
-        </div>
-        <States
-          cells={{
-            normal: <StaticToast item={{ tone: 'ok', text: 'Проживание продлено до 17.09.2026' }} />,
-            hover: 'нет: уведомление не реагирует на наведение, у кнопки закрытия — как у значка',
-            active: 'нет',
-            focus: 'фокус — на кнопке «Закрыть уведомление», как у значка',
-            disabled: 'нет',
-            loading: <StaticToast item={{ tone: 'info', text: 'Отправляем остаток в Channex…' }} />,
-            error: <StaticToast item={{ tone: 'danger', text: 'Не удалось отправить остаток в Channex: очередь ждёт повтора' }} />,
-            selected: <StaticToast item={{ tone: 'warn', text: 'Бронь без ячейки на сегодня', action: { label: 'Назначить', href: '#toast' } }} />,
-          }}
-        />
-      </Section>
-
-      <Section id="tooltip" name="Подсказка" note="Открывается наведением и фокусом, закрывается Escape, связана aria-describedby. Только для пояснений — смысл пишется словом рядом." interactive>
-        <div className="ds-sample" style={{ minHeight: 96, display: 'flex', alignItems: 'flex-end' }}>
-          <LiveTooltip />
-        </div>
-        <States
-          cells={{
-            normal: <button type="button" className="icon-button" aria-label="Карточка гостя"><Icon name="guests" /></button>,
-            hover: <span className="tooltip-anchor"><button type="button" className="icon-button is-hover" aria-label="Карточка гостя"><Icon name="guests" /></button><span role="tooltip" className="tooltip tooltip--bottom">Открыть карточку гостя</span></span>,
-            active: 'то же, что наведение',
-            focus: <span className="tooltip-anchor"><button type="button" className="icon-button is-focus" aria-label="Карточка гостя"><Icon name="guests" /></button><span role="tooltip" className="tooltip tooltip--bottom">Открыть карточку гостя</span></span>,
-            disabled: 'у отключённого элемента подсказка объясняет, почему: «нет гражданства»',
-            loading: 'нет',
-            error: 'нет',
-            selected: 'нет',
-          }}
-        />
-      </Section>
-
-      <Section id="amount-badge" name="Плашка суммы" note="Остаток словом и знаком: к оплате, оплачено, предоплата, штраф, к возврату. Деньги — «12 500 ₸», без копеек, если их нет (§14).">
-        <div className="ds-inline">
-          <AmountBadge amountMinor="1600000" kind="due" />
-          <AmountBadge amountMinor="0" kind="paid" />
-          <AmountBadge amountMinor="2400000" kind="prepaid" />
-          <AmountBadge amountMinor="800000" kind="penalty" />
-          <AmountBadge amountMinor="123450" kind="refund" />
-        </div>
-      </Section>
-
-      <Section id="keys" name="Клавиатура" note="Обязательные сочетания (§12); сочетания для действий стойки — после ответа Q-133.">
-        <div className="ds-inline">
-          <span><kbd className="ds-kbd">⌘</kbd> <kbd className="ds-kbd">K</kbd> поиск</span>
-          <span><kbd className="ds-kbd">Esc</kbd> закрыть панель</span>
-          <span><kbd className="ds-kbd">←</kbd> <kbd className="ds-kbd">→</kbd> вкладки карточки</span>
-          <span><kbd className="ds-kbd">Tab</kbd> по всем действиям</span>
-        </div>
-      </Section>
+      </div>
     </Page>
   );
 }
+
+export { STATES };

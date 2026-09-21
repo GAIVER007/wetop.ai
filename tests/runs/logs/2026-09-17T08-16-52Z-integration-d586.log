@@ -1,0 +1,20 @@
+# Интеграционные (integration) · 17.09.2026 13:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 461b716 (claude/blissful-meitner-ipoauv)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-17T08-16-52Z-integration-d586.json' 'tests/integration/audit-author.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓  integration  tests/integration/audit-author.test.ts (3 tests) 5696ms
+   ✓ audit author from session (integration, DATABASE_URL required) (3)
+     ✓ действие с ключом сессии подписано автором: user_id в audit_logs равен вошедшему 1567ms
+     ✓ то же действие без ключа — автор пуст, как было до среза 13 373ms
+     ✓ отозванная сессия автора не даёт 974ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  01:16:52
+   Duration  8.42s (tests 93%, import 5%, transform 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-17T08-16-52Z-integration-d586.json
+
+# код выхода 0 · 9 с

@@ -9,8 +9,10 @@ import type {
   SessionSource,
 } from '@pms/domain';
 import type { Prisma } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
+import { auditUserId } from '../accounts/actor';
 
 /** Сайт со счётчиком (DATA_MODEL §11 TrackedSite) плюс пояс объекта — для границ периода. */
 export interface SiteRecord {
@@ -172,10 +174,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     hosts: string[];
     publicKey: string;
   }): Promise<SiteRecord> {
-    const property = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: this.propertyName },
-      select: { id: true },
-    });
+    const property = { id: await propertyIdRef(this.prisma.db, this.propertyName) };
     const r = await this.prisma.db.trackedSite.create({
       data: { propertyId: property.id, ...input },
       select: SITE_SELECT,
@@ -339,6 +338,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async audit(action: string, siteId: string, after: Record<string, unknown>): Promise<void> {
     await this.prisma.db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: 'TrackedSite',
         entityId: siteId,
         action,
@@ -348,10 +348,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
 
   async ratePlanByCode(code: string): Promise<RatePlanOption | null> {
-    const property = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: this.propertyName },
-      select: { id: true },
-    });
+    const property = { id: await propertyIdRef(this.prisma.db, this.propertyName) };
     return this.prisma.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId: property.id, code } },
       select: { id: true, code: true, name: true, active: true },

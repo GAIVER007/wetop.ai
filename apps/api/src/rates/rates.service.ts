@@ -9,6 +9,8 @@ import { ARI_PUBLISHER, type AriPublisher, type LocalRateChange } from '../chann
 import { RATES_REPOSITORY, type RateChange, type RatesRepository } from './rates.repository';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+/** Предел календаря цен: год с запасом. Экран просит месяц, массовая правка — период руками */
+const MAX_CALENDAR_DAYS = 366;
 const DAYS = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'] as const;
 export interface RateChangeDto {
   accommodationTypeCode?: string;
@@ -73,6 +75,9 @@ export class RatesService {
       throw new BadRequestException('accommodationTypeCode и ratePlanCode обязательны');
     if (!ISO.test(q.from ?? '') || !ISO.test(q.to ?? '') || q.to! < q.from!)
       throw new BadRequestException('from/to — даты YYYY-MM-DD, from ≤ to');
+    // Волна 4: календарь отдаёт строку на день; без предела экран просил хоть десять лет
+    if ((Date.parse(q.to!) - Date.parse(q.from!)) / 86_400_000 + 1 > MAX_CALENDAR_DAYS)
+      throw new BadRequestException(`Календарь цен — до ${MAX_CALENDAR_DAYS} дней за запрос`);
     const { type, plan } = await this.resolve(q.accommodationTypeCode, q.ratePlanCode);
     const days = await this.repo.calendar(type.id, plan.id, q.from!, q.to!);
     return {
@@ -171,6 +176,7 @@ export class RatesService {
       ...(p.closedToDeparture !== undefined ? { closedToDeparture: p.closedToDeparture } : {}),
     }));
     // Цены, журнал и очередь каналов — одна транзакция: не бывает «цены сохранены, а в каналы не ушли» (Б5)
+    let queued = 0;
     const result = await this.repo.applyChanges(prepared, async (tx, counts) => {
       await this.repo.audit(
         'rates.bulk',
@@ -180,9 +186,9 @@ export class RatesService {
         },
         tx,
       );
-      await this.publisher.ratesChanged(local, tx);
+      queued = await this.publisher.ratesChanged(local, tx);
     });
-    return { applied: prepared.length, ...result };
+    return { applied: prepared.length, ...result, queued };
   }
 
   private async resolve(typeCode: string, planCode: string) {

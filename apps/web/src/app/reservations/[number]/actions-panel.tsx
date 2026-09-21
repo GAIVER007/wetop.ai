@@ -1,16 +1,11 @@
 'use client';
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useCommand } from '../../../lib/use-command';
-import { formatMoney } from '../../../lib/money';
-import { displayDay, displayPeriod } from '../../../lib/display-date';
-import { penaltyText } from '../../../lib/penalty-text';
-import type { CancelPreview, ExtendPreview, MovePreview } from '../../../lib/api';
 import {
   Alert,
   Button,
   Field,
   Input,
-  Notice,
   PanelTitle,
   Row,
   Select,
@@ -18,43 +13,33 @@ import {
   Textarea,
 } from '../../../components/ui';
 import { ConfirmDialog } from '../../../components/confirm-dialog';
+import type { CancelPreview, ExtendPreview, MovePreview } from '../../../lib/api';
+import { formatMoney } from '../../../lib/money';
+import { penaltyText } from '../../../lib/penalty-text';
+import { pluralRu } from '../../../lib/plural';
 import {
   assignUnitAction,
   cancelPreviewAction,
+  cancelReservationAction,
+  changeDatesAction,
+  extendPreviewAction,
   extendStayAction,
   movePreviewAction,
   stayAction,
-  cancelReservationAction,
-  changeDatesAction,
   updateReservationAction,
   updateStayGuestsAction,
   type ActionResult,
 } from '../actions';
 import { SOURCES } from '../sources';
+import { useConfirm } from '../../../components/use-confirm';
+import { previewLine } from '../../../lib/action-preview';
+import { useToast } from '../../../components/toast';
+import { previewAction } from '../actions';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
-const nightsWord = (n: number) =>
-  `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'ночь' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'ночи' : 'ночей'}`;
-
-export interface ActionItem {
-  id: string;
-  status: string;
-  accommodationTypeCode: string;
-  accommodationTypeName: string;
-  unitCode: string | null;
-  arrivalDate: string;
-  departureDate: string;
-  /** null — тариф неизвестен (перенесено из Exely): пересчёт цены без выбора тарифа невозможен */
-  ratePlanCode: string | null;
-  ratePlanName: string | null;
-  adults: number;
-  children: number;
-  availableGroups: Array<{ code: string; name: string; units: string[] }>;
-  /** Остаток счёта проживания (тиыны строкой) — для окна «Выселить с долгом» */
-  balanceMinor: string | null;
-  /** Предпросмотр продления на ночь (Д5): сумма и занята ли ячейка; null — не загрузился */
-  extendPreview: ExtendPreview | null;
-}
+/** Дата словами стойки: 20.09.2026 (DESIGN.md §14) */
+const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
+const NIGHTS: [string, string, string] = ['ночь', 'ночи', 'ночей'];
 
 export function ReservationActions(props: {
   number: string;
@@ -63,10 +48,26 @@ export function ReservationActions(props: {
   notes: string | null;
   arrivalDate: string;
   departureDate: string;
-  guestLabel: string;
+  /** Валюта брони — для сумм в окнах подтверждения */
   currency: string;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
-  items: ActionItem[];
+  items: Array<{
+    id: string;
+    status: string;
+    accommodationTypeCode: string;
+    accommodationTypeName: string;
+    arrivalDate: string;
+    departureDate: string;
+    unitCode: string | null;
+    /** null — тариф неизвестен (перенесено из Exely): пересчёт цены без выбора тарифа невозможен */
+    ratePlanCode: string | null;
+    ratePlanName: string | null;
+    adults: number;
+    children: number;
+    /** Остаток по счёту проживания — для окна «Выселить с долгом»; null — счёт не загрузился */
+    debtMinor: string | null;
+    availableGroups: Array<{ code: string; name: string; units: string[] }>;
+  }>;
 }) {
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
@@ -75,25 +76,49 @@ export function ReservationActions(props: {
     run: cancel,
     pending: cancelPending,
   } = useCommand<ActionResult>({ error: null });
+  const { toast } = useToast();
+  const [datesState, datesAction, datesPending] = useActionState<ActionResult, FormData>(
+    changeDatesAction.bind(null, props.number),
+    { error: null },
+  );
+  // Окно отмены (срез 7.3, Д5): штраф считает сервер тем же кодом, что и начисление; «Оставить» ничего не пишет
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelPreview, setCancelPreview] = useState<CancelPreview | null | undefined>(undefined);
   const openCancel = () => {
     setCancelPreview(undefined);
     setCancelOpen(true);
-    void cancelPreviewAction(props.number, 'cancel').then((r) => setCancelPreview(r.preview));
+    void cancelPreviewAction(props.number, 'cancel').then(setCancelPreview);
   };
-  const [datesState, datesAction, datesPending] = useActionState<ActionResult, FormData>(
-    changeDatesAction.bind(null, props.number),
-    { error: null },
-  );
   const canEdit = OPEN.has(props.status);
   return (
     <section data-testid="reservation-actions" className="stack stack--mt">
-      <EditForm number={props.number} source={props.source} notes={props.notes} />
+      {props.items
+        .filter(
+          (it) =>
+            it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
+        )
+        .map((it) => (
+          <Stack key={it.id} gap="sm">
+            <StayButtons
+              number={props.number}
+              currency={props.currency}
+              item={it}
+              ratePlans={props.ratePlans}
+            />
+            <GuestsForm number={props.number} item={it} />
+            <AssignForm
+              number={props.number}
+              currency={props.currency}
+              item={it}
+              arrivalDate={props.arrivalDate}
+              ratePlans={props.ratePlans}
+            />
+          </Stack>
+        ))}
       {canEdit && (
         // Поля неконтролируемые: defaultValue применяется только при монтировании, поэтому после
-        // «Продлить на ночь» или переселения форма показывала бы прежние даты, а сохранение молча укоротило
-        // бы проживание. Ключ по текущим датам отрисовывает поля заново.
+        // «Продлить на ночь» или переселения форма показывала бы прежние даты, а сохранение молча
+        // укоротило бы проживание. Ключ по текущим датам отрисовывает поля заново.
         <form
           key={`${props.arrivalDate}-${props.departureDate}-${datesState.attempt ?? 0}`}
           action={datesAction}
@@ -148,32 +173,15 @@ export function ReservationActions(props: {
           {datesState.error && <Alert>{datesState.error}</Alert>}
         </form>
       )}
-      {props.items
-        .filter(
-          (it) =>
-            it.status !== 'CANCELLED' && it.status !== 'CHECKED_OUT' && it.status !== 'NO_SHOW',
-        )
-        .map((it) => (
-          <Stack key={it.id} gap="sm">
-            <StayButtons
-              number={props.number}
-              item={it}
-              ratePlans={props.ratePlans}
-              currency={props.currency}
-              guestLabel={props.guestLabel}
-            />
-            <GuestsForm number={props.number} item={it} />
-            <AssignForm
-              number={props.number}
-              item={it}
-              arrivalDate={props.arrivalDate}
-              ratePlans={props.ratePlans}
-              currency={props.currency}
-            />
-          </Stack>
-        ))}
+      <EditForm number={props.number} source={props.source} notes={props.notes} />
       {canEdit && (
-        <div className="panel">
+        // Опасное действие названо до окна: что необратимо и что покажем перед подтверждением (B3)
+        <div className="panel panel--danger" data-testid="cancel-panel">
+          <PanelTitle>Отмена брони</PanelTitle>
+          <p className="hint">
+            Необратимо: место вернётся в продажу и уйдёт в каналы. Штраф по тарифу, если он положен,
+            покажем до подтверждения.
+          </p>
           <div>
             <Button
               type="button"
@@ -185,33 +193,27 @@ export function ReservationActions(props: {
               Отменить бронь
             </Button>
           </div>
-          {cancelState.error && !cancelOpen && <Alert>{cancelState.error}</Alert>}
-          {/* Окно вместо window.confirm (DESIGN.md §15): вопрос с объектом, последствие и штраф до нажатия (Д5) */}
+          {cancelState.error && <Alert>{cancelState.error}</Alert>}
           <ConfirmDialog
             open={cancelOpen}
             title={`Отменить бронь ${props.number}?`}
-            consequence="Место вернётся в продажу и уйдёт в каналы. Отмена необратима."
-            amount={
-              <span data-testid="cancel-penalty">
-                {penaltyText(cancelPreview, 'cancel', props.currency)}
-              </span>
-            }
             confirmLabel="Отменить бронь"
             cancelLabel="Оставить"
-            tone="danger"
-            pending={cancelPending ? 'Отменяю…' : undefined}
-            error={cancelState.error}
-            onConfirm={() =>
-              void cancel(async () => {
-                const r = await cancelReservationAction(props.number);
-                if (!r.error) setCancelOpen(false);
-                return r;
-              })
-            }
+            pending={cancelPending}
             onCancel={() => setCancelOpen(false)}
+            onConfirm={async () => {
+              await cancel(async () => {
+                const r = await cancelReservationAction(props.number);
+                if (!r.error) toast({ text: `Бронь ${props.number} отменена`, tone: 'success' });
+                return r;
+              });
+              setCancelOpen(false);
+            }}
           >
-            <p>
-              Гость {props.guestLabel}, {displayPeriod(props.arrivalDate, props.departureDate)}.
+            <p>Место вернётся в продажу и уйдёт в каналы.</p>
+            <p>Начисление за проживание сторнируется.</p>
+            <p data-testid="cancel-penalty">
+              {penaltyText(cancelPreview, 'cancel', props.currency)}
             </p>
           </ConfirmDialog>
         </div>
@@ -306,90 +308,175 @@ function GuestsForm(props: {
 }
 
 /**
- * Заезд, выезд, незаезд и продление. Окна подтверждения показывают сумму до нажатия (Д5): штраф за незаезд
- * и долг при выезде считает сервер; «Продлить на ночь» знает цену новой ночи и занята ли ячейка заранее.
+ * Заселить, выселить, продлить, незаезд. Суммы до подтверждения (срез 7.3, Д5) приходят с сервера
+ * предпросмотром — тем же кодом, что потом пишет начисление; здесь только слова и окна.
  */
 function StayButtons(props: {
   number: string;
-  item: ActionItem;
-  ratePlans: Array<{ code: string; name: string }>;
   currency: string;
-  guestLabel: string;
+  item: {
+    id: string;
+    status: string;
+    accommodationTypeName: string;
+    departureDate: string;
+    unitCode: string | null;
+    ratePlanCode: string | null;
+    debtMinor: string | null;
+  };
+  ratePlans: Array<{ code: string; name: string }>;
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
+  const { ask, dialog } = useConfirm();
+  const { toast } = useToast();
   // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирает администратор
   const [extendPlan, setExtendPlan] = useState('');
-  const [done, setDone] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<null | 'no-show' | 'debt'>(null);
-  const [noShowPreview, setNoShowPreview] = useState<CancelPreview | null | undefined>(undefined);
   const needsPlan = !props.item.ratePlanCode;
-  const ext = props.item.extendPreview;
-  const busyUnit = ext ? !ext.nextNightsFree : false;
-  const it = props.item;
-  const openNoShow = () => {
-    setNoShowPreview(undefined);
-    setDialog('no-show');
-    void cancelPreviewAction(props.number, 'no_show', it.id).then((r) =>
-      setNoShowPreview(r.preview),
-    );
-  };
-  const checkOut = (withDebt: boolean) =>
-    command(async () => {
-      const r = await stayAction(props.number, it.id, 'check-out', withDebt);
-      // T3: выселение с долгом — окно с суммой долга вместо второго вопроса
-      if (!withDebt && r.error && r.error.includes('долг')) setDialog('debt');
-      else if (!r.error) setDialog(null);
-      return r;
+  const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
+  const live = expected || props.item.status === 'CHECKED_IN';
+
+  // Продление: сумма и занятость следующей ночи известны до нажатия
+  const [preview, setPreview] = useState<ExtendPreview | null | undefined>(undefined);
+  const [done, setDone] = useState<string | null>(null);
+  useEffect(() => {
+    if (!live) return;
+    let alive = true;
+    setPreview(undefined);
+    void extendPreviewAction(
+      props.number,
+      props.item.id,
+      needsPlan ? extendPlan || undefined : undefined,
+    ).then((p) => {
+      if (alive) setPreview(p);
     });
-  const extend = () =>
-    command(async () => {
-      const r = await extendStayAction(props.number, it.id, 1, needsPlan ? extendPlan : undefined);
-      if (!r.error)
+    return () => {
+      alive = false;
+    };
+  }, [
+    props.number,
+    props.item.id,
+    props.item.departureDate,
+    props.item.unitCode,
+    needsPlan,
+    extendPlan,
+    live,
+  ]);
+  // без тарифа сервер называет и причину, и `ratePlanRequired`: администратору нужно второе — выбрать тариф
+  const extendBlocked =
+    !!preview && (!preview.nextNightsFree || (!!preview.problem && !preview.ratePlanRequired));
+  const extendHint =
+    preview === undefined
+      ? 'Считаю сумму…'
+      : preview === null
+        ? 'Сумма не загрузилась — цена появится на счёте после продления'
+        : !preview.nextNightsFree
+          ? `${preview.unitCode ?? 'Ячейка'} занята ${dd(props.item.departureDate)} — сначала переселите`
+          : preview.ratePlanRequired
+            ? 'выберите тариф для новой ночи'
+            : preview.problem
+              ? preview.problem
+              : `до ${dd(preview.departureDate)}${
+                  preview.addedMinor
+                    ? `, +${formatMoney(preview.addedMinor, props.currency)} на счёт`
+                    : ''
+                }`;
+  const extend = async () => {
+    const summary = await previewAction(props.number, props.item.id, {
+      action: 'extend',
+      nights: '1',
+      ...(extendPlan ? { ratePlanCode: extendPlan } : {}),
+    });
+    if (
+      !(await ask({
+        title: `Продлить на ночь — ${props.item.accommodationTypeName}?`,
+        body: previewLine(summary),
+        confirmLabel: 'Продлить',
+      }))
+    )
+      return;
+    return command(async () => {
+      const p = preview;
+      const r = await extendStayAction(
+        props.number,
+        props.item.id,
+        1,
+        needsPlan ? extendPlan : undefined,
+      );
+      if (!r.error && p)
         setDone(
-          ext?.addedMinor
-            ? `Проживание продлено до ${displayDay(ext.departureDate)}, +${formatMoney(ext.addedMinor, props.currency)} на счёт`
-            : 'Проживание продлено на ночь',
+          `Проживание продлено до ${dd(p.departureDate)}${
+            p.addedMinor ? `, +${formatMoney(p.addedMinor, props.currency)} на счёт` : ''
+          }`,
         );
       return r;
     });
-  const expected = it.status === 'CONFIRMED' || it.status === 'TENTATIVE';
-  const extendHint = needsPlan
-    ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
-    : !ext
-      ? 'Выезд на сутки позже, цена новой ночи по календарю'
-      : busyUnit
-        ? `${ext.unitCode ?? 'Ячейка'} занята ${displayDay(it.departureDate)} — сначала переселите`
-        : ext.problem
-          ? ext.problem
-          : `до ${displayDay(ext.departureDate)}, ${ext.addedMinor ? `+${formatMoney(ext.addedMinor, props.currency)} на счёт` : 'цена по календарю'}`;
+  };
+
+  // Незаезд: окно со штрафом вместо window.confirm
+  const [noShowOpen, setNoShowOpen] = useState(false);
+  const [noShowPreview, setNoShowPreview] = useState<CancelPreview | null | undefined>(undefined);
+  const openNoShow = () => {
+    setNoShowPreview(undefined);
+    setNoShowOpen(true);
+    void cancelPreviewAction(props.number, 'no_show', props.item.id).then(setNoShowPreview);
+  };
+
+  // Выселение с долгом (T3): первое нажатие показывает сумму, второе — с подтверждением
+  const [debt, setDebt] = useState<{ open: boolean; message: string }>({
+    open: false,
+    message: '',
+  });
+  const checkOut = () =>
+    command(async () => {
+      const r = await stayAction(props.number, props.item.id, 'check-out');
+      if (r.error && r.error.includes('долг')) {
+        setDebt({ open: true, message: r.error });
+        return { error: null };
+      }
+      // §8 «сделал — и что?»: карточка перерисовывается молча, уведомление называет итог и ячейку
+      if (!r.error)
+        toast({
+          text: `Гость выселен, ${props.item.unitCode ?? '—'}`,
+          tone: 'success',
+        });
+      return r;
+    });
+
   return (
     <div className="panel">
+      {dialog}
       <PanelTitle>
-        {it.accommodationTypeName} — {it.unitCode ?? 'ячейка не назначена'}
+        {props.item.accommodationTypeName} — {props.item.unitCode ?? 'ячейка не назначена'}
       </PanelTitle>
       <Row>
         {expected && (
           <Button
             type="button"
-            data-testid={`check-in-${it.id}`}
-            onClick={() => void command(() => stayAction(props.number, it.id, 'check-in'))}
-            disabled={pending || !it.unitCode}
-            title={it.unitCode ? '' : 'Сначала назначьте ячейку'}
+            data-testid={`check-in-${props.item.id}`}
+            onClick={() =>
+              command(async () => {
+                const r = await stayAction(props.number, props.item.id, 'check-in');
+                if (!r.error)
+                  toast({ text: `Гость заселён, ${props.item.unitCode ?? '—'}`, tone: 'success' });
+                return r;
+              })
+            }
+            disabled={pending || !props.item.unitCode}
+            title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
           >
             Заселить
           </Button>
         )}
-        {it.status === 'CHECKED_IN' && (
+        {props.item.status === 'CHECKED_IN' && (
           <Button
             type="button"
-            data-testid={`check-out-${it.id}`}
+            data-testid={`check-out-${props.item.id}`}
             disabled={pending}
-            onClick={() => void checkOut(false)}
+            onClick={checkOut}
           >
             Выселить
           </Button>
         )}
-        {(expected || it.status === 'CHECKED_IN') && needsPlan && (
+        {live && needsPlan && (
           <Select
             aria-label="Тариф для продления"
             value={extendPlan}
@@ -405,28 +492,32 @@ function StayButtons(props: {
             ))}
           </Select>
         )}
-        {(expected || it.status === 'CHECKED_IN') && (
-          <span className="row row--inline">
-            <Button
-              type="button"
-              tone="info"
-              data-testid={`extend-${it.id}`}
-              disabled={pending || (needsPlan && !extendPlan) || busyUnit}
-              onClick={() => void extend()}
-              title={extendHint}
-            >
-              Продлить на ночь
-            </Button>
-            <span className="hint" data-testid={`extend-hint-${it.id}`}>
-              {extendHint}
-            </span>
+        {live && (
+          <Button
+            type="button"
+            tone="info"
+            data-testid={`extend-${props.item.id}`}
+            disabled={pending || extendBlocked || (needsPlan && !extendPlan)}
+            onClick={extend}
+            title={
+              needsPlan
+                ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
+                : 'Выезд на сутки позже, цена по календарю'
+            }
+          >
+            Продлить на ночь
+          </Button>
+        )}
+        {live && (
+          <span className="hint" data-testid={`hint-extend-${props.item.id}`}>
+            {extendHint}
           </span>
         )}
         {expected && (
           <Button
             type="button"
             tone="warning"
-            data-testid={`no-show-${it.id}`}
+            data-testid={`no-show-${props.item.id}`}
             disabled={pending}
             onClick={openNoShow}
           >
@@ -434,201 +525,208 @@ function StayButtons(props: {
           </Button>
         )}
       </Row>
-      {state.error && dialog === null && <Alert>{state.error}</Alert>}
-      {done && !state.error && <Notice data-testid={`extend-done-${it.id}`}>{done}</Notice>}
+      {done && (
+        <Alert tone="success" data-testid={`done-extend-${props.item.id}`}>
+          {done}
+        </Alert>
+      )}
+      {state.error && <Alert>{state.error}</Alert>}
       <ConfirmDialog
-        open={dialog === 'no-show'}
-        title={`Отметить незаезд по ${it.unitCode ?? it.accommodationTypeName}?`}
-        consequence="Назначение ячейки снимется, место вернётся в продажу. Незаезд необратим."
-        amount={
-          <span data-testid="no-show-penalty">
-            {penaltyText(noShowPreview, 'no_show', props.currency)}
-          </span>
-        }
+        open={noShowOpen}
+        title={`Отметить незаезд по ${props.item.unitCode ?? props.item.accommodationTypeName}?`}
         confirmLabel="Отметить незаезд"
         cancelLabel="Оставить"
-        tone="danger"
-        pending={pending ? 'Отмечаю…' : undefined}
-        error={state.error}
-        onConfirm={() =>
-          void command(async () => {
-            const r = await stayAction(props.number, it.id, 'no-show');
-            if (!r.error) setDialog(null);
+        tone="warning"
+        pending={pending}
+        onCancel={() => setNoShowOpen(false)}
+        onConfirm={async () => {
+          await command(async () => {
+            const r = await stayAction(props.number, props.item.id, 'no-show');
+            if (!r.error)
+              toast({
+                text: `Незаезд отмечен, место ${props.item.unitCode ?? '—'} вернулось в продажу`,
+                tone: 'success',
+              });
             return r;
-          })
-        }
-        onCancel={() => setDialog(null)}
+          });
+          setNoShowOpen(false);
+        }}
       >
-        <p>
-          Гость {props.guestLabel}, {displayPeriod(it.arrivalDate, it.departureDate)}.
-        </p>
+        <p>Назначение ячейки снимется, место вернётся в продажу.</p>
+        <p data-testid="no-show-penalty">{penaltyText(noShowPreview, 'no_show', props.currency)}</p>
       </ConfirmDialog>
       <ConfirmDialog
-        open={dialog === 'debt'}
+        open={debt.open}
         title="Выселить с долгом?"
-        consequence="Счёт останется открытым, долг — за гостем."
-        amount={
-          <span data-testid="debt-amount">
-            {it.balanceMinor
-              ? `Долг ${formatMoney(it.balanceMinor, props.currency)} останется на счёте`
-              : (state.error ?? 'На счёте есть долг')}
-          </span>
-        }
         confirmLabel="Выселить с долгом"
         cancelLabel="Оставить"
-        tone="danger"
-        pending={pending ? 'Выселяю…' : undefined}
-        onConfirm={() => void checkOut(true)}
-        onCancel={() => setDialog(null)}
+        pending={pending}
+        onCancel={() => setDebt({ open: false, message: '' })}
+        onConfirm={async () => {
+          await command(() => stayAction(props.number, props.item.id, 'check-out', true));
+          setDebt({ open: false, message: '' });
+        }}
       >
-        <p>
-          Гость {props.guestLabel}, {it.unitCode ?? it.accommodationTypeName}.
+        <p data-testid="debt-amount">
+          {props.item.debtMinor && BigInt(props.item.debtMinor) > 0n
+            ? `Долг ${formatMoney(props.item.debtMinor, props.currency)} останется на счёте`
+            : 'Долг останется на счёте'}
         </p>
+        <p className="hint">{debt.message}</p>
       </ConfirmDialog>
     </div>
   );
 }
 
 /**
- * Назначение и переселение. Ячейка другой категории — окно с новой суммой до подтверждения (05-1, Д5);
- * внутри категории — сразу, цена не меняется.
+ * Назначить или переселить. Ячейка своей категории — сразу; чужой — окно с новой суммой на весь
+ * срок (срез 7.3, Д5): сумму считает сервер, форма отправляется только после «Переселить и пересчитать».
  */
 function AssignForm(props: {
   number: string;
+  currency: string;
   arrivalDate: string;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
-  currency: string;
-  item: ActionItem;
+  item: {
+    id: string;
+    accommodationTypeCode: string;
+    accommodationTypeName: string;
+    unitCode: string | null;
+    availableGroups: Array<{ code: string; name: string; units: string[] }>;
+  };
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(
     assignUnitAction.bind(null, props.number, props.item.id),
     { error: null },
   );
-  const form = useRef<HTMLFormElement>(null);
-  const bypass = useRef(false);
-  const [confirm, setConfirm] = useState<{
+  const formRef = useRef<HTMLFormElement>(null);
+  const confirmed = useRef(false);
+  const [move, setMove] = useState<{
     unitCode: string;
+    groupName: string;
     preview: MovePreview | null | undefined;
-    error: string | null;
   } | null>(null);
-  const preview = confirm?.preview;
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    if (confirmed.current) {
+      confirmed.current = false;
+      return;
+    }
+    const fd = new FormData(e.currentTarget);
+    const unitCode = String(fd.get('unitCode') ?? '');
+    const ratePlanCode = String(fd.get('ratePlanCode') ?? '') || undefined;
+    const group = props.item.availableGroups.find((g) => g.units.includes(unitCode));
+    // своя категория: цена не меняется, окно не нужно
+    if (!unitCode || !group || group.code === props.item.accommodationTypeCode) return;
+    e.preventDefault();
+    setMove({ unitCode, groupName: group.name, preview: undefined });
+    void movePreviewAction(props.number, props.item.id, unitCode, ratePlanCode).then((p) =>
+      setMove((m) => (m && m.unitCode === unitCode ? { ...m, preview: p } : m)),
+    );
+  };
+  const confirmMove = () => {
+    confirmed.current = true;
+    setMove(null);
+    formRef.current?.requestSubmit();
+  };
+  const lower = (s: string) => s.charAt(0).toLocaleLowerCase('ru') + s.slice(1);
+  const moveText = !move
+    ? ''
+    : move.preview === undefined
+      ? 'Считаю новую сумму…'
+      : move.preview === null
+        ? 'Сумма не загрузилась — цена пересчитается при переселении'
+        : move.preview.ratePlanRequired
+          ? 'Выберите тариф при смене категории: без него цену не посчитать'
+          : move.preview.newMinor === null
+            ? (move.preview.problem ?? 'Сумма не посчитана — цена пересчитается при переселении')
+            : move.preview.problem
+              ? move.preview.problem
+              : `Новая сумма за ${pluralRu(move.preview.nights, NIGHTS)} ${formatMoney(
+                  move.preview.newMinor,
+                  props.currency,
+                )} (было ${formatMoney(move.preview.currentMinor, props.currency)})`;
   return (
-    <>
-      <form
-        ref={form}
-        key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}-${state.attempt ?? 0}`}
-        action={action}
-        className="panel"
-        data-testid="assign-form"
-        onSubmit={(e) => {
-          if (bypass.current) {
-            bypass.current = false;
-            return;
-          }
-          const fd = new FormData(e.currentTarget);
-          const unitCode = String(fd.get('unitCode') ?? '');
-          const ratePlanCode = String(fd.get('ratePlanCode') ?? '') || undefined;
-          const group = props.item.availableGroups.find((g) => g.units.includes(unitCode));
-          if (!group || group.code === props.item.accommodationTypeCode) return; // своя категория — сразу
-          e.preventDefault();
-          setConfirm({ unitCode, preview: undefined, error: null });
-          void movePreviewAction(props.number, props.item.id, unitCode, ratePlanCode).then((r) =>
-            setConfirm((c) => (c ? { ...c, preview: r.preview, error: r.error } : c)),
-          );
-        }}
-      >
-        <PanelTitle>
-          {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить ячейку'} —{' '}
-          {props.item.accommodationTypeName}
-        </PanelTitle>
-        <Row>
-          <Select
-            name="unitCode"
-            aria-label="Свободная ячейка"
-            required
-            defaultValue={state.values?.unitCode ?? ''}
-          >
-            <option value="" disabled>
-              — свободная ячейка —
-            </option>
-            {props.item.availableGroups.map((g) => (
-              <optgroup
-                key={g.code}
-                label={
-                  g.code === props.item.accommodationTypeCode
-                    ? g.name
-                    : `${g.name} — с пересчётом цены`
-                }
-              >
-                {g.units.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Select>
-          <Field label="Тариф при смене категории">
-            <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
-              <option value="">Тариф проживания</option>
-              {props.ratePlans.map((plan) => (
-                <option key={plan.code} value={plan.code}>
-                  {plan.name} ({plan.currency})
+    <form
+      key={`${props.item.unitCode ?? '-'}-${props.arrivalDate}-${state.attempt ?? 0}`}
+      ref={formRef}
+      action={action}
+      onSubmit={onSubmit}
+      className="panel"
+      data-testid="assign-form"
+    >
+      <PanelTitle>
+        {props.item.unitCode ? `Переселить из ${props.item.unitCode}` : 'Назначить ячейку'} —{' '}
+        {props.item.accommodationTypeName}
+      </PanelTitle>
+      <Row>
+        <Select
+          name="unitCode"
+          aria-label="Свободная ячейка"
+          required
+          defaultValue={state.values?.unitCode ?? ''}
+        >
+          <option value="" disabled>
+            — свободная ячейка —
+          </option>
+          {props.item.availableGroups.map((g) => (
+            <optgroup
+              key={g.code}
+              label={
+                g.code === props.item.accommodationTypeCode
+                  ? g.name
+                  : `${g.name} — с пересчётом цены`
+              }
+            >
+              {g.units.map((u) => (
+                <option key={u} value={u}>
+                  {u}
                 </option>
               ))}
-            </Select>
-          </Field>
-          <Field inline label="с даты">
-            <Input
-              type="date"
-              name="fromDate"
-              defaultValue={state.values?.fromDate ?? props.arrivalDate}
-            />
-          </Field>
-          <Button type="submit" disabled={pending}>
-            {props.item.unitCode ? 'Переселить' : 'Назначить'}
-          </Button>
-        </Row>
-        <div className="hint">
-          Внутри категории цена не меняется. Ячейка другой категории пересчитает цену по её
-          календарю на весь срок — сумму покажем до подтверждения.
-        </div>
-        {state.error && <Alert>{state.error}</Alert>}
-      </form>
+            </optgroup>
+          ))}
+        </Select>
+        <Field label="Тариф при смене категории">
+          <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
+            <option value="">Тариф проживания</option>
+            {props.ratePlans.map((plan) => (
+              <option key={plan.code} value={plan.code}>
+                {plan.name} ({plan.currency})
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field inline label="с даты">
+          <Input
+            type="date"
+            name="fromDate"
+            defaultValue={state.values?.fromDate ?? props.arrivalDate}
+          />
+        </Field>
+        <Button type="submit" disabled={pending}>
+          {props.item.unitCode ? 'Переселить' : 'Назначить'}
+        </Button>
+      </Row>
+      <div className="hint">
+        Ячейка другой категории пересчитает цену по её календарю; такое переселение возможно только
+        на всё проживание целиком — сумму покажем до подтверждения.
+      </div>
+      {state.error && <Alert>{state.error}</Alert>}
       <ConfirmDialog
-        open={confirm !== null}
+        open={!!move}
         title={
-          confirm
-            ? `Переселить в ${preview?.toCategory?.name.toLocaleLowerCase('ru') ?? 'другую категорию'} ${confirm.unitCode}?`
+          move
+            ? `Переселить в ${lower(move.preview?.toCategory?.name ?? move.groupName)} ${move.unitCode}?`
             : ''
         }
-        consequence="Счёт будет пересчитан по тарифу новой категории на весь срок проживания."
-        amount={
-          <span data-testid="move-amount">
-            {preview === undefined
-              ? 'Считаю новую сумму…'
-              : preview?.newMinor
-                ? `Новая сумма за ${nightsWord(preview.nights)} ${formatMoney(preview.newMinor, props.currency)} (было ${formatMoney(preview.currentMinor, props.currency)})`
-                : (preview?.problem ?? confirm?.error ?? 'Сумма не загрузилась')}
-          </span>
-        }
         confirmLabel="Переселить и пересчитать"
-        pending={pending ? 'Переселяю…' : undefined}
-        error={preview?.problem ?? confirm?.error ?? null}
-        onConfirm={() => {
-          bypass.current = true;
-          form.current?.requestSubmit();
-          setConfirm(null);
-        }}
-        onCancel={() => setConfirm(null)}
+        tone="info"
+        pending={pending}
+        onCancel={() => setMove(null)}
+        onConfirm={confirmMove}
       >
-        {confirm && (
-          <p>
-            Проживание {displayPeriod(props.item.arrivalDate, props.item.departureDate)}, сейчас{' '}
-            {props.item.unitCode ?? 'без ячейки'} ({props.item.accommodationTypeName}).
-          </p>
-        )}
+        <p>Счёт будет пересчитан по тарифу новой категории на весь срок проживания.</p>
+        <p data-testid="move-amount">{moveText}</p>
       </ConfirmDialog>
-    </>
+    </form>
   );
 }

@@ -41,7 +41,8 @@ export interface HotelContent {
   checkedAt: string;
   source: 'channex';
   environment: 'staging' | 'production' | 'custom';
-  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'NOT_FOUND' | 'RATE_LIMITED' | 'UNREACHABLE';
+  state:
+    'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'NOT_FOUND' | 'RATE_LIMITED' | 'UNREACHABLE';
   message: string;
   property: {
     title: string | null;
@@ -89,6 +90,9 @@ export const hotelToday = () =>
   }).format(new Date());
 export const nextDay = (date: string) =>
   new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10);
+/** Дата через n дней (n может быть отрицательным), YYYY-MM-DD */
+export const plusDays = (date: string, n: number) =>
+  new Date(Date.parse(date) + n * 86400000).toISOString().slice(0, 10);
 export const validDate = (date: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(date) &&
   Number.isFinite(Date.parse(date)) &&
@@ -134,6 +138,8 @@ export interface ReservationDirectoryResult {
   total: number;
   page: number;
   pageSize: number;
+  /** Сколько броней в периоде по каждому статусу; ALL — все. Старый API его не присылает. */
+  counts?: Record<string, number>;
   rows: ReservationListRow[];
 }
 export const reservationDirectory = (query: Record<string, string>) =>

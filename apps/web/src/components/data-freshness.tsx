@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { cx } from './ui';
 
 interface Freshness {
@@ -27,18 +27,22 @@ const time = (iso: string) =>
 const minutesSince = (iso: string | null) =>
   iso ? (Date.now() - Date.parse(iso)) / 60_000 : Number.POSITIVE_INFINITY;
 
-/**
- * Свежесть данных в боковой панели: три строки «источник — время», а не одна длинная фраза —
- * в узкой панели она переносилась посреди слова (DESIGN.md §14). Обновляется раз в минуту.
- */
-export function DataFreshness() {
+const FreshnessContext = createContext<{ data: Freshness | null; failed: boolean }>({
+  data: null,
+  failed: false,
+});
+
+/** Один опрос на оболочку, включая открытое мобильное меню. Не переживает выход из приложения. */
+export function DataFreshnessProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Freshness | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const load = async () => {
       try {
-        const res = await fetch('/api/freshness', { cache: 'no-store' });
+        const res = await fetch('/api/freshness', { cache: 'no-store', signal: controller.signal });
         if (!res.ok) throw new Error(String(res.status));
         const body = (await res.json()) as Freshness;
         if (alive) {
@@ -47,15 +51,25 @@ export function DataFreshness() {
         }
       } catch {
         if (alive) setFailed(true);
+      } finally {
+        // Медленный ответ не должен создавать очередь одинаковых запросов.
+        if (alive) timer = setTimeout(load, 60_000);
       }
     };
     void load();
-    const timer = setInterval(load, 60_000);
     return () => {
       alive = false;
-      clearInterval(timer);
+      controller.abort();
+      clearTimeout(timer);
     };
   }, []);
+
+  return <FreshnessContext.Provider value={{ data, failed }}>{children}</FreshnessContext.Provider>;
+}
+
+/** Строка состояния читает общий результат, не заводя собственный таймер. */
+export function DataFreshness() {
+  const { data, failed } = useContext(FreshnessContext);
 
   if (!data)
     return failed ? (
@@ -77,21 +91,10 @@ export function DataFreshness() {
         'последнее событие из Channex и очередь изменений остатков и цен в Channex'
       }
     >
-      <span className="freshness__row">
-        <span className="freshness__label">Exely</span>
-        <span>{data.exely.lastSyncAt ? time(data.exely.lastSyncAt) : 'не синхронизирован'}</span>
-      </span>
-      <span className="freshness__row">
-        <span className="freshness__label">Channex</span>
-        <span>{data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'}</span>
-      </span>
-      <span className="freshness__row">
-        <span className="freshness__label">Очередь</span>
-        <span>
-          {data.channex.outboxPending}
-          {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
-        </span>
-      </span>
+      Exely {data.exely.lastSyncAt ? time(data.exely.lastSyncAt) : 'не синхронизирован'} · Channex{' '}
+      {data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'} · очередь{' '}
+      {data.channex.outboxPending}
+      {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
     </span>
   );
 }

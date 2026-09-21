@@ -5,7 +5,11 @@ import { api, chessboardApi } from '../../../lib/api';
 import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
+import { LoadError } from '../../../components/load-error';
+import { loadErrorProps } from '../../../lib/load-error';
+import { displayDate } from '../../../lib/display-date';
 import { Alert, Help, Button, Field, Input, Stat, Stats, Table } from '../../../components/ui';
+import '../../directory.css';
 
 export default async function ManagementPage({
   params,
@@ -34,20 +38,37 @@ async function Statistics({ date }: { date: string }) {
         Некорректная дата. <Link href="/management/statistics">Вернуться к сегодняшнему дню</Link>
       </Alert>
     );
-  const [board, inventory] = await Promise.all([
-    chessboardApi.board(date, date),
-    api.inventorySummary(),
-  ]);
+  // D4 (план владельца 19.09): отказ шахматки или фонда не уносит экран — дата и форма остаются, вместо чисел
+  // `LoadError` с повтором на ту же дату. Расчёт загрузки не менялся.
+  const loaded = await Promise.all([chessboardApi.board(date, date), api.inventorySummary()]).then(
+    (r) => ({ ok: true as const, r }),
+    (e: unknown) => ({ ok: false as const, e }),
+  );
+  const form = (
+    <form method="get" className="row row--lg toolbar directory-toolbar">
+      <Field inline label="Дата">
+        <Input key={`date-${date}`} type="date" name="date" defaultValue={date} required />
+      </Field>
+      <Button type="submit">Показать</Button>
+    </form>
+  );
+  if (!loaded.ok)
+    return (
+      <>
+        {form}
+        <LoadError testId="statistics-error" {...loadErrorProps(loaded.e)} />
+      </>
+    );
+  const [board, inventory] = loaded.r;
   const summary = board.summary[date];
   const rows = Object.entries(board.byCategory[date] ?? {});
   return (
     <>
-      <form method="get" className="row toolbar">
-        <Field label="Дата">
-          <Input type="date" name="date" defaultValue={date} required />
-        </Field>
-        <Button type="submit">Показать</Button>
-      </form>
+      {form}
+      <p className="directory-meta" data-testid="statistics-meta">
+        Загрузка на <time dateTime={date}>{displayDate(date, 'numeric')}</time> по размещениям в
+        шахматке
+      </p>
       {summary ? (
         <Stats>
           <Stat label="Занято единиц" value={summary.occupied} hint="по размещениям в шахматке" />
@@ -62,7 +83,7 @@ async function Statistics({ date }: { date: string }) {
       ) : (
         <Alert boxed>Нет сводки на выбранную дату.</Alert>
       )}
-      <Table>
+      <Table className="dir-table dir-table--statistics" data-testid="statistics-table">
         <thead>
           <tr>
             <th>Категория</th>
@@ -96,7 +117,10 @@ async function Statistics({ date }: { date: string }) {
           ))}
           {!rows.length && (
             <tr>
-              <td colSpan={6}>Нет данных по категориям.</td>
+              <td colSpan={6} className="empty-state">
+                На эту дату шахматка не дала сводки по категориям: категории и состав приходят из
+                Exely при импорте фонда, загрузка считается по нему.
+              </td>
             </tr>
           )}
         </tbody>

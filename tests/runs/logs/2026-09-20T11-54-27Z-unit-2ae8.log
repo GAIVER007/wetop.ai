@@ -1,0 +1,18 @@
+# Модульные (unit) · 20.09.2026 16:54 Алматы · MacBook-Air-Urij.local
+# коммит 06729e9 (codex/current-release-acceptance), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T11-54-27Z-unit-2ae8.json' 'tests/unit/e2e-auth-config.test.ts' 'tests/unit/local-db-start.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| tests/unit/e2e-auth-config.test.ts (3 tests) 296ms
+ ✓ |unit| tests/unit/local-db-start.test.ts (1 test) 1944ms
+   ✓ local-db start does not add a second set of stays to the populated test schema 1943ms
+
+ Test Files  2 passed (2)
+      Tests  4 passed (4)
+   Start at  15:54:29
+   Duration  2.10s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-20T11-54-27Z-unit-2ae8.json
+
+# код выхода 0 · 3 с

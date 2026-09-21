@@ -1,4 +1,9 @@
-import { ensureFolioWithAccommodation, recordImportedPayment, type DbTx } from '@pms/database';
+import {
+  ensureFolioWithAccommodation,
+  ensureSingleActiveCharge,
+  recordImportedPayment,
+  type DbTx,
+} from '@pms/database';
 import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
@@ -11,6 +16,12 @@ export interface ReservationsImportOptions {
   anonymizeSalt: string | null;
   /** Сегодняшняя ночь объекта (YYYY-MM-DD): переезд внутри срока, который уже был (ADR-044). По умолчанию — сейчас в Алматы */
   today?: string;
+  /**
+   * ADR-050: записи — живые карточки, полученные целиком только что (`cli-sync-day`): проживание, которого в карточке
+   * нет, отменяется. Снимок с диска (`cli-import-reservations`) так считать нельзя — повтор старого снимка снёс бы
+   * проживания, добавленные позже (ревью 15.09.2026). По умолчанию выключено.
+   */
+  cancelVanished?: boolean;
 }
 export interface ReservationsImportReport {
   reservations: EntityCounts;
@@ -25,7 +36,22 @@ export interface ReservationsImportReport {
   paymentsImported: number;
   /** Проживания, чья ячейка в эти даты уже занята другим активным проживанием: назначение пропущено */
   conflicts: AllocationConflict[];
+  /** ADR-050 (Q-127): проживания, исчезнувшие из карточки Exely, отменены этим прогоном */
+  vanished: VanishedStay[];
+  /** Исчезли из карточки, но не тронуты: заселённый гость или оплаченное проживание — к человеку (Q-134) */
+  vanishedKept: Array<VanishedStay & { reason: 'checked-in' | 'paid' }>;
+  /** ADR-051 (Q-128): начисления «удержано в Exely» созданы этим прогоном */
+  retained: number;
 }
+export interface VanishedStay {
+  confirmationNumber: string;
+  exelyRoomStayId: string;
+  accommodationTypeCode: string;
+  arrivalDate: string;
+  departureDate: string;
+}
+/** Начисление-удержание на счёте отменённого проживания, оплаченного в Exely без возврата (ADR-051) */
+const RETENTION_DESCRIPTION = 'Удержано в Exely при отмене (перенос)';
 export interface AllocationConflict {
   confirmationNumber: string;
   exelyRoomNumber: string;
@@ -64,7 +90,11 @@ export async function importReservations(
     unassigned: 0,
     paymentsImported: 0,
     conflicts: [],
+    vanished: [],
+    vanishedKept: [],
+    retained: 0,
   };
+  const today = opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000));
   const types = await tx.accommodationType.findMany({
     where: { propertyId: opts.propertyId },
     select: { id: true, code: true },
@@ -244,6 +274,23 @@ export async function importReservations(
         currency: r.currency,
       });
       if (paid === 'created') report.paymentsImported += 1;
+      // ADR-051 (Q-128): отменено / незаезд, оплачено в Exely и не возвращено — Exely держит начисление и баланс 0.
+      // У нас начисление за проживание сторнировано, поэтому удержание — отдельным начислением на сумму оплаты;
+      // вернулось в активное или появился возврат — удержание сторнируется. Только для перенесённых проживаний.
+      const retentionWanted = !holdsUnit && it.paidMinor > 0n && it.refundMinor === 0n;
+      // у только что созданного проживания сторнировать нечего — без лишнего запроса на каждое из ~1 800
+      if (retentionWanted || existingItem) {
+        const retention = await ensureSingleActiveCharge(tx, {
+          folioId,
+          kind: 'PENALTY',
+          matchDescription: RETENTION_DESCRIPTION,
+          description: RETENTION_DESCRIPTION,
+          amountMinor: it.paidMinor,
+          serviceDate: it.arrivalDate,
+          wanted: retentionWanted,
+        });
+        if (retention === 'created') report.retained += 1;
+      }
 
       // Отменённое / незаехавшее проживание ячейку не занимает (запрет пересечений в БД безусловный):
       // назначение не создаём, а существующее снимаем — как делает команда отмены на стойке.
@@ -311,6 +358,76 @@ export async function importReservations(
         report.stayGuests.linked += 1;
       }
     }
+
+    // ADR-050 (Q-127): живая карточка брони приходит целиком (cancelVanished — только cli-sync-day); проживание,
+    // которого в ней больше нет, в Exely удалено или перенесено в другую бронь. Отменяем его как отмену: ячейка
+    // снимается, начисление сторнируется, штраф не начисляется. Предохранители: карточка не пустая; проживание ещё
+    // не закончилось (прошлое уже прожили); уже отменённое / незаезд / выехавшее не трогаем; заселённого гостя и
+    // оплаченное проживание не трогаем, а называем в отчёте — это к человеку (Q-134). Повтор ничего не делает.
+    if (opts.cancelVanished && r.items.length > 0) {
+      const present = new Set(r.items.map((it) => it.exelyRoomStayId));
+      const gone = await tx.reservationItem.findMany({
+        where: {
+          reservationId,
+          exelyRoomStayId: { not: null },
+          status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
+          departureDate: { gte: asDate(today) },
+        },
+        select: {
+          id: true,
+          exelyRoomStayId: true,
+          status: true,
+          arrivalDate: true,
+          departureDate: true,
+          price: true,
+          accommodationType: { select: { code: true } },
+          folio: { select: { allocations: { where: { payment: { status: 'COMPLETED' } }, select: { amount: true } } } },
+        },
+        // Порядок задаём сами: без него PostgreSQL отдаёт строки как удобно, и отчёт
+        // синхронизации перечисляет исчезнувшие проживания каждый раз по-новому.
+        orderBy: { exelyRoomStayId: 'asc' },
+      });
+      for (const item of gone) {
+        if (present.has(item.exelyRoomStayId!)) continue;
+        const stay: VanishedStay = {
+          confirmationNumber: r.confirmationNumber,
+          exelyRoomStayId: item.exelyRoomStayId!,
+          accommodationTypeCode: item.accommodationType.code,
+          arrivalDate: iso(item.arrivalDate),
+          departureDate: iso(item.departureDate),
+        };
+        const paid = (item.folio?.allocations ?? []).some((p) => p.amount > 0n);
+        if (item.status === 'CHECKED_IN' || paid) {
+          report.vanishedKept.push({ ...stay, reason: item.status === 'CHECKED_IN' ? 'checked-in' : 'paid' });
+          continue;
+        }
+        await tx.reservationItem.update({ where: { id: item.id }, data: { status: 'CANCELLED' } });
+        const removed = await tx.allocation.deleteMany({ where: { reservationItemId: item.id } });
+        report.allocations.released += removed.count;
+        await ensureFolioWithAccommodation(tx, {
+          reservationItemId: item.id,
+          currency: r.currency,
+          amountMinor: item.price,
+          description: `Проживание ${stay.arrivalDate} → ${stay.departureDate}`,
+          serviceDate: stay.arrivalDate,
+          active: false,
+        });
+        await tx.auditLog.create({
+          data: {
+            entityType: 'ReservationItem',
+            entityId: item.id,
+            action: 'reservation.item.vanished',
+            before: { status: item.status, exelyRoomStayId: item.exelyRoomStayId },
+            after: {
+              status: 'CANCELLED',
+              confirmationNumber: r.confirmationNumber,
+              reason: 'проживания больше нет в карточке брони Exely (ADR-050)',
+            },
+          },
+        });
+        report.vanished.push(stay);
+      }
+    }
   }
 
   // ── Места из Exely всей пачкой ──
@@ -346,7 +463,7 @@ export async function importReservations(
         start: iso(o.startDate),
         end: iso(o.endDate),
       })),
-      opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000)),
+      today,
     );
     const unchanged = (q: (typeof seating)[number], segments: Segment[]) =>
       q.current.length === segments.length &&

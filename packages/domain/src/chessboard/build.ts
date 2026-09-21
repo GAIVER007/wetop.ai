@@ -9,28 +9,18 @@ export type StayStatus =
   'TENTATIVE' | 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW';
 export type CellState = 'FREE' | 'OCCUPIED' | 'BLOCKED';
 
-export type HousekeepingState = 'DIRTY' | 'CLEAN' | 'INSPECTED';
+export type HousekeepingStatus = 'DIRTY' | 'CLEAN' | 'INSPECTED';
+
 export interface ChessboardUnit {
   id: string;
   code: string;
   kind: InventoryUnitKind;
   accommodationTypeCode: string;
   accommodationTypeName: string;
-  /** Статус уборки ячейки (§4 DATA_MODEL) — бейдж словом в строке и фильтр «Уборка» (срез 7.1) */
-  housekeeping?: HousekeepingState;
+  /** Убрана ли ячейка (срез 7.1): приём из Exely «значок уборки у номера»; без значения бейджа нет */
+  housekeepingStatus?: HousekeepingStatus;
 }
-/**
- * Что стойка видит на полосе брони кроме имени и статуса (DESIGN.md §8, §9, срез 7.1): источник и канал
- * (бейдж), остаток счёта в тиынах строкой (плашка «к оплате»). Только чтение существующих данных —
- * баланс считает `folioBalance`, здесь он лишь переносится на клетки.
- */
-export interface StayFacts {
-  source?: string;
-  channel?: string | null;
-  /** integer minor units (ADR-008) строкой; отсутствует, если счёта нет */
-  balanceMinor?: string;
-}
-export interface ChessboardAllocation extends StayFacts {
+export interface ChessboardAllocation {
   unitId: string;
   startDate: string;
   endDate: string;
@@ -38,7 +28,11 @@ export interface ChessboardAllocation extends StayFacts {
   itemStatus: StayStatus;
   confirmationNumber: string;
   guestLabel: string;
-  guestPhone?: string | null;
+  /** Откуда бронь: `OTA` с названием канала, `DESK`, `WEBSITE`… Каналы различаются словом, не цветом */
+  source?: string;
+  channel?: string | null;
+  /** Остаток к оплате по счёту проживания, тиыны строкой (ADR-008); «0» — плашки суммы нет */
+  balanceMinor?: string;
 }
 export interface ChessboardBlock {
   unitId: string;
@@ -51,15 +45,13 @@ export interface ChessboardBlock {
  * Проживание без ячейки в диапазоне доски: бронь канала, которой не хватило места (Q-107), или бронь,
  * у которой назначение сняли. В Exely это строка «Без номера» под категорией. Гостей здесь нет — ПД.
  */
-export interface UnassignedStay extends StayFacts {
+export interface UnassignedStay {
   confirmationNumber: string;
   categoryCode: string;
   categoryName: string;
   arrivalDate: string;
   departureDate: string;
   status: StayStatus;
-  /** Заказчик — как на клетках доски; строка «Без ячейки» в макете называет гостя */
-  guestLabel?: string;
 }
 export interface ChessboardInput {
   from: string;
@@ -70,7 +62,7 @@ export interface ChessboardInput {
   /** Проживания без ячейки, пересекающие ночи доски; по умолчанию — ни одного */
   unassigned?: UnassignedStay[];
 }
-export interface ChessboardCell extends StayFacts {
+export interface ChessboardCell {
   date: string;
   state: CellState;
   itemId?: string;
@@ -82,6 +74,10 @@ export interface ChessboardCell extends StayFacts {
   /** дата = дата заезда проживания / дата = последняя ночь */
   isArrival?: boolean;
   isLastNight?: boolean;
+  /** Канал и долг проживания — чтобы не открывать карточку ради двух фактов (срез 7.1) */
+  source?: string;
+  channel?: string | null;
+  balanceMinor?: string;
   blockType?: string;
   blockReason?: string | null;
 }
@@ -162,12 +158,11 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
         itemStatus: a.itemStatus,
         confirmationNumber: a.confirmationNumber,
         guestLabel: a.guestLabel,
-        ...(a.guestPhone !== undefined ? { guestPhone: a.guestPhone } : {}),
-        ...(a.source !== undefined ? { source: a.source } : {}),
-        ...(a.channel !== undefined ? { channel: a.channel } : {}),
-        ...(a.balanceMinor !== undefined ? { balanceMinor: a.balanceMinor } : {}),
         isArrival: d === a.startDate,
         isLastNight: d === lastNight,
+        ...(a.source === undefined ? {} : { source: a.source }),
+        ...(a.channel === undefined ? {} : { channel: a.channel }),
+        ...(a.balanceMinor === undefined ? {} : { balanceMinor: a.balanceMinor }),
       });
     }
   }

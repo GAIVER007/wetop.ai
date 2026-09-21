@@ -1,327 +1,8 @@
-/* Рабочий день: отдельные стили, не меняющие плотность остальных таблиц. */
-.day-date {
-  color: var(--text-2);
-}
-.day-date-divider {
-  margin: 0 8px;
-  color: var(--muted);
-}
-.day-date-picker {
-  gap: 8px;
-}
-.desk-metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.desk-metric {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  padding: 16px 24px;
-  min-width: 0;
-}
-.desk-metric-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-2);
-}
-.desk-metric-icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.desk-metric-value {
-  display: block;
-  font-size: 36px;
-  line-height: 1.25;
-  font-weight: 600;
-  letter-spacing: -1px;
-  font-variant-numeric: tabular-nums;
-  margin: 4px 0 4px;
-}
-.desk-metric-hint {
-  font-size: 12px;
-  color: var(--muted);
-}
-.desk-metric-hint > span {
-  color: var(--text);
-  font-weight: 500;
-}
-.desk-metric--home {
-  background: var(--success-soft);
-  border-color: var(--border);
-  color: var(--muted);
-}
-.desk-metric--home .desk-metric-top {
-  color: var(--success);
-}
-.desk-metric--home .desk-metric-icon {
-  background: var(--success-soft);
-  color: var(--success);
-}
-.desk-metric--home .desk-metric-hint {
-  color: var(--success);
-}
-.desk-metric--departure .desk-metric-icon {
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-.desk-metric--debt .desk-metric-icon {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-.desk-metric--debt .desk-metric-value {
-  font-size: 28px;
-  line-height: 1.6;
-  color: var(--danger);
-  letter-spacing: -0.5px;
-}
-.desk-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 24px;
-  align-items: start;
-}
-.desk-aside {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-}
-.day-workspace {
-  min-width: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  overflow: hidden;
-}
-.day-section-head {
-  padding: 16px 24px;
-  gap: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-}
-.day-section-head h2 {
-  margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.4px;
-  color: var(--text);
-}
-.day-section-head p {
-  margin: 8px 0 0;
-  font-size: 12px;
-}
-.day-toolbar {
-  padding: 0 24px;
-}
-.day-tabs {
-  display: flex;
-  gap: 24px;
-  border-bottom: 0;
-}
-.day-tab {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: none;
-  padding: 8px 0 16px;
-  font-size: 13px;
-  color: var(--muted);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.day-tab.is-active {
-  border-bottom-color: var(--primary);
-  color: var(--primary);
-  font-weight: 500;
-}
-.day-tab > span {
-  display: inline-grid;
-  place-items: center;
-  background: var(--success-soft);
-  color: var(--muted);
-  border-radius: var(--radius-sm);
-  min-width: 20px;
-  font-size: 12px;
-  padding: 4px 4px;
-}
-.day-tab.is-active > span {
-  background: var(--success-soft);
-  color: var(--primary);
-}
-.day-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  background: var(--success-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  margin-top: 0;
-  padding-left: 8px;
-  width: 230px;
-}
-.day-search .inp {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  min-height: 32px;
-  font-size: 12px;
-  padding-left: 0;
-}
-/* Один список на экране: ограничен по высоте и прокручивается сам, шапка остаётся видна */
-.day-list {
-  max-height: 520px;
-  overflow: auto;
-  border-top: 1px solid var(--border);
-}
-.day-list .table-scroll {
-  overflow: visible;
-  border-radius: 0;
-}
-.day-table thead th {
-  position: sticky;
-  top: 0;
-  /* шапка списка над строками, но ниже всплывающих слоёв (DESIGN.md §13) */
-  z-index: var(--z-sticky);
-}
-.day-table {
-  border: 0;
-  border-radius: 0;
-}
-.day-table th {
-  /* Keep the visually hidden action label inside the table's scroll container. */
-  position: relative;
-  padding: 8px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border-soft);
-  color: var(--muted);
-  font-size: 12px;
-}
-.day-table th:first-child,
-.day-table td:first-child {
-  padding-left: 24px;
-}
-.day-table td {
-  padding: 8px 16px;
-  font-size: 12px;
-  vertical-align: middle;
-}
-.day-table th:last-child,
-.day-table td:last-child {
-  padding-right: 16px;
-}
-.day-table th:first-child,
-.day-table th:last-child {
-  border-radius: 0;
-}
-.day-table .cell-sub {
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 4px;
-}
-.day-guest-name {
-  font-weight: 500;
-  font-size: 13px;
-  white-space: nowrap;
-}
-.booking-number {
-  font-variant-numeric: tabular-nums;
-  font-size: 12px;
-}
-.day-unit {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-.day-unit svg {
-  width: 14px;
-  height: 14px;
-  color: var(--muted);
-}
-.day-category {
-  max-width: 130px;
-}
-.day-table .badge {
-  padding: 4px 8px;
-  font-size: 12px;
-  background: var(--success-soft);
-  border-radius: var(--radius-sm);
-}
-.day-table .badge--info {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.day-table .badge--ok {
-  background: var(--success-soft);
-  color: var(--success);
-}
-.day-table .badge--warn {
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-.day-stay-arrow {
-  color: var(--muted);
-}
-.day-row-action {
-  width: 44px;
-}
-.day-row-action .icon-button {
-  width: 28px;
-  height: 28px;
-  min-height: 28px;
-  border: 0;
-  color: var(--muted);
-  background: transparent;
-}
-.day-row-action .icon-button:hover {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.day-table-footer {
-  padding: 8px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px solid var(--border-soft);
-}
-.day-table-footer a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.day-table-footer svg {
-  width: 14px;
-  height: 14px;
-}
-.day-table .day-empty {
-  padding: 24px;
-  text-align: center;
-  color: var(--muted);
-}
+/* Обзор на главной: блок «Требуют внимания» (срез 5 → срез 14). Полоса стойки и показатели — dashboard.css. */
 .attention-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-control);
+  border-radius: 12px;
   overflow: hidden;
 }
 .attention-heading {
@@ -329,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 24px;
+  padding: 20px;
 }
 .attention-heading h2 {
   font-size: 15px;
@@ -341,28 +22,28 @@
   place-items: center;
   width: 23px;
   height: 23px;
-  font-size: 12px;
-  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  border-radius: 6px;
   background: var(--warning-soft);
   color: var(--warning);
 }
 .attention-list {
-  padding: 0 16px 8px;
+  padding: 0 12px 8px;
   max-height: 360px;
   overflow: auto;
 }
 .attention-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 16px 8px;
+  gap: 10px;
+  padding: 13px 8px;
   color: var(--text);
   border-top: 1px solid var(--border-soft);
 }
 .attention-item:hover {
   text-decoration: none;
   background: var(--surface-muted);
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
 }
 .attention-icon {
   display: grid;
@@ -372,7 +53,7 @@
   background: var(--warning-soft);
   color: var(--warning);
   flex-shrink: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 7px;
 }
 .attention-icon svg {
   width: 16px;
@@ -383,7 +64,7 @@
   height: 14px;
   color: var(--muted);
   margin-left: auto;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 .attention-item strong {
   display: block;
@@ -393,12 +74,20 @@
 .attention-item small {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
   margin-top: 4px;
 }
 .attention-item--debt small {
   color: var(--danger);
+}
+/* Не заехали вовремя: тревожнее незаполненной карточки, но это не долг — предупреждение, не ошибка */
+.attention-item--overdue small {
+  color: var(--warning);
+}
+.attention-item--overdue .attention-icon {
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .attention-item--debt .attention-icon {
   background: var(--warning-soft);
@@ -407,9 +96,9 @@
 .attention-footer {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 16px 24px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 12px 20px;
+  font-size: var(--text-xs);
   color: var(--muted);
   border-top: 1px solid var(--border-soft);
   background: var(--success-soft);
@@ -419,14 +108,14 @@
   height: 13px;
 }
 .attention-empty {
-  padding: 16px 24px 24px;
+  padding: 12px 20px 24px;
   text-align: center;
   color: var(--muted);
   font-size: 12px;
 }
 .attention-empty svg {
   display: block;
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
   color: var(--primary);
 }
 .attention-empty strong {
@@ -437,163 +126,14 @@
   margin-bottom: 0;
   line-height: 1.6;
 }
-.desk-board-card {
-  padding: 24px;
-  border-radius: var(--radius-control);
-  background: var(--success-soft);
-  overflow: hidden;
-}
 .eyebrow {
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0.12em;
   font-weight: 500;
   color: var(--muted);
 }
-.desk-board-card h2 {
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-  margin: 16px 0;
-  color: var(--success);
-}
-.desk-board-card p {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0;
-}
-.desk-board-card .btn {
-  width: 100%;
-  justify-content: space-between;
-  background: var(--surface);
-  border-color: var(--border);
-  color: var(--success);
-  font-size: 12px;
-}
-.mini-board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: 24px 0;
-}
-.mini-board span {
-  height: 18px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--success-soft);
-}
-.mini-board span:nth-child(4n + 1) {
-  grid-column: span 2;
-  background: var(--success-soft);
-  border-color: var(--border);
-}
-.mini-board span:nth-child(4n + 3) {
-  background: var(--surface-muted);
-  border-color: var(--border);
-}
-@media (min-width: 1600px) {
-  .desk-layout {
-    grid-template-columns: minmax(0, 1fr) 320px;
-  }
-}
-@media (max-width: 1250px) {
-  .desk-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .desk-aside {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .desk-metric {
-    padding: 16px;
-  }
-  .desk-metric-top {
-    font-size: 12px;
-  }
-}
 @media (max-width: 700px) {
-  .desk-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-  .desk-metric {
+  .attention-heading {
     padding: 16px;
-  }
-  .desk-metric-value {
-    font-size: 30px;
-  }
-  .desk-metric--debt .desk-metric-value {
-    font-size: 22px;
-  }
-  .desk-metric-hint {
-    font-size: 12px;
-  }
-  .desk-metric-icon {
-    width: 28px;
-    height: 28px;
-  }
-  .desk-metric-top {
-    font-size: 12px;
-  }
-  .desk-aside {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .day-tabs {
-    gap: 16px;
-    overflow: auto;
-  }
-  .day-section-head,
-  .day-toolbar {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .day-date-divider {
-    margin: 0 8px;
-  }
-  .day-date-picker {
-    width: 100%;
-  }
-  .day-date-picker input {
-    flex: 1;
-    min-width: 0;
-  }
-  .desk-metric-hint {
-    min-height: 30px;
-  }
-  .day-date {
-    display: block;
-  }
-  .day-date-divider {
-    display: none;
-  }
-}
-@media (max-width: 360px) {
-  .desk-metric {
-    padding: 16px;
-  }
-  .desk-metric--debt .desk-metric-value {
-    font-size: 17px;
-  }
-  .desk-metric-icon {
-    display: none;
-  }
-  .day-tabs {
-    gap: 16px;
-  }
-}
-
-.day-date::first-letter {
-  text-transform: uppercase; /* slop-allow: uppercase — заглавная буква первого слова даты */
-}
-@media (max-width: 700px) {
-  .day-section-head {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .day-search {
-    width: 100%;
-  }
-  .day-section-head h2 {
-    font-size: 17px;
   }
 }

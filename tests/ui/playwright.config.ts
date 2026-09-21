@@ -1,21 +1,25 @@
 import { defineConfig } from '@playwright/test';
 
+// Chrome с машины по умолчанию; `UI_BROWSER_CHANNEL=chromium` — сборка Playwright;
+// `UI_BROWSER_EXECUTABLE=/путь/к/chrome` (или `CHROMIUM_PATH`, как у e2e и главной) — конкретный двоичный файл
+const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_PATH;
+
 /** Browser → real Next.js/server actions → synthetic loopback API. Not DB integration evidence. */
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',
-  // Эталонные снимки страницы компонентов (DESIGN.md, шаг 4): design/reference/kit/<имя>.png
-  snapshotPathTemplate: '{testDir}/../../design/reference/kit/{arg}{ext}',
+  // набор со включённым замком поднимает свой стенд и идёт отдельно: `playwright.auth.config.ts`
+  testIgnore: 'login-lock.spec.ts',
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,
   expect: { timeout: 15_000 },
+  // эталонные снимки страницы компонентов (DESIGN.md, план шаг 4): имя даёт сам тест, включая платформу
+  snapshotPathTemplate: '{testDir}/../../design/reference/kit/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:3100',
-    // Установленный Chrome; в окружении с Playwright Chromium — UI_BROWSER_CHANNEL=chromium;
-    // готовый бинарник другой версии (удалённая среда) — UI_BROWSER_EXECUTABLE=/путь/к/chrome.
-    ...(process.env.UI_BROWSER_EXECUTABLE
-      ? { launchOptions: { executablePath: process.env.UI_BROWSER_EXECUTABLE } }
+    ...(uiExecutable
+      ? { launchOptions: { executablePath: uiExecutable } }
       : { channel: process.env.UI_BROWSER_CHANNEL || 'chrome' }),
     viewport: { width: 1440, height: 1000 },
     trace: 'retain-on-failure',

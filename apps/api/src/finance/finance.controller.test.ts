@@ -94,7 +94,8 @@ function makeFakes() {
         },
       ];
     },
-    async addCharge(folioId, c) {
+    async addCharge(folioId, c, audit) {
+      if (audit) audits.push(audit.action);
       const id = `c${++seq}`;
       folios
         .find((f) => f.id === folioId)!
@@ -120,7 +121,8 @@ function makeFakes() {
       }
       return null;
     },
-    async voidCharge(id) {
+    async voidCharge(id, audit) {
+      if (audit) audits.push(audit.action);
       const c = await repo.chargeById(id);
       if (c) c.voidedAt = '2026-09-09T11:00:00.000Z';
     },
@@ -130,7 +132,8 @@ function makeFakes() {
         .filter((b) => b.type === 'OTHER' && b.reason === reason)
         .map((b) => ({ id: b.id, unitCode: b.code, dateFrom: b.dateFrom, dateTo: b.dateTo }));
     },
-    async createPayment(p) {
+    async createPayment(p, audit) {
+      if (audit) audits.push(audit.action);
       const id = `p${++seq}`;
       payments.push({
         id,
@@ -161,7 +164,8 @@ function makeFakes() {
     async paymentById(id) {
       return payments.find((p) => p.id === id) ?? null;
     },
-    async createRefund(r) {
+    async createRefund(r, audit) {
+      if (audit) audits.push(audit.action);
       const id = `r${++seq}`;
       payments
         .find((p) => p.id === r.paymentId)!
@@ -180,7 +184,8 @@ function makeFakes() {
         });
       return id;
     },
-    async closeFolio(id) {
+    async closeFolio(id, audit) {
+      if (audit) audits.push(audit.action);
       const f = folios.find((x) => x.id === id);
       if (f) f.status = 'CLOSED';
     },
@@ -292,6 +297,10 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await request(app.getHttpServer()).get('/finance/report?from=2026-10-01').expect(400);
     await request(app.getHttpServer())
       .get('/finance/report?from=2026-10-31&to=2026-10-01')
+      .expect(400);
+    // Волна 4: без предела «Деньги за период» просили хоть десять лет и собирали всю базу
+    await request(app.getHttpServer())
+      .get('/finance/report?from=2020-01-01&to=2030-12-31')
       .expect(400);
 
     const r = await request(app.getHttpServer())

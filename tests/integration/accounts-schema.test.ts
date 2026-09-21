@@ -29,9 +29,7 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
       WHERE table_schema = 'public' AND table_name = 'organizations'`;
     migrated = rows.length > 0;
     if (!migrated)
-      console.warn(
-        'миграция 20260915000013_accounts не применена к этой базе — проверки пропущены',
-      );
+      console.warn('миграция 20260915000013_accounts не применена к этой базе — проверки пропущены');
   });
 
   afterAll(async () => {
@@ -66,13 +64,8 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
     }
   });
 
-  it('число попыток кода больше трёх база не принимает', async (ctx) => {
-    if (!migrated) return ctx.skip();
-    await expect(
-      db.$executeRaw`INSERT INTO login_codes (id, email, code_hash, expires_at, attempts, created_at)
-        VALUES (${randomUUID()}::uuid, ${mail()}, ${'x'.repeat(64)}, now() + interval '10 minutes', 4, now())`,
-    ).rejects.toThrow();
-  });
+  // Таблица `login_codes` снята 20.09.2026 вместе со входом по коду (ADR-053, миграция
+  // 20260920000017): проверять её ограничения больше нечего, а хранила она почту и IP.
 
   it('сессию нельзя привязать к несуществующей организации', async (ctx) => {
     if (!migrated) return ctx.skip();
@@ -99,8 +92,8 @@ describe.skipIf(!url)('accounts schema (integration, DATABASE_URL required)', ()
       const rows = await db.$queryRaw<Array<{ status: string; trial_ends_at: Date | null }>>`
         SELECT status, trial_ends_at FROM organizations WHERE id = ${id}::uuid`;
       expect(rows).toHaveLength(1);
-      expect(rows[0]?.status).toBe('TRIAL');
-      expect(rows[0]?.trial_ends_at).not.toBeNull();
+      expect(rows[0]!.status).toBe('TRIAL');
+      expect(rows[0]!.trial_ends_at).not.toBeNull();
     } finally {
       await db.$executeRaw`DELETE FROM organizations WHERE id = ${id}::uuid`;
     }

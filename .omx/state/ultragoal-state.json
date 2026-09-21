@@ -1,0 +1,6 @@
+{
+  "active": true,
+  "current_phase": "checkpointing",
+  "blocker": "Awaiting release of other-session HEAD.lock. C1 verified and staged, not committed or pushed. Codex snapshot still blocked; completion checkpoint not fabricated.",
+  "run_outcome": "continue"
+}

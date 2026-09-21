@@ -41,7 +41,7 @@
 Да. Очередь и троттлинг 6 с на эндпоинт; backoff на 429; полный sync — 2 вызова на объект.
 
 ## 13. Update logic
-Да, только изменения (дельты) по событиям PMS; полный sync — по кнопке и раз в сутки после 03:00 Алматы (`POST /channels/channex/sync/scheduled`, `apps/api/src/channels/sync.service.ts`, `CHANNEX_FULL_SYNC_HOUR`; сделано 11.09.2026 вечером, `reports/channex-hardening-2026-09-11.md`). Уточнено 14.09.2026: прежняя запись «запланирован, не реализован» устарела в день своего появления.
+Да, только изменения (дельты) по событиям PMS; полный sync — по кнопке; ночной запуск раз в сутки запланирован, на 11.09.2026 не реализован. **Дополнение 18.09.2026:** ночная полная выгрузка сделана вечером 11.09 (`POST /channels/channex/sync/scheduled`, раз в сутки после `CHANNEX_FULL_SYNC_HOUR`, по умолчанию 03:00 Алматы; `apps/api/src/channels/sync.service.ts`), и пакет 11.09 (`plans/channex-certification-pack-2026-09-11.md` §13) отвечает уже с ней — расхождение между протоколом и пакетом снято.
 
 ## 14. Extra notes
 - Min Stay: поддерживаем один `min_stay`, отправляем одинаково в `min_stay_arrival` и `min_stay_through`.

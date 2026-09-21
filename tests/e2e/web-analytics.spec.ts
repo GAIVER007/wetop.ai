@@ -1,5 +1,6 @@
 import { createServer, type Server } from 'node:http';
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Срез 8, гейт (план §11): вымышленный сайт http://test-site.localhost:3999 отдаёт HTTP-сервер теста, код
@@ -123,29 +124,40 @@ test('три сессии двух посетителей доходят до п
     204,
   );
 
-  // приёмник пишет пачкой раз в секунду — ждём отчёт по API
+  // приёмник пишет пачкой раз в секунду — ждём отчёт по API. Ждём и событие поиска (строку
+  // спроса): оно уходит своей пачкой, и сводка сходилась раньше, чем оно ложилось в базу — экран
+  // открывался без строки спроса (CI 20.09, `an-demand-row` 0 из 1)
   await expect
     .poll(
       async () => {
         const r = await request.get(
           `${API}/analytics/sites/${siteId}/report?from=${today}&to=${today}`,
         );
-        return (await r.json()).summary;
+        const report = await r.json();
+        // Pageviews and the later search event can be committed in different batches.
+        // Open the server-rendered report only after both have reached the database.
+        return { ...report.summary, demand: report.demand };
       },
       { timeout: 20_000 },
     )
-    .toMatchObject({ sessions: 3, visitors: 2, pageviews: 4, mobileSessions: 1 });
+    .toMatchObject({
+      sessions: 3,
+      visitors: 2,
+      pageviews: 4,
+      mobileSessions: 1,
+      demand: [{ arrival: '2026-10-01', searches: 1 }],
+    });
 
   // экран PMS
   await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
-  await expect(page.getByTestId('an-site-name')).toHaveText('E2E-АВТОТЕСТ сайт');
-  await expect(page.getByTestId('an-sessions')).toHaveText('3');
-  await expect(page.getByTestId('an-visitors')).toHaveText('2');
-  await expect(page.getByTestId('an-pageviews')).toHaveText('4');
-  await expect(page.getByTestId('an-pages-per-session')).toHaveText('1,33');
-  await expect(page.getByTestId('an-mobile-share')).toHaveText('33 %');
+  await expect(page.getByRole('main').getByTestId('an-site-name')).toHaveText('E2E-АВТОТЕСТ сайт');
+  await expect(page.getByRole('main').getByTestId('an-sessions')).toHaveText('3');
+  await expect(page.getByRole('main').getByTestId('an-visitors')).toHaveText('2');
+  await expect(page.getByRole('main').getByTestId('an-pageviews')).toHaveText('4');
+  await expect(page.getByRole('main').getByTestId('an-pages-per-session')).toHaveText('1,33');
+  await expect(page.getByRole('main').getByTestId('an-mobile-share')).toHaveText('33 %');
 
-  const sources = page.getByTestId('an-source-row');
+  const sources = page.getByRole('main').getByTestId('an-source-row');
   await expect(sources).toHaveCount(3);
   const seen = await sources.evaluateAll((rows) =>
     rows.map(
@@ -155,15 +167,15 @@ test('три сессии двух посетителей доходят до п
   );
   expect(seen.sort()).toEqual(['DIRECT/=1', 'SEARCH/google=1', 'SOCIAL/instagram=1']);
 
-  await expect(page.getByTestId('an-page-row')).toHaveCount(2);
-  await expect(page.getByTestId('an-demand-row')).toHaveCount(1);
-  await expect(page.getByTestId('an-demand-row').first()).toHaveAttribute(
+  await expect(page.getByRole('main').getByTestId('an-page-row')).toHaveCount(2);
+  await expect(page.getByRole('main').getByTestId('an-demand-row')).toHaveCount(1);
+  await expect(page.getByRole('main').getByTestId('an-demand-row').first()).toHaveAttribute(
     'data-arrival',
     '2026-10-01',
   );
 
   // подсказка на столбце
-  const chart = page.getByTestId('an-chart-sessions');
+  const chart = page.getByRole('main').getByTestId('an-chart-sessions');
   const box = await chart.locator('svg').boundingBox();
   if (box) await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.6);
   await page.screenshot({ path: 'reports/screenshots/web-analytics-report.png', fullPage: true });
@@ -171,7 +183,7 @@ test('три сессии двух посетителей доходят до п
 
 test('страница подключения: код с ключом, «Проверить счётчик» видит события', async ({ page }) => {
   await page.goto('/analytics/setup');
-  const card = page.locator(`[data-testid="site-card"][data-key="${key}"]`);
+  const card = page.getByRole('main').locator(`[data-testid="site-card"][data-key="${key}"]`);
   await expect(card).toBeVisible();
   await expect(card.getByTestId('site-card-snippet')).toContainText(`data-site="${key}"`);
   await expect(card.getByTestId('site-card-snippet')).toContainText('/a/pms.js');
@@ -222,10 +234,16 @@ test('демо-страница на адресе API: просмотры и к�
     });
 
   await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
-  await expect(page.getByTestId('an-sessions')).toHaveText('4');
-  const phone = page.locator('[data-testid="an-event-row"][data-name="phone_click"]');
+  await expect(page.getByRole('main').getByTestId('an-sessions')).toHaveText('4');
+  const phone = page
+    .getByRole('main')
+    .locator('[data-testid="an-event-row"][data-name="phone_click"]');
   await expect(phone).toHaveAttribute('data-count', '1');
-  await expect(page.getByTestId('an-devices').locator('tr[data-key="MOBILE"]')).toContainText('1');
-  await expect(page.getByTestId('an-browsers').locator('tr[data-key="Chrome"]')).toContainText('4');
-  await expect(page.getByTestId('setup-local-warning')).toHaveCount(0); // это страница отчёта
+  await expect(
+    page.getByRole('main').getByTestId('an-devices').locator('tr[data-key="MOBILE"]'),
+  ).toContainText('1');
+  await expect(
+    page.getByRole('main').getByTestId('an-browsers').locator('tr[data-key="Chrome"]'),
+  ).toContainText('4');
+  await expect(page.getByRole('main').getByTestId('setup-local-warning')).toHaveCount(0); // это страница отчёта
 });

@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
+import { auditUserId } from '../accounts/actor';
 
 export type ChargeKind = 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
 export type PaymentMethod =
@@ -132,6 +134,21 @@ export interface PeriodReport {
 }
 
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
+/**
+ * Строка журнала, которую операция пишет вместе с деньгами — одной транзакцией (хвост Б6): иначе обрыв
+ * связи между двумя запросами оставляет деньги в базе без следа. `entityId` не задан — берётся id только
+ * что созданной записи (у платежа и возврата он известен лишь после вставки).
+ */
+export interface AuditEntry {
+  entityType: string;
+  entityId?: string;
+  action: string;
+  before?: unknown;
+  after: Record<string, unknown>;
+  /** Имя поля в `after`, куда подставить id созданной записи (`chargeId`, `refundId`) */
+  idField?: string;
+}
+
 export interface FinanceRepository {
   /** Ячейка проживания по счёту; null — ячейка не назначена */
   stayUnitCode(reservationItemId: string): Promise<StayUnitRef | null>;
@@ -145,15 +162,15 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
-  addCharge(folioId: string, c: NewCharge): Promise<string>;
+  addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
   chargeById(id: string): Promise<ChargeRecord | null>;
-  voidCharge(id: string): Promise<void>;
+  voidCharge(id: string, audit?: AuditEntry): Promise<void>;
   /** Платёж вместе с распределением — атомарно */
-  createPayment(p: NewPayment): Promise<string>;
+  createPayment(p: NewPayment, audit?: AuditEntry): Promise<string>;
   paymentById(id: string): Promise<PaymentRecord | null>;
-  createRefund(r: NewRefund): Promise<string>;
+  createRefund(r: NewRefund, audit?: AuditEntry): Promise<string>;
   /** Закрыть счёт вручную (DATA_MODEL §6, Folio.status): гость рассчитался, начислений больше не будет */
-  closeFolio(id: string): Promise<void>;
+  closeFolio(id: string, audit?: AuditEntry): Promise<void>;
   audit(
     entityType: string,
     entityId: string,
@@ -163,6 +180,28 @@ export interface FinanceRepository {
   ): Promise<void>;
 }
 export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
+
+/**
+ * Клиент внутри транзакции: те же таблицы, что у `PrismaService.db`, но без вложенных транзакций.
+ * Тип берём от самого клиента, чтобы он не разошёлся со схемой.
+ */
+type TxClient = PrismaService['db'];
+
+/** Одна строка журнала. Пишется тем же клиентом, что и деньги, — своим или транзакционным. */
+async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
+  const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
+  const after = a.idField && createdId ? { ...a.after, [a.idField]: createdId } : a.after;
+  await tx.auditLog.create({
+    data: {
+      userId: auditUserId(),
+      entityType: a.entityType,
+      entityId: a.entityId ?? createdId ?? '',
+      action: a.action,
+      before: j(a.before),
+      after: j(after),
+    },
+  });
+}
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
 /**
@@ -249,11 +288,8 @@ const toFolio = (f: FolioRow): FolioRecord => ({
 export class PrismaFinanceRepository implements FinanceRepository {
   private readonly propertyName = LUXX_APARTS_PROPERTY.name;
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  private property() {
-    return this.prisma.db.property.findFirstOrThrow({
-      where: { name: this.propertyName },
-      select: { id: true },
-    });
+  private async property(): Promise<{ id: string }> {
+    return { id: await propertyIdRef(this.prisma.db, this.propertyName) };
   }
   async foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null> {
     const { id: propertyId } = await this.property();
@@ -369,20 +405,38 @@ export class PrismaFinanceRepository implements FinanceRepository {
       accommodationByCategory: [...byCategory].map(([category, v]) => ({ category, ...v })),
     };
   }
-  async addCharge(folioId: string, c: NewCharge): Promise<string> {
-    const row = await this.prisma.db.charge.create({
-      data: {
-        folioId,
-        kind: c.kind,
-        serviceId: c.serviceId,
-        description: c.description,
-        quantity: c.quantity,
-        unitPrice: c.unitPriceMinor,
-        amount: c.amountMinor,
-        serviceDate: asDate(c.serviceDate),
-      },
-      select: { id: true },
+  /**
+   * Запись денег и строка журнала одной транзакцией. Без данных журнала (`audit`) метод работает как
+   * прежде — одним запросом: транзакция ради одной вставки только занимает соединение пулера.
+   */
+  private async withAudit<T extends { id: string } | void>(
+    audit: AuditEntry | undefined,
+    write: (tx: TxClient) => Promise<T>,
+  ): Promise<T> {
+    if (!audit) return write(this.prisma.db as unknown as TxClient);
+    return this.prisma.db.$transaction(async (tx) => {
+      const row = await write(tx as unknown as TxClient);
+      await writeAudit(tx as unknown as TxClient, audit, row && 'id' in row ? row.id : undefined);
+      return row;
     });
+  }
+
+  async addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string> {
+    const row = await this.withAudit(audit, (tx) =>
+      tx.charge.create({
+        data: {
+          folioId,
+          kind: c.kind,
+          serviceId: c.serviceId,
+          description: c.description,
+          quantity: c.quantity,
+          unitPrice: c.unitPriceMinor,
+          amount: c.amountMinor,
+          serviceDate: asDate(c.serviceDate),
+        },
+        select: { id: true },
+      }),
+    );
     return row.id;
   }
   async chargeById(id: string): Promise<ChargeRecord | null> {
@@ -392,25 +446,29 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     return c ? toCharge(c) : null;
   }
-  async voidCharge(id: string): Promise<void> {
-    await this.prisma.db.charge.update({ where: { id }, data: { voidedAt: new Date() } });
-  }
-  async createPayment(p: NewPayment): Promise<string> {
-    const { id: propertyId } = await this.property();
-    const row = await this.prisma.db.payment.create({
-      data: {
-        propertyId,
-        method: p.method,
-        amount: p.amountMinor,
-        currency: p.currency,
-        note: p.note,
-        ...(p.paidAt ? { paidAt: new Date(p.paidAt) } : {}),
-        allocations: {
-          create: p.allocations.map((a) => ({ folioId: a.folioId, amount: a.amountMinor })),
-        },
-      },
-      select: { id: true },
+  async voidCharge(id: string, audit?: AuditEntry): Promise<void> {
+    await this.withAudit(audit, async (tx) => {
+      await tx.charge.update({ where: { id }, data: { voidedAt: new Date() } });
     });
+  }
+  async createPayment(p: NewPayment, audit?: AuditEntry): Promise<string> {
+    const { id: propertyId } = await this.property();
+    const row = await this.withAudit(audit, (tx) =>
+      tx.payment.create({
+        data: {
+          propertyId,
+          method: p.method,
+          amount: p.amountMinor,
+          currency: p.currency,
+          note: p.note,
+          ...(p.paidAt ? { paidAt: new Date(p.paidAt) } : {}),
+          allocations: {
+            create: p.allocations.map((a) => ({ folioId: a.folioId, amount: a.amountMinor })),
+          },
+        },
+        select: { id: true },
+      }),
+    );
     return row.id;
   }
   async paymentById(id: string): Promise<PaymentRecord | null> {
@@ -430,22 +488,26 @@ export class PrismaFinanceRepository implements FinanceRepository {
         }
       : null;
   }
-  async createRefund(r: NewRefund): Promise<string> {
-    const row = await this.prisma.db.refund.create({
-      data: {
-        paymentId: r.paymentId,
-        folioId: r.folioId,
-        amount: r.amountMinor,
-        reason: r.reason,
-      },
-      select: { id: true },
-    });
+  async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
+    const row = await this.withAudit(audit, (tx) =>
+      tx.refund.create({
+        data: {
+          paymentId: r.paymentId,
+          folioId: r.folioId,
+          amount: r.amountMinor,
+          reason: r.reason,
+        },
+        select: { id: true },
+      }),
+    );
     return row.id;
   }
-  async closeFolio(id: string): Promise<void> {
-    await this.prisma.db.folio.update({
-      where: { id },
-      data: { status: 'CLOSED', closedAt: new Date() },
+  async closeFolio(id: string, audit?: AuditEntry): Promise<void> {
+    await this.withAudit(audit, async (tx) => {
+      await tx.folio.update({
+        where: { id },
+        data: { status: 'CLOSED', closedAt: new Date() },
+      });
     });
   }
   async audit(
@@ -455,9 +517,13 @@ export class PrismaFinanceRepository implements FinanceRepository {
     before: unknown,
     after: unknown,
   ) {
-    const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
-    await this.prisma.db.auditLog.create({
-      data: { entityType, entityId, action, before: j(before), after: j(after) },
+    await writeAudit(this.prisma.db as unknown as TxClient, {
+      entityType,
+      entityId,
+      action,
+      before,
+      // старый путь журнала (ADR-028 и импорт) кладёт произвольную структуру — форму проверяет вызывающий
+      after: after as Record<string, unknown>,
     });
   }
 }

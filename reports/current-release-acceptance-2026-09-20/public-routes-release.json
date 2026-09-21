@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-09-20T14:07:02.601175+00:00",
+  "client": "curl, Mozilla/5.0",
+  "routes": [
+    {
+      "path": "/login",
+      "status": 200,
+      "location": null
+    },
+    {
+      "path": "/register",
+      "status": 200,
+      "location": null
+    },
+    {
+      "path": "/today",
+      "status": 200,
+      "location": null
+    }
+  ],
+  "note": "Python urllib without browser User-Agent returned 403; repeated using curl."
+}

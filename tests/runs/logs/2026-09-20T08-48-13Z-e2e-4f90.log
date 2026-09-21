@@ -1,0 +1,12 @@
+# Сквозные (e2e) · 20.09.2026 13:48 Алматы · vm
+# коммит 3753889 (claude/relaxed-carson-ekb1gc)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'design-reference' '--workers=1'
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (16.3s)
+  ✓  2 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (13.9s)
+
+  2 passed (34.0s)
+
+# код выхода 0 · 35 с

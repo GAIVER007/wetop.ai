@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import { folioBalance } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface DeskStay {
   itemId: string;
@@ -40,10 +41,7 @@ export class PrismaDeskRepository implements DeskRepository {
    * Отменённые и незаезды не показываем — стойке они в работе дня не нужны.
    */
   async stays(date: string): Promise<DeskStay[]> {
-    const property = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: this.propertyName },
-      select: { id: true },
-    });
+    const property = { id: await propertyIdRef(this.prisma.db, this.propertyName) };
     const d = asDate(date);
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {

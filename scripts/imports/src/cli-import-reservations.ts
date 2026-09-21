@@ -15,6 +15,7 @@ import {
   importPiiSalt,
   importReservations,
   normalizeExelyReservation,
+  type VanishedStay,
 } from './exely/index';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
@@ -72,6 +73,10 @@ try {
     stayGuests: { linked: 0 },
     unassigned: 0,
     paymentsImported: 0,
+    // снимок с диска — не живая карточка: cancelVanished не передаётся, vanished всегда пуст (ADR-050)
+    vanished: [] as VanishedStay[],
+    vanishedKept: [] as Array<VanishedStay & { reason: 'checked-in' | 'paid' }>,
+    retained: 0,
     conflicts: [] as Array<{
       confirmationNumber: string;
       exelyRoomNumber: string;
@@ -114,6 +119,9 @@ try {
     total.stayGuests.linked += report.stayGuests.linked;
     total.unassigned += report.unassigned;
     total.paymentsImported += report.paymentsImported;
+    total.vanished.push(...report.vanished);
+    total.vanishedKept.push(...report.vanishedKept);
+    total.retained += report.retained;
     total.conflicts.push(...report.conflicts);
     console.log(
       `  пачка ${i / CHUNK + 1}/${Math.ceil(records.length / CHUNK)}: ${part.length} броней — ок`,
@@ -127,6 +135,12 @@ try {
     `  связей гость↔проживание: ${report.stayGuests.linked}; проживаний без единицы: ${report.unassigned}; назначений снято (отмены/незаезды): ${report.allocations.released}`,
   );
   console.log(`  платежей перенесено из Exely (EXTERNAL): ${report.paymentsImported}`);
+  console.log(`  удержаний «оплачено в Exely, отменено без возврата» (ADR-051): ${report.retained}`);
+  if (report.vanished.length) {
+    console.log(`  исчезли из карточек Exely и отменены (ADR-050): ${report.vanished.length}`);
+    for (const v of report.vanished)
+      console.log(`    ${v.confirmationNumber} проживание ${v.exelyRoomStayId} ${v.arrivalDate} → ${v.departureDate}`);
+  }
   if (report.conflicts.length) {
     console.log(`  КОНФЛИКТЫ ячеек (назначение пропущено): ${report.conflicts.length}`);
     for (const c of report.conflicts)

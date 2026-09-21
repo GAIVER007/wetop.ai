@@ -8,8 +8,6 @@
 #   domain — постоянный туннель wetop.ai (plans/wetop-domain-2026-09-14.md §6): app.wetop.ai за Cloudflare Access и
 #   только публичные пути API на api.wetop.ai. Вместе с быстрым туннелем (tunnel) не ставится: тот открывает всё API
 #   и перерегистрирует webhook на свой адрес — сначала uninstall.sh tunnel.
-#   scripts/ops/launchd/install.sh exely-sync                      автосинхронизация из Exely раз в 5 мин (ADR-032);
-#                                                                  только явно: на день двойного ввода — uninstall.sh exely-sync
 #   scripts/ops/launchd/install.sh --takeover ...                  остановить уже запущенные вручную процессы
 #   scripts/ops/launchd/install.sh --dry ...                       только собрать и проверить plist во временной папке
 #   scripts/ops/launchd/status.sh                                  что запущено
@@ -21,6 +19,10 @@
 # launchd поднимет его на новом коде через 15 с. Журналы: ~/Library/Logs/pms-lux/<имя>.log
 # Стойка идёт на production-сборке `next start` (ADR-034, память Mac): правка в apps/web видна только после
 # `npm run build -w apps/web && launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.web`.
+#
+# Путь к папке вшивается в plist абсолютно (WorkingDirectory). Переименовали или перенесли папку проекта —
+# launchd не может сделать chdir и молча не поднимает ни одну службу: `scripts/ops/repo-sync.sh --relink`
+# переустанавливает их на новую папку (16.09.2026, «Pms Lux» → «WETOP»).
 #
 # Доступ к папке проекта. macOS не даёт процессам launchd читать ~/Desktop, ~/Documents и ~/Downloads без
 # разрешения (проверено 13.09.2026: `ls` видит имена, `head` и `bash script.sh` получают «Operation not permitted»,
@@ -43,8 +45,8 @@ for a in "$@"; do
   case "$a" in
     --takeover) TAKEOVER=1 ;;
     --dry) DRY=1 ;;
-    api|web|tunnel|domain|awake|exely-sync) NAMES+=("$a") ;;
-    *) echo "неизвестно: $a (есть api, web, tunnel, domain, awake, exely-sync, --takeover, --dry)"; exit 2 ;;
+    api|web|tunnel|domain|awake) NAMES+=("$a") ;;
+    *) echo "неизвестно: $a (есть api, web, tunnel, domain, awake, --takeover, --dry)"; exit 2 ;;
   esac
 done
 DOMAIN_CONFIG="$HOME/.cloudflared/wetop.yml"
@@ -102,7 +104,6 @@ command_for() {
     # постоянный туннель: адреса и правила — в ~/.cloudflared/wetop.yml (образец scripts/ops/cloudflared-wetop.example.yml)
     domain) CMD=("${CLOUDFLARED:-cloudflared}" tunnel --no-autoupdate --config "$DOMAIN_CONFIG" run) ;;
     # одним процессом: node с загрузчиком tsx, без npm и sh (ADR-032)
-    exely-sync) CMD=("$NODE" --import tsx scripts/imports/src/cli-sync-day.ts --auto) ;;
   esac
 }
 
@@ -141,7 +142,6 @@ occupied_by() {
     web) lsof -tiTCP:3000 -sTCP:LISTEN 2>/dev/null ;;
     tunnel) pgrep -f 'scripts/ops/channex-tunnel.sh|cloudflared tunnel --url' 2>/dev/null ;;
     domain) pgrep -f 'cloudflared tunnel .*wetop.yml run' 2>/dev/null ;;
-    exely-sync) pgrep -f 'cli-sync-day.ts --auto' 2>/dev/null ;;
   esac
 }
 
@@ -160,8 +160,22 @@ for n in "${NAMES[@]}"; do
   if [ "$n" = domain ]; then
     [ "$DRY" -eq 1 ] || [ -f "$DOMAIN_CONFIG" ] || { echo "  пропущен: нет $DOMAIN_CONFIG (образец scripts/ops/cloudflared-wetop.example.yml)"; continue; }
     [ "$DRY" -eq 1 ] || [ -n "$CLOUDFLARED" ] || { echo "  пропущен: cloudflared не найден в PATH"; continue; }
+    # Образец скопировали, а заполнить забыли (17.09.2026): cloudflared падал на «error parsing tunnel ID:
+    # <TUNNEL-ID>», launchd поднимал его каждые 15 с, и `status.sh` показывал задачу «загружена».
+    if [ "$DRY" -eq 0 ] && grep -v '^[[:space:]]*#' "$DOMAIN_CONFIG" | grep -q '<'; then
+      echo "  пропущен: в $DOMAIN_CONFIG остались заглушки <…> — подставить TUNNEL-ID, путь к ключу, имя команды и AUD-тег"; continue
+    fi
     if [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.tunnel" >/dev/null 2>&1; then
       echo "  пропущен: работает быстрый туннель — сначала scripts/ops/launchd/uninstall.sh tunnel"; continue
+    fi
+    # Тот же туннель уже держит кто-то другой: системная служба cloudflared от root или вторая машина.
+    # Вторая копия не заменяет первую — Cloudflare начинает делить запросы между ними, и адрес отвечает
+    # через раз (17.09.2026). Разбираться, кто держит: /Library/LaunchDaemons, sudo launchctl list | grep cloudflare.
+    if [ "$DRY" -eq 0 ] && [ "${ALLOW_SECOND_TUNNEL:-}" != 1 ] &&
+      ! launchctl print "gui/$UID_N/$label" >/dev/null 2>&1 &&
+      [ "$(curl -s -o /dev/null -m 5 -w '%{http_code}' "${PUBLIC_API_URL:-https://api.wetop.ai}/a/pms.js" 2>/dev/null)" = 200 ]; then
+      echo "  пропущен: туннель уже держит другой cloudflared — адрес отвечает 200 без этой задачи."
+      echo "    сначала снять ту копию; осознанный обход — ALLOW_SECOND_TUNNEL=1"; continue
     fi
   fi
   if [ "$n" = tunnel ] && [ "$DRY" -eq 0 ] && launchctl print "gui/$UID_N/kz.luxx.pms.domain" >/dev/null 2>&1; then
@@ -187,16 +201,10 @@ for n in "${NAMES[@]}"; do
     kill $pids 2>/dev/null; sleep 3
   fi
   command_for "$n"
-  # службы держатся постоянно; exely-sync — прогон раз в 5 минут (владелец 13.09.2026), между прогонами процесса нет;
-  # прогон, не успевший закончиться к следующему старту, launchd второй раз не запускает
+  # Все оставшиеся службы держатся постоянно. Задача по расписанию была одна — exely-sync, снята
+  # 20.09.2026 вместе с самой синхронизацией (ADR-052); StartInterval и EXTRA_ENV оставлены на случай
+  # следующей такой задачи, write_plist их понимает.
   START_INTERVAL=""; keep=true; EXTRA_ENV=""
-  # Session pooler Supabase — 15 клиентов на проект. Прогон синхронизации последовательный, ему хватает одного;
-  # с пулом по умолчанию (5) поверх API он переполнял пулер, и запросы стойки падали в 500 (15.09.2026).
-  [ "$n" = exely-sync ] && {
-    START_INTERVAL=300
-    keep=false
-    EXTRA_ENV="    <key>DATABASE_POOL_MAX</key><string>1</string>"
-  }
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi
   loaded=0

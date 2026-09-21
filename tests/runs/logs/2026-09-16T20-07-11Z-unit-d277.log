@@ -1,0 +1,23 @@
+# Модульные (unit) · 17.09.2026 01:07 Алматы · vm
+# коммит ed890ec (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-16T20-07-11Z-unit-d277.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/repo-sync.test.ts (15 tests) 4675ms
+   ✓ repo-sync.sh: связь папки с репозиторием (15)
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 516ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 302ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 504ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 596ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 466ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 530ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  20:07:12
+   Duration  4.92s (tests 98%, import 1%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-16T20-07-11Z-unit-d277.json
+
+# код выхода 0 · 6 с

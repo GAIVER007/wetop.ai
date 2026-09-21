@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 16.09.2026 01:59 Алматы · vm
+# коммит 7c96e0f (claude/project-status-check-pkq33o), незакоммиченных файлов набора: 50
+# npx playwright test --workers=2 --reporter=list,json '--config' '/tmp/claude-0/-home-user-wetop-ai/d53a306b-407f-54a0-b7fa-92247464fd59/scratchpad/ui-local.config.ts' 'login-access' '--workers=1'
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/login-access.spec.ts:15:1 › форма входа просит почту и пароль (895ms)
+  ✓  2 tests/ui/login-access.spec.ts:22:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.5s)
+  ✓  3 tests/ui/login-access.spec.ts:41:1 › неверный пароль не пускает и не говорит, что именно не так (1.0s)
+  ✓  4 tests/ui/login-access.spec.ts:51:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (855ms)
+  ✓  5 tests/ui/login-access.spec.ts:65:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (1.8s)
+
+  5 passed (13.0s)
+
+# код выхода 0 · 14 с

@@ -8,17 +8,28 @@
 
 | | |
 |---|---|
-| Дата | 11.09.2026 |
-| Этап | Срезы 1–7 сделаны; гейты 1, 2, 3, 4, 6 закрыты числами; 5 и 8 — жёлтые; 7, 9, 10 — не начаты |
-| Код | NestJS API, Next.js стойка, Prisma (8 миграций), домен, интеграции Exely и Channex; 236 модульных и интеграционных тестов, 16 e2e |
-| Данные | dev-БД Supabase (Сингапур), ПД только анонимизированные (ADR-018): 88 единиц, 6 тарифов, календарь цен на год, брони августа и будущие, счета |
-| Модель данных | `DATA_MODEL.md` v1.0, утверждена полностью 09.09.2026 |
-| Channex | staging: объект, категории, тарифы, webhook; обе стороны живьём по шести каналам (`reports/channex-day-2026-09-11.md`); сертификация — форма за владельцем |
-| Git | приватный репозиторий GitHub `GAIVER007/wetop.ai`, первая отправка 13.09.2026 (203 коммита); новые коммиты уходят следующим `git push`, его запускает владелец |
+| Дата | 15.09.2026 |
+| Этап | Срезы 1–11 сделаны (фонд, шахматка, тарифы и ручная бронь, Channex, стойка, финансы, печатные заготовки, аналитика сайта, бронирование с сайта, интерфейс WETOP, сторож); гейты 1, 2, 3, 4, 6 закрыты числами; 5 — сертификация за формой владельца; 8 — механизм сходится, живых суток не было; 7, 9, 10 — не начаты |
+| Код | NestJS API, Next.js стойка (WETOP, PR #1–#8 влиты), главная `apps/site` (статическая, Cloudflare Pages), Prisma (12 миграций, все с `down.sql`, применение и откат проверены на чистом PostgreSQL 16), домен, интеграции Exely и Channex; 788 модульных тестов, 10 интеграционных файлов, 22 e2e-спека стойки, проверки UI (`tests/ui`) и главной (`tests/site`) |
+| Данные | dev-БД Supabase (Сингапур), ПД только анонимизированные (ADR-018): 88 единиц, 6 тарифов, календарь цен на год, брони августа–сентября и будущие, счета; синхронизация из Exely каждые 15 мин под launchd (ADR-032) |
+| Модель данных | `DATA_MODEL.md` v1.4, утверждена полностью (§6 Folio 09.09, §11 аналитика и бронирование с сайта 12.09, §3 гражданство `VARCHAR(3)` + CHECK и §12 неисправности 13.09) |
+| Channex | staging: объект, категории, тарифы, webhook; обе стороны живьём по шести каналам (`reports/channex-day-2026-09-11.md`), живой цикл через экраны WETOP 14.09; сертификация — 11 сценариев из 11, форма за владельцем |
+| Домен | `wetop.ai` куплен (Spaceship), схема ADR-045: главная на Pages, `app.` за Cloudflare Access, `api.` — только публичные пути; посадка по шагам `docs/site/domain-wetop-2026-09-15.md` — только с Mac владельца |
+| Где живёт | Mac владельца под launchd (API, стойка, туннель, синхронизация, сторож); сервера в РК нет (Q-112) — это главный блокер переезда |
+| Git | приватный репозиторий GitHub `GAIVER007/wetop.ai`; работа через ветки и PR (влиты #1–#8); с 15.09 облачные сессии Claude Code отправляют свои ветки сами |
 
 ### Что блокирует переезд
 
-`ONBOARDING.md` §1: база в Казахстане, форма сертификации Channex, провайдер ККМ, eQonaq — всё за владельцем.
+Пять условий допуска `CUTOVER.md` (ответ ментора 13.09.2026): сервер в РК и webhook на него (Q-112), живые сутки
+двойного ввода сменой, проверенный откат и ночной дежурный (Q-123), форма сертификации Channex, каналы по одному
+с Hostelworld. Провайдер ККМ снят владельцем 12.09 (чек не нужен), eQonaq отложен (Q-122). Всё — за владельцем.
+
+### Что можно делать с любой машины, а что только с Mac владельца
+
+С любой машины (в том числе из облачной сессии, без `.env`): `unit`, `lint`, `typecheck`, проверки главной
+(`npm run site:check`), проверка миграций (`scripts/ops/check-migrations.sh`), а с 15.09 и `integration` с `e2e` —
+на любом PostgreSQL 16 схему и данные тесты создают сами (сид, `tests/README.md`); то же делает GitHub Actions на
+каждый PR. Только с Mac: сверки с Exely и Channex, живые данные, туннель, домен, launchd, всё, что требует ключей.
 
 ---
 
@@ -56,7 +67,8 @@ FINDINGS.md, DATA_MODEL.md, DECISIONS.md, QUESTIONS.md, PLAN.md.
 
 ```
 Проект: собственная PMS для хостела Luxx Aparts, Алматы, замена Exely.
-Папка проекта: /Users/vyacheslav/Desktop/Проекты/Pms Lux
+Папка проекта: /Users/vyacheslav/Desktop/Проекты/WETOP (до 16.09.2026 называлась «Pms Lux»;
+связь папки с репозиторием и службами проверяет scripts/ops/repo-sync.sh)
 
 СТАТУС 11.09.2026: срезы 1–7 сделаны, сверки с Exely в ноль (фонд 88/88, сутки, цены 8640,
 балансы 1449). Channex staging работает в обе стороны. Переезд ждёт владельца: база в Казахстане,
@@ -89,9 +101,13 @@ DECISIONS.md, QUESTIONS.md, PLAN.md
 
 | Что | Где |
 |---|---|
+| Связь папки с репозиторием и службами | `scripts/ops/repo-sync.sh` (`npm run repo:sync`) — remote, отставание от GitHub, папка в plist launchd, `.env`, зависимости; `--pull`, `--relink`, `--from "<старая папка>"`, `--fix` |
 | Правила домена | `packages/domain/src` — доступность и остаток категории, ограничения (ADR-020), финансы, штрафы, шахматка, аналитика сайта (`web-analytics`: источник, устройство, метрики GA4), запрос брони с сайта (`web-booking`) |
 | API | `apps/api/src/<модуль>` — inventory, units, chessboard, reservations, guests, desk, finance, rates, channels, analytics (публичные `/a/pms.js`, `/a/hit` и отчёты `/analytics/*`), web-booking (виджет: `/w/widget.js`, `/w/availability`, `/w/book`, `/w/demo`) |
-| Стойка | `apps/web/src/app` — `/today`, `/chessboard`, `/reservations/[number]`, `/guests`, `/finance`, `/rates`, `/channels`, `/journal`, `/analytics`, `/analytics/setup`, печать. Оформление — только `app/globals.css` (токены, классы) и `src/components` (`Page`, `TopNav`, `Table`, `Button`…, ADR-027); страницы стилей не содержат |
+| Стойка | `apps/web/src/app` — `/login` (вход, `/login/reset`, `/login/set-password`), `/today`, `/chessboard`, `/reservations/[number]`, `/guests`, `/finance`, `/rates`, `/channels`, `/journal` (со столбцом «Кто»), `/analytics`, `/analytics/setup`, печать. Оформление — только `app/globals.css` (токены, классы) и `src/components` (`Page`, `TopNav`, `Table`, `Button`…, ADR-027); страницы стилей не содержат |
+| Вход и учётные записи | `packages/domain/src/accounts` (пароль, сессия, одноразовая ссылка), `apps/api/src/auth` (`/auth/*`, замок `SessionGuard`, автор действия в журнале), `apps/web/src/app/login` (вход, сброс, установка пароля), `scripts/ops/cli-accounts.ts` |
+| Письма | `packages/integrations/src/mail` (ADR-004), описание внешнего API — `docs/mail/README.md` |
+| Обращение скриптов к API | `scripts/lib/service-api.ts` — служебный ключ `SERVICE_API_KEY` и разбор 401 |
 | Channex и Exely | только `packages/integrations` (ADR-004) |
 | Импорт из Exely и синхронизация суток | `scripts/imports/src/cli-*.ts`, `cli-sync-day.ts` |
 | Сверки | `scripts/reconciliation/src/cli-*.ts`: фонд, цены, двойной ввод, балансы, ARI Channex, утренний отчёт, уборка автотестов |

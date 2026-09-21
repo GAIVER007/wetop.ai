@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 20.09.2026 17:13 Алматы · MacBook-Air-Urij.local
+# коммит 06729e9 (codex/current-release-acceptance), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'login-access' 'invites' 'password-reset'
+[WebServer] (node:31230) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31260) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 28 tests using 1 worker
+
+(node:31397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/invites.spec.ts:18:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (7.7s)
+  ✓   2 tests/ui/invites.spec.ts:40:1 › без сессии формы приглашения нет (1.8s)
+[WebServer] (node:31556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31559) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/invites.spec.ts:47:1 › ссылка из письма: кто зовёт и кого → принять → форма входа сразу на шаге кода с этой почтой (6.5s)
+[WebServer] (node:31583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/invites.spec.ts:64:1 › мёртвая ссылка — один текст и путь на форму входа (6.0s)
+  ✓   5 tests/ui/login-access.spec.ts:22:1 › форма входа просит почту и пароль (4.9s)
+  ✓   6 tests/ui/login-access.spec.ts:32:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.7s)
+  ✓   7 tests/ui/login-access.spec.ts:53:1 › неверный пароль не пускает и не говорит, что именно не так (1.5s)
+  ✓   8 tests/ui/login-access.spec.ts:66:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (1.5s)
+  ✓   9 tests/ui/login-access.spec.ts:78:1 › сбой API сохраняет почту, повторный вход после восстановления работает (3.4s)
+  ✓  10 tests/ui/login-access.spec.ts:95:1 › клавиатура, видимость пароля и ожидание без повторной отправки (3.4s)
+  ✓  11 tests/ui/login-access.spec.ts:143:3 › вход: доступность, адаптивность и reduced motion — light (12.9s)
+  ✓  12 tests/ui/login-access.spec.ts:143:3 › вход: доступность, адаптивность и reduced motion — dark (14.1s)
+  ✓  13 tests/ui/login-access.spec.ts:181:1 › за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают (1.7s)
+  ✓  14 tests/ui/login-access.spec.ts:197:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (3.3s)
+  ✓  15 tests/ui/login-access.spec.ts:220:1 › по коду: почта → код из письма → рабочее место; кука HttpOnly; выход гасит сессию (3.2s)
+  ✓  16 tests/ui/login-access.spec.ts:253:1 › по коду: /login?mode=code открывает форму кода сразу (1.9s)
+  ✓  17 tests/ui/login-access.spec.ts:262:1 › неверный код — один и тот же текст отказа, форма остаётся на шаге кода (2.0s)
+  ✓  18 tests/ui/login-access.spec.ts:273:1 › регистрация с /register: название и почта → код → рабочее место (6.0s)
+  ✓  19 tests/ui/login-access.spec.ts:286:1 › регистрация: ошибка формы приходит текстом из API и не уводит со страницы (2.2s)
+  ✓  20 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (3.5s)
+  ✓  21 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (4.2s)
+  ✓  22 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (3.7s)
+  ✓  23 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (2.4s)
+  ✓  24 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (2.2s)
+  ✓  25 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.8s)
+  ✓  26 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (1.3s)
+  ✓  27 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (2.1s)
+  ✓  28 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (1.6s)
+
+  28 passed (2.3m)
+
+# код выхода 0 · 2 мин 22 с

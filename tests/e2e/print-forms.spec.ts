@@ -1,5 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Заготовки печатных форм: договор и счёт открываются с карточки брони на RU и KZ, в тексте есть
@@ -26,12 +28,15 @@ const TITLES = {
 
 test('договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки', async ({
   page,
+  request,
 }) => {
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(15), plus(17)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-печать');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
@@ -46,15 +51,18 @@ test('договор и счёт печатаются на RU и KZ: номер 
     'print-invoice-ru',
     'print-invoice-kz',
   ])
-    await expect(page.getByTestId(id)).toBeVisible();
+    await expect(page.getByRole('main').getByTestId(id)).toBeVisible();
 
   for (const kind of ['contract', 'invoice'] as const) {
     for (const lang of ['ru', 'kz'] as const) {
       await page.goto(`/reservations/${number}/print/${kind}?lang=${lang}`);
+      // печатная форма сама является landmark main — ищем по всей странице, ждём одну
       const main = page.getByTestId(`print-${kind}`);
+      // при переходе Next на миг держит и уходящую страницу: ждём, пока останется одна печатная форма
+      await expect(main).toHaveCount(1);
       await expect(main).toContainText(number);
       await expect(main).toContainText(TITLES[kind][lang]);
-      await expect(page.getByTestId('draft-banner')).toContainText('ЗАГОТОВКА');
+      await expect(page.getByRole('main').getByTestId('draft-banner')).toContainText('ЗАГОТОВКА');
       await page.screenshot({
         path: `reports/screenshots/print-${kind}-${lang}.png`,
         fullPage: true,
@@ -63,18 +71,18 @@ test('договор и счёт печатаются на RU и KZ: номер 
   }
   // счёт: начисление за проживание попало в строки, итог равен ему
   await page.goto(`/reservations/${number}/print/invoice?lang=ru`);
-  await expect(page.getByTestId('invoice-line')).toHaveCount(1);
-  await expect(page.getByTestId('invoice-line').first()).toHaveAttribute(
+  await expect(page.getByRole('main').getByTestId('invoice-line')).toHaveCount(1);
+  await expect(page.getByRole('main').getByTestId('invoice-line').first()).toHaveAttribute(
     'data-kind',
     'ACCOMMODATION',
   );
-  await expect(page.getByTestId('invoice-due')).toContainText('₸');
+  await expect(page.getByRole('main').getByTestId('invoice-due')).toContainText('₸');
 
   // прибрать за собой
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
-  await page.getByTestId('cancel-reservation').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+  await page.getByRole('main').getByTestId('cancel-reservation').click();
+  await confirmDialog(page, 'Отменить бронь');
   await cardTab(page, 'Обзор');
-  await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+  await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
 });

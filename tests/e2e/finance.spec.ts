@@ -1,5 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
+import { roomiestCategory } from './pick-category';
 
 /**
  * Финансы (DATA_MODEL §6, ADR-014): счёт создаётся вместе с проживанием, начисление = цене;
@@ -18,8 +20,7 @@ const plus = (n: number) => {
   x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
-/** «12 000,00 ₸, к оплате» → 1200000n; «−500,00 ₸» → −50000n */
-const minor = (text: string) => BigInt(text.replace(/[^\d−-]/g, '').replace('−', '-'));
+const minor = minorFromText;
 const decimal = (m: bigint) => {
   const d = (m < 0n ? -m : m).toString().padStart(3, '0');
   return `${m < 0n ? '-' : ''}${d.slice(0, -2)}.${d.slice(-2)}`;
@@ -27,25 +28,30 @@ const decimal = (m: bigint) => {
 
 test('счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс', async ({
   page,
+  request,
 }) => {
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(9)}&departure=${plus(10)}`);
-  const form = page.getByTestId('new-reservation-form');
+  const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('WALK_IN');
-  await form.locator('select[name="accommodationTypeCode"]').selectOption('exely-5074688');
+  await form
+    .locator('select[name="accommodationTypeCode"]')
+    .selectOption(await roomiestCategory(request, plus(9), plus(10)));
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-счёт');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
-  const panel = page.getByTestId('folio-panel');
+  const panel = page.getByRole('main').getByTestId('folio-panel');
   await expect(panel).toHaveCount(1);
-  const price = minor(await page.getByTestId('stay-row').first().locator('td').nth(5).innerText());
+  const price = minor(
+    await page.getByRole('main').getByTestId('stay-row').first().locator('td').nth(5).innerText(),
+  );
   // счёт и его формы — на вкладке «Счета»; каждое чтение баланса открывает её, как администратор
   const balance = async () => {
     await cardTab(page, 'Счета');
-    return minor(await page.getByTestId('folio-balance').innerText());
+    return minor(await page.getByRole('main').getByTestId('folio-balance').innerText());
   };
   expect(price).toBeGreaterThan(0n);
   expect(await balance()).toBe(price); // начисление за проживание = цене проживания
@@ -72,7 +78,7 @@ test('счёт на проживание: начисления, оплата, в
   await cf.locator('input[name="quantity"]').fill('2');
   await cf.getByRole('button', { name: 'Начислить' }).click();
   await expect(panel.getByTestId('charge-row')).toHaveCount(3);
-  await expect(panel.getByTestId('charge-row').nth(2)).toContainText('2 × 500,00 ₸');
+  await expect(panel.getByTestId('charge-row').nth(2)).toContainText('2 × 500 ₸');
   expect(await balance()).toBe(price + 200_000n);
 
   // оплата наличными: сумма по умолчанию — весь баланс
@@ -81,7 +87,7 @@ test('счёт на проживание: начисления, оплата, в
   await pf.getByRole('button', { name: 'Принять оплату' }).click();
   await expect(panel.getByTestId('payment-row')).toHaveCount(1);
   expect(await balance()).toBe(0n);
-  await expect(page.getByTestId('folio-balance')).toContainText('оплачено');
+  await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('оплачено');
 
   // возврат 500 ₸ из этого платежа
   const rf = panel.getByTestId('refund-form');
@@ -96,7 +102,7 @@ test('счёт на проживание: начисления, оплата, в
   await penalty.getByRole('button', { name: 'сторно' }).click();
   await expect(penalty).toContainText('сторнировано');
   expect(await balance()).toBe(-50_000n);
-  await expect(page.getByTestId('folio-balance')).toContainText('переплата');
+  await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('переплата');
   await page.screenshot({ path: 'reports/screenshots/finance-card.png', fullPage: true });
 
   // журнал: действия записаны без ПД

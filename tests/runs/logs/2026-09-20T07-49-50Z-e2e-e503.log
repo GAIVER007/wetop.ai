@@ -1,0 +1,144 @@
+# Сквозные (e2e) · 20.09.2026 12:49 Алматы · vm
+# коммит 4f6d0f8 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'reservations-states' '--workers=1'
+
+Running 3 tests using 1 worker
+
+[WebServer] ⨯ Error: API /hotel/reservations?from=2026-09-20&to=2026-09-20&status=CONFIRMED&q=%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9&page=1: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async ReservationsPage (src/app/reservations/page.tsx:44:27)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘  1 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (15.7s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async ReservationsPage (src/app/reservations/page.tsx:44:27)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 400,
+[WebServer]   digest: 'API_400'
+[WebServer] }
+  ✘  2 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (15.8s)
+  ✘  3 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (15.4s)
+
+
+  1) tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Брони"
+    Received: "Не удалось загрузить данные"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        31 × locator resolved to <h1 class="page__title">Не удалось загрузить данные</h1>
+           - unexpected value "Не удалось загрузить данные"
+
+
+      20 |   await page.goto(`/reservations?from=${today}&to=${today}&status=CONFIRMED&q=Тестовый`);
+      21 |   const main = page.getByRole('main');
+    > 22 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Брони');
+         |                                                         ^
+      23 |   await expect(main.getByLabel('Поиск броней')).toHaveValue('Тестовый');
+      24 |   const failure = main.getByTestId('reservations-error');
+      25 |   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
+        at /home/user/wetop.ai/tests/ui/reservations-states.spec.ts:22:57
+
+    Error Context: test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-отказ--ba650--список-с-теми-же-условиями/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('reservations-error')
+    Expected substring: "Сервер отклонил запрос (код 400)"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('reservations-error') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('reservations-error')
+
+
+      48 |   await page.goto('/reservations');
+      49 |   const failure = page.getByRole('main').getByTestId('reservations-error');
+    > 50 |   await expect(failure).toContainText('Сервер отклонил запрос (код 400)');
+         |                         ^
+      51 |   await expect(failure).toContainText('проверьте адрес страницы и даты');
+      52 |   await expect(failure.getByRole('link', { name: 'Подключения API' })).toHaveCount(0);
+      53 | });
+        at /home/user/wetop.ai/tests/ui/reservations-states.spec.ts:50:25
+
+    Error Context: test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-отклон-349cf-с-без-ссылки-на-подключения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('reservations-loading')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('reservations-loading') with timeout 15000ms
+      - waiting for getByTestId('reservations-loading')
+
+
+      59 |   await page.goto('/reservations', { waitUntil: 'commit' });
+      60 |   const loading = page.getByTestId('reservations-loading');
+    > 61 |   await expect(loading).toBeVisible();
+         |                         ^
+      62 |   await expect(loading).toHaveAttribute('aria-busy', 'true');
+      63 |   await expect(loading.getByRole('status')).toHaveText('Загружаем список броней…');
+      64 |   await expect(page.getByRole('heading', { name: 'Брони', level: 1 }).first()).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/reservations-states.spec.ts:61:25
+
+    Error Context: test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-states-пока-с-a264b-дписью-словом-затем-таблица/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями 
+    tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения 
+    tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица 
+
+# код выхода 1 · 54 с

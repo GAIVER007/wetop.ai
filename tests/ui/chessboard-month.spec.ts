@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -48,6 +48,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
   test(`переключение целого месяца: ${from} → ${expectedFrom}`, async ({ page }) => {
     await page.goto(`/chessboard?from=${from}&to=${to}`);
     // A previously edited date must not survive navigation into a different month.
+    await page.getByRole('button', { name: 'Даты', exact: true }).click();
     await page.getByLabel('Шахматка: с', { exact: true }).fill('2026-01-15');
     await page.getByRole('link', { name: direction, exact: true }).click();
     await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(expectedFrom);
@@ -68,6 +69,7 @@ test('неделя, 14 дней, произвольный период и воз
   await page.getByRole('link', { name: '14 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByLabel('Шахматка: с', { exact: true }).fill('2028-02-10');
   await page.getByLabel('Шахматка: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
@@ -122,11 +124,16 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync('reports/chessboard-month', { recursive: true });
     await page.emulateMedia({ colorScheme: theme });
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      if (!devNoise.test(error.message)) errors.push(error.message);
+    });
     await page.goto('/chessboard');
     await page.getByRole('link', { name: '14 дней', exact: true }).click();
     await page.getByRole('link', { name: 'Месяц', exact: true }).click();
     const report = [];
+    // Next обновляет метаданные потоком: axe запускается после завершения перехода в месяц.
+    await expect(page.getByRole('main').getByTestId('chessboard')).toHaveClass(/board--month/);
+    await expect(page).toHaveTitle('WETOP · Управление гостиницей');
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       const layout = await page.evaluate(() => {

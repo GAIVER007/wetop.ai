@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "active": true,
+  "skill": "ultragoal",
+  "keyword": "",
+  "phase": "checkpointing",
+  "activated_at": "2026-09-19T13:34:24.011Z",
+  "updated_at": "2026-09-19T18:08:14.527Z",
+  "source": "state-operations",
+  "active_skills": [
+    {
+      "skill": "ultragoal",
+      "phase": "checkpointing",
+      "active": true,
+      "activated_at": "2026-09-19T13:34:24.011Z",
+      "updated_at": "2026-09-19T18:08:14.527Z"
+    }
+  ]
+}

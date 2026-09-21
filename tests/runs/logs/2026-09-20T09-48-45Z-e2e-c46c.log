@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 20.09.2026 14:48 Алматы · vm
+# коммит 8a30e1f (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/real-data.spec.ts' '-g' 'канал|Channex|подключени|переполн|ширин|overflow|рекорд|экраны открываются|заголов' '--workers=1'
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/channex-screens.spec.ts:15:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (1.9s)
+  ✓   2 tests/ui/channex-screens.spec.ts:75:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.3s)
+  ✓   3 tests/ui/channex-screens.spec.ts:92:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (3.1s)
+  ✓   4 tests/ui/channex-screens.spec.ts:156:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (3.2s)
+  ✓   5 tests/ui/channex-screens.spec.ts:205:1 › приём брони: ревизия с двоеточиями в номере открывается (704ms)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:56:12)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   6 tests/ui/channex-screens.spec.ts:219:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (905ms)
+  ✓   7 tests/ui/channex-screens.spec.ts:239:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (5.8s)
+  ✘   8 tests/ui/channex-screens.spec.ts:304:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (17.6s)
+  ✓   9 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (927ms)
+
+# код выхода —, сигнал SIGTERM · 45 с

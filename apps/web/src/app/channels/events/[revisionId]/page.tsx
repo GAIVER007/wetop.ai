@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api, channelsApi, type RevisionPage } from '../../../../lib/api';
+import { ApiError } from '../../../../lib/api-error';
+import { decodeRouteParam } from '../../../../lib/route-param';
 import { Page } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { Badge, StatusBadge } from '../../../../components/ui';
-import { AmountBadge } from '../../../../components/amount-badge';
+import { AmountChip } from '../../../../components/amount-chip';
 import { formatMoney } from '../../../../lib/money';
 import { displayPeriod } from '../../../../lib/display-date';
-import { STAY_STATUS } from '../../../chessboard/stay-status';
 import { RetryEventButton } from '../../buttons';
 import {
   EVENT_STATUS_RU,
@@ -28,7 +29,10 @@ const COLLECT_RU: Record<string, string> = {
   property: 'оплата на объекте',
 };
 const RESERVATION_STATUS_RU: Record<string, string> = {
-  ...Object.fromEntries(Object.entries(STAY_STATUS).map(([k, v]) => [k, v.word])),
+  TENTATIVE: 'не подтверждена',
+  CONFIRMED: 'подтверждена',
+  CHECKED_IN: 'заселён',
+  CHECKED_OUT: 'выселен',
   CANCELLED: 'отменена',
   NO_SHOW: 'незаезд',
 };
@@ -44,15 +48,21 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
-  const { revisionId } = await params;
+  // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
+  // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
+  const revisionId = decodeRouteParam((await params).revisionId);
   let data: RevisionPage;
   try {
     data = await channelsApi.event(revisionId);
-  } catch {
-    notFound();
+  } catch (error) {
+    // «Страница не найдена» — только когда ревизии правда нет. Любую другую беду (сервер ответил 500,
+    // связи нет) прячем под тем же словом — и на стойке непонятно, что чинить: обход 17.09.2026 получил
+    // «не найдено» там, где ревизия была на месте. Ошибку показываем как на других экранах.
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
-  const summary = await api.inventorySummary();
-  const byCode = new Map(summary.byCategory.map((c) => [c.code, c.name]));
+  const summary = await api.inventorySummary().catch(() => null);
+  const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
   const { event, facts, reservation, balances } = data;
   const categories = [
     ...new Set(
@@ -187,19 +197,16 @@ export default async function RevisionPageView({
                 </div>
               </dl>
               {due > 0n ? (
-                <AmountBadge
-                  kind="due"
-                  amountMinor={due.toString()}
-                  currency={reservation.currency}
-                />
+                <AmountChip minor={due.toString()} tone="due" currency={reservation.currency} />
               ) : prepaid ? (
-                <AmountBadge
-                  kind="prepaid"
-                  amountMinor={prepaid}
+                <AmountChip
+                  minor={prepaid}
+                  tone="paid"
+                  label="предоплата канала"
                   currency={facts.currency ?? reservation.currency}
                 />
               ) : (
-                <AmountBadge kind="paid" amountMinor="0" currency={reservation.currency} />
+                <AmountChip minor="0" tone="paid" currency={reservation.currency} />
               )}
             </>
           ) : (

@@ -12,6 +12,7 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
+import { gatewayFailure } from './gateway-failure';
 import { categoryAvailability } from '@pms/domain';
 import { buildAvailabilityValues, buildRestrictionValues } from './ari';
 import { buildChannexSetup } from './setup-plan';
@@ -95,11 +96,7 @@ async function viaChannex<T>(fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();
   } catch (e) {
-    if (e instanceof channex.ChannexApiError) {
-      if (e.status === 503 && e.message.includes('CHANNEX_API_KEY'))
-        throw new ServiceUnavailableException(e.message);
-      throw new BadGatewayException(e.message);
-    }
+    if (e instanceof channex.ChannexApiError) throw gatewayFailure(e);
     throw e;
   }
 }

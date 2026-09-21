@@ -1,8 +1,16 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { ControlNavigation } from '../../components/control-navigation';
+import { RefreshButton } from '../../components/refresh-button';
+import { almatyStamp } from '../../lib/almaty';
 import { getJsonPublic } from '../../lib/api';
+import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
-import { Table, Input, Button } from '../../components/ui';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
+import { Table, Input, Button, Field, Badge, Panel, cx } from '../../components/ui';
+import '../directory.css';
 
 interface AuditRow {
   id: string;
@@ -11,6 +19,8 @@ interface AuditRow {
   entityId: string;
   action: string;
   subject: string | null;
+  /** Имя вошедшего; null — система: импорт, сторож, скрипт сверки (ADR-023, ADR-046) */
+  author: string | null;
 }
 const ACTION_RU: Record<string, string> = {
   'reservation.create': 'бронь создана',
@@ -37,6 +47,13 @@ const ACTION_RU: Record<string, string> = {
   'analytics.site.update': 'сайт со счётчиком изменён',
   'analytics.site.delete': 'сайт со счётчиком удалён',
   'exely.sync': 'синхронизация с Exely',
+  'user.login': 'вход в систему',
+  'user.logout': 'выход из системы',
+  'user.password.changed': 'пароль изменён',
+  'user.invited': 'сотрудник приглашён',
+  'user.created': 'сотрудник добавлен',
+  'user.blocked': 'сотрудник заблокирован',
+  'user.unblocked': 'сотрудник разблокирован',
 };
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
@@ -45,9 +62,17 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   ['Guest', 'гости'],
   ['Property', 'объект и каналы'],
   ['TrackedSite', 'сайт'],
+  ['user', 'сотрудники'],
 ];
+/** Сколько строк просим у API: поиск и отбор идут по всей истории, наружу — не больше этого */
+const LIMIT = 200;
 
-/** Журнал действий администратора и интеграций (SECURITY §6). Без ПД. */
+/**
+ * Журнал действий администратора и интеграций (SECURITY §6). Без ПД.
+ * D4 (план владельца 19.09): выборка названа словами, разделы — чипами как в «Бронях», отказ API не уносит
+ * экран (форма и раздел остаются, вместо строк `LoadError`), пустой результат называет условие и путь к «все»,
+ * время в `<time>`, на телефоне строка складывается в карточку. Сам запрос к API и его пределы не менялись.
+ */
 export default async function JournalPage({
   searchParams,
 }: {
@@ -55,82 +80,186 @@ export default async function JournalPage({
 }) {
   const { type, q, system } = normalizeSearchParams(await searchParams);
   const showSystem = system === '1';
+  const needle = q?.trim() ?? '';
   // Поиск и фильтр — в API по всей истории: синхронизация Exely пишет строку каждые 5 минут, и 200 последних
   // строк покрывали меньше суток — «История» брони была пустой (волна 3)
   const query = new URLSearchParams({
-    limit: '200',
+    limit: String(LIMIT),
     ...(type ? { entityType: type } : {}),
-    ...(q?.trim() ? { q: q.trim() } : {}),
+    ...(needle ? { q: needle } : {}),
     ...(showSystem ? { system: '1' } : {}),
   });
-  const rows = await getJsonPublic<AuditRow[]>(`/audit?${query}`);
+  const href = (next: { type?: string | null; q?: string; system?: boolean }) => {
+    const t = next.type === undefined ? type : next.type;
+    const s = next.q === undefined ? needle : next.q;
+    const sys = next.system === undefined ? showSystem : next.system;
+    const u = new URLSearchParams({
+      ...(t ? { type: t } : {}),
+      ...(s ? { q: s } : {}),
+      ...(sys ? { system: '1' } : {}),
+    });
+    const str = u.toString();
+    return str ? `/journal?${str}` : '/journal';
+  };
+  const sectionLabel = FILTERS.find(([t]) => (t ?? undefined) === type)?.[1];
+  const conditions = [
+    needle ? `по запросу «${needle}»` : '',
+    type ? `раздел «${sectionLabel ?? type}»` : '',
+    showSystem ? 'со служебными' : '',
+  ].filter(Boolean);
   return (
     <Page
       title="Журнал действий"
-      actions={FILTERS.map(([t, label]) => (
-        <Link
-          key={label}
-          href={`/journal?${new URLSearchParams({ ...(t ? { type: t } : {}), ...(q ? { q } : {}), ...(showSystem ? { system: '1' } : {}) })}`}
-          className={(t ?? undefined) === type ? 'bold' : undefined}
-        >
-          {label}
-        </Link>
-      ))}
+      subtitle="Кто и когда изменял данные гостиницы."
+      actions={<RefreshButton />}
     >
-      <form method="get" className="directory-toolbar">
-        <Input
-          name="q"
-          aria-label="Поиск в журнале"
-          placeholder="Номер брони"
-          defaultValue={q ?? ''}
-        />
+      <ControlNavigation current="journal" />
+      <form method="get" className="control-toolbar control-journal-search">
+        <Field label="Поиск в журнале">
+          <Input
+            key={`q-${needle}`}
+            name="q"
+            aria-label="Поиск в журнале"
+            placeholder="Номер брони"
+            defaultValue={needle}
+          />
+        </Field>
         <input name="type" type="hidden" value={type ?? ''} />
         <label className="check">
-          <input type="checkbox" name="system" value="1" defaultChecked={showSystem} /> служебные
-          (синхронизация Exely)
+          <input
+            key={`system-${showSystem}`}
+            type="checkbox"
+            name="system"
+            value="1"
+            defaultChecked={showSystem}
+          />{' '}
+          Служебные события
         </label>
         <Button tone="secondary">Найти</Button>
-        <span className="muted small">
-          {q?.trim() ? 'Поиск по всей истории' : 'Последние операции'}, до 200 строк
-        </span>
+        {(needle || type || showSystem) && (
+          <Link href="/journal" className="btn btn--ghost">
+            Сбросить фильтры
+          </Link>
+        )}
       </form>
-      <Table size="sm" nowrap data-testid="journal-table">
-        <thead>
-          <tr>
-            {['Когда (Алматы)', 'Действие', 'Объект', 'Что'].map((h) => (
-              <th key={h}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id} data-testid="journal-row">
-              <td>
-                {new Date(Date.parse(r.at) + 5 * 3600 * 1000)
-                  .toISOString()
-                  .slice(0, 16)
-                  .replace('T', ' ')}
-              </td>
-              <td>{ACTION_RU[r.action] ?? r.action}</td>
-              <td>{r.entityType}</td>
-              <td>
-                {r.subject && r.entityType === 'Reservation' ? (
-                  <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
-                ) : (
-                  (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
-                )}
-              </td>
-            </tr>
-          ))}
-          {rows.length === 0 && (
-            <tr>
-              <td colSpan={4} className="empty-state">
-                Нет операций по выбранным условиям
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+      <nav className="directory-filters" aria-label="Раздел журнала">
+        {FILTERS.map(([t, label]) => (
+          <Link
+            key={label}
+            href={href({ type: t })}
+            className={cx((t ?? undefined) === type && 'is-active')}
+            aria-current={(t ?? undefined) === type ? 'true' : undefined}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+      <Suspense
+        key={query.toString()}
+        fallback={
+          <Panel role="status" data-testid="journal-loading">
+            Загружаем журнал действий…
+          </Panel>
+        }
+      >
+        <JournalEntries
+          query={query.toString()}
+          conditions={conditions}
+          filtered={!!needle || !!type}
+          searching={!!needle}
+        />
+      </Suspense>
     </Page>
+  );
+}
+
+const ENTITY_RU: Record<string, string> = {
+  Reservation: 'Бронь',
+  InventoryUnit: 'Номер / койка',
+  Guest: 'Гость',
+  Property: 'Гостиница',
+  TrackedSite: 'Сайт',
+  user: 'Сотрудник',
+};
+
+async function JournalEntries({
+  query,
+  conditions,
+  filtered,
+  searching,
+}: {
+  query: string;
+  conditions: string[];
+  filtered: boolean;
+  searching: boolean;
+}) {
+  const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
+    (r) => ({ ok: true as const, r }),
+    (e: unknown) => ({ ok: false as const, e }),
+  );
+  const rows = loaded.ok ? loaded.r : null;
+  const meta = rows
+    ? `${rows.length >= LIMIT ? `Последние ${LIMIT} операций` : filtered ? pluralRu(rows.length, ['операция', 'операции', 'операций']) : `Последние ${pluralRu(rows.length, ['операция', 'операции', 'операций'])}`}${conditions.length ? `, ${conditions.join(', ')}` : ''}${searching ? ' (поиск по всей истории)' : ''}`
+    : null;
+  return (
+    <div className="control-page">
+      {meta && (
+        <p className="directory-meta" data-testid="journal-meta">
+          {meta}
+        </p>
+      )}
+      {!loaded.ok && <LoadError testId="journal-error" {...loadErrorProps(loaded.e)} />}
+      {rows && (
+        <Table
+          size="sm"
+          nowrap
+          className="dir-table dir-table--journal control-table"
+          data-testid="journal-table"
+        >
+          <thead>
+            <tr>
+              {['Когда (Алматы)', 'Кто', 'Действие', 'Объект', 'Что'].map((h) => (
+                <th key={h}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} data-testid="journal-row">
+                <td>
+                  <time dateTime={r.at}>{almatyStamp(r.at)}</time>
+                </td>
+                <td>{r.author ?? <span className="muted-2">система</span>}</td>
+                <td>{ACTION_RU[r.action] ?? r.action}</td>
+                <td>
+                  <Badge>{ENTITY_RU[r.entityType] ?? r.entityType}</Badge>
+                </td>
+                <td>
+                  {r.subject && r.entityType === 'Reservation' ? (
+                    <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
+                  ) : (
+                    (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
+                  )}
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty-state" data-testid="journal-empty">
+                  {conditions.length ? (
+                    <>
+                      Операций {conditions.join(', ')} нет.{' '}
+                      <Link href="/journal">Показать последние операции</Link>
+                    </>
+                  ) : (
+                    'Операций пока нет: журнал заполняется действиями стойки и интеграций — заселение, оплата, брони из каналов.'
+                  )}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      )}
+    </div>
   );
 }

@@ -1,0 +1,134 @@
+# PMS на сервере в Казахстане (plans/server-kz-2026-09-17.md, plans/server-kz-2026-09-18.md). Заменяет launchd с
+# Mac владельца: те же четыре службы, что держал launchd, только под Docker — как сторож на Hostinger
+# (scripts/ops/watch/compose.yml).
+#
+#   api         — NestJS, 3001. Наружу не публикуется: до него ходит только туннель и стойка.
+#   web         — стойка Next на `next start`, 3000. Тоже только через туннель.
+#   cloudflared — именованный туннель: app.wetop.ai и api.wetop.ai. Адреса при переезде не меняются,
+#                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
+#                 Поднимается ПОСЛЕ сверки двух баз, отдельно: up -d cloudflared (план, шаг 4).
+#
+# Портов наружу НЕ публикуем (expose, не ports): снаружи объект виден только через туннель. Внутри сети
+# compose службы зовут друг друга по имени, поэтому API и стойка слушают здесь 0.0.0.0 — на Mac умолчание
+# прежнее, 127.0.0.1.
+#
+# Секреты — в файле .env в КОРНЕ клона (../.env отсюда), его вписывает владелец (SECURITY.md §3): оттуда же его
+# читают main.ts, cli-check-env.ts и prisma migrate на хосте. Одно место, все читатели. В образ .env не попадает
+# (.dockerignore), в контейнер идёт как env_file.
+# База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
+# Боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15).
+#
+# Запуск:   docker compose -f deploy/compose.yml up -d --build api web
+# Обновить: git pull && docker compose -f deploy/compose.yml up -d --build
+# Смотреть: docker compose -f deploy/compose.yml ps ; docker compose -f deploy/compose.yml logs -f api
+name: pms-lux
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: pms-lux:latest
+  restart: unless-stopped
+  env_file:
+    # Один .env на сервере — в корне клона. Копии в deploy/ нет намеренно: два файла разъезжаются.
+    - path: ../.env
+      required: true
+    # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
+    # Файл есть — ARI выключен, файла нет — включён. В отличие от `launchctl setenv` на Mac,
+    # это переживает перезагрузку сервера.
+    - path: ari.env
+      required: false
+  security_opt: ['no-new-privileges:true']
+
+# environment у служб не наследуется через &app (слияние YAML не глубокое), поэтому у каждой службы свой блок.
+# TZ и NODE_ENV заданы в образе (Dockerfile), здесь только то, что различается.
+services:
+  api:
+    <<: *app
+    # Из папки пакета, а не из корня: tsx берёт tsconfig.json рабочей папки. В корневом нет
+    # experimentalDecorators, и Nest падает на первом же контроллере — «Parameter decorators only work
+    # when experimental decorators are enabled» (проверено на сервере 18.09.2026; та же грабля описана
+    # в шапке apps/api/src/main.ts). На Mac этого не видно: launchd зовёт workspace-скрипт.
+    working_dir: /app/apps/api
+    command: ['node', '--import', 'tsx', 'src/main.ts']
+    # На Mac API слушает только 127.0.0.1; в контейнере это «недоступен никому»: у каждой службы своя сеть.
+    # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются.
+    environment:
+      API_HOST: '0.0.0.0'
+      API_PORT: '3001'
+      # Замок включён по умолчанию, а не по строчке в .env: до 20.09.2026 его не было ни здесь,
+      # ни в .env.example, и единственным периметром оставался Cloudflare Access — снятый в тот же
+      # день. Выключить можно только явно, `AUTH_REQUIRED=0` в .env, и это видно в ревью.
+      AUTH_REQUIRED: '${AUTH_REQUIRED:-1}'
+      # Пул задаётся явно, а не умолчанием (5): сумма пулов всех копий PMS обязана быть меньше предела
+      # базы. 18–19.09.2026 вторая копия с умолчанием переполнила Session pooler Supabase (15 клиентов
+      # на проект) и уронила боевую стойку в 500 — 609 отказов на одной только карточке брони.
+      DATABASE_POOL_MAX: '${DATABASE_POOL_MAX:-5}'
+      # Сторож проверяет живость стойки. Умолчание в коде — http://127.0.0.1:3000, и оно верно на Mac,
+      # где обе службы на одной машине. В контейнере 127.0.0.1:3000 — это САМ api, где на 3000 никто не
+      # слушает: проверка отказывала бы всегда, а сторож будил бы дежурного «стойка не отвечает» круглые
+      # сутки. Ложная тревога опаснее тишины: к боту перестают относиться серьёзно (разбор 21.09.2026,
+      # та же грабля, что у ari.sh 17.09 — написано под Mac, перенесено в Docker и не пересмотрено).
+      GUARD_WEB_URL: http://web:3000
+      # Проверка «давно не было синхронизации суток из Exely» осталась от времён, когда Exely был
+      # источником. 19.09.2026 он им быть перестал (ADR-052), служба exely-sync снята — и проверка
+      # на сервере поднимала бы вечную неисправность «синхронизации не было ни разу». Это второй
+      # будильник впустую за день, а ложная тревога опаснее тишины: к боту перестают относиться
+      # серьёзно. Выключено явно, а не удалено из кода: снятие самой проверки — отдельная работа.
+      GUARD_EXELY_SYNC: 'off'
+      # Отчёты сверок (reports/) и журнал тестов (tests/runs/journal.jsonl) сторож читает с диска.
+      # В контейнере /app — слепок кода на момент сборки образа (docs/deploy.md §1а): файлы там не
+      # меняются, и «сверка дала FAIL» или «падает набор тестов» висели бы вечно, повторяя день
+      # сборки. Третий и четвёртый ложный будильник за день — выключаем (разбор 21.09.2026).
+      GUARD_LOCAL_FILES: 'off'
+    expose: ['3001']
+    # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
+    # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
+    # а стойка и туннель ждут его здоровья и не поднимаются вовсе. Проверка через node: она есть в любом
+    # образе, wget/curl — нет.
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  web:
+    <<: *app
+    # Скрипт `start` в apps/web/package.json жёстко ставит --hostname 127.0.0.1 (так надо на Mac);
+    # в контейнере стойка обязана слушать 0.0.0.0, иначе туннель её не увидит. Поэтому next запускается
+    # напрямую из папки стойки, а не через npm-скрипт.
+    working_dir: /app/apps/web
+    command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
+    environment:
+      # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама
+      APP_API_URL: http://api:3001
+      # Замок стойки — как у API: включён, пока явно не выключен
+      APP_AUTH_REQUIRED: '${APP_AUTH_REQUIRED:-1}'
+    expose: ['3000']
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      # /login отвечает и с замком APP_AUTH_REQUIRED=1, и без него; /today с замком уводит на вход
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # Ровно одна копия туннеля на весь проект. Две копии одного туннеля друг друга не заменяют:
+  # Cloudflare делит запросы между ними, и адрес отвечает через раз (17.09.2026, docs/deploy.md §1).
+  # Старый туннель гасится со стороны Cloudflare (tunnel delete --force) — deploy/cloudflared.example.yml.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ['tunnel', '--no-autoupdate', '--config', '/etc/cloudflared/wetop.yml', 'run']
+    # Правила маршрутизации живут в репозитории и видны в ревью, а не в панели Cloudflare.
+    # Ключ туннеля кладёт владелец рядом с конфигом; в git не едет.
+    volumes: ['./cloudflared:/etc/cloudflared:ro']
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+
+# Службы exely-sync здесь больше нет: Exely перестал быть источником данных 19.09.2026 (ADR-052).
+# Брони приходят из Channex webhook'ом и заводятся на стойке; синхронизировать нечего.

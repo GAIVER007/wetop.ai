@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from '@playwright/test';
 import { TEST_API_PORT, TEST_SCHEMA, TEST_WEB_PORT, hardcodedLiveAddress } from './tests/tools/test-schema-plan';
+import { AUTH_STATE, SERVICE_KEY, authRun } from './tests/tools/e2e-auth';
 
 /**
  * E2E (ADR-042). По умолчанию — изолированный стенд: свой API на 3101 и стойка на 3100 (production-сборка apps/web)
@@ -15,7 +16,15 @@ import { TEST_API_PORT, TEST_SCHEMA, TEST_WEB_PORT, hardcodedLiveAddress } from 
  * печатается в начале; переведите адрес на process.env.APP_API_URL, и спек вернётся сам.
  */
 const LIVE = process.env['E2E_CHANNEX_LIVE'] === '1';
+/**
+ * Замок API в прогоне (`E2E_AUTH=1`): стенд поднимается с `AUTH_REQUIRED=1`, спеки ходят под сотрудником
+ * автотестов (`tests/e2e/_auth.setup.ts`), служебные запросы — с ключом. Порядок включения замка на
+ * машине стойки — `plans/slice-13-accounts-saas.md` §7а. По умолчанию выключен: прогон идёт как раньше.
+ */
+const AUTH = !LIVE && authRun();
 const LIVE_ONLY = ['channex-certification.spec.ts'];
+/** Свой Chromium вместо браузеров Playwright: `CHROMIUM_PATH` (как у UI-набора и главной) или `E2E_BROWSER_EXECUTABLE` */
+const BROWSER_EXECUTABLE = process.env['E2E_BROWSER_EXECUTABLE'] || process.env['CHROMIUM_PATH'];
 const TEST_API = `http://127.0.0.1:${TEST_API_PORT}`;
 const TEST_WEB = `http://127.0.0.1:${TEST_WEB_PORT}`;
 const SPECS = resolve(import.meta.dirname, 'tests/e2e');
@@ -31,6 +40,7 @@ if (!LIVE) {
   process.env['DATABASE_SCHEMA'] = TEST_SCHEMA;
   process.env['APP_API_URL'] = TEST_API;
   process.env['E2E_API_URL'] = TEST_API;
+  if (AUTH) process.env['SERVICE_API_KEY'] = SERVICE_KEY;
   if (hardcoded.length && process.env['TEST_WORKER_INDEX'] === undefined)
     console.log(`[e2e] не в прогоне — жёсткий адрес рабочего стенда: ${hardcoded.join(', ')}`);
 }
@@ -39,22 +49,38 @@ const PII_ENCRYPTION_KEY = process.env['PII_ENCRYPTION_KEY'] || 'e2e-only-key-no
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  globalSetup: LIVE ? undefined : './tests/e2e-setup.ts',
+  // в живом режиме сертификации схему pms_test не готовим (exactOptionalPropertyTypes: поля просто нет)
+  ...(LIVE ? {} : { globalSetup: './tests/e2e-setup.ts' }),
   // брони автотестов занимают ячейки — после прогона они отменяются (в изолированном режиме — в pms_test)
   globalTeardown: './tests/e2e-teardown.ts',
   timeout: 90_000,
   expect: { timeout: 30_000 },
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB, trace: 'retain-on-failure' },
+  use: {
+    baseURL: LIVE ? 'http://127.0.0.1:3000' : TEST_WEB,
+    trace: 'retain-on-failure',
+    // прямые запросы спеков к API идут как служебные: людей у них нет, а замок пропускает по ключу
+    ...(AUTH ? { extraHTTPHeaders: { 'x-wetop-service-key': SERVICE_KEY } } : {}),
+    // Машина без браузеров Playwright, но со своим Chromium (облачная сессия, CI-образ):
+    // CHROMIUM_PATH=/путь/к/chrome (как у UI-набора и главной) или E2E_BROWSER_EXECUTABLE
+    ...(BROWSER_EXECUTABLE
+      ? { launchOptions: { executablePath: BROWSER_EXECUTABLE } }
+      : {}),
+  },
   projects: LIVE
     ? [{ name: 'channex-live', testMatch: LIVE_ONLY.map((f) => `**/${f}`) }]
     : [
         { name: 'schema-guard', testMatch: /_schema-guard\.setup\.ts$/ },
+        ...(AUTH
+          ? [{ name: 'auth', testMatch: /_auth\.setup\.ts$/, dependencies: ['schema-guard'] }]
+          : []),
         {
           name: 'isolated',
           testIgnore: [...LIVE_ONLY, ...hardcoded].map((f) => `**/${f}`),
-          dependencies: ['schema-guard'],
+          dependencies: AUTH ? ['schema-guard', 'auth'] : ['schema-guard'],
+          // сессию кладёт шаг входа, поэтому cookie просит только этот проект: у самого входа её ещё нет
+          ...(AUTH ? { use: { storageState: AUTH_STATE } } : {}),
         },
       ],
   webServer: LIVE
@@ -80,6 +106,9 @@ export default defineConfig({
             API_PORT: String(TEST_API_PORT),
             DATABASE_SCHEMA: TEST_SCHEMA,
             PII_ENCRYPTION_KEY,
+            // Accounts middleware also reads password sessions. The isolated stand must not
+            // depend on a private production secret just to accept a session cookie.
+            SESSION_SECRET: process.env['E2E_SESSION_SECRET'] || 'e2e-only-session-secret-not-for-production',
             // фоновая работа — только у рабочего API на этом Mac; тестовый ничего не шлёт наружу и никого не будит
             GUARD: 'off',
             CHANNEX_PULL: 'off',
@@ -90,6 +119,7 @@ export default defineConfig({
             GUARD_HEARTBEAT_URL: '',
             TELEGRAM_BOT_TOKEN: '',
             TELEGRAM_CHAT_ID: '',
+            ...(AUTH ? { AUTH_REQUIRED: '1', SERVICE_API_KEY: SERVICE_KEY } : {}),
           },
           // отвечает 200 и без готовой схемы — схему готовит globalSetup, проверяет schema-guard
           url: `${TEST_API}/system/connection`,
@@ -99,7 +129,7 @@ export default defineConfig({
         {
           command: `npx next start --port ${TEST_WEB_PORT} --hostname 127.0.0.1`,
           cwd: 'apps/web',
-          env: { APP_API_URL: TEST_API },
+          env: { APP_API_URL: TEST_API, ...(AUTH ? { APP_AUTH_REQUIRED: '1' } : {}) },
           url: `${TEST_WEB}/inventory`,
           reuseExistingServer: true,
           timeout: 180_000,

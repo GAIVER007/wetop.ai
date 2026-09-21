@@ -11,7 +11,7 @@
    безопасности.
 
    ```bash
-   git -C "/Users/vyacheslav/Desktop/Проекты/Pms Lux" push origin main
+   git -C "/Users/vyacheslav/Desktop/Проекты/WETOP" push origin main
    ```
 
 2. Перенести на второй компьютер файл документа ментора `~/Downloads/Вячеслав-план-и-дизайн-система.pdf`

@@ -1,0 +1,23 @@
+# Типы (typecheck) · 17.09.2026 22:33 Алматы · vm
+# коммит a6434dd (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 11
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/channels/channels.controller.test.ts(287,11): error TS2322: Type '() => Promise<{ id: string; kind: "AVAILABILITY" | "RESTRICTIONS"; status: string; attempts: number; taskId: string | null; lastError: string | null; createdAt: string; sentAt: null; lines: number; dateFrom: string; dateTo: string; roomTypeIds: string[]; ratePlanIds: never[]; }[]>' is not assignable to type '(provider: string, limit: number) => Promise<OutboxMessageRow[]>'.
+  Type 'Promise<{ id: string; kind: "AVAILABILITY" | "RESTRICTIONS"; status: string; attempts: number; taskId: string | null; lastError: string | null; createdAt: string; sentAt: null; lines: number; dateFrom: string; dateTo: string; roomTypeIds: string[]; ratePlanIds: never[]; }[]>' is not assignable to type 'Promise<OutboxMessageRow[]>'.
+    Type '{ id: string; kind: "AVAILABILITY" | "RESTRICTIONS"; status: string; attempts: number; taskId: string | null; lastError: string | null; createdAt: string; sentAt: null; lines: number; dateFrom: string; dateTo: string; roomTypeIds: string[]; ratePlanIds: never[]; }[]' is not assignable to type 'OutboxMessageRow[]'.
+      Type '{ id: string; kind: "AVAILABILITY" | "RESTRICTIONS"; status: string; attempts: number; taskId: string | null; lastError: string | null; createdAt: string; sentAt: null; lines: number; dateFrom: string; dateTo: string; roomTypeIds: string[]; ratePlanIds: never[]; }' is not assignable to type 'OutboxMessageRow'.
+        Types of property 'status' are incompatible.
+          Type 'string' is not assignable to type '"PENDING" | "SENT" | "FAILED"'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 15 с

@@ -1,0 +1,5 @@
+# Линтер (lint) · 19.09.2026 18:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 3ad7b47 (main), незакоммиченных файлов набора: 16
+# npx eslint . '--ignore-pattern' '.agent-tmp/**'
+
+# код выхода 0 · 5 с

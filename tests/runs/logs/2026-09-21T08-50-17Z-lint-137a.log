@@ -1,0 +1,12 @@
+# Линтер (lint) · 21.09.2026 13:50 Алматы · vm
+# коммит 41f5b39 (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 14
+# npx eslint .
+
+/home/user/wetop.ai/.tmp-shot.mjs
+   2:13  error  'process' is not defined  no-undef
+  16:1   error  'console' is not defined  no-undef
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+# код выхода 1 · 14 с

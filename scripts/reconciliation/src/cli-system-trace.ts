@@ -38,6 +38,7 @@ import {
   type LayerRow,
   type StayState,
 } from './system-trace';
+import { serviceFetch } from '../../lib/service-api';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -74,7 +75,7 @@ const METRIC = {
 } as const;
 
 async function api<T>(path: string): Promise<T> {
-  const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(120_000) });
+  const res = await serviceFetch(`${API}${path}`, { signal: AbortSignal.timeout(120_000) });
   if (!res.ok) throw new Error(`API ${path}: HTTP ${res.status}`);
   return (await res.json()) as T;
 }

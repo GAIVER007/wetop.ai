@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 const fixture = 'http://127.0.0.1:4311';
 const screenshotDir = 'reports/premium-ui';
@@ -68,7 +68,7 @@ test('drawer: бронь открывается поверх доски, вкл�
     .getByTestId('payment-form')
     .getByRole('button', { name: 'Принять оплату', exact: true })
     .click();
-  await expect(drawer.getByTestId('folio-balance')).toHaveText('0,00 ₸, оплачено');
+  await expect(drawer.getByTestId('folio-balance')).toHaveText('0 ₸ · оплачено');
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(page).toHaveURL(/chessboard/);
@@ -95,10 +95,12 @@ test('новые фильтры шахматки, список броней и �
   await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await page.goto('/reservations');
-  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(8);
+  // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
+  await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+  // в названии чипа теперь и число броней этого статуса: «Отменены 0»
   await page
     .locator('.directory-filters')
-    .getByRole('link', { name: 'Отменены', exact: true })
+    .getByRole('link', { name: /^Отменены/ })
     .click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
   await page.goto('/rooms');
@@ -116,7 +118,9 @@ test('новые фильтры шахматки, список броней и �
 test('новые страницы и обе темы: адаптивность и отсутствие ошибок браузера', async ({ page }) => {
   test.setTimeout(180000);
   const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('pageerror', (e) => {
+    if (!devNoise.test(e.message)) errors.push(e.message);
+  });
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
   });
@@ -132,6 +136,12 @@ test('новые страницы и обе темы: адаптивность �
     '/connections',
     '/hotel-settings',
     '/channel-manager',
+    '/channels',
+    '/journal',
+    '/incidents',
+    '/analytics',
+    '/management/statistics',
+    '/hotel-settings/services',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -160,11 +170,74 @@ test('новые страницы и обе темы: адаптивность �
   }
   expect(errors).toEqual([]);
 });
-test('login не имитирует авторизацию', async ({ page }) => {
+// вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
+test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('ещё не подключён');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'Неверная почта или пароль',
+  );
   await expect(page).toHaveURL(/login/);
+});
+
+/**
+ * B1 «Список броней» (tasks/todo.md, 20.09.2026): выборка названа словами — число, день и статус;
+ * пустой результат называет условие и предлагает убрать именно его, а не только «сбросить всё»;
+ * на телефоне строка складывается в карточку — гость, место, даты, статус и остаток видны без
+ * прокрутки вбок, у фильтров статуса цели 44 px.
+ */
+test('список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок', async ({
+  page,
+}) => {
+  await page.goto('/reservations');
+  const main = page.getByRole('main');
+  const meta = main.getByTestId('directory-meta');
+  await expect(meta).toContainText('9 бронирований');
+  // один день — одна дата словами, без «20 сент. — 20 сент.»
+  await expect(meta).toContainText(/на \d{1,2} [а-яё]+\.?/); // «мая» — без точки
+  await expect(meta).not.toContainText('—');
+  // подписи дат видны, не только aria-label
+  await expect(main.locator('.directory-toolbar').getByText('С', { exact: true })).toBeVisible();
+  await expect(main.locator('.directory-toolbar').getByText('По', { exact: true })).toBeVisible();
+  // одна страница — счётчик страниц не рисуется
+  await expect(main.getByText(/Страница \d+ из/)).toHaveCount(0);
+
+  // пустой результат: названы статус и запрос, шапки пустой таблицы нет, поправка точечная
+  await page.goto('/reservations?status=CANCELLED&q=Иванов');
+  const empty = main.locator('.empty-state');
+  await expect(empty).toContainText('Бронирований не найдено');
+  await expect(empty).toContainText('Отменены');
+  await expect(empty).toContainText('Иванов');
+  await expect(main.getByTestId('reservations-table')).toHaveCount(0);
+  await empty.getByRole('link', { name: 'Убрать поиск', exact: true }).click();
+  await expect(main.getByLabel('Поиск броней')).toHaveValue('');
+  await expect(page).toHaveURL(/status=CANCELLED/);
+  await main
+    .locator('.empty-state')
+    .getByRole('link', { name: 'Все статусы', exact: true })
+    .click();
+  await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+
+  // телефон
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/reservations');
+  const table = main.getByTestId('reservations-table');
+  const overflow = await main
+    .locator('.table-scroll')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const row = table.locator('tbody tr').first();
+  await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
+  await expect(row).toContainText('Подтверждены');
+  await expect(row).toContainText('к оплате');
+  await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
+  const chip = await main.getByLabel('Статус брони', { exact: true }).boundingBox();
+  expect(chip!.height).toBeGreaterThanOrEqual(44);
+  const layout = await page.evaluate(() => ({
+    viewport: window.innerWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(layout.content).toBeLessThanOrEqual(layout.viewport + 1);
 });

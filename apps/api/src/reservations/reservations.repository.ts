@@ -9,9 +9,11 @@ import {
 } from '@pms/database';
 import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
 import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { assertPropertyVisible } from '../database/property-ref';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
+import { auditUserId } from '../accounts/actor';
 
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
 export class AllocationOverlapError extends Error {
@@ -366,10 +368,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
 
   async property(): Promise<{ id: string; currency: string }> {
     if (!this.propertyCache) {
-      this.propertyCache = await this.db.property.findFirstOrThrow({
+      const found = await this.db.property.findFirstOrThrow({
         where: { name: this.propertyName },
-        select: { id: true, currency: true },
+        select: { id: true, name: true, currency: true, organizationId: true },
       });
+      // Тот же замок, что в property-ref: репозиторий читает объект своим запросом (ему нужна
+      // валюта), но чужой организации он его не отдаёт (ADR-061).
+      assertPropertyVisible(found);
+      this.propertyCache = { id: found.id, currency: found.currency };
     }
     return this.propertyCache;
   }
@@ -1187,6 +1193,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   async audit(entry: AuditEntry): Promise<void> {
     await this.db.auditLog.create({
       data: {
+        userId: auditUserId(),
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,

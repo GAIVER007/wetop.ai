@@ -1,22 +1,24 @@
 'use client';
-import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
-import { ToastProvider, useToast } from '../../components/toast';
-import { Button, cx } from '../../components/ui';
+import { useState, useTransition } from 'react';
+import { Button, Input, cx } from '../../components/ui';
 import { formatMoney, minorToInput } from '../../lib/money';
-import { displayDay } from '../../lib/display-date';
 import { bulkRatesAction } from './actions';
 
-/** Уведомления о сохранении цены живут над таблицей; сервер-компонент страницы оборачивает таблицу сюда. */
-export function RatesToastScope({ children }: { children: ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>;
-}
-
 /**
- * Правка цены в ячейке (срез 7.2, макет «Rates»): клик → поле, Enter сохраняет, Escape отменяет.
- * Уходит тем же `POST /rates/bulk`, что и массовое изменение — одна строка на один день и одно число
- * гостей, поэтому проверка нуля и ошибка сервера стоят прямо у ячейки (DESIGN.md §14 «Ошибка»).
+ * Правка цены прямо в ячейке календаря (срез 7.2, сцена показа Channex).
+ *
+ * Панель массовой правки остаётся: она для «поднять выходные на месяц вперёд». Одна цена на одну
+ * дату — это один клик, и путь у него тот же самый: `bulkRatesAction` на одну строку, то есть одна
+ * транзакция в API и одно сообщение в очередь каналов. Своей логики цен здесь нет.
  */
-export function PriceCell(props: {
+export function PriceCell({
+  date,
+  occupancy,
+  minor,
+  currency,
+  accommodationTypeCode,
+  ratePlanCode,
+}: {
   date: string;
   occupancy: number;
   minor: string | null;
@@ -24,100 +26,91 @@ export function PriceCell(props: {
   accommodationTypeCode: string;
   ratePlanCode: string;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(minor ? minorToInput(minor) : '');
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
-  const input = useRef<HTMLInputElement>(null);
-  const toast = useToast();
-  useEffect(() => {
-    if (editing) input.current?.select();
-  }, [editing]);
-  const open = () => {
-    // Тиыны не теряем: 123450 → «1234.50», 800000 → «8000». Иначе слепой Enter округлил бы цену вниз
-    setValue(props.minor ? minorToInput(props.minor) : '');
-    setError(null);
-    setEditing(true);
-  };
-  const close = () => {
-    setEditing(false);
-    setError(null);
-  };
+
   const save = () => {
+    if (pending) return;
     const price = value.trim().replace(',', '.');
-    if (!/^\d+(\.\d{1,2})?$/.test(price)) return setError('Введите цену числом');
-    if (Number(price) === 0) return setError('Цена не может быть 0');
+    if (!price) {
+      setResult({ ok: false, text: 'Введите цену в тенге' });
+      return;
+    }
+    if (!/^\d+(\.\d{1,2})?$/.test(price)) {
+      setResult({ ok: false, text: 'Введите цену числом' });
+      return;
+    }
+    if (/^0+(\.0{1,2})?$/.test(price)) {
+      setResult({ ok: false, text: 'Цена не может быть 0' });
+      return;
+    }
     start(async () => {
-      const res = await bulkRatesAction([
-        {
-          accommodationTypeCode: props.accommodationTypeCode,
-          ratePlanCode: props.ratePlanCode,
-          dateFrom: props.date,
-          dateTo: props.date,
-          price,
-          occupancy: props.occupancy,
-        },
+      const r = await bulkRatesAction([
+        { accommodationTypeCode, ratePlanCode, dateFrom: date, dateTo: date, occupancy, price },
       ]);
-      if (res.error) setError(res.error);
-      else {
-        setEditing(false);
-        toast.push({
-          text: `Цена на ${displayDay(props.date)} сохранена, ушла в Channex`,
-          tone: 'ok',
-        });
+      if (r.error) {
+        setResult({ ok: false, text: r.error });
+        return;
       }
+      setOpen(false);
+      setResult({
+        ok: true,
+        text: r.queued
+          ? `Цена сохранена, ушло в очередь каналов: ${r.queued}`
+          : 'Цена сохранена, но в очередь каналов не ушла: категория или тариф не сопоставлены с Channex',
+      });
     });
   };
-  const label = `Цена ${displayDay(props.date)}, ${props.occupancy} гост.`;
-  if (!editing)
-    return (
-      <Button
-        type="button"
-        tone="ghost"
-        size="xs"
-        className={cx('price-cell', !props.minor && 'warn-text')}
-        aria-label={`${label}: изменить`}
-        onClick={open}
-      >
-        {props.minor ? formatMoney(props.minor, props.currency) : 'нет'}
-      </Button>
-    );
+
   return (
-    <span className="price-cell__edit">
-      <input
-        ref={input}
-        className={cx('inp', 'price-cell__input', error && 'is-invalid')}
-        aria-label={label}
-        aria-invalid={error ? true : undefined}
-        inputMode="decimal"
-        value={value}
-        disabled={pending}
-        onChange={(e) => {
-          setValue(e.target.value);
-          setError(null);
+    <div className="price-cell">
+      <button
+        type="button"
+        className="price-cell__value"
+        data-testid="price-cell-edit"
+        aria-label={`Изменить цену на ${date}, гостей ${occupancy}`}
+        onClick={() => {
+          setValue(minor ? minorToInput(minor) : '');
+          setResult(null);
+          setOpen((v) => !v);
         }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            save();
-          } else if (e.key === 'Escape') {
-            e.preventDefault();
-            close();
-          }
-        }}
-        onBlur={() => {
-          if (!pending && !error) close();
-        }}
-      />
-      {error ? (
-        <span className="price-cell__error" role="alert">
-          {error}
-        </span>
-      ) : (
-        <span className="price-cell__hint">
-          {pending ? 'сохраняю…' : 'Enter — сохранить, Esc — отмена'}
-        </span>
+      >
+        {minor ? formatMoney(minor, currency) : '—'}
+      </button>
+      {open && (
+        <div className="price-editor" role="group" aria-label={`Цена на ${date}`}>
+          <Input
+            type="text"
+            inputMode="decimal"
+            autoFocus
+            value={value}
+            data-testid="price-cell-input"
+            aria-label={`Цена в тенге на ${date}, гостей ${occupancy}`}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') save();
+              if (e.key === 'Escape') setOpen(false);
+            }}
+          />
+          <Button size="xs" type="button" onClick={save} disabled={pending}>
+            Сохранить цену
+          </Button>
+          <Button size="xs" tone="ghost" type="button" onClick={() => setOpen(false)}>
+            Отмена
+          </Button>
+        </div>
       )}
-    </span>
+      {result && (
+        <div
+          className={cx('price-cell__result', result.ok ? 'ok-text' : 'danger-text')}
+          data-testid="price-cell-result"
+          role={result.ok ? undefined : 'alert'}
+        >
+          {result.text}
+        </div>
+      )}
+    </div>
   );
 }

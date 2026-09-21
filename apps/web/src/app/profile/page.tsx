@@ -48,9 +48,12 @@ export default function ProfilePage() {
                 <span className="round-icon">
                   <Icon name="shield" />
                 </span>
-                <h2 className="section-title">Рабочее пространство администратора</h2>
-                <p className="muted">
-                  Управление сотрудниками, ролями и сменами появится после подключения авторизации.
+                <h2 className="section-title">Вход и сотрудники</h2>
+                {/* Правда на 20.09 (ADR-053): вход по почте и паролю, приглашения и список сессий есть, ролей нет (ADR-023) */}
+                <p className="muted" data-testid="profile-access">
+                  Кто вошёл, приглашения администраторов, где ещё открыт вход и выход везде — на
+                  экране входа. Вход по почте и паролю. Ролей пока нет: каждый вошедший видит и
+                  делает всё.
                 </p>
                 <Link href="/login" className="btn btn--secondary">
                   Экран входа

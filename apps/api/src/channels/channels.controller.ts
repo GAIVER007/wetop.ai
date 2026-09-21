@@ -27,6 +27,8 @@ import {
   type ChannelsRepository,
   type OutboxStatus,
 } from './channels.repository';
+import { Public } from '../auth/public.decorator';
+import { isAriStopped } from './ari-switch';
 import { outboxRowSummary } from './outbox-rows';
 import { revisionFacts } from './revision-facts';
 
@@ -107,6 +109,7 @@ export class ChannelsController {
   }
 
   /** Webhook Channex: секрет в заголовке X-Channex-Webhook-Secret (webhook-collection.md → Security). */
+  @Public() // Channex приходит снаружи со своим секретом в заголовке, сессии у него нет
   @Post('webhook')
   @HttpCode(200)
   webhook(
@@ -249,8 +252,21 @@ export class ChannelsController {
 
   /** Очередь исходящих изменений ARI: сколько ждёт, сколько ушло, последняя задача Channex. */
   @Get('outbox')
-  outboxStatus() {
-    return this.repo.outboxSummary(PROVIDER);
+  async outboxStatus() {
+    // Выключатель ARI спрашивается у самого запущенного процесса: на сервере переменную задаёт
+    // compose, и «задано в файле» ещё не значит «процесс это видит» (урок 15.09 — рапорт без
+    // проверки). scripts/ops/ari-server.sh читает именно это поле.
+    return { ...(await this.repo.outboxSummary(PROVIDER)), ariStopped: isAriStopped() };
+  }
+
+  /**
+   * Строки очереди: что именно уехало в Channex и чем кончилось. Плитки над таблицей отвечают
+   * «сколько», эта таблица — «что» (срез 7.2, сцена показа сертификации).
+   */
+  @Get('outbox/messages')
+  outboxMessages(@Query('limit') limit?: string) {
+    const n = Number(limit ?? 20);
+    return this.repo.recentOutbox(PROVIDER, Number.isInteger(n) && n > 0 && n <= 200 ? n : 20);
   }
 
   /** Отправить накопившееся сейчас (без ожидания фонового цикла). */

@@ -1,0 +1,59 @@
+# Сквозные (e2e) · 20.09.2026 20:17 Алматы · MacBook-Air-Urij.local
+# коммит 8ac3933 (codex/pause-self-registration)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/sessions.spec.ts' '--workers=1' '--grep' 'ранее созданный'
+[WebServer] (node:90884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90974) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:91003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/sessions.spec.ts:49:1 › ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль (928ms)
+
+
+  1) tests/ui/sessions.spec.ts:49:1 › ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      58 |     data: { email: '<email>', code: '123456' },
+      59 |   });
+    > 60 |   expect(response.ok()).toBe(true);
+         |                         ^
+      61 |   const { token } = (await response.json()) as { token: <скрыто> };
+      62 |   await context.addCookies([{
+      63 |     name: 'wetop_session', value: token, url: 'http://127.0.0.1:3100',
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/sessions.spec.ts:60:25
+
+    Error Context: test-results/sessions-ранее-созданный-с-2b58e-ся-после-перехода-на-пароль/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sessions-ранее-созданный-с-2b58e-ся-после-перехода-на-пароль/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sessions-ранее-созданный-с-2b58e-ся-после-перехода-на-пароль/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/sessions.spec.ts:49:1 › ранее созданный сеанс по коду остаётся видимым и отзывается после перехода на пароль
+
+# код выхода 1 · 15 с

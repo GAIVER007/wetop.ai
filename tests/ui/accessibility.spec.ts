@@ -1,7 +1,11 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
+// Старые адреса /hotel-settings/{check-in,description,photos,amenities} — это redirect(), а не экраны:
+// их получатели («Настройки гостиницы», «Интеграции») в списке есть, а разбор переадресации живёт в
+// tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
+// сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
   '/today',
   '/chessboard',
@@ -19,12 +23,8 @@ const routes = [
   '/rates',
   '/finance',
   '/hotel-settings',
-  '/hotel-settings/check-in',
   '/hotel-settings/penalties',
   '/hotel-settings/services',
-  '/hotel-settings/description',
-  '/hotel-settings/photos',
-  '/hotel-settings/amenities',
   '/management/statistics',
   '/channel-manager',
   '/channels',
@@ -45,7 +45,9 @@ for (const width of [1440, 390]) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: 1000 });
       const errors: string[] = [];
-      page.on('pageerror', (e) => errors.push(e.message));
+      page.on('pageerror', (e) => {
+        if (!devNoise.test(e.message)) errors.push(e.message);
+      });
       const report = [];
       mkdirSync('reports/ui-quality', { recursive: true });
       for (const route of routes) {

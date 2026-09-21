@@ -1,7 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
+import { confirmDialog } from './confirm';
 
 /**
  * Сертификационные сценарии Channex (docs/channex/site/api-v.1-documentation/pms-certification-tests.md),
@@ -30,7 +32,7 @@ async function addChange(
     ctd?: 'true' | 'false';
   },
 ) {
-  const ed = page.getByTestId('bulk-editor');
+  const ed = page.getByRole('main').getByTestId('bulk-editor');
   await ed.locator('select[name="accommodationTypeCode"]').selectOption(c.category);
   await ed.locator('select[name="ratePlanCode"]').selectOption(OTA);
   await ed.locator('input[name="dateFrom"]').fill(c.dateFrom);
@@ -44,31 +46,39 @@ async function addChange(
   await ed.locator('select[name="closedToArrival"]').selectOption(c.cta ?? '');
   await ed.locator('select[name="closedToDeparture"]').selectOption(c.ctd ?? '');
   const before = await page
+    .getByRole('main')
     .getByTestId('pending-changes')
     .locator('li')
     .count()
     .catch(() => 0);
   await ed.getByRole('button', { name: '+ Добавить в список' }).click();
-  await expect(page.getByTestId('pending-changes').locator('li')).toHaveCount(before + 1);
-  // строка в списке должна отражать именно то, что ввели
-  await expect(page.getByTestId('pending-changes').locator('li').nth(before)).toContainText(
-    c.dateFrom,
+  await expect(page.getByRole('main').getByTestId('pending-changes').locator('li')).toHaveCount(
+    before + 1,
   );
+  // строка в списке должна отражать именно то, что ввели
+  await expect(
+    page.getByRole('main').getByTestId('pending-changes').locator('li').nth(before),
+  ).toContainText(c.dateFrom);
 }
 async function save(page: Page) {
-  await page.getByTestId('apply-changes').click();
-  await expect(page.getByTestId('bulk-done')).toBeVisible({ timeout: 60_000 });
+  await page.getByRole('main').getByTestId('apply-changes').click();
+  await expect(page.getByRole('main').getByTestId('bulk-done')).toBeVisible({ timeout: 60_000 });
 }
 /** Отправить очередь с /channels, дождаться, пока она опустеет, и записать ID задачи Channex. */
 async function flush(page: Page, scenario: string) {
   await page.goto('/channels');
-  await page.getByTestId('channel-flush').click();
-  await expect(page.getByTestId('channel-result')).toBeVisible({ timeout: 120_000 });
+  await page.getByRole('main').getByTestId('channel-flush').click();
+  await expect(page.getByRole('main').getByTestId('channel-result')).toBeVisible({
+    timeout: 120_000,
+  });
   let taskId = '—';
   for (let i = 0; i < 30; i += 1) {
     await page.goto('/channels');
-    const pending = (await page.getByTestId('outbox-pending').textContent())?.trim();
-    taskId = (await page.getByTestId('outbox-last-task').textContent())?.trim() ?? '—';
+    const pending = (
+      await page.getByRole('main').getByTestId('outbox-pending').textContent()
+    )?.trim();
+    taskId =
+      (await page.getByRole('main').getByTestId('outbox-last-task').textContent())?.trim() ?? '—';
     if (pending === '0' && taskId !== '—') break;
     await page.waitForTimeout(3_000);
   }
@@ -103,13 +113,12 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await page.goto(`/rates?category=${SINGLE}&ratePlan=${OTA}&month=2026-11`);
     // Цена берётся не из константы: с зашитым «333» второй прогон проходил бы и при сломанном
     // сохранении — в ячейке уже стояло бы 333 с прошлого раза.
-    const cell = page.getByTestId('price-2026-11-22-1');
+    const cell = page.getByRole('main').getByTestId('price-2026-11-22-1');
     const before = (await cell.textContent())!.trim();
-    const price = before.startsWith('333,') ? '334' : '333';
+    const price = before.startsWith('333 ') ? '334' : '333';
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-22', price });
     await save(page);
-    // Срез 7.2: деньги по DESIGN.md §14 — «333 ₸» без «,00»
-    await expect(cell).toHaveText(new RegExp(`${price} ₸`));
+    await expect(cell).toHaveText(new RegExp(`${price} ₸`)); // §14: без тиынов
     expect((await cell.textContent())!.trim()).not.toBe(before);
     await flush(page, '2. Single Date Update for Single Rate');
   });
@@ -119,7 +128,9 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-21', price: '333' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-25', price: '444' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-29', price: '456.23' });
-    await expect(page.getByTestId('pending-changes').locator('li')).toHaveCount(3);
+    await expect(page.getByRole('main').getByTestId('pending-changes').locator('li')).toHaveCount(
+      3,
+    );
     await save(page);
     await flush(page, '3. Single Date Update for Multiple Rates');
   });
@@ -155,7 +166,9 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await addChange(page, { category: SINGLE, dateFrom: '2026-11-14', stopSell: 'true' });
     await addChange(page, { category: DOUBLE, dateFrom: '2026-11-16', stopSell: 'true' });
     await save(page);
-    await expect(page.getByTestId('rate-row-2026-11-14')).toContainText('закрыто');
+    await expect(page.getByRole('main').getByTestId('rate-row-2026-11-14')).toContainText(
+      'закрыто',
+    ); // stop sell словом (срез 7.2)
     await flush(page, '6. Stop Sell Update');
   });
 
@@ -207,7 +220,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     page,
   }) => {
     await page.goto(`/reservations/new?arrival=2026-11-21&departure=2026-11-22`);
-    const form = page.getByTestId('new-reservation-form');
+    const form = page.getByRole('main').getByTestId('new-reservation-form');
     await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);
@@ -220,8 +233,8 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await flush(page, '9. Single Date Availability Update (booking created in PMS UI)');
     await page.goto(`/reservations/${number}`);
     await cardTab(page, 'Действия');
-    await page.getByTestId('cancel-reservation').click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+    await page.getByRole('main').getByTestId('cancel-reservation').click();
+    await confirmDialog(page, 'Отменить бронь');
     await expect(page.getByText('отменена').first()).toBeVisible();
     await flush(page, '10. Availability Update (booking cancelled in PMS UI)');
   });

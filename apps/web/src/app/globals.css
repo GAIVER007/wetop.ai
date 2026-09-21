@@ -50,83 +50,11 @@ h3 {
   outline-offset: 1px;
 }
 
-/* ---------- верхняя навигация ---------- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.topbar__inner {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: var(--topbar-h);
-  padding: 8px 24px;
-  flex-wrap: wrap;
-}
-.topbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-head);
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text);
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-.topbar__mark {
-  color: var(--text);
-  flex: none;
-}
-.topbar__brand:hover {
-  text-decoration: none;
-}
-.topbar__brand span {
-  color: var(--muted);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: -4px;
-}
-.topbar__nav {
-  display: flex;
-  align-items: center;
-  gap: 0px;
-  flex-wrap: wrap;
-}
-.topbar__link {
-  padding: 8px 8px;
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  white-space: nowrap;
-}
-.topbar__link:hover {
-  background: var(--surface-muted);
-  text-decoration: none;
-}
-.topbar__link--active {
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-weight: 600;
-}
-.topbar__link--accent {
-  margin-left: 8px;
-  background: var(--primary);
-  color: var(--muted);
-  font-weight: 600;
-}
-.topbar__link--accent:hover {
-  background: var(--primary-hover);
-}
-
 /* ---------- страница ---------- */
 .page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 24px 48px;
+  padding: 24px 20px 48px;
 }
 .page--narrow {
   max-width: 760px;
@@ -139,14 +67,14 @@ h3 {
 }
 .page--full {
   max-width: none;
-  padding: 24px 24px 48px;
+  padding: 20px 20px 48px;
 }
 .page__crumbs {
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 8px;
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .page__head {
@@ -154,11 +82,11 @@ h3 {
   align-items: baseline;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .page__title {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
   margin: 0;
@@ -168,7 +96,7 @@ h3 {
 }
 .page__actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: baseline;
   flex-wrap: wrap;
   margin-left: auto;
@@ -176,7 +104,7 @@ h3 {
 }
 .section-title {
   font-size: 17px;
-  margin: 24px 0 8px;
+  margin: 22px 0 10px;
 }
 .section-title--first {
   margin-top: 0;
@@ -186,14 +114,14 @@ h3 {
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 150px), 1fr));
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 .stat {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 8px 16px;
+  padding: 10px 12px;
   min-width: 0;
 }
 .stat__label {
@@ -216,7 +144,7 @@ h3 {
 .stat__hint {
   font-size: 12.5px;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: 3px;
 }
 .stat__extra {
   display: flex;
@@ -238,13 +166,13 @@ h3 {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 12px;
   display: grid;
   gap: 8px;
 }
 .panel--lg {
   padding: 16px;
-  gap: 8px;
+  gap: 12px;
 }
 .panel__title {
   font-size: 14px;
@@ -255,7 +183,10 @@ h3 {
 }
 .stack {
   display: grid;
-  gap: 16px;
+  /* Колонка сетки по умолчанию растягивается по самому широкому неразрывному содержимому: длинный
+     адрес или код счётчика распирал «Подключение счётчика» шире телефона (обход стойки 17.09.2026) */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
 }
 .stack--sm {
   gap: 8px;
@@ -284,7 +215,7 @@ h3 {
 }
 .tbl th {
   text-align: left;
-  padding: 8px 16px 8px;
+  padding: 10px 12px 8px;
   border-bottom: 1px solid var(--border);
   font-size: 12.5px;
   font-weight: 600;
@@ -292,7 +223,7 @@ h3 {
   white-space: nowrap;
 }
 .tbl td {
-  padding: 8px 16px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--border-soft);
   vertical-align: top;
 }
@@ -307,7 +238,7 @@ h3 {
 }
 .tbl--sm th,
 .tbl--sm td {
-  padding: 8px 8px;
+  padding: 6px 8px;
 }
 .tbl--dense td {
   padding: 4px 8px;
@@ -323,7 +254,10 @@ h3 {
   text-decoration: line-through;
 }
 .tbl tr.is-stop {
-  background: var(--warning-bg);
+  background: var(--danger-soft);
+}
+.tbl tr.is-weekend {
+  background: var(--primary-soft);
 }
 .num {
   text-align: right;
@@ -341,9 +275,9 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   min-height: var(--control-h);
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -407,12 +341,12 @@ h3 {
 }
 .btn--sm {
   min-height: 28px;
-  padding: 4px 8px;
+  padding: 3px 10px;
   font-size: 13px;
 }
 .btn--xs {
   min-height: 24px;
-  padding: 4px 8px;
+  padding: 2px 8px;
   font-size: 12px;
   font-weight: 500;
 }
@@ -420,7 +354,7 @@ h3 {
 /* ---------- поля ---------- */
 .inp {
   min-height: var(--control-h);
-  padding: 4px 8px;
+  padding: 5px 10px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -434,7 +368,7 @@ h3 {
 }
 textarea.inp {
   resize: vertical;
-  padding: 8px 8px;
+  padding: 8px 10px;
 }
 .inp--sm {
   font-size: 13px;
@@ -459,7 +393,7 @@ textarea.inp {
   min-width: 220px;
 }
 .inp--upper {
-  text-transform: uppercase; /* slop-allow: uppercase — нормализация ввода кода (KAZ, RU), не капс подписи */
+  text-transform: uppercase;
 }
 .field {
   display: flex;
@@ -468,15 +402,24 @@ textarea.inp {
   font-size: 12.5px;
   font-weight: 500;
   color: var(--text-2);
+  /* Поле в ряду фильтров не сжималось уже содержимого: длинное название категории
+     растягивало выпадающий список шире телефона, и «Цены» уезжали вбок на 94 px
+     (найдено обходом стойки 17.09.2026, ширина 390) */
+  min-width: 0;
+  max-width: 100%;
+}
+.field > .inp,
+.field > select.inp {
+  max-width: 100%;
 }
 .field--inline {
   flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .check {
   display: inline-flex;
-  gap: 4px;
+  gap: 3px;
   align-items: center;
 }
 
@@ -491,12 +434,12 @@ textarea.inp {
   align-items: end;
 }
 .row--lg {
-  gap: 8px;
+  gap: 10px;
 }
 .grid-auto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 180px), 1fr));
-  gap: 8px;
+  gap: 12px;
 }
 .grid-auto--sm {
   gap: 8px;
@@ -520,7 +463,7 @@ textarea.inp {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
   line-height: 18px;
   color: var(--text-2);
@@ -564,7 +507,7 @@ textarea.inp {
   border: 1px solid var(--danger-border);
   color: var(--danger-2);
   border-radius: var(--radius);
-  padding: 8px 16px;
+  padding: 10px 12px;
   font-size: 14px;
 }
 /* предупреждение в рамке (не ошибка): жёлтая, а не красная — две ссылки специфичнее одной */
@@ -611,32 +554,46 @@ textarea.inp {
 }
 .legend {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   font-size: 12.5px;
   color: var(--text-2);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 .legend__swatch {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 3px;
   margin-right: 4px;
   vertical-align: -1px;
 }
+/* Глиф рядом с цветом: те же знаки стоят на плашках шахматки, цвет один смысл не несёт (§1 п. 4) */
+.legend__glyph {
+  margin-right: 4px;
+  font-weight: 700;
+  color: var(--text);
+}
 .list {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 18px;
 }
 .list--gap {
   display: grid;
   gap: 4px;
 }
+/**
+ * Ссылка внутри примечания подчёркнута: одного цвета мало — на сером тексте примечания синяя ссылка даёт
+ * контраст 1.13:1 против требуемых 3:1, и axe справедливо считает её неразличимой (link-in-text-block).
+ * Проверяется `tests/ui/accessibility.spec.ts` на экранах «Настройки объекта».
+ */
+.note a {
+  text-decoration: underline;
+}
 .note {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 8px;
+  margin-top: 10px;
 }
 /* Ссылка внутри подписи отличается не только цветом: axe link-in-text-block (контраст с текстом 1,13:1) */
 .note a {
@@ -661,7 +618,7 @@ textarea.inp {
   gap: 4px;
 }
 .stack--mt {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 .note--lg {
   font-size: 14px;
@@ -678,7 +635,7 @@ textarea.inp {
 }
 .tbl--plain th,
 .tbl--plain td {
-  padding: 8px 8px;
+  padding: 6px 8px;
 }
 
 /* ---------- шахматка ---------- */
@@ -689,7 +646,7 @@ textarea.inp {
   min-width: 700px;
 }
 .board th {
-  padding: 8px 4px;
+  padding: 6px 4px;
   border-bottom: 1px solid var(--border);
   font-family: var(--font-head);
   font-size: 12px;
@@ -701,10 +658,8 @@ textarea.inp {
 .board th.board__unit-head {
   position: sticky;
   left: 0;
-  z-index: calc(var(--z-raised) + 2);
-  /* 176 px: после перехода на шкалу отступов (срез 7.4) клетки ячейки стали шире на 4 px,
-     и первая колонка дат уходила под липкий столбец на 1024 px */
-  min-width: 176px;
+  z-index: 2;
+  min-width: 190px;
   text-align: left;
 }
 .board__wd {
@@ -716,7 +671,7 @@ textarea.inp {
   color: var(--text);
 }
 .board td {
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-bottom: 1px solid var(--border-soft);
 }
 .board td.board__unit {
@@ -730,173 +685,34 @@ textarea.inp {
   background: var(--st-confirmed);
 }
 .board td.board__cell {
-  padding: 0;
+  padding: 2px;
   min-width: 44px;
-  height: 46px;
   position: relative;
 }
-/*
- * Полоса брони (срез 7.1, DESIGN.md §9): каждая клетка ночи — отрезок; клетка заезда начинается с середины,
- * последняя ночь заканчивается на середине клетки выезда (заезд и выезд в один день читаются). Подпись —
- * отдельным слоем над первой видимой клеткой, шириной на всю полосу.
- */
-/* сама по себе (образец на /design-system) — плашка 32 px; в клетке сетки — отрезок полосы */
 .board__stay {
   display: block;
-  height: 32px;
-  line-height: 32px;
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
+  height: 22px;
+  line-height: 22px;
   color: var(--text);
-  font-size: 12px;
   text-decoration: none;
-  white-space: nowrap;
   overflow: hidden;
-}
-.board td.board__cell .board__stay {
-  position: absolute;
-  top: 7px;
-  bottom: 7px;
-  left: 0;
-  right: 0;
-  min-width: 24px; /* цель нажатия на узкой клетке заезда (DESIGN.md §11) */
-  height: auto;
-  padding: 0;
-  border-radius: 0;
-  overflow: visible;
-  z-index: var(--z-base);
-}
-.board .board__stay--start {
-  left: 50%;
-  border-top-left-radius: var(--radius-sm);
-  border-bottom-left-radius: var(--radius-sm);
-}
-.board .board__stay--end {
-  border-top-right-radius: var(--radius-sm);
-  border-bottom-right-radius: var(--radius-sm);
-}
-.board .board__stay--into-next {
-  right: -50%;
-  z-index: calc(var(--z-base) + 1);
-}
-.board__stay--draggable {
-  cursor: grab;
+  white-space: nowrap;
+  font-size: var(--text-xs);
 }
 .board__stay:hover {
   text-decoration: none;
   filter: brightness(0.96);
 }
-.board-stay-caption {
-  position: absolute;
-  top: 7px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  box-sizing: border-box;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: calc(var(--z-base) + 2);
-}
-/* меню действий у конца полосы: отдельный слой, чтобы список выходил за подпись и поверх соседних строк */
-.board-stay-menu {
-  position: absolute;
-  top: 7px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: var(--space-1);
-  box-sizing: border-box;
-  z-index: calc(var(--z-base) + 3);
-}
-.board-stay-menu--end {
-  border-top-right-radius: var(--radius-sm);
-  border-bottom-right-radius: var(--radius-sm);
-}
-.board-stay-menu:has([aria-expanded='true']) {
-  z-index: var(--z-dropdown);
-}
-.board-stay-menu .icon-button {
-  width: 24px;
-  height: 24px;
-  min-height: 0;
-  color: var(--text-2);
-  background: transparent;
-  border-color: transparent;
-}
-.board-stay-caption > * {
-  flex: none;
-}
-.board-stay-caption__icon {
-  color: var(--text-2);
-}
-.board-stay-caption__name {
-  flex: 0 1 auto;
-  min-width: 40px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.board-stay-caption__status {
-  color: var(--text-2);
-  font-weight: 400;
-}
-.board-stay-caption__badge {
-  pointer-events: auto;
-}
 .board__free {
-  position: absolute;
-  top: 7px;
-  bottom: 7px;
-  left: 0;
-  right: 0;
-  display: block;
-  border-radius: var(--radius-sm);
-}
-.board-block__word {
-  position: absolute;
-  top: 7px;
-  left: var(--space-2);
-  right: 0;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 12px;
-  color: var(--danger);
-  white-space: nowrap;
-  overflow: hidden;
-  z-index: calc(var(--z-base) + 2);
-}
-.board-block {
-  border-radius: var(--radius-sm);
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent 0 6px,
-    var(--danger-border) 6px 8px
-  );
+  height: 22px;
+  border-radius: 4px;
 }
 .board__wa {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-sm);
-  color: var(--text-2);
-  pointer-events: auto;
-}
-.board__wa:hover,
-.board__wa:focus-visible {
-  background: var(--surface);
-  color: var(--primary);
-}
-.board__hk {
-  margin-left: var(--space-2);
+  position: absolute;
+  right: 2px;
+  top: 3px;
+  font-size: var(--text-xs);
+  line-height: 10px;
 }
 
 .block {
@@ -909,7 +725,7 @@ textarea.inp {
   margin-bottom: 8px;
 }
 .block--bottom-xs {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .ml-sm {
   margin-left: 8px;
@@ -927,8 +743,8 @@ textarea.inp {
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--min, 160px), 1fr));
-  gap: 8px;
-  margin: 8px 0;
+  gap: 12px;
+  margin: 10px 0;
 }
 .facts a {
   color: inherit;
@@ -942,12 +758,12 @@ textarea.inp {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 16px 32px;
+  gap: 14px 36px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px 16px;
-  margin: 0 0 16px;
+  padding: 14px 18px;
+  margin: 0 0 18px;
 }
 .fact__label {
   font-size: 12px;
@@ -964,7 +780,7 @@ textarea.inp {
   background: var(--surface-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 8px 16px;
+  padding: 10px 12px;
   margin: 0 0 8px;
   font-family: var(--mono);
   font-size: 12px;
@@ -976,22 +792,22 @@ textarea.inp {
 }
 .divider {
   border-top: 1px solid var(--border-soft);
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
 }
 
 /* ---------- доля: полоска и процент ---------- */
 .share {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   justify-content: flex-end;
 }
 .share__track {
   display: inline-block;
   width: 60px;
   height: 6px;
-  border-radius: var(--radius-sm);
+  border-radius: 3px;
   background: var(--chart-1-soft);
   overflow: hidden;
 }
@@ -1010,7 +826,7 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 8px 16px 8px;
+  padding: 10px 12px 6px;
 }
 .chart__label {
   font-size: 13px;
@@ -1030,8 +846,8 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-floating);
-  padding: 8px 8px;
+  box-shadow: 0 2px 8px var(--overlay);
+  padding: 6px 10px;
   font-size: 12px;
   color: var(--text-2);
   pointer-events: none;
@@ -1054,7 +870,7 @@ textarea.inp {
 /* ---------- две колонки и раскрывающийся блок ---------- */
 .grid-2 {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   grid-template-columns: 1fr 1fr;
 }
 .split--3-2 {
@@ -1086,14 +902,15 @@ textarea.inp {
 .tbl a:focus-visible {
   color: var(--primary);
 }
-/* ссылка внутри приглушённого текста: подчёркивание, чтобы отличалась не только цветом (axe link-in-text-block) */
-.link-underline {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
 /* с клавиатуры ссылку в таблице иначе не отличить от ячейки: к рамке фокуса добавляем подчёркивание */
 .tbl a:focus-visible,
 .facts a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* ссылка внутри подписи (например, «прочитать заново» в настройках гостиницы) — только цветом её не отличить:
+   контраст с серым текстом 1,13:1, axe link-in-text-block (UI-набор доступности, 15.09.2026) */
+.note a {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -1103,7 +920,7 @@ textarea.inp {
 .cell-sub {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .unit {
   font-family: var(--mono);
@@ -1114,8 +931,8 @@ textarea.inp {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px 16px;
-  margin: 0 0 16px;
+  padding: 14px 16px;
+  margin: 0 0 18px;
 }
 
 /* ---------- шахматка: группы, липкая шапка, сегодня и выходные ---------- */
@@ -1126,11 +943,11 @@ textarea.inp {
 .board thead th {
   position: sticky;
   top: 0;
-  z-index: calc(var(--z-raised) + 3);
+  z-index: 3;
   background: var(--surface);
 }
 .board th.board__unit-head {
-  z-index: calc(var(--z-raised) + 4);
+  z-index: 4;
 }
 .board__d {
   font-weight: 700;
@@ -1141,39 +958,34 @@ textarea.inp {
   font-weight: 600;
   color: var(--text-2);
 }
-/* сегодняшняя колонка: подсветка и слово «сегодня» (DESIGN.md §9); выходные нейтральны */
+/* сегодняшняя колонка: в две недели её иначе приходится искать счётом */
 .board th.is-today {
   background: var(--primary-soft);
 }
 .board th.is-today .board__d {
   color: var(--primary);
 }
-.board__today-word {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--primary);
-}
 .board td.is-today {
-  background: var(--row-hover);
+  box-shadow:
+    inset 1px 0 0 var(--primary-soft),
+    inset -1px 0 0 var(--primary-soft);
 }
-.board__full-word {
-  font-weight: 500;
+.board th.is-we:not(.is-today),
+.board td.is-we:not(.is-today) {
+  background: var(--primary-soft);
 }
 /* строка категории: сколько мест ещё можно продать */
 .board tr.board__group td {
   background: var(--surface-muted);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 4px 8px;
+  padding: 5px 6px;
 }
 .board td.board__group-name {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text);
   background: var(--surface-muted);
-}
-.board-group-toggle svg {
-  color: var(--muted);
 }
 .board td.board__group-free {
   text-align: center;
@@ -1185,99 +997,14 @@ textarea.inp {
 .board td.board__group-free.is-full {
   color: var(--danger);
 }
+.board__free--link {
+  display: block;
+  height: 22px;
+  border-radius: 4px;
+}
 .board__free--link:hover {
   background: var(--primary-soft);
   box-shadow: inset 0 0 0 1px var(--primary);
-}
-.board-wrap.is-busy .board {
-  color: var(--muted);
-}
-/* строка «Без ячейки» — одной строкой над сеткой, как в макете */
-.board-unassigned__item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-  width: 100%;
-}
-.board-unassigned__item .muted svg {
-  vertical-align: -3px;
-}
-.board-unassigned__assign {
-  margin-left: auto;
-}
-.board-legend__item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-.board-channex-alert {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.board-channex-alert > span {
-  flex: 1;
-}
-/* скелетон шахматки (loading.tsx): форма сетки без крутилки */
-.board-skeleton__toolbar {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  margin: 0 0 var(--space-4);
-}
-.board-skeleton__control {
-  height: 38px;
-  border-radius: var(--radius-control);
-}
-.board-skeleton {
-  padding: 0;
-  overflow: hidden;
-}
-.board-skeleton__head,
-.board-skeleton__row,
-.board-skeleton__group {
-  display: grid;
-  grid-template-columns: 190px repeat(7, minmax(0, 1fr));
-  align-items: center;
-  border-bottom: 1px solid var(--border-soft);
-}
-.board-skeleton__head {
-  height: 72px;
-  background: var(--surface-muted);
-  border-bottom-color: var(--border);
-}
-.board-skeleton__group {
-  height: 30px;
-  background: var(--surface-muted);
-}
-.board-skeleton__row {
-  height: 46px;
-}
-.board-skeleton__label,
-.board-skeleton__unit {
-  height: 14px;
-  width: 120px;
-  margin: 0 var(--space-4);
-}
-.board-skeleton__unit {
-  width: 70px;
-}
-.board-skeleton__day {
-  height: 14px;
-  width: 60px;
-  margin: 0 auto;
-}
-.board-skeleton__cell {
-  height: 46px;
-  display: flex;
-  align-items: center;
-}
-.board-skeleton__stay {
-  flex: 1;
-  height: 32px;
-  margin: 0 4px;
-  border-radius: var(--radius-sm);
 }
 /* переключатель окна: 7 / 14 / 30 дней */
 .seg {
@@ -1287,7 +1014,7 @@ textarea.inp {
   overflow: hidden;
 }
 .seg a {
-  padding: 4px 8px;
+  padding: 4px 10px;
   color: var(--text-2);
   border-left: 1px solid var(--border-input);
   font-size: 13px;
@@ -1305,16 +1032,253 @@ textarea.inp {
 }
 
 @media print {
-  .topbar {
-    display: none;
-  }
   body {
     background: var(--surface);
   }
 }
 
-/* ---------- срез 7.2: цены и каналы ---------- */
-/* Цена в ячейке: кнопка во всю ячейку, цифры табличные; в правке — поле с подсказкой под ним */
+/* ---------- компоненты шага 4 дизайн-системы (DESIGN.md §8): меню действий, окно подтверждения,
+   уведомление, подсказка, плашка суммы. Только токены: отступы из шкалы, слои и длительности —
+   переменными, тень — лишь у слоя над страницей. ---------- */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+.action-menu__button {
+  padding: 0 var(--space-2);
+  min-width: var(--control-h);
+}
+.action-menu__list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--space-1));
+  z-index: var(--layer-overlay);
+  min-width: 200px;
+  padding: var(--space-1);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-floating);
+}
+.action-menu__item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.action-menu__item:hover,
+.action-menu__item:focus-visible {
+  background: var(--row-hover);
+  outline: none;
+}
+.action-menu__item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+.action-menu__item--danger {
+  color: var(--danger);
+}
+.action-menu__item[aria-disabled='true'],
+.action-menu__item:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.confirm-dialog {
+  width: min(560px, calc(100vw - var(--space-8)));
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.confirm-dialog::backdrop {
+  background: var(--overlay);
+}
+.confirm-dialog__body {
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
+.confirm-dialog__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+.confirm-dialog__text {
+  font-size: var(--text-md);
+  color: var(--text-2);
+}
+.confirm-dialog__text strong {
+  color: var(--text);
+}
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+/* статичный показ на странице компонентов: без showModal, в потоке */
+.confirm-dialog--static {
+  position: static;
+  display: block;
+  margin: 0;
+}
+
+.toast-region {
+  position: fixed;
+  top: calc(var(--header-h) + var(--space-2));
+  right: var(--space-4);
+  z-index: var(--layer-toast);
+  display: grid;
+  gap: var(--space-2);
+  width: min(360px, calc(100vw - var(--space-8)));
+}
+.toast-region--static {
+  position: static;
+  width: min(360px, 100%);
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  background: var(--surface-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--muted);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-floating);
+  font-size: var(--text-sm);
+  animation: toast-in var(--duration-base) cubic-bezier(0, 0, 0.58, 1);
+}
+.toast--success {
+  border-left-color: var(--success);
+}
+.toast--info {
+  border-left-color: var(--primary);
+}
+.toast--warning {
+  border-left-color: var(--warning);
+}
+.toast--danger {
+  border-left-color: var(--danger);
+}
+.toast__text {
+  flex: 1;
+  padding-top: 3px;
+}
+.toast__close {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.toast__close:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.tooltip-host {
+  position: relative;
+  display: inline-flex;
+}
+.tooltip {
+  position: absolute;
+  left: 50%;
+  z-index: var(--layer-overlay);
+  transform: translateX(-50%);
+  max-width: 280px;
+  width: max-content;
+  padding: var(--space-1) var(--space-2);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-fast) ease-out;
+}
+.tooltip--top {
+  bottom: calc(100% + var(--space-1));
+}
+.tooltip--bottom {
+  top: calc(100% + var(--space-1));
+}
+.tooltip.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.amount-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.amount-chip__value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.amount-chip--due {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.amount-chip--due .amount-chip__value {
+  color: var(--danger);
+}
+.amount-chip--paid {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.amount-chip--paid .amount-chip__value {
+  color: var(--success);
+}
+.amount-chip--refund {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.amount-chip--refund .amount-chip__value {
+  color: var(--warning);
+}
+
+/* ── Срез 7.2: правка цены в ячейке, список изменений, очередь и события Channex, цепочка приёма брони ── */
 .price-cell {
   color: var(--text);
   font-weight: 500;
@@ -1467,10 +1431,87 @@ select.filter-chip {
   }
 }
 
-/* Список печатных форм в крошках карточки: ссылки в строку с отступом, без разделителей-точек */
-.print-links {
-  display: inline-flex;
+/* ---------- состояния (B4, DESIGN.md §8): пусто, загрузка, сбой — один вид на всю стойку ---------- */
+.empty-state {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+.empty-state > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--primary);
+}
+.empty-state h2,
+.empty-state h3,
+.empty-state__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.empty-state p {
+  margin: 0;
+  max-width: 460px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.empty-state details {
+  font-size: var(--text-xs);
+}
+.empty-state__actions,
+.empty-state .row {
+  display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+/* пустая строка таблицы («Журнал»): остаётся ячейкой, без рамки и радиуса панели */
+td.empty-state {
+  display: table-cell;
+  padding: var(--space-6) var(--space-4);
+  border: 0;
+  border-radius: 0;
+}
+.loading-state {
+  display: grid;
+  gap: var(--space-2);
+}
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--primary-soft) 25%,
+    var(--surface-muted) 50%,
+    var(--primary-soft) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: skeleton 1.5s ease-in-out infinite;
+}
+.skeleton-title {
+  width: 240px;
+  height: 34px;
+  margin-bottom: var(--space-6);
+}
+.skeleton-stat {
+  height: 130px;
+}
+.skeleton-row {
+  height: 42px;
+}
+.skeleton-text {
+  height: 14px;
+  width: 60%;
+}
+@keyframes skeleton {
+  to {
+    background-position: -200% 0;
+  }
 }

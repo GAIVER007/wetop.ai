@@ -1,10 +1,17 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
+import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
+import { displayDate } from '../../lib/display-date';
+import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
+import { Icon } from '../../components/icon';
+import { LoadError } from '../../components/load-error';
+import { loadErrorProps } from '../../lib/load-error';
 import {
   Alert,
   Button,
+  EmptyState,
+  Field,
   Input,
   SectionTitle,
   Select,
@@ -13,6 +20,11 @@ import {
   Table,
 } from '../../components/ui';
 import { DailyChart } from './daily-chart';
+import '../directory.css';
+
+const MAX_PERIOD_DAYS = 366;
+const periodDays = (from: string, to: string) =>
+  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
 
 const EVENT_RU: Record<string, string> = {
   search: 'поиск дат',
@@ -39,6 +51,9 @@ const KIND_RU: Record<SiteReport['sources'][number]['kind'], string> = {
 /**
  * Аналитика сайта (срез 8): те же пять чисел и графики, что в «Эффективности сайта» Exely, плюс
  * отказы, страницы и календарь спроса. Период — по датам объекта (Asia/Almaty), по умолчанию текущий месяц.
+ * D4 (план владельца 19.09): без счётчика — `EmptyState` с шагом; отказ сервиса аналитики — `LoadError` с
+ * повтором (отклонённый запрос по-прежнему словами у формы); период словами в `<time>`, готовые отрезки чипами,
+ * пустые таблицы объясняют, откуда возьмутся строки. Расчёт отчёта в API не менялся.
  */
 export default async function AnalyticsPage({
   searchParams,
@@ -52,19 +67,33 @@ export default async function AnalyticsPage({
   if (!site) return <NoSites />;
   let report: SiteReport | null = null;
   let error: string | null = null;
-  try {
-    report = await analyticsApi.report(site.id, sp.from, sp.to);
-  } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
-  }
+  // Сервис аналитики не ответил (5xx или обрыв): не строка совета, а сбой с повтором — экран остаётся (D4)
+  let failure: unknown = null;
+  if (sp.from && sp.to && periodDays(sp.from, sp.to) > MAX_PERIOD_DAYS)
+    // Предел периода — в стойке: отчёт по дням за несколько лет никому не нужен и долго считается
+    error = `Период отчёта — не больше года (${MAX_PERIOD_DAYS} дней). Выберите более короткий отрезок.`;
+  else
+    try {
+      report = await analyticsApi.report(site.id, sp.from, sp.to);
+    } catch (e) {
+      // ApiError несёт текст отказа API (даты, порядок, сайт); прочее — сбой сервиса
+      if (e instanceof ApiError && e.status < 500) error = `Отчёт не построен: ${e.message}`;
+      else failure = e;
+    }
   return (
     <Page
       title="Аналитика сайта"
       subtitle={<span data-testid="an-site-name">{site.name}</span>}
-      actions={<Link href="/analytics/setup">подключение</Link>}
+      actions={
+        <Link href="/analytics/setup" className="btn btn--secondary">
+          <Icon name="settings" />
+          Подключение счётчика
+        </Link>
+      }
     >
       <PeriodForm sites={sites} site={site} report={report} from={sp.from} to={sp.to} />
       {error && <Alert className="block">{error}</Alert>}
+      {failure !== null && <LoadError testId="an-error" {...loadErrorProps(failure)} />}
       {report && <Report report={report} />}
     </Page>
   );
@@ -73,10 +102,18 @@ export default async function AnalyticsPage({
 function NoSites() {
   return (
     <Page title="Аналитика сайта" width="medium">
-      <p>
-        Счётчик ещё не подключён. Добавьте сайт и вставьте код на странице{' '}
-        <Link href="/analytics/setup">подключения</Link>.
-      </p>
+      <EmptyState
+        data-testid="an-no-sites"
+        title="Счётчик ещё не подключён"
+        actions={
+          <Link href="/analytics/setup" className="btn">
+            Подключить счётчик
+          </Link>
+        }
+      >
+        Отчёт строится по событиям счётчика на сайте объекта. Добавьте сайт и вставьте код на
+        странице подключения: первые сессии появятся здесь через несколько минут после установки.
+      </EmptyState>
     </Page>
   );
 }
@@ -95,41 +132,64 @@ function PeriodForm({
   to?: string | undefined;
 }) {
   const period = report?.period;
-  const thisMonth = period ? shiftMonth(period.from, 0) : null;
   const prevMonth = period ? shiftMonth(period.from, -1) : null;
+  const isPreset = (f?: string, t?: string) => !!period && from === f && to === t;
   return (
-    <form method="get" className="row toolbar">
-      {sites.length > 1 && (
-        <Select aria-label="Сайт" name="site" defaultValue={site.id}>
-          {sites.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </Select>
-      )}
-      {sites.length === 1 && <input type="hidden" name="site" value={site.id} />}
-      <Input
-        aria-label="Аналитика: с"
-        type="date"
-        name="from"
-        defaultValue={from ?? period?.from}
-      />
-      <span className="muted">—</span>
-      <Input aria-label="Аналитика: по" type="date" name="to" defaultValue={to ?? period?.to} />
-      <Button type="submit">Показать</Button>
-      {period && thisMonth && prevMonth && (
-        <span className="row row--lg hint--lg ml-sm">
-          <Link href={`/analytics?site=${site.id}`}>этот месяц</Link>
-          <Link href={`/analytics?site=${site.id}&from=${prevMonth.from}&to=${prevMonth.to}`}>
-            прошлый месяц
+    <>
+      <form method="get" className="row row--lg toolbar directory-toolbar">
+        {sites.length > 1 && (
+          <Field inline label="Сайт">
+            <Select aria-label="Сайт" name="site" defaultValue={site.id}>
+              {sites.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {sites.length === 1 && <input type="hidden" name="site" value={site.id} />}
+        <Field inline label="С">
+          <Input
+            key={`from-${from ?? ''}`}
+            aria-label="Аналитика: с"
+            type="date"
+            name="from"
+            defaultValue={from ?? period?.from}
+          />
+        </Field>
+        <Field inline label="По">
+          <Input
+            key={`to-${to ?? ''}`}
+            aria-label="Аналитика: по"
+            type="date"
+            name="to"
+            defaultValue={to ?? period?.to}
+          />
+        </Field>
+        <Button type="submit">Показать</Button>
+      </form>
+      {period && prevMonth && (
+        // Готовые отрезки — чипами, как на «Деньгах» и «Бронях»: период виден в адресе и в подписи ниже
+        <nav className="directory-filters" aria-label="Готовые периоды">
+          <Link href={`/analytics?site=${site.id}`} className={!from && !to ? 'is-active' : ''}>
+            Этот месяц
           </Link>
-          <Link href={`/analytics?site=${site.id}&from=${daysAgo(period.to, 29)}&to=${period.to}`}>
-            30 дней до {period.to}
+          <Link
+            href={`/analytics?site=${site.id}&from=${prevMonth.from}&to=${prevMonth.to}`}
+            className={isPreset(prevMonth.from, prevMonth.to) ? 'is-active' : ''}
+          >
+            Прошлый месяц
           </Link>
-        </span>
+          <Link
+            href={`/analytics?site=${site.id}&from=${daysAgo(period.to, 29)}&to=${period.to}`}
+            className={isPreset(daysAgo(period.to, 29), period.to) ? 'is-active' : ''}
+          >
+            30 дней
+          </Link>
+        </nav>
       )}
-    </form>
+    </>
   );
 }
 
@@ -138,9 +198,13 @@ function Report({ report }: { report: SiteReport }) {
   const pct = (x: number) => `${Math.round(x * 100)} %`;
   return (
     <>
-      <div className="hint block--bottom" data-testid="an-period">
-        Период {report.period.from} — {report.period.to}, даты по {report.period.timezone}
-      </div>
+      <p className="directory-meta" data-testid="an-period">
+        Период{' '}
+        <time dateTime={report.period.from}>{displayDate(report.period.from, 'numeric')}</time> →{' '}
+        <time dateTime={report.period.to}>{displayDate(report.period.to, 'numeric')}</time>,{' '}
+        {pluralRu(periodDays(report.period.from, report.period.to), ['день', 'дня', 'дней'])}, даты
+        по {report.period.timezone}
+      </p>
       <Stats min={230} data-testid="an-summary">
         <Stat label="Сессии" value={String(s.sessions)} testId="an-sessions" />
         <Stat label="Уникальные посетители" value={String(s.visitors)} testId="an-visitors" />
@@ -206,16 +270,11 @@ function Report({ report }: { report: SiteReport }) {
             </tr>
           </thead>
           <tbody>
-            {report.daily.length === 0 && (
-              <tr>
-                <td colSpan={5} className="muted">
-                  за период посещений не было
-                </td>
-              </tr>
-            )}
             {report.daily.map((d) => (
               <tr key={d.date}>
-                <td>{d.date}</td>
+                <td>
+                  <time dateTime={d.date}>{displayDate(d.date)}</time>
+                </td>
                 <td className="num">{d.sessions}</td>
                 <td className="num">{d.visitors}</td>
                 <td className="num">{d.pageviews}</td>
@@ -244,15 +303,9 @@ function Report({ report }: { report: SiteReport }) {
             <tbody>
               {report.sources.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="muted">
-                    За период сессий нет
-                  </td>
-                </tr>
-              )}
-              {report.sources.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="muted">
-                    источников пока нет
+                  <td colSpan={8} className="empty-state">
+                    За период сессий нет: источники появляются по визитам с сайта, как только
+                    счётчик их пришлёт.
                   </td>
                 </tr>
               )}
@@ -294,8 +347,8 @@ function Report({ report }: { report: SiteReport }) {
             <tbody>
               {report.pages.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="muted">
-                    Просмотров нет
+                  <td colSpan={3} className="empty-state">
+                    Просмотров за период нет: страницы появятся по первым визитам.
                   </td>
                 </tr>
               )}
@@ -324,7 +377,7 @@ function Report({ report }: { report: SiteReport }) {
             <tbody>
               {report.demand.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="muted">
+                  <td colSpan={2} className="empty-state">
                     Запросов нет. Форма поиска дат на сайте должна вызывать{' '}
                     <code>pms(&apos;event&apos;, &apos;search&apos;, …)</code> — см. подключение
                   </td>
@@ -332,7 +385,9 @@ function Report({ report }: { report: SiteReport }) {
               )}
               {report.demand.map((d) => (
                 <tr key={d.arrival} data-testid="an-demand-row" data-arrival={d.arrival}>
-                  <td>{d.arrival}</td>
+                  <td>
+                    <time dateTime={d.arrival}>{displayDate(d.arrival)}</time>
+                  </td>
                   <td className="num">{d.searches}</td>
                 </tr>
               ))}
@@ -355,7 +410,7 @@ function Report({ report }: { report: SiteReport }) {
             <tbody>
               {report.events.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="muted">
+                  <td colSpan={3} className="empty-state">
                     Событий нет. Кнопки «позвонить» и WhatsApp на сайте должны вызывать{' '}
                     <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code> — см. подключение
                   </td>
@@ -402,7 +457,7 @@ function ShareTable({
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td className="muted">Сессий нет</td>
+              <td className="empty-state">Сессий за период нет</td>
             </tr>
           )}
           {rows.map((r) => (

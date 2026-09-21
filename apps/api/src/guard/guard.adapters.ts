@@ -13,7 +13,7 @@ import {
 } from '@pms/domain';
 import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PROVIDER } from '../channels/ari-publisher';
 import { isAriStopped } from '../channels/ari-switch';
 import {
@@ -72,7 +72,8 @@ export class NestGuardProbes implements GuardProbes {
   }
 
   enabled(
-    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
+    what:
+      'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut' | 'localFiles',
   ): boolean {
     if (what === 'ariOut') return !isAriStopped();
     const flag = {
@@ -82,6 +83,7 @@ export class NestGuardProbes implements GuardProbes {
       exelySync: 'GUARD_EXELY_SYNC',
       web: 'GUARD_WEB',
       ari: 'GUARD_ARI',
+      localFiles: 'GUARD_LOCAL_FILES',
     }[what];
     return process.env[flag] !== 'off';
   }
@@ -115,7 +117,7 @@ export class NestGuardProbes implements GuardProbes {
       status: 'FAILED' as const,
       ...(lastFullSyncAt ? { createdAt: { gt: lastFullSyncAt } } : {}),
     };
-    const [failedSinceSync, lastFailed, summary] = await Promise.all([
+    const [failedSinceSync, lastFailed, summary, lostDeltaAt] = await Promise.all([
       this.prisma.db.channelOutbox.count({ where }),
       this.prisma.db.channelOutbox.findFirst({
         where,
@@ -123,12 +125,15 @@ export class NestGuardProbes implements GuardProbes {
         select: { lastError: true },
       }),
       this.channels.outboxSummary(PROVIDER),
+      // Дельта, не вставшая в очередь (Б6): в самой очереди её нет, след остаётся только в журнале
+      this.channels.lastAuditAt('channex.deltaLost'),
     ]);
     return {
       lastFullSyncAt,
       failedSinceSync,
       lastFailedError: lastFailed?.lastError ?? null,
       oldestPendingAt: summary.oldestPendingAt ? new Date(summary.oldestPendingAt) : null,
+      lostDeltaAt,
     };
   }
 

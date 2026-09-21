@@ -1,18 +1,23 @@
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
+import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
+import { AccountMenu } from '../components/shell/account-menu';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
 import './globals.css';
 import './workspace.css';
 import './today/desk.css';
+import './today/dashboard.css';
 import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
-import './components.css';
+import '../components/shell/sidebar.css';
+import './hotel-settings/settings.css';
+import './control.css';
 
 export const metadata = {
-  title: 'WETOP — управление гостиницей',
+  title: 'WETOP · Управление гостиницей',
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 
@@ -41,24 +46,31 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <TopNav
-            demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-            property={{
-              name: (
-                <Suspense fallback="Объект не загружен">
-                  <ProjectProperty field="name" />
+          <ToastProvider>
+            <TopNav
+              account={
+                <Suspense fallback={null}>
+                  <AccountMenu />
                 </Suspense>
-              ),
-              address: (
-                <Suspense fallback="Настройки гостиницы">
-                  <ProjectProperty field="address" />
-                </Suspense>
-              ),
-            }}
-          >
-            {children}
-          </TopNav>
-          {drawer}
+              }
+              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+              property={{
+                name: (
+                  <Suspense fallback="Объект не загружен">
+                    <ProjectProperty field="name" />
+                  </Suspense>
+                ),
+                address: (
+                  <Suspense fallback="Настройки гостиницы">
+                    <ProjectProperty field="address" />
+                  </Suspense>
+                ),
+              }}
+            >
+              {children}
+            </TopNav>
+            {drawer}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

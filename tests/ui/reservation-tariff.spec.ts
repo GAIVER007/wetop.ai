@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Тариф при изменении брони (plans/wetop-domain-2026-09-14.md, Б1 и Б8).
@@ -51,7 +51,25 @@ test('у брони без тарифа смена дат и «+1 ночь» п�
   const extendTariff = page.getByLabel('Тариф для продления');
   await extendTariff.selectOption('BASE');
   await page.getByTestId('extend-ui-item').click();
+  // Срез 7.3: продление сначала называет цену новой ночи и ждёт подтверждения
+  await page
+    .locator('dialog[open][data-testid="confirm-dialog"]')
+    .getByRole('button', { name: 'Продлить' })
+    .click();
   await expect
     .poll(() => lastCommand(request, `/reservations/${number}/items/ui-item/extend`))
     .toMatchObject({ method: 'POST', body: { nights: 1, ratePlanCode: 'BASE' } });
+});
+
+test('справочник тарифов не загрузился — карточка брони остаётся с предупреждением, а не экран ошибки', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
+  await page.goto(`/reservations/${number}`);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(`Бронь ${number}`);
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await expect(
+    page.getByText('Справочник тарифов не загрузился').filter({ visible: true }),
+  ).toBeVisible();
 });

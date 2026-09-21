@@ -6,6 +6,12 @@
 *.key
 .n8n_token
 
+# Ключ туннеля на сервере — обычный .json рядом с конфигом, под *.pem и *.key не попадает
+deploy/cloudflared/
+!deploy/cloudflared.example.yml
+# Состояние выключателя ARI на конкретной машине (scripts/ops/ari.sh), не код
+deploy/ari.env
+
 # --- Claude Code: личное не едет в репозиторий ---
 # settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,
 # туда пишутся абсолютные пути и команды целиком; worktrees — рабочие копии сессий.
@@ -31,6 +37,8 @@ project-input/interviews/*
 !project-input/interviews/.gitkeep
 
 # --- Node ---
+# Локальная рабочая копия завершённой сессии, не часть исходников проекта.
+.agent-tmp/
 node_modules/
 dist/
 build/
@@ -70,3 +78,20 @@ design/reference/exely/
 design/claude-design-bundle/
 # Замки прогонов: чей-то живой процесс, в историю не едут
 tests/runs/.locks/
+
+# --- Дизайн-система: скриншоты Exely с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
+design/reference/exely/*
+!design/reference/exely/.gitkeep
+tests/runs/.auth/
+.agent-tmp/
+
+# Ключ развёртывания дежурного агента на сервере (срез 12, шаг 12.3): кладёт владелец, в git не едет
+scripts/ops/guard/ssh/
+
+# Рабочие папки инструментов дизайн-системы: кэш выгрузки в Claude Design (`/design-sync`),
+# сборка комплекта и состояние вспомогательных инструментов. Всё это порождается заново из
+# design/tokens.json и кода, а `.ds-sync/` носит с собой свой node_modules (21.09.2026).
+.design-sync/
+.ds-sync/
+ds-bundle/
+.omx/

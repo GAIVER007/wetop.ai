@@ -1,0 +1,311 @@
+# Сквозные (e2e) · 17.09.2026 00:35 Алматы · vm
+# коммит efc8113 (claude/trusting-ramanujan-gi6uzl), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/manager-actions.spec.ts' 'tests/ui/reservation-tariff.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/workspace.spec.ts'
+
+Running 59 tests using 1 worker
+
+  ✓   1 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.1s)
+  ✘   2 tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (17.9s)
+  ✘   3 tests/ui/manager-actions.spec.ts:90:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (17.2s)
+  ✘   4 tests/ui/manager-actions.spec.ts:144:1 › карточка: предварительная бронь названа словом, место за ней держится (16.0s)
+  ✓   5 tests/ui/manager-actions.spec.ts:154:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (2.9s)
+  ✓   6 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (1.5s)
+  ✓   7 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (748ms)
+  ✓   8 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (964ms)
+  ✓   9 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (1.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  10 tests/ui/quality.spec.ts:52:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.2s)
+  ✓  11 tests/ui/quality.spec.ts:73:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.5s)
+  ✓  12 tests/ui/quality.spec.ts:86:1 › список гостей и вторая бронь открывают собственные карточки (2.4s)
+  ✓  13 tests/ui/quality.spec.ts:97:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.3s)
+  ✓  14 tests/ui/quality.spec.ts:120:1 › изменение уборки относится только к выбранному номеру (2.1s)
+  ✓  15 tests/ui/quality.spec.ts:128:1 › неподключённые внешние демо не ведут на несуществующие страницы (758ms)
+  ✓  16 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: профиль гостя (1.3s)
+  ✓  17 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: документ гостя (1.3s)
+  ✓  18 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: блокировка номера (1.3s)
+  ✓  19 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: сайт аналитики (1.2s)
+  ✓  20 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (1.4s)
+  ✓  21 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (1.5s)
+  ✓  22 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (19.6s)
+  ✓  23 tests/ui/workspace.spec.ts:92:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (2.6s)
+  ✓  24 tests/ui/workspace.spec.ts:120:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (1.7s)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-17&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  25 tests/ui/workspace.spec.ts:138:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (2.3s)
+  ✓  26 tests/ui/workspace.spec.ts:159:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (2.0s)
+  ✓  27 tests/ui/workspace.spec.ts:188:1 › главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса (3.8s)
+  ✓  28 tests/ui/workspace.spec.ts:239:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (2.6s)
+  ✓  29 tests/ui/workspace.spec.ts:261:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (1.6s)
+  ✓  30 tests/ui/workspace.spec.ts:293:1 › карточка: профиль гостя и заселение проходят через server actions (2.6s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  31 tests/ui/workspace.spec.ts:328:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.5s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:39:13)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  32 tests/ui/workspace.spec.ts:345:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (2.5s)
+  ✓  33 tests/ui/workspace.spec.ts:362:1 › каналы: сбой сводки фонда не роняет страницу; пустое сопоставление названо (1.1s)
+  ✓  34 tests/ui/workspace.spec.ts:378:1 › сегодня: гость, не заехавший вовремя, виден в «Требуют внимания» (1.6s)
+  ✓  35 tests/ui/workspace.spec.ts:390:1 › номера: доступность дольше 62 ночей останавливает форма, а не ошибка API (772ms)
+  ✓  36 tests/ui/workspace.spec.ts:399:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (1.7s)
+  ✓  37 tests/ui/workspace.spec.ts:417:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (1.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  38 tests/ui/workspace.spec.ts:443:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.4s)
+  ✓  39 tests/ui/workspace.spec.ts:452:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (1.7s)
+  ✓  40 tests/ui/workspace.spec.ts:466:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (676ms)
+  ✓  41 tests/ui/workspace.spec.ts:478:1 › неверная дата в ссылке оставляет доступную форму для исправления (697ms)
+  ✓  42 tests/ui/workspace.spec.ts:485:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.1s)
+  ✓  43 tests/ui/workspace.spec.ts:494:1 › групповая бронь: разные категории сохраняются при конфликте (1.2s)
+  ✓  44 tests/ui/workspace.spec.ts:518:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (1.9s)
+  ✓  45 tests/ui/workspace.spec.ts:545:1 › обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия (2.0s)
+  ✓  46 tests/ui/workspace.spec.ts:579:1 › ошибка буфера обмена видна, код остаётся доступен (944ms)
+  ✓  47 tests/ui/workspace.spec.ts:595:1 › финансы: неверные даты можно исправить без падения страницы (1.2s)
+  ✓  48 tests/ui/workspace.spec.ts:605:1 › ошибка загрузки тарифов не позволяет включить виджет (706ms)
+  ✓  49 tests/ui/workspace.spec.ts:614:1 › номера: статус уборки, блокировка и снятие сохраняются (2.2s)
+  ✓  50 tests/ui/workspace.spec.ts:647:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (1.6s)
+  ✓  51 tests/ui/workspace.spec.ts:675:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (895ms)
+  ✓  52 tests/ui/workspace.spec.ts:684:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (1.4s)
+  ✓  53 tests/ui/workspace.spec.ts:702:1 › неисправности: когда история обрезана, это написано (1.4s)
+  ✓  54 tests/ui/workspace.spec.ts:710:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (1.2s)
+  ✓  55 tests/ui/workspace.spec.ts:722:1 › деньги за период: срок дольше года останавливает форма, а не ошибка API (647ms)
+  ✓  56 tests/ui/workspace.spec.ts:731:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (1.6s)
+  ✓  57 tests/ui/workspace.spec.ts:754:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (3.2s)
+  ✓  58 tests/ui/workspace.spec.ts:780:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (2.6s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:68:38)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:56:13)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:313:26)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:59:33)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-17&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:123:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   121 |         /* тело не JSON */
+[WebServer]   122 |       }
+[WebServer] > 123 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   124 |   }
+[WebServer]   125 |   return (await res.json()) as T;
+[WebServer]   126 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  59 tests/ui/workspace.spec.ts:811:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (4.9s)
+
+
+  1) tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  getByTestId('extend-ui-item')
+    Expected: disabled
+    Received: enabled
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeDisabled" getByTestId('extend-ui-item') with timeout 15000ms
+      - waiting for getByTestId('extend-ui-item')
+        34 × locator resolved to <button type="button" class="btn btn--info" data-testid="extend-ui-item" title="Выезд на сутки позже, цена по календарю">Продлить на ночь</button>
+           - unexpected value "enabled"
+
+
+      82 |   await page.reload();
+      83 |   await cardTab(page, 'Действия');
+    > 84 |   await expect(page.getByTestId('extend-ui-item')).toBeDisabled();
+         |                                                    ^
+      85 |   await expect(page.getByTestId('extend-hint-ui-item')).toHaveText(
+      86 |     `R01 занята ${dd(plus(4))} — сначала переселите`,
+      87 |   );
+        at /home/user/wetop.ai/tests/ui/manager-actions.spec.ts:84:52
+
+    Error Context: test-results/manager-actions-карточка-«-6251e-отключает-кнопку-с-причиной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manager-actions-карточка-«-6251e-отключает-кнопку-с-причиной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manager-actions-карточка-«-6251e-отключает-кнопку-с-причиной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/manager-actions.spec.ts:90:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('stay-row').first()
+    Expected substring: "отменена"
+    Received string:    "R01Двухместный номер2026-09-172026-09-20подтверждена24 000,00 ₸Гость Тестовый · 1"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('stay-row').first() with timeout 15000ms
+      - waiting for getByTestId('stay-row').first()
+        34 × locator resolved to <tr data-testid="stay-row">…</tr>
+           - unexpected value "R01Двухместный номер2026-09-172026-09-20подтверждена24 000,00 ₸Гость Тестовый · 1"
+
+
+      105 |   await page.getByRole('dialog').getByRole('button', { name: 'Отменить бронь' }).click();
+      106 |   await cardTab(page, 'Обзор');
+    > 107 |   await expect(page.getByTestId('stay-row').first()).toContainText('отменена');
+          |                                                      ^
+      108 |
+      109 |   // незаезд
+      110 |   await request.post(`${fixture}/__test/reset`);
+        at /home/user/wetop.ai/tests/ui/manager-actions.spec.ts:107:54
+
+    Error Context: test-results/manager-actions-карточка-о-7dfed-уммой-вместо-window-confirm/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manager-actions-карточка-о-7dfed-уммой-вместо-window-confirm/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manager-actions-карточка-о-7dfed-уммой-вместо-window-confirm/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/manager-actions.spec.ts:144:1 › карточка: предварительная бронь названа словом, место за ней держится 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('tentative-callout')
+    Expected substring: "Бронь не подтверждена"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('tentative-callout') with timeout 15000ms
+      - waiting for getByTestId('tentative-callout')
+
+
+      148 |   await request.post(`${fixture}/__test/control`, { data: { tentative: true } });
+      149 |   await page.goto(`/reservations/${BOOKING}`);
+    > 150 |   await expect(page.getByTestId('tentative-callout')).toContainText('Бронь не подтверждена');
+          |                                                       ^
+      151 |   await expect(page.getByTestId('tentative-callout')).toContainText('второй раз не продаётся');
+      152 | });
+      153 |
+        at /home/user/wetop.ai/tests/ui/manager-actions.spec.ts:150:55
+
+    Error Context: test-results/manager-actions-карточка-п-4593c-ловом-место-за-ней-держится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manager-actions-карточка-п-4593c-ловом-место-за-ней-держится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manager-actions-карточка-п-4593c-ловом-место-за-ней-держится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной 
+    tests/ui/manager-actions.spec.ts:90:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm 
+    tests/ui/manager-actions.spec.ts:144:1 › карточка: предварительная бронь названа словом, место за ней держится 
+  56 passed (2.9m)
+
+# код выхода 1 · 2 мин 57 с

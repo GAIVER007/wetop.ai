@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 const fixture = 'http://127.0.0.1:4311';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -34,13 +34,18 @@ test('операция проживания блокирует повторно�
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route('**/reservations/20260913-TESTAA', async (route) => {
-    if (route.request().method() === 'POST') await held;
-    await route.continue();
-  });
   try {
     const extend = page.getByTestId('extend-ui-item');
     await extend.click();
+    // Срез 7.3: продление сначала спрашивает с суммой (предпросмотр — тоже POST на эту страницу,
+    // его держать нельзя); команда и блокировка кнопок начинаются с подтверждения
+    const dialog = page.locator('dialog[open][data-testid="confirm-dialog"]');
+    await expect(dialog).toContainText('Проживание станет');
+    await page.route('**/reservations/20260913-TESTAA', async (route) => {
+      if (route.request().method() === 'POST') await held;
+      await route.continue();
+    });
+    await dialog.getByRole('button', { name: 'Продлить' }).click();
     await expect(extend).toBeDisabled();
     await expect(page.getByTestId('check-in-ui-item')).toBeDisabled();
   } finally {
@@ -85,7 +90,8 @@ test('ошибочные даты шахматки и месяца тарифо�
 
 test('список гостей и вторая бронь открывают собственные карточки', async ({ page }) => {
   await page.goto('/guests');
-  await expect(page.locator('.directory-guest')).toHaveCount(8);
+  // столько же гостей, сколько броней в фикстуре: добавился «не заехал вовремя» (20260913-TEST8)
+  await expect(page.locator('.directory-guest')).toHaveCount(9);
   const link = page.locator('.directory-guest').nth(1);
   const label = await link.locator('strong').innerText();
   await link.click();
@@ -120,14 +126,24 @@ test('медленная финансовая команда блокирует 
 test('изменение уборки относится только к выбранному номеру', async ({ page }) => {
   await page.goto('/units/R01');
   await page.getByTestId('hk-DIRTY').click();
-  await expect(page.getByText('Статус уборки: грязно', { exact: true })).toBeVisible();
+  // при переходе Next на миг держит уходящую страницу в DOM — ищем в видимом main (TESTING.md §3)
+  await expect(
+    page.getByRole('main').getByText('Статус уборки: грязно', { exact: true }),
+  ).toBeVisible();
   await page.goto('/units/R02');
-  await expect(page.getByText('Статус уборки: убрано', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText('Статус уборки: убрано', { exact: true }),
+  ).toBeVisible();
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
   await page.goto('/analytics/setup');
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
+  // После упрощения настроек код виджета лежит в свёртке: раскрываем её, как это делает пользователь
+  await page
+    .locator('summary')
+    .getByText('Установка виджета бронирования', { exact: true })
+    .click();
   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
 });

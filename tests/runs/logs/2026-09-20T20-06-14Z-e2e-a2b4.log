@@ -1,0 +1,98 @@
+# Сквозные (e2e) · 21.09.2026 01:06 Алматы · MacBook-Air-Urij.local
+# коммит 647b78c (codex/settings-simplification), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/control-design.spec.ts' '--grep' 'поиск и фильтры|поиск журнала'
+[WebServer] (node:6430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6462) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6538) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:6738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и фильтры открытых неисправностей не меняют сводку и не повторяют API (45.3s)
+(node:7125) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/control-design.spec.ts:55:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (3.5s)
+
+
+  1) tests/ui/control-design.spec.ts:10:1 › контроль: поиск и фильтры открытых неисправностей не меняют сводку и не повторяют API 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Поиск неисправности')
+
+
+      15 |   await expect(page.getByTestId('incident-row')).toHaveCount(1);
+      16 |   const before = await (await request.get(`${API}/__test/hits`)).json();
+    > 17 |   await page.getByLabel('Поиск неисправности').fill('не существует');
+         |                                                ^
+      18 |   await expect(page.getByTestId('incidents-filter-empty')).toBeVisible();
+      19 |   await expect(page.getByTestId('incidents-open')).toHaveText('1');
+      20 |   await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/control-design.spec.ts:17:48
+
+    Error Context: test-results/control-design-контроль-по-946a6-т-сводку-и-не-повторяют-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/control-design-контроль-по-946a6-т-сводку-и-не-повторяют-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/control-design-контроль-по-946a6-т-сводку-и-не-повторяют-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/control-design.spec.ts:55:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel('Поиск в журнале')
+    Expected: visible
+    Timeout: 1500ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByLabel('Поиск в журнале') with timeout 1500ms
+      - waiting for getByLabel('Поиск в журнале')
+
+
+      62 |   const start = performance.now();
+      63 |   await page.goto('/journal?q=TEST', { waitUntil: 'commit' });
+    > 64 |   await expect(page.getByLabel('Поиск в журнале')).toBeVisible({ timeout: 1500 });
+         |                                                    ^
+      65 |   console.log(`CONTROL_JOURNAL_CONTROLS_MS ${Math.round(performance.now() - start)}`);
+      66 |   await expect(page.getByTestId('journal-loading')).toBeVisible();
+      67 |   await expect(page.getByRole('navigation', { name: 'Контроль', exact: true })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/control-design.spec.ts:64:52
+
+    Error Context: test-results/control-design-контроль-по-74f39-кончания-медленного-запроса/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/control-design-контроль-по-74f39-кончания-медленного-запроса/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/control-design-контроль-по-74f39-кончания-медленного-запроса/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/control-design.spec.ts:10:1 › контроль: поиск и фильтры открытых неисправностей не меняют сводку и не повторяют API 
+    tests/ui/control-design.spec.ts:55:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса 
+
+# код выхода 1 · 1 мин 2 с

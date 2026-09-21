@@ -1,0 +1,71 @@
+# Сквозные (e2e) · 21.09.2026 12:16 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7cb8f9e (merge/settings-simplification)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-system.spec.ts' '--update-snapshots=all' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (1.7s)
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/panel-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/panel-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/table-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/table-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tabs-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tabs-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/alert-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/alert-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/action-menu-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/action-menu-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/confirm-dialog-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/confirm-dialog-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/toast-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/toast-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tooltip-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tooltip-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/legend-light-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/legend-light-darwin.png is re-generated, writing actual.
+  ✓  2 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (7.3s)
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tokens-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tokens-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/icons-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/icons-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/button-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/button-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/input-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/input-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/badge-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/badge-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/amount-chip-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/amount-chip-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/stat-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/stat-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/panel-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/panel-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/table-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/table-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/action-menu-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/action-menu-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/confirm-dialog-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/confirm-dialog-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/toast-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/toast-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tooltip-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/tooltip-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/legend-dark-darwin.png is re-generated, writing actual.
+/Users/vyacheslav/Desktop/Проекты/WETOP/design/reference/kit/legend-dark-darwin.png is re-generated, writing actual.
+  ✓  3 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (7.6s)
+  ✓  4 tests/ui/design-system.spec.ts:73:1 › масштаб 200 %: нет горизонтальной прокрутки (774ms)
+  ✓  5 tests/ui/design-system.spec.ts:94:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (967ms)
+  ✓  6 tests/ui/design-system.spec.ts:116:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (1.7s)
+  ✓  7 tests/ui/design-system.spec.ts:131:1 › уведомление появляется в живой области и закрывается (1.0s)
+  ✓  8 tests/ui/design-system.spec.ts:143:1 › подсказка открывается фокусом и закрывается Escape (729ms)
+  ✓  9 tests/ui/design-system.spec.ts:156:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (782ms)
+
+  9 passed (28.5s)
+
+# код выхода 0 · 29 с

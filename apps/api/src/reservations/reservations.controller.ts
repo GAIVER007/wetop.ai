@@ -78,6 +78,19 @@ export class ReservationsController {
     return this.service.extend(number, itemId, dto ?? {});
   }
 
+  /**
+   * Сколько будет стоить действие — до подтверждения (срез 7.3, Д5). Только чтение: ничего не
+   * пишется, каналы не трогаются. `action`: move (нужен unitCode) | extend (nights) | cancel | no_show.
+   */
+  @Get(':number/items/:itemId/preview')
+  preview(
+    @Param('number') number: string,
+    @Param('itemId') itemId: string,
+    @Query() q: { action?: string; unitCode?: string; nights?: string; ratePlanCode?: string },
+  ) {
+    return this.service.preview(number, itemId, q ?? {});
+  }
+
   // ── Предпросмотр сумм до подтверждения (срез 7.3, Д5): только чтение теми же функциями ──
   @Get(':number/items/:itemId/move-preview')
   movePreview(

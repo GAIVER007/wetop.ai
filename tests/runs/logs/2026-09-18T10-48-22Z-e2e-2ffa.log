@@ -1,0 +1,80 @@
+# Сквозные (e2e) · 18.09.2026 15:48 Алматы · vm
+# коммит 12a67c5 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 20
+# npx playwright test --workers=2 --reporter=list,json '--workers=1'
+[e2e] не в прогоне — жёсткий адрес рабочего стенда: web-booking.spec.ts
+[pms_test] миграций применено 0 из 14; данные от 2026-09-18T10:35:50.134Z
+
+Running 23 tests using 1 worker
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (47ms)
+[WebServer] (node:30620) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:26:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (3.0s)
+  ✓   3 [isolated] › tests/e2e/check-in-out.spec.ts:20:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (5.0s)
+  ✘   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (1.4s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:28:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (3.4s)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:10:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (1.0s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:33:1 › клик по занятой клетке открывает карточку брони с проживаниями (1.1s)
+  ✓   8 [isolated] › tests/e2e/desk-day.spec.ts:21:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (2.5s)
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (3.5s)
+  ✓  10 [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (3.0s)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (2.3s)
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (3.2s)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (706ms)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (801ms)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (340ms)
+  ✓  16 [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (2.1s)
+  ✓  17 [isolated] › tests/e2e/print-and-journal.spec.ts:4:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (1.7s)
+  ✓  18 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (2.7s)
+  ✓  19 [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (2.5s)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (2.2s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:71:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (1.9s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:172:1 › страница подключения: код с ключом, «Проверить счётчик» видит события (592ms)
+  ✓  23 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.5s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 28)
+  свежих, моложе 15 мин, оставлено: 28 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('[data-testid="unit-row"][data-unit-code="L5"]').locator('[data-testid="stay-cell"][data-date="2026-10-14"]')
+    Expected: "20260918-M35924"
+    Error: strict mode violation: locator('[data-testid="unit-row"][data-unit-code="L5"]').locator('[data-testid="stay-cell"][data-date="2026-10-14"]') resolved to 2 elements:
+        1) <a draggable="true" data-unit-code="L5" class="board__stay" data-date="2026-10-14" data-testid="stay-cell" data-number="20260918-M35924" href="/reservations/20260918-M35924" data-item-id="ba2b92c8-aa61-4347-8e94-3a5b05f80958" aria-label="Гость Тест-переезд · 20260918-M35924 · подтверждена, ждём · 2026-10-14 → 2026-10-16 · 2 ночи">…</a> aka getByRole('link', { name: 'Гость Тест-переезд · 20260918-M35924 · подтверждена, ждём · 2026-10-14 → 2026-' })
+        2) <a draggable="true" data-unit-code="L5" class="board__stay" data-date="2026-10-14" data-testid="stay-cell" data-number="20260918-M35924" href="/reservations/20260918-M35924" data-item-id="ba2b92c8-aa61-4347-8e94-3a5b05f80958" aria-label="Гость Тест-переезд · 20260918-M35924 · подтверждена, ждём · 2026-10-14 → 2026-10-16 · 2 ночи">…</a> aka getByTestId('stay-cell').nth(2)
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-testid="unit-row"][data-unit-code="L5"]').locator('[data-testid="stay-cell"][data-date="2026-10-14"]') with timeout 30000ms
+      - waiting for locator('[data-testid="unit-row"][data-unit-code="L5"]').locator('[data-testid="stay-cell"][data-date="2026-10-14"]')
+
+
+      58 |   const rowB = page.locator(`[data-testid="unit-row"][data-unit-code="${unitB}"]`);
+      59 |   const source = rowA.locator(`[data-testid="stay-cell"][data-date="${arrival}"]`);
+    > 60 |   await expect(source).toHaveAttribute('data-number', number);
+         |                        ^
+      61 |   // койка B на эти ночи свободна — иначе сервер откажет (409), и тест проверял бы не переезд
+      62 |   await expect(rowB.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
+      63 |   await expect(rowB.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
+        at /home/user/wetop.ai/tests/e2e/chessboard-drag.spec.ts:60:24
+
+    Error Context: test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+  22 passed (54.4s)
+
+# код выхода 1 · 56 с

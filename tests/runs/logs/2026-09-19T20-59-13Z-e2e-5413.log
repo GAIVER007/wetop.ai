@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 20.09.2026 01:59 Алматы · vm
+# коммит 6cdcc43 (claude/relaxed-carson-ekb1gc), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'design-reference' 'chessboard-week' 'chessboard-month' '--workers=1'
+
+Running 22 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.8s)
+  ✓   2 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (5.1s)
+  ✓   3 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.9s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.8s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.7s)
+  ✓   6 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.9s)
+  ✓   7 tests/ui/chessboard-month.spec.ts:65:1 › неделя, 14 дней, произвольный период и возврат к месяцу (6.9s)
+  ✓   8 tests/ui/chessboard-month.spec.ts:84:1 › в месяце открываются брони, свободные даты и группы номеров (8.8s)
+  ✓   9 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (39.6s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность (38.7s)
+  ✓  11 tests/ui/chessboard-week.spec.ts:9:1 › C1: сетка начинается до 350 px, фильтры объясняют дату статуса (2.3s)
+  ✓  12 tests/ui/chessboard-week.spec.ts:22:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (6.7s)
+  ✓  13 tests/ui/chessboard-week.spec.ts:61:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.5s)
+  ✓  14 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.5s)
+  ✓  15 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (4.2s)
+  ✓  16 tests/ui/chessboard-week.spec.ts:91:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (4.2s)
+  ✓  17 tests/ui/chessboard-week.spec.ts:110:1 › в неделе работают бронь, категории и создание на воскресенье (3.7s)
+  ✓  18 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: light, обе панели и телефон (21.1s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:144:3 › неделя помещается на экране: dark, обе панели и телефон (21.0s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:178:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.1s)
+  ✓  21 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (22.1s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✓  22 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (19.8s)
+
+  22 passed (4.1m)
+
+# код выхода 0 · 4 мин 7 с

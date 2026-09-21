@@ -377,11 +377,13 @@ export function StateFact({
   children,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { label: ReactNode; value: ReactNode }) {
+  // внутри <dl> у группы могут быть только <dt> и <dd>: подстроки факта — ещё один <dd>
+  // (axe «definition-list» на /channels, 21.09)
   return (
     <div {...rest}>
       <dt className="fact__label">{label}</dt>
       <dd className="fact__value">{value}</dd>
-      {children}
+      {children && <dd className="fact__sub">{children}</dd>}
     </div>
   );
 }

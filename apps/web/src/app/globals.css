@@ -1533,6 +1533,9 @@ td.empty-state {
   gap: var(--space-4);
   margin: 0;
 }
+.state-bar__facts .fact__sub {
+  margin: 0;
+}
 .state-bar__facts dd {
   margin: var(--space-1) 0 0;
 }
@@ -1626,6 +1629,12 @@ td.empty-state {
   .chips button {
     min-height: var(--touch-target);
   }
+}
+
+/* Ссылка внутри абзаца подсказки отличается не только цветом (axe link-in-text-block, 21.09) */
+.hint a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ---------- поле даты с календарём (DESIGN.md §8, 21.09) ----------

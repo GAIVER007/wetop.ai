@@ -1399,3 +1399,4 @@
 | 21.09.2026 12:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-system.spec.ts --update-snapshots=all --workers=1) | ✅ 9 из 9 | 29 с | 7cb8f9e | [лог](logs/2026-09-21T07-16-00Z-e2e-5a22.log) |  |
 | 21.09.2026 12:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 292 | 9 мин 26 с | f36e0ef | [лог](logs/2026-09-21T07-16-30Z-e2e-96a6.log) | мобильный статус и поиск сохраняются в URL, карточка открывается из списка |
 | 21.09.2026 12:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 292 | 10 мин 1 с | 0faa946 | [лог](logs/2026-09-21T07-29-10Z-e2e-f746.log) | все разделы, карточки и печать открываются; desktop/mobile без переполнения |
+| 21.09.2026 12:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 292 из 292 | 9 мин 46 с | 10150a2 | [лог](logs/2026-09-21T07-41-04Z-e2e-77f6.log) |  |

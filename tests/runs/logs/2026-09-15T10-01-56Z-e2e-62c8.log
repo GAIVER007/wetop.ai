@@ -1,0 +1,14 @@
+# Сквозные (e2e) · 15.09.2026 15:01 Алматы · vm
+# коммит d26b377 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' '--workers=1'
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/channex-screens.spec.ts:15:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.5s)
+  ✓  2 tests/ui/channex-screens.spec.ts:61:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.8s)
+  ✓  3 tests/ui/channex-screens.spec.ts:78:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (3.9s)
+  ✓  4 tests/ui/channex-screens.spec.ts:123:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (3.9s)
+
+  4 passed (16.3s)
+
+# код выхода 0 · 17 с

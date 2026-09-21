@@ -1,0 +1,381 @@
+# Модульные (unit) · 16.09.2026 04:37 Алматы · vm
+# коммит eac13f5 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 36
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-15T23-37-41Z-unit-a9f2.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/database/src/pool-timeouts.test.ts (5 tests) 3173ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 754ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 652ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 324ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 320ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1121ms
+ ✓ |unit| tests/unit/launchd-web-start.test.ts (1 test) 4178ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 4176ms
+[Nest] 1286  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓ |unit| apps/api/src/channels/channels.controller.test.ts (9 tests) 350ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (20 tests) 452ms
+[Nest] 1317  - 09/15/2026, 11:37:48 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1317  - 09/15/2026, 11:37:48 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 1317  - 09/15/2026, 11:37:48 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (10 tests) 321ms
+[Nest] 1317  - 09/15/2026, 11:37:48 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (24 tests) 317ms
+ ✓ |unit| apps/api/src/units/units.controller.test.ts (4 tests) 238ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 262ms
+[Nest] 1350  - 09/15/2026, 11:37:50 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:251:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:183:28
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:48:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:174:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (8 tests) 283ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (5 tests) 270ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (10 tests) 197ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (11 tests) 211ms
+ ✓ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 203ms
+ ✓ |unit| apps/api/src/inventory/inventory.controller.test.ts (4 tests) 176ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (10 tests) 174ms
+ ✓ |unit| apps/api/src/desk/desk.controller.test.ts (2 tests) 171ms
+ ✓ |unit| scripts/ops/watch/watch-logic.test.ts (8 tests) 134ms
+ ✓ |unit| apps/api/src/database/connection.test.ts (7 tests) 157ms
+ ✓ |unit| apps/api/src/app.module.test.ts (1 test) 88ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (14 tests) 73ms
+ ✓ |unit| scripts/preview/real-config.test.ts (24 tests) 69ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (11 tests) 67ms
+ ✓ |unit| packages/integrations/src/exely/client.test.ts (7 tests) 65ms
+ ✓ |unit| packages/integrations/src/exely/universal.test.ts (5 tests) 62ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 60ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (5 tests) 56ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 57ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 52ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (2 tests) 54ms
+ ✓ |unit| packages/domain/src/web-analytics/metrics.test.ts (13 tests) 34ms
+[Nest] 1549  - 09/15/2026, 11:37:56 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 1549  - 09/15/2026, 11:37:56 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 1549  - 09/15/2026, 11:37:56 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (25 tests) 47ms
+ ✓ |unit| packages/domain/src/chessboard/build.test.ts (12 tests) 23ms
+[Nest] 1563  - 09/15/2026, 11:37:56 PM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓ |unit| apps/api/src/channels/outbox.test.ts (9 tests) 25ms
+ ✓ |unit| scripts/reconciliation/src/cutover-compare.test.ts (14 tests) 22ms
+ ✓ |unit| scripts/imports/src/exely/seat-plan.test.ts (20 tests) 22ms
+ ✓ |unit| tests/unit/test-journal.test.ts (21 tests) 22ms
+ ✓ |unit| packages/domain/src/reservations/reservations.test.ts (16 tests) 16ms
+ ✓ |unit| apps/api/src/channels/connection.test.ts (10 tests) 20ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (4 tests) 14ms
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1623  - 09/15/2026, 11:37:57 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 1623  - 09/15/2026, 11:37:57 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 1623  - 09/15/2026, 11:37:57 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 1623  - 09/15/2026, 11:37:57 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 1623  - 09/15/2026, 11:37:57 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓ |unit| apps/api/src/channels/webhook-health.test.ts (9 tests) 20ms
+ ✓ |unit| packages/domain/src/incidents/incidents.test.ts (17 tests) 12ms
+ ✓ |unit| scripts/design/src/tokens.test.ts (11 tests) 13ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (6 tests) 11ms
+ ✓ |unit| apps/site/src/lib/posts.test.ts (10 tests) 13ms
+ ✓ |unit| packages/domain/src/web-analytics/source.test.ts (11 tests) 13ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (17 tests) 12ms
+ ✓ |unit| scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 12ms
+ ✓ |unit| packages/domain/src/incidents/signals.test.ts (11 tests) 12ms
+ ✓ |unit| packages/domain/src/web-booking/request.test.ts (21 tests) 11ms
+ ✓ |unit| scripts/reconciliation/src/test-data-purge-rules.test.ts (11 tests) 11ms
+[Nest] 1690  - 09/15/2026, 11:37:58 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 1690  - 09/15/2026, 11:37:58 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓ |unit| apps/api/src/channels/sync-schedule.test.ts (5 tests) 17ms
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 10ms
+ ✓ |unit| apps/api/src/channels/schedule.test.ts (26 tests) 11ms
+ ✓ |unit| packages/domain/src/web-analytics/hit.test.ts (15 tests) 10ms
+ ✓ |unit| packages/shared/src/pii-residency.test.ts (9 tests) 10ms
+ ✓ |unit| scripts/reconciliation/src/system-trace.test.ts (11 tests) 10ms
+ ✓ |unit| scripts/reconciliation/src/e2e-cleanup-rules.test.ts (12 tests) 13ms
+ ✓ |unit| packages/domain/src/web-analytics/device.test.ts (18 tests) 10ms
+ ✓ |unit| scripts/imports/src/exely/price-calendar.test.ts (4 tests) 12ms
+ ✓ |unit| scripts/reconciliation/src/cutover-ambiguous.test.ts (9 tests) 9ms
+ ✓ |unit| scripts/reconciliation/src/morning-report.test.ts (7 tests) 10ms
+ ✓ |unit| apps/api/src/channels/content.test.ts (3 tests) 13ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (5 tests) 9ms
+ ✓ |unit| scripts/reconciliation/src/rollback-window.test.ts (10 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/rate-plans.test.ts (3 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/auto-sync.test.ts (11 tests) 9ms
+ ✓ |unit| tests/unit/run-lock.test.ts (5 tests) 9ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (7 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/anonymize.test.ts (6 tests) 8ms
+ ✓ |unit| packages/domain/src/availability/availability.test.ts (4 tests) 9ms
+ ✓ |unit| scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 8ms
+ ✓ |unit| packages/shared/src/pii-crypto.test.ts (3 tests) 8ms
+ ✓ |unit| scripts/reconciliation/src/double-entry.test.ts (7 tests) 8ms
+ ✓ |unit| apps/api/src/channels/ari-switch.test.ts (4 tests) 8ms
+ ✓ |unit| tests/unit/test-schema-plan.test.ts (5 tests) 8ms
+ ✓ |unit| apps/api/src/audit/audit.service.test.ts (2 tests) 5ms
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 7 failed) 20ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     × color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 9ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 2ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 1ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 1ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     × font-under-12: шрифт мельче 12 px (DESIGN.md §6) 1ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 1ms
+     ✓ снимок покрывает все правила 0ms
+ ✓ |unit| scripts/reconciliation/src/cancellations.test.ts (6 tests) 7ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/channels/webhook-register.test.ts (2 tests) 7ms
+ ✓ |unit| scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| packages/domain/src/incidents/redact.test.ts (5 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 7ms
+ ✓ |unit| packages/domain/src/incidents/alerts.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 6ms
+ ✓ |unit| scripts/imports/src/exely/parse-services.test.ts (2 tests) 6ms
+ ✓ |unit| packages/domain/src/reservations/cutover-match.test.ts (6 tests) 6ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| scripts/design/src/scales.test.ts (6 tests) 7ms
+ ✓ |unit| scripts/reconciliation/src/inventory-compare.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/channels/revision-facts.test.ts (3 tests) 6ms
+ ✓ |unit| packages/database/src/schema.test.ts (4 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/chunk.test.ts (3 tests) 6ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 6ms
+ ✓ |unit| scripts/reconciliation/src/rates-compare.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (5 tests) 5ms
+ ✓ |unit| packages/shared/src/markdown-table.test.ts (3 tests) 6ms
+ ✓ |unit| packages/database/src/pool.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/channels/outbox-rows.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/dev-only.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/freshness/freshness.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/reservations/rate-plans-read.test.ts (1 test) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/display-date.test.ts (4 tests) 5ms
+ ❯ |unit| scripts/design/src/css-vars.test.ts (2 tests | 1 failed) 13ms
+   ❯ переменные CSS стойки (2)
+     × используются только токены или локально объявленные переменные 10ms
+     ✓ в токенах есть каждая переменная, которую код берёт из tokens.css 1ms
+ ✓ |unit| scripts/imports/src/exely/guest-fields.test.ts (4 tests) 5ms
+ ✓ |unit| packages/domain/src/guests/citizenship.test.ts (3 tests) 4ms
+ ✓ |unit| packages/domain/src/availability/category.test.ts (1 test) 4ms
+ ✓ |unit| apps/api/src/chessboard/stay-facts.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/guard/guard.adapters.test.ts (3 tests) 5ms
+ ❯ |unit| scripts/design/src/tokens-css.test.ts (2 tests | 1 failed) 11ms
+   ❯ tokens.css и contrast.md сгенерированы из design/tokens.json (2)
+     × apps/web/src/app/tokens.css совпадает с выводом генератора 8ms
+     ✓ design/contrast.md совпадает с выводом генератора 1ms
+ ✓ |unit| tests/unit/scaffold.test.ts (1 test) 4ms
+ ✓ |unit| packages/domain/src/inventory/summarize.test.ts (1 test) 4ms
+ ✓ |unit| packages/shared/src/text.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/almaty.test.ts (2 tests) 4ms
+ ↓ |unit| tests/unit/launchd-install.test.ts (7 tests | 7 skipped)
+ ✓ |unit| tests/unit/channex-tunnel-guard.test.ts (3 tests) 40322ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (3)
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 20126ms
+     ✓ без постоянного адреса работает как прежде 20141ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 23",
++   "apps/web/src/app/directory.css: 0 → 12",
++   "apps/web/src/app/rooms/rooms.css: 0 → 17",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/rooms/[[...section]]/page.tsx: 0 → 2",
++   "apps/web/src/app/rooms/room-grid.tsx: 0 → 3",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-under-12: шрифт мельче 12 px (DESIGN.md §6)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 3",
++   "apps/web/src/app/directory.css: 0 → 3",
++   "apps/web/src/app/rooms/rooms.css: 0 → 3",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 2",
++   "apps/web/src/app/directory.css: 0 → 1",
++   "apps/web/src/app/rooms/rooms.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/chessboard/board.css: 0 → 4",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| scripts/design/src/css-vars.test.ts > переменные CSS стойки > используются только токены или локально объявленные переменные
+AssertionError: --font-mono в apps/web/src/app/rooms/rooms.css: expected [ [ 'font-mono', …(1) ] ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   [
++     "font-mono",
++     "apps/web/src/app/rooms/rooms.css",
++   ],
++ ]
+
+ ❯ scripts/design/src/css-vars.test.ts:28:74
+     26|   it('используются только токены или локально объявленные переменные',…
+     27|     const unknown = [...used].filter(([name]) => !name.endsWith('-') &…
+     28|     expect(unknown, unknown.map(([n, f]) => `--${n} в ${f}`).join('\n'…
+       |                                                                          ^
+     29|   });
+     30|   it('в токенах есть каждая переменная, которую код берёт из tokens.cs…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| scripts/design/src/tokens-css.test.ts > tokens.css и contrast.md сгенерированы из design/tokens.json > apps/web/src/app/tokens.css совпадает с выводом генератора
+AssertionError: expected '/* Сгенерировано scripts/design/build…' to be '/* Сгенерировано scripts/design/build…' // Object.is equality
+
+- Expected
++ Received
+
+@@ -1,6 +1,6 @@
+- /* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-047). */
++ /* Сгенерировано scripts/design/build-tokens.ts из design/tokens.json — руками не править (DESIGN.md §2, ADR-046). */
+  :root, [data-theme='light'] {
+    color-scheme: light;
+    --radius-sm: 8px;
+    --radius-control: 10px;
+    --radius: 16px;
+
+ ❯ scripts/design/src/tokens-css.test.ts:12:46
+     10|   const built = build();
+     11|   it('apps/web/src/app/tokens.css совпадает с выводом генератора', () …
+     12|     expect(readFileSync(TOKENS_CSS, 'utf8')).toBe(built.css);
+       |                                              ^
+     13|   });
+     14|   it('design/contrast.md совпадает с выводом генератора', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+
+ Test Files  3 failed | 118 passed | 1 skipped (122)
+      Tests  9 failed | 866 passed | 7 skipped (882)
+   Start at  23:37:42
+   Duration  40.69s (tests 75%, import 19%, transform 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-15T23-37-41Z-unit-a9f2.json
+
+# код выхода 1 · 42 с

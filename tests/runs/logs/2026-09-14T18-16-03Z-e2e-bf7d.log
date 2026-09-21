@@ -1,0 +1,94 @@
+# Сквозные (e2e) · 14.09.2026 23:16 Алматы · vm
+# коммит 9123aee (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-reference.spec.ts' '--workers=1'
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/design-reference.spec.ts:32:3 › шахматка: неделя и месяц (light) (3.2s)
+  ✓   2 tests/ui/design-reference.spec.ts:44:3 › обзор дня (light) (2.2s)
+  ✓   3 tests/ui/design-reference.spec.ts:51:3 › карточка брони панелью, четыре вкладки (light) (5.7s)
+  ✓   4 tests/ui/design-reference.spec.ts:71:3 › карточка гостя (light) (1.6s)
+  ✓   5 tests/ui/design-reference.spec.ts:78:3 › форма брони: одно размещение и группа (light) (1.5s)
+  ✓   6 tests/ui/design-reference.spec.ts:88:3 › цены и ограничения с массовым изменением (light) (2.0s)
+  ✓   7 tests/ui/design-reference.spec.ts:101:3 › журнал интеграции Channex (light) (1.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ScrollAndMaybeFocusHandler cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]         <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]           <LoadingBoundary name="chessboard/" loading={null}>
+[WebServer]             <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]               <RedirectBoundary>
+[WebServer]                 <RedirectErrorBoundary router={{...}}>
+[WebServer]                   <InnerLayoutRouter url="/chessboard" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                     <SegmentViewNode type="page" pagePath="chessboard...">
+[WebServer]                       <SegmentTrieNode>
+[WebServer]                       <ChessboardPage>
+[WebServer]                         <Page>
+[WebServer]                           <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                             <header>
+[WebServer]                             <form method="get" className="board-rang...">
+[WebServer]                               <label className="field fiel...">
+[WebServer]                                 <Input>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="date"
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-09-14"
+[WebServer]                                     aria-label="Шахматка: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                               <span>
+[WebServer]                               <Input>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="date"
+[WebServer]                                   name="to"
+[WebServer]                                   defaultValue="2026-09-20"
+[WebServer]                                   aria-label="Шахматка: по"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                               ...
+[WebServer]                             <div>
+[WebServer]                             <section>
+[WebServer]                             <ChessboardGrid board={{from:"2026...", ...}} today="2026-09-14" fitMonth={false}>
+[WebServer]                               <div>
+[WebServer]                               <div className="board-toolbar">
+[WebServer]                                 <Input aria-label="Поиск на ш..." placeholder="Номер, кой..." value="" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     aria-label="Поиск на шахматке"
+[WebServer]                                     placeholder="Номер, койка, гость или бронь"
+[WebServer]                                     value=""
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                 ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                     ...
+[WebServer]                   ...
+[WebServer]         ...
+[WebServer]  
+  ✓   8 tests/ui/design-reference.spec.ts:32:3 › шахматка: неделя и месяц (dark) (3.3s)
+  ✓   9 tests/ui/design-reference.spec.ts:44:3 › обзор дня (dark) (2.0s)
+  ✓  10 tests/ui/design-reference.spec.ts:51:3 › карточка брони панелью, четыре вкладки (dark) (5.3s)
+  ✓  11 tests/ui/design-reference.spec.ts:71:3 › карточка гостя (dark) (1.2s)
+  ✓  12 tests/ui/design-reference.spec.ts:78:3 › форма брони: одно размещение и группа (dark) (1.2s)
+  ✓  13 tests/ui/design-reference.spec.ts:88:3 › цены и ограничения с массовым изменением (dark) (1.6s)
+  ✓  14 tests/ui/design-reference.spec.ts:101:3 › журнал интеграции Channex (dark) (1.2s)
+
+  14 passed (37.6s)
+
+# код выхода 0 · 39 с

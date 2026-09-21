@@ -1,0 +1,14 @@
+# Линтер (lint) · 15.09.2026 10:33 Алматы · vm
+# коммит 32d4823 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 22
+# npx eslint .
+
+/home/user/wetop.ai/design/canvas/build.mjs
+  154:86   error  'weekend' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  155:368  error  'today' is defined but never used             @typescript-eslint/no-unused-vars
+  155:375  error  'we' is defined but never used                @typescript-eslint/no-unused-vars
+  480:1    error  'console' is not defined                      no-undef
+
+✖ 4 problems (4 errors, 0 warnings)
+
+
+# код выхода 1 · 11 с

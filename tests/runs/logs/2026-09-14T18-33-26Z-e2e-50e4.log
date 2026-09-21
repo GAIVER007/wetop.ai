@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 14.09.2026 23:33 Алматы · vm
+# коммит 01aa2ad (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/design-system.spec.ts' '--workers=1'
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (4.9s)
+  ✓  2 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (light) (4.6s)
+  ✓  3 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (4.2s)
+  ✓  4 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (dark) (4.6s)
+  ✓  5 tests/ui/design-system.spec.ts:46:1 › у каждого интерактивного компонента все восемь состояний (3.2s)
+  ✓  6 tests/ui/design-system.spec.ts:61:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.2s)
+  ✓  7 tests/ui/design-system.spec.ts:71:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (3.6s)
+
+  7 passed (30.7s)
+
+# код выхода 0 · 32 с

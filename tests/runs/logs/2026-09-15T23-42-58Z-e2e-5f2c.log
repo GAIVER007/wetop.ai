@@ -1,0 +1,431 @@
+# Сквозные (e2e) · 16.09.2026 04:42 Алматы · vm
+# коммит 651b0f0 (claude/confident-hypatia-4efdx7)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+
+Running 114 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (1.1m)
+  ✓    2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (1.0m)
+  ✓    3 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 390px (54.4s)
+  ✓    4 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 390px (54.5s)
+  ✓    5 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 1440px (7.2s)
+  ✓    6 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 1440px (6.8s)
+  ✓    7 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: light, 390px (6.3s)
+  ✓    8 tests/ui/accessibility.spec.ts:104:5 › доступность открытых форм и drawer: dark, 390px (6.1s)
+  ✓    9 tests/ui/channex-screens.spec.ts:15:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.5s)
+  ✓   10 tests/ui/channex-screens.spec.ts:70:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.9s)
+  ✓   11 tests/ui/channex-screens.spec.ts:87:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (4.6s)
+  ✓   12 tests/ui/channex-screens.spec.ts:132:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (4.0s)
+  ✓   13 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.8s)
+  ✘   14 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (4.3s)
+  ✓   15 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.3s)
+  ✓   16 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (6.0s)
+  ✓   17 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.7s)
+  ✓   18 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.9s)
+  ✓   19 tests/ui/chessboard-month.spec.ts:65:1 › неделя, 14 дней, произвольный период и возврат к месяцу (6.2s)
+  ✓   20 tests/ui/chessboard-month.spec.ts:84:1 › в месяце открываются брони, свободные даты и группы номеров (7.9s)
+  ✓   21 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: light, читаемость и адаптивность (38.0s)
+  ✓   22 tests/ui/chessboard-month.spec.ts:120:3 › месячная сетка: dark, читаемость и адаптивность (38.0s)
+  ✓   23 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (5.2s)
+  ✓   24 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (4.4s)
+  ✓   25 tests/ui/chessboard-week.spec.ts:14:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (4.6s)
+  ✓   26 tests/ui/chessboard-week.spec.ts:33:1 › в неделе работают бронь, категории и создание на воскресенье (4.2s)
+  ✘   27 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон (21.4s)
+  ✘   28 tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон (22.9s)
+  ✓   29 tests/ui/chessboard-week.spec.ts:96:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.4s)
+  ✓   30 tests/ui/design-reference.spec.ts:36:3 › шахматка: неделя и месяц (light) (4.5s)
+  ✓   31 tests/ui/design-reference.spec.ts:51:3 › обзор дня (light) (1.7s)
+  ✓   32 tests/ui/design-reference.spec.ts:58:3 › карточка брони панелью, четыре вкладки (light) (6.7s)
+  ✓   33 tests/ui/design-reference.spec.ts:78:3 › карточка гостя (light) (1.3s)
+  ✓   34 tests/ui/design-reference.spec.ts:85:3 › форма брони: одно размещение и группа (light) (1.4s)
+  ✓   35 tests/ui/design-reference.spec.ts:95:3 › цены и ограничения с массовым изменением (light) (2.1s)
+  ✓   36 tests/ui/design-reference.spec.ts:113:3 › журнал интеграции Channex (light) (1.8s)
+  ✓   37 tests/ui/design-reference.spec.ts:121:3 › действия управляющего: окно переселения с суммой и «Разрешить» (light) (4.3s)
+  ✓   38 tests/ui/design-reference.spec.ts:150:3 › приём брони из канала (light) (1.4s)
+  ✓   39 tests/ui/design-reference.spec.ts:36:3 › шахматка: неделя и месяц (dark) (4.3s)
+  ✓   40 tests/ui/design-reference.spec.ts:51:3 › обзор дня (dark) (1.7s)
+  ✓   41 tests/ui/design-reference.spec.ts:58:3 › карточка брони панелью, четыре вкладки (dark) (6.4s)
+  ✓   42 tests/ui/design-reference.spec.ts:78:3 › карточка гостя (dark) (1.4s)
+  ✓   43 tests/ui/design-reference.spec.ts:85:3 › форма брони: одно размещение и группа (dark) (1.5s)
+  ✓   44 tests/ui/design-reference.spec.ts:95:3 › цены и ограничения с массовым изменением (dark) (2.6s)
+  ✓   45 tests/ui/design-reference.spec.ts:113:3 › журнал интеграции Channex (dark) (1.7s)
+  ✓   46 tests/ui/design-reference.spec.ts:121:3 › действия управляющего: окно переселения с суммой и «Разрешить» (dark) (4.2s)
+  ✓   47 tests/ui/design-reference.spec.ts:150:3 › приём брони из канала (dark) (1.3s)
+  ✘   48 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) (13.7s)
+  ✓   49 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (light) (5.5s)
+  ✘   50 tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) (13.7s)
+  ✓   51 tests/ui/design-system.spec.ts:39:3 › axe без нарушений (dark) (5.5s)
+  ✓   52 tests/ui/design-system.spec.ts:46:1 › у каждого интерактивного компонента все восемь состояний (3.9s)
+  ✓   53 tests/ui/design-system.spec.ts:61:1 › масштаб 200 %: нет горизонтальной прокрутки страницы (1.7s)
+  ✓   54 tests/ui/design-system.spec.ts:71:1 › меню действий, окно подтверждения, уведомление и подсказка работают клавиатурой (3.9s)
+  ✓   55 tests/ui/login-access.spec.ts:8:1 › за Cloudflare Access экран входа показывает почту и выход, без формы пароля (781ms)
+  ✓   56 tests/ui/login-access.spec.ts:26:1 › без Access (локально на Mac) экран входа прежний и честно говорит, что вход не подключён (692ms)
+  ✓   57 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.0s)
+  ✓   58 tests/ui/manager-actions.spec.ts:57:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.1s)
+  ✓   59 tests/ui/manager-actions.spec.ts:91:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (6.9s)
+  ✓   60 tests/ui/manager-actions.spec.ts:145:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки, штраф в окне отмены (6.1s)
+  ✓   61 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (2.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   62 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (3.0s)
+  ✓   63 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.3s)
+  ✓   64 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (3.4s)
+  ✓   65 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (6.3s)
+  ✓   66 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (6.6s)
+  ✓   67 tests/ui/premium.spec.ts:116:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (47.8s)
+  ✓   68 tests/ui/premium.spec.ts:163:1 › login не имитирует авторизацию (899ms)
+  ✓   69 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (1.8s)
+  ✓   70 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (857ms)
+  ✓   71 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.1s)
+  ✓   72 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (1.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   73 tests/ui/quality.spec.ts:52:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.3s)
+  ✓   74 tests/ui/quality.spec.ts:73:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.7s)
+  ✓   75 tests/ui/quality.spec.ts:86:1 › список гостей и вторая бронь открывают собственные карточки (2.3s)
+  ✓   76 tests/ui/quality.spec.ts:97:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.6s)
+  ✓   77 tests/ui/quality.spec.ts:120:1 › изменение уборки относится только к выбранному номеру (2.3s)
+  ✓   78 tests/ui/quality.spec.ts:128:1 › неподключённые внешние демо не ведут на несуществующие страницы (881ms)
+  ✓   79 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: профиль гостя (1.6s)
+  ✓   80 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: документ гостя (1.7s)
+  ✓   81 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: блокировка номера (1.8s)
+  ✓   82 tests/ui/quality.spec.ts:165:3 › отказ API сохраняет поля: сайт аналитики (1.5s)
+  ✓   83 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (998ms)
+  ✓   84 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.3s)
+  ✓   85 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.0s)
+  ✓   86 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (1.1s)
+  ✓   87 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (1.3s)
+  ✓   88 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (1.8s)
+  ✓   89 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (1.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   90 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (24.1s)
+  ✓   91 tests/ui/workspace.spec.ts:92:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (3.3s)
+  ✓   92 tests/ui/workspace.spec.ts:120:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.1s)
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-16&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '119158558'
+[WebServer] }
+  ✓   93 tests/ui/workspace.spec.ts:138:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (2.9s)
+  ✓   94 tests/ui/workspace.spec.ts:159:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (3.0s)
+  ✓   95 tests/ui/workspace.spec.ts:191:1 › поиск и списки дня; мобильное меню и возврат фокуса (3.5s)
+  ✓   96 tests/ui/workspace.spec.ts:217:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.4s)
+  ✓   97 tests/ui/workspace.spec.ts:244:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.0s)
+  ✓   98 tests/ui/workspace.spec.ts:276:1 › карточка: профиль гостя и заселение проходят через server actions (3.4s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:28)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2901795839'
+[WebServer] }
+  ✓   99 tests/ui/workspace.spec.ts:309:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.6s)
+  ✓  100 tests/ui/workspace.spec.ts:318:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.2s)
+  ✓  101 tests/ui/workspace.spec.ts:332:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (834ms)
+  ✓  102 tests/ui/workspace.spec.ts:344:1 › неверная дата в ссылке оставляет доступную форму для исправления (872ms)
+  ✓  103 tests/ui/workspace.spec.ts:351:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (2.7s)
+  ✓  104 tests/ui/workspace.spec.ts:360:1 › групповая бронь: разные категории сохраняются при конфликте (1.8s)
+  ✓  105 tests/ui/workspace.spec.ts:384:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.4s)
+  ✓  106 tests/ui/workspace.spec.ts:411:1 › обзор: задачи ведут к счетам, фильтр не меняет сводку, узкие экраны сохраняют действия (2.1s)
+  ✓  107 tests/ui/workspace.spec.ts:442:1 › ошибка буфера обмена видна, код остаётся доступен (1.2s)
+  ✓  108 tests/ui/workspace.spec.ts:458:1 › финансы: неверные даты можно исправить без падения страницы (1.4s)
+  ✓  109 tests/ui/workspace.spec.ts:468:1 › ошибка загрузки тарифов не позволяет включить виджет (824ms)
+  ✓  110 tests/ui/workspace.spec.ts:477:1 › номера: статус уборки, блокировка и снятие сохраняются (2.4s)
+  ✓  111 tests/ui/workspace.spec.ts:499:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.3s)
+  ✓  112 tests/ui/workspace.spec.ts:522:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (3.7s)
+  ✓  113 tests/ui/workspace.spec.ts:548:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (3.2s)
+[WebServer] ⨯ Error: API /desk/today: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async TodayPage (src/app/today/page.tsx:16:24)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '4008876949'
+[WebServer] }
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-14&to=2026-09-20: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:78:51)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1186766526'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomTotals (src/app/rooms/[[...section]]/page.tsx:56:13)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '2344795493'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:292:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '3893652751'
+[WebServer] }
+[WebServer] ⨯ Error: API /finance/report?from=2026-09-01&to=2026-09-30: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async FinanceReportPage (src/app/finance/page.tsx:57:21)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '1109232404'
+[WebServer] }
+[WebServer] ⨯ Error: API /hotel/channel-report?from=2026-09-01&to=2026-09-16&status=ALL: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:88:11)
+[WebServer]     at async ChannelManagerPage (src/app/channel-manager/page.tsx:41:26)
+[WebServer]   86 |   const res = await backendFetch(path);
+[WebServer]   87 |   if (!res.ok) {
+[WebServer] > 88 |     throw new ApiError(res.status, `API ${path}: HTTP ${res.status}`);
+[WebServer]      |           ^
+[WebServer]   89 |   }
+[WebServer]   90 |   return (await res.json()) as T;
+[WebServer]   91 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: '119158558'
+[WebServer] }
+  ✓  114 tests/ui/workspace.spec.ts:579:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (6.1s)
+
+
+  1) tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна ────────────────
+
+    Error: 768px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    12
+
+      31 |       return box.scrollWidth - box.clientWidth;
+      32 |     });
+    > 33 |     expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+         |                                    ^
+      34 |     await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+      35 |     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      36 |   }
+        at /home/user/wetop.ai/tests/ui/chessboard-month.spec.ts:33:36
+
+    Error Context: test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-все-31-день-помещаются-по-ширине-окна/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+
+    Error: 320px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    7
+
+      73 |         .locator('.board-wrap')
+      74 |         .evaluate((el) => el.scrollWidth - el.clientWidth);
+    > 75 |       expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+         |                                      ^
+      76 |       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+      77 |       await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      78 |       const result = await new AxeBuilder({ page })
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:75:38
+
+    Error Context: test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-36ba4--light-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+
+    Error: 320px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    7
+
+      73 |         .locator('.board-wrap')
+      74 |         .evaluate((el) => el.scrollWidth - el.clientWidth);
+    > 75 |       expect(overflow, `${width}px`).toBeLessThanOrEqual(1);
+         |                                      ^
+      76 |       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
+      77 |       await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
+      78 |       const result = await new AxeBuilder({ page })
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:75:38
+
+    Error Context: test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-неделя-пом-d4a20-е-dark-обе-панели-и-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ───────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      2365 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: design-system-light.png
+
+    Call log:
+      - Expect "toHaveScreenshot(design-system-light.png)" with timeout 15000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 2365 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 2365 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |                        ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:24
+
+    attachment #1: design-system-light (image/png) ─────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-light.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/design-system-light-actual.png
+    Diff:     test-results/design-system-эталонный-снимок-страницы-компонентов-light-/design-system-light-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-light-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-light-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      3019 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: design-system-dark.png
+
+    Call log:
+      - Expect "toHaveScreenshot(design-system-dark.png)" with timeout 15000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 3019 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 3019 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      27 |   test(`эталонный снимок страницы компонентов (${theme})`, async ({ page }) => {
+      28 |     await open(page, theme);
+    > 29 |     await expect(page).toHaveScreenshot(`design-system-${theme}.png`, {
+         |                        ^
+      30 |       fullPage: true,
+      31 |       caret: 'hide',
+      32 |       animations: 'disabled',
+        at /home/user/wetop.ai/tests/ui/design-system.spec.ts:29:24
+
+    attachment #1: design-system-dark (image/png) ──────────────────────────────────────────────────
+    Expected: design/reference/kit/design-system-dark.png
+    Received: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/design-system-dark-actual.png
+    Diff:     test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/design-system-dark-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-system-эталонный-снимок-страницы-компонентов-dark-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна ─────────────────
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: light, обе панели и телефон 
+    tests/ui/chessboard-week.spec.ts:62:3 › неделя помещается на экране: dark, обе панели и телефон 
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (light) ────────────
+    tests/ui/design-system.spec.ts:27:3 › эталонный снимок страницы компонентов (dark) ─────────────
+  109 passed (13.4m)
+
+# код выхода 1 · 13 мин 26 с

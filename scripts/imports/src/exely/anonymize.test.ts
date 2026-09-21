@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anonymizeGuest, type GuestRecord } from './anonymize';
+import { anonymizeGuest, importPiiSalt, type GuestRecord } from './anonymize';
 
 const g: GuestRecord = {
   exelyPersonId: 'P-1',
@@ -54,5 +54,21 @@ describe('anonymizeGuest (ADR-018)', () => {
     expect(a.email).toBeNull();
     expect(a.phone).toBeNull();
     expect(a.birthDate).toBeNull();
+  });
+});
+
+describe('соль импорта: единственный переключатель PII_STORAGE', () => {
+  it('без PII_STORAGE=real гости переносятся псевдонимами', () => {
+    expect(importPiiSalt({ ANONYMIZE_SALT: 'соль' })).toBe('соль');
+  });
+
+  it('PII_STORAGE=real (боевая база в РК) переносит настоящие ФИО и контакты', () => {
+    // null отключает анонимизацию в importReservations: иначе на боевой базе у всех
+    // перенесённых гостей будет «Гость Тест-…», и на заезде опознать их нечем
+    expect(importPiiSalt({ PII_STORAGE: 'real', ANONYMIZE_SALT: 'соль' })).toBeNull();
+  });
+
+  it('без соли и без PII_STORAGE=real импорт не начинается', () => {
+    expect(() => importPiiSalt({})).toThrow();
   });
 });

@@ -1,0 +1,18 @@
+# Типы (typecheck) · 15.09.2026 16:00 Алматы · vm
+# коммит 9974653 (claude/confident-hypatia-4efdx7), незакоммиченных файлов набора: 25
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/reservations/reservations.controller.test.ts(779,52): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | object | undefined'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

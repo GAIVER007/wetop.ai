@@ -39,7 +39,9 @@ test('журнал: выборка словами, разделы чипами, 
   // пусто по условиям — условие названо, путь к последним операциям
   await page.goto('/journal?q=нет-такого&type=Reservation');
   const empty = main.getByTestId('journal-empty');
-  await expect(empty).toContainText('Операций по запросу «нет-такого», раздел «брони» нет');
+  // 21.09: пустой результат — общее пустое состояние, условие названо в тексте, а не в ячейке таблицы
+  await expect(empty).toContainText('По этим условиям операций нет');
+  await expect(empty).toContainText('по запросу «нет-такого», раздел «брони»');
   await expect(main.getByTestId('journal-meta')).toContainText(
     '0 операций, по запросу «нет-такого», раздел «брони» (поиск по всей истории)',
   );

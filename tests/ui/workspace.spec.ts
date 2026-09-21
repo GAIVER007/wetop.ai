@@ -804,8 +804,9 @@ test('кнопки Channex отправляют команды один раз �
     '/channels/channex/setup',
   ]);
   await expect(page.getByTestId('channel-webhook-register')).toBeDisabled();
+  // 21.09: причина недоступности написана словами под группой «Настройка подключения», а не в `title`
   await expect(
-    page.getByText('Для webhook укажите публичный HTTPS-адрес и секрет на сервере.'),
+    page.getByText('Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере.'),
   ).toBeVisible();
 });
 

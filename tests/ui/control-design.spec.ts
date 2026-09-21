@@ -54,6 +54,50 @@ test('контроль: принятие с ошибкой и повтором, 
   );
 });
 
+test('журнал: дни группами, время без года, объект одной подписью, чипы разделов', async ({
+  page,
+  request,
+}) => {
+  // 21.09: дата стояла в каждой строке целиком («2026-09-21 13:30»), колонка «Объект» держала серый бейдж
+  // на каждой строке, а «Что» печатало обрезанный служебный идентификатор («ui-user…»)
+  await request.post(`${API}/__test/control`, { data: { journalHistory: true } });
+  const main = page.getByRole('main');
+  await page.goto('/journal');
+  await expect(main.getByTestId('journal-row')).toHaveCount(5);
+
+  // дни — подзаголовками групп, сегодня названо словом
+  const days = main.getByTestId('journal-day');
+  await expect(days).toHaveCount(3);
+  await expect(days.first()).toContainText('Сегодня');
+  await expect(days.nth(1)).toContainText('Вчера');
+
+  // в строке — время без года и без даты; полное значение остаётся в <time>
+  const first = main.getByTestId('journal-row').first();
+  await expect(first.locator('time')).toHaveText(/^\d{2}:\d{2}$/);
+  await expect(first.locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T/);
+  await expect(main.getByText(/20\d\d-\d\d-\d\d \d\d:\d\d/)).toHaveCount(0);
+
+  // объект — одной подписью словом и номером; обрезанных служебных идентификаторов нет
+  await expect(first).toContainText('Бронь 20260913-TESTAA');
+  await expect(main.getByText(/ui-\w+…/)).toHaveCount(0);
+  await expect(main.getByTestId('journal-row').nth(1)).toContainText('Сотрудник');
+
+  // разделы — такие же чипы, как отбор на «Неисправностях»
+  const filters = main.getByRole('navigation', { name: 'Раздел журнала' });
+  await expect(filters).toHaveClass(/control-chips/);
+  const chipHeight = await filters
+    .getByRole('link', { name: 'брони', exact: true })
+    .evaluate((el) => el.getBoundingClientRect().height);
+  expect(chipHeight).toBeGreaterThanOrEqual(38);
+
+  // пустой результат — общее пустое состояние с шагом, а не текст в ячейке таблицы
+  await page.goto('/journal?q=нет-такого');
+  const empty = main.getByTestId('journal-empty');
+  await expect(empty).toContainText('нет-такого');
+  await expect(empty.getByRole('link', { name: 'Показать последние операции' })).toBeVisible();
+  await expect(main.getByTestId('journal-table')).toHaveCount(0);
+});
+
 test('контроль: поиск журнала и переходы доступны до окончания медленного запроса', async ({
   page,
   request,

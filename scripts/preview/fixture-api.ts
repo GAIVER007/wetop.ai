@@ -926,6 +926,8 @@ const mixClosed = (): Incident[] =>
   }));
 /** Дополнительные неисправности сверх одиночного сида: пусто, пока режим не включён */
 let extraIncidents: Incident[] = [];
+/** Журнал за несколько дней: без него все строки фикстуры — сегодняшние, и группы по дням не проверить */
+let journalHistory = false;
 let guardTick = false;
 
 function desk(date: string): DeskDay {
@@ -2013,6 +2015,27 @@ function read(path: string, q: URLSearchParams): unknown {
         author: null,
       },
     ];
+    if (journalHistory)
+      entries.push(
+        {
+          id: 'ui-audit-yesterday',
+          at: `${add(today, -1)}T11:15:00Z`,
+          entityType: 'InventoryUnit',
+          entityId: 'ui-unit',
+          action: 'unit.block',
+          subject: 'R01',
+          author: uiUser.name,
+        },
+        {
+          id: 'ui-audit-older',
+          at: `${add(today, -3)}T06:05:00Z`,
+          entityType: 'Reservation',
+          entityId: 'ui-item',
+          action: 'reservation.create',
+          subject: card.confirmationNumber,
+          author: null,
+        },
+      );
     // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
     const needle = (q.get('q') || '').trim().toLowerCase();
     return entries
@@ -2090,6 +2113,7 @@ createServer(async (req, res) => {
       incident = structuredClone(incidentSeed);
       extraIncidents = [];
       guardTick = false;
+      journalHistory = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -2175,6 +2199,7 @@ createServer(async (req, res) => {
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
+      journalHistory = body['journalHistory'] === true;
       if (body['incidentsMix'] === true) {
         extraIncidents = [...mixIncidents(), ...mixClosed()];
         guardTick = true;

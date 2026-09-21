@@ -338,6 +338,55 @@ export function Legend({
 }
 
 /**
+ * Полоса состояния службы (21.09.2026): главный итог слева — число с тоном и фразой о том, требует ли
+ * что-то человека, — и факты справа. Заменяет пару «ряд плиток с числами + панель фактов на четыре
+ * колонки», которая занимала весь первый экран и повторяла числа списка под ней (DESIGN.md §8).
+ *
+ * Тон только у черты и числа: заливки у полосы нет — иначе она спорит с плашками статусов (§9).
+ */
+export function StateBar({
+  tone = 'calm',
+  label,
+  value,
+  summary,
+  children,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & {
+  tone?: 'alarm' | 'warn' | 'calm' | undefined;
+  label: ReactNode;
+  value: ReactNode;
+  summary?: ReactNode;
+}) {
+  return (
+    <div className={cx('panel', 'state-bar', className)} {...rest}>
+      <div className="state-bar__state" data-tone={tone}>
+        <div className="fact__label">{label}</div>
+        <p className="state-bar__value">{value}</p>
+        {summary && <p className="state-bar__summary">{summary}</p>}
+      </div>
+      <dl className="state-bar__facts">{children}</dl>
+    </div>
+  );
+}
+
+/** Факт в полосе состояния: подпись и значение словами; `children` — пояснение под значением. */
+export function StateFact({
+  label,
+  value,
+  children,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { label: ReactNode; value: ReactNode }) {
+  return (
+    <div {...rest}>
+      <dt className="fact__label">{label}</dt>
+      <dd className="fact__value">{value}</dd>
+      {children}
+    </div>
+  );
+}
+
+/**
  * Пустое состояние (DESIGN.md §8 и §14, B4): что пусто и что сделать. Заголовок — одна фраза о том,
  * чего нет; текст — следующий шаг; `actions` — ссылки или кнопки, которые его делают. Иконка — из
  * набора, 32 px, цвет акцента. На месте `.empty-state`, который экраны собирали каждый по-своему.

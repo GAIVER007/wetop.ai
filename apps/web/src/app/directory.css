@@ -1083,7 +1083,7 @@ a.dir-number:hover {
     grid-column: 1 / -1;
     padding: var(--space-4) 0;
   }
-  /* журнал: действие и когда → кто → объект и что */
+  /* журнал (21.09, четыре колонки): что сделали и время → кто → объект */
   .dir-table--journal tbody td:nth-child(3) {
     grid-column: 1;
     grid-row: 1;
@@ -1101,14 +1101,18 @@ a.dir-number:hover {
     color: var(--muted);
   }
   .dir-table--journal tbody td:nth-child(4) {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 3;
-    color: var(--muted);
   }
-  .dir-table--journal tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
+  /* подзаголовок дня остаётся строкой во всю ширину и на телефоне */
+  .dir-table--journal tbody tr.journal-day {
+    display: block;
+    padding: 0;
+    border-bottom: 0;
+  }
+  .dir-table--journal tbody tr.journal-day th {
+    display: block;
+    padding: var(--space-4) var(--space-4) var(--space-1);
   }
 }
 
@@ -1195,4 +1199,21 @@ a.dir-number:hover {
   .dir-table--statistics tbody td:nth-child(5)::before {
     content: 'закрыто ';
   }
+}
+
+/*
+ * Действия по каналам (21.09.2026): две группы с подписями вместо шести кнопок одним рядом.
+ * Подпись группы — 13 px, не заголовок раздела: это не новый раздел экрана, а его часть.
+ */
+.channel-actions {
+  margin-bottom: var(--space-4);
+}
+.channel-actions__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-2);
+}
+.channel-actions .note {
+  margin-top: var(--space-2);
 }

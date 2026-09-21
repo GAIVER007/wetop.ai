@@ -1,7 +1,7 @@
 import { guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
-import { Alert, Panel, SectionTitle } from '../../components/ui';
+import { Alert, Panel, SectionTitle, StateBar, StateFact } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { GuardTickButton } from './buttons';
@@ -110,32 +110,29 @@ async function IncidentContent() {
           Уведомления не настроены. Неисправности доступны только здесь.
         </Alert>
       )}
-      <Panel className="guard-bar">
-        <div className="guard-bar__state" data-tone={tone}>
-          <div className="fact__label">Открыто</div>
-          <p className="guard-bar__count">
-            <span data-testid="incidents-open">{String(status?.open.total ?? '—')}</span>
-          </p>
-          <p className="guard-bar__summary" data-testid="incidents-summary">
-            {summary}
-          </p>
-        </div>
-        <dl className="guard-bar__facts">
-          <div>
-            <dt className="fact__label">Сторож</dt>
-            <dd className="fact__value" data-testid="guard-running">
+      <StateBar
+        tone={tone}
+        label="Открыто"
+        value={<span data-testid="incidents-open">{String(status?.open.total ?? '—')}</span>}
+        summary={<span data-testid="incidents-summary">{summary}</span>}
+      >
+        <StateFact
+          label="Сторож"
+          value={
+            <span data-testid="guard-running">
               {status
                 ? `${status.running ? 'работает, проход раз в минуту' : 'выключен'}, технику ${status.autofix ? 'чинит сам' : 'сам не чинит'}`
                 : '—'}
-            </dd>
-          </div>
-          <div>
-            <dt className="fact__label">Последний проход</dt>
-            <dd className="fact__value">
+            </span>
+          }
+        />
+        <StateFact
+          label="Последний проход"
+          value={
+            <>
               {tick ? at(tick.at) : status ? 'ещё не было' : '—'}
               {tick && (
-                <span className="guard-bar__sub">
-                  {' '}
+                <span className="state-bar__sub">
                   {pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}
                   {tick.checkErrors.length > 0 && (
                     <span className="danger-text">
@@ -144,23 +141,25 @@ async function IncidentContent() {
                   )}
                 </span>
               )}
-            </dd>
-          </div>
-          <div>
-            <dt className="fact__label">Будильник</dt>
-            <dd className="fact__value">
+            </>
+          }
+        />
+        <StateFact
+          label="Будильник"
+          value={
+            <>
               {status
                 ? status.notifier.configured
                   ? `Telegram, ${pluralRu(status.notifier.recipients, ['чат', 'чата', 'чатов'])}`
                   : 'не настроен'
                 : '—'}
               {tick?.alertError && status?.notifier.configured && (
-                <span className="guard-bar__sub danger-text"> {tick.alertError}</span>
+                <span className="state-bar__sub danger-text">{tick.alertError}</span>
               )}
-            </dd>
-          </div>
-        </dl>
-      </Panel>
+            </>
+          }
+        />
+      </StateBar>
 
       <SectionTitle>Открытые</SectionTitle>
       {open === null && (

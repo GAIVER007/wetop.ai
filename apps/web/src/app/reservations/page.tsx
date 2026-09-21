@@ -14,6 +14,7 @@ import '../directory.css';
 import './reservations.css';
 import {
   hotelToday,
+  plusDays,
   reservationDirectory,
   validDate,
   sourceNames,
@@ -62,6 +63,20 @@ export default async function ReservationsPage({
     from === to
       ? displayDate(from)
       : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
+  // Готовые отрезки, как в «Деньгах за период»: обычные вопросы стойки — один щелчок вместо
+  // двух календарей (owner 21.09). Поиск и статус сохраняются, страница сбрасывается на первую.
+  const today = hotelToday();
+  const periodPresets: [string, { from: string; to: string }][] = [
+    ['Сегодня', { from: today, to: today }],
+    ['Завтра', { from: plusDays(today, 1), to: plusDays(today, 1) }],
+    ['7 дней', { from: today, to: plusDays(today, 6) }],
+    ['30 дней', { from: today, to: plusDays(today, 29) }],
+  ];
+  // Числа на чипах: видно, сколько предварительных и проживающих, до нажатия. Ряд не
+  // перестраивается от периода к периоду — статус с нулём остаётся на месте и приглушён,
+  // «Отменены 0» — это тоже ответ, за которым не надо никуда нажимать.
+  const counts = result?.counts ?? null;
+  const filtersOn = from !== today || to !== today || status !== 'ALL' || q !== '';
   const pageOutOfRange = (result?.total ?? 0) > 0 && result?.rows.length === 0;
   const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
   const queryText = q ? `, по запросу «${q}»` : '';
@@ -124,18 +139,40 @@ export default async function ReservationsPage({
           </Field>
           <Button tone="secondary">Показать</Button>
         </form>
-        <nav className="directory-filters" aria-label="Статусы броней">
-          {Object.entries(reservationStatuses).map(([id, label]) => (
-            <Link
-              key={id}
-              href={href({ status: id, page: '1' })}
-              className={status === id ? 'is-active' : ''}
-              aria-current={status === id ? 'page' : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <div className="reservations-quick">
+          <nav className="directory-filters" aria-label="Готовые периоды">
+            <span className="reservations-quick__word">Период</span>
+            {periodPresets.map(([label, p]) => (
+              <Link
+                key={label}
+                href={href({ from: p.from, to: p.to, page: '1' })}
+                className={p.from === from && p.to === to ? 'is-active' : ''}
+                aria-current={p.from === from && p.to === to ? 'page' : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <nav className="directory-filters reservations-statuses" aria-label="Статусы броней">
+            <span className="reservations-quick__word">Статус</span>
+            {Object.entries(reservationStatuses).map(([id, label]) => {
+              const count = counts ? (counts[id] ?? 0) : null;
+              return (
+                <Link
+                  key={id}
+                  href={href({ status: id, page: '1' })}
+                  className={
+                    status === id ? 'is-active' : count === 0 ? 'reservations-chip--zero' : ''
+                  }
+                  aria-current={status === id ? 'page' : undefined}
+                >
+                  {label}
+                  {count !== null && <span className="reservations-count">{count}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </section>
       {error && (
         <Alert boxed>
@@ -152,6 +189,14 @@ export default async function ReservationsPage({
             {periodText}
             {statusText}
             {queryText}
+            {filtersOn && (
+              <>
+                {' '}
+                <Link href="/reservations" className="reservations-reset">
+                  Сбросить фильтры
+                </Link>
+              </>
+            )}
           </p>
           {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
           {result.rows.length > 0 && (

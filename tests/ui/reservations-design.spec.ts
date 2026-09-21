@@ -18,11 +18,13 @@ test('выбранный статус броней доступен с клав�
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
   const statuses = page.getByRole('navigation', { name: 'Статусы броней' });
-  await expect(statuses.getByRole('link', { name: 'Все статусы', exact: true })).toHaveAttribute(
+  // В названии чипа теперь ещё и число броней этого статуса: «Все статусы 9»
+  await expect(statuses.getByRole('link', { name: /^Все статусы/ })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  const confirmed = statuses.getByRole('link', { name: 'Подтверждены', exact: true });
+  await expect(statuses.getByRole('link', { name: /^Все статусы/ })).toContainText('9');
+  const confirmed = statuses.getByRole('link', { name: /^Подтверждены/ });
   await confirmed.focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/status=CONFIRMED/);

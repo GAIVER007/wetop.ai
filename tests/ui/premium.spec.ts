@@ -97,9 +97,10 @@ test('новые фильтры шахматки, список броней и �
   await page.goto('/reservations');
   // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
   await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
+  // в названии чипа теперь и число броней этого статуса: «Отменены 0»
   await page
     .locator('.directory-filters')
-    .getByRole('link', { name: 'Отменены', exact: true })
+    .getByRole('link', { name: /^Отменены/ })
     .click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
   await page.goto('/rooms');

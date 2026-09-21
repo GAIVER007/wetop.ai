@@ -71,7 +71,7 @@ Popover API остаётся обычный `fixed` у своего места. 
 | Доступность light/1440 отдельно: настоящая причина — `/channels`, `definition-list` | ❌ | `2026-09-21T20-29-09Z-e2e-de44.log` |
 | После `StateFact`: следующая — `/analytics`, `link-in-text-block` | ❌ | `2026-09-21T20-31-08Z-e2e-4578.log` |
 | После подчёркивания ссылок в подсказках: все 28 адресов чистые | ✅ 2 из 2 | `2026-09-21T20-32-41Z-e2e-2ad0.log` |
-| Подтверждающий прогон: `accessibility` (4 варианта), `design-system`, `analytics-design`, `incidents-design`, `control-design`, `channex-screens`, `system-screens` | шёл в момент этого коммита — итог следующим | — |
+| Подтверждающий прогон: `accessibility` (4 варианта, 28 адресов), `design-system`, `analytics-design`, `incidents-design`, `control-design`, `channex-screens`, `system-screens` | ✅ 44 из 44 | `2026-09-21T20-34-07Z-e2e-d77d.log` |
 
 ## Красная доступность была моей, а не «прежней»
 

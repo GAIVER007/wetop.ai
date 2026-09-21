@@ -1,0 +1,24 @@
+EmptyState from @pms/web. Use via `window.Wetop.EmptyState` (bundle loaded from the root `_ds_bundle.js`).
+
+# EmptyState — пусто
+
+Говорит **чего нет** и **что сделать**, а не «Нет данных». Иконка 32 px акцентом, заголовок одной
+фразой, текст — следующий шаг, действия рядом (DESIGN.md §8, §14).
+
+Если пусто из-за условий выборки — предложите снять именно то условие, которое всё отсекло
+(«Убрать поиск», «Все статусы»), и только потом «Сбросить фильтры».
+
+```tsx
+<EmptyState
+  icon={<Icon name="guests" width={32} height={32} />}
+  title="По запросу «Иванов» броней нет"
+  actions={
+    <>
+      <Button tone="secondary" size="sm">Убрать поиск</Button>
+      <Button size="sm">Новая бронь</Button>
+    </>
+  }
+>
+  Поиск идёт по фамилии гостя и номеру брони.
+</EmptyState>
+```

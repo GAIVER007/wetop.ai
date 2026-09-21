@@ -97,8 +97,11 @@ test('вложенные разделы: раскрытие, один актив
   const sidebar = page.locator('.workspace-sidebar');
   const rooms = sidebar.getByRole('button', { name: 'Номерной фонд', exact: true });
   await expect(rooms).toHaveAttribute('aria-expanded', 'false');
-  await rooms.click();
-  await expect(rooms).toHaveAttribute('aria-expanded', 'true');
+  // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
+  await expect(async () => {
+    await rooms.click();
+    await expect(rooms).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+  }).toPass({ timeout: 15_000 });
   await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
@@ -461,9 +464,12 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
-  await sidebar.getByRole('button', { name: 'Контроль', exact: true }).click();
-  await sidebar.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет; раскрываем,
+  // только если группа свёрнута — иначе щелчок её закроет (правка ветки PR #28)
+  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
+  const toggle = control.getByRole('button');
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();

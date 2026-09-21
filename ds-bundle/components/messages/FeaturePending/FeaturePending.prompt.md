@@ -1,0 +1,13 @@
+FeaturePending from @pms/web. Use via `window.Wetop.FeaturePending` (bundle loaded from the root `_ds_bundle.js`).
+
+# FeaturePending — раздел ещё не подключён
+
+Честная заглушка вместо пустого экрана: иконка, бейдж «Ещё не подключено» и одна фраза о том, чего
+здесь пока нет. Не придумывает данных.
+
+```tsx
+<FeaturePending
+  icon="analytics"
+  text="Отчёт по акциям появится, когда акции заведут в системе."
+/>
+```

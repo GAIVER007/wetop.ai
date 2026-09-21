@@ -103,3 +103,17 @@ export function seedIsStale(refreshedAt: string | null, today: string): boolean 
   const seededOn = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date(at));
   return seededOn !== today;
 }
+
+/**
+ * Нужно ли наполнять схему заново и снимать ли перед этим прежние данные. Сид кладёт те же брони на
+ * сдвинутые относительно «сегодня» даты: поверх вчерашнего сида импорт упирается в пересечение ячеек
+ * («сид построен с пересечениями») — 20.09.2026 на этом встал весь сквозной прогон, ещё до первого
+ * спека. По пустой схеме чистить нечего; копия рабочих данных чистит за собой сама (`copyLiveData`).
+ */
+export function refreshPlan(state: { empty: boolean; stale: boolean; refresh: boolean }): {
+  refill: boolean;
+  wipeFirst: boolean;
+} {
+  const refill = state.empty || state.stale || state.refresh;
+  return { refill, wipeFirst: refill && !state.empty };
+}

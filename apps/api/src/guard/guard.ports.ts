@@ -66,14 +66,8 @@ export interface GuardProbes {
   channexEnabled(): boolean;
   /** Выключатели фоновых задач из .env: проверять то, что выключено, — плодить ложные неисправности */
   /** ariOut — исходящий ARI не остановлен выключателем CHANNEX_ARI (Q-126) */
-  /**
-   * localFiles — отчёты сверок и журнал тестов читаются с диска рядом с кодом. В контейнере это
-   * СЛЕПОК на момент сборки образа: файлы там не меняются, и «сверка дала FAIL» или «падает набор»
-   * висели бы вечно, повторяя состояние дня сборки. На сервере выключается (разбор 21.09.2026).
-   */
   enabled(
-    what:
-      'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut' | 'localFiles',
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
   ): boolean;
   dbPing(): Promise<void>;
   webhook(): WebhookSignal;
@@ -81,7 +75,11 @@ export interface GuardProbes {
   outbox(): Promise<OutboxSignal>;
   failedEvents(): Promise<FailedEvent[]>;
   stays(from: string, toExclusive: string): Promise<StaySignal>;
-  /** null — папки отчётов нет (сервер без репозитория): проверка не выполнялась */
+  /**
+   * Отчёты сверок и журнал тестов читаются с диска рядом с кодом. В контейнере это СЛЕПОК на момент
+   * сборки образа, поэтому сторож судит по возрасту данных (`reportIsFresh`, `suiteRunIsFresh`),
+   * а не по выключателю в окружении (разбор 21.09.2026). null — папки отчётов нет: проверка не выполнялась
+   */
   reports(): ReportResult[] | null;
   /** null — журнала тестов нет */
   failingSuites(): FailingSuite[] | null;

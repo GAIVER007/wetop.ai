@@ -19,6 +19,8 @@ import {
   overbookedNights,
   reconcileIncidents,
   redactText,
+  reportIsFresh,
+  suiteRunIsFresh,
   type IncidentKind,
   type Observation,
   type OpenIncident,
@@ -490,13 +492,13 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       return out;
     });
 
-    // Отчёты сверок и журнал тестов — файлы рядом с кодом; в контейнере это слепок дня сборки
-    const localFiles = this.probes.enabled('localFiles');
-    const reports = localFiles ? this.probes.reports() : null;
+    // Отчёты сверок и журнал тестов — файлы рядом с кодом; в контейнере это слепок дня сборки,
+    // поэтому годным считаем не «включено ли», а «насколько свежи сами данные» (LOCAL_FILE_FRESH_MS)
+    const reports = this.probes.reports();
     if (reports)
       await run('reports', ['reconciliation.fail'], () =>
         reports
-          .filter((r) => r.result === 'FAIL')
+          .filter((r) => r.result === 'FAIL' && reportIsFresh(r.file, now))
           .map((r) => ({
             kind: 'reconciliation.fail' as const,
             title: `Сверка «${r.kind}» дала FAIL: reports/${r.file}`,
@@ -506,16 +508,18 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           })),
       );
 
-    const suites = localFiles ? this.probes.failingSuites() : null;
+    const suites = this.probes.failingSuites();
     if (suites)
       await run('tests', ['tests.failing'], () =>
-        suites.map((t) => ({
-          kind: 'tests.failing' as const,
-          title: `Падает набор тестов «${t.suite}»: упавших ${t.failures}${t.first ? ` — ${t.first}` : ''}`,
-          subjectType: 'suite',
-          subjectId: t.suite,
-          details: { startedAt: t.startedAt },
-        })),
+        suites
+          .filter((t) => suiteRunIsFresh(t.startedAt, now))
+          .map((t) => ({
+            kind: 'tests.failing' as const,
+            title: `Падает набор тестов «${t.suite}»: упавших ${t.failures}${t.first ? ` — ${t.first}` : ''}`,
+            subjectType: 'suite',
+            subjectId: t.suite,
+            details: { startedAt: t.startedAt },
+          })),
       );
 
     if (this.probes.enabled('web'))

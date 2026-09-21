@@ -9,9 +9,19 @@
  * оборвалась, отмену можно дать из любой другой.
  *
  *   npx tsx scripts/reconciliation/src/cli-channex-booking-demo.ts create [categoryCode]
- *   npx tsx scripts/reconciliation/src/cli-channex-booking-demo.ts cancel          # последнюю показанную
+ *   npx tsx scripts/reconciliation/src/cli-channex-booking-demo.ts cancel              # все показанные
+ *   npx tsx scripts/reconciliation/src/cli-channex-booking-demo.ts cancel <bookingId>  # одну
  *
  * Только staging (ADR-010, гость вымышленный). Код выхода 1, если бронь не доехала или не отменилась.
+ *
+ * Если память показа потеряна (контейнер пересоздан, файл затёрт), восстанавливать её надо по
+ * `booking_id` из входящего события, а НЕ по `id`: в теле вебхука `id` — это ревизия брони
+ * (`is_crs_revision: true`), и `PUT /bookings/<ревизия>` Channex отвечает 403 (проверено 21.09.2026).
+ * `POST /bookings` возвращает как раз идентификатор брони, поэтому обычный путь этого не касается.
+ *
+ *   select payload->>'unique_id' as number, payload->>'booking_id' as booking_id,
+ *          payload->>'ota_reservation_code' as code, payload->>'property_id' as property_id
+ *   from external_events where payload->>'unique_id' = 'BDC-DEMO-…';
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -51,7 +61,12 @@ interface Mapping {
   providerRatePlanId: string | null;
 }
 
-/** Всё, что нужно для отмены, переживает конец сессии: отменять придётся в другой раз и, может, не отсюда */
+/**
+ * Всё, что нужно для отмены, переживает конец сессии: отменять придётся в другой раз и, может, не
+ * отсюда. Память — список, а не один показ: 21.09.2026 показ запустили дважды, второй запуск затёр
+ * память о первом, и первая бронь осталась висеть в боевой базе, держа место. Идентификаторы для неё
+ * пришлось доставать из журнала входящих событий и сопоставлений.
+ */
 interface Shown {
   bookingId: string;
   code: string;
@@ -125,11 +140,20 @@ const bookingBody = (s: Shown, status: 'new' | 'cancelled') => ({
  * Запоминаем показанную бронь сразу после создания, ещё до ожидания webhook: если прогон оборвётся
  * здесь, отменить её всё равно будет чем. Отказ записи не роняет показ — печатаем и идём дальше.
  */
+function readShown(): Shown[] {
+  const file = [STATE, STATE_FALLBACK].find((f) => existsSync(f));
+  if (!file) return [];
+  const raw: unknown = JSON.parse(readFileSync(file, 'utf8'));
+  // Старый формат (один показ объектом) читаем как список из одного: память прежних прогонов не теряем
+  return Array.isArray(raw) ? (raw as Shown[]) : [raw as Shown];
+}
+
 function remember(): void {
+  const rest = readShown().filter((x) => x.bookingId !== shown.bookingId);
   for (const file of [STATE, STATE_FALLBACK]) {
     try {
       mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, JSON.stringify(shown, null, 2));
+      writeFileSync(file, JSON.stringify([...rest, shown], null, 2));
       return;
     } catch {
       // следующий путь
@@ -138,19 +162,30 @@ function remember(): void {
   console.warn(`не удалось записать, чем отменять: отмените id ${shown.bookingId} вручную`);
 }
 
-const command = process.argv[2] ?? 'create';
+/** Убрать из памяти отменённое: иначе следующий `cancel` будет отменять уже отменённое */
+function forget(bookingId: string): void {
+  const rest = readShown().filter((x) => x.bookingId !== bookingId);
+  for (const file of [STATE, STATE_FALLBACK]) {
+    try {
+      if (!existsSync(file)) continue;
+      writeFileSync(file, JSON.stringify(rest, null, 2));
+      return;
+    } catch {
+      // следующий путь
+    }
+  }
+}
 
-if (command === 'cancel') {
-  const file = [STATE, STATE_FALLBACK].find((f) => existsSync(f));
-  if (!file) throw new Error(`Нечего отменять: нет ни ${STATE}, ни ${STATE_FALLBACK}`);
-  const s = JSON.parse(readFileSync(file, 'utf8')) as Shown;
+/** Отменить одну показанную бронь и дождаться, пока PMS это увидит */
+async function cancelOne(s: Shown): Promise<boolean> {
   await client.request('PUT', `/bookings/${encodeURIComponent(s.bookingId)}`, {
     ...bookingBody(s, 'cancelled'),
   });
   console.log(`отмена отправлена в Channex: ${s.code}`);
   if (!s.number) {
     console.log('номера брони в PMS не знаем — проверьте «Каналы» и карточку руками');
-    process.exit(0);
+    forget(s.bookingId);
+    return true;
   }
   let status = '';
   for (let i = 0; i < 36 && status !== 'CANCELLED'; i++) {
@@ -164,7 +199,26 @@ if (command === 'cancel') {
       ? `ок: бронь ${s.number} отменена, свободно снова ${back}`
       : `НЕ ОТМЕНИЛАСЬ: ${s.number} в статусе ${status} — разберите руками`,
   );
-  process.exit(status === 'CANCELLED' ? 0 : 1);
+  if (status === 'CANCELLED') forget(s.bookingId);
+  return status === 'CANCELLED';
+}
+
+const command = process.argv[2] ?? 'create';
+
+if (command === 'cancel') {
+  const only = process.argv[3];
+  const all = readShown();
+  const list = only ? all.filter((x) => x.bookingId === only) : all;
+  if (list.length === 0)
+    throw new Error(
+      only
+        ? `Показа с id ${only} в памяти нет: ${STATE} / ${STATE_FALLBACK}`
+        : `Нечего отменять: нет ни ${STATE}, ни ${STATE_FALLBACK}`,
+    );
+  console.log(`отменяю показов: ${list.length}`);
+  let bad = 0;
+  for (const s of list) if (!(await cancelOne(s))) bad++;
+  process.exit(bad ? 1 : 0);
 }
 
 if (command !== 'create') throw new Error(`Неизвестная команда: ${command}`);

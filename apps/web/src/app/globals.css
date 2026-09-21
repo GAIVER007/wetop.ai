@@ -1670,12 +1670,15 @@ td.empty-state {
   color: var(--text);
 }
 .date-field__pop {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  /* верхний слой (Popover API): координаты окна из компонента; сбрасываем стили браузера для [popover] */
+  position: fixed;
+  inset: auto;
   z-index: var(--layer-overlay);
   width: 296px;
+  height: auto;
+  margin: 0;
   padding: 8px;
+  overflow: visible;
   background: var(--surface-elevated, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1685,9 +1688,10 @@ td.empty-state {
   font-size: var(--text-sm);
   text-align: left;
 }
-.date-field__pop--right {
-  left: auto;
-  right: 0;
+/* в каталоге календарь раскрыт сразу и стоит в потоке под полем */
+.date-field__pop--inline {
+  position: static;
+  margin-top: 4px;
 }
 .date-field__head {
   display: flex;

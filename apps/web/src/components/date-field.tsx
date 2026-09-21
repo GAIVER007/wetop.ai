@@ -39,6 +39,9 @@ const MONTHS_OF = [
   'декабря',
 ];
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+/** размеры всплывающего календаря (см. .date-field__pop): нужны, чтобы не выйти за окно */
+const POP_W = 296;
+const POP_H = 372;
 const DAY = 86_400_000;
 
 /** Сегодня по часам объекта (Asia/Almaty, UTC+5) — как считает остальная стойка */
@@ -90,13 +93,15 @@ export function DateInput({
   const initial =
     parse(typeof rest.defaultValue === 'string' ? rest.defaultValue : null) ?? parse(hotelToday())!;
   const [open, setOpen] = useState(!!defaultOpen);
-  const [alignRight, setAlignRight] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const [view, setView] = useState<Date>(() => monthStart(initial));
   const [cursor, setCursor] = useState<Date>(() => initial);
   const [hover, setHover] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const pop = useRef<HTMLDivElement>(null);
+  /** где стояло поле, когда календарь открыли: сдвинулось — координаты календаря устарели */
+  const anchor = useRef<{ top: number; left: number } | null>(null);
 
   const rangeFrom = () => {
     if (!rangeFromName || !input.current?.form) return null;
@@ -109,9 +114,18 @@ export function DateInput({
     setCursor(current);
     setView(monthStart(current));
     setHover(null);
-    // календарь 296 px: у поля возле правого края окна открываем к левому краю поля
+    // Календарь стоит в координатах окна (position: fixed): так он не обрезается прокруткой
+    // панели брони и не упирается в края окна — у правого края открывается влево от поля,
+    // у нижнего — над полем
     const box = input.current?.getBoundingClientRect();
-    setAlignRight(!!box && box.left + 296 > window.innerWidth);
+    anchor.current = box ? { top: box.top, left: box.left } : null;
+    if (box) {
+      const left = box.left + POP_W > window.innerWidth ? Math.max(8, box.right - POP_W) : box.left;
+      const below = box.bottom + 4;
+      const top =
+        below + POP_H > window.innerHeight && box.top - 4 - POP_H > 0 ? box.top - 4 - POP_H : below;
+      setPos({ top, left });
+    }
     setOpen(true);
   };
   const close = (focusButton = true) => {
@@ -119,19 +133,62 @@ export function DateInput({
     if (focusButton) button.current?.focus();
   };
 
+  // Поле обычно лежит внутри <label> (Field): имя поля для программы чтения собирается из всего
+  // текста подписи — вместе с «Открыть календарь» у кнопки, и «Заезд» превращается в «Заезд Открыть
+  // календарь». Даём полю подпись без кнопки — тем же словом, что стоит в <label>.
+  useEffect(() => {
+    const el = input.current;
+    const label = el?.closest('label');
+    if (!el || !label || el.getAttribute('aria-label')) return;
+    const text = Array.from(label.childNodes)
+      .filter((n) => !(n instanceof Element && n.contains(el)))
+      .map((n) => n.textContent ?? '')
+      .join('')
+      .trim();
+    if (text) el.setAttribute('aria-label', text);
+  }, []);
   useEffect(() => {
     if (!open || defaultOpen) return;
     const onDown = (e: MouseEvent) => {
       if (!pop.current?.contains(e.target as Node) && !button.current?.contains(e.target as Node))
         setOpen(false);
     };
+    // прокрутка страницы или панели и смена размера окна закрывают календарь, если поле и вправду
+    // сдвинулось: его координаты в окне устарели. Сам факт события — нет: панель брони отдаёт
+    // `scroll` уже от вставки календаря в разметку, не сдвигая ничего
+    const onMove = () => {
+      const box = input.current?.getBoundingClientRect();
+      const was = anchor.current;
+      if (!box || !was || Math.abs(box.top - was.top) > 1 || Math.abs(box.left - was.left) > 1)
+        close();
+    };
     document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
+    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onMove);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onMove);
+    };
+  }, [open, defaultOpen]);
+  // показать в верхнем слое; без поддержки Popover API остаётся обычный fixed у своего места
+  useEffect(() => {
+    const el = pop.current;
+    if (open && !defaultOpen && el && typeof el.showPopover === 'function') {
+      try {
+        el.showPopover();
+      } catch {
+        /* уже показан */
+      }
+    }
   }, [open, defaultOpen]);
   // фокус — на дне под курсором (после смены месяца с клавиатуры кнопка новая, поэтому по ключу)
   useEffect(() => {
+    // без прокрутки: календарь стоит в координатах окна, а прокрутка панели закрыла бы его
     if (open && !defaultOpen)
-      pop.current?.querySelector<HTMLButtonElement>(`[data-date="${iso(cursor)}"]`)?.focus();
+      pop.current
+        ?.querySelector<HTMLButtonElement>(`[data-date="${iso(cursor)}"]`)
+        ?.focus({ preventScroll: true });
   }, [open, cursor, defaultOpen]);
 
   const select = (d: Date) => {
@@ -203,7 +260,11 @@ export function DateInput({
         <div
           ref={pop}
           id={popId}
-          className={cx('date-field__pop', alignRight && 'date-field__pop--right')}
+          className={cx('date-field__pop', defaultOpen && 'date-field__pop--inline')}
+          // верхний слой браузера (Popover API): панель брони стоит с backdrop-filter, и обычный
+          // position: fixed внутри неё считался бы от панели, а не от окна. В каталоге — в потоке
+          popover={defaultOpen ? undefined : 'manual'}
+          style={pos && !defaultOpen ? { top: pos.top, left: pos.left } : undefined}
           role="dialog"
           aria-label="Календарь"
           onKeyDown={onKey}

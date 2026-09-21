@@ -78,3 +78,50 @@ test('телефон: кнопки календаря нет, родное по�
   await expect(from.getByRole('button', { name: 'Открыть календарь' })).toBeHidden();
   await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
 });
+
+test('панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/chessboard');
+  await page.getByTestId('stay-cell').first().click();
+  const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole('tab', { name: 'Действия', exact: true }).click();
+  const departure = drawer.locator('.date-field', {
+    has: page.locator('input[name="departureDate"]'),
+  });
+  // имя поля для программы чтения — только слово подписи, без «Открыть календарь»
+  await expect(drawer.getByLabel('Выезд', { exact: true })).toHaveAttribute(
+    'name',
+    'departureDate',
+  );
+  await departure.getByRole('button', { name: 'Открыть календарь' }).click();
+  const calendar = page.getByRole('dialog', { name: 'Календарь' });
+  await expect(calendar).toBeVisible();
+  // целиком в окне — панель прокручивается, а календарь стоит в координатах окна
+  const box = (await calendar.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(1440);
+  expect(box.y + box.height).toBeLessThanOrEqual(1000);
+  // не обрезан и не перекрыт: точка в его центре принадлежит календарю
+  const hit = await page.evaluate(
+    ([x, y]) => document.elementFromPoint(x, y)?.closest('.date-field__pop') !== null,
+    [box.x + box.width / 2, box.y + box.height / 2],
+  );
+  expect(hit, 'календарь обрезан прокруткой панели или перекрыт').toBe(true);
+  // Escape закрывает календарь, а не панель
+  await page.keyboard.press('Escape');
+  await expect(calendar).toBeHidden();
+  await expect(drawer).toBeVisible();
+  await departure.getByRole('button', { name: 'Открыть календарь' }).click();
+  await expect(calendar).toBeVisible();
+  // выбор дня пишет дату в поле панели: день после выезда
+  const before = await drawer.locator('input[name="departureDate"]').inputValue();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
+  await expect(calendar).toBeHidden();
+  const after = await drawer.locator('input[name="departureDate"]').inputValue();
+  expect(Date.parse(after) - Date.parse(before)).toBe(86_400_000);
+});

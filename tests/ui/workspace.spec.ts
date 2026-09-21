@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -27,9 +27,12 @@ test('все разделы, карточки и печать открывают
   test.setTimeout(180_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  // отказ measure приходит и как console.error, и как необработанное исключение страницы
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) errors.push(error.message);
+  });
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error' && !devNoise.test(message.text())) errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
@@ -46,20 +49,20 @@ test('все разделы, карточки и печать открывают
     ['/journal', 'Журнал действий'],
     ['/incidents', 'Неисправности'],
     ['/analytics', 'Аналитика сайта'],
-    ['/analytics/setup', 'Подключение счётчика'],
+    ['/analytics/setup', 'Настройки сайта'],
     ['/rooms', 'Управление номерами'],
     ['/rooms/categories', 'Категории номеров'],
     ['/rooms/availability', 'Доступность номеров'],
-    ['/hotel-settings', 'Настройка гостиницы'],
-    ['/hotel-settings/check-in', 'Заезд и выезд'],
-    ['/hotel-settings/penalties', 'Штрафы'],
+    ['/hotel-settings', 'Настройки гостиницы'],
+    ['/hotel-settings/check-in', 'Настройки гостиницы'],
+    ['/hotel-settings/penalties', 'Правила отмены'],
     ['/hotel-settings/services', 'Услуги'],
-    ['/hotel-settings/description', 'Описание'],
-    ['/hotel-settings/photos', 'Фото'],
-    ['/hotel-settings/amenities', 'Удобства'],
+    ['/hotel-settings/description', 'Настройки гостиницы'],
+    ['/hotel-settings/photos', 'Интеграции'],
+    ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/statistics', 'Статистика'],
     ['/channel-manager', 'Менеджер каналов'],
-    ['/connections', 'Подключения API'],
+    ['/connections', 'Интеграции'],
   ];
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -109,7 +112,7 @@ test('вложенные разделы: раскрытие, один актив
   ).not.toBeVisible();
   await page.goto('/analytics/setup');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Настройки сайта');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -117,7 +120,11 @@ test('вложенные разделы: раскрытие, один актив
     'aria-expanded',
     'true',
   );
-  await menu.getByRole('link', { name: 'Услуги', exact: true }).click();
+  await menu.getByRole('link', { name: 'Гостиница', exact: true }).click();
+  await page
+    .getByRole('navigation', { name: 'Настройки гостиницы' })
+    .getByRole('link', { name: 'Услуги', exact: true })
+    .click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Услуги');
   await expect(menu).not.toBeVisible();
   await noPageOverflow(page);
@@ -178,23 +185,16 @@ test('подключения показывают частичный сбой, �
     'Не удалось проверить webhook',
   );
   await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
-  // Фото, описание и удобства читаются из Channex (ADR-033): только просмотр, источник подписан
-  await page.goto('/hotel-settings/photos');
-  await expect(page.getByTestId('content-photos').getByRole('img', { name: 'Фасад' })).toHaveCount(
-    1,
-  );
-  await expect(page.getByRole('main').getByTestId('content-source')).toContainText('Channex');
-  await page.goto('/hotel-settings/amenities');
-  await expect(page.getByTestId('content-facilities')).toContainText('WiFi');
-  // значение — у своего факта и внутри main: при переходе Next держит уходящую страницу в DOM,
-  // и тот же факт находился дважды (TESTING.md §3)
-  await expect(
-    page.getByRole('main').locator('.fact__label:text-is("Животные") + .fact__value'),
-  ).toHaveText('нельзя');
+  // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
+  for (const section of ['photos', 'amenities']) {
+    await page.goto(`/hotel-settings/${section}`);
+    await expect(page).toHaveURL(/\/connections#channex-connection$/);
+    // при переходе Next на миг держит уходящую страницу в скрытом узле стрима — ищем в видимом main
+    await expect(page.getByRole('main').getByTestId('channel-content-location')).toBeVisible();
+  }
   await page.goto('/hotel-settings/description');
-  await expect(page.getByRole('main').getByTestId('content-description')).toContainText(
-    'Вымышленное описание',
-  );
+  await expect(page).toHaveURL(/\/hotel-settings$/);
+  await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
@@ -263,9 +263,11 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   await expect(page.locator('.board-stay-caption').filter({ hasText: '←' }).first()).toBeVisible();
-  await page.getByLabel('Категория на шахматке').selectOption('MALE');
+  // после второго перехода уходящая страница на миг остаётся в скрытом узле стрима — ищем в main
+  const board = page.getByRole('main');
+  await board.getByLabel('Категория на шахматке').selectOption('MALE');
   await expect(page.getByTestId('unit-row')).toHaveCount(36);
-  await page.getByLabel('Поиск на шахматке').fill('M03');
+  await board.getByLabel('Поиск на шахматке').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   await expect(page).toHaveURL(/unit=M03/);
@@ -415,8 +417,12 @@ test('аналитика: период дольше года и отклонён
   await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/analytics/setup');
-  // .first(): ~300 мс после загрузки стойка держит две копии страницы (потоковый сегмент Next)
-  await expect(page.getByText(/Демо бронирования делает настоящую бронь/).first()).toBeVisible();
+  await page
+    .locator('summary')
+    .getByText('Установка виджета бронирования', { exact: true })
+    .click();
+  await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
+  await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
 });
 
 test('карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки', async ({
@@ -458,8 +464,8 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  // с 20.09 меню разложено по группам, открыта одна (ADR-057): «Неисправности» лежит в «Контроле»,
-  // и до раскрытия группы ссылки на экране нет — сперва раскрываем, как это делает navigation.spec
+  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет; раскрываем,
+  // только если группа свёрнута — иначе щелчок её закроет (правка ветки PR #28)
   const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
   const toggle = control.getByRole('button');
   if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
@@ -602,6 +608,7 @@ test('ошибка буфера обмена видна, код остаётся
     });
   });
   await page.goto('/analytics/setup');
+  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
   await page.getByRole('button', { name: 'Скопировать код' }).first().click();
   await expect(
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Не удалось скопировать' }),
@@ -725,10 +732,10 @@ test('настройки: подсказка про услуги ведёт во
   await page.goto('/hotel-settings/services');
   await expect(page.getByText('«Счета»')).toBeVisible();
   await expect(page.getByText('«Финансы»')).toHaveCount(0);
-  // описание: сведения PMS и описание из Channex — две разные панели с двумя разными адресами
   await page.goto('/hotel-settings/description');
-  await expect(page.getByText('Сведения об объекте в PMS', { exact: true }).first()).toBeVisible();
-  await expect(page.getByText(/Здесь — то, что знает PMS/).first()).toBeVisible();
+  await expect(page).toHaveURL(/\/hotel-settings$/);
+  await expect(page.getByTestId('stored-property')).toContainText('Сведения гостиницы в PMS');
+  await expect(page.getByTestId('content-description')).toHaveCount(0);
 });
 
 test('тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список', async ({
@@ -766,9 +773,9 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByTestId('hosts-save').click();
   await expect(page.getByTestId('hosts-result')).toContainText('updated.example.invalid');
   await page.getByTestId('site-toggle').click();
-  await expect(page.getByTestId('site-card-status')).toHaveText('на паузе');
+  await expect(page.getByTestId('site-card-status')).toHaveText('Счётчик на паузе');
   await page.getByTestId('site-toggle').click();
-  await expect(page.getByTestId('site-card-status')).toHaveText('включён');
+  await expect(page.getByTestId('site-card-status')).toHaveText('Счётчик включён');
   await page.getByTestId('booking-enabled').uncheck();
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
@@ -954,13 +961,11 @@ test('настройки услуг: путь к начислению назва
   await expect(page.getByTestId('guests-today-count')).toBeVisible();
 });
 
-test('описание объекта: два адреса подписаны источником — PMS и Channex', async ({ page }) => {
+test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
   await page.goto('/hotel-settings/description');
-  // Адресов на экране два: в PMS его меняет стойка, в Channex — кабинет канала. Без подписи
-  // при расхождении непонятно, какой из них правит администратор.
+  await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByTestId('stored-property')).toContainText('Адрес в PMS');
-  await expect(page.getByText('Адрес в Channex')).toBeVisible();
-  await expect(page.getByText('Адрес', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Адрес в Channex')).toHaveCount(0);
 });
 
 test('кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони', async ({
@@ -1035,6 +1040,11 @@ test('номера: сбой шахматки назван сбоем, а не �
  */
 test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
   await page.goto('/analytics/setup');
+  await page
+    .locator('summary')
+    .getByText('Установка виджета бронирования', { exact: true })
+    .click();
+  await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
   await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
   // DESIGN.md §14: стрелок в конце текста ссылок нет
   await expect(page.getByTestId('site-card')).not.toContainText('↗');
@@ -1075,7 +1085,8 @@ test('каналы: сбой сводки фонда не уносит очер�
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/channels');
   await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
-  await expect(page.getByTestId('inventory-failed')).toBeVisible();
+  // повторный заход на тот же адрес: уходящая страница на миг остаётся в скрытом узле стрима
+  await expect(page.getByRole('main').getByTestId('inventory-failed')).toBeVisible();
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
 });
 

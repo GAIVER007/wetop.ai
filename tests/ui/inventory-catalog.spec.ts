@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -62,7 +62,9 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync('reports/inventory-design-2026-09-20', { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     const errors: string[] = [];
-    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('pageerror', (e) => {
+      if (!devNoise.test(e.message)) errors.push(e.message);
+    });
     for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/inventory');

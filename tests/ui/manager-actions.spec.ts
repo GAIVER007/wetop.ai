@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, devNoise } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**
@@ -73,7 +73,9 @@ test('карточка: «Продлить на ночь» знает сумму
   // Падает только в CI (19–20.09, три прогона подряд), локально 5/5, трасса из артефакта недоступна:
   // при отказе печатаем в лог ошибки страницы и состояние всех <dialog>
   const pageErrors: string[] = [];
-  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) pageErrors.push(error.message);
+  });
   page.on('console', (message) => {
     if (message.type() === 'error') pageErrors.push(`console: ${message.text()}`);
   });

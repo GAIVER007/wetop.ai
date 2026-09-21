@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -41,8 +41,10 @@ test('мобильный статус и поиск сохраняются в UR
   await expect(page).toHaveURL(/status=CONFIRMED/);
   await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(1);
   await page.reload();
-  await expect(page.getByLabel('Статус брони', { exact: true })).toHaveValue('CONFIRMED');
-  await expect(page.getByLabel('Поиск броней')).toHaveValue('Тестовый');
+  // после перезагрузки уходящая страница на миг остаётся в скрытом узле стрима — ищем в видимом main
+  const filters = page.getByRole('main');
+  await expect(filters.getByLabel('Статус брони', { exact: true })).toHaveValue('CONFIRMED');
+  await expect(filters.getByLabel('Поиск броней')).toHaveValue('Тестовый');
   await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -53,7 +55,9 @@ for (const theme of ['light', 'dark'] as const) {
   test(`Брони: ${theme}, читаемый список на пяти ширинах`, async ({ page }) => {
     test.setTimeout(120_000);
     const errors: string[] = [];
-    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('pageerror', (e) => {
+      if (!devNoise.test(e.message)) errors.push(e.message);
+    });
     page.on('console', (e) => {
       if (e.type() === 'error') errors.push(e.text());
     });

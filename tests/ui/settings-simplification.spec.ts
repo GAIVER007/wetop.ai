@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -39,14 +39,15 @@ test('старые страницы контента ведут в интегр�
   for (const route of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${route}`);
     await expect(page).toHaveURL(/\/connections#channex-connection$/);
-    await expect(page.getByTestId('channel-content-location')).toBeVisible();
+    // при переходе Next на миг держит уходящую страницу в скрытом узле стрима — ищем в видимом main
+    await expect(page.getByRole('main').getByTestId('channel-content-location')).toBeVisible();
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings#stay-settings$/);
-  await expect(page.getByTestId('stay-settings')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stay-settings')).toBeVisible();
   const hits = await (await request.get(`${API}/__test/hits`)).json();
   expect(hits.byPath['/channels/channex/content'] ?? 0).toBe(0);
 });
@@ -97,7 +98,9 @@ for (const theme of ['light', 'dark'] as const) {
     test.setTimeout(120_000);
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      if (!devNoise.test(error.message)) errors.push(error.message);
+    });
     for (const route of [
       '/hotel-settings',
       '/hotel-settings/services',

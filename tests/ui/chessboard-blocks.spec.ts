@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * План дизайн-системы §10 п. 3 и 4 (18.09.2026): клетка блокировки на шахматке.

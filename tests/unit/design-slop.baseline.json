@@ -1,0 +1,66 @@
+{
+  "color-literal": {},
+  "space-off-scale": {
+    "apps/web/src/app/chessboard/board.css": 14,
+    "apps/web/src/app/directory.css": 11,
+    "apps/web/src/app/globals.css": 74,
+    "apps/web/src/app/login/login.css": 1,
+    "apps/web/src/app/management/hotel.css": 24,
+    "apps/web/src/app/premium.css": 148,
+    "apps/web/src/app/rooms/rooms.css": 17,
+    "apps/web/src/app/today/dashboard.css": 33,
+    "apps/web/src/app/today/desk.css": 11,
+    "apps/web/src/app/workspace.css": 84
+  },
+  "uppercase": {
+    "apps/web/src/app/globals.css": 1,
+    "apps/web/src/app/today/dashboard.css": 1
+  },
+  "shadow-on-page": {
+    "apps/web/src/app/globals.css": 1,
+    "apps/web/src/app/management/hotel.css": 1,
+    "apps/web/src/app/premium.css": 4,
+    "apps/web/src/app/today/dashboard.css": 1,
+    "apps/web/src/app/workspace.css": 2
+  },
+  "window-confirm": {},
+  "dot-separator": {
+    "apps/web/src/app/chessboard/board-grid.tsx": 7,
+    "apps/web/src/app/chessboard/page.tsx": 1,
+    "apps/web/src/app/guests/[id]/guest-forms.tsx": 3,
+    "apps/web/src/app/layout.tsx": 1,
+    "apps/web/src/app/reservations/[number]/finance-panel.tsx": 1,
+    "apps/web/src/app/reservations/[number]/page.tsx": 1,
+    "apps/web/src/app/rooms/room-grid.tsx": 1,
+    "apps/web/src/app/today/dashboard-panels.tsx": 4,
+    "apps/web/src/app/today/dashboard-widgets.tsx": 1,
+    "apps/web/src/app/today/day-attention.tsx": 3,
+    "apps/web/src/app/today/desk-strip.tsx": 1,
+    "apps/web/src/app/today/kpi.tsx": 6,
+    "apps/web/src/app/today/period-bar.tsx": 3,
+    "apps/web/src/app/units/[code]/page.tsx": 3,
+    "apps/web/src/app/units/[code]/unit-actions.tsx": 4,
+    "apps/web/src/components/data-freshness.tsx": 2,
+    "apps/web/src/components/shell/sidebar.tsx": 2,
+    "apps/web/src/components/top-nav.tsx": 1
+  },
+  "trailing-arrow": {},
+  "font-under-12": {},
+  "radius-literal": {
+    "apps/web/src/app/chessboard/board.css": 1,
+    "apps/web/src/app/directory.css": 1,
+    "apps/web/src/app/globals.css": 4,
+    "apps/web/src/app/management/hotel.css": 5,
+    "apps/web/src/app/premium.css": 27,
+    "apps/web/src/app/rooms/rooms.css": 2,
+    "apps/web/src/app/today/dashboard.css": 7,
+    "apps/web/src/app/today/desk.css": 4,
+    "apps/web/src/app/workspace.css": 20
+  },
+  "z-index-literal": {
+    "apps/web/src/app/chessboard/board.css": 4,
+    "apps/web/src/app/globals.css": 3,
+    "apps/web/src/app/premium.css": 6,
+    "apps/web/src/app/workspace.css": 5
+  }
+}

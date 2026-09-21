@@ -39,8 +39,28 @@ export function judgeDeskPage(page: DeskPage, expected: (html: string) => boolea
       detail: `стойка недоступна отсюда: ${page.unreachable ?? page.url}`,
     };
   }
-  const ok = page.status === 200 && expected(page.html);
-  return { verdict: ok ? 'ok' : 'fail', detail: `HTTP ${page.status}` };
+  if (page.status !== 200) return { verdict: 'fail', detail: `HTTP ${page.status}` };
+  if (expected(page.html)) return { verdict: 'ok', detail: 'HTTP 200' };
+
+  /**
+   * Дальше — почему не нашлось. До 21.09.2026 здесь было голое «FAIL HTTP 200», и по живому прогону
+   * на сервере (бронь канала, шахматка и «Менеджер каналов») по этой строке нельзя было отличить
+   * «стойка не пустила» от «страница показывает сбой загрузки» и от «страница в порядке, а брони на ней
+   * нет». Разбор упирался в лишний заход на сервер — поэтому причина называется сразу.
+   */
+  // Страница входа по тому же адресу: замок отвечает не перебросом, а подменой содержимого
+  if (page.html.includes('name="password"'))
+    return { verdict: 'locked', detail: 'по этому адресу отдан экран входа: нет сессии' };
+  const failed = /data-testid="[a-z0-9-]*error"/.exec(page.html);
+  if (failed)
+    return {
+      verdict: 'fail',
+      detail: `страница открылась, но показывает сбой загрузки (${failed[0]})`,
+    };
+  return {
+    verdict: 'fail',
+    detail: `HTTP 200, ${page.html.length} знаков: страница открылась, искомого на ней нет`,
+  };
 }
 
 export function deskHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, string> {

@@ -21,6 +21,8 @@ describe('classifyError', () => {
       'connect ECONNREFUSED 127.0.0.1:5432',
       "P1001: Can't reach database server",
       'The operation was aborted due to timeout',
+      // P1017 приходит без кода в тексте — только фразой (api.error от 20.09.2026)
+      'Invalid `this.prisma.db.externalEvent.findFirst()` invocation in\n\n→ 443   const row = await …\nServer has closed the connection.',
     ])
       expect(classifyError(t), t).toBe('transient');
   });

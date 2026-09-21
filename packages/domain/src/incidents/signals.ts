@@ -19,6 +19,9 @@ const TRANSIENT = [
   /time(?:d)? ?out|aborted/i,
   /\bP(?:1001|1002|1017|2024)\b|Can't reach database|Connection terminated|terminating connection/i,
   /\b08006\b|\b08001\b|EAUTHTIMEOUT|Database error\. Code: `08/i,
+  // Prisma P1017: код лежит в `e.code`, в тексте — только эта фраза. 20.09.2026 такой обрыв с Mac
+  // разработчика записался неисправностью «ошибка программы» и ждал человека сутки.
+  /Server has closed the connection|Connection reset by peer/i,
 ];
 
 export function classifyError(text: string | null | undefined): 'transient' | 'permanent' {

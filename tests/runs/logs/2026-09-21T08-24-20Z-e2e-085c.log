@@ -1,0 +1,130 @@
+# Сквозные (e2e) · 21.09.2026 13:24 Алматы · vm
+# коммит 41f5b39 (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/incidents-design.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (16.4s)
+  ✘  2 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (16.0s)
+  ✘  3 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (15.9s)
+  ✓  4 tests/ui/incidents-design.spec.ts:94:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (6.4s)
+
+
+  1) tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('incident-row').first()
+    Expected substring: "Стойка PMS не отвечает"
+    Received string:    "не срочно Тестовая бронь без назначенной ячейкиданные — решает человекзамечена2026-09-21 12:00не чинит — не его классВзять в работуЗакрыть"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('incident-row').first() with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('incident-row').first()
+        33 × locator resolved to <tr data-id="ui-incident" data-testid="incident-row" data-kind="stay.unassigned">…</tr>
+           - unexpected value "не срочно Тестовая бронь без назначенной ячейкиданные — решает человекзамечена2026-09-21 12:00не чинит — не его классВзять в работуЗакрыть"
+
+
+      27 |
+      28 |   // порядок: срочная техника первой, принятая — последней (раньше первой шла бронь без ячейки)
+    > 29 |   await expect(rows.first()).toContainText('Стойка PMS не отвечает');
+         |                              ^
+      30 |   await expect(rows.last()).toContainText('Синхронизации суток из Exely');
+      31 |
+      32 |   // все четыре открытые видны без прокрутки: сводка и состояние сторожа не занимают экран
+        at /home/user/wetop.ai/tests/ui/incidents-design.spec.ts:29:30
+
+    Error Context: test-results/incidents-design-неисправн-e5c48-емя-и-ответственный-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/incidents-design-неисправн-e5c48-емя-и-ответственный-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/incidents-design-неисправн-e5c48-емя-и-ответственный-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('Срочность')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByLabel('Срочность') with timeout 15000ms
+      - waiting for getByLabel('Срочность')
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      59 |   await page.goto('/incidents');
+      60 |   // два выпадающих списка заменены чипами: они же показывают, сколько чего открыто
+    > 61 |   await expect(page.getByLabel('Срочность')).toHaveCount(0);
+         |                                              ^
+      62 |   await expect(page.getByLabel('Статус неисправности')).toHaveCount(0);
+      63 |
+      64 |   const chip = (name: string) => main.getByRole('button', { name });
+        at /home/user/wetop.ai/tests/ui/incidents-design.spec.ts:61:46
+
+    Error Context: test-results/incidents-design-неисправн-54257--двух-списков-поиск-и-сброс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/incidents-design-неисправн-54257--двух-списков-поиск-и-сброс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/incidents-design-неисправн-54257--двух-списков-поиск-и-сброс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('incidents-closed')
+    Expected substring: "Закрыты за сутки: 3"
+    Received string:    "Что случилосьЗамеченаЗакрытаКемWebhook Channex под подозрением: адрес не отвечает21.09, 13:0721.09, 13:10сторожАдрес webhook Channex не отвечает — брони доходят только опросом ленты21.09, 13:0121.09, 13:10сторожСтойка PMS не отвечает20.09, 16:2520.09, 16:31сторож"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('incidents-closed') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('incidents-closed')
+        33 × locator resolved to <table data-testid="incidents-closed" class="tbl tbl--sm dir-table dir-table--incidents-closed control-table">…</table>
+           - unexpected value "Что случилосьЗамеченаЗакрытаКемWebhook Channex под подозрением: адрес не отвечает21.09, 13:0721.09, 13:10сторожАдрес webhook Channex не отвечает — брони доходят только опросом ленты21.09, 13:0121.09, 13:10сторожСтойка PMS не отвечает20.09, 16:2520.09, 16:31сторож"
+
+
+      85 |   await page.goto('/incidents');
+      86 |   const history = main.getByTestId('incidents-closed');
+    > 87 |   await expect(history).toContainText('Закрыты за сутки: 3');
+         |                         ^
+      88 |   await expect(main.getByTestId('incidents-closed-row')).toHaveCount(0);
+      89 |   await history.getByRole('group').or(history.locator('summary')).first().click();
+      90 |   await expect(main.getByTestId('incidents-closed-row')).toHaveCount(3);
+        at /home/user/wetop.ai/tests/ui/incidents-design.spec.ts:87:25
+
+    Error Context: test-results/incidents-design-неисправн-1bc23-шку-и-открываются-по-щелчку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/incidents-design-неисправн-1bc23-шку-и-открываются-по-щелчку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/incidents-design-неисправн-1bc23-шку-и-открываются-по-щелчку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами 
+    tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс 
+    tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку 
+  1 passed (1.1m)
+
+# код выхода 1 · 1 мин 5 с

@@ -845,6 +845,89 @@ const incidentSeed: Incident = {
 };
 let incident = structuredClone(incidentSeed);
 
+/**
+ * Смена видит не одну неисправность, а несколько разом (снимок владельца 21.09.2026): срочная
+ * техника, ошибка кода и данные, плюс закрытые за сутки. `POST /__test/control {"incidentsMix": true}`
+ * даёт это состояние, не трогая одиночный сид, на котором стоят прежние спеки.
+ */
+const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString();
+const mixIncidents = (): Incident[] => [
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-down',
+    kind: 'desk.down',
+    class: 'A',
+    severity: 'CRITICAL',
+    status: 'ESCALATED',
+    title: 'Стойка PMS не отвечает',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 1226,
+    firstSeenAt: hoursAgo(20.5),
+    lastSeenAt: new Date().toISOString(),
+    fixAttempts: 2,
+    lastFixAt: hoursAgo(20),
+    lastFixResult: 'перезапуск стойки на этой машине не настроен (нет launchd)',
+    alertedAt: hoursAgo(20.4),
+  },
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-http',
+    kind: 'api.error',
+    class: 'C',
+    severity: 'WARNING',
+    status: 'ESCALATED',
+    title: 'Ошибка программы (HTTP 500) на GET /system/freshness',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 47,
+    firstSeenAt: hoursAgo(11),
+    lastSeenAt: hoursAgo(0.2),
+    alertedAt: hoursAgo(4),
+  },
+  {
+    ...structuredClone(incidentSeed),
+    id: 'ui-incident-exely',
+    kind: 'exely.sync.stale',
+    class: 'B',
+    severity: 'WARNING',
+    status: 'ACKNOWLEDGED',
+    title: 'Синхронизации суток из Exely не было ни разу',
+    subjectType: null,
+    subjectId: null,
+    occurrences: 998,
+    firstSeenAt: hoursAgo(16.6),
+    lastSeenAt: new Date().toISOString(),
+    alertedAt: hoursAgo(0.5),
+    acknowledgedAt: hoursAgo(0.3),
+  },
+];
+const mixClosed = (): Incident[] =>
+  [
+    ['Webhook Channex под подозрением: адрес не отвечает', 'GUARD', 0.3, 0.25] as const,
+    [
+      'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',
+      'GUARD',
+      0.4,
+      0.25,
+    ] as const,
+    ['Стойка PMS не отвечает', 'GUARD', 21, 20.9] as const,
+  ].map(([title, by, seen, closed], i) => ({
+    ...structuredClone(incidentSeed),
+    id: `ui-incident-closed-${i}`,
+    kind: 'desk.down',
+    class: 'A' as const,
+    status: 'RESOLVED' as const,
+    title,
+    firstSeenAt: hoursAgo(seen),
+    lastSeenAt: hoursAgo(closed),
+    resolvedAt: hoursAgo(closed),
+    resolvedBy: by,
+  }));
+/** Дополнительные неисправности сверх одиночного сида: пусто, пока режим не включён */
+let extraIncidents: Incident[] = [];
+let guardTick = false;
+
 function desk(date: string): DeskDay {
   const rows = allCards().flatMap((r) =>
     r.items.map(
@@ -1363,16 +1446,31 @@ function read(path: string, q: URLSearchParams): unknown {
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
-  if (path === '/guard/status')
+  if (path === '/guard/status') {
+    const live = [incident, ...extraIncidents].filter((i) => i.status !== 'RESOLVED');
     return {
       running: true,
-      autofix: false,
+      autofix: guardTick,
       propertyLive: true,
       notifier: { configured: true, recipients: 1 },
       dbDownSince: null,
-      lastTick: null,
-      open: { total: incident.status === 'RESOLVED' ? 0 : 1, critical: 0, escalated: 0 },
+      lastTick: guardTick
+        ? {
+            at: new Date(Date.now() - 90_000).toISOString(),
+            durationMs: 420,
+            dbOk: true,
+            checked: Array.from({ length: 13 }, (_, i) => `check-${i + 1}`),
+            checkErrors: [],
+            alertError: null,
+          }
+        : null,
+      open: {
+        total: live.length,
+        critical: live.filter((i) => i.severity === 'CRITICAL').length,
+        escalated: live.filter((i) => i.status === 'ESCALATED').length,
+      },
     };
+  }
   if (path === '/guard/incidents') {
     if (q.get('status') !== 'open' && incidentHistory > 0)
       return Array.from(
@@ -1385,7 +1483,8 @@ function read(path: string, q: URLSearchParams): unknown {
           resolvedBy: 'STAFF',
         }),
       );
-    return q.get('status') === 'open' && incident.status === 'RESOLVED' ? [] : [incident];
+    const rows = [incident, ...extraIncidents];
+    return q.get('status') === 'open' ? rows.filter((i) => i.status !== 'RESOLVED') : rows;
   }
   if (path === '/hotel/settings')
     return {
@@ -1989,6 +2088,8 @@ createServer(async (req, res) => {
           (c) => c.code === unit.accommodationTypeCode,
         )!.name;
       incident = structuredClone(incidentSeed);
+      extraIncidents = [];
+      guardTick = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -2074,6 +2175,10 @@ createServer(async (req, res) => {
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
+      if (body['incidentsMix'] === true) {
+        extraIncidents = [...mixIncidents(), ...mixClosed()];
+        guardTick = true;
+      }
       // долгое проживание: на объекте живут по три месяца, а доступность считается не дальше 62 ночей
       if (body['longStay'] === true) {
         card.departureDate = add(today, 90);
@@ -2257,7 +2362,8 @@ createServer(async (req, res) => {
     }
     // Вход по коду на почту снят 20.09.2026 (ADR-053): /auth/code и /auth/verify стенду не нужны.
     // Реальный API отвечает 404, а не общий 501 для неподдерживаемых операций демо.
-    if (path === '/auth/code' || path === '/auth/verify') return send(404, { message: 'Not Found' });
+    if (path === '/auth/code' || path === '/auth/verify')
+      return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/auth/register' && req.method === 'POST') {
@@ -2410,6 +2516,20 @@ createServer(async (req, res) => {
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
+    const guardAction = /^\/guard\/incidents\/([^/]+)\/(acknowledge|resolve)$/.exec(path);
+    if (guardAction && guardAction[1] !== 'ui-incident') {
+      const target = extraIncidents.find((i) => i.id === guardAction[1]);
+      if (!target) return send(404, { message: 'Неисправность не найдена' });
+      if (guardAction[2] === 'acknowledge') {
+        target.status = 'ACKNOWLEDGED';
+        target.acknowledgedAt = new Date().toISOString();
+      } else {
+        target.status = 'RESOLVED';
+        target.resolvedBy = 'STAFF';
+        target.resolvedAt = new Date().toISOString();
+      }
+      return send(200, target);
+    }
     if (path === '/guard/incidents/ui-incident/acknowledge') {
       incident.status = 'ACKNOWLEDGED';
       incident.acknowledgedAt = new Date().toISOString();

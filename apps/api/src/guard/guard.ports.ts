@@ -66,8 +66,14 @@ export interface GuardProbes {
   channexEnabled(): boolean;
   /** Выключатели фоновых задач из .env: проверять то, что выключено, — плодить ложные неисправности */
   /** ariOut — исходящий ARI не остановлен выключателем CHANNEX_ARI (Q-126) */
+  /**
+   * localFiles — отчёты сверок и журнал тестов читаются с диска рядом с кодом. В контейнере это
+   * СЛЕПОК на момент сборки образа: файлы там не меняются, и «сверка дала FAIL» или «падает набор»
+   * висели бы вечно, повторяя состояние дня сборки. На сервере выключается (разбор 21.09.2026).
+   */
   enabled(
-    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
+    what:
+      'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut' | 'localFiles',
   ): boolean;
   dbPing(): Promise<void>;
   webhook(): WebhookSignal;

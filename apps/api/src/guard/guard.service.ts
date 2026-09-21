@@ -490,7 +490,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       return out;
     });
 
-    const reports = this.probes.reports();
+    // Отчёты сверок и журнал тестов — файлы рядом с кодом; в контейнере это слепок дня сборки
+    const localFiles = this.probes.enabled('localFiles');
+    const reports = localFiles ? this.probes.reports() : null;
     if (reports)
       await run('reports', ['reconciliation.fail'], () =>
         reports
@@ -504,7 +506,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           })),
       );
 
-    const suites = this.probes.failingSuites();
+    const suites = localFiles ? this.probes.failingSuites() : null;
     if (suites)
       await run('tests', ['tests.failing'], () =>
         suites.map((t) => ({

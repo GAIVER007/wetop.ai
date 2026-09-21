@@ -1,0 +1,28 @@
+# Свой раннер GitHub Actions — отдельный проект Docker на том же сервере.
+# Отдельный намеренно: перерасход или падение раннера не должны задевать боевую PMS (проект pms-lux).
+#
+# Секреты — в файле .env рядом, вписывает владелец руками (SECURITY.md §3):
+#   RUNNER_REPO_URL=https://github.com/GAIVER007/wetop.ai
+#   RUNNER_TOKEN=…   токен регистрации: Settings → Actions → Runners → New self-hosted runner.
+#                    Живёт час и нужен ТОЛЬКО при первой настройке: дальше она лежит в томе.
+#
+# Сокета Docker здесь нет и не будет: он дал бы коду из любой ветки root на машине, где рядом
+# работают чужие проекты. Поэтому задача `миграции · integration · e2e` с `services: postgres`
+# остаётся на раннерах GitHub.
+name: pms-lux-ci
+services:
+  runner:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUNNER_LABELS: ${RUNNER_LABELS:-wetop}
+    volumes:
+      - runner-home:/home/runner/actions-runner
+    security_opt: ['no-new-privileges:true']
+    # Потолки: рядом работает боевая стойка, и браузерные проверки не должны её душить.
+    mem_limit: 3g
+    cpus: 1.5
+
+volumes:
+  runner-home:

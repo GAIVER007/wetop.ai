@@ -142,4 +142,20 @@
     display: inline;
     color: var(--muted);
   }
+  /* Окно правки цены — во всю ширину карточки, а не половины: привязанное к ячейке, оно
+     уезжало за левый край экрана (снимок 21.09) */
+  .rates-table tbody tr {
+    position: relative;
+  }
+  .rates-table .price-cell {
+    position: static;
+  }
+  .rates-table .price-editor {
+    top: auto;
+    right: var(--space-4);
+    bottom: 0;
+    left: var(--space-4);
+    flex-wrap: wrap;
+    transform: translateY(100%);
+  }
 }

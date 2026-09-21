@@ -80,6 +80,12 @@ test('цены: на телефоне строка складывается в �
   );
   await row.getByTestId('price-2026-10-01-1').getByTestId('price-cell-edit').click();
   await expect(page.getByTestId('price-cell-input')).toBeVisible();
+  // окно правки целиком на экране: привязанное к половине карточки, оно уезжало за левый край
+  const editor = await page.locator('.price-editor').boundingBox();
+  expect(editor, 'окно правки цены не нашлось').not.toBeNull();
+  expect(editor!.x, 'окно правки цены за левым краем экрана').toBeGreaterThanOrEqual(0);
+  expect(editor!.x + editor!.width, 'окно правки цены за правым краем').toBeLessThanOrEqual(390);
+  await expect(page.getByRole('button', { name: 'Сохранить цену' })).toBeInViewport();
 });
 
 test('массовое изменение: дни недели одной строкой, кнопка называет число изменений', async ({

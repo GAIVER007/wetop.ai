@@ -65,9 +65,12 @@ async function Statistics({ date }: { date: string }) {
   return (
     <>
       {form}
+      {/* Один <span>: `.directory-meta` — flex со `space-between`, и дата с <time> уезжала на середину строки (21.09) */}
       <p className="directory-meta" data-testid="statistics-meta">
-        Загрузка на <time dateTime={date}>{displayDate(date, 'numeric')}</time> по размещениям в
-        шахматке
+        <span>
+          Загрузка на <time dateTime={date}>{displayDate(date, 'numeric')}</time> по размещениям в
+          шахматке
+        </span>
       </p>
       {summary ? (
         <Stats>

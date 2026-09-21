@@ -39,7 +39,8 @@ test('старые страницы контента ведут в интегр�
   for (const route of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${route}`);
     await expect(page).toHaveURL(/\/connections#channex-connection$/);
-    await expect(page.getByTestId('channel-content-location')).toBeVisible();
+    // при переходе Next на миг держит уходящую страницу в скрытом узле стрима — ищем в видимом main
+    await expect(page.getByRole('main').getByTestId('channel-content-location')).toBeVisible();
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);

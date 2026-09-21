@@ -139,6 +139,11 @@ test('изменение уборки относится только к выб�
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
   await page.goto('/analytics/setup');
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
+  // После упрощения настроек код виджета лежит в свёртке: раскрываем её, как это делает пользователь
+  await page
+    .locator('summary')
+    .getByText('Установка виджета бронирования', { exact: true })
+    .click();
   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
 });

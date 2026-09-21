@@ -9,6 +9,14 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
+/**
+ * Шум `next dev`: React рисует собственную дорожку замеров в DevTools и на странице,
+ * пришедшей через redirect(), подаёт начало серверного рендера раньше timeOrigin вкладки.
+ * Браузер отвечает отказом `measure`. Это инструмент разработки, в сборке его нет —
+ * к ошибкам стойки не относится (разбор 21.09.2026).
+ */
+const devMeasureNoise = /Failed to execute 'measure' on 'Performance'/;
+
 async function noPageOverflow(page: Page) {
   const widths = await page.evaluate(() => {
     // The repository's test tsconfig targets Node; this callback runs in the browser.
@@ -29,7 +37,8 @@ test('все разделы, карточки и печать открывают
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error' && !devMeasureNoise.test(message.text()))
+      errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],
@@ -183,7 +192,8 @@ test('подключения показывают частичный сбой, �
   for (const section of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${section}`);
     await expect(page).toHaveURL(/\/connections#channex-connection$/);
-    await expect(page.getByTestId('channel-content-location')).toBeVisible();
+    // при переходе Next на миг держит уходящую страницу в скрытом узле стрима — ищем в видимом main
+    await expect(page.getByRole('main').getByTestId('channel-content-location')).toBeVisible();
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);

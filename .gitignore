@@ -80,3 +80,6 @@ design/reference/exely/*
 !design/reference/exely/.gitkeep
 tests/runs/.auth/
 .agent-tmp/
+
+# Ключ развёртывания дежурного агента на сервере (срез 12, шаг 12.3): кладёт владелец, в git не едет
+scripts/ops/guard/ssh/

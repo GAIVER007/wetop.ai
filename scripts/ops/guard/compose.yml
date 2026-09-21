@@ -1,0 +1,32 @@
+# Дежурный агент — отдельный проект Docker на том же сервере (plans/slice-12-guard-server.md, шаг 12.3).
+# Отдельный намеренно: падение или перерасход агента не должны задевать боевую PMS (проект pms-lux).
+#
+# Секреты — в файле .env рядом, вписывает владелец руками (SECURITY.md §3, правило 1.4 Академии):
+#   ANTHROPIC_API_KEY   ключ Anthropic, платный, только для этого агента
+#   GUARD_READ_KEY      ключ на чтение сторожа; тот же, что в .env боевой PMS
+#   TELEGRAM_BOT_TOKEN  токен бота; TELEGRAM_CHAT_ID — группа дежурных
+#   GUARD_REPO          адрес репозитория по SSH, например git@github.com:GAIVER007/wetop.ai.git
+# Ключ развёртывания GitHub кладётся файлом ./ssh/id_ed25519 (владелец, не в git).
+name: pms-lux-guard
+services:
+  guard-agent:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # API в проекте pms-lux зовётся по имени службы; сеть подключена ниже как внешняя.
+      GUARD_API_URL: ${GUARD_API_URL:-http://api:3001}
+      GUARD_INTERVAL_SECONDS: ${GUARD_INTERVAL_SECONDS:-3600}
+    volumes:
+      - ./ssh:/home/node/.ssh:ro
+    security_opt: ['no-new-privileges:true']
+    # Потолки поставлены нарочно: агент рассуждает, и рассуждение стоит денег и памяти.
+    mem_limit: 1g
+    cpus: 1.0
+    networks: [pms]
+
+# Сеть боевого проекта подключается как внешняя: агент ходит только в API, наружу его никто не зовёт.
+networks:
+  pms:
+    external: true
+    name: pms-lux_default

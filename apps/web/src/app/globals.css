@@ -1279,43 +1279,13 @@ textarea.inp {
 }
 
 /* ── Срез 7.2: правка цены в ячейке, список изменений, очередь и события Channex, цепочка приёма брони ── */
+/* Обёртка цены: только шрифт. Отступ 4×8 и подсветка всей обёртки остались от первой редакции
+   ячейки (её поле и подсказки — `__edit`, `__input`, `__hint` — давно заменены `price-editor` в
+   rates.css) и добавляли строке календаря 8 px сверх шкалы §4 (21.09) */
 .price-cell {
   color: var(--text);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  padding: 4px 8px;
-}
-.price-cell:hover,
-.price-cell:focus-visible {
-  background: var(--primary-soft);
-}
-.price-cell.warn-text {
-  color: var(--warning);
-}
-.price-cell__edit {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-.price-cell__input {
-  width: 96px;
-  min-height: 28px;
-  padding: 4px 8px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.price-cell__hint,
-.price-cell__error {
-  font-size: 12px;
-  line-height: 1.3;
-  white-space: nowrap;
-}
-.price-cell__hint {
-  color: var(--muted);
-}
-.price-cell__error {
-  color: var(--danger);
 }
 /* Список накопленных изменений в массовом редакторе: строки без разделителей-точек (DESIGN.md §14) */
 .pending-list {

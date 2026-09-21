@@ -31,6 +31,14 @@ async function settleStreaming(page: Page): Promise<void> {
 
 export * from '@playwright/test';
 
+/**
+ * Шум `next dev`, а не ошибка стойки: React ведёт собственную дорожку замеров, и на странице,
+ * пришедшей через redirect(), подаёт начало серверного рендера раньше timeOrigin вкладки —
+ * браузер отвечает отказом `measure`. Приходит и как console.error, и как необработанное
+ * исключение страницы; в сборке этой дорожки нет (разбор 21.09.2026).
+ */
+export const devNoise = /Failed to execute 'measure' on 'Performance'/;
+
 export const test = base.extend({
   page: async ({ page }, use) => {
     const goto = page.goto.bind(page);

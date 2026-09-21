@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, devNoise } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -56,7 +56,9 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync('reports/chessboard-design-2026-09-20', { recursive: true });
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      if (!devNoise.test(error.message)) errors.push(error.message);
+    });
     page.on('console', (message) => {
       if (message.type() === 'error') errors.push(message.text());
     });

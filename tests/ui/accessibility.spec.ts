@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -45,7 +45,9 @@ for (const width of [1440, 390]) {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: 1000 });
       const errors: string[] = [];
-      page.on('pageerror', (e) => errors.push(e.message));
+      page.on('pageerror', (e) => {
+        if (!devNoise.test(e.message)) errors.push(e.message);
+      });
       const report = [];
       mkdirSync('reports/ui-quality', { recursive: true });
       for (const route of routes) {

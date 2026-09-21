@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -55,7 +55,9 @@ for (const theme of ['light', 'dark'] as const) {
   test(`Брони: ${theme}, читаемый список на пяти ширинах`, async ({ page }) => {
     test.setTimeout(120_000);
     const errors: string[] = [];
-    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('pageerror', (e) => {
+      if (!devNoise.test(e.message)) errors.push(e.message);
+    });
     page.on('console', (e) => {
       if (e.type() === 'error') errors.push(e.text());
     });

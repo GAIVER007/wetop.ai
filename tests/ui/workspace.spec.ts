@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -8,14 +8,6 @@ const screenshots = resolve('reports/hostel-frontend/screenshots');
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
-
-/**
- * Шум `next dev`: React рисует собственную дорожку замеров в DevTools и на странице,
- * пришедшей через redirect(), подаёт начало серверного рендера раньше timeOrigin вкладки.
- * Браузер отвечает отказом `measure`. Это инструмент разработки, в сборке его нет —
- * к ошибкам стойки не относится (разбор 21.09.2026).
- */
-const devMeasureNoise = /Failed to execute 'measure' on 'Performance'/;
 
 async function noPageOverflow(page: Page) {
   const widths = await page.evaluate(() => {
@@ -35,10 +27,12 @@ test('все разделы, карточки и печать открывают
   test.setTimeout(180_000);
   mkdirSync(screenshots, { recursive: true });
   const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  // отказ measure приходит и как console.error, и как необработанное исключение страницы
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) errors.push(error.message);
+  });
   page.on('console', (message) => {
-    if (message.type() === 'error' && !devMeasureNoise.test(message.text()))
-      errors.push(message.text());
+    if (message.type() === 'error' && !devNoise.test(message.text())) errors.push(message.text());
   });
   const routes: Array<[string, string]> = [
     ['/today', 'Главная'],

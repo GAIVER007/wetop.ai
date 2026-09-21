@@ -128,14 +128,6 @@
     }
   },
   {
-    "route": "/hotel-settings/check-in",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/hotel-settings/penalties",
     "violations": [],
     "layout": {
@@ -145,30 +137,6 @@
   },
   {
     "route": "/hotel-settings/services",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/hotel-settings/description",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/hotel-settings/photos",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
-    "route": "/hotel-settings/amenities",
     "violations": [],
     "layout": {
       "viewport": 1440,

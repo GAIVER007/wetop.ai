@@ -44,10 +44,10 @@ test('старые страницы контента ведут в интегр�
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings#stay-settings$/);
-  await expect(page.getByTestId('stay-settings')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stay-settings')).toBeVisible();
   const hits = await (await request.get(`${API}/__test/hits`)).json();
   expect(hits.byPath['/channels/channex/content'] ?? 0).toBe(0);
 });

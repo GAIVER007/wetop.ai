@@ -197,7 +197,7 @@ test('подключения показывают частичный сбой, �
   }
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   // свежесть данных в боковой панели: Exely · Channex · очередь ARI (шаг 4 плана wetop-live-data)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
@@ -1083,7 +1083,8 @@ test('каналы: сбой сводки фонда не уносит очер�
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
   await page.goto('/channels');
   await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
-  await expect(page.getByTestId('inventory-failed')).toBeVisible();
+  // повторный заход на тот же адрес: уходящая страница на миг остаётся в скрытом узле стрима
+  await expect(page.getByRole('main').getByTestId('inventory-failed')).toBeVisible();
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
 });
 

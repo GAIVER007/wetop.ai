@@ -1,0 +1,256 @@
+/*
+ * Экран «Неисправности» (21.09.2026, поручение владельца по снимку рабочего экрана).
+ *
+ * Правило раскладки одно: сверху — одна полоса состояния вместо трёх плиток и панели на четыре колонки,
+ * ниже — список карточек вместо таблицы из пяти колонок. Отступы из шкалы DESIGN.md §3, цвет — только
+ * токеном (§2), смысл — цвет плюс слово (§9).
+ */
+
+/* ───────────────────────── Полоса состояния сторожа ───────────────────────── */
+
+.guard-bar {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: center;
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+}
+.guard-bar__state {
+  border-left: 3px solid var(--border);
+  padding-left: var(--space-4);
+}
+.guard-bar__state[data-tone='alarm'] {
+  border-left-color: var(--danger);
+}
+.guard-bar__state[data-tone='warn'] {
+  border-left-color: var(--warning);
+}
+.guard-bar__state[data-tone='calm'] {
+  border-left-color: var(--success);
+}
+.guard-bar__count {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+.guard-bar__state[data-tone='alarm'] .guard-bar__count {
+  color: var(--danger);
+}
+.guard-bar__summary {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.guard-bar__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.guard-bar__facts dd {
+  margin: var(--space-1) 0 0;
+}
+.guard-bar .fact__value {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.guard-bar__sub {
+  color: var(--muted);
+  font-weight: var(--weight-regular);
+}
+
+/* ───────────────────────── Отбор: чипы и они же счётчики ───────────────────────── */
+
+.incidents__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+.incidents__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.incidents__chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.incidents__chips button:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+.incidents__chips button[aria-pressed='true'] {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.incidents__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.incidents__chips button[aria-pressed='true'] .incidents__count {
+  color: inherit;
+}
+.incidents__search {
+  flex: 0 1 280px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* ───────────────────────── Карточка неисправности ───────────────────────── */
+
+.incident-cards {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+.incident {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.incident--critical {
+  border-left-color: var(--danger);
+}
+.incident__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  grid-column: 1;
+}
+.incident__title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+.incident__facts,
+.incident__guard {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.incident__guard {
+  color: var(--muted);
+}
+.incident__urgent {
+  color: var(--danger);
+  font-weight: var(--weight-semibold);
+}
+.incident__actions {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: start;
+}
+.incident__actions .row {
+  gap: var(--space-2);
+}
+.incident__actions .btn {
+  white-space: nowrap;
+}
+
+/* ───────────────────────── Закрытые за сутки: справка, не работа ───────────────────────── */
+
+.incident-history {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.incident-history > summary {
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.incident-history > summary:hover {
+  background: var(--surface-muted);
+}
+.incident-history__empty,
+.incident-history__list {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4);
+  list-style: none;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+.incident-history__list li {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-soft);
+}
+.incident-history__title {
+  display: block;
+  color: var(--text);
+}
+.incident-history__meta {
+  color: var(--muted);
+}
+
+/* ───────────────────────── Телефон ───────────────────────── */
+
+@media (max-width: 900px) {
+  .guard-bar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .guard-bar__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .guard-bar__facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .incidents__controls {
+    gap: var(--space-2);
+  }
+  .incidents__search {
+    flex-basis: 100%;
+  }
+  .incidents__chips {
+    width: 100%;
+  }
+  .incidents__chips button {
+    min-height: var(--touch-target);
+  }
+  /* действия уходят под текст: кнопка рядом с тремя фразами на 390 px оставляет им 120 px */
+  .incident {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .incident__actions {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .incident__actions .btn {
+    min-height: var(--touch-target);
+  }
+  .incident-history > summary {
+    min-height: var(--touch-target);
+  }
+}

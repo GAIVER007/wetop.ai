@@ -11,6 +11,7 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
       {canAcknowledge && (
         <Button
           size="sm"
+          tone="secondary"
           type="button"
           data-testid="incident-acknowledge"
           disabled={pending}
@@ -22,7 +23,7 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
       )}
       <Button
         size="sm"
-        tone="secondary"
+        tone="ghost"
         type="button"
         data-testid="incident-resolve"
         disabled={pending}

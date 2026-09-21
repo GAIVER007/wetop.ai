@@ -1,15 +1,41 @@
 'use client';
 import { useState } from 'react';
 import type { Incident } from '../../lib/api';
-import { almatyStamp } from '../../lib/almaty';
-import { Badge, Button, Field, Input, Select, Table } from '../../components/ui';
+import { almatyWhen } from '../../lib/almaty';
+import { pluralRu } from '../../lib/plural';
+import { Badge, Button, EmptyState, Field, Input, cx, type BadgeTone } from '../../components/ui';
+import { Icon } from '../../components/icon';
 import { IncidentButtons } from './buttons';
+import { guardWords, incidentOrder, repeatWords } from './incident-view';
 
-const CLASS_RU: Record<Incident['class'], string> = {
-  A: 'техника — сторож чинит сам',
-  B: 'данные — решает человек',
-  C: 'код — исправляет дежурный агент',
-};
+/**
+ * Список открытых неисправностей (правка 21.09.2026 по снимку рабочего экрана: «чтобы каши не было»).
+ *
+ * Было: таблица из пяти колонок, где в каждой строке стояли два цветных бейджа, класс словами,
+ * колонка «что делал сторож» с повторяющимся «не чинит — не его класс», время в минутах («1226 мин»)
+ * и две кнопки столбиком; над таблицей — три плитки с числами и три поля отбора, повторяющие те же числа.
+ *
+ * Стало: строка — карточка из трёх фраз (что случилось и в каком она состоянии; когда замечена и сколько
+ * держится; кто её чинит и что уже сделал), один цветной бейдж на карточку, срочность — полосой и словом,
+ * отбор — чипами, которые сами и есть счётчики. DESIGN.md §9 (цвет плюс слово) и §14 (слово несёт смысл).
+ */
+
+export type IncidentRow = Pick<
+  Incident,
+  | 'id'
+  | 'kind'
+  | 'class'
+  | 'severity'
+  | 'status'
+  | 'title'
+  | 'occurrences'
+  | 'firstSeenAt'
+  | 'lastSeenAt'
+  | 'fixAttempts'
+  | 'lastFixResult'
+  | 'alertedAt'
+>;
+
 const STATUS_RU: Record<Incident['status'], string> = {
   OPEN: 'замечена',
   FIXING: 'сторож чинит',
@@ -17,7 +43,7 @@ const STATUS_RU: Record<Incident['status'], string> = {
   ACKNOWLEDGED: 'принято',
   RESOLVED: 'закрыта',
 };
-const STATUS_TONE: Record<Incident['status'], 'info' | 'warn' | 'danger' | 'ok' | 'neutral'> = {
+const STATUS_TONE: Record<Incident['status'], BadgeTone> = {
   OPEN: 'info',
   FIXING: 'info',
   ESCALATED: 'danger',
@@ -25,49 +51,73 @@ const STATUS_TONE: Record<Incident['status'], 'info' | 'warn' | 'danger' | 'ok' 
   RESOLVED: 'ok',
 };
 
-const stamp = (iso: string) => <time dateTime={iso}>{almatyStamp(iso)}</time>;
+/** Чипы отбора: они же счётчики — отдельных плиток с теми же числами над списком больше нет */
+type Chip = 'ALL' | 'CRITICAL' | 'ESCALATED' | 'ACKNOWLEDGED';
+const CHIPS: ReadonlyArray<readonly [Chip, string, (i: IncidentRow) => boolean]> = [
+  ['ALL', 'Все', () => true],
+  ['CRITICAL', 'Срочные', (i) => i.severity === 'CRITICAL'],
+  ['ESCALATED', 'Ждут человека', (i) => i.status === 'ESCALATED'],
+  ['ACKNOWLEDGED', 'Принятые', (i) => i.status === 'ACKNOWLEDGED'],
+];
 
 export function IncidentList({
   incidents,
-  total,
+  emptyTitle,
   emptyHint,
 }: {
-  incidents: Array<
-    Pick<
-      Incident,
-      | 'id'
-      | 'kind'
-      | 'class'
-      | 'severity'
-      | 'status'
-      | 'title'
-      | 'occurrences'
-      | 'firstSeenAt'
-      | 'lastSeenAt'
-      | 'fixAttempts'
-      | 'lastFixResult'
-      | 'alertedAt'
-    >
-  >;
-  total: number | null;
+  incidents: IncidentRow[];
+  emptyTitle: string;
   emptyHint: string;
 }) {
+  const [chip, setChip] = useState<Chip>('ALL');
   const [query, setQuery] = useState('');
-  const [severity, setSeverity] = useState('ALL');
-  const [status, setStatus] = useState('ALL');
-  const filtered = !!query || severity !== 'ALL' || status !== 'ALL';
-  const rows = incidents.filter(
-    (item) =>
-      `${item.title} ${item.kind} ${item.lastFixResult ?? ''}`
-        .toLocaleLowerCase('ru')
-        .includes(query.trim().toLocaleLowerCase('ru')) &&
-      (severity === 'ALL' || item.severity === severity) &&
-      (status === 'ALL' || item.status === status),
-  );
+  const needle = query.trim().toLocaleLowerCase('ru');
+  const chipLabel = CHIPS.find(([id]) => id === chip)?.[1];
+  const matches = CHIPS.find(([id]) => id === chip)?.[2] ?? (() => true);
+  const rows = incidents
+    .filter(
+      (i) =>
+        matches(i) &&
+        `${i.title} ${i.kind} ${i.lastFixResult ?? ''}`.toLocaleLowerCase('ru').includes(needle),
+    )
+    .sort(incidentOrder);
+  const conditions = [
+    needle ? `по запросу «${query.trim()}»` : '',
+    chip === 'ALL' ? '' : `отбор «${chipLabel}»`,
+  ].filter(Boolean);
+  const reset = () => {
+    setChip('ALL');
+    setQuery('');
+  };
+
+  if (incidents.length === 0)
+    return (
+      <EmptyState icon={<Icon name="check" />} title={emptyTitle} data-testid="incidents-empty">
+        {emptyHint}
+      </EmptyState>
+    );
+
   return (
-    <section className="control-list" aria-label="Открытые неисправности">
-      <div className="control-toolbar">
-        <Field label="Поиск неисправности">
+    <section className="incidents" aria-label="Открытые неисправности">
+      <div className="incidents__controls">
+        <div className="incidents__chips" data-testid="incidents-filter">
+          {CHIPS.map(([id, label, test]) => {
+            const count = incidents.filter(test).length;
+            if (count === 0 && id !== 'ALL') return null;
+            return (
+              <button
+                key={id}
+                type="button"
+                className={cx(chip === id && 'is-active')}
+                aria-pressed={chip === id}
+                onClick={() => setChip(id)}
+              >
+                {label} <span className="incidents__count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <Field label="Поиск неисправности" className="incidents__search">
           <Input
             type="search"
             placeholder="Название или результат проверки"
@@ -75,117 +125,61 @@ export function IncidentList({
             onChange={(event) => setQuery(event.target.value)}
           />
         </Field>
-        <Field label="Срочность">
-          <Select value={severity} onChange={(event) => setSeverity(event.target.value)}>
-            <option value="ALL">Любая срочность</option>
-            <option value="CRITICAL">Срочные</option>
-            <option value="WARNING">Несрочные</option>
-          </Select>
-        </Field>
-        <Field label="Статус неисправности">
-          <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="ALL">Все открытые</option>
-            {Object.entries(STATUS_RU)
-              .filter(([value]) => value !== 'RESOLVED')
-              .map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-          </Select>
-        </Field>
-        {filtered && (
-          <Button
-            tone="ghost"
-            onClick={() => {
-              setQuery('');
-              setSeverity('ALL');
-              setStatus('ALL');
-            }}
-          >
-            Сбросить фильтры
-          </Button>
-        )}
       </div>
-      <p className="control-result" role="status">
-        Показано {rows.length} из {incidents.length} загруженных
-      </p>
-      {total !== null && total > incidents.length && (
-        <p className="note">
-          Загружены последние {incidents.length} из {total} открытых неисправностей.
+      {conditions.length > 0 && (
+        <p className="control-result" role="status">
+          {`${pluralRu(rows.length, ['неисправность', 'неисправности', 'неисправностей'])} ${conditions.join(', ')}`}
         </p>
       )}
-      <Table
-        size="sm"
-        className="dir-table dir-table--incidents control-table"
-        data-testid="incidents-table"
-      >
-        <thead>
-          <tr>
-            {['Что случилось', 'Статус', 'Замечена', 'Что делал сторож', ''].map((h) => (
-              <th key={h}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {incidents.length === 0 && (
-            <tr>
-              <td colSpan={5} className="empty-state" data-testid="incidents-empty">
-                {emptyHint}
-              </td>
-            </tr>
-          )}
-          {incidents.length > 0 && rows.length === 0 && (
-            <tr>
-              <td colSpan={5} className="empty-state" data-testid="incidents-filter-empty">
-                По этим фильтрам неисправностей нет. Измените условия или сбросьте фильтры.
-              </td>
-            </tr>
-          )}
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={<Icon name="search" />}
+          title="По этим условиям открытых неисправностей нет"
+          data-testid="incidents-filter-empty"
+          actions={
+            <Button tone="secondary" type="button" onClick={reset}>
+              Сбросить фильтры
+            </Button>
+          }
+        >
+          {`Ничего не нашлось ${conditions.join(', ')}. Открытых всего ${incidents.length}.`}
+        </EmptyState>
+      ) : (
+        <ul className="incident-cards">
           {rows.map((i) => (
-            <tr key={i.id} data-testid="incident-row" data-kind={i.kind} data-id={i.id}>
-              <td>
-                <Badge tone={i.severity === 'CRITICAL' ? 'danger' : 'warn'}>
-                  {i.severity === 'CRITICAL' ? 'срочно' : 'не срочно'}
-                </Badge>{' '}
-                {i.title}
-                <div className="cell-sub">{CLASS_RU[i.class]}</div>
-              </td>
-              <td>
+            <li
+              key={i.id}
+              className={cx('incident', i.severity === 'CRITICAL' && 'incident--critical')}
+              data-testid="incident-row"
+              data-kind={i.kind}
+              data-id={i.id}
+              data-severity={i.severity}
+            >
+              <div className="incident__head">
+                <h3 className="incident__title">{i.title}</h3>
                 <Badge tone={STATUS_TONE[i.status]} data-testid="incident-status">
                   {STATUS_RU[i.status]}
                 </Badge>
-                {i.alertedAt && <div className="cell-sub">разбудил {stamp(i.alertedAt)}</div>}
-              </td>
-              <td className="nowrap">
-                {stamp(i.firstSeenAt)}
-                {/* Счётчик растёт на каждом проходе сторожа: у ошибки API это повторы, у остального — минуты,
-                    пока неисправность держится. «Замечена 47 раз» у брони без ячейки читалось бы как 47 случаев */}
-                {i.kind === 'api.error'
-                  ? i.occurrences > 1 && (
-                      <div className="cell-sub">повторилась {i.occurrences} раз</div>
-                    )
-                  : Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt) >= 60_000 && (
-                      <div className="cell-sub">
-                        держится{' '}
-                        {Math.round(
-                          (Date.parse(i.lastSeenAt) - Date.parse(i.firstSeenAt)) / 60_000,
-                        )}{' '}
-                        мин
-                      </div>
-                    )}
-              </td>
-              <td>
-                {i.fixAttempts > 0 ? `${i.fixAttempts} попыт. — ` : ''}
-                {i.lastFixResult ?? (i.class === 'A' ? 'ждёт' : 'не чинит — не его класс')}
-              </td>
-              <td>
+              </div>
+              <p className="incident__facts">
+                {i.severity === 'CRITICAL' && <span className="incident__urgent">Срочно. </span>}
+                Замечена <time dateTime={i.firstSeenAt}>{almatyWhen(i.firstSeenAt)}</time>.{' '}
+                {repeatWords(i)}{' '}
+                {i.alertedAt && (
+                  <>
+                    Будильник сработал <time dateTime={i.alertedAt}>{almatyWhen(i.alertedAt)}</time>
+                    .
+                  </>
+                )}
+              </p>
+              <p className="incident__guard">{guardWords(i)}</p>
+              <div className="incident__actions">
                 <IncidentButtons id={i.id} canAcknowledge={i.status !== 'ACKNOWLEDGED'} />
-              </td>
-            </tr>
+              </div>
+            </li>
           ))}
-        </tbody>
-      </Table>
+        </ul>
+      )}
     </section>
   );
 }

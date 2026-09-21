@@ -127,9 +127,10 @@ test('неисправности: сбой состояния сторожа с 
   expect(layout.content, 'неисправности шире экрана телефона').toBeLessThanOrEqual(
     layout.viewport + 1,
   );
-  await expect(main.getByTestId('incident-row').locator('td').nth(4)).toHaveCSS(
-    'grid-row-start',
-    '4',
+  // 21.09: строка — карточка, и на телефоне кнопки уходят под текст, а не в колонку справа
+  await expect(main.getByTestId('incident-row').first().locator('.incident__actions')).toHaveCSS(
+    'grid-column-start',
+    '1',
   );
   await page.setViewportSize({ width: 1440, height: 1000 });
   // загрузка словом

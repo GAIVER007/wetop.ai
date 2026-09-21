@@ -804,7 +804,8 @@
  * (поймано тестом 21.09, тот же класс, что подсказка шахматки 20.09).
  */
 .board td.board__unit:has(.action-menu__button[aria-expanded='true']) {
-  z-index: 9;
+  /* на ступень выше закреплённой колонки (--layer-sticky) и ниже липкой шапки дат */
+  z-index: calc(var(--layer-sticky) + 1);
 }
 .board .board-hk__menu .action-menu__button {
   width: 26px;
@@ -859,7 +860,7 @@
 .board-stay-menu {
   position: absolute;
   top: 6px;
-  z-index: 2;
+  z-index: var(--layer-base);
 }
 .board-stay-menu .action-menu__button {
   width: 24px;

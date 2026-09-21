@@ -1600,3 +1600,60 @@ td.empty-state {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/*
+ * Чипы отбора (21.09.2026): на «Неисправностях» они же счётчики, в «Журнале» — разделы, на «Гостях» —
+ * статус проживания. Один вид на все экраны: до этого разделы журнала и гостей рисовались обычными
+ * ссылками, а на «Бронях» такие же чипы живут в своём файле (`reservations.css`).
+ */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+}
+.chips a,
+.chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  cursor: pointer;
+}
+.chips a:hover,
+.chips button:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+  text-decoration: none;
+}
+.chips a[aria-current],
+.chips button[aria-pressed='true'] {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.chips__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.chips button[aria-pressed='true'] .chips__count {
+  color: inherit;
+}
+
+@media (max-width: 600px) {
+  .chips {
+    width: 100%;
+  }
+  .chips a,
+  .chips button {
+    min-height: var(--touch-target);
+  }
+}

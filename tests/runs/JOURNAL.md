@@ -1419,3 +1419,12 @@
 | 21.09.2026 15:52 | lint | ❌ ошибок: 1 | 14 с | 4c4bcbb +9 | [лог](logs/2026-09-21T10-52-04Z-lint-8807.log) | housekeeping icons and in-row menu |
 | 21.09.2026 15:52 | lint | ✅ без ошибок | 13 с | 4c4bcbb +9 | [лог](logs/2026-09-21T10-52-26Z-lint-f56d.log) | housekeeping icons and in-row menu |
 | 21.09.2026 15:52 | unit | ✅ 1333 из 1336, пропущено 3 | 1 мин 12 с | 4c4bcbb +7 | [лог](logs/2026-09-21T10-52-44Z-unit-42b9.log) | housekeeping icons |
+| 21.09.2026 15:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts) | ❌ упало 2 из 2 | 39 с | deb65bc +1 | [лог](logs/2026-09-21T10-57-25Z-e2e-3922.log) | RED: guests before the fix |
+| 21.09.2026 15:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts) | ✅ 2 из 2 | 10 с | deb65bc +8 | [лог](logs/2026-09-21T10-59-06Z-e2e-07f5.log) | GREEN: guests words, chips, empty state |
+| 21.09.2026 16:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/control-design.spec.ts tests/ui/system-screens.spec.ts | ❌ упало 4 из 108 | 8 мин 2 с | deb65bc +8 | [лог](logs/2026-09-21T11-00-31Z-e2e-c70c.log) | guests words and chips: neighbouring suites |
+| 21.09.2026 16:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts --grep статус уборки\|гости на сегодня\|фильтр «Уборка») | ✅ 3 из 3 | 12 с | deb65bc +9 | [лог](logs/2026-09-21T11-09-00Z-e2e-2402.log) | GREEN: workspace expectations follow the new words |
+| 21.09.2026 21:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/quality.spec.ts tests/ui/premium.spec.ts) | ❌ упало 1 из 23 | 2 мин 27 с | deb65bc +9 | [лог](logs/2026-09-21T16-49-49Z-e2e-071b.log) | GREEN: guests name alignment and words |
+| 21.09.2026 21:53 | lint | ❌ ошибок: 1 | 17 с | deb65bc +9 | [лог](logs/2026-09-21T16-53-10Z-lint-bf34.log) | guests words and chips |
+| 21.09.2026 21:53 | lint | ✅ без ошибок | 13 с | deb65bc +9 | [лог](logs/2026-09-21T16-53-35Z-lint-f97d.log) | guests words and chips |
+| 21.09.2026 21:53 | unit | ❌ упало 1 из 1336, пропущено 3 | 1 мин 18 с | deb65bc +6 | [лог](logs/2026-09-21T16-53-49Z-unit-da43.log) | guests and chips |
+| 21.09.2026 21:55 | unit | ✅ 1333 из 1336, пропущено 3 | 1 мин 12 с | deb65bc +6 | [лог](logs/2026-09-21T16-55-23Z-unit-711f.log) | guests and chips (rerun after timeout of repo-sync sandbox) |

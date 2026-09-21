@@ -1,0 +1,81 @@
+# Сквозные (e2e) · 21.09.2026 21:49 Алматы · vm
+# коммит deb65bc (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/premium.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/ui/guests-design.spec.ts:22:1 › гости: выборка названа одним предложением со статусом, статус гостя — в единственном числе (2.5s)
+  ✓   2 tests/ui/guests-design.spec.ts:42:1 › гости: пустой список не рисует шапку таблицы, разделы — чипы, имя гостя видно как ссылка (2.5s)
+  ✓   3 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.8s)
+  ✓   4 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (3.7s)
+  ✓   5 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (7.2s)
+  ✓   6 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (6.4s)
+  ✓   7 tests/ui/premium.spec.ts:117:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.1m)
+  ✓   8 tests/ui/premium.spec.ts:171:1 › вход не пускает с чужой почтой и чужим паролем (1.0s)
+  ✓   9 tests/ui/premium.spec.ts:188:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (3.3s)
+  ✓  10 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (1.7s)
+  ✓  11 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (815ms)
+  ✓  12 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.1s)
+  ✓  13 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (2.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  14 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.9s)
+  ✓  15 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (1.8s)
+  ✓  16 tests/ui/quality.spec.ts:91:1 › список гостей и вторая бронь открывают собственные карточки (2.8s)
+  ✓  17 tests/ui/quality.spec.ts:103:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.5s)
+  ✓  18 tests/ui/quality.spec.ts:126:1 › изменение уборки относится только к выбранному номеру (2.5s)
+  ✘  19 tests/ui/quality.spec.ts:136:1 › неподключённые внешние демо не ведут на несуществующие страницы (15.9s)
+  ✓  20 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: профиль гостя (1.6s)
+  ✓  21 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: документ гостя (1.4s)
+  ✓  22 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: блокировка номера (1.6s)
+  ✓  23 tests/ui/quality.spec.ts:173:3 › отказ API сохраняет поля: сайт аналитики (1.3s)
+
+
+  1) tests/ui/quality.spec.ts:136:1 › неподключённые внешние демо не ведут на несуществующие страницы 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText('Демо виджета не подключено', { exact: true })
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByText('Демо виджета не подключено', { exact: true }) with timeout 15000ms
+      - waiting for getByText('Демо виджета не подключено', { exact: true })
+        33 × locator resolved to <span class="badge">Демо виджета не подключено</span>
+           - unexpected value "hidden"
+
+
+      137 |   await page.goto('/analytics/setup');
+      138 |   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
+    > 139 |   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
+          |                                                                               ^
+      140 |   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
+      141 | });
+      142 |
+        at /home/user/wetop.ai/tests/ui/quality.spec.ts:139:79
+
+    Error Context: test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-неподключённые-вне-2364d--на-несуществующие-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/quality.spec.ts:136:1 › неподключённые внешние демо не ведут на несуществующие страницы 
+  22 passed (2.4m)
+
+# код выхода 1 · 2 мин 27 с

@@ -84,7 +84,7 @@ test('журнал: дни группами, время без года, объ�
 
   // разделы — такие же чипы, как отбор на «Неисправностях»
   const filters = main.getByRole('navigation', { name: 'Раздел журнала' });
-  await expect(filters).toHaveClass(/control-chips/);
+  await expect(filters).toHaveClass(/chips/);
   const chipHeight = await filters
     .getByRole('link', { name: 'брони', exact: true })
     .evaluate((el) => el.getBoundingClientRect().height);

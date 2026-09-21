@@ -27,6 +27,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /*
+   * 21.09: на «Гостях» имя стояло по центру ячейки и на телефоне, и на 1440 px. Причина — старый класс
+   * `.directory-guest` из `premium.css` с `align-items: center`: у колонки это центрирует по горизонтали.
+   * Имя в списке читается слева, поэтому выравнивание задаётся здесь явно.
+   */
+  align-items: flex-start;
   gap: 1px;
   min-height: 32px;
   padding: 3px 0;
@@ -37,6 +43,15 @@
 }
 .dir-guest strong {
   font-weight: 600;
+}
+/*
+ * Имя гостя — ссылка на его карточку, но цветом обычного текста: девять синих имён в списке пестрят.
+ * Что это ссылка, показывают наведение и фокус (21.09: до этого не показывало ничего).
+ */
+a.dir-guest:hover,
+a.dir-guest:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
 }
 .dir-number {
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -1216,4 +1231,14 @@ a.dir-number:hover {
 }
 .channel-actions .note {
   margin-top: var(--space-2);
+}
+
+/* Поиск гостей: подсказка «фамилия, имя, телефон или email» не помещалась в 220 px и обрезалась */
+.directory-toolbar .inp--grow {
+  min-width: 300px;
+}
+@media (max-width: 600px) {
+  .directory-toolbar .inp--grow {
+    min-width: 0;
+  }
 }

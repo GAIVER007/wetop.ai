@@ -23,53 +23,6 @@
   color: var(--primary);
 }
 
-/*
- * Чипы отбора раздела «Контроль» (21.09.2026): на «Неисправностях» они же счётчики, в «Журнале» — разделы.
- * Один вид на оба экрана: до этого журнальные разделы рисовались обычными ссылками, а на «Бронях» такие же
- * чипы живут в своём файле (`reservations.css`) — третью копию не заводим.
- */
-.control-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin: 0 0 var(--space-4);
-}
-.control-chips a,
-.control-chips button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-h);
-  padding: var(--space-2) var(--space-4);
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--text-2);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-  cursor: pointer;
-}
-.control-chips a:hover,
-.control-chips button:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-  text-decoration: none;
-}
-.control-chips a[aria-current],
-.control-chips button[aria-pressed='true'] {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.control-chips__count {
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
-.control-chips button[aria-pressed='true'] .control-chips__count {
-  color: inherit;
-}
-
 .control-page .stats {
   margin: 0 0 var(--space-4);
 }
@@ -178,13 +131,6 @@
   }
 }
 @media (max-width: 600px) {
-  .control-chips {
-    width: 100%;
-  }
-  .control-chips a,
-  .control-chips button {
-    min-height: var(--touch-target);
-  }
   .control-tabs {
     gap: var(--space-1);
   }

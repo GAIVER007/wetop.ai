@@ -145,7 +145,7 @@ export default async function JournalPage({
           </Link>
         )}
       </form>
-      <nav className="control-chips" aria-label="Раздел журнала">
+      <nav className="chips" aria-label="Раздел журнала">
         {FILTERS.map(([t, label]) => (
           <Link
             key={label}

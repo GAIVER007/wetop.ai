@@ -626,10 +626,12 @@ test('ошибка загрузки тарифов не позволяет вк�
 
 test('номера: статус уборки, блокировка и снятие сохраняются', async ({ page, request }) => {
   await page.goto('/units/R01');
-  await page.getByTestId('hk-DIRTY').click();
-  await expect(page.getByText('Статус уборки: грязно')).toBeVisible();
+  // 21.09: статус назван словом («Сейчас грязно»), кнопка — результатом; R01 в фикстуре грязная
+  await expect(page.getByText('Сейчас грязно', { exact: true })).toBeVisible();
+  await page.getByTestId('hk-CLEAN').click();
+  await expect(page.getByText('Сейчас убрано', { exact: true })).toBeVisible();
   await page.getByTestId('hk-INSPECTED').click();
-  await expect(page.getByText('Статус уборки: проверено')).toBeVisible();
+  await expect(page.getByText('Сейчас проверено', { exact: true })).toBeVisible();
   await page.getByLabel('Блокировка с').fill('2026-10-01');
   await page.getByLabel('До (не включая)').fill('2026-10-03');
   await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
@@ -927,7 +929,7 @@ test('гости на сегодня: в списке все, а не первы
   // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
-  await expect(page.getByTestId('guests-today-count')).toContainText(`сегодня: ${shown} гост`);
+  await expect(page.getByTestId('guests-today-count')).toContainText(`${shown} гост`);
   await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
 });
 
@@ -1147,7 +1149,8 @@ test('шахматка: статус словом, канал бейджем, д
 test('шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту', async ({ page }) => {
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
-  await page.getByRole('button', { name: 'Уборка', exact: true }).click();
+  // чип уборки теперь со счётчиком: «Уборка 2» (21.09)
+  await page.getByRole('button', { name: /^Уборка \d+$/ }).click();
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);

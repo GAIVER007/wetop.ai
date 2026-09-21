@@ -9,7 +9,13 @@
 # Почему не «запускать всегда»: рассуждение стоит денег. Тихий час — это `sleep`, а не вызов модели.
 set -eu
 
-: "${ANTHROPIC_API_KEY:?нужен ключ Anthropic в .env}"
+# Чем платим за рассуждение — одно из двух, и это не равнозначные варианты (README, §«Подписка или ключ»):
+#   CLAUDE_CODE_OAUTH_TOKEN — токен подписки, `claude setup-token`, живёт год, отдельных денег не стоит;
+#   ANTHROPIC_API_KEY       — ключ Anthropic, оплата по расходу.
+if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  echo 'нужен CLAUDE_CODE_OAUTH_TOKEN (подписка) или ANTHROPIC_API_KEY в .env' >&2
+  exit 1
+fi
 : "${GUARD_READ_KEY:?нужен ключ на чтение сторожа в .env}"
 : "${GUARD_REPO:?нужен адрес репозитория по SSH в .env}"
 GUARD_API_URL="${GUARD_API_URL:-http://api:3001}"

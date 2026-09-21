@@ -2,7 +2,8 @@
 # Отдельный намеренно: падение или перерасход агента не должны задевать боевую PMS (проект pms-lux).
 #
 # Секреты — в файле .env рядом, вписывает владелец руками (SECURITY.md §3, правило 1.4 Академии):
-#   ANTHROPIC_API_KEY   ключ Anthropic, платный, только для этого агента
+#   CLAUDE_CODE_OAUTH_TOKEN  токен подписки (`claude setup-token`, живёт год) — ИЛИ
+#   ANTHROPIC_API_KEY        ключ Anthropic, платный, только для этого агента
 #   GUARD_READ_KEY      ключ на чтение сторожа; тот же, что в .env боевой PMS
 #   TELEGRAM_BOT_TOKEN  токен бота; TELEGRAM_CHAT_ID — группа дежурных
 #   GUARD_REPO          адрес репозитория по SSH, например git@github.com:GAIVER007/wetop.ai.git

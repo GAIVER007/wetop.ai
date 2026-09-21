@@ -11,3 +11,4 @@ export * from './web-booking/index';
 export * from './incidents/index';
 export * from './accounts/index';
 export * from './dashboard/index';
+export * from './onboarding/index';

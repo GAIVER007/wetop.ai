@@ -17,7 +17,7 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
           onClick={() => start(async () => setResult(await incidentAction('acknowledge', id)))}
           title="Я в курсе — сторож перестанет будить по этой неисправности"
         >
-          Принято
+          {pending ? 'Сохраняю…' : 'Взять в работу'}
         </Button>
       )}
       <Button
@@ -29,7 +29,7 @@ export function IncidentButtons({ id, canAcknowledge }: { id: string; canAcknowl
         onClick={() => start(async () => setResult(await incidentAction('resolve', id)))}
         title="Закрыть вручную. Если проверка снова её увидит, откроется новая запись"
       >
-        Решено
+        {pending ? 'Сохраняю…' : 'Закрыть'}
       </Button>
       {result?.error && <Alert>{result.error}</Alert>}
     </Row>

@@ -1,0 +1,16 @@
+Overlay from @pms/web. Use via `window.Wetop.Overlay` (bundle loaded from the root `_ds_bundle.js`).
+
+# Overlay — окно и выезжающая панель
+
+Нативный `<dialog>`: фокус внутри, Escape закрывает, фокус возвращается туда, откуда открыли,
+страница под окном не прокручивается. `drawer` — панель сбоку 480 px (на 1440 шахматка остаётся
+видна на 960 px).
+
+Escape реагирует только на **своё** окно: вложенное окно подтверждения закрывается одно, панель
+остаётся (DESIGN.md §12).
+
+```tsx
+<Overlay open={open} onClose={close} title="Бронь 20260920-0007" drawer>
+  <RecordTabs tabs={tabs} />
+</Overlay>
+```

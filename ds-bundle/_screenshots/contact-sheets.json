@@ -1,0 +1,54 @@
+[
+  {
+    "sheet": 1,
+    "components": [
+      "ActionMenu",
+      "Alert",
+      "AmountChip",
+      "Badge",
+      "Button",
+      "ConfirmDialog",
+      "EmptyState",
+      "ErrorState",
+      "Fact",
+      "FeaturePending",
+      "Field",
+      "Grid",
+      "Help",
+      "Icon",
+      "Input",
+      "Legend"
+    ]
+  },
+  {
+    "sheet": 2,
+    "components": [
+      "LoadError",
+      "LoadingState",
+      "Notice",
+      "Overlay",
+      "Page",
+      "Panel",
+      "PanelTitle",
+      "RecordTabs",
+      "Row",
+      "SectionCards",
+      "SectionTitle",
+      "Select",
+      "Skeleton",
+      "Stack",
+      "Stat",
+      "Stats"
+    ]
+  },
+  {
+    "sheet": 3,
+    "components": [
+      "StatusBadge",
+      "Table",
+      "Textarea",
+      "ToastRegion",
+      "Tooltip"
+    ]
+  }
+]

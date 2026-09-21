@@ -23,7 +23,8 @@ export function Sidebar({
   onCollapse?: () => void;
   property?: PropertyIdentity | null;
 }) {
-  const active = activeNavigation(path)?.href;
+  const route = activeNavigation(path)?.href;
+  const active = route?.startsWith('/hotel-settings') ? '/hotel-settings' : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;
@@ -56,11 +57,7 @@ export function Sidebar({
           </button>
         )}
       </div>
-      <Link
-        href="/hotel-settings/description"
-        className="workspace-property"
-        onClick={() => close?.()}
-      >
+      <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
         <span className="property-mark">
           <Icon name="inventory" />
         </span>

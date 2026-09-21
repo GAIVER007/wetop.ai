@@ -1,0 +1,46 @@
+# Модульные (unit) · 20.09.2026 12:01 Алматы · vm
+# коммит 9fe9ff5 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 200
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-20T07-01-18Z-unit-0ab2.json' 'apps/api/src/accounts/sessions.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests | 1 failed) 289ms
+   ✓ список сессий (3)
+     ✓ без сессии — 401 18ms
+     ✓ вошедший видит свои живые сессии словами, свою — с пометкой; ключей и отпечатков нет 35ms
+     ✓ отозванная и чужая сессии в списке не показываются 22ms
+   ✓ выйти везде (2)
+     ✓ гасит все сессии человека, чужие не трогает; кука снята; повтор с мёртвым ключом — 204 28ms
+     ✓ без сессии — 204 и ничего не отозвано 6ms
+   ❯ оба входа рядом (Q-146) (1)
+     × сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/accounts/sessions.controller.test.ts > оба входа рядом (Q-146) > сессия по паролю (отпечаток SHA-256, ADR-049) видит список, помечена своей и гасит всё, включая сессию по коду
+Error: expected 200 "OK", got 401 "Unauthorized"
+ ❯ apps/api/src/accounts/sessions.controller.test.ts:175:8
+    173|       .get('/auth/sessions')
+    174|       .set('Authorization', `Bearer ${parol}`)
+    175|       .expect(200);
+       |        ^
+    176|     const byDevice = Object.fromEntries(
+    177|       (res.body as Array<{ device: string; current: boolean }>).map((s…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  07:01:20
+   Duration  1.72s (transform 48%, import 33%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-09-20T07-01-18Z-unit-0ab2.json
+
+# код выхода 1 · 4 с

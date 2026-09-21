@@ -1,0 +1,117 @@
+# Сквозные (e2e) · 21.09.2026 00:34 Алматы · MacBook-Air-Urij.local
+# коммит dc1635d (codex/settings-simplification), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/settings-simplification.spec.ts' '--grep' 'короткое меню|поиск услуг'
+[WebServer] (node:90404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:90612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (19.3s)
+(node:90843) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90863) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/settings-simplification.spec.ts:42:1 › поиск услуг и фильтр правил отмены работают без повторной загрузки каталога (45.3s)
+
+
+  1) tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: getByRole('button', { name: 'Настройки', exact: true }) }).locator('a')
+    Timeout: 15000ms
+    - Expected  - 2
+    + Received  + 8
+
+      Array [
+    -   "Гостиница",
+    +   "Настройки гостиницы",
+    +   "Заезд и выезд",
+    +   "Штрафы",
+    +   "Услуги",
+    +   "Описание",
+    +   "Фото",
+    +   "Удобства",
+        "Интеграции",
+    -   "Сайт",
+    +   "Настройки сайта",
+      ]
+
+    Call log:
+      - Expect "toHaveText" locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: getByRole('button', { name: 'Настройки', exact: true }) }).locator('a') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar').locator('.sidebar-section').filter({ has: getByRole('button', { name: 'Настройки', exact: true }) }).locator('a')
+        33 × locator resolved to 9 elements
+
+
+      10 |   const sidebar = page.locator('.workspace-sidebar');
+      11 |   const group = sidebar.locator('.sidebar-section').filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
+    > 12 |   await expect(group.locator('a')).toHaveText(['Гостиница', 'Интеграции', 'Сайт']);
+         |                                    ^
+      13 |   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
+      14 |   await expect(page.getByTestId('stay-settings')).toContainText('14:00');
+      15 |   const tabs = page.getByRole('navigation', { name: 'Настройки гостиницы', exact: true });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/settings-simplification.spec.ts:12:36
+
+    Error Context: test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/settings-simplification.spec.ts:42:1 › поиск услуг и фильтр правил отмены работают без повторной загрузки каталога 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('searchbox', { name: 'Найти услугу' })
+
+
+      47 |   expect(count).toBeGreaterThan(0);
+      48 |   const before = await (await request.get(`${API}/__test/hits`)).json();
+    > 49 |   await page.getByRole('searchbox', { name: 'Найти услугу' }).fill('Несуществующая услуга');
+         |                                                               ^
+      50 |   await expect(page.getByTestId('services-no-results')).toBeVisible();
+      51 |   await page.getByRole('button', { name: 'Сбросить поиск' }).click();
+      52 |   await expect(table.locator('tbody tr')).toHaveCount(count);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/settings-simplification.spec.ts:49:63
+
+    Error Context: test-results/settings-simplification-по-86881-повторной-загрузки-каталога/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-по-86881-повторной-загрузки-каталога/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-по-86881-повторной-загрузки-каталога/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/settings-simplification.spec.ts:8:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+    tests/ui/settings-simplification.spec.ts:42:1 › поиск услуг и фильтр правил отмены работают без повторной загрузки каталога 
+
+# код выхода 1 · 1 мин 25 с

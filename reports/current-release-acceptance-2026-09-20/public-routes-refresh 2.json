@@ -1,0 +1,30 @@
+[
+  {
+    "route": "login",
+    "status": 200,
+    "hasPasswordForm": true,
+    "hasCloudflareAccess": false,
+    "networkOk": true
+  },
+  {
+    "route": "register",
+    "status": 200,
+    "hasPasswordForm": false,
+    "hasCloudflareAccess": false,
+    "networkOk": true
+  },
+  {
+    "route": "health",
+    "status": 404,
+    "hasPasswordForm": false,
+    "hasCloudflareAccess": false,
+    "networkOk": true
+  },
+  {
+    "route": "protected_api",
+    "status": 404,
+    "hasPasswordForm": false,
+    "hasCloudflareAccess": false,
+    "networkOk": true
+  }
+]

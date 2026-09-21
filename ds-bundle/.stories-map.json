@@ -1,0 +1,308 @@
+{
+  "global": "Wetop",
+  "pkg": "@pms/web",
+  "pkgDir": "/Users/vyacheslav/Desktop/Проекты/WETOP",
+  "extraEntries": [],
+  "exported": [],
+  "storybookStatic": null,
+  "keyRecipe": 7,
+  "cfgSliceGlobal": "a139d95ad8ab0a8ba08b44a258c54602e36090304087f48fe923c61aa5a8ae08",
+  "components": [
+    {
+      "name": "ActionMenu",
+      "group": "actions",
+      "srcSha": null,
+      "sourceKey": "e241c913d80d0d22",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Alert",
+      "group": "messages",
+      "srcSha": null,
+      "sourceKey": "68428eeb0ea5c659",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "AmountChip",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "a913ec2746300f54",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Badge",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "db8c8ffb4d647045",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Button",
+      "group": "actions",
+      "srcSha": null,
+      "sourceKey": "e31dd23f669be212",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "ConfirmDialog",
+      "group": "overlays",
+      "srcSha": null,
+      "sourceKey": "6642c8606f59f65d",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "EmptyState",
+      "group": "states",
+      "srcSha": null,
+      "sourceKey": "a46cbdd20568b929",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "ErrorState",
+      "group": "states",
+      "srcSha": null,
+      "sourceKey": "fc1f0d3405e9f961",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Fact",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "d4b86d7ca2a03440",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "FeaturePending",
+      "group": "messages",
+      "srcSha": null,
+      "sourceKey": "1347f1ff175522b0",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Field",
+      "group": "forms",
+      "srcSha": null,
+      "sourceKey": "4e5a7c593d6f013b",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Grid",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "162b34337104cfd4",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Help",
+      "group": "messages",
+      "srcSha": null,
+      "sourceKey": "a41f06529de47217",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Icon",
+      "group": "foundation",
+      "srcSha": null,
+      "sourceKey": "e7d477019e7a55f9",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Input",
+      "group": "forms",
+      "srcSha": null,
+      "sourceKey": "210b01d7e5af586c",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Legend",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "4e4fc3485c841910",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "LoadError",
+      "group": "states",
+      "srcSha": null,
+      "sourceKey": "13c9951fe9f476a5",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "LoadingState",
+      "group": "states",
+      "srcSha": null,
+      "sourceKey": "186759aa3d1ab68c",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Notice",
+      "group": "messages",
+      "srcSha": null,
+      "sourceKey": "6f7bfed5baa1e651",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Overlay",
+      "group": "overlays",
+      "srcSha": null,
+      "sourceKey": "84bfeb553752c688",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Page",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "66762d7c59fdee38",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Panel",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "2aead6986ca49569",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "PanelTitle",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "533b8c5990cb7237",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "RecordTabs",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "50cd43e685d58382",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Row",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "d2f90ef0731e81bc",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "SectionCards",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "753b592af35203d0",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "SectionTitle",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "f95f7a6f90dc4249",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Select",
+      "group": "forms",
+      "srcSha": null,
+      "sourceKey": "4de4e77012235452",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Skeleton",
+      "group": "states",
+      "srcSha": null,
+      "sourceKey": "7260c283c930b14e",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Stack",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "53866366a281a833",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Stat",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "47fb3fcb94f3b3be",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Stats",
+      "group": "layout",
+      "srcSha": null,
+      "sourceKey": "e6425a2244fca13f",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "StatusBadge",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "180057db2348bb37",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Table",
+      "group": "data",
+      "srcSha": null,
+      "sourceKey": "54370264749911df",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Textarea",
+      "group": "forms",
+      "srcSha": null,
+      "sourceKey": "d1391b3bbab2d7b0",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "ToastRegion",
+      "group": "overlays",
+      "srcSha": null,
+      "sourceKey": "882598490b571fff",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    },
+    {
+      "name": "Tooltip",
+      "group": "overlays",
+      "srcSha": null,
+      "sourceKey": "f1bee307efc97466",
+      "cfgSlice": "5ff899b099eb6923833804cda955efdd69101524bec86f67dac5537cd81802e8",
+      "stories": []
+    }
+  ]
+}

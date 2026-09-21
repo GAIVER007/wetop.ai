@@ -1,0 +1,114 @@
+[
+  {
+    "route": "/hotel-settings",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 278,
+    "totalMs": 1586,
+    "bytes": 64726
+  },
+  {
+    "route": "/hotel-settings",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 560,
+    "totalMs": 565,
+    "bytes": 64640
+  },
+  {
+    "route": "/incidents",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 612,
+    "totalMs": 2964,
+    "bytes": 262235
+  },
+  {
+    "route": "/incidents",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 444,
+    "totalMs": 2026,
+    "bytes": 262235
+  },
+  {
+    "route": "/journal",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 285,
+    "totalMs": 652,
+    "bytes": 79968
+  },
+  {
+    "route": "/journal",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 174,
+    "totalMs": 532,
+    "bytes": 79968
+  },
+  {
+    "route": "/today",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 356,
+    "totalMs": 4705,
+    "bytes": 111124
+  },
+  {
+    "route": "/today",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 453,
+    "totalMs": 4027,
+    "bytes": 111167
+  },
+  {
+    "route": "/chessboard",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 271,
+    "totalMs": 1833,
+    "bytes": 407056
+  },
+  {
+    "route": "/chessboard",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 313,
+    "totalMs": 1342,
+    "bytes": 407013
+  },
+  {
+    "route": "/reservations",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 412,
+    "totalMs": 1527,
+    "bytes": 68847
+  },
+  {
+    "route": "/reservations",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 101,
+    "totalMs": 1209,
+    "bytes": 68847
+  },
+  {
+    "route": "/rates",
+    "run": 1,
+    "status": 200,
+    "ttfbMs": 158,
+    "totalMs": 880,
+    "bytes": 116978
+  },
+  {
+    "route": "/rates",
+    "run": 2,
+    "status": 200,
+    "ttfbMs": 142,
+    "totalMs": 1138,
+    "bytes": 116978
+  }
+]

@@ -1562,3 +1562,5 @@
 | 21.09.2026 13:14 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ❌ упало 1 из 118 | 4 с | c8ef0de | [лог](logs/2026-09-21T08-14-01Z-unit-acac.log) | SessionGuard метка публичного маршрута читается тем же ключом, которым её ставит декоратор |
 | 21.09.2026 13:15 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ❌ упало 1 из 118 | 3 с | c8ef0de | [лог](logs/2026-09-21T08-15-24Z-unit-341e.log) | SessionGuard метка публичного маршрута читается тем же ключом, которым её ставит декоратор |
 | 21.09.2026 13:16 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/auth) | ✅ 122 из 122 | 2 с | 5a224b1 | [лог](logs/2026-09-21T08-16-30Z-unit-2974.log) |  |
+| 22.09.2026 00:10 | unit | ❌ упало 4 из 1371, пропущено 3 | 1 мин 12 с | 48672a0 | [лог](logs/2026-09-21T19-10-25Z-unit-77dc.log) | merged tree: branch + origin/main 0369751 |
+| 22.09.2026 00:11 | lint | ✅ без ошибок | 14 с | 48672a0 | [лог](logs/2026-09-21T19-11-37Z-lint-0515.log) | merged tree: branch + origin/main 0369751 |

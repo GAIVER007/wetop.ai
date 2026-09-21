@@ -789,11 +789,48 @@
     display: none;
   }
 }
-/* «грязно» в строке ячейки — тем же бейджем, что на карточке места */
+/*
+ * Уборка в строке ячейки (21.09.2026): значок щётки тоном внимания вместо слова «грязно» в каждой
+ * строке. Кнопка меню — 26 px: строка шахматки 38 px, и обычные 30 px её распирают; цель нажатия
+ * остаётся больше 24 px (DESIGN.md §1 п. 3), на телефоне и планшете — 44 px.
+ */
 .board .board-hk {
-  font-size: var(--text-xs);
-  line-height: 16px;
-  gap: var(--space-1);
+  display: inline-flex;
+  vertical-align: middle;
+}
+/*
+ * Открытое меню уборки должно лежать выше соседних строк: у закреплённой первой колонки `z-index: 5`,
+ * и при равном слое строка ниже по документу перекрывала список — клик по «Убрано» уходил в ссылку R02
+ * (поймано тестом 21.09, тот же класс, что подсказка шахматки 20.09).
+ */
+.board td.board__unit:has(.action-menu__button[aria-expanded='true']) {
+  z-index: 9;
+}
+.board .board-hk__menu .action-menu__button {
+  width: 26px;
+  min-height: 26px;
+  padding: 0;
+  color: var(--warning);
+  border-color: transparent;
+  background: var(--warning-bg);
+}
+.board .board-hk__menu .action-menu__button:hover {
+  border-color: currentColor;
+}
+/* Список открывается вправо, внутрь таблицы: у кнопки в левой колонке `right: 0` уводил его за край */
+.board .board-hk__menu .action-menu__list {
+  right: auto;
+  left: 0;
+}
+.board .board-hk__menu svg {
+  width: 16px;
+  height: 16px;
+}
+@media (pointer: coarse) {
+  .board .board-hk__menu .action-menu__button {
+    width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
 }
 
 /* Штриховка блокировки. Селектор сильнее `.board__free` из premium.css (там сокращение `background`

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Icon } from './icon';
+import { Icon, type IconName } from './icon';
 import { cx } from './ui';
 
 export interface ActionMenuItem {
@@ -19,12 +19,15 @@ export interface ActionMenuItem {
 export function ActionMenu({
   items,
   label = 'Действия',
+  icon = 'more',
   size,
   className,
   style,
 }: {
   items: ActionMenuItem[];
   label?: string;
+  /** значок на кнопке: по умолчанию «⋯»; уборка на шахматке открывает меню щёткой (DESIGN.md §7) */
+  icon?: IconName | undefined;
   size?: 'sm' | undefined;
   className?: string | undefined;
   /** положение на плашке шахматки задаётся данными (ширина отрезка) — единственный инлайн-стиль */
@@ -78,7 +81,7 @@ export function ActionMenu({
           }
         }}
       >
-        <Icon name="more" />
+        <Icon name={icon} />
       </button>
       <div
         ref={list}

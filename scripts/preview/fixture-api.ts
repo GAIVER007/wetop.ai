@@ -530,6 +530,13 @@ let ratesUnmapped = false;
 /** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
 let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
+/**
+ * Статус уборки ячейки: один источник для шахматки и карточки места. До 21.09.2026 карточка брала
+ * `?? 'CLEAN'`, а доска — свой набор по умолчанию, и R01 была грязной на доске и убранной в карточке.
+ */
+const housekeepingOf = (code: string): UnitCard['housekeepingStatus'] =>
+  housekeeping.get(code) ??
+  (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
 let priceChanges: Array<{
@@ -989,9 +996,7 @@ function desk(date: string): DeskDay {
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
   // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
-  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
-    housekeeping.get(code) ??
-    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
+  const hk = housekeepingOf;
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
@@ -1758,7 +1763,7 @@ function read(path: string, q: URLSearchParams): unknown {
       ...u,
       id: u.code,
       active: true,
-      housekeepingStatus: housekeeping.get(u.code) ?? 'CLEAN',
+      housekeepingStatus: housekeepingOf(u.code),
       blocks: blocksFor(u.code),
       stays: allCards().flatMap((r) =>
         r.items

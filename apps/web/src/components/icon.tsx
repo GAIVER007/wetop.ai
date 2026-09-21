@@ -39,6 +39,9 @@ import {
   Send,
   CreditCard,
   ShieldCheck,
+  Brush,
+  SprayCan,
+  ClipboardCheck,
 } from 'lucide-react';
 const icons = {
   arrival: LogIn,
@@ -80,6 +83,10 @@ const icons = {
   send: Send,
   card: CreditCard,
   shield: ShieldCheck,
+  // уборка (DESIGN.md §7, «добавить при первом использовании»): грязно / убрано / проверено
+  dirty: Brush,
+  clean: SprayCan,
+  inspected: ClipboardCheck,
 };
 export type IconName = keyof typeof icons;
 /** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */

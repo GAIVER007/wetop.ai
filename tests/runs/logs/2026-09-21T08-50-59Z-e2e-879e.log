@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 21.09.2026 13:50 Алматы · vm
+# коммит 41f5b39 (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/incidents-design.spec.ts' 'tests/ui/control-design.spec.ts' 'tests/ui/system-screens.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API (1.6s)
+  ✓   2 tests/ui/control-design.spec.ts:34:1 › контроль: принятие с ошибкой и повтором, закрытие и история сохраняются после reload (2.9s)
+CONTROL_JOURNAL_CONTROLS_MS 322
+  ✓   3 tests/ui/control-design.spec.ts:57:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (6.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   4 tests/ui/control-design.spec.ts:83:3 › контроль: мобильный вид, клавиатура и доступность light (4.9s)
+  ✓   5 tests/ui/control-design.spec.ts:83:3 › контроль: мобильный вид, клавиатура и доступность dark (4.7s)
+  ✓   6 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.3s)
+  ✓   7 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.4s)
+  ✓   8 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.1s)
+  ✓   9 tests/ui/incidents-design.spec.ts:96:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (5.8s)
+  ✓  10 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (6.7s)
+  ✓  11 tests/ui/system-screens.spec.ts:82:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (6.1s)
+  ✓  12 tests/ui/system-screens.spec.ts:150:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (11.4s)
+  ✓  13 tests/ui/system-screens.spec.ts:247:1 › настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом (7.4s)
+  ✓  14 tests/ui/system-screens.spec.ts:299:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (6.5s)
+
+  14 passed (1.2m)
+
+# код выхода 0 · 1 мин 14 с

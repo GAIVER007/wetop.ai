@@ -7,24 +7,26 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
 
-test('контроль: поиск и фильтры открытых неисправностей не меняют сводку и не повторяют API', async ({
+test('контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API', async ({
   page,
   request,
 }) => {
+  // 21.09: два выпадающих списка отбора заменены чипами-счётчиками — отбор по-прежнему в браузере,
+  // и ни один чип не идёт за списком в API заново (сводка сторожа читается один раз на загрузку)
+  await request.post(`${API}/__test/control`, { data: { incidentsMix: true } });
   await page.goto('/incidents');
-  await expect(page.getByTestId('incident-row')).toHaveCount(1);
+  await expect(page.getByTestId('incident-row')).toHaveCount(4);
   const before = await (await request.get(`${API}/__test/hits`)).json();
   await page.getByLabel('Поиск неисправности').fill('не существует');
   await expect(page.getByTestId('incidents-filter-empty')).toBeVisible();
-  await expect(page.getByTestId('incidents-open')).toHaveText('1');
+  await expect(page.getByTestId('incidents-open')).toHaveText('4');
   await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
-  await page.getByLabel('Срочность').selectOption('CRITICAL');
-  await expect(page.getByTestId('incident-row')).toHaveCount(0);
-  await page.getByLabel('Срочность').selectOption('ALL');
-  await page.getByLabel('Статус неисправности').selectOption('ACKNOWLEDGED');
-  await expect(page.getByTestId('incidents-filter-empty')).toBeVisible();
-  await page.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
+  await page.getByRole('button', { name: 'Срочные 1' }).click();
   await expect(page.getByTestId('incident-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Принятые 1' }).click();
+  await expect(page.getByTestId('incident-status')).toHaveText('принято');
+  await page.getByRole('button', { name: 'Все 4' }).click();
+  await expect(page.getByTestId('incident-row')).toHaveCount(4);
   const after = await (await request.get(`${API}/__test/hits`)).json();
   expect(after.byPath['/guard/incidents']).toBe(before.byPath['/guard/incidents']);
 });

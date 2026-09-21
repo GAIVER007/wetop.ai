@@ -1,15 +1,16 @@
 import { guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
-import { Alert, Panel, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Alert, Panel, SectionTitle } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { GuardTickButton } from './buttons';
-import { IncidentList } from './incident-list';
+import { IncidentList, type IncidentRow } from './incident-list';
 import { Suspense } from 'react';
 import { RefreshButton } from '../../components/refresh-button';
 import { ControlNavigation } from '../../components/control-navigation';
-import '../directory.css';
+import { almatyWhen } from '../../lib/almaty';
+import './incidents.css';
 
 /**
  * Неисправности системы — одно место (срез 11, ADR-028). Сторож проверяет систему раз в минуту и пишет сюда
@@ -27,15 +28,17 @@ const atText = (iso: string) =>
     minute: '2-digit',
   });
 /** Время словами внутри `<time>`: сырое значение остаётся тестам и копированию (§14) */
-const at = (iso: string | null) => (iso ? <time dateTime={iso}>{atText(iso)}</time> : '—');
+const at = (iso: string | null) => (iso ? <time dateTime={iso}>{almatyWhen(iso)}</time> : '—');
 
 /** Сколько записей истории читаем: если пришло ровно столько, список обрезан — и это написано на экране */
 const HISTORY_LIMIT = 200;
 
 /**
- * D4 (план владельца 19.09): отказ состояния сторожа — `LoadError` с повтором, а не строка «API не отвечает»;
- * пустые таблицы называют, что это значит и откуда возьмётся новая запись; время в `<time>`; на телефоне
- * строки складываются в карточки. Сторож, его проверки и действия по неисправностям не менялись.
+ * 21.09.2026 (поручение владельца по снимку рабочего экрана — «чтобы каши не было»): три плитки с числами
+ * и панель сторожа на четыре колонки сведены в одну полосу состояния, отбор переехал в чипы-счётчики
+ * рядом со списком, закрытые за сутки убраны под раскрывашку. Сам сторож, его проверки и действия по
+ * неисправностям не менялись; D4 (LoadError с повтором, объяснённые пустые состояния, время в `<time>`,
+ * телефон без прокрутки вбок) остаётся в силе.
  */
 export default function IncidentsPage() {
   return (
@@ -79,6 +82,24 @@ async function IncidentContent() {
     (i) => i.status === 'RESOLVED' && Date.parse(i.resolvedAt ?? '') > dayAgo,
   );
   const tick = status?.lastTick ?? null;
+  // Что показывает полоса: числа сторожа (они могут быть больше загруженного списка) и одна фраза о том,
+  // требует ли что-то человека прямо сейчас. Тон — по тому же правилу, что цвет числа раньше: §9.
+  const summary = status
+    ? status.open.total === 0
+      ? 'Сторож ничего не нашёл.'
+      : [
+          status.open.critical > 0 ? `срочных ${status.open.critical}` : '',
+          status.open.escalated > 0 ? `ждут человека ${status.open.escalated}` : '',
+        ]
+          .filter(Boolean)
+          .join(', ') || 'сторож разбирается сам'
+    : 'Состояние сторожа не прочиталось.';
+  const tone =
+    status && status.open.escalated + status.open.critical > 0
+      ? 'alarm'
+      : status && status.open.total > 0
+        ? 'warn'
+        : 'calm';
   return (
     <div className="control-page">
       {!loadedStatus.ok && (
@@ -89,64 +110,57 @@ async function IncidentContent() {
           Уведомления не настроены. Неисправности доступны только здесь.
         </Alert>
       )}
-      <Stats min={150}>
-        <Stat label="Открыто" value={String(status?.open.total ?? '—')} testId="incidents-open" />
-        <Stat
-          label="Срочных"
-          value={
-            <span className={status && status.open.critical > 0 ? 'danger-text' : undefined}>
-              {String(status?.open.critical ?? '—')}
-            </span>
-          }
-        />
-        <Stat
-          label="Ждут человека"
-          value={
-            <span className={status && status.open.escalated > 0 ? 'danger-text' : undefined}>
-              {String(status?.open.escalated ?? '—')}
-            </span>
-          }
-        />
-      </Stats>
-      {status && (
-        <div className="facts facts--card control-monitor">
-          <div>
-            <div className="fact__label">Мониторинг</div>
-            <div className="fact__value" data-testid="guard-running">
-              {status.running ? 'работает, проход раз в минуту' : 'выключен'}
-            </div>
-          </div>
-          <div>
-            <div className="fact__label">Автовосстановление</div>
-            <div className="fact__value">{status.autofix ? 'включена' : 'выключено'}</div>
-          </div>
-          <div>
-            <div className="fact__label">Последний проход</div>
-            <div className="fact__value">{tick ? at(tick.at) : 'ещё не было'}</div>
-            {tick && (
-              <div className="cell-sub">
-                проверок {tick.checked.length}
-                {tick.checkErrors.length > 0 && (
-                  <span className="danger-text">
-                    , не отработали: {tick.checkErrors.map((e) => e.check).join(', ')}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="fact__label">Уведомления</div>
-            <div className="fact__value">
-              {status.notifier.configured
-                ? `Telegram, чатов: ${status.notifier.recipients}`
-                : 'не настроен'}
-            </div>
-            {tick?.alertError && status.notifier.configured && (
-              <div className="cell-sub danger-text">{tick.alertError}</div>
-            )}
-          </div>
+      <Panel className="guard-bar">
+        <div className="guard-bar__state" data-tone={tone}>
+          <div className="fact__label">Открыто</div>
+          <p className="guard-bar__count">
+            <span data-testid="incidents-open">{String(status?.open.total ?? '—')}</span>
+          </p>
+          <p className="guard-bar__summary" data-testid="incidents-summary">
+            {summary}
+          </p>
         </div>
-      )}
+        <dl className="guard-bar__facts">
+          <div>
+            <dt className="fact__label">Сторож</dt>
+            <dd className="fact__value" data-testid="guard-running">
+              {status
+                ? `${status.running ? 'работает, проход раз в минуту' : 'выключен'}, технику ${status.autofix ? 'чинит сам' : 'сам не чинит'}`
+                : '—'}
+            </dd>
+          </div>
+          <div>
+            <dt className="fact__label">Последний проход</dt>
+            <dd className="fact__value">
+              {tick ? at(tick.at) : status ? 'ещё не было' : '—'}
+              {tick && (
+                <span className="guard-bar__sub">
+                  {' '}
+                  {pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}
+                  {tick.checkErrors.length > 0 && (
+                    <span className="danger-text">
+                      , не отработали: {tick.checkErrors.map((e) => e.check).join(', ')}
+                    </span>
+                  )}
+                </span>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="fact__label">Будильник</dt>
+            <dd className="fact__value">
+              {status
+                ? status.notifier.configured
+                  ? `Telegram, ${pluralRu(status.notifier.recipients, ['чат', 'чата', 'чатов'])}`
+                  : 'не настроен'
+                : '—'}
+              {tick?.alertError && status?.notifier.configured && (
+                <span className="guard-bar__sub danger-text"> {tick.alertError}</span>
+              )}
+            </dd>
+          </div>
+        </dl>
+      </Panel>
 
       <SectionTitle>Открытые</SectionTitle>
       {open === null && (
@@ -155,87 +169,89 @@ async function IncidentContent() {
         </Alert>
       )}
       {open !== null && (
-        <IncidentList
-          incidents={open.map(
-            ({
-              id,
-              kind,
-              class: incidentClass,
-              severity,
-              status: incidentStatus,
-              title,
-              occurrences,
-              firstSeenAt,
-              lastSeenAt,
-              fixAttempts,
-              lastFixResult,
-              alertedAt,
-            }) => ({
-              id,
-              kind,
-              class: incidentClass,
-              severity,
-              status: incidentStatus,
-              title,
-              occurrences,
-              firstSeenAt,
-              lastSeenAt,
-              fixAttempts,
-              lastFixResult,
-              alertedAt,
-            }),
+        <>
+          {status !== null && status.open.total > open.length && (
+            <p className="note">
+              Загружены последние {open.length} из {status.open.total} открытых неисправностей.
+            </p>
           )}
-          total={status?.open.total ?? null}
-          emptyHint={`Открытых неисправностей нет.${tick ? ` Последний проход в ${atText(tick.at)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}.` : ''} ${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
-        />
+          <IncidentList
+            incidents={open.map(
+              ({
+                id,
+                kind,
+                class: incidentClass,
+                severity,
+                status: incidentStatus,
+                title,
+                occurrences,
+                firstSeenAt,
+                lastSeenAt,
+                fixAttempts,
+                lastFixResult,
+                alertedAt,
+              }): IncidentRow => ({
+                id,
+                kind,
+                class: incidentClass,
+                severity,
+                status: incidentStatus,
+                title,
+                occurrences,
+                firstSeenAt,
+                lastSeenAt,
+                fixAttempts,
+                lastFixResult,
+                alertedAt,
+              }),
+            )}
+            emptyTitle="Открытых неисправностей нет"
+            emptyHint={`${tick ? `Последний проход в ${atText(tick.at)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}. ` : ''}${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
+          />
+        </>
       )}
 
-      <SectionTitle>Закрыты за сутки</SectionTitle>
-      {truncated && (
-        <p className="note" data-testid="incidents-truncated" role="status">
-          Показаны последние {HISTORY_LIMIT} записей истории, и их пришло ровно столько: закрытых за
-          сутки могло быть больше, чем в таблице.
-        </p>
-      )}
       {all === null && (
         <Alert boxed>
           История неисправностей не загрузилась. Это не означает, что закрытых записей нет.
         </Alert>
       )}
-      <Table
-        size="sm"
-        className="dir-table dir-table--incidents-closed control-table"
-        data-testid="incidents-closed"
-      >
-        <thead>
-          <tr>
-            {['Что случилось', 'Замечена', 'Закрыта', 'Кем'].map((h) => (
-              <th key={h}>{h}</th>
+      {/*
+       * Закрытые за сутки — справка, а не работа: на экране владельца они занимали столько же места,
+       * сколько открытые. Список под раскрывашкой, а его длина названа прямо в подписи.
+       */}
+      <details className="incident-history" data-testid="incidents-closed">
+        <summary>
+          Закрыты за сутки: {closed?.length ?? '—'}
+          {truncated && ' (показаны не все)'}
+        </summary>
+        {truncated && (
+          <p className="note" data-testid="incidents-truncated" role="status">
+            Показаны последние {HISTORY_LIMIT} записей истории, и их пришло ровно столько: закрытых
+            за сутки могло быть больше, чем в списке.
+          </p>
+        )}
+        {closed?.length === 0 && (
+          <p className="incident-history__empty" data-testid="incidents-closed-empty">
+            За сутки ничего не закрывалось: ни сторож, ни человек не закрывали записей. Закрытые
+            раньше — в истории API, здесь только последние 24 часа.
+          </p>
+        )}
+        {closed && closed.length > 0 && (
+          <ul className="incident-history__list">
+            {closed.map((i) => (
+              <li key={i.id} data-testid="incidents-closed-row">
+                <span className="incident-history__title">{i.title}</span>
+                <span className="incident-history__meta">
+                  Замечена {at(i.firstSeenAt)}, закрыта {at(i.resolvedAt)},{' '}
+                  {i.resolvedBy ? RESOLVED_BY_RU[i.resolvedBy] : 'кем — неизвестно'}.
+                  {i.lastFixResult ? ` ${i.lastFixResult}.` : ''}
+                </span>
+              </li>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {closed?.length === 0 && (
-            <tr>
-              <td colSpan={4} className="empty-state" data-testid="incidents-closed-empty">
-                За сутки ничего не закрывалось: ни сторож, ни человек не закрывали записей. Закрытые
-                раньше — в истории API, здесь только последние 24 часа.
-              </td>
-            </tr>
-          )}
-          {closed?.map((i) => (
-            <tr key={i.id}>
-              <td>
-                {i.title}
-                {i.lastFixResult && <div className="cell-sub">{i.lastFixResult}</div>}
-              </td>
-              <td className="nowrap">{at(i.firstSeenAt)}</td>
-              <td className="nowrap">{at(i.resolvedAt)}</td>
-              <td>{i.resolvedBy ? RESOLVED_BY_RU[i.resolvedBy] : '—'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+          </ul>
+        )}
+      </details>
     </div>
   );
 }

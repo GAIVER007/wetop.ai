@@ -45,3 +45,13 @@ export function almatyStamp(iso: string): string {
   const t = Date.parse(iso);
   return Number.isNaN(t) ? '—' : stampInAlmaty.format(t);
 }
+
+/**
+ * Момент события → «20.09 в 16:50» по часам объекта: время внутри фразы, а не столбиком в колонке.
+ *
+ * Без `Date.now()`: строка одинакова на сервере и в браузере, иначе гидрация расходится под полночь.
+ */
+export function almatyWhen(iso: string | null | undefined): string {
+  const moment = almatyMoment(iso);
+  return moment === '—' ? moment : moment.replace(' ', ' в ');
+}

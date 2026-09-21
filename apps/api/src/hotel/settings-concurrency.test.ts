@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HotelService } from './hotel.module';
+import { withSignedInUser } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
 
 const property = { id: 'test-property', name: 'Тестовый объект' };
@@ -43,5 +44,29 @@ describe('одновременное чтение настроек', () => {
     findFirst.mockResolvedValue(property);
     await expect(service.settings()).resolves.toEqual({ property, ratePlans: [] });
     expect(findFirst).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * Мультитенантность: кэш настроек — по организации. Иначе первый вошедший «прогревал» бы кэш, и
+   * второй из ДРУГОЙ организации получил бы чужой объект. Разные организации — разные чтения и разбор
+   * по своему `organizationId`; служебный ходок читает по имени.
+   */
+  it('кэш настроек не течёт между организациями', async () => {
+    const { service, findFirst } = setup();
+    findFirst.mockImplementation(async ({ where }: { where: { organizationId?: string } }) => ({
+      id: `p-${where.organizationId ?? 'name'}`,
+      name: where.organizationId === 'org-a' ? 'Отель А' : 'Отель Б',
+    }));
+    const a = await withSignedInUser({ userId: 'u-a', organizationId: 'org-a' }, () =>
+      service.settings(),
+    );
+    const b = await withSignedInUser({ userId: 'u-b', organizationId: 'org-b' }, () =>
+      service.settings(),
+    );
+    expect(a.property.name).toBe('Отель А');
+    expect(b.property.name).toBe('Отель Б');
+    expect(findFirst).toHaveBeenCalledTimes(2); // по одному чтению на организацию, кэши раздельны
+    expect(findFirst.mock.calls[0]?.[0].where).toEqual({ organizationId: 'org-a' });
+    expect(findFirst.mock.calls[1]?.[0].where).toEqual({ organizationId: 'org-b' });
   });
 });

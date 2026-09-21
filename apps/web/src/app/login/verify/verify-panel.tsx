@@ -1,15 +1,37 @@
 'use client';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { Icon } from '../../../components/icon';
 import { verifyEmailAction } from '../actions';
 
-/** Кнопка «Подтвердить почту и войти». Удача уводит на рабочее место, отказ остаётся текстом здесь. */
+/**
+ * Подтверждение почты по ссылке из письма. Раньше здесь была кнопка «Подтвердить почту и войти»:
+ * человек открывал письмо, попадал сюда и должен был нажать ещё раз. Многие вместо этого шли на
+ * «Войти», вводили пароль неподтверждённой почты и упирались в «Почта не подтверждена». Теперь
+ * страница подтверждает сама, как только открылась в настоящем браузере: JS выполняется только у
+ * человека, а почтовые сканеры ходят по ссылке без него — «подтверждение по открытию» у них раньше
+ * человека не сработает (ADR-060). Кнопка остаётся лишь как повтор, если что-то не заладилось.
+ */
 export function VerifyPanel({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(
     token ? null : 'Ссылка неполная: откройте её из письма целиком',
   );
   const [pending, start] = useTransition();
+  const started = useRef(false);
+
+  const confirm = () =>
+    start(async () => {
+      const result = await verifyEmailAction(token);
+      setError(result.error);
+    });
+
+  // Один раз при открытии страницы: повторный запуск в строгом режиме отсекает ref, а не токен
+  useEffect(() => {
+    if (token && !started.current) {
+      started.current = true;
+      confirm();
+    }
+  }, []);
 
   return (
     <main className="login-page" id="main-content">
@@ -27,7 +49,7 @@ export function VerifyPanel({ token }: { token: string }) {
             <br />
             готово.
           </h1>
-          <p>Нажмите кнопку — и сразу окажетесь на рабочем месте.</p>
+          <p>Подтверждаем вашу почту — и сразу откроем рабочее место.</p>
         </div>
       </section>
       <section className="login-form-panel">
@@ -35,31 +57,26 @@ export function VerifyPanel({ token }: { token: string }) {
           <span className="round-icon">
             <Icon name="shield" />
           </span>
-          <h2>Подтвердить почту</h2>
-          <p>Пароль спрашивать не будем: вы задали его при регистрации.</p>
-          {error && (
-            <p className="alert" role="alert">
-              {error}
-            </p>
+          <h2>Подтверждение почты</h2>
+          {error ? (
+            <>
+              <p className="alert" role="alert">
+                {error}
+              </p>
+              {token && (
+                <button className="btn" type="button" disabled={pending} onClick={confirm}>
+                  {pending ? 'Подтверждаем…' : 'Подтвердить ещё раз'}
+                  <Icon name="arrow" width={16} />
+                </button>
+              )}
+              <div className="login-preview">
+                <span>Ссылка не сработала?</span>
+                <Link href="/login">Войти и запросить письмо заново</Link>
+              </div>
+            </>
+          ) : (
+            <p role="status">Подтверждаем почту и открываем рабочее место…</p>
           )}
-          <button
-            className="btn"
-            type="button"
-            disabled={pending || !token}
-            onClick={() =>
-              start(async () => {
-                const result = await verifyEmailAction(token);
-                setError(result.error);
-              })
-            }
-          >
-            {pending ? 'Подтверждаем…' : 'Подтвердить почту и войти'}
-            <Icon name="arrow" width={16} />
-          </button>
-          <div className="login-preview">
-            <span>Ссылка не сработала?</span>
-            <Link href="/login">Войти и запросить письмо заново</Link>
-          </div>
         </div>
       </section>
     </main>

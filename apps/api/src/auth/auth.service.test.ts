@@ -225,7 +225,12 @@ describe('AuthService.changePassword', () => {
  * ADR-060). Вход открывается только после перехода по ссылке из письма.
  */
 describe('AuthService.register', () => {
-  const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
+  const NEW = {
+    email: 'novyi@example.invalid',
+    name: '  Вячеслав  Петров ',
+    hotelName: '  Хостел  на Абая ',
+    password: PASSWORD,
+  };
 
   // Решение владельца 20.09.2026: регистрация доступна без дополнительных настроек.
   beforeEach(() => vi.stubEnv('REGISTRATION_OPEN', undefined));
@@ -241,7 +246,8 @@ describe('AuthService.register', () => {
   });
 
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
-    const { auth, users, sessions, memberships, organizations, audit, letters } = service();
+    const { auth, users, sessions, memberships, organizations, properties, audit, letters } =
+      service();
     const result = await auth.register(NEW, NOW);
 
     expect(result).toMatchObject({ pendingVerification: true, email: 'novyi@example.invalid' });
@@ -254,14 +260,21 @@ describe('AuthService.register', () => {
     // пароль в базе только хешем, и сам он нигде не всплывает
     expect(created!.passwordHash).not.toContain(PASSWORD);
 
-    // рабочее пространство названо именем человека: отдельного поля в форме нет
-    const org = organizations.find((o) => o.name === 'Вячеслав Петров');
+    // рабочее пространство названо отелем из формы (SaaS-онбординг), а не именем человека
+    const org = organizations.find((o) => o.name === 'Хостел на Абая');
     expect(org, 'организация заведена').toBeDefined();
     expect(org!.status).toBe('TRIAL');
     expect(org!.trialEndsAt!.getTime()).toBeGreaterThan(NOW.getTime());
     expect(memberships.some((m) => m.userId === created!.id && m.organizationId === org!.id)).toBe(
       true,
     );
+
+    // объект организации создан сразу, назван отелем — иначе новый кабинет упирался бы в
+    // «объект не настроен для вашей организации» на каждом экране (мультитенантность 21.09)
+    const property = properties.find((pr) => pr.organizationId === org!.id);
+    expect(property, 'объект заведён для организации').toBeDefined();
+    expect(property!.name).toBe('Хостел на Абая');
+    expect(property!.currency).toBe('KZT');
 
     // сессии нет ни одной: пока не подтверждена почта, входа нет
     expect(sessions.filter((x) => x.userId === created!.id)).toHaveLength(0);
@@ -318,7 +331,9 @@ describe('AuthService.register', () => {
 
   it('негодная ссылка отвечает отказом и никого не впускает', async () => {
     const { verification } = service();
-    await expect(verification.confirm('нет-такой-ссылки', NOW)).rejects.toThrow(/Ссылка не годится/);
+    await expect(verification.confirm('нет-такой-ссылки', NOW)).rejects.toThrow(
+      /Ссылка не годится/,
+    );
   });
 
   it('занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку', async () => {
@@ -343,6 +358,9 @@ describe('AuthService.register', () => {
   it('пустое имя и строка, не похожая на почту, — отказ с понятным текстом', async () => {
     const { auth } = service();
     await expect(auth.register({ ...NEW, name: '   ' }, NOW)).rejects.toThrow(/Укажите имя/);
+    await expect(auth.register({ ...NEW, hotelName: '   ' }, NOW)).rejects.toThrow(
+      /Укажите название организации/,
+    );
     await expect(auth.register({ ...NEW, email: 'не-почта' }, NOW)).rejects.toThrow(
       /Укажите почту/,
     );

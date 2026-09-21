@@ -2378,10 +2378,12 @@ createServer(async (req, res) => {
         });
       const email = String(body['email'] ?? '').trim();
       const name = String(body['name'] ?? '').trim();
+      const hotelName = String(body['hotelName'] ?? '').trim();
       const password = String(body['password'] ?? '');
       if (!email.includes('@'))
         return send(400, { message: 'Укажите почту — ею же вы будете входить.' });
       if (!name) return send(400, { message: 'Укажите имя, до 200 знаков.' });
+      if (!hotelName) return send(400, { message: 'Укажите название организации, до 200 знаков.' });
       if (password.trim().length < 10)
         return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
       if (email.toLowerCase() === uiUser.email)

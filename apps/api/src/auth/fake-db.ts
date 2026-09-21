@@ -63,6 +63,16 @@ export interface FakeOrganization {
   trialEndsAt: Date | null;
 }
 
+export interface FakeProperty {
+  id: string;
+  organizationId: string | null;
+  name: string;
+  timezone: string;
+  currency: string;
+  checkInTime: string;
+  checkOutTime: string;
+}
+
 export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
   return {
     id: 'u-1',
@@ -85,6 +95,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const resets: FakeReset[] = [];
   const verifications: FakeVerification[] = [];
   const audit: AuditRow[] = [];
+  const properties: FakeProperty[] = [];
   // каждый заведённый человек состоит в одной организации — так его пускает §13.3
   const memberships: FakeMembership[] = users.map((u) => ({
     userId: u.id,
@@ -112,6 +123,22 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         const row: FakeOrganization = { id: `org-${seq + 1}`, ...data };
         organizations.push(row);
         return { ...row };
+      },
+    },
+    property: {
+      async create({ data }: { data: Omit<FakeProperty, 'id'> }) {
+        seq += 1;
+        const row: FakeProperty = { id: `prop-${seq}`, ...data };
+        properties.push(row);
+        return { ...row };
+      },
+      async findFirst({ where }: { where: { organizationId?: string; name?: string } }) {
+        const row = properties.find(
+          (pr) =>
+            (where.organizationId === undefined || pr.organizationId === where.organizationId) &&
+            (where.name === undefined || pr.name === where.name),
+        );
+        return row ? { ...row } : null;
       },
     },
     user: {
@@ -337,15 +364,29 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
    */
   Object.assign(db, {
     async $transaction<T>(fn: (tx: typeof db) => Promise<T>): Promise<T> {
-      const before = [organizations, users, memberships, sessions, resets, verifications, audit].map(
-        (t) => t.length,
-      );
+      const before = [
+        organizations,
+        properties,
+        users,
+        memberships,
+        sessions,
+        resets,
+        verifications,
+        audit,
+      ].map((t) => t.length);
       try {
         return await fn(db);
       } catch (e) {
-        [organizations, users, memberships, sessions, resets, verifications, audit].forEach((table, i) =>
-          table.splice(before[i]!),
-        );
+        [
+          organizations,
+          properties,
+          users,
+          memberships,
+          sessions,
+          resets,
+          verifications,
+          audit,
+        ].forEach((table, i) => table.splice(before[i]!));
         throw e;
       }
     },
@@ -358,6 +399,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     resets,
     verifications,
     memberships,
+    properties,
     organizations,
     audit,
     db,

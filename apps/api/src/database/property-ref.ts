@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 
@@ -28,6 +28,10 @@ interface PropertyRef {
 export const FOREIGN_PROPERTY_MESSAGE =
   'Объект не настроен для вашей организации. Обратитесь к владельцу объекта.';
 
+/** У организации вошедшего ещё нет объекта. При регистрации он создаётся, так что это редкий случай. */
+export const PROPERTY_NOT_SET_UP_MESSAGE =
+  'У вашей организации ещё нет объекта. Создайте его в настройках.';
+
 /**
  * Замок разделения данных (ADR-061). Стоит в единственном месте, где имя объекта превращается в его
  * идентификатор: всё остальное — шахматка, брони, тарифы, сверка — начинает запрос отсюда, и потому
@@ -47,12 +51,16 @@ const cache = new Map<string, PropertyRef>();
 const schema = (): string => process.env.DATABASE_SCHEMA?.trim() || 'public';
 
 export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
-  const key = `${schema()}|${name}`;
+  // Мультитенантность (решение владельца 21.09.2026). Вошедший человек видит только объект СВОЕЙ
+  // организации — какое бы имя ни просил репозиторий (все просят имя единственного прежде объекта).
+  // Это тот же замок ADR-061, перенесённый в саму выборку: подставить чужой объект нельзя, потому
+  // что имя больше не участвует в выборке для человека. Служебный ходок (сторож, скрипт, импорт,
+  // публичный виджет) человека за собой не имеет и по-прежнему берёт объект по имени.
+  if (hasSignedInActor()) return organizationPropertyRef(db);
+
+  const key = `${schema()}|name|${name}`;
   const known = cache.get(key);
-  if (known) {
-    assertPropertyVisible(known);
-    return known;
-  }
+  if (known) return known;
   // `findFirst`, а не `findFirstOrThrow`: так же читают объект остальные места, и подделки в тестах
   // не приходится учить второму методу. Отсутствие объекта — это «база ещё не настроена».
   const found = await db.property.findFirst({
@@ -61,9 +69,26 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   });
   if (!found) throw new Error(`Объект «${name}» не найден: база ещё не настроена`);
   cache.set(key, found);
-  // Проверка после запоминания: чужой организации отказываем, но второй рейс в базу за тем же
-  // объектом не делаем — иначе отказ стоил бы дороже успеха.
-  assertPropertyVisible(found);
+  return found;
+}
+
+/**
+ * Объект организации вошедшего. Выборка идёт прямо по `organizationId`, поэтому чужой объект сюда
+ * не попадает по построению, а не по проверке после. Кэш — по организации плюс схема базы (ADR-042).
+ */
+async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
+  const organizationId = currentOrganizationId();
+  // Вошедший без организации (членства нет) не видит ни одного объекта — как и должен.
+  if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+  const key = `${schema()}|org|${organizationId}`;
+  const known = cache.get(key);
+  if (known) return known;
+  const found = await db.property.findFirst({
+    where: { organizationId },
+    select: { id: true, name: true, organizationId: true },
+  });
+  if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+  cache.set(key, found);
   return found;
 }
 

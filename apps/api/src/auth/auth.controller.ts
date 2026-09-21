@@ -55,6 +55,7 @@ export class AuthController {
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
+      hotelName: text(body?.hotelName, 'hotelName', 200),
       password: text(body?.password, 'password', 200),
     });
   }
@@ -65,7 +66,10 @@ export class AuthController {
    */
   @Public()
   @Post('email/verify')
-  async verifyEmail(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+  async verifyEmail(
+    @Body() body: Record<string, unknown>,
+    @Headers('user-agent') userAgent?: string,
+  ) {
     const confirmed = await this.verification.confirm(text(body?.token, 'token', 200));
     return this.auth.startSession({
       userId: confirmed.userId,

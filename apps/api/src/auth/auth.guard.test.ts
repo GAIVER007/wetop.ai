@@ -155,78 +155,75 @@ describe('SessionGuard', () => {
 
   it('метка публичного маршрута читается тем же ключом, которым её ставит декоратор', () => {
     expect(PUBLIC_ROUTE).toBe('wetop:public-route');
+  });
 
-    describe('ключ дежурного агента (GUARD_READ_KEY)', () => {
-      beforeEach(() => {
-        process.env.SERVICE_API_KEY = 'служебный-ключ-длинный';
-        process.env.GUARD_READ_KEY = 'ключ-агента-только-чтение';
-      });
+  describe('ключ дежурного агента (GUARD_READ_KEY)', () => {
+    beforeEach(() => {
+      process.env.AUTH_REQUIRED = '1';
+      process.env.SERVICE_API_KEY = 'служебный-ключ-длинный';
+      process.env.GUARD_READ_KEY = 'ключ-агента-только-чтение';
+    });
 
-      it('пускает читать неисправности сторожа', async () => {
-        for (const url of ['/guard/incidents', '/guard/incidents?status=all', '/guard/status']) {
-          const { ctx, request } = context(
-            { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
-            'GET',
-            url,
-          );
-          await expect(
-            new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
-          ).resolves.toBe(true);
-          expect(request.service).toBe(true);
-        }
-      });
-
-      it('не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу', async () => {
-        for (const [method, url] of [
-          ['POST', '/guard/incidents/11111111-1111-1111-1111-111111111111/resolve'],
-          ['POST', '/guard/incidents/11111111-1111-1111-1111-111111111111/acknowledge'],
-          ['POST', '/guard/tick'],
-          ['POST', '/guard/alert/test'],
-        ] as const) {
-          const { ctx } = context(
-            { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
-            method,
-            url,
-          );
-          await expect(
-            new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
-          ).rejects.toThrow(/читает только неисправности/);
-        }
-      });
-
-      it('не открывает остальной API: ни броней, ни денег, ни учёток', async () => {
-        for (const url of ['/desk/today', '/reservations', '/finance/payments', '/auth/me']) {
-          const { ctx } = context(
-            { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
-            'GET',
-            url,
-          );
-          await expect(
-            new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
-          ).rejects.toThrow(/читает только неисправности/);
-        }
-      });
-
-      it('служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда', async () => {
+    it('пускает читать неисправности сторожа', async () => {
+      for (const url of ['/guard/incidents', '/guard/incidents?status=all', '/guard/status']) {
         const { ctx, request } = context(
-          { 'x-wetop-service-key': 'служебный-ключ-длинный' },
-          'POST',
-          '/reservations',
+          { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
+          'GET',
+          url,
         );
         await expect(
           new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
         ).resolves.toBe(true);
         expect(request.service).toBe(true);
+      }
+    });
 
-        const чужой = context(
-          { 'x-wetop-service-key': 'ключ-агента-только-чтениЯ' },
-          'GET',
-          '/guard/status',
+    it('не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу', async () => {
+      for (const [method, url] of [
+        ['POST', '/guard/incidents/11111111-1111-1111-1111-111111111111/resolve'],
+        ['POST', '/guard/incidents/11111111-1111-1111-1111-111111111111/acknowledge'],
+        ['POST', '/guard/tick'],
+        ['POST', '/guard/alert/test'],
+      ] as const) {
+        const { ctx } = context(
+          { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
+          method,
+          url,
         );
         await expect(
-          new SessionGuard(reflector(false), auth(false)).canActivate(чужой.ctx),
-        ).rejects.toThrow(/не подходит/);
-      });
+          new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+        ).rejects.toThrow(/читает только неисправности/);
+      }
+    });
+
+    it('не открывает остальной API: ни броней, ни денег, ни учёток', async () => {
+      for (const url of ['/desk/today', '/reservations', '/finance/payments', '/auth/me']) {
+        const { ctx } = context({ 'x-wetop-service-key': 'ключ-агента-только-чтение' }, 'GET', url);
+        await expect(
+          new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+        ).rejects.toThrow(/читает только неисправности/);
+      }
+    });
+
+    it('служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда', async () => {
+      const { ctx, request } = context(
+        { 'x-wetop-service-key': 'служебный-ключ-длинный' },
+        'POST',
+        '/reservations',
+      );
+      await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).resolves.toBe(
+        true,
+      );
+      expect(request.service).toBe(true);
+
+      const чужой = context(
+        { 'x-wetop-service-key': 'ключ-агента-только-чтениЯ' },
+        'GET',
+        '/guard/status',
+      );
+      await expect(
+        new SessionGuard(reflector(false), auth(false)).canActivate(чужой.ctx),
+      ).rejects.toThrow(/не подходит/);
     });
   });
 });

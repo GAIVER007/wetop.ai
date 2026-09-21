@@ -15,6 +15,7 @@ import { fakeDb } from './fake-db';
 const NEW = {
   email: 'closed@example.invalid',
   name: 'Тестовый сотрудник',
+  hotelName: 'Тестовый хостел',
   password: 'test-password-2026',
 };
 
@@ -35,7 +36,15 @@ describe('единая настройка самостоятельной рег�
         { provide: PasswordResetService, useValue: {} },
         {
           provide: EmailVerificationService,
-          useValue: { async sendFor() { return true; }, async resend() {}, async confirm() { throw new Error('не звали'); } },
+          useValue: {
+            async sendFor() {
+              return true;
+            },
+            async resend() {},
+            async confirm() {
+              throw new Error('не звали');
+            },
+          },
         },
       ],
     }).compile();

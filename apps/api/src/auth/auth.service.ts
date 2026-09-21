@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {
   REGISTRATION_EMAIL_MESSAGE,
+  REGISTRATION_NAME_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
@@ -15,15 +16,16 @@ import {
   evaluateLogin,
   hashPassword,
   hashSessionToken,
+  isOrganizationNameShaped,
   isPersonNameShaped,
   newSessionToken,
+  normalizeOrganizationName,
   normalizePersonName,
   trialEndsAt,
   validEmail,
   sessionExpiry,
   sessionState,
   verifyPassword,
-  workspaceNameFor,
   type UserStatus,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -212,7 +214,7 @@ export class AuthService {
    * осознанная: форме регистрации иначе нечего ответить человеку, который уже регистрировался.
    */
   async register(
-    input: { email: string; name: string; password: string },
+    input: { email: string; name: string; hotelName: string; password: string },
     now = new Date(),
   ): Promise<RegisterResult> {
     this.assertRegistrationOpen();
@@ -221,16 +223,22 @@ export class AuthService {
     if (!isPersonNameShaped(input.name)) {
       throw new BadRequestException(REGISTRATION_PERSON_NAME_MESSAGE);
     }
+    // Название отеля — это и есть название организации: человек вводит его в форме (SaaS-онбординг,
+    // решение владельца 21.09), рабочее пространство больше не зовётся именем человека.
+    if (!isOrganizationNameShaped(input.hotelName)) {
+      throw new BadRequestException(REGISTRATION_NAME_MESSAGE);
+    }
     const strength = checkPassword(input.password);
     if (!strength.ok) throw new BadRequestException(`Пароль не годится: ${strength.reason}`);
 
     const name = normalizePersonName(input.name);
+    const organizationName = normalizeOrganizationName(input.hotelName);
     const passwordHash = hashPassword(input.password);
     let created: { userId: string; organizationId: string };
     try {
       created = await this.prisma.db.$transaction(async (tx) => {
         const org = await tx.organization.create({
-          data: { name: workspaceNameFor(name), status: 'TRIAL', trialEndsAt: trialEndsAt(now) },
+          data: { name: organizationName, status: 'TRIAL', trialEndsAt: trialEndsAt(now) },
           select: { id: true },
         });
         const user = await tx.user.create({

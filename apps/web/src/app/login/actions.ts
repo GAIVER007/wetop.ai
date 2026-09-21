@@ -106,11 +106,12 @@ function errorText(e: unknown): string {
 export async function registerAction(
   email: string,
   name: string,
+  hotelName: string,
   password: string,
 ): Promise<AuthActionResult> {
   let sent: boolean;
   try {
-    const result = await authApi.register({ email, name, password });
+    const result = await authApi.register({ email, name, hotelName, password });
     sent = result.sent;
   } catch (e) {
     return { error: errorText(e) };
@@ -139,10 +140,7 @@ export interface ResendState {
 }
 
 /** «Выслать письмо заново». Ответ не говорит, есть ли такая почта: иначе форма проверяет чужие адреса. */
-export async function resendVerification(
-  _prev: ResendState,
-  form: FormData,
-): Promise<ResendState> {
+export async function resendVerification(_prev: ResendState, form: FormData): Promise<ResendState> {
   const email = String(form.get('email') ?? '').trim();
   if (!email) return { error: 'Введите почту', sent: false };
   try {

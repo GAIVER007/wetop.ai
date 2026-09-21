@@ -352,7 +352,7 @@ export const authApi = {
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
-  register: (body: { email: string; name: string; password: string }) =>
+  register: (body: { email: string; name: string; hotelName: string; password: string }) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
       'POST',
       '/auth/register',

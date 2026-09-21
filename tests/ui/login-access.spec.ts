@@ -261,6 +261,7 @@ test.describe('регистрация доступна по умолчанию',
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Регистрация');
     await main.getByLabel('Email').fill('novyj@example.com');
     await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Название отеля').fill('Хостел на Абая');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await page.waitForURL('**/login/check-email**');
@@ -279,6 +280,7 @@ test.describe('регистрация доступна по умолчанию',
     const main = page.getByRole('main');
     await main.getByLabel('Email').fill('novyj@example.com');
     await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Название отеля').fill('Хостел на Абая');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await page.waitForURL('**/login/check-email**');
@@ -309,6 +311,7 @@ test.describe('регистрация доступна по умолчанию',
     // занятый адрес называется прямо — иначе человеку нечего ответить на вторую попытку
     await main.getByLabel('Email').fill(EMAIL);
     await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Название отеля').fill('Хостел на Абая');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');

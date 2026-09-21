@@ -225,7 +225,12 @@ describe('AuthService.changePassword', () => {
  * ADR-060). Вход открывается только после перехода по ссылке из письма.
  */
 describe('AuthService.register', () => {
-  const NEW = { email: 'novyi@example.invalid', name: '  Вячеслав  Петров ', password: PASSWORD };
+  const NEW = {
+    email: 'novyi@example.invalid',
+    name: '  Вячеслав  Петров ',
+    hotelName: '  Хостел  на Абая ',
+    password: PASSWORD,
+  };
 
   // Решение владельца 20.09.2026: регистрация доступна без дополнительных настроек.
   beforeEach(() => vi.stubEnv('REGISTRATION_OPEN', undefined));
@@ -254,8 +259,8 @@ describe('AuthService.register', () => {
     // пароль в базе только хешем, и сам он нигде не всплывает
     expect(created!.passwordHash).not.toContain(PASSWORD);
 
-    // рабочее пространство названо именем человека: отдельного поля в форме нет
-    const org = organizations.find((o) => o.name === 'Вячеслав Петров');
+    // рабочее пространство названо отелем из формы (SaaS-онбординг), а не именем человека
+    const org = organizations.find((o) => o.name === 'Хостел на Абая');
     expect(org, 'организация заведена').toBeDefined();
     expect(org!.status).toBe('TRIAL');
     expect(org!.trialEndsAt!.getTime()).toBeGreaterThan(NOW.getTime());
@@ -318,7 +323,9 @@ describe('AuthService.register', () => {
 
   it('негодная ссылка отвечает отказом и никого не впускает', async () => {
     const { verification } = service();
-    await expect(verification.confirm('нет-такой-ссылки', NOW)).rejects.toThrow(/Ссылка не годится/);
+    await expect(verification.confirm('нет-такой-ссылки', NOW)).rejects.toThrow(
+      /Ссылка не годится/,
+    );
   });
 
   it('занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку', async () => {
@@ -343,6 +350,9 @@ describe('AuthService.register', () => {
   it('пустое имя и строка, не похожая на почту, — отказ с понятным текстом', async () => {
     const { auth } = service();
     await expect(auth.register({ ...NEW, name: '   ' }, NOW)).rejects.toThrow(/Укажите имя/);
+    await expect(auth.register({ ...NEW, hotelName: '   ' }, NOW)).rejects.toThrow(
+      /Укажите название организации/,
+    );
     await expect(auth.register({ ...NEW, email: 'не-почта' }, NOW)).rejects.toThrow(
       /Укажите почту/,
     );

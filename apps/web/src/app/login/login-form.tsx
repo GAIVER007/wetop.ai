@@ -58,6 +58,7 @@ export function LoginForm({
 
   const [email, setEmail] = useState(initialEmail || accessEmail || '');
   const [personName, setPersonName] = useState('');
+  const [hotelName, setHotelName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [registerPending, startTransition] = useTransition();
@@ -85,13 +86,13 @@ export function LoginForm({
   };
 
   /**
-   * Регистрация: почта, имя, пароль. При удаче действие уводит на экран «подтвердите почту» —
-   * сессия откроется только после перехода по ссылке из письма (ADR-060).
+   * Регистрация: почта, имя, название отеля, пароль. При удаче действие уводит на экран «подтвердите
+   * почту» — сессия откроется только после перехода по ссылке из письма (ADR-060).
    */
   function submitRegister() {
     setError('');
     startTransition(async () => {
-      const r = await registerAction(email, personName, password);
+      const r = await registerAction(email, personName, hotelName, password);
       if (r.error) setError(r.error);
     });
   }
@@ -384,6 +385,20 @@ export function LoginForm({
                     maxLength={200}
                     value={personName}
                     onChange={(e) => setPersonName(e.target.value)}
+                  />
+                </label>
+                <label className="field">
+                  Название отеля
+                  <input
+                    className="inp"
+                    type="text"
+                    autoComplete="organization"
+                    name="hotelName"
+                    placeholder="Так его увидят на стойке и в отчётах"
+                    required
+                    maxLength={200}
+                    value={hotelName}
+                    onChange={(e) => setHotelName(e.target.value)}
                   />
                 </label>
                 <label className="field">

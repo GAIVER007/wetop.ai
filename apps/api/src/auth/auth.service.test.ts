@@ -246,7 +246,8 @@ describe('AuthService.register', () => {
   });
 
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
-    const { auth, users, sessions, memberships, organizations, audit, letters } = service();
+    const { auth, users, sessions, memberships, organizations, properties, audit, letters } =
+      service();
     const result = await auth.register(NEW, NOW);
 
     expect(result).toMatchObject({ pendingVerification: true, email: 'novyi@example.invalid' });
@@ -267,6 +268,13 @@ describe('AuthService.register', () => {
     expect(memberships.some((m) => m.userId === created!.id && m.organizationId === org!.id)).toBe(
       true,
     );
+
+    // объект организации создан сразу, назван отелем — иначе новый кабинет упирался бы в
+    // «объект не настроен для вашей организации» на каждом экране (мультитенантность 21.09)
+    const property = properties.find((pr) => pr.organizationId === org!.id);
+    expect(property, 'объект заведён для организации').toBeDefined();
+    expect(property!.name).toBe('Хостел на Абая');
+    expect(property!.currency).toBe('KZT');
 
     // сессии нет ни одной: пока не подтверждена почта, входа нет
     expect(sessions.filter((x) => x.userId === created!.id)).toHaveLength(0);

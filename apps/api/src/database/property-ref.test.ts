@@ -15,9 +15,18 @@ function fakeDb(rows: Array<{ id: string; name: string; organizationId?: string 
     calls: () => calls,
     db: {
       property: {
-        findFirst: async ({ where }: { where: { name: string } }) => {
+        findFirst: async ({
+          where,
+        }: {
+          where: { name?: string; organizationId?: string | null };
+        }) => {
           calls += 1;
-          const row = rows.find((r) => r.name === where.name);
+          const row = rows.find(
+            (r) =>
+              (where.name === undefined || r.name === where.name) &&
+              (where.organizationId === undefined ||
+                (r.organizationId ?? null) === where.organizationId),
+          );
           return row ? { organizationId: null, ...row } : null;
         },
       },
@@ -73,50 +82,59 @@ describe('идентификатор объекта', () => {
 });
 
 /**
- * Разделение данных (ADR-061). Это тот самый замок, которого не было до 20.09.2026: вошедший видел
- * единственный объект, кем бы он ни был, и самостоятельно зарегистрировавшийся попадал в чужую
- * гостиницу. Проверка стоит здесь, потому что здесь имя объекта превращается в идентификатор —
- * дальше по нему ходят и шахматка, и брони, и тарифы.
+ * Разделение данных (ADR-061), теперь как мультитенантность (21.09.2026): вошедший человек получает
+ * объект СВОЕЙ организации прямой выборкой по `organizationId`, а не единственный объект по имени.
+ * Имя, которое просит репозиторий, для человека не участвует в выборке — поэтому подсунуть чужой
+ * объект нельзя по построению. Служебный ходок (скрипт, сторож, импорт, виджет) человека за собой
+ * не имеет и берёт объект по имени, как раньше.
  */
-describe('объект виден только своей организации', () => {
-  const luxx = [{ id: 'p1', name: 'Luxx', organizationId: 'org-luxx' }];
+describe('вошедший получает объект своей организации, не чужой', () => {
+  const two = [
+    { id: 'p1', name: 'Luxx', organizationId: 'org-luxx' },
+    { id: 'p2', name: 'Второй хостел', organizationId: 'org-b' },
+  ];
 
-  it('служебный ходок проходит: за ним нет человека — это скрипт владельца, сторож, импорт', async () => {
-    const db = fakeDb(luxx).db as never;
+  it('служебный ходок проходит по имени: за ним нет человека — скрипт, сторож, импорт', async () => {
+    const db = fakeDb(two).db as never;
     expect(await propertyIdRef(db, 'Luxx')).toBe('p1');
+    expect(await propertyIdRef(db, 'Второй хостел')).toBe('p2');
   });
 
-  it('вошедший своей организации проходит', async () => {
-    const db = fakeDb(luxx).db as never;
+  it('вошедший получает объект своей организации, даже когда репозиторий просит по чужому имени', async () => {
+    const db = fakeDb(two).db as never;
+    // org-luxx просит «Второй хостел», org-b просит «Luxx» — каждый получает СВОЙ объект, не тот, что назвал
     await withSignedInUser({ userId: 'u-1', organizationId: 'org-luxx' }, async () => {
-      expect(await propertyIdRef(db, 'Luxx')).toBe('p1');
+      expect(await propertyIdRef(db, 'Второй хостел')).toBe('p1');
+    });
+    await withSignedInUser({ userId: 'u-2', organizationId: 'org-b' }, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p2');
     });
   });
 
-  it('вошедший чужой организации получает отказ, а не чужую гостиницу', async () => {
-    const db = fakeDb(luxx).db as never;
-    await withSignedInUser({ userId: 'u-2', organizationId: 'org-novaya' }, async () => {
-      await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/не настроен для вашей организации/);
-    });
-  });
-
-  it('объект без организации вошедшему не виден: ничей объект — дело служебных ходоков', async () => {
-    const db = fakeDb([{ id: 'p1', name: 'Luxx', organizationId: null }]).db as never;
-    await withSignedInUser({ userId: 'u-1', organizationId: 'org-luxx' }, async () => {
-      await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/не настроен для вашей организации/);
-    });
-  });
-
-  it('вошедший без организации не проходит даже после того, как объект попал в память', async () => {
-    const f = fakeDb(luxx);
+  it('память одной организации не отдаётся другой', async () => {
+    const f = fakeDb(two);
     const db = f.db as never;
     await withSignedInUser({ userId: 'u-1', organizationId: 'org-luxx' }, async () => {
       expect(await propertyIdRef(db, 'Luxx')).toBe('p1');
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p1'); // из памяти
     });
-    // память отвечает без рейса в базу — но замок стоит и на этом пути
-    await withSignedInUser({ userId: 'u-3', organizationId: null }, async () => {
+    await withSignedInUser({ userId: 'u-2', organizationId: 'org-b' }, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p2'); // своя память, не org-luxx
+    });
+    expect(f.calls(), 'по одному рейсу на организацию').toBe(2);
+  });
+
+  it('у чьей организации ещё нет объекта — «создайте в настройках», а не чужой объект', async () => {
+    const db = fakeDb(two).db as never;
+    await withSignedInUser({ userId: 'u-3', organizationId: 'org-novaya' }, async () => {
+      await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/ещё нет объекта/);
+    });
+  });
+
+  it('вошедший без организации (нет членства) не видит ни одного объекта', async () => {
+    const db = fakeDb(two).db as never;
+    await withSignedInUser({ userId: 'u-4', organizationId: null }, async () => {
       await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/не настроен для вашей организации/);
     });
-    expect(f.calls(), 'второго рейса в базу отказ не стоил').toBe(1);
   });
 });

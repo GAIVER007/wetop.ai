@@ -241,6 +241,19 @@ export class AuthService {
           data: { name: organizationName, status: 'TRIAL', trialEndsAt: trialEndsAt(now) },
           select: { id: true },
         });
+        // Объект новой организации создаётся сразу (мультитенантность, решение владельца 21.09):
+        // без него вошедший упирался бы в «объект не настроен для вашей организации» на каждом экране.
+        // Часы и валюта — казахстанские по умолчанию, реквизиты человек заполнит в настройках.
+        await tx.property.create({
+          data: {
+            organizationId: org.id,
+            name: organizationName,
+            timezone: 'Asia/Almaty',
+            currency: 'KZT',
+            checkInTime: '14:00',
+            checkOutTime: '12:00',
+          },
+        });
         const user = await tx.user.create({
           data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
           select: { id: true },

@@ -464,6 +464,8 @@ function StayButtons(props: {
                   title: `Ячейка ${props.item.unitCode} ещё не проверена. Заселить?`,
                   body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенную ячейку; заселение не запрещено, но нужно ваше подтверждение.`,
                   confirmLabel: 'Заселить всё равно',
+                  // заселение — не отмена и не долг: тон основной, а не тревоги (DESIGN.md §9)
+                  tone: 'primary',
                 });
                 if (!ok) return;
               }

@@ -44,7 +44,7 @@ test('неисправность на экране: «Принято» — ст�
   await page.goto('/incidents');
   const row = page.getByRole('main').locator(`[data-testid="incident-row"][data-id="${inc.id}"]`);
   await expect(row).toContainText(MARK);
-  await expect(row).toContainText('код — исправляет дежурный агент');
+  await expect(row).toContainText('Исправляет дежурный агент');
   await expect(row.getByTestId('incident-status')).toHaveText('ждёт человека');
 
   await row.getByTestId('incident-acknowledge').click();

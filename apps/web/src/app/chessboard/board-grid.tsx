@@ -42,10 +42,12 @@ const STATUS_RU: Record<string, string> = {
   CHECKED_OUT: 'выселен',
 };
 /**
- * Уборка: на сетке называем только то, с чем надо что-то делать — «грязно». «Убрано» и «проверено»
- * на 88 строках были бы шумом, а фильтр «Уборка» показывает те же ячейки списком.
+ * Уборка: значок стоит в строке, пока с ячейкой надо что-то делать — «требует уборки» (щётка) или
+ * «убрано, ждёт проверки»; после «Проверено» ячейка доступна, и значка нет (цикл — @pms/domain, 22.09).
+ * «Проверено» на 88 строках было бы шумом. Фильтр «Уборка N» считает те же строки.
  */
-const HK_DIRTY = 'DIRTY';
+const needsHousekeeping = (status?: string): status is 'DIRTY' | 'CLEAN' =>
+  status === 'DIRTY' || status === 'CLEAN';
 
 /** Что нужно меню плашки (C2): номер, проживание, ячейка, имя для заголовка окна и статус для доступности пунктов */
 interface StayMenuPayload {
@@ -209,7 +211,9 @@ export function ChessboardGrid({
   };
 
   const allGroups = groupByCategory(board.rows);
-  const dirtyCount = board.rows.filter((r) => r.unit.housekeepingStatus === HK_DIRTY).length;
+  const housekeepingCount = board.rows.filter((r) =>
+    needsHousekeeping(r.unit.housekeepingStatus),
+  ).length;
   const needle = query.trim().toLocaleLowerCase('ru');
   const rows = board.rows.filter(
     (row) =>
@@ -219,7 +223,7 @@ export function ChessboardGrid({
         // «Уборка» — это статус ячейки, а не блокировка: типа блокировки CLEANING в модели нет,
         // и фильтр не срабатывал никогда (DESIGN.md §9, срез 7.1)
         (state === 'cleaning'
-          ? row.unit.housekeepingStatus === 'DIRTY'
+          ? needsHousekeeping(row.unit.housekeepingStatus)
           : row.cells[0]?.state === state)) &&
       (!needle ||
         [
@@ -310,8 +314,8 @@ export function ChessboardGrid({
               ['all', 'Все'],
               ['FREE', 'Свободные'],
               ['OCCUPIED', 'Занятые'],
-              // счётчик только у уборки: сколько мест ждёт уборки, видно до нажатия (21.09)
-              ['cleaning', `Уборка ${dirtyCount}`],
+              // счётчик только у уборки: сколько мест ещё не проверено, видно до нажатия (21.09)
+              ['cleaning', `Уборка ${housekeepingCount}`],
               ['BLOCKED', 'Недоступны'],
             ].map(([id, label]) => (
               <button
@@ -501,8 +505,11 @@ export function ChessboardGrid({
                         <span className="muted-2">
                           {row.unit.kind === 'BED' ? 'койка' : 'номер'}
                         </span>
-                        {row.unit.housekeepingStatus === HK_DIRTY && (
-                          <HousekeepingMenu code={row.unit.code} status={HK_DIRTY} />
+                        {needsHousekeeping(row.unit.housekeepingStatus) && (
+                          <HousekeepingMenu
+                            code={row.unit.code}
+                            status={row.unit.housekeepingStatus}
+                          />
                         )}
                       </td>
                       {row.cells.map((c, index) => (

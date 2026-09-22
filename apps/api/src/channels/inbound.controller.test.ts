@@ -184,6 +184,10 @@ function makeFakes() {
     async nightRates() {
       return [];
     },
+    async unitHousekeeping() {
+      return null;
+    },
+    async setUnitHousekeeping() {},
     async unitByCode() {
       return null;
     },

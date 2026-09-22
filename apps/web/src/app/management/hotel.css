@@ -235,3 +235,23 @@
   gap: var(--space-1);
   font-variant-numeric: tabular-nums;
 }
+
+/* Цикл уборки в карточке ячейки (22.09): шаги словами, текущий выделен; стрелка — оформление, не текст */
+.hk-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.hk-flow li + li::before {
+  content: '→';
+  margin-right: var(--space-2);
+}
+.hk-flow li[aria-current='step'] {
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}

@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { housekeepingRefusal } from '@pms/domain';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import {
   UNITS_REPOSITORY,
@@ -106,13 +107,19 @@ export class UnitsService {
     return this.card(code);
   }
 
-  /** Статус уборки: любой переход разрешён (Exely так и работает; блокировки заселения по уборке нет — DATA_MODEL §4). */
+  /**
+   * Статус уборки — по циклу «требует уборки → убрано → проверено» (`@pms/domain`, 22.09.2026, поручение
+   * владельца): вперёд на шаг, назад — только в «требует уборки»; перепрыгнуть проверку нельзя (409 словами).
+   * Тот же статус повторно — не переход: ничего не пишется. Блокировки заселения по уборке нет — DATA_MODEL §4.
+   */
   async housekeeping(code: string, dto: { status?: string }): Promise<UnitCard> {
     if (!dto.status || !HK.includes(dto.status as HousekeepingStatus))
       throw new BadRequestException(`status — один из ${HK.join(', ')}`);
     this.assertCode(code);
     const unit = await this.repo.unitByCode(code);
     if (!unit) throw new NotFoundException(`Ячейка ${code} не найдена`);
+    const refusal = housekeepingRefusal(unit.housekeepingStatus, dto.status as HousekeepingStatus);
+    if (refusal) throw new ConflictException(refusal);
     if (unit.housekeepingStatus !== dto.status) {
       await this.repo.setHousekeeping(
         unit.id,

@@ -42,7 +42,7 @@
 .onboarding__row {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) auto auto auto auto;
-  gap: var(--space-3);
+  gap: var(--space-2); /* 12 px в шкале нет (§3): сторож токенов, без правки зазор был 0 */
   align-items: end;
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);

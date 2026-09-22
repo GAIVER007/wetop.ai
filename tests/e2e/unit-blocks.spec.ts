@@ -92,8 +92,13 @@ test('заблокировать свободную койку на 2 ночи �
   ).toBe(freeBefore);
 
   await page.goto(`/units/${unitCode}`);
+  // 22.09: цикл уборки словами; новая ячейка в базе требует уборки (умолчание схемы), назад — «Требует уборки»
   await page.getByRole('main').getByTestId('hk-CLEAN').click();
-  await expect(page.getByText('Статус уборки: убрано')).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText('Сейчас убрано, ждёт проверки', { exact: true }),
+  ).toBeVisible();
   await page.getByRole('main').getByTestId('hk-DIRTY').click();
-  await expect(page.getByText('Статус уборки: грязно')).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText('Сейчас требует уборки', { exact: true }),
+  ).toBeVisible();
 });

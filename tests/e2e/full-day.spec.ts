@@ -78,6 +78,17 @@ test('сутки гостя целиком: заезд, услуга на счё
   await page.goto(`/reservations/${number}`);
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-in-"]').click();
+  {
+    // Q-156 (ADR-068): на живом сиде ячейки не проверены — стойка предупреждает, заселяем после подтверждения
+    const warn = page.getByRole('dialog', { name: /ещё не проверена/ });
+    if (
+      await warn.waitFor({ state: 'visible', timeout: 3000 }).then(
+        () => true,
+        () => false,
+      )
+    )
+      await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
+  }
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
 

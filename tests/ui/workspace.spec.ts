@@ -357,6 +357,11 @@ test('карточка: профиль гостя и заселение прох
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   // Пока вкладка догружается, в DOM на миг есть скрытая копия панели действий — жмём видимую кнопку
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
+  await page
+    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('button', { name: 'Заселить всё равно' })
+    .click();
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();
@@ -645,12 +650,12 @@ test('ошибка загрузки тарифов не позволяет вк�
 
 test('номера: статус уборки, блокировка и снятие сохраняются', async ({ page, request }) => {
   await page.goto('/units/R01');
-  // 21.09: статус назван словом («Сейчас грязно»), кнопка — результатом; R01 в фикстуре грязная
-  await expect(page.getByText('Сейчас грязно', { exact: true })).toBeVisible();
+  // 22.09: цикл словами («Сейчас требует уборки»), кнопка — следующим шагом; R01 в фикстуре требует уборки
+  await expect(page.getByText('Сейчас требует уборки', { exact: true })).toBeVisible();
   await page.getByTestId('hk-CLEAN').click();
-  await expect(page.getByText('Сейчас убрано', { exact: true })).toBeVisible();
+  await expect(page.getByText('Сейчас убрано, ждёт проверки', { exact: true })).toBeVisible();
   await page.getByTestId('hk-INSPECTED').click();
-  await expect(page.getByText('Сейчас проверено', { exact: true })).toBeVisible();
+  await expect(page.getByText('Сейчас проверено, доступна', { exact: true })).toBeVisible();
   await page.getByLabel('Блокировка с').fill('2026-10-01');
   await page.getByLabel('До (не включая)').fill('2026-10-03');
   await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');

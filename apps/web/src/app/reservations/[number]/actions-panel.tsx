@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
+import { HOUSEKEEPING_RU } from '@pms/domain';
 import { useCommand } from '../../../lib/use-command';
 import {
   Alert,
@@ -60,6 +61,8 @@ export function ReservationActions(props: {
     arrivalDate: string;
     departureDate: string;
     unitCode: string | null;
+    /** Статус уборки ячейки (Q-156): предупреждение перед заселением в непроверенную */
+    unitHousekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED' | null;
     /** null — тариф неизвестен (перенесено из Exely): пересчёт цены без выбора тарифа невозможен */
     ratePlanCode: string | null;
     ratePlanName: string | null;
@@ -320,6 +323,7 @@ function StayButtons(props: {
     accommodationTypeName: string;
     departureDate: string;
     unitCode: string | null;
+    unitHousekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED' | null;
     ratePlanCode: string | null;
     debtMinor: string | null;
   };
@@ -452,14 +456,26 @@ function StayButtons(props: {
           <Button
             type="button"
             data-testid={`check-in-${props.item.id}`}
-            onClick={() =>
-              command(async () => {
+            onClick={async () => {
+              // Q-156 (ADR-068): в непроверенную ячейку заселить можно, но стойка предупреждает и ждёт подтверждения
+              const hk = props.item.unitHousekeepingStatus;
+              if (hk && hk !== 'INSPECTED') {
+                const ok = await ask({
+                  title: `Ячейка ${props.item.unitCode} ещё не проверена. Заселить?`,
+                  body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенную ячейку; заселение не запрещено, но нужно ваше подтверждение.`,
+                  confirmLabel: 'Заселить всё равно',
+                  // заселение — не отмена и не долг: тон основной, а не тревоги (DESIGN.md §9)
+                  tone: 'primary',
+                });
+                if (!ok) return;
+              }
+              void command(async () => {
                 const r = await stayAction(props.number, props.item.id, 'check-in');
                 if (!r.error)
                   toast({ text: `Гость заселён, ${props.item.unitCode ?? '—'}`, tone: 'success' });
                 return r;
-              })
-            }
+              });
+            }}
             disabled={pending || !props.item.unitCode}
             title={props.item.unitCode ? '' : 'Сначала назначьте ячейку'}
           >

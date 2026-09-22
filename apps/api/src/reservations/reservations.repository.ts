@@ -8,7 +8,13 @@ import {
   type DbTx,
 } from '@pms/database';
 import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
-import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
+import type {
+  HousekeepingStatus,
+  NightRate,
+  ReservationSource,
+  ReservationStatus,
+  StayRestriction,
+} from '@pms/domain';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
@@ -194,6 +200,13 @@ export interface ReservationsRepository {
     toExclusive: string,
   ): Promise<NightRate[]>;
   unitByCode(code: string): Promise<UnitRef | null>;
+  /** Статус уборки ячейки: выезд сам переводит её в «требует уборки» (Q-155, ADR-068) */
+  unitHousekeeping(unitId: string): Promise<HousekeepingStatus | null>;
+  setUnitHousekeeping(
+    unitId: string,
+    from: HousekeepingStatus,
+    to: HousekeepingStatus,
+  ): Promise<void>;
   hasBlockOverlap(unitId: string, from: string, toExclusive: string): Promise<boolean>;
   /**
    * Занята ли ячейка активным проживанием в эти ночи. Проверять НАДО заранее: нарушение
@@ -496,6 +509,20 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { date: true, occupancy: true, price: true },
     });
     return rows.map((r) => ({ date: iso(r.date), occupancy: r.occupancy, priceMinor: r.price }));
+  }
+  async unitHousekeeping(unitId: string): Promise<HousekeepingStatus | null> {
+    const u = await this.db.inventoryUnit.findUnique({
+      where: { id: unitId },
+      select: { housekeepingStatus: true },
+    });
+    return u?.housekeepingStatus ?? null;
+  }
+  /** Как PrismaUnitsRepository.setHousekeeping: статус на ячейке плюс запись HousekeepingEvent (DATA_MODEL §4) */
+  async setUnitHousekeeping(unitId: string, from: HousekeepingStatus, to: HousekeepingStatus) {
+    await this.db.inventoryUnit.update({ where: { id: unitId }, data: { housekeepingStatus: to } });
+    await this.db.housekeepingEvent.create({
+      data: { inventoryUnitId: unitId, fromStatus: from, toStatus: to },
+    });
   }
   async unitByCode(code: string): Promise<UnitRef | null> {
     return this.db.inventoryUnit.findUnique({

@@ -124,13 +124,17 @@ test('медленная финансовая команда блокирует 
 });
 
 test('изменение уборки относится только к выбранному номеру', async ({ page }) => {
-  // 21.09: статус назван словом «Сейчас грязно», кнопка — результатом («Грязно»), а не «→ грязно»
+  // 22.09: цикл словами — R02 проверена, кнопка «Требует уборки» возвращает её в уборку; R03 не тронута
   await page.goto('/units/R02');
   await page.getByTestId('hk-DIRTY').click();
   // при переходе Next на миг держит уходящую страницу в DOM — ищем в видимом main (TESTING.md §3)
-  await expect(page.getByRole('main').getByText('Сейчас грязно', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText('Сейчас требует уборки', { exact: true }),
+  ).toBeVisible();
   await page.goto('/units/R03');
-  await expect(page.getByRole('main').getByText('Сейчас убрано', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('main').getByText('Сейчас проверено, доступна', { exact: true }),
+  ).toBeVisible();
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {

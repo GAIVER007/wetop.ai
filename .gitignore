@@ -91,3 +91,5 @@ scripts/ops/guard/ssh/
 .ds-sync/
 ds-bundle/
 .omx/
+# PostgreSQL для локального стенда, скачанная scripts/ops/local-db.sh из npm (22.09.2026)
+.local-pg/

@@ -1,5 +1,11 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
+import {
+  HOUSEKEEPING_FLOW,
+  HOUSEKEEPING_RU,
+  housekeepingTargets,
+  nextHousekeepingStatus,
+} from '@pms/domain';
 import type { UnitCard } from '../../../lib/api';
 import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
@@ -16,19 +22,29 @@ import { Icon, type IconName } from '../../../components/icon';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
 /**
- * Уборка (21.09.2026): статус назван словом — «Сейчас грязно», — а кнопки названы тем, что получится
- * («Убрано», «Проверено»), а не стрелкой «→ убрано». Значок из набора стоит рядом со словом, а не
- * вместо него (DESIGN.md §7, §9). Команда та же, что в строке шахматки.
+ * Уборка (21.09.2026): статус назван словом, кнопки — тем, что получится («Убрано», «Проверено»), а не
+ * стрелкой «→ убрано»; значок из набора стоит рядом со словом, а не вместо него (DESIGN.md §7, §9).
+ * 22.09.2026 (поручение владельца): цикл «требует уборки → убрано → проверено, доступна» показан шагами,
+ * кнопки — только следующий шаг (залита) и возврат в уборку; перепрыгнуть проверку нельзя ни здесь, ни
+ * через API (`@pms/domain`). Команда та же, что в строке шахматки.
  */
-const HK: Array<[UnitCard['housekeepingStatus'], string, IconName]> = [
-  ['DIRTY', 'Грязно', 'dirty'],
-  ['CLEAN', 'Убрано', 'clean'],
-  ['INSPECTED', 'Проверено', 'inspected'],
-];
-const HK_NOW: Record<UnitCard['housekeepingStatus'], string> = {
-  DIRTY: 'грязно',
-  CLEAN: 'убрано',
-  INSPECTED: 'проверено',
+type HkStatus = UnitCard['housekeepingStatus'];
+const HK_ICON: Record<HkStatus, IconName> = {
+  DIRTY: 'dirty',
+  CLEAN: 'clean',
+  INSPECTED: 'inspected',
+};
+/** Кнопка названа результатом: нажал «Убрано» — ячейка убрана (§14) */
+const HK_BUTTON: Record<HkStatus, string> = {
+  DIRTY: 'Требует уборки',
+  CLEAN: 'Убрано',
+  INSPECTED: 'Проверено',
+};
+/** Что делать дальше — одной фразой под шагами */
+const HK_NEXT: Record<HkStatus, string> = {
+  DIRTY: 'Когда горничная закончит — «Убрано». Доступной ячейка станет после проверки.',
+  CLEAN: 'После осмотра — «Проверено», и ячейка доступна. Если что-то не так — «Требует уборки».',
+  INSPECTED: 'Ячейка доступна для заселения. Испачкали — «Требует уборки», и цикл начнётся заново.',
 };
 
 export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) {
@@ -44,21 +60,31 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
       {other.error && <Alert>{other.error}</Alert>}
       <Panel title="Уборка" data-testid="housekeeping-panel">
         <p className="sub hk-now">
-          <Icon name={HK.find(([k]) => k === unit.housekeepingStatus)?.[2] ?? 'dirty'} />
-          Сейчас {HK_NOW[unit.housekeepingStatus]}
+          <Icon name={HK_ICON[unit.housekeepingStatus]} />
+          Сейчас {HOUSEKEEPING_RU[unit.housekeepingStatus]}
         </p>
+        <ol className="hk-flow" aria-label="Порядок уборки">
+          {HOUSEKEEPING_FLOW.map((s) => (
+            <li key={s} aria-current={s === unit.housekeepingStatus ? 'step' : undefined}>
+              {HOUSEKEEPING_RU[s]}
+            </li>
+          ))}
+        </ol>
+        <p className="hint">{HK_NEXT[unit.housekeepingStatus]}</p>
         <Row>
-          {HK.filter(([k]) => k !== unit.housekeepingStatus).map(([k, t, icon]) => (
+          {housekeepingTargets(unit.housekeepingStatus).map((k) => (
             <Button
               key={k}
               type="button"
-              tone="secondary"
+              {...(k === nextHousekeepingStatus(unit.housekeepingStatus)
+                ? {}
+                : { tone: 'secondary' as const })}
               data-testid={`hk-${k}`}
               disabled={pending || blockPending}
               onClick={() => start(async () => setOther(await housekeepingAction(unit.code, k)))}
             >
-              <Icon name={icon} />
-              {t}
+              <Icon name={HK_ICON[k]} />
+              {HK_BUTTON[k]}
             </Button>
           ))}
         </Row>

@@ -383,6 +383,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                       arrivalDate: it.arrivalDate,
                       departureDate: it.departureDate,
                       unitCode: it.unitCode,
+                      unitHousekeepingStatus: it.unitHousekeepingStatus ?? null,
                       ratePlanCode: it.ratePlanCode ?? null,
                       // остаток по счёту проживания — для окна «Выселить с долгом» (срез 7.3)
                       debtMinor:

@@ -818,6 +818,11 @@
 .board .board-hk__menu .action-menu__button:hover {
   border-color: currentColor;
 }
+/* «Убрано, ждёт проверки» (22.09): тон акцента — ждём следующего шага, как «подтверждена, ждём» (§9) */
+.board .board-hk--clean .action-menu__button {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
 /* Список открывается вправо, внутрь таблицы: у кнопки в левой колонке `right: 0` уводил его за край */
 .board .board-hk__menu .action-menu__list {
   right: auto;

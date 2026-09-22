@@ -223,6 +223,10 @@ export default async function ChessboardPage({
             { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
             { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
             { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+            // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
+            { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
+            { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
+            { label: 'без значка — проверена, доступна' },
           ]}
         />
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}

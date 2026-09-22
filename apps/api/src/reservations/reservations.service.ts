@@ -1304,6 +1304,20 @@ export class ReservationsService {
           status: 'CHECKED_OUT',
           ...(early ? { departureDate: today } : {}),
         });
+        // Q-155, решение владельца 22.09 (ADR-068): выезд сам переводит ячейку в «требует уборки» — с него
+        // начинается цикл уборки; уже грязную не трогаем, запись журнала называет причину
+        for (const unitId of new Set(item.allocations.map((a) => a.unitId))) {
+          const hk = await repo.unitHousekeeping(unitId);
+          if (!hk || hk === 'DIRTY') continue;
+          await repo.setUnitHousekeeping(unitId, hk, 'DIRTY');
+          await repo.audit({
+            entityType: 'InventoryUnit',
+            entityId: unitId,
+            action: 'unit.housekeeping',
+            before: { status: hk },
+            after: { status: 'DIRTY', by: 'checkOut', reservation: number },
+          });
+        }
         const others = state.items.filter((i) => i.id !== item.id && i.status !== 'CANCELLED');
         const departure = [item.departureDate, ...others.map((i) => i.departureDate)].reduce(
           (m, d) => (d > m ? d : m),

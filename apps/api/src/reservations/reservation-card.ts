@@ -16,6 +16,8 @@ export interface ReservationCardItem {
   adults: number;
   children: number;
   unitCode: string | null;
+  /** Статус уборки ячейки (Q-156, ADR-068): стойка предупреждает о заселении в непроверенную */
+  unitHousekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED' | null;
   guests: Array<{ label: string; isPrimary: boolean }>;
 }
 export interface ReservationCard {
@@ -64,7 +66,7 @@ export async function loadReservationCard(
           ratePlan: { select: { code: true, name: true } },
           allocations: {
             orderBy: { startDate: 'asc' },
-            include: { inventoryUnit: { select: { code: true } } },
+            include: { inventoryUnit: { select: { code: true, housekeepingStatus: true } } },
           },
           stayGuests: { include: { guest: { select: { firstName: true, lastName: true } } } },
         },
@@ -105,6 +107,7 @@ export async function loadReservationCard(
       adults: it.adults,
       children: it.children,
       unitCode: it.allocations.at(-1)?.inventoryUnit.code ?? null,
+      unitHousekeepingStatus: it.allocations.at(-1)?.inventoryUnit.housekeepingStatus ?? null,
       guests: it.stayGuests.map((sg) => ({ label: guestLabel(sg.guest), isPrimary: sg.isPrimary })),
     })),
   };

@@ -170,6 +170,11 @@ test('карточка: отмена, незаезд и выселение с д
   await page.goto(`/reservations/${BOOKING}`);
   await cardTab(page, 'Действия');
   await page.getByRole('main').getByTestId('check-in-ui-item').click();
+  // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
+  await page
+    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('button', { name: 'Заселить всё равно' })
+    .click();
   await page.getByRole('main').getByTestId('check-out-ui-item').click();
   dialog = page.getByRole('dialog', { name: 'Выселить с долгом?' });
   await expect(dialog.getByTestId('debt-amount')).toHaveText('Долг 16 000 ₸ останется на счёте');

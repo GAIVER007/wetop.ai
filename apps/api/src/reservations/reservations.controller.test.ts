@@ -63,13 +63,16 @@ function makeFake() {
       cancellationPenalty: 'NONE',
     },
   ];
+  type Hk = 'DIRTY' | 'CLEAN' | 'INSPECTED';
+  // ячейки проверены: выезд должен сам перевести ячейку в «требует уборки» (Q-155, ADR-068)
+  const hk = 'INSPECTED' as Hk;
   const units = [
-    { id: 'u1', code: '9001', accommodationTypeId: 't1', active: true },
-    { id: 'u2', code: '9002', accommodationTypeId: 't2', active: true },
-    { id: 'u3', code: '9003', accommodationTypeId: 't1', active: true },
+    { id: 'u1', code: '9001', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
+    { id: 'u2', code: '9002', accommodationTypeId: 't2', active: true, housekeepingStatus: hk },
+    { id: 'u3', code: '9003', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
     // ещё две койки одиночной категории — для групповой брони на несколько мест
-    { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true },
-    { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true },
+    { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
+    { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
   ];
   const rates: Record<string, bigint> = {};
   for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
@@ -166,6 +169,13 @@ function makeFake() {
     },
     async unitByCode(code) {
       return units.find((u) => u.code === code) ?? null;
+    },
+    async unitHousekeeping(unitId) {
+      return units.find((u) => u.id === unitId)?.housekeepingStatus ?? null;
+    },
+    async setUnitHousekeeping(unitId, _from, to) {
+      const u = units.find((u) => u.id === unitId);
+      if (u) u.housekeepingStatus = to;
     },
     async hasBlockOverlap(unitId, from, toExclusive) {
       return blocked.some((b) => b.unitId === unitId && b.from < toExclusive && b.to > from);
@@ -357,6 +367,9 @@ function makeFake() {
             ? units.find((u) => u.id === state.allocations.find((a) => a.itemId === it.id)!.unitId)!
                 .code
             : null,
+          unitHousekeepingStatus:
+            units.find((u) => u.id === state.allocations.find((a) => a.itemId === it.id)?.unitId)
+              ?.housekeepingStatus ?? null,
           // как loadReservationCard: гости проживания из StayGuest (заказчик записан на каждое)
           guests: Array.from({ length: it.guestsCount }, () => ({
             label: 'Гость Тестовый',
@@ -367,7 +380,7 @@ function makeFake() {
     },
   };
   const uow: UnitOfWork = { run: (fn) => fn(repo), read: (fn) => fn(repo) };
-  return { uow, state, penalties, blocked };
+  return { uow, state, penalties, blocked, units };
 }
 
 const body = (over: Record<string, unknown> = {}) => ({
@@ -1285,12 +1298,17 @@ describe('manual reservation API', () => {
       .expect(200);
     expect(checkedIn.body.status).toBe('CHECKED_IN');
     expect(checkedIn.body.items[0].status).toBe('CHECKED_IN');
+    // Q-156: карточка знает статус уборки ячейки — стойка предупреждает о непроверенной перед заселением
+    expect(checkedIn.body.items[0].unitHousekeepingStatus).toBe('INSPECTED');
     await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(422); // заселённого не отменить
     const out = await request(app.getHttpServer())
       .post(`/reservations/${n}/items/${itemId}/check-out`)
       .send({})
       .expect(200);
     expect(out.body.items[0].status).toBe('CHECKED_OUT');
+    // Q-155 (ADR-068): выезд сам переводит ячейку в «требует уборки», запись журнала называет причину
+    expect(fake.units.find((u) => u.code === '9001')?.housekeepingStatus).toBe('DIRTY');
+    expect(fake.state.audits.map((a) => a.action)).toContain('unit.housekeeping');
     await request(app.getHttpServer())
       .post(`/reservations/${n}/items/${itemId}/check-out`)
       .send({})

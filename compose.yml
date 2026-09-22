@@ -1,0 +1,113 @@
+# ИИ-продавец. Четыре сервиса.
+#
+# Десятки боевых проектов пришли к одному составу: app, monitor, postgres,
+# redis. Панель — серверными шаблонами внутри app (решение Р4 ТЗ), поэтому
+# отдельного сервиса под неё нет. Плейсхолдеры в фигурных скобках
+# подставляются из .env.
+#
+# 🔴 monitor — отдельный процесс, а не поток внутри app. Подвиснет фоновая
+#    задача, веб продолжит отвечать. Упадёт веб, фоновые задачи доработают.
+#    Это единственное решение здесь, которое стоит объяснять вслух.
+
+services:
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8000:8000"     # наружу только через nginx на хосте
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs           # журнал переживает пересоздание контейнера
+    # 🔴 Исходники в образ, а не bind-mount. С монтированием ./src:/app/src
+    # `docker compose up -d` после правки кода НЕ перезапускает процесс,
+    # и вы час ищете, почему правка не применилась.
+    #
+    # 🔴 Журнал пишется в стандартный вывод И в файл на смонтированном томе.
+    # Драйвер json-file держит записи внутри контейнера: --force-recreate
+    # уносит их вместе с ним. А разбор инцидента почти всегда начинается
+    # ПОСЛЕ перезапуска, потому что перезапуском его обычно и «чинят».
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Публичный /health отвечает только статусом; подробная проверка
+    # с базой и Redis — на /internal/health по ключу, наружу не смотрит.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  monitor:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: python -m src.monitoring
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs           # свой файл logs/monitor-<pid>.log, не app-*
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    # 🔴 Образ обязательно с pgvector. Обычный postgres не подойдёт,
+    # расширение не установится на лету.
+    image: pgvector/pgvector:0.8.6-pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Наружу порт не публикуем: база видна только внутри сети compose.
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
+
+# ─────────────────────────────────────────────────────────────────────
+# ЧЕГО ЗДЕСЬ НЕТ
+#
+# nginx и сертификаты. Они живут на хосте, а не в compose: так их проще
+# перевыпускать и они переживают пересборку проекта.
+#
+# Отдельные воркеры очереди. Фоновые задачи в monitor. Заведёте, когда
+# нагрузка потребует.
+#
+# ПРОВЕРКА ПОСЛЕ ДЕПЛОЯ
+#
+# Применилась ли правка, смотрят по времени ЗАПУСКА процесса, а не
+# по времени создания контейнера в списке. Это разные вещи, и вторая
+# показывает старое значение, из-за чего люди час ищут несуществующую
+# ошибку. Правильно: docker inspect <контейнер> и поле StartedAt.
+# ─────────────────────────────────────────────────────────────────────

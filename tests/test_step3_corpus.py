@@ -32,6 +32,8 @@ def test_false_positive_is_never_refused(text: str, phone: str | None) -> None:
     assert verdict.strike is False
     if phone is not None:
         assert phone in verdict.contacts.phones
+    else:
+        assert verdict.contacts.phones == (), "сумма или дата принята за телефон"
 
 
 def test_contact_next_to_injection_is_flagged_not_refused() -> None:

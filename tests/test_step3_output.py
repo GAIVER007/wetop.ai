@@ -100,3 +100,56 @@ def test_empty_result_is_replaced_with_fallback() -> None:
     verdict = check_output("Здравствуйте!", _ctx(first_turn=False))
     assert verdict.text == FALLBACK
     assert "greeting" in verdict.edits
+
+
+def test_c_room_number_is_not_a_contact_request() -> None:
+    # В отеле «номер» — комната: без «ваш/телефон» предложение не трогаем.
+    ctx = _ctx(contact_known=True)
+    for answer in (
+        "Укажите, какой номер вам подходит: студия или двухкомнатный.",
+        "Укажите, пожалуйста, номер брони.",
+        "Напишите номер комнаты, и горничная подойдёт.",
+    ):
+        verdict = check_output(answer, ctx)
+        assert verdict.text == answer
+        assert verdict.edits == []
+    verdict = check_output("Оставьте номер телефона, и мы перезвоним.", ctx)
+    assert "ask_contact" in verdict.edits
+
+
+def test_b_room_number_is_not_a_false_contact_claim() -> None:
+    answer = "Приняла заявку: номер люкс на 3 ночи."
+    verdict = check_output(answer, _ctx(contact_known=False))
+    assert verdict.text == answer
+    assert verdict.edits == []
+
+
+def test_f_promise_with_leading_pronoun_is_replaced_whole() -> None:
+    verdict = check_output("Я сейчас пришлю прайс.", _ctx())
+    assert verdict.text == "Администратор пришлёт прайс."
+    assert verdict.edits == ["promise_action"]
+
+
+def test_d_url_removal_keeps_trailing_punctuation() -> None:
+    answer = "Смотрите https://evil.example.org. Заезд с 14:00."
+    verdict = check_output(answer, _ctx(allowed_urls=set()))
+    assert "evil.example.org" not in verdict.text
+    assert "Смотрите. Заезд с 14:00." == verdict.text
+
+
+def test_e_shirts_are_not_rubles() -> None:
+    answer = "В номере есть 2 рубашки для стирки."
+    verdict = check_output(answer, _ctx(allowed_prices={15000}))
+    assert verdict.text == answer
+    assert verdict.edits == []
+    verdict = check_output("Стирка 300 руб. за штуку.", _ctx(allowed_prices={15000}))
+    assert "price" in verdict.edits
+
+
+def test_e_price_regex_is_linear_on_long_digit_rows() -> None:
+    import time
+
+    answer = " ".join(["1"] * 4000)
+    started = time.perf_counter()
+    check_output(answer, _ctx(allowed_prices={15000}))
+    assert time.perf_counter() - started < 0.05

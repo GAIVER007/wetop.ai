@@ -133,3 +133,60 @@ def test_configure_logging_attaches_pii_filter_to_both_handlers(settings_env) ->
     handlers = {h.get_name(): h for h in logging.getLogger().handlers}
     for name in ("app_stdout", "app_file"):
         assert any(isinstance(f, PiiLogFilter) for f in handlers[name].filters), name
+
+
+def test_range_of_sums_is_not_phone() -> None:
+    # Диапазон сумм даёт 10 цифр с ведущей 7 или 9 — это не телефон.
+    assert extract_contacts("Бюджет 70 000-90 000 тенге").phones == ()
+    assert extract_contacts("от 90 000-95 000 тг").phones == ()
+    assert extract_contacts("7 000 000 - 7 500 000 за сезон").phones == ()
+    assert extract_contacts("70000-90000 тенге").phones == ()
+    # А настоящий номер рядом с суммой остаётся.
+    assert extract_contacts("Бюджет 70 000-90 000, звоните +7 701 000 00 00").phones == ("77010000000",)
+
+
+def test_mask_for_log_hides_address_and_name() -> None:
+    logged = mask_for_log("Меня зовут Иван, живу ул. Абая, д. 10")
+    assert "Абая" not in logged
+    assert "Иван" not in logged
+    assert "[адрес]" in logged
+    assert "И***" in logged
+
+
+def test_pii_log_filter_hides_address(caplog: pytest.LogCaptureFixture) -> None:
+    logger = logging.getLogger("tests.pii.addr")
+    pii_filter = PiiLogFilter([], [])
+    logger.addFilter(pii_filter)
+    try:
+        with caplog.at_level(logging.INFO, logger="tests.pii.addr"):
+            logger.info("клиент: %s", "Меня зовут Иван, живу ул. Абая, д. 10")
+    finally:
+        logger.removeFilter(pii_filter)
+    assert "Абая" not in caplog.text
+    assert "Иван" not in caplog.text
+
+
+def test_pii_log_filter_survives_bad_args(caplog: pytest.LogCaptureFixture) -> None:
+    # Опечатка в аргументах логирования не должна ронять обработку сообщения.
+    pii_filter = PiiLogFilter([], [])
+    record = logging.LogRecord("t", logging.INFO, __file__, 1, "bad %s %s", ("one",), None)
+    assert pii_filter.filter(record) is True
+    assert record.args is None
+    assert isinstance(record.msg, str)
+
+
+def test_pii_log_filter_masks_exception_text(caplog: pytest.LogCaptureFixture) -> None:
+    logger = logging.getLogger("tests.pii.exc")
+    pii_filter = PiiLogFilter([], [])
+    logger.addFilter(pii_filter)
+    try:
+        with caplog.at_level(logging.ERROR, logger="tests.pii.exc"):
+            try:
+                raise ValueError("не дозвонились до +7 701 000 00 45")
+            except ValueError:
+                logger.exception("сбой обзвона")
+    finally:
+        logger.removeFilter(pii_filter)
+    assert "701 000 00 45" not in caplog.text
+    assert "+7***45" in caplog.text
+    assert "ValueError" in caplog.text

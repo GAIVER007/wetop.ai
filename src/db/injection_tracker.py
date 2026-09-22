@@ -43,14 +43,14 @@ async def add_strike(
 ) -> StrikeResult:
     """Засчитывает страйк; при count >= limit блокирует диалог и адрес.
 
-    EXPIRE ставится только на первом инкременте: окно отсчитывается от
-    первого страйка, а не сдвигается каждым новым, иначе редкие странные
-    вопросы копились бы бесконечно.
+    Окно отсчитывается от первого страйка, а не сдвигается каждым новым,
+    иначе редкие странные вопросы копились бы бесконечно. Ставится через
+    SET NX EX до INCR, а не EXPIRE после: обрыв между INCR и EXPIRE оставил
+    бы счётчик без срока, и случайный страйк через месяц добил бы его до блока.
     """
     key = _strikes_key(conversation_id)
+    await redis.set(key, 0, nx=True, ex=window_seconds)
     count = int(await redis.incr(key))
-    if count == 1:
-        await redis.expire(key, window_seconds)
 
     blocked = count >= limit
     if blocked:

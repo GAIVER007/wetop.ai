@@ -82,3 +82,9 @@ async def test_apply_strikes_leaves_flag_and_pass_untouched(fake_redis) -> None:
     applied = await apply_strikes(fake_redis, verdict, **kw)
     assert applied.action == "flag"
     assert await fake_redis.get("guard:strikes:conv-6") is None
+
+
+async def test_first_strike_always_has_ttl(fake_redis) -> None:
+    # INCR и EXPIRE порознь: обрыв между ними оставил бы счётчик без окна навсегда.
+    await add_strike(fake_redis, conversation_id="conv-7", ip=None, **LIMITS)
+    assert await fake_redis.ttl("guard:strikes:conv-7") > 0

@@ -65,3 +65,9 @@ async def test_clean_document_is_stored(db_session, fake_embedder) -> None:
 
 def test_suspicious_document_is_value_error() -> None:
     assert issubclass(SuspiciousDocument, ValueError)
+
+
+def test_manual_with_reset_settings_is_clean() -> None:
+    # Инструкция к технике в номере: «отмените все настройки» — не инъекция.
+    manual = "Инструкция к кондиционеру. Если пульт не отвечает, отмените все настройки кнопкой Reset."
+    assert scan_document(manual).clean is True

@@ -26,6 +26,12 @@ _DATE_RE = re.compile(r"(?<!\d)\d{1,2}[./-]\d{1,2}[./-]\d{2,4}(?!\d)")
 _DIGIT_RUN_RE = re.compile(r"\+?\(?\d(?:[\s\-.()]*\d)*")
 # Внутри ряда длиннее 11 цифр («номер и 2 гостя») ищется номер с кодом.
 _STRICT_PHONE_RE = re.compile(r"(?<!\d)(?:\+?7|8)(?:[\s\-.()]*\d){10}")
+# Сумма с тысячными группами или диапазон таких сумм: «70 000-90 000»,
+# «7 000 000 - 7 500 000». Даёт 10–11 цифр с ведущей 7 или 9 — это не телефон,
+# а ложный контакт создаёт фиктивный лид и снимает отбой инъекции.
+_SUM_RE = re.compile(r"\d{1,3}(?:[ \u00a0]\d{3})+(?:\s*-\s*\d{1,3}(?:[ \u00a0]\d{3})+)?")
+# Ряд цифр, за которым идёт валюта, — сумма, даже без разделителей («70000-90000 тг»).
+_CURRENCY_AFTER_RE = re.compile(r"\s*(?:₸|тг\b|тенге|руб|₽|\$|€|kzt|rub|usd|евро|тыс)", re.IGNORECASE)
 _ADDR_RE = re.compile(
     r"(?:(?:ул|пр|пер|мкр)(?:\.\s*|\s+)|(?:улица|проспект|переулок|микрорайон)\s+)"
     r"[А-ЯЁа-яёA-Za-z][\w\-]*(?:\s+(?!(?:д|дом)\b)[А-ЯЁа-яёA-Za-z][\w\-]*){0,2}"
@@ -91,6 +97,8 @@ def _phone_spans(text: str) -> list[_Span]:
     scrubbed = _DATE_RE.sub(lambda m: " " * (m.end() - m.start()), text)
     spans: list[_Span] = []
     for run in _DIGIT_RUN_RE.finditer(scrubbed):
+        if _SUM_RE.fullmatch(run.group()) or _CURRENCY_AFTER_RE.match(scrubbed, run.end()):
+            continue
         digits = re.sub(r"\D", "", run.group())
         if _looks_like_phone(digits):
             spans.append(_Span(run.start(), run.end(), PHONE, normalize_phone(digits)))
@@ -187,11 +195,12 @@ def unmask(text: str, mapping: dict[str, str]) -> str:
 def mask_for_log(
     text: str, *, allowlist_phones: Iterable[str] = (), allowlist_emails: Iterable[str] = ()
 ) -> str:
-    """Необратимо: +7***00, и***@example.com, @***. Белый список не трогаем."""
+    """Необратимо: +7***00, и***@example.com, @***, [адрес], И***.
+    Белый список не трогаем. Адрес и имя тоже маскируются: журнал читают люди."""
     allow_phones, allow_emails = _prepare_allowlists(allowlist_phones, allowlist_emails)
     spans = [
         s
-        for s in _find_spans(text, with_extra=False)
+        for s in _find_spans(text, with_extra=True)
         if not _allowed(s, allow_phones, allow_emails)
     ]
 
@@ -201,6 +210,10 @@ def mask_for_log(
         if span.kind == EMAIL:
             local, _, domain = original.partition("@")
             return f"{local[:1]}***@{domain}"
+        if span.kind == ADDR:
+            return "[адрес]"
+        if span.kind == NAME:
+            return original[:1] + "***"
         return "@***"
 
     return _rewrite(text, spans, replace)
@@ -215,10 +228,33 @@ class PiiLogFilter(logging.Filter):
         self._phones = list(allowlist_phones)
         self._emails = list(allowlist_emails)
 
+    def _mask(self, text: str) -> str:
+        return mask_for_log(text, allowlist_phones=self._phones, allowlist_emails=self._emails)
+
     def filter(self, record: logging.LogRecord) -> bool:
-        record.msg = mask_for_log(
-            record.getMessage(), allowlist_phones=self._phones, allowlist_emails=self._emails
-        )
+        # Фильтр не защищён Handler.handleError: исключение отсюда вылетает
+        # из logger.info() в код приложения. Опечатка в аргументах журнала
+        # не должна ронять обработку сообщения — глотаем всё.
+        try:
+            record.msg = self._mask(record.getMessage())
+        except Exception:
+            try:
+                record.msg = self._mask(str(record.msg))
+            except Exception:
+                record.msg = "<запись не отформатирована>"
         # Аргументы уже подставлены; иначе форматирование пошло бы второй раз.
         record.args = None
+        # Текст исключения и трассировку Formatter добавляет уже после фильтра:
+        # форматируем их здесь сами, маскируем и гасим exc_info.
+        if record.exc_info:
+            try:
+                record.exc_text = self._mask(logging.Formatter().formatException(record.exc_info))
+            except Exception:
+                record.exc_text = "<трассировка не отформатирована>"
+            record.exc_info = None
+        if record.stack_info:
+            try:
+                record.stack_info = self._mask(record.stack_info)
+            except Exception:
+                record.stack_info = None
         return True

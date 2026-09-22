@@ -33,6 +33,11 @@
 > подтяжки порядок жёсткий: выгрузить все будущие открытые брони из Exely → импортировать в PMS →
 > проверить занятость и остатки → только потом отправить ARI в Channex → активировать канал. Иначе PMS
 > не знает о старых бронях и откроет занятую койку для новой продажи.
+>
+> **Повторно подтверждено Channex 22.09.2026** (письмо владельцу) — тот же список: подтягиваются
+> Booking.com, Expedia, Airbnb, Trip.com; **не** подтягиваются Agoda, Hostelworld,
+> Ostrovok/Emerging Travel Group. Совпадает с таблицей выше; изменений в план переезда не вносит.
+> Напоминание: по Островку (4 будущие брони) и Agoda/Hostelworld перенос — из нашей БД вручную.
 
 Колонка «Pull Future Reservations» заполнена 08.09.2026 по `GET /channels/list` staging Channex
 (`actions: load_future_reservations`). Итог: 157 проживаний (Booking, Trip.com, Expedia) Channex

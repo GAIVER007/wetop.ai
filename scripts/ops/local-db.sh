@@ -10,6 +10,11 @@
 # Что внутри: PostgreSQL из системного пакета, каталог в TMPDIR, порт 55432, миграции проекта и
 # вымышленный объект (ADR-010) в схемах public и pms_test — тестам нужен объект и единица «1».
 #
+# Нет PostgreSQL в системе (22.09.2026: на Mac владельца ни Homebrew, ни Postgres.app) — скрипт сам берёт
+# готовую сборку из npm (@embedded-postgres/<платформа>, PostgreSQL 16) в .local-pg/ рядом с кодом: один раз,
+# ~60 МБ, в git не едет. Версия — PMS_LOCAL_PG_VERSION; в package.json пакет не нужен, образ сервера не растёт.
+# PMS_LOCAL_PG_EMBEDDED=1 — брать сборку из npm, даже если PostgreSQL в системе есть (так этот путь проверяют).
+#
 #   scripts/ops/local-db.sh start   — поднять, накатить миграции, засеять; печатает DATABASE_URL
 #   scripts/ops/local-db.sh stop    — остановить
 #   scripts/ops/local-db.sh reset   — снести каталог и поднять заново
@@ -24,19 +29,48 @@ PORT="${PMS_LOCAL_PGPORT:-55432}"
 DBNAME="pmslocal"
 URL="postgresql://postgres@127.0.0.1:${PORT}/${DBNAME}"
 
+EMBEDDED_DIR="$ROOT/.local-pg"
+EMBEDDED_VERSION="${PMS_LOCAL_PG_VERSION:-16.14.0-beta.17}"
+
+# Имя сборки под эту машину: darwin-arm64, darwin-x64, linux-x64, linux-arm64
+embedded_platform() {
+  local os arch
+  case "$(uname -s)" in Darwin) os=darwin ;; Linux) os=linux ;; *) return 1 ;; esac
+  case "$(uname -m)" in arm64|aarch64) arch=arm64 ;; x86_64|amd64) arch=x64 ;; *) return 1 ;; esac
+  echo "$os-$arch"
+}
+
 bin() {
-  local dir
-  for dir in "$(dirname "$(command -v pg_ctl 2>/dev/null || echo /nonexistent)")" /usr/lib/postgresql/*/bin /usr/local/pgsql/bin; do
+  local dir platform
+  local candidates=("$EMBEDDED_DIR"/node_modules/@embedded-postgres/*/native/bin)
+  [ "${PMS_LOCAL_PG_EMBEDDED:-0}" = 1 ] ||
+    candidates=("$(dirname "$(command -v pg_ctl 2>/dev/null || echo /nonexistent)")" /usr/lib/postgresql/*/bin /usr/local/pgsql/bin "${candidates[@]}")
+  for dir in "${candidates[@]}"; do
     [ -x "$dir/pg_ctl" ] && { echo "$dir"; return 0; }
   done
-  echo "local-db: PostgreSQL не найдена — поставьте сервер (Linux: postgresql, macOS: brew install postgresql@16)" >&2
+  if ! platform="$(embedded_platform)"; then
+    echo "local-db: PostgreSQL не найдена, а для $(uname -s)/$(uname -m) готовой сборки в npm нет — поставьте сервер (Linux: postgresql, macOS: brew install postgresql@16)" >&2
+    return 1
+  fi
+  echo "local-db: PostgreSQL в системе нет — скачиваю сборку @embedded-postgres/$platform@$EMBEDDED_VERSION в $EMBEDDED_DIR (один раз, ~60 МБ)" >&2
+  mkdir -p "$EMBEDDED_DIR"
+  # свой манифест: без него npm поднимается до корня проекта и кладёт сборку в общий node_modules
+  [ -f "$EMBEDDED_DIR/package.json" ] || printf '{ "name": "pms-local-pg", "private": true }\n' > "$EMBEDDED_DIR/package.json"
+  if ! ( cd "$EMBEDDED_DIR" && npm install --prefix "$EMBEDDED_DIR" --no-save --no-package-lock --no-audit --no-fund --silent "@embedded-postgres/$platform@$EMBEDDED_VERSION" >/dev/null ); then
+    echo "local-db: сборку PostgreSQL скачать не удалось — проверьте сеть или поставьте сервер (macOS: brew install postgresql@16)" >&2
+    return 1
+  fi
+  for dir in "$EMBEDDED_DIR"/node_modules/@embedded-postgres/*/native/bin; do
+    [ -x "$dir/pg_ctl" ] && { echo "$dir"; return 0; }
+  done
+  echo "local-db: сборка скачана, но pg_ctl в ней не найден" >&2
   return 1
 }
 
 # initdb и postgres отказываются работать от root: под root запускаем их от пользователя postgres
 as_owner() {
   if [ "$(id -u)" = 0 ] && id -u postgres >/dev/null 2>&1; then
-    su postgres -c "$1"
+    su -s /bin/bash postgres -c "$1"
   else
     bash -c "$1"
   fi
@@ -53,8 +87,18 @@ start() {
     as_owner "'$b/pg_ctl' -D '$PGDATA' -l '$PGDATA/server.log' -o '-p $PORT -k $PGDATA' start" >/dev/null
     sleep 1
   fi
-  "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DBNAME'" \
-    | grep -q 1 || "$b/createdb" -h 127.0.0.1 -p "$PORT" -U postgres "$DBNAME"
+  # База создаётся через pg из node_modules, а не psql/createdb: в сборке из npm только серверные программы
+  ( cd "$ROOT" && node -e '
+    const { Client } = require("pg");
+    const [url, name] = process.argv.slice(1);
+    (async () => {
+      const c = new Client({ connectionString: url });
+      await c.connect();
+      const r = await c.query("SELECT 1 FROM pg_database WHERE datname = $1", [name]);
+      if (!r.rowCount) await c.query(`CREATE DATABASE "${name}"`);
+      await c.end();
+    })().catch((e) => { console.error("local-db: база не создалась —", e.message); process.exit(1); });
+  ' "postgresql://postgres@127.0.0.1:$PORT/postgres" "$DBNAME" )
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )

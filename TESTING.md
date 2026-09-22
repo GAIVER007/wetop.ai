@@ -103,6 +103,15 @@ DATABASE_URL='postgresql://postgres@127.0.0.1:55432/pmslocal' npm run test:recor
 npm run db:local -- stop              # остановить; reset — снести и поднять заново
 ```
 
+**Нет PostgreSQL в системе — ставить ничего не нужно (22.09.2026).** На Mac владельца не оказалось ни Homebrew, ни
+Postgres.app, и `db:local` упирался в «PostgreSQL не найдена». Теперь скрипт сам скачивает готовую сборку
+PostgreSQL 16.14 из npm (`@embedded-postgres/<платформа>`, darwin-arm64 / darwin-x64 / linux-x64 / linux-arm64) в
+`.local-pg/` рядом с кодом — один раз, ~60 МБ, в git не едет, в `package.json` не попадает (образ сервера не
+растёт). В сборке только сервер (`initdb`, `pg_ctl`, `postgres`), поэтому базу скрипт создаёт через `pg` из
+`node_modules`, а не `createdb`. Именно этот путь проверяют `PMS_LOCAL_PG_EMBEDDED=1 npm run db:local -- reset`
+(в контейнере системная PostgreSQL есть, и без флага скрипт берёт её): 22.09 стенд из npm поднялся за 14 с,
+`integration` на нём 44/44 (`…09-03-48Z-integration-4c1c.log`). Версию сборки задаёт `PMS_LOCAL_PG_VERSION`.
+
 Прогон занимает **9 секунд** против минут через пулер (первый: 32 из 32, 17.09). Засев отказывается работать,
 если `DATABASE_URL` не локальный, — чужую базу этим не задеть (`tests/unit/seed-local.test.ts`).
 

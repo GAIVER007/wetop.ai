@@ -87,7 +87,12 @@ start() {
     as_owner "'$b/pg_ctl' -D '$PGDATA' -l '$PGDATA/server.log' -o '-p $PORT -k $PGDATA' start" >/dev/null
     sleep 1
   fi
-  # База создаётся через pg из node_modules, а не psql/createdb: в сборке из npm только серверные программы
+  # База: через psql/createdb, когда они есть рядом с pg_ctl (системная PostgreSQL; их же подставляет
+  # tests/unit/local-db-start.test.ts), иначе через pg из node_modules — в сборке из npm только серверные программы
+  if [ -x "$b/psql" ]; then
+    "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DBNAME'" \
+      | grep -q 1 || "$b/createdb" -h 127.0.0.1 -p "$PORT" -U postgres "$DBNAME"
+  else
   ( cd "$ROOT" && node -e '
     const { Client } = require("pg");
     const [url, name] = process.argv.slice(1);
@@ -99,6 +104,7 @@ start() {
       await c.end();
     })().catch((e) => { console.error("local-db: база не создалась —", e.message); process.exit(1); });
   ' "postgresql://postgres@127.0.0.1:$PORT/postgres" "$DBNAME" )
+  fi
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )

@@ -1,6 +1,6 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
-import { ratesApi } from '../../lib/api';
+import { ratesApi, channelsApi } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
@@ -61,6 +61,35 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
     );
   }
   const options = loadedOptions.r;
+  // Подпись каналов на форме (чтобы не путать номера/тарифы при сертификации): маппинг из БД + имена из
+  // Channex. Оба через settle — Channex недоступен, экран остаётся, подпись просто не покажется (D4).
+  const [mappingRes, namesRes] = await Promise.all([
+    settle(channelsApi.mapping()),
+    settle(channelsApi.channexNames()),
+  ]);
+  const channexNames = namesRes.ok ? namesRes.r : { roomTypes: {}, ratePlans: {} };
+  const channelHints: {
+    byRoom: Record<string, { name: string | null; mapped: boolean }>;
+    byPlan: Record<string, { name: string | null; mapped: boolean }>;
+  } = { byRoom: {}, byPlan: {} };
+  if (mappingRes.ok) {
+    for (const m of mappingRes.r) {
+      if (!m.localAccommodationTypeCode) continue;
+      channelHints.byRoom[m.localAccommodationTypeCode] = {
+        name: m.providerRoomTypeId
+          ? (channexNames.roomTypes[m.providerRoomTypeId] ?? m.providerRoomTypeId)
+          : null,
+        mapped: !!m.providerRoomTypeId,
+      };
+      if (m.localRatePlanCode)
+        channelHints.byPlan[`${m.localAccommodationTypeCode}|${m.localRatePlanCode}`] = {
+          name: m.providerRatePlanId
+            ? (channexNames.ratePlans[m.providerRatePlanId] ?? m.providerRatePlanId)
+            : null,
+          mapped: !!m.providerRatePlanId,
+        };
+    }
+  }
   const category = q.category ?? options.categories[0]?.code ?? '';
   const ratePlan =
     q.ratePlan ?? options.ratePlans.find((p) => p.active)?.code ?? options.ratePlans[0]?.code ?? '';
@@ -245,6 +274,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
             </div>
             {!error && (
               <BulkEditor
+                channels={channelHints}
                 categories={options.categories}
                 ratePlans={options.ratePlans}
                 defaults={{

@@ -131,3 +131,35 @@ describe('ChannelContentService (ADR-033)', () => {
     );
   });
 });
+
+
+describe('ChannelContentService.channexNames — id→название номеров/тарифов Channex', () => {
+  const reader = (fail?: Error) =>
+    ({
+      getProperty: async () => ({ id: 'p', type: 'property', attributes: {} }),
+      listPropertyFacilities: async () => [],
+      listAll: async (path: string) => {
+        if (fail) throw fail;
+        if (path === '/room_types')
+          return [{ id: 'rt-1', type: 'room_type', attributes: { title: 'Twin' } }];
+        if (path === '/rate_plans')
+          return [{ id: 'rp-1', type: 'rate_plan', attributes: { title: 'BAR' } }];
+        return [];
+      },
+    }) as unknown as ContentReader;
+
+  it('строит карты id→title по listAll', async () => {
+    const svc = new ChannelContentService(repo(PROPERTY), reader());
+    const n = await svc.channexNames(false, 1000);
+    expect(n.roomTypes).toEqual({ 'rt-1': 'Twin' });
+    expect(n.ratePlans).toEqual({ 'rp-1': 'BAR' });
+  });
+  it('без сопоставленного объекта — пустые карты', async () => {
+    const svc = new ChannelContentService(repo(null), reader());
+    expect(await svc.channexNames(false, 2000)).toEqual({ roomTypes: {}, ratePlans: {} });
+  });
+  it('Channex недоступен — пустые карты, без исключения', async () => {
+    const svc = new ChannelContentService(repo(PROPERTY), reader(new Error('down')));
+    expect(await svc.channexNames(false, 3000)).toEqual({ roomTypes: {}, ratePlans: {} });
+  });
+});

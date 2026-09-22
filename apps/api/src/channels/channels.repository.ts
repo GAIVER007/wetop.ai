@@ -40,6 +40,7 @@ export interface MappingRow {
   localAccommodationTypeId: string | null;
   localAccommodationTypeCode: string | null;
   localRatePlanId: string | null;
+  localRatePlanCode: string | null;
   providerPropertyId: string;
   providerRoomTypeId: string | null;
   providerRatePlanId: string | null;
@@ -260,11 +261,22 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       include: { accommodationType: { select: { code: true } } },
       orderBy: { createdAt: 'asc' },
     });
+    const planIds = [
+      ...new Set(rows.map((r) => r.localRatePlanId).filter((x): x is string => !!x)),
+    ];
+    const plans = planIds.length
+      ? await this.prisma.db.ratePlan.findMany({
+          where: { id: { in: planIds } },
+          select: { id: true, code: true },
+        })
+      : [];
+    const codeById = new Map(plans.map((p) => [p.id, p.code]));
     return rows.map((r) => ({
       id: r.id,
       localAccommodationTypeId: r.localAccommodationTypeId,
       localAccommodationTypeCode: r.accommodationType?.code ?? null,
       localRatePlanId: r.localRatePlanId,
+      localRatePlanCode: r.localRatePlanId ? codeById.get(r.localRatePlanId) ?? null : null,
       providerPropertyId: r.providerPropertyId,
       providerRoomTypeId: r.providerRoomTypeId,
       providerRatePlanId: r.providerRatePlanId,

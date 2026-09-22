@@ -607,6 +607,7 @@ export interface ChannelMappingRow {
   id: string;
   localAccommodationTypeCode: string | null;
   localRatePlanId: string | null;
+  localRatePlanCode: string | null;
   providerPropertyId: string;
   providerRoomTypeId: string | null;
   providerRatePlanId: string | null;
@@ -623,6 +624,10 @@ export interface OutboxSummary {
 export const channelsApi = {
   connection: () => getJson<ChannelConnection>('/channels/channex/connection'),
   mapping: () => getJson<ChannelMappingRow[]>('/channels/channex/mapping'),
+  channexNames: () =>
+    getJson<{ roomTypes: Record<string, string>; ratePlans: Record<string, string> }>(
+      '/channels/channex/content/names',
+    ),
   outbox: () => getJson<OutboxSummary>('/channels/channex/outbox'),
   /** Строки очереди: что именно уехало в Channex (срез 7.2) */
   outboxMessages: (limit = 20) =>

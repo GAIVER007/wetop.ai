@@ -81,10 +81,16 @@ export function channexEnvironment(): HotelContent['environment'] {
   return host === 'app.channex.io' || host === 'api.channex.io' ? 'production' : 'custom';
 }
 
+export interface ChannexNames {
+  roomTypes: Record<string, string>;
+  ratePlans: Record<string, string>;
+}
+
 @Injectable()
 export class ChannelContentService {
   private cache: HotelContent | null = null;
   private cachedAt = 0;
+  private namesCache: (ChannexNames & { at: number }) | null = null;
 
   constructor(
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
@@ -99,6 +105,38 @@ export class ChannelContentService {
       this.cachedAt = now;
     }
     return result;
+  }
+
+  /**
+   * id → название номера/тарифа на стороне Channex (для подписи на /rates: чтобы категории и тарифы
+   * не путали при сертификации). Лучшее усилие: без ключа/объекта или при недоступном Channex — пустые
+   * карты, экран это переживёт. Кэш 10 минут, как у контента.
+   */
+  async channexNames(refresh = false, now = Date.now()): Promise<ChannexNames> {
+    if (!refresh && this.namesCache && now - this.namesCache.at < CACHE_MS)
+      return { roomTypes: this.namesCache.roomTypes, ratePlans: this.namesCache.ratePlans };
+    const empty: ChannexNames = { roomTypes: {}, ratePlans: {} };
+    if (!this.reader) return empty;
+    const propertyId = (await this.repo.mappings(PROVIDER)).find(
+      (m) => m.providerPropertyId,
+    )?.providerPropertyId;
+    if (!propertyId) return empty;
+    try {
+      const filter = { 'filter[property_id]': propertyId };
+      const [rooms, plans] = await Promise.all([
+        this.reader.listAll<{ title?: string }>('/room_types', filter),
+        this.reader.listAll<{ title?: string }>('/rate_plans', filter),
+      ]);
+      const toMap = (rows: Array<{ id: string; attributes: { title?: string } }>) =>
+        Object.fromEntries(rows.map((r) => [r.id, r.attributes.title ?? r.id]));
+      const names: ChannexNames = { roomTypes: toMap(rooms), ratePlans: toMap(plans) };
+      this.namesCache = { ...names, at: now };
+      return names;
+    } catch {
+      return this.namesCache
+        ? { roomTypes: this.namesCache.roomTypes, ratePlans: this.namesCache.ratePlans }
+        : empty;
+    }
   }
 
   private async read(): Promise<HotelContent> {
@@ -201,5 +239,9 @@ export class ChannelContentController {
   /** ?refresh=1 — прочитать заново, минуя кэш на 10 минут */
   @Get('content') content(@Query('refresh') refresh?: string) {
     return this.service.content(refresh === '1' || refresh === 'true');
+  }
+  /** id → название номеров/тарифов Channex для подписи на /rates (лучшее усилие, кэш 10 мин) */
+  @Get('content/names') channexNames() {
+    return this.service.channexNames();
   }
 }

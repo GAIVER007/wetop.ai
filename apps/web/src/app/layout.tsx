@@ -3,6 +3,7 @@ import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
+import { OnboardingGate } from './onboarding-gate';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
 import './globals.css';
@@ -45,6 +46,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <OnboardingGate />
+        </Suspense>
         <ThemeProvider>
           <ToastProvider>
             <TopNav

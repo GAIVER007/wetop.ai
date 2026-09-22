@@ -2,7 +2,9 @@
 import { useState, useTransition } from 'react';
 import type { RateChangeInput } from '../../lib/api';
 import { displayDay, displayPeriod } from '../../lib/display-date';
+import { pluralRu } from '../../lib/plural';
 import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { bulkRatesAction } from './actions';
 
 const DAYS: Array<[string, string]> = [
@@ -120,20 +122,28 @@ export function BulkEditor(props: {
             </Select>
           </Field>
           <Field label="С даты">
-            <Input type="date" name="dateFrom" defaultValue={props.defaults.dateFrom} required />
+            <DateInput name="dateFrom" defaultValue={props.defaults.dateFrom} required />
           </Field>
           <Field label="По дату">
-            <Input type="date" name="dateTo" defaultValue={props.defaults.dateTo} required />
+            <DateInput
+              name="dateTo"
+              rangeFromName="dateFrom"
+              defaultValue={props.defaults.dateTo}
+              required
+            />
           </Field>
         </Grid>
-        <div className="row hint">
-          Дни недели:
-          {DAYS.map(([d, t]) => (
-            <label key={d} className="check">
-              <input type="checkbox" name={`day-${d}`} defaultChecked /> {t}
-            </label>
-          ))}
-        </div>
+        {/* Подпись своей строкой, семь дней — одним рядом: в общем `.row` «вс» переносилось (21.09) */}
+        <fieldset className="rates-days">
+          <legend className="rates-days__legend">Дни недели</legend>
+          <div className="rates-days__list">
+            {DAYS.map(([d, t]) => (
+              <label key={d} className="check">
+                <input type="checkbox" name={`day-${d}`} defaultChecked /> {t}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <Grid min={140} gap="sm">
           <Field label="Цена за ночь">
             <Input name="price" placeholder="напр. 15400" inputMode="decimal" />
@@ -221,7 +231,11 @@ export function BulkEditor(props: {
           onClick={submit}
           disabled={pending || rows.length === 0}
         >
-          {pending ? 'Сохраняю…' : `Сохранить (${rows.length})`}
+          {pending
+            ? 'Сохраняю…'
+            : rows.length
+              ? `Сохранить ${pluralRu(rows.length, ['изменение', 'изменения', 'изменений'])}`
+              : 'Сохранить'}
         </Button>
         {error && <Alert>{error}</Alert>}
         {done && <Notice data-testid="bulk-done">{done}</Notice>}

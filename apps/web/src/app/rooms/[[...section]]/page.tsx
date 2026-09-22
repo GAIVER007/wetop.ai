@@ -6,7 +6,8 @@ import { ApiError, api, chessboardApi, reservationsApi } from '../../../lib/api'
 import { hotelToday, nextDay, plusDays, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
 import { Page } from '../../../components/page';
-import { Alert, Button, Field, Input, Stat, Stats, Table, cx } from '../../../components/ui';
+import { Alert, Button, Field, Stat, Stats, Table, cx } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { Icon } from '../../../components/icon';
 import { displayDate } from '../../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
@@ -218,12 +219,12 @@ async function Availability({
     <>
       <form className="row toolbar" method="get">
         <Field label="Заезд">
-          <Input type="date" name="arrival" defaultValue={arrival} required />
+          <DateInput name="arrival" defaultValue={arrival} required />
         </Field>
         <Field label="Выезд">
-          <Input
-            type="date"
+          <DateInput
             name="departure"
+            rangeFromName="arrival"
             defaultValue={departure}
             required
             {...(lastDeparture ? { max: lastDeparture } : {})}

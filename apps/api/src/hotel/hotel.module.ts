@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { ReservationDirectory, ReservationDirectoryController } from './reservation-directory';
+import { OnboardingController, OnboardingService } from './onboarding';
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   Get,
   Inject,
   Injectable,
@@ -12,7 +14,9 @@ import {
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
 
 /**
  * Сколько держать настройки объекта в памяти API (волна 4 плана wetop-domain).
@@ -26,17 +30,33 @@ const SETTINGS_TTL_MS = () => Number(process.env.HOTEL_SETTINGS_TTL_MS ?? 60_000
 /** Read-only projections of the approved model. No provider calls or financial mutations. */
 @Injectable()
 export class HotelService {
-  private cachedSettings: {
-    at: number;
-    value: Awaited<ReturnType<HotelService['readSettings']>>;
-  } | null = null;
-  private settingsRead: ReturnType<HotelService['readSettings']> | null = null;
+  // Настройки кэшируются ПО ОРГАНИЗАЦИИ (мультитенантность): иначе один процесс отдал бы объект
+  // одной организации другой. Ключ «__service__» — служебные ходоки (за ними нет человека).
+  private cachedSettings = new Map<
+    string,
+    { at: number; value: Awaited<ReturnType<HotelService['readSettings']>> }
+  >();
+  private settingsRead = new Map<string, ReturnType<HotelService['readSettings']>>();
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  /** По какому объекту отвечаем: вошедший — по своей организации, служебный ходок — по имени (Luxx). */
+  private settingsKey(): string {
+    if (!hasSignedInActor()) return '__service__';
+    return currentOrganizationId() ?? '__nobody__';
+  }
+
   private async property() {
+    // Вошедший видит объект своей организации; служебный ходок — единственный по имени (как раньше)
+    const where = hasSignedInActor()
+      ? (() => {
+          const organizationId = currentOrganizationId();
+          if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+          return { organizationId };
+        })()
+      : { name: LUXX_APARTS_PROPERTY.name };
     const property = await this.prisma.db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
+      where,
       select: {
         id: true,
         name: true,
@@ -53,31 +73,45 @@ export class HotelService {
   }
 
   async settings() {
-    const cached = this.cachedSettings;
+    const key = this.settingsKey();
+    const cached = this.cachedSettings.get(key);
     if (cached && Date.now() - cached.at < SETTINGS_TTL_MS()) return cached.value;
-    // Несколько открывающихся страниц делят один промах существующего кэша.
+    // Несколько открывающихся страниц одной организации делят один промах её кэша.
     // Ошибка очищает только незавершённое чтение и не мешает следующей попытке.
-    if (!this.settingsRead) {
-      this.settingsRead = this.readSettings()
+    let read = this.settingsRead.get(key);
+    if (!read) {
+      read = this.readSettings()
         .then((value) => {
-          this.cachedSettings = { at: Date.now(), value };
+          this.cachedSettings.set(key, { at: Date.now(), value });
           return value;
         })
         .finally(() => {
-          this.settingsRead = null;
+          this.settingsRead.delete(key);
         });
+      this.settingsRead.set(key, read);
     }
-    return this.settingsRead;
+    return read;
   }
 
   private async readSettings() {
     const property = await this.property();
-    const ratePlans = await this.prisma.db.ratePlan.findMany({
-      where: { propertyId: property.id },
-      orderBy: { code: 'asc' },
-      select: { code: true, name: true, currency: true, active: true, cancellationPenalty: true },
-    });
-    return { property, ratePlans };
+    const [ratePlans, categories] = await Promise.all([
+      this.prisma.db.ratePlan.findMany({
+        where: { propertyId: property.id },
+        orderBy: { code: 'asc' },
+        select: { code: true, name: true, currency: true, active: true, cancellationPenalty: true },
+      }),
+      // Нужен ли онбординг: у объекта ещё нет ни одной категории. Читаем здесь, чтобы гейт в layout
+      // не делал отдельный рейс — layout и так берёт настройки (и они кэшируются по организации).
+      this.prisma.db.accommodationType.count({ where: { propertyId: property.id } }),
+    ]);
+    return { property, ratePlans, needsOnboarding: categories === 0 };
+  }
+
+  /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
+  forget(): void {
+    this.cachedSettings.clear();
+    this.settingsRead.clear();
   }
 
   async channelReport(from?: string, to?: string, status = 'ALL') {
@@ -175,7 +209,7 @@ export class HotelController {
 }
 
 @Module({
-  controllers: [HotelController, ReservationDirectoryController],
-  providers: [PrismaService, HotelService, ReservationDirectory],
+  controllers: [HotelController, ReservationDirectoryController, OnboardingController],
+  providers: [PrismaService, HotelService, ReservationDirectory, OnboardingService],
 })
 export class HotelModule {}

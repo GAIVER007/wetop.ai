@@ -131,6 +131,25 @@ async function getJson<T>(path: string): Promise<T> {
 /** Для страниц, которым нужен произвольный путь API (журнал). */
 export const getJsonPublic = getJson;
 
+export interface OnboardingStatus {
+  needed: boolean;
+  name: string;
+  currency: string;
+}
+export interface OnboardingCategoryInput {
+  name: string;
+  kind: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
+  capacityAdults: number;
+  units: number;
+  priceMinor: number;
+}
+/** Онбординг нового отеля (plans/onboarding-2026-09-21.md). */
+export const onboardingApi = {
+  status: () => getJson<OnboardingStatus>('/hotel/onboarding'),
+  provision: (body: { currency: string; categories: OnboardingCategoryInput[] }) =>
+    sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
+};
+
 export const api = {
   inventorySummary: () => getJson<InventorySummary>('/inventory/summary'),
   inventoryUnits: (category?: string) =>

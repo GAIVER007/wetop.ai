@@ -143,11 +143,23 @@
 .kit-disabled-host {
   display: inline-block;
 }
-.kit-theme .confirm-dialog--static { max-width: 100%; }
+.kit-theme .confirm-dialog--static {
+  max-width: 100%;
+}
 @media (max-width: 760px) {
   .kit-state {
     grid-template-columns: 1fr;
   }
-  .kit-theme .tooltip-host { width: 100%; }
-  .kit-theme .tooltip { max-width: 100%; }
+  .kit-theme .tooltip-host {
+    width: 100%;
+  }
+  .kit-theme .tooltip {
+    max-width: 100%;
+  }
+}
+
+/* поле даты: раскрытый календарь должен попасть в снимок секции */
+.kit-date-demo {
+  min-height: 400px;
+  align-items: flex-start;
 }

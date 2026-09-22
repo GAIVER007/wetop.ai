@@ -5,7 +5,7 @@ import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { assertPropertyVisible, propertyIdRef } from '../database/property-ref';
+import { propertyIdRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { stayFacts } from '../chessboard/stay-facts';
 import type { LocalDailyRate, LocalRestriction } from './ari';
@@ -219,10 +219,10 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async localSetup(ratePlanCode: string): Promise<LocalSetup> {
-    const p = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-    });
-    assertPropertyVisible(p);
+    // Мультитенантность: объект по организации вошедшего (служебный путь property-ref возьмёт Luxx
+    // по имени — sync.service ходит сюда как служебный ходок). Читаем полный объект по его id.
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const p = await this.prisma.db.property.findUniqueOrThrow({ where: { id: propertyId } });
     const types = await this.prisma.db.accommodationType.findMany({
       where: { propertyId: p.id, active: true },
       orderBy: { code: 'asc' },
@@ -546,11 +546,13 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     q: EventsQuery,
   ): Promise<{ rows: InboundEventListRow[]; total: number }> {
     const needle = q.q?.trim();
-    // Поиск по номеру брони PMS: номер → externalId брони → unique_id ревизии (payload)
+    // Поиск и связка номеров — по объекту своей организации; журнал событий Channex пока общий (одна
+    // интеграция на Luxx), его мультитенантность — отдельная работа (см. отчёт по изоляции 21.09).
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const byNumber = needle
       ? await this.prisma.db.reservation.findMany({
           where: {
-            property: { name: LUXX_APARTS_PROPERTY.name },
+            propertyId,
             externalId: { not: null },
             OR: [
               { confirmationNumber: { contains: needle } },
@@ -609,7 +611,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     const ids = [...new Set(facts.map((f) => f.uniqueId).filter((x): x is string => !!x))];
     const linked = ids.length
       ? await this.prisma.db.reservation.findMany({
-          where: { property: { name: LUXX_APARTS_PROPERTY.name }, externalId: { in: ids } },
+          where: { propertyId, externalId: { in: ids } },
           select: { externalId: true, confirmationNumber: true },
         })
       : [];
@@ -655,20 +657,16 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     };
   }
   async reservationCardByExternalId(externalId: string) {
-    const property = await this.prisma.db.property.findFirstOrThrow({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      select: { id: true, name: true, organizationId: true },
-    });
-    assertPropertyVisible(property);
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const r = await this.prisma.db.reservation.findFirst({
-      where: { propertyId: property.id, externalId },
+      where: { propertyId, externalId },
       select: { confirmationNumber: true },
     });
     if (!r) return null;
-    const card = await loadReservationCard(this.prisma.db, property.id, r.confirmationNumber);
+    const card = await loadReservationCard(this.prisma.db, propertyId, r.confirmationNumber);
     if (!card) return null;
     const items = await this.prisma.db.reservationItem.findMany({
-      where: { reservation: { propertyId: property.id, confirmationNumber: r.confirmationNumber } },
+      where: { reservation: { propertyId, confirmationNumber: r.confirmationNumber } },
       select: {
         id: true,
         reservation: { select: { source: true, channel: true } },

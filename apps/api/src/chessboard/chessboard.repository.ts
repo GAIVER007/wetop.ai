@@ -66,12 +66,14 @@ export class PrismaChessboardRepository implements ChessboardRepository {
 
   /** Назначения, пересекающие [from, to]: start < to+1 и end > from. */
   async soldStays(from: string, toExclusive: string): Promise<SoldStay[]> {
+    const propertyId = await this.propertyId();
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {
         status: { notIn: ['CANCELLED', 'NO_SHOW'] },
         arrivalDate: { lt: new Date(`${toExclusive}T00:00:00Z`) },
         departureDate: { gt: new Date(`${from}T00:00:00Z`) },
-        reservation: { property: { name: LUXX_APARTS_PROPERTY.name } },
+        // По объекту своей организации (мультитенантность): id из property-ref, не имя
+        reservation: { propertyId },
       },
       select: {
         arrivalDate: true,
@@ -91,12 +93,13 @@ export class PrismaChessboardRepository implements ChessboardRepository {
    * `some: {}` в Prisma пустой фильтр не применяет, поэтому здесь не годится.
    */
   async unassignedStays(from: string, toExclusive: string): Promise<UnassignedStay[]> {
+    const propertyId = await this.propertyId();
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {
         status: { notIn: ['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'] },
         arrivalDate: { lt: new Date(`${toExclusive}T00:00:00Z`) },
         departureDate: { gt: new Date(`${from}T00:00:00Z`) },
-        reservation: { property: { name: LUXX_APARTS_PROPERTY.name } },
+        reservation: { propertyId },
         allocations: { none: {} },
       },
       select: {
@@ -118,11 +121,17 @@ export class PrismaChessboardRepository implements ChessboardRepository {
   }
 
   async allocations(from: string, to: string): Promise<ChessboardAllocation[]> {
+    const propertyId = await this.propertyId();
     const rows = await this.prisma.db.allocation.findMany({
       where: {
         startDate: { lte: new Date(`${to}T00:00:00Z`) },
         endDate: { gt: new Date(`${from}T00:00:00Z`) },
-        reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+        // Прежде фильтра по объекту тут не было (один объект в MVP) — на мультитенанте это отдавало
+        // бы назначения всех отелей. Теперь только свой объект (разбор изоляции 21.09).
+        reservationItem: {
+          status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+          reservation: { propertyId },
+        },
       },
       include: {
         reservationItem: {

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   ensureFolioWithAccommodation,
   recordExternalPayment,
@@ -9,7 +9,8 @@ import {
 } from '@pms/database';
 import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
 import type { NightRate, ReservationSource, ReservationStatus, StayRestriction } from '@pms/domain';
-import { assertPropertyVisible } from '../database/property-ref';
+import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
+import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
@@ -368,14 +369,24 @@ export class PrismaReservationsRepository implements ReservationsRepository {
 
   async property(): Promise<{ id: string; currency: string }> {
     if (!this.propertyCache) {
-      const found = await this.db.property.findFirstOrThrow({
-        where: { name: this.propertyName },
-        select: { id: true, name: true, currency: true, organizationId: true },
-      });
-      // Тот же замок, что в property-ref: репозиторий читает объект своим запросом (ему нужна
-      // валюта), но чужой организации он его не отдаёт (ADR-061).
-      assertPropertyVisible(found);
-      this.propertyCache = { id: found.id, currency: found.currency };
+      // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
+      // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
+      if (hasSignedInActor()) {
+        const organizationId = currentOrganizationId();
+        if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+        const found = await this.db.property.findFirst({
+          where: { organizationId },
+          select: { id: true, currency: true },
+        });
+        if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+        this.propertyCache = { id: found.id, currency: found.currency };
+      } else {
+        const found = await this.db.property.findFirstOrThrow({
+          where: { name: this.propertyName },
+          select: { id: true, currency: true },
+        });
+        this.propertyCache = { id: found.id, currency: found.currency };
+      }
     }
     return this.propertyCache;
   }

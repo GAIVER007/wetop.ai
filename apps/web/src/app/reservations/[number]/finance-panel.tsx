@@ -17,6 +17,7 @@ import {
   Stack,
   Table,
 } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import {
   addChargeAction,
   closeFolioAction,
@@ -352,10 +353,9 @@ function FolioPanel({
                   </Field>
                 )}
                 <Field inline label="Дата">
-                  <Input
+                  <DateInput
                     name="serviceDate"
                     aria-label="Дата услуги"
-                    type="date"
                     defaultValue={chargeState.values?.serviceDate ?? today}
                   />
                 </Field>

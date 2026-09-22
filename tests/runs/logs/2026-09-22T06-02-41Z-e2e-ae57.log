@@ -1,0 +1,85 @@
+# Сквозные (e2e) · 22.09.2026 11:02 Алматы · vm
+# коммит 6ff2f61 (claude/gifted-planck-5o1ymi), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/date-field.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/date-field.spec.ts:20:1 › главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (90ms)
+  ✘  2 tests/ui/date-field.spec.ts:51:1 › главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (54ms)
+  ✘  3 tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся (63ms)
+  ✘  4 tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (55ms)
+
+
+  1) tests/ui/date-field.spec.ts:20:1 › главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/date-field-главная-календа-6cbf7-тавит-дату-Escape-закрывает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/date-field-главная-календа-6cbf7-тавит-дату-Escape-закрывает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/date-field-главная-календа-6cbf7-тавит-дату-Escape-закрывает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/date-field.spec.ts:51:1 › главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/date-field-главная-у-поля--af515-о-без-нарушений-доступности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/date-field-главная-у-поля--af515-о-без-нарушений-доступности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/date-field-главная-у-поля--af515-о-без-нарушений-доступности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся ────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/date-field-телефон-кнопки-календаря-нет-родное-поле-остаётся/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/date-field-телефон-кнопки-календаря-нет-родное-поле-остаётся/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/date-field-телефон-кнопки-календаря-нет-родное-поле-остаётся/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/date-field-панель-брони-ка-c342b--экране-и-пишет-дату-в-поле/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/date-field-панель-брони-ка-c342b--экране-и-пишет-дату-в-поле/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/date-field-панель-брони-ка-c342b--экране-и-пишет-дату-в-поле/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/date-field.spec.ts:20:1 › главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает 
+    tests/ui/date-field.spec.ts:51:1 › главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности 
+    tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся ─────────
+    tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле 
+
+# код выхода 1 · 12 с

@@ -55,3 +55,15 @@ export function almatyWhen(iso: string | null | undefined): string {
   const moment = almatyMoment(iso);
   return moment === '—' ? moment : moment.replace(' ', ' в ');
 }
+
+const clockInAlmaty = new Intl.DateTimeFormat('ru-RU', {
+  timeZone: 'Asia/Almaty',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+/** Момент события → «13:30» по часам объекта: день называет подзаголовок группы, а не каждая строка */
+export function almatyClock(iso: string): string {
+  const t = Date.parse(iso);
+  return Number.isNaN(t) ? '—' : clockInAlmaty.format(t);
+}

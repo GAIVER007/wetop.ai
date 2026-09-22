@@ -495,6 +495,9 @@ function seedDesign() {
  * говорить, что броней нет, а не выглядеть сломанными.
  */
 let noBookings = false;
+// Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
+// иначе существующие UI-тесты на рабочих экранах уходили бы на онбординг.
+let onboardingNeeded = false;
 const allCards = () => (noBookings ? [] : [card, ...extraCards.values()]);
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
@@ -530,6 +533,13 @@ let ratesUnmapped = false;
 /** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
 let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
+/**
+ * Статус уборки ячейки: один источник для шахматки и карточки места. До 21.09.2026 карточка брала
+ * `?? 'CLEAN'`, а доска — свой набор по умолчанию, и R01 была грязной на доске и убранной в карточке.
+ */
+const housekeepingOf = (code: string): UnitCard['housekeepingStatus'] =>
+  housekeeping.get(code) ??
+  (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
 let priceChanges: Array<{
@@ -926,6 +936,8 @@ const mixClosed = (): Incident[] =>
   }));
 /** Дополнительные неисправности сверх одиночного сида: пусто, пока режим не включён */
 let extraIncidents: Incident[] = [];
+/** Журнал за несколько дней: без него все строки фикстуры — сегодняшние, и группы по дням не проверить */
+let journalHistory = false;
 let guardTick = false;
 
 function desk(date: string): DeskDay {
@@ -987,9 +999,7 @@ function desk(date: string): DeskDay {
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
   // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
-  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
-    housekeeping.get(code) ??
-    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
+  const hk = housekeepingOf;
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
@@ -1499,7 +1509,10 @@ function read(path: string, q: URLSearchParams): unknown {
         checkOutTime: '12:00',
       },
       ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+      needsOnboarding: onboardingNeeded,
     };
+  if (path === '/hotel/onboarding')
+    return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
   if (path === '/hotel/channel-report') {
     const status = q.get('status') || 'ALL';
     const empty = status !== 'ALL';
@@ -1756,7 +1769,7 @@ function read(path: string, q: URLSearchParams): unknown {
       ...u,
       id: u.code,
       active: true,
-      housekeepingStatus: housekeeping.get(u.code) ?? 'CLEAN',
+      housekeepingStatus: housekeepingOf(u.code),
       blocks: blocksFor(u.code),
       stays: allCards().flatMap((r) =>
         r.items
@@ -2013,6 +2026,27 @@ function read(path: string, q: URLSearchParams): unknown {
         author: null,
       },
     ];
+    if (journalHistory)
+      entries.push(
+        {
+          id: 'ui-audit-yesterday',
+          at: `${add(today, -1)}T11:15:00Z`,
+          entityType: 'InventoryUnit',
+          entityId: 'ui-unit',
+          action: 'unit.block',
+          subject: 'R01',
+          author: uiUser.name,
+        },
+        {
+          id: 'ui-audit-older',
+          at: `${add(today, -3)}T06:05:00Z`,
+          entityType: 'Reservation',
+          entityId: 'ui-item',
+          action: 'reservation.create',
+          subject: card.confirmationNumber,
+          author: null,
+        },
+      );
     // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
     const needle = (q.get('q') || '').trim().toLowerCase();
     return entries
@@ -2090,6 +2124,7 @@ createServer(async (req, res) => {
       incident = structuredClone(incidentSeed);
       extraIncidents = [];
       guardTick = false;
+      journalHistory = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -2107,6 +2142,7 @@ createServer(async (req, res) => {
       incidentHistory = 0;
       emptyFixture = false;
       noBookings = false;
+      onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -2136,6 +2172,8 @@ createServer(async (req, res) => {
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
       noBookings = body['noBookings'] === true;
+      if (typeof body['onboardingNeeded'] === 'boolean')
+        onboardingNeeded = body['onboardingNeeded'];
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
@@ -2175,6 +2213,7 @@ createServer(async (req, res) => {
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
+      journalHistory = body['journalHistory'] === true;
       if (body['incidentsMix'] === true) {
         extraIncidents = [...mixIncidents(), ...mixClosed()];
         guardTick = true;
@@ -2370,6 +2409,16 @@ createServer(async (req, res) => {
       return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    if (path === '/hotel/onboarding' && req.method === 'POST') {
+      const cats = Array.isArray(body['categories']) ? (body['categories'] as unknown[]) : [];
+      if (cats.length === 0)
+        return send(400, { message: 'Добавьте хотя бы одну категорию номеров' });
+      let units = 0;
+      for (const c of cats) units += Number((c as { units?: unknown }).units ?? 0);
+      // Отель настроен — гейт больше не уводит на онбординг
+      onboardingNeeded = false;
+      return send(200, { ok: true, categories: cats.length, units });
+    }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)
         return send(403, {

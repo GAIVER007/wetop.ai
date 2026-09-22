@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { type OutboxRowStatus, type OutboxSummary, api, channelsApi } from '../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { Page } from '../../components/page';
-import { Alert, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { Alert, SectionTitle, StateBar, StateFact, Table } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { ChannelButtons } from './buttons';
@@ -87,18 +87,34 @@ export default async function ChannelsPage({
     const s = u.toString();
     return s ? `/channels?${s}` : '/channels';
   };
-  const webhookWord =
-    webhook === null
-      ? 'состояние неизвестно'
-      : webhook.registered
-        ? `webhook ${webhook.active ? 'активен' : 'выключен'}`
-        : webhook.expectedUrl
-          ? 'webhook не зарегистрирован'
-          : 'нет PUBLIC_API_URL';
+  // Что полоса состояния говорит об очереди: пустая очередь — норма, ошибки и застой — тревога (§9)
+  const stalledMinutes = outbox?.oldestPendingAt
+    ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
+    : 0;
+  const queueTone = !outbox
+    ? 'warn'
+    : outbox.failed > 0 || stalledMinutes >= 10
+      ? 'alarm'
+      : outbox.pending > 0
+        ? 'warn'
+        : 'calm';
+  const queueWord = !outbox
+    ? 'Сводка очереди не загрузилась.'
+    : outbox.failed > 0
+      ? `Ошибок отправки ${outbox.failed} — каналы продают по старому остатку.`
+      : stalledMinutes >= 10
+        ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
+        : outbox.pending > 0
+          ? 'Ждут отправки в каналы.'
+          : 'Очередь пуста: всё ушло в каналы.';
   return (
     <Page
       title="Каналы продаж — Channex"
-      subtitle={`Объект ${property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}, ${webhookWord}${outbox ? `, последняя задача ${outbox.lastTaskId ?? 'не было'}` : ''}`}
+      subtitle={
+        property
+          ? 'Что уходит в каналы и что приходит обратно.'
+          : 'Объект в Channex не создан — цены и остатки в каналы не уходят.'
+      }
       actions={
         <Link href="/connections" className="btn btn--secondary">
           Проверить соединение
@@ -111,85 +127,113 @@ export default async function ChannelsPage({
           webhook на этой странице читаются отдельно и верны.
         </Alert>
       )}
-      {/* Плитками — только числа очереди; идентификаторы и статус webhook строкой фактов (ADR-027) */}
-      {outbox ? (
-        <Stats min={150}>
-          <Stat
-            label="В очереди"
-            value={String(outbox.pending)}
-            testId="outbox-pending"
-            hint="ждут отправки"
-          />
-          <Stat
-            label="Отправлено"
-            value={String(outbox.sent)}
-            testId="outbox-sent"
-            hint={
-              outbox.lastSentAt ? `последняя ${almatyDateTime(outbox.lastSentAt)}` : 'ещё не было'
-            }
-          />
-          <Stat
-            label="Ошибок"
-            value={String(outbox.failed)}
-            tone={outbox.failed > 0 ? 'alarm' : undefined}
-            hint={outbox.failed > 0 ? 'повтор по расписанию воркера' : 'нет'}
-          />
-        </Stats>
-      ) : (
-        // Сводка очереди не пришла: числа не выдаются за нули, webhook и строки ниже читаются отдельно
+      {/*
+       * 21.09: три плитки с числами очереди и панель фактов на четыре колонки занимали весь первый экран
+       * и повторяли друг друга (подзаголовок страницы говорил то же третий раз). Теперь одна полоса
+       * состояния: слева — сколько ждёт отправки и что это значит, справа — факты подключения.
+       */}
+      {!outbox && (
         <LoadError
           testId="outbox-error"
           {...loadErrorProps(loadedOutbox.ok ? null : loadedOutbox.e)}
         />
       )}
-      <div className="facts facts--card">
-        <div>
-          <div className="fact__label">Объект Channex</div>
-          <div className="fact__value mono">
-            {property ? property.providerPropertyId.slice(0, 8) + '…' : 'не создан'}
-          </div>
-        </div>
-        <div>
-          <div className="fact__label">Webhook в Channex</div>
-          <div className="fact__value" data-testid="webhook-status">
-            {webhook === null
-              ? 'состояние неизвестно'
-              : webhook.registered
-                ? `${webhook.active ? 'активен' : 'выключен'}, события ${webhook.eventMask}`
-                : webhook?.expectedUrl
-                  ? 'не зарегистрирован'
-                  : 'нет PUBLIC_API_URL'}
-          </div>
-          {webhook?.registered && <div className="cell-sub break-all">{webhook.callbackUrl}</div>}
+      <StateBar
+        className="state-bar--wide"
+        tone={queueTone}
+        label="В очереди"
+        value={outbox ? <span data-testid="outbox-pending">{String(outbox.pending)}</span> : '—'}
+        summary={queueWord}
+      >
+        <StateFact
+          label="Отправлено"
+          value={
+            outbox ? (
+              <>
+                <span data-testid="outbox-sent">{String(outbox.sent)}</span>
+                {outbox.failed > 0 ? (
+                  <span className="danger-text">, ошибок {outbox.failed}</span>
+                ) : (
+                  ', ошибок нет'
+                )}
+              </>
+            ) : (
+              '—'
+            )
+          }
+        >
+          <span className="state-bar__sub">
+            {outbox?.lastSentAt
+              ? `последняя ${almatyDateTime(outbox.lastSentAt)}`
+              : outbox
+                ? 'ещё не было'
+                : 'сводка не загрузилась'}
+          </span>
+        </StateFact>
+        <StateFact
+          label="Объект Channex"
+          value={
+            property ? (
+              <span className="mono">{property.providerPropertyId.slice(0, 8) + '…'}</span>
+            ) : (
+              'не создан'
+            )
+          }
+        >
+          {!property && (
+            <span className="state-bar__sub">
+              пока объекта нет, сопоставлений и выгрузки тоже не будет
+            </span>
+          )}
+        </StateFact>
+        <StateFact
+          label="Webhook в Channex"
+          value={
+            <span data-testid="webhook-status">
+              {webhook === null
+                ? 'состояние неизвестно'
+                : webhook.registered
+                  ? `${webhook.active ? 'активен' : 'выключен'}, события ${webhook.eventMask}`
+                  : webhook?.expectedUrl
+                    ? 'не зарегистрирован'
+                    : 'нет PUBLIC_API_URL'}
+            </span>
+          }
+        >
+          {webhook?.registered && (
+            <span className="state-bar__sub break-all">{webhook.callbackUrl}</span>
+          )}
           {webhook?.registered &&
             webhook.expectedUrl &&
             webhook.callbackUrl !== webhook.expectedUrl && (
-              <div className="cell-sub danger-text" data-testid="webhook-url-mismatch">
+              <span className="state-bar__sub danger-text" data-testid="webhook-url-mismatch">
                 зарегистрирован не постоянный адрес PMS ({webhook.expectedUrl}) — события уходят не
                 туда, нажмите «Зарегистрировать webhook»
-              </div>
+              </span>
             )}
           {webhook?.registered &&
             webhook.callbackReachable === false &&
             (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
-              <div className="cell-sub danger-text">
+              <span className="state-bar__sub danger-text">
                 адрес не отвечает{checkedAt(webhook.callbackCheckedAt)} — брони подберёт опрос
                 ленты, но webhook надо поднять
-              </div>
+              </span>
             )}
           {webhook?.registered && webhook.callbackReachable === true && (
-            <div className="cell-sub ok-text">
+            <span className="state-bar__sub ok-text">
               адрес отвечает{checkedAt(webhook.callbackCheckedAt)}
-            </div>
+            </span>
           )}
-        </div>
-        <div>
-          <div className="fact__label">Последняя задача Channex</div>
-          <div className="fact__value mono break-all" data-testid="outbox-last-task">
-            {outbox ? (outbox.lastTaskId ?? '—') : 'не загрузилось'}
-          </div>
-        </div>
-      </div>
+        </StateFact>
+        <StateFact
+          label="Последняя задача"
+          value={
+            <span className="mono break-all" data-testid="outbox-last-task">
+              {outbox ? (outbox.lastTaskId ?? '—') : 'не загрузилось'}
+            </span>
+          }
+        />
+      </StateBar>
       {outbox && <OverbookingAlarm outbox={outbox} />}
       {webhook === null && (
         <Alert boxed>
@@ -229,7 +273,7 @@ export default async function ChannelsPage({
         </section>
       </div>
 
-      <SectionTitle>Маппинг категорий и тарифов</SectionTitle>
+      <SectionTitle>Сопоставление категорий и тарифов</SectionTitle>
       {loadedMapping.ok ? (
         <Table size="sm" className="dir-table dir-table--mapping">
           <thead>

@@ -28,6 +28,7 @@ describe('Hotel read projections', () => {
           property: { findFirst },
           reservation: { groupBy },
           ratePlan: { findMany: vi.fn().mockResolvedValue([]) },
+          accommodationType: { count: vi.fn().mockResolvedValue(3) },
         },
       })
       .compile();

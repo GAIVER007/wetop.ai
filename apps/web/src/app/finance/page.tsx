@@ -9,17 +9,8 @@ import { formatMoney } from '../../lib/money';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import {
-  Alert,
-  Button,
-  Field,
-  Help,
-  Input,
-  SectionTitle,
-  Stat,
-  Stats,
-  Table,
-} from '../../components/ui';
+import { Alert, Button, Field, Help, SectionTitle, Stat, Stats, Table } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import '../directory.css';
 
 /** Тот же предел, что у `/finance/report`: год с запасом (волна 4) */
@@ -111,16 +102,16 @@ export default async function FinanceReportPage({
         data-testid="period-form"
       >
         <Field inline label="С">
-          <Input
-            key={`from-${from}`}
-            type="date"
-            name="from"
-            defaultValue={from}
-            aria-label="Период: с"
-          />
+          <DateInput key={`from-${from}`} name="from" defaultValue={from} aria-label="Период: с" />
         </Field>
         <Field inline label="По">
-          <Input key={`to-${to}`} type="date" name="to" defaultValue={to} aria-label="Период: по" />
+          <DateInput
+            key={`to-${to}`}
+            name="to"
+            rangeFromName="from"
+            defaultValue={to}
+            aria-label="Период: по"
+          />
         </Field>
         <Button type="submit">Показать</Button>
       </form>
@@ -269,7 +260,7 @@ function Report({
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
-      <Table data-testid={testId}>
+      <Table size="sm" data-testid={testId}>
         <thead>
           <tr>
             {head.map((h, i) => (

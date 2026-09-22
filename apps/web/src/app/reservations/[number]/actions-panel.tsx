@@ -12,6 +12,7 @@ import {
   Stack,
   Textarea,
 } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { ConfirmDialog } from '../../../components/confirm-dialog';
 import type { CancelPreview, ExtendPreview, MovePreview } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -127,16 +128,15 @@ export function ReservationActions(props: {
           <PanelTitle>Изменить даты</PanelTitle>
           <Row>
             <Field label="Заезд">
-              <Input
-                type="date"
+              <DateInput
                 name="arrivalDate"
                 defaultValue={datesState.values?.arrivalDate ?? props.arrivalDate}
               />
             </Field>
             <Field label="Выезд">
-              <Input
-                type="date"
+              <DateInput
                 name="departureDate"
+                rangeFromName="arrivalDate"
                 defaultValue={datesState.values?.departureDate ?? props.departureDate}
               />
             </Field>
@@ -696,11 +696,7 @@ function AssignForm(props: {
           </Select>
         </Field>
         <Field inline label="с даты">
-          <Input
-            type="date"
-            name="fromDate"
-            defaultValue={state.values?.fromDate ?? props.arrivalDate}
-          />
+          <DateInput name="fromDate" defaultValue={state.values?.fromDate ?? props.arrivalDate} />
         </Field>
         <Button type="submit" disabled={pending}>
           {props.item.unitCode ? 'Переселить' : 'Назначить'}

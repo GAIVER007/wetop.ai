@@ -5,7 +5,8 @@ import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../..
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { ResolveMenu } from './resolve-menu';
 import { Page } from '../../components/page';
-import { Alert, Button, Input, Legend, cx } from '../../components/ui';
+import { Alert, Button, Legend, cx } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { ChessboardGrid } from './board-grid';
 import { BoardHelp } from './board-help';
 import { BoardDateRange } from './board-date-range';
@@ -56,11 +57,11 @@ export default async function ChessboardPage({
       <Page title="Шахматка">
         <form method="get" className="row toolbar">
           <label className="field">
-            С<Input type="date" name="from" aria-label="Шахматка: с" defaultValue={from} />
+            С<DateInput name="from" aria-label="Шахматка: с" defaultValue={from} />
           </label>
           <label className="field">
             По
-            <Input type="date" name="to" aria-label="Шахматка: по" defaultValue={to} />
+            <DateInput name="to" rangeFromName="from" aria-label="Шахматка: по" defaultValue={to} />
           </label>
           <Button>Показать</Button>
         </form>

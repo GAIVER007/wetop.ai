@@ -160,7 +160,7 @@ test('менеджер каналов: реальные фильтры, пуст
   await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/status=CANCELLED/);
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
-  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/channel-manager?from=2026-09-30&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
@@ -464,11 +464,18 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет; раскрываем,
-  // только если группа свёрнута — иначе щелчок её закроет (правка ветки PR #28)
+  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет. Главная
+  // стримится, и клик по группе до гидрации теряется (тот же класс, что real-data.spec 20.09) —
+  // жмём, пока ссылка не раскроется, но только если группа свёрнута: иначе щелчок её закроет
+  // (правка ветки PR #28)
   const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
   const toggle = control.getByRole('button');
-  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+  await expect(async () => {
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
+      timeout: 1_500,
+    });
+  }).toPass({ timeout: 15_000 });
   await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
@@ -638,10 +645,12 @@ test('ошибка загрузки тарифов не позволяет вк�
 
 test('номера: статус уборки, блокировка и снятие сохраняются', async ({ page, request }) => {
   await page.goto('/units/R01');
-  await page.getByTestId('hk-DIRTY').click();
-  await expect(page.getByText('Статус уборки: грязно')).toBeVisible();
+  // 21.09: статус назван словом («Сейчас грязно»), кнопка — результатом; R01 в фикстуре грязная
+  await expect(page.getByText('Сейчас грязно', { exact: true })).toBeVisible();
+  await page.getByTestId('hk-CLEAN').click();
+  await expect(page.getByText('Сейчас убрано', { exact: true })).toBeVisible();
   await page.getByTestId('hk-INSPECTED').click();
-  await expect(page.getByText('Статус уборки: проверено')).toBeVisible();
+  await expect(page.getByText('Сейчас проверено', { exact: true })).toBeVisible();
   await page.getByLabel('Блокировка с').fill('2026-10-01');
   await page.getByLabel('До (не включая)').fill('2026-10-03');
   await page.getByLabel('Причина', { exact: true }).fill('Тест ремонта');
@@ -816,8 +825,9 @@ test('кнопки Channex отправляют команды один раз �
     '/channels/channex/setup',
   ]);
   await expect(page.getByTestId('channel-webhook-register')).toBeDisabled();
+  // 21.09: причина недоступности написана словами под группой «Настройка подключения», а не в `title`
   await expect(
-    page.getByText('Для webhook укажите публичный HTTPS-адрес и секрет на сервере.'),
+    page.getByText('Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере.'),
   ).toBeVisible();
 });
 
@@ -825,7 +835,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/channel-manager');
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
-  await expect(page.getByTestId('channel-report')).toContainText('Нет бронирований');
+  await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
   for (const id of ['charged', 'paid', 'refunded', 'balance'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
@@ -938,7 +948,7 @@ test('гости на сегодня: в списке все, а не первы
   // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
-  await expect(page.getByTestId('guests-today-count')).toContainText(`сегодня: ${shown} гост`);
+  await expect(page.getByTestId('guests-today-count')).toContainText(`${shown} гост`);
   await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
 });
 
@@ -1159,7 +1169,8 @@ test('шахматка: статус словом, канал бейджем, д
 test('шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту', async ({ page }) => {
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
-  await page.getByRole('button', { name: 'Уборка', exact: true }).click();
+  // чип уборки теперь со счётчиком: «Уборка 2» (21.09)
+  await page.getByRole('button', { name: /^Уборка \d+$/ }).click();
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);

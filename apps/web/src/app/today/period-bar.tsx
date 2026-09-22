@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PERIOD_PRESETS, type ResolvedPeriod } from '@pms/domain';
-import { Button, Input, cx } from '../../components/ui';
+import { Button, cx } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 
@@ -33,11 +34,16 @@ export function PeriodBar({ period, today }: { period: ResolvedPeriod; today: st
       <form method="get" className="period-custom" data-testid="period-form">
         <input type="hidden" name="period" value="custom" />
         <label>
-          С<Input type="date" name="from" defaultValue={period.from} aria-label="Период: с" />
+          С<DateInput name="from" defaultValue={period.from} aria-label="Период: с" />
         </label>
         <label>
           По
-          <Input type="date" name="to" defaultValue={period.to} aria-label="Период: по" />
+          <DateInput
+            name="to"
+            rangeFromName="from"
+            defaultValue={period.to}
+            aria-label="Период: по"
+          />
         </label>
         <Button type="submit" tone="secondary">
           Показать

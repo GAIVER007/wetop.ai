@@ -20,6 +20,8 @@ export interface HotelSettings {
     active: boolean;
     cancellationPenalty: string;
   }>;
+  /** У объекта ещё нет номеров — нужен онбординг (гейт уводит на /onboarding). Старый API его не шлёт. */
+  needsOnboarding?: boolean;
 }
 export interface ChannelReport {
   from: string;

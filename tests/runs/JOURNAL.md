@@ -1660,3 +1660,4 @@
 | 22.09.2026 14:44 | lint | ✅ без ошибок | 18 с | 6d50ddb | [лог](logs/2026-09-22T09-44-42Z-lint-a34c.log) | слитое дерево 6d50ddb |
 | 22.09.2026 14:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rates-design.spec.ts tests/ui/channex-screens.spec.ts) | ✅ 13 из 13 | 1 мин 4 с | 6d50ddb | [лог](logs/2026-09-22T09-45-10Z-e2e-d0e7.log) | слитое дерево 6d50ddb: подпись Channex на /rates в редакции владельца (51e1393a) |
 | 22.09.2026 14:46 | e2e | ✅ 25 из 25 | 1 мин 34 с | 6d50ddb | [лог](logs/2026-09-22T09-46-42Z-e2e-1f9b.log) | слитое дерево 6d50ddb (main 51e1393a): повтор после таймаута desk-tasks; db:local через psql |
+| 22.09.2026 20:05 | integration | ✅ 44 из 44 | 22 с | 42140e2 | [лог](logs/2026-09-22T15-05-03Z-integration-2f06.log) | повторная проверка по поручению: итоговое дерево 42140e2b (main) |

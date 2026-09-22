@@ -4,6 +4,14 @@
 сборка с `1b368eeb`, выложен `20eac505`, регистрация закрыта (`REGISTRATION_OPEN=0`), Data API Supabase выключен
 владельцем. Ниже — как было подготовлено; команда меток исправлена (пути от `/app`).
 
+**Не записано:** ID запущенных образов и `BUILD_ID` стойки — команды §2 в тот вечер не запускались, а путь к
+`BUILD_ID` в них был относительный и не нашёл бы файл (у `web` рабочая папка `/app/apps/web`; исправлено). Снять
+одной командой только на чтение и вставить вывод в чат — агент допишет `reports/deploy-2026-09-22.md`:
+
+```bash
+cd /root/wetop/deploy && C="docker compose -f compose.yml -f compose.hostinger.yml" && $C images && docker inspect -f '{{.Name}} {{.Image}} {{.Created}}' pms-lux-api-1 pms-lux-web-1 && $C exec -T web cat /app/apps/web/.next/BUILD_ID && docker image inspect -f '{{.Id}} {{.Created}}' pms-lux:latest wetop-rollback:before-2026-09-22
+```
+
 **Было:** подготовлено агентом, выполняет владелец. Пункт A0 из `plans/tz-ostatok-2026-09-22.md`. Сервер и настройки
 Supabase агент сам не меняет: боевые настройки и права базы — владелец (AGENTS.md §9, §15).
 
@@ -39,7 +47,7 @@ C="docker compose -f compose.yml -f compose.hostinger.yml"
 $C ps                                           # контейнеры, healthy
 $C images                                       # ID образов
 docker inspect -f '{{.Name}} {{.Created}}' pms-lux-api-1 pms-lux-web-1
-$C exec -T web cat apps/web/.next/BUILD_ID     # сборка стойки
+$C exec -T web cat /app/apps/web/.next/BUILD_ID  # сборка стойки; у web рабочая папка /app/apps/web
 ```
 
 Коммит клона ещё не доказывает, что внутри образа: клон могли подтянуть без пересборки. Что реально работает — по

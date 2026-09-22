@@ -107,8 +107,24 @@ WETOP Data API не пользуется: приложение ходит в б�
 - **А — выключить Data API** в панели Supabase: Project Settings → Data API — выключить Data API или убрать `public`
   из списка открытых схем. Минута, без кода, обратимо. Перед этим убедиться, что ничто стороннее (например, сценарии
   n8n) не читает эту базу по REST. **Рекомендация агента.**
-- **Б — отобрать права** у `anon` и `authenticated` на схему `public`, включая права по умолчанию для будущих таблиц, —
-  миграцией с `down.sql`. Закрывает и при включённом Data API.
+- **Б — отобрать права** у `anon` и `authenticated` на схему `public`, включая права по умолчанию для будущих таблиц.
+  Закрывает и при включённом Data API. Выполнить в SQL Editor панели Supabase (роль `postgres`; ею же идут миграции
+  Prisma, поэтому PMS это не заденет):
+
+  ```sql
+  revoke all on all tables    in schema public from anon, authenticated;
+  revoke all on all sequences in schema public from anon, authenticated;
+  revoke all on all functions in schema public from anon, authenticated;
+  -- то же для таблиц, которые создадут будущие миграции
+  alter default privileges for role postgres in schema public revoke all on tables    from anon, authenticated;
+  alter default privileges for role postgres in schema public revoke all on sequences from anon, authenticated;
+  alter default privileges for role postgres in schema public revoke all on functions from anon, authenticated;
+  -- проверка: ждём false
+  select has_table_privilege('anon', 'public.users', 'SELECT');
+  ```
+
+  Откат — те же строки с `grant … to` вместо `revoke … from`. В репозиторий миграцией не оформляется: это права
+  платформы Supabase, а не схема приложения; на ps.kz ролей `anon` и `authenticated` нет.
 - **В — включить RLS на всех таблицах без политик** — миграцией. Приложение не заденет, `anon` не получит ни строки.
   Это же фундамент для разделения организаций в базе (ADR-061, путь Б), но политики — отдельный срез.
 

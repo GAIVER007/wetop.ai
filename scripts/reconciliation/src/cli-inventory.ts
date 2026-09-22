@@ -32,7 +32,7 @@ const exelyPlan = buildInventoryImportPlan(
 );
 const db = createPrismaClient();
 try {
-  const fromDb = await readInventoryPlanFromDb(db, LUXX_APARTS_PROPERTY.name);
+  const fromDb = await readInventoryPlanFromDb(db, { name: LUXX_APARTS_PROPERTY.name });
   if (!fromDb) throw new Error(`В БД нет объекта «${LUXX_APARTS_PROPERTY.name}» — сначала импорт`);
   const cmp = compareInventory({
     pms: summarizeInventoryPlan(fromDb.plan),
@@ -82,7 +82,8 @@ async function liveSection(): Promise<string> {
     const live = liveByType.get(t) ?? 0;
     return `| ${pmsByType.get(t)?.name ?? t} | ${pms} | ${live} | ${pms - live} |`;
   });
-  const ok = onlyLive.length === 0 && onlyPms.length === 0 && rows.every((r) => r.endsWith('| 0 |'));
+  const ok =
+    onlyLive.length === 0 && onlyPms.length === 0 && rows.every((r) => r.endsWith('| 0 |'));
   if (!ok) process.exitCode = 1;
   return [
     '',

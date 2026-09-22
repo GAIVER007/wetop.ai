@@ -4,6 +4,7 @@ import type { InventoryImportPlan } from '@pms/domain';
 import { countActiveBlocks, readInventoryPlanFromDb } from '@pms/imports';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface InventoryPropertyInfo {
   name: string;
@@ -33,32 +34,35 @@ const almatyToday = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().s
 
 @Injectable()
 export class PrismaInventoryRepository implements InventoryRepository {
-  private cached: {
-    at: number;
-    propertyId: string;
-    property: InventoryPropertyInfo;
-    plan: InventoryImportPlan;
-  } | null = null;
+  // Кэш дерева фонда — ПО ОБЪЕКТУ (его id): иначе один процесс отдал бы фонд одной организации
+  // другой (мультитенантность, разбор изоляции 21.09). id объекта — по организации вошедшего.
+  private cached = new Map<
+    string,
+    { at: number; property: InventoryPropertyInfo; plan: InventoryImportPlan }
+  >();
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async read(): Promise<InventoryReadModel | null> {
+    // Объект организации вошедшего — id из property-ref (по имени читать нельзя, имена между
+    // организациями не уникальны). Служебный путь property-ref сам возьмёт Luxx по имени.
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     // Волна 4: дерево фонда — 5+ обращений к базе в Сингапуре; с кэшем на запрос остаётся один подсчёт блокировок
-    if (this.cached && Date.now() - this.cached.at < PLAN_TTL_MS()) {
-      const blocks = await countActiveBlocks(this.prisma.db, this.cached.propertyId, almatyToday());
-      return { property: this.cached.property, plan: this.cached.plan, blocks };
+    const hit = this.cached.get(propertyId);
+    if (hit && Date.now() - hit.at < PLAN_TTL_MS()) {
+      const blocks = await countActiveBlocks(this.prisma.db, propertyId, almatyToday());
+      return { property: hit.property, plan: hit.plan, blocks };
     }
-    const fromDb = await readInventoryPlanFromDb(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const fromDb = await readInventoryPlanFromDb(this.prisma.db, { id: propertyId });
     if (!fromDb) {
-      this.cached = null;
+      this.cached.delete(propertyId);
       return null;
     }
-    this.cached = {
+    this.cached.set(propertyId, {
       at: Date.now(),
-      propertyId: fromDb.property.id,
       property: fromDb.property,
       plan: fromDb.plan,
-    };
+    });
     return { property: fromDb.property, plan: fromDb.plan, blocks: fromDb.blocks };
   }
 }

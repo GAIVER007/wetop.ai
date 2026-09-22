@@ -57,7 +57,7 @@ describe.skipIf(!url)('importInventoryPlan (integration, DATABASE_URL required)'
           expect(second.physicalRooms).toEqual({ created: 0, updated: 7 });
           expect(second.unitsInDb).toBe(7);
 
-          const back = await readInventoryPlanFromDb(tx, TEST_PROPERTY.name);
+          const back = await readInventoryPlanFromDb(tx, { name: TEST_PROPERTY.name });
           expect(back).not.toBeNull();
           const s = summarizeInventoryPlan(back!.plan);
           expect(s).toMatchObject({

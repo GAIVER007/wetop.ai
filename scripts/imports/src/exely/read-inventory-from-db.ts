@@ -4,7 +4,8 @@ import type { InventoryImportPlan } from '@pms/domain';
 /** Фонд из БД в форме плана — чтобы сверять одной и той же функцией summarizeInventoryPlan. */
 export async function readInventoryPlanFromDb(
   db: Db | DbTx,
-  propertyName: string,
+  /** Какой объект читать: по имени (служебные ходоки, один объект) или по id (объект организации вошедшего) */
+  where: { name: string } | { id: string },
   /** Дата, на которую считаются действующие блокировки (YYYY-MM-DD); по умолчанию сегодня в Алматы */
   blocksOnDate: string = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10),
 ): Promise<{
@@ -14,7 +15,7 @@ export async function readInventoryPlanFromDb(
   property: { id: string; name: string; timezone: string; currency: string };
 } | null> {
   const property = await db.property.findFirst({
-    where: { name: propertyName },
+    where,
     include: {
       accommodationTypes: true,
       buildings: {

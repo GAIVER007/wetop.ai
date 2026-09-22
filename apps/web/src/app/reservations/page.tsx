@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { AmountChip } from '../../components/amount-chip';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -106,19 +107,18 @@ export default async function ReservationsPage({
             />
           </div>
           <Field inline label="С">
-            <Input
+            <DateInput
               key={`from-${from}`}
-              type="date"
               name="from"
               defaultValue={from}
               aria-label="Период: с"
             />
           </Field>
           <Field inline label="По">
-            <Input
+            <DateInput
               key={`to-${to}`}
-              type="date"
               name="to"
+              rangeFromName="from"
               defaultValue={to}
               aria-label="Период: по"
             />

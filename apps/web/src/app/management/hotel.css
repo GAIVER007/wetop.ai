@@ -94,42 +94,6 @@
 .connection-grid .panel > a {
   margin-top: auto;
 }
-.channel-value-panel {
-  background: var(--success-soft);
-  border-color: var(--border);
-}
-.channel-totals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 28px;
-  margin: 10px 0 14px;
-}
-.channel-totals strong {
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  overflow-wrap: anywhere;
-}
-.channel-name {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.channel-monogram {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: var(--success-soft);
-  color: var(--success);
-  font-weight: 600;
-}
-.channel-monogram--ota {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
 .occupancy-meter {
   display: flex;
   align-items: center;
@@ -155,9 +119,6 @@
   .section-card {
     padding: 18px;
     gap: 12px;
-  }
-  .channel-totals strong {
-    font-size: 23px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -225,12 +186,6 @@
   align-self: stretch;
   justify-content: center;
 }
-.channel-value-panel {
-  text-align: center;
-}
-.channel-totals {
-  justify-content: center;
-}
 .toolbar .field {
   margin-bottom: 0;
 }
@@ -272,4 +227,11 @@
   columns: 2 220px;
   margin: 0 0 12px;
   padding-left: 18px;
+}
+
+/* Стоимость в плитке сводки каналов: несколько валют — столбиком, числа табличными цифрами (21.09) */
+.channel-amount {
+  display: grid;
+  gap: var(--space-1);
+  font-variant-numeric: tabular-nums;
 }

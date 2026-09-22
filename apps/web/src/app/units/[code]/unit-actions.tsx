@@ -2,6 +2,7 @@
 import { useActionState, useState, useTransition } from 'react';
 import type { UnitCard } from '../../../lib/api';
 import { Alert, Button, Field, Input, Panel, Row, Select, Stack } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { useConfirm } from '../../../components/use-confirm';
 import { displayDate } from '../../../lib/display-date';
 import {
@@ -11,13 +12,24 @@ import {
   type UnitActionResult,
 } from './actions';
 import { BLOCK_TYPE_RU } from '../../../lib/block-types';
+import { Icon, type IconName } from '../../../components/icon';
 
 const TYPES: Array<[string, string]> = Object.entries(BLOCK_TYPE_RU);
-const HK: Array<[UnitCard['housekeepingStatus'], string]> = [
-  ['DIRTY', 'грязно'],
-  ['CLEAN', 'убрано'],
-  ['INSPECTED', 'проверено'],
+/**
+ * Уборка (21.09.2026): статус назван словом — «Сейчас грязно», — а кнопки названы тем, что получится
+ * («Убрано», «Проверено»), а не стрелкой «→ убрано». Значок из набора стоит рядом со словом, а не
+ * вместо него (DESIGN.md §7, §9). Команда та же, что в строке шахматки.
+ */
+const HK: Array<[UnitCard['housekeepingStatus'], string, IconName]> = [
+  ['DIRTY', 'Грязно', 'dirty'],
+  ['CLEAN', 'Убрано', 'clean'],
+  ['INSPECTED', 'Проверено', 'inspected'],
 ];
+const HK_NOW: Record<UnitCard['housekeepingStatus'], string> = {
+  DIRTY: 'грязно',
+  CLEAN: 'убрано',
+  INSPECTED: 'проверено',
+};
 
 export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) {
   const [blockState, blockAction, blockPending] = useActionState<UnitActionResult, FormData>(
@@ -30,9 +42,13 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
   return (
     <Stack>
       {other.error && <Alert>{other.error}</Alert>}
-      <Panel title={`Статус уборки: ${HK.find(([k]) => k === unit.housekeepingStatus)?.[1]}`}>
+      <Panel title="Уборка" data-testid="housekeeping-panel">
+        <p className="sub hk-now">
+          <Icon name={HK.find(([k]) => k === unit.housekeepingStatus)?.[2] ?? 'dirty'} />
+          Сейчас {HK_NOW[unit.housekeepingStatus]}
+        </p>
         <Row>
-          {HK.filter(([k]) => k !== unit.housekeepingStatus).map(([k, t]) => (
+          {HK.filter(([k]) => k !== unit.housekeepingStatus).map(([k, t, icon]) => (
             <Button
               key={k}
               type="button"
@@ -41,7 +57,8 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
               disabled={pending || blockPending}
               onClick={() => start(async () => setOther(await housekeepingAction(unit.code, k)))}
             >
-              → {t}
+              <Icon name={icon} />
+              {t}
             </Button>
           ))}
         </Row>
@@ -86,17 +103,16 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
           className="row unit-block-form"
         >
           <Field label="Блокировка с">
-            <Input
-              type="date"
+            <DateInput
               name="dateFrom"
               defaultValue={blockState.values?.dateFrom ?? today}
               required
             />
           </Field>
           <Field label="До (не включая)">
-            <Input
-              type="date"
+            <DateInput
               name="dateTo"
+              rangeFromName="dateFrom"
               defaultValue={blockState.values?.dateTo ?? ''}
               required
             />

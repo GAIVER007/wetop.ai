@@ -48,3 +48,114 @@
   text-align: right;
   white-space: normal;
 }
+
+/*
+ * 21.09: плотность календаря по §4 (ячейка 8×16, строка ≈ 38 px) — общий `.tbl td` в premium.css
+ * держит 14×16 и перекрывает `.tbl--sm`/`.tbl--dense` (нарушение, ждёт 7.4); здесь — своей строкой.
+ */
+.rates-table th,
+.rates-table td {
+  padding: var(--space-2) var(--space-4);
+}
+.rates-table th {
+  height: auto;
+}
+.rates-restrictions {
+  white-space: normal;
+}
+/* слово у числа нужно только сложенной строке на телефоне */
+.rates-cell-word {
+  display: none;
+}
+
+/* Дни недели в массовом изменении: подпись своей строкой, семь дней одним рядом */
+.rates-days {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.rates-days__legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-2);
+}
+.rates-days__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+/* ── телефон: строка календаря складывается в карточку, разметка и хуки те же ── */
+@media (max-width: 600px) {
+  .tbl.rates-table,
+  .rates-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .rates-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .rates-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .rates-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .rates-table tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .rates-table tbody td:first-child,
+  .rates-table tbody td.rates-restrictions {
+    grid-column: 1 / -1;
+  }
+  /* «—» на телефоне не рисуем: место дороже прочерка */
+  .rates-table tbody td.rates-restrictions--none {
+    display: none;
+  }
+  .rates-table tbody td.num {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1);
+  }
+  .rates-table tbody td.num .price-cell {
+    flex: 1;
+    min-width: 0;
+  }
+  .rates-cell-word {
+    display: inline;
+    color: var(--muted);
+  }
+  /* Окно правки цены — во всю ширину карточки, а не половины: привязанное к ячейке, оно
+     уезжало за левый край экрана (снимок 21.09) */
+  .rates-table tbody tr {
+    position: relative;
+  }
+  .rates-table .price-cell {
+    position: static;
+  }
+  .rates-table .price-editor {
+    top: auto;
+    right: var(--space-4);
+    bottom: 0;
+    left: var(--space-4);
+    flex-wrap: wrap;
+    transform: translateY(100%);
+  }
+}

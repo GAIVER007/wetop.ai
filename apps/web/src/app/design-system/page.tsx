@@ -23,6 +23,7 @@ import {
   Table,
 } from '../../components/ui';
 import { Tooltip } from '../../components/tooltip';
+import { DateInput } from '../../components/date-field';
 import { ConfirmDemo, ErrorDemo, MenuDemo, ToastDemo, ToastStatic, TooltipDemo } from './demos';
 import './kit.css';
 
@@ -274,7 +275,7 @@ function Kit() {
         <State name="default">
           <div className="row">
             <Field label="Заезд">
-              <Input type="date" defaultValue="2026-09-20" />
+              <DateInput defaultValue="2026-09-20" />
             </Field>
             <Field label="Категория">
               <Select defaultValue="ROOM">
@@ -877,6 +878,21 @@ function Kit() {
             </div>
           </div>
         </State>
+      </Component>
+      <Component
+        id="date-field"
+        title="Поле даты с календарём"
+        where="date-field.tsx · DateInput; родное поле + кнопка «Открыть календарь», отрезок от парного поля, на телефоне — родной календарь системы"
+      >
+        {/* «По» раскрыто сразу (defaultOpen): виден отрезок от «С» и выбранный день */}
+        <form className="row kit-date-demo">
+          <Field label="С">
+            <DateInput name="from" defaultValue="2026-09-20" />
+          </Field>
+          <Field label="По">
+            <DateInput name="to" defaultValue="2026-09-23" rangeFromName="from" defaultOpen />
+          </Field>
+        </form>
       </Component>
 
       <Component

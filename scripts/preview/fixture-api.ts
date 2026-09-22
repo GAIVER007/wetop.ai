@@ -530,6 +530,13 @@ let ratesUnmapped = false;
 /** Сколько записей истории отдаёт /guard/incidents?status=all (проверка «список обрезан») */
 let incidentHistory = 0;
 const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
+/**
+ * Статус уборки ячейки: один источник для шахматки и карточки места. До 21.09.2026 карточка брала
+ * `?? 'CLEAN'`, а доска — свой набор по умолчанию, и R01 была грязной на доске и убранной в карточке.
+ */
+const housekeepingOf = (code: string): UnitCard['housekeepingStatus'] =>
+  housekeeping.get(code) ??
+  (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
 let priceChanges: Array<{
@@ -926,6 +933,8 @@ const mixClosed = (): Incident[] =>
   }));
 /** Дополнительные неисправности сверх одиночного сида: пусто, пока режим не включён */
 let extraIncidents: Incident[] = [];
+/** Журнал за несколько дней: без него все строки фикстуры — сегодняшние, и группы по дням не проверить */
+let journalHistory = false;
 let guardTick = false;
 
 function desk(date: string): DeskDay {
@@ -987,9 +996,7 @@ function desk(date: string): DeskDay {
 function board(from: string, to: string): Chessboard {
   const days = dates(from, to);
   // Срез 7.1: уборка — свойство ячейки; в фикстуре две грязные и одна проверенная, остальные убраны
-  const hk = (code: string): 'DIRTY' | 'CLEAN' | 'INSPECTED' =>
-    housekeeping.get(code) ??
-    (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
+  const hk = housekeepingOf;
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
@@ -1756,7 +1763,7 @@ function read(path: string, q: URLSearchParams): unknown {
       ...u,
       id: u.code,
       active: true,
-      housekeepingStatus: housekeeping.get(u.code) ?? 'CLEAN',
+      housekeepingStatus: housekeepingOf(u.code),
       blocks: blocksFor(u.code),
       stays: allCards().flatMap((r) =>
         r.items
@@ -2013,6 +2020,27 @@ function read(path: string, q: URLSearchParams): unknown {
         author: null,
       },
     ];
+    if (journalHistory)
+      entries.push(
+        {
+          id: 'ui-audit-yesterday',
+          at: `${add(today, -1)}T11:15:00Z`,
+          entityType: 'InventoryUnit',
+          entityId: 'ui-unit',
+          action: 'unit.block',
+          subject: 'R01',
+          author: uiUser.name,
+        },
+        {
+          id: 'ui-audit-older',
+          at: `${add(today, -3)}T06:05:00Z`,
+          entityType: 'Reservation',
+          entityId: 'ui-item',
+          action: 'reservation.create',
+          subject: card.confirmationNumber,
+          author: null,
+        },
+      );
     // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
     const needle = (q.get('q') || '').trim().toLowerCase();
     return entries
@@ -2090,6 +2118,7 @@ createServer(async (req, res) => {
       incident = structuredClone(incidentSeed);
       extraIncidents = [];
       guardTick = false;
+      journalHistory = false;
       // имена категорий — до cardSeed(): карточка копирует имя при создании (ревью 20.09)
       for (const c of categories) c.name = BASE_CATEGORY_NAMES.get(c.code) ?? c.name;
       for (const u of units)
@@ -2175,6 +2204,7 @@ createServer(async (req, res) => {
       failStatus = Number(body['failStatus']) || 503;
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
+      journalHistory = body['journalHistory'] === true;
       if (body['incidentsMix'] === true) {
         extraIncidents = [...mixIncidents(), ...mixClosed()];
         guardTick = true;

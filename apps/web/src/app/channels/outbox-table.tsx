@@ -57,9 +57,11 @@ export function OutboxTable({
       <Table size="sm" className="dir-table dir-table--outbox" data-testid="outbox-table">
         <thead>
           <tr>
-            {['Что', 'Категории', 'Даты', 'Статус', 'Попыток', 'Task id', 'Создано'].map((h) => (
-              <th key={h}>{h}</th>
-            ))}
+            {['Что', 'Категории', 'Даты', 'Статус', 'Попыток', 'Задача Channex', 'Создано'].map(
+              (h) => (
+                <th key={h}>{h}</th>
+              ),
+            )}
           </tr>
         </thead>
         <tbody>

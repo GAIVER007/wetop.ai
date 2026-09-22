@@ -13,7 +13,14 @@ import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 
 function DeltaMark({ delta }: { delta: Delta }) {
-  if (!delta.direction) return <span className="kpi-delta kpi-delta--none">{delta.text}</span>;
+  // 21.09: «нет базы для сравнения» стояло под каждой из шести плиток — шесть одинаковых строк.
+  // Под плиткой остаётся «—» (слово — программе чтения), фраза один раз в строке сравнения ниже.
+  if (!delta.direction)
+    return (
+      <span className="kpi-delta kpi-delta--none">
+        —<span className="sr-only"> {delta.text}</span>
+      </span>
+    );
   return (
     <span className={cx('kpi-delta', `kpi-delta--${delta.direction}`)}>
       {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '•'}{' '}
@@ -72,6 +79,15 @@ export function KpiGrid({
   const p = previous;
   const single = c.nights === 1;
   const b = (v: string) => BigInt(v);
+  // хотя бы у одной плитки прошлый период нулевой — об этом говорит одна фраза внизу, не каждая плитка
+  const noBase =
+    [
+      deltaPercent(b(c.revenue.totalMinor), b(p.revenue.totalMinor)),
+      deltaPercent(b(c.payments.totalMinor), b(p.payments.totalMinor)),
+      deltaPercent(c.arrivals.count, p.arrivals.count),
+    ].some((d) => !d.direction) ||
+    !(c.adrMinor && p.adrMinor) ||
+    !(c.revparMinor && p.revparMinor);
   return (
     <>
       <section className="kpi-grid" aria-label="Показатели за период">
@@ -108,7 +124,7 @@ export function KpiGrid({
               b(c.revenue.penaltiesMinor) +
               b(c.revenue.adjustmentsMinor) !==
             0n
-              ? ` · услуги и штрафы ${wholeTenge(
+              ? `, услуги и штрафы ${wholeTenge(
                   (
                     b(c.revenue.servicesMinor) +
                     b(c.revenue.penaltiesMinor) +
@@ -125,7 +141,7 @@ export function KpiGrid({
           label="Получено оплат"
           value={wholeTenge(c.payments.totalMinor)}
           hint={`${pluralRu(c.payments.count, ['платёж', 'платежа', 'платежей'])}${
-            b(c.refundsMinor) > 0n ? ` · возвраты ${wholeTenge(c.refundsMinor)}` : ''
+            b(c.refundsMinor) > 0n ? `, возвраты ${wholeTenge(c.refundsMinor)}` : ''
           }`}
           delta={deltaPercent(b(c.payments.totalMinor), b(p.payments.totalMinor))}
         />
@@ -134,9 +150,9 @@ export function KpiGrid({
           icon="arrival"
           label="Заезды"
           value={formatInt(c.arrivals.count)}
-          hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])} · выезды ${c.departures.count}${
-            c.arrivals.cancelled ? ` · отмен ${c.arrivals.cancelled}` : ''
-          }${c.arrivals.noShow ? ` · незаездов ${c.arrivals.noShow}` : ''}`}
+          hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])}, выезды ${c.departures.count}${
+            c.arrivals.cancelled ? `, отмен ${c.arrivals.cancelled}` : ''
+          }${c.arrivals.noShow ? `, незаездов ${c.arrivals.noShow}` : ''}`}
           delta={deltaPercent(c.arrivals.count, p.arrivals.count)}
         />
       </section>
@@ -169,13 +185,9 @@ export function KpiGrid({
       <p className="kpi-compare muted" data-testid="kpi-compare">
         Сравнение с предыдущим периодом: {displayDate(p.from)}
         {p.from !== p.to && ` — ${displayDate(p.to)}`}
-        {c.unassigned > 0 && (
-          <>
-            {' '}
-            · без ячейки {pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в
-            загрузку не входят
-          </>
-        )}
+        {noBase && ' Где стоит «—», нет базы для сравнения: в прошлом периоде там ноль.'}
+        {c.unassigned > 0 &&
+          ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
       </p>
     </>
   );

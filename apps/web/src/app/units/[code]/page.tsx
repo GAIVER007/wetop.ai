@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { unitsApi } from '../../../lib/api';
+import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { UnitActions } from './unit-actions';
@@ -24,11 +25,11 @@ export default async function UnitPage({ params }: { params: Promise<{ code: str
       width="medium"
       crumbs={<Link href="/chessboard">← шахматка</Link>}
       title={`Ячейка ${unit.code}`}
-      subtitle={`${unit.kind === 'BED' ? 'койка' : 'номер'} · ${unit.accommodationTypeName} · комната ${unit.roomNumber}${unit.active ? '' : ' · неактивна'}`}
+      subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
       <UnitActions unit={unit} today={today} />
-      <SectionTitle>Ближайшие проживания (60 дней)</SectionTitle>
-      <Table>
+      <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
+      <Table size="sm" data-testid="unit-stays">
         <thead>
           <tr>
             {['Бронь', 'Заезд', 'Выезд', 'Статус', 'Гость'].map((h) => (
@@ -40,7 +41,7 @@ export default async function UnitPage({ params }: { params: Promise<{ code: str
           {unit.stays.length === 0 && (
             <tr>
               <td colSpan={5} className="muted">
-                нет
+                Проживаний на 60 дней вперёд нет
               </td>
             </tr>
           )}
@@ -51,8 +52,12 @@ export default async function UnitPage({ params }: { params: Promise<{ code: str
                   {s.confirmationNumber}
                 </Link>
               </td>
-              <td>{s.startDate}</td>
-              <td>{s.endDate}</td>
+              <td>
+                <time dateTime={s.startDate}>{displayDate(s.startDate, 'numeric')}</time>
+              </td>
+              <td>
+                <time dateTime={s.endDate}>{displayDate(s.endDate, 'numeric')}</time>
+              </td>
               <td>
                 <StatusBadge status={s.status} label={STATUS_RU[s.status] ?? s.status} />
               </td>

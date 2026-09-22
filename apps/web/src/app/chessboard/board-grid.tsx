@@ -10,7 +10,7 @@ import {
   type CSSProperties,
 } from 'react';
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
-import { Alert, Badge, Input, Select, cx } from '../../components/ui';
+import { Alert, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { stayLabels } from './stay-labels';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../reservations/actions';
 import { useRouter } from 'next/navigation';
 import { ActionMenu } from '../../components/action-menu';
+import { HousekeepingMenu } from './housekeeping-menu';
 import { penaltyText } from '../../lib/penalty-text';
 import { previewLine } from '../../lib/action-preview';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
@@ -208,6 +209,7 @@ export function ChessboardGrid({
   };
 
   const allGroups = groupByCategory(board.rows);
+  const dirtyCount = board.rows.filter((r) => r.unit.housekeepingStatus === HK_DIRTY).length;
   const needle = query.trim().toLocaleLowerCase('ru');
   const rows = board.rows.filter(
     (row) =>
@@ -308,7 +310,8 @@ export function ChessboardGrid({
               ['all', 'Все'],
               ['FREE', 'Свободные'],
               ['OCCUPIED', 'Занятые'],
-              ['cleaning', 'Уборка'],
+              // счётчик только у уборки: сколько мест ждёт уборки, видно до нажатия (21.09)
+              ['cleaning', `Уборка ${dirtyCount}`],
               ['BLOCKED', 'Недоступны'],
             ].map(([id, label]) => (
               <button
@@ -499,15 +502,7 @@ export function ChessboardGrid({
                           {row.unit.kind === 'BED' ? 'койка' : 'номер'}
                         </span>
                         {row.unit.housekeepingStatus === HK_DIRTY && (
-                          <Badge
-                            tone="warn"
-                            className="board-hk"
-                            data-testid="unit-housekeeping"
-                            data-status={row.unit.housekeepingStatus}
-                            title="Ячейку надо убрать"
-                          >
-                            грязно
-                          </Badge>
+                          <HousekeepingMenu code={row.unit.code} status={HK_DIRTY} />
                         )}
                       </td>
                       {row.cells.map((c, index) => (

@@ -165,9 +165,7 @@ export function EventsTable({
         </tbody>
       </Table>
       <div className="row row--between pager" data-testid="events-pager">
-        <span className="muted">
-          показано {shown} из {total}
-        </span>
+        <span className="muted">{total > 0 ? `показано ${shown} из ${total}` : ''}</span>
         {pages > 1 && (
           <span className="row row--inline">
             {filter.page > 1 ? (

@@ -107,8 +107,8 @@ test('панель брони: календарь открывается пов�
   expect(box.y + box.height).toBeLessThanOrEqual(1000);
   // не обрезан и не перекрыт: точка в его центре принадлежит календарю
   const hit = await page.evaluate(
-    ([x, y]) => document.elementFromPoint(x, y)?.closest('.date-field__pop') !== null,
-    [box.x + box.width / 2, box.y + box.height / 2],
+    ({ x, y }) => document.elementFromPoint(x, y)?.closest('.date-field__pop') !== null,
+    { x: box.x + box.width / 2, y: box.y + box.height / 2 },
   );
   expect(hit, 'календарь обрезан прокруткой панели или перекрыт').toBe(true);
   // Escape закрывает календарь, а не панель

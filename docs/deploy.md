@@ -40,10 +40,11 @@
    API/web без новой сборки, повторить health и вход. Поскольку миграций нет,
    данные БД не откатываются. Старый Mac-туннель не используется для отката.
 
-Открытый блокер публичного SaaS: [Q-152](../QUESTIONS.md) — новая организация
-пока видит общий объект. Владелец отменил временное закрытие регистрации
-(обновление ADR-055). Это не реализует изоляцию организаций; вопрос отдельного
-SaaS-среза остаётся открытым.
+Регистрация и разделение организаций (сверка 22.09.2026): в `main` с 21.09 новая организация получает свой
+пустой объект — замок в приложении (ADR-061), а не в самой базе (Row Level Security нет), поэтому
+[Q-152](../QUESTIONS.md) открыт. На сервере 20.09 регистрация была закрыта (`reports/deploy-2026-09-20.md`: 403),
+а 22.09 страница входа предлагает «Регистрация»; выкладка после 20.09 не записана, и какой коммит работает на
+сервере, неизвестно. Что обещать снаружи — Q-157.
 
 Один файл на все три части системы. Порядок проверен 17.09.2026; сборки и наборы тестов
 перед выкладкой прогоняются в облачной сессии, сама выкладка идёт **только с машины стойки**
@@ -131,10 +132,13 @@ sudo launchctl list | grep -i cloudflare
 выбор площадки — `docs/ops/server-kz-2026-09-16.md`, команды первых шагов на ps.kz по порядку —
 `docs/ops/server-setup-2026-09-18.md`.
 
-На сервере нет launchd: те же четыре службы поднимает Docker Compose, так же как сторожа на Hostinger.
+На сервере нет launchd: службы (`api`, `web`, `cloudflared`; `exely-sync` снят ADR-052) поднимает Docker Compose,
+так же как сторожа на Hostinger. На Hostinger к `compose.yml` добавляется серверное наложение
+`compose.hostinger.yml`, которого нет в git: перед переездом на ps.kz его снять —
+`docs/ops/server-setup-2026-09-18.md` §6а.
 
 ```bash
-cp deploy/cloudflared.example.yml deploy/cloudflared/wetop.yml   # подставить TUNNEL-ID, команду, AUD-тег
+cp deploy/cloudflared.example.yml deploy/cloudflared/wetop.yml   # подставить TUNNEL-ID (Access снят ADR-053)
 docker compose -f deploy/compose.yml up -d --build
 docker compose -f deploy/compose.yml ps
 docker compose -f deploy/compose.yml logs -f api

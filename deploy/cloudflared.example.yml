@@ -8,16 +8,21 @@
 #   1. на сервере: cloudflared tunnel login  →  выбрать wetop.ai
 #   2. cloudflared tunnel delete --force wetop   — старая копия работает неизвестно где (18.09.2026), искать её
 #      не нужно: без туннеля она подключиться не сможет. С этой секунды app/api.wetop.ai не отвечают — простой
-#      на минуты, делать в момент шага 4 плана
+#      на минуты, делать в момент шага 4 плана. На 22.09.2026 копия известна: Hostinger, 187.77.145.152 — её можно
+#      не удалять, а остановить там и поднять здесь с тем же ключом туннеля (ключ переносит владелец;
+#      docs/ops/server-setup-2026-09-18.md §8). Тогда шаги 1–4 не нужны
 #   3. cloudflared tunnel create wetop           — новый TUNNEL-ID и файл ключа; положить в deploy/cloudflared/
 #   4. cloudflared tunnel route dns --overwrite-dns wetop app.wetop.ai   (и то же для api.wetop.ai)
-#      имена те же → webhook Channex и приложение Access не трогаются
-#   5. подставить ниже TUNNEL-ID, имя команды Zero Trust и AUD-тег приложения Access
+#      имена те же → webhook Channex не трогается
+#   5. подставить ниже TUNNEL-ID
 #   6. docker compose -f deploy/compose.yml up -d cloudflared; проверить: cloudflared tunnel info wetop →
 #      ровно один коннектор, linux_amd64, IP сервера
 #
 # Host не переписывать (httpHostHeader не задавать): серверные действия Next и проверка домена
 # виджета ждут настоящий адрес.
+#
+# Cloudflare Access снят 20.09.2026 (ADR-053): вход — пароль приложения. Блок originRequest.access не ставить:
+# с ним стойка не откроется без токена Access, которого больше нет (поправка 22.09.2026).
 
 tunnel: <TUNNEL-ID>
 credentials-file: /etc/cloudflared/<TUNNEL-ID>.json
@@ -25,12 +30,6 @@ credentials-file: /etc/cloudflared/<TUNNEL-ID>.json
 ingress:
   - hostname: app.wetop.ai
     service: http://web:3000
-    originRequest:
-      access:
-        required: true
-        teamName: <имя-команды-zero-trust>
-        audTag:
-          - <AUD-тег-приложения-access>
   - hostname: api.wetop.ai
     path: ^/a/(pms\.js|hit)$
     service: http://api:3001

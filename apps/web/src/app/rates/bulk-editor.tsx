@@ -32,6 +32,10 @@ export function BulkEditor(props: {
     dateFrom: string;
     dateTo: string;
   };
+  channels?: {
+    byRoom: Record<string, { name: string | null; mapped: boolean }>;
+    byPlan: Record<string, { name: string | null; mapped: boolean }>;
+  };
 }) {
   const [rows, setRows] = useState<RateChangeInput[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +45,9 @@ export function BulkEditor(props: {
     1,
     props.categories.find((c) => c.code === category)?.capacityAdults ?? 1,
   );
+  const [ratePlan, setRatePlan] = useState(props.defaults.ratePlanCode);
+  const chRoom = props.channels?.byRoom[category];
+  const chPlan = props.channels?.byPlan[`${category}|${ratePlan}`];
   const [pending, start] = useTransition();
   /** Без action-формы: React 19 сбрасывает поля после action асинхронно, и сброс гонится со следующим вводом. */
   const add = (e: React.FormEvent<HTMLFormElement>) => {
@@ -113,7 +120,11 @@ export function BulkEditor(props: {
             </Select>
           </Field>
           <Field label="Тариф">
-            <Select name="ratePlanCode" defaultValue={props.defaults.ratePlanCode}>
+            <Select
+              name="ratePlanCode"
+              value={ratePlan}
+              onChange={(e) => setRatePlan(e.target.value)}
+            >
               {props.ratePlans.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -133,6 +144,16 @@ export function BulkEditor(props: {
             />
           </Field>
         </Grid>
+        {props.channels &&
+          (chRoom?.mapped && chPlan?.mapped ? (
+            <p className="rates-channel-hint" data-testid="channel-hint">
+              Channex: {chRoom.name} · {chPlan.name}
+            </p>
+          ) : (
+            <p className="rates-channel-hint rates-channel-hint--warn" data-testid="channel-hint">
+              Не сопоставлено с Channex — изменение в каналы не уйдёт.
+            </p>
+          ))}
         {/* Подпись своей строкой, семь дней — одним рядом: в общем `.row` «вс» переносилось (21.09) */}
         <fieldset className="rates-days">
           <legend className="rates-days__legend">Дни недели</legend>

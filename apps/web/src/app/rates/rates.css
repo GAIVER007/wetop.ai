@@ -159,3 +159,15 @@
     transform: translateY(100%);
   }
 }
+
+
+/* Подпись сопоставления с Channex под выбором номера/тарифа (анти-путаница при сертификации) */
+.rates-channel-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+.rates-channel-hint--warn {
+  color: #b54708;
+  opacity: 1;
+}

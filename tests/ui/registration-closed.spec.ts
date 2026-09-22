@@ -47,6 +47,8 @@ test('ранее открытая форма получает отказ чер�
   await page.goto('/register');
   await page.getByLabel('Email', { exact: true }).fill('closed@example.invalid');
   await page.getByLabel('Имя', { exact: true }).fill('Тестовый сотрудник');
+  // с 21.09 форма спрашивает название отеля (обязательное поле): без него submit не уходит
+  await page.getByLabel('Название отеля', { exact: true }).fill('Хостел на Абая');
   await page.getByLabel('Пароль', { exact: true }).fill('test-password-2026');
   await request.post('http://127.0.0.1:4311/__test/control', {
     data: { registrationEnabled: false },

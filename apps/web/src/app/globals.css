@@ -1703,7 +1703,12 @@ td.empty-state {
   font-size: var(--text-sm);
   text-align: left;
 }
-/* в каталоге календарь раскрыт сразу и стоит в потоке под полем */
+/* в каталоге календарь раскрыт сразу и стоит в потоке: рядом с полем, а где не помещается (телефон) —
+   под ним. Без переноса поле с календарём тянуло колонку каталога до 505 px, и /design-system на 390 px
+   прокручивался вбок (22.09.2026) */
+.date-field:has(> .date-field__pop--inline) {
+  flex-wrap: wrap;
+}
 .date-field__pop--inline {
   position: static;
   margin-top: 4px;

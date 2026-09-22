@@ -19,7 +19,7 @@ test('пустой отель: рабочий экран уводит на он�
   await expect(main.getByRole('heading', { name: 'Настройте отель', level: 1 })).toBeVisible();
 
   // название отеля показано и только для чтения
-  await expect(main.getByLabel('Название')).toHaveValue('Luxx Aparts');
+  await expect(main.getByLabel('Название', { exact: true })).toHaveValue('Luxx Aparts');
 
   // одна категория с ценой
   await main.getByLabel('Название категории').fill('Двухместный номер');

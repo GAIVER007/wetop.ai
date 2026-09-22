@@ -89,6 +89,8 @@ test('шахматка: «Уборка» в фильтрах считает вс
       .filter({ hasText: /убрана/ })
       .first(),
   ).toBeVisible();
+  // строка обновляется через router.refresh() после ответа — ждём новый статус, а не читаем прежний
+  await expect(r01.getByTestId('unit-housekeeping')).toHaveAttribute('data-status', 'CLEAN');
   // убранная, но не проверенная ячейка всё ещё в списке уборки
   const chip = main.getByRole('button', { name: /^Уборка 2$/ });
   await expect(chip).toBeVisible();

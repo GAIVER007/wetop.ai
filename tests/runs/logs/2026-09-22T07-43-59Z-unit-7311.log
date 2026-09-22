@@ -1,0 +1,16 @@
+# Модульные (unit) · 22.09.2026 12:43 Алматы · vm
+# коммит fd6e2f9 (claude/dazzling-newton-xmmsjf), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-22T07-43-59Z-unit-7311.json' 'tests/unit/migrations-rollback.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (19 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  07:44:00
+   Duration  215ms (transform 47%, import 28%, tests 17%, worker 8%)
+
+JSON report written to /tmp/pms-test-2026-09-22T07-43-59Z-unit-7311.json
+
+# код выхода 0 · 1 с

@@ -1,0 +1,18 @@
+# Модульные (unit) · 23.09.2026 00:11 Алматы · claude
+# коммит 31b73f9 (main), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-22T19-11-15Z-unit-e9c8.json' 'packages/integrations/src/channex/channel-names.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts' 'apps/api/src/dashboard/dashboard.repository.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  unit  packages/integrations/src/channex/channel-names.test.ts (9 tests) 8ms
+ ✓  unit  apps/api/src/dashboard/dashboard.repository.test.ts (1 test) 3ms
+ ✓  unit  apps/api/src/hotel/hotel.controller.test.ts (12 tests) 226ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  19:11:16
+   Duration  1.80s (import 69%, transform 23%, tests 8%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-22T19-11-15Z-unit-e9c8.json
+
+# код выхода 0 · 3 с

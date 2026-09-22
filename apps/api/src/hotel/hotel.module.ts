@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { channex } from '@pms/integrations';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
@@ -159,10 +160,13 @@ export class HotelService {
       }
     >();
     for (const group of groups) {
-      const key = JSON.stringify([group.source, group.channel, group.currency]);
+      // Один канал Channex присылает под разными именами («Booking.com» / «BookingCom») — строка отчёта одна
+      // (plans/channel-name-canonical-2026-09-22.md)
+      const channel = group.channel === null ? null : channex.otaChannelLabel(group.channel);
+      const key = JSON.stringify([group.source, channel, group.currency]);
       const row = rows.get(key) ?? {
         source: group.source,
-        channel: group.channel,
+        channel,
         currency: group.currency,
         count: 0,
         cancelled: 0,

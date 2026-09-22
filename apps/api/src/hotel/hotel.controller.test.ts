@@ -123,6 +123,58 @@ describe('Hotel read projections', () => {
       }),
     );
   });
+
+  it('один канал под двумя именами Channex — одна строка отчёта (plans/channel-name-canonical-2026-09-22.md)', async () => {
+    groupBy.mockResolvedValue([
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'KZT',
+        status: 'CONFIRMED',
+        _count: { _all: 2 },
+        _sum: { totalAmount: 1000n },
+      },
+      {
+        source: 'OTA',
+        channel: 'BookingCom',
+        currency: 'KZT',
+        status: 'CANCELLED',
+        _count: { _all: 1 },
+        _sum: { totalAmount: 500n },
+      },
+      {
+        source: 'DESK',
+        channel: null,
+        currency: 'KZT',
+        status: 'CONFIRMED',
+        _count: { _all: 1 },
+        _sum: { totalAmount: 700n },
+      },
+    ]);
+    const r = await request(app.getHttpServer())
+      .get('/hotel/channel-report?from=2026-10-01&to=2026-12-31')
+      .expect(200);
+    expect(r.body.rows).toEqual([
+      {
+        source: 'OTA',
+        channel: 'Booking.com',
+        currency: 'KZT',
+        count: 3,
+        cancelled: 1,
+        noShow: 0,
+        amountMinor: '1500',
+      },
+      {
+        source: 'DESK',
+        channel: null,
+        currency: 'KZT',
+        count: 1,
+        cancelled: 0,
+        noShow: 0,
+        amountMinor: '700',
+      },
+    ]);
+  });
   it('filters by stored reservation status and returns a real empty report', async () => {
     const r = await request(app.getHttpServer())
       .get('/hotel/channel-report?from=2026-09-01&to=2026-09-01&status=CONFIRMED')

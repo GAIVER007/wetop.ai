@@ -5,6 +5,7 @@ import {
   channelKey,
   KNOWN_CHANNEL_KEYS,
   otaChannelKey,
+  otaChannelLabel,
 } from './channel-names';
 
 /**
@@ -111,5 +112,36 @@ describe('channelKey: код из unique_id важнее имени (channel-cod
     expect(channelKey('CTRIP-777', 'Trip Hotels Ltd')).toBe('triphotelsltd');
     expect(channelCodeOf('bdc-1')).toBeNull();
     expect(channelCodeOf('BDC-SHOW-22C80')).toBe('BDC');
+  });
+});
+
+/**
+ * Отчёты («Главная», отчёт по каналам) группируют брони по имени канала, а Channex присылает один канал под разными
+ * именами (bookings-collection.md:340 и :1192). Имя для показа — одно на канал объекта
+ * (plans/channel-name-canonical-2026-09-22.md).
+ */
+describe('otaChannelLabel: одно имя канала для отчётов', () => {
+  it('написания одного канала у Channex и Exely дают одно имя для показа', () => {
+    const cases: Array<[string, string]> = [
+      ['Booking.com', 'Booking.com'],
+      ['BookingCom', 'Booking.com'],
+      ['booking.com', 'Booking.com'],
+      ['A-Expedia', 'Expedia'],
+      ['Expedia', 'Expedia'],
+      ['Expedia/Hotels.com', 'Expedia'],
+      ['Ctrip', 'Trip.com'],
+      ['Trip.com Group', 'Trip.com'],
+      ['Ostrovok.ru (Emerging Travel Group)', 'Ostrovok.ru'],
+      ['Agoda', 'Agoda'],
+      ['Hostelworld', 'Hostelworld'],
+      ['Bronevik.com', 'Bronevik.com'],
+      ['OneTwoTrip', 'OneTwoTrip'],
+    ];
+    for (const [raw, label] of cases) expect(otaChannelLabel(raw), raw).toBe(label);
+  });
+
+  it('канал, которого у объекта нет, показывается как пришёл — имя не придумывается', () => {
+    for (const raw of ['Airbnb', 'Klook', 'Goibibo', 'Канал без латиницы'])
+      expect(otaChannelLabel(raw), raw).toBe(raw);
   });
 });

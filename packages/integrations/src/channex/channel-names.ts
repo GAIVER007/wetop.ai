@@ -36,6 +36,27 @@ export function otaChannelKey(name: string): string {
 }
 
 /**
+ * Имя канала для отчётов (plans/channel-name-canonical-2026-09-22.md). Channex присылает один канал под разными
+ * именами (`"Booking.com"` и `"BookingCom"`, `"A-Expedia"` и `"Expedia"`), у перенесённых из Exely броней имя своё
+ * («Trip.com Group»). Отчёты группируют брони по имени, поэтому все написания канала объекта сводятся к одному.
+ * Канал, которого у объекта нет, показывается как пришёл: имя не придумывается.
+ */
+const CHANNEL_LABELS: Readonly<Record<string, string>> = {
+  bookingcom: 'Booking.com',
+  expedia: 'Expedia',
+  ctrip: 'Trip.com',
+  agoda: 'Agoda',
+  hostelworld: 'Hostelworld',
+  ostrovok: 'Ostrovok.ru',
+  bronevik: 'Bronevik.com',
+  onetwotrip: 'OneTwoTrip',
+};
+
+export function otaChannelLabel(name: string): string {
+  return CHANNEL_LABELS[otaChannelKey(name)] ?? name;
+}
+
+/**
  * Код канала — первые три буквы `unique_id` брони (`docs/channex/site/api-v.1-documentation/channel-codes.md`:
  * «You can find the shortcodes on our unique ID, save the first 3 letters to use for matching. Some channels
  * appear in the list several times under different name variants — match by the code, not by the name»).

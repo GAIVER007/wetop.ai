@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     llm_allowed_models: str = ""
     llm_timeout_seconds: int = 30
     llm_max_tokens: int = 1024
+    llm_temperature: float = 0.2
+    # Сколько последних реплик истории уходит модели: чистый текст, не объекты.
+    llm_history_turns: int = 20
+    # Промпт — данные заказчика, лежит на томе ./data, а не в коде.
+    prompt_path: str = "data/system_prompt.md"
 
     # ─── Защита ───
     injection_strike_limit: int = 3
@@ -149,6 +154,18 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         """CORS_ORIGINS через запятую; пустые элементы отбрасываются."""
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def llm_models(self) -> list[str]:
+        """Каскад: основная, запасная, аварийная — без пустых и без дублей,
+        порядок сохранён. Дубль в каскаде — это повтор той же модели под видом
+        запасной ступени."""
+        result: list[str] = []
+        for name in (self.llm_model, self.llm_model_fallback, self.llm_model_emergency):
+            name = name.strip()
+            if name and name not in result:
+                result.append(name)
+        return result
 
     @property
     def pii_allowlist_phones_list(self) -> list[str]:

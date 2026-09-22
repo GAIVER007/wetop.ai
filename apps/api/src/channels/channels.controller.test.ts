@@ -240,6 +240,7 @@ function makeFakes() {
         localAccommodationTypeId: null,
         localAccommodationTypeCode: null,
         localRatePlanId: null,
+        localRatePlanCode: null,
         providerPropertyId,
         providerRoomTypeId: null,
         providerRatePlanId: null,
@@ -252,6 +253,7 @@ function makeFakes() {
         localAccommodationTypeCode:
           row.localAccommodationTypeId === 't1' ? 'exely-900001' : 'exely-900003',
         localRatePlanId: row.localRatePlanId,
+        localRatePlanCode: null,
         providerPropertyId: row.providerPropertyId,
         providerRoomTypeId: row.providerRoomTypeId,
         providerRatePlanId: row.providerRatePlanId,

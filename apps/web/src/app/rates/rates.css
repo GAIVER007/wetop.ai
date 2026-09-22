@@ -168,6 +168,6 @@
   opacity: 0.75;
 }
 .rates-channel-hint--warn {
-  color: #b54708;
+  color: var(--warning);
   opacity: 1;
 }

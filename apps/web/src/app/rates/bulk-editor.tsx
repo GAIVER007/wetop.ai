@@ -147,7 +147,7 @@ export function BulkEditor(props: {
         {props.channels &&
           (chRoom?.mapped && chPlan?.mapped ? (
             <p className="rates-channel-hint" data-testid="channel-hint">
-              Channex: {chRoom.name} · {chPlan.name}
+              Channex: номер «{chRoom.name}», тариф «{chPlan.name}»
             </p>
           ) : (
             <p className="rates-channel-hint rates-channel-hint--warn" data-testid="channel-hint">

@@ -204,4 +204,33 @@ describe('units API: blocks and housekeeping', () => {
       .expect(400);
     expect(fakes.audits).toEqual(['unit.housekeeping']);
   });
+  it('housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step', async () => {
+    // требует уборки → сразу «проверено»: отказ словами — сначала уборка; в журнал ничего не пишется
+    const skip = await request(app.getHttpServer())
+      .post('/units/9001/housekeeping')
+      .send({ status: 'INSPECTED' })
+      .expect(409);
+    expect(skip.body.message).toContain('сначала «Убрано»');
+    expect(fakes.audits).toEqual([]);
+    await request(app.getHttpServer())
+      .post('/units/9001/housekeeping')
+      .send({ status: 'CLEAN' })
+      .expect(200);
+    const done = await request(app.getHttpServer())
+      .post('/units/9001/housekeeping')
+      .send({ status: 'INSPECTED' })
+      .expect(200);
+    expect(done.body.housekeepingStatus).toBe('INSPECTED');
+    // проверенную нельзя «разубрать», но можно снова отправить в уборку
+    await request(app.getHttpServer())
+      .post('/units/9001/housekeeping')
+      .send({ status: 'CLEAN' })
+      .expect(409);
+    const again = await request(app.getHttpServer())
+      .post('/units/9001/housekeeping')
+      .send({ status: 'DIRTY' })
+      .expect(200);
+    expect(again.body.housekeepingStatus).toBe('DIRTY');
+    expect(fakes.audits).toEqual(['unit.housekeeping', 'unit.housekeeping', 'unit.housekeeping']);
+  });
 });

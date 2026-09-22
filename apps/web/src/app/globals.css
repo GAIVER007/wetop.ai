@@ -574,6 +574,12 @@ textarea.inp {
   font-weight: 700;
   color: var(--text);
 }
+/* значок набора в легенде (уборка, 22.09) — размером с глиф текста */
+.legend__icon svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+}
 .list {
   margin: 0;
   padding-left: 18px;

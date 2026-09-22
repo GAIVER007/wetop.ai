@@ -6,6 +6,7 @@ import {
   buildDashboard,
   previousPeriod,
   type DashboardPeriod,
+  housekeepingRefusal,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import type {
@@ -536,10 +537,11 @@ const housekeeping = new Map<string, UnitCard['housekeepingStatus']>();
 /**
  * Статус уборки ячейки: один источник для шахматки и карточки места. До 21.09.2026 карточка брала
  * `?? 'CLEAN'`, а доска — свой набор по умолчанию, и R01 была грязной на доске и убранной в карточке.
+ * С 22.09 «убрано» — шаг цикла со значком в строке, поэтому по умолчанию ячейки проверены (доступны):
+ * иначе на доске стояло бы 85 значков «ждёт проверки». Требуют уборки R01 и M01.
  */
 const housekeepingOf = (code: string): UnitCard['housekeepingStatus'] =>
-  housekeeping.get(code) ??
-  (code === 'R01' || code === 'M01' ? 'DIRTY' : code === 'R02' ? 'INSPECTED' : 'CLEAN');
+  housekeeping.get(code) ?? (code === 'R01' || code === 'M01' ? 'DIRTY' : 'INSPECTED');
 const blocks = new Map<string, UnitCard['blocks']>();
 const blocksFor = (code: string) => blocks.get(code) ?? [];
 let priceChanges: Array<{
@@ -2508,9 +2510,13 @@ createServer(async (req, res) => {
     if (path.startsWith('/units/')) {
       const [, , code, command, blockId] = path.split('/');
       if (!units.some((u) => u.code === code)) return send(404, { message: 'Ячейка не найдена' });
-      if (command === 'housekeeping')
-        housekeeping.set(code!, body['status'] as UnitCard['housekeepingStatus']);
-      else if (command === 'blocks' && req.method === 'DELETE')
+      if (command === 'housekeeping') {
+        // как настоящий API: по циклу «требует уборки → убрано → проверено», перепрыгнуть нельзя (409 словами)
+        const to = body['status'] as UnitCard['housekeepingStatus'];
+        const refusal = housekeepingRefusal(housekeepingOf(code!), to);
+        if (refusal) return send(409, { message: refusal });
+        housekeeping.set(code!, to);
+      } else if (command === 'blocks' && req.method === 'DELETE')
         blocks.set(
           code!,
           blocksFor(code!).filter((b) => b.id !== blockId),

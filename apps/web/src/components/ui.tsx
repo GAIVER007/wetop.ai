@@ -9,6 +9,7 @@ import type {
   TableHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import { Icon, type IconName } from './icon';
 
 /**
  * Примитивы интерфейса стойки (срез 10, ADR-027). Без клиентского JS: годятся и серверным, и
@@ -318,16 +319,22 @@ export function Legend({
   items,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & {
-  items: Array<{ color: string; label: string; glyph?: string }>;
+  /** Глиф — символ текста, как на плашке; значок — из набора (§7), как в строке ячейки; без цвета — без образца */
+  items: Array<{ color?: string; label: string; glyph?: string; icon?: IconName }>;
 }) {
   return (
     <div className="legend" {...rest}>
       {items.map((i) => (
         <span key={i.label}>
-          <span className="legend__swatch" style={{ background: i.color }} />
+          {i.color && <span className="legend__swatch" style={{ background: i.color }} />}
           {i.glyph && (
             <b className="legend__glyph" aria-hidden="true">
               {i.glyph}
+            </b>
+          )}
+          {i.icon && (
+            <b className="legend__glyph legend__icon" aria-hidden="true">
+              <Icon name={i.icon} />
             </b>
           )}
           {i.label}

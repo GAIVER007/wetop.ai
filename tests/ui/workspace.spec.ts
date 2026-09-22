@@ -357,6 +357,11 @@ test('карточка: профиль гостя и заселение прох
   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
   // Пока вкладка догружается, в DOM на миг есть скрытая копия панели действий — жмём видимую кнопку
   await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  // Q-156 (ADR-068): R01 требует уборки — стойка предупреждает и заселяет после подтверждения
+  await page
+    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('button', { name: 'Заселить всё равно' })
+    .click();
   // §8 «сделал — и что?»: карточка перерисовывается молча, итог называет уведомление (срез 7.4)
   await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
   await page.getByRole('tab', { name: 'Обзор', exact: true }).click();

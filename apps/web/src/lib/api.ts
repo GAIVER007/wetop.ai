@@ -245,6 +245,8 @@ export interface ReservationCard {
     adults: number;
     children: number;
     unitCode: string | null;
+    /** Статус уборки ячейки (Q-156): стойка предупреждает о заселении в непроверенную */
+    unitHousekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED' | null;
     guests: Array<{ label: string; isPrimary: boolean }>;
   }>;
 }

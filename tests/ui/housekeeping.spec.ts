@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -144,4 +144,70 @@ test('карточка ячейки: цикл словами, кнопки — �
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(audit.violations).toEqual([]);
+});
+
+/** Бронь фикстуры с проживанием в R01 (та же, что в manager-actions) */
+const BOOKING = '20260913-TESTAA';
+const actionsTab = (page: Page) => page.getByRole('tab', { name: 'Действия', exact: true }).click();
+
+test('карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156)', async ({
+  page,
+  request,
+}) => {
+  await page.goto(`/reservations/${BOOKING}`);
+  await actionsTab(page);
+  // пока вкладка догружается, в DOM на миг есть скрытая копия панели — жмём видимую кнопку
+  const checkIn = page.getByTestId('check-in-ui-item').filter({ visible: true });
+  await checkIn.click();
+  const warn = page.getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' });
+  await expect(warn).toContainText('требует уборки');
+  await warn.getByRole('button', { name: 'Оставить' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  // «Оставить» ничего не шлёт
+  expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
+  await checkIn.click();
+  await page
+    .getByRole('dialog', { name: 'Ячейка R01 ещё не проверена. Заселить?' })
+    .getByRole('button', { name: 'Заселить всё равно' })
+    .click();
+  await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
+  const commands = await (await request.get(`${fixture}/__test/commands`)).json();
+  expect(commands.map((c: { method: string; path: string }) => `${c.method} ${c.path}`)).toEqual([
+    `POST /reservations/${BOOKING}/items/ui-item/check-in`,
+  ]);
+});
+
+test('выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155)', async ({
+  page,
+}) => {
+  // ячейка проверена и доступна — заселение без предупреждения
+  await page.goto('/units/R01');
+  const panel = page.getByRole('main').getByTestId('housekeeping-panel');
+  await panel.getByTestId('hk-CLEAN').click();
+  await expect(panel).toContainText('Сейчас убрано, ждёт проверки');
+  await panel.getByTestId('hk-INSPECTED').click();
+  await expect(panel).toContainText('Сейчас проверено, доступна');
+  await page.goto(`/reservations/${BOOKING}`);
+  await actionsTab(page);
+  await page.getByTestId('check-in-ui-item').filter({ visible: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Гость заселён' })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  // выезд с долгом — окно с суммой, как и раньше
+  await page.getByTestId('check-out-ui-item').filter({ visible: true }).click();
+  await page
+    .getByRole('dialog', { name: 'Выселить с долгом?' })
+    .getByRole('button', { name: 'Выселить с долгом' })
+    .click();
+  await expect(page.getByTestId('check-out-ui-item')).toHaveCount(0);
+  // ячейка снова требует уборки: на шахматке щётка, в карточке — первый шаг цикла
+  await page.goto('/chessboard');
+  const r01 = page
+    .getByRole('main')
+    .getByTestId('unit-row')
+    .filter({ hasText: /\bR01\b/ });
+  await expect(r01.getByTestId('unit-housekeeping')).toHaveAttribute('data-status', 'DIRTY');
+  await page.goto('/units/R01');
+  await expect(page.getByRole('main').getByTestId('housekeeping-panel')).toContainText(
+    'Сейчас требует уборки',
+  );
 });

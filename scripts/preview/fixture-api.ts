@@ -1749,7 +1749,19 @@ function read(path: string, q: URLSearchParams): unknown {
     }
     return undefined;
   }
-  if (path.startsWith('/reservations/')) return getCard(decodeURIComponent(path.split('/')[2]!));
+  if (path.startsWith('/reservations/')) {
+    // Q-156: карточка знает статус уборки ячейки — стойка предупреждает о заселении в непроверенную
+    const found = getCard(decodeURIComponent(path.split('/')[2]!));
+    return found
+      ? {
+          ...found,
+          items: found.items.map((it) => ({
+            ...it,
+            unitHousekeepingStatus: it.unitCode ? housekeepingOf(it.unitCode) : null,
+          })),
+        }
+      : found;
+  }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
       .map((g) => getGuest(g.id)!)
@@ -2739,6 +2751,8 @@ createServer(async (req, res) => {
             message: `На счёте долг ${tenge(balance)}: примите оплату или выселите с подтверждением`,
           });
         item.status = 'CHECKED_OUT';
+        // Q-155 (ADR-068): как настоящий API — выезд переводит ячейку в «требует уборки»
+        if (item.unitCode) housekeeping.set(item.unitCode, 'DIRTY');
         if (r.items.every((it) => !LIVE(it.status))) r.status = 'CHECKED_OUT';
         return send(200, r);
       }

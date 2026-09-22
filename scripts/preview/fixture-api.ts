@@ -495,6 +495,9 @@ function seedDesign() {
  * говорить, что броней нет, а не выглядеть сломанными.
  */
 let noBookings = false;
+// Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
+// иначе существующие UI-тесты на рабочих экранах уходили бы на онбординг.
+let onboardingNeeded = false;
 const allCards = () => (noBookings ? [] : [card, ...extraCards.values()]);
 const getCard = (number: string) =>
   number === card.confirmationNumber ? card : extraCards.get(number);
@@ -1499,7 +1502,10 @@ function read(path: string, q: URLSearchParams): unknown {
         checkOutTime: '12:00',
       },
       ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+      needsOnboarding: onboardingNeeded,
     };
+  if (path === '/hotel/onboarding')
+    return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
   if (path === '/hotel/channel-report') {
     const status = q.get('status') || 'ALL';
     const empty = status !== 'ALL';
@@ -2107,6 +2113,7 @@ createServer(async (req, res) => {
       incidentHistory = 0;
       emptyFixture = false;
       noBookings = false;
+      onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
       designEvents = [];
@@ -2136,6 +2143,8 @@ createServer(async (req, res) => {
         connectionState = body['connectionState'] as DataConnection['state'];
       emptyFixture = body['empty'] === true;
       noBookings = body['noBookings'] === true;
+      if (typeof body['onboardingNeeded'] === 'boolean')
+        onboardingNeeded = body['onboardingNeeded'];
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
@@ -2370,6 +2379,16 @@ createServer(async (req, res) => {
       return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    if (path === '/hotel/onboarding' && req.method === 'POST') {
+      const cats = Array.isArray(body['categories']) ? (body['categories'] as unknown[]) : [];
+      if (cats.length === 0)
+        return send(400, { message: 'Добавьте хотя бы одну категорию номеров' });
+      let units = 0;
+      for (const c of cats) units += Number((c as { units?: unknown }).units ?? 0);
+      // Отель настроен — гейт больше не уводит на онбординг
+      onboardingNeeded = false;
+      return send(200, { ok: true, categories: cats.length, units });
+    }
     if (path === '/auth/register' && req.method === 'POST') {
       if (!registrationEnabled)
         return send(403, {

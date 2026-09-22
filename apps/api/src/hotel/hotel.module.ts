@@ -95,12 +95,23 @@ export class HotelService {
 
   private async readSettings() {
     const property = await this.property();
-    const ratePlans = await this.prisma.db.ratePlan.findMany({
-      where: { propertyId: property.id },
-      orderBy: { code: 'asc' },
-      select: { code: true, name: true, currency: true, active: true, cancellationPenalty: true },
-    });
-    return { property, ratePlans };
+    const [ratePlans, categories] = await Promise.all([
+      this.prisma.db.ratePlan.findMany({
+        where: { propertyId: property.id },
+        orderBy: { code: 'asc' },
+        select: { code: true, name: true, currency: true, active: true, cancellationPenalty: true },
+      }),
+      // Нужен ли онбординг: у объекта ещё нет ни одной категории. Читаем здесь, чтобы гейт в layout
+      // не делал отдельный рейс — layout и так берёт настройки (и они кэшируются по организации).
+      this.prisma.db.accommodationType.count({ where: { propertyId: property.id } }),
+    ]);
+    return { property, ratePlans, needsOnboarding: categories === 0 };
+  }
+
+  /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
+  forget(): void {
+    this.cachedSettings.clear();
+    this.settingsRead.clear();
   }
 
   async channelReport(from?: string, to?: string, status = 'ALL') {

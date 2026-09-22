@@ -1,0 +1,96 @@
+/* Онбординг нового отеля: один экран, разделы «Отель» и «Номера и цены». */
+.onboarding {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+}
+.onboarding__head {
+  margin-bottom: var(--space-6);
+}
+.onboarding__head h1 {
+  margin: 0 0 var(--space-2);
+}
+.onboarding__head p {
+  margin: 0;
+  color: var(--text-2);
+}
+.onboarding__section {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.onboarding__section h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-md);
+}
+.onboarding__hotel {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+.onboarding__hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.onboarding__rows {
+  display: grid;
+  gap: var(--space-4);
+}
+.onboarding__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) auto auto auto auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.onboarding__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.onboarding__row .field {
+  margin: 0;
+  min-width: 0;
+}
+.onboarding__row .inp {
+  width: 100%;
+}
+.onboarding__remove {
+  height: var(--control-h);
+  width: var(--control-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--muted);
+}
+.onboarding__remove:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+.onboarding__remove:disabled {
+  opacity: 0.4;
+}
+.onboarding__add {
+  margin-top: var(--space-4);
+}
+.onboarding__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+@media (max-width: 760px) {
+  .onboarding__hotel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .onboarding__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .onboarding__remove {
+    justify-self: end;
+  }
+}

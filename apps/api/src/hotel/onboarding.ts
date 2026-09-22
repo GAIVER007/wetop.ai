@@ -5,6 +5,7 @@ import {
   ConflictException,
   Controller,
   ForbiddenException,
+  forwardRef,
   Get,
   Inject,
   Injectable,
@@ -16,6 +17,7 @@ import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/doma
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
+import { HotelService } from './hotel.module';
 
 /** Горизонт цен: столько дней вперёд, как полная выгрузка ARI. Дальше цену продлевают в «Ценах». */
 const PRICE_HORIZON_DAYS = 500;
@@ -57,7 +59,10 @@ function parseSetup(body: Record<string, unknown>): HotelSetup {
  */
 @Injectable()
 export class OnboardingService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => HotelService)) private readonly hotel: HotelService,
+  ) {}
 
   /** Объект организации вошедшего; служебный ходок сюда не ходит — онбординг только для человека. */
   private async currentProperty() {
@@ -174,6 +179,9 @@ export class OnboardingService {
       });
       await tx.dailyRate.createMany({ data: rateRows });
     });
+
+    // У объекта появились номера — прежние настройки (needsOnboarding:true) в кэше устарели
+    this.hotel.forget();
 
     return {
       ok: true as const,

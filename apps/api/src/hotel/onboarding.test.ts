@@ -99,7 +99,8 @@ function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } 
       return fn(db);
     },
   };
-  return { rec, service: new OnboardingService({ db } as never) };
+  const hotel = { forget: () => {} };
+  return { rec, hotel, service: new OnboardingService({ db } as never, hotel as never) };
 }
 
 const SETUP = {

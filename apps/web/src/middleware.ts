@@ -14,7 +14,10 @@ import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from './lib/session-cookie';
  */
 export function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const response = NextResponse.next();
+  // Путь запроса — в заголовке, чтобы серверный layout знал, где он, и решал про гейт онбординга
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-wetop-path', request.nextUrl.pathname);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
   if (token)
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,

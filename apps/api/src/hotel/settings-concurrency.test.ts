@@ -8,10 +8,11 @@ const property = { id: 'test-property', name: 'Тестовый объект' };
 function setup() {
   const findFirst = vi.fn().mockResolvedValue(property);
   const findMany = vi.fn().mockResolvedValue([]);
+  const count = vi.fn().mockResolvedValue(0);
   const service = new HotelService({
-    db: { property: { findFirst }, ratePlan: { findMany } },
+    db: { property: { findFirst }, ratePlan: { findMany }, accommodationType: { count } },
   } as unknown as PrismaService);
-  return { service, findFirst, findMany };
+  return { service, findFirst, findMany, count };
 }
 afterEach(() => {
   vi.restoreAllMocks();
@@ -24,7 +25,7 @@ describe('одновременное чтение настроек', () => {
     const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
     vi.stubEnv('HOTEL_SETTINGS_TTL_MS', '60000');
     const values = await Promise.all(Array.from({ length: 5 }, () => service.settings()));
-    expect(values).toEqual(Array(5).fill({ property, ratePlans: [] }));
+    expect(values).toEqual(Array(5).fill({ property, ratePlans: [], needsOnboarding: true }));
     expect(findFirst).toHaveBeenCalledTimes(1);
     expect(findMany).toHaveBeenCalledTimes(1);
     now.mockReturnValue(61001);
@@ -42,7 +43,11 @@ describe('одновременное чтение настроек', () => {
     expect(failed.every((r) => r.status === 'rejected')).toBe(true);
     expect(findFirst).toHaveBeenCalledTimes(1);
     findFirst.mockResolvedValue(property);
-    await expect(service.settings()).resolves.toEqual({ property, ratePlans: [] });
+    await expect(service.settings()).resolves.toEqual({
+      property,
+      ratePlans: [],
+      needsOnboarding: true,
+    });
     expect(findFirst).toHaveBeenCalledTimes(2);
   });
 

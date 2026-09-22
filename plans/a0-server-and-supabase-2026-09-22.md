@@ -1,6 +1,10 @@
 # A0. Что стоит на сервере, регистрация и база Supabase, открытая наружу (22.09.2026)
 
-**Статус:** подготовлено агентом, выполняет владелец. Пункт A0 из `plans/tz-ostatok-2026-09-22.md`. Сервер и настройки
+**Статус: выполнено 22.09.2026 вечером** — `reports/deploy-2026-09-22.md`: на сервере с 16:05 UTC стояла незаписанная
+сборка с `1b368eeb`, выложен `20eac505`, регистрация закрыта (`REGISTRATION_OPEN=0`), Data API Supabase выключен
+владельцем. Ниже — как было подготовлено; команда меток исправлена (пути от `/app`).
+
+**Было:** подготовлено агентом, выполняет владелец. Пункт A0 из `plans/tz-ostatok-2026-09-22.md`. Сервер и настройки
 Supabase агент сам не меняет: боевые настройки и права базы — владелец (AGENTS.md §9, §15).
 
 Порядок: §4 (база наружу) — первым, он самый опасный и самый быстрый; потом §2–§3.
@@ -39,15 +43,17 @@ $C exec -T web cat apps/web/.next/BUILD_ID     # сборка стойки
 ```
 
 Коммит клона ещё не доказывает, что внутри образа: клон могли подтянуть без пересборки. Что реально работает — по
-меткам коммитов в коде самого контейнера:
+меткам коммитов в коде самого контейнера. Пути — только от `/app`: у службы `api` рабочая папка `/app/apps/api`
+(`deploy/compose.yml`), и с относительными путями `grep` молча покажет 0 (так и случилось 22.09):
 
 ```bash
 $C exec -T api sh -c 'for s in \
-  VERIFY_HOURS:packages/domain/src/accounts/email-verification.ts \
-  assertPropertyVisible:apps/api/src/database/property-ref.ts \
-  organizationPropertyRef:apps/api/src/database/property-ref.ts \
-  housekeepingRefusal:packages/domain/src/housekeeping/flow.ts \
-  unitHousekeepingStatus:apps/api/src/reservations/reservation-card.ts; do
+  VERIFY_HOURS:/app/packages/domain/src/accounts/email-verification.ts \
+  assertPropertyVisible:/app/apps/api/src/database/property-ref.ts \
+  organizationPropertyRef:/app/apps/api/src/database/property-ref.ts \
+  housekeepingRefusal:/app/packages/domain/src/housekeeping/flow.ts \
+  unitHousekeepingStatus:/app/apps/api/src/reservations/reservation-card.ts \
+  otaChannelLabel:/app/packages/integrations/src/channex/channel-names.ts; do
   m=${s%%:*}; f=${s#*:}; n=$(grep -c "$m" "$f" 2>/dev/null); echo "$m ${n:-0}"; done'
 ```
 
@@ -58,6 +64,7 @@ $C exec -T api sh -c 'for s in \
 | `organizationPropertyRef` | `1c0250bd`, 21.09 19:32 | регистрация не заводит свой объект |
 | `housekeepingRefusal` | `c668535c`, 22.09 06:56 | цикла уборки нет |
 | `unitHousekeepingStatus` | `4fdff979`, 22.09 07:30 | ADR-068 нет |
+| `otaChannelLabel` | `b8761b71`, 22.09 19:14 | нет одного имени канала в отчётах |
 
 Регистрация и почта — без печати значений:
 
@@ -88,6 +95,8 @@ ADR-060: пока нет разделения данных в самой баз�
 ---
 
 ## 4. База Supabase открыта наружу через Data API — срочно
+
+**22.09.2026 вечером владелец выключил Data API** (вариант А ниже).
 
 **Что найдено 22.09.2026** (советник безопасности Supabase и запрос прав, только чтение):
 

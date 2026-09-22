@@ -67,6 +67,13 @@ class Settings(BaseSettings):
     sla_seconds: int = 300
     pii_allowlist_phones: str = ""
     pii_allowlist_emails: str = ""
+    # Слой 0: предел длины входа и окно дедупа двойной доставки от канала.
+    guard_max_input_chars: int = 4000
+    guard_dedup_ttl_seconds: int = 60
+    # Слой 3: сколько последних реплик смотрим и сколько попаданий в словарь
+    # считаем крещендо.
+    guard_crescendo_window: int = 10
+    guard_crescendo_hits: int = 3
 
     # ─── Панель оператора ───
     dashboard_jwt_secret: str = ""
@@ -142,6 +149,18 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         """CORS_ORIGINS через запятую; пустые элементы отбрасываются."""
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def pii_allowlist_phones_list(self) -> list[str]:
+        """PII_ALLOWLIST_PHONES через запятую: от каждого номера остаются только
+        цифры, чтобы сравнение не зависело от того, как номер записан."""
+        digits = ["".join(ch for ch in p if ch.isdigit()) for p in self.pii_allowlist_phones.split(",")]
+        return [d for d in digits if d]
+
+    @property
+    def pii_allowlist_emails_list(self) -> list[str]:
+        """PII_ALLOWLIST_EMAILS через запятую, в нижнем регистре."""
+        return [e.strip().lower() for e in self.pii_allowlist_emails.split(",") if e.strip()]
 
 
 @lru_cache

@@ -21,6 +21,7 @@ from src.dependencies import (
     get_engine,
     get_redis,
 )
+from src.db.ip_block import IpBlockMiddleware
 from src.knowledge.embedder import get_embedder
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    # Блок-лист адресов (слой 0): отбой на уровне фреймворка, до маршрутов.
+    # Защищены только входы клиентов; /health и /internal/health — нет.
+    # lambda, а не get_redis напрямую: имя разрешается на каждый запрос,
+    # и тесты подменяют его на fakeredis.
+    app.add_middleware(
+        IpBlockMiddleware,
+        protected_prefixes=("/webhooks", "/widget"),
+        redis_getter=lambda: get_redis(),
+    )
 
     @app.exception_handler(Exception)
     async def unhandled_exception(request: Request, exc: Exception) -> JSONResponse:

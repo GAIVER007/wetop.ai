@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.config import Settings, get_settings
+from src.security.pii import PiiLogFilter
 
 # Идентификатор диалога для журнала: по нему собирается всё, что с диалогом
 # происходило. Ставится движком на время обработки одного хода.
@@ -73,12 +74,18 @@ def configure_logging(settings: Settings, name: str = "app") -> None:
 
     formatter = logging.Formatter(_LOG_FORMAT)
     conv_filter = _ConversationIdFilter()
+    # Маскировка ПД в журнале — на обработчиках, а не на логгерах: логгеров
+    # много, и новый модуль легко забыть; приёмников ровно два.
+    pii_filter = PiiLogFilter(
+        settings.pii_allowlist_phones_list, settings.pii_allowlist_emails_list
+    )
 
     if _STDOUT_HANDLER not in existing:
         stdout_handler = logging.StreamHandler()
         stdout_handler.set_name(_STDOUT_HANDLER)
         stdout_handler.setFormatter(formatter)
         stdout_handler.addFilter(conv_filter)
+        stdout_handler.addFilter(pii_filter)
         root.addHandler(stdout_handler)
 
     if _FILE_HANDLER not in existing:
@@ -98,6 +105,7 @@ def configure_logging(settings: Settings, name: str = "app") -> None:
         file_handler.set_name(_FILE_HANDLER)
         file_handler.setFormatter(formatter)
         file_handler.addFilter(conv_filter)
+        file_handler.addFilter(pii_filter)
         root.addHandler(file_handler)
 
 

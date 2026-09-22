@@ -20,6 +20,7 @@ from pathlib import PurePosixPath
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ai.guardrails import scan_document
 from src.db.base import utcnow
 from src.db.models import Document, KnowledgeChunk
 from src.knowledge.chunker import split_text
@@ -44,6 +45,15 @@ class UnsupportedFormat(ValueError):
 
 class FileTooLarge(ValueError):
     """Файл больше предела. Текст без внутренних имён — он уходит пользователю панели."""
+
+
+class SuspiciousDocument(ValueError):
+    """В документе найдены инструкции для модели (слой 9).
+
+    Инструкция, спрятанная в прайсе, работает как присланная в чат, поэтому
+    документ проходит те же проверки входа. Содержимое в текст ошибки
+    не цитируется: он уходит в панель и в журнал.
+    """
 
 
 def check_size(declared_bytes: int, max_bytes: int) -> None:
@@ -205,6 +215,12 @@ async def ingest_document(
 
     # (4) Разбор → нарезка → эмбеддинги одним вызовом (кэш и модель любят пачки).
     text = extract_text(source, data)
+    # Слой 9: те же проверки, что на входе от клиента. До любой записи.
+    verdict = scan_document(text)
+    if not verdict.clean:
+        raise SuspiciousDocument(
+            f"в документе найдены инструкции для модели ({len(verdict.hits)})"
+        )
     chunks = split_text(text, chunk_chars=chunk_chars, overlap=overlap, min_chars=min_chars)
     vectors = await embedder.embed_passages([c.text for c in chunks]) if chunks else []
 

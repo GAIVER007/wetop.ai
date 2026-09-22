@@ -96,7 +96,7 @@ git push origin --delete merge/settings-simplification
 git push origin --delete plans/demo-recording
 ```
 
-## 2. Прогоны 22.09 с 12:00 Алматы — этой и параллельной сессии (журнал `tests/runs/JOURNAL.md`)
+## 2. Прогоны 22.09 с 12:00 до 15:00 Алматы — этой и параллельной сессии (журнал `tests/runs/JOURNAL.md`)
 
 Локальная PostgreSQL 16 (`npm run db:local`), production-сборка стойки, браузер контейнера через `CHROMIUM_PATH`.
 
@@ -132,6 +132,25 @@ git push origin --delete plans/demo-recording
 | 22.09.2026 12:54 | lint | ✅ без ошибок | 19 с | b9e74c3 | [лог](logs/2026-09-22T07-54-48Z-lint-d76a.log) | слитое дерево: main 87c14fb0 + починки 22.09 |
 | 22.09.2026 12:55 | e2e | ✅ 25 из 25 | 1 мин 33 с | b9e74c3 | [лог](logs/2026-09-22T07-55-39Z-e2e-efb2.log) | слитое дерево: выселение ставит «требует уборки» и предупреждение при заселении (ADR-068) впервые на живой базе; production-сборка стойки |
 | 22.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/housekeeping.spec.ts tests/ui/manager-actions.spec.ts tests/ui/workspace.spec.ts) | ✅ 77 из 77 | 4 мин 58 с | b9e74c3 | [лог](logs/2026-09-22T07-57-29Z-e2e-36fe.log) | слитое дерево: спеки, которые трогала правка ADR-068 (окно «ещё не проверена» при заселении), плюс ожидание статуса в тесте уборки |
+| 22.09.2026 13:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 322 из 322 | 29 мин 40 с | ff1e4b0 | [лог](logs/2026-09-22T08-03-18Z-e2e-67db.log) | полный UI-набор на слитом дереве: main 87c14fb0 (ADR-068) + починки 22.09 (каталог на 390, три спека) |
+| 22.09.2026 13:33 | integration | ✅ 44 из 44 | 18 с | dda701a | [лог](logs/2026-09-22T08-33-55Z-integration-d433.log) | итоговое дерево dda701a7 (слитый main 87c14fb0 + починки 22.09) |
+| 22.09.2026 14:03 | integration | ✅ 44 из 44 | 16 с | 87c14fb +1 | [лог](logs/2026-09-22T09-03-48Z-integration-4c1c.log) | локальный стенд на сборке PostgreSQL 16 из npm (без системной PostgreSQL) |
+| 22.09.2026 14:04 | e2e | ❌ упало 1 из 25 | 1 мин 54 с | 87c14fb +1 | [лог](logs/2026-09-22T09-04-26Z-e2e-8757.log) | живые сквозные на локальном стенде (PostgreSQL 16 из npm), собранная стойка, после ADR-068 |
+| 22.09.2026 14:07 | e2e (частично: tests/e2e/incidents.spec.ts --workers=1) | ✅ 2 из 2 | 9 с | 87c14fb +2 | [лог](logs/2026-09-22T09-07-04Z-e2e-e9d9.log) | живой спек неисправностей: ожидание по фразе экрана после редизайна 21.09 |
+| 22.09.2026 14:23 | unit | ❌ упало 4 из 1426, пропущено 3 | 1 мин 18 с | 0e704e0 +1 | [лог](logs/2026-09-22T09-23-42Z-unit-b7c3.log) | слитое дерево 0e704e0 + снятие дублирующего правила календаря (главная — kit.css владельца 6f877823) |
+| 22.09.2026 14:25 | typecheck | ❌ ошибок: 2 | 34 с | 0e704e0 +1 | [лог](logs/2026-09-22T09-25-01Z-typecheck-31de.log) | слитое дерево 0e704e0 (rates/channex владельца + починки 22.09) |
+| 22.09.2026 14:25 | lint | ✅ без ошибок | 21 с | 0e704e0 +1 | [лог](logs/2026-09-22T09-25-36Z-lint-b9b4.log) | слитое дерево 0e704e0 |
+| 22.09.2026 14:28 | unit (частично: tests/unit/design-slop.test.ts tests/unit/local-db-start.test.ts apps/web/src/design-rules.test.ts apps/api/src/channels/channels.controller.tes | ✅ 35 из 35 | 4 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-28-02Z-unit-97d7.log) | четыре красных после слияния локальных коммитов владельца (rates.css литерал, « · » в подписи Channex, подделки без localRatePlanCode, local-db мимо заглуш
+| 22.09.2026 14:28 | unit | ✅ 1423 из 1426, пропущено 3 | 1 мин 12 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-28-19Z-unit-e785.log) | слитое дерево 0e704e0 + четыре починки после локальных коммитов владельца |
+| 22.09.2026 14:29 | typecheck | ✅ без ошибок | 26 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-29-32Z-typecheck-a022.log) | слитое дерево 0e704e0 + подделки сопоставлений с localRatePlanCode |
+| 22.09.2026 14:29 | lint | ✅ без ошибок | 19 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-29-58Z-lint-386a.log) | слитое дерево 0e704e0 + починки |
+| 22.09.2026 14:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/design-refresh.spec.ts tests/ui/design-system.spec.ts tests/ui/date-field.spec.ts tes | ✅ 33 из 33 | 4 мин 24 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-30-33Z-e2e-4b97.log) | слитое дерево: каталог после снятия дублирующего правила (главное — kit.css владельца), тарифы с подписью Channex через запятую, каналы |
+| 22.09.2026 14:35 | e2e | ❌ упало 1 из 25 | 5 мин 37 с | 0e704e0 +5 | [лог](logs/2026-09-22T09-35-47Z-e2e-2a99.log) | слитое дерево с починками после локальных коммитов владельца (полная выгрузка без ограничений без цены, подпись Channex на /rates); db:local через psql |
+| 22.09.2026 14:43 | unit | ✅ 1423 из 1426, пропущено 3 | 1 мин 12 с | 6d50ddb | [лог](logs/2026-09-22T09-43-04Z-unit-a088.log) | слитое дерево 6d50ddb: main 51e1393a (починки владельца) + local-db.sh через psql |
+| 22.09.2026 14:44 | typecheck | ✅ без ошибок | 24 с | 6d50ddb | [лог](logs/2026-09-22T09-44-17Z-typecheck-9a55.log) | слитое дерево 6d50ddb |
+| 22.09.2026 14:44 | lint | ✅ без ошибок | 18 с | 6d50ddb | [лог](logs/2026-09-22T09-44-42Z-lint-a34c.log) | слитое дерево 6d50ddb |
+| 22.09.2026 14:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rates-design.spec.ts tests/ui/channex-screens.spec.ts) | ✅ 13 из 13 | 1 мин 4 с | 6d50ddb | [лог](logs/2026-09-22T09-45-10Z-e2e-d0e7.log) | слитое дерево 6d50ddb: подпись Channex на /rates в редакции владельца (51e1393a) |
+| 22.09.2026 14:46 | e2e | ✅ 25 из 25 | 1 мин 34 с | 6d50ddb | [лог](logs/2026-09-22T09-46-42Z-e2e-1f9b.log) | слитое дерево 6d50ddb (main 51e1393a): повтор после таймаута desk-tasks; db:local через psql |
 
 Полный UI-набор на слитом дереве — второй прогон: **322 из 322** за 29 мин 40 с (`tests/runs/logs/2026-09-22T08-03-18Z-e2e-67db.log`).
 

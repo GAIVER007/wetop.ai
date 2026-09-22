@@ -1,0 +1,42 @@
+# Сквозные (e2e) · 22.09.2026 14:45 Алматы · vm
+# коммит 6d50ddb (claude/dazzling-newton-xmmsjf)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/rates-design.spec.ts' 'tests/ui/channex-screens.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/channex-screens.spec.ts:24:1 › менеджер каналов: стоимость — плитка в ряду, без дубля числа источников и без монограмм (2.5s)
+  ✓   2 tests/ui/channex-screens.spec.ts:59:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (3.0s)
+  ✓   3 tests/ui/channex-screens.spec.ts:119:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.4s)
+  ✓   4 tests/ui/channex-screens.spec.ts:136:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (5.8s)
+  ✓   5 tests/ui/channex-screens.spec.ts:200:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (5.3s)
+  ✓   6 tests/ui/channex-screens.spec.ts:249:1 › приём брони: ревизия с двоеточиями в номере открывается (1.2s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:126:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:56:12)
+[WebServer]   124 |         /* тело не JSON */
+[WebServer]   125 |       }
+[WebServer] > 126 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   127 |   }
+[WebServer]   128 |   return (await res.json()) as T;
+[WebServer]   129 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   7 tests/ui/channex-screens.spec.ts:263:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.7s)
+  ✓   8 tests/ui/channex-screens.spec.ts:283:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (8.4s)
+  ✓   9 tests/ui/channex-screens.spec.ts:348:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (11.0s)
+  ✓  10 tests/ui/channex-screens.spec.ts:428:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (8.8s)
+  ✓  11 tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель (1.8s)
+  ✓  12 tests/ui/rates-design.spec.ts:56:1 › цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке (1.9s)
+  ✓  13 tests/ui/rates-design.spec.ts:91:1 › массовое изменение: дни недели одной строкой, кнопка называет число изменений (2.1s)
+
+  13 passed (1.0m)
+
+# код выхода 0 · 1 мин 4 с

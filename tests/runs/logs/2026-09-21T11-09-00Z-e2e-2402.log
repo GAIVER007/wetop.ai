@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 21.09.2026 16:09 Алматы · vm
+# коммит deb65bc (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts' '--grep' 'статус уборки|гости на сегодня|фильтр «Уборка»'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:627:1 › номера: статус уборки, блокировка и снятие сохраняются (3.1s)
+  ✓  2 tests/ui/workspace.spec.ts:924:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.3s)
+  ✓  3 tests/ui/workspace.spec.ts:1149:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.7s)
+
+  3 passed (10.9s)
+
+# код выхода 0 · 12 с

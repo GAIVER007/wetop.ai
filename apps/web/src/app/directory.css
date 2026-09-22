@@ -27,6 +27,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /*
+   * 21.09: на «Гостях» имя стояло по центру ячейки и на телефоне, и на 1440 px. Причина — старый класс
+   * `.directory-guest` из `premium.css` с `align-items: center`: у колонки это центрирует по горизонтали.
+   * Имя в списке читается слева, поэтому выравнивание задаётся здесь явно.
+   */
+  align-items: flex-start;
   gap: 1px;
   min-height: 32px;
   padding: 3px 0;
@@ -37,6 +43,15 @@
 }
 .dir-guest strong {
   font-weight: 600;
+}
+/*
+ * Имя гостя — ссылка на его карточку, но цветом обычного текста: девять синих имён в списке пестрят.
+ * Что это ссылка, показывают наведение и фокус (21.09: до этого не показывало ничего).
+ */
+a.dir-guest:hover,
+a.dir-guest:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
 }
 .dir-number {
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -778,6 +793,16 @@ a.dir-number:hover {
 .finance-block .stats {
   margin-bottom: 8px;
 }
+/* Таблицы блока — три колонки в панели 335 px: общий `.table-scroll > .tbl { min-width: 520px }`
+   уводил колонку «Сумма» в прокрутку без признака (21.09) */
+.finance-block .table-scroll > .tbl {
+  min-width: 0;
+}
+/* деньги — одной строкой: в узкой панели «24 000 ₸» переносилось на две */
+.finance-block .tbl td.num,
+.finance-block .tbl th.num {
+  white-space: nowrap;
+}
 .finance-block--due {
   border-color: var(--warning-border);
 }
@@ -1083,7 +1108,7 @@ a.dir-number:hover {
     grid-column: 1 / -1;
     padding: var(--space-4) 0;
   }
-  /* журнал: действие и когда → кто → объект и что */
+  /* журнал (21.09, четыре колонки): что сделали и время → кто → объект */
   .dir-table--journal tbody td:nth-child(3) {
     grid-column: 1;
     grid-row: 1;
@@ -1101,14 +1126,18 @@ a.dir-number:hover {
     color: var(--muted);
   }
   .dir-table--journal tbody td:nth-child(4) {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 3;
-    color: var(--muted);
   }
-  .dir-table--journal tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
+  /* подзаголовок дня остаётся строкой во всю ширину и на телефоне */
+  .dir-table--journal tbody tr.journal-day {
+    display: block;
+    padding: 0;
+    border-bottom: 0;
+  }
+  .dir-table--journal tbody tr.journal-day th {
+    display: block;
+    padding: var(--space-4) var(--space-4) var(--space-1);
   }
 }
 
@@ -1194,5 +1223,32 @@ a.dir-number:hover {
   }
   .dir-table--statistics tbody td:nth-child(5)::before {
     content: 'закрыто ';
+  }
+}
+
+/*
+ * Действия по каналам (21.09.2026): две группы с подписями вместо шести кнопок одним рядом.
+ * Подпись группы — 13 px, не заголовок раздела: это не новый раздел экрана, а его часть.
+ */
+.channel-actions {
+  margin-bottom: var(--space-4);
+}
+.channel-actions__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-2);
+}
+.channel-actions .note {
+  margin-top: var(--space-2);
+}
+
+/* Поиск гостей: подсказка «фамилия, имя, телефон или email» не помещалась в 220 px и обрезалась */
+.directory-toolbar .inp--grow {
+  min-width: 300px;
+}
+@media (max-width: 600px) {
+  .directory-toolbar .inp--grow {
+    min-width: 0;
   }
 }

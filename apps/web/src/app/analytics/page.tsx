@@ -12,13 +12,14 @@ import {
   Button,
   EmptyState,
   Field,
-  Input,
+  Grid,
   SectionTitle,
   Select,
   Stat,
   Stats,
   Table,
 } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { DailyChart } from './daily-chart';
 import '../directory.css';
 
@@ -150,20 +151,19 @@ function PeriodForm({
         )}
         {sites.length === 1 && <input type="hidden" name="site" value={site.id} />}
         <Field inline label="С">
-          <Input
+          <DateInput
             key={`from-${from ?? ''}`}
             aria-label="Аналитика: с"
-            type="date"
             name="from"
             defaultValue={from ?? period?.from}
           />
         </Field>
         <Field inline label="По">
-          <Input
+          <DateInput
             key={`to-${to ?? ''}`}
             aria-label="Аналитика: по"
-            type="date"
             name="to"
+            rangeFromName="from"
             defaultValue={to ?? period?.to}
           />
         </Field>
@@ -198,12 +198,16 @@ function Report({ report }: { report: SiteReport }) {
   const pct = (x: number) => `${Math.round(x * 100)} %`;
   return (
     <>
+      {/* Один <span>: `.directory-meta` — flex со `space-between` (строка «счётчик + ссылка» в «Гостях»),
+          и без обёртки каждый кусок текста с <time> разъезжался в свой конец строки (21.09) */}
       <p className="directory-meta" data-testid="an-period">
-        Период{' '}
-        <time dateTime={report.period.from}>{displayDate(report.period.from, 'numeric')}</time> →{' '}
-        <time dateTime={report.period.to}>{displayDate(report.period.to, 'numeric')}</time>,{' '}
-        {pluralRu(periodDays(report.period.from, report.period.to), ['день', 'дня', 'дней'])}, даты
-        по {report.period.timezone}
+        <span>
+          Период{' '}
+          <time dateTime={report.period.from}>{displayDate(report.period.from, 'numeric')}</time> →{' '}
+          <time dateTime={report.period.to}>{displayDate(report.period.to, 'numeric')}</time>,{' '}
+          {pluralRu(periodDays(report.period.from, report.period.to), ['день', 'дня', 'дней'])},
+          даты по {report.period.timezone}
+        </span>
       </p>
       <Stats min={230} data-testid="an-summary">
         <Stat label="Сессии" value={String(s.sessions)} testId="an-sessions" />
@@ -367,64 +371,69 @@ function Report({ report }: { report: SiteReport }) {
           <div className="hint block--bottom-xs">
             На какие даты заезда посетители искали номера (событие search с сайта)
           </div>
-          <Table size="sm" data-testid="an-demand">
-            <thead>
-              <tr>
-                <th>Заезд</th>
-                <th className="num">Запросов</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.demand.length === 0 && (
+          {/* Пустое — словами для смены: инструкция для разработчика живёт на странице подключения */}
+          {report.demand.length === 0 ? (
+            <p className="hint" data-testid="an-demand-empty">
+              Запросов нет: сайт ещё не присылает событие поиска дат. Как его включить — на странице{' '}
+              <Link href="/analytics/setup">Подключение счётчика</Link>.
+            </p>
+          ) : (
+            <Table size="sm" data-testid="an-demand">
+              <thead>
                 <tr>
-                  <td colSpan={2} className="empty-state">
-                    Запросов нет. Форма поиска дат на сайте должна вызывать{' '}
-                    <code>pms(&apos;event&apos;, &apos;search&apos;, …)</code> — см. подключение
-                  </td>
+                  <th>Заезд</th>
+                  <th className="num">Запросов</th>
                 </tr>
-              )}
-              {report.demand.map((d) => (
-                <tr key={d.arrival} data-testid="an-demand-row" data-arrival={d.arrival}>
-                  <td>
-                    <time dateTime={d.arrival}>{displayDate(d.arrival)}</time>
-                  </td>
-                  <td className="num">{d.searches}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {report.demand.map((d) => (
+                  <tr key={d.arrival} data-testid="an-demand-row" data-arrival={d.arrival}>
+                    <td>
+                      <time dateTime={d.arrival}>{displayDate(d.arrival)}</time>
+                    </td>
+                    <td className="num">{d.searches}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </div>
       </section>
 
-      <section className="grid-auto block--top items-start">
+      {/* Четыре таблицы в четыре колонки по ~270 px обрезались («Сессий за пер»): две колонки (21.09) */}
+      <Grid min={480} className="block--top items-start">
         <div>
           <SectionTitle first>События с сайта</SectionTitle>
-          <Table size="sm" data-testid="an-events">
-            <thead>
-              <tr>
-                <th>Событие</th>
-                <th className="num">Раз</th>
-                <th className="num">Сессий</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.events.length === 0 && (
+          {report.events.length === 0 ? (
+            <p className="hint" data-testid="an-events-empty">
+              Событий нет: кнопки «позвонить» и WhatsApp на сайте ещё не присылают событий. Как их
+              включить — на странице <Link href="/analytics/setup">Подключение счётчика</Link>.
+            </p>
+          ) : (
+            <Table size="sm" data-testid="an-events">
+              <thead>
                 <tr>
-                  <td colSpan={3} className="empty-state">
-                    Событий нет. Кнопки «позвонить» и WhatsApp на сайте должны вызывать{' '}
-                    <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code> — см. подключение
-                  </td>
+                  <th>Событие</th>
+                  <th className="num">Раз</th>
+                  <th className="num">Сессий</th>
                 </tr>
-              )}
-              {report.events.map((e) => (
-                <tr key={e.name} data-testid="an-event-row" data-name={e.name} data-count={e.count}>
-                  <td>{EVENT_RU[e.name] ?? e.name}</td>
-                  <td className="num">{e.count}</td>
-                  <td className="num">{e.sessions}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {report.events.map((e) => (
+                  <tr
+                    key={e.name}
+                    data-testid="an-event-row"
+                    data-name={e.name}
+                    data-count={e.count}
+                  >
+                    <td>{EVENT_RU[e.name] ?? e.name}</td>
+                    <td className="num">{e.count}</td>
+                    <td className="num">{e.sessions}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </div>
         <ShareTable
           title="Устройства"
@@ -434,7 +443,7 @@ function Report({ report }: { report: SiteReport }) {
         />
         <ShareTable title="Браузеры" rows={report.devices.browsers} testId="an-browsers" />
         <ShareTable title="Операционные системы" rows={report.devices.os} testId="an-os" />
-      </section>
+      </Grid>
     </>
   );
 }
@@ -450,16 +459,20 @@ function ShareTable({
   label?: (key: string) => string;
   testId: string;
 }) {
+  if (rows.length === 0)
+    return (
+      <div>
+        <SectionTitle first>{title}</SectionTitle>
+        <p className="hint" data-testid={`${testId}-empty`}>
+          Сессий за период нет.
+        </p>
+      </div>
+    );
   return (
     <div>
       <SectionTitle first>{title}</SectionTitle>
       <Table size="sm" data-testid={testId}>
         <tbody>
-          {rows.length === 0 && (
-            <tr>
-              <td className="empty-state">Сессий за период нет</td>
-            </tr>
-          )}
           {rows.map((r) => (
             <tr key={r.key ?? '∅'} data-key={r.key ?? ''}>
               <td>{r.key === null ? 'не определено' : (label?.(r.key) ?? r.key)}</td>

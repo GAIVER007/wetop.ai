@@ -22,6 +22,7 @@
   background: var(--primary-soft);
   color: var(--primary);
 }
+
 .control-page .stats {
   margin: 0 0 var(--space-4);
 }
@@ -73,6 +74,30 @@
   padding: var(--space-4);
   border: 1px solid var(--border);
 }
+/*
+ * Журнал: день — подзаголовок группы, в строке остаётся время (21.09.2026). Поиск перестал растягиваться
+ * во всю ширину панели: поле с номером брони не становится понятнее от 830 px.
+ */
+.journal-day th {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  background: none;
+}
+.dir-table--journal tbody tr:first-child .journal-day th,
+.journal-day:first-child th {
+  padding-top: var(--space-2);
+}
+.journal-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+.control-journal-search .field:first-child {
+  flex: 0 1 320px;
+}
+
 .control-page .control-table {
   white-space: normal;
 }

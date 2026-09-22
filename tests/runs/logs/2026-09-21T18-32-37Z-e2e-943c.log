@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 21.09.2026 23:32 Алматы · vm
+# коммит 5fce79f (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/rates-design.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель (1.6s)
+  ✓  2 tests/ui/rates-design.spec.ts:56:1 › цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке (1.5s)
+  ✓  3 tests/ui/rates-design.spec.ts:85:1 › массовое изменение: дни недели одной строкой, кнопка называет число изменений (1.4s)
+
+
+  1) tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 44
+    Received:    45.5
+
+      51 |   const height = await rows.first().evaluate((el) => el.getBoundingClientRect().height);
+      52 |   expect(height).toBeGreaterThanOrEqual(34);
+    > 53 |   expect(height).toBeLessThanOrEqual(44);
+         |                  ^
+      54 | });
+      55 |
+      56 | test('цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке', async ({
+        at /home/user/wetop.ai/tests/ui/rates-design.spec.ts:53:18
+
+    Error Context: test-results/rates-design-цены-ограниче-8f769-таблица-помещается-в-панель/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-цены-ограниче-8f769-таблица-помещается-в-панель/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-цены-ограниче-8f769-таблица-помещается-в-панель/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель 
+  2 passed (10.2s)
+
+# код выхода 1 · 11 с

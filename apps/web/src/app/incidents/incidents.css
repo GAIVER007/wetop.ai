@@ -6,63 +6,7 @@
  * токеном (§2), смысл — цвет плюс слово (§9).
  */
 
-/* ───────────────────────── Полоса состояния сторожа ───────────────────────── */
-
-.guard-bar {
-  display: grid;
-  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
-  gap: var(--space-6);
-  align-items: center;
-  margin-bottom: var(--space-6);
-  padding: var(--space-4);
-}
-.guard-bar__state {
-  border-left: 3px solid var(--border);
-  padding-left: var(--space-4);
-}
-.guard-bar__state[data-tone='alarm'] {
-  border-left-color: var(--danger);
-}
-.guard-bar__state[data-tone='warn'] {
-  border-left-color: var(--warning);
-}
-.guard-bar__state[data-tone='calm'] {
-  border-left-color: var(--success);
-}
-.guard-bar__count {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-4xl);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-tight);
-  font-variant-numeric: tabular-nums;
-}
-.guard-bar__state[data-tone='alarm'] .guard-bar__count {
-  color: var(--danger);
-}
-.guard-bar__summary {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-sm);
-  color: var(--text-2);
-}
-.guard-bar__facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  margin: 0;
-}
-.guard-bar__facts dd {
-  margin: var(--space-1) 0 0;
-}
-.guard-bar .fact__value {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-}
-.guard-bar__sub {
-  color: var(--muted);
-  font-weight: var(--weight-regular);
-}
-
-/* ───────────────────────── Отбор: чипы и они же счётчики ───────────────────────── */
+/* ───────────────────────── Отбор: строка чипов и поиска ───────────────────────── */
 
 .incidents__controls {
   display: flex;
@@ -71,41 +15,6 @@
   align-items: end;
   justify-content: space-between;
   margin-bottom: var(--space-4);
-}
-.incidents__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-.incidents__chips button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-h);
-  padding: var(--space-2) var(--space-4);
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--text-2);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  cursor: pointer;
-}
-.incidents__chips button:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-}
-.incidents__chips button[aria-pressed='true'] {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.incidents__count {
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
-.incidents__chips button[aria-pressed='true'] .incidents__count {
-  color: inherit;
 }
 .incidents__search {
   flex: 0 1 280px;
@@ -213,30 +122,12 @@
 
 /* ───────────────────────── Телефон ───────────────────────── */
 
-@media (max-width: 900px) {
-  .guard-bar {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-4);
-  }
-  .guard-bar__facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 600px) {
-  .guard-bar__facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .incidents__controls {
     gap: var(--space-2);
   }
   .incidents__search {
     flex-basis: 100%;
-  }
-  .incidents__chips {
-    width: 100%;
-  }
-  .incidents__chips button {
-    min-height: var(--touch-target);
   }
   /* действия уходят под текст: кнопка рядом с тремя фразами на 390 px оставляет им 120 px */
   .incident {

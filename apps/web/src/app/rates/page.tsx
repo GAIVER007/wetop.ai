@@ -24,6 +24,8 @@ const monthTitle = new Intl.DateTimeFormat('ru-RU', {
   year: 'numeric',
 });
 const nights = (n: number) => pluralRu(n, ['ночь', 'ночи', 'ночей']);
+/** Родительный падеж после «до»: до 1 ночи, до 5 ночей, до 21 ночи */
+const maxNights = (n: number) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'ночи' : 'ночей'}`;
 
 /** Ответ API как есть или причина отказа: экран остаётся, вместо данных — сбой со следующим шагом (D4) */
 const settle = <T,>(p: Promise<T>) =>
@@ -157,7 +159,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                 <LoadError testId="rates-error" {...loadErrorProps(calError)} />
               )}
               {cal && (
-                <Table size="sm" dense nowrap data-testid="rates-table">
+                <Table size="sm" nowrap className="rates-table" data-testid="rates-table">
                   <thead>
                     <tr>
                       {[
@@ -167,10 +169,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                           (_, i) => `Цена за ${pluralRu(i + 1, ['гостя', 'гостей', 'гостей'])}`,
                         ),
                         'Мин. ночей',
-                        'Макс. ночей',
-                        'Стоп-продажа',
-                        'Закрыт заезд',
-                        'Закрыт выезд',
+                        'Ограничения',
                       ].map((h) => (
                         <th key={h}>{h}</th>
                       ))}
@@ -180,6 +179,15 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                     {cal.days.map((d) => {
                       const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
                       const weekend = wd === 0 || wd === 6;
+                      // Ограничения — одной колонкой словами: на обычный месяц их нет, и четыре
+                      // колонки прочерков только прятали последнюю за прокруткой (21.09).
+                      // «закрыто» — слово, которое ждёт запись сертификации Channex
+                      const restrictions = [
+                        d.stopSell ? 'закрыто (стоп-продажа)' : '',
+                        d.closedToArrival ? 'закрыт заезд' : '',
+                        d.closedToDeparture ? 'закрыт выезд' : '',
+                        d.maxStay != null ? `до ${maxNights(d.maxStay)}` : '',
+                      ].filter(Boolean);
                       return (
                         <tr
                           key={d.date}
@@ -196,6 +204,9 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                           {Array.from({ length: cal.capacityAdults }, (_, i) => {
                             return (
                               <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
+                                <span className="rates-cell-word">
+                                  {pluralRu(i + 1, ['гость', 'гостя', 'гостей'])}
+                                </span>
                                 <PriceCell
                                   date={d.date}
                                   occupancy={i + 1}
@@ -207,11 +218,18 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
                               </td>
                             );
                           })}
-                          <td>{d.minStay != null ? nights(d.minStay) : '—'}</td>
-                          <td>{d.maxStay != null ? nights(d.maxStay) : '—'}</td>
-                          <td>{d.stopSell ? 'закрыто' : '—'}</td>
-                          <td>{d.closedToArrival ? 'да' : '—'}</td>
-                          <td>{d.closedToDeparture ? 'да' : '—'}</td>
+                          <td>
+                            <span className="rates-cell-word">мин. </span>
+                            {d.minStay != null ? nights(d.minStay) : '—'}
+                          </td>
+                          <td
+                            className={cx(
+                              'rates-restrictions',
+                              !restrictions.length && 'rates-restrictions--none',
+                            )}
+                          >
+                            {restrictions.length ? restrictions.join(', ') : '—'}
+                          </td>
                         </tr>
                       );
                     })}

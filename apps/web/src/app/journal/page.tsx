@@ -1,15 +1,18 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
+import { Fragment } from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ControlNavigation } from '../../components/control-navigation';
 import { RefreshButton } from '../../components/refresh-button';
-import { almatyStamp } from '../../lib/almaty';
+import { almatyClock, almatyDate } from '../../lib/almaty';
+import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { Table, Input, Button, Field, Badge, Panel, cx } from '../../components/ui';
+import { Table, Input, Button, Field, EmptyState, Panel, cx } from '../../components/ui';
+import { Icon } from '../../components/icon';
 import '../directory.css';
 
 interface AuditRow {
@@ -142,7 +145,7 @@ export default async function JournalPage({
           </Link>
         )}
       </form>
-      <nav className="directory-filters" aria-label="Раздел журнала">
+      <nav className="chips" aria-label="Раздел журнала">
         {FILTERS.map(([t, label]) => (
           <Link
             key={label}
@@ -193,6 +196,8 @@ async function JournalEntries({
   filtered: boolean;
   searching: boolean;
 }) {
+  // день «сегодня» считает сервер по часам объекта: страница серверная, расхождения гидрации нет
+  const today = almatyDate(new Date().toISOString());
   const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
     (r) => ({ ok: true as const, r }),
     (e: unknown) => ({ ok: false as const, e }),
@@ -209,7 +214,7 @@ async function JournalEntries({
         </p>
       )}
       {!loaded.ok && <LoadError testId="journal-error" {...loadErrorProps(loaded.e)} />}
-      {rows && (
+      {rows && rows.length > 0 && (
         <Table
           size="sm"
           nowrap
@@ -218,47 +223,67 @@ async function JournalEntries({
         >
           <thead>
             <tr>
-              {['Когда (Алматы)', 'Кто', 'Действие', 'Объект', 'Что'].map((h) => (
+              {['Когда', 'Кто', 'Что сделали', 'Объект'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} data-testid="journal-row">
-                <td>
-                  <time dateTime={r.at}>{almatyStamp(r.at)}</time>
-                </td>
-                <td>{r.author ?? <span className="muted-2">система</span>}</td>
-                <td>{ACTION_RU[r.action] ?? r.action}</td>
-                <td>
-                  <Badge>{ENTITY_RU[r.entityType] ?? r.entityType}</Badge>
-                </td>
-                <td>
-                  {r.subject && r.entityType === 'Reservation' ? (
-                    <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>{r.subject}</Link>
-                  ) : (
-                    (r.subject ?? <span className="muted-2">{r.entityId.slice(0, 8)}…</span>)
+            {rows.map((r, i) => {
+              // день пишем один раз на группу: до 21.09 полная дата с годом стояла в каждой строке и
+              // делала «Когда» самой широкой колонкой экрана
+              const newDay = i === 0 || almatyDate(r.at) !== almatyDate(rows[i - 1]!.at);
+              return (
+                <Fragment key={r.id}>
+                  {newDay && (
+                    <tr className="journal-day">
+                      <th colSpan={4} scope="colgroup" data-testid="journal-day">
+                        {dayTitle(r.at, today)}
+                      </th>
+                    </tr>
                   )}
-                </td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={5} className="empty-state" data-testid="journal-empty">
-                  {conditions.length ? (
-                    <>
-                      Операций {conditions.join(', ')} нет.{' '}
-                      <Link href="/journal">Показать последние операции</Link>
-                    </>
-                  ) : (
-                    'Операций пока нет: журнал заполняется действиями стойки и интеграций — заселение, оплата, брони из каналов.'
-                  )}
-                </td>
-              </tr>
-            )}
+                  <tr data-testid="journal-row">
+                    <td className="journal-time">
+                      <time dateTime={r.at}>{almatyClock(r.at)}</time>
+                    </td>
+                    <td>{r.author ?? <span className="muted-2">система</span>}</td>
+                    <td>{ACTION_RU[r.action] ?? r.action}</td>
+                    <td>
+                      <span className="muted-2">{ENTITY_RU[r.entityType] ?? r.entityType}</span>
+                      {r.subject && ' '}
+                      {r.subject &&
+                        (r.entityType === 'Reservation' ? (
+                          <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>
+                            {r.subject}
+                          </Link>
+                        ) : (
+                          r.subject
+                        ))}
+                    </td>
+                  </tr>
+                </Fragment>
+              );
+            })}
           </tbody>
         </Table>
+      )}
+      {rows?.length === 0 && (
+        <EmptyState
+          icon={<Icon name="journal" />}
+          title={conditions.length ? 'По этим условиям операций нет' : 'Операций пока нет'}
+          data-testid="journal-empty"
+          actions={
+            conditions.length ? (
+              <Link href="/journal" className="btn btn--secondary">
+                Показать последние операции
+              </Link>
+            ) : undefined
+          }
+        >
+          {conditions.length
+            ? `Ничего не нашлось ${conditions.join(', ')}. Поиск идёт по всей истории, а не только по показанным строкам.`
+            : 'Журнал заполняется действиями стойки и интеграций — заселение, оплата, брони из каналов.'}
+        </EmptyState>
       )}
     </div>
   );

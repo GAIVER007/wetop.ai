@@ -100,7 +100,7 @@ export function IncidentList({
   return (
     <section className="incidents" aria-label="Открытые неисправности">
       <div className="incidents__controls">
-        <div className="incidents__chips" data-testid="incidents-filter">
+        <div className="chips" data-testid="incidents-filter">
           {CHIPS.map(([id, label, test]) => {
             const count = incidents.filter(test).length;
             if (count === 0 && id !== 'ALL') return null;
@@ -112,7 +112,7 @@ export function IncidentList({
                 aria-pressed={chip === id}
                 onClick={() => setChip(id)}
               >
-                {label} <span className="incidents__count">{count}</span>
+                {label} <span className="chips__count">{count}</span>
               </button>
             );
           })}

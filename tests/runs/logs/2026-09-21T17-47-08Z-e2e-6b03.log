@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 21.09.2026 22:47 Алматы · vm
+# коммит 483932d (claude/dreamy-faraday-vxjpj9), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/system-screens.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/settings-simplification.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 154 tests using 1 worker
+
+  ✘    1 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: light, 1440px (36.5s)
+  ✘    2 tests/ui/accessibility.spec.ts:42:5 › доступность всех разделов: dark, 1440px (33.2s)
+
+# код выхода —, сигнал SIGTERM · 1 мин 33 с

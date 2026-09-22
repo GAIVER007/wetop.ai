@@ -1,9 +1,13 @@
 /* Страница компонентов: только раскладка витрины. Вид самих компонентов — globals.css и токены. */
 .kit-themes {
   display: grid;
+  /* колонка не шире контейнера: иначе широкое демо (таблица min-width 520) распирало витрину
+     за 390px, ведь grid-элемент по умолчанию min-width:auto и не сжимается (разбор 22.09) */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-8);
 }
 .kit-theme {
+  min-width: 0;
   padding: var(--space-6);
   background: var(--bg);
   color: var(--text);
@@ -13,6 +17,20 @@
 }
 .kit-theme[data-theme='dark'] {
   color-scheme: dark;
+}
+/* Обёртка .table-scroll у компонента Table получает прокрутку точечно на каждом экране (дашборд,
+   брони). На витрине компонентов такого правила не было — демо-таблица (min-width 520) распирала
+   страницу за 390px. Даём прокрутку в пределах витрины (разбор 22.09). */
+.kit-theme .table-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+/* В витрине календарь «поля даты» раскрыт сразу (defaultOpen, position:static). .date-field —
+   inline-flex в ряд, поэтому встроенный поповер (296px) вставал СПРАВА и распирал строку за 390px.
+   Переносим его под поле только в демо; в бою поповер плавающий (position:fixed) и это не трогает. */
+.kit-theme .kit-date-demo .date-field {
+  flex-wrap: wrap;
 }
 .kit-theme__title {
   margin: 0 0 var(--space-6);
@@ -62,6 +80,14 @@
   display: grid;
   gap: var(--space-1);
   font-size: var(--text-xs);
+  /* имя токена в <code> длинное и неразрывное — без переноса оно распирало ячейку (224px),
+     а с ней и всю витрину за 390px (разбор 22.09). На широких ширинах перенос не нужен и не влияет. */
+  min-width: 0;
+}
+.kit-swatch code,
+.kit-swatch__label {
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .kit-swatch__color {
   height: var(--space-8);

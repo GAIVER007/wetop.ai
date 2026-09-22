@@ -206,3 +206,20 @@ export function buildRestrictionValues(input: {
   }
   return values;
 }
+
+
+/**
+ * Последний день с заведённой ценой (по вместимости категории) среди тарифов выгрузки; null — цен нет.
+ * Полная выгрузка не шлёт ограничения дальше него: Channex требует `rate` в каждом объекте (сертификация §1).
+ */
+export function lastPricedDate(
+  dailyRates: LocalDailyRate[],
+  occupancyByCategory: Record<string, number>,
+): string | null {
+  let mx: string | null = null;
+  for (const r of dailyRates) {
+    if (r.occupancy !== occupancyByCategory[r.accommodationTypeCode]) continue;
+    if (mx === null || r.date > mx) mx = r.date;
+  }
+  return mx;
+}

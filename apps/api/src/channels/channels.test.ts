@@ -4,6 +4,8 @@ import {
   buildRestrictionValues,
   compressRuns,
   freeUnitsPerNight,
+  lastPricedDate,
+  type LocalDailyRate,
 } from './ari';
 import { buildChannexSetup } from './setup-plan';
 
@@ -294,5 +296,29 @@ describe('ARI values', () => {
         max_stay: 0,
       },
     ]);
+  });
+});
+
+
+describe('lastPricedDate — граница выгрузки ограничений (Channex требует rate в каждом объекте)', () => {
+  const occ = { A: 2, B: 1 };
+  const rate = (
+    accommodationTypeCode: string,
+    date: string,
+    occupancy: number,
+  ): LocalDailyRate => ({ date, accommodationTypeCode, ratePlanId: 'rp', occupancy, priceMinor: 1n });
+  it('последний день с ценой по вместимости категории', () => {
+    expect(
+      lastPricedDate(
+        [rate('A', '2026-11-01', 2), rate('A', '2026-11-05', 2), rate('B', '2026-11-03', 1)],
+        occ,
+      ),
+    ).toBe('2026-11-05');
+  });
+  it('цена не по вместимости (1 гость в двухместной) не считается за горизонт', () => {
+    expect(lastPricedDate([rate('A', '2026-12-31', 1)], occ)).toBeNull();
+  });
+  it('без цен — null: ограничения не выгружаются', () => {
+    expect(lastPricedDate([], occ)).toBeNull();
   });
 });

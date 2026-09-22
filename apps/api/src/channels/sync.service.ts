@@ -14,7 +14,7 @@ import {
 import { channex } from '@pms/integrations';
 import { gatewayFailure } from './gateway-failure';
 import { categoryAvailability } from '@pms/domain';
-import { buildAvailabilityValues, buildRestrictionValues } from './ari';
+import { buildAvailabilityValues, buildRestrictionValues, lastPricedDate } from './ari';
 import { buildChannexSetup } from './setup-plan';
 import { DEFAULT_FULL_SYNC_HOUR, isFullSyncDue } from './schedule';
 import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
@@ -449,10 +449,19 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       this.repo.dailyRates(ratePlanIds, from, to),
       this.repo.restrictions(ratePlanIds, from, to),
     ]);
+    const occupancyByCategory = Object.fromEntries(
+      local.categories.map((c) => [c.code, c.capacityAdults]),
+    );
+    // Channex требует `rate` в каждом объекте ограничений (сертификация §1, Full Sync). Цена берётся по
+    // вместимости категории; дни за последней заведённой ценой ушли бы объектами без `rate` и валят
+    // проверку. Поэтому ограничения выгружаем только до последнего дня с ценой, а доступность — на весь
+    // период. Продлит владелец календарь цен — горизонт ограничений вырастет сам.
+    const lastPriced = lastPricedDate(dailyRates, occupancyByCategory);
+    const restrictionsTo = lastPriced && lastPriced < to ? lastPriced : to;
     const restrictionValues = buildRestrictionValues({
       propertyId: providerPropertyId,
       from,
-      to,
+      to: restrictionsTo,
       ratePlans: mappings.map((m) => ({
         localCategoryCode: m.localAccommodationTypeCode!,
         localRatePlanId: m.localRatePlanId!,
@@ -460,9 +469,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       })),
       dailyRates,
       restrictions,
-      occupancyByCategory: Object.fromEntries(
-        local.categories.map((c) => [c.code, c.capacityAdults]),
-      ),
+      occupancyByCategory,
     });
     const a = await viaChannex(() => this.gateway.updateAvailability(availability));
     const r = await viaChannex(() => this.gateway.updateRestrictions(restrictionValues));

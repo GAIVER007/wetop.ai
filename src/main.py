@@ -21,6 +21,7 @@ from src.dependencies import (
     get_engine,
     get_redis,
 )
+from src.knowledge.embedder import get_embedder
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging(app_settings)
-        # Прогрев модели эмбеддингов появится здесь на шаге 2.
+        # Прогрев модели эмбеддингов: без него первый клиент ждёт загрузку
+        # ~450 МБ. Не прогрелась — процесс живёт, но /health отвечает 503:
+        # compose увидит и не пустит трафик на пустую базу знаний.
+        if app_settings.kb_embed_warmup:
+            try:
+                await get_embedder().warmup()
+            except Exception:
+                logger.exception("Прогрев модели эмбеддингов не удался")
+                app.state.ready = False
         try:
             yield
         finally:

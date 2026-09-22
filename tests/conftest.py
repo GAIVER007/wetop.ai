@@ -36,6 +36,9 @@ def settings_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Pa
     monkeypatch.setenv("INTERNAL_HEALTH_KEY", "test-key")
     monkeypatch.setenv("APP_ENV", "test")
     monkeypatch.setenv("LOG_LEVEL", "warning")
+    # Без этого фикстура client при старте приложения полезла бы за
+    # настоящей моделью эмбеддингов (450 МБ, сеть).
+    monkeypatch.setenv("KB_EMBED_WARMUP", "false")
     # Журнал (папка logs/) и поиск .env идут от cwd — уводим их в tmp_path.
     monkeypatch.chdir(tmp_path)
 
@@ -125,3 +128,25 @@ def client() -> Iterator:
 
     with TestClient(create_app(), raise_server_exceptions=False) as c:
         yield c
+
+
+@pytest.fixture
+def fake_backend():
+    """Детерминированный бэкенд эмбеддингов без сети и без модели."""
+    from tests.kb_fakes import HashingBackend
+
+    return HashingBackend()
+
+
+@pytest.fixture
+def fake_embedder(fake_redis, fake_backend):
+    """Embedder поверх HashingBackend и fakeredis, подставленный в синглтон
+    на время теста: get_embedder() в приложении вернёт его же."""
+    from src.knowledge.embedder import Embedder, reset_embedder, set_embedder
+
+    embedder = Embedder(fake_backend, fake_redis, cache_ttl_seconds=60)
+    set_embedder(embedder)
+    try:
+        yield embedder
+    finally:
+        reset_embedder()

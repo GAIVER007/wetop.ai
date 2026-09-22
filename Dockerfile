@@ -19,8 +19,16 @@ COPY requirements.txt .
 RUN pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.14,<2.15" \
     && pip install -r requirements.txt
 
-# Модель эмбеддингов (intfloat/multilingual-e5-small, ~450 МБ) кладётся
-# в образ отдельным слоем — шаг 2, здесь появится RUN с её загрузкой.
+# Модель эмбеддингов (~450 МБ) кладётся в образ отдельным слоем: на старте
+# контейнер в сеть не ходит. Имя модели здесь совпадает с умолчанием
+# KB_EMBED_MODEL в env.example; сменили модель — меняем в обоих местах
+# и переиндексируем базу знаний (размерность VECTOR в схеме тоже).
+ENV HF_HOME=/app/.hf
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('intfloat/multilingual-e5-small')" \
+    && chown -R app:app /app/.hf
+# Офлайн-режим: библиотека не проверяет обновления модели при загрузке.
+ENV HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
 
 # Исходники в образ, а не bind-mount: с монтированием compose up после
 # правки процесс не перезапускает (см. compose.yml).

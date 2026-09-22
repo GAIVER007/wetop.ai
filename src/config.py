@@ -107,6 +107,21 @@ class Settings(BaseSettings):
     channel_telegram_bot_username: str = ""
     channel_telegram_webhook_secret: str = ""
 
+    # ─── База знаний ───
+    kb_chunk_chars: int = 900
+    kb_chunk_overlap: int = 150
+    kb_chunk_min_chars: int = 80
+    # Предел проверяется ДО чтения файла, по заявленному размеру.
+    kb_max_file_mb: int = 10
+    kb_embed_model: str = "intfloat/multilingual-e5-small"
+    # Должна совпадать с VECTOR(384) в схеме: смена модели = смена числа
+    # и переиндексация всего (см. models.EMBEDDING_DIM).
+    kb_embed_dim: int = 384
+    kb_embed_cache_ttl_seconds: int = 604800
+    # Прогрев на старте выключают только тесты.
+    kb_embed_warmup: bool = True
+    kb_top_k: int = 5
+
     # ─── Служебное ───
     # Полный URL переопределяет сборку из POSTGRES_*: тестам нужен sqlite.
     database_url: str | None = None

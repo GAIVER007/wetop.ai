@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
-import { GuestsController } from './guests.controller';
+import { GuestsController, PiiStorageController } from './guests.controller';
 import { GUESTS_REPOSITORY, PrismaGuestsRepository } from './guests.repository';
 import { GuestsService } from './guests.service';
 
 @Module({
-  controllers: [GuestsController],
+  controllers: [GuestsController, PiiStorageController],
   providers: [
     PrismaService,
     GuestsService,

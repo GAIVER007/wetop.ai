@@ -90,9 +90,12 @@ describe('guests API', () => {
   beforeEach(() => {
     fakes = makeFakes();
     process.env.PII_ENCRYPTION_KEY = KEY;
+    // Тесты ниже — поведение базы в Казахстане (A1). Режим до переезда — отдельный блок в конце (ADR-072)
+    process.env.PII_STORAGE = 'real';
   });
   afterEach(() => {
     delete process.env.PII_ENCRYPTION_KEY;
+    delete process.env.PII_STORAGE;
   });
   beforeAll(async () => {
     const proxy = (get: () => object) =>
@@ -202,5 +205,67 @@ describe('guests API', () => {
     await request(app.getHttpServer()).delete('/guests/g1/documents/d1').expect(200);
     await request(app.getHttpServer()).delete('/guests/g1/documents/d1').expect(404);
     expect(fakes.audits).toEqual(['guest.document.add', 'guest.document.delete']);
+  });
+
+  describe('пока база не в Казахстане (PII_STORAGE не real, ADR-072)', () => {
+    beforeEach(() => {
+      delete process.env.PII_STORAGE;
+    });
+
+    it('новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано', async () => {
+      for (const patch of [
+        { firstName: 'Иван' },
+        { lastName: 'Петров' },
+        { middleName: 'Сергеевич' },
+        { phone: '+70000000001' },
+        { email: 'guest@example.invalid' },
+        { birthDate: '1990-01-01' },
+        { notes: 'позвонить' },
+        { citizenship: 'KAZ', phone: '+70000000001' },
+      ]) {
+        const r = await request(app.getHttpServer()).patch('/guests/g1').send(patch).expect(422);
+        expect(r.body.message).toContain('не в Казахстане');
+      }
+      expect(fakes.guests.get('g1')).toMatchObject({ phone: '+70000000000', citizenship: null });
+      expect(fakes.audits).toEqual([]);
+    });
+
+    it('гражданство и пол меняются; тот же профиль целиком и стирание контакта — тоже', async () => {
+      const r = await request(app.getHttpServer())
+        .patch('/guests/g1')
+        .send({
+          firstName: 'Гость',
+          lastName: 'Тестовый',
+          phone: '+70000000000',
+          citizenship: 'kaz',
+          gender: 'FEMALE',
+        })
+        .expect(200);
+      expect(r.body).toMatchObject({ citizenship: 'KAZ', gender: 'FEMALE' });
+      const erased = await request(app.getHttpServer())
+        .patch('/guests/g1')
+        .send({ phone: null })
+        .expect(200);
+      expect(erased.body.phone).toBeNull();
+    });
+
+    it('документ не принимается — 422, номер никуда не записан; удалить старый можно', async () => {
+      const r = await request(app.getHttpServer())
+        .post('/guests/g1/documents')
+        .send({ type: 'PASSPORT', number: 'N 1234567' })
+        .expect(422);
+      expect(r.body.message).toContain('не в Казахстане');
+      expect(fakes.guests.get('g1')!.documents).toEqual([]);
+    });
+
+    it('GET /system/pii-storage говорит стойке режим заранее', async () => {
+      expect(
+        (await request(app.getHttpServer()).get('/system/pii-storage').expect(200)).body,
+      ).toEqual({ storage: 'pseudonymized' });
+      process.env.PII_STORAGE = 'real';
+      expect(
+        (await request(app.getHttpServer()).get('/system/pii-storage').expect(200)).body,
+      ).toEqual({ storage: 'real' });
+    });
   });
 });

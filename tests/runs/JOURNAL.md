@@ -1743,3 +1743,11 @@
 | 23.09.2026 16:08 | unit | ✅ 1449 из 1452, пропущено 3 | 1 мин 13 с | eeb8519 | [лог](logs/2026-09-23T11-08-06Z-unit-17e1.log) |  |
 | 23.09.2026 16:09 | typecheck | ✅ без ошибок | 22 с | eeb8519 | [лог](logs/2026-09-23T11-09-20Z-typecheck-6b10.log) |  |
 | 23.09.2026 16:09 | lint | ✅ без ошибок | 12 с | eeb8519 | [лог](logs/2026-09-23T11-09-42Z-lint-d7cf.log) |  |
+| 23.09.2026 17:21 | unit (частично: packages/shared/src/pii-residency.test.ts apps/api/src/guests/guests.controller.test.ts apps/api/src/reservations/reservations.controller.test.t | ❌ упало 9 из 45 | 5 с | 88583aa +3 | [лог](logs/2026-09-23T12-21-43Z-unit-919a.log) | ADR-072 RED: обезличивание ручного ввода до переезда базы |
+| 23.09.2026 17:22 | unit (частично: packages/shared/src/pii-residency.test.ts apps/api/src/guests/guests.controller.test.ts apps/api/src/reservations/reservations.controller.test.t | ✅ 57 из 57 | 5 с | 88583aa +10 | [лог](logs/2026-09-23T12-22-28Z-unit-8479.log) | ADR-072 GREEN: обезличивание ручного ввода до переезда базы |
+| 23.09.2026 17:25 | typecheck | ❌ ошибок: 2 | 19 с | 88583aa +20 | [лог](logs/2026-09-23T12-25-15Z-typecheck-07e8.log) | ADR-072: обезличивание ручного ввода |
+| 23.09.2026 17:25 | lint | ✅ без ошибок | 11 с | 88583aa +20 | [лог](logs/2026-09-23T12-25-34Z-lint-5123.log) | ADR-072: обезличивание ручного ввода |
+| 23.09.2026 17:26 | typecheck | ✅ без ошибок | 15 с | 88583aa +20 | [лог](logs/2026-09-23T12-26-01Z-typecheck-d03c.log) | ADR-072: обезличивание ручного ввода |
+| 23.09.2026 17:26 | unit | ✅ 1456 из 1462, пропущено 6 | 1 мин 13 с | 88583aa +17 | [лог](logs/2026-09-23T12-26-21Z-unit-4ae1.log) | ADR-072: весь набор после обезличивания ручного ввода |
+| 23.09.2026 17:27 | integration | ✅ 47 из 47 | 16 с | 88583aa +11 | [лог](logs/2026-09-23T12-27-43Z-integration-937b.log) | ADR-072: создание брони со стойки на локальной PostgreSQL в VM |
+| 23.09.2026 17:28 | lint | ✅ без ошибок | 10 с | 88583aa +20 | [лог](logs/2026-09-23T12-28-52Z-lint-2208.log) | ADR-072: после правки типов |

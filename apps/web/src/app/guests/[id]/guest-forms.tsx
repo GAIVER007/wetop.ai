@@ -8,6 +8,7 @@ import {
   Field,
   Grid,
   Input,
+  Notice,
   Panel,
   PanelTitle,
   Row,
@@ -32,7 +33,15 @@ const DOC_TYPES: Array<[string, string]> = [
   ['OTHER', 'другое'],
 ];
 
-export function GuestForms({ guest }: { guest: GuestCard }) {
+export function GuestForms({
+  guest,
+  piiStorage,
+}: {
+  guest: GuestCard;
+  /** ADR-072: `pseudonymized` — база не в Казахстане: имя, контакты, заметки и документы не вносятся */
+  piiStorage: 'real' | 'pseudonymized';
+}) {
+  const personal = piiStorage === 'real';
   const [pState, pAction, pPending] = useActionState<GuestActionResult, FormData>(
     updateGuestAction.bind(null, guest.id),
     { error: null },
@@ -57,33 +66,43 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
         className="panel"
       >
         <PanelTitle>Профиль</PanelTitle>
+        {!personal && (
+          <Notice data-testid="guest-pseudonymized">
+            Пока база WETOP не в Казахстане, имя, контакты, заметки и документы гостя в ней не
+            хранятся. Менять можно гражданство и пол; личность сверяйте по документу на заселении.
+          </Notice>
+        )}
         <Grid gap="sm">
-          <Field label="Фамилия *">
-            <Input
-              name="lastName"
-              defaultValue={pState.values?.lastName ?? guest.lastName}
-              required
-            />
-          </Field>
-          <Field label="Имя *">
-            <Input
-              name="firstName"
-              defaultValue={pState.values?.firstName ?? guest.firstName}
-              required
-            />
-          </Field>
-          <Field label="Отчество">
-            <Input
-              name="middleName"
-              defaultValue={pState.values?.middleName ?? guest.middleName ?? ''}
-            />
-          </Field>
-          <Field label="Дата рождения">
-            <DateInput
-              name="birthDate"
-              defaultValue={pState.values?.birthDate ?? guest.birthDate ?? ''}
-            />
-          </Field>
+          {personal && (
+            <>
+              <Field label="Фамилия *">
+                <Input
+                  name="lastName"
+                  defaultValue={pState.values?.lastName ?? guest.lastName}
+                  required
+                />
+              </Field>
+              <Field label="Имя *">
+                <Input
+                  name="firstName"
+                  defaultValue={pState.values?.firstName ?? guest.firstName}
+                  required
+                />
+              </Field>
+              <Field label="Отчество">
+                <Input
+                  name="middleName"
+                  defaultValue={pState.values?.middleName ?? guest.middleName ?? ''}
+                />
+              </Field>
+              <Field label="Дата рождения">
+                <DateInput
+                  name="birthDate"
+                  defaultValue={pState.values?.birthDate ?? guest.birthDate ?? ''}
+                />
+              </Field>
+            </>
+          )}
           <Field label="Гражданство (ISO alpha-3, напр. KAZ) *для заселения">
             <Input
               name="citizenship"
@@ -100,20 +119,26 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
               <option value="FEMALE">женский</option>
             </Select>
           </Field>
-          <Field label="Телефон">
-            <Input name="phone" defaultValue={pState.values?.phone ?? guest.phone ?? ''} />
-          </Field>
-          <Field label="Email">
-            <Input name="email" defaultValue={pState.values?.email ?? guest.email ?? ''} />
-          </Field>
+          {personal && (
+            <>
+              <Field label="Телефон">
+                <Input name="phone" defaultValue={pState.values?.phone ?? guest.phone ?? ''} />
+              </Field>
+              <Field label="Email">
+                <Input name="email" defaultValue={pState.values?.email ?? guest.email ?? ''} />
+              </Field>
+            </>
+          )}
         </Grid>
-        <Field label="Заметки о госте">
-          <Textarea
-            name="notes"
-            defaultValue={pState.values?.notes ?? guest.notes ?? ''}
-            rows={2}
-          />
-        </Field>
+        {personal && (
+          <Field label="Заметки о госте">
+            <Textarea
+              name="notes"
+              defaultValue={pState.values?.notes ?? guest.notes ?? ''}
+              rows={2}
+            />
+          </Field>
+        )}
         <Row>
           <Button type="submit" disabled={pPending}>
             Сохранить
@@ -122,7 +147,7 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
         </Row>
       </form>
       <Panel title="Документы" id="guest-documents">
-        {guest.documents.length === 0 && (
+        {guest.documents.length === 0 && personal && (
           <p className="sub">Документов нет. Добавьте паспорт или удостоверение формой ниже.</p>
         )}
         {guest.documents.map((d) => (
@@ -155,48 +180,55 @@ export function GuestForms({ guest }: { guest: GuestCard }) {
             </Button>
           </Row>
         ))}
-        <form
-          key={dState.attempt ?? 0}
-          action={dAction}
-          data-testid="document-form"
-          className="row"
-        >
-          <Select
-            name="type"
-            aria-label="Тип документа"
-            defaultValue={dState.values?.type ?? 'PASSPORT'}
+        {!personal && (
+          <p className="sub" data-testid="documents-pseudonymized">
+            Документы гостей в WETOP не вносятся, пока база не в Казахстане.
+          </p>
+        )}
+        {personal && (
+          <form
+            key={dState.attempt ?? 0}
+            action={dAction}
+            data-testid="document-form"
+            className="row"
           >
-            {DOC_TYPES.map(([k, t]) => (
-              <option key={k} value={k}>
-                {t}
-              </option>
-            ))}
-          </Select>
-          <Input
-            name="number"
-            defaultValue={dState.values?.number ?? ''}
-            aria-label="Номер документа"
-            placeholder="Номер документа"
-            required
-          />
-          <Input
-            name="issueCountry"
-            defaultValue={dState.values?.issueCountry ?? ''}
-            aria-label="Страна выдачи"
-            placeholder="страна, KAZ"
-            maxLength={3}
-            className="inp--w90 inp--upper"
-          />
-          <Field label="Дата выдачи">
-            <DateInput name="issuedAt" defaultValue={dState.values?.issuedAt ?? ''} />
-          </Field>
-          <Field label="Действителен до">
-            <DateInput name="expiresAt" defaultValue={dState.values?.expiresAt ?? ''} />
-          </Field>
-          <Button type="submit" disabled={dPending || deletePending}>
-            Добавить
-          </Button>
-        </form>
+            <Select
+              name="type"
+              aria-label="Тип документа"
+              defaultValue={dState.values?.type ?? 'PASSPORT'}
+            >
+              {DOC_TYPES.map(([k, t]) => (
+                <option key={k} value={k}>
+                  {t}
+                </option>
+              ))}
+            </Select>
+            <Input
+              name="number"
+              defaultValue={dState.values?.number ?? ''}
+              aria-label="Номер документа"
+              placeholder="Номер документа"
+              required
+            />
+            <Input
+              name="issueCountry"
+              defaultValue={dState.values?.issueCountry ?? ''}
+              aria-label="Страна выдачи"
+              placeholder="страна, KAZ"
+              maxLength={3}
+              className="inp--w90 inp--upper"
+            />
+            <Field label="Дата выдачи">
+              <DateInput name="issuedAt" defaultValue={dState.values?.issuedAt ?? ''} />
+            </Field>
+            <Field label="Действителен до">
+              <DateInput name="expiresAt" defaultValue={dState.values?.expiresAt ?? ''} />
+            </Field>
+            <Button type="submit" disabled={dPending || deletePending}>
+              Добавить
+            </Button>
+          </form>
+        )}
         {(dState.error || delState.error) && <Alert>{dState.error ?? delState.error}</Alert>}
       </Panel>
       {dialog}

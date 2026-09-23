@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   AnonymizeSaltMissingError,
+  deskGuestForStorage,
   guestForStorage,
+  piiStorageMode,
   pseudonymSalt,
   realPiiAllowed,
 } from './pii-residency';
@@ -86,5 +88,46 @@ describe('где можно хранить настоящие данные го�
   it('запасной вариант соли — уже заданный ключ шифрования ПД', () => {
     expect(pseudonymSalt({ PII_ENCRYPTION_KEY: 'k' })).toBe('k');
     expect(pseudonymSalt({ ANONYMIZE_SALT: 's', PII_ENCRYPTION_KEY: 'k' })).toBe('s');
+  });
+});
+
+describe('гость, введённый стойкой руками (ADR-072)', () => {
+  const typed = {
+    firstName: ' Ivan ',
+    lastName: 'Petrov',
+    middleName: 'Sergeevich',
+    phone: '+77011234567',
+    email: 'ivan@example.invalid',
+  };
+
+  it('пока база не в Казахстане — «Гость Стойка-…» без отчества и контактов; соль не нужна', () => {
+    const stored = deskGuestForStorage(typed, {});
+    expect(stored.firstName).toBe('Гость');
+    expect(stored.lastName).toMatch(/^Стойка-[0-9a-f]{6}$/);
+    expect(stored).toMatchObject({ middleName: null, phone: null, email: null });
+    expect(JSON.stringify(stored)).not.toMatch(/Ivan|Petrov|Sergeevich|7011234567|ivan@/);
+    expect(piiStorageMode({})).toBe('pseudonymized');
+  });
+
+  it('имя не обязательно: форма в этом режиме его не спрашивает', () => {
+    expect(deskGuestForStorage({}, {}).lastName).toMatch(/^Стойка-/);
+  });
+
+  it('два ручных гостя — два разных псевдонима: у ручного ввода нет ключа брони канала', () => {
+    expect(deskGuestForStorage(typed, {}).lastName).not.toBe(
+      deskGuestForStorage(typed, {}).lastName,
+    );
+  });
+
+  it('PII_STORAGE=real — как введено: края обрезаны, пустое — NULL', () => {
+    const real = { PII_STORAGE: 'real' };
+    expect(deskGuestForStorage({ ...typed, phone: '  ', email: '' }, real)).toEqual({
+      firstName: 'Ivan',
+      lastName: 'Petrov',
+      middleName: 'Sergeevich',
+      phone: null,
+      email: null,
+    });
+    expect(piiStorageMode(real)).toBe('real');
   });
 });

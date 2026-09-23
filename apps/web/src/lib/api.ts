@@ -150,8 +150,16 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Где лежат данные гостей (ADR-072): `real` — база в Казахстане; `pseudonymized` — имена и контакты не хранятся */
+export type PiiStorage = 'real' | 'pseudonymized';
+
 export const api = {
   inventorySummary: () => getJson<InventorySummary>('/inventory/summary'),
+  /** Не прочиталось — считаем «не хранятся»: форма без имени безопаснее, чем имя в базе за границей */
+  piiStorage: () =>
+    getJson<{ storage: PiiStorage }>('/system/pii-storage')
+      .then((r): PiiStorage => (r.storage === 'real' ? 'real' : 'pseudonymized'))
+      .catch((): PiiStorage => 'pseudonymized'),
   inventoryUnits: (category?: string) =>
     getJson<InventoryUnit[]>(
       category ? `/inventory/units?category=${encodeURIComponent(category)}` : '/inventory/units',

@@ -21,7 +21,8 @@ export async function updateGuestAction(
   fd: FormData,
 ): Promise<GuestActionResult> {
   try {
-    await guestsApi.update(id, {
+    // Только поля, которые есть в форме: пока база не в Казахстане, форма показывает гражданство и пол (ADR-072)
+    const body: Record<string, string | null> = {
       firstName: s(fd, 'firstName'),
       lastName: s(fd, 'lastName'),
       middleName: s(fd, 'middleName') || null,
@@ -31,7 +32,8 @@ export async function updateGuestAction(
       phone: s(fd, 'phone') || null,
       email: s(fd, 'email') || null,
       notes: s(fd, 'notes') || null,
-    });
+    };
+    await guestsApi.update(id, Object.fromEntries(Object.entries(body).filter(([k]) => fd.has(k))));
   } catch (e) {
     return {
       error: describe(e),

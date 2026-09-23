@@ -11,7 +11,20 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { piiStorageMode } from '@pms/shared';
 import { GuestsService } from './guests.service';
+
+/**
+ * Где лежат данные гостей (ADR-072): `real` — база в Казахстане, введённое хранится как есть; `pseudonymized` —
+ * нет, и формы стойки не спрашивают имя, контакты и документы. Стойка читает режим заранее, а не узнаёт отказом.
+ */
+@Controller('system')
+export class PiiStorageController {
+  @Get('pii-storage')
+  mode() {
+    return { storage: piiStorageMode() };
+  }
+}
 
 @Controller('guests')
 export class GuestsController {

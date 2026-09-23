@@ -5,14 +5,42 @@ import {
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { normalizeCitizenship } from '@pms/domain';
-import { PiiKeyMissingError, blankToNull, decryptPii, encryptPii, maskNumber } from '@pms/shared';
-import { GUESTS_REPOSITORY, type GuestPatch, type GuestsRepository } from './guests.repository';
+import {
+  PiiKeyMissingError,
+  blankToNull,
+  decryptPii,
+  encryptPii,
+  maskNumber,
+  realPiiAllowed,
+} from '@pms/shared';
+import {
+  GUESTS_REPOSITORY,
+  type GuestPatch,
+  type GuestProfile,
+  type GuestsRepository,
+} from './guests.repository';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const ALPHA3 = /^[A-Z]{3}$/;
 const DOC_TYPES = ['PASSPORT', 'ID_CARD', 'RESIDENCE_PERMIT', 'BIRTH_CERTIFICATE', 'OTHER'];
+
+/**
+ * ADR-072: пока база не в Казахстане (`PII_STORAGE` не `real`), личные поля гостя не принимают нового значения —
+ * только прежнее (форма присылает профиль целиком) или пустое (стереть можно). Гражданство и пол — как всегда.
+ */
+const PERSONAL: Array<[keyof GuestPatch & keyof GuestProfile, string]> = [
+  ['firstName', 'имя'],
+  ['lastName', 'фамилию'],
+  ['middleName', 'отчество'],
+  ['phone', 'телефон'],
+  ['email', 'почту'],
+  ['birthDate', 'дату рождения'],
+  ['notes', 'заметки'],
+];
+const OUTSIDE_KZ = 'Пока база WETOP не в Казахстане, данные гостей в ней не хранятся (ADR-072)';
 
 export interface GuestDocumentView {
   id: string;
@@ -98,7 +126,18 @@ export class GuestsService {
       patch.gender = dto.gender as 'MALE' | 'FEMALE' | 'UNKNOWN';
     }
     if (Object.keys(patch).length === 0) throw new BadRequestException('Нечего менять');
-    if (!(await this.repo.byId(id))) throw new NotFoundException(`Гость ${id} не найден`);
+    const current = await this.repo.byId(id);
+    if (!current) throw new NotFoundException(`Гость ${id} не найден`);
+    if (!realPiiAllowed()) {
+      const changed = PERSONAL.filter(([k]) => {
+        const v = patch[k];
+        return v !== undefined && v !== null && v !== current[k];
+      });
+      if (changed.length > 0)
+        throw new UnprocessableEntityException(
+          `${OUTSIDE_KZ}: ${changed.map(([, label]) => label).join(', ')} не сохранено. Гражданство и пол менять можно.`,
+        );
+    }
     await this.repo.update(id, patch);
     await this.repo.audit(id, 'guest.update', Object.keys(patch));
     return this.card(id);
@@ -114,6 +153,10 @@ export class GuestsService {
       expiresAt?: string | null;
     },
   ) {
+    if (!realPiiAllowed())
+      throw new UnprocessableEntityException(
+        `${OUTSIDE_KZ}: документ не сохранён. Сверьте его на заселении.`,
+      );
     if (!dto.type || !DOC_TYPES.includes(dto.type))
       throw new BadRequestException(`type — один из ${DOC_TYPES.join(', ')}`);
     const number = (dto.number ?? '').trim();

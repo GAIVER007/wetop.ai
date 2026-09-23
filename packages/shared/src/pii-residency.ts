@@ -13,7 +13,7 @@
  * поэтому повторная ревизия не плодит дублей. Обратного преобразования нет: HMAC односторонний,
  * а исходные ФИО и телефон никуда не записываются.
  */
-import { createHmac } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
 import { blankToNull } from './text';
 
 export interface GuestIdentity {
@@ -81,4 +81,50 @@ export function guestForStorage(
   const contacts = { ...guest, phone: blankToNull(guest.phone), email: blankToNull(guest.email) };
   if (realPiiAllowed(env)) return contacts;
   return pseudonymizeGuest(contacts, key, pseudonymSalt(env));
+}
+
+/** Какие данные гостей хранит эта база: `real` — как введено (база в РК), иначе только псевдонимы. */
+export function piiStorageMode(env: NodeJS.ProcessEnv = process.env): 'real' | 'pseudonymized' {
+  return realPiiAllowed(env) ? 'real' : 'pseudonymized';
+}
+
+export interface DeskGuestInput {
+  firstName?: string | null | undefined;
+  lastName?: string | null | undefined;
+  middleName?: string | null | undefined;
+  phone?: string | null | undefined;
+  email?: string | null | undefined;
+}
+
+/**
+ * Гость, которого стойка вводит руками (ADR-072). С `PII_STORAGE=real` — как введено: края обрезаны, пустое —
+ * NULL; обязательность имени проверяет вызывающий. Иначе введённое не сохраняется совсем: «Гость Стойка-xxxxxx»
+ * без отчества и контактов. Метка случайная, а не от имени: у ручной брони нет ключа брони канала, а производное
+ * от имени перебиралось бы по словарю; соль не нужна.
+ */
+export function deskGuestForStorage(
+  typed: DeskGuestInput,
+  env: NodeJS.ProcessEnv = process.env,
+): {
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+} {
+  if (realPiiAllowed(env))
+    return {
+      firstName: (typed.firstName ?? '').trim(),
+      lastName: (typed.lastName ?? '').trim(),
+      middleName: blankToNull(typed.middleName),
+      phone: blankToNull(typed.phone),
+      email: blankToNull(typed.email),
+    };
+  return {
+    firstName: 'Гость',
+    lastName: `Стойка-${randomBytes(3).toString('hex')}`,
+    middleName: null,
+    phone: null,
+    email: null,
+  };
 }

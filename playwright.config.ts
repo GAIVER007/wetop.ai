@@ -106,6 +106,9 @@ export default defineConfig({
             API_PORT: String(TEST_API_PORT),
             DATABASE_SCHEMA: TEST_SCHEMA,
             PII_ENCRYPTION_KEY,
+            // ADR-072: гости в прогоне вымышленные (ADR-010), а спеки вводят имя, телефон и документ — стенд хранит
+            // введённое как есть, как база в Казахстане. Режим «без имён» проверяют unit и tests/ui/pii-storage.spec.ts
+            PII_STORAGE: 'real',
             // Accounts middleware also reads password sessions. The isolated stand must not
             // depend on a private production secret just to accept a session cookie.
             SESSION_SECRET: process.env['E2E_SESSION_SECRET'] || 'e2e-only-session-secret-not-for-production',

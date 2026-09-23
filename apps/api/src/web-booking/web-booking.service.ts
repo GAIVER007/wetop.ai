@@ -208,26 +208,29 @@ export class WebBookingService {
     const guest = guestForStorage(req.guest, `web:${site.id}:${randomUUID()}`);
     const notes =
       `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
-    const card = await this.reservations.create({
-      source: 'WEBSITE',
-      arrivalDate: req.arrivalDate,
-      departureDate: req.departureDate,
-      notes,
-      guest: {
-        firstName: guest.firstName,
-        lastName: guest.lastName,
-        phone: guest.phone,
-        email: guest.email,
-      },
-      items: [
-        {
-          accommodationTypeCode: req.categoryCode,
-          ratePlanCode: site.bookingRatePlan!.code,
-          adults: req.adults,
-          autoAssign: true,
+    const card = await this.reservations.create(
+      {
+        source: 'WEBSITE',
+        arrivalDate: req.arrivalDate,
+        departureDate: req.departureDate,
+        notes,
+        guest: {
+          firstName: guest.firstName,
+          lastName: guest.lastName,
+          phone: guest.phone,
+          email: guest.email,
         },
-      ],
-    });
+        items: [
+          {
+            accommodationTypeCode: req.categoryCode,
+            ratePlanCode: site.bookingRatePlan!.code,
+            adults: req.adults,
+            autoAssign: true,
+          },
+        ],
+      },
+      { guestPrepared: true },
+    );
     let linkedSession = false;
     if (req.sessionKey) {
       // Приёмник счётчика пишет события пачкой раз в секунду. Посетитель на быстрой сети бронирует раньше, чем

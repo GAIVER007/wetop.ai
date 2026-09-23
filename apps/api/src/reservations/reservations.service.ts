@@ -28,6 +28,7 @@ import {
   assertCanExtend,
   hasCitizenship,
 } from '@pms/domain';
+import { deskGuestForStorage } from '@pms/shared';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
@@ -244,13 +245,30 @@ export class ReservationsService {
     );
   }
 
-  /** Создать бронь со стойки: источник обязателен (Q-089), цена — из календаря, ячейка — по желанию. */
-  async create(dto: CreateReservationDto): Promise<ReservationCard> {
+  /**
+   * Создать бронь со стойки: источник обязателен (Q-089), цена — из календаря, ячейка — по желанию.
+   * Гость — через `deskGuestForStorage` (ADR-072): пока база не в Казахстане, введённое стойкой не сохраняется,
+   * гость записывается псевдонимом, и имя не обязательно. `guestPrepared` — гость уже приведён к хранению
+   * вызывающим (бронь с сайта: `guestForStorage`), берётся как есть.
+   */
+  async create(
+    dto: CreateReservationDto,
+    opts: { guestPrepared?: boolean } = {},
+  ): Promise<ReservationCard> {
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
       throw new BadRequestException(`source обязателен: один из ${RESERVATION_SOURCES.join(', ')}`);
     const source = dto.source as ReservationSource;
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
-    if (!dto.guest?.firstName?.trim() || !dto.guest?.lastName?.trim())
+    const guest = opts.guestPrepared
+      ? {
+          firstName: (dto.guest?.firstName ?? '').trim(),
+          lastName: (dto.guest?.lastName ?? '').trim(),
+          middleName: dto.guest?.middleName ?? null,
+          phone: dto.guest?.phone ?? null,
+          email: dto.guest?.email ?? null,
+        }
+      : deskGuestForStorage(dto.guest ?? {});
+    if (!guest.firstName || !guest.lastName)
       throw new BadRequestException('guest.firstName и guest.lastName обязательны');
     if (!Array.isArray(dto.items) || dto.items.length === 0)
       throw new BadRequestException('items: хотя бы одно проживание');
@@ -268,7 +286,6 @@ export class ReservationsService {
       if (it.autoAssign && it.unitCode)
         throw new BadRequestException('items[].autoAssign и unitCode не сочетаются');
     }
-    const guest = dto.guest;
     const status: ReservationStatus = 'CONFIRMED';
 
     const created = await this.uow.run((repo) =>
@@ -382,13 +399,7 @@ export class ReservationsService {
             unitId,
           });
         }
-        const guestId = await repo.createGuest({
-          firstName: guest.firstName!.trim(),
-          lastName: guest.lastName!.trim(),
-          middleName: guest.middleName ?? null,
-          phone: guest.phone ?? null,
-          email: guest.email ?? null,
-        });
+        const guestId = await repo.createGuest(guest);
         const number = confirmationNumber(new Date());
         const created = await repo.createReservation({
           confirmationNumber: number,

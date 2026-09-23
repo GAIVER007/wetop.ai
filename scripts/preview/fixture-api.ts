@@ -522,6 +522,8 @@ function getGuest(id: string) {
   };
 }
 let rejectCreate = false;
+/** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
+let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
 /** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
 let delayPath = '';
@@ -1848,6 +1850,7 @@ function read(path: string, q: URLSearchParams): unknown {
       ],
     };
   // Свежесть данных и контент объекта из Channex (план wetop-live-data: шаг 4, ADR-033)
+  if (path === '/system/pii-storage') return { storage: piiStorage };
   if (path === '/system/freshness')
     return {
       checkedAt: new Date().toISOString(),
@@ -2171,6 +2174,7 @@ createServer(async (req, res) => {
       groupFixture = false;
       paid = new Map();
       paymentLines = [];
+      piiStorage = 'real';
       return send(200, {});
     }
     if (path === '/__test/control') {
@@ -2191,6 +2195,7 @@ createServer(async (req, res) => {
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
+      piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);

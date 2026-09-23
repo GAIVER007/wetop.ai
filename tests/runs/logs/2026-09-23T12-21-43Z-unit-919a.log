@@ -1,0 +1,219 @@
+# Модульные (unit) · 23.09.2026 17:21 Алматы · claude
+# коммит 88583aa (main), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-21-43Z-unit-919a.json' 'packages/shared/src/pii-residency.test.ts' 'apps/api/src/guests/guests.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ❯  unit  packages/shared/src/pii-residency.test.ts (13 tests | 4 failed) 13ms
+   ✓ где можно хранить настоящие данные гостя (9)
+     ✓ по умолчанию гость канала записывается псевдонимом: ни имени, ни телефона, ни почты 2ms
+     ✓ псевдоним детерминирован по ключу брони: повтор ревизии не создаёт второго гостя 0ms
+     ✓ другая соль — другой псевдоним: по известной соли значение не подобрать 0ms
+     ✓ пустой телефон и почта остаются пустыми, а не превращаются в выдуманные 0ms
+     ✓ контакт из пробелов — это «нет контакта»: псевдоним не выдумывает телефон и почту 1ms
+     ✓ в боевом режиме пустой контакт хранится как NULL, а не пустой строкой; края обрезаются 0ms
+     ✓ настоящие данные проходят только при PII_STORAGE=real 0ms
+     ✓ без соли — отказ с инструкцией, а не тихая запись предсказуемого псевдонима 1ms
+     ✓ запасной вариант соли — уже заданный ключ шифрования ПД 0ms
+   ❯ гость, введённый стойкой руками (ADR-072) (4)
+     × пока база не в Казахстане — «Гость Стойка-…» без отчества и контактов; соль не нужна 4ms
+     × имя не обязательно: форма в этом режиме его не спрашивает 1ms
+     × два ручных гостя — два разных псевдонима: у ручного ввода нет ключа брони канала 1ms
+     × PII_STORAGE=real — как введено: края обрезаны, пустое — NULL 1ms
+ ❯  unit  apps/api/src/guests/guests.controller.test.ts (9 tests | 3 failed) 413ms
+   ❯ guests API (9)
+     ✓ search by last name or phone digits; too short query → 400 24ms
+     ✓ update validates citizenship as alpha-3, audits field names only 25ms
+     ✓ citizenship is trimmed: spaces around the code are dropped, blank-only is null on save and on read 9ms
+     ✓ text fields: blank-only is null for optional ones and 400 for required names — never an empty string 5ms
+     ✓ documents: stored encrypted, shown masked; 503 without the encryption key; delete 10ms
+     ❯ пока база не в Казахстане (PII_STORAGE не real, ADR-072) (4)
+       × новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано 3ms
+       ✓ гражданство и пол меняются; тот же профиль целиком и стирание контакта — тоже 3ms
+       × документ не принимается — 422, номер никуда не записан; удалить старый можно 3ms
+       × GET /system/pii-storage говорит стойке режим заранее 2ms
+[Nest] 90  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯  unit  apps/api/src/reservations/reservations.controller.test.ts (23 tests | 2 failed) 319ms
+   ❯ manual reservation API (23)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 26ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 2ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 3ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 3ms
+     × ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 3ms
+     × ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 4ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 4ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 2ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 3ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 5ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 3ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 4ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 2ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 8ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 6ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 13ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 5ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 5ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 8ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 3ms
+     ✓ GET /rate-plans lists only active tariffs 1ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 6ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  packages/shared/src/pii-residency.test.ts > гость, введённый стойкой руками (ADR-072) > пока база не в Казахстане — «Гость Стойка-…» без отчества и контактов; соль не нужна
+TypeError: deskGuestForStorage is not a function
+ ❯ packages/shared/src/pii-residency.test.ts:104:20
+    102|
+    103|   it('пока база не в Казахстане — «Гость Стойка-…» без отчества и конт…
+    104|     const stored = deskGuestForStorage(typed, {});
+       |                    ^
+    105|     expect(stored.firstName).toBe('Гость');
+    106|     expect(stored.lastName).toMatch(/^Стойка-[0-9a-f]{6}$/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL   unit  packages/shared/src/pii-residency.test.ts > гость, введённый стойкой руками (ADR-072) > имя не обязательно: форма в этом режиме его не спрашивает
+TypeError: deskGuestForStorage is not a function
+ ❯ packages/shared/src/pii-residency.test.ts:113:12
+    111|
+    112|   it('имя не обязательно: форма в этом режиме его не спрашивает', () =…
+    113|     expect(deskGuestForStorage({}, {}).lastName).toMatch(/^Стойка-/);
+       |            ^
+    114|   });
+    115|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL   unit  packages/shared/src/pii-residency.test.ts > гость, введённый стойкой руками (ADR-072) > два ручных гостя — два разных псевдонима: у ручного ввода нет ключа брони канала
+TypeError: deskGuestForStorage is not a function
+ ❯ packages/shared/src/pii-residency.test.ts:117:12
+    115|
+    116|   it('два ручных гостя — два разных псевдонима: у ручного ввода нет кл…
+    117|     expect(deskGuestForStorage(typed, {}).lastName).not.toBe(deskGuest…
+       |            ^
+    118|   });
+    119|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL   unit  packages/shared/src/pii-residency.test.ts > гость, введённый стойкой руками (ADR-072) > PII_STORAGE=real — как введено: края обрезаны, пустое — NULL
+TypeError: deskGuestForStorage is not a function
+ ❯ packages/shared/src/pii-residency.test.ts:122:12
+    120|   it('PII_STORAGE=real — как введено: края обрезаны, пустое — NULL', (…
+    121|     const real = { PII_STORAGE: 'real' };
+    122|     expect(deskGuestForStorage({ ...typed, phone: '  ', email: '' }, r…
+       |            ^
+    123|       firstName: 'Ivan',
+    124|       lastName: 'Petrov',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL   unit  apps/api/src/guests/guests.controller.test.ts > guests API > пока база не в Казахстане (PII_STORAGE не real, ADR-072) > новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано
+Error: expected 422 "Unprocessable Entity", got 200 "OK"
+ ❯ apps/api/src/guests/guests.controller.test.ts:226:86
+    224|         { citizenship: 'KAZ', phone: '<телефон>' },
+    225|       ]) {
+    226|         const r = await request(app.getHttpServer()).patch('/guests/g1…
+       |                                                                                      ^
+    227|         expect(r.body.message).toContain('не в Казахстане');
+    228|       }
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL   unit  apps/api/src/guests/guests.controller.test.ts > guests API > пока база не в Казахстане (PII_STORAGE не real, ADR-072) > документ не принимается — 422, номер никуда не записан; удалить старый можно
+Error: expected 422 "Unprocessable Entity", got 201 "Created"
+ ❯ apps/api/src/guests/guests.controller.test.ts:256:10
+    254|         .post('/guests/g1/documents')
+    255|         .send({ type: 'PASSPORT', number: 'N 1234567' })
+    256|         .expect(422);
+       |          ^
+    257|       expect(r.body.message).toContain('не в Казахстане');
+    258|       expect(fakes.guests.get('g1')!.documents).toEqual([]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL   unit  apps/api/src/guests/guests.controller.test.ts > guests API > пока база не в Казахстане (PII_STORAGE не real, ADR-072) > GET /system/pii-storage говорит стойке режим заранее
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/guests/guests.controller.test.ts:263:72
+    261|     it('GET /system/pii-storage говорит стойке режим заранее', async (…
+    262|       expect(
+    263|         (await request(app.getHttpServer()).get('/system/pii-storage')…
+       |                                                                        ^
+    264|       ).toEqual({ storage: 'pseudonymized' });
+    265|       process.env.PII_STORAGE = 'real';
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно
+Error: expected 201 "Created", got 400 "Bad Request"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:524:10
+    522|         .post('/reservations')
+    523|         .send(body({ guest: undefined, arrivalDate: '2026-09-18', depa…
+    524|         .expect(201);
+       |          ^
+    525|       expect(fake.state.createdGuests).toHaveLength(2);
+    526|       for (const g of fake.state.createdGuests) {
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны
+AssertionError: expected [ { firstName: 'Иван', …(4) } ] to deeply equal [ { firstName: 'Иван', …(4) } ]
+
+- Expected
++ Received
+
+@@ -2,8 +2,8 @@
+    {
+      "email": null,
+      "firstName": "Иван",
+      "lastName": "Петров",
+      "middleName": null,
+-     "phone": null,
++     "phone": "  ",
+    },
+  ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:544:40
+    542|         .send(body({ guest: { firstName: ' Иван ', lastName: 'Петров',…
+    543|         .expect(201);
+    544|       expect(fake.state.createdGuests).toEqual([
+       |                                        ^
+    545|         { firstName: 'Иван', lastName: 'Петров', middleName: null, pho…
+    546|       ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 36 passed (45)
+   Start at  12:21:45
+   Duration  2.79s (import 56%, transform 29%, tests 15%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-21-43Z-unit-919a.json
+
+# код выхода 1 · 5 с

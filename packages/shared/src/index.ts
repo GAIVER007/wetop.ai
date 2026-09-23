@@ -13,11 +13,14 @@ export { blankToNull } from './text';
 export type { DataConnection } from './data-connection';
 export { encryptPii, decryptPii, maskNumber, PiiKeyMissingError } from './pii-crypto';
 export {
+  deskGuestForStorage,
   guestForStorage,
+  piiStorageMode,
   pseudonymizeGuest,
   realPiiAllowed,
   pseudonymSalt,
   AnonymizeSaltMissingError,
+  type DeskGuestInput,
   type GuestIdentity,
 } from './pii-residency';
 export * from './auth-hash';

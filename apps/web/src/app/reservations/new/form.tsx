@@ -1,6 +1,15 @@
 'use client';
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Button, Field, Grid, Input, Select, Textarea } from '../../../components/ui';
+import {
+  Alert,
+  Button,
+  Field,
+  Grid,
+  Input,
+  Notice,
+  Select,
+  Textarea,
+} from '../../../components/ui';
 import { displayDate } from '../../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
 import { createReservationAction, type ActionResult } from '../actions';
@@ -18,6 +27,8 @@ export function NewReservationForm(props: {
     availableUnitCodes: string[];
   }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
+  /** ADR-072: `pseudonymized` — база не в Казахстане, имя и контакты гостя форма не спрашивает */
+  piiStorage: 'real' | 'pseudonymized';
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(createReservationAction, {
     error: null,
@@ -127,29 +138,41 @@ export function NewReservationForm(props: {
           <h2>Гость</h2>
         </div>
       </div>
-      <Grid>
-        <Field label="Имя *">
-          <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
-        </Field>
-        <Field label="Фамилия *">
-          <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
-        </Field>
-        <Field label="Отчество">
-          <Input name="middleName" defaultValue={kept['middleName'] ?? ''} />
-        </Field>
-        <Field label="Email">
-          <Input type="email" name="email" defaultValue={kept['email'] ?? ''} />
-        </Field>
-        <Field label="Телефон">
-          <Input type="tel" name="phone" defaultValue={kept['phone'] ?? ''} />
-        </Field>
-      </Grid>
+      {props.piiStorage === 'real' ? (
+        <Grid>
+          <Field label="Имя *">
+            <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
+          </Field>
+          <Field label="Фамилия *">
+            <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
+          </Field>
+          <Field label="Отчество">
+            <Input name="middleName" defaultValue={kept['middleName'] ?? ''} />
+          </Field>
+          <Field label="Email">
+            <Input type="email" name="email" defaultValue={kept['email'] ?? ''} />
+          </Field>
+          <Field label="Телефон">
+            <Input type="tel" name="phone" defaultValue={kept['phone'] ?? ''} />
+          </Field>
+        </Grid>
+      ) : (
+        <Notice data-testid="guest-pseudonymized">
+          Пока база WETOP не в Казахстане, имена, телефоны и документы гостей в ней не хранятся.
+          Гость запишется как «Гость Стойка-…». Бронь находите по датам и ячейке, бронь канала — по
+          номеру брони в канале.
+        </Notice>
+      )}
       <Field label="Заметки">
         <Textarea
           name="notes"
           rows={3}
           defaultValue={kept['notes'] ?? ''}
-          placeholder="Пожелания гостя и информация для смены"
+          placeholder={
+            props.piiStorage === 'real'
+              ? 'Пожелания гостя и информация для смены'
+              : 'Пожелания и информация для смены — без имён и телефонов гостя'
+          }
         />
       </Field>
       {state.error && <Alert style={{ fontSize: 14 }}>{state.error}</Alert>}
@@ -177,6 +200,7 @@ function summarize(
     arrival: string;
     departure: string;
     categories: Array<{ code: string; name: string }>;
+    piiStorage: 'real' | 'pseudonymized';
   },
   placementIds: string[],
   snapshot: Record<string, string>,
@@ -209,7 +233,10 @@ function summarize(
         : dash,
     placements,
     source: SOURCES.find(([value]) => value === snapshot['source'])?.[1] ?? dash,
-    guest: [snapshot['lastName'], snapshot['firstName']].filter(Boolean).join(' ').trim() || dash,
+    guest:
+      props.piiStorage === 'real'
+        ? [snapshot['lastName'], snapshot['firstName']].filter(Boolean).join(' ').trim() || dash
+        : 'без имени — база не в Казахстане',
   };
 }
 

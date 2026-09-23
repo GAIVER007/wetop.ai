@@ -102,6 +102,8 @@ function makeFake() {
     }>,
     audits: [] as Array<{ entityType: string; action: string }>,
     guests: 0,
+    /** что записано в гости (ADR-072: до переезда базы — псевдоним) */
+    createdGuests: [] as Array<Record<string, unknown>>,
     seq: 0,
   };
   const blocked: Array<{ unitId: string; from: string; to: string; reason?: string }> = [
@@ -220,8 +222,9 @@ function makeFake() {
           closedToDeparture: r.closedToDeparture,
         }));
     },
-    async createGuest() {
+    async createGuest(g) {
       state.guests += 1;
+      state.createdGuests.push({ ...g });
       return `g${state.guests}`;
     },
     async createReservation(input) {
@@ -502,6 +505,64 @@ describe('manual reservation API', () => {
     expect(published).toEqual([
       { categoryCodes: ['exely-900001'], from: '2026-09-15', toExclusive: '2026-09-17' },
     ]);
+  });
+  it('ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно', async () => {
+    const before = process.env.PII_STORAGE;
+    delete process.env.PII_STORAGE;
+    try {
+      await request(app.getHttpServer())
+        .post('/reservations')
+        .send(
+          body({
+            guest: {
+              firstName: 'Иван',
+              lastName: 'Петров',
+              middleName: 'С.',
+              phone: '+77011234567',
+            },
+          }),
+        )
+        .expect(201);
+      await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ guest: undefined, arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+        .expect(201);
+      expect(fake.state.createdGuests).toHaveLength(2);
+      for (const g of fake.state.createdGuests) {
+        expect(g).toMatchObject({ firstName: 'Гость', middleName: null, phone: null, email: null });
+        expect(String(g['lastName'])).toMatch(/^Стойка-[0-9a-f]{6}$/);
+      }
+      expect(JSON.stringify(fake.state.createdGuests)).not.toMatch(/Иван|Петров|7011234567/);
+    } finally {
+      if (before === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = before;
+    }
+  });
+  it('ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны', async () => {
+    const before = process.env.PII_STORAGE;
+    process.env.PII_STORAGE = 'real';
+    try {
+      await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ guest: { firstName: ' Иван ', lastName: 'Петров', phone: '  ' } }))
+        .expect(201);
+      expect(fake.state.createdGuests).toEqual([
+        { firstName: 'Иван', lastName: 'Петров', middleName: null, phone: null, email: null },
+      ]);
+      await request(app.getHttpServer())
+        .post('/reservations')
+        .send(
+          body({
+            guest: { firstName: 'Иван' },
+            arrivalDate: '2026-09-18',
+            departureDate: '2026-09-19',
+          }),
+        )
+        .expect(400);
+    } finally {
+      if (before === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = before;
+    }
   });
   it('rejects a missing/unknown source with 400 — no default (Q-089)', async () => {
     await request(app.getHttpServer())

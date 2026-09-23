@@ -1,0 +1,20 @@
+# Модульные (unit) · 23.09.2026 17:22 Алматы · claude
+# коммит 88583aa (main), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-22-28Z-unit-8479.json' 'packages/shared/src/pii-residency.test.ts' 'apps/api/src/guests/guests.controller.test.ts' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  unit  packages/shared/src/pii-residency.test.ts (13 tests) 9ms
+ ✓  unit  apps/api/src/guests/guests.controller.test.ts (9 tests) 526ms
+[Nest] 122  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓  unit  apps/api/src/web-booking/web-booking.controller.test.ts (12 tests) 179ms
+ ✓  unit  apps/api/src/reservations/reservations.controller.test.ts (23 tests) 375ms
+
+ Test Files  4 passed (4)
+      Tests  57 passed (57)
+   Start at  12:22:29
+   Duration  3.35s (import 63%, transform 25%, tests 12%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-22-28Z-unit-8479.json
+
+# код выхода 0 · 5 с

@@ -31,10 +31,11 @@ export default async function NewReservationPage({
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
   // Без справочника фонда или тарифов бронь не создать — но это предупреждение на месте, не экран ошибки
-  const [summary, ratePlans, availability] = await Promise.all([
+  const [summary, ratePlans, availability, piiStorage] = await Promise.all([
     api.inventorySummary().catch(() => null),
     reservationsApi.ratePlans().catch(() => null),
     validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
+    api.piiStorage(),
   ]);
   return (
     <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
@@ -98,6 +99,7 @@ export default async function NewReservationPage({
             availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
           }))}
           ratePlans={ratePlans}
+          piiStorage={piiStorage}
         />
       )}
     </Page>

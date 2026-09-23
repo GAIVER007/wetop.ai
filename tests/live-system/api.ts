@@ -8,6 +8,10 @@ import { ARI_PUBLISHER, NoopAriPublisher } from '../../apps/api/src/channels/ari
 if (process.env.WETOP_LIVE_AUDIT !== '1') throw new Error('Explicit live audit opt-in required');
 config({ path: '.env', quiet: true });
 process.env.NODE_ENV = 'test';
+// ADR-072: вне Казахстана стойка имя, контакты и документы не хранит. Аудит проверяет именно их правку, а гости у
+// него только вымышленные (ADR-010, метка прогона) — поэтому этот стенд пишет введённое как есть. Настоящих гостей
+// на 4320 никто не вводит: стенд живёт, пока идёт прогон, и слушает только 127.0.0.1.
+process.env.PII_STORAGE = 'real';
 for (const flag of [
   'CHANNEX_PULL',
   'CHANNEX_OUTBOX_WORKER',

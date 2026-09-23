@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { notFoundOn404 } from '../../../lib/page-error';
-import { guestsApi, messengerLinks } from '../../../lib/api';
+import { api, guestsApi, messengerLinks } from '../../../lib/api';
 import { hotelToday } from '../../../lib/hotel-api';
 import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
@@ -23,7 +23,10 @@ const STATUS_RU: Record<string, string> = {
 /** Карточка гостя: профиль, документы (маска), история проживаний. */
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const g = await guestsApi.card(id).catch(notFoundOn404);
+  const [g, piiStorage] = await Promise.all([
+    guestsApi.card(id).catch(notFoundOn404),
+    api.piiStorage(),
+  ]);
   const messengers = messengerLinks(g.phone);
   const today = hotelToday();
   const stays = [...g.stays].sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate));
@@ -74,7 +77,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
           {
             id: 'guest-profile',
             label: 'Информация',
-            content: <GuestForms guest={g} />,
+            content: <GuestForms guest={g} piiStorage={piiStorage} />,
           },
           {
             id: 'guest-history',

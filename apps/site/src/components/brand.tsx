@@ -1,5 +1,10 @@
-/* Знак WETOP: та же буква, что в apps/web/src/app/icon.svg, цвет — акцент темы, как в боковой панели стойки. */
-export function BrandMark({ size = 32 }: { size?: number }) {
+/*
+ * Знак WETOP: та же буква, что в apps/web/src/app/icon.svg. Плитка залита акцентным градиентом
+ * направления «стекло», буква белая. `id` разный у каждого знака на странице: два одинаковых
+ * `linearGradient id` в одном документе — невалидный HTML, и второй знак красится первым градиентом.
+ */
+export function BrandMark({ size = 34, id = 'brand' }: { size?: number; id?: string }) {
+  const gradientId = `${id}-gradient`;
   return (
     <svg
       className="brand__mark"
@@ -9,16 +14,22 @@ export function BrandMark({ size = 32 }: { size?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      <rect width="48" height="48" rx="13" />
-      <path d="m10 14 5 21h5l4-13 4 13h5l5-21h-5l-3 14-4-14h-4l-4 14-3-14Z" />
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="var(--accent-1)" />
+          <stop offset="100%" stopColor="var(--accent-2)" />
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="13" fill={`url(#${gradientId})`} />
+      <path d="m10 14 5 21h5l4-13 4 13h5l5-21h-5l-3 14-4-14h-4l-4 14-3-14Z" fill="#ffffff" />
     </svg>
   );
 }
 
-export function Wordmark() {
+export function Wordmark({ id = 'brand' }: { id?: string }) {
   return (
     <span className="brand">
-      <BrandMark />
+      <BrandMark id={id} />
       <span className="brand__name">WETOP</span>
     </span>
   );

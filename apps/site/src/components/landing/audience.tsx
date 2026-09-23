@@ -16,7 +16,7 @@ export function Audience() {
         />
         <ul className="card-grid card-grid--3">
           {audience.items.map((item) => (
-            <li key={item.title} className="card audience-card">
+            <li key={item.title} className="card audience-card glass">
               <span className="icon-tile">
                 <Icon name={item.icon} />
               </span>

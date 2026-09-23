@@ -1,46 +1,100 @@
 /*
- * Токены WETOP для главной wetop.ai. Цвета — копия apps/web/src/app/tokens.css (стойка): сайт и продукт выглядят
- * одним целым. Файл стойки не импортируется — у сайта своя сборка. Тема — только по настройке системы
- * (prefers-color-scheme), переключателя нет. Меняете цвет в стойке — поменяйте и здесь.
+ * Токены главной wetop.ai — направление «стекло» (23.09.2026).
+ *
+ * Палитра одна на две темы: тема берётся из настройки системы (prefers-color-scheme), переключателя нет.
+ * Светлая — ледяное стекло на белом свете, тёмная — то же стекло на ночном небе.
+ *
+ * Слои токенов:
+ *   1. Смысловые (--bg, --text, --primary, --success, --st-*) — те же имена, что у стойки
+ *      (apps/web/src/app/tokens.css). Значения текста и акцента взяты из стойки без изменений:
+ *      их контраст проверен (design/contrast.md), и сайт с продуктом остаются одним целым.
+ *   2. Стеклянные (--glass-*, --glow-*, --chrome-*, --accent-*) — только этого файла и только для
+ *      оформления: фон панели, свечение, металлическая надпись. Текст ими не красится.
+ *
+ * Файл стойки не импортируется: у сайта своя сборка. Меняете смысловой цвет в стойке — поменяйте и здесь.
  */
 :root {
   color-scheme: light;
-  --bg: #f4f7fb;
-  --surface: #ffffff;
-  --surface-muted: #f6f8fc;
-  --surface-elevated: #ffffff;
-  --glass: rgba(255, 255, 255, 0.85);
-  --border: #e5eaf2;
-  --border-soft: #eef1f7;
-  --border-input: #dce3ee;
+
+  /* --- основа --- */
+  --bg: #e6eef8;
+  --bg-deep: #d6e5f4;
+  --surface: rgba(255, 255, 255, 0.66);
+  --surface-muted: rgba(255, 255, 255, 0.44);
+  --surface-elevated: rgba(255, 255, 255, 0.82);
+  --surface-solid: #ffffff;
+  --glass: rgba(255, 255, 255, 0.72);
+  --border: rgba(151, 180, 212, 0.34);
+  --border-soft: rgba(151, 180, 212, 0.2);
+  --border-input: rgba(120, 155, 196, 0.42);
+
+  /* --- текст --- */
   --text: #101827;
-  --text-2: #536176;
-  --muted: #596a80;
+  --text-2: #4c5a6f;
+  --muted: #53627a;
+
+  /* --- акцент и состояния --- */
   --primary: #085fba;
   --primary-hover: #0966c8;
-  --primary-soft: #eaf4ff;
+  --primary-soft: #e6f1ff;
   --on-primary: #ffffff;
   --success: #06735e;
-  --success-soft: #e5f7f0;
+  --success-soft: #e2f6ef;
   --warning: #94600b;
-  --warning-soft: #fff4df;
+  --warning-soft: #fff3dd;
   --purple: #7860cb;
-  --purple-soft: #f2efff;
-  --chip-bg: #edf1f7;
-  --chip-fg: #536176;
-  --st-confirmed: #dcecff;
-  --st-checked-in: #d7f0e9;
-  --st-checked-out: #e9edf4;
-  --st-tentative: #faedcc;
-  --st-blocked: #f7dde2;
-  --row-hover: #f2f7fd;
-  --shadow: 0 6px 24px rgba(26, 45, 78, 0.04);
-  --shadow-card: 0 1px 2px rgba(26, 45, 78, 0.04), 0 12px 32px -12px rgba(26, 45, 78, 0.12);
-  --shadow-floating: 0 20px 70px rgba(18, 38, 68, 0.16);
+  --purple-soft: #f1eeff;
+  --chip-bg: rgba(255, 255, 255, 0.62);
+  --chip-fg: #4c5a6f;
+  --st-confirmed: #d9e9fb;
+  --st-checked-in: #d3efe7;
+  --st-checked-out: #e7ecf3;
+  --st-tentative: #f9ebc9;
+  --st-blocked: #f6dbe0;
+  --row-hover: rgba(255, 255, 255, 0.6);
+
+  /* --- стекло: панель, кромка, блик, размытие --- */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-bg-dim: rgba(255, 255, 255, 0.34);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-dim: rgba(151, 180, 212, 0.38);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-blur: 22px;
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  /* --- свечение фона --- */
+  --glow-1: rgba(120, 178, 255, 0.5);
+  --glow-2: rgba(150, 214, 255, 0.45);
+  --glow-3: rgba(190, 205, 255, 0.4);
+  --glow-accent: rgba(56, 132, 235, 0.28);
+  --star: rgba(80, 125, 180, 0.22);
+
+  /* --- акцентный градиент (только заливки, не текст) --- */
+  --accent-1: #2f7ae5;
+  --accent-2: #5cc4f2;
+  --accent-grad: linear-gradient(135deg, #2f7ae5 0%, #4aa6f0 52%, #6ed2f5 100%);
+  --accent-grad-soft: linear-gradient(135deg, rgba(47, 122, 229, 0.16), rgba(110, 210, 245, 0.16));
+
+  /* --- металл надписи первого экрана --- */
+  --chrome-1: #fbfdff;
+  --chrome-2: #93a9c2;
+  --chrome-3: #42566e;
+  --chrome-4: #cfdcec;
+  --chrome-edge: rgba(48, 74, 106, 0.5);
+
+  /* --- тени --- */
+  --shadow: 0 8px 28px rgba(26, 55, 96, 0.07);
+  --shadow-card: 0 1px 2px rgba(26, 55, 96, 0.05), 0 18px 40px -20px rgba(26, 55, 96, 0.28);
+  --shadow-floating: 0 28px 70px rgba(20, 48, 88, 0.16);
+  --shadow-glow: 0 18px 44px -18px rgba(47, 122, 229, 0.55);
+
+  /* --- геометрия --- */
   --radius-sm: 8px;
   --radius-control: 12px;
   --radius: 16px;
   --radius-lg: 24px;
+  --radius-xl: 32px;
 
   --font-head: var(--font-manrope), 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font: var(--font-plex-sans), 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -54,44 +108,85 @@
 
 @media (min-width: 60rem) {
   :root {
-    --header-h: 72px;
+    --header-h: 76px;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #060b14;
-    --surface: #0b1524;
-    --surface-muted: #0d192a;
-    --surface-elevated: #111f31;
-    --glass: rgba(11, 21, 36, 0.86);
-    --border: #1b2a3d;
-    --border-soft: #142236;
-    --border-input: #2b3d53;
-    --text: #f7f9fc;
-    --text-2: #a8b3c5;
-    --muted: #899ab1;
+
+    --bg: #05070e;
+    --bg-deep: #020308;
+    --surface: rgba(17, 27, 45, 0.62);
+    --surface-muted: rgba(15, 24, 40, 0.5);
+    --surface-elevated: rgba(22, 34, 55, 0.78);
+    --surface-solid: #0b1421;
+    --glass: rgba(13, 22, 38, 0.82);
+    --border: rgba(122, 165, 224, 0.2);
+    --border-soft: rgba(122, 165, 224, 0.12);
+    --border-input: rgba(122, 165, 224, 0.32);
+
+    --text: #f2f7ff;
+    --text-2: #aebdd2;
+    --muted: #97a8bf;
+
     --primary: #48a5ff;
     --primary-hover: #71b9ff;
-    --primary-soft: #102c49;
-    --on-primary: #06111f;
+    --primary-soft: rgba(30, 79, 137, 0.38);
+    --on-primary: #05101d;
     --success: #38d2ae;
-    --success-soft: #10352f;
+    --success-soft: rgba(12, 60, 52, 0.7);
     --warning: #f6ba52;
-    --warning-soft: #392d19;
+    --warning-soft: rgba(62, 47, 24, 0.7);
     --purple: #b4a0f2;
-    --purple-soft: #28213e;
-    --chip-bg: #1b293b;
-    --chip-fg: #a8b3c5;
+    --purple-soft: rgba(43, 35, 66, 0.7);
+    --chip-bg: rgba(255, 255, 255, 0.06);
+    --chip-fg: #aebdd2;
     --st-confirmed: #163958;
     --st-checked-in: #16443f;
     --st-checked-out: #243044;
     --st-tentative: #46361c;
     --st-blocked: #472936;
-    --row-hover: #112137;
-    --shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 32px -12px rgba(0, 0, 0, 0.45);
-    --shadow-floating: 0 24px 80px rgba(0, 0, 0, 0.4);
+    --row-hover: rgba(255, 255, 255, 0.04);
+
+    --glass-bg: rgba(18, 29, 48, 0.58);
+    --glass-bg-strong: rgba(20, 33, 54, 0.82);
+    --glass-bg-dim: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-dim: rgba(255, 255, 255, 0.06);
+    --glass-highlight: rgba(255, 255, 255, 0.16);
+    --glass-blur: 20px;
+    --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    --glow-1: rgba(32, 96, 200, 0.45);
+    --glow-2: rgba(24, 132, 210, 0.34);
+    --glow-3: rgba(70, 60, 190, 0.3);
+    --glow-accent: rgba(56, 160, 255, 0.35);
+    --star: rgba(190, 220, 255, 0.5);
+
+    --accent-1: #2f6bff;
+    --accent-2: #38bdf8;
+    --accent-grad: linear-gradient(135deg, #2f6bff 0%, #3a8dfb 50%, #38bdf8 100%);
+    --accent-grad-soft: linear-gradient(135deg, rgba(47, 107, 255, 0.24), rgba(56, 189, 248, 0.2));
+
+    --chrome-1: #ffffff;
+    --chrome-2: #cfe0f5;
+    --chrome-3: #6f88a8;
+    --chrome-4: #e8f2ff;
+    --chrome-edge: rgba(120, 170, 235, 0.55);
+
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 22px 48px -24px rgba(0, 0, 0, 0.8);
+    --shadow-floating: 0 30px 80px rgba(0, 0, 0, 0.55);
+    --shadow-glow: 0 18px 48px -16px rgba(47, 107, 255, 0.65);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --glass-bg: var(--surface-elevated);
+    --glass-bg-strong: var(--surface-elevated);
+    --glass-border: var(--border-input);
   }
 }

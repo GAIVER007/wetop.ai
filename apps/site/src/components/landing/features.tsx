@@ -6,7 +6,7 @@ import { typo } from '../typo';
 export function Features() {
   const { features } = getDictionary();
   return (
-    <section id="features" className="section section--band" aria-labelledby="features-title">
+    <section id="features" className="section" aria-labelledby="features-title">
       <div className="container">
         <SectionHeading
           id="features-title"
@@ -16,7 +16,7 @@ export function Features() {
         />
         <ul className="card-grid card-grid--4">
           {features.items.map((item) => (
-            <li key={item.title} className="card feature-card">
+            <li key={item.title} className="card feature-card glass">
               <span className="icon-tile">
                 <Icon name={item.icon} />
               </span>

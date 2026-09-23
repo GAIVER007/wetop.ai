@@ -14,33 +14,35 @@ export function Company() {
   const contacts = contactLinks();
 
   return (
-    <section id="company" className="section section--band" aria-labelledby="company-title">
-      <div className="container company">
-        <div className="section-heading">
-          <p className="eyebrow">{t.company.eyebrow}</p>
-          <h2 id="company-title" className="section-heading__title">
-            {name}
-          </h2>
-          {about ? <p className="section-heading__lead">{typo(about)}</p> : null}
+    <section id="company" className="section section--tight" aria-labelledby="company-title">
+      <div className="container">
+        <div className="company glass">
+          <div className="section-heading">
+            <p className="eyebrow">{t.company.eyebrow}</p>
+            <h2 id="company-title" className="section-heading__title">
+              {name}
+            </h2>
+            {about ? <p className="section-heading__lead">{typo(about)}</p> : null}
+          </div>
+          {city || contacts.length > 0 ? (
+            <dl className="company__facts">
+              {city ? (
+                <div>
+                  <dt>{t.company.city}</dt>
+                  <dd>{city}</dd>
+                </div>
+              ) : null}
+              {contacts.map((contact) => (
+                <div key={contact.href}>
+                  <dt>{contact.kind === 'email' ? t.company.email : t.company.phone}</dt>
+                  <dd>
+                    <a href={contact.href}>{contact.label}</a>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
         </div>
-        {city || contacts.length > 0 ? (
-          <dl className="company__facts">
-            {city ? (
-              <div>
-                <dt>{t.company.city}</dt>
-                <dd>{city}</dd>
-              </div>
-            ) : null}
-            {contacts.map((contact) => (
-              <div key={contact.href}>
-                <dt>{contact.kind === 'email' ? t.company.email : t.company.phone}</dt>
-                <dd>
-                  <a href={contact.href}>{contact.label}</a>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
       </div>
     </section>
   );

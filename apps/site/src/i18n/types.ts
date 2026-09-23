@@ -26,10 +26,42 @@ export type Dictionary = {
     trial: string;
   };
   hero: {
+    /** Слово-знак металлом на первом экране. */
+    word: string;
     badge: string;
+    /** Плашка «принимаем заявки» у макета. */
+    available: string;
     title: string;
     lead: string;
     points: string[];
+    /** Надпись по кругу на знаке первого экрана. */
+    seal: string;
+  };
+  stats: {
+    items: Array<{ icon: IconName; value: string; label: string; note: string }>;
+    quote: string;
+    quoteSource: string;
+  };
+  showcase: {
+    eyebrow: string;
+    title: string;
+    all: string;
+    items: Array<{
+      no: string;
+      /** Какой мини-экран рисуется в карточке. */
+      screen: 'board' | 'channels' | 'folio';
+      title: string;
+      text: string;
+      tags: string[];
+    }>;
+  };
+  toolkit: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    modules: { title: string; state: string; items: string[] };
+    channels: { title: string; items: Array<{ mark: string; name: string }> };
+    principles: { title: string; center: string; items: [string, string, string, string] };
   };
   mockup: {
     label: string;
@@ -66,6 +98,10 @@ export type Dictionary = {
     ctaTitle: string;
     ctaText: string;
     contactsLabel: string;
+    cityLabel: string;
+    siteLabel: string;
+    connectLabel: string;
+    connectText: string;
   };
   company: {
     eyebrow: string;
@@ -84,6 +120,8 @@ export type Dictionary = {
   };
   footer: {
     tagline: string;
+    /** Девиз в нижней строке подвала. */
+    motto: string;
   };
   notFound: {
     title: string;

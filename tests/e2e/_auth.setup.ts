@@ -21,23 +21,49 @@ test('вход сотрудника автотестов: замок включ�
 
   const db = createPrismaClient();
   try {
-    const organization =
-      (await db.organization.findFirst({ orderBy: { createdAt: 'asc' } })) ??
-      (await db.organization.create({ data: { name: 'WETOP (автотесты)', status: 'ACTIVE' } }));
+    const property = await db.property.findFirst({
+      where: { accommodationTypes: { some: {} } },
+      orderBy: { name: 'asc' },
+      select: { id: true, organizationId: true },
+    });
+    expect(property, 'В pms_test нет засеянного объекта').not.toBeNull();
+    const organization = property!.organizationId
+      ? await db.organization.findUniqueOrThrow({ where: { id: property!.organizationId } })
+      : ((await db.organization.findFirst({ orderBy: { createdAt: 'asc' } })) ??
+        (await db.organization.create({
+          data: { name: 'WETOP (автотесты)', status: 'ACTIVE' },
+        })));
+    if (!property!.organizationId) {
+      await db.property.update({
+        where: { id: property!.id },
+        data: { organizationId: organization.id },
+      });
+    }
     const user = await db.user.upsert({
       where: { email: E2E_USER.email },
-      update: { passwordHash: hashPassword(E2E_PASSWORD), status: 'ACTIVE', failedAttempts: 0, lockedUntil: null },
+      update: {
+        passwordHash: hashPassword(E2E_PASSWORD),
+        status: 'ACTIVE',
+        emailVerifiedAt: new Date(),
+        failedAttempts: 0,
+        lockedUntil: null,
+      },
       create: {
         email: E2E_USER.email,
         name: E2E_USER.name,
         status: 'ACTIVE',
+        emailVerifiedAt: new Date(),
         passwordHash: hashPassword(E2E_PASSWORD),
       },
+    });
+    await db.membership.deleteMany({
+      where: { userId: user.id, organizationId: { not: organization.id } },
     });
     const membership = await db.membership.findFirst({
       where: { userId: user.id, organizationId: organization.id },
     });
-    if (!membership) await db.membership.create({ data: { userId: user.id, organizationId: organization.id } });
+    if (!membership)
+      await db.membership.create({ data: { userId: user.id, organizationId: organization.id } });
   } finally {
     await db.$disconnect();
   }

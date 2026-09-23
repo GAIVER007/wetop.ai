@@ -147,6 +147,7 @@ function setup(
     pullOkAt: plus(NIGHT, -2),
     webOk: true,
     exelySyncAt: plus(NIGHT, -60) as Date | null,
+    exelySkipped: [] as Array<{ booking: string; reason: string }>,
     avail: null as {
       pms: Map<string, Map<string, number>>;
       channel: Map<string, Map<string, number>>;
@@ -175,6 +176,7 @@ function setup(
     failingSuites: over.failingSuites ?? (() => []),
     webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
     lastExelySyncAt: async () => state.exelySyncAt,
+    exelySkipped: async () => state.exelySkipped,
     channelAvailability: async () => state.avail,
   };
   const calls: string[] = [];
@@ -530,6 +532,26 @@ describe('GuardService: стойка, синхронизация с Exely, ос�
     const s = await live.guard.tick(NIGHT);
     expect(s.checked).not.toContain('exely.stale');
     expect(live.repo.rows).toEqual([]);
+  });
+
+  it('досинхронизация пропустила карточку Exely: неисправность на неё к человеку сразу, закрывается, когда карточка перенесена (Q-165)', async () => {
+    const t = setup();
+    t.guard.propertyLive = false;
+    t.state.exelySkipped = [
+      { booking: '20261101-1', reason: 'Бронь 20261101-1: неизвестный источник создания «Робот»' },
+    ];
+    await t.guard.tick(NIGHT);
+    const inc = t.repo.rows.find((r) => r.kind === 'exely.card.skipped');
+    expect(inc).toMatchObject({ class: 'B', severity: 'CRITICAL', subjectId: '20261101-1' });
+    expect(inc!.title).toContain('неизвестный источник создания');
+    expect(t.calls).toEqual([]);
+    // синхронизация свежая — «Exely устарел» рядом не открывается
+    expect(t.repo.rows.find((r) => r.kind === 'exely.stale')).toBeUndefined();
+    t.state.exelySkipped = [];
+    await t.guard.tick(plus(NIGHT, 1));
+    expect(t.repo.rows.find((r) => r.kind === 'exely.card.skipped')).toMatchObject({
+      status: 'RESOLVED',
+    });
   });
 
   it('канал видит больше мест, чем есть: полная выгрузка и пересверка сразу, а не через час', async () => {

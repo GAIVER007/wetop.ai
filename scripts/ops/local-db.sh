@@ -29,7 +29,9 @@ PORT="${PMS_LOCAL_PGPORT:-55432}"
 DBNAME="pmslocal"
 URL="postgresql://postgres@127.0.0.1:${PORT}/${DBNAME}"
 
-EMBEDDED_DIR="$ROOT/.local-pg"
+# PMS_LOCAL_PG_DIR — куда класть сборку из npm: папка проекта бывает общей для Mac и Linux (Cowork, 23.09.2026),
+# и Linux-машине удобнее держать свою сборку у себя, не трогая сборку владельца
+EMBEDDED_DIR="${PMS_LOCAL_PG_DIR:-$ROOT/.local-pg}"
 EMBEDDED_VERSION="${PMS_LOCAL_PG_VERSION:-16.14.0-beta.17}"
 
 # Имя сборки под эту машину: darwin-arm64, darwin-x64, linux-x64, linux-arm64
@@ -42,7 +44,12 @@ embedded_platform() {
 
 bin() {
   local dir platform
+  # Сборка из npm — только под эту машину: чужая (darwin-arm64 в общей папке на Linux) тоже «исполняемая»,
+  # но падает с Exec format error. Платформа неизвестна — как раньше, любая найденная
   local candidates=("$EMBEDDED_DIR"/node_modules/@embedded-postgres/*/native/bin)
+  if platform="$(embedded_platform)"; then
+    candidates=("$EMBEDDED_DIR/node_modules/@embedded-postgres/$platform/native/bin")
+  fi
   [ "${PMS_LOCAL_PG_EMBEDDED:-0}" = 1 ] ||
     candidates=("$(dirname "$(command -v pg_ctl 2>/dev/null || echo /nonexistent)")" /usr/lib/postgresql/*/bin /usr/local/pgsql/bin "${candidates[@]}")
   for dir in "${candidates[@]}"; do
@@ -60,9 +67,8 @@ bin() {
     echo "local-db: сборку PostgreSQL скачать не удалось — проверьте сеть или поставьте сервер (macOS: brew install postgresql@16)" >&2
     return 1
   fi
-  for dir in "$EMBEDDED_DIR"/node_modules/@embedded-postgres/*/native/bin; do
-    [ -x "$dir/pg_ctl" ] && { echo "$dir"; return 0; }
-  done
+  dir="$EMBEDDED_DIR/node_modules/@embedded-postgres/$platform/native/bin"
+  [ -x "$dir/pg_ctl" ] && { echo "$dir"; return 0; }
   echo "local-db: сборка скачана, но pg_ctl в ней не найден" >&2
   return 1
 }

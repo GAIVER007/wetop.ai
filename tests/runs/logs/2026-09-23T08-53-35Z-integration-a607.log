@@ -1,0 +1,44 @@
+# Интеграционные (integration) · 23.09.2026 13:53 Алматы · claude
+# коммит 9756c35 (main), незакоммиченных файлов набора: 22
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-53-35Z-integration-a607.json'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  integration  tests/integration/reservations-import.test.ts (6 tests) 594ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 379ms
+ ✓  integration  tests/integration/audit-author.test.ts (3 tests) 461ms
+ ✓  integration  tests/integration/exely-sync-rules.test.ts (3 tests) 298ms
+(node:144) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/manual-reservation.test.ts (1 test) 348ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 335ms
+(node:152) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/reservation-capacity.test.ts (1 test) 262ms
+ ✓  integration  tests/integration/invites.test.ts (3 tests) 165ms
+ ✓  integration  tests/integration/password-login-columns.test.ts (4 tests) 274ms
+(node:176) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓  integration  tests/integration/chessboard-cell-facts.test.ts (1 test) 194ms
+ ✓  integration  tests/integration/price-calendar-import.test.ts (2 tests) 210ms
+ ✓  integration  tests/integration/web-analytics.test.ts (3 tests) 181ms
+ ✓  integration  tests/integration/channels-journal.test.ts (2 tests) 139ms
+ ✓  integration  tests/integration/audit-list.test.ts (3 tests) 253ms
+ ✓  integration  tests/integration/inventory-import.test.ts (1 test) 200ms
+ ✓  integration  tests/integration/sessions.test.ts (2 tests) 148ms
+ ✓  integration  tests/integration/system-incidents.test.ts (3 tests) 130ms
+ ✓  integration  tests/integration/overbooking-guard.test.ts (1 test) 124ms
+ ✓  integration  tests/integration/citizenship-column.test.ts (3 tests) 153ms
+ ✓  integration  tests/integration/test-schema.test.ts (1 test) 104ms
+ ✓  integration  tests/integration/accounts-schema.test.ts (4 tests) 197ms
+
+ Test Files  19 passed (19)
+      Tests  47 passed (47)
+   Start at  08:53:36
+   Duration  13.79s (import 52%, tests 39%, transform 8%, worker 1%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-53-35Z-integration-a607.json
+
+# код выхода 0 · 15 с

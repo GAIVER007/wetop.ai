@@ -1676,3 +1676,11 @@
 | 23.09.2026 01:24 | lint | ✅ без ошибок | 10 с | 982e0bf | [лог](logs/2026-09-22T20-24-31Z-lint-42cb.log) | объединённое дерево 20eac505 |
 | 23.09.2026 01:25 | integration | ❌ упало 1 из 44 | 5 мин 54 с | 887e22b | [лог](logs/2026-09-22T20-25-45Z-integration-83c1.log) | шахматка: канал, долг и уборка из базы (integration, rolled back) клетка несёт канал и остаток по счёту, строка ячейки — статус уборки |
 | 23.09.2026 01:36 | integration | ✅ 44 из 44 | 6 с | 654d154 | [лог](logs/2026-09-22T20-36-33Z-integration-8b48.log) |  |
+| 23.09.2026 13:45 | unit (частично: apps/api/src/guard packages/domain/src/incidents scripts/imports/src/exely/sync-screen.test.ts scripts/imports/src/exely/anonymize.test.ts scrip | ✅ 106 из 106 | 4 с | 9756c35 +18 | [лог](logs/2026-09-23T08-45-54Z-unit-32a0.log) | ADR-064: сторож exely.card.skipped, отбор карточек, importPiiSalt, возврат auto-sync |
+| 23.09.2026 13:48 | integration (частично: tests/integration/exely-sync-rules.test.ts) | ❌ упало 3 из 3 | 8 с | 9756c35 +21 | [лог](logs/2026-09-23T08-48-11Z-integration-967a.log) | ADR-064 Q-162/Q-164: тесты до правки импорта (ожидается red) |
+| 23.09.2026 13:49 | integration (частично: tests/integration/exely-sync-rules.test.ts tests/integration/reservations-import.test.ts) | ✅ 9 из 9 | 5 с | 9756c35 +22 | [лог](logs/2026-09-23T08-49-30Z-integration-d57a.log) | ADR-064 Q-162/Q-164: после правки импорта; прежние тесты импорта рядом |
+| 23.09.2026 13:50 | typecheck | ✅ без ошибок | 19 с | 9756c35 +22 | [лог](logs/2026-09-23T08-50-51Z-typecheck-937a.log) | ADR-064: досинхронизация и правила импорта |
+| 23.09.2026 13:51 | lint | ✅ без ошибок | 10 с | 9756c35 +22 | [лог](logs/2026-09-23T08-51-15Z-lint-5bc0.log) | ADR-064: досинхронизация и правила импорта |
+| 23.09.2026 13:51 | unit | ✅ 1454 из 1460, пропущено 6 | 1 мин 13 с | 9756c35 +21 | [лог](logs/2026-09-23T08-51-31Z-unit-0d6a.log) | ADR-064: досинхронизация и правила импорта — весь набор |
+| 23.09.2026 13:52 | integration | ✅ 43 из 47, пропущено 4 | 17 с | 9756c35 +22 | [лог](logs/2026-09-23T08-52-51Z-integration-7ec1.log) | ADR-064: весь набор на локальной PostgreSQL 16 в VM Cowork |
+| 23.09.2026 13:53 | integration | ✅ 47 из 47 | 15 с | 9756c35 +22 | [лог](logs/2026-09-23T08-53-35Z-integration-a607.log) | ADR-064: весь набор на локальной PostgreSQL 16 в VM Cowork; миграции в public — SQL-файлами |

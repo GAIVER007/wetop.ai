@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 23.09.2026 13:49 Алматы · claude
+# коммит 9756c35 (main), незакоммиченных файлов набора: 22
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-49-30Z-integration-d57a.json' 'tests/integration/exely-sync-rules.test.ts' 'tests/integration/reservations-import.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  integration  tests/integration/exely-sync-rules.test.ts (3 tests) 491ms
+   ✓ досинхронизация Exely → PMS: правила переходного периода (integration, rolled back) (3)
+     ✓ Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не возвращает в «ждём» и койку не занимает 345ms
+ ✓  integration  tests/integration/reservations-import.test.ts (6 tests) 538ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 306ms
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  08:49:32
+   Duration  2.65s (tests 63%, transform 23%, import 14%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-49-30Z-integration-d57a.json
+
+# код выхода 0 · 5 с

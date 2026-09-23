@@ -21,6 +21,22 @@ export function wetopMarker(comment: string | null | undefined): string | null {
   return m ? m[1]! : null;
 }
 
+/**
+ * Итог проверки метки на одной брони Exely — для листа смены (шаг 9 плана ADR-064). Текст комментария не
+ * печатается: в нём могут быть данные гостя.
+ */
+export function markerCheckLine(booking: string, comment: string | null | undefined): string {
+  const pms = wetopMarker(comment);
+  if (pms)
+    return `Бронь ${booking}: метка найдена — WETOP ${pms}. Досинхронизация эту бронь не перенесёт: она уже в PMS.`;
+  const again = 'Досинхронизация перенесёт её в PMS второй раз — поправьте комментарий.';
+  if (!comment?.trim())
+    return `Бронь ${booking}: комментарий заказчика пуст — метки нет. Метку надо вписать в поле, которое Exely отдаёт как «Комментарий заказчика». ${again}`;
+  if (/wetop/i.test(comment))
+    return `Бронь ${booking}: «WETOP» в комментарии есть, но не в формате метки — нужно заглавными, пробел, номер брони PMS, например «WETOP BDC-1234567». ${again}`;
+  return `Бронь ${booking}: в комментарии заказчика метки нет. ${again}`;
+}
+
 /** Карточка не перенесена: причина — для отчёта прогона и неисправности (без данных гостя). */
 export interface SkippedCard {
   booking: string;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ExelyImportError } from './errors';
 import type { ReservationImportRecord, ReservationStatusCode } from './normalize-reservation';
-import { normalizeEach, screenRecords, wetopMarker } from './sync-screen';
+import { markerCheckLine, normalizeEach, screenRecords, wetopMarker } from './sync-screen';
 
 const record = (
   n: string,
@@ -125,5 +125,23 @@ describe('отбор записей до транзакции', () => {
     );
     expect(out.importable.map((r) => r.confirmationNumber)).toEqual(['E-6', 'E-7']);
     expect(out.skipped).toEqual([]);
+  });
+});
+
+describe('проверка метки на одной брони Exely — лист смены (шаг 9)', () => {
+  it('метка есть — бронь не перенесётся второй раз', () => {
+    expect(markerCheckLine('E-1', 'WETOP BDC-4412345')).toBe(
+      'Бронь E-1: метка найдена — WETOP BDC-4412345. Досинхронизация эту бронь не перенесёт: она уже в PMS.',
+    );
+  });
+
+  it('метки нет — называет причину и не печатает текст комментария', () => {
+    expect(markerCheckLine('E-2', null)).toContain('комментарий заказчика пуст');
+    const wrong = markerCheckLine('E-3', 'Гость Иванов, wetop bdc-1');
+    expect(wrong).toContain('не в формате метки');
+    expect(wrong).not.toContain('Иванов');
+    const none = markerCheckLine('E-4', 'Гость Иванов просит нижнюю полку');
+    expect(none).toContain('метки нет');
+    expect(none).not.toContain('Иванов');
   });
 });

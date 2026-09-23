@@ -32,6 +32,7 @@ export {
 export { followNewDates, type SeatSegment } from './manual-seat';
 export { guestCitizenshipOnUpdate } from './guest-fields';
 export {
+  markerCheckLine,
   normalizeEach,
   screenRecords,
   wetopMarker,

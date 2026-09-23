@@ -21,5 +21,17 @@ if (!booking)
 const key = process.env.EXELY_API_KEY;
 if (!key) throw new Error('EXELY_API_KEY пуст — проверку запускает владелец на машине с ключом Exely');
 const client = new exely.ExelyUniversalClient({ apiKey: key });
-const card = await client.booking(booking);
+let card: Awaited<ReturnType<typeof client.booking>>;
+try {
+  card = await client.booking(booking);
+} catch (e) {
+  // Exely на несуществующий номер отвечает 400 «Booking does not exists» (23.09.2026)
+  if (e instanceof exely.ExelyApiError && (e.status === 404 || /does not exist/i.test(e.message))) {
+    console.log(
+      `Бронь ${booking} в Exely не найдена — проверьте номер: он в карточке брони Exely, вида 20260923-513903-1234567890.`,
+    );
+    process.exit(1);
+  }
+  throw e;
+}
 console.log(markerCheckLine(booking, card.customerComment));

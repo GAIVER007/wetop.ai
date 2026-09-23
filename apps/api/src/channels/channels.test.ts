@@ -198,7 +198,7 @@ describe('ARI values', () => {
       },
     ]);
   });
-  it('restrictions: rate in minor units per range, days without a price are stop_sell', () => {
+  it('restrictions: rate per range; days without a price are stop_sell but carry the last known rate', () => {
     const values = buildRestrictionValues({
       propertyId: 'P',
       from: '2026-10-01',
@@ -288,6 +288,7 @@ describe('ARI values', () => {
         rate_plan_id: 'RP1',
         date_from: '2026-10-04',
         date_to: '2026-10-04',
+        rate: 1600000,
         stop_sell: true,
         closed_to_arrival: false,
         closed_to_departure: false,
@@ -320,5 +321,49 @@ describe('lastPricedDate — граница выгрузки ограничен�
   });
   it('без цен — null: ограничения не выгружаются', () => {
     expect(lastPricedDate([], occ)).toBeNull();
+  });
+});
+
+
+describe('Full Sync: ограничения тянутся до конца окна (Channex — end dates aligned)', () => {
+  it('хвост без цены закрыт stop_sell, но с перенесённой ценой; конец окна = доступности', () => {
+    const values = buildRestrictionValues({
+      propertyId: 'P',
+      from: '2026-10-01',
+      to: '2026-10-06',
+      ratePlans: [
+        { localCategoryCode: 'exely-900001', localRatePlanId: 'p2', providerRatePlanId: 'RP1' },
+      ],
+      dailyRates: [
+        {
+          date: '2026-10-01',
+          accommodationTypeCode: 'exely-900001',
+          ratePlanId: 'p2',
+          occupancy: 1,
+          priceMinor: 1_540_000n,
+        },
+        {
+          date: '2026-10-02',
+          accommodationTypeCode: 'exely-900001',
+          ratePlanId: 'p2',
+          occupancy: 1,
+          priceMinor: 1_600_000n,
+        },
+      ],
+      restrictions: [],
+      occupancyByCategory: { 'exely-900001': 1 },
+    });
+    const last = values[values.length - 1]!;
+    // окно ограничений доходит до конца периода (как доступность), а не обрывается на последней цене
+    expect(last.date_to).toBe('2026-10-06');
+    // хвост 03–06 закрыт, но с перенесённой последней ценой — Channex требует rate в каждом объекте
+    expect(last).toMatchObject({
+      date_from: '2026-10-03',
+      date_to: '2026-10-06',
+      rate: 1600000,
+      stop_sell: true,
+    });
+    // ни одного объекта ограничений без rate
+    expect(values.every((v) => typeof v.rate === 'number')).toBe(true);
   });
 });

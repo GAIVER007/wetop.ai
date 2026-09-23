@@ -452,16 +452,15 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const occupancyByCategory = Object.fromEntries(
       local.categories.map((c) => [c.code, c.capacityAdults]),
     );
-    // Channex требует `rate` в каждом объекте ограничений (сертификация §1, Full Sync). Цена берётся по
-    // вместимости категории; дни за последней заведённой ценой ушли бы объектами без `rate` и валят
-    // проверку. Поэтому ограничения выгружаем только до последнего дня с ценой, а доступность — на весь
-    // период. Продлит владелец календарь цен — горизонт ограничений вырастет сам.
+    // Channex Full Sync (сертификация §1): 500 дней И доступности, И цен/ограничений с ОДНОЙ границей дат.
+    // Ограничения выгружаем на весь период, как доступность. Дни за последней ценой buildRestrictionValues
+    // закрывает stop_sell с перенесённой ценой — конец окна совпадает с доступностью и в каждом объекте есть
+    // `rate` (раньше окно обрезалось по последней цене, и концы не совпадали — Channex завернул).
     const lastPriced = lastPricedDate(dailyRates, occupancyByCategory);
-    const restrictionsTo = lastPriced && lastPriced < to ? lastPriced : to;
     const restrictionValues = buildRestrictionValues({
       propertyId: providerPropertyId,
       from,
-      to: restrictionsTo,
+      to,
       ratePlans: mappings.map((m) => ({
         localCategoryCode: m.localAccommodationTypeCode!,
         localRatePlanId: m.localRatePlanId!,
@@ -479,7 +478,15 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       availabilityValues: availability.length,
       restrictionValues: restrictionValues.length,
       tasks: [...a.data, ...r.data].map((t) => t.id),
-      warnings: [...(a.meta?.warnings ?? []), ...(r.meta?.warnings ?? [])],
+      warnings: [
+        ...(a.meta?.warnings ?? []),
+        ...(r.meta?.warnings ?? []),
+        ...(lastPriced && lastPriced < to
+          ? [
+              `Цены заведены по ${lastPriced}; дни ${plusDays(lastPriced, 1)}…${to} выгружены закрытыми (stop_sell) с перенесённой ценой — продлите календарь цен, чтобы открыть их`,
+            ]
+          : []),
+      ],
     };
     await this.repo.audit('channex.fullSync', { ...result, trigger });
     return result;

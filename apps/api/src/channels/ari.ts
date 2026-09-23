@@ -170,12 +170,32 @@ export function buildRestrictionValues(input: {
       cta: boolean;
       ctd: boolean;
     };
+    // Channex Full Sync (сертификация §1) требует `rate` в каждом объекте ограничений, а конец окна цен
+    // обязан совпадать с концом доступности — иначе «end dates not aligned». Поэтому день без собственной
+    // цены получает перенесённую: последнюю известную — вперёд, первую известную — назад (дни до первой
+    // цены). Такой день остаётся stop_sell, чтобы ничего не продать по перенесённой цене; горизонт
+    // ограничений становится равен горизонту доступности.
+    const filled = new Map<string, bigint>();
+    let carry: bigint | null = null;
+    for (const d of dates) {
+      const p = rates.get(d);
+      if (p !== undefined) carry = p;
+      if (carry !== null) filled.set(d, carry);
+    }
+    carry = null;
+    for (let i = dates.length - 1; i >= 0; i -= 1) {
+      const d = dates[i]!;
+      const p = rates.get(d);
+      if (p !== undefined) carry = p;
+      if (!filled.has(d) && carry !== null) filled.set(d, carry);
+    }
     const at = (d: string): V => {
       const r = restr.get(d);
-      const rate = rates.get(d) ?? null;
+      const priced = rates.get(d) ?? null; // собственная цена дня — решает stop_sell
+      const rate = filled.get(d) ?? null; // собственная или перенесённая — идёт в Channex `rate`
       return {
         rate,
-        stop: rate === null || (r?.stopSell ?? false),
+        stop: priced === null || (r?.stopSell ?? false),
         min: r?.minStay ?? null,
         max: r?.maxStay ?? null,
         cta: r?.closedToArrival ?? false,

@@ -27,6 +27,22 @@ def _done_key(conversation_id, lead: dict) -> str:
     return "lead:done:" + natural_key(conversation_id, lead)
 
 
+def _alerts(rows) -> list[str]:
+    """Ключи алертов по порядку появления.
+
+    🔴 Шаг 8: один алерт кладётся ДВУМЯ строками outbox — почта и мессенджер,
+    у строк к ключу добавлен суффикс канала. Здесь проверяются сами алерты,
+    а не строки: провал одной строки не отменяет другую, это и есть смысл
+    двух каналов.
+    """
+    keys: list[str] = []
+    for row in rows:
+        base = (row.dedup_key or "").rsplit(":", 1)[0]
+        if base not in keys:
+            keys.append(base)
+    return keys
+
+
 # ─── Натуральный ключ ───
 
 
@@ -72,12 +88,11 @@ async def test_first_call_writes_lead_and_alert(lead_env) -> None:
     assert await lead_env.redis.get(_done_key(conversation_id, lead))
 
     rows = await lead_env.outbox()
-    assert len(rows) == 1
-    alert = rows[0]
-    assert alert.kind is OutboxKind.ALERT
-    assert alert.status is DeliveryStatus.PENDING
-    assert alert.transport == lead_env.settings.alert_transport
-    assert alert.dedup_key == "hotlead:" + natural_key(conversation_id, lead)
+    # 🔴 Два канала на один алерт: почта основная, мессенджер дубль.
+    assert [row.transport for row in rows] == ["email", "alert_messenger"]
+    assert all(row.kind is OutboxKind.ALERT for row in rows)
+    assert all(row.status is DeliveryStatus.PENDING for row in rows)
+    assert _alerts(rows) == ["hotlead:" + natural_key(conversation_id, lead)]
 
 
 async def test_alert_body_has_no_personal_data(lead_env) -> None:
@@ -96,7 +111,7 @@ async def test_empty_recipient_still_writes_the_row(lead_env, monkeypatch) -> No
     останется в outbox, и её увидят при разборе."""
     from src.config import get_settings
 
-    monkeypatch.setenv("ALERT_RECIPIENT", "")
+    monkeypatch.setenv("ALERT_EMAIL_TO", "")
     get_settings.cache_clear()
     await lead_env.writer()(new_conversation_id(), lead_data())
     assert (await lead_env.outbox())[0].recipient == "-"
@@ -111,7 +126,7 @@ async def test_second_call_does_not_touch_external_system(lead_env) -> None:
     await writer(conversation_id, lead)
 
     assert lead_env.providers.count("create_lead") == 1
-    assert len(await lead_env.outbox()) == 1
+    assert len(_alerts(await lead_env.outbox())) == 1
 
 
 async def test_second_call_from_new_writer_is_also_skipped(lead_env) -> None:
@@ -143,7 +158,7 @@ async def test_other_phone_in_same_conversation_is_a_new_lead(lead_env) -> None:
     keys = [key for key, _ in lead_env.providers.args_of("create_lead")]
     assert keys[0] != keys[1]
     rows = await lead_env.outbox()
-    assert len({row.dedup_key for row in rows}) == 2
+    assert len(_alerts(rows)) == 2
 
 
 async def test_writer_matches_lead_hook_signature(lead_env) -> None:

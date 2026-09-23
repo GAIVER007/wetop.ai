@@ -70,6 +70,11 @@ class Settings(BaseSettings):
     injection_strike_window_seconds: int = 3600
     ip_block_ttl_seconds: int = 3600
     sla_seconds: int = 300
+    # Сколько времени сторож ещё считает молчание нарушением срока.
+    # За пределами окна диалог из выборки выпадает: после долгого простоя
+    # тысяча старых диалогов иначе занимает предел и вытесняет свежие.
+    # 🔴 Это политика владельца, а не константа: увеличить — видеть дольше.
+    sla_lookback_hours: int = 24
     pii_allowlist_phones: str = ""
     pii_allowlist_emails: str = ""
     # Слой 0: предел длины входа и окно дедупа двойной доставки от канала.
@@ -106,6 +111,8 @@ class Settings(BaseSettings):
     alert_email_to: str = ""
     alert_telegram_bot_token: str = ""
     alert_telegram_chat_id: str = ""
+    # Осталось от шага 7 и не читается: строка в мессенджер пишется одна,
+    # на alert_telegram_chat_id.
     alert_telegram_chat_id_personal: str = ""
     alert_retry_window_hours: int = 24
     alert_retry_interval_seconds: int = 60
@@ -113,11 +120,21 @@ class Settings(BaseSettings):
     alert_dedup_hot_lead_hours: int = 24
     alert_heartbeat_enabled: bool = True
     alert_heartbeat_hour: int = 9
-    # Куда уходит алерт-строка outbox (ставится на шаге 8) и кому.
+    # Осталось от шага 7 и не читается: с шага 8а адресатов задают
+    # alert_email_to и alert_telegram_chat_id, транспорты строк фиксированы
+    # ('email' и 'alert_messenger'). Поля оставлены, чтобы боевой .env
+    # с ними не падал на лишней переменной.
     alert_transport: str = "telegram"
-    # Пусто — строка всё равно пишется с получателем '-': событие
-    # не теряется из-за незаполненной настройки.
     alert_recipient: str = ""
+    # 🔴 Второй рубеж поверх дедупа: предел однотипных алертов в час.
+    # Дедуп ловит повтор ОДНОГО инцидента, а ключ вида 'llm_down:{диалог}'
+    # у каждого диалога свой — массовый отказ даёт шторм (на живом прогоне
+    # 334 сообщения за две минуты). Здесь он обрезается.
+    alert_rate_limit_per_hour: int = 10
+    # Запасные адреса Bot API для бота алертов, через запятую. Пусто —
+    # берётся CHANNEL_TELEGRAM_API_BASE. 🔴 Перебор идёт по порядку:
+    # мёртвый адрес первым съедает окно таймаута раньше живого.
+    alert_telegram_api_bases: str = ""
 
     # ─── Канал ───
     channel_telegram_bot_token: str = ""
@@ -149,6 +166,18 @@ class Settings(BaseSettings):
     integration_base_url: str = ""
     integration_api_key: str = ""
     integration_timeout_seconds: int = 10
+
+    # ─── Правка настроек на лету ───
+    # Белый список имён, которые панель меняет без перезапуска (см.
+    # runtime_settings.py). 🔴 Системного промпта здесь нет и быть не может:
+    # его источник правды — файл на томе, а не ключ в Redis.
+    runtime_settings_allowed: str = (
+        "llm_model,sla_seconds,alert_heartbeat_enabled,guard_max_input_chars"
+    )
+
+    # ─── Бэкап ───
+    # Сколько суток храним дампы (scripts/backup.sh).
+    backup_keep_days: int = 14
 
     # ─── Служебное ───
     # Полный URL переопределяет сборку из POSTGRES_*: тестам нужен sqlite.
@@ -182,6 +211,28 @@ class Settings(BaseSettings):
             if name and name not in result:
                 result.append(name)
         return result
+
+    @property
+    def alert_telegram_api_base_list(self) -> list[str]:
+        """Адреса Bot API для бота алертов, в порядке перебора.
+
+        🔴 Порядок сохраняется дословно: в инциденте рабочий адрес стоял
+        последним, и перебор упирался в таймаут раньше, чем доходил до живого.
+        Список пуст — остаётся один адрес канала, чтобы алерты не замолчали
+        из-за незаполненной настройки.
+        """
+        bases = [b.strip() for b in self.alert_telegram_api_bases.split(",") if b.strip()]
+        return bases or [self.channel_telegram_api_base]
+
+    @property
+    def alert_email_to_list(self) -> list[str]:
+        """ALERT_EMAIL_TO через запятую: на каждый адрес — своя строка outbox."""
+        return [e.strip() for e in self.alert_email_to.split(",") if e.strip()]
+
+    @property
+    def runtime_settings_allowed_list(self) -> list[str]:
+        """Белый список правки на лету. Имени нет в списке — правка отклоняется."""
+        return [n.strip() for n in self.runtime_settings_allowed.split(",") if n.strip()]
 
     @property
     def pii_allowlist_phones_list(self) -> list[str]:

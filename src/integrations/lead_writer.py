@@ -18,14 +18,13 @@ from __future__ import annotations
 import hashlib
 import logging
 import uuid
-from datetime import timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from src import dependencies
+from src.alerts.raise_alert import raise_alert
 from src.integrations.failure_log import log_provider_failure
 from src.config import Settings
-from src.db.base import DeliveryStatus, OutboxKind, utcnow
-from src.db.models import OutboxItem
 from src.integrations.providers import Providers
 
 logger = logging.getLogger(__name__)
@@ -39,6 +38,14 @@ DONE_TTL_SECONDS = 30 * 24 * 60 * 60
 # asks, contact_refused и lead_created_at в чужую систему.
 PAYLOAD_KEYS: tuple[str, ...] = (
     "name", "phone", "email", "interest", "budget", "timeframe", "notes", "extra",
+)
+
+# Вид события выводится из префикса ключа дедупа: ключи ставит этот же
+# модуль, а вид нужен предельщику «однотипных алертов в час».
+_EVENT_BY_PREFIX: tuple[tuple[str, str], ...] = (
+    ("hotlead:", "hot_lead"),
+    ("leadfail:", "lead_failed"),
+    ("leadidem:", "lead_idem"),
 )
 
 
@@ -60,6 +67,16 @@ def natural_key(conversation_id: uuid.UUID, lead: dict) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:32]
 
 
+def _event_type(dedup_key: str) -> str:
+    """Вид события по префиксу ключа: по нему считается предел однотипных
+    алертов в час. Неизвестный префикс — 'lead_failed': это ключи заявок,
+    и незнакомый случай безопаснее считать отказом записи."""
+    for prefix, event_type in _EVENT_BY_PREFIX:
+        if dedup_key.startswith(prefix):
+            return event_type
+    return "lead_failed"
+
+
 async def write_alert(
     sessionmaker: async_sessionmaker[AsyncSession],
     settings: Settings,
@@ -67,33 +84,25 @@ async def write_alert(
     body: str,
     dedup_key: str,
 ) -> None:
-    """Пишет строку алерта в outbox. Доставка — дело outbox, не наше.
+    """Алерт оператору по событию заявки. Имя и сигнатура прежние.
 
-    🔴 Своя сессия: хук зовётся внутри хода, сессия хода закроется вместе
-    с ним, и запись потерялась бы без единой ошибки в журнале.
-    Получатель пустой -> '-': строка всё равно пишется, событие не теряется.
+    🔴 Выпуск идёт через единственную точку — alerts.raise_alert: там оба
+    рубежа дедупа и ДВЕ строки outbox, почта и мессенджер. Прямая запись
+    одной строки, как было раньше, обходила и дедуп, и дубль канала.
     Исключение наружу не поднимаем: несделанный алерт не должен подменять
     собой исход самой записи заявки.
     """
     try:
-        now = utcnow()
-        async with sessionmaker() as session:
-            session.add(
-                OutboxItem(
-                    kind=OutboxKind.ALERT,
-                    transport=settings.alert_transport,
-                    recipient=settings.alert_recipient or "-",
-                    body=body,
-                    dedup_key=dedup_key,
-                    status=DeliveryStatus.PENDING,
-                    attempts=0,
-                    expires_at=now + timedelta(hours=settings.alert_retry_window_hours),
-                    created_at=now,
-                )
-            )
-            await session.commit()
+        await raise_alert(
+            sessionmaker,
+            dependencies.get_redis(),
+            settings,
+            event_type=_event_type(dedup_key),
+            body=body,
+            dedup_key=dedup_key,
+        )
     except Exception:
-        logger.exception("алерт %s не записан в outbox", dedup_key)
+        logger.exception("алерт %s не выпущен", dedup_key)
 
 
 class LeadWriter:

@@ -5,7 +5,8 @@
 Запуск: python -m src.monitoring (см. compose.yml).
 
 Задачи регистрируются в JOBS через default_jobs(): повторная доставка
-outbox (шаг 6); сторож сроков ответа и сводка за день появятся на шаге 8.
+outbox (шаг 6), сторож сроков ответа и суточная проверка канала алертов
+(шаг 8).
 🔴 Каждая задача открывает СВОЮ сессию БД (get_sessionmaker()), а не берёт
 чужую: сессия из запроса закрывается вместе с ним, и запись теряется молча.
 """
@@ -31,9 +32,11 @@ def default_jobs() -> list[Job]:
     """Список задач боевого процесса. Импорт внутри: src.jobs тянет каналы
     и движок, а они импортируют настройки и dependencies — цикл на уровне
     модулей. Заполняет и JOBS, чтобы старое имя показывало то же самое."""
-    from src.jobs import outbox_redeliver
+    from src.jobs import heartbeat, outbox_redeliver, watchdog
 
-    jobs: list[Job] = [outbox_redeliver.run_once]
+    # Порядок: сначала добить очередь, потом наполнить её новыми алертами —
+    # так алерт этого прохода уходит следующим, а не ждёт лишний тик.
+    jobs: list[Job] = [outbox_redeliver.run_once, watchdog.run_once, heartbeat.run_once]
     JOBS[:] = jobs
     return jobs
 

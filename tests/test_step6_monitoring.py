@@ -27,17 +27,23 @@ def test_tick_is_still_sixty_seconds() -> None:
     assert callable(monitoring.main)
 
 
-def test_build_transports_without_token_is_empty() -> None:
+def test_build_transports_without_token_has_no_client_channel() -> None:
+    """Без токена канала клиенту доставлять нечем.
+
+    Шаг 8 добавил в тот же словарь два транспорта алертов: они есть всегда,
+    потому что ненастроенный вернёт код отказа, а отсутствие ключа означало
+    бы, что алерт владельцу не доставит никто.
+    """
     settings = get_settings()
     assert settings.channel_telegram_bot_token == ""
-    assert outbox_redeliver.build_transports(settings, None) == {}
+    assert "telegram" not in outbox_redeliver.build_transports(settings, None)
 
 
 def test_build_transports_with_token_has_telegram(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CHANNEL_TELEGRAM_BOT_TOKEN", "test-token")
     get_settings.cache_clear()
     transports = outbox_redeliver.build_transports(get_settings(), get_http_client())
-    assert set(transports) == {"telegram"}
+    assert "telegram" in transports
     assert isinstance(transports["telegram"], TelegramClient)
 
 

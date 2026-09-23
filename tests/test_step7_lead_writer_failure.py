@@ -28,6 +28,20 @@ def _done_key(conversation_id, lead: dict) -> str:
     return "lead:done:" + natural_key(conversation_id, lead)
 
 
+def _alerts(rows) -> list[str]:
+    """Ключи алертов по порядку появления.
+
+    🔴 Шаг 8: один алерт кладётся ДВУМЯ строками outbox — почта и мессенджер,
+    у строк к ключу добавлен суффикс канала. Проверяем алерты, а не строки.
+    """
+    keys: list[str] = []
+    for row in rows:
+        base = (row.dedup_key or "").rsplit(":", 1)[0]
+        if base not in keys:
+            keys.append(base)
+    return keys
+
+
 async def test_unavailable_provider_raises_and_leaves_no_done_key(lead_env) -> None:
     lead_env.providers.raise_on = {"create_lead"}
     conversation_id = new_conversation_id()
@@ -40,11 +54,11 @@ async def test_unavailable_provider_raises_and_leaves_no_done_key(lead_env) -> N
     assert await lead_env.redis.get(_done_key(conversation_id, lead)) is None
 
     rows = await lead_env.outbox()
-    assert len(rows) == 1
-    assert rows[0].kind is OutboxKind.ALERT
-    assert rows[0].dedup_key == "leadfail:" + natural_key(conversation_id, lead)
-    for secret in (PHONE, NAME):
-        assert secret not in rows[0].body
+    assert all(row.kind is OutboxKind.ALERT for row in rows)
+    assert _alerts(rows) == ["leadfail:" + natural_key(conversation_id, lead)]
+    for row in rows:
+        for secret in (PHONE, NAME):
+            assert secret not in row.body
 
 
 async def test_unexpected_provider_error_is_also_not_written(lead_env) -> None:
@@ -61,7 +75,7 @@ async def test_unexpected_provider_error_is_also_not_written(lead_env) -> None:
     facade.leads = Exploding()
     with pytest.raises(LeadNotWritten):
         await lead_env.writer(facade)(new_conversation_id(), lead_data())
-    assert [row.dedup_key.split(":")[0] for row in await lead_env.outbox()] == ["leadfail"]
+    assert [key.split(":")[0] for key in _alerts(await lead_env.outbox())] == ["leadfail"]
 
 
 async def test_retry_after_provider_recovers_creates_the_lead(lead_env) -> None:
@@ -80,7 +94,7 @@ async def test_retry_after_provider_recovers_creates_the_lead(lead_env) -> None:
 
     assert lead_env.providers.count("create_lead") == 2  # первая попытка и удачная
     assert await lead_env.redis.get(_done_key(conversation_id, lead))
-    kinds = [row.dedup_key.split(":")[0] for row in await lead_env.outbox()]
+    kinds = [key.split(":")[0] for key in _alerts(await lead_env.outbox())]
     assert kinds == ["leadfail", "hotlead"]
 
     # Третий вызов уже не идёт наружу: заявка есть.
@@ -100,7 +114,7 @@ async def test_missing_lead_sink_raises_and_alerts(lead_env, caplog: pytest.LogC
 
     assert await lead_env.redis.get(_done_key(conversation_id, lead)) is None
     rows = await lead_env.outbox()
-    assert len(rows) == 1
+    assert len(_alerts(rows)) == 1
     assert "lead_no_provider" in (rows[0].dedup_key or "") + rows[0].body
     assert caplog.records
 
@@ -141,7 +155,7 @@ async def test_broken_idempotency_check_also_alerts_the_operator(lead_env) -> No
 
     assert lead_env.providers.count("create_lead") == 0, "наружу не ходим, пока не знаем, писали ли уже"
     rows = await lead_env.outbox()
-    assert len(rows) == 1
-    assert rows[0].dedup_key == "leadidem:" + natural_key(conversation_id, lead)
-    for secret in (PHONE, NAME):
-        assert secret not in rows[0].body
+    assert _alerts(rows) == ["leadidem:" + natural_key(conversation_id, lead)]
+    for row in rows:
+        for secret in (PHONE, NAME):
+            assert secret not in row.body

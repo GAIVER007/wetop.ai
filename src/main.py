@@ -18,6 +18,9 @@ from sqlalchemy import text
 from src import dashboard_router
 from src.channels import telegram as telegram_channel
 from src.config import Settings, get_settings
+from src.dashboard import auth_router
+from src.dashboard.security import ConfigError, require_dashboard_path
+from src.dashboard.seed import NO_HASH_MESSAGE, admin_credentials_ok, ensure_admin_user
 from src.dependencies import (
     close_resources,
     configure_logging,
@@ -67,6 +70,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             except Exception:
                 logger.exception("Прогрев модели эмбеддингов не удался")
                 app.state.ready = False
+        # Первая учётка владельца из настроек: без неё на свежей выкатке
+        # в подключённую панель войти нечем. Сеем только если панель есть.
+        if getattr(app.state, "dashboard_path", ""):
+            await ensure_admin_user(app_settings)
         try:
             yield
         finally:
@@ -87,6 +94,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = app_settings
     app.state.ready = True
+    # Путь панели проставит _mount_dashboard; пусто — панель не подключена.
+    app.state.dashboard_path = ""
 
     origins = app_settings.cors_origins_list
     if origins:
@@ -154,11 +163,38 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         return JSONResponse(status_code=200, content={"status": "ok", "checks": checks})
 
+    # Песочница живёт в корне (/internal/sandbox) и от пути панели не зависит:
+    # её адрес прописан в сборочном плане, менять его нельзя.
     app.include_router(dashboard_router.router)
     # Вебхук Telegram: префикс /webhooks уже под IpBlockMiddleware.
     app.include_router(telegram_channel.router)
+    _mount_dashboard(app, app_settings)
 
     return app
+
+
+def _mount_dashboard(app: FastAPI, settings: Settings) -> None:
+    """Панель монтируется под путём из настроек, а не по /admin.
+
+    🔴 Пустой DASHBOARD_PATH_PREFIX не роняет приложение и не проходит молча:
+    бот продолжает отвечать клиентам, панель закрыта, а в журнале стоит
+    понятная строка. Молчаливый старт без панели ищут потом полдня.
+    ⚠️ Сам путь — не защита: он утекает в историю браузера и в журналы
+    привратника. Он только убирает фоновый шум автоматических переборщиков.
+    """
+    try:
+        path = require_dashboard_path(settings)
+    except ConfigError as exc:
+        logger.error("Панель не подключена: %s", exc)
+        return
+    # 🔴 Почта владельца без хеша пароля — та же беда, что пустой путь:
+    # панель открыта, а войти в неё нечем. Не молча.
+    if not admin_credentials_ok(settings):
+        logger.error("Панель не подключена: %s", NO_HASH_MESSAGE)
+        return
+    app.state.dashboard_path = path
+    app.include_router(auth_router.router, prefix=path)
+    app.include_router(dashboard_router.panel_router, prefix=path)
 
 
 # Точка входа для uvicorn/gunicorn: src.main:app

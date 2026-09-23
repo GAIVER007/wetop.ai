@@ -100,7 +100,8 @@ class Settings(BaseSettings):
     dashboard_2fa_issuer: str = ""
     dashboard_2fa_drift_steps: int = 1
     dashboard_2fa_backup_codes: int = 8
-    dashboard_2fa_code_max_attempts: int = 5
+    # Отдельного предела для кодов нет: неудачные коды считаются вместе
+    # с неудачными паролями, предел один — dashboard_login_max_attempts.
 
     # ─── Алерты ───
     smtp_host: str = ""

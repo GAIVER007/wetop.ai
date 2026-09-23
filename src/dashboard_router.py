@@ -1,9 +1,13 @@
-"""API панели. Пока только песочница: живая переписка с движком до
-подключения любого канала (ОСТАНОВКА 2 сборочного плана).
+"""API панели: песочница, диалоги, промпт, знания, настройки, сводка.
 
-Доступ по внутреннему ключу, как у /internal/health: панель целиком
-и её вход — шаг 8. Ошибки наружу не отдаются: движок их не поднимает,
-а всё, что упало до него, уходит в журнал и нейтральный статус.
+Два роутера, и это не украшение:
+* router — песочница /internal/sandbox по внутреннему ключу, живёт в корне
+  (ОСТАНОВКА 2 сборочного плана, путь менять нельзя);
+* panel_router — API панели, монтируется под путём из настроек и целиком
+  закрыт зависимостью current_user.
+
+Ошибки наружу не отдаются: движок их не поднимает, а всё, что упало
+до него, уходит в журнал и нейтральный статус.
 """
 
 from __future__ import annotations
@@ -11,17 +15,26 @@ from __future__ import annotations
 import logging
 import secrets
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from src.ai.engine import IncomingMessage, build_engine
 from src.channels.sender import SendResult
+from src.dashboard import panel_conversations, panel_settings
+from src.dashboard.auth_router import current_user
 from src.db.base import utcnow
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# 🔴 Зависимость объявлена на роутере, а не на каждом обработчике: забыть её
+# на одном экране — открыть контакты заказчика всему интернету, и заметить
+# это будет некому. Вложенные роутеры её наследуют.
+panel_router = APIRouter(dependencies=[Depends(current_user)])
+panel_router.include_router(panel_conversations.router)
+panel_router.include_router(panel_settings.router)
 
 SANDBOX_CHANNEL = "sandbox"
 

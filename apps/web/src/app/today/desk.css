@@ -209,6 +209,7 @@
 }
 .quick-action {
   position: relative;
+  text-decoration: none;
 }
 .quick-action__icon {
   display: inline-flex;
@@ -220,12 +221,23 @@
   border-radius: var(--radius-sm);
   background: var(--primary-soft);
 }
-.quick-action__label {
+/* Название и подпись — столбиком: в строку подпись сжимала название до «Продлит / ь» (23.09.2026) */
+.quick-action__text {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
   min-width: 0;
+}
+.quick-action__label {
   color: var(--text);
   font-weight: 500;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.quick-action__hint {
+  color: var(--muted);
+  font-size: 12px;
 }
 .quick-action__count {
   flex: none;
@@ -240,24 +252,12 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.quick-action__empty {
-  flex: none;
-  color: var(--muted);
-  font-size: 12px;
-}
-.quick-action:hover:not(:disabled) .quick-action__count {
+.quick-action:hover .quick-action__count {
   background: var(--primary-soft);
   color: var(--primary);
 }
-.quick-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-.quick-action:disabled .quick-action__icon {
-  background: var(--chip-bg);
-}
-.quick-action:disabled svg {
-  color: var(--muted);
+.quick-action:hover .quick-action__hint {
+  color: var(--primary);
 }
 @media (max-width: 600px) {
   .attention-tally {

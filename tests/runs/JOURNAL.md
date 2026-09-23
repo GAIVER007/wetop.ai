@@ -1781,3 +1781,9 @@
 | 23.09.2026 19:43 | unit | ✅ 1463 из 1466, пропущено 3 | 1 мин 12 с | b41ca6c +2 | [лог](logs/2026-09-23T14-43-29Z-unit-88c0.log) |  |
 | 23.09.2026 19:44 | typecheck | ✅ без ошибок | 28 с | b41ca6c +3 | [лог](logs/2026-09-23T14-44-42Z-typecheck-eb89.log) |  |
 | 23.09.2026 19:45 | lint | ✅ без ошибок | 16 с | b41ca6c +3 | [лог](logs/2026-09-23T14-45-10Z-lint-50f8.log) |  |
+| 23.09.2026 21:45 | unit (частично: tests/unit/fixture-demo.test.ts) | ❌ упало 1 из 1 | 1 с | dc32a53 +1 | [лог](logs/2026-09-23T16-45-47Z-unit-bf9a.log) | local demo preview starts its synthetic API without a database or providers |
+| 23.09.2026 21:46 | unit (частично: tests/unit/fixture-demo.test.ts) | ❌ упало 1 из 1 | 1 с | dc32a53 +2 | [лог](logs/2026-09-23T16-46-01Z-unit-22fc.log) | local demo preview starts its synthetic API without a database or providers |
+| 23.09.2026 21:46 | unit (частично: tests/unit/fixture-demo.test.ts) | ✅ 1 из 1 | 1 с | dc32a53 +2 | [лог](logs/2026-09-23T16-46-17Z-unit-62dd.log) |  |
+| 23.09.2026 21:46 | typecheck | ✅ без ошибок | 6 с | dc32a53 +2 | [лог](logs/2026-09-23T16-46-18Z-typecheck-8da1.log) |  |
+| 23.09.2026 21:46 | lint | ✅ без ошибок | 7 с | dc32a53 +2 | [лог](logs/2026-09-23T16-46-24Z-lint-1e8f.log) |  |
+| 23.09.2026 21:47 | unit | ✅ 1464 из 1467, пропущено 3 | 1 мин 14 с | dc32a53 +2 | [лог](logs/2026-09-23T16-47-53Z-unit-df3d.log) |  |

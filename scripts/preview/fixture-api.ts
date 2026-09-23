@@ -78,6 +78,7 @@ const names = [
   'Камила Асан',
   'James Wilson',
   'София Павлова',
+  'Nora Jensen',
 ];
 let today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (date: string, n: number) => {

@@ -34,7 +34,9 @@ export { guestCitizenshipOnUpdate } from './guest-fields';
 export {
   EXELY_BOOKING_NUMBER,
   markerCheckLine,
+  markerFieldLine,
   markerSearchSummary,
+  pathsWithText,
   normalizeEach,
   screenRecords,
   wetopMarker,

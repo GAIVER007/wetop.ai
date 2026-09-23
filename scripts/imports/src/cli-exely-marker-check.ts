@@ -13,8 +13,9 @@ import { config as loadEnv } from 'dotenv';
 import { exely } from '@pms/integrations';
 import {
   EXELY_BOOKING_NUMBER,
-  markerCheckLine,
+  markerFieldLine,
   markerSearchSummary,
+  pathsWithText,
   wetopMarker,
 } from './exely/index';
 
@@ -39,7 +40,7 @@ if (arg && EXELY_BOOKING_NUMBER.test(arg)) {
     }
     throw e;
   }
-  console.log(markerCheckLine(arg, card.customerComment));
+  console.log(markerFieldLine(arg, pathsWithText(card, /wetop/i), card.customerComment));
 } else {
   if (arg) console.log(`«${arg}» не похоже на номер брони Exely — ищу метку среди броней, изменённых за сутки.`);
   // Exely понимает окно изменений во времени объекта (Алматы, UTC+5) — как досинхронизация (auto-sync.ts)
@@ -50,13 +51,15 @@ if (arg && EXELY_BOOKING_NUMBER.test(arg)) {
   for (const state of ['Active', 'Cancelled'] as const)
     for (const n of await client.searchBookings({ state, ...window })) numbers.add(n);
   let found = 0;
-  let malformed = 0;
+  let elsewhere = 0;
   for (const n of numbers) {
-    const comment = (await client.booking(n)).customerComment;
-    if (wetopMarker(comment)) found += 1;
-    else if (comment && /wetop/i.test(comment)) malformed += 1;
-    else continue;
-    console.log(markerCheckLine(n, comment));
+    const card = await client.booking(n);
+    // «WETOP» в любом поле карточки: так видно, куда форма Exely кладёт то, что вписала смена
+    const paths = pathsWithText(card, /wetop/i);
+    if (paths.length === 0) continue;
+    if (wetopMarker(card.customerComment)) found += 1;
+    else elsewhere += 1;
+    console.log(markerFieldLine(n, paths, card.customerComment));
   }
-  console.log(markerSearchSummary(numbers.size, found, malformed));
+  console.log(markerSearchSummary(numbers.size, found, elsewhere));
 }

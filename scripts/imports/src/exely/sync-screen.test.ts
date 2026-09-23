@@ -4,7 +4,9 @@ import type { ReservationImportRecord, ReservationStatusCode } from './normalize
 import {
   EXELY_BOOKING_NUMBER,
   markerCheckLine,
+  markerFieldLine,
   markerSearchSummary,
+  pathsWithText,
   normalizeEach,
   screenRecords,
   wetopMarker,
@@ -164,7 +166,23 @@ describe('проверка метки без номера брони: поиск
     expect(markerSearchSummary(12, 1, 0)).toBe(
       'Проверено броней Exely, изменённых за сутки: 12; с меткой WETOP: 1.',
     );
-    expect(markerSearchSummary(12, 0, 1)).toContain('с «WETOP» не по форме: 1');
-    expect(markerSearchSummary(12, 0, 0)).toContain('Метки нет ни в одной');
+    expect(markerSearchSummary(12, 0, 1)).toContain('«WETOP» не в том поле или не по форме: 1');
+    expect(markerSearchSummary(12, 0, 0)).toContain('нет ни в одном поле');
+  });
+
+  it('находит, в какое поле карточки попала метка, и печатает только путь, не значение', () => {
+    const card = {
+      number: 'E-9',
+      customerComment: null,
+      customer: { lastName: 'Иванов' },
+      roomStays: [{ id: 'S-1', note: 'позвонить WETOP BDC-1' }],
+    };
+    const paths = pathsWithText(card, /wetop/i);
+    expect(paths).toEqual(['roomStays[0].note']);
+    const line = markerFieldLine('E-9', paths, card.customerComment);
+    expect(line).toContain('в поле roomStays[0].note');
+    expect(line).not.toContain('BDC-1');
+    expect(line).not.toContain('Иванов');
+    expect(markerFieldLine('E-9', ['customerComment'], 'WETOP BDC-1')).toContain('метка найдена');
   });
 });

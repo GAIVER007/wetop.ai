@@ -40,13 +40,43 @@ export function markerCheckLine(booking: string, comment: string | null | undefi
 /** Похоже ли на номер брони Exely: `20260923-513903-1265432109` */
 export const EXELY_BOOKING_NUMBER = /^\d{8}-\d+-\d+$/;
 
-/** Итог поиска метки среди броней, изменённых за сутки (проверка без номера брони). */
-export function markerSearchSummary(checked: number, found: number, malformed: number): string {
-  const head = `Проверено броней Exely, изменённых за сутки: ${checked}; с меткой WETOP: ${found}${malformed ? `; с «WETOP» не по форме: ${malformed}` : ''}.`;
-  if (found > 0 || malformed > 0) return head;
+/**
+ * Пути полей карточки, где строка подходит под выражение, — чтобы узнать, в какое поле API попало то, что смена
+ * вписала в форме Exely. Возвращаются только пути (`customerComment`, `roomStays[0].xxx`), не значения: в карточке
+ * данные гостя.
+ */
+export function pathsWithText(value: unknown, re: RegExp, path = ''): string[] {
+  if (typeof value === 'string') return re.test(value) ? [path || '(значение)'] : [];
+  if (Array.isArray(value))
+    return value.flatMap((v, i) => pathsWithText(v, re, `${path}[${i}]`));
+  if (value && typeof value === 'object')
+    return Object.entries(value).flatMap(([k, v]) => pathsWithText(v, re, path ? `${path}.${k}` : k));
+  return [];
+}
+
+/**
+ * Строка про одну бронь, где «WETOP» встретилось: метка в «Комментарии заказчика» (его читает импорт) или в другом
+ * поле — тогда импорт её не увидит.
+ */
+export function markerFieldLine(
+  booking: string,
+  paths: readonly string[],
+  comment: string | null | undefined,
+): string {
+  if (paths.length === 0 || paths.includes('customerComment')) return markerCheckLine(booking, comment);
   return (
-    `${head} Метки нет ни в одной. Если вы её вписали и сохранили — значит, это поле Exely не отдаёт как ` +
-    '«Комментарий заказчика»: попробуйте другое поле комментария в форме брони.'
+    `Бронь ${booking}: «WETOP» есть в поле ${paths.join(', ')}, а импорт читает только «Комментарий заказчика» ` +
+    '(customerComment) — метку надо вписать туда.'
+  );
+}
+
+/** Итог поиска метки среди броней, изменённых за сутки (проверка без номера брони). */
+export function markerSearchSummary(checked: number, found: number, elsewhere: number): string {
+  const head = `Проверено броней Exely, изменённых за сутки: ${checked}; с меткой WETOP: ${found}${elsewhere ? `; «WETOP» не в том поле или не по форме: ${elsewhere}` : ''}.`;
+  if (found > 0 || elsewhere > 0) return head;
+  return (
+    `${head} «WETOP» нет ни в одном поле ни одной из них. Если метку вписали и сохранили, а бронь в этот список не ` +
+    'попала, — Exely не считает такую правку изменением: запустите проверку с номером этой брони.'
   );
 }
 

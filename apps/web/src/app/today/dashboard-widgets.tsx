@@ -26,6 +26,13 @@ export function HotelClock({ timezone }: { timezone: string }) {
     </span>
   );
 }
+/*
+ * Быстрое действие знает, сколько дел под ним лежит: число берётся из того же `DeskDay`, что и плитки
+ * выше, — второго источника правды не заводим. Ноль дел гасит кнопку и говорит словами, почему:
+ * прежде она открывала окно выбора с пустым списком, и это был тупик (23.09.2026).
+ */
+type QuickAction = { label: string; icon: IconName; count: number; empty: string };
+
 export function QuickActions({ day }: { day: DeskDay }) {
   const [action, setAction] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -40,31 +47,56 @@ export function QuickActions({ day }: { day: DeskDay }) {
       .toLocaleLowerCase('ru')
       .includes(query.trim().toLocaleLowerCase('ru')),
   );
-  const options: Array<[string, IconName]> = [
-    ['Заселить гостя', 'arrival'],
-    ['Выселить гостя', 'departure'],
-    ['Продлить проживание', 'clock'],
-    ['Переселить', 'bed'],
-    ['Создать счёт', 'receipt'],
+  // Счёт всех броней дня — для действий, которые не привязаны к заезду или выезду
+  const dayCount = new Map(
+    [...day.inHouse, ...day.arrivals, ...day.departures].map((r) => [r.confirmationNumber, r]),
+  ).size;
+  const options: QuickAction[] = [
+    { label: 'Заселить гостя', icon: 'arrival', count: day.counts.toCheckIn, empty: 'нет заездов' },
+    {
+      label: 'Выселить гостя',
+      icon: 'departure',
+      count: day.counts.toCheckOut,
+      empty: 'нет выездов',
+    },
+    {
+      label: 'Продлить проживание',
+      icon: 'clock',
+      count: day.counts.inHouse,
+      empty: 'никто не проживает',
+    },
+    { label: 'Переселить', icon: 'bed', count: day.counts.inHouse, empty: 'никто не проживает' },
+    { label: 'Создать счёт', icon: 'receipt', count: dayCount, empty: 'нет броней дня' },
   ];
   return (
-    <section className="quick-actions-card">
+    <section className="quick-actions-card" aria-label="Быстрые действия">
       <div className="card-heading">
         <h2>Быстрые действия</h2>
-        <Icon name="plus" width={16} />
+        <Link className="card-heading__link" href="/reservations">
+          Все брони
+          <Icon name="chevron" width={14} />
+        </Link>
       </div>
       <div className="quick-actions-grid">
-        {options.map(([label, icon]) => (
+        {options.map((option) => (
           <button
             className="quick-action"
-            key={label}
+            key={option.label}
+            disabled={option.count === 0}
             onClick={() => {
               setQuery('');
-              setAction(label);
+              setAction(option.label);
             }}
           >
-            <Icon name={icon} />
-            <span>{label}</span>
+            <span className="quick-action__icon">
+              <Icon name={option.icon} />
+            </span>
+            <span className="quick-action__label">{option.label}</span>
+            {option.count > 0 ? (
+              <span className="quick-action__count">{option.count}</span>
+            ) : (
+              <span className="quick-action__empty">{option.empty}</span>
+            )}
           </button>
         ))}
       </div>
@@ -76,6 +108,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Гость, номер или бронь"
+            autoFocus
           />
         </label>
         <div className="assistant-results">

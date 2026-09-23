@@ -72,3 +72,52 @@ test('главная: на телефоне таблица категорий с
     true,
   );
 });
+
+/**
+ * «Быстрые действия» и «Требуют внимания» — низ главной (23.09.2026, поручение владельца
+ * «сделай круче, улучши функционал»).
+ *
+ * Было: пять одинаковых кнопок без чисел — сколько заездов осталось, видно только в плитках выше;
+ * «Заселить гостя» открывал окно выбора даже когда заселять некого, и там был пустой список; в углу
+ * блока стоял значок «+», который ничего не делал. У «Требуют внимания» при нуле оставалась одна
+ * фраза «Всё в порядке», и не было видно, что именно проверено.
+ *
+ * Стало: на каждой кнопке — число дел из того же `DeskDay`, что и плитки; ноль гасит кнопку и словами
+ * говорит, почему; вместо значка «+» — ссылка «Все брони»; у «Требуют внимания» разбивка по трём
+ * причинам с числами, и она видна и при нуле.
+ */
+test('главная: быстрые действия называют число дел и гаснут без дел, внимание разбито по причинам', async ({
+  page,
+}) => {
+  await page.goto('/today');
+  const quick = page.getByRole('region', { name: 'Быстрые действия' });
+
+  // числа те же, что в `DeskDay`: заселить 3, выселить 1, проживают 3
+  await expect(quick.getByRole('button', { name: /Заселить гостя/ })).toContainText('3');
+  await expect(quick.getByRole('button', { name: /Выселить гостя/ })).toContainText('1');
+  await expect(quick.getByRole('button', { name: /Переселить/ })).toContainText('3');
+  // вместо значка «+» — ссылка, которая куда-то ведёт
+  await expect(quick.getByRole('link', { name: 'Все брони' })).toHaveAttribute(
+    'href',
+    '/reservations',
+  );
+
+  // разбивка по причинам: просроченный заезд 1, карточки 0, долг 1 — сумма равна счётчику в шапке
+  const tally = page.getByTestId('attention-tally');
+  await expect(tally.getByRole('listitem').filter({ hasText: 'Просроченные заезды' })).toContainText(
+    '1',
+  );
+  await expect(tally.getByRole('listitem').filter({ hasText: 'Карточки гостей' })).toContainText(
+    '0',
+  );
+  await expect(tally.getByRole('listitem').filter({ hasText: 'Долги уезжающих' })).toContainText(
+    '1',
+  );
+
+  // день без броней: заселять и выселять некого — кнопки недоступны и объясняют почему
+  await page.goto('/today?date=2027-06-01');
+  const empty = page.getByRole('region', { name: 'Быстрые действия' });
+  await expect(empty.getByRole('button', { name: /Заселить гостя/ })).toBeDisabled();
+  await expect(empty.getByRole('button', { name: /Заселить гостя/ })).toContainText('нет заездов');
+  await expect(empty.getByTestId('attention-tally')).toHaveCount(0);
+});

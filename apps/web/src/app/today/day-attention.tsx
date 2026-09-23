@@ -37,12 +37,35 @@ export function AttentionSummary({ day, date }: { day: DeskDay; date: string }) 
 
 export function DayAttention({ day }: { day: DeskDay }) {
   const { arrivals, departures, overdue, count } = attentionItems(day);
+  /*
+   * Разбивка по причинам стоит и при нуле: смена видит, что именно проверено, а не одно слово
+   * «всё в порядке». Числа те же, что в списке ниже, — считаются из одного `attentionItems`.
+   * День без броней разбивку не показывает: считать там нечего, и три нуля были бы шумом.
+   */
+  const tally = [
+    { label: 'Просроченные заезды', count: overdue.length },
+    { label: 'Карточки гостей', count: arrivals.length },
+    { label: 'Долги уезжающих', count: departures.length },
+  ];
+  const hasDay = day.arrivals.length + day.departures.length + day.inHouse.length > 0;
   return (
     <section className="attention-card" id="day-attention">
       <div className="attention-heading">
         <h2>Требуют внимания</h2>
-        <span className="attention-count">{count}</span>
+        <span className="attention-count" data-state={count ? 'on' : 'off'}>
+          {count}
+        </span>
       </div>
+      {hasDay ? (
+        <ul className="attention-tally" data-testid="attention-tally">
+          {tally.map((row) => (
+            <li key={row.label} data-state={row.count ? 'on' : 'off'}>
+              <strong>{row.count}</strong>
+              <span>{row.label}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {count === 0 ? (
         <div className="attention-empty">
           <Icon name="check" />

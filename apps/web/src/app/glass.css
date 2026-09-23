@@ -138,6 +138,87 @@ body::after {
   border-radius: var(--radius-lg);
 }
 
+/*
+ * ---------- стекло внутри стекла ----------
+ * Панель внутри панели не получает второго стекла: два размытия подряд и две тени превращают экран
+ * в «набор карточек» — ровно то, от чего предостерегает §5. Вложенный блок остаётся тихой заливкой
+ * с рамкой, как было до направления. Список тот же, что выше (§20.3), поэтому он и здесь целиком.
+ */
+:is(
+    .panel,
+    .stat,
+    .kpi,
+    .attention-card,
+    .attention-summary,
+    .section-card,
+    .facts--card,
+    .chart,
+    .chain__card,
+    .empty-state,
+    .tbl-wrap,
+    .table-scroll,
+    .desk-strip,
+    .quick-action,
+    .room-card,
+    .rooms-link,
+    .incident,
+    .incident-history,
+    .inventory-summary,
+    .inventory-categories,
+    .inventory-card,
+    .feature-pending,
+    .onboarding__section,
+    .booking-head,
+    .booking-footer,
+    .finance-block,
+    .reservations-controls,
+    .control-journal-search,
+    .board-toolbar,
+    .toolbar,
+    .workspace-property,
+    .workspace-sidebar
+  )
+  :is(
+    .panel,
+    .stat,
+    .kpi,
+    .attention-card,
+    .attention-summary,
+    .section-card,
+    .facts--card,
+    .chart,
+    .chain__card,
+    .empty-state,
+    .tbl-wrap,
+    .table-scroll,
+    .desk-strip,
+    .quick-action,
+    .room-card,
+    .rooms-link,
+    .incident,
+    .incident-history,
+    .inventory-summary,
+    .inventory-categories,
+    .inventory-card,
+    .feature-pending,
+    .onboarding__section,
+    .booking-head,
+    .booking-footer,
+    .finance-block,
+    .reservations-controls,
+    .control-journal-search,
+    .board-toolbar,
+    .toolbar,
+    .workspace-property,
+    .workspace-sidebar
+  ) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--surface-muted);
+  box-shadow: none;
+  border-radius: var(--radius);
+}
+
 /* Боковое меню и шапка — то же стекло, что у панелей, но плотнее: под ними идёт прокрутка страницы. */
 .workspace-sidebar {
   background: var(--sidebar);
@@ -148,8 +229,15 @@ body::after {
  * Главная кнопка страницы и знак получают акцентный градиент. Вторичные, опасные и остальные
  * кнопки не трогаем: цвет там означает последствие действия (DESIGN.md §9), а не украшение.
  */
-.btn--primary,
-.btn:not([class*='btn--']) {
+/*
+ * Главная кнопка — это `.btn` без тона (`<Button>` ставит класс тона только не-главным, ui.tsx).
+ * Размер (`--sm`, `--xs`) тоном не считается: маленькая главная кнопка остаётся главной, поэтому
+ * исключения перечислены по именам тонов, а не «любой модификатор».
+ */
+.btn:not(.btn--secondary):not(.btn--ghost):not(.btn--danger):not(.btn--warning):not(
+    .btn--success
+  ):not(.btn--info):not(.btn--inverse),
+.btn--primary {
   background-image: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 140%);
   border-color: transparent;
 }

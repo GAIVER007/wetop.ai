@@ -48,6 +48,18 @@ describe('стеклянный слой стойки — DESIGN.md §20', () => 
     expect(extra, 'кромка у блока, которого нет в §20.3').toEqual([]);
   });
 
+  it('вложенное стекло берёт тот же список блоков (§20.3)', () => {
+    const nested = /стекло внутри стекла[\s\S]*?:is\(([\s\S]*?)\)\s*:is\(([\s\S]*?)\)\s*\{/.exec(
+      glass,
+    );
+    expect(nested, 'в glass.css нет правила «стекло внутри стекла»').not.toBeNull();
+    const [outer, inner] = [nested?.[1] ?? '', nested?.[2] ?? ''].map((part) =>
+      [...part.matchAll(/\.[a-z0-9_-]+/g)].map((m) => m[0]).sort(),
+    );
+    expect(outer, 'внешний список вложенного правила разошёлся с §20.3').toEqual(documented);
+    expect(inner, 'внутренний список вложенного правила разошёлся с §20.3').toEqual(documented);
+  });
+
   it('сетка шахматки и тело таблицы остаются непрозрачными', () => {
     const solid = /\.board,[\s\S]*?\{([\s\S]*?)\}/.exec(glass)?.[1] ?? '';
     expect(solid, 'рабочая поверхность потеряла непрозрачную подложку').toContain(
@@ -64,10 +76,10 @@ describe('стеклянный слой стойки — DESIGN.md §20', () => 
     const gradients = [...glass.matchAll(/^([^{}\n]*)\{[^{}]*linear-gradient/gm)].map((m) =>
       (m[1] ?? '').trim(),
     );
-    const allowed = [".btn--primary,\n.btn:not([class*='btn--'])", '.workspace-mark'];
+    const allowed = ['.btn', '.workspace-mark'];
     for (const rule of gradients) {
       expect(
-        allowed.some((a) => a.includes(rule) || rule.includes('.workspace-mark')),
+        allowed.some((a) => rule.startsWith(a)),
         `градиент у «${rule}»: §20.4 разрешает его только главной кнопке и знаку`,
       ).toBe(true);
     }

@@ -89,8 +89,6 @@ const DESK_HINT: Partial<Record<IncidentKind, string>> = {
     'стойке: экраны PMS не открываются — заезды на бумажный лист, сторож перезапускает стойку',
   'ari.oversell':
     'стойке: канал может продать место, которого нет; не подтверждать новые брони без проверки шахматки',
-  'exely.card.skipped':
-    'стойке: эта бронь из Exely не дошла до PMS, её место PMS считает свободным — брони переключённых каналов на её даты сверять с Exely',
 };
 
 function line(c: AlertCandidate, now: Date): string {

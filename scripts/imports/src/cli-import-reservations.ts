@@ -3,7 +3,7 @@
  * Запуск: npx tsx scripts/imports/src/cli-import-reservations.ts 2026-09-08 [--set=future|all] [--skip=N]
  * --skip=N — пропустить первые N броней (продолжение после обрыва; импорт идемпотентен, пачки по 50)
  * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env (запасной вариант — PII_ENCRYPTION_KEY);
- * с PII_STORAGE=real (только боевая база в РК) — переносятся как есть (`importPiiSalt`, ADR-064).
+ * с PII_STORAGE=real (только боевая база в РК) — переносятся как есть (`importPiiSalt`).
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -49,7 +49,7 @@ const wanted =
 const files = readdirSync(resolve(DIR, 'bookings')).filter(
   (f) => f.endsWith('.json') && (!wanted || wanted.has(f.slice(0, -5))),
 );
-// Q-165 (ADR-064): карточка, которую нормализатор не разобрал, пропускается — остальные переносятся
+// Q-165: карточка, которую нормализатор не разобрал, пропускается — остальные переносятся
 const normalized = normalizeEach(
   files,
   (f) => f.slice(0, -5),
@@ -68,7 +68,7 @@ try {
     where: { name: LUXX_APARTS_PROPERTY.name },
     select: { id: true },
   });
-  // До транзакции: бронь с меткой «WETOP <номер PMS>» уже в PMS; категории и ячейки, которых нет в фонде, — пропуск
+  // До транзакции (Q-165): бронь с категорией или ячейкой, которых нет в фонде PMS, — пропуск с причиной
   const [knownTypes, exelyUnits] = await Promise.all([
     db.accommodationType.findMany({ where: { propertyId: property.id }, select: { code: true } }),
     db.inventoryUnit.findMany({
@@ -84,8 +84,6 @@ try {
   console.log(
     `набор ${set}: карточек ${files.length}, к переносу ${records.length}, проживаний ${records.reduce((a, r) => a + r.items.length, 0)}; анонимизация: ${salt ? 'да' : 'нет (PII_STORAGE=real)'}`,
   );
-  for (const m of screened.mirrored)
-    console.log(`  уже в PMS (метка WETOP): ${m.booking} → ${m.pmsNumber} — не переносится`);
   for (const k of [...normalized.skipped, ...screened.skipped]) console.log(`  ПРОПУЩЕНА (Q-165): ${k.reason}`);
   // Пачками по CHUNK броней, каждая в своей транзакции: импорт идемпотентен, а один запрос до Сингапура ~0,1 с,
   // и полный набор (~1 700 карточек × ~10 запросов) в 10-минутный лимит одной транзакции не помещается.

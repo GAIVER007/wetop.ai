@@ -244,21 +244,6 @@ export class NestGuardProbes implements GuardProbes {
     return times.length > 0 ? new Date(Math.max(...times.map((d) => d.getTime()))) : null;
   }
 
-  async exelySkipped(): Promise<Array<{ booking: string; reason: string }>> {
-    const last = await this.prisma.db.auditLog.findFirst({
-      where: { action: 'exely.sync' },
-      orderBy: { createdAt: 'desc' },
-      select: { after: true },
-    });
-    const skipped = (last?.after as { skipped?: unknown } | null | undefined)?.skipped;
-    if (!Array.isArray(skipped)) return [];
-    return skipped.filter(
-      (s): s is { booking: string; reason: string } =>
-        typeof (s as { booking?: unknown } | null)?.booking === 'string' &&
-        typeof (s as { reason?: unknown } | null)?.reason === 'string',
-    );
-  }
-
   async channelAvailability(from: string, to: string) {
     const reader = this.gateway as unknown as Partial<AvailabilityReader>;
     if (typeof reader.getAvailability !== 'function') return null;

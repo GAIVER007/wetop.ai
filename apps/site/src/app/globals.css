@@ -211,7 +211,7 @@ button {
   width: 14px;
   height: 14px;
   border: 1px solid color-mix(in srgb, var(--accent-1) 60%, transparent);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--accent-grad-soft);
   rotate: 45deg;
 }
@@ -269,13 +269,13 @@ button {
   font-size: 0.875rem;
 }
 .btn--lg {
-  padding: 15px 28px;
+  padding: 16px 28px;
   font-size: 1rem;
 }
 .btn--primary {
   border-color: transparent;
   background-image: var(--accent-grad);
-  color: #ffffff;
+  color: var(--on-accent);
   box-shadow: var(--shadow-glow);
 }
 .btn--primary:hover {
@@ -386,14 +386,15 @@ button {
 }
 .brand__mark {
   flex: none;
-  border-radius: 13px;
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-glow);
 }
-.brand__mark rect {
-  fill: url(#brand-gradient);
-}
+/*
+ * Плитку знака заливает градиент из самого `svg` (у каждого знака свой `id`), поэтому здесь её нет:
+ * правило с `url(#brand-gradient)` тянуло бы оба знака страницы на градиент первого.
+ */
 .brand__mark path {
-  fill: #ffffff;
+  fill: var(--on-accent);
 }
 .brand__name {
   font-family: var(--font-head);
@@ -569,7 +570,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 16px 7px 12px;
+  padding: 8px 16px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass-bg-strong);
@@ -622,7 +623,7 @@ button {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 1px 0 var(--chrome-edge)) drop-shadow(0 12px 28px rgba(0, 0, 0, 0.14));
+    filter: drop-shadow(0 1px 0 var(--chrome-edge)) drop-shadow(0 12px 28px var(--chrome-shadow));
   }
 }
 .hero__title-line {
@@ -660,7 +661,7 @@ button {
   font-size: 0.9375rem;
 }
 .hero__points .icon {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--success);
 }
 
@@ -676,7 +677,7 @@ button {
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  padding: 7px 16px 7px 12px;
+  padding: 8px 16px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass-bg-strong);
@@ -1320,10 +1321,10 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border: 1px solid var(--glass-border-dim);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--accent-grad-soft);
   color: var(--primary);
   box-shadow: var(--glass-inset);
@@ -1449,9 +1450,9 @@ button {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 11px;
+  border-radius: var(--radius-control);
   background-image: var(--accent-grad);
-  color: #ffffff;
+  color: var(--on-accent);
   font-family: var(--font-head);
   font-size: 1rem;
   font-weight: 800;
@@ -1459,7 +1460,7 @@ button {
 }
 .channel-tile__name {
   color: var(--text-2);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.2;
   overflow-wrap: anywhere;
@@ -1602,7 +1603,7 @@ button {
 .connect__label {
   color: var(--muted);
   font-family: var(--font-head);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1691,7 +1692,7 @@ button {
   }
 }
 .company__facts > div {
-  padding: 16px 18px;
+  padding: 16px 20px;
   border: 1px solid var(--glass-border-dim);
   border-radius: var(--radius);
   background: var(--glass-bg-dim);
@@ -1844,7 +1845,7 @@ button {
 }
 .article__date {
   display: block;
-  margin-top: 18px;
+  margin-top: 20px;
   color: var(--muted);
   font-size: 0.9375rem;
 }
@@ -1909,7 +1910,7 @@ button {
 .prose blockquote {
   padding: 16px 20px;
   border-left: 3px solid var(--primary);
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background: var(--primary-soft);
 }
 .prose blockquote > * + * {
@@ -1917,16 +1918,16 @@ button {
 }
 .prose code {
   padding: 0.12em 0.4em;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: var(--chip-bg);
   font-family: var(--mono);
   font-size: 0.88em;
 }
 .prose pre {
   overflow-x: auto;
-  padding: 18px 20px;
+  padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--glass-bg);
   font-size: 0.9rem;
   line-height: 1.65;
@@ -1941,7 +1942,7 @@ button {
 .prose img {
   display: block;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
 }
 .prose hr {
   height: 1px;
@@ -1952,7 +1953,7 @@ button {
 .prose .table-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
 }
 .prose table {
   width: 100%;
@@ -1962,7 +1963,7 @@ button {
 }
 .prose th,
 .prose td {
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;

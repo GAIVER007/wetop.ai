@@ -38,6 +38,8 @@
   --primary-hover: #0966c8;
   --primary-soft: #e6f1ff;
   --on-primary: #ffffff;
+  /* Белый на акцентной заливке: кнопка, знак, плитка канала. В обеих темах один — градиент тёмный. */
+  --on-accent: #ffffff;
   --success: #06735e;
   --success-soft: #e2f6ef;
   --warning: #94600b;
@@ -82,6 +84,7 @@
   --chrome-3: #42566e;
   --chrome-4: #cfdcec;
   --chrome-edge: rgba(48, 74, 106, 0.5);
+  --chrome-shadow: rgba(24, 46, 74, 0.16);
 
   /* --- тени --- */
   --shadow: 0 8px 28px rgba(26, 55, 96, 0.07);
@@ -90,6 +93,7 @@
   --shadow-glow: 0 18px 44px -18px rgba(47, 122, 229, 0.55);
 
   /* --- геометрия --- */
+  --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-control: 12px;
   --radius: 16px;
@@ -135,6 +139,7 @@
     --primary-hover: #71b9ff;
     --primary-soft: rgba(30, 79, 137, 0.38);
     --on-primary: #05101d;
+    --on-accent: #ffffff;
     --success: #38d2ae;
     --success-soft: rgba(12, 60, 52, 0.7);
     --warning: #f6ba52;
@@ -175,6 +180,7 @@
     --chrome-3: #6f88a8;
     --chrome-4: #e8f2ff;
     --chrome-edge: rgba(120, 170, 235, 0.55);
+    --chrome-shadow: rgba(0, 0, 0, 0.5);
 
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 22px 48px -24px rgba(0, 0, 0, 0.8);

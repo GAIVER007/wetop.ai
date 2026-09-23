@@ -20,8 +20,9 @@ export function BrandMark({ size = 34, id = 'brand' }: { size?: number; id?: str
           <stop offset="100%" stopColor="var(--accent-2)" />
         </linearGradient>
       </defs>
-      <rect width="48" height="48" rx="13" fill={`url(#${gradientId})`} />
-      <path d="m10 14 5 21h5l4-13 4 13h5l5-21h-5l-3 14-4-14h-4l-4 14-3-14Z" fill="#ffffff" />
+      <rect width="48" height="48" rx="12" fill={`url(#${gradientId})`} />
+      {/* Заливка буквы — из `.brand__mark path` в globals.css: цвет живёт токеном, а не в разметке. */}
+      <path d="m10 14 5 21h5l4-13 4 13h5l5-21h-5l-3 14-4-14h-4l-4 14-3-14Z" />
     </svg>
   );
 }

@@ -137,3 +137,130 @@
     padding: 16px;
   }
 }
+
+/*
+ * Разбивка «Требуют внимания» по причинам (23.09.2026). Три счётчика в ряд: число крупно, причина
+ * подписью. Ноль остаётся тихим — тревожный тон только там, где есть дело; §9: смысл держится
+ * не только цветом, у каждой причины стоит слово.
+ */
+.attention-tally {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  list-style: none;
+}
+.attention-tally li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+.attention-tally strong {
+  color: var(--muted);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.attention-tally span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.attention-tally li[data-state='on'] {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+.attention-tally li[data-state='on'] strong {
+  color: var(--warning);
+}
+.attention-tally li[data-state='on'] span {
+  color: var(--text-2);
+}
+/* Счётчик в шапке: ноль не тревожный — тревожный тон приберегаем для дела */
+.attention-count[data-state='off'] {
+  color: var(--muted);
+  background: var(--chip-bg);
+}
+
+/*
+ * Быстрое действие: плитка со значком, названием и числом дел. Ноль гасит её — кнопка недоступна
+ * и на месте числа стоит причина словами, поэтому окно выбора с пустым списком больше не открывается.
+ */
+.card-heading__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.card-heading__link:hover {
+  text-decoration: underline;
+}
+.quick-action {
+  position: relative;
+}
+.quick-action__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+}
+.quick-action__label {
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.quick-action__count {
+  flex: none;
+  min-width: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  background: var(--chip-bg);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.quick-action__empty {
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+.quick-action:hover:not(:disabled) .quick-action__count {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.quick-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.quick-action:disabled .quick-action__icon {
+  background: var(--chip-bg);
+}
+.quick-action:disabled svg {
+  color: var(--muted);
+}
+@media (max-width: 600px) {
+  .attention-tally {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -25,7 +25,6 @@ export type IncidentKind =
   | 'reconciliation.fail'
   | 'tests.failing'
   | 'web.down'
-  | 'exely.stale'
   | 'ari.oversell';
 
 export interface FixPolicy {
@@ -151,8 +150,6 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
     fix: { maxAttempts: 2, minIntervalMs: 5 * MIN, afterMs: 5 * MIN },
     close: { by: 'recheck' },
   },
-  // На время двойного ввода брони приходят из Exely синхронизацией суток; её запускают люди — сторож не импортирует сам
-  'exely.stale': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
   // Канал видит мест больше, чем есть в PMS: полная выгрузка, потом пересверка; не помогло — к человеку
   'ari.oversell': {
     class: 'A',

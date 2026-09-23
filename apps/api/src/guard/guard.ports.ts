@@ -66,9 +66,7 @@ export interface GuardProbes {
   channexEnabled(): boolean;
   /** Выключатели фоновых задач из .env: проверять то, что выключено, — плодить ложные неисправности */
   /** ariOut — исходящий ARI не остановлен выключателем CHANNEX_ARI (Q-126) */
-  enabled(
-    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
-  ): boolean;
+  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut'): boolean;
   dbPing(): Promise<void>;
   webhook(): WebhookSignal;
   pullHealth(): { startedAt: Date; okAt: Date | null; failedAt: Date | null; error: string | null };
@@ -85,8 +83,6 @@ export interface GuardProbes {
   failingSuites(): FailingSuite[] | null;
   /** Стойка отвечает? Лёгкий статический адрес, чтобы не путать зависание с медленной сборкой страницы */
   webHealth(): Promise<{ ok: boolean; error: string | null }>;
-  /** Когда последний раз шла синхронизация суток из Exely (её полная выгрузка с trigger=import) */
-  lastExelySyncAt(): Promise<Date | null>;
   /**
    * Остаток на ночь по категориям: как его считает PMS для каналов и как его видит канал. null — сверить нечем
    * (нет маппинга или шлюз не умеет читать остатки).

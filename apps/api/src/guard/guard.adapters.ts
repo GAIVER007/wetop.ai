@@ -71,15 +71,12 @@ export class NestGuardProbes implements GuardProbes {
     return !!process.env.CHANNEX_API_KEY?.trim();
   }
 
-  enabled(
-    what: 'pull' | 'webhookHealth' | 'fullSync' | 'exelySync' | 'web' | 'ari' | 'ariOut',
-  ): boolean {
+  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut'): boolean {
     if (what === 'ariOut') return !isAriStopped();
     const flag = {
       pull: 'CHANNEX_PULL',
       webhookHealth: 'CHANNEX_WEBHOOK_HEALTH',
       fullSync: 'CHANNEX_FULL_SYNC',
-      exelySync: 'GUARD_EXELY_SYNC',
       web: 'GUARD_WEB',
       ari: 'GUARD_ARI',
     }[what];
@@ -220,28 +217,6 @@ export class NestGuardProbes implements GuardProbes {
     } catch (e) {
       return { ok: false, error: (e as Error).message };
     }
-  }
-
-  /**
-   * Когда была синхронизация из Exely. Каждый успешный прогон `cli-sync-day.ts` пишет `exely.sync` (ADR-032):
-   * автосинхронизация без изменений полную выгрузку не делает. Прогоны до этой записи видны по полной выгрузке
-   * с trigger=import.
-   */
-  async lastExelySyncAt(): Promise<Date | null> {
-    const [sync, legacy] = await Promise.all([
-      this.prisma.db.auditLog.findFirst({
-        where: { action: 'exely.sync' },
-        orderBy: { createdAt: 'desc' },
-        select: { createdAt: true },
-      }),
-      this.prisma.db.auditLog.findFirst({
-        where: { action: 'channex.fullSync', after: { path: ['trigger'], equals: 'import' } },
-        orderBy: { createdAt: 'desc' },
-        select: { createdAt: true },
-      }),
-    ]);
-    const times = [sync?.createdAt, legacy?.createdAt].filter((d): d is Date => d instanceof Date);
-    return times.length > 0 ? new Date(Math.max(...times.map((d) => d.getTime()))) : null;
   }
 
   async channelAvailability(from: string, to: string) {

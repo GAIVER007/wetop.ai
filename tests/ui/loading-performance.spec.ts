@@ -77,7 +77,6 @@ test('мобильное меню использует уже загруженн
     await route.fulfill({
       json: {
         checkedAt: new Date().toISOString(),
-        exely: { lastSyncAt: null, mode: null },
         channex: { lastEventAt: null, outboxPending: 7, outboxFailed: 0, oldestPendingAt: null },
       },
     });
@@ -143,7 +142,6 @@ test('фоновый опрос не перекрывается и восста�
         ? {}
         : {
             checkedAt: new Date().toISOString(),
-            exely: { lastSyncAt: new Date().toISOString(), mode: 'auto' },
             channex: {
               lastEventAt: null,
               outboxPending: 0,

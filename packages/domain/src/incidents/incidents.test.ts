@@ -161,9 +161,8 @@ describe('decideAction', () => {
     ).toBe('fix');
   });
 
-  it('новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно)', () => {
+  it('новые виды записаны: стойка (техника), канал продаёт лишнее (техника, срочно)', () => {
     expect(POLICY['web.down']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
-    expect(POLICY['exely.stale']).toMatchObject({ class: 'B', severity: 'WARNING' });
     expect(POLICY['ari.oversell']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
   });
 

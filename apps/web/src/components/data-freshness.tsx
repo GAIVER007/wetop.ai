@@ -4,7 +4,6 @@ import { cx } from './ui';
 
 interface Freshness {
   checkedAt: string;
-  exely: { lastSyncAt: string | null; mode: 'auto' | 'manual' | null };
   channex: {
     lastEventAt: string | null;
     outboxPending: number;
@@ -13,8 +12,6 @@ interface Freshness {
   };
 }
 
-/** Exely синхронизируется раз в 5 минут (launchd exely-sync, StartInterval 300): три пропущенных прогона — повод посмотреть */
-const EXELY_STALE_MIN = 15;
 /** Дельта ARI уходит за секунды; висит дольше 10 минут — канал не знает об изменении */
 const QUEUE_STALE_MIN = 10;
 
@@ -77,22 +74,17 @@ export function DataFreshness() {
         Нет связи с API
       </span>
     ) : null;
-  const exelyStale = minutesSince(data.exely.lastSyncAt) > EXELY_STALE_MIN;
   const queueStale =
     data.channex.outboxFailed > 0 ||
     (data.channex.oldestPendingAt !== null &&
       minutesSince(data.channex.oldestPendingAt) > QUEUE_STALE_MIN);
   return (
     <span
-      className={cx('freshness', (exelyStale || queueStale || failed) && 'freshness--warn')}
+      className={cx('freshness', (queueStale || failed) && 'freshness--warn')}
       data-testid="data-freshness"
-      title={
-        'Когда данные PMS последний раз сверялись с источниками: синхронизация из Exely (раз в 5 минут), ' +
-        'последнее событие из Channex и очередь изменений остатков и цен в Channex'
-      }
+      title={'Последнее событие из Channex и очередь изменений остатков и цен в Channex'}
     >
-      Exely {data.exely.lastSyncAt ? time(data.exely.lastSyncAt) : 'не синхронизирован'} · Channex{' '}
-      {data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'} · очередь{' '}
+      Channex {data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'} · очередь{' '}
       {data.channex.outboxPending}
       {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
     </span>

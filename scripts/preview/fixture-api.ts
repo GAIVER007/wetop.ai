@@ -901,12 +901,12 @@ const mixIncidents = (): Incident[] => [
   },
   {
     ...structuredClone(incidentSeed),
-    id: 'ui-incident-exely',
-    kind: 'exely.sync.stale',
+    id: 'ui-incident-feed',
+    kind: 'feed.stale',
     class: 'B',
     severity: 'WARNING',
     status: 'ACKNOWLEDGED',
-    title: 'Синхронизации суток из Exely не было ни разу',
+    title: 'Лента Channex не читалась 3 ч — брони доходят только через webhook',
     subjectType: null,
     subjectId: null,
     occurrences: 998,
@@ -1854,7 +1854,6 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/system/freshness')
     return {
       checkedAt: new Date().toISOString(),
-      exely: { lastSyncAt: new Date().toISOString(), mode: 'auto' },
       channex: { lastEventAt: null, outboxPending: 0, outboxFailed: 0, oldestPendingAt: null },
     };
   if (path === '/channels/channex/content')

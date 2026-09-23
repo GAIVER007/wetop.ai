@@ -146,7 +146,6 @@ function setup(
     outboxThrows: false,
     pullOkAt: plus(NIGHT, -2),
     webOk: true,
-    exelySyncAt: plus(NIGHT, -60) as Date | null,
     avail: null as {
       pms: Map<string, Map<string, number>>;
       channel: Map<string, Map<string, number>>;
@@ -174,7 +173,6 @@ function setup(
     reports: over.reports ?? (() => []),
     failingSuites: over.failingSuites ?? (() => []),
     webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
-    lastExelySyncAt: async () => state.exelySyncAt,
     channelAvailability: async () => state.avail,
   };
   const calls: string[] = [];
@@ -496,7 +494,7 @@ describe('GuardService.tick', () => {
   });
 });
 
-describe('GuardService: стойка, синхронизация с Exely, остатки в канале', () => {
+describe('GuardService: стойка и остатки в канале', () => {
   const grid = (o: Record<string, Record<string, number>>) =>
     new Map(Object.entries(o).map(([k, v]) => [k, new Map(Object.entries(v))]));
 
@@ -513,23 +511,6 @@ describe('GuardService: стойка, синхронизация с Exely, ос�
       status: 'RESOLVED',
       resolvedBy: 'GUARD',
     });
-  });
-
-  it('синхронизации из Exely больше суток: к человеку, сам не импортирует; после переключения объекта проверка не нужна', async () => {
-    const t = setup();
-    t.state.exelySyncAt = plus(NIGHT, -30 * 60);
-    t.guard.propertyLive = false;
-    await t.guard.tick(NIGHT);
-    const inc = t.repo.rows.find((r) => r.kind === 'exely.stale');
-    expect(inc).toMatchObject({ status: 'ESCALATED', class: 'B' });
-    expect(inc!.title).toContain('30 ч');
-    expect(t.calls).toEqual([]);
-    const live = setup();
-    live.state.exelySyncAt = null;
-    live.guard.propertyLive = true;
-    const s = await live.guard.tick(NIGHT);
-    expect(s.checked).not.toContain('exely.stale');
-    expect(live.repo.rows).toEqual([]);
   });
 
   it('канал видит больше мест, чем есть: полная выгрузка и пересверка сразу, а не через час', async () => {

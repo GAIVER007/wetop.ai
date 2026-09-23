@@ -62,8 +62,6 @@ const ARI_KINDS = new Set([
 ]);
 /** Полная выгрузка раз в сутки после 03:00; 26 часов — сутки плюс запас на час выгрузки */
 const SYNC_MISSING_MS = 26 * 60 * MIN;
-/** Синхронизация суток из Exely на время двойного ввода — раз в сутки; 26 часов — сутки плюс запас */
-const EXELY_STALE_MS = 26 * 60 * MIN;
 /** Сверка остатков с каналом: один запрос чтения на месяц дат, раз в час и сразу после полной выгрузки */
 const ARI_EVERY_MS = 60 * MIN;
 const ARI_DAYS = 30;
@@ -123,8 +121,8 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
   /** GUARD_AUTOFIX=off — только запись и будильник */
   autofix = process.env.GUARD_AUTOFIX !== 'off';
   /**
-   * GUARD_PROPERTY_LIVE=true — объект работает в этой PMS. До переключения данные броней приходят из Exely,
-   * и овербукинг в них — не авария этой системы: предупреждение днём, а не звонок в 3 часа ночи.
+   * GUARD_PROPERTY_LIVE=true — объект работает в этой PMS. Пока нет (брони до 19.09 приходили из Exely, ADR-052),
+   * овербукинг — не авария этой системы: предупреждение днём, а не звонок в 3 часа ночи.
    */
   propertyLive = process.env.GUARD_PROPERTY_LIVE === 'true';
 
@@ -528,22 +526,6 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         return w.ok
           ? []
           : [{ kind: 'web.down', title: 'Стойка PMS не отвечает', details: { error: w.error } }];
-      });
-
-    // Пока объект работает в Exely, брони в PMS свежие только после синхронизации суток; после переключения — не нужна
-    if (!this.propertyLive && this.probes.enabled('exelySync'))
-      await run('exely.sync', ['exely.stale'], async () => {
-        const last = await this.probes.lastExelySyncAt();
-        if (last && now.getTime() - last.getTime() < EXELY_STALE_MS) return [];
-        return [
-          {
-            kind: 'exely.stale',
-            title: last
-              ? `Синхронизации суток из Exely не было ${Math.floor((now.getTime() - last.getTime()) / (60 * MIN))} ч — брони в PMS устаревают`
-              : 'Синхронизации суток из Exely не было ни разу',
-            details: { lastSyncAt: last?.toISOString() ?? null },
-          },
-        ];
       });
 
     const ariDue =

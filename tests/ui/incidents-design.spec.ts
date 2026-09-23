@@ -27,7 +27,7 @@ test('неисправности: срочное сверху, вся выбор
 
   // порядок: срочная техника первой, принятая — последней (раньше первой шла бронь без ячейки)
   await expect(rows.first()).toContainText('Стойка PMS не отвечает');
-  await expect(rows.last()).toContainText('Синхронизации суток из Exely');
+  await expect(rows.last()).toContainText('Лента Channex не читалась');
 
   // все четыре открытые видны без прокрутки: сводка и состояние сторожа не занимают экран
   const lastBottom = await rows.last().evaluate((el) => el.getBoundingClientRect().bottom);
@@ -70,9 +70,9 @@ test('неисправности: чипы со счётчиками вмест�
   await expect(main.getByTestId('incident-row')).toHaveCount(2);
 
   // поиск складывается с чипом, а пустой результат говорит, по какому условию пусто
-  await main.getByLabel('Поиск неисправности').fill('Exely');
+  await main.getByLabel('Поиск неисправности').fill('Лента');
   const empty = main.getByTestId('incidents-filter-empty');
-  await expect(empty).toContainText('Exely');
+  await expect(empty).toContainText('Лента');
   await empty.getByRole('button', { name: 'Сбросить фильтры' }).click();
   await expect(main.getByTestId('incident-row')).toHaveCount(4);
   await expect(chip('Все 4')).toHaveAttribute('aria-pressed', 'true');

@@ -32,7 +32,7 @@ ALLOWED = f"{FIRST},{SECOND}"
 SECRETS = {
     "LLM_API_KEY": "sk-primetnyy-klyuch-modeli",
     "SMTP_PASSWORD": "primetnyy-parol-pochty",
-    "CHANNEL_TELEGRAM_BOT_TOKEN": "222:PRIMETNYY-TOKEN-KANALA",
+    "WIDGET_IDENTITY_SECRET": "primetnyy-sekret-vidzheta",
     "INTERNAL_HEALTH_KEY": "primetnyy-vnutrenniy-klyuch",
 }
 

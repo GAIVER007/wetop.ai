@@ -17,7 +17,7 @@ from src.dependencies import close_resources, get_sessionmaker
 from src.jobs.outbox_redeliver import build_transports
 from src.monitoring import default_jobs
 from tests.alert_fakes import TEST_CHAT_ID, TEST_EMAIL, MessengerApi, alert_rows, alert_settings
-from tests.telegram_fakes import FakeTransport
+from tests.widget_fakes import FakeTransport
 
 EMAIL = "email"
 MESSENGER = "alert_messenger"
@@ -31,34 +31,31 @@ async def sessionmaker(migrated_db) -> AsyncIterator:
         await close_resources()
 
 
-async def test_build_transports_knows_all_three_channels(monkeypatch) -> None:
-    settings = alert_settings(
-        monkeypatch,
-        SMTP_HOST="smtp.example.test",
-        CHANNEL_TELEGRAM_BOT_TOKEN="222:CHANNELBOT",
-    )
+async def test_build_transports_knows_both_alert_channels(monkeypatch) -> None:
+    settings = alert_settings(monkeypatch, SMTP_HOST="smtp.example.test")
     api = MessengerApi()
 
     async with api.client() as http:
         transports = build_transports(settings, http)
 
-    assert set(transports) >= {"telegram", EMAIL, MESSENGER}
+    assert set(transports) == {EMAIL, MESSENGER}
 
 
-async def test_alert_bot_is_not_the_channel_bot(monkeypatch) -> None:
+async def test_alert_bot_is_not_the_client_channel(monkeypatch) -> None:
     """🔴 У бота алертов свой токен и свой чат: один бот на две задачи —
-    это молчание об упавшем канале вместе с самим каналом."""
-    settings = alert_settings(
-        monkeypatch,
-        CHANNEL_TELEGRAM_BOT_TOKEN="222:CHANNELBOT",
-        ALERT_TELEGRAM_BOT_TOKEN="111:ALERTBOT",
-    )
+    это молчание об упавшем канале вместе с самим каналом.
+
+    Канал клиентов теперь виджет и в очереди исходящих не участвует вовсе:
+    ему доставка — это запись в историю, видимая опросом браузера.
+    """
+    settings = alert_settings(monkeypatch, ALERT_TELEGRAM_BOT_TOKEN="111:ALERTBOT")
     api = MessengerApi()
 
     async with api.client() as http:
         transports = build_transports(settings, http)
 
-    assert transports["telegram"] is not transports[MESSENGER]
+    assert "widget" not in transports
+    assert transports[MESSENGER] is not transports[EMAIL]
 
 
 async def test_default_jobs_has_three_tasks() -> None:

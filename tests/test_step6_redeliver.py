@@ -20,7 +20,7 @@ from src.db.base import DeliveryStatus, MessageRole, OutboxKind, utcnow
 from src.db.models import Conversation, Message, OutboxItem
 from src.dependencies import close_resources, get_sessionmaker
 from tests.engine_fakes import EXTERNAL_ID, load_messages, seed_conversation
-from tests.telegram_fakes import FakeTransport
+from tests.widget_fakes import FakeTransport
 
 TRANSPORT = "telegram"
 

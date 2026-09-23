@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Виджет: проверка</title>
+</head>
+<body style="font:16px/1.5 system-ui, sans-serif; margin:40px; max-width:40em">
+<h1>Виджет: проверка</h1>
+<p>Страница на адресе самого бота — посмотреть виджет, не вставляя его
+на сайт платформы. В поиск не попадает: noindex стоит и в теге, и в
+заголовке ответа.</p>
+<p>На боевом сайте вставляется одна строка, а признак пользователя
+подписывает платформа:</p>
+<pre>&lt;script src="https://&lt;адрес бота&gt;/widget/widget.js"
+        data-identity="&lt;подписанный признак&gt;" defer&gt;&lt;/script&gt;</pre>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

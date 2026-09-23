@@ -17,7 +17,7 @@ from src.db.base import DeliveryStatus, OutboxKind
 from src.db.models import OutboxItem
 from src.dependencies import close_resources, get_sessionmaker
 from tests.engine_fakes import CHANNEL, EXTERNAL_ID, seed_conversation
-from tests.telegram_fakes import FakeTransport
+from tests.widget_fakes import FakeTransport
 
 RETRY_HOURS = 24
 

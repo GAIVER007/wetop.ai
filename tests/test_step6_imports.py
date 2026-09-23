@@ -1,31 +1,32 @@
-"""Шаг 6: модули канала импортируются, контракт имён на месте, маршрут
-вебхука подключён к приложению, CLI-скрипт компилируется.
+"""Шаг 6: модули канала импортируются, контракт имён на месте, маршруты
+виджета подключены к приложению.
+
+Канал клиентов — виджет на сайте платформы; очередь исходящих осталась
+за алертами, поэтому outbox и задача повторной доставки здесь же.
 """
 
 from __future__ import annotations
 
 import importlib
-import py_compile
-from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-
 MODULES = {
     "src.channels.outbox": ["OutboxSender", "Transport", "redeliver_pending", "RedeliverReport"],
-    "src.channels.telegram": [
-        "TelegramClient",
-        "WebhookRunner",
-        "parse_update",
-        "CallbackEvent",
-        "consent_keyboard",
-        "CONSENT_CALLBACK",
-        "router",
-    ],
+    "src.channels.widget": ["WidgetSender", "WidgetRunner", "build_runner", "router", "CHANNEL", "PREFIX"],
+    "src.channels.widget_identity": ["Visitor", "sign_identity", "read_identity", "anonymous"],
+    "src.site": [],
     "src.jobs": [],
     "src.jobs.outbox_redeliver": ["run_once", "build_transports"],
 }
+
+ROUTES = [
+    ("/widget/session", "POST"),
+    ("/widget/message", "POST"),
+    ("/widget/messages", "GET"),
+    ("/widget/widget.js", "GET"),
+    ("/widget/demo", "GET"),
+]
 
 
 @pytest.mark.parametrize("name", list(MODULES))
@@ -48,15 +49,14 @@ def test_transport_is_protocol() -> None:
     assert Protocol in Transport.__mro__ or getattr(Transport, "_is_protocol", False)
 
 
-def test_consent_keyboard_shape() -> None:
-    from src.channels.telegram import CONSENT_CALLBACK, consent_keyboard
+def test_channel_names_are_strings() -> None:
+    from src.channels.widget import CHANNEL, PREFIX
 
-    assert consent_keyboard("Согласен") == {
-        "inline_keyboard": [[{"text": "Согласен", "callback_data": CONSENT_CALLBACK}]]
-    }
+    assert CHANNEL == "widget"
+    assert PREFIX == "/widget"
 
 
-def test_webhook_route_is_included_in_app() -> None:
+def _routes() -> set[tuple[str, str]]:
     from src.main import create_app
 
     app = create_app()
@@ -66,32 +66,30 @@ def test_webhook_route_is_included_in_app() -> None:
     for route in app.routes:
         inner = getattr(route, "original_router", None)
         flat.extend(inner.routes if inner is not None else [route])
-    routes = [
-        (route.path, tuple(sorted(getattr(route, "methods", None) or ())))
+    return {
+        (route.path, method)
         for route in flat
         if getattr(route, "path", None)
-    ]
-    assert ("/webhooks/telegram", ("POST",)) in routes
+        for method in (getattr(route, "methods", None) or ())
+    }
 
 
-def test_webhook_cli_script_compiles() -> None:
-    script = ROOT / "scripts" / "telegram_webhook.py"
-    assert script.exists(), "нет scripts/telegram_webhook.py"
-    py_compile.compile(str(script), doraise=True)
-    text = script.read_text(encoding="utf-8")
-    assert "vykatka.md" in text, "перед set — напоминание прочитать vykatka.md"
+@pytest.mark.parametrize("path,method", ROUTES)
+def test_widget_route_is_included_in_app(path: str, method: str) -> None:
+    assert (path, method) in _routes()
 
 
-def test_telegram_module_does_not_log_full_url() -> None:
-    """🔴 Полный адрес с токеном не должен уходить в журнал: в вызовах
-    logger не встречается self._url."""
+def test_widget_module_does_not_log_the_identity_token() -> None:
+    """🔴 Подписанный признак и почта пользователя в журнал не уходят:
+    в вызовах logger не встречается ни токен, ни поле email."""
     import inspect
 
-    from src.channels import telegram
+    from src.channels import widget, widget_identity
 
-    source = inspect.getsource(telegram)
-    for line in source.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("logger.") or "logger." in stripped:
-            assert "_url(" not in stripped, line
-            assert "self._url" not in stripped, line
+    for module in (widget, widget_identity):
+        for line in inspect.getsource(module).splitlines():
+            stripped = line.strip()
+            if "logger." not in stripped:
+                continue
+            assert "token" not in stripped, line
+            assert "email" not in stripped, line

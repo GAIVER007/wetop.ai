@@ -1,5 +1,8 @@
 """Шаг 6: повтор доставки outbox зарегистрирован в monitor и переживает
-отсутствие токена и недоступную базу — фоновая задача не роняет процесс.
+незнакомый транспорт и недоступную базу — фоновая задача не роняет процесс.
+
+🔴 Канал клиентов — виджет с вытягиванием: очереди исходящих у него нет.
+В словаре транспортов остались только алерты владельцу.
 """
 
 from __future__ import annotations
@@ -7,9 +10,8 @@ from __future__ import annotations
 import pytest
 
 from src import monitoring
-from src.channels.telegram import TelegramClient
 from src.config import get_settings
-from src.dependencies import close_resources, get_http_client, get_sessionmaker, reset_resources
+from src.dependencies import close_resources, get_sessionmaker, reset_resources
 from src.jobs import outbox_redeliver
 
 
@@ -27,27 +29,20 @@ def test_tick_is_still_sixty_seconds() -> None:
     assert callable(monitoring.main)
 
 
-def test_build_transports_without_token_has_no_client_channel() -> None:
-    """Без токена канала клиенту доставлять нечем.
+def test_build_transports_has_only_the_alert_channels() -> None:
+    """Виджету доставлять нечем и незачем: сообщение доставлено тогда,
+    когда записано в историю и видно опросом.
 
-    Шаг 8 добавил в тот же словарь два транспорта алертов: они есть всегда,
-    потому что ненастроенный вернёт код отказа, а отсутствие ключа означало
-    бы, что алерт владельцу не доставит никто.
+    Оба транспорта алертов есть всегда: ненастроенный вернёт код отказа,
+    а отсутствие ключа означало бы, что алерт владельцу не доставит никто.
     """
-    settings = get_settings()
-    assert settings.channel_telegram_bot_token == ""
-    assert "telegram" not in outbox_redeliver.build_transports(settings, None)
+    transports = outbox_redeliver.build_transports(get_settings(), None)
+    assert set(transports) == {"email", "alert_messenger"}
 
 
-def test_build_transports_with_token_has_telegram(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("CHANNEL_TELEGRAM_BOT_TOKEN", "test-token")
-    get_settings.cache_clear()
-    transports = outbox_redeliver.build_transports(get_settings(), get_http_client())
-    assert "telegram" in transports
-    assert isinstance(transports["telegram"], TelegramClient)
-
-
-async def test_run_once_without_token_does_not_fail(migrated_db, fake_redis) -> None:
+async def test_run_once_with_an_unknown_transport_does_not_fail(migrated_db, fake_redis) -> None:
+    """Строка от удалённого канала клиентов могла остаться в боевой базе:
+    транспорта с таким именем больше нет, и проход обязан это пережить."""
     from datetime import timedelta
 
     from src.db.base import DeliveryStatus, OutboxKind, utcnow
@@ -76,7 +71,7 @@ async def test_run_once_without_token_does_not_fail(migrated_db, fake_redis) -> 
 
         async with sessionmaker() as session:
             row = await session.get_one(OutboxItem, item_id)
-        # Транспорта нет — строка ждёт, а не теряется и не падает.
+        # Транспорта нет — строка ждёт, а не теряется и не роняет проход.
         assert row.status is DeliveryStatus.PENDING
         assert row.attempts == 0
     finally:

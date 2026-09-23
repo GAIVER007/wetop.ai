@@ -106,9 +106,9 @@ async def test_to_html_escapes_and_keeps_line_breaks() -> None:
 
 async def test_default_base_is_used_when_list_is_empty(monkeypatch) -> None:
     """Пустой список запасных адресов не оставляет алерты без канала:
-    берётся адрес канала клиентов."""
+    берётся основной адрес бота алертов."""
     settings = alert_settings(
-        monkeypatch, ALERT_TELEGRAM_API_BASES="", CHANNEL_TELEGRAM_API_BASE=ALIVE
+        monkeypatch, ALERT_TELEGRAM_API_BASES="", ALERT_TELEGRAM_API_BASE=ALIVE
     )
     assert settings.alert_telegram_api_base_list == [ALIVE]
     api = MessengerApi()

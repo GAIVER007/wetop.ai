@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src import dashboard_router
-from src.channels import telegram as telegram_channel
+from src.channels import widget as widget_channel
 from src.config import Settings, get_settings
 from src.dashboard import auth_router
 from src.dashboard.security import ConfigError, require_dashboard_path
@@ -43,7 +43,7 @@ async def _drain_channel_runner(app: FastAPI) -> None:
     Зависшая задача не держит остановку вечно: по таймауту уходим дальше,
     но ресурсы закрываются уже после ожидания, а не до него.
     """
-    runner = getattr(app.state, "telegram_runner", None)
+    runner = getattr(app.state, "widget_runner", None)
     if runner is None:
         return
     try:
@@ -74,12 +74,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # в подключённую панель войти нечем. Сеем только если панель есть.
         if getattr(app.state, "dashboard_path", ""):
             await ensure_admin_user(app_settings)
+        # 🔴 Не молча: без доменов виджет отвечает любому сайту. В бою это
+        # недосмотр настройки, и искать его потом негде.
+        if not app_settings.widget_site_hosts_list:
+            logger.warning("Виджет: домены сайта не заданы, проверка Origin выключена")
         try:
             yield
         finally:
-            # 🔴 Сначала задачи канала, потом ресурсы: на вебхук уже ответили
-            # 200, Telegram обновление не повторит. Закрыть движок БД и
-            # http-клиент под живым ходом — оставить клиента без ответа.
+            # 🔴 Сначала задачи канала, потом ресурсы: браузеру уже ответили
+            # 'accepted', второй раз он сообщение не пришлёт. Закрыть движок
+            # БД и http-клиент под живым ходом — оставить клиента без ответа.
             await _drain_channel_runner(app)
             await close_resources()
 
@@ -108,14 +112,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
 
     # Блок-лист адресов (слой 0): отбой на уровне фреймворка, до маршрутов.
-    # Защищены только входы клиентов; /health и /internal/health — нет.
+    # Защищён вход клиентов — /widget; /health и /internal/health — нет.
     # lambda, а не get_redis напрямую: имя разрешается на каждый запрос,
     # и тесты подменяют его на fakeredis.
     app.add_middleware(
         IpBlockMiddleware,
-        protected_prefixes=("/webhooks", "/widget"),
+        protected_prefixes=("/widget",),
         redis_getter=lambda: get_redis(),
     )
+
+    # 🔴 CORS виджета — самым внешним слоем (добавлен последним): виджет
+    # стоит на домене платформы, а бот живёт на своём, то есть все его
+    # запросы кросс-доменные. Без этих заголовков браузер отбрасывает
+    # ответы, и виджет не работает нигде, кроме страницы /widget/demo.
+    app.add_middleware(widget_channel.WidgetCorsMiddleware)
 
     @app.exception_handler(Exception)
     async def unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
@@ -166,8 +176,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Песочница живёт в корне (/internal/sandbox) и от пути панели не зависит:
     # её адрес прописан в сборочном плане, менять его нельзя.
     app.include_router(dashboard_router.router)
-    # Вебхук Telegram: префикс /webhooks уже под IpBlockMiddleware.
-    app.include_router(telegram_channel.router)
+    # Виджет на сайте: префикс /widget уже под IpBlockMiddleware.
+    app.include_router(widget_channel.router)
     _mount_dashboard(app, app_settings)
 
     return app

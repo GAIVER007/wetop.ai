@@ -18,33 +18,24 @@ logger = logging.getLogger(__name__)
 
 
 def build_transports(settings: Settings, http_client: httpx.AsyncClient) -> dict[str, Transport]:
-    """Транспорты по ключу строки outbox: канал клиента и два канала алертов.
+    """Транспорты по ключу строки outbox: только алерты владельцу.
 
-    'telegram' — ответы клиенту, только если задан токен канала.
-    'email' и 'alert_messenger' — алерты владельцу, оба всегда: 🔴 почта
-    основной канал, мессенджер дубль, а не замена. Ненастроенный транспорт
-    вернёт отказ с кодом, и строка останется pending до починки, а вот
-    отсутствие ключа означало бы, что алерт не доставит никто.
+    🔴 Канала клиента здесь нет: виджет работает вытягиванием, браузер сам
+    спрашивает новые сообщения, и доставлять ему через очередь нечего.
+    'email' и 'alert_messenger' — оба всегда: 🔴 почта основной канал,
+    мессенджер дубль, а не замена. Ненастроенный транспорт вернёт отказ
+    с кодом, и строка останется pending до починки, а вот отсутствие ключа
+    означало бы, что алерт не доставит никто.
     Токены берутся только из Settings — в код и журнал они не попадают.
     """
     transports: dict[str, Transport] = {}
-    if settings.channel_telegram_bot_token:
-        # Импорт внутри: модуль канала тянет FastAPI-роутер и движок,
-        # а monitor'у они не нужны при старте.
-        from src.channels.telegram import TelegramClient
-
-        transports["telegram"] = TelegramClient(
-            settings.channel_telegram_bot_token,
-            http_client,
-            api_base=settings.channel_telegram_api_base,
-        )
 
     from src.alerts.email import build_email_transport
     from src.alerts.messenger import build_messenger_transport
 
     transports["email"] = build_email_transport(settings)
-    # 🔴 Отдельный бот алертов со своим токеном и чатом: это не бот канала
-    # клиентов, иначе владелец получал бы алерты в клиентскую переписку.
+    # 🔴 Отдельный бот алертов со своим токеном, чатом и адресом Bot API
+    # (ALERT_TELEGRAM_API_BASE): к каналу клиентов он отношения не имеет.
     transports["alert_messenger"] = build_messenger_transport(settings, http_client)
     return transports
 

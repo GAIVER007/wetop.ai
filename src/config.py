@@ -132,17 +132,34 @@ class Settings(BaseSettings):
     # у каждого диалога свой — массовый отказ даёт шторм (на живом прогоне
     # 334 сообщения за две минуты). Здесь он обрезается.
     alert_rate_limit_per_hour: int = 10
+    # Адрес Bot API бота АЛЕРТОВ — настройка, не константа: прокси и тесты
+    # подменяют его. Клиентского бота в проекте нет, эта настройка своя.
+    alert_telegram_api_base: str = "https://api.telegram.org"
     # Запасные адреса Bot API для бота алертов, через запятую. Пусто —
-    # берётся CHANNEL_TELEGRAM_API_BASE. 🔴 Перебор идёт по порядку:
+    # берётся ALERT_TELEGRAM_API_BASE. 🔴 Перебор идёт по порядку:
     # мёртвый адрес первым съедает окно таймаута раньше живого.
     alert_telegram_api_bases: str = ""
 
-    # ─── Канал ───
-    channel_telegram_bot_token: str = ""
-    channel_telegram_bot_username: str = ""
-    channel_telegram_webhook_secret: str = ""
-    # Адрес Bot API — настройка, не константа: прокси и тесты подменяют его.
-    channel_telegram_api_base: str = "https://api.telegram.org"
+    # ─── Канал: виджет на сайте платформы ───
+    # Домены платформы через запятую. Пусто — проверка Origin выключена,
+    # это годится только для разработки (при старте уходит предупреждение).
+    widget_site_hosts: str = ""
+    # Общий секрет с платформой: ею подписан признак пользователя. Пусто —
+    # подписанные признаки не принимаются вовсе, все посетители анонимные.
+    widget_identity_secret: str = ""
+    widget_identity_ttl_seconds: int = 3600
+    # Сколько живёт ключ посетителя в браузере: 30 суток.
+    widget_session_ttl_hours: int = 720
+    widget_messages_per_hour: int = 60
+    # Предел тела запроса; проверяется по Content-Length ДО чтения.
+    widget_max_body_bytes: int = 64 * 1024
+    widget_attachments_enabled: bool = True
+    widget_attachment_max_mb: int = 5
+    widget_attachment_dir: str = "data/attachments"
+    # Что принимаем: снимок экрана — это картинка.
+    widget_attachment_types: str = "image/png,image/jpeg,image/webp"
+    # Долгий опрос: браузер висит на запросе до ответа или до этого срока.
+    widget_poll_timeout_seconds: int = 25
 
     # ─── База знаний ───
     kb_chunk_chars: int = 900
@@ -219,11 +236,11 @@ class Settings(BaseSettings):
 
         🔴 Порядок сохраняется дословно: в инциденте рабочий адрес стоял
         последним, и перебор упирался в таймаут раньше, чем доходил до живого.
-        Список пуст — остаётся один адрес канала, чтобы алерты не замолчали
-        из-за незаполненной настройки.
+        Список пуст — остаётся один адрес ALERT_TELEGRAM_API_BASE, чтобы
+        алерты не замолчали из-за незаполненной настройки.
         """
         bases = [b.strip() for b in self.alert_telegram_api_bases.split(",") if b.strip()]
-        return bases or [self.channel_telegram_api_base]
+        return bases or [self.alert_telegram_api_base]
 
     @property
     def alert_email_to_list(self) -> list[str]:
@@ -234,6 +251,21 @@ class Settings(BaseSettings):
     def runtime_settings_allowed_list(self) -> list[str]:
         """Белый список правки на лету. Имени нет в списке — правка отклоняется."""
         return [n.strip() for n in self.runtime_settings_allowed.split(",") if n.strip()]
+
+    @property
+    def widget_site_hosts_list(self) -> list[str]:
+        """Домены платформы, которым разрешён виджет (Origin и CORS).
+
+        Пустой список означает «проверка выключена», а не «запрещено всем»:
+        иначе разработка без домена вообще не поднимается. В бою пусто быть
+        не должно, о чём приложение предупреждает при старте.
+        """
+        return [h.strip() for h in self.widget_site_hosts.split(",") if h.strip()]
+
+    @property
+    def widget_attachment_types_list(self) -> list[str]:
+        """Разрешённые типы вложений, в нижнем регистре."""
+        return [t.strip().lower() for t in self.widget_attachment_types.split(",") if t.strip()]
 
     @property
     def pii_allowlist_phones_list(self) -> list[str]:

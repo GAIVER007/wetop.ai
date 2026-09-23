@@ -1,8 +1,8 @@
 """Шаг 6: остановка приложения дожидается задач канала.
 
-Обновления обрабатываются в фоновых задачах, а на вебхук уже ответили 200 —
-Telegram их не повторит. Если закрыть движок БД и http-клиент под живой
-задачей, ход оборвётся посреди себя: реплика клиента в истории есть,
+Сообщения обрабатываются в фоновых задачах, а браузеру уже ответили
+«принято» — он их не повторит. Если закрыть движок БД и http-клиент под
+живой задачей, ход оборвётся посреди себя: реплика клиента в истории есть,
 ответа нет, и повтор её не подберёт.
 """
 
@@ -14,14 +14,14 @@ import pytest
 
 
 class SlowRunner:
-    """Подмена WebhookRunner: одна долгая задача и запись порядка остановки."""
+    """Подмена WidgetRunner: одна долгая задача и запись порядка остановки."""
 
     def __init__(self) -> None:
         self.done = False
         self.drained = False
         self._task: asyncio.Task | None = None
 
-    def submit(self, update: dict) -> asyncio.Task:
+    def submit(self, incoming: object) -> asyncio.Task:
         self._task = asyncio.create_task(self._work())
         return self._task
 
@@ -58,8 +58,8 @@ def app(fake_redis, monkeypatch: pytest.MonkeyPatch):
 
 async def _run_lifespan(app, runner) -> None:
     async with app.router.lifespan_context(app):
-        app.state.telegram_runner = runner
-        runner.submit({"update_id": 1})
+        app.state.widget_runner = runner
+        runner.submit(object())
 
 
 async def test_shutdown_waits_for_runner_tasks(app, monkeypatch: pytest.MonkeyPatch) -> None:

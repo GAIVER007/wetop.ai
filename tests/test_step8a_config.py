@@ -19,6 +19,7 @@ ENV_NAME_RE = re.compile(r"^([A-Z_]+)=", re.MULTILINE)
 
 NEW_NAMES = [
     "ALERT_RATE_LIMIT_PER_HOUR",
+    "ALERT_TELEGRAM_API_BASE",
     "ALERT_TELEGRAM_API_BASES",
     "RUNTIME_SETTINGS_ALLOWED",
     "BACKUP_KEEP_DAYS",
@@ -47,9 +48,11 @@ def test_api_bases_are_split_in_order(monkeypatch: pytest.MonkeyPatch) -> None:
     assert get_settings().alert_telegram_api_base_list == ["https://a.test", "https://b.test"]
 
 
-def test_empty_api_bases_fall_back_to_channel_base(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_empty_api_bases_fall_back_to_the_alert_base(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Запасной адрес у бота алертов свой: канала клиентов, у которого его
+    раньше одалживали, больше нет."""
     monkeypatch.setenv("ALERT_TELEGRAM_API_BASES", "")
-    monkeypatch.setenv("CHANNEL_TELEGRAM_API_BASE", "https://api.test")
+    monkeypatch.setenv("ALERT_TELEGRAM_API_BASE", "https://api.test")
     get_settings.cache_clear()
     assert get_settings().alert_telegram_api_base_list == ["https://api.test"]
 

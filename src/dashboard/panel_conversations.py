@@ -40,21 +40,15 @@ class ReplyIn(BaseModel):
 def build_reply_sender(settings: Settings):
     """Отправитель канала для реплики оператора.
 
-    Тот же OutboxSender, что у движка: строка ложится в outbox до попытки,
-    и мигание канала не съедает реплику. Импорты внутри — клиент мессенджера
-    не нужен тем, кто подменяет отправителя в тестах.
+    Тот же отправитель, что у движка: реплика оператора уходит клиенту ровно
+    тем же путём, что ответ бота, и видна тем же опросом виджета. Очереди
+    здесь нет намеренно — виджет работает вытягиванием, доставка это запись
+    в историю. Импорт внутри: модуль канала не нужен тем, кто подменяет
+    отправителя в тестах.
     """
-    from src.channels.outbox import OutboxSender
-    from src.channels.telegram import CHANNEL, TelegramClient
+    from src.channels.widget import WidgetSender
 
-    telegram = TelegramClient(
-        settings.channel_telegram_bot_token,
-        dependencies.get_http_client(),
-        api_base=settings.channel_telegram_api_base,
-    )
-    return OutboxSender(
-        sessions(), {CHANNEL: telegram}, retry_window_hours=settings.alert_retry_window_hours
-    )
+    return WidgetSender(redis=dependencies.get_redis())
 
 
 @router.get("/conversations")

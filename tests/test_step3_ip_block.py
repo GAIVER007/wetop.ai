@@ -57,10 +57,10 @@ def test_empty_prefixes_protect_nothing(fake_redis) -> None:
         assert client.get("/webhooks/x").status_code == 200
 
 
-def test_real_app_protects_webhooks_and_widget_but_not_health(fake_redis, client) -> None:
+def test_real_app_protects_the_widget_but_not_health(fake_redis, client) -> None:
     asyncio.run(block_ip(fake_redis, TESTCLIENT_IP, ttl_seconds=60))
     # Маршрута ещё нет, но middleware стоит до маршрутизации: 403, а не 404.
-    assert client.post("/webhooks/telegram").status_code == 403
     assert client.get("/widget/chat").status_code == 403
+    assert client.post("/widget/message").status_code == 403
     assert client.get("/health").status_code == 200
     assert client.get("/internal/health", headers={"x-internal-key": "test-key"}).status_code == 200

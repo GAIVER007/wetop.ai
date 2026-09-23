@@ -20,7 +20,7 @@ from tests.engine_fakes import (  # noqa: F401 — фикстура engine_env
     reply,
     roles,
 )
-from tests.telegram_fakes import FakeTransport
+from tests.widget_fakes import FakeTransport
 
 
 def _sender(engine_env, transport: FakeTransport) -> OutboxSender:

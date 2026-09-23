@@ -312,10 +312,20 @@ async def _get_or_create_client(session, chat_id: str, name: str | None) -> Clie
 
 def build_runner(settings: Settings) -> WebhookRunner:
     """Сборка из синглтонов процесса. Импорты внутри: движок и outbox не нужны
-    тем, кто подменяет runner в тестах."""
+    тем, кто подменяет runner в тестах.
+
+    🔴 Здесь внешняя система подключается к живому пути: без хука заявка
+    наружу не пишется никогда и алерт «горячий лид» не приходит, а без
+    реестра модель не видит инструментов наличия и цены. Провайдеров
+    выбирает фабрика по настройке — канал о конкретной системе не знает.
+    """
     from src.ai.engine import build_engine
+    from src.ai.hotel_tools import build_registry
+    from src.ai.llm import CascadeClient, set_cascade_client
     from src.channels.outbox import OutboxSender
-    from src.dependencies import get_http_client, get_sessionmaker
+    from src.dependencies import get_http_client, get_redis, get_sessionmaker
+    from src.integrations.factory import get_providers
+    from src.integrations.lead_writer import LeadWriter
 
     telegram = TelegramClient(
         settings.channel_telegram_bot_token, get_http_client(), api_base=settings.channel_telegram_api_base,
@@ -323,7 +333,19 @@ def build_runner(settings: Settings) -> WebhookRunner:
     sender = OutboxSender(
         get_sessionmaker(), {CHANNEL: telegram}, retry_window_hours=settings.alert_retry_window_hours,
     )
-    engine = build_engine(settings, sender=sender, channel_markdown=False, channel_emoji=False)
+    # Каскад пересобирается с реестром: build_engine берёт его синглтоном,
+    # а пустой реестр означал бы модель без инструментов.
+    set_cascade_client(
+        CascadeClient(settings, http_client=get_http_client(), tools=build_registry(get_providers))
+    )
+    lead_hook = LeadWriter(
+        sessionmaker=get_sessionmaker(), redis=get_redis(),
+        # Фабрика, а не готовый набор: режим внешней системы читается настройкой.
+        providers_getter=get_providers, settings=settings,
+    )
+    engine = build_engine(
+        settings, sender=sender, lead_hook=lead_hook, channel_markdown=False, channel_emoji=False,
+    )
     return WebhookRunner(engine, telegram, get_sessionmaker(), settings)
 
 

@@ -113,6 +113,11 @@ class Settings(BaseSettings):
     alert_dedup_hot_lead_hours: int = 24
     alert_heartbeat_enabled: bool = True
     alert_heartbeat_hour: int = 9
+    # Куда уходит алерт-строка outbox (ставится на шаге 8) и кому.
+    alert_transport: str = "telegram"
+    # Пусто — строка всё равно пишется с получателем '-': событие
+    # не теряется из-за незаполненной настройки.
+    alert_recipient: str = ""
 
     # ─── Канал ───
     channel_telegram_bot_token: str = ""
@@ -135,6 +140,15 @@ class Settings(BaseSettings):
     # Прогрев на старте выключают только тесты.
     kb_embed_warmup: bool = True
     kb_top_k: int = 5
+
+    # ─── Внешняя система ───
+    # Режим выбирается настройкой, а не правкой кода: stub | wetop.
+    # Неизвестное значение фабрика сводит к stub с предупреждением
+    # в журнал: молчаливый выбор реализации искать потом негде.
+    integration_mode: str = "stub"
+    integration_base_url: str = ""
+    integration_api_key: str = ""
+    integration_timeout_seconds: int = 10
 
     # ─── Служебное ───
     # Полный URL переопределяет сборку из POSTGRES_*: тестам нужен sqlite.

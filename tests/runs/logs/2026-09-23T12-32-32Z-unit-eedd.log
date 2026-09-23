@@ -1,0 +1,267 @@
+# Модульные (unit) · 23.09.2026 17:32 Алматы · claude
+# коммит 2eb9aeb (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-32-32Z-unit-eedd.json' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/channels/inbound.controller.test.ts' 'apps/api/src/hotel/reservation-directory.test.ts' 'packages/integrations/src/channex/channel-names.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ❯  unit  apps/api/src/hotel/reservation-directory.test.ts (8 tests | 1 failed) 21ms
+   ❯ reservation directory is a bounded read projection (8)
+     ✓ rejects repeated or structured query parameters with a client error 3ms
+     ✓ rejects invalid dates, statuses and pagination before querying records 5ms
+     ✓ scopes and limits reads, preserving empty data and decimal-safe money 2ms
+     ✓ размер страницы задаётся вызывающим, по умолчанию прежние 25 0ms
+     ✓ негодный размер страницы отклоняется до запроса к базе 1ms
+     × ADR-071: ищет и по номеру брони в канале — без пробелов, как его хранит стойка 7ms
+     ✓ считает брони по статусам отбором без самого статуса 1ms
+     ✓ excludes voided finance entries in the read selection and preserves refunds 1ms
+ ❯  unit  packages/integrations/src/channex/channel-names.test.ts (11 tests | 2 failed) 12ms
+   ✓ otaChannelKey (5)
+     ✓ документированные ota_name Channex и имена Exely одного канала дают один ключ 2ms
+     ✓ Trip.com: настоящий ota_name в документации не встречается — все правдоподобные написания ведут к одному ключу, а неизвестное имя не сопоставится ни с чем 0ms
+     ✓ разные каналы не сходятся между собой ни в одной комбинации 1ms
+     ✓ регистр, пробелы, точки и скобки не влияют; алиасы Hotels.com и ETG ведут к своему каналу 0ms
+     ✓ подтяжку существующих броней Channex делает только для Booking.com, Trip.com и Expedia (how-channex-works-for-us.md) 1ms
+   ✓ channelKey: код из unique_id важнее имени (channel-codes.md: «match by the code, not by the name») (2)
+     ✓ документированные коды ведут к ключам каналов объекта 0ms
+     ✓ код побеждает незнакомое имя; без документированного кода работает имя 0ms
+   ✓ otaChannelLabel: одно имя канала для отчётов (2)
+     ✓ написания одного канала у Channex и Exely дают одно имя для показа 1ms
+     ✓ канал, которого у объекта нет, показывается как пришёл — имя не придумывается 1ms
+   ❯ channexUniqueIdOf: как бронь канала будет называться в Channex (ADR-071) (2)
+     × основной код канала и номер брони в канале 3ms
+     × каналы без Channex — null 1ms
+[Nest] 113  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 114  - 09/23/2026, 12:32:37 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 114  - 09/23/2026, 12:32:37 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 114  - 09/23/2026, 12:32:37 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 114  - 09/23/2026, 12:32:37 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ❯  unit  apps/api/src/channels/inbound.controller.test.ts (25 tests | 1 failed) 413ms
+   ❯ inbound bookings from Channex (contract on fakes) (25)
+     ✓ helpers: guarantee (card data) is stripped, decimal amounts become minor units exactly 4ms
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 33ms
+     ✓ modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels 5ms
+     ✓ перенесённая из Exely бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку 3ms
+     × ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет 6ms
+     ✓ ADR-024: подтянутая Channex бронь с единственным кандидатом СВЯЗЫВАЕТСЯ с перенесённой: дубля и второй ячейки нет, дальше modified/cancelled находят её по unique_id 5ms
+     ✓ ADR-024: два одинаковых кандидата → PMS не выбирает сама: ревизия отклонена с обоими номерами, бронь не создана, вторая ячейка не занята, ack не отправлен 2ms
+     ✓ ADR-024: ноль кандидатов → создаётся как раньше; другой канал, другие даты, метка автотеста и отменённая бронь кандидатами не считаются 1ms
+     ✓ ADR-024: отменённая ревизия для неизвестной брони с перенесённой не сопоставляется — только журнал 1ms
+     ✓ ADR-024: канал под неизвестным PMS именем, а перенесённая бронь с тем же составом есть → ревизия отклонена с именем канала и номером кандидата, а не молчаливый дубль 1ms
+     ✓ ADR-024: имя канала незнакомое, но код в unique_id документирован (CTP = Ctrip, channel-codes.md:140) → сопоставляется с «Trip.com Group» из Exely 1ms
+     ✓ ADR-024: Expedia приходит как «A-Expedia» (bookings-collection.md:1802) и сопоставляется с «Expedia/Hotels.com» из Exely 1ms
+     ✓ ADR-024: Agoda Channex не подтягивает — бронь Agoda с тем же составом, что у перенесённой, новая: создаётся со своей ячейкой, а не сопоставляется 1ms
+     ✓ ADR-024: счёт перенесённого проживания уже оплачен из Exely → предоплата канала не записывается второй раз, есть предупреждение 1ms
+     ✓ ADR-024: валюта ревизии не совпадает с валютой перенесённой брони → связана, но сумма шапки и предоплата не переносятся, есть предупреждение 1ms
+     ✓ ADR-024: заметки перенесённой брони сохраняются, если в ревизии заметки нет; заметка ревизии их заменяет 1ms
+     ✓ предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает 9ms
+     ✓ Q-086: бронь, оплаченную площадкой, счёт принимает предоплатой; оплату на месте — нет 2ms
+     ✓ после шести неудач ревизия ждёт человека, а «Обработать заново» разбирает её 6ms
+     ✓ ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают 2ms
+     ✓ Q-108: отмена предоплаченной OTA-брони снимает платёж канала — на счёте не остаётся минуса 2ms
+     ✓ одна упавшая ревизия не рвёт ленту: следующая обработана и подтверждена 1ms
+     ✓ Q-086: модификация пересчитывает предоплату канала, а смена payment_collect её снимает 2ms
+     ✓ unmapped room type → event FAILED with a reason, no reservation, no ack 1ms
+     ✓ webhook: wrong secret → 401, missing secret config → 503, booking event → pulled by revision id 3ms
+ ❯  unit  apps/api/src/reservations/reservations.controller.test.ts (26 tests | 3 failed) 417ms
+   ❯ manual reservation API (26)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 51ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 2ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 3ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 3ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 5ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 5ms
+     × ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 6ms
+     × ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 5ms
+     × ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 3ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 2ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 6ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 3ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 4ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 4ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 7ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 4ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 8ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 10ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 13ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 4ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 5ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 7ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 3ms
+     ✓ GET /rate-plans lists only active tariffs 1ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 5ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/channels/inbound.controller.test.ts > inbound bookings from Channex (contract on fakes) > ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет
+AssertionError: expected { revisionId: 'rev-desk-1', …(6) } to match object { result: 'linked', …(1) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "confirmationNumber": "20261101-DESK01",
+-   "result": "linked",
++   "result": "modified",
+  }
+
+ ❯ apps/api/src/channels/inbound.controller.test.ts:686:34
+    684|     fakes.setFeed([revision({ id: 'rev-desk-1', notes: null })]);
+    685|     const res = await request(app.getHttpServer()).post('/channels/cha…
+    686|     expect(res.body.outcomes[0]).toMatchObject({
+       |                                  ^
+    687|       result: 'linked',
+    688|       confirmationNumber: '20261101-DESK01',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL   unit  apps/api/src/hotel/reservation-directory.test.ts > reservation directory is a bounded read projection > ADR-071: ищет и по номеру брони в канале — без пробелов, как его хранит стойка
+AssertionError: expected [ …(2) ] to deep equally contain { Object (externalId) }
+
+- Expected:
+{
+  "externalId": {
+    "contains": "9996013801",
+  },
+}
+
++ Received:
+[
+  {
+    "confirmationNumber": {
+      "contains": "999 601 3801",
+      "mode": "insensitive",
+    },
+  },
+  {
+    "primaryGuest": {
+      "is": {
+        "OR": [
+          {
+            "firstName": {
+              "contains": "999 601 3801",
+              "mode": "insensitive",
+            },
+          },
+          {
+            "lastName": {
+              "contains": "999 601 3801",
+              "mode": "insensitive",
+            },
+          },
+          {
+            "phone": {
+              "contains": "999 601 3801",
+            },
+          },
+        ],
+      },
+    },
+  },
+]
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:89:22
+     87|     await service.list({ q: '999 601 3801' });
+     88|     const where = db.reservation.findMany.mock.calls[0]![0].where;
+     89|     expect(where.OR).toContainEqual({ externalId: { contains: '9996013…
+       |                      ^
+     90|   });
+     91|   it('считает брони по статусам отбором без самого статуса', async () …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем
+AssertionError: expected { id: 'r1', …(12) } to match object { source: 'OTA', …(2) }
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "channel": "Booking.com",
+-   "externalId": "9996013801",
++   "channel": null,
++   "externalId": null,
+    "source": "OTA",
+  }
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:579:68
+    577|       .send(body({ source: 'OTA', channel: 'booking', externalId: ' 99…
+    578|       .expect(201);
+    579|     expect(fake.state.reservations.get(r.body.confirmationNumber)).toM…
+       |                                                                    ^
+    580|       source: 'OTA',
+    581|       channel: 'Booking.com',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex
+Error: expected 409 "Conflict", got 201 "Created"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:620:8
+    618|         }),
+    619|       )
+    620|       .expect(409);
+       |        ^
+    621|     expect(dup.body.message).toContain(first.body.confirmationNumber);
+    622|     // бронь Booking.com, которую уже прислал Channex: её внешний ID —…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400
+Error: expected 200 "OK", got 400 "Bad Request"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:659:8
+    657|       .patch(`/reservations/${n}`)
+    658|       .send({ channel: 'Hostelworld', externalId: '101-A' })
+    659|       .expect(200);
+       |        ^
+    660|     expect(fake.state.reservations.get(n)).toMatchObject({
+    661|       channel: 'Hostelworld',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL   unit  packages/integrations/src/channex/channel-names.test.ts > channexUniqueIdOf: как бронь канала будет называться в Channex (ADR-071) > основной код канала и номер брони в канале
+TypeError: channexUniqueIdOf is not a function
+ ❯ packages/integrations/src/channex/channel-names.test.ts:152:12
+    150| describe('channexUniqueIdOf: как бронь канала будет называться в Chann…
+    151|   it('основной код канала и номер брони в канале', () => {
+    152|     expect(channexUniqueIdOf('Booking.com', '9996013801')).toBe('BDC-9…
+       |            ^
+    153|     expect(channexUniqueIdOf('Trip.com', '12345')).toBe('CTP-12345');
+    154|     expect(channexUniqueIdOf('Expedia', '1695093244')).toBe('EXP-16950…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL   unit  packages/integrations/src/channex/channel-names.test.ts > channexUniqueIdOf: как бронь канала будет называться в Channex (ADR-071) > каналы без Channex — null
+TypeError: channexUniqueIdOf is not a function
+ ❯ packages/integrations/src/channex/channel-names.test.ts:158:12
+    156|   });
+    157|   it('каналы без Channex — null', () => {
+    158|     expect(channexUniqueIdOf('OneTwoTrip', '1')).toBeNull();
+       |            ^
+    159|     expect(channexUniqueIdOf('Bronevik.com', '1')).toBeNull();
+    160|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  7 failed | 63 passed (70)
+   Start at  12:32:34
+   Duration  3.04s (import 66%, transform 22%, tests 11%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-32-32Z-unit-eedd.json
+
+# код выхода 1 · 5 с

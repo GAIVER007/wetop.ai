@@ -24,6 +24,8 @@ export interface ReservationCard {
   confirmationNumber: string;
   source: string;
   channel: string | null;
+  /** Номер брони в канале (ADR-071) или `unique_id` Channex, если бронь пришла из канала; фальшивки тестов могут опускать */
+  externalId?: string | null;
   status: string;
   arrivalDate: string;
   departureDate: string;
@@ -78,6 +80,7 @@ export async function loadReservationCard(
     confirmationNumber: r.confirmationNumber,
     source: r.source,
     channel: r.channel,
+    externalId: r.externalId,
     status: r.status,
     arrivalDate: d(r.arrivalDate),
     departureDate: d(r.departureDate),

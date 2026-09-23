@@ -80,6 +80,26 @@ const CHANNEL_CODE_KEYS: Readonly<Record<string, string>> = {
   OVK: 'ostrovok', // :454 Emerging Travel Group (Ostrovok)
 };
 
+/** Основной код канала в `unique_id` Channex — у Expedia кодов много, бронь самой Expedia идёт под EXP */
+const PRIMARY_CODE: Readonly<Record<string, string>> = {
+  bookingcom: 'BDC',
+  expedia: 'EXP',
+  ctrip: 'CTP',
+  agoda: 'AGO',
+  hostelworld: 'HWL',
+  ostrovok: 'OVK',
+};
+
+/**
+ * Как бронь канала с этим номером называется в Channex (`unique_id`: код канала и номер брони на его стороне,
+ * `BDC-9996013801`) — чтобы стойка не завела вручную бронь, которую Channex уже прислал (ADR-071).
+ * null — у канала нет Channex (OneTwoTrip, Bronevik) или имя незнакомое.
+ */
+export function channexUniqueIdOf(channelName: string, otaReservationCode: string): string | null {
+  const code = PRIMARY_CODE[otaChannelKey(channelName)];
+  return code ? `${code}-${otaReservationCode}` : null;
+}
+
 /** Трёхбуквенный код из `unique_id` (`EXP-1695093244` → `EXP`), null если формат другой. */
 export function channelCodeOf(uniqueId: string): string | null {
   const m = /^([A-Z]{3})-/.exec(uniqueId);

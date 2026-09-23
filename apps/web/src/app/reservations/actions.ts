@@ -24,6 +24,8 @@ const KEPT = [
   'fromDate',
   'children',
   'source',
+  'channel',
+  'externalId',
   'accommodationTypeCode',
   'ratePlanCode',
   'adults',
@@ -86,6 +88,9 @@ export async function createReservationAction(
     });
     const card = await reservationsApi.create({
       source: str(fd, 'source'),
+      // ADR-071: поля есть в форме только у источника OTA
+      ...(fd.has('channel') ? { channel: str(fd, 'channel') ?? null } : {}),
+      ...(fd.has('externalId') ? { externalId: str(fd, 'externalId') ?? null } : {}),
       arrivalDate: str(fd, 'arrivalDate'),
       departureDate: str(fd, 'departureDate'),
       notes: str(fd, 'notes') ?? null,
@@ -116,6 +121,8 @@ export async function updateReservationAction(
     await reservationsApi.update(number, {
       notes: str(fd, 'notes') ?? null,
       source: str(fd, 'source'),
+      ...(fd.has('channel') ? { channel: str(fd, 'channel') ?? null } : {}),
+      ...(fd.has('externalId') ? { externalId: str(fd, 'externalId') ?? null } : {}),
     });
   } catch (e) {
     return { error: describe(e), values: kept(fd), attempt: (_prev.attempt ?? 0) + 1 };

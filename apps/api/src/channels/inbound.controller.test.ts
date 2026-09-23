@@ -652,6 +652,58 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(fakes.allocations).toHaveLength(0); // ячейка освободилась, а не осталась занятой
   });
 
+  it('ADR-071: бронь стойки с номером брони в канале при подключении канала СВЯЗЫВАЕТСЯ: гость, статус, ячейка и заметка стойки на месте, дубля нет', async () => {
+    const seeded = await fakes.repo.createReservation({
+      confirmationNumber: '20261101-DESK01',
+      source: 'OTA',
+      channel: 'Booking.com',
+      externalId: '9996013801', // стойка вписала номер брони из экстранета
+      status: 'CHECKED_IN',
+      arrivalDate: '2026-11-10',
+      departureDate: '2026-11-12',
+      adults: 1,
+      children: 0,
+      currency: 'KZT',
+      totalAmountMinor: 3_080_000n,
+      primaryGuestId: 'g-desk',
+      notes: 'заметка стойки',
+      items: [
+        {
+          accommodationTypeId: 't1',
+          arrivalDate: '2026-11-10',
+          departureDate: '2026-11-12',
+          priceMinor: 3_080_000n,
+          status: 'CHECKED_IN',
+        },
+      ],
+    });
+    await fakes.repo.createAllocation(seeded.itemIds[0]!, 'u-9001', '2026-11-10', '2026-11-12');
+    const before = fakes.state().length;
+
+    // подтяжка при подключении: та же бронь как booking_new, заметки у канала нет
+    fakes.setFeed([revision({ id: 'rev-desk-1', notes: null })]);
+    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(res.body.outcomes[0]).toMatchObject({
+      result: 'linked',
+      confirmationNumber: '20261101-DESK01',
+    });
+    expect(fakes.state()).toHaveLength(before);
+    const linked = fakes.state().find((r) => r.id === seeded.id)!;
+    expect(linked.externalId).toBe('BDC-9996013801');
+    expect(linked.items.map((i) => i.status)).toEqual(['CHECKED_IN']);
+    expect(fakes.reservations.get('20261101-DESK01')).toMatchObject({ notes: 'заметка стойки' });
+    expect(fakes.allocations).toEqual([
+      {
+        id: expect.any(String),
+        itemId: seeded.itemIds[0],
+        unitId: 'u-9001',
+        start: '2026-11-10',
+        end: '2026-11-12',
+      },
+    ]);
+    expect(fakes.audits).toEqual(['channex.booking.linked']);
+  });
+
   /**
    * ADR-024 (Q-034): так выглядит бронь Booking.com после переноса из Exely — номер из Exely, канал как
    * его называет Exely, внешнего ID нет (Универсальный API номер брони канала не отдаёт), ячейка назначена.

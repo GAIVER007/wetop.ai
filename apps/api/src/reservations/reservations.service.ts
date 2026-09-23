@@ -28,6 +28,7 @@ import {
   assertCanExtend,
   hasCitizenship,
 } from '@pms/domain';
+import { channex } from '@pms/integrations';
 import { deskGuestForStorage } from '@pms/shared';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
@@ -42,6 +43,10 @@ import {
 
 export interface CreateReservationDto {
   source?: string;
+  /** ADR-071: для источника OTA — канал (любое написание имени канала объекта) */
+  channel?: string | null;
+  /** ADR-071: для источника OTA — номер брони в канале, как в экстранете; пробелы убираются */
+  externalId?: string | null;
   arrivalDate?: string;
   departureDate?: string;
   notes?: string | null;
@@ -73,6 +78,59 @@ export interface CreateReservationDto {
 export interface UpdateReservationDto {
   notes?: string | null;
   source?: string;
+  /** ADR-071: канал и номер брони в канале — только у брони с источником OTA; null стирает */
+  channel?: string | null;
+  externalId?: string | null;
+}
+
+/**
+ * ADR-071: канал и номер брони в канале у ручной брони OTA. Номер — как в экстранете, пробелы убираются: по нему
+ * приём ревизий Channex найдёт эту бронь, когда канал подключат (шаг 2 — `ota_reservation_code`). Канал хранится
+ * каноническим именем. У другого источника ни того ни другого быть не может.
+ */
+function channelBooking(
+  source: string,
+  dto: { channel?: string | null | undefined; externalId?: string | null | undefined },
+  required: boolean,
+): { channel?: string | null; externalId?: string | null } {
+  const given = dto.channel != null || dto.externalId != null;
+  if (source !== 'OTA') {
+    if (given)
+      throw new BadRequestException(
+        'Канал и номер брони в канале указываются только у брони с источником OTA',
+      );
+    return {};
+  }
+  const out: { channel?: string | null; externalId?: string | null } = {};
+  if (dto.channel !== undefined || required) {
+    const raw = (dto.channel ?? '').trim();
+    if (!raw) {
+      if (required)
+        throw new BadRequestException('channel обязателен для брони OTA: канал, где бронь сделана');
+      out.channel = null;
+    } else {
+      if (!channex.KNOWN_CHANNEL_KEYS.has(channex.otaChannelKey(raw)))
+        throw new BadRequestException(`Канал «${raw}» у объекта не подключён`);
+      out.channel = channex.otaChannelLabel(raw);
+    }
+  }
+  if (dto.externalId !== undefined || required) {
+    const number = (dto.externalId ?? '').replace(/\s+/g, '');
+    if (!number) {
+      if (required)
+        throw new BadRequestException(
+          'externalId обязателен для брони OTA: номер брони в канале из экстранета',
+        );
+      out.externalId = null;
+    } else {
+      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(number))
+        throw new BadRequestException(
+          'externalId — номер брони в канале: от 3 символов, латиница, цифры, точка, дефис',
+        );
+      out.externalId = number;
+    }
+  }
+  return out;
 }
 /** Гостей на проживании (Q-102). Цена не пересчитывается: перецена — через «Изменить даты». */
 export interface UpdateItemDto {
@@ -258,6 +316,7 @@ export class ReservationsService {
     if (!dto.source || !(RESERVATION_SOURCES as readonly string[]).includes(dto.source))
       throw new BadRequestException(`source обязателен: один из ${RESERVATION_SOURCES.join(', ')}`);
     const source = dto.source as ReservationSource;
+    const booking = channelBooking(source, dto, true);
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
     const guest = opts.guestPrepared
       ? {
@@ -400,10 +459,13 @@ export class ReservationsService {
           });
         }
         const guestId = await repo.createGuest(guest);
+        if (booking.externalId)
+          await this.assertChannelBookingFree(repo, booking.channel ?? null, booking.externalId);
         const number = confirmationNumber(new Date());
         const created = await repo.createReservation({
           confirmationNumber: number,
           source,
+          ...booking,
           status,
           ...dates,
           adults: prepared.reduce((s, p) => s + p.adults, 0),
@@ -889,9 +951,36 @@ export class ReservationsService {
     assertRestrictionsAllow({ ...dates, categoryName: type.name, restrictions, soldUntil });
   }
 
+  /**
+   * ADR-071: номер брони в канале второй раз не заводится — ни у другой ручной брони, ни когда Channex эту бронь
+   * уже прислал (её внешний ID — `unique_id`, `BDC-<номер>`). Иначе при подключении канала или сейчас же — дубль.
+   */
+  private async assertChannelBookingFree(
+    repo: ReservationsRepository,
+    channel: string | null,
+    externalId: string,
+    exceptId?: string,
+  ): Promise<void> {
+    const channexId = channel ? channex.channexUniqueIdOf(channel, externalId) : null;
+    for (const id of [externalId, ...(channexId ? [channexId] : [])]) {
+      const other = await repo.reservationByExternalId(id);
+      if (other && other.id !== exceptId)
+        throw new ConflictException(
+          id === externalId
+            ? `Номер брони в канале ${externalId} уже записан в брони ${other.confirmationNumber} — откройте её`
+            : `Бронь ${externalId} уже пришла из канала: ${other.confirmationNumber} — вторую заводить не нужно`,
+        );
+    }
+  }
+
   /** Правка шапки готовой брони: заметки и источник (Q-089: источник — только из справочника). */
   async update(number: string, dto: UpdateReservationDto): Promise<ReservationCard> {
-    const patch: { notes?: string | null; source?: ReservationSource } = {};
+    const patch: {
+      notes?: string | null;
+      source?: ReservationSource;
+      channel?: string | null;
+      externalId?: string | null;
+    } = {};
     if (dto.notes !== undefined) {
       if (dto.notes !== null && typeof dto.notes !== 'string')
         throw new BadRequestException('notes — строка или null');
@@ -902,12 +991,24 @@ export class ReservationsService {
         throw new BadRequestException(`source — один из ${RESERVATION_SOURCES.join(', ')}`);
       patch.source = dto.source as ReservationSource;
     }
-    if (Object.keys(patch).length === 0)
-      throw new BadRequestException('Нечего менять: укажите notes и/или source');
+    const bookingGiven = dto.channel !== undefined || dto.externalId !== undefined;
+    if (Object.keys(patch).length === 0 && !bookingGiven)
+      throw new BadRequestException('Нечего менять: укажите notes, source, channel или externalId');
     return this.uow.run((repo) =>
       guarded(async () => {
         const state = await this.load(repo, number);
         const before = await repo.card(number);
+        if (bookingGiven) {
+          const booking = channelBooking(patch.source ?? before!.source, dto, false);
+          if (booking.externalId)
+            await this.assertChannelBookingFree(
+              repo,
+              booking.channel ?? before!.channel ?? null,
+              booking.externalId,
+              state.id,
+            );
+          Object.assign(patch, booking);
+        }
         await repo.updateReservation(state.id, patch);
         const after = (await repo.card(number))!;
         await repo.audit({

@@ -13,7 +13,7 @@ import {
 import { displayDate } from '../../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
 import { createReservationAction, type ActionResult } from '../actions';
-import { SOURCES } from '../sources';
+import { CHANNELS, SOURCES } from '../sources';
 
 export function NewReservationForm(props: {
   selectedUnit: string;
@@ -93,7 +93,38 @@ export function NewReservationForm(props: {
             ))}
           </Select>
         </Field>
+        {snapshot['source'] === 'OTA' && (
+          <>
+            <Field label="Канал *">
+              <Select name="channel" required defaultValue={kept['channel'] ?? ''}>
+                <option value="" disabled>
+                  — выбрать —
+                </option>
+                {CHANNELS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Номер брони в канале *">
+              <Input
+                name="externalId"
+                required
+                defaultValue={kept['externalId'] ?? ''}
+                placeholder="как в экстранете"
+                autoComplete="off"
+              />
+            </Field>
+          </>
+        )}
       </Grid>
+      {snapshot['source'] === 'OTA' && (
+        <p className="hint" data-testid="channel-number-hint">
+          Номер брони — из экстранета канала. По нему WETOP узнает эту бронь, когда канал подключат
+          к Channex, и не создаст вторую.
+        </p>
+      )}
       <input type="hidden" name="placementIds" value={placementIds.join(',')} />
       {placementIds.map((id, index) => (
         <fieldset key={id} className="placement-fields" data-testid="placement-fields">

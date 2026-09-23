@@ -72,6 +72,8 @@ export class ReservationDirectory {
         ? {
             OR: [
               { confirmationNumber: { contains: q, mode: 'insensitive' as const } },
+              // ADR-071: номер брони в канале стойка вводит без пробелов — так же и ищем
+              { externalId: { contains: q.replace(/\s+/g, '') } },
               {
                 primaryGuest: {
                   is: {

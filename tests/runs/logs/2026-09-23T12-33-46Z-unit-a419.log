@@ -1,0 +1,121 @@
+# Модульные (unit) · 23.09.2026 17:33 Алматы · claude
+# коммит 2eb9aeb (main), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-33-46Z-unit-a419.json' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/api/src/channels' 'apps/api/src/hotel/reservation-directory.test.ts' 'packages/integrations/src/channex/channel-names.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  unit  apps/api/src/hotel/reservation-directory.test.ts (8 tests) 11ms
+ ✓  unit  packages/integrations/src/channex/channel-names.test.ts (11 tests) 18ms
+[Nest] 91  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 92  - 09/23/2026, 12:33:51 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 92  - 09/23/2026, 12:33:51 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 92  - 09/23/2026, 12:33:51 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 92  - 09/23/2026, 12:33:51 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓  unit  apps/api/src/channels/inbound.controller.test.ts (25 tests) 943ms
+ ❯  unit  apps/api/src/reservations/reservations.controller.test.ts (26 tests | 2 failed) 1048ms
+   ❯ manual reservation API (26)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 85ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 5ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 5ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 6ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 20ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 8ms
+     × ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 5ms
+     × ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 11ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 10ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 14ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 4ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 8ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 16ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 8ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 7ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 4ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 7ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 20ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 46ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 8ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 10ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 29ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 10ms
+     ✓ GET /rate-plans lists only active tariffs 1ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 11ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 3ms
+[Nest] 128  - 09/23/2026, 12:33:53 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 128  - 09/23/2026, 12:33:53 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓  unit  apps/api/src/channels/sync-schedule.test.ts (5 tests) 25ms
+[Nest] 135  - 09/23/2026, 12:33:53 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 135  - 09/23/2026, 12:33:53 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 135  - 09/23/2026, 12:33:53 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓  unit  apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 8ms
+ ✓  unit  apps/api/src/channels/channels.controller.test.ts (10 tests) 759ms
+ ✓  unit  apps/api/src/channels/gateway-failure.test.ts (4 tests) 12ms
+[Nest] 143  - 09/23/2026, 12:33:54 PM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓  unit  apps/api/src/channels/outbox.test.ts (9 tests) 24ms
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 150  - 09/23/2026, 12:33:55 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 150  - 09/23/2026, 12:33:55 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 150  - 09/23/2026, 12:33:55 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 150  - 09/23/2026, 12:33:55 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 150  - 09/23/2026, 12:33:55 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 150  - 09/23/2026, 12:33:55 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓  unit  apps/api/src/channels/webhook-health.test.ts (10 tests) 10ms
+ ✓  unit  apps/api/src/channels/schedule.test.ts (26 tests) 7ms
+ ✓  unit  apps/api/src/channels/channels.test.ts (9 tests) 10ms
+ ✓  unit  apps/api/src/channels/ari-switch.test.ts (4 tests) 4ms
+ ✓  unit  apps/api/src/channels/content.test.ts (6 tests) 7ms
+ ✓  unit  apps/api/src/channels/connection.test.ts (10 tests) 16ms
+ ✓  unit  apps/api/src/channels/revision-facts.test.ts (3 tests) 5ms
+ ✓  unit  apps/api/src/channels/outbox-rows.test.ts (3 tests) 3ms
+ ✓  unit  apps/api/src/channels/webhook-register.test.ts (2 tests) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем
+Error: expected 201 "Created", got 400 "Bad Request"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:578:8
+    576|       .post('/reservations')
+    577|       .send(body({ source: 'OTA', channel: 'booking', externalId: ' 99…
+    578|       .expect(201);
+       |        ^
+    579|     expect(fake.state.reservations.get(r.body.confirmationNumber)).toM…
+    580|       source: 'OTA',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL   unit  apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex
+Error: expected 201 "Created", got 422 "Unprocessable Entity"
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:634:8
+    632|         }),
+    633|       )
+    634|       .expect(201);
+       |        ^
+    635|     fake.state.reservations.get(channexCard.body.confirmationNumber)!.…
+    636|     const fromChannex = await request(app.getHttpServer())
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 17 passed (18)
+      Tests  2 failed | 172 passed (174)
+   Start at  12:33:48
+   Duration  9.09s (import 75%, tests 13%, transform 11%, worker 1%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T12-33-46Z-unit-a419.json
+
+# код выхода 1 · 10 с

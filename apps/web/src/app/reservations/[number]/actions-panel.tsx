@@ -32,7 +32,7 @@ import {
   updateStayGuestsAction,
   type ActionResult,
 } from '../actions';
-import { SOURCES } from '../sources';
+import { CHANNELS, SOURCES, fromChannex } from '../sources';
 import { useConfirm } from '../../../components/use-confirm';
 import { previewLine } from '../../../lib/action-preview';
 import { useToast } from '../../../components/toast';
@@ -48,6 +48,9 @@ export function ReservationActions(props: {
   status: string;
   source: string;
   notes: string | null;
+  /** ADR-071: канал и номер брони в канале (ручная бронь OTA) или `unique_id` Channex */
+  channel?: string | null;
+  externalId?: string | null;
   arrivalDate: string;
   departureDate: string;
   /** Валюта брони — для сумм в окнах подтверждения */
@@ -176,7 +179,13 @@ export function ReservationActions(props: {
           {datesState.error && <Alert>{datesState.error}</Alert>}
         </form>
       )}
-      <EditForm number={props.number} source={props.source} notes={props.notes} />
+      <EditForm
+        number={props.number}
+        source={props.source}
+        notes={props.notes}
+        channel={props.channel ?? null}
+        externalId={props.externalId ?? null}
+      />
       {canEdit && (
         // Опасное действие названо до окна: что необратимо и что покажем перед подтверждением (B3)
         <div className="panel panel--danger" data-testid="cancel-panel">
@@ -225,15 +234,27 @@ export function ReservationActions(props: {
   );
 }
 
-/** Правка готовой брони: заметки и источник. Ключ по текущим значениям — после сохранения поля перерисовываются. */
-function EditForm(props: { number: string; source: string; notes: string | null }) {
+/**
+ * Правка готовой брони: заметки и источник; у брони OTA — канал и номер брони в канале (ADR-071). Бронь, которую
+ * прислал Channex, номер не правит: её внешний ID — `unique_id`, по нему идут изменения из канала.
+ * Ключ по текущим значениям — после сохранения поля перерисовываются.
+ */
+function EditForm(props: {
+  number: string;
+  source: string;
+  notes: string | null;
+  channel: string | null;
+  externalId: string | null;
+}) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(
     updateReservationAction.bind(null, props.number),
     { error: null },
   );
+  const [source, setSource] = useState(state.values?.source ?? props.source);
+  const channexBooking = fromChannex(props.externalId);
   return (
     <form
-      key={`${props.source}|${props.notes ?? ''}|${state.attempt ?? 0}`}
+      key={`${props.source}|${props.notes ?? ''}|${props.externalId ?? ''}|${state.attempt ?? 0}`}
       action={action}
       className="panel"
       data-testid="edit-reservation-form"
@@ -241,7 +262,11 @@ function EditForm(props: { number: string; source: string; notes: string | null 
       <PanelTitle>Заметки и источник</PanelTitle>
       <Row>
         <Field inline label="Источник">
-          <Select name="source" defaultValue={state.values?.source ?? props.source}>
+          <Select
+            name="source"
+            defaultValue={state.values?.source ?? props.source}
+            onChange={(e) => setSource(e.target.value)}
+          >
             {SOURCES.map(([v, t]) => (
               <option key={v} value={v}>
                 {t}
@@ -249,6 +274,38 @@ function EditForm(props: { number: string; source: string; notes: string | null 
             ))}
           </Select>
         </Field>
+        {source === 'OTA' && !channexBooking && (
+          <>
+            <Field inline label="Канал">
+              <Select
+                name="channel"
+                defaultValue={state.values?.channel ?? props.channel ?? ''}
+                data-testid="edit-channel"
+              >
+                <option value="">— не указан —</option>
+                {CHANNELS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field inline label="Номер брони в канале">
+              <Input
+                name="externalId"
+                defaultValue={state.values?.externalId ?? props.externalId ?? ''}
+                placeholder="как в экстранете"
+                autoComplete="off"
+                data-testid="edit-external-id"
+              />
+            </Field>
+          </>
+        )}
+        {channexBooking && (
+          <span className="hint" data-testid="channex-booking-id">
+            из Channex: {props.externalId}
+          </span>
+        )}
         <Textarea
           name="notes"
           rows={2}

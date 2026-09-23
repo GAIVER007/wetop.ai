@@ -3,6 +3,7 @@ import {
   CHANNEX_PULLS_EXISTING_BOOKINGS,
   channelCodeOf,
   channelKey,
+  channexUniqueIdOf,
   KNOWN_CHANNEL_KEYS,
   otaChannelKey,
   otaChannelLabel,
@@ -143,5 +144,18 @@ describe('otaChannelLabel: одно имя канала для отчётов', 
   it('канал, которого у объекта нет, показывается как пришёл — имя не придумывается', () => {
     for (const raw of ['Airbnb', 'Klook', 'Goibibo', 'Канал без латиницы'])
       expect(otaChannelLabel(raw), raw).toBe(raw);
+  });
+});
+
+describe('channexUniqueIdOf: как бронь канала будет называться в Channex (ADR-071)', () => {
+  it('основной код канала и номер брони в канале', () => {
+    expect(channexUniqueIdOf('Booking.com', '9996013801')).toBe('BDC-9996013801');
+    expect(channexUniqueIdOf('Trip.com', '12345')).toBe('CTP-12345');
+    expect(channexUniqueIdOf('Expedia', '1695093244')).toBe('EXP-1695093244');
+    expect(channexUniqueIdOf('Ostrovok.ru', '77')).toBe('OVK-77');
+  });
+  it('каналы без Channex — null', () => {
+    expect(channexUniqueIdOf('OneTwoTrip', '1')).toBeNull();
+    expect(channexUniqueIdOf('Bronevik.com', '1')).toBeNull();
   });
 });

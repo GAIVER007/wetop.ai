@@ -350,6 +350,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   status={r.status}
                   source={r.source}
                   notes={r.notes}
+                  channel={r.channel}
+                  externalId={r.externalId ?? null}
                   arrivalDate={r.arrivalDate}
                   departureDate={r.departureDate}
                   currency={r.currency}

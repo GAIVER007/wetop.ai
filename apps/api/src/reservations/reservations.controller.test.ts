@@ -21,6 +21,8 @@ import {
 type StoredReservation = ReservationState & {
   source?: string;
   notes?: string | null;
+  channel?: string | null;
+  externalId?: string | null;
   adults?: number;
   children?: number;
 };
@@ -256,6 +258,8 @@ function makeFake() {
         notes: input.notes,
         adults: input.adults,
         children: input.children,
+        channel: input.channel ?? null,
+        externalId: input.externalId ?? null,
       });
       return { id, itemIds: items.map((i) => i.id) };
     },
@@ -313,8 +317,9 @@ function makeFake() {
       a.start = startDate;
       a.end = endDate;
     },
-    async reservationByExternalId() {
-      return null;
+    async reservationByExternalId(externalId) {
+      const r = [...state.reservations.values()].find((x) => x.externalId === externalId);
+      return r ? this.reservationByNumber(r.confirmationNumber) : null;
     },
     async importedOtaCandidates() {
       return [];
@@ -563,6 +568,93 @@ describe('manual reservation API', () => {
       if (before === undefined) delete process.env.PII_STORAGE;
       else process.env.PII_STORAGE = before;
     }
+  });
+  it('ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем', async () => {
+    const ota = (over: Record<string, unknown>) =>
+      body({ source: 'OTA', arrivalDate: '2026-09-18', departureDate: '2026-09-19', ...over });
+    const r = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ source: 'OTA', channel: 'BookingCom', externalId: ' 999 601 3801 ' }))
+      .expect(201);
+    expect(fake.state.reservations.get(r.body.confirmationNumber)).toMatchObject({
+      source: 'OTA',
+      channel: 'Booking.com',
+      externalId: '9996013801',
+    });
+    for (const bad of [
+      { channel: undefined, externalId: '111' },
+      { channel: 'Booking.com', externalId: undefined },
+      { channel: 'Airbnb', externalId: '111' },
+      { channel: 'Agoda', externalId: 'a' },
+    ])
+      await request(app.getHttpServer()).post('/reservations').send(ota(bad)).expect(400);
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(
+        body({
+          source: 'PHONE',
+          channel: 'Agoda',
+          externalId: '111',
+          arrivalDate: '2026-09-18',
+          departureDate: '2026-09-19',
+        }),
+      )
+      .expect(400);
+  });
+  it('ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex', async () => {
+    const night = (day: string, over: Record<string, unknown>) =>
+      body({
+        source: 'OTA',
+        arrivalDate: `2026-09-${day}`,
+        departureDate: `2026-09-${String(Number(day) + 1)}`,
+        items: [{ accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 }],
+        ...over,
+      });
+    const first = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(night('15', { channel: 'Agoda', externalId: '555' }))
+      .expect(201);
+    const dup = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(night('16', { channel: 'Agoda', externalId: '555' }))
+      .expect(409);
+    expect(dup.body.message).toContain(`уже записан в брони ${first.body.confirmationNumber}`);
+    // бронь Booking.com, которую уже прислал Channex: её внешний ID — unique_id
+    const channexCard = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(night('17', { channel: 'Booking.com', externalId: '777' }))
+      .expect(201);
+    fake.state.reservations.get(channexCard.body.confirmationNumber)!.externalId = 'BDC-778';
+    const fromChannex = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(night('18', { channel: 'Booking.com', externalId: '778' }))
+      .expect(409);
+    expect(fromChannex.body.message).toContain(
+      `уже пришла из канала: ${channexCard.body.confirmationNumber}`,
+    );
+  });
+  it('ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400', async () => {
+    const r = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ source: 'OTA', channel: 'Hostelworld', externalId: '100' }))
+      .expect(201);
+    const n = r.body.confirmationNumber;
+    await request(app.getHttpServer())
+      .patch(`/reservations/${n}`)
+      .send({ channel: 'Hostelworld', externalId: '101-A' })
+      .expect(200);
+    expect(fake.state.reservations.get(n)).toMatchObject({
+      channel: 'Hostelworld',
+      externalId: '101-A',
+    });
+    const phone = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }))
+      .expect(201);
+    await request(app.getHttpServer())
+      .patch(`/reservations/${phone.body.confirmationNumber}`)
+      .send({ channel: 'Agoda', externalId: '200' })
+      .expect(400);
   });
   it('rejects a missing/unknown source with 400 — no default (Q-089)', async () => {
     await request(app.getHttpServer())

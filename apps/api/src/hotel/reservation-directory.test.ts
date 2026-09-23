@@ -82,6 +82,12 @@ describe('reservation directory is a bounded read projection', () => {
    * Числа на чипах статусов: считаются по тому же отбору без статуса, иначе выбранный статус
    * обнулил бы остальные и смена видела бы «Проживают 0» при трёх проживающих.
    */
+  it('ADR-071: ищет и по номеру брони в канале — без пробелов, как его хранит стойка', async () => {
+    const { db, service } = fixture();
+    await service.list({ q: '999 601 3801' });
+    const where = db.reservation.findMany.mock.calls[0]![0].where;
+    expect(where.OR).toContainEqual({ externalId: { contains: '9996013801' } });
+  });
   it('считает брони по статусам отбором без самого статуса', async () => {
     const { db, service } = fixture();
     db.reservation.groupBy.mockResolvedValue([

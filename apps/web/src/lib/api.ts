@@ -224,6 +224,8 @@ export interface ReservationCard {
   confirmationNumber: string;
   source: string;
   channel: string | null;
+  /** ADR-071: номер брони в канале (ручная бронь OTA) или `unique_id` Channex (`BDC-…`) */
+  externalId?: string | null;
   status: string;
   arrivalDate: string;
   departureDate: string;

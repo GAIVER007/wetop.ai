@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { ExelyImportError } from './errors';
 import type { ReservationImportRecord, ReservationStatusCode } from './normalize-reservation';
-import { markerCheckLine, normalizeEach, screenRecords, wetopMarker } from './sync-screen';
+import {
+  EXELY_BOOKING_NUMBER,
+  markerCheckLine,
+  markerSearchSummary,
+  normalizeEach,
+  screenRecords,
+  wetopMarker,
+} from './sync-screen';
 
 const record = (
   n: string,
@@ -143,5 +150,21 @@ describe('проверка метки на одной брони Exely — ли�
     const none = markerCheckLine('E-4', 'Гость Иванов просит нижнюю полку');
     expect(none).toContain('метки нет');
     expect(none).not.toContain('Иванов');
+  });
+});
+
+describe('проверка метки без номера брони: поиск среди изменённых за сутки', () => {
+  it('номер брони Exely узнаётся, заглушка из инструкции — нет', () => {
+    expect(EXELY_BOOKING_NUMBER.test('20260915-513903-1265432109')).toBe(true);
+    expect(EXELY_BOOKING_NUMBER.test('НОМЕР')).toBe(false);
+    expect(EXELY_BOOKING_NUMBER.test('<номер брони в Exely>')).toBe(false);
+  });
+
+  it('метка нашлась — только итог; не нашлась — подсказка про поле комментария', () => {
+    expect(markerSearchSummary(12, 1, 0)).toBe(
+      'Проверено броней Exely, изменённых за сутки: 12; с меткой WETOP: 1.',
+    );
+    expect(markerSearchSummary(12, 0, 1)).toContain('с «WETOP» не по форме: 1');
+    expect(markerSearchSummary(12, 0, 0)).toContain('Метки нет ни в одной');
   });
 });

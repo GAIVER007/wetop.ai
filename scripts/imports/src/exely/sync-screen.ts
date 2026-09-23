@@ -37,6 +37,19 @@ export function markerCheckLine(booking: string, comment: string | null | undefi
   return `Бронь ${booking}: в комментарии заказчика метки нет. ${again}`;
 }
 
+/** Похоже ли на номер брони Exely: `20260923-513903-1265432109` */
+export const EXELY_BOOKING_NUMBER = /^\d{8}-\d+-\d+$/;
+
+/** Итог поиска метки среди броней, изменённых за сутки (проверка без номера брони). */
+export function markerSearchSummary(checked: number, found: number, malformed: number): string {
+  const head = `Проверено броней Exely, изменённых за сутки: ${checked}; с меткой WETOP: ${found}${malformed ? `; с «WETOP» не по форме: ${malformed}` : ''}.`;
+  if (found > 0 || malformed > 0) return head;
+  return (
+    `${head} Метки нет ни в одной. Если вы её вписали и сохранили — значит, это поле Exely не отдаёт как ` +
+    '«Комментарий заказчика»: попробуйте другое поле комментария в форме брони.'
+  );
+}
+
 /** Карточка не перенесена: причина — для отчёта прогона и неисправности (без данных гостя). */
 export interface SkippedCard {
   booking: string;

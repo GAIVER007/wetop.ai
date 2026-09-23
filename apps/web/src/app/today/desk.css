@@ -1,6 +1,6 @@
 /* Обзор на главной: блок «Требуют внимания» (срез 5 → срез 14). Полоса стойки и показатели — dashboard.css. */
 .attention-card {
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;

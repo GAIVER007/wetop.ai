@@ -52,11 +52,12 @@ const cssRules = (file: string) =>
       const [selector = '', body = ''] = block.split('{');
       return { selector: selector.trim().split('\n').pop()?.trim() ?? '', body };
     });
-const offenders = (test: (rule: { selector: string; body: string }) => boolean) =>
+const offenders = (test: (rule: { selector: string; body: string; file: string }) => boolean) =>
   cssFiles(SRC).flatMap((f) =>
     cssRules(f)
+      .map((r) => ({ ...r, file: relative(SRC, f) }))
       .filter(test)
-      .map((r) => `${relative(SRC, f)}: ${r.selector || '(без селектора)'}`),
+      .map((r) => `${r.file}: ${r.selector || '(без селектора)'}`),
   );
 
 describe('DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4)', () => {
@@ -96,7 +97,15 @@ describe('DESIGN.md §6 и §14: шкалы и форматы держит те�
   });
   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола', () => {
     // размытие подложки у липкой шапки и выпадающих меню — слой над страницей, правило его не запрещает
-    expect(offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}px/.test(r.body))).toEqual([]);
+    //
+    // Исключение с 23.09.2026 (DESIGN.md §20, ADR-069): свет за стеклом — два закреплённых слоя под
+    // страницей, и живут они только в `app/glass.css`, только на `body::before` и `body::after`.
+    // Всё остальное правило держит по-прежнему: «шар» на кнопке или карточке снова красный.
+    const glow = (r: { file: string; selector: string }) =>
+      r.file === 'app/glass.css' && /^body::(before|after)$/.test(r.selector.trim());
+    expect(
+      offenders((r) => /radial-gradient|box-shadow:\s*0 0 \d{2,}px/.test(r.body) && !glow(r)),
+    ).toEqual([]);
   });
   /**
    * Храповик (§3, §14): чего много и что чинится по экрану вместе с макетами — « · » как разделитель

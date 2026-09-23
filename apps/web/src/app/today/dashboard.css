@@ -15,7 +15,7 @@
   padding: 12px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-control);
-  background: var(--surface);
+  background: var(--glass-panel);
   color: var(--text);
 }
 .attention-summary:hover {
@@ -113,7 +113,7 @@
   gap: 8px;
   min-width: 0;
   padding: 20px;
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: none;
@@ -484,7 +484,7 @@
 .desk-strip {
   margin-bottom: 16px;
   padding: 14px 18px 16px;
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);

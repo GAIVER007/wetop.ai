@@ -284,7 +284,7 @@ a.dir-number:hover {
   gap: 16px;
   margin: 0 -24px -24px;
   padding: 16px 24px;
-  background: var(--surface);
+  background: var(--glass-panel);
   border-top: 1px solid var(--border);
   border-radius: 0 0 var(--radius) var(--radius);
 }
@@ -353,7 +353,7 @@ a.dir-number:hover {
   gap: 16px 24px;
   margin: 0 0 24px;
   padding: 16px;
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
@@ -785,7 +785,7 @@ a.dir-number:hover {
 }
 .finance-block {
   padding: 16px;
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-width: 0;

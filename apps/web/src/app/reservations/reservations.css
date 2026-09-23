@@ -5,7 +5,7 @@
 .reservations-controls {
   padding: var(--space-4);
   margin-bottom: var(--space-6);
-  background: var(--surface);
+  background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }

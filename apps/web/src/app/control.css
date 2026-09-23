@@ -70,7 +70,7 @@
 }
 .control-journal-search {
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--glass-panel);
   padding: var(--space-4);
   border: 1px solid var(--border);
 }

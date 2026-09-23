@@ -39,7 +39,7 @@
   border: 1px solid var(--border);
   border-left: 3px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--glass-panel);
 }
 .incident--critical {
   border-left-color: var(--danger);
@@ -89,7 +89,7 @@
 .incident-history {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--glass-panel);
 }
 .incident-history > summary {
   padding: var(--space-4);

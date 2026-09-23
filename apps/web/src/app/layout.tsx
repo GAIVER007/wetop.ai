@@ -16,6 +16,8 @@ import './premium.css';
 import '../components/shell/sidebar.css';
 import './hotel-settings/settings.css';
 import './control.css';
+// Стеклянный слой — последним: он добавляет свет, размытие и кромку к уже собранным блокам (DESIGN.md §20).
+import './glass.css';
 
 export const metadata = {
   title: 'WETOP · Управление гостиницей',

@@ -108,10 +108,16 @@ const md = [
       ]
     : []),
 ].join('\n');
-mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
-const out = resolve(ROOT, `reports/channex-ari-${today}.md`);
-writeFileSync(out, md);
+// Диагностика только для чтения: печатаем результат ДО записи файла и запись делаем необязательной,
+// чтобы отсутствие прав на каталог (например, /app в контейнере) не роняло проверку (2026-09-23).
 console.log(md);
-console.log(`→ ${out}`);
+try {
+  mkdirSync(resolve(ROOT, 'reports'), { recursive: true });
+  const out = resolve(ROOT, `reports/channex-ari-${today}.md`);
+  writeFileSync(out, md);
+  console.log(`→ ${out}`);
+} catch (e) {
+  console.log(`(отчёт в файл не сохранён: ${(e as Error).message})`);
+}
 // Код выхода 1 только при реальном риске: канал продаёт больше, чем есть, или ноль не доехал
 process.exitCode = oversell.length === 0 && zerosBad.length === 0 ? 0 : 1;

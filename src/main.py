@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from src import dashboard_router
 from src.config import Settings, get_settings
 from src.dependencies import (
     close_resources,
@@ -125,6 +126,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             checks["redis"] = "error"
 
         return JSONResponse(status_code=200, content={"status": "ok", "checks": checks})
+
+    app.include_router(dashboard_router.router)
 
     return app
 

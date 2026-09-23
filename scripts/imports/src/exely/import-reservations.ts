@@ -7,7 +7,12 @@ import {
 import { anonymizeGuest, anonymizeReservationNotes } from './anonymize';
 import { guestCitizenshipOnUpdate } from './guest-fields';
 import type { EntityCounts } from './import-inventory';
-import type { GuestImportRecord, ReservationImportRecord } from './normalize-reservation';
+import type {
+  GuestImportRecord,
+  ReservationImportRecord,
+  ReservationItemImportRecord,
+} from './normalize-reservation';
+import { followNewDates } from './manual-seat';
 import { planSeats, type SeatRequest, type Segment } from './seat-plan';
 
 export interface ReservationsImportOptions {
@@ -42,7 +47,42 @@ export interface ReservationsImportReport {
   vanishedKept: Array<VanishedStay & { reason: 'checked-in' | 'paid' }>;
   /** ADR-051 (Q-128): начисления «удержано в Exely» созданы этим прогоном */
   retained: number;
+  /**
+   * Q-162 (ADR-064): статус не тронут — стойка меняла его в PMS, а Exely говорит другое. Проживание в этом прогоне
+   * не трогалось совсем (статус, начисление, удержание, место); расхождение — к человеку. exelyRoomStayId null —
+   * статус самой брони.
+   */
+  statusKept: StatusKept[];
+  /** Q-164: ручная посадка продолжена на новый срок из Exely */
+  reseated: SeatFollow[];
+  /** Q-164: ручная посадка снята — на новые ночи её ячейка занята; бронь без ячейки */
+  unseated: SeatFollow[];
 }
+export interface StatusKept {
+  confirmationNumber: string;
+  exelyRoomStayId: string | null;
+  pmsStatus: string;
+  exelyStatus: string;
+}
+export interface SeatFollow {
+  confirmationNumber: string;
+  exelyRoomStayId: string;
+  arrivalDate: string;
+  departureDate: string;
+  /** Коды ячеек посадки */
+  units: string[];
+}
+/**
+ * Так стойка меняет статус в PMS (`apps/api/src/reservations/reservations.service.ts`): запись в журнале по брони
+ * от человека с одним из этих действий значит «статус меняли в PMS» (Q-162).
+ */
+const DESK_STATUS_ACTIONS = [
+  'reservation.checkIn',
+  'reservation.checkOut',
+  'reservation.checkOut.withDebt',
+  'reservation.noShow',
+  'reservation.cancel',
+];
 export interface VanishedStay {
   confirmationNumber: string;
   exelyRoomStayId: string;
@@ -93,6 +133,9 @@ export async function importReservations(
     vanished: [],
     vanishedKept: [],
     retained: 0,
+    statusKept: [],
+    reseated: [],
+    unseated: [],
   };
   const today = opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000));
   const types = await tx.accommodationType.findMany({
@@ -127,6 +170,84 @@ export async function importReservations(
   const unitIdByExely = new Map(
     units.filter((u) => u.exelyRoomNumber).map((u) => [u.exelyRoomNumber!, u.id]),
   );
+
+  /**
+   * Q-164 (ADR-064): проживанию без комнаты из Exely место выбрала стойка, а в Exely сдвинули даты. Посадка идёт
+   * за новым сроком на тех же ячейках (manual-seat.ts), если они свободны на новые ночи — от чужих назначений и
+   * блокировок; иначе снимается, и проживание уходит в отчёт «без ячейки».
+   */
+  const followManualSeat = async (
+    itemId: string,
+    confirmationNumber: string,
+    it: ReservationItemImportRecord,
+  ) => {
+    const current = await tx.allocation.findMany({
+      where: { reservationItemId: itemId },
+      select: { inventoryUnitId: true, startDate: true, endDate: true },
+      orderBy: { startDate: 'asc' },
+    });
+    if (current.length === 0) return;
+    const wanted = followNewDates(
+      current.map((c) => ({ unitId: c.inventoryUnitId, start: iso(c.startDate), end: iso(c.endDate) })),
+      it.arrivalDate,
+      it.departureDate,
+    );
+    let free = wanted !== null;
+    for (const seg of wanted ?? []) {
+      const unit = await tx.inventoryUnit.findUnique({
+        where: { id: seg.unitId },
+        select: {
+          active: true,
+          allocations: {
+            where: {
+              reservationItemId: { not: itemId },
+              startDate: { lt: asDate(seg.end) },
+              endDate: { gt: asDate(seg.start) },
+            },
+            select: { id: true },
+          },
+          blocks: {
+            where: { dateFrom: { lt: asDate(seg.end) }, dateTo: { gt: asDate(seg.start) } },
+            select: { id: true },
+          },
+        },
+      });
+      if (!unit || !unit.active || unit.allocations.length > 0 || unit.blocks.length > 0) {
+        free = false;
+        break;
+      }
+    }
+    const removed = await tx.allocation.deleteMany({ where: { reservationItemId: itemId } });
+    const follow: SeatFollow = {
+      confirmationNumber,
+      exelyRoomStayId: it.exelyRoomStayId,
+      arrivalDate: it.arrivalDate,
+      departureDate: it.departureDate,
+      units: [
+        ...new Set(
+          (wanted ?? current.map((c) => ({ unitId: c.inventoryUnitId }))).map(
+            (seg) => codeOf.get(seg.unitId) ?? seg.unitId,
+          ),
+        ),
+      ],
+    };
+    if (free && wanted) {
+      for (const seg of wanted)
+        await tx.allocation.create({
+          data: {
+            reservationItemId: itemId,
+            inventoryUnitId: seg.unitId,
+            startDate: asDate(seg.start),
+            endDate: asDate(seg.end),
+          },
+        });
+      report.allocations.updated += 1;
+      report.reseated.push(follow);
+    } else {
+      report.allocations.released += removed.count;
+      report.unseated.push(follow);
+    }
+  };
 
   const upsertGuest = async (g: GuestImportRecord): Promise<string> => {
     const data = opts.anonymizeSalt ? anonymizeGuest(g, opts.anonymizeSalt) : g;
@@ -202,9 +323,37 @@ export async function importReservations(
       primaryGuestId: guestIdByExely.get(r.customer.exelyPersonId)!,
       notes: opts.anonymizeSalt ? anonymizeReservationNotes(r.notes) : r.notes,
     };
-    const existingRes = await tx.reservation.findUnique({ where: resKey, select: { id: true } });
+    const existingRes = await tx.reservation.findUnique({
+      where: resKey,
+      select: { id: true, status: true },
+    });
+    // Q-162 (ADR-064): статус меняла стойка в PMS — расхождение с Exely не переписываем, а называем в отчёте
+    const deskTouched = existingRes
+      ? (await tx.auditLog.count({
+          where: {
+            entityType: 'Reservation',
+            entityId: existingRes.id,
+            userId: { not: null },
+            action: { in: DESK_STATUS_ACTIONS },
+          },
+        })) > 0
+      : false;
+    const keepReservationStatus = deskTouched && existingRes!.status !== r.status;
+    if (keepReservationStatus)
+      report.statusKept.push({
+        confirmationNumber: r.confirmationNumber,
+        exelyRoomStayId: null,
+        pmsStatus: existingRes!.status,
+        exelyStatus: r.status,
+      });
     const reservationId = existingRes
-      ? (await tx.reservation.update({ where: resKey, data: resData, select: { id: true } })).id
+      ? (
+          await tx.reservation.update({
+            where: resKey,
+            data: keepReservationStatus ? { ...resData, status: existingRes.status } : resData,
+            select: { id: true },
+          })
+        ).id
       : (
           await tx.reservation.create({
             data: {
@@ -237,8 +386,20 @@ export async function importReservations(
       };
       const existingItem = await tx.reservationItem.findUnique({
         where: { exelyRoomStayId: it.exelyRoomStayId },
-        select: { id: true },
+        select: { id: true, status: true, arrivalDate: true, departureDate: true },
       });
+      // Q-162: проживание, чей статус стойка меняла в PMS, при расхождении с Exely не трогается совсем —
+      // ни статус, ни начисление, ни удержание, ни место (иначе незаезд снова занял бы койку и получил второе
+      // начисление поверх штрафа)
+      if (existingItem && deskTouched && existingItem.status !== it.status) {
+        report.statusKept.push({
+          confirmationNumber: r.confirmationNumber,
+          exelyRoomStayId: it.exelyRoomStayId,
+          pmsStatus: existingItem.status,
+          exelyStatus: it.status,
+        });
+        continue;
+      }
       const itemId = existingItem
         ? (
             await tx.reservationItem.update({
@@ -342,6 +503,13 @@ export async function importReservations(
         });
       } else if (holdsUnit) {
         report.unassigned += 1;
+        // Q-164: Exely комнату не назначал, место выбирала стойка — посадка следует за новым сроком
+        if (
+          existingItem &&
+          (iso(existingItem.arrivalDate) !== it.arrivalDate ||
+            iso(existingItem.departureDate) !== it.departureDate)
+        )
+          await followManualSeat(itemId, r.confirmationNumber, it);
       }
 
       for (const gid of it.guestExelyIds) {

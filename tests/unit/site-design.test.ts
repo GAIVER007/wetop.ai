@@ -3,7 +3,7 @@ import { relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Сторож правил главной wetop.ai (DESIGN.md §19, ADR-064).
+ * Сторож правил главной wetop.ai (DESIGN.md §19, ADR-070).
  *
  * Стойку держит `design-slop.test.ts` по `apps/web/src`; здесь — сайт (`apps/site/src`), у которого свои
  * правила: стекло, лестница отступов, токены цвета. Тест читает исходники и проверяет то, что можно

@@ -20,10 +20,27 @@ export type {
   GuestImportRecord,
   NormalizeContext,
 } from './normalize-reservation';
-export { anonymizeGuest, anonymizeReservationNotes, type GuestRecord } from './anonymize';
+export { anonymizeGuest, anonymizeReservationNotes, importPiiSalt, type GuestRecord } from './anonymize';
 export { adaptUniBooking } from './adapt-universal';
-export { importReservations, type ReservationsImportReport, type VanishedStay } from './import-reservations';
+export {
+  importReservations,
+  type ReservationsImportReport,
+  type SeatFollow,
+  type StatusKept,
+  type VanishedStay,
+} from './import-reservations';
+export { followNewDates, type SeatSegment } from './manual-seat';
 export { guestCitizenshipOnUpdate } from './guest-fields';
+export {
+  EXELY_BOOKING_NUMBER,
+  markerCheckLine,
+  markerSearchSummary,
+  normalizeEach,
+  screenRecords,
+  wetopMarker,
+  type MirroredCard,
+  type SkippedCard,
+} from './sync-screen';
 export {
   parseExelyRatePlans,
   buildRatePlanImportPlan,

@@ -2,9 +2,9 @@
  * Импорт броней Exely в БД: из скачанных карточек (project-input/exely/api/<дата>/bookings) либо живьём.
  * Запуск: npx tsx scripts/imports/src/cli-import-reservations.ts 2026-09-08 [--set=future|all] [--skip=N]
  * --skip=N — пропустить первые N броней (продолжение после обрыва; импорт идемпотентен, пачки по 50)
- * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env (запасной вариант — PII_ENCRYPTION_KEY).
+ * Гости анонимизируются (ADR-018): соль ANONYMIZE_SALT из .env (запасной вариант — PII_ENCRYPTION_KEY);
+ * с PII_STORAGE=real (только боевая база в РК) — переносятся как есть (`importPiiSalt`, ADR-064).
  */
-import { pseudonymSalt } from '@pms/shared';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
@@ -13,8 +13,13 @@ import type { exely } from '@pms/integrations';
 import {
   LUXX_APARTS_PROPERTY,
   adaptUniBooking,
+  importPiiSalt,
   importReservations,
+  normalizeEach,
   normalizeExelyReservation,
+  screenRecords,
+  type SeatFollow,
+  type StatusKept,
   type VanishedStay,
 } from './exely/index';
 
@@ -24,8 +29,9 @@ const day = process.argv[2] ?? new Date().toISOString().slice(0, 10);
 const set = (process.argv.find((a) => a.startsWith('--set='))?.split('=')[1] ?? 'future') as
   'future' | 'all';
 const DIR = resolve(ROOT, `project-input/exely/api/${day}`);
-// соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю
-const salt = pseudonymSalt();
+// соль не хардкодится: с известной солью псевдоним гостя перебирается по словарю;
+// null — PII_STORAGE=real, боевая база в РК: гости переносятся как есть
+const salt = importPiiSalt();
 const skip = Number(process.argv.find((a) => a.startsWith('--skip='))?.split('=')[1] ?? 0);
 if (!Number.isInteger(skip) || skip < 0) throw new Error('--skip=N — целое от 0');
 
@@ -43,16 +49,17 @@ const wanted =
 const files = readdirSync(resolve(DIR, 'bookings')).filter(
   (f) => f.endsWith('.json') && (!wanted || wanted.has(f.slice(0, -5))),
 );
-const records = files.map((f) =>
-  normalizeExelyReservation(
-    adaptUniBooking(
-      JSON.parse(readFileSync(resolve(DIR, 'bookings', f), 'utf-8')) as exely.UniBooking,
+// Q-165 (ADR-064): карточка, которую нормализатор не разобрал, пропускается — остальные переносятся
+const normalized = normalizeEach(
+  files,
+  (f) => f.slice(0, -5),
+  (f) =>
+    normalizeExelyReservation(
+      adaptUniBooking(
+        JSON.parse(readFileSync(resolve(DIR, 'bookings', f), 'utf-8')) as exely.UniBooking,
+      ),
+      { roomMap, typeMap },
     ),
-    { roomMap, typeMap },
-  ),
-);
-console.log(
-  `набор ${set}: карточек ${files.length}, проживаний ${records.reduce((a, r) => a + r.items.length, 0)}; анонимизация: да`,
 );
 
 const db = createPrismaClient();
@@ -61,6 +68,25 @@ try {
     where: { name: LUXX_APARTS_PROPERTY.name },
     select: { id: true },
   });
+  // До транзакции: бронь с меткой «WETOP <номер PMS>» уже в PMS; категории и ячейки, которых нет в фонде, — пропуск
+  const [knownTypes, exelyUnits] = await Promise.all([
+    db.accommodationType.findMany({ where: { propertyId: property.id }, select: { code: true } }),
+    db.inventoryUnit.findMany({
+      where: { accommodationType: { propertyId: property.id }, exelyRoomNumber: { not: null } },
+      select: { exelyRoomNumber: true },
+    }),
+  ]);
+  const screened = screenRecords(normalized.records, {
+    accommodationTypeCodes: new Set(knownTypes.map((t) => t.code)),
+    exelyRoomNumbers: new Set(exelyUnits.map((u) => u.exelyRoomNumber!)),
+  });
+  const records = screened.importable;
+  console.log(
+    `набор ${set}: карточек ${files.length}, к переносу ${records.length}, проживаний ${records.reduce((a, r) => a + r.items.length, 0)}; анонимизация: ${salt ? 'да' : 'нет (PII_STORAGE=real)'}`,
+  );
+  for (const m of screened.mirrored)
+    console.log(`  уже в PMS (метка WETOP): ${m.booking} → ${m.pmsNumber} — не переносится`);
+  for (const k of [...normalized.skipped, ...screened.skipped]) console.log(`  ПРОПУЩЕНА (Q-165): ${k.reason}`);
   // Пачками по CHUNK броней, каждая в своей транзакции: импорт идемпотентен, а один запрос до Сингапура ~0,1 с,
   // и полный набор (~1 700 карточек × ~10 запросов) в 10-минутный лимит одной транзакции не помещается.
   const CHUNK = 50;
@@ -76,6 +102,9 @@ try {
     vanished: [] as VanishedStay[],
     vanishedKept: [] as Array<VanishedStay & { reason: 'checked-in' | 'paid' }>,
     retained: 0,
+    statusKept: [] as StatusKept[],
+    reseated: [] as SeatFollow[],
+    unseated: [] as SeatFollow[],
     conflicts: [] as Array<{
       confirmationNumber: string;
       exelyRoomNumber: string;
@@ -121,6 +150,9 @@ try {
     total.vanished.push(...report.vanished);
     total.vanishedKept.push(...report.vanishedKept);
     total.retained += report.retained;
+    total.statusKept.push(...report.statusKept);
+    total.reseated.push(...report.reseated);
+    total.unseated.push(...report.unseated);
     total.conflicts.push(...report.conflicts);
     console.log(
       `  пачка ${i / CHUNK + 1}/${Math.ceil(records.length / CHUNK)}: ${part.length} броней — ок`,
@@ -135,6 +167,18 @@ try {
   );
   console.log(`  платежей перенесено из Exely (EXTERNAL): ${report.paymentsImported}`);
   console.log(`  удержаний «оплачено в Exely, отменено без возврата» (ADR-051): ${report.retained}`);
+  for (const k of report.statusKept)
+    console.log(
+      `  СТАТУС НЕ ТРОНУТ (Q-162): ${k.confirmationNumber}${k.exelyRoomStayId ? ` проживание ${k.exelyRoomStayId}` : ''} — в PMS ${k.pmsStatus}, в Exely ${k.exelyStatus}; разобрать руками`,
+    );
+  for (const f of report.reseated)
+    console.log(
+      `  посадка стойки продолжена (Q-164): ${f.confirmationNumber} ${f.arrivalDate} → ${f.departureDate} на ${f.units.join(', ')}`,
+    );
+  for (const f of report.unseated)
+    console.log(
+      `  ПОСАДКА СНЯТА (Q-164): ${f.confirmationNumber} ${f.arrivalDate} → ${f.departureDate} — ${f.units.join(', ')} занята на новые ночи; бронь без ячейки`,
+    );
   if (report.vanished.length) {
     console.log(`  исчезли из карточек Exely и отменены (ADR-050): ${report.vanished.length}`);
     for (const v of report.vanished)

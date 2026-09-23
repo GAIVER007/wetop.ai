@@ -26,6 +26,7 @@ export type IncidentKind =
   | 'tests.failing'
   | 'web.down'
   | 'exely.stale'
+  | 'exely.card.skipped'
   | 'ari.oversell';
 
 export interface FixPolicy {
@@ -153,6 +154,13 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
   },
   // На время двойного ввода брони приходят из Exely синхронизацией суток; её запускают люди — сторож не импортирует сам
   'exely.stale': { class: 'B', severity: 'WARNING', close: { by: 'recheck' } },
+  /*
+   * Досинхронизация пропустила карточку Exely, которую не смогла разобрать (Q-165, ADR-064): остальные брони
+   * перенесены, а этой в PMS нет — её место PMS считает свободным и может продать в переключённый канал.
+   * Чинить нечем (правило разбора пишет человек), будить сразу — как отказ по правилу `event.rejected`.
+   * Закрывается, когда следующий прогон карточку перенёс.
+   */
+  'exely.card.skipped': { class: 'B', severity: 'CRITICAL', close: { by: 'recheck' } },
   // Канал видит мест больше, чем есть в PMS: полная выгрузка, потом пересверка; не помогло — к человеку
   'ari.oversell': {
     class: 'A',

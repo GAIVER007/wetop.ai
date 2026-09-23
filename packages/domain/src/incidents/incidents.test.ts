@@ -164,6 +164,12 @@ describe('decideAction', () => {
   it('новые виды записаны: стойка (техника), синхронизация с Exely (данные), канал продаёт лишнее (техника, срочно)', () => {
     expect(POLICY['web.down']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
     expect(POLICY['exely.stale']).toMatchObject({ class: 'B', severity: 'WARNING' });
+    // Q-165: пропущенная карточка Exely — к человеку и сразу (её место PMS считает свободным)
+    expect(POLICY['exely.card.skipped']).toMatchObject({
+      class: 'B',
+      severity: 'CRITICAL',
+      close: { by: 'recheck' },
+    });
     expect(POLICY['ari.oversell']).toMatchObject({ class: 'A', severity: 'CRITICAL' });
   });
 

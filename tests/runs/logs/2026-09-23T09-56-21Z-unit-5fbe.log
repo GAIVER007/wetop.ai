@@ -1,0 +1,16 @@
+# Модульные (unit) · 23.09.2026 14:56 Алматы · claude
+# коммит 0de7aea (main), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T09-56-21Z-unit-5fbe.json' 'scripts/imports/src/exely/sync-screen.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  unit  scripts/imports/src/exely/sync-screen.test.ts (11 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  09:56:24
+   Duration  323ms (transform 78%, import 12%, tests 5%, worker 5%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T09-56-21Z-unit-5fbe.json
+
+# код выхода 0 · 3 с

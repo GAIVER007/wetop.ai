@@ -1,0 +1,27 @@
+# Модульные (unit) · 23.09.2026 13:45 Алматы · claude
+# коммит 9756c35 (main), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-45-54Z-unit-32a0.json' 'apps/api/src/guard' 'packages/domain/src/incidents' 'scripts/imports/src/exely/sync-screen.test.ts' 'scripts/imports/src/exely/anonymize.test.ts' 'scripts/imports/src/exely/auto-sync.test.ts'
+
+ RUN  v5.0.0 /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/mnt/WETOP
+
+ ✓  unit  packages/domain/src/incidents/incidents.test.ts (17 tests) 11ms
+ ✓  unit  packages/domain/src/incidents/signals.test.ts (13 tests) 11ms
+ ✓  unit  scripts/imports/src/exely/sync-screen.test.ts (7 tests) 6ms
+ ✓  unit  packages/domain/src/incidents/redact.test.ts (5 tests) 6ms
+ ✓  unit  packages/domain/src/incidents/alerts.test.ts (10 tests) 4ms
+ ✓  unit  scripts/imports/src/exely/auto-sync.test.ts (13 tests) 4ms
+ ✓  unit  scripts/imports/src/exely/anonymize.test.ts (6 tests) 7ms
+[Nest] 99  - 09/23/2026, 8:45:58 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 99  - 09/23/2026, 8:45:58 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 99  - 09/23/2026, 8:45:58 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓  unit  apps/api/src/guard/guard.service.test.ts (30 tests) 20ms
+ ✓  unit  apps/api/src/guard/guard.adapters.test.ts (5 tests) 3ms
+
+ Test Files  9 passed (9)
+      Tests  106 passed (106)
+   Start at  08:45:56
+   Duration  2.43s (import 50%, transform 46%, tests 2%, worker 2%)
+
+JSON report written to /sessions/rcw-01fzsq2c1ktk552cyyqfc75x/tmp/pms-test-2026-09-23T08-45-54Z-unit-32a0.json
+
+# код выхода 0 · 4 с

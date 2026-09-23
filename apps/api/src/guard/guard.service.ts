@@ -530,12 +530,24 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           : [{ kind: 'web.down', title: 'Стойка PMS не отвечает', details: { error: w.error } }];
       });
 
-    // Пока объект работает в Exely, брони в PMS свежие только после синхронизации суток; после переключения — не нужна
+    // Пока объект работает в Exely, брони в PMS свежие только после синхронизации суток; после переключения — не нужна.
+    // Пропущенная прогоном карточка (Q-165, ADR-064) — по неисправности на каждую: её места PMS не знает
     if (!this.propertyLive && this.probes.enabled('exelySync'))
-      await run('exely.sync', ['exely.stale'], async () => {
-        const last = await this.probes.lastExelySyncAt();
-        if (last && now.getTime() - last.getTime() < EXELY_STALE_MS) return [];
+      await run('exely.sync', ['exely.stale', 'exely.card.skipped'], async () => {
+        const [last, skipped] = await Promise.all([
+          this.probes.lastExelySyncAt(),
+          this.probes.exelySkipped(),
+        ]);
+        const cards: Observation[] = skipped.map((s) => ({
+          kind: 'exely.card.skipped',
+          title: `Бронь из Exely не перенесена в PMS: ${s.reason}`,
+          subjectType: 'exely-booking',
+          subjectId: s.booking,
+          details: { booking: s.booking, reason: s.reason },
+        }));
+        if (last && now.getTime() - last.getTime() < EXELY_STALE_MS) return cards;
         return [
+          ...cards,
           {
             kind: 'exely.stale',
             title: last

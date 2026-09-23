@@ -51,7 +51,8 @@ export function PeriodBar({ period, today }: { period: ResolvedPeriod; today: st
       </form>
       <p className="period-caption" data-testid="period-caption">
         <strong>{periodCaption(period)}</strong>
-        {period.to > today && <span> · включая будущие брони</span>}
+        {/* отдельной фразой, а не хвостом через точку-разделитель (§14): будущие дни посчитаны по броням */}
+        {period.to > today && <span>, будущие дни — по броням</span>}
       </p>
     </nav>
   );

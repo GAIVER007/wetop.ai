@@ -1,0 +1,497 @@
+{
+  "laptop-light": {
+    "pageHeight": 1954,
+    "viewport": 1000,
+    "top": {
+      "attentionSummary": 221,
+      "deskStrip": 1352,
+      "quickActions": 1521,
+      "attentionCard": 1521
+    },
+    "attentionList": {
+      "max-height": "250px",
+      "overflow-y": "auto",
+      "display": "block"
+    },
+    "attentionCard": {
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "attentionFooter": {
+      "background-color": "rgb(246, 248, 252)"
+    },
+    "attentionItemName": {
+      "font-size": "12px",
+      "font-weight": "500"
+    },
+    "attentionItemSmall": {
+      "font-size": "12px"
+    },
+    "quickAction": {
+      "font-size": "12px",
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "quickActionLabel": {
+      "font-size": "12px"
+    },
+    "cardHeadingLink": {
+      "font-size": "12px"
+    },
+    "deskStrip": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "deskLinks": {
+      "font-size": "12.5px"
+    },
+    "kpi": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "kpiValue": {
+      "font-size": "32px"
+    },
+    "kpiValueAdr": {
+      "font-size": "22px"
+    },
+    "deskValues": [
+      {
+        "label": "Проживают",
+        "value": "3",
+        "color": "rgb(16, 24, 39)"
+      },
+      {
+        "label": "Заезды",
+        "value": "3",
+        "color": "rgb(6, 115, 94)"
+      },
+      {
+        "label": "Выезды",
+        "value": "2",
+        "color": "rgb(148, 96, 11)"
+      },
+      {
+        "label": "Свободно",
+        "value": "81",
+        "color": "rgb(8, 95, 186)"
+      },
+      {
+        "label": "Долг уезжающих",
+        "value": "0 ₸",
+        "color": "rgb(16, 24, 39)"
+      }
+    ],
+    "quickCounts": [
+      {
+        "label": "Заселить гостя",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Выселить гостя",
+        "count": "1",
+        "labelLines": 1
+      },
+      {
+        "label": "Продлить проживание",
+        "count": "3",
+        "labelLines": 2
+      },
+      {
+        "label": "Переселить",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Создать счёт",
+        "count": "8",
+        "labelLines": 1
+      }
+    ],
+    "dotSeparated": [],
+    "titled": 3
+  },
+  "picks": {
+    "Заселить гостя": {
+      "count": "3",
+      "rows": [
+        "Гость ТестовыйR01 · 20260913-TESTAA",
+        "Клиент ПримерR02 · 20260913-TEST1",
+        "Гость УчебныйR03 · 20260913-TEST2"
+      ]
+    },
+    "Выселить гостя": {
+      "count": "1",
+      "rows": [
+        "Посетитель ДемоR04 · 20260913-TEST3",
+        "Клиент ПримерR05 · 20260913-TEST4"
+      ]
+    },
+    "Продлить проживание": {
+      "count": "3",
+      "rows": [
+        "Гость УчебныйM01 · 20260913-TEST5",
+        "Посетитель ДемоM02 · 20260913-TEST6",
+        "Клиент ПримерF01 · 20260913-TEST7",
+        "Гость ТестовыйR01 · 20260913-TESTAA",
+        "Клиент ПримерR02 · 20260913-TEST1",
+        "Гость УчебныйR03 · 20260913-TEST2",
+        "Посетитель ДемоR04 · 20260913-TEST3",
+        "Клиент ПримерR05 · 20260913-TEST4"
+      ]
+    },
+    "Переселить": {
+      "count": "3",
+      "rows": [
+        "Гость УчебныйM01 · 20260913-TEST5",
+        "Посетитель ДемоM02 · 20260913-TEST6",
+        "Клиент ПримерF01 · 20260913-TEST7",
+        "Гость ТестовыйR01 · 20260913-TESTAA",
+        "Клиент ПримерR02 · 20260913-TEST1",
+        "Гость УчебныйR03 · 20260913-TEST2",
+        "Посетитель ДемоR04 · 20260913-TEST3",
+        "Клиент ПримерR05 · 20260913-TEST4"
+      ]
+    }
+  },
+  "laptop-dark": {
+    "pageHeight": 1954,
+    "viewport": 1000,
+    "top": {
+      "attentionSummary": 221,
+      "deskStrip": 1352,
+      "quickActions": 1521,
+      "attentionCard": 1521
+    },
+    "attentionList": {
+      "max-height": "250px",
+      "overflow-y": "auto",
+      "display": "block"
+    },
+    "attentionCard": {
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 18px 40px -20px"
+    },
+    "attentionFooter": {
+      "background-color": "rgb(13, 25, 42)"
+    },
+    "attentionItemName": {
+      "font-size": "12px",
+      "font-weight": "500"
+    },
+    "attentionItemSmall": {
+      "font-size": "12px"
+    },
+    "quickAction": {
+      "font-size": "12px",
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 18px 40px -20px"
+    },
+    "quickActionLabel": {
+      "font-size": "12px"
+    },
+    "cardHeadingLink": {
+      "font-size": "12px"
+    },
+    "deskStrip": {
+      "box-shadow": "rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 18px 40px -20px",
+      "border-radius": "20px"
+    },
+    "deskLinks": {
+      "font-size": "12.5px"
+    },
+    "kpi": {
+      "box-shadow": "rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.4) 0px 18px 40px -20px",
+      "border-radius": "20px"
+    },
+    "kpiValue": {
+      "font-size": "32px"
+    },
+    "kpiValueAdr": {
+      "font-size": "22px"
+    },
+    "deskValues": [
+      {
+        "label": "Проживают",
+        "value": "3",
+        "color": "rgb(247, 249, 252)"
+      },
+      {
+        "label": "Заезды",
+        "value": "3",
+        "color": "rgb(56, 210, 174)"
+      },
+      {
+        "label": "Выезды",
+        "value": "2",
+        "color": "rgb(246, 186, 82)"
+      },
+      {
+        "label": "Свободно",
+        "value": "81",
+        "color": "rgb(72, 165, 255)"
+      },
+      {
+        "label": "Долг уезжающих",
+        "value": "0 ₸",
+        "color": "rgb(247, 249, 252)"
+      }
+    ],
+    "quickCounts": [
+      {
+        "label": "Заселить гостя",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Выселить гостя",
+        "count": "1",
+        "labelLines": 1
+      },
+      {
+        "label": "Продлить проживание",
+        "count": "3",
+        "labelLines": 2
+      },
+      {
+        "label": "Переселить",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Создать счёт",
+        "count": "8",
+        "labelLines": 1
+      }
+    ],
+    "dotSeparated": [],
+    "titled": 3
+  },
+  "narrow-light": {
+    "pageHeight": 2853,
+    "viewport": 900,
+    "top": {
+      "attentionSummary": 221,
+      "deskStrip": 2024,
+      "quickActions": 2291,
+      "attentionCard": 2501
+    },
+    "attentionList": {
+      "max-height": "250px",
+      "overflow-y": "auto",
+      "display": "grid"
+    },
+    "attentionCard": {
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "attentionFooter": {
+      "background-color": "rgb(246, 248, 252)"
+    },
+    "attentionItemName": {
+      "font-size": "12px",
+      "font-weight": "500"
+    },
+    "attentionItemSmall": {
+      "font-size": "12px"
+    },
+    "quickAction": {
+      "font-size": "12px",
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "quickActionLabel": {
+      "font-size": "12px"
+    },
+    "cardHeadingLink": {
+      "font-size": "12px"
+    },
+    "deskStrip": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "deskLinks": {
+      "font-size": "12.5px"
+    },
+    "kpi": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "kpiValue": {
+      "font-size": "32px"
+    },
+    "kpiValueAdr": {
+      "font-size": "22px"
+    },
+    "deskValues": [
+      {
+        "label": "Проживают",
+        "value": "3",
+        "color": "rgb(16, 24, 39)"
+      },
+      {
+        "label": "Заезды",
+        "value": "3",
+        "color": "rgb(6, 115, 94)"
+      },
+      {
+        "label": "Выезды",
+        "value": "2",
+        "color": "rgb(148, 96, 11)"
+      },
+      {
+        "label": "Свободно",
+        "value": "81",
+        "color": "rgb(8, 95, 186)"
+      },
+      {
+        "label": "Долг уезжающих",
+        "value": "0 ₸",
+        "color": "rgb(16, 24, 39)"
+      }
+    ],
+    "quickCounts": [
+      {
+        "label": "Заселить гостя",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Выселить гостя",
+        "count": "1",
+        "labelLines": 1
+      },
+      {
+        "label": "Продлить проживание",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Переселить",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Создать счёт",
+        "count": "8",
+        "labelLines": 1
+      }
+    ],
+    "dotSeparated": [],
+    "titled": 3
+  },
+  "phone-light": {
+    "pageHeight": 3613,
+    "viewport": 844,
+    "top": {
+      "attentionSummary": 259,
+      "deskStrip": 2441,
+      "quickActions": 2850,
+      "attentionCard": 3136
+    },
+    "attentionList": {
+      "max-height": "250px",
+      "overflow-y": "auto",
+      "display": "block"
+    },
+    "attentionCard": {
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "attentionFooter": {
+      "background-color": "rgb(246, 248, 252)"
+    },
+    "attentionItemName": {
+      "font-size": "12px",
+      "font-weight": "500"
+    },
+    "attentionItemSmall": {
+      "font-size": "12px"
+    },
+    "quickAction": {
+      "font-size": "12px",
+      "border-radius": "20px",
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px"
+    },
+    "quickActionLabel": {
+      "font-size": "12px"
+    },
+    "cardHeadingLink": {
+      "font-size": "12px"
+    },
+    "deskStrip": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "deskLinks": {
+      "font-size": "12.5px"
+    },
+    "kpi": {
+      "box-shadow": "rgba(255, 255, 255, 0.82) 0px 1px 0px 0px inset, rgba(18, 38, 68, 0.16) 0px 16px 36px -18px",
+      "border-radius": "20px"
+    },
+    "kpiValue": {
+      "font-size": "22px"
+    },
+    "kpiValueAdr": {
+      "font-size": "17px"
+    },
+    "deskValues": [
+      {
+        "label": "Проживают",
+        "value": "3",
+        "color": "rgb(16, 24, 39)"
+      },
+      {
+        "label": "Заезды",
+        "value": "3",
+        "color": "rgb(6, 115, 94)"
+      },
+      {
+        "label": "Выезды",
+        "value": "2",
+        "color": "rgb(148, 96, 11)"
+      },
+      {
+        "label": "Свободно",
+        "value": "81",
+        "color": "rgb(8, 95, 186)"
+      },
+      {
+        "label": "Долг уезжающих",
+        "value": "0 ₸",
+        "color": "rgb(16, 24, 39)"
+      }
+    ],
+    "quickCounts": [
+      {
+        "label": "Заселить гостя",
+        "count": "3",
+        "labelLines": 2
+      },
+      {
+        "label": "Выселить гостя",
+        "count": "1",
+        "labelLines": 2
+      },
+      {
+        "label": "Продлить проживание",
+        "count": "3",
+        "labelLines": 2
+      },
+      {
+        "label": "Переселить",
+        "count": "3",
+        "labelLines": 1
+      },
+      {
+        "label": "Создать счёт",
+        "count": "8",
+        "labelLines": 2
+      }
+    ],
+    "dotSeparated": [],
+    "titled": 3
+  }
+}

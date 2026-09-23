@@ -8,11 +8,8 @@ import {
   sourceLabel,
   wholeTenge,
 } from '../../lib/dashboard-format';
-import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
-
-const dayOfMonth = (iso: string) => Number(iso.slice(8, 10));
-const weekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00:00Z`).getUTCDay());
+import { DailyBars } from './daily-bars';
 
 /** Столбики загрузки по дням; на один день — полосы по категориям. Только CSS, без библиотек графиков. */
 export function OccupancyChart({ period, today }: { period: DashboardPeriod; today: string }) {
@@ -38,7 +35,6 @@ export function OccupancyChart({ period, today }: { period: DashboardPeriod; tod
       </Panel>
     );
   }
-  const dense = period.daily.length > 31;
   const max = Math.max(...period.daily.map((d) => d.percent), 1);
   return (
     <Panel title="Загрузка по дням" className="dash-panel">
@@ -54,27 +50,7 @@ export function OccupancyChart({ period, today }: { period: DashboardPeriod; tod
           <strong>{formatInt(period.departures.count)}</strong>
         </span>
       </div>
-      <div className={cx('bars', dense && 'bars--dense')} data-testid="chart-daily">
-        {period.daily.map((d, i) => (
-          <div
-            key={d.date}
-            className={cx(
-              'bar',
-              d.date === today && 'is-today',
-              d.date > today && 'is-future',
-              weekend(d.date) && 'is-weekend',
-            )}
-            title={`${displayDate(d.date, 'full')}: ${formatPercent(d.percent)} · занято ${d.occupied}, свободно ${d.free}${
-              d.blocked ? `, закрыто ${d.blocked}` : ''
-            } · заезды ${d.arrivals}, выезды ${d.departures}`}
-          >
-            <i style={{ height: `${d.percent}%` }} />
-            <span>
-              {!dense || i === 0 || dayOfMonth(d.date) % 5 === 0 ? dayOfMonth(d.date) : ''}
-            </span>
-          </div>
-        ))}
-      </div>
+      <DailyBars days={period.daily} today={today} />
       <div className="bars-legend muted">
         <span>
           <i className="bars-legend__past" /> прошедшие дни
@@ -160,9 +136,11 @@ export function CategoriesPanel({ period }: { period: DashboardPeriod }) {
                   </span>
                 </td>
               )}
-              <td className="num" title={`из ${formatInt(c.unitNights)} возможных`}>
+              {/* «из N» — в ячейке, а не в `title`: подсказку по наведению не открыть касанием (§15) */}
+              <td className="num">
                 <span className="dash-cell-word">ночей </span>
                 {formatInt(c.occupiedNights)}
+                <span className="muted"> из {formatInt(c.unitNights)}</span>
               </td>
               <td className="num">
                 <span className="dash-cell-word">выручка </span>

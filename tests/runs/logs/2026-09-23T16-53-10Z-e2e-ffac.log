@@ -1,0 +1,92 @@
+# Сквозные (e2e) · 23.09.2026 21:53 Алматы · vm
+# коммит f4f225a (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/dashboard-desk.spec.ts' '-g' 'из окна выбора карточка|размеры шрифта на главной'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (16.7s)
+  ✘  2 tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px (1.5s)
+
+
+  1) tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/20260913-TEST3\?do=/
+    Received string:  "http://127.0.0.1:3100/reservations/20260913-TEST3#booking-actions"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        9 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/today"
+        24 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/20260913-TEST3#booking-actions"
+
+
+      70 |       .getByRole('link', { name: new RegExp(c.booking) })
+      71 |       .click();
+    > 72 |     await expect(page).toHaveURL(new RegExp(`/reservations/${c.booking}\\?do=`));
+         |                        ^
+      73 |     const target = page.getByTestId(c.target);
+      74 |     // фокус и видимая рамка, но не нажатие: действие по-прежнему подтверждает человек
+      75 |     await expect(target).toBeFocused();
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:72:24
+
+    Error Context: test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px 
+
+    Error: ширина 1440
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   "32px strong.kpi__value",
+    +   "22px strong.kpi__value",
+    +   "12.5px li.",
+    +   "15px h2.",
+    + ]
+
+      255 |       return [...seen].map(([size, where]) => `${size} ${where}`);
+      256 |     }, scale);
+    > 257 |     expect(off, `ширина ${width}`).toEqual([]);
+          |                                    ^
+      258 |     if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
+      259 |   }
+      260 | });
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:257:36
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+    tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px 
+
+# код выхода 1 · 24 с

@@ -6,10 +6,9 @@
     "apps/web/src/app/globals.css": 74,
     "apps/web/src/app/login/login.css": 1,
     "apps/web/src/app/management/hotel.css": 19,
-    "apps/web/src/app/premium.css": 148,
+    "apps/web/src/app/premium.css": 132,
     "apps/web/src/app/rooms/rooms.css": 17,
-    "apps/web/src/app/today/dashboard.css": 33,
-    "apps/web/src/app/today/desk.css": 11,
+    "apps/web/src/app/today/dashboard.css": 21,
     "apps/web/src/app/workspace.css": 84
   },
   "uppercase": {
@@ -20,7 +19,6 @@
     "apps/web/src/app/globals.css": 1,
     "apps/web/src/app/management/hotel.css": 1,
     "apps/web/src/app/premium.css": 4,
-    "apps/web/src/app/today/dashboard.css": 1,
     "apps/web/src/app/workspace.css": 2
   },
   "window-confirm": {},
@@ -32,11 +30,7 @@
     "apps/web/src/app/reservations/[number]/finance-panel.tsx": 1,
     "apps/web/src/app/reservations/[number]/page.tsx": 1,
     "apps/web/src/app/rooms/room-grid.tsx": 1,
-    "apps/web/src/app/today/dashboard-panels.tsx": 2,
-    "apps/web/src/app/today/dashboard-widgets.tsx": 1,
-    "apps/web/src/app/today/day-attention.tsx": 3,
-    "apps/web/src/app/today/desk-strip.tsx": 1,
-    "apps/web/src/app/today/period-bar.tsx": 3,
+    "apps/web/src/app/today/period-bar.tsx": 2,
     "apps/web/src/app/units/[code]/unit-actions.tsx": 4,
     "apps/web/src/components/data-freshness.tsx": 1,
     "apps/web/src/components/shell/sidebar.tsx": 2,
@@ -49,10 +43,9 @@
     "apps/web/src/app/directory.css": 1,
     "apps/web/src/app/globals.css": 4,
     "apps/web/src/app/management/hotel.css": 4,
-    "apps/web/src/app/premium.css": 27,
+    "apps/web/src/app/premium.css": 25,
     "apps/web/src/app/rooms/rooms.css": 2,
-    "apps/web/src/app/today/dashboard.css": 7,
-    "apps/web/src/app/today/desk.css": 4,
+    "apps/web/src/app/today/dashboard.css": 5,
     "apps/web/src/app/workspace.css": 20
   },
   "z-index-literal": {

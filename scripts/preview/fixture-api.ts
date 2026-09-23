@@ -973,12 +973,15 @@ function desk(date: string): DeskDay {
     (r) => r.status === 'CHECKED_IN' && r.arrivalDate <= date && r.departureDate > date,
   );
   // Не заехали вовремя — как в apps/api/src/desk/desk.service.ts: заезд был раньше, заселения нет,
-  // выезд не сегодня (иначе они уже в списке выездов)
+  // выезд не сегодня (иначе они уже в списке выездов). API берёт только проживания, которые касаются
+  // суток (`departureDate >= date`, desk.repository.ts), — без этой границы фикстура звала «не заехавшими
+  // вовремя» брони, закончившиеся месяцы назад, и пустой день 2027-06-01 показывал четыре задачи
+  // (найдено разбором «Главной» 23.09.2026)
   const overdueArrivals = active.filter(
     (r) =>
       (r.status === 'CONFIRMED' || r.status === 'TENTATIVE') &&
       r.arrivalDate < date &&
-      r.departureDate !== date,
+      r.departureDate > date,
   );
   return {
     date,

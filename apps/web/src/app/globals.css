@@ -49,6 +49,15 @@ h3 {
   outline: 2px solid var(--primary);
   outline-offset: 1px;
 }
+/*
+ * Кнопка, к которой привело быстрое действие «Главной» (`?do=…`, actions-panel.tsx): фокус ставит
+ * программа после щелчка мышью, и браузер своего кольца не рисует — рамка та же, что у фокуса (§8),
+ * и снимается, когда фокус уходит.
+ */
+[data-quick-target] {
+  outline: var(--focus-ring-w) solid var(--focus);
+  outline-offset: var(--focus-ring-offset);
+}
 
 /* ---------- страница ---------- */
 .page {

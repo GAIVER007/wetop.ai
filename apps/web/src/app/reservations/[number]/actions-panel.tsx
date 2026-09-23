@@ -1,5 +1,13 @@
 'use client';
-import { useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type RefObject,
+} from 'react';
+import { useSearchParams } from 'next/navigation';
 import { HOUSEKEEPING_RU } from '@pms/domain';
 import { useCommand } from '../../../lib/use-command';
 import {
@@ -39,6 +47,55 @@ import { useToast } from '../../../components/toast';
 import { previewAction } from '../actions';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
+
+/**
+ * Быстрое действие с «Главной» открывает карточку на кнопке этого действия для этого проживания:
+ * `?do=check-out&item=<id>#booking-actions` (разбор 23.09.2026, находка 2; DESIGN.md §1 п. 2). Карточка
+ * ставит на кнопку фокус и рамку фокуса, но не нажимает её: заселение, выселение и продление
+ * по-прежнему подтверждает человек — Enter или щелчок, дальше те же окна, что и без «Главной».
+ */
+const QUICK_ACTIONS = new Set(['check-in', 'check-out', 'extend', 'move']);
+function useQuickTarget(panel: RefObject<HTMLElement | null>) {
+  const search = useSearchParams();
+  const action = search.get('do');
+  const item = search.get('item');
+  useEffect(() => {
+    if (!action || !item || !QUICK_ACTIONS.has(action)) return;
+    const pick = (key: string) => {
+      const el = panel.current?.querySelector<HTMLElement>(
+        `[data-quick-action="${CSS.escape(key)}"]`,
+      );
+      return el && !el.matches(':disabled') ? el : null;
+    };
+    let frame = 0;
+    let tries = 0;
+    const attempt = () => {
+      // Вкладка «Действия» открывается по якорю чуть позже, а панель брони — окном поверх страницы,
+      // которое при открытии само ставит фокус: ждём, пока кнопка станет видна (не дольше секунды)
+      const root = panel.current;
+      if (!root || root.closest('[hidden]') || !root.getClientRects().length) {
+        if (++tries < 60) frame = requestAnimationFrame(attempt);
+        return;
+      }
+      // Заселить без ячейки нельзя — сначала выбор ячейки; продлить без тарифа — сначала выбор тарифа
+      const el =
+        pick(`${action}:${item}`) ??
+        (action === 'check-in'
+          ? pick(`move:${item}`)
+          : action === 'extend'
+            ? pick(`extend-plan:${item}`)
+            : null);
+      if (!el) return;
+      el.setAttribute('data-quick-target', '');
+      el.addEventListener('blur', () => el.removeAttribute('data-quick-target'), { once: true });
+      el.scrollIntoView({ block: 'center' });
+      el.focus({ preventScroll: true });
+    };
+    frame = requestAnimationFrame(attempt);
+    return () => cancelAnimationFrame(frame);
+  }, [action, item, panel]);
+}
+
 /** Дата словами стойки: 20.09.2026 (DESIGN.md §14) */
 const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 const NIGHTS: [string, string, string] = ['ночь', 'ночи', 'ночей'];
@@ -97,8 +154,10 @@ export function ReservationActions(props: {
     void cancelPreviewAction(props.number, 'cancel').then(setCancelPreview);
   };
   const canEdit = OPEN.has(props.status);
+  const panel = useRef<HTMLElement>(null);
+  useQuickTarget(panel);
   return (
-    <section data-testid="reservation-actions" className="stack stack--mt">
+    <section ref={panel} data-testid="reservation-actions" className="stack stack--mt">
       {props.items
         .filter(
           (it) =>
@@ -513,6 +572,7 @@ function StayButtons(props: {
           <Button
             type="button"
             data-testid={`check-in-${props.item.id}`}
+            data-quick-action={`check-in:${props.item.id}`}
             onClick={async () => {
               // Q-156 (ADR-068): в непроверенную ячейку заселить можно, но стойка предупреждает и ждёт подтверждения
               const hk = props.item.unitHousekeepingStatus;
@@ -543,6 +603,7 @@ function StayButtons(props: {
           <Button
             type="button"
             data-testid={`check-out-${props.item.id}`}
+            data-quick-action={`check-out:${props.item.id}`}
             disabled={pending}
             onClick={checkOut}
           >
@@ -552,6 +613,7 @@ function StayButtons(props: {
         {live && needsPlan && (
           <Select
             aria-label="Тариф для продления"
+            data-quick-action={`extend-plan:${props.item.id}`}
             value={extendPlan}
             onChange={(e) => setExtendPlan(e.target.value)}
           >
@@ -570,6 +632,7 @@ function StayButtons(props: {
             type="button"
             tone="info"
             data-testid={`extend-${props.item.id}`}
+            data-quick-action={`extend:${props.item.id}`}
             disabled={pending || extendBlocked || (needsPlan && !extendPlan)}
             onClick={extend}
             title={
@@ -735,6 +798,8 @@ function AssignForm(props: {
         <Select
           name="unitCode"
           aria-label="Свободная ячейка"
+          data-testid={`assign-unit-${props.item.id}`}
+          data-quick-action={`move:${props.item.id}`}
           required
           defaultValue={state.values?.unitCode ?? ''}
         >

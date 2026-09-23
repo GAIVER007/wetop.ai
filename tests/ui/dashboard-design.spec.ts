@@ -97,10 +97,12 @@ test('главная: быстрые действия называют числ�
   await page.goto('/today');
   const quick = page.getByRole('region', { name: 'Быстрые действия' });
 
-  // числа те же, что в `DeskDay`: заселить 3, выселить 1, проживают 3
-  await expect(quick.getByRole('button', { name: /Заселить гостя/ })).toContainText('3');
+  // числа из того же `DeskDay` и равны строкам окна выбора (разбор 23.09.2026, находка 1): заселить —
+  // три заезда без заселения и один «не заехал вовремя», выселить — один, переселить — три живущих
+  // и один уезжающий сегодня; подробно — `dashboard-desk.spec.ts`
+  await expect(quick.getByRole('button', { name: /Заселить гостя/ })).toContainText('4');
   await expect(quick.getByRole('button', { name: /Выселить гостя/ })).toContainText('1');
-  await expect(quick.getByRole('button', { name: /Переселить/ })).toContainText('3');
+  await expect(quick.getByRole('button', { name: /Переселить/ })).toContainText('4');
   // вместо значка «+» — ссылка, которая куда-то ведёт
   await expect(quick.getByRole('link', { name: 'Все брони' })).toHaveAttribute(
     'href',

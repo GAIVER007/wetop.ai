@@ -1,0 +1,311 @@
+# Сквозные (e2e) · 23.09.2026 21:50 Алматы · vm
+# коммит f4f225a (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/dashboard-desk.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (16.4s)
+  ✘  2 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (45.1s)
+  ✘  3 tests/ui/dashboard-desk.spec.ts:81:1 › 3. сводка сверху называет причины и дату, без двойной точки (16.3s)
+  ✘  4 tests/ui/dashboard-desk.spec.ts:97:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (1.3s)
+  ✘  5 tests/ui/dashboard-desk.spec.ts:137:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (1.5s)
+  ✘  6 tests/ui/dashboard-desk.spec.ts:170:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (1.4s)
+  ✘  7 tests/ui/dashboard-desk.spec.ts:186:1 › 7. строки главной без разделителя « · » (1.5s)
+  ✘  8 tests/ui/dashboard-desk.spec.ts:207:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (16.3s)
+  ✘  9 tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px (1.7s)
+
+
+  1) tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('region', { name: 'Быстрые действия' }).getByRole('button', { name: /Заселить гостя/ }).locator('.quick-action__count')
+    Expected: "4"
+    Received: "3"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('region', { name: 'Быстрые действия' }).getByRole('button', { name: /Заселить гостя/ }).locator('.quick-action__count') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Быстрые действия' }).getByRole('button', { name: /Заселить гостя/ }).locator('.quick-action__count')
+        33 × locator resolved to <span class="quick-action__count">3</span>
+           - unexpected value "3"
+
+
+      37 |   for (const c of cases) {
+      38 |     const button = quick(page).getByRole('button', { name: new RegExp(c.label) });
+    > 39 |     await expect(button.locator('.quick-action__count')).toHaveText(String(c.has.length));
+         |                                                          ^
+      40 |     await button.click();
+      41 |     const dialog = page.getByRole('dialog', { name: c.label });
+      42 |     await expect(dialog.locator('.assistant-results > a')).toHaveCount(c.has.length);
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:39:58
+
+    Error Context: test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Заселить гостя' }).getByRole('link', { name: /20260913-TEST8/ })
+
+
+      69 |       .getByRole('dialog', { name: c.label })
+      70 |       .getByRole('link', { name: new RegExp(c.booking) })
+    > 71 |       .click();
+         |        ^
+      72 |     await expect(page).toHaveURL(new RegExp(`/reservations/${c.booking}\\?do=`));
+      73 |     const target = page.getByTestId(c.target);
+      74 |     // фокус и видимая рамка, но не нажатие: действие по-прежнему подтверждает человек
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:71:8
+
+    Error Context: test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/dashboard-desk.spec.ts:81:1 › 3. сводка сверху называет причины и дату, без двойной точки 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('attention-summary')
+    Expected substring: "просроченные заезды 1"
+    Received string:    "Требуют внимания: 2Задачи на 23 сент.. Открыть список"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('attention-summary') with timeout 15000ms
+      - waiting for getByTestId('attention-summary')
+        33 × locator resolved to <a href="#day-attention" class="attention-summary" data-testid="attention-summary">…</a>
+           - unexpected value "Требуют внимания: 2Задачи на 23 сент.. Открыть список"
+
+
+      83 |   const summary = page.getByTestId('attention-summary');
+      84 |   await expect(summary).toContainText('Требуют внимания: 2');
+    > 85 |   await expect(summary).toContainText('просроченные заезды 1');
+         |                         ^
+      86 |   await expect(summary).toContainText('долги уезжающих 1');
+      87 |   // ноль в сводку не выносим — его видно в разбивке блока
+      88 |   await expect(summary).not.toContainText('карточки гостей');
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:85:25
+
+    Error Context: test-results/dashboard-desk-3-сводка-св-17889-ны-и-дату-без-двойной-точки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-3-сводка-св-17889-ны-и-дату-без-двойной-точки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-3-сводка-св-17889-ны-и-дату-без-двойной-точки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/dashboard-desk.spec.ts:97:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "14px"
+    Received: "12px"
+
+       99 | }) => {
+      100 |   await page.goto('/today');
+    > 101 |   expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('14px');
+          |                                                                               ^
+      102 |   expect(await fontSize(page.locator('#day-attention .attention-item strong').first())).toBe(
+      103 |     '14px',
+      104 |   );
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:101:79
+
+    Error Context: test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/dashboard-desk.spec.ts:137:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(16, 24, 39)"
+    Received: "rgb(6, 115, 94)"
+
+      144 |   const neutral = await color('c-inhouse');
+      145 |   // §9: зелёный — «заселён», жёлтый — «внимание», синий — «подтверждена»; счётчик дня ни то, ни другое
+    > 146 |   for (const id of ['c-arrivals', 'c-departures', 'c-free']) expect(await color(id)).toBe(neutral);
+          |                                                                                      ^
+      147 |   // у живущих долга нет (значение — из API как есть), но TEST4 выехал сегодня с долгом 16 000 ₸
+      148 |   await expect(strip.getByTestId('c-debt')).toHaveText('0 ₸');
+      149 |   await expect(strip).not.toContainText('все счета оплачены');
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:146:86
+
+    Error Context: test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/dashboard-desk.spec.ts:170:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока 
+
+    Error: ширина 1440
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "maxHeight": "none",
+    -   "overflowY": "visible",
+    +   "maxHeight": "250px",
+    +   "overflowY": "auto",
+      }
+
+      180 |       return { maxHeight: s.maxHeight, overflowY: s.overflowY };
+      181 |     });
+    > 182 |     expect(style, `ширина ${width}`).toEqual({ maxHeight: 'none', overflowY: 'visible' });
+          |                                      ^
+      183 |   }
+      184 | });
+      185 |
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:182:38
+
+    Error Context: test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/dashboard-desk.spec.ts:186:1 › 7. строки главной без разделителя « · » ───────────────
+
+    Error: На стойке · среда, 23 сентября 2026 г.
+    сейчас
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not " · "
+    Received string:        "На стойке · среда, 23 сентября 2026 г.
+    сейчас"
+
+      194 |   // подпись отрезка «1 сент. — 30 сент. · 30 дней» §14 разрешает — её точку не считаем
+      195 |   for (const text of texts)
+    > 196 |     expect(text.replace(/ · \d+ (?:день|дня|дней)/, ''), text).not.toContain(' · ');
+          |                                                                    ^
+      197 |   await quick(page)
+      198 |     .getByRole('button', { name: /Выселить гостя/ })
+      199 |     .click();
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:196:68
+
+    Error Context: test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/dashboard-desk.spec.ts:207:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('chart-daily').locator('[title]')
+    Expected: 0
+    Received: 7
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('chart-daily').locator('[title]') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('chart-daily').locator('[title]')
+        33 × locator resolved to 7 elements
+           - unexpected value "7"
+
+
+      212 |   const chart = main.getByTestId('chart-daily');
+      213 |   await expect(chart).toBeVisible();
+    > 214 |   await expect(chart.locator('[title]')).toHaveCount(0);
+          |                                          ^
+      215 |   const day = main.getByTestId('chart-day');
+      216 |   // по умолчанию — сегодняшний день, подробности видны без наведения
+      217 |   await expect(day).toContainText('занято');
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:214:42
+
+    Error Context: test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "28px"
+    Received: "32px"
+
+      245 |     await expect(main.getByTestId('chart-daily')).toBeVisible();
+      246 |     await expect(main.getByRole('region', { name: 'Быстрые действия' })).toBeVisible();
+    > 247 |     if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
+          |                                                                                   ^
+      248 |     const off = await main.evaluate((root, allowed) => {
+      249 |       const seen = new Map<string, string>();
+      250 |       for (const el of root.querySelectorAll('*')) {
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:247:83
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-d6b99-шкалы-§6-число-плитки-28-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать 
+    tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+    tests/ui/dashboard-desk.spec.ts:81:1 › 3. сводка сверху называет причины и дату, без двойной точки 
+    tests/ui/dashboard-desk.spec.ts:97:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку 
+    tests/ui/dashboard-desk.spec.ts:137:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» 
+    tests/ui/dashboard-desk.spec.ts:170:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока 
+    tests/ui/dashboard-desk.spec.ts:186:1 › 7. строки главной без разделителя « · » ────────────────
+    tests/ui/dashboard-desk.spec.ts:207:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+    tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px 
+
+# код выхода 1 · 1 мин 55 с

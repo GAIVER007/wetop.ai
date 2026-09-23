@@ -40,19 +40,3 @@ describe('NestGuardProbes.lastExelySyncAt (exely.stale)', () => {
     expect(await probes(prismaWith([])).lastExelySyncAt()).toBeNull();
   });
 });
-
-describe('NestGuardProbes.exelySkipped (exely.card.skipped, Q-165)', () => {
-  const withLast = (after: unknown) =>
-    probes({ db: { auditLog: { findFirst: async () => (after === undefined ? null : { after }) } } });
-
-  it('берёт пропущенные карточки из последней записи exely.sync', async () => {
-    const skipped = [{ booking: '20261101-1', reason: 'Бронь 20261101-1: нет проживаний' }];
-    expect(await withLast({ mode: 'auto', skipped }).exelySkipped()).toEqual(skipped);
-  });
-
-  it('старая запись без поля, мусор в поле и отсутствие синхронизаций — пусто', async () => {
-    expect(await withLast({ mode: 'auto' }).exelySkipped()).toEqual([]);
-    expect(await withLast({ skipped: [{ booking: 1 }, null, 'x'] }).exelySkipped()).toEqual([]);
-    expect(await withLast(undefined).exelySkipped()).toEqual([]);
-  });
-});

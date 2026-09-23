@@ -14,7 +14,7 @@ import type { GenderCode } from './normalize-reservation';
  * Приём броней из каналов его читает (`guestForStorage`), а оба импорта из Exely раньше нет:
  * соль передавалась всегда, и на боевой базе в РК у всех перенесённых гостей вышло бы
  * «Гость Тест-…» с выдуманным телефоном, а заметки брони — пустые. Перенесено из ветки PR #9
- * 23.09.2026: без него вариант А переходного периода (ADR-064) не перенёс бы настоящих гостей.
+ * 23.09.2026 (`plans/pr9-leftovers-2026-09-22.md`): нужно, если дамп когда-нибудь переносят на базу в РК (Q-151).
  */
 export function importPiiSalt(env: NodeJS.ProcessEnv = process.env): string | null {
   return realPiiAllowed(env) ? null : pseudonymSalt(env);

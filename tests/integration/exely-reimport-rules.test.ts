@@ -1,5 +1,5 @@
 /**
- * Правила досинхронизации Exely → PMS на переходный период (ADR-064, решения владельца 23.09.2026):
+ * Правила повторного импорта Exely → PMS (решения владельца 23.09.2026):
  * Q-162 — статус, изменённый стойкой в PMS, повторный импорт не трогает; Q-164 — ручная посадка следует за
  * новыми датами из Exely. Всё внутри откатываемой транзакции, гости вымышленные.
  */
@@ -87,7 +87,7 @@ const ctx = {
 const norm = (b: exely.UniBooking) => normalizeExelyReservation(adaptUniBooking(b), ctx);
 const day = (d: string) => new Date(`${d}T00:00:00Z`);
 
-describe.skipIf(!url)('досинхронизация Exely → PMS: правила переходного периода (integration, rolled back)', () => {
+describe.skipIf(!url)('повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back)', () => {
   let db: Db;
   beforeAll(() => {
     db = createPrismaClient(url);

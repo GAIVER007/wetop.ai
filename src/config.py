@@ -118,6 +118,8 @@ class Settings(BaseSettings):
     channel_telegram_bot_token: str = ""
     channel_telegram_bot_username: str = ""
     channel_telegram_webhook_secret: str = ""
+    # Адрес Bot API — настройка, не константа: прокси и тесты подменяют его.
+    channel_telegram_api_base: str = "https://api.telegram.org"
 
     # ─── База знаний ───
     kb_chunk_chars: int = 900

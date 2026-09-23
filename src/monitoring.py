@@ -4,8 +4,8 @@
 веб продолжит отвечать; упадёт веб — фоновые задачи доработают.
 Запуск: python -m src.monitoring (см. compose.yml).
 
-Задачи регистрируются в JOBS. На шаге 1 список пуст: сторож сроков ответа,
-повторная доставка outbox и сводка за день появятся на шаге 8.
+Задачи регистрируются в JOBS через default_jobs(): повторная доставка
+outbox (шаг 6); сторож сроков ответа и сводка за день появятся на шаге 8.
 🔴 Каждая задача открывает СВОЮ сессию БД (get_sessionmaker()), а не берёт
 чужую: сессия из запроса закрывается вместе с ним, и запись теряется молча.
 """
@@ -25,6 +25,17 @@ Job = Callable[[], Awaitable[None]]
 JOBS: list[Job] = []
 
 logger = logging.getLogger(__name__)
+
+
+def default_jobs() -> list[Job]:
+    """Список задач боевого процесса. Импорт внутри: src.jobs тянет каналы
+    и движок, а они импортируют настройки и dependencies — цикл на уровне
+    модулей. Заполняет и JOBS, чтобы старое имя показывало то же самое."""
+    from src.jobs import outbox_redeliver
+
+    jobs: list[Job] = [outbox_redeliver.run_once]
+    JOBS[:] = jobs
+    return jobs
 
 
 async def tick(jobs: list[Job]) -> None:
@@ -61,7 +72,7 @@ def main() -> None:
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, stop.set)
         try:
-            await run(stop)
+            await run(stop, jobs=default_jobs())
         finally:
             await close_resources()
 

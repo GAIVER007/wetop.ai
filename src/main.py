@@ -4,6 +4,7 @@
 исключений. Всё для диагностики — в журнале и на /internal/health по ключу.
 """
 
+import asyncio
 import logging
 import secrets
 from collections.abc import AsyncIterator
@@ -15,6 +16,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src import dashboard_router
+from src.channels import telegram as telegram_channel
 from src.config import Settings, get_settings
 from src.dependencies import (
     close_resources,
@@ -26,6 +28,27 @@ from src.db.ip_block import IpBlockMiddleware
 from src.knowledge.embedder import get_embedder
 
 logger = logging.getLogger(__name__)
+
+# Сколько ждать задачи канала при остановке. Ход с каскадом моделей идёт
+# до минуты; дольше ждать нельзя — перезапуск повиснет.
+GRACEFUL_STOP_SECONDS = 60.0
+
+
+async def _drain_channel_runner(app: FastAPI) -> None:
+    """Дождаться незавершённых ходов канала с потолком по времени.
+
+    Зависшая задача не держит остановку вечно: по таймауту уходим дальше,
+    но ресурсы закрываются уже после ожидания, а не до него.
+    """
+    runner = getattr(app.state, "telegram_runner", None)
+    if runner is None:
+        return
+    try:
+        await asyncio.wait_for(runner.drain(), timeout=GRACEFUL_STOP_SECONDS)
+    except (TimeoutError, asyncio.TimeoutError):
+        logger.warning("Остановка: задачи канала не уложились в отведённое время")
+    except Exception:
+        logger.exception("Остановка: ожидание задач канала не удалось")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -47,6 +70,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             yield
         finally:
+            # 🔴 Сначала задачи канала, потом ресурсы: на вебхук уже ответили
+            # 200, Telegram обновление не повторит. Закрыть движок БД и
+            # http-клиент под живым ходом — оставить клиента без ответа.
+            await _drain_channel_runner(app)
             await close_resources()
 
     # debug=False всегда: отладочный режим отдаёт трассировку клиенту.
@@ -128,6 +155,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(status_code=200, content={"status": "ok", "checks": checks})
 
     app.include_router(dashboard_router.router)
+    # Вебхук Telegram: префикс /webhooks уже под IpBlockMiddleware.
+    app.include_router(telegram_channel.router)
 
     return app
 

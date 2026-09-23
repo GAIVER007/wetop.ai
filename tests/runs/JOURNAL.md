@@ -1773,3 +1773,11 @@
 | 23.09.2026 18:11 | unit | ✅ 1463 из 1466, пропущено 3 | 1 мин 13 с | f3f22b1 | [лог](logs/2026-09-23T13-11-13Z-unit-012c.log) |  |
 | 23.09.2026 18:12 | lint | ✅ без ошибок | 15 с | f3f22b1 | [лог](logs/2026-09-23T13-12-31Z-lint-0ffd.log) |  |
 | 23.09.2026 18:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 326 из 326 | 24 мин 51 с | f3f22b1 | [лог](logs/2026-09-23T13-12-59Z-e2e-d630.log) |  |
+| 23.09.2026 19:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts -g быстрые действия) | ❌ упало 1 из 1 | 39 с | b41ca6c +1 | [лог](logs/2026-09-23T14-31-29Z-e2e-c94e.log) | главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам |
+| 23.09.2026 19:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts) | ✅ 3 из 3 | 14 с | b41ca6c +3 | [лог](logs/2026-09-23T14-33-47Z-e2e-5559.log) |  |
+| 23.09.2026 19:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/design-refresh.spec.ts tests/ui/workspace.spec.ts t | ❌ код выхода 1 | 2 с | b41ca6c +3 | [лог](logs/2026-09-23T14-35-04Z-e2e-aa6d.log) | (ошибка вне тестов) |
+| 23.09.2026 19:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/design-refresh.spec.ts tests/ui/workspace.spec.ts t | ❌ код выхода 1 | 2 с | b41ca6c +3 | [лог](logs/2026-09-23T14-35-21Z-e2e-09af.log) | (ошибка вне тестов) |
+| 23.09.2026 19:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/design-refresh.spec.ts tests/ui/workspace.spec.ts t | ✅ 80 из 80 | 7 мин 49 с | b41ca6c +3 | [лог](logs/2026-09-23T14-35-36Z-e2e-7597.log) |  |
+| 23.09.2026 19:43 | unit | ✅ 1463 из 1466, пропущено 3 | 1 мин 12 с | b41ca6c +2 | [лог](logs/2026-09-23T14-43-29Z-unit-88c0.log) |  |
+| 23.09.2026 19:44 | typecheck | ✅ без ошибок | 28 с | b41ca6c +3 | [лог](logs/2026-09-23T14-44-42Z-typecheck-eb89.log) |  |
+| 23.09.2026 19:45 | lint | ✅ без ошибок | 16 с | b41ca6c +3 | [лог](logs/2026-09-23T14-45-10Z-lint-50f8.log) |  |

@@ -28,10 +28,20 @@ export function HotelClock({ timezone }: { timezone: string }) {
 }
 /*
  * Быстрое действие знает, сколько дел под ним лежит: число берётся из того же `DeskDay`, что и плитки
- * выше, — второго источника правды не заводим. Ноль дел гасит кнопку и говорит словами, почему:
- * прежде она открывала окно выбора с пустым списком, и это был тупик (23.09.2026).
+ * выше, — второго источника правды не заводим. Есть дела — кнопка открывает выбор брони дня.
+ *
+ * Дел нет — кнопка не гаснет, а ведёт туда, где действие начинается, и говорит куда: в пустой день
+ * она нужнее всего (гость пришёл с улицы, бронь пришла в экстранет канала — её надо завести). Сначала
+ * ноль гасил кнопку, и на рабочей базе без броней на сегодня стойка осталась с пятью мёртвыми
+ * кнопками (снимок владельца, 23.09.2026).
  */
-type QuickAction = { label: string; icon: IconName; count: number; empty: string };
+type QuickAction = {
+  label: string;
+  icon: IconName;
+  count: number;
+  /** куда ведёт кнопка, когда дел нет, и как это сказать словами */
+  idle: { href: string; hint: string };
+};
 
 export function QuickActions({ day }: { day: DeskDay }) {
   const [action, setAction] = useState<string | null>(null);
@@ -51,22 +61,38 @@ export function QuickActions({ day }: { day: DeskDay }) {
   const dayCount = new Map(
     [...day.inHouse, ...day.arrivals, ...day.departures].map((r) => [r.confirmationNumber, r]),
   ).size;
+  const findBooking = (why: string) => ({ href: '/reservations', hint: `${why} — найти бронь` });
   const options: QuickAction[] = [
-    { label: 'Заселить гостя', icon: 'arrival', count: day.counts.toCheckIn, empty: 'нет заездов' },
+    {
+      label: 'Заселить гостя',
+      icon: 'arrival',
+      count: day.counts.toCheckIn,
+      idle: { href: '/reservations/new', hint: 'нет заездов — новая бронь' },
+    },
     {
       label: 'Выселить гостя',
       icon: 'departure',
       count: day.counts.toCheckOut,
-      empty: 'нет выездов',
+      idle: findBooking('нет выездов'),
     },
     {
       label: 'Продлить проживание',
       icon: 'clock',
       count: day.counts.inHouse,
-      empty: 'никто не проживает',
+      idle: findBooking('никто не проживает'),
     },
-    { label: 'Переселить', icon: 'bed', count: day.counts.inHouse, empty: 'никто не проживает' },
-    { label: 'Создать счёт', icon: 'receipt', count: dayCount, empty: 'нет броней дня' },
+    {
+      label: 'Переселить',
+      icon: 'bed',
+      count: day.counts.inHouse,
+      idle: findBooking('никто не проживает'),
+    },
+    {
+      label: 'Создать счёт',
+      icon: 'receipt',
+      count: dayCount,
+      idle: findBooking('нет броней дня'),
+    },
   ];
   return (
     <section className="quick-actions-card" aria-label="Быстрые действия">
@@ -78,27 +104,37 @@ export function QuickActions({ day }: { day: DeskDay }) {
         </Link>
       </div>
       <div className="quick-actions-grid">
-        {options.map((option) => (
-          <button
-            className="quick-action"
-            key={option.label}
-            disabled={option.count === 0}
-            onClick={() => {
-              setQuery('');
-              setAction(option.label);
-            }}
-          >
+        {options.map((option) => {
+          const icon = (
             <span className="quick-action__icon">
               <Icon name={option.icon} />
             </span>
-            <span className="quick-action__label">{option.label}</span>
-            {option.count > 0 ? (
+          );
+          return option.count > 0 ? (
+            <button
+              className="quick-action"
+              key={option.label}
+              onClick={() => {
+                setQuery('');
+                setAction(option.label);
+              }}
+            >
+              {icon}
+              <span className="quick-action__text">
+                <span className="quick-action__label">{option.label}</span>
+              </span>
               <span className="quick-action__count">{option.count}</span>
-            ) : (
-              <span className="quick-action__empty">{option.empty}</span>
-            )}
-          </button>
-        ))}
+            </button>
+          ) : (
+            <Link className="quick-action" key={option.label} href={option.idle.href}>
+              {icon}
+              <span className="quick-action__text">
+                <span className="quick-action__label">{option.label}</span>
+                <span className="quick-action__hint">{option.idle.hint}</span>
+              </span>
+            </Link>
+          );
+        })}
       </div>
       <Overlay open={!!action} onClose={() => setAction(null)} title={action ?? 'Выбор брони'}>
         <label className="field">

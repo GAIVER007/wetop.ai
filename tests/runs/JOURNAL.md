@@ -2027,3 +2027,7 @@
 | 24.09.2026 19:43 | unit | ✅ 1517 из 1520, пропущено 3 | 1 мин 12 с | 0574649 +2 | [лог](logs/2026-09-24T14-43-55Z-unit-cabb.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
 | 24.09.2026 19:45 | typecheck | ✅ без ошибок | 23 с | 0574649 +2 | [лог](logs/2026-09-24T14-45-08Z-typecheck-5551.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
 | 24.09.2026 19:45 | lint | ✅ без ошибок | 18 с | 0574649 +2 | [лог](logs/2026-09-24T14-45-32Z-lint-e863.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
+| 24.09.2026 20:26 | unit | ✅ 1716 из 1719, пропущено 3 | 1 мин 12 с | 164a15f | [лог](logs/2026-09-24T15-26-35Z-unit-f732.log) | итог: ветка, слитая с main 9f1db986 (PR #61) |
+| 24.09.2026 20:27 | typecheck | ✅ без ошибок | 22 с | 164a15f | [лог](logs/2026-09-24T15-27-48Z-typecheck-9d93.log) |  |
+| 24.09.2026 20:28 | lint | ✅ без ошибок | 16 с | 164a15f | [лог](logs/2026-09-24T15-28-10Z-lint-a7e5.log) |  |
+| 24.09.2026 20:28 | integration | ✅ 62 из 62 | 21 с | 164a15f | [лог](logs/2026-09-24T15-28-45Z-integration-3274.log) | итог: ветка, слитая с main 9f1db986 (PR #61); локальная PostgreSQL 16 |

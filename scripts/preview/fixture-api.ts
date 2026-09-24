@@ -1728,16 +1728,18 @@ function read(path: string, q: URLSearchParams): unknown {
         penaltyMinor: action === 'no_show' ? night.toString() : '0',
         policy: 'FIRST_NIGHT',
       };
-    if (action === 'extend')
+    if (action === 'extend') {
+      const nights = Number(q.get('nights') ?? 1);
       return {
         action,
         currentPriceMinor: item.priceMinor,
         currency: 'KZT',
-        nights: 1,
-        departureDate: add(item.departureDate, 1),
-        newPriceMinor: (current + night).toString(),
-        differenceMinor: night.toString(),
+        nights,
+        departureDate: add(item.departureDate, nights),
+        newPriceMinor: (current + night * BigInt(nights)).toString(),
+        differenceMinor: (night * BigInt(nights)).toString(),
       };
+    }
     const unitCode = q.get('unitCode') ?? '';
     const unit = units.find((u) => u.code === unitCode);
     const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;

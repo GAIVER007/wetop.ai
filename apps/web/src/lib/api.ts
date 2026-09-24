@@ -1257,7 +1257,7 @@ export const assistantApi = {
   },
 };
 
-// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-076; контракт — docs/assistant/README.md) ──────────────
+// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-077; контракт — docs/assistant/README.md) ──────────────
 
 export type SellerAddressForm = 'FORMAL' | 'INFORMAL';
 export type SellerReplyLength = 'SHORT' | 'MEDIUM' | 'LONG';

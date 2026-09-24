@@ -58,7 +58,7 @@ function sameKey(presented: string, expected: string): boolean {
 const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
 
 /**
- * Узкий ключ ИИ-помощника (`ASSISTANT_READ_KEY`, ТЗ ред. 1 П4, ADR-076) — по тому же образцу: помощник видит ошибки,
+ * Узкий ключ ИИ-помощника (`ASSISTANT_READ_KEY`, ТЗ ред. 1 П4, ADR-077) — по тому же образцу: помощник видит ошибки,
  * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
  * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
  */

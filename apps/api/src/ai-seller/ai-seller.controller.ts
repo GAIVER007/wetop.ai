@@ -17,7 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { KNOWLEDGE_MAX_BYTES, SellerService } from './seller.service';
 
 /**
- * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-076; контракт с ботом — docs/assistant/README.md §4).
+ * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-077; контракт с ботом — docs/assistant/README.md §4).
  *
  * Явный список маршрутов, а не «всё под `/ai-seller/*`»: платформа зовёт продавца ровно тем, что нужно экранам
  * раздела. Адрес и ключ продавца живут только в окружении API; в ответах их нет.

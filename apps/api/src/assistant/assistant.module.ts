@@ -5,7 +5,7 @@ import { UserErrorsModule } from './user-errors.module';
 import { UserErrorsRetentionService } from './user-errors-retention.service';
 
 /**
- * ИИ-помощник в стойке (ТЗ ред. 1, ADR-076): подпись вошедшего для виджета (П1) и уборка журнала ошибок человека
+ * ИИ-помощник в стойке (ТЗ ред. 1, ADR-077): подпись вошедшего для виджета (П1) и уборка журнала ошибок человека
  * (П3) — сам журнал пишет фильтр ошибок сторожа.
  */
 @Module({

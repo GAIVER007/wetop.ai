@@ -41,7 +41,7 @@ const uuidParam = (value: unknown, name: string): string => {
 };
 
 /**
- * ИИ-помощник в стойке (ТЗ ред. 1, ADR-076; контракт — docs/assistant/README.md).
+ * ИИ-помощник в стойке (ТЗ ред. 1, ADR-077; контракт — docs/assistant/README.md).
  *
  * `GET /assistant/identity` (П1) — подпись вошедшего для тега виджета: сервер стойки берёт её при отрисовке
  * макета и кладёт в `data-identity`. Автор — `request.user`, который ставит замок `SessionGuard` по сессии

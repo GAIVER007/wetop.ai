@@ -127,12 +127,6 @@ class Settings(BaseSettings):
     alert_dedup_hot_lead_hours: int = 24
     alert_heartbeat_enabled: bool = True
     alert_heartbeat_hour: int = 9
-    # Осталось от шага 7 и не читается: с шага 8а адресатов задают
-    # alert_email_to и alert_telegram_chat_id, транспорты строк фиксированы
-    # ('email' и 'alert_messenger'). Поля оставлены, чтобы боевой .env
-    # с ними не падал на лишней переменной.
-    alert_transport: str = "telegram"
-    alert_recipient: str = ""
     # 🔴 Второй рубеж поверх дедупа: предел однотипных алертов в час.
     # Дедуп ловит повтор ОДНОГО инцидента, а ключ вида 'llm_down:{диалог}'
     # у каждого диалога свой — массовый отказ даёт шторм (на живом прогоне
@@ -153,7 +147,9 @@ class Settings(BaseSettings):
     # Общий секрет с платформой: ею подписан признак пользователя. Пусто —
     # подписанные признаки не принимаются вовсе, все посетители анонимные.
     widget_identity_secret: str = ""
-    widget_identity_ttl_seconds: int = 3600
+    # Равен сроку сессии платформы: виджет читает подпись один раз при загрузке,
+    # а приложение ходит между экранами без перезагрузки.
+    widget_identity_ttl_seconds: int = 43200
     # Сколько живёт ключ посетителя в браузере: 30 суток.
     widget_session_ttl_hours: int = 720
     widget_messages_per_hour: int = 60

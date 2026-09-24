@@ -36,7 +36,7 @@ WIDGET_NAMES = [
 DEFAULTS = {
     "widget_site_hosts": "",
     "widget_identity_secret": "",
-    "widget_identity_ttl_seconds": 3600,
+    "widget_identity_ttl_seconds": 43200,
     "widget_session_ttl_hours": 720,
     "widget_messages_per_hour": 60,
     "widget_max_body_bytes": 64 * 1024,

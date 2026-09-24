@@ -20,8 +20,6 @@ DEFAULTS = {
     "integration_base_url": "",
     "integration_api_key": "",
     "integration_timeout_seconds": 10,
-    "alert_transport": "telegram",
-    "alert_recipient": "",
 }
 
 
@@ -77,14 +75,9 @@ def test_env_example_explains_why_mode_is_a_setting() -> None:
     assert "заглушк" in block.lower()
 
 
-def test_alert_recipient_documented() -> None:
-    text = _env_example()
-    assert re.search(r"^ALERT_TRANSPORT=telegram\b", text, re.MULTILINE)
-    assert re.search(r"^ALERT_RECIPIENT=\s*(#.*)?$", text, re.MULTILINE), "получатель алертов заполнен в образце"
-
 
 def test_every_new_variable_of_env_example_has_a_settings_field() -> None:
-    names = re.findall(r"^(INTEGRATION_[A-Z_]+|ALERT_TRANSPORT|ALERT_RECIPIENT)=", _env_example(), re.MULTILINE)
+    names = re.findall(r"^(INTEGRATION_[A-Z_]+)=", _env_example(), re.MULTILINE)
     assert "INTEGRATION_MODE" in names
     missing = [n for n in names if n.lower() not in Settings.model_fields]
     assert not missing, f"в Settings нет полей для: {missing}"

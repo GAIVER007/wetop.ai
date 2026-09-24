@@ -129,9 +129,9 @@ def test_backup_script_holds_no_secrets() -> None:
     assert "@" not in text, "похоже на адрес почты или сервера в скрипте"
 
 
-# ─── Настройки, оставшиеся от шага 7 ───
+# ─── Мёртвые настройки убраны, а не оставлены с пометкой ───
 
-UNUSED_ALERT_NAMES = ["ALERT_TRANSPORT", "ALERT_RECIPIENT"]
+DEAD_ALERT_NAMES = ["ALERT_TRANSPORT", "ALERT_RECIPIENT"]
 
 
 def _comment_for(text: str, name: str) -> str:
@@ -147,19 +147,19 @@ def _comment_for(text: str, name: str) -> str:
     return "\n".join(block)
 
 
-@pytest.mark.parametrize("name", UNUSED_ALERT_NAMES)
-def test_unused_alert_variable_does_not_promise_delivery(name: str) -> None:
-    """🔴 Настройка, которая есть и ничего не делает, хуже отсутствующей.
+@pytest.mark.parametrize("name", DEAD_ALERT_NAMES)
+def test_dead_alert_setting_is_gone(name: str) -> None:
+    """🔴 Настройка, которая есть и ничего не делает, хуже отсутствующей:
+    заказчик заполнит её и узнает правду в день первого настоящего алерта."""
+    assert not re.search(rf"^{name}=", _env_text(), re.MULTILINE), f"{name} ещё в образце"
+    assert name.lower() not in Settings.model_fields, f"{name} ещё в настройках"
 
-    После шага 8а получателей задают ALERT_EMAIL_TO и ALERT_TELEGRAM_CHAT_ID,
-    а эти три имени не читает ни один модуль. Заказчик, заполнивший
-    ALERT_RECIPIENT, узнает об этом в день первого настоящего алерта.
-    """
-    block = _comment_for(_env_text(), name).lower()
-    assert "не использ" in block, f"{name} описан как рабочий"
-    assert "alert_email_to" in block or "alert_telegram_chat_id" in block, (
-        f"{name}: не сказано, чем задаются адресаты"
-    )
+
+def test_an_old_env_with_dead_settings_still_starts(monkeypatch) -> None:
+    """Боевой .env, написанный до уборки, не должен ронять запуск."""
+    for name in DEAD_ALERT_NAMES:
+        monkeypatch.setenv(name, "что-то старое")
+    Settings()  # лишние переменные игнорируются, а не валят разбор
 
 
 def test_personal_chat_is_wired_and_documented() -> None:

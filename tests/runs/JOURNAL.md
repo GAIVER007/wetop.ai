@@ -2199,3 +2199,4 @@
 | 25.09.2026 02:06 | e2e (частично: --config tests/ui/playwright.assistant.config.ts) | ✅ 4 из 4 | 17 с | d48fd7e | [лог](logs/2026-09-24T21-06-57Z-e2e-04a2.log) |  |
 | 25.09.2026 02:07 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 8 из 8 | 14 с | d48fd7e | [лог](logs/2026-09-24T21-07-14Z-e2e-eb9d.log) |  |
 | 25.09.2026 02:07 | e2e | ✅ 25 из 25 | 1 мин 27 с | d48fd7e | [лог](logs/2026-09-24T21-07-50Z-e2e-f29c.log) |  |
+| 25.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 356 из 356 | 27 мин 38 с | bfa0072 | [лог](logs/2026-09-24T21-10-03Z-e2e-fbfb.log) |  |

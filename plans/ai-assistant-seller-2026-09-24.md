@@ -400,3 +400,7 @@
 `DATA_MODEL.md`, `DECISIONS.md`, `DESIGN.md`, `QUESTIONS.md`, `apps/site/src/site.config.ts`, миграция
 `20260924000019`, `schema.prisma`, `packages/domain/src/ai-seller/profile.ts`,
 `packages/integrations/src/assistant/index.ts`, `tests/ui/workspace.spec.ts`.
+
+**Исполнено 24.09.2026:** `82368dd9` (план), `0f6bea6f` (перенумерация), `d48fd7ee` (слияние `main`). На дереве со
+свежим `main` зелёно всё: полный набор стойки 356 из 356, живые сквозные 25 из 25, unit 1753 из 1756, integration
+64 из 64, `check-migrations.sh` — `RESULT: OK` (отчёт §11, «Второе слияние»). `main` — предок ветки.

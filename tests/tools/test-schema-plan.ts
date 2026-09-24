@@ -22,7 +22,7 @@ export function testDatabaseRefusal(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string | null {
   if (env['PMS_TEST_REMOTE_DB']?.trim() === '1') return null;
-  let host: string | null = null;
+  let host: string | null;
   try {
     host = new URL(url).hostname.toLowerCase();
   } catch {

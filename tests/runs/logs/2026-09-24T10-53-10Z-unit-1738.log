@@ -1,0 +1,28 @@
+# Модульные (unit) · 24.09.2026 15:53 Алматы · vm
+# коммит 7fbd9e9 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-53-10Z-unit-1738.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/repo-sync.test.ts (18 tests) 7534ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 388ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 345ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 389ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 622ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 381ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 634ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 733ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 346ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 636ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 849ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 418ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  10:53:11
+   Duration  7.91s (tests 97%, transform 2%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-53-10Z-unit-1738.json
+
+# код выхода 0 · 9 с

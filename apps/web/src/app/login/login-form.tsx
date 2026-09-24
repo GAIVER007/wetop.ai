@@ -27,7 +27,6 @@ export type LoginMode = 'password' | 'register';
 
 export function LoginForm({
   demo,
-  accessEmail,
   user,
   passwordJustSet = false,
   mode: initialMode = 'password',
@@ -37,7 +36,6 @@ export function LoginForm({
   initialEmail = '',
 }: {
   demo: boolean;
-  accessEmail: string | null;
   /** Своя сессия WETOP. Cloudflare Access снят 20.09.2026 — замок остался один (ADR-053). */
   user: SignedIn | null;
   passwordJustSet?: boolean;
@@ -48,7 +46,7 @@ export function LoginForm({
   invites?: AuthInvite[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
   sessions?: AuthSessionRow[];
-  /** Почта, подставленная в поле: приходит из ссылки (`?email=`) или из заголовка Access. */
+  /** Почта, подставленная в поле: приходит из ссылки (`?email=`). Заголовок Access не читается — Access снят (ADR-053) */
   initialEmail?: string;
 }) {
   const [requestedMode, setMode] = useState<LoginMode>(initialMode);
@@ -56,7 +54,7 @@ export function LoginForm({
   const [show, setShow] = useState(false);
   const [state, submit, pending] = useActionState<LoginState, FormData>(signIn, { error: null });
 
-  const [email, setEmail] = useState(initialEmail || accessEmail || '');
+  const [email, setEmail] = useState(initialEmail);
   const [personName, setPersonName] = useState('');
   const [hotelName, setHotelName] = useState('');
   const [password, setPassword] = useState('');
@@ -319,12 +317,6 @@ export function LoginForm({
                     Самостоятельная регистрация временно закрыта. Доступ сотрудникам выдаёт
                     администратор объекта.
                   </span>
-                ) : accessEmail ? (
-                  <>
-                    <span>Cloudflare Access пропустил {accessEmail}</span>
-                    {/* путь Cloudflare, не маршрут приложения: обычная ссылка, не next/link */}
-                    <a href="/cdn-cgi/access/logout">Выйти из Access</a>
-                  </>
                 ) : (
                   <span>
                     {demo

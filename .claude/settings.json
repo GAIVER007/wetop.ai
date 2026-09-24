@@ -13,7 +13,32 @@
       "Bash(source .env*)",
       "Bash(export $(cat .env*)",
       "Read(./project-input/exely/api/**)",
-      "Bash(cat project-input/exely/api/*)"
+      "Bash(cat project-input/exely/api/*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secrets/**)",
+      "Read(./project-input/exely/**/*.xlsx)",
+      "Read(./project-input/exely/**/*.xls)",
+      "Read(./project-input/exely/**/*.xlsm)",
+      "Read(./project-input/exely/**/*.ods)",
+      "Read(./project-input/exely/**/*.csv)",
+      "Read(./project-input/exely/**/*.tsv)",
+      "Read(./project-input/exely/**/*.json)",
+      "Read(./project-input/exely/backups/**)",
+      "Bash(cat -n .env*)",
+      "Bash(cat */.env*)",
+      "Bash(head *.env*)",
+      "Bash(tail *.env*)",
+      "Bash(less *.env*)",
+      "Bash(more *.env*)",
+      "Bash(grep *.env*)",
+      "Bash(rg *.env*)",
+      "Bash(sed *.env*)",
+      "Bash(awk *.env*)",
+      "Bash(xxd *.env*)",
+      "Bash(base64 *.env*)",
+      "Bash(. .env*)",
+      "Bash(docker compose * config*)"
     ]
   }
 }

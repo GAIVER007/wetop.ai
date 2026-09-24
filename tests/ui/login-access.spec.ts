@@ -179,20 +179,22 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('за Cloudflare Access почта подставлена в поле, но вход всё равно спрашивают', async ({
+/**
+ * Cloudflare Access снят 20.09.2026 (ADR-053): заголовок `cf-access-authenticated-user-email` больше ставит не край
+ * Cloudflare, а кто угодно. Экран входа его не читает — ни подписи «Access пропустил», ни почты в поле
+ * (проверка по SECURITY.md, 24.09.2026).
+ */
+test('заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль', async ({
   page,
 }) => {
   await page.setExtraHTTPHeaders({ 'cf-access-authenticated-user-email': 'admin@example.invalid' });
   await page.goto('/login');
   const main = page.getByRole('main');
 
-  await expect(main.getByLabel('Email', { exact: true })).toHaveValue('admin@example.invalid');
-  await expect(main).toContainText('Cloudflare Access пропустил admin@example.invalid');
-  await expect(main.getByRole('link', { name: 'Выйти из Access' })).toHaveAttribute(
-    'href',
-    '/cdn-cgi/access/logout',
-  );
   await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
+  await expect(main.getByLabel('Email', { exact: true })).toHaveValue('');
+  await expect(main).not.toContainText('Cloudflare Access');
+  await expect(main.getByRole('link', { name: 'Выйти из Access' })).toHaveCount(0);
 });
 
 test('после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место', async ({

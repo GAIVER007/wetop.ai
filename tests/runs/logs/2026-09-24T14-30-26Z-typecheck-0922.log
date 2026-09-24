@@ -1,0 +1,5 @@
+# Типы (typecheck) · 24.09.2026 19:30 Алматы · vm
+# коммит 67e8aee (claude/cool-hawking-c030jv)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+# код выхода 0 · 23 с

@@ -12,15 +12,20 @@ outbox (шаг 6), сторож сроков ответа и суточная п
 """
 
 import asyncio
+import contextlib
 import logging
 import signal
 from collections.abc import Awaitable, Callable
+from pathlib import Path
 
 from src.config import get_settings
 from src.dependencies import close_resources, configure_logging
 
 LOG_NAME = "monitor"
 TICK_SECONDS = 60
+# Пульс для проверки здоровья compose: HTTP у monitor нет. Свежий файл —
+# петля жива; старый — зависла, хотя процесс ещё есть.
+ALIVE_FILE = Path("/tmp/monitor-alive")
 
 Job = Callable[[], Awaitable[None]]
 JOBS: list[Job] = []
@@ -56,6 +61,8 @@ async def run(stop: asyncio.Event, jobs: list[Job] = JOBS, tick_seconds: int = T
     logger.info("monitor запущен, задач: %d", len(jobs))
     while not stop.is_set():
         await tick(jobs)
+        with contextlib.suppress(OSError):
+            ALIVE_FILE.touch()
         try:
             await asyncio.wait_for(stop.wait(), timeout=tick_seconds)
         except TimeoutError:

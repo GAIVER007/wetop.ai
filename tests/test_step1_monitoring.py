@@ -52,3 +52,33 @@ def test_monitor_writes_its_own_log_file() -> None:
 
     assert monitoring.LOG_NAME == "monitor"
     assert log_file_path(monitoring.LOG_NAME).name.startswith("monitor-")
+
+
+async def test_every_pass_refreshes_the_alive_file(tmp_path, monkeypatch) -> None:
+    """HTTP у monitor нет: проверка здоровья compose смотрит, свежий ли файл-пульс.
+    Без него monitor наследовал HTTP-проверку образа и был «unhealthy» всегда."""
+    import asyncio
+
+    from src import monitoring
+
+    alive = tmp_path / "monitor-alive"
+    monkeypatch.setattr(monitoring, "ALIVE_FILE", alive)
+    stop = asyncio.Event()
+
+    async def job() -> None:
+        stop.set()
+
+    await monitoring.run(stop, jobs=[job], tick_seconds=0)
+    assert alive.exists(), "проход прошёл, а пульса нет"
+
+
+def test_compose_checks_the_monitor_by_its_alive_file() -> None:
+    from pathlib import Path
+
+    from src import monitoring
+
+    compose = (Path(__file__).resolve().parent.parent / "compose.yml").read_text(encoding="utf-8")
+    monitor_block = compose.split("\n  monitor:\n", 1)[1].split("\n  postgres:\n", 1)[0]
+    assert "healthcheck:" in monitor_block, "без своей проверки monitor наследует HTTP-проверку образа"
+    assert str(monitoring.ALIVE_FILE) in monitor_block
+    assert "8000/health" not in monitor_block

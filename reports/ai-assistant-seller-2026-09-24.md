@@ -138,3 +138,52 @@
 называет гостям, поэтому не начата: Q-177 (утвердить v1.8 в редакции под Б6), Q-179 (какая цена за ночь). План
 переделки со списком файлов — план §11.
 
+Проверено не на глаз, а моделями самого бота: тела, которые сегодня собирает домен платформы (`sellerProfilePayload`,
+`buildSellerFacts`), прогнаны через `SellerProfile` и `ObjectFacts` с ветки `ai-seller` (pydantic 2; тяжёлые зависимости
+бота — поиск инструкций, база, приём документов — заглушены, на схему они не влияют):
+
+```
+PUT /seller/profile: бот отклонит — 7 ошибок
+   object_name — missing
+   address_form — literal_error
+   prohibitions — list_type
+   use_emoji — extra_forbidden
+   paid_extras — extra_forbidden
+   handoff_rules — extra_forbidden
+   updated_at — extra_forbidden
+PUT /seller/facts: бот отклонит — 15 ошибок
+   object_name — missing
+   check_in — missing
+   check_out — missing
+   currency — missing
+   categories.0.kind — literal_error
+   categories.0.capacity — missing
+   categories.0.code — extra_forbidden
+   categories.0.capacity_adults — extra_forbidden
+   categories.0.units — extra_forbidden
+   source — extra_forbidden
+   generated_at — extra_forbidden
+   property — extra_forbidden
+   rate_plan — extra_forbidden
+   window — extra_forbidden
+   prices — extra_forbidden
+```
+
+Та же проверка — шаг 5 переделки: после неё оба тела должны проходить модели бота без единой ошибки.
+
+## 8. Итоговые прогоны — дерево `d01ac8b7` (ветка, слитая со свежим `main` `be41b1b6`)
+
+| Набор | Итог | Лог |
+|---|---|---|
+| unit | 1706 из 1709, 3 пропущено | `tests/runs/logs/2026-09-24T14-51-54Z-unit-6b60.log` |
+| typecheck (корень, API, стойка) | без ошибок | `…14-53-07Z-typecheck-6fc3.log` |
+| lint | без ошибок | `…14-53-30Z-lint-5489.log` |
+| integration, локальная PostgreSQL 16 | 60 из 60 | `…14-54-10Z-integration-710d.log` |
+| стойка в браузере, полный набор, один поток | 349 из 349 | `…14-54-48Z-e2e-caef.log` |
+| чат помощника на своём стенде | 4 из 4 | `…15-23-28Z-e2e-8ba9.log` |
+| главная (`apps/site`), сборка и тег | 7 из 7 | `…15-23-57Z-e2e-4f11.log` |
+| миграции `check-migrations.sh` | 20 из 20, `down.sql` возвращает схему | днём; миграции с тех пор не менялись, в `main` новых нет |
+
+Снимки раздела (`reports/ai-seller-2026-09-24/`) — с этого дерева. Прочие снимки, которые перезаписывает набор стойки,
+возвращены из git: изменение они не показывают.
+

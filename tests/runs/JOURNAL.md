@@ -2192,3 +2192,10 @@
 | 25.09.2026 01:06 | e2e | ✅ 25 из 25 | 1 мин 13 с | fd53249 | [лог](logs/2026-09-24T20-06-45Z-e2e-1df9.log) | живые сквозные после слияния PR #65 |
 | 25.09.2026 01:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 355 из 355 | 28 мин 42 с | fd53249 | [лог](logs/2026-09-24T20-08-05Z-e2e-f2fe.log) | полный UI: после слияния PR #65 |
 | 25.09.2026 01:36 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 17 с | fd53249 | [лог](logs/2026-09-24T20-36-48Z-e2e-6d6e.log) | стенд помощника после PR #65 |
+| 25.09.2026 02:03 | typecheck | ✅ без ошибок | 27 с | d48fd7e | [лог](logs/2026-09-24T21-03-34Z-typecheck-28d3.log) |  |
+| 25.09.2026 02:04 | lint | ✅ без ошибок | 16 с | d48fd7e | [лог](logs/2026-09-24T21-04-01Z-lint-1210.log) |  |
+| 25.09.2026 02:04 | unit | ✅ 1753 из 1756, пропущено 3 | 1 мин 12 с | d48fd7e | [лог](logs/2026-09-24T21-04-18Z-unit-502b.log) |  |
+| 25.09.2026 02:05 | integration | ✅ 64 из 64 | 22 с | d48fd7e | [лог](logs/2026-09-24T21-05-53Z-integration-4d8c.log) |  |
+| 25.09.2026 02:06 | e2e (частично: --config tests/ui/playwright.assistant.config.ts) | ✅ 4 из 4 | 17 с | d48fd7e | [лог](logs/2026-09-24T21-06-57Z-e2e-04a2.log) |  |
+| 25.09.2026 02:07 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 8 из 8 | 14 с | d48fd7e | [лог](logs/2026-09-24T21-07-14Z-e2e-eb9d.log) |  |
+| 25.09.2026 02:07 | e2e | ✅ 25 из 25 | 1 мин 27 с | d48fd7e | [лог](logs/2026-09-24T21-07-50Z-e2e-f29c.log) |  |

@@ -39,7 +39,7 @@ for (const screen of [
   '/chessboard',
   '/reservations',
   '/guests',
-  '/rooms',
+  // /rooms с PR #66 — переход в /inventory: проверяется сам /inventory
   '/inventory',
   '/rooms/categories',
   '/rooms/availability',

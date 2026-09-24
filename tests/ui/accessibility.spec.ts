@@ -85,7 +85,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/rooms'].includes(route))
+        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });

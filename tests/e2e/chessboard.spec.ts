@@ -37,7 +37,9 @@ test('клик по занятой клетке открывает карточ�
   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 2)}`);
   const first = page.locator('td[data-state="OCCUPIED"] a').first();
   const number = (await first.getAttribute('href'))!.split('/').pop()!;
-  await first.click();
+  // С 24.09 (PR #64, ADR-076) правую часть плашки занимают «⋯» и ручка продления: в узкой колонке (103 px на
+  // 1280) они накрывают центр. Человек открывает карточку щелчком по имени гостя — слева, туда и жмём.
+  await first.click({ position: { x: 12, y: 12 } });
   await expect(page).toHaveURL(new RegExp(`/reservations/${number}`));
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toBeVisible();

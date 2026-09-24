@@ -11,6 +11,8 @@ export default tseslint.config(
       '**/.next/**',
       '**/.next-ui/**',
       'apps/site/out/**',
+      // Бот «ИИ-продавец» — отдельный проект на Python со своими правилами (apps/ai-seller/AGENTS.md)
+      'apps/ai-seller/**',
       'coverage/**',
       'playwright-report/**',
       // Рабочие папки инструментов дизайн-системы: порождаются заново, в git их нет (.gitignore).

@@ -78,6 +78,10 @@ test('отказ сохранения не удлиняет плашку, а о�
   await dialog.getByRole('button', { name: 'Продлить', exact: true }).click();
   await expect(page.getByTestId('drag-error')).toContainText('отклонён');
   await expect(handle.locator('..')).toHaveAttribute('data-date', originalDate!);
+  // Пока идёт «Сохраняем изменения…», ручка отключена: нажатия сразу после отказа пропадали, и тест
+  // видел прежнюю ошибку (1 раз из 5 у автора, 24.09.2026). Человек так быстро не жмёт — ждём, как он.
+  await expect(page.getByTestId('drag-pending')).toHaveCount(0);
+  await expect(handle).toBeEnabled();
   await request.post('http://127.0.0.1:4311/__test/control', {
     data: { failPath: '/reservations/20260913-TEST3/items/ui-item-3/preview' },
   });

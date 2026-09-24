@@ -2066,6 +2066,18 @@
 | 24.09.2026 21:15 | typecheck | ✅ без ошибок | 12 с | b6ae441 | [лог](logs/2026-09-24T16-15-03Z-typecheck-055d.log) | TypeScript после слияния актуального main и полного UI-аудита 24.09.2026 |
 | 24.09.2026 21:15 | e2e | ✅ 25 из 25 | 59 с | b6ae441 | [лог](logs/2026-09-24T16-15-25Z-e2e-3948.log) | Изолированный E2E после слияния актуального main и полного UI-аудита 24.09.2026 |
 | 24.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/control-design.spec.ts --grep поиск журнала и переходы доступны --workers=1) | ✅ 1 из 1 | 18 с | b6ae441 | [лог](logs/2026-09-24T16-28-44Z-e2e-891e.log) | Повтор единственного таймаута полного UI-аудита в чистом процессе после merge main 24.09.2026 |
+| 24.09.2026 20:26 | unit | ✅ 1716 из 1719, пропущено 3 | 1 мин 12 с | 164a15f | [лог](logs/2026-09-24T15-26-35Z-unit-f732.log) | итог: ветка, слитая с main 9f1db986 (PR #61) |
+| 24.09.2026 20:27 | typecheck | ✅ без ошибок | 22 с | 164a15f | [лог](logs/2026-09-24T15-27-48Z-typecheck-9d93.log) |  |
+| 24.09.2026 20:28 | lint | ✅ без ошибок | 16 с | 164a15f | [лог](logs/2026-09-24T15-28-10Z-lint-a7e5.log) |  |
+| 24.09.2026 20:28 | integration | ✅ 62 из 62 | 21 с | 164a15f | [лог](logs/2026-09-24T15-28-45Z-integration-3274.log) | итог: ветка, слитая с main 9f1db986 (PR #61); локальная PostgreSQL 16 |
+| 24.09.2026 22:17 | typecheck | ❌ ошибок: 26 | 36 с | 3824468 | [лог](logs/2026-09-24T17-17-12Z-typecheck-1625.log) | слияние festive-johnson и cool-hawking в main |
+| 24.09.2026 22:17 | lint | ✅ без ошибок | 19 с | 3824468 | [лог](logs/2026-09-24T17-17-49Z-lint-096f.log) | слияние festive-johnson и cool-hawking в main |
+| 24.09.2026 22:18 | unit | ✅ 1717 из 1720, пропущено 3 | 1 мин 15 с | 3824468 | [лог](logs/2026-09-24T17-18-09Z-unit-d0f5.log) | слияние festive-johnson и cool-hawking в main |
+| 24.09.2026 22:19 | typecheck | ✅ без ошибок | 22 с | 3824468 | [лог](logs/2026-09-24T17-19-38Z-typecheck-457a.log) | после generate Prisma (новые модели ветки ИИ-продавца) |
+| 24.09.2026 22:20 | integration | ✅ 62 из 62 | 21 с | 3824468 | [лог](logs/2026-09-24T17-20-58Z-integration-e6a7.log) | слияние ветки ИИ-продавца в main |
+| 24.09.2026 22:21 | e2e | ✅ 25 из 25 | 1 мин 12 с | 3824468 | [лог](logs/2026-09-24T17-21-20Z-e2e-7231.log) | слияние ветки ИИ-продавца в main |
+| 24.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 349 из 349 | 29 мин 51 с | 3824468 | [лог](logs/2026-09-24T17-22-38Z-e2e-a6ae.log) | слияние ветки ИИ-продавца: полный UI |
+| 24.09.2026 22:52 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 17 с | eec9b83 | [лог](logs/2026-09-24T17-52-30Z-e2e-4d3d.log) | слияние ветки ИИ-продавца: стенд помощника |
 | 24.09.2026 22:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts tests/ui/chessboard-design.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 3 с | 7a04641 +9 | [лог](logs/2026-09-24T17-13-05Z-e2e-3122.log) | Шахматка: читаемые имена, компактная панель и продление за край; клавиатура, мышь, подтверждение, адаптивность |
 | 24.09.2026 22:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts --workers=1) | ❌ упало 1 из 3 | 40 с | 7a04641 +9 | [лог](logs/2026-09-24T17-15-21Z-e2e-f6fe.log) | Продление: drag +2, preview, сохранение/reload, отмена, 409 и отказ цены |
 | 24.09.2026 22:16 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts tests/ui/chessboard-month.spec.ts --workers=1) | ✅ 13 из 13 | 3 мин 19 с | 7a04641 +9 | [лог](logs/2026-09-24T17-16-28Z-e2e-4aa2.log) | Продление за край: успех, отмена, 409, отказ preview; регрессия месячной сетки |
@@ -2075,6 +2087,24 @@
 | 24.09.2026 22:20 | typecheck | ✅ без ошибок | 56 с | 7a04641 +9 | [лог](logs/2026-09-24T17-20-35Z-typecheck-e41a.log) |  |
 | 24.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts --workers=1) | ✅ 4 из 4 | 32 с | 7a04641 +9 | [лог](logs/2026-09-24T17-21-46Z-e2e-2e44.log) | Короткая бронь: имя целиком в двух строках; финальные продление, отмена и отказы |
 | 24.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --grep шахматк --workers=1) | ✅ 2 из 2 | 24 с | 7a04641 +9 | [лог](logs/2026-09-24T17-22-39Z-e2e-cbdc.log) | Регрессия существующего меню шахматки: продлить на ночь, цена, отмена, клавиатура |
+| 24.09.2026 22:54 | typecheck | ✅ без ошибок | 29 с | b500cef | [лог](logs/2026-09-24T17-54-08Z-typecheck-1f25.log) | итоговое дерево: main + ИИ-продавец + бот в apps/ai-seller + PR #63, #64 |
+| 24.09.2026 22:54 | lint | ✅ без ошибок | 16 с | b500cef | [лог](logs/2026-09-24T17-54-38Z-lint-af7e.log) | итоговое дерево: main + ИИ-продавец + бот в apps/ai-seller + PR #63, #64 |
+| 24.09.2026 22:54 | unit | ❌ упало 4 из 1722, пропущено 3 | 1 мин 12 с | b500cef | [лог](logs/2026-09-24T17-54-54Z-unit-6eeb.log) | итоговое дерево: main + ИИ-продавец + бот в apps/ai-seller + PR #63, #64 |
+| 24.09.2026 22:56 | unit | ✅ 1719 из 1722, пропущено 3 | 1 мин 12 с | b500cef +3 | [лог](logs/2026-09-24T17-56-53Z-unit-4296.log) | починка сторожей после PR #64: weight-regular, запятые, радиус токеном, z-index с пояснением |
+| 24.09.2026 22:58 | typecheck | ✅ без ошибок | 22 с | b500cef +3 | [лог](logs/2026-09-24T17-58-13Z-typecheck-3368.log) | итоговое дерево для main |
+| 24.09.2026 22:58 | lint | ✅ без ошибок | 17 с | b500cef +3 | [лог](logs/2026-09-24T17-58-36Z-lint-cbc7.log) | итоговое дерево для main |
+| 24.09.2026 22:59 | integration | ✅ 62 из 62 | 22 с | b500cef | [лог](logs/2026-09-24T17-59-18Z-integration-d937.log) | итоговое дерево для main |
+| 24.09.2026 22:59 | e2e | ❌ упало 1 из 25 | 1 мин 56 с | b500cef +3 | [лог](logs/2026-09-24T17-59-41Z-e2e-0684.log) | итоговое дерево для main |
+| 24.09.2026 23:03 | e2e | ✅ 25 из 25 | 1 мин 8 с | b500cef +4 | [лог](logs/2026-09-24T18-03-05Z-e2e-fd16.log) | итоговое дерево для main; chessboard.spec щёлкает по имени гостя (после PR #64) |
+| 24.09.2026 23:04 | typecheck | ✅ без ошибок | 21 с | b500cef +4 | [лог](logs/2026-09-24T18-04-25Z-typecheck-5068.log) |  |
+| 24.09.2026 23:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 353 | 28 мин 47 с | 7fa2ce6 | [лог](logs/2026-09-24T18-04-50Z-e2e-d7fa.log) | итоговое дерево для main: полный UI |
+| 24.09.2026 23:33 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 17 с | b592853 | [лог](logs/2026-09-24T18-33-37Z-e2e-6384.log) | итоговое дерево для main: стенд помощника |
+| 24.09.2026 23:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-extend.spec.ts tests/ui/housekeeping.spec.ts) | ✅ 10 из 10 | 46 с | b592853 +1 | [лог](logs/2026-09-24T18-34-07Z-e2e-42e6.log) | гонка в chessboard-extend: ждать конца сохранения (1/3) |
+| 24.09.2026 23:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-extend.spec.ts tests/ui/housekeeping.spec.ts) | ✅ 10 из 10 | 44 с | b592853 +1 | [лог](logs/2026-09-24T18-34-54Z-e2e-b0c9.log) | гонка в chessboard-extend: ждать конца сохранения (2/3) |
+| 24.09.2026 23:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-extend.spec.ts tests/ui/housekeeping.spec.ts) | ✅ 10 из 10 | 45 с | b592853 +1 | [лог](logs/2026-09-24T18-35-39Z-e2e-9c89.log) | гонка в chessboard-extend: ждать конца сохранения (3/3) |
+| 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 6 из 6 | 4 с | 99f6880 +1 | [лог](logs/2026-09-24T18-38-04Z-unit-6d09.log) | автовыкладка: red без скрипта |
+| 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 6 | 7 с | 99f6880 +2 | [лог](logs/2026-09-24T18-38-13Z-unit-772e.log) | автовыкладка: green со скриптом |
+| 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 6 из 6 | 7 с | 99f6880 +2 | [лог](logs/2026-09-24T18-38-29Z-unit-3153.log) | автовыкладка: green со скриптом |
 | 24.09.2026 22:33 | unit (частично: apps/api/src/inventory/inventory-input.test.ts) | ❌ код выхода 1 | 2 с | e9182f5 +4 | [лог](logs/2026-09-24T17-33-01Z-unit-c651.log) | (файл не выполнился) |
 | 24.09.2026 22:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 2 из 2 | 1 мин 22 с | e9182f5 +22 | [лог](logs/2026-09-24T17-39-57Z-e2e-22e7.log) | category creation, rename, room creation and reload |
 | 24.09.2026 22:42 | unit (частично: apps/api/src/inventory/inventory-input.test.ts apps/api/src/inventory/inventory.controller.test.ts) | ✅ 6 из 6 | 3 с | e9182f5 +21 | [лог](logs/2026-09-24T17-42-26Z-unit-c447.log) |  |
@@ -2104,3 +2134,20 @@
 | 25.09.2026 00:17 | unit | ❌ упало 7 из 1737, пропущено 3 | 1 мин 13 с | b9152bb +1 | [лог](logs/2026-09-24T19-17-59Z-unit-951f.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
 | 25.09.2026 00:19 | integration | ✅ 64 из 64 | 22 с | b9152bb +1 | [лог](logs/2026-09-24T19-19-54Z-integration-425d.log) |  |
 | 25.09.2026 00:20 | lint | ✅ без ошибок | 18 с | b9152bb +1 | [лог](logs/2026-09-24T19-20-45Z-lint-a7a2.log) |  |
+| 24.09.2026 23:39 | typecheck | ✅ без ошибок | 28 с | 9829449 | [лог](logs/2026-09-24T18-39-57Z-typecheck-5ee8.log) | после слияния PR #66 |
+| 24.09.2026 23:40 | lint | ✅ без ошибок | 17 с | 9829449 | [лог](logs/2026-09-24T18-40-26Z-lint-525b.log) | после слияния PR #66 |
+| 24.09.2026 23:40 | unit | ❌ упало 5 из 1731, пропущено 3 | 1 мин 12 с | 9829449 | [лог](logs/2026-09-24T18-40-44Z-unit-59df.log) | после слияния PR #66 и автовыкладки |
+| 24.09.2026 23:42 | unit | ✅ 1728 из 1731, пропущено 3 | 1 мин 12 с | 9829449 +4 | [лог](logs/2026-09-24T18-42-46Z-unit-d191.log) | после слияния PR #66: слоп фонда исправлен |
+| 24.09.2026 23:43 | typecheck | ✅ без ошибок | 22 с | 9829449 +4 | [лог](logs/2026-09-24T18-43-59Z-typecheck-1571.log) | после правки фонда |
+| 24.09.2026 23:44 | lint | ✅ без ошибок | 17 с | 9829449 +4 | [лог](logs/2026-09-24T18-44-22Z-lint-dae5.log) | после правки фонда |
+| 24.09.2026 23:45 | integration | ✅ 63 из 63 | 22 с | 6f83e01 | [лог](logs/2026-09-24T18-45-23Z-integration-e9c6.log) | объединённое дерево после PR #66 |
+| 24.09.2026 23:45 | e2e | ❌ упало 1 из 25 | 1 мин 17 с | 6f83e01 | [лог](logs/2026-09-24T18-45-58Z-e2e-faf3.log) | живые сквозные, объединённое дерево после PR #66 |
+| 24.09.2026 23:47 | e2e | ✅ 25 из 25 | 1 мин 5 с | 6f83e01 +1 | [лог](logs/2026-09-24T18-47-50Z-e2e-330d.log) | живые сквозные: inventory.spec под вид списком (PR #66) |
+| 24.09.2026 23:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 356 | 24 мин 59 с | ed40adf | [лог](logs/2026-09-24T18-49-17Z-e2e-a54e.log) | полный UI: объединённое дерево после PR #66 |
+| 25.09.2026 00:14 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 17 с | 7ac8fed | [лог](logs/2026-09-24T19-14-17Z-e2e-1bc2.log) | стенд помощника после PR #66 |
+| 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 7 | 7 с | 7ac8fed +1 | [лог](logs/2026-09-24T19-14-48Z-unit-d84d.log) | автовыкладка --migrations-applied: red |
+| 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 7 из 7 | 8 с | 7ac8fed +2 | [лог](logs/2026-09-24T19-14-56Z-unit-2189.log) | автовыкладка --migrations-applied: green |
+| 25.09.2026 00:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/r | ✅ 42 из 42 | 8 мин 16 с | 7ac8fed +5 | [лог](logs/2026-09-24T19-15-10Z-e2e-42b1.log) | тесты стойки под /rooms → /inventory (PR #66) |
+| 25.09.2026 00:23 | typecheck | ✅ без ошибок | 22 с | 2137b48 | [лог](logs/2026-09-24T19-23-40Z-typecheck-ae36.log) | итог объединённого дерева |
+| 25.09.2026 00:24 | lint | ✅ без ошибок | 16 с | 2137b48 | [лог](logs/2026-09-24T19-24-02Z-lint-4ed8.log) | итог объединённого дерева |
+| 25.09.2026 00:24 | unit | ✅ 1729 из 1732, пропущено 3 | 1 мин 12 с | 2137b48 | [лог](logs/2026-09-24T19-24-19Z-unit-e873.log) | итог объединённого дерева |

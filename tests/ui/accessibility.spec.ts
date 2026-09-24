@@ -15,7 +15,7 @@ const routes = [
   '/guests',
   '/guests?q=Тест',
   '/guests/ui-guest',
-  '/rooms',
+  // `/rooms` без раздела с PR #66 уводит на `/inventory` (он ниже): axe на уходящей странице теряет контекст
   '/rooms/categories',
   '/rooms/availability',
   '/inventory',

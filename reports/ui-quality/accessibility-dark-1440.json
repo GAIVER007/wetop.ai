@@ -64,14 +64,6 @@
     }
   },
   {
-    "route": "/rooms",
-    "violations": [],
-    "layout": {
-      "viewport": 1440,
-      "content": 1440
-    }
-  },
-  {
     "route": "/rooms/categories",
     "violations": [],
     "layout": {

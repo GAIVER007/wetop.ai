@@ -92,6 +92,8 @@ function makeFakes() {
     end: string;
   }> = [];
   const audits: string[] = [];
+  /** Записи журнала целиком — для before/after (SECURITY.md §6) */
+  const auditEntries: Array<{ action: string; before?: unknown; after?: unknown }> = [];
   const acks: string[] = [];
   let feed: Array<channex.ChannexResource<channex.ChannexBookingRevisionAttributes>> = [];
   let n = 0;
@@ -392,6 +394,7 @@ function makeFakes() {
     },
     async audit(entry) {
       audits.push(entry.action);
+      auditEntries.push(JSON.parse(JSON.stringify(entry)));
     },
     async card(number) {
       const r = reservations.get(number);
@@ -455,6 +458,7 @@ function makeFakes() {
     reservations,
     allocations,
     audits,
+    auditEntries,
     acks,
     setFeed: (f: typeof feed) => (feed = f),
     state,
@@ -610,6 +614,12 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(fakes.state()[0]!.status).toBe('CANCELLED');
     expect(fakes.allocations).toHaveLength(0);
     expect(fakes.acks).toEqual(['rev-1', 'rev-2', 'rev-3']);
+    // SECURITY.md §6: отмена каналом — в журнале карточка до и после, как у отмены со стойки
+    const cancelled = fakes.auditEntries.find((e) => e.action === 'channex.booking.cancelled');
+    expect(cancelled).toMatchObject({
+      before: { confirmationNumber: 'BDC-9996013801', status: 'CONFIRMED' },
+      after: { confirmationNumber: 'BDC-9996013801', status: 'CANCELLED', uniqueId: 'BDC-9996013801' },
+    });
   });
 
   it('перенесённая из Exely бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку', async () => {

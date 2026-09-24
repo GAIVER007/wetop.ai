@@ -972,6 +972,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       where: { propertyId_externalReference: { propertyId, externalReference } },
       select: { id: true, status: true },
     });
+    // журнал (SECURITY.md §6): что было на этом счёте от того же платежа канала — до правки
+    const prior = existing
+      ? await this.db.paymentAllocation.findUnique({
+          where: { paymentId_folioId: { paymentId: existing.id, folioId: folio.id } },
+          select: { amount: true },
+        })
+      : null;
     if (existing) {
       await this.db.paymentAllocation.deleteMany({
         where: { paymentId: existing.id, folioId: { not: folio.id } },
@@ -996,6 +1003,24 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         update: { amount: amountMinor },
       });
     }
+    // Платёж без человека — предоплата канала — пишется в журнал, как платёж со стойки (SECURITY.md §6).
+    // Повтор той же ревизии с той же суммой ничего не меняет и строки не даёт
+    if (!existing || existing.status !== 'COMPLETED' || prior?.amount !== amountMinor)
+      await this.audit({
+        entityType: 'Folio',
+        entityId: folio.id,
+        action: 'folio.channelPrepayment',
+        ...(existing
+          ? {
+              before: {
+                status: existing.status,
+                amountMinor: prior ? prior.amount.toString() : '0',
+                externalReference,
+              },
+            }
+          : {}),
+        after: { status: 'COMPLETED', amountMinor: amountMinor.toString(), externalReference },
+      });
   }
   async categoryAvailability(
     typeId: string,
@@ -1087,6 +1112,21 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         await this.db.paymentAllocation.update({ where: key, data: { amount: keep } });
         await this.db.payment.update({ where: { id: a.paymentId }, data: { amount: keep } });
       }
+      // ADR-022: от предоплаты остаётся штраф, остальное площадка возвращает гостю — в журнал с суммами
+      await this.audit({
+        entityType: 'Folio',
+        entityId: folio.id,
+        action: keep === 0n ? 'folio.channelPrepayment.void' : 'folio.channelPrepayment.reduce',
+        before: {
+          amountMinor: a.amount.toString(),
+          externalReference: a.payment.externalReference,
+        },
+        after: {
+          amountMinor: keep.toString(),
+          penaltyMinor: penalty.toString(),
+          externalReference: a.payment.externalReference,
+        },
+      });
     }
   }
   async voidChannelPrepayment(externalReference: string): Promise<void> {
@@ -1096,8 +1136,21 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true, status: true },
     });
     if (!p || p.status === 'VOIDED') return;
+    const allocations = await this.db.paymentAllocation.findMany({
+      where: { paymentId: p.id },
+      select: { folioId: true, amount: true },
+    });
     await this.db.paymentAllocation.deleteMany({ where: { paymentId: p.id } });
     await this.db.payment.update({ where: { id: p.id }, data: { status: 'VOIDED' } });
+    // Канал снял предоплату — по строке журнала на каждый счёт, где она стояла (SECURITY.md §6)
+    for (const a of allocations)
+      await this.audit({
+        entityType: 'Folio',
+        entityId: a.folioId,
+        action: 'folio.channelPrepayment.void',
+        before: { status: p.status, amountMinor: a.amount.toString(), externalReference },
+        after: { status: 'VOIDED', amountMinor: '0', externalReference },
+      });
   }
   async closeFolio(itemId: string): Promise<void> {
     await this.db.folio.updateMany({
@@ -1130,7 +1183,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true },
     });
     if (!folio) return;
-    await this.db.charge.create({
+    const charge = await this.db.charge.create({
       data: {
         folioId: folio.id,
         kind: 'PENALTY',
@@ -1140,6 +1193,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         amount: amountMinor,
         serviceDate: new Date(`${almatyToday()}T00:00:00Z`),
       },
+      select: { id: true },
+    });
+    // Штраф отмены и незаезда начисляет система — в журнал, как ручное начисление (SECURITY.md §6)
+    await this.audit({
+      entityType: 'Folio',
+      entityId: folio.id,
+      action: 'folio.penalty',
+      after: { chargeId: charge.id, amountMinor: amountMinor.toString(), description },
     });
   }
   async addReservationItem(

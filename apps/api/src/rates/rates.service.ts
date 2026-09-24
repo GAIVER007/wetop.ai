@@ -177,7 +177,8 @@ export class RatesService {
     }));
     // Цены, журнал и очередь каналов — одна транзакция: не бывает «цены сохранены, а в каналы не ушли» (Б5)
     let queued = 0;
-    const result = await this.repo.applyChanges(prepared, async (tx, counts) => {
+    const result = await this.repo.applyChanges(prepared, async (tx, counts, before) => {
+      // SECURITY.md §6: правка цены и ограничений — с тем, что было до неё (диапазонами, rate-history.ts)
       await this.repo.audit(
         'rates.bulk',
         {
@@ -185,6 +186,7 @@ export class RatesService {
           ...counts,
         },
         tx,
+        { changes: before },
       );
       queued = await this.publisher.ratesChanged(local, tx);
     });

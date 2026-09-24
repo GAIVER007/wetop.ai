@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { AccommodationKind, InventoryUnitKind } from '@pms/database';
 import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/domain';
+import { auditUserId } from '../accounts/actor';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
@@ -178,6 +179,32 @@ export class OnboardingService {
         }));
       });
       await tx.dailyRate.createMany({ data: rateRows });
+      // SECURITY.md §6: первые цены и фонд — в журнал одной строкой; прежнего состояния нет — объект был пуст
+      await tx.auditLog.create({
+        data: {
+          userId: auditUserId(),
+          entityType: 'Property',
+          entityId: property.id,
+          action: 'hotel.onboarding',
+          after: {
+            currency: plan.ratePlan.currency,
+            ratePlan: plan.ratePlan.code,
+            categories: plan.inventory.accommodationTypes.map((t) => ({
+              code: t.code,
+              name: t.name,
+              kind: t.kind,
+              units: plan.inventory.units.filter((u) => u.accommodationTypeCode === t.code).length,
+            })),
+            rates: plan.rates.map((r) => ({
+              accommodationTypeCode: r.accommodationTypeCode,
+              occupancy: r.occupancy,
+              priceMinor: String(r.priceMinor),
+            })),
+            from: dates[0]?.toISOString().slice(0, 10) ?? null,
+            days: dates.length,
+          },
+        },
+      });
     });
 
     // У объекта появились номера — прежние настройки (needsOnboarding:true) в кэше устарели

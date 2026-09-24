@@ -28,6 +28,7 @@ function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } 
     ratePlans: [] as { id: string; code: string; name: string; currency: string }[],
     links: [] as { ratePlanId: string; accommodationTypeId: string }[],
     dailyRates: [] as { occupancy: number; price: bigint }[],
+    audits: [] as { action: string; entityId: string; after: Record<string, unknown> }[],
   };
   let seq = 0;
   const id = (p: string) => `${p}-${(seq += 1)}`;
@@ -95,6 +96,16 @@ function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } 
         return { count: data.length };
       },
     },
+    auditLog: {
+      async create({
+        data,
+      }: {
+        data: { action: string; entityId: string; after: Record<string, unknown> };
+      }) {
+        rec.audits.push(data);
+        return {};
+      },
+    },
     async $transaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       return fn(db);
     },
@@ -147,6 +158,21 @@ describe('OnboardingService', () => {
     expect(rec.dailyRates).toHaveLength(3 * 500);
     expect(rec.dailyRates.some((r) => r.price === 2100000n && r.occupancy === 2)).toBe(true);
     expect(rec.dailyRates.some((r) => r.price === 900000n && r.occupancy === 1)).toBe(true);
+    // SECURITY.md §6: первые цены и фонд — в журнале одной строкой, без 1 500 строк цен
+    expect(rec.audits).toEqual([
+      expect.objectContaining({
+        action: 'hotel.onboarding',
+        entityId: 'prop-1',
+        after: expect.objectContaining({
+          currency: 'KZT',
+          categories: [
+            expect.objectContaining({ name: 'Двухместный', units: 3 }),
+            expect.objectContaining({ name: 'Койко-место', units: 8 }),
+          ],
+          days: 500,
+        }),
+      }),
+    ]);
   });
 
   it('provision: повторный онбординг закрыт — объект уже настроен', async () => {

@@ -20,6 +20,9 @@ function makeFakes() {
   }> = [];
   const published: unknown[] = [];
   const audits: string[] = [];
+  /** Записи журнала, пришедшие вместе с блокировкой (одна транзакция), и отдельные вызовы audit */
+  const blockAudits: unknown[] = [];
+  const separateAudits: string[] = [];
   let hk: 'DIRTY' | 'CLEAN' | 'INSPECTED' = 'DIRTY';
   const unit = { id: 'u1', code: '9001', accommodationTypeCode: 'exely-900001' };
   const card = (): UnitCard => ({
@@ -61,23 +64,29 @@ function makeFakes() {
         ? [{ confirmationNumber: 'B-1', startDate: '2026-10-05', endDate: '2026-10-07' }]
         : [];
     },
-    async createBlock(unitId, b) {
+    // Блокировка и её запись в журнале — одна транзакция (SECURITY.md §6): журнал приходит вместе с командой
+    async createBlock(unitId, b, audit) {
       blocks.push({ id: `blk${blocks.length + 1}`, unitId, ...b });
+      audits.push('unit.block');
+      blockAudits.push(audit);
       return `blk${blocks.length}`;
     },
     async blockById(id) {
       const b = blocks.find((x) => x.id === id);
       return b ? { id: b.id, unitId: b.unitId, dateFrom: b.dateFrom, dateTo: b.dateTo } : null;
     },
-    async deleteBlock(id) {
+    async deleteBlock(id, audit) {
       const i = blocks.findIndex((x) => x.id === id);
       if (i >= 0) blocks.splice(i, 1);
+      audits.push('unit.unblock');
+      blockAudits.push(audit);
     },
     async setHousekeeping(_id, _from, to) {
       hk = to;
     },
     async audit(_e, action) {
       audits.push(action);
+      separateAudits.push(action);
     },
   };
   const publisher: AriPublisher = {
@@ -88,7 +97,7 @@ function makeFakes() {
       return 0;
     },
   };
-  return { repo, publisher, blocks, published, audits };
+  return { repo, publisher, blocks, published, audits, blockAudits, separateAudits };
 }
 
 describe('units API: blocks and housekeeping', () => {
@@ -188,6 +197,14 @@ describe('units API: blocks and housekeeping', () => {
     expect(fakes.published).toHaveLength(2);
     await request(app.getHttpServer()).delete('/units/9001/blocks/blk1').expect(404);
     expect(fakes.audits).toEqual(['unit.block', 'unit.unblock']);
+    // SECURITY.md §6: блокировка и снятие пишутся в журнал в той же транзакции, не отдельным вызовом
+    expect(fakes.separateAudits).toEqual([]);
+    // id блокировки дописывает репозиторий в той же транзакции — до записи его нет
+    expect(fakes.blockAudits[0]).toMatchObject({
+      before: [],
+      after: { dateFrom: '2026-10-08', dateTo: '2026-10-10', type: 'MAINTENANCE', reason: 'сломан замок' },
+    });
+    expect(fakes.blockAudits[1]).toMatchObject({ unitId: 'u1', before: { id: 'blk1' } });
     // Q-169: пока база не в РК, почта и телефоны в причине блокировки маскируются
     const piiBefore = process.env.PII_STORAGE;
     delete process.env.PII_STORAGE;
@@ -203,6 +220,8 @@ describe('units API: blocks and housekeeping', () => {
         .expect(201);
       expect(JSON.stringify(masked.body)).not.toContain('701 234 56 78');
       expect(JSON.stringify(masked.body)).toContain('мастер, звонить <телефон>');
+      // и в журнале причина та же, с маской — не как пришла
+      expect(JSON.stringify(fakes.blockAudits.at(-1))).not.toContain('701 234 56 78');
     } finally {
       if (piiBefore === undefined) delete process.env.PII_STORAGE;
       else process.env.PII_STORAGE = piiBefore;

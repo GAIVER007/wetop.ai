@@ -45,20 +45,25 @@ export interface UnitsRepository {
     from: string,
     toExclusive: string,
   ): Promise<Array<{ confirmationNumber: string; startDate: string; endDate: string }>>;
+  /** Блокировка и её запись в журнале — одной транзакцией (SECURITY.md §6); `after` дополняется её id */
   createBlock(
     unitId: string,
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
+    audit: { before: unknown; after: Record<string, unknown> },
   ): Promise<string>;
   blockById(
     id: string,
   ): Promise<{ id: string; unitId: string; dateFrom: string; dateTo: string } | null>;
-  deleteBlock(id: string): Promise<void>;
+  /** Снятие блокировки и запись в журнале — одной транзакцией */
+  deleteBlock(id: string, audit: { unitId: string; before: unknown }): Promise<void>;
   setHousekeeping(unitId: string, from: HousekeepingStatus, to: HousekeepingStatus): Promise<void>;
   audit(entityId: string, action: string, before: unknown, after: unknown): Promise<void>;
 }
 export const UNITS_REPOSITORY = Symbol('UNITS_REPOSITORY');
 
 const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
+/** Для колонок Json журнала: undefined — поля нет, null — как null */
+const toJson = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 
 @Injectable()
@@ -159,18 +164,31 @@ export class PrismaUnitsRepository implements UnitsRepository {
   async createBlock(
     unitId: string,
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
+    audit: { before: unknown; after: Record<string, unknown> },
   ) {
-    const row = await this.prisma.db.inventoryBlock.create({
-      data: {
-        inventoryUnitId: unitId,
-        dateFrom: asDate(b.dateFrom),
-        dateTo: asDate(b.dateTo),
-        type: b.type,
-        reason: b.reason,
-      },
-      select: { id: true },
+    return this.prisma.db.$transaction(async (tx) => {
+      const row = await tx.inventoryBlock.create({
+        data: {
+          inventoryUnitId: unitId,
+          dateFrom: asDate(b.dateFrom),
+          dateTo: asDate(b.dateTo),
+          type: b.type,
+          reason: b.reason,
+        },
+        select: { id: true },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: auditUserId(),
+          entityType: 'InventoryUnit',
+          entityId: unitId,
+          action: 'unit.block',
+          before: toJson(audit.before),
+          after: toJson({ blockId: row.id, ...audit.after }),
+        },
+      });
+      return row.id;
     });
-    return row.id;
   }
   async blockById(id: string) {
     const b = await this.prisma.db.inventoryBlock.findUnique({ where: { id } });
@@ -178,8 +196,19 @@ export class PrismaUnitsRepository implements UnitsRepository {
       ? { id: b.id, unitId: b.inventoryUnitId, dateFrom: iso(b.dateFrom), dateTo: iso(b.dateTo) }
       : null;
   }
-  async deleteBlock(id: string) {
-    await this.prisma.db.inventoryBlock.delete({ where: { id } });
+  async deleteBlock(id: string, audit: { unitId: string; before: unknown }) {
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.inventoryBlock.delete({ where: { id } });
+      await tx.auditLog.create({
+        data: {
+          userId: auditUserId(),
+          entityType: 'InventoryUnit',
+          entityId: audit.unitId,
+          action: 'unit.unblock',
+          before: toJson(audit.before),
+        },
+      });
+    });
   }
   async setHousekeeping(unitId: string, from: HousekeepingStatus, to: HousekeepingStatus) {
     await this.prisma.db.$transaction([
@@ -193,15 +222,14 @@ export class PrismaUnitsRepository implements UnitsRepository {
     ]);
   }
   async audit(entityId: string, action: string, before: unknown, after: unknown) {
-    const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
     await this.prisma.db.auditLog.create({
       data: {
         userId: auditUserId(),
         entityType: 'InventoryUnit',
         entityId,
         action,
-        before: j(before),
-        after: j(after),
+        before: toJson(before),
+        after: toJson(after),
       },
     });
   }

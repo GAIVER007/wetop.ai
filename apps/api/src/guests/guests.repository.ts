@@ -67,9 +67,16 @@ export interface GuestsRepository {
       expiresAt: string | null;
     },
   ): Promise<string>;
-  deleteDocument(guestId: string, documentId: string): Promise<boolean>;
+  /** Удалённый документ (его тип — для журнала) или null, если такого нет */
+  deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null>;
   /** Без ПД: только имена изменённых полей */
-  audit(guestId: string, action: string, fields: string[]): Promise<void>;
+  /** Журнал: имена полей без значений; `details` — идентификаторы (какой документ), не данные гостя */
+  audit(
+    guestId: string,
+    action: string,
+    fields: string[],
+    details?: Record<string, unknown>,
+  ): Promise<void>;
 }
 export const GUESTS_REPOSITORY = Symbol('GUESTS_REPOSITORY');
 
@@ -205,15 +212,31 @@ export class PrismaGuestsRepository implements GuestsRepository {
     });
     return row.id;
   }
-  async deleteDocument(guestId: string, documentId: string): Promise<boolean> {
+  async deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null> {
+    const doc = await this.prisma.db.guestDocument.findFirst({
+      where: { id: documentId, guestId },
+      select: { type: true },
+    });
+    if (!doc) return null;
     const res = await this.prisma.db.guestDocument.deleteMany({
       where: { id: documentId, guestId },
     });
-    return res.count > 0;
+    return res.count > 0 ? doc : null;
   }
-  async audit(guestId: string, action: string, fields: string[]): Promise<void> {
+  async audit(
+    guestId: string,
+    action: string,
+    fields: string[],
+    details?: Record<string, unknown>,
+  ): Promise<void> {
     await this.prisma.db.auditLog.create({
-      data: { userId: auditUserId(), entityType: 'Guest', entityId: guestId, action, after: { fields } },
+      data: {
+        userId: auditUserId(),
+        entityType: 'Guest',
+        entityId: guestId,
+        action,
+        after: { ...(fields.length ? { fields } : {}), ...(details ?? {}) },
+      },
     });
   }
 }

@@ -737,6 +737,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
         return { result: 'cancelled', confirmationNumber: null };
       }
+      // SECURITY.md §6: отмена каналом — в журнале карточка до и после, как у отмены со стойки
+      const before = await repo.card(existing.confirmationNumber);
       const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
       for (const item of existing.items) {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
@@ -775,11 +777,13 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
           toExclusive: b.toExclusive,
         });
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
+      const after = await repo.card(existing.confirmationNumber);
       await repo.audit({
         entityType: 'Reservation',
         entityId: existing.id,
         action: 'channex.booking.cancelled',
-        after: { uniqueId: a.unique_id },
+        ...(before ? { before } : {}),
+        after: { ...(after ?? {}), uniqueId: a.unique_id },
       });
       return {
         result: 'cancelled',

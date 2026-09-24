@@ -39,6 +39,8 @@ function makeFakes() {
     ],
   ]);
   const audits: string[] = [];
+  /** Записи журнала целиком: какой документ добавлен, удалён, показан (SECURITY.md §1, §6) */
+  const auditDetails: Array<{ action: string; details?: Record<string, unknown> }> = [];
   const repo: GuestsRepository = {
     async search(q) {
       return [...guests.values()]
@@ -72,16 +74,18 @@ function makeFakes() {
       return `d${g.documents.length}`;
     },
     async deleteDocument(id, docId) {
+      const doc = guests.get(id)?.documents.find((d) => d.id === docId);
+      if (!doc) return null;
       const g = guests.get(id)!;
-      const n = g.documents.length;
       g.documents = g.documents.filter((d) => d.id !== docId);
-      return g.documents.length < n;
+      return { type: doc.type };
     },
-    async audit(_id, action) {
+    async audit(_id, action, _fields, details) {
       audits.push(action);
+      auditDetails.push({ action, ...(details ? { details } : {}) });
     },
   };
-  return { repo, guests, audits };
+  return { repo, guests, audits, auditDetails };
 }
 
 describe('guests API', () => {
@@ -204,7 +208,32 @@ describe('guests API', () => {
     process.env.PII_ENCRYPTION_KEY = KEY;
     await request(app.getHttpServer()).delete('/guests/g1/documents/d1').expect(200);
     await request(app.getHttpServer()).delete('/guests/g1/documents/d1').expect(404);
-    expect(fakes.audits).toEqual(['guest.document.add', 'guest.document.delete']);
+    // SECURITY.md §1, §6: какой документ добавлен и удалён; карточка с документом — просмотр, тоже в журнале
+    expect(fakes.audits).toEqual(['guest.document.add', 'guest.document.view', 'guest.document.delete']);
+    expect(fakes.auditDetails).toEqual([
+      { action: 'guest.document.add', details: { documentId: 'd1', type: 'PASSPORT' } },
+      { action: 'guest.document.view', details: { documentIds: ['d1'] } },
+      { action: 'guest.document.delete', details: { documentId: 'd1', type: 'PASSPORT' } },
+    ]);
+  });
+
+  it('SECURITY.md §1: каждый просмотр карточки с документом пишется в журнал; без документов — нет', async () => {
+    await request(app.getHttpServer()).get('/guests/g1').expect(200);
+    expect(fakes.audits).toEqual([]);
+    fakes.guests.get('g1')!.documents.push({
+      id: 'dv',
+      type: 'PASSPORT',
+      numberEncrypted: 'не расшифруется — маска «недоступно»',
+      issueCountry: 'KAZ',
+      issuedAt: null,
+      expiresAt: null,
+    });
+    await request(app.getHttpServer()).get('/guests/g1').expect(200);
+    await request(app.getHttpServer()).get('/guests/g1').expect(200);
+    expect(fakes.auditDetails).toEqual([
+      { action: 'guest.document.view', details: { documentIds: ['dv'] } },
+      { action: 'guest.document.view', details: { documentIds: ['dv'] } },
+    ]);
   });
 
   describe('пока база не в Казахстане (PII_STORAGE не real, ADR-072)', () => {

@@ -84,6 +84,11 @@ export class GuestsService {
         expiresAt: d.expiresAt,
       };
     });
+    // SECURITY.md §1, §5: каждый просмотр документа — событие журнала (кто и какой документ, без номера)
+    if (documents.length)
+      await this.repo.audit(id, 'guest.document.view', [], {
+        documentIds: documents.map((d) => d.id),
+      });
     const { documents: _raw, ...profile } = g;
     void _raw;
     // CHAR(3) в базе: пустое гражданство приходит как '   ' — наружу только null или код
@@ -174,21 +179,25 @@ export class GuestsService {
       if (e instanceof PiiKeyMissingError) throw new ServiceUnavailableException(e.message);
       throw e;
     }
-    await this.repo.addDocument(id, {
+    const documentId = await this.repo.addDocument(id, {
       type: dto.type,
       numberEncrypted,
       issueCountry: country,
       issuedAt: dto.issuedAt || null,
       expiresAt: dto.expiresAt || null,
     });
-    await this.repo.audit(id, 'guest.document.add', ['type', 'number']);
+    // какой документ добавлен — идентификатором и типом, номер в журнал не пишется (SECURITY.md §6)
+    await this.repo.audit(id, 'guest.document.add', ['type', 'number'], {
+      documentId,
+      type: dto.type,
+    });
     return this.card(id);
   }
 
   async deleteDocument(id: string, documentId: string) {
-    if (!(await this.repo.deleteDocument(id, documentId)))
-      throw new NotFoundException(`Документ ${documentId} не найден у гостя ${id}`);
-    await this.repo.audit(id, 'guest.document.delete', ['id']);
+    const removed = await this.repo.deleteDocument(id, documentId);
+    if (!removed) throw new NotFoundException(`Документ ${documentId} не найден у гостя ${id}`);
+    await this.repo.audit(id, 'guest.document.delete', ['id'], { documentId, type: removed.type });
     return this.card(id);
   }
 }

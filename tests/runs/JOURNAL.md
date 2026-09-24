@@ -1940,3 +1940,6 @@
 | 24.09.2026 17:58 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ❌ упало 1 из 1 | 5 мин 13 с | 39563c1 | [лог](logs/2026-09-24T12-58-58Z-e2e-0794.log) | GREEN: live frontend API Supabase persistence on current navigation and bounded pool |
 | 24.09.2026 18:05 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ❌ упало 1 из 1 | 5 мин 9 с | 39563c1 | [лог](logs/2026-09-24T13-05-21Z-e2e-665e.log) | GREEN: full current frontend API Supabase persistence with cleanup |
 | 24.09.2026 18:10 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ✅ 1 из 1 | 4 мин 43 с | 39563c1 | [лог](logs/2026-09-24T13-10-59Z-e2e-b2a8.log) | GREEN final: current frontend API Supabase persistence and guarded cleanup |
+| 24.09.2026 18:33 | typecheck | ✅ без ошибок | 20 с | 77ca2d1 | [лог](logs/2026-09-24T13-33-43Z-typecheck-ce2a.log) | слияние main (PR #60) |
+| 24.09.2026 18:34 | lint | ✅ без ошибок | 15 с | 77ca2d1 | [лог](logs/2026-09-24T13-34-04Z-lint-e580.log) | слияние main (PR #60) |
+| 24.09.2026 18:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | 77ca2d1 | [лог](logs/2026-09-24T13-35-01Z-e2e-3bee.log) | 24.09: заголовок по шкале + слияние PR #60, живые сквозные |

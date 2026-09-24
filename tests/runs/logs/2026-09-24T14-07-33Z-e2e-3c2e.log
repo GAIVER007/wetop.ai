@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 24.09.2026 19:07 Алматы · vm
+# коммит 7af76cb (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-seller.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (2.0s)
+  ✓  2 tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (3.9s)
+  ✓  3 tests/ui/ai-seller.spec.ts:63:1 › без языков «Применить» отказывает словами продавца, введённое не пропадает (1.7s)
+  ✓  4 tests/ui/ai-seller.spec.ts:72:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.3s)
+  ✓  5 tests/ui/ai-seller.spec.ts:90:1 › «Знания»: список и загрузка документа (1.7s)
+  ✓  6 tests/ui/ai-seller.spec.ts:103:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.0s)
+  ✓  7 tests/ui/ai-seller.spec.ts:128:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (1.2s)
+  ✓  8 tests/ui/ai-seller.spec.ts:136:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.1s)
+  ✓  9 tests/ui/ai-seller.spec.ts:143:1 › снимки экранов раздела (9.7s)
+
+  9 passed (30.8s)
+
+# код выхода 0 · 32 с

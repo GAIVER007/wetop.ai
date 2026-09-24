@@ -13,3 +13,5 @@ export * from './accounts/index';
 export * from './dashboard/index';
 export * from './onboarding/index';
 export * from './housekeeping/index';
+export * from './assistant/index';
+export * from './ai-seller/index';

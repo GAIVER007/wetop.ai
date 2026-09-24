@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 24.09.2026 18:59 Алматы · vm
+# коммит 7af76cb (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/navigation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 2 workers
+
+  ✓   1 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (5.0s)
+  ✓   2 tests/ui/navigation.spec.ts:34:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (5.0s)
+  ✓   4 tests/ui/navigation.spec.ts:47:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (4.5s)
+  ✓   5 tests/ui/navigation.spec.ts:88:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.3s)
+  ✘   3 tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (20.7s)
+  ✓   7 tests/ui/ai-seller.spec.ts:63:1 › без языков «Применить» отказывает словами продавца, введённое не пропадает (2.3s)
+  ✓   8 tests/ui/ai-seller.spec.ts:72:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (2.0s)
+  ✓   9 tests/ui/ai-seller.spec.ts:90:1 › «Знания»: список и загрузка документа (2.3s)
+  ✓   6 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (22.8s)
+  ✓  10 tests/ui/ai-seller.spec.ts:103:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (4.5s)
+  ✓  12 tests/ui/ai-seller.spec.ts:128:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (1.5s)
+  ✓  13 tests/ui/ai-seller.spec.ts:136:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.2s)
+  ✓  11 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: light (6.3s)
+  ✓  14 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: dark (5.5s)
+
+
+  1) tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-state')
+    Expected substring: "Продавец работает с текущими настройками"
+    Received string:    "ИИ-продавецПродавец ещё не настроенЗаполните «Настройки» и нажмите «Применить».Настройкине сохраненыДанные объектаждут отправки"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-state') with timeout 15000ms
+      - waiting for getByTestId('seller-state')
+        34 × locator resolved to <div class="panel state-bar" data-testid="seller-state">…</div>
+           - unexpected value "ИИ-продавецПродавец ещё не настроенЗаполните «Настройки» и нажмите «Применить».Настройкине сохраненыДанные объектаждут отправки"
+
+
+      51 |     'Применено: продавец получил настройки и данные объекта.',
+      52 |   );
+    > 53 |   await expect(page.getByTestId('seller-state')).toContainText(
+         |                                                  ^
+      54 |     'Продавец работает с текущими настройками',
+      55 |   );
+      56 |
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:53:50
+
+    Error Context: test-results/ai-seller-«вы»-→-«ты»-«При-44341-«Проверке»-на-«ты»-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«вы»-→-«ты»-«При-44341-«Проверке»-на-«ты»-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«вы»-→-«ты»-«При-44341-«Проверке»-на-«ты»-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) 
+  13 passed (52.9s)
+
+# код выхода 1 · 54 с

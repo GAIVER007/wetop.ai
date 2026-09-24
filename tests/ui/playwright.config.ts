@@ -8,8 +8,9 @@ const uiExecutable = process.env.UI_BROWSER_EXECUTABLE || process.env.CHROMIUM_P
 export default defineConfig({
   testDir: '.',
   testMatch: '*.spec.ts',
-  // набор со включённым замком поднимает свой стенд и идёт отдельно: `playwright.auth.config.ts`
-  testIgnore: 'login-lock.spec.ts',
+  // наборы со своим стендом идут отдельно: замок — `playwright.auth.config.ts`, подставной помощник —
+  // `playwright.assistant.config.ts` (стойке нужен `ASSISTANT_URL` на время запуска)
+  testIgnore: ['login-lock.spec.ts', 'assistant-widget.spec.ts'],
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,

@@ -57,11 +57,33 @@ function sameKey(presented: string, expected: string): boolean {
  */
 const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
 
-function guardReadAllowed(method: unknown, url: unknown): boolean {
+/**
+ * Узкий ключ ИИ-помощника (`ASSISTANT_READ_KEY`, ТЗ ред. 1 П4, ADR-076) — по тому же образцу: помощник видит ошибки,
+ * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
+ * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
+ */
+const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status'];
+
+function readAllowed(allowed: readonly string[], method: unknown, url: unknown): boolean {
   if (method !== 'GET') return false;
   if (typeof url !== 'string') return false;
   const path = url.split('?')[0]!.replace(/\/+$/, '');
-  return GUARD_READ_ALLOWED.includes(path);
+  return allowed.includes(path);
+}
+
+/** Какой служебный ключ пришёл в `x-wetop-service-key`: `null` — никакого, `unknown` — ни один не подошёл */
+export type ServiceKeyKind = 'service' | 'guard-read' | 'assistant-read' | 'unknown';
+
+export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
+  const presented = headers['x-wetop-service-key'];
+  if (typeof presented !== 'string' || presented === '') return null;
+  const serviceKey = process.env.SERVICE_API_KEY?.trim();
+  if (serviceKey && sameKey(presented, serviceKey)) return 'service';
+  const readKey = process.env.GUARD_READ_KEY?.trim();
+  if (readKey && sameKey(presented, readKey)) return 'guard-read';
+  const assistantKey = process.env.ASSISTANT_READ_KEY?.trim();
+  if (assistantKey && sameKey(presented, assistantKey)) return 'assistant-read';
+  return 'unknown';
 }
 
 @Injectable()
@@ -102,23 +124,28 @@ export class SessionGuard implements CanActivate {
       service?: boolean;
     }>();
 
-    const serviceKey = process.env.SERVICE_API_KEY?.trim();
-    const readKey = process.env.GUARD_READ_KEY?.trim();
-    const presented = request.headers['x-wetop-service-key'];
-    if (typeof presented === 'string' && presented !== '') {
-      if (serviceKey && sameKey(presented, serviceKey)) {
+    const key = serviceKeyKind(request.headers);
+    if (key === 'service') {
+      request.service = true;
+      return true;
+    }
+    if (key === 'guard-read') {
+      if (readAllowed(GUARD_READ_ALLOWED, request.method, request.url)) {
         request.service = true;
         return true;
       }
-      if (readKey && sameKey(presented, readKey)) {
-        if (guardReadAllowed(request.method, request.url)) {
-          request.service = true;
-          return true;
-        }
-        throw new ForbiddenException('Ключ дежурного агента читает только неисправности сторожа');
-      }
-      throw new UnauthorizedException('Служебный ключ не подходит');
+      throw new ForbiddenException('Ключ дежурного агента читает только неисправности сторожа');
     }
+    if (key === 'assistant-read') {
+      if (readAllowed(ASSISTANT_READ_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException(
+        'Ключ помощника читает только ошибки человека и состояние системы',
+      );
+    }
+    if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 
     const token = tokenFromHeaders(request.headers);
     const signedIn = token ? await this.auth.whoami(token) : null;

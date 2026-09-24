@@ -3,6 +3,7 @@ import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
+import { AssistantWidget } from '../components/shell/assistant-widget';
 import { OnboardingGate } from './onboarding-gate';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
@@ -78,6 +79,10 @@ export default function RootLayout({
             {drawer}
           </ToastProvider>
         </ThemeProvider>
+        {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
+        <Suspense fallback={null}>
+          <AssistantWidget />
+        </Suspense>
       </body>
     </html>
   );

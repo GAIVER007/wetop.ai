@@ -15,6 +15,7 @@ const routes = [
   '/rates',
   '/channel-manager',
   '/channels',
+  '/ai-seller',
   '/analytics',
   '/finance',
   '/management/statistics',

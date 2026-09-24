@@ -957,6 +957,8 @@ model Organization {
   sessions    Session[]
   invites     Invite[]
   properties  Property[]
+  userErrors  UserError[]
+  sellerProfile SellerProfile?
 
   @@map("organizations")
 }
@@ -987,6 +989,8 @@ model User {
   passwordResets PasswordReset[]
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
+  userErrors     UserError[]
+  sellerProfileEdits SellerProfile[]
 
   @@map("users")
 }
@@ -1073,4 +1077,76 @@ model Invite {
 
   @@index([organizationId])
   @@map("invites")
+}
+
+// ───────────────────────── §14 Ошибки, которые видит человек ─────────────────────────
+
+/// Ответ API с ошибкой (4xx, 5xx), который получил вошедший человек (DATA_MODEL §14, ТЗ ред. 1 П3, ADR-076).
+/// Читает ИИ-помощник по узкому ключу. Время ставит приложение — у колонки нет DEFAULT; CHECK status 400…599 — в миграции.
+/// Тела запроса, значений из адреса и данных гостей нет по построению: маршрут шаблоном, текст ответа с маской.
+model UserError {
+  id             String   @id @default(uuid()) @db.Uuid
+  at             DateTime @db.Timestamptz(6)
+  userId         String   @map("user_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  method         String   @db.VarChar(10)
+  route          String   @db.VarChar(200)
+  status         Int      @db.SmallInt
+  message        String   @db.VarChar(500)
+  requestId      String   @map("request_id") @db.Uuid
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, organizationId, at])
+  @@index([at])
+  @@map("user_errors")
+}
+
+// ───────────────────────── §15 Профиль ИИ-продавца ─────────────────────────
+
+enum SellerAddressForm {
+  FORMAL
+  INFORMAL
+}
+
+enum SellerReplyLength {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-076). Поля экрана «Настройки»,
+/// не текст промпта: ядро правил держит бот. Поля доставки (П8) ведёт платформа. CHECK на число языков — в миграции.
+model SellerProfile {
+  organizationId   String            @id @map("organization_id") @db.Uuid
+  botName          String?           @map("bot_name") @db.VarChar(60)
+  addressForm      SellerAddressForm @map("address_form")
+  useEmoji         Boolean           @default(false) @map("use_emoji")
+  replyLength      SellerReplyLength @map("reply_length")
+  languages        String[]
+  greeting         String            @default("") @db.VarChar(500)
+  includedInPrice  String            @default("") @map("included_in_price") @db.VarChar(1000)
+  paidExtras       String            @default("") @map("paid_extras") @db.VarChar(1000)
+  houseRules       String            @default("") @map("house_rules") @db.VarChar(2000)
+  prohibitions     String            @default("") @db.VarChar(1000)
+  handoffRules     String            @default("") @map("handoff_rules") @db.VarChar(1000)
+  /// [{ question, answer }], до 30 — проверяет домен (`parseSellerProfile`)
+  faq              Json              @default("[]")
+  updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
+  updatedBy        String?           @map("updated_by") @db.Uuid
+  /// Версия профиля (`updated_at`), которую продавец принял; NULL — не принимал
+  profileAppliedAt DateTime?         @map("profile_applied_at") @db.Timestamptz(6)
+  /// SHA-256 последних доставленных фактов объекта
+  factsHash        String?           @map("facts_hash") @db.Char(64)
+  factsAppliedAt   DateTime?         @map("facts_applied_at") @db.Timestamptz(6)
+  /// Последний отказ продавца, маскированный; NULL — отказов нет
+  lastError        String?           @map("last_error") @db.VarChar(500)
+  lastErrorAt      DateTime?         @map("last_error_at") @db.Timestamptz(6)
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@map("seller_profiles")
 }

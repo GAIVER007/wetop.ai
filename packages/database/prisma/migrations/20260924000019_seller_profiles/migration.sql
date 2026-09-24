@@ -1,0 +1,48 @@
+-- Профиль ИИ-продавца (DATA_MODEL §15 v1.8, ТЗ ред. 1 П5, ADR-076). Применяет владелец (AGENTS.md §15).
+--
+-- Одна строка на организацию: как продавец говорит с гостями и что рассказывает о правилах объекта — поля экрана
+-- «Настройки», не текст промпта (ядро правил держит бот). Поля доставки (П8) ведёт платформа. Данных гостей нет.
+-- Существующие таблицы не меняются. Откат — down.sql в этой же папке.
+
+-- CreateEnum
+CREATE TYPE "SellerAddressForm" AS ENUM ('FORMAL', 'INFORMAL');
+
+-- CreateEnum
+CREATE TYPE "SellerReplyLength" AS ENUM ('SHORT', 'MEDIUM', 'LONG');
+
+-- CreateTable
+CREATE TABLE "seller_profiles" (
+    "organization_id" UUID NOT NULL,
+    "bot_name" VARCHAR(60),
+    "address_form" "SellerAddressForm" NOT NULL,
+    "use_emoji" BOOLEAN NOT NULL DEFAULT false,
+    "reply_length" "SellerReplyLength" NOT NULL,
+    "languages" TEXT[],
+    "greeting" VARCHAR(500) NOT NULL DEFAULT '',
+    "included_in_price" VARCHAR(1000) NOT NULL DEFAULT '',
+    "paid_extras" VARCHAR(1000) NOT NULL DEFAULT '',
+    "house_rules" VARCHAR(2000) NOT NULL DEFAULT '',
+    "prohibitions" VARCHAR(1000) NOT NULL DEFAULT '',
+    "handoff_rules" VARCHAR(1000) NOT NULL DEFAULT '',
+    "faq" JSONB NOT NULL DEFAULT '[]',
+    "updated_at" TIMESTAMPTZ(6) NOT NULL,
+    "updated_by" UUID,
+    "profile_applied_at" TIMESTAMPTZ(6),
+    "facts_hash" CHAR(64),
+    "facts_applied_at" TIMESTAMPTZ(6),
+    "last_error" VARCHAR(500),
+    "last_error_at" TIMESTAMPTZ(6),
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "seller_profiles_pkey" PRIMARY KEY ("organization_id")
+);
+
+-- AddForeignKey
+ALTER TABLE "seller_profiles" ADD CONSTRAINT "seller_profiles_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "seller_profiles" ADD CONSTRAINT "seller_profiles_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Языков от одного до шести (DATA_MODEL §15). Prisma CHECK не описывает.
+ALTER TABLE "seller_profiles" ADD CONSTRAINT "seller_profiles_languages_check"
+  CHECK ("languages" IS NOT NULL AND cardinality("languages") BETWEEN 1 AND 6);

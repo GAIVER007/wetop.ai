@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 24.09.2026 18:17 Алматы · vm
+# коммит c3ae230 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.assistant.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/assistant-widget.spec.ts:37:1 › невошедший видит чат анонимно: тег есть, data-identity нет (1.5s)
+  ✓  2 tests/ui/assistant-widget.spec.ts:45:1 › после входа виджет загружен с подписью вошедшего; переходы по стойке его не перезагружают (6.1s)
+  ✓  3 tests/ui/assistant-widget.spec.ts:71:1 › после «Выйти» виджет прежнего человека на странице не остаётся (3.8s)
+  ✘  4 tests/ui/assistant-widget.spec.ts:84:1 › на телефоне пузырь чата стоит над нижней навигацией, а не на ней (1.6s)
+
+
+  1) tests/ui/assistant-widget.spec.ts:84:1 › на телефоне пузырь чата стоит над нижней навигацией, а не на ней 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 776
+    Received:    824
+
+      91 |   const b = (await bubble.boundingBox())!;
+      92 |   const n = (await nav.boundingBox())!;
+    > 93 |   expect(b.y + b.height).toBeLessThanOrEqual(n.y);
+         |                          ^
+      94 | });
+      95 |
+        at /home/user/wetop.ai/tests/ui/assistant-widget.spec.ts:93:26
+
+    Error Context: test-results/assistant-widget-на-телефо-019d8-жней-навигацией-а-не-на-ней/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/assistant-widget-на-телефо-019d8-жней-навигацией-а-не-на-ней/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/assistant-widget-на-телефо-019d8-жней-навигацией-а-не-на-ней/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/assistant-widget.spec.ts:84:1 › на телефоне пузырь чата стоит над нижней навигацией, а не на ней 
+  3 passed (24.6s)
+
+# код выхода 1 · 26 с

@@ -1,0 +1,49 @@
+/* Раздел «ИИ-продавец» (ТЗ ред. 1 П6, DESIGN.md §8 — строка раздела). Только раскладка: цвета и размеры — токены. */
+
+/* Группа флажков «Языки» — как «Дни недели» в редакторе тарифов */
+.seller-choices {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.seller-choices__legend {
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-2);
+}
+.seller-choices__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+
+/* Строка частого вопроса: вопрос, ответ и «Убрать» выравниваются по нижнему краю полей */
+.seller-faq__row {
+  align-items: end;
+}
+
+/* Переписка: реплики гостя и продавца строками, без пузырей — стойка читает, а не переписывается */
+.seller-transcript {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.seller-transcript p {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.seller-transcript__guest {
+  background: var(--surface-muted);
+}
+.seller-transcript__bot {
+  border: 1px solid var(--border-soft);
+}

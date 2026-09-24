@@ -1,0 +1,163 @@
+# Модульные (unit) · 24.09.2026 18:02 Алматы · vm
+# коммит 987ef55 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T13-02-07Z-unit-1035.json' 'tests/unit/db-backup.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/db-backup.test.ts (7 tests | 7 failed) 84ms
+   ❯ db-backup.sh: ночная копия рабочей базы (7)
+     × снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается 24ms
+     × адрес из BACKUP_DATABASE_URL важнее .env 9ms
+     × pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17 8ms
+     × без строки подключения — понятный отказ, pg_dump не зовётся 8ms
+     × копия без таблиц с данными не принимается и недописанной не остаётся 15ms
+     × pg_dump упал — копии нет, код ненулевой, пароль из его сообщения замаскирован 9ms
+     × копии старше срока удаляются, свежие и чужие файлы остаются 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается
+AssertionError: bash: /home/user/wetop.ai/scripts/ops/db-backup.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:88:43
+     86|     const sb = sandbox();
+     87|     const r = sb.run();
+     88|     expect(r.status, r.stdout + r.stderr).toBe(0);
+       |                                           ^
+     89|
+     90|     const files = sb.dumps();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > адрес из BACKUP_DATABASE_URL важнее .env
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:106:57
+    104|     const sb = sandbox();
+    105|     const own = 'postgresql://<email>:5432/postg…
+    106|     expect(sb.run({ BACKUP_DATABASE_URL: own }).status).toBe(0);
+       |                                                         ^
+    107|     expect(sb.dumpArgs()).toContain(own);
+    108|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:113:22
+    111|     const sb = sandbox({ pgVersion: '16.13' });
+    112|     const r = sb.run();
+    113|     expect(r.status).toBe(2);
+       |                      ^
+    114|     expect(r.stderr).toMatch(/17/);
+    115|     expect(sb.dumpArgs()).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > без строки подключения — понятный отказ, pg_dump не зовётся
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:122:22
+    120|     const sb = sandbox({ env: null });
+    121|     const r = sb.run();
+    122|     expect(r.status).toBe(2);
+       |                      ^
+    123|     expect(r.stderr).toMatch(/DIRECT_URL/);
+    124|     expect(sb.dumpArgs()).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > копия без таблиц с данными не принимается и недописанной не остаётся
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:130:22
+    128|     const sb = sandbox({ tables: 0 });
+    129|     const r = sb.run();
+    130|     expect(r.status).toBe(1);
+       |                      ^
+    131|     expect(r.stderr).toMatch(/нет ни одной таблицы/);
+    132|     expect(sb.dumps()).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > pg_dump упал — копии нет, код ненулевой, пароль из его сообщения замаскирован
+AssertionError: expected 'bash: /home/user/wetop.ai/scripts/ops…' to contain 'connection to'
+
+- Expected
++ Received
+
+- connection to
++ bash: /home/user/wetop.ai/scripts/ops/db-backup.sh: No such file or directory
++
+
+ ❯ tests/unit/db-backup.test.ts:140:22
+    138|     expect(r.status).not.toBe(0);
+    139|     expect(sb.dumps()).toEqual([]);
+    140|     expect(r.stderr).toContain('connection to');
+       |                      ^
+    141|     expect(r.stdout + r.stderr).not.toContain(PASSWORD);
+    142|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > копии старше срока удаляются, свежие и чужие файлы остаются
+AssertionError: bash: /home/user/wetop.ai/scripts/ops/db-backup.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-backup.test.ts:158:43
+    156|
+    157|     const r = sb.run({ BACKUP_KEEP_DAYS: '14' });
+    158|     expect(r.status, r.stdout + r.stderr).toBe(0);
+       |                                           ^
+    159|     const files = sb.dumps();
+    160|     expect(files).not.toContain('wetop-20260901T000000Z.dump');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  13:02:09
+   Duration  530ms (tests 53%, transform 28%, import 15%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-24T13-02-07Z-unit-1035.json
+
+# код выхода 1 · 3 с

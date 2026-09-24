@@ -76,6 +76,11 @@ class Settings(BaseSettings):
     # тысяча старых диалогов иначе занимает предел и вытесняет свежие.
     # 🔴 Это политика владельца, а не константа: увеличить — видеть дольше.
     sla_lookback_hours: int = 24
+    # Сторож смотрит и на собственное здоровье бота: это видно из базы
+    # и тихо ломается — в журнале ничего, а сообщения не уходят.
+    watch_outbox_stuck_minutes: int = 30
+    watch_outbox_stuck_limit: int = 5
+    watch_needs_human_limit: int = 10
     pii_allowlist_phones: str = ""
     pii_allowlist_emails: str = ""
     # Слой 0: предел длины входа и окно дедупа двойной доставки от канала.

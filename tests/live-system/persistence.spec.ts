@@ -14,7 +14,8 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
   page,
   request,
 }) => {
-  test.setTimeout(300_000);
+  // Полный путь делает десятки последовательных round-trip до удалённой Supabase в Сингапуре.
+  test.setTimeout(600_000);
   const marker = `E2E-АВТОТЕСТ audit-${randomUUID()}`;
   const surname = `Аудит-${marker.slice(-12)}`;
   const db = createPrismaClient(); // independent pool: assertions see committed rows only
@@ -115,15 +116,23 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
       expect(encrypted.numberEncrypted.includes(syntheticDocument)).toBe(false);
       await page.reload();
       await expect(page.getByTestId('document-row')).toContainText(syntheticDocument.slice(-4));
-      // удаление документа переспрашивает (волна 3): без «ОК» Playwright отклоняет диалог
-      page.once('dialog', (d) => void d.accept());
       await page
         .getByTestId('document-row')
         .getByRole('button', { name: 'удалить', exact: true })
         .click();
+      await page
+        .getByRole('dialog', { name: 'Удалить документ гостя?' })
+        .getByRole('button', { name: 'Удалить документ', exact: true })
+        .click();
       await expect.poll(() => db.guestDocument.count({ where: { guestId } })).toBe(0);
       await page.getByRole('tab', { name: 'Проживания', exact: true }).click();
-      await page.getByRole('link', { name: number, exact: true }).click();
+      const bookingLink = page.getByRole('link', {
+        name: `Открыть бронь ${number}`,
+        exact: true,
+      });
+      await expect(bookingLink).toHaveAttribute('href', `/reservations/${number}`);
+      // Прямой переход проверяет серверную карточку; drawer-навигация отдельно покрыта UI-набором.
+      await page.goto(`/reservations/${number}`);
       await expect(page.getByTestId('guest-link')).toContainText('Проверено');
       await page.goto(`/chessboard?from=${arrival}&to=${plus(departure, -1)}`);
       await expect(
@@ -223,7 +232,9 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
       ).toBe(0n);
       await page.goto(`/guests/${guestId}`);
       await page.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
-      await page.locator('.guest-account-links a').filter({ hasText: number }).click();
+      const accountLink = page.locator('.guest-account-links a').filter({ hasText: number });
+      await expect(accountLink).toHaveAttribute('href', `/reservations/${number}#booking-finance`);
+      await page.goto(`/reservations/${number}#booking-finance`);
       await expect(page.getByRole('tab', { name: 'Счета', exact: true })).toHaveAttribute(
         'aria-selected',
         'true',
@@ -233,8 +244,11 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
 
     await test.step('отмена освобождает шахматку и доступность; статус виден в карточке', async () => {
       await page.getByRole('tab', { name: 'Действия', exact: true }).click();
-      page.once('dialog', (dialog) => void dialog.accept());
       await page.getByTestId('cancel-reservation').click();
+      await page
+        .getByRole('dialog', { name: `Отменить бронь ${number}?` })
+        .getByRole('button', { name: 'Отменить бронь', exact: true })
+        .click();
       await expect
         .poll(
           async () =>
@@ -268,8 +282,11 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
         `/availability?arrival=${arrival}&departure=${departure}`,
       );
       expect(available.byCategory[category]!.availableUnitCodes.includes(unit)).toBe(false);
-      page.once('dialog', (d) => void d.accept());
       await block.getByRole('button', { name: 'снять', exact: true }).click();
+      await page
+        .getByRole('dialog', { name: `Снять блокировку с ячейки ${unit}?` })
+        .getByRole('button', { name: 'Снять блокировку', exact: true })
+        .click();
       await expect.poll(() => db.inventoryBlock.count({ where: { reason: marker } })).toBe(0);
       const restored = await read<StayAvailability>(
         `/availability?arrival=${arrival}&departure=${departure}`,
@@ -291,9 +308,12 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
         )
         .toBe('PAUSED');
       await page.reload();
-      await expect(card.getByTestId('site-card-status')).toHaveText('на паузе');
-      page.once('dialog', (dialog) => void dialog.accept());
+      await expect(card.getByTestId('site-card-status')).toHaveText('Счётчик на паузе');
       await card.getByTestId('site-delete').click();
+      await page
+        .getByRole('dialog', { name: 'Удалить сайт?' })
+        .getByRole('button', { name: 'Удалить сайт', exact: true })
+        .click();
       await expect.poll(() => db.trackedSite.count({ where: { name: marker } })).toBe(0);
       await expect(card).toHaveCount(0);
     });

@@ -1,0 +1,50 @@
+# Модульные (unit) · 24.09.2026 15:06 Алматы · vm
+# коммит 35c05fa (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-06-11Z-unit-1d15.json' 'apps/api/src/channels/webhook-register.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/channels/webhook-register.test.ts (4 tests | 1 failed) 16ms
+   ✓ registerWebhook: успех считается по ответу Channex, а не по отправленному адресу (2)
+     ✓ падает, когда Channex вернул прежний адрес: кнопка не должна рапортовать о перерегистрации 4ms
+     ✓ возвращает адрес из ответа Channex, когда тот его принял 1ms
+   ❯ testWebhook: при заданном PUBLIC_API_URL секрет уходит только на постоянный адрес (2)
+     × чужой адрес — 409, Channex не вызывается 8ms
+     ✓ постоянный адрес — явно или по умолчанию — проверяется 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/webhook-register.test.ts > testWebhook: при заданном PUBLIC_API_URL секрет уходит только на постоянный адрес > чужой адрес — 409, Channex не вызывается
+AssertionError: promise resolved "{ …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "body": "ok",
++   "callbackUrl": "https://collector.example.test/hook",
++   "statusCode": 200,
++   "verdict": "endpoint доступен, секрет принят",
+  }
+
+ ❯ apps/api/src/channels/webhook-register.test.ts:115:74
+    113|     const { gateway, tested } = gatewayRecordingTests();
+    114|     const sync = new ChannexSyncService(gateway, repo);
+    115|     await expect(sync.testWebhook('https://collector.example.test/hook…
+       |                                                                          ^
+    116|       /постоянный адрес/,
+    117|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  10:06:12
+   Duration  1.59s (transform 77%, import 21%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-06-11Z-unit-1d15.json
+
+# код выхода 1 · 3 с

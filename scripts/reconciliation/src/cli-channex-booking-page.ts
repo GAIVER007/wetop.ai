@@ -23,11 +23,12 @@ const mapping = (await (await serviceFetch(`${api}/channels/channex/mapping`)).j
 const propertyId = mapping[0]?.providerPropertyId;
 if (!propertyId) throw new Error('объект в Channex не создан — сначала setup');
 
-const client = new channex.ChannexClient(
-  process.env.CHANNEX_API_BASE_URL?.trim()
+const client = new channex.ChannexClient({
+  ...(process.env.CHANNEX_API_BASE_URL?.trim()
     ? { apiKey, baseUrl: process.env.CHANNEX_API_BASE_URL.trim() }
-    : { apiKey },
-);
+    : { apiKey }),
+  allowProduction: channex.channexProductionAllowed(),
+});
 const property = await client.getProperty(propertyId);
 const a = property.attributes as unknown as Record<string, unknown>;
 const photos = await client.listAll<Record<string, unknown>>('/photos', {

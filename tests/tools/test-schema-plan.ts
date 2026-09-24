@@ -9,6 +9,33 @@ export const TEST_SCHEMA = 'pms_test';
 export const TEST_WEB_PORT = 3100;
 export const TEST_API_PORT = 3101;
 
+/** Локальные адреса базы: своя PostgreSQL рядом с кодом (`npm run db:local`, CI, VM); пустой хост — сокет */
+const LOCAL_DB_HOSTS = new Set(['', '127.0.0.1', 'localhost', '::1', '[::1]']);
+
+/**
+ * Q-170 (решение владельца 24.09.2026): интеграционные и сквозные тесты ходят только в локальную базу. На Mac в .env —
+ * адрес рабочей базы, и прогон без явного DATABASE_URL писал pms_test туда и занимал пулер (22.09.2026). Нелокальная
+ * база — только осознанно, PMS_TEST_REMOTE_DB=1. Текст отказа адреса не печатает: в нём бывает пароль.
+ */
+export function testDatabaseRefusal(
+  url: string,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | null {
+  if (env['PMS_TEST_REMOTE_DB']?.trim() === '1') return null;
+  let host: string | null = null;
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    host = null;
+  }
+  if (host !== null && LOCAL_DB_HOSTS.has(host)) return null;
+  return (
+    'Автотесты ходят только в локальную базу (Q-170): DATABASE_URL указывает не на 127.0.0.1 или localhost — ' +
+    'на Mac это рабочая база. Своя поднимается одной командой: npm run db:local, затем ' +
+    "DATABASE_URL='postgresql://postgres@127.0.0.1:55432/pmslocal'. Осознанно на другой базе — PMS_TEST_REMOTE_DB=1."
+  );
+}
+
 export function pendingMigrations(all: readonly string[], applied: ReadonlySet<string>): string[] {
   return [...all].sort().filter((m) => !applied.has(m));
 }

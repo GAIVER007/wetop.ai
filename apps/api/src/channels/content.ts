@@ -22,6 +22,7 @@ export function contentReaderFromEnv(): ContentReader | null {
   return new channex.ChannexClient({
     apiKey,
     baseUrl: process.env.CHANNEX_API_BASE_URL?.trim() || channex.CHANNEX_STAGING_URL,
+    allowProduction: channex.channexProductionAllowed(),
     maxRetries: 0,
     fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(10_000) }),
   });

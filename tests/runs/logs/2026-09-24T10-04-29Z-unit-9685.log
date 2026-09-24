@@ -1,0 +1,67 @@
+# Модульные (unit) · 24.09.2026 15:04 Алматы · vm
+# коммит 35c05fa (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-04-29Z-unit-9685.json' 'packages/integrations/src/channex/client.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/channex/client.test.ts (18 tests | 1 failed) 95ms
+   ✓ ChannexClient (6)
+     ✓ signs every request with user-api-key and wraps POST bodies by entity type (api-reference.md) 51ms
+     ✓ traverses pagination with pagination[page]/[limit]=100 until meta.total is reached 4ms
+     ✓ turns a 422 validation error into ChannexApiError with code and details, no retry 1ms
+     ✓ pauses one minute on 429 (rate-limits.md) and retries; gives up after maxRetries 4ms
+     ✓ ARI: availability and restrictions go to separate endpoints with a values list (ari.md) 1ms
+     ✓ booking revisions: feed ordered oldest first, get by id, ack by POST (bookings-collection.md) 2ms
+   ✓ ChannexClient webhooks (webhook-collection.md) (1)
+     ✓ creates a property webhook wrapped in { webhook }, lists them with pagination, updates and tests 2ms
+   ✓ ChannexClient.getAvailability (ari.md → Get the Availability per Room Type) (1)
+     ✓ asks for a date range and one property, returns availability per room type per date 1ms
+   ✓ ChannexClient content (hotels-collection.md, hotel-policy-collection.md) (1)
+     ✓ updates a property wrapped in { property } and creates a hotel policy wrapped in { hotel_policy } 1ms
+   ✓ ChannexClient photos (photos-collection.md) (1)
+     ✓ uploads a file as multipart without a JSON content-type, then creates the photo record by url 2ms
+   ✓ ChannexClient.getRestrictions (ari.md → Get Availability Or Restrictions Per Rate Plan) (3)
+     ✓ asks one property for a date range and a comma-separated restriction list; returns plan → date → cell 1ms
+     ✓ filters by rate plan ids on our side (ari.md documents no rate plan filter) and accepts a custom restriction list 1ms
+     ✓ surfaces the documented 400 «restrictions is required» as ChannexApiError with details 0ms
+   ✓ channexDecimalToMinor — цена Channex "14000.00" → тиыны без float (1)
+     ✓ parses two-, one- and zero-decimal strings; tolerates a numeric value; rejects anything else 1ms
+   ✓ таймаут запроса (2)
+     ✓ каждому запросу передан сигнал прерывания 0ms
+     ✓ молчание Channex — сетевая ошибка с повторами, затем отказ со словом «таймаут» 11ms
+   ❯ ChannexClient: production только с явным разрешением (2)
+     × адрес production без разрешения — отказ до сети, в тексте что сделать 8ms
+     ✓ с разрешением production вызывается; staging и свои адреса (подделки тестов) — без разрешения 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/channex/client.test.ts > ChannexClient: production только с явным разрешением > адрес production без разрешения — отказ до сети, в тексте что сделать
+AssertionError: promise resolved "[]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[]
+
+ ❯ packages/integrations/src/channex/client.test.ts:598:37
+    596|       sleep: noSleep.sleep,
+    597|     });
+    598|     await expect(c.listProperties()).rejects.toThrow(/CHANNEX_PRODUCTI…
+       |                                     ^
+    599|     await expect(c.uploadPhoto(new Blob(['x']), 'a.jpg')).rejects.toBe…
+    600|     expect(f.calls).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  10:04:30
+   Duration  468ms (transform 63%, tests 30%, import 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-04-29Z-unit-9685.json
+
+# код выхода 1 · 1 с

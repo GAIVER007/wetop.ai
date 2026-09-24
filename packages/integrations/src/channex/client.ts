@@ -23,7 +23,33 @@ export interface ChannexClientOptions {
    * ошибку — повтор с backoff, затем внятный отказ.
    */
   timeoutMs?: number;
+  /**
+   * Разрешение ходить в Channex production (AGENTS.md §9, SECURITY.md §9, Q-171). Без него запрос на любой хост
+   * channex.io, кроме staging, отказывает до сети. API ставит его из `CHANNEX_PRODUCTION=1` — шагом переключения
+   * (CUTOVER.md): ошибка в .env (адрес и ключ production) не превращается в отправку ARI и подтверждение броней.
+   */
+  allowProduction?: boolean;
 }
+
+/** Хост Channex production: всё на channex.io, кроме staging. Свои адреса (подделки тестов) production не считаются */
+export function isChannexProduction(baseUrl: string): boolean {
+  let host: string;
+  try {
+    host = new URL(baseUrl).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return (host === 'channex.io' || host.endsWith('.channex.io')) && host !== 'staging.channex.io';
+}
+
+/** Разрешение на production из окружения: ровно `CHANNEX_PRODUCTION=1`, ставит владелец при переключении (CUTOVER.md) */
+export function channexProductionAllowed(env: Record<string, string | undefined> = process.env): boolean {
+  return env['CHANNEX_PRODUCTION']?.trim() === '1';
+}
+
+export const CHANNEX_PRODUCTION_REFUSED =
+  'Адрес Channex — production, а разрешения нет: до переключения каналов (AGENTS.md §9, CUTOVER.md) production ' +
+  'не вызывается. Разрешает владелец: CHANNEX_PRODUCTION=1 в .env';
 
 export class ChannexApiError extends Error {
   constructor(
@@ -289,9 +315,11 @@ export class ChannexClient {
   private readonly sleep: (ms: number) => Promise<void>;
   private readonly maxRetries: number;
   private readonly timeoutMs: number;
+  private readonly productionRefused: boolean;
 
   constructor(private readonly opts: ChannexClientOptions) {
     this.base = (opts.baseUrl ?? CHANNEX_STAGING_URL).replace(/\/$/, '');
+    this.productionRefused = isChannexProduction(this.base) && opts.allowProduction !== true;
     this.fetchFn = opts.fetch ?? fetch;
     this.sleep = opts.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
     this.maxRetries = opts.maxRetries ?? 3;
@@ -304,6 +332,7 @@ export class ChannexClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
+    if (this.productionRefused) throw new ChannexApiError(CHANNEX_PRODUCTION_REFUSED, 403, path);
     let attempt = 0;
     for (;;) {
       let res: Response;
@@ -599,6 +628,8 @@ export class ChannexClient {
    * вместе с разделителем частей, иначе сервер не разберёт тело.
    */
   async uploadPhoto(file: Blob, filename: string): Promise<string> {
+    if (this.productionRefused)
+      throw new ChannexApiError(CHANNEX_PRODUCTION_REFUSED, 403, '/photos/upload');
     const form = new FormData();
     form.append('photo', file, filename);
     const res = await this.fetchFn(`${this.base}/photos/upload`, {

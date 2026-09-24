@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 24.09.2026 22:21 Алматы · MacBook-Air-Urij.local
+# коммит 7a04641 (codex/chessboard-comfort), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-extend.spec.ts' '--workers=1'
+[WebServer] (node:33419) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:33531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-extend.spec.ts:7:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (4.1s)
+  ✓  2 tests/ui/chessboard-extend.spec.ts:26:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (8.8s)
+  ✓  3 tests/ui/chessboard-extend.spec.ts:62:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (6.3s)
+  ✓  4 tests/ui/chessboard-extend.spec.ts:91:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (4.2s)
+
+  4 passed (30.9s)
+
+# код выхода 0 · 32 с

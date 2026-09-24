@@ -1,0 +1,63 @@
+# Сквозные (e2e) · 24.09.2026 22:20 Алматы · MacBook-Air-Urij.local
+# коммит 7a04641 (codex/chessboard-comfort), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-extend.spec.ts' '--workers=1'
+[WebServer] (node:32109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:32206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:32221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/chessboard-extend.spec.ts:7:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (12.7s)
+  ✓  2 tests/ui/chessboard-extend.spec.ts:26:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (12.3s)
+  ✓  3 tests/ui/chessboard-extend.spec.ts:62:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (8.7s)
+  ✘  4 tests/ui/chessboard-extend.spec.ts:91:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (8.8s)
+
+
+  1) tests/ui/chessboard-extend.spec.ts:91:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      100 |   await expect(caption.locator('.board-stay-name')).toHaveText('Гость Тестовый');
+      101 |   const name = caption.locator('.board-stay-name');
+    > 102 |   expect(await name.evaluate((el) => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+          |                                                                               ^
+      103 |   await expect(caption.locator('.board-stay-due')).toBeHidden();
+      104 |   await page.screenshot({ path: 'reports/chessboard-comfort-2026-09-24/short-stay.png' });
+      105 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/chessboard-extend.spec.ts:102:79
+
+    Error Context: test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-extend.spec.ts:91:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину
+  3 passed (55.7s)
+
+# код выхода 1 · 57 с

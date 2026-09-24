@@ -958,6 +958,7 @@ model Organization {
   invites     Invite[]
   properties  Property[]
   userErrors  UserError[]
+  sellerProfile SellerProfile?
 
   @@map("organizations")
 }
@@ -989,6 +990,7 @@ model User {
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
   userErrors     UserError[]
+  sellerProfileEdits SellerProfile[]
 
   @@map("users")
 }
@@ -1099,4 +1101,52 @@ model UserError {
   @@index([userId, organizationId, at])
   @@index([at])
   @@map("user_errors")
+}
+
+// ───────────────────────── §15 Профиль ИИ-продавца ─────────────────────────
+
+enum SellerAddressForm {
+  FORMAL
+  INFORMAL
+}
+
+enum SellerReplyLength {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-075). Поля экрана «Настройки»,
+/// не текст промпта: ядро правил держит бот. Поля доставки (П8) ведёт платформа. CHECK на число языков — в миграции.
+model SellerProfile {
+  organizationId   String            @id @map("organization_id") @db.Uuid
+  botName          String?           @map("bot_name") @db.VarChar(60)
+  addressForm      SellerAddressForm @map("address_form")
+  useEmoji         Boolean           @default(false) @map("use_emoji")
+  replyLength      SellerReplyLength @map("reply_length")
+  languages        String[]
+  greeting         String            @default("") @db.VarChar(500)
+  includedInPrice  String            @default("") @map("included_in_price") @db.VarChar(1000)
+  paidExtras       String            @default("") @map("paid_extras") @db.VarChar(1000)
+  houseRules       String            @default("") @map("house_rules") @db.VarChar(2000)
+  prohibitions     String            @default("") @db.VarChar(1000)
+  handoffRules     String            @default("") @map("handoff_rules") @db.VarChar(1000)
+  /// [{ question, answer }], до 30 — проверяет домен (`parseSellerProfile`)
+  faq              Json              @default("[]")
+  updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
+  updatedBy        String?           @map("updated_by") @db.Uuid
+  /// Версия профиля (`updated_at`), которую продавец принял; NULL — не принимал
+  profileAppliedAt DateTime?         @map("profile_applied_at") @db.Timestamptz(6)
+  /// SHA-256 последних доставленных фактов объекта
+  factsHash        String?           @map("facts_hash") @db.Char(64)
+  factsAppliedAt   DateTime?         @map("facts_applied_at") @db.Timestamptz(6)
+  /// Последний отказ продавца, маскированный; NULL — отказов нет
+  lastError        String?           @map("last_error") @db.VarChar(500)
+  lastErrorAt      DateTime?         @map("last_error_at") @db.Timestamptz(6)
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@map("seller_profiles")
 }

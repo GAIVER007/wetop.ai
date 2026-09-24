@@ -1952,3 +1952,12 @@
 | 24.09.2026 18:31 | unit | ✅ 1605 из 1608, пропущено 3 | 1 мин 27 с | b8db4dc +4 | [лог](logs/2026-09-24T13-31-35Z-unit-80ca.log) | после П1–П4 |
 | 24.09.2026 18:33 | typecheck | ✅ без ошибок | 20 с | b8db4dc +4 | [лог](logs/2026-09-24T13-33-03Z-typecheck-52d7.log) |  |
 | 24.09.2026 18:33 | lint | ✅ без ошибок | 15 с | b8db4dc +4 | [лог](logs/2026-09-24T13-33-24Z-lint-19e1.log) |  |
+| 24.09.2026 18:39 | unit (частично: packages/domain/src/ai-seller/profile.test.ts packages/domain/src/ai-seller/facts.test.ts packages/integrations/src/assistant/seller-client.test | ❌ код выхода 1 | 2 с | 14bb92a +6 | [лог](logs/2026-09-24T13-39-44Z-unit-3222.log) | П5, П7, П8 red: профиля, клиента продавца и раздела нет |
+| 24.09.2026 18:44 | unit (частично: packages/domain/src/ai-seller/profile.test.ts packages/domain/src/ai-seller/facts.test.ts packages/integrations/src/assistant/seller-client.test | ✅ 68 из 68 | 4 с | 14bb92a +22 | [лог](logs/2026-09-24T13-44-45Z-unit-23d8.log) | П5, П7, П8 green: профиль, клиент продавца, раздел, сверка |
+| 24.09.2026 18:45 | integration (частично: tests/integration/seller-profiles.test.ts) | ❌ упало 3 из 5 | 3 с | 14bb92a +21 | [лог](logs/2026-09-24T13-45-10Z-integration-1a6f.log) | П5 red: таблицы seller_profiles нет (база без миграции 20260924000019) |
+| 24.09.2026 18:45 | integration (частично: tests/integration/seller-profiles.test.ts) | ✅ 5 из 5 | 3 с | 14bb92a +23 | [лог](logs/2026-09-24T13-45-27Z-integration-8908.log) | П5, П8 green: профиль продавца и факты объекта на PostgreSQL 16 |
+| 24.09.2026 18:46 | typecheck | ❌ ошибок: 2 | 26 с | 14bb92a +23 | [лог](logs/2026-09-24T13-46-19Z-typecheck-c6f0.log) | TS2322 |
+| 24.09.2026 18:46 | lint | ❌ ошибок: 1 | 17 с | 14bb92a +23 | [лог](logs/2026-09-24T13-46-45Z-lint-a4cc.log) | no-useless-assignment |
+| 24.09.2026 18:47 | typecheck | ✅ без ошибок | 20 с | 14bb92a +23 | [лог](logs/2026-09-24T13-47-15Z-typecheck-01aa.log) |  |
+| 24.09.2026 18:47 | lint | ✅ без ошибок | 16 с | 14bb92a +23 | [лог](logs/2026-09-24T13-47-36Z-lint-c93a.log) |  |
+| 24.09.2026 18:47 | unit (частично: packages/integrations/src/assistant/seller-client.test.ts) | ✅ 12 из 12 | 1 с | 14bb92a +22 | [лог](logs/2026-09-24T13-47-53Z-unit-c248.log) | клиент продавца после правки типов |

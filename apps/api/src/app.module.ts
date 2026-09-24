@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountsModule } from './accounts/accounts.module';
+import { AiSellerModule } from './ai-seller/ai-seller.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AssistantModule } from './assistant/assistant.module';
 import { AuthModule } from './auth/auth.module';
@@ -50,8 +51,10 @@ import { DataConnectionModule } from './database/connection';
     WebBookingModule,
     GuardModule,
     FreshnessModule,
-    // ИИ-помощник: подпись вошедшего для виджета (ТЗ ред. 1, ADR-075)
+    // ИИ-помощник: подпись вошедшего для виджета, журнал ошибок человека (ТЗ ред. 1, ADR-075)
     AssistantModule,
+    // Раздел «ИИ-продавец»: профиль, прокси к продавцу, применение и сверка (ТЗ ред. 1, ADR-075)
+    AiSellerModule,
   ],
   // Замок непубличных маршрутов. Молчит, пока не задан AUTH_REQUIRED=1 (auth.guard.ts)
   providers: [

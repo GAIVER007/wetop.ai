@@ -1931,3 +1931,10 @@
 | 24.09.2026 18:10 | unit (частично: packages/integrations/src/assistant/identity.test.ts apps/api/src/assistant/assistant.controller.test.ts apps/api/src/app.module.test.ts) | ✅ 19 из 19 | 4 с | b5c7f40 +8 | [лог](logs/2026-09-24T13-10-54Z-unit-c514.log) | П1 green: подпись по эталону ТЗ и GET /assistant/identity |
 | 24.09.2026 18:11 | typecheck | ✅ без ошибок | 28 с | b5c7f40 +8 | [лог](logs/2026-09-24T13-11-04Z-typecheck-5a64.log) |  |
 | 24.09.2026 18:11 | lint | ✅ без ошибок | 17 с | b5c7f40 +8 | [лог](logs/2026-09-24T13-11-33Z-lint-b60d.log) |  |
+| 24.09.2026 18:14 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/site/src/lib/site.test.ts) | ❌ упало 3 из 8 | 1 с | c3ae230 +2 | [лог](logs/2026-09-24T13-14-01Z-unit-459e.log) | П2 red: тега виджета помощника нет ни в стойке, ни на главной |
+| 24.09.2026 18:15 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/site/src/lib/site.test.ts apps/web/src/lib/api.test.ts apps/web/src/design-rules.test.ts) | ✅ 51 из 51 | 2 с | c3ae230 +12 | [лог](logs/2026-09-24T13-15-44Z-unit-6796.log) | П2 green: тег виджета помощника в стойке и на главной |
+| 24.09.2026 18:15 | typecheck | ✅ без ошибок | 25 с | c3ae230 +12 | [лог](logs/2026-09-24T13-15-56Z-typecheck-de95.log) |  |
+| 24.09.2026 18:17 | e2e (частично: --config tests/ui/playwright.assistant.config.ts) | ❌ упало 1 из 4 | 26 с | c3ae230 +16 | [лог](logs/2026-09-24T13-17-53Z-e2e-7da7.log) | П2: виджет помощника в живой стойке (next dev), подставной помощник |
+| 24.09.2026 18:18 | e2e (частично: --config tests/ui/playwright.assistant.config.ts) | ✅ 4 из 4 | 19 с | c3ae230 +16 | [лог](logs/2026-09-24T13-18-32Z-e2e-a1b8.log) | П2: виджет помощника в живой стойке (next dev), подставной помощник |
+| 24.09.2026 18:19 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 7 из 7 | 20 с | c3ae230 +16 | [лог](logs/2026-09-24T13-19-04Z-e2e-f707.log) | П2: главная собирается с тегом помощника (assistantUrl пуст — тега нет) |
+| 24.09.2026 18:19 | lint | ✅ без ошибок | 16 с | c3ae230 +16 | [лог](logs/2026-09-24T13-19-52Z-lint-4107.log) |  |

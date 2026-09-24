@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
+import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
 import { websiteOpenGraph } from '../lib/metadata';
-import { siteUrl } from '../lib/site';
+import { assistantScriptSrc, siteUrl } from '../lib/site';
 import './tokens.css';
 import './globals.css';
 
@@ -32,6 +33,7 @@ const monoFont = IBM_Plex_Mono({
 });
 
 const t = getDictionary();
+const assistantSrc = assistantScriptSrc();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -66,6 +68,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <SiteFooter />
+        {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
+        {assistantSrc && <Script src={assistantSrc} />}
       </body>
     </html>
   );

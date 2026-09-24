@@ -9,6 +9,7 @@ import {
   housekeepingRefusal,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
+import { assistant } from '@pms/integrations';
 import type {
   Chessboard,
   DeskDay,
@@ -1352,6 +1353,8 @@ let registrationEnabled = true;
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
+/** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
+const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
 
 /**
  * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
@@ -2394,6 +2397,24 @@ createServer(async (req, res) => {
     if (path === '/auth/me') {
       const token = sessionOf(req as never);
       return send(200, { user: (token && uiSessions.get(token)) || null });
+    }
+    // ИИ-помощник (ТЗ П1): подпись только вошедшему — тем же форматом и той же функцией, что у API,
+    // с секретом стенда. Набор `tests/ui/assistant-widget.spec.ts` читает её из тега виджета.
+    if (path === '/assistant/identity') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Подпись помощника выдаётся только вошедшему' });
+      const issuedAt = Math.floor(Date.now() / 1000);
+      return send(200, {
+        token: assistant.signIdentity(FIXTURE_IDENTITY_SECRET, {
+          userId: who.id,
+          email: who.email,
+          organizationId: who.organizationId,
+          role: '',
+          issuedAt,
+        }),
+        expiresAt: new Date((issuedAt + assistant.IDENTITY_TTL_SECONDS) * 1000).toISOString(),
+      });
     }
     // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
     const noContent = () => {

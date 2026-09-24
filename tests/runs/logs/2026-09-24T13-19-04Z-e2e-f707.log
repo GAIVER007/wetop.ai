@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 24.09.2026 18:19 Алматы · vm
+# коммит c3ae230 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/site/landing.spec.ts:13:3 › / — открывается, доступна и без «TODO» на экране (1.7s)
+  ✓  2 tests/site/landing.spec.ts:28:3 › / — на телефоне нет горизонтальной прокрутки (354ms)
+  ✓  3 tests/site/landing.spec.ts:13:3 › /blog/ — открывается, доступна и без «TODO» на экране (906ms)
+  ✓  4 tests/site/landing.spec.ts:28:3 › /blog/ — на телефоне нет горизонтальной прокрутки (256ms)
+  ✓  5 tests/site/landing.spec.ts:41:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (632ms)
+  ✓  6 tests/site/landing.spec.ts:59:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (30ms)
+  ✓  7 tests/site/landing.spec.ts:80:1 › главная: шаги под заявку без снятых обещаний, блог скрыт без статей, подсказка макета внутри карточки, без « · » (2.0s)
+
+  7 passed (19.1s)
+
+# код выхода 0 · 20 с

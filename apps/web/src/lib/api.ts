@@ -38,6 +38,9 @@ export interface InventoryUnit {
   isDorm: boolean;
 }
 
+/** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
+const QUIET_401_PATHS = ['/auth/', '/assistant/identity'];
+
 /** Explicit test/demo sources are isolated from normal and production API access. */
 async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
@@ -83,8 +86,9 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
     );
   }
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
-  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046).
-  if (response.status === 401 && !path.startsWith('/auth/')) {
+  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
+  // тоже: её просит макет на каждой странице, включая сам экран входа, и 401 там значит «чат анонимный».
+  if (response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
     const { redirectToLoginIfRequired } = await import('./session');
     await redirectToLoginIfRequired();
   }
@@ -1227,6 +1231,32 @@ export interface GuardStatus {
   } | null;
   open: { total: number; critical: number; escalated: number };
 }
+/** Подпись вошедшего для виджета ИИ-помощника (ТЗ П1, П2): кладётся в `data-identity` тега */
+export interface AssistantIdentity {
+  token: string;
+  expiresAt: string;
+}
+
+export const assistantApi = {
+  /**
+   * `null` — чат анонимный: не вошёл (401), подпись не настроена (503), API не ответил. Страница из-за чата
+   * не падает и на вход не уводит — макет рисуется и на экране входа.
+   */
+  identity: async (): Promise<AssistantIdentity | null> => {
+    try {
+      const res = await backendFetch('/assistant/identity');
+      if (!res.ok) return null;
+      const body = (await res.json()) as Partial<AssistantIdentity>;
+      return typeof body.token === 'string' && typeof body.expiresAt === 'string'
+        ? { token: body.token, expiresAt: body.expiresAt }
+        : null;
+    } catch (error) {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }
+  },
+};
+
 export const guardApi = {
   status: () => getJson<GuardStatus>('/guard/status'),
   incidents: (status: 'open' | 'all', limit = 100) =>

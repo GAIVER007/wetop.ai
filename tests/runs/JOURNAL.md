@@ -2082,6 +2082,18 @@
 | 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 6 из 6 | 4 с | 99f6880 +1 | [лог](logs/2026-09-24T18-38-04Z-unit-6d09.log) | автовыкладка: red без скрипта |
 | 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 6 | 7 с | 99f6880 +2 | [лог](logs/2026-09-24T18-38-13Z-unit-772e.log) | автовыкладка: green со скриптом |
 | 24.09.2026 23:38 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 6 из 6 | 7 с | 99f6880 +2 | [лог](logs/2026-09-24T18-38-29Z-unit-3153.log) | автовыкладка: green со скриптом |
+| 24.09.2026 22:25 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ❌ упало 8 из 90 | 5 с | c5b9529 +5 | [лог](logs/2026-09-24T17-25-36Z-unit-17ca.log) | ADR-076 red: storozh nochnoy kopii do realizatsii |
+| 24.09.2026 22:27 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ✅ 93 из 93 | 2 с | c5b9529 +13 | [лог](logs/2026-09-24T17-27-35Z-unit-1b05.log) | ADR-076 green: storozh nochnoy kopii |
+| 24.09.2026 22:27 | typecheck | ✅ без ошибок | 24 с | c5b9529 +14 | [лог](logs/2026-09-24T17-27-51Z-typecheck-49e4.log) |  |
+| 24.09.2026 22:28 | lint | ✅ без ошибок | 14 с | c5b9529 +14 | [лог](logs/2026-09-24T17-28-16Z-lint-c892.log) |  |
+| 24.09.2026 22:30 | unit | ✅ 1530 из 1533, пропущено 3 | 1 мин 12 с | c5b9529 +13 | [лог](logs/2026-09-24T17-30-03Z-unit-8529.log) | ADR-076: storozh nochnoy kopii, polnyy nabor |
+| 24.09.2026 22:31 | typecheck | ✅ без ошибок | 17 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-36Z-typecheck-d8f5.log) |  |
+| 24.09.2026 22:31 | lint | ✅ без ошибок | 12 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-53Z-lint-fe48.log) |  |
+| 24.09.2026 22:32 | integration | ✅ 53 из 53 | 17 с | c5b9529 +12 | [лог](logs/2026-09-24T17-32-20Z-integration-3935.log) |  |
+| 24.09.2026 22:36 | typecheck | ✅ без ошибок | 21 с | 2d0e90a | [лог](logs/2026-09-24T17-36-23Z-typecheck-6d53.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | lint | ✅ без ошибок | 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-44Z-lint-f5ba.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | unit | ❌ упало 4 из 1535, пропущено 3 | 1 мин 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-56Z-unit-d1f8.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:39 | integration | ✅ 53 из 53 | 16 с | 2d0e90a | [лог](logs/2026-09-24T17-39-07Z-integration-5909.log) | ADR-077 posle rebase na main s PR 64 |
 | 24.09.2026 22:33 | unit (частично: apps/api/src/inventory/inventory-input.test.ts) | ❌ код выхода 1 | 2 с | e9182f5 +4 | [лог](logs/2026-09-24T17-33-01Z-unit-c651.log) | (файл не выполнился) |
 | 24.09.2026 22:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 2 из 2 | 1 мин 22 с | e9182f5 +22 | [лог](logs/2026-09-24T17-39-57Z-e2e-22e7.log) | category creation, rename, room creation and reload |
 | 24.09.2026 22:42 | unit (частично: apps/api/src/inventory/inventory-input.test.ts apps/api/src/inventory/inventory.controller.test.ts) | ✅ 6 из 6 | 3 с | e9182f5 +21 | [лог](logs/2026-09-24T17-42-26Z-unit-c447.log) |  |
@@ -2120,3 +2132,7 @@
 | 25.09.2026 00:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/design-reference.spec.ts tests/ui/empty-base.spec.ts) | ✅ 83 из 83 | 4 мин 40 с | f7942dd +2 | [лог](logs/2026-09-24T19-54-30Z-e2e-b51c.log) | workspace и эталоны: /rooms → /inventory без обрыва перехода |
 | 25.09.2026 00:59 | integration | ✅ 63 из 63 | 22 с | f7942dd | [лог](logs/2026-09-24T19-59-30Z-integration-85db.log) | итог объединённого дерева |
 | 25.09.2026 01:00 | e2e | ✅ 25 из 25 | 1 мин 8 с | f7942dd +2 | [лог](logs/2026-09-24T20-00-06Z-e2e-d2b3.log) | живые сквозные: итог объединённого дерева |
+| 24.09.2026 23:46 | typecheck | ✅ без ошибок | 24 с | 704a032 | [лог](logs/2026-09-24T18-46-05Z-typecheck-b0ae.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | lint | ✅ без ошибок | 14 с | 704a032 | [лог](logs/2026-09-24T18-46-29Z-lint-3da4.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | unit | ❌ упало 7 из 1538, пропущено 3 | 1 мин 12 с | 704a032 | [лог](logs/2026-09-24T18-46-43Z-unit-041c.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:48 | integration | ✅ 54 из 54 | 17 с | 704a032 | [лог](logs/2026-09-24T18-48-23Z-integration-148c.log) | ADR-078: sliyanie main s PR 66 |

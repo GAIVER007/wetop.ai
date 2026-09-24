@@ -253,3 +253,36 @@ export function channelOversold(input: {
     }
   return out;
 }
+
+/**
+ * Статус последней удачной ночной копии базы (ADR-078). Одну строку JSON пишет `scripts/ops/db-backup.sh` после
+ * проверенной копии. Сторож стойки видит только её: ни самих копий, ни адреса базы.
+ */
+export interface BackupStatus {
+  at: Date;
+  file: string;
+  bytes: number;
+  tables: number;
+}
+
+/** Копия ночная; 26 часов — сутки плюс запас, как у полной выгрузки ARI */
+export const BACKUP_STALE_MS = 26 * 3_600_000;
+
+const positiveInteger = (v: unknown): v is number => Number.isInteger(v) && (v as number) > 0;
+
+/** Разбор строгий: чего не понял — того нет. Тогда сторож скажет «статус не читается», а не «копия свежая». */
+export function parseBackupStatus(text: string): BackupStatus | null {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const { at, file, bytes, tables } = raw as Record<string, unknown>;
+  if (typeof at !== 'string' || Number.isNaN(Date.parse(at))) return null;
+  // только имя файла, без пути: статус описывает копию в своей папке
+  if (typeof file !== 'string' || !/^[\w.-]+$/.test(file) || file.startsWith('.')) return null;
+  if (!positiveInteger(bytes) || !positiveInteger(tables)) return null;
+  return { at: new Date(at), file, bytes, tables };
+}

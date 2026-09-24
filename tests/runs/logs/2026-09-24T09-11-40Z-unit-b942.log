@@ -1,0 +1,40 @@
+# Модульные (unit) · 24.09.2026 14:11 Алматы · vm
+# коммит 3268a94 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-11-40Z-unit-b942.json' 'apps/api/src/web-booking/client-ip.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests | 1 failed) 23ms
+   ❯ clientIp (4)
+     ✓ туннель на той же машине (loopback) — адрес посетителя из CF-Connecting-IP 5ms
+     × туннель соседним контейнером сети compose — тоже из CF-Connecting-IP 14ms
+     ✓ с публичного адреса заголовок не принимается: мимо туннеля чужой адрес им не выбрать 1ms
+     ✓ заголовок не адрес или его нет — считается сам запрос 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/web-booking/client-ip.test.ts > clientIp > туннель соседним контейнером сети compose — тоже из CF-Connecting-IP
+AssertionError: expected '172.18.0.4' to be '203.0.113.10' // Object.is equality
+
+Expected: "203.0.113.10"
+Received: "172.18.0.4"
+
+ ❯ apps/api/src/web-booking/client-ip.test.ts:21:45
+     19|
+     20|   it('туннель соседним контейнером сети compose — тоже из CF-Connectin…
+     21|     expect(clientIp('172.18.0.4', visitor)).toBe(visitor);
+       |                                             ^
+     22|     expect(clientIp('::ffff:172.18.0.4', '198.51.100.7')).toBe('198.51…
+     23|     expect(clientIp('10.0.2.5', visitor)).toBe(visitor);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  09:11:41
+   Duration  231ms (transform 47%, tests 28%, import 20%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-11-40Z-unit-b942.json
+
+# код выхода 1 · 1 с

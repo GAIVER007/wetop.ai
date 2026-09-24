@@ -1,0 +1,36 @@
+# Модульные (unit) · 24.09.2026 14:11 Алматы · vm
+# коммит 3268a94 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-11-16Z-unit-4a7d.json' 'tests/unit/local-db-migrate-target.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/local-db-migrate-target.test.ts (1 test | 1 failed) 42ms
+   × local-db start migrates the local database even when .env carries DIRECT_URL 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/local-db-migrate-target.test.ts > local-db start migrates the local database even when .env carries DIRECT_URL
+AssertionError: expected 'postgresql://<email>…' to be 'postgresql://postgres@127.0.0.1:55443…' // Object.is equality
+
+Expected: "postgresql://postgres@127.0.0.1:55443/pmslocal"
+Received: "postgresql://<email>:5432/postgres"
+
+ ❯ tests/unit/local-db-migrate-target.test.ts:51:70
+     49|     });
+     50|     expect(result.status, result.stdout + result.stderr).toBe(0);
+     51|     expect(readFileSync(join(dir, 'migrate-target'), 'utf8').trim()).t…
+       |                                                                      ^
+     52|       'postgresql://postgres@127.0.0.1:55443/pmslocal',
+     53|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:11:17
+   Duration  251ms (tests 45%, transform 38%, import 13%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-11-16Z-unit-4a7d.json
+
+# код выхода 1 · 1 с

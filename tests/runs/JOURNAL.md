@@ -1816,3 +1816,19 @@
 | 24.09.2026 12:33 | integration | ❌ код выхода 1 | 2 с | 17ea117 | [лог](logs/2026-09-24T07-33-41Z-integration-14ab.log) | слияние origin/main |
 | 24.09.2026 12:34 | e2e | ✅ 25 из 25 | 1 мин 3 с | 17ea117 | [лог](logs/2026-09-24T07-34-25Z-e2e-d671.log) | слияние origin/main: живые сквозные (повтор: база не встала — порт был занят) |
 | 24.09.2026 12:35 | integration | ✅ 47 из 47 | 16 с | 17ea117 | [лог](logs/2026-09-24T07-35-28Z-integration-793d.log) | слияние origin/main |
+| 24.09.2026 14:11 | unit (частично: tests/unit/local-db-migrate-target.test.ts) | ❌ упало 1 из 1 | 1 с | 3268a94 +1 | [лог](logs/2026-09-24T09-11-16Z-unit-4a7d.log) | red: local-db migrates to DIRECT_URL from .env (SECURITY §8) |
+| 24.09.2026 14:11 | unit (частично: tests/unit/local-db-migrate-target.test.ts tests/unit/local-db-start.test.ts) | ✅ 2 из 2 | 1 с | 3268a94 +2 | [лог](logs/2026-09-24T09-11-25Z-unit-fe8b.log) | green: local-db pins DIRECT_URL to the local database |
+| 24.09.2026 14:11 | unit (частично: apps/api/src/web-booking/client-ip.test.ts) | ❌ упало 1 из 4 | 1 с | 3268a94 +3 | [лог](logs/2026-09-24T09-11-40Z-unit-b942.log) | red: behind the compose tunnel every site visitor shares one IP (SECURITY §11) |
+| 24.09.2026 14:11 | unit (частично: apps/api/src/web-booking/) | ✅ 16 из 16 | 3 с | 3268a94 +4 | [лог](logs/2026-09-24T09-11-54Z-unit-1be7.log) | green: CF-Connecting-IP trusted from the compose tunnel network |
+| 24.09.2026 14:12 | unit (частично: packages/integrations/src/mail/resend.test.ts) | ❌ упало 1 из 15 | 1 с | 3268a94 +5 | [лог](logs/2026-09-24T09-12-20Z-unit-172c.log) | red: Resend error text carries e-mail addresses (SECURITY §11) |
+| 24.09.2026 14:12 | unit (частично: packages/integrations/src/mail/) | ✅ 26 из 26 | 1 с | 3268a94 +6 | [лог](logs/2026-09-24T09-12-33Z-unit-caec.log) | green: mail errors mask e-mail addresses |
+| 24.09.2026 14:12 | unit | ✅ 1470 из 1473, пропущено 3 | 1 мин 25 с | 3268a94 +6 | [лог](logs/2026-09-24T09-12-46Z-unit-afbc.log) | SECURITY.md check 24.09: full unit after three fixes |
+| 24.09.2026 14:16 | unit (частично: tests/unit/test-journal.test.ts) | ❌ упало 1 из 22 | 2 с | 3268a94 +8 | [лог](logs/2026-09-24T09-16-07Z-unit-9c6c.log) | red: log masker misses ANONYMIZE_SALT and WEB_SESSION_COOKIE (SECURITY §3) |
+| 24.09.2026 14:16 | unit (частично: tests/unit/test-journal.test.ts) | ✅ 22 из 22 | 2 с | 3268a94 +9 | [лог](logs/2026-09-24T09-16-16Z-unit-fb79.log) | green: masker hides salt and session cookie values |
+| 24.09.2026 14:16 | typecheck | ✅ без ошибок | 27 с | 3268a94 +9 | [лог](logs/2026-09-24T09-16-29Z-typecheck-3949.log) | SECURITY.md check 24.09 |
+| 24.09.2026 14:16 | lint | ✅ без ошибок | 16 с | 3268a94 +9 | [лог](logs/2026-09-24T09-16-56Z-lint-f3eb.log) | SECURITY.md check 24.09 |
+| 24.09.2026 14:18 | integration | ✅ 47 из 47 | 15 с | 3268a94 +6 | [лог](logs/2026-09-24T09-18-51Z-integration-16fd.log) | SECURITY.md check 24.09, local PostgreSQL 16 |
+| 24.09.2026 14:19 | e2e | ✅ 25 из 25 | 1 мин 29 с | 3268a94 +6 | [лог](logs/2026-09-24T09-19-11Z-e2e-23ec.log) | SECURITY.md check 24.09, local PostgreSQL 16, production build |
+| 24.09.2026 14:20 | unit | ✅ 1471 из 1474, пропущено 3 | 1 мин 12 с | 3268a94 +9 | [лог](logs/2026-09-24T09-20-47Z-unit-a11a.log) | SECURITY.md check 24.09: final tree |
+| 24.09.2026 14:21 | typecheck | ✅ без ошибок | 26 с | 3268a94 +9 | [лог](logs/2026-09-24T09-21-59Z-typecheck-07ab.log) | SECURITY.md check 24.09: final tree |
+| 24.09.2026 14:22 | lint | ✅ без ошибок | 14 с | 3268a94 +9 | [лог](logs/2026-09-24T09-22-26Z-lint-0171.log) | SECURITY.md check 24.09: final tree |

@@ -204,7 +204,8 @@ export function stripAnsi(text: string): string {
   return text.replace(ANSI, '').replace(/\r\n/g, '\n');
 }
 
-const SECRET_NAME = /KEY|SECRET|TOKEN|PASSWORD|PASSWD|DATABASE_URL|DIRECT_URL/i;
+// SALT — соль обезличивания гостей (ADR-018), COOKIE — живая сессия стойки (scripts/lib/desk-page.ts)
+const SECRET_NAME = /KEY|SECRET|TOKEN|PASSWORD|PASSWD|SALT|COOKIE|DATABASE_URL|DIRECT_URL/i;
 
 /** Значения переменных-секретов: они маскируются в логе дословно, где бы ни встретились */
 export function secretValuesFromEnv(env: Readonly<Record<string, string | undefined>>): string[] {

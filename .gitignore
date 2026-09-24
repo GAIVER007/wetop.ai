@@ -5,6 +5,8 @@
 *.pem
 *.key
 .n8n_token
+# Ключи интеграций (SECURITY.md §3; агенту закрыт и на чтение — .claude/settings.json)
+secrets/
 
 # Ключ туннеля на сервере — обычный .json рядом с конфигом, под *.pem и *.key не попадает
 deploy/cloudflared/
@@ -24,7 +26,9 @@ project-input/exely/*
 !project-input/exely/.gitkeep
 # Аудит 07.09.2026 — проверено: данных гостей (ФИО, телефоны, email, документы) нет.
 # Содержит рабочие email сотрудников и финансовые показатели объекта.
+# Только разборы .md: таблица или выгрузка, положенная в эту папку, в git не уезжает (проверка 24.09.2026)
 !project-input/exely/audit-2026-09-07/
+project-input/exely/audit-2026-09-07/*
 !project-input/exely/audit-2026-09-07/*.md
 project-input/exely-screens/*
 !project-input/exely-screens/README.md

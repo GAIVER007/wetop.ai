@@ -342,8 +342,8 @@ describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.m
     const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
 
     const updated = await c.updateProperty('prop-1', {
-      phone: '+7 777 187 77 65',
-      email: 'luxxaparts@gmail.com',
+      phone: '+7 700 000 00 00',
+      email: 'hostel@example.com',
       content: { description: 'Хостел в центре Алматы' },
     });
     expect(updated.id).toBe('prop-1');
@@ -351,8 +351,8 @@ describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.m
     expect(f.calls[0]!.url).toBe('https://staging.channex.io/api/v1/properties/prop-1');
     expect(JSON.parse(f.calls[0]!.init.body as string)).toEqual({
       property: {
-        phone: '+7 777 187 77 65',
-        email: 'luxxaparts@gmail.com',
+        phone: '+7 700 000 00 00',
+        email: 'hostel@example.com',
         content: { description: 'Хостел в центре Алматы' },
       },
     });

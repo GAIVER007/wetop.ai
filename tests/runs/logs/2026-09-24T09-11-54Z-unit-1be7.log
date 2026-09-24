@@ -1,0 +1,17 @@
+# Модульные (unit) · 24.09.2026 14:11 Алматы · vm
+# коммит 3268a94 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-11-54Z-unit-1be7.json' 'apps/api/src/web-booking/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (12 tests) 238ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  09:11:54
+   Duration  2.28s (transform 61%, import 27%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-11-54Z-unit-1be7.json
+
+# код выхода 0 · 3 с

@@ -4,7 +4,7 @@
  *
  * Ключ уходит только в заголовок запроса. В текст ошибки он не попадает никогда: ошибки
  * доходят до журнала и до экрана, а туда ключам нельзя (SECURITY.md §3, AGENTS.md §7).
- * Подстраховка на случай, если Resend вернёт ключ в своём сообщении, — `hideKey`.
+ * Подстраховка на случай, если Resend вернёт ключ или адрес почты в своём сообщении, — `scrub`.
  */
 
 import { MailError, type MailConfig, type MailMessage, type MailSender } from './sender';
@@ -78,7 +78,7 @@ export class ResendMailSender implements MailSender {
     } catch (e) {
       // Сеть не ответила. Отличить «не дошло» от «дошло, но ответ потерялся» нельзя,
       // поэтому повтор безопасен только с ключом идемпотентности — он у нас есть.
-      throw new MailError(this.hideKey(`сеть — ${(e as Error).message}`), true);
+      throw new MailError(this.scrub(`сеть — ${(e as Error).message}`), true);
     }
 
     if (res.ok) return;
@@ -91,13 +91,18 @@ export class ResendMailSender implements MailSender {
     const body = (await res.json().catch(() => ({}))) as ResendError;
     const what = body.name ?? 'без имени';
     throw new MailError(
-      this.hideKey(`Resend HTTP ${res.status} (${what}): ${body.message ?? 'без описания'}`),
+      this.scrub(`Resend HTTP ${res.status} (${what}): ${body.message ?? 'без описания'}`),
       retriable(res.status),
     );
   }
 
-  private hideKey(message: string): string {
+  /**
+   * Текст ошибки уходит в журнал API и на экран: без ключа и без адресов почты. Адрес — персональные данные
+   * (SECURITY.md §11), а своё сообщение Resend пишет как хочет и может назвать в нём и получателя, и владельца аккаунта.
+   */
+  private scrub(message: string): string {
     const key = this.opts.config.apiKey;
-    return key ? message.split(key).join('<ключ>') : message;
+    const withoutKey = key ? message.split(key).join('<ключ>') : message;
+    return withoutKey.replace(/[^\s<>()[\]"'`,;:@]+@[^\s<>()[\]"'`,;:@]+/g, '<почта>');
   }
 }

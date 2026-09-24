@@ -5,6 +5,8 @@
  * неисправность не разобрать.
  */
 
+import { maskContacts } from '@pms/shared';
+
 const MAX_TEXT = 500;
 const MAX_DEPTH = 4;
 const MAX_ITEMS = 20;
@@ -14,13 +16,20 @@ const PII_KEY =
   /name|surname|phone|e-?mail|mail|passport|document|birth|address|card|guarantee|cvv|customer|guest|token|secret|password|api[-_]?key/i;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function redactText(text: string): string {
-  const masked = text
-    .replace(/eyJ[\w-]+\.[\w-]+\.[\w-]+/g, '[jwt]')
-    .replace(/\b(Bearer|Basic)\s+\S+/gi, '$1 [скрыто]')
-    .replace(/(\w+:\/\/[^\s:/@]+:)[^\s@/]+@/g, '$1***@')
-    .replace(/[A-Za-z0-9_-]{32,}/g, (m) => (UUID.test(m) ? m : `${m.slice(0, 4)}…`));
-  return masked.length > MAX_TEXT ? `${masked.slice(0, MAX_TEXT)}…` : masked;
+/**
+ * Текст ошибки, неисправности или сообщения без секретов и без контактов гостя. Пароль в строке подключения
+ * снимается раньше почты — иначе `user:пароль@хост` целиком ушёл бы в `<почта>`, и хост было бы не узнать.
+ * `max` — длина: 500 для неисправностей, для `last_error` (колонка на экране событий) — своя.
+ */
+export function redactText(text: string, max = MAX_TEXT): string {
+  const masked = maskContacts(
+    text
+      .replace(/eyJ[\w-]+\.[\w-]+\.[\w-]+/g, '[jwt]')
+      .replace(/\b(Bearer|Basic)\s+\S+/gi, '$1 [скрыто]')
+      .replace(/(\w+:\/\/[^\s:/@]+:)[^\s@/]+@/g, '$1***@')
+      .replace(/[A-Za-z0-9_-]{32,}/g, (m) => (UUID.test(m) ? m : `${m.slice(0, 4)}…`)),
+  );
+  return masked.length > max ? `${masked.slice(0, max)}…` : masked;
 }
 
 export function redactDetails(value: unknown, depth = 0): unknown {

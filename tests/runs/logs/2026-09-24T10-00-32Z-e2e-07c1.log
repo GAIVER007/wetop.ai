@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 24.09.2026 15:00 Алматы · vm
+# коммит 9108e40 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/pii-storage.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (6.2s)
+  ✓  2 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.4s)
+  ✘  3 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (16.9s)
+
+
+  1) tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('edit-reservation-form').locator('textarea[name="notes"]')
+    Expected pattern: /без имён и телефонов гостя/
+    Received string:  "Заметки"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('edit-reservation-form').locator('textarea[name="notes"]') with timeout 15000ms
+      - waiting for getByTestId('edit-reservation-form').locator('textarea[name="notes"]')
+        34 × locator resolved to <textarea rows="2" name="notes" class="inp inp--grow" placeholder="Заметки">Пожелание: тихая комната</textarea>
+           - unexpected value "Заметки"
+
+
+      80 |   await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+      81 |   const notes = page.getByTestId('edit-reservation-form').locator('textarea[name="notes"]');
+    > 82 |   await expect(notes).toHaveAttribute('placeholder', /без имён и телефонов гостя/);
+         |                       ^
+      83 |
+      84 |   await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'real' } });
+      85 |   await page.reload();
+        at /home/user/wetop.ai/tests/ui/pii-storage.spec.ts:82:23
+
+    Error Context: test-results/pii-storage-Q-169-у-заметк-7dc99-лефонов-база-в-РК-—-без-неё/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pii-storage-Q-169-у-заметк-7dc99-лефонов-база-в-РК-—-без-неё/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pii-storage-Q-169-у-заметк-7dc99-лефонов-база-в-РК-—-без-неё/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё 
+  2 passed (50.4s)
+
+# код выхода 1 · 52 с

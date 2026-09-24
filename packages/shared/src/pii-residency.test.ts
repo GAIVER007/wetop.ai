@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   AnonymizeSaltMissingError,
   deskGuestForStorage,
+  freeTextForStorage,
   guestForStorage,
+  maskContacts,
   piiStorageMode,
   pseudonymSalt,
   realPiiAllowed,
@@ -129,5 +131,29 @@ describe('гость, введённый стойкой руками (ADR-072)',
       email: null,
     });
     expect(piiStorageMode(real)).toBe('real');
+  });
+});
+
+/** Q-169: почта и телефоны в свободном тексте (заметка брони, комментарий гостя, текст ошибки) */
+describe('maskContacts, freeTextForStorage', () => {
+  it('маскирует почту и телефоны: местные, международные, со скобками и дефисами', () => {
+    expect(
+      maskContacts(
+        'звонить +7 701 234 56 78, 8 (777) 123-45-67 или 87012345678; London +44 20 7946 0958; guest.test@example.com',
+      ),
+    ).toBe('звонить <телефон>, <телефон> или <телефон>; London <телефон>; <почта>');
+  });
+
+  it('номера броней, даты, суммы и время не трогает', () => {
+    const text = 'бронь 20260912-ABC123, BDC-9996013801, код 9996013801, заезд 2026-11-10 в 14:00, доплата 5 000 ₸';
+    expect(maskContacts(text)).toBe(text);
+  });
+
+  it('пока база не в РК — текст с маской; PII_STORAGE=real — как введён; пусто остаётся пустым', () => {
+    const note = 'перезвонить +7 701 234 56 78';
+    expect(freeTextForStorage(note, {})).toBe('перезвонить <телефон>');
+    expect(freeTextForStorage(note, { PII_STORAGE: 'real' })).toBe(note);
+    expect(freeTextForStorage(null, {})).toBeNull();
+    expect(freeTextForStorage(undefined, {})).toBeNull();
   });
 });

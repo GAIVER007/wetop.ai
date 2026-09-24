@@ -6,6 +6,7 @@ import {
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
+import { redactText } from '@pms/domain';
 import { PROVIDER } from './ari-publisher';
 import { ARI_STOPPED_MESSAGE, isAriStopped } from './ari-switch';
 import {
@@ -91,8 +92,12 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
           const taskId = res.data[0]?.id ?? null;
           // ari.md «Warning Notifications»: неверные значения Channex выбрасывает и отвечает 200 — не молчать (Б4)
           const warnings = Array.isArray(res.meta?.warnings) ? res.meta.warnings : [];
+          // SECURITY.md §7: в last_error очереди — без контактов и секретов, даже если Channex их повторит
           const warning = warnings.length
-            ? `Channex отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`
+            ? redactText(
+                `Channex отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`,
+                2000,
+              )
             : null;
           if (warning) new Logger(OutboxWorker.name).error(warning.slice(0, 2000));
           await this.repo.markOutboxSent(
@@ -111,7 +116,7 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
         } catch (e) {
           const attempts = Math.max(...rows.map((r) => r.attempts)) + 1;
           const retryAt = new Date(this.now() + backoffMs(attempts));
-          const message = e instanceof Error ? e.message : String(e);
+          const message = redactText(e instanceof Error ? e.message : String(e), 1000);
           await this.repo.markOutboxRetry(
             rows.map((r) => r.id),
             message,

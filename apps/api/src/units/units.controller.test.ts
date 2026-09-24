@@ -183,10 +183,30 @@ describe('units API: blocks and housekeeping', () => {
       { categoryCodes: ['exely-900001'], from: '2026-10-08', toExclusive: '2026-10-10' },
     ]);
     await request(app.getHttpServer()).delete('/units/9001/blocks/blk1').expect(200);
+
     expect(fakes.blocks).toHaveLength(0);
     expect(fakes.published).toHaveLength(2);
     await request(app.getHttpServer()).delete('/units/9001/blocks/blk1').expect(404);
     expect(fakes.audits).toEqual(['unit.block', 'unit.unblock']);
+    // Q-169: пока база не в РК, почта и телефоны в причине блокировки маскируются
+    const piiBefore = process.env.PII_STORAGE;
+    delete process.env.PII_STORAGE;
+    try {
+      const masked = await request(app.getHttpServer())
+        .post('/units/9001/blocks')
+        .send({
+          dateFrom: '2026-10-12',
+          dateTo: '2026-10-13',
+          type: 'MAINTENANCE',
+          reason: 'мастер, звонить +7 701 234 56 78',
+        })
+        .expect(201);
+      expect(JSON.stringify(masked.body)).not.toContain('701 234 56 78');
+      expect(JSON.stringify(masked.body)).toContain('мастер, звонить <телефон>');
+    } finally {
+      if (piiBefore === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = piiBefore;
+    }
   });
   it('housekeeping status change is recorded once per change', async () => {
     const r = await request(app.getHttpServer())

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { channex } from '@pms/integrations';
 import { CHESSBOARD_REPOSITORY } from '../chessboard/chessboard.repository';
 import { PrismaService } from '../database/prisma.provider';
@@ -219,6 +219,9 @@ function makeFakes() {
       return id('g');
     },
     async createReservation(input) {
+      // ошибка записи с данными гостя в тексте — как у Prisma, которая печатает аргументы (SECURITY.md §7)
+      if (input.confirmationNumber === 'BDC-FAIL-PII')
+        throw new Error('Invalid value for notes: call +7 700 000 00 00, write test.guest@example.com');
       const rid = id('r');
       const items = input.items.map((it) => ({
         id: id('i'),
@@ -1106,6 +1109,103 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .expect(200);
     expect(retried.body).toMatchObject({ result: 'created', confirmationNumber: 'BDC-CEIL' });
     expect(fakes.acks).toContain('rev-ceiling');
+  });
+
+  it('ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК', async () => {
+    // Проверка по SECURITY.md 24.09.2026: гостя обезличивали, а ревизию целиком клали в external_events.payload
+    fakes.setFeed([
+      revision({ id: 'rev-pii-payload', unique_id: 'BDC-PII-P', raw_message: 'RAW-OTA-MESSAGE', agent: 'AGENT-X' }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-pii-payload'))!;
+    const stored = JSON.stringify(ev.payload);
+    const customer = revision().attributes.customer!;
+    for (const value of [customer.name!, customer.surname!, customer.mail!, customer.phone!])
+      expect(stored).not.toContain(value);
+    expect(stored).not.toContain('"guests"');
+    expect(stored).not.toContain('quiet room please');
+    expect(stored).not.toContain('411111');
+    expect(stored).not.toContain('RAW-OTA-MESSAGE');
+    expect(stored).not.toContain('AGENT-X');
+    // то, что читают экран «Приём брони» и поиск по номеру, остаётся
+    expect(ev.payload).toMatchObject({
+      unique_id: 'BDC-PII-P',
+      ota_name: 'Booking.com',
+      ota_reservation_code: '9996013801',
+      arrival_date: '2026-11-10',
+      departure_date: '2026-11-12',
+      amount: '30800.00',
+      currency: 'KZT',
+      customer: { country: 'NL' },
+    });
+    expect((ev.payload as { rooms: unknown[] }).rooms[0]).toMatchObject({
+      checkin_date: '2026-11-10',
+      room_type_id: 'rt-2',
+      rate_plan_id: 'rp-3',
+      amount: '30800.00',
+    });
+  });
+
+  it('PII_STORAGE=real (база в РК): ревизия хранится целиком, кроме карты', async () => {
+    process.env.PII_STORAGE = 'real';
+    try {
+      fakes.setFeed([revision({ id: 'rev-real', unique_id: 'BDC-REAL', raw_message: 'RAW-OTA-MESSAGE' })]);
+      await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+      const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-real'))!;
+      const customer = revision().attributes.customer!;
+      expect(ev.payload).toMatchObject({ customer: { name: customer.name, mail: customer.mail } });
+      expect(JSON.stringify(ev.payload)).not.toContain('411111');
+      // исходное сообщение площадки может нести карту — не хранится и в РК
+      expect(JSON.stringify(ev.payload)).not.toContain('RAW-OTA-MESSAGE');
+    } finally {
+      delete process.env.PII_STORAGE;
+    }
+  });
+
+  it('ADR-018: событие не о брони — в журнале только идентификаторы, текст гостя не хранится', async () => {
+    await request(app.getHttpServer())
+      .post('/channels/channex/webhook')
+      .set('x-channex-webhook-secret', 'test-webhook-secret')
+      .send({
+        event: 'message',
+        property_id: 'prop-1',
+        timestamp: '2026-09-24T10:00:00Z',
+        payload: {
+          booking_id: 'bk-1',
+          message: 'Позвоните мне: +7 700 000 00 00, test.guest@example.com',
+          message_thread_id: 'thread-1',
+          sender: 'guest',
+        },
+      })
+      .expect(200);
+    await vi.waitFor(() => expect([...fakes.events.values()].some((e) => e.type === 'message')).toBe(true));
+    const ev = [...fakes.events.values()].find((e) => e.type === 'message')!;
+    expect(JSON.stringify(ev.payload)).not.toContain('Позвоните');
+    expect(ev.payload).toMatchObject({ booking_id: 'bk-1', message_thread_id: 'thread-1' });
+  });
+
+  it('Q-169: пока база не в РК, почта и телефоны в заметке канала маскируются', async () => {
+    fakes.setFeed([
+      revision({
+        id: 'rev-notes',
+        unique_id: 'BDC-NOTES',
+        notes: 'Late arrival, call +44 20 7946 0958 or mail guest.test@example.com',
+      }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect([...fakes.reservations.values()][0]!.notes).toBe('Late arrival, call <телефон> or mail <почта>');
+  });
+
+  it('SECURITY.md §7: текст ошибки разбора ревизии пишется в last_error без почты и телефонов', async () => {
+    fakes.setFeed([revision({ id: 'rev-fail-pii', unique_id: 'BDC-FAIL-PII' })]);
+    const r = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-fail-pii'))!;
+    expect(ev.status).toBe('FAILED');
+    for (const text of [ev.lastError ?? '', JSON.stringify(r.body)]) {
+      expect(text).not.toContain('700 000 00 00');
+      expect(text).not.toContain('test.guest@example.com');
+    }
+    expect(ev.lastError).toContain('<телефон>');
   });
 
   it('ADR-018: настоящие имя, телефон и почта гостя канала в базу не попадают', async () => {

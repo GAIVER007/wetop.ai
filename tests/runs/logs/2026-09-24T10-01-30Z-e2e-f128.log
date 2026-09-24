@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 24.09.2026 15:01 Алматы · vm
+# коммит 9108e40 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/pii-storage.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (3.3s)
+  ✓  2 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.0s)
+  ✓  3 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (3.1s)
+
+  3 passed (12.7s)
+
+# код выхода 0 · 14 с

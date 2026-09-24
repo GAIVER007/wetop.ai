@@ -424,6 +424,38 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(fakes.audits).toEqual(['finance.payment']);
   });
 
+  it('Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются', async () => {
+    const before = process.env.PII_STORAGE;
+    delete process.env.PII_STORAGE;
+    try {
+      const charge = await request(app.getHttpServer())
+        .post('/finance/folios/f1/charges')
+        .send({ kind: 'ADJUSTMENT', description: 'Скидка по звонку +7 701 234 56 78', unitPrice: '-100' })
+        .expect(201);
+      const pay = await request(app.getHttpServer())
+        .post('/finance/payments')
+        .send({
+          method: 'KASPI',
+          amount: '1000',
+          note: 'чек на guest.test@example.com',
+          allocations: [{ folioId: 'f1', amount: '1000' }],
+        })
+        .expect(201);
+      const paymentId: string = pay.body.folios[0].payments[0].paymentId;
+      const refund = await request(app.getHttpServer())
+        .post(`/finance/payments/${paymentId}/refunds`)
+        .send({ folioId: 'f1', amount: '500', reason: 'вернуть на 8 777 123 45 67' })
+        .expect(201);
+      const all = JSON.stringify([charge.body, pay.body, refund.body]);
+      for (const raw of ['701 234 56 78', 'guest.test@example.com', '777 123 45 67']) expect(all).not.toContain(raw);
+      expect(all).toContain('Скидка по звонку <телефон>');
+      expect(all).toContain('чек на <почта>');
+    } finally {
+      if (before === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = before;
+    }
+  });
+
   it('refund: only from a payment that was allocated to this folio, not more than allocated − refunded', async () => {
     const pay = await request(app.getHttpServer())
       .post('/finance/payments')

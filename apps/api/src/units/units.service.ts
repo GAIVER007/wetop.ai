@@ -7,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { housekeepingRefusal } from '@pms/domain';
+import { freeTextForStorage } from '@pms/shared';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import {
   UNITS_REPOSITORY,
@@ -78,7 +79,8 @@ export class UnitsService {
       dateFrom: dto.dateFrom!,
       dateTo: dto.dateTo!,
       type: dto.type as BlockType,
-      reason: dto.reason?.trim() || null,
+      // Q-169: пока база не в РК, почта и телефоны в причине маскируются
+      reason: freeTextForStorage(dto.reason?.trim() || null),
     });
     const after = await this.card(code);
     await this.repo.audit(unit.id, 'unit.block', before?.blocks ?? [], { blockId: id, ...dto });

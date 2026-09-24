@@ -17,6 +17,7 @@ import {
   stayExtraPercent,
   adjacentNight,
 } from '@pms/domain';
+import { freeTextForStorage } from '@pms/shared';
 import {
   FINANCE_REPOSITORY,
   MANUAL_CHARGE_KINDS,
@@ -344,7 +345,8 @@ export class FinanceService {
     const folio = await this.openFolio(folioId);
 
     let serviceId: string | null = null;
-    let description = dto.description?.trim() ?? '';
+    // Q-169: пока база не в РК, почта и телефоны в тексте, который набирает стойка, маскируются
+    let description = freeTextForStorage(dto.description?.trim() ?? '') ?? '';
     let unitPriceMinor: bigint;
     if (kind === 'SERVICE') {
       if (!dto.serviceCode) throw new BadRequestException('serviceCode — услуга из справочника');
@@ -557,7 +559,7 @@ export class FinanceService {
         amountMinor,
         currency,
         paidAt: dto.paidAt ?? null,
-        note: dto.note?.trim() || null,
+        note: freeTextForStorage(dto.note?.trim() || null),
         allocations,
       },
       {
@@ -602,7 +604,7 @@ export class FinanceService {
         paymentId,
         folioId: dto.folioId,
         amountMinor: refundMinor,
-        reason: dto.reason?.trim() || null,
+        reason: freeTextForStorage(dto.reason?.trim() || null),
       },
       {
         entityType: 'Payment',

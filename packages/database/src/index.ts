@@ -35,7 +35,8 @@ export function createPrismaClient(
     },
     schema ? { schema } : undefined,
   );
-  return new PrismaClient({ adapter });
+  // SECURITY.md §7: без аргументов вызова в тексте ошибки — заметка брони или имя гостя не уедут в last_error и журнал
+  return new PrismaClient({ adapter, errorFormat: 'minimal' });
 }
 
 export type Db = PrismaClient;

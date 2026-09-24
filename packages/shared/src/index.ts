@@ -14,7 +14,9 @@ export type { DataConnection } from './data-connection';
 export { encryptPii, decryptPii, maskNumber, PiiKeyMissingError } from './pii-crypto';
 export {
   deskGuestForStorage,
+  freeTextForStorage,
   guestForStorage,
+  maskContacts,
   piiStorageMode,
   pseudonymizeGuest,
   realPiiAllowed,

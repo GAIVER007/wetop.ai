@@ -83,6 +83,37 @@ export function guestForStorage(
   return pseudonymizeGuest(contacts, key, pseudonymSalt(env));
 }
 
+/** Почта в свободном тексте */
+const EMAIL_IN_TEXT = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+/** Международный номер: «+», код страны и ещё не меньше шести цифр, с пробелами, скобками, точками и дефисами */
+const PHONE_INTL = /(?<![\w+])\+\d[\d\s().-]{6,}\d(?!\w)/g;
+/** Казахстанский или российский номер без «+»: 11 цифр на 7 или 8. Номер брони канала после «BDC-» не задевается */
+const PHONE_LOCAL = /(?<![\w-])[78][\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}(?![\w-])/g;
+
+/**
+ * Почта и телефоны в свободном тексте заменяются на `<почта>` и `<телефон>` (Q-169, SECURITY.md §2, §7).
+ * Номера броней, даты, суммы и время остаются. Имена так не поймать — от них защищает только подсказка у поля.
+ */
+export function maskContacts(text: string): string {
+  return text
+    .replace(EMAIL_IN_TEXT, '<почта>')
+    .replace(PHONE_INTL, '<телефон>')
+    .replace(PHONE_LOCAL, '<телефон>');
+}
+
+/**
+ * Свободный текст — заметка брони, заметка канала, комментарий гостя с сайта, назначение начисления — в том виде,
+ * в каком его можно записать в текущую базу (Q-169, решение 24.09.2026): PII_STORAGE=real — как введён, иначе
+ * с маской на почте и телефонах.
+ */
+export function freeTextForStorage(
+  text: string | null | undefined,
+  env: NodeJS.ProcessEnv = process.env,
+): string | null {
+  if (text === null || text === undefined) return null;
+  return realPiiAllowed(env) ? text : maskContacts(text);
+}
+
 /** Какие данные гостей хранит эта база: `real` — как введено (база в РК), иначе только псевдонимы. */
 export function piiStorageMode(env: NodeJS.ProcessEnv = process.env): 'real' | 'pseudonymized' {
   return realPiiAllowed(env) ? 'real' : 'pseudonymized';

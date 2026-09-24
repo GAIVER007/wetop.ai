@@ -114,7 +114,7 @@ export class AssistantController {
 
     const rows = await this.userErrors.list({ userId, organizationId, since, limit });
     // Обёртка `items`, а не голый список и не `errors`: бот считает непустое поле `errors` в теле отказом, и удачный
-    // ответ читался бы как сбой (ТЗ ред. 1 на ветке `ai-seller`, П4; `src/integrations/wetop.py`)
+    // ответ читался бы как сбой (ТЗ ред. 1, П4; `apps/ai-seller/src/integrations/wetop.py`)
     return {
       items: rows.map((r) => ({
         at: r.at.toISOString(),

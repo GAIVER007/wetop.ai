@@ -4,7 +4,7 @@ import { IDENTITY_TTL_SECONDS, identityPayload, signIdentity } from './identity'
 
 /**
  * Подпись вошедшего для помощника (ТЗ ред. 1, П1; docs/assistant/README.md §1). Формат задаёт бот
- * (`src/channels/widget_identity.py` на ветке `ai-seller`): он подпись только проверяет, поэтому
+ * (`apps/ai-seller/src/channels/widget_identity.py`): он подпись только проверяет, поэтому
  * любое расхождение в байтах превращает вошедшего в анонима — без ошибки и без записи в журнале.
  */
 

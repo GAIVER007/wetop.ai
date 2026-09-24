@@ -58,7 +58,7 @@ const KNOWLEDGE_TYPES: Readonly<Record<string, string>> = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
-/** Как у продавца (`kb_max_file_mb = 10` на ветке `ai-seller`): больше он всё равно не примет */
+/** Как у продавца (`kb_max_file_mb = 10`, `apps/ai-seller/src/config.py`): больше он всё равно не примет */
 export const KNOWLEDGE_MAX_BYTES = 10 * 1024 * 1024;
 const REPLY_MAX = 4000;
 const SANDBOX_MAX = 2000;

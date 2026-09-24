@@ -957,6 +957,7 @@ model Organization {
   sessions    Session[]
   invites     Invite[]
   properties  Property[]
+  userErrors  UserError[]
 
   @@map("organizations")
 }
@@ -987,6 +988,7 @@ model User {
   passwordResets PasswordReset[]
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
+  userErrors     UserError[]
 
   @@map("users")
 }
@@ -1073,4 +1075,28 @@ model Invite {
 
   @@index([organizationId])
   @@map("invites")
+}
+
+// ───────────────────────── §14 Ошибки, которые видит человек ─────────────────────────
+
+/// Ответ API с ошибкой (4xx, 5xx), который получил вошедший человек (DATA_MODEL §14, ТЗ ред. 1 П3, ADR-075).
+/// Читает ИИ-помощник по узкому ключу. Время ставит приложение — у колонки нет DEFAULT; CHECK status 400…599 — в миграции.
+/// Тела запроса, значений из адреса и данных гостей нет по построению: маршрут шаблоном, текст ответа с маской.
+model UserError {
+  id             String   @id @default(uuid()) @db.Uuid
+  at             DateTime @db.Timestamptz(6)
+  userId         String   @map("user_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  method         String   @db.VarChar(10)
+  route          String   @db.VarChar(200)
+  status         Int      @db.SmallInt
+  message        String   @db.VarChar(500)
+  requestId      String   @map("request_id") @db.Uuid
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, organizationId, at])
+  @@index([at])
+  @@map("user_errors")
 }

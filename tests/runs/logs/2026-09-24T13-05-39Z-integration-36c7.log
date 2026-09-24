@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 24.09.2026 18:05 Алматы · vm
+# коммит 987ef55 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T13-05-39Z-integration-36c7.json' 'tests/integration/db-backup-restore.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 1042ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 736ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:05:40
+   Duration  2.63s (tests 88%, import 11%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T13-05-39Z-integration-36c7.json
+
+# код выхода 0 · 4 с

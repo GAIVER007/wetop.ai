@@ -1,0 +1,420 @@
+# Модульные (unit) · 24.09.2026 19:38 Алматы · vm
+# коммит 7af76cb (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T14-38-57Z-unit-6f5a.json' 'apps/api/src/ai-seller' 'apps/api/src/assistant' 'packages/integrations/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/assistant/seller-client.test.ts (15 tests | 4 failed) 114ms
+   ❯ SellerClient — адреса и ключ (5)
+     ✓ список диалогов: адрес панели, служебный ключ заголовком, не в адресе 58ms
+     ✓ карточка, перехват, возврат, ответ — по id диалога, id экранируется 4ms
+     ✓ знания: список и загрузка файлом в поле file 3ms
+     × сводка, песочница, профиль, факты 19ms
+     × панель под длинным путём — песочница всё равно в корне того же адреса 7ms
+   ❯ SellerClient — отказы (10)
+     ✓ нет связи — «недоступен», ключа в тексте нет 1ms
+     ✓ 5xx — «недоступен» с кодом 3ms
+     ✓ тайм-аут — «не ответил вовремя» 1ms
+     ✓ 4xx — «отклонил» с причиной продавца 2ms
+     ✓ проверка полей FastAPI списком — причины через «; » 1ms
+     ✓ 401 и 403 без причины — ключ платформы не принят 2ms
+     × 403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт 5ms
+     × отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей 3ms
+     ✓ песочница ждёт дольше остальных: ход с каскадом моделей длится до минуты 2ms
+     ✓ без адреса или ключа клиент не создаётся 1ms
+ ❯ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (15 tests | 9 failed) 32ms
+   ❯ SellerService.syncOnce (6)
+     ✓ продавец не подключён — ничего не делает 3ms
+     ✓ профиля ещё нет — продавца никто не настраивал, ничего не шлёт 1ms
+     ✓ новый профиль и новые факты — отправляет оба; повтор без правок — ничего 2ms
+     ✓ цена в «Тарифах» поменялась — факты уходят сами, без действий в разделе 1ms
+     ✓ профиль поправили, пока он уходил продавцу, — отправится ещё раз 1ms
+     × продавец недоступен — ошибка запомнена, исключения нет; следующая минута доставляет и снимает ошибку 7ms
+   ❯ SellerService: отказ по содержанию не повторяется сам (9)
+     × 422 на профиль: та же версия больше не уходит, факты идут; правка профиля — уходит и снимает отказ 2ms
+     ✓ «Применить» отправляет и отклонённую версию: её шлёт человек, а не сверка 1ms
+     × 422 на факты: тот же отпечаток не повторяется; поменялась цена — новые факты уходят 4ms
+     × 401 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет 3ms
+     × 403 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет 1ms
+     × 404 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет 1ms
+     × 429 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет 1ms
+     × отказ с именами полей (Б6) — в «Последнем отказе» названия полей экрана, а не коды бота 1ms
+     × продавец недоступен — раздел знает, что отправка повторится сама 1ms
+ ❯ |unit| apps/api/src/assistant/assistant.controller.test.ts (17 tests | 2 failed) 267ms
+   ✓ GET /assistant/identity — подпись вошедшего (ТЗ П1) (7)
+     ✓ вошедшему отдаёт токен, который сходится с общим секретом и несёт поля сессии 28ms
+     ✓ ответ не кэшируется: в подписи почта человека 5ms
+     ✓ без сессии при включённом замке — 401 5ms
+     ✓ без сессии при выключенном замке — тоже 401: подпись выдаётся только человеку 4ms
+     ✓ служебный ключ — не человек: подписи нет 4ms
+     ✓ при выключенном замке вошедший тоже получает подпись: автора узнаёт замок и без AUTH_REQUIRED 4ms
+     ✓ секрет не вписан — 503, а не подпись пустым ключом 4ms
+   ❯ GET /assistant/errors — ошибки человека для помощника (ТЗ П4) (10)
+     × по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище 12ms
+     × ошибок не было — пустой `items`, а не пустое тело 6ms
+     ✓ `since` так, как его шлёт бот: Python `isoformat()` с микросекундами и смещением 3ms
+     ✓ по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт 4ms
+     ✓ userId и organizationId обязательны и должны быть UUID; since — дата 20ms
+     ✓ служебный ключ владельца тоже читает 3ms
+     ✓ ключ дежурного агента — 403: ошибки человека не его 3ms
+     ✓ вошедший человек без ключа не читает даже свои ошибки через этот адрес 2ms
+     ✓ при выключенном замке без ключа — отказ, а не чужие ошибки 5ms
+     ✓ ключ помощника не задан в окружении — адрес закрыт для всех, кроме служебного ключа 2ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 9ms
+ ❯ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (28 tests | 1 failed) 263ms
+   ✓ состояние раздела (4)
+     ✓ без адреса и ключа продавца — «не подключён» 32ms
+     ✓ вошедший из другой организации — «не подключён для вашей организации» 5ms
+     ✓ своя организация: профиль не сохранён и не применён 5ms
+     ✓ ни адреса, ни ключа продавца в ответе нет 4ms
+   ✓ профиль (П5) (4)
+     ✓ без сохранённого — умолчание и признак «не сохранён» 5ms
+     ✓ неверные поля — 400 со всеми причинами, ничего не сохранено 12ms
+     ✓ сохраняет свою организацию с автором; журнал знает, что было и что стало 9ms
+     ✓ другая организация сохраняет свой профиль, а не чужой 7ms
+   ✓ «Применить» (П8) (6)
+     ✓ без сохранённого профиля — 409 5ms
+     ✓ отправляет продавцу профиль полями и факты объекта; помечает доставленное 10ms
+     ✓ продавец недоступен — 503 со словами, профиль сохранён, ошибка запомнена для повтора 21ms
+     ✓ продавец отклонил поле — 422 с его причиной 6ms
+     ✓ другая организация применить не может 5ms
+     ✓ продавец не подключён — 503 и ни одного вызова 4ms
+   ✓ данные объекта для продавца (2)
+     ✓ отдаёт ровно те факты, что уйдут продавцу, и отпечаток 3ms
+     ✓ объекта у организации нет — 404 2ms
+   ❯ диалоги, знания, сводка, песочница (П7) (10)
+     ✓ список диалогов: режим и предел уходят продавцу, ответ — в словах стойки 5ms
+     ✓ неизвестный режим — 400, продавец не спрошен 2ms
+     ✓ карточка — по UUID; не UUID — 400; нет у продавца — 404 7ms
+     × продавец не пускает платформу — раздел называет его причину словами продавца 6ms
+     ✓ перехват, возврат и ответ идут продавцу; журнал платформы знает, кто, — без текста ответа 17ms
+     ✓ пустой или слишком длинный ответ — 400 4ms
+     ✓ знания: список и загрузка документа; чужой формат — 415 18ms
+     ✓ сводка и песочница 5ms
+     ✓ другая организация — 403 на всё, продавец не спрошен 12ms
+     ✓ продавец недоступен — 503 со словами, а не 500 2ms
+   ✓ код для сайта объекта (2)
+     ✓ тег чата продавца по публичному адресу, без подписи и без ключей 2ms
+     ✓ публичного адреса нет — кода нет 2ms
+[Nest] 10336  - 09/24/2026, 2:39:00 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > диалоги, знания, сводка, песочница (П7) > продавец не пускает платформу — раздел называет его причину словами продавца
+AssertionError: expected 'Доступ с этого адреса закрыт' to be 'ИИ-продавец: Доступ с этого адреса за…' // Object.is equality
+
+Expected: "ИИ-продавец: Доступ с этого адреса закрыт"
+Received: "Доступ с этого адреса закрыт"
+
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:342:30
+    340|     connection.seller.failWith = rejected(403, 'Доступ с этого адреса …
+    341|     const res = await api().get('/ai-seller/summary').set(as('session-…
+    342|     expect(res.body.message).toBe('ИИ-продавец: Доступ с этого адреса …
+       |                              ^
+    343|     connection.seller.failWith = rejected(401, 'ИИ-продавец не принял …
+    344|     const key = await api().get('/ai-seller/summary').set(as('session-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService.syncOnce > продавец недоступен — ошибка запомнена, исключения нет; следующая минута доставляет и снимает ошибку
+AssertionError: expected { Object (failed) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "failed": "ИИ-продавец недоступен (HTTP 502)",
+-   "retry": true,
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:101:41
+     99|     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    100|     connection.seller.failWith = unavailable();
+    101|     expect(await service.syncOnce(now)).toEqual({
+       |                                         ^
+    102|       failed: 'ИИ-продавец недоступен (HTTP 502)',
+    103|       retry: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 422 на профиль: та же версия больше не уходит, факты идут; правка профиля — уходит и снимает отказ
+AssertionError: expected { Object (failed) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "failed": "ИИ-продавец отклонил: в поле найдены инструкции для модели",
+-   "retry": false,
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:128:41
+    126|     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    127|     connection.seller.failOn.putProfile = rejected(422, INJECTION);
+    128|     expect(await service.syncOnce(now)).toEqual({
+       |                                         ^
+    129|       failed: `ИИ-продавец отклонил: ${INJECTION}`,
+    130|       retry: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 422 на факты: тот же отпечаток не повторяется; поменялась цена — новые факты уходят
+AssertionError: expected { Object (failed) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "failed": "ИИ-продавец отклонил: категория: слишком длинное название",
+-   "retry": false,
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:168:41
+    166|     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    167|     connection.seller.failOn.putFacts = rejected(422, 'категория: слиш…
+    168|     expect(await service.syncOnce(now)).toEqual({
+       |                                         ^
+    169|       failed: 'ИИ-продавец отклонил: категория: слишком длинное назван…
+    170|       retry: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 401 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 403 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 404 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > 429 — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет
+AssertionError: expected { Object (failed) } to match object { retry: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "retry": true,
++   "failed": "ИИ-продавец отклонил: отказ",
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:189:43
+    187|       await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    188|       connection.seller.failOn.putProfile = rejected(status, 'отказ');
+    189|       expect(await service.syncOnce(now)).toMatchObject({ retry: true …
+       |                                           ^
+    190|       expect((await service.status(now)).retrying).toBe(true);
+    191|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > отказ с именами полей (Б6) — в «Последнем отказе» названия полей экрана, а не коды бота
+AssertionError: expected { Object (failed) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+-   "failed": "ИИ-продавец отклонил: В полях найдены инструкции для модели — «Приветствие», «Правила проживания», «новое_поле»",
+-   "retry": false,
++   "failed": "ИИ-продавец отклонил: В полях найдены инструкции для модели",
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:207:41
+    205|     ]);
+    206|     const failed = 'ИИ-продавец отклонил: В полях найдены инструкции д…
+    207|     expect(await service.syncOnce(now)).toEqual({ failed, retry: false…
+       |                                         ^
+    208|     expect(profiles.rows.get(ORG)!.lastError).toBe(failed);
+    209|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/seller-sync.service.test.ts > SellerService: отказ по содержанию не повторяется сам > продавец недоступен — раздел знает, что отправка повторится сама
+AssertionError: expected { state: 'ready', …(5) } to match object { …(2) }
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "lastError": "ИИ-продавец недоступен (HTTP 502)",
+-   "retrying": true,
+  }
+
+ ❯ apps/api/src/ai-seller/seller-sync.service.test.ts:215:39
+    213|     connection.seller.failWith = unavailable();
+    214|     await service.syncOnce(now);
+    215|     expect(await service.status(now)).toMatchObject({
+       |                                       ^
+    216|       lastError: 'ИИ-продавец недоступен (HTTP 502)',
+    217|       retrying: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище
+AssertionError: expected [ { …(4) }, { …(4) } ] to deeply equal { items: [ { …(4) }, { …(4) } ] }
+
+- Expected:
+{
+  "items": [
+    {
+      "at": "2026-09-24T09:12:03.120Z",
+      "message": "adults — целое ≥ 1",
+      "section": "Брони",
+      "status": 400,
+    },
+    {
+      "at": "2026-09-24T09:10:00.000Z",
+      "message": "Нет связи с базой",
+      "section": "Шахматка",
+      "status": 503,
+    },
+  ],
+}
+
++ Received:
+[
+  {
+    "at": "2026-09-24T09:12:03.120Z",
+    "message": "adults — целое ≥ 1",
+    "section": "Брони",
+    "status": 400,
+  },
+  {
+    "at": "2026-09-24T09:10:00.000Z",
+    "message": "Нет связи с базой",
+    "section": "Шахматка",
+    "status": 503,
+  },
+]
+
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:213:22
+    211|     // Обёртка — `items`, а не голый список и не `errors`: бот считает…
+    212|     // (ТЗ ред. 1 на ветке `ai-seller`, П4; `src/integrations/wetop.py…
+    213|     expect(res.body).toEqual({
+       |                      ^
+    214|       items: [
+    215|         { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 40…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > ошибок не было — пустой `items`, а не пустое тело
+AssertionError: expected [] to deeply equal { items: [] }
+
+- Expected:
+{
+  "items": [],
+}
+
++ Received:
+[]
+
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:232:22
+    230|       .set('x-wetop-service-key', ASSISTANT_KEY)
+    231|       .expect(200);
+    232|     expect(res.body).toEqual({ items: [] });
+       |                      ^
+    233|   });
+    234|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/seller-client.test.ts > SellerClient — адреса и ключ > сводка, песочница, профиль, факты
+AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]
+
+- Expected
++ Received
+
+  [
+    "GET http://seller:8000/panel-x/summary",
+-   "POST http://seller:8000/internal/sandbox",
++   "POST http://seller:8000/panel-x/sandbox",
+    "PUT http://seller:8000/panel-x/seller/profile",
+    "PUT http://seller:8000/panel-x/seller/facts",
+  ]
+
+ ❯ packages/integrations/src/assistant/seller-client.test.ts:77:59
+     75|     // Песочница у бота — в корне экземпляра, не под путём панели (`sr…
+     76|     // путь зафиксирован сборочным планом бота, служебный ключ платфор…
+     77|     expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+       |                                                           ^
+     78|       'GET http://seller:8000/panel-x/summary',
+     79|       'POST http://seller:8000/internal/sandbox',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/seller-client.test.ts > SellerClient — адреса и ключ > панель под длинным путём — песочница всё равно в корне того же адреса
+AssertionError: expected 'https://seller.internal:8443/a/b/pane…' to be 'https://seller.internal:8443/internal…' // Object.is equality
+
+Expected: "https://seller.internal:8443/internal/sandbox"
+Received: "https://seller.internal:8443/a/b/panel/sandbox"
+
+ ❯ packages/integrations/src/assistant/seller-client.test.ts:101:27
+     99|     });
+    100|     await seller.sandbox({ externalId: 'x', text: 'y' });
+    101|     expect(calls[0]!.url).toBe('https://seller.internal:8443/internal/…
+       |                           ^
+    102|   });
+    103| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/seller-client.test.ts > SellerClient — отказы > 403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт
+AssertionError: expected SellerRejectedError: ИИ-продавец отклонил… { …(2) } to match object { status: 403, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "detail": "Доступ с этого адреса закрыт",
++ SellerRejectedError {
++   "detail": "ИИ-продавец не принял служебный ключ платформы",
+    "status": 403,
+  }
+
+ ❯ packages/integrations/src/assistant/seller-client.test.ts:177:37
+    175|     for (const reason of ['Доступ с этого адреса закрыт', 'Служебному …
+    176|       const { seller } = client(() => Response.json({ detail: reason }…
+    177|       await expect(seller.summary()).rejects.toMatchObject({ status: 4…
+       |                                     ^
+    178|     }
+    179|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/seller-client.test.ts > SellerClient — отказы > отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей
+AssertionError: expected SellerRejectedError: ИИ-продавец отклонил… { …(2) } to match object { status: 422, …(2) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "detail": "В полях найдены инструкции для модели",
+-   "fields": [
+-     "greeting",
+-     "house_rules",
+-   ],
++ SellerRejectedError {
++   "detail": "HTTP 422",
+    "status": 422,
+  }
+
+ ❯ packages/integrations/src/assistant/seller-client.test.ts:195:19
+    193|     const error = await seller.putProfile({}).catch((e: unknown) => e);
+    194|     expect(error).toBeInstanceOf(SellerRejectedError);
+    195|     expect(error).toMatchObject({
+       |                   ^
+    196|       status: 422,
+    197|       detail: 'В полях найдены инструкции для модели',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+
+ Test Files  4 failed | 2 passed (6)
+      Tests  16 failed | 72 passed (88)
+   Start at  14:38:58
+   Duration  2.60s (transform 54%, import 34%, tests 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T14-38-57Z-unit-6f5a.json
+
+# код выхода 1 · 4 с

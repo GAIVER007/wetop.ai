@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SELLER_PROFILE, type SellerFactsSource } from '@pms/domain';
-import { FakeAudit, FakeConnection, FakeFacts, FakeProfiles, unavailable } from './fakes';
+import { FakeAudit, FakeConnection, FakeFacts, FakeProfiles, rejected, unavailable } from './fakes';
 import type { SellerConfig } from './seller.connection';
 import { SellerService } from './seller.service';
 
@@ -98,7 +98,10 @@ describe('SellerService.syncOnce', () => {
   it('продавец недоступен — ошибка запомнена, исключения нет; следующая минута доставляет и снимает ошибку', async () => {
     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failWith = unavailable();
-    expect(await service.syncOnce(now)).toEqual({ failed: 'ИИ-продавец недоступен (HTTP 502)' });
+    expect(await service.syncOnce(now)).toEqual({
+      failed: 'ИИ-продавец недоступен (HTTP 502)',
+      retry: true,
+    });
     expect(profiles.rows.get(ORG)!.lastError).toBe('ИИ-продавец недоступен (HTTP 502)');
 
     connection.seller.failWith = null;
@@ -107,5 +110,111 @@ describe('SellerService.syncOnce', () => {
       facts: true,
     });
     expect(profiles.rows.get(ORG)!.lastError).toBeNull();
+  });
+});
+
+/**
+ * Отказ по содержанию (400, 422: длины, слой 9) — продавец прочёл и не принял. Та же версия будет отклонена снова, а
+ * повтор раз в минуту — проверка слоя 9 и, может быть, тревога у продавца каждую минуту. Контракт
+ * (`docs/assistant/README.md` §4): такую версию платформа сама не повторяет — только после правки или «Применить».
+ */
+describe('SellerService: отказ по содержанию не повторяется сам', () => {
+  const minute = (n: number) => new Date(now.getTime() + n * 60_000);
+  const INJECTION = 'в поле найдены инструкции для модели';
+
+  it('422 на профиль: та же версия больше не уходит, факты идут; правка профиля — уходит и снимает отказ', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    connection.seller.failOn.putProfile = rejected(422, INJECTION);
+    expect(await service.syncOnce(now)).toEqual({
+      failed: `ИИ-продавец отклонил: ${INJECTION}`,
+      retry: false,
+    });
+
+    connection.seller.calls = [];
+    expect(await service.syncOnce(minute(1))).toEqual({ profile: false, facts: true });
+    expect(connection.seller.ops()).toEqual(['putFacts']);
+    // отказ остаётся на виду, пока версия та же, и раздел знает, что сам он не повторится
+    expect(profiles.rows.get(ORG)!.lastError).toBe(`ИИ-продавец отклонил: ${INJECTION}`);
+    expect(await service.status(minute(1))).toMatchObject({
+      lastError: `ИИ-продавец отклонил: ${INJECTION}`,
+      retrying: false,
+    });
+
+    connection.seller.calls = [];
+    expect(await service.syncOnce(minute(2))).toEqual({ profile: false, facts: false });
+    expect(connection.seller.ops()).toEqual([]);
+
+    delete connection.seller.failOn.putProfile;
+    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, useEmoji: true }, null, minute(3));
+    expect(await service.syncOnce(minute(4))).toEqual({ profile: true, facts: false });
+    expect(profiles.rows.get(ORG)!.lastError).toBeNull();
+  });
+
+  it('«Применить» отправляет и отклонённую версию: её шлёт человек, а не сверка', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    connection.seller.failOn.putProfile = rejected(422, INJECTION);
+    await service.syncOnce(now);
+
+    delete connection.seller.failOn.putProfile;
+    connection.seller.calls = [];
+    expect(await service.apply(minute(1))).toEqual({ profileApplied: true, factsApplied: true });
+    expect(connection.seller.ops()).toEqual(['putProfile', 'putFacts']);
+    expect(profiles.rows.get(ORG)!.lastError).toBeNull();
+  });
+
+  it('422 на факты: тот же отпечаток не повторяется; поменялась цена — новые факты уходят', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    connection.seller.failOn.putFacts = rejected(422, 'категория: слишком длинное название');
+    expect(await service.syncOnce(now)).toEqual({
+      failed: 'ИИ-продавец отклонил: категория: слишком длинное название',
+      retry: false,
+    });
+
+    connection.seller.calls = [];
+    expect(await service.syncOnce(minute(1))).toEqual({ profile: false, facts: false });
+    expect(connection.seller.ops()).toEqual([]);
+    expect((await service.status(minute(1))).retrying).toBe(false);
+
+    delete connection.seller.failOn.putFacts;
+    facts.source = source(1_600_000n);
+    expect(await service.syncOnce(minute(2))).toEqual({ profile: false, facts: true });
+    expect(profiles.rows.get(ORG)!.lastError).toBeNull();
+  });
+
+  it.each([401, 403, 404, 429])(
+    '%i — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет',
+    async (status) => {
+      await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+      connection.seller.failOn.putProfile = rejected(status, 'отказ');
+      expect(await service.syncOnce(now)).toMatchObject({ retry: true });
+      expect((await service.status(now)).retrying).toBe(true);
+
+      delete connection.seller.failOn.putProfile;
+      connection.seller.calls = [];
+      expect(await service.syncOnce(minute(1))).toEqual({ profile: true, facts: true });
+      expect(profiles.rows.get(ORG)!.lastError).toBeNull();
+    },
+  );
+
+  it('отказ с именами полей (Б6) — в «Последнем отказе» названия полей экрана, а не коды бота', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    connection.seller.failOn.putProfile = rejected(422, 'В полях найдены инструкции для модели', [
+      'greeting',
+      'house_rules',
+      'новое_поле',
+    ]);
+    const failed = 'ИИ-продавец отклонил: В полях найдены инструкции для модели — «Приветствие», «Правила проживания», «новое_поле»';
+    expect(await service.syncOnce(now)).toEqual({ failed, retry: false });
+    expect(profiles.rows.get(ORG)!.lastError).toBe(failed);
+  });
+
+  it('продавец недоступен — раздел знает, что отправка повторится сама', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    connection.seller.failWith = unavailable();
+    await service.syncOnce(now);
+    expect(await service.status(now)).toMatchObject({
+      lastError: 'ИИ-продавец недоступен (HTTP 502)',
+      retrying: true,
+    });
   });
 });

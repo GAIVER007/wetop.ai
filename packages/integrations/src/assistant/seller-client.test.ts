@@ -72,16 +72,33 @@ describe('SellerClient — адреса и ключ', () => {
     await seller.sandbox({ externalId: 'wetop-check-1', text: 'Есть места?' });
     await seller.putProfile({ address_form: 'informal' });
     await seller.putFacts({ source: 'platform:facts' });
+    // Песочница у бота — в корне экземпляра, не под путём панели (`src/dashboard_router.py`, `/internal/sandbox`):
+    // путь зафиксирован сборочным планом бота, служебный ключ платформы она принимает тем же заголовком
     expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
       'GET http://seller:8000/panel-x/summary',
-      'POST http://seller:8000/panel-x/sandbox',
+      'POST http://seller:8000/internal/sandbox',
       'PUT http://seller:8000/panel-x/seller/profile',
       'PUT http://seller:8000/panel-x/seller/facts',
     ]);
+    expect(header(calls[1]!, 'x-service-key')).toBe(KEY);
     expect(JSON.parse(String(calls[1]!.init.body))).toEqual({
       external_id: 'wetop-check-1',
       text: 'Есть места?',
     });
+  });
+
+  it('панель под длинным путём — песочница всё равно в корне того же адреса', async () => {
+    const calls: Call[] = [];
+    const seller = new SellerClient({
+      baseUrl: 'https://seller.internal:8443/a/b/panel/',
+      serviceKey: KEY,
+      fetch: vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+        calls.push({ url: String(url), init: init ?? {} });
+        return Response.json({ status: 'ok' });
+      }),
+    });
+    await seller.sandbox({ externalId: 'x', text: 'y' });
+    expect(calls[0]!.url).toBe('https://seller.internal:8443/internal/sandbox');
   });
 });
 
@@ -138,11 +155,47 @@ describe('SellerClient — отказы', () => {
     });
   });
 
-  it('401/403 от продавца — ключ платформы не принят', async () => {
+  it('401 и 403 без причины — ключ платформы не принят', async () => {
     const { seller } = client(() => Response.json({ status: 'forbidden' }, { status: 403 }));
     await expect(seller.summary()).rejects.toMatchObject({
       status: 403,
       detail: 'ИИ-продавец не принял служебный ключ платформы',
+    });
+    // 401 у панели бота — «Сессия истекла, войдите заново»: для служебного ключа это неверный ключ
+    const second = client(() =>
+      Response.json({ detail: 'Сессия истекла, войдите заново' }, { status: 401 }),
+    );
+    await expect(second.seller.summary()).rejects.toMatchObject({
+      status: 401,
+      detail: 'ИИ-продавец не принял служебный ключ платформы',
+    });
+  });
+
+  it('403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт', async () => {
+    for (const reason of ['Доступ с этого адреса закрыт', 'Служебному ключу этот маршрут закрыт']) {
+      const { seller } = client(() => Response.json({ detail: reason }, { status: 403 }));
+      await expect(seller.summary()).rejects.toMatchObject({ status: 403, detail: reason });
+    }
+  });
+
+  it('отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей', async () => {
+    const { seller } = client(() =>
+      Response.json(
+        {
+          detail: {
+            message: 'В полях найдены инструкции для модели',
+            fields: ['greeting', 'house_rules'],
+          },
+        },
+        { status: 422 },
+      ),
+    );
+    const error = await seller.putProfile({}).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(SellerRejectedError);
+    expect(error).toMatchObject({
+      status: 422,
+      detail: 'В полях найдены инструкции для модели',
+      fields: ['greeting', 'house_rules'],
     });
   });
 

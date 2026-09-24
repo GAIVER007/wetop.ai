@@ -56,7 +56,8 @@ const KNOWLEDGE_TYPES: Readonly<Record<string, string>> = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
-export const KNOWLEDGE_MAX_BYTES = 20 * 1024 * 1024;
+/** Как у продавца (`kb_max_file_mb = 10` на ветке `ai-seller`): больше он всё равно не примет */
+export const KNOWLEDGE_MAX_BYTES = 10 * 1024 * 1024;
 const REPLY_MAX = 4000;
 const SANDBOX_MAX = 2000;
 
@@ -68,13 +69,31 @@ export interface SellerStatus {
   facts: { applied: boolean; appliedAt: string | null };
   lastError: string | null;
   lastErrorAt: string | null;
+  /** Отказ временный, платформа повторит отправку сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
+  retrying: boolean;
   embedAvailable: boolean;
 }
 
 export type SyncResult =
   | { skipped: 'not-configured' | 'no-profile' }
-  | { failed: string }
+  | { failed: string; retry: boolean }
   | { profile: boolean; facts: boolean };
+
+/** Что продавец отклонил по содержанию: версия профиля (`updated_at` в мс) и отпечаток фактов */
+interface Rejected {
+  profile: number | null;
+  facts: string | null;
+}
+
+/**
+ * Отказ по содержанию: продавец прочёл и не принял (400, 422 — длины, слой 9). Та же версия будет отклонена снова, а
+ * повтор раз в минуту — только проверка слоя 9 и, может быть, тревога у продавца каждую минуту. Ключ (401, 403), нет
+ * адреса (404 — Б6, Б7 ещё не выложены), тайм-аут и частота (408, 429) — не про содержание: их сверка повторяет.
+ */
+const NOT_ABOUT_CONTENT: ReadonlySet<number> = new Set([401, 403, 404, 408, 429]);
+export function rejectedForContent(error: unknown): boolean {
+  return error instanceof assistant.SellerRejectedError && !NOT_ABOUT_CONTENT.has(error.status);
+}
 
 // ── ответы продавца: только известные поля и в словах стойки (camelCase) ─────────────────────────
 const obj = (v: unknown): Record<string, unknown> =>
@@ -83,13 +102,32 @@ const str = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 
+/** Поля профиля продавца (имена Б6, `detail.fields` отказа) — названиями полей стойки */
+const SELLER_FIELD_LABELS: Readonly<Record<string, string>> = {
+  object_name: 'Название объекта',
+  bot_name: 'Имя бота',
+  greeting: 'Приветствие',
+  included_in_price: 'Что входит в цену',
+  extra_charges: 'Что за доплату',
+  house_rules: 'Правила проживания',
+  prohibitions: 'Запреты',
+  call_human_when: 'Когда звать человека',
+  faq: 'Частые вопросы',
+};
+
 /** Текст отказа продавца для человека и для `last_error`: без адреса, ключа и тел запросов */
 export function sellerErrorText(error: unknown): string {
   if (error instanceof assistant.SellerUnavailableError) return error.message;
-  if (error instanceof assistant.SellerRejectedError)
-    return redactText(`ИИ-продавец отклонил: ${error.detail}`, 500);
+  if (error instanceof assistant.SellerRejectedError) {
+    const fields = error.fields.map((f) => `«${SELLER_FIELD_LABELS[f] ?? f}»`).join(', ');
+    return redactText(`ИИ-продавец отклонил: ${error.detail}${fields ? ` — ${fields}` : ''}`, 500);
+  }
   return 'Не удалось связаться с ИИ-продавцом';
 }
+
+/** Отказ в доступе (401, 403) — слова продавца с его именем: «Доступ с этого адреса закрыт» без него непонятно чей */
+const accessText = (detail: string): string =>
+  detail.startsWith('ИИ-продавец') ? detail : `ИИ-продавец: ${detail}`;
 
 /** Отказ продавца → ответ API: недоступен — 503, не нашёл — 404, не принял ключ — 503, отклонил — 422 */
 function httpError(error: unknown): never {
@@ -99,7 +137,7 @@ function httpError(error: unknown): never {
   if (error instanceof assistant.SellerRejectedError) {
     if (error.status === 404) throw new NotFoundException(error.detail);
     if (error.status === 401 || error.status === 403)
-      throw new ServiceUnavailableException(error.detail);
+      throw new ServiceUnavailableException(accessText(error.detail));
     throw new UnprocessableEntityException(sellerErrorText(error));
   }
   throw error;
@@ -117,6 +155,13 @@ const conversationId = (id: string): string => {
  */
 @Injectable()
 export class SellerService {
+  /**
+   * Отклонённое по содержанию, по организациям: сверка это не шлёт, пока не поправят (новая версия, другой отпечаток)
+   * или не нажмут «Применить» (контракт, `docs/assistant/README.md` §4). Память процесса: после перезапуска API отказ
+   * повторится один раз и запомнится снова.
+   */
+  private readonly rejected = new Map<string, Rejected>();
+
   constructor(
     @Inject(SELLER_CONNECTION) private readonly connection: SellerConnection,
     @Inject(SELLER_PROFILES) private readonly profiles: SellerProfilesRepository,
@@ -182,8 +227,11 @@ export class SellerService {
       ? this.profileOrganization()
       : this.connection.config().organizationId;
     const row = organizationId ? await this.profiles.get(organizationId) : null;
+    const held = organizationId ? this.rejected.get(organizationId) : undefined;
     const facts =
-      organizationId && row?.factsHash ? await this.currentFacts(organizationId, now) : null;
+      organizationId && (row?.factsHash || held?.facts)
+        ? await this.currentFacts(organizationId, now)
+        : null;
     return {
       state,
       profile: {
@@ -197,6 +245,8 @@ export class SellerService {
       },
       lastError: row?.lastError ?? null,
       lastErrorAt: row?.lastErrorAt?.toISOString() ?? null,
+      retrying:
+        !!row?.lastError && !stillRejected(held, row, facts?.hash ?? null, { profile: false, facts: false }),
       embedAvailable: this.connection.config().publicUrl !== null,
     };
   }
@@ -252,7 +302,7 @@ export class SellerService {
     try {
       return await this.push(client, config.organizationId, row, now, false);
     } catch (error) {
-      return { failed: sellerErrorText(error) };
+      return { failed: sellerErrorText(error), retry: !rejectedForContent(error) };
     }
   }
 
@@ -264,24 +314,46 @@ export class SellerService {
     force: boolean,
   ): Promise<{ profile: boolean; facts: boolean }> {
     const pushed = { profile: false, facts: false };
+    // «Применить» шлёт всё: отклонённую версию отправляет человек, а не сверка
+    if (force) this.rejected.delete(organizationId);
+    const held: Rejected = this.rejected.get(organizationId) ?? { profile: null, facts: null };
+    const version = row.updatedAt.getTime();
+    let part: keyof Rejected = 'profile';
+    let factsHash: string | null = null;
     try {
-      if (force || !profileApplied(row)) {
+      if (force || (!profileApplied(row) && held.profile !== version)) {
         await client.putProfile(sellerProfilePayload(pickSellerProfile(row), row.updatedAt));
         // принятой считается ровно отправленная версия: правка во время отправки уйдёт следующей сверкой
         await this.profiles.markProfileApplied(organizationId, row.updatedAt);
         pushed.profile = true;
       }
+      part = 'facts';
       const facts = await this.currentFacts(organizationId, now);
-      if (facts && (force || facts.hash !== row.factsHash)) {
+      factsHash = facts?.hash ?? null;
+      if (facts && (force || (facts.hash !== row.factsHash && held.facts !== facts.hash))) {
         await client.putFacts(facts.payload);
         await this.profiles.markFactsApplied(organizationId, facts.hash, now);
         pushed.facts = true;
       }
     } catch (error) {
+      if (rejectedForContent(error))
+        this.rejected.set(organizationId, {
+          ...held,
+          ...(pushed.profile ? { profile: null } : {}),
+          [part]: part === 'profile' ? version : factsHash,
+        });
       await this.profiles.markError(organizationId, sellerErrorText(error), now);
       throw error;
     }
-    if (row.lastError !== null) await this.profiles.clearError(organizationId);
+    const left: Rejected = {
+      profile: pushed.profile ? null : held.profile,
+      facts: pushed.facts ? null : held.facts,
+    };
+    if (left.profile === null && left.facts === null) this.rejected.delete(organizationId);
+    else this.rejected.set(organizationId, left);
+    // отказ снимается, когда отклонённого больше нет: иначе раздел потерял бы причину, а сверка её не повторит
+    if (row.lastError !== null && !stillRejected(left, row, factsHash, pushed))
+      await this.profiles.clearError(organizationId);
     return pushed;
   }
 
@@ -463,4 +535,18 @@ export class SellerService {
 /** Продавец принял текущую версию профиля */
 function profileApplied(row: SellerProfileRow): boolean {
   return row.profileAppliedAt !== null && row.profileAppliedAt.getTime() >= row.updatedAt.getTime();
+}
+
+/** Отклонённое продавцом всё ещё текущее: версия профиля та же и не принята, или отпечаток фактов тот же */
+function stillRejected(
+  held: Rejected | undefined,
+  row: SellerProfileRow,
+  factsHash: string | null,
+  pushed: { profile: boolean; facts: boolean },
+): boolean {
+  if (!held) return false;
+  const profile =
+    !pushed.profile && !profileApplied(row) && held.profile === row.updatedAt.getTime();
+  const facts = !pushed.facts && factsHash !== null && held.facts === factsHash;
+  return profile || facts;
 }

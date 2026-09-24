@@ -91,7 +91,7 @@ export class AiSellerController {
     return this.seller.knowledge();
   }
 
-  /** Документ базы знаний продавца: один файл в поле `file`, в памяти, не больше 20 МБ; имя — в UTF-8 */
+  /** Документ базы знаний продавца: один файл в поле `file`, в памяти, не больше 10 МБ; имя — в UTF-8 */
   @Post('knowledge')
   @UseInterceptors(
     FileInterceptor('file', {

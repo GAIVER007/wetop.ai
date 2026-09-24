@@ -12,11 +12,14 @@ import type {
 export class FakeSeller implements SellerPort {
   calls: Array<{ op: string; args: unknown[] }> = [];
   failWith: Error | null = null;
+  /** Отказ одного вызова (`putProfile`, `putFacts`…) — остальные отвечают как обычно */
+  failOn: Record<string, Error> = {};
   replies: Record<string, unknown> = {};
 
   private async call(op: string, ...args: unknown[]): Promise<unknown> {
     this.calls.push({ op, args });
-    if (this.failWith) throw this.failWith;
+    const failure = this.failOn[op] ?? this.failWith;
+    if (failure) throw failure;
     return this.replies[op] ?? { status: 'ok' };
   }
 
@@ -60,8 +63,8 @@ export class FakeSeller implements SellerPort {
 }
 
 export const unavailable = () => new assistant.SellerUnavailableError('ИИ-продавец недоступен (HTTP 502)');
-export const rejected = (status: number, detail: string) =>
-  new assistant.SellerRejectedError(status, detail);
+export const rejected = (status: number, detail: string, fields: string[] = []) =>
+  new assistant.SellerRejectedError(status, detail, fields);
 
 export class FakeConnection implements SellerConnection {
   constructor(

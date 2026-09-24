@@ -208,14 +208,37 @@ describe('GET /assistant/errors — ошибки человека для пом�
       .get(`/assistant/errors?${query}&since=2026-09-24T00:00:00.000Z&limit=5`)
       .set('x-wetop-service-key', ASSISTANT_KEY)
       .expect(200);
-    expect(res.body).toEqual([
-      { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 400, message: 'adults — целое ≥ 1' },
-      { at: '2026-09-24T09:10:00.000Z', section: 'Шахматка', status: 503, message: 'Нет связи с базой' },
-    ]);
+    // Обёртка — `items`, а не голый список и не `errors`: бот считает непустое поле `errors` в теле отказом
+    // (ТЗ ред. 1 на ветке `ai-seller`, П4; `src/integrations/wetop.py`, `recent_for_user`)
+    expect(res.body).toEqual({
+      items: [
+        { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 400, message: 'adults — целое ≥ 1' },
+        { at: '2026-09-24T09:10:00.000Z', section: 'Шахматка', status: 503, message: 'Нет связи с базой' },
+      ],
+    });
+    expect(res.body).not.toHaveProperty('errors');
     expect(userErrors.queries).toEqual([
       { userId: USER_ID, organizationId: ORG_ID, since: new Date('2026-09-24T00:00:00.000Z'), limit: 5 },
     ]);
     expect(res.headers['cache-control']).toBe('no-store');
+  });
+
+  it('ошибок не было — пустой `items`, а не пустое тело', async () => {
+    withKeys();
+    const res = await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    expect(res.body).toEqual({ items: [] });
+  });
+
+  it('`since` так, как его шлёт бот: Python `isoformat()` с микросекундами и смещением', async () => {
+    withKeys();
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}&since=${encodeURIComponent('2026-09-24T09:00:00.123456+00:00')}&limit=5`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    expect(userErrors.queries[0]!.since.toISOString()).toBe('2026-09-24T09:00:00.123Z');
   });
 
   it('по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт', async () => {

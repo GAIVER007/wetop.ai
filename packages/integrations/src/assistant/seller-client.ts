@@ -22,6 +22,8 @@ export class SellerRejectedError extends Error {
   constructor(
     readonly status: number,
     readonly detail: string,
+    /** Поля, которые продавец назвал в отказе (Б6: `detail.fields`), — его имена, как в теле запроса */
+    readonly fields: readonly string[] = [],
   ) {
     super(`ИИ-продавец отклонил запрос (HTTP ${status}): ${detail}`);
   }
@@ -42,22 +44,46 @@ export interface SellerKnowledgeFile {
 
 type Json = Record<string, unknown>;
 
-/** Причина отказа из ответа FastAPI: `detail` строкой или списком проверок `{ msg }` */
-function detailOf(body: unknown, status: number): string {
-  if (status === 401 || status === 403) return 'ИИ-продавец не принял служебный ключ платформы';
+const KEY_REJECTED = 'ИИ-продавец не принял служебный ключ платформы';
+
+/**
+ * Причина отказа из ответа FastAPI: `detail` строкой, списком проверок `{ msg }` или объектом `{ message, fields }`
+ * (Б6: поля, в которых слой 9 нашёл инструкции для модели). 401 у панели бота — «сессия истекла»: для служебного
+ * ключа это неверный ключ. 403 бывает разным — адрес платформы не в списке панели, маршрут закрыт ключу, — и тогда
+ * нужны слова продавца; без них это тоже ключ.
+ */
+function rejectionOf(body: unknown, status: number): { detail: string; fields: string[] } {
+  const none = { detail: '', fields: [] as string[] };
   const detail = body && typeof body === 'object' ? (body as { detail?: unknown }).detail : undefined;
-  if (typeof detail === 'string' && detail.trim() !== '') return detail.trim();
-  if (Array.isArray(detail)) {
+  let found = none;
+  if (typeof detail === 'string' && detail.trim() !== '') found = { detail: detail.trim(), fields: [] };
+  else if (Array.isArray(detail)) {
     const messages = detail
       .map((d) => (d && typeof d === 'object' ? (d as { msg?: unknown }).msg : d))
       .filter((m): m is string => typeof m === 'string' && m.trim() !== '');
-    if (messages.length > 0) return messages.join('; ');
+    if (messages.length > 0) found = { detail: messages.join('; '), fields: [] };
+  } else if (detail && typeof detail === 'object') {
+    const { message, fields } = detail as { message?: unknown; fields?: unknown };
+    if (typeof message === 'string' && message.trim() !== '')
+      found = {
+        detail: message.trim(),
+        fields: Array.isArray(fields)
+          ? fields.filter((f): f is string => typeof f === 'string' && f.trim() !== '')
+          : [],
+      };
   }
-  return `HTTP ${status}`;
+  if (status === 401) return { detail: KEY_REJECTED, fields: [] };
+  if (status === 403) return found.detail ? found : { detail: KEY_REJECTED, fields: [] };
+  return found.detail ? found : { detail: `HTTP ${status}`, fields: [] };
 }
+
+/** Песочница у бота — в корне экземпляра (`/internal/sandbox`), а не под путём панели: путь зафиксирован его планом */
+const SANDBOX_PATH = '/internal/sandbox';
 
 export class SellerClient {
   private readonly base: string;
+  /** Корень экземпляра без пути панели — для песочницы */
+  private readonly origin: string;
   private readonly key: string;
   private readonly fetchFn: typeof fetch;
 
@@ -66,6 +92,7 @@ export class SellerClient {
     if (!/^https?:\/\/[^\s/]+/i.test(base)) throw new Error('Клиент продавца: нужен адрес http(s)://');
     if (config.serviceKey.trim() === '') throw new Error('Клиент продавца: нужен служебный ключ');
     this.base = base.replace(/\/+$/, '');
+    this.origin = new URL(this.base).origin;
     this.key = config.serviceKey.trim();
     this.fetchFn = config.fetch ?? fetch;
   }
@@ -112,9 +139,10 @@ export class SellerClient {
   sandbox(input: { externalId: string; text: string }): Promise<Json> {
     return this.request(
       'POST',
-      '/sandbox',
+      SANDBOX_PATH,
       JSON.stringify({ external_id: input.externalId, text: input.text }),
       SANDBOX_TIMEOUT_MS,
+      this.origin,
     );
   }
 
@@ -140,6 +168,7 @@ export class SellerClient {
     path: string,
     body: string | FormData | undefined,
     timeoutMs: number,
+    root: string = this.base,
   ): Promise<Json> {
     const headers: Record<string, string> = {
       accept: 'application/json',
@@ -149,7 +178,7 @@ export class SellerClient {
     if (typeof body === 'string') headers['content-type'] = 'application/json';
     let res: Response;
     try {
-      res = await this.fetchFn(`${this.base}${path}`, {
+      res = await this.fetchFn(`${root}${path}`, {
         method,
         headers,
         ...(body === undefined ? {} : { body }),
@@ -166,7 +195,10 @@ export class SellerClient {
     // тело не JSON — отказ всё равно называется по коду ответа
     const parsed: unknown = await res.json().catch(() => null);
     if (res.status >= 500) throw new SellerUnavailableError(`ИИ-продавец недоступен (HTTP ${res.status})`);
-    if (!res.ok) throw new SellerRejectedError(res.status, detailOf(parsed, res.status));
+    if (!res.ok) {
+      const { detail, fields } = rejectionOf(parsed, res.status);
+      throw new SellerRejectedError(res.status, detail, fields);
+    }
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as Json) : {};
   }
 }

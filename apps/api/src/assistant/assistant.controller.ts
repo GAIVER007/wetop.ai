@@ -89,7 +89,7 @@ export class AssistantController {
   async errors(
     @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
     @Query() query: Record<string, unknown>,
-  ): Promise<AssistantErrorRow[]> {
+  ): Promise<{ items: AssistantErrorRow[] }> {
     const key = serviceKeyKind(request.headers);
     if (key === null && !request.user) throw new UnauthorizedException(ERRORS_KEY_REQUIRED);
     if (key !== 'assistant-read' && key !== 'service') throw new ForbiddenException(ERRORS_KEY_REQUIRED);
@@ -113,11 +113,15 @@ export class AssistantController {
     }
 
     const rows = await this.userErrors.list({ userId, organizationId, since, limit });
-    return rows.map((r) => ({
-      at: r.at.toISOString(),
-      section: userErrorSection(r.route),
-      status: r.status,
-      message: r.message,
-    }));
+    // Обёртка `items`, а не голый список и не `errors`: бот считает непустое поле `errors` в теле отказом, и удачный
+    // ответ читался бы как сбой (ТЗ ред. 1 на ветке `ai-seller`, П4; `src/integrations/wetop.py`)
+    return {
+      items: rows.map((r) => ({
+        at: r.at.toISOString(),
+        section: userErrorSection(r.route),
+        status: r.status,
+        message: r.message,
+      })),
+    };
   }
 }

@@ -336,6 +336,15 @@ describe('диалоги, знания, сводка, песочница (П7)',
     await api().get(`/ai-seller/conversations/${CONV}`).set(as('session-a')).expect(404);
   });
 
+  it('продавец не пускает платформу — раздел называет его причину словами продавца', async () => {
+    connection.seller.failWith = rejected(403, 'Доступ с этого адреса закрыт');
+    const res = await api().get('/ai-seller/summary').set(as('session-a')).expect(503);
+    expect(res.body.message).toBe('ИИ-продавец: Доступ с этого адреса закрыт');
+    connection.seller.failWith = rejected(401, 'ИИ-продавец не принял служебный ключ платформы');
+    const key = await api().get('/ai-seller/summary').set(as('session-a')).expect(503);
+    expect(key.body.message).toBe('ИИ-продавец не принял служебный ключ платформы');
+  });
+
   it('перехват, возврат и ответ идут продавцу; журнал платформы знает, кто, — без текста ответа', async () => {
     await api().post(`/ai-seller/conversations/${CONV}/takeover`).set(as('session-a')).expect(200);
     await api().post(`/ai-seller/conversations/${CONV}/release`).set(as('session-a')).expect(200);

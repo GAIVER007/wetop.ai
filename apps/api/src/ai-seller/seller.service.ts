@@ -159,7 +159,7 @@ const conversationId = (id: string): string => {
 };
 
 /**
- * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-077). Одна копия продавца — одна организация
+ * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079). Одна копия продавца — одна организация
  * (`SELLER_ORGANIZATION_ID`): вошедший из другой организации не получает ни одного вызова продавца. Служебные ходоки
  * (скрипты владельца, служба сверки) проходят, как везде в API (ADR-061).
  */
@@ -389,7 +389,7 @@ export class SellerService {
       facts: facts.payload,
       hash: facts.hash,
       applied: row?.factsHash === facts.hash,
-      // для экрана «Данные объекта»: тариф сайта, окно цен и почему у категории цена ушла или нет (ADR-080)
+      // для экрана «Данные объекта»: тариф сайта, окно цен и почему у категории цена ушла или нет (ADR-081)
       ratePlan: facts.source.ratePlan,
       window: facts.source.window,
       prices: sellerCategoryPrices(facts.source),

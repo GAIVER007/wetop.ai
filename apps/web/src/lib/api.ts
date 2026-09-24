@@ -1257,13 +1257,13 @@ export const assistantApi = {
   },
 };
 
-// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-077; контракт — docs/assistant/README.md) ──────────────
+// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-079; контракт — docs/assistant/README.md) ──────────────
 
 export type SellerAddressForm = 'FORMAL' | 'INFORMAL';
 export type SellerEmoji = 'NEVER' | 'MODERATE' | 'GREETING_ONLY';
 export type SellerReplyLength = 'SHORT' | 'DETAILED';
 
-/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15, ADR-080) */
+/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15, ADR-081) */
 export interface SellerProfileBody {
   botName: string | null;
   addressForm: SellerAddressForm;
@@ -1310,7 +1310,7 @@ export interface SellerFactsPayload {
   categories: Array<{ name: string; kind: 'room' | 'bed'; capacity: number; price_minor: number | null }>;
 }
 
-/** Цена категории глазами стойки: что ушло продавцу и почему (ADR-080, Q-179) */
+/** Цена категории глазами стойки: что ушло продавцу и почему (ADR-081, Q-179) */
 export interface SellerCategoryPrice {
   code: string;
   name: string;

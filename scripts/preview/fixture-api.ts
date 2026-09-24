@@ -1363,7 +1363,7 @@ const uiSessions = new Map<string, UiUser>();
 const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
 
 // ── ИИ-продавец (ТЗ П5–П8): подставной продавец стенда. Гости и переписка — вымышленные (ADR-010) ──────
-// профиль и факты — теми же функциями домена, что у API (ADR-080): стенд не расходится со схемой бота
+// профиль и факты — теми же функциями домена, что у API (ADR-081): стенд не расходится со схемой бота
 const sellerProfileSeed = structuredClone(DEFAULT_SELLER_PROFILE);
 /** Факты стенда: двухместный номер — одна цена весь срок, общие — по субботам дороже (цена меняется) */
 const sellerFactsSource = (): SellerFactsSource => ({

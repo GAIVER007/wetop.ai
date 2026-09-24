@@ -1,0 +1,43 @@
+# Типы (typecheck) · 24.09.2026 22:17 Алматы · vm
+# коммит 3824468 (claude/laughing-franklin-9xn55c)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.repository.ts(124,36): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(142,31): error TS2339: Property 'sellerProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/ai-seller/seller.repository.ts(143,30): error TS2339: Property 'sellerProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/ai-seller/seller.repository.ts(166,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(173,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(180,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(187,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(40,26): error TS2339: Property 'userError' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(44,27): error TS2339: Property 'userError' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(66,44): error TS2339: Property 'userError' does not exist on type 'Db'.
+tests/integration/seller-profiles.test.ts(112,14): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+tests/integration/seller-profiles.test.ts(138,21): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+tests/integration/user-errors.test.ts(57,14): error TS2339: Property 'userError' does not exist on type 'Db'.
+tests/integration/user-errors.test.ts(109,29): error TS2339: Property 'userError' does not exist on type 'Db'.
+tests/integration/user-errors.test.ts(112,27): error TS2339: Property 'userError' does not exist on type 'Db'.
+tests/integration/user-errors.test.ts(114,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.repository.ts(124,36): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(142,31): error TS2339: Property 'sellerProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/ai-seller/seller.repository.ts(143,30): error TS2339: Property 'sellerProfile' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/ai-seller/seller.repository.ts(166,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(173,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(180,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/ai-seller/seller.repository.ts(187,26): error TS2339: Property 'sellerProfile' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(40,26): error TS2339: Property 'userError' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(44,27): error TS2339: Property 'userError' does not exist on type 'Db'.
+apps/api/src/assistant/user-errors.repository.ts(66,44): error TS2339: Property 'userError' does not exist on type 'Db'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 36 с

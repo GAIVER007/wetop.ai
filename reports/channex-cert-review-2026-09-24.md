@@ -327,3 +327,32 @@ bookings endpoints, the booking revisions list or fetching revisions by ID.
 ```bash
 cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml exec -w /app -e WEB_URL=http://web:3000 api node --import tsx scripts/reconciliation/src/cli-channex-wetop-cycle.ts
 ```
+
+## Тест 11 — пройден после выкладки (24.09, 11:05 UTC)
+
+Выкладка `6a0792da` подтверждена на сервере: `grep -c pullOnce` → `3`, `/health` → `"database":"up"`. Цикл
+`cli-channex-wetop-cycle.ts` в контейнере API (запускал владелец): бронь Booking CRS на общую мужскую 14→15.10,
+перенос на 15→16.10, отмена; остаток PMS = Channex на каждом шаге (36 → 35 → 36). Все три ревизии — webhook →
+лента → разобрана и подтверждена за секунду, ошибок нет (`external_events`, только чтение). Список ревизий и
+ревизию по ID никто не звал: в клиенте этих вызовов больше нет, скрипт берёт ID из журнала WETOP.
+
+| Поле анкеты | Значение |
+|---|---|
+| Booking ID | `e190c436-075a-4c31-a51e-b48fc66ac474` |
+| New Revision | `120c7a84-bbad-4cfd-8b30-092b9e7aa06e` |
+| Modified Revision | `30fc36d4-891f-4663-92ba-54d384e65595` |
+| Cancelled Revision | `fca0e550-b7af-4195-a970-b4f85f949317` |
+
+Две красные строки скрипта — его проверки экранов («бронь на шахматке», «Менеджер каналов»): скрипт ходит на
+стойку без сессии (`WEB_SESSION_COOKIE` не задан), и с 23.09 стойка отдаёт такому запросу страницу без данных, а не
+экран входа. Под входом в браузере «Менеджер каналов» открывается без ошибки и показывает брони Booking.com. На
+приём брони не влияет; проверку экранов в скрипте — поправить отдельно.
+
+## Анкета — итоговые ответы
+
+Setup: Property `60fc6ef0-5cdc-4f53-a2ca-3f477964cb2a`; Twin Room `65ef6dd7-e0cd-4dbf-bf9b-e8dfe9cf4c2b`, Twin BAR
+`2d1bc399-5857-4f98-a929-bffb8e16bcb9`, Twin B&B `a3681abd-505c-42f9-bddb-4d606b46a973`; Double Room
+`b0655bc0-f559-4abc-be1f-b9a241ddf036`, Double BAR `428d744c-0c7d-4469-9002-f323d4bf8cbe`, Double B&B
+`9e9795e6-3bc2-4866-85a9-b2b770b4eaaa`. Тест 1 — прежние ID 23.09 (принят). Тесты 2–10 — таблица «Прогон 24.09»,
+у 9 и 10 по две задачи. Тест 11 — таблица выше плюс скриншоты из WETOP (карточка брони `BDC-WETOP-MUFFDM8Y` с
+вкладкой «История», журнал событий на `/channels`). Тексты пояснений — раздел «Тексты для анкеты».

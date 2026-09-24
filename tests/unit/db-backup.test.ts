@@ -13,6 +13,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { parseBackupStatus } from '../../packages/domain/src/incidents/signals';
 
 /**
  * scripts/ops/db-backup.sh — ночная копия рабочей базы (Q-073, остаток проверки SECURITY.md 24.09.2026, О1).
@@ -75,7 +76,9 @@ function sandbox(opts: { pgVersion?: string; tables?: number; env?: string | nul
       },
     });
   };
-  const dumps = () => (existsSync(backups) ? readdirSync(backups).sort() : []);
+  // папка status — статус для сторожа стойки (ADR-077), не копия: её проверяют отдельно
+  const dumps = () =>
+    existsSync(backups) ? readdirSync(backups).filter((f) => f !== 'status').sort() : [];
   const dumpArgs = () =>
     existsSync(join(dir, 'pg_dump-args')) ? readFileSync(join(dir, 'pg_dump-args'), 'utf8').trim().split('\n') : null;
   return { dir, backups, run, dumps, dumpArgs };
@@ -174,6 +177,42 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
     expect(sb.dumps()).toEqual([]);
     expect(r.stderr).toContain('connection to');
     expect(r.stdout + r.stderr).not.toContain(PASSWORD);
+  });
+
+  /*
+   * ADR-077: о ночной копии сторож стойки узнаёт по файлу статуса. В контейнер API смонтирована только папка статуса,
+   * а API там работает под пользователем node, не root: файл и папка читаются всеми, и поэтому в статусе нет ни адреса
+   * базы, ни пароля.
+   */
+  it('после проверенной копии пишет статус для сторожа: его читает разбор домена, права 644, папка 755', () => {
+    const sb = sandbox();
+    const r = sb.run();
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+
+    const statusDir = join(sb.backups, 'status');
+    const statusFile = join(statusDir, 'last.json');
+    expect(statSync(statusDir).mode & 0o777).toBe(0o755);
+    expect(statSync(statusFile).mode & 0o777).toBe(0o644);
+    const text = readFileSync(statusFile, 'utf8');
+    const status = parseBackupStatus(text);
+    expect(status, text).toMatchObject({ file: sb.dumps()[0], tables: 3 });
+    expect(status!.bytes).toBeGreaterThan(0);
+    expect(Math.abs(Date.now() - status!.at.getTime())).toBeLessThan(60_000);
+    expect(text).not.toContain(PASSWORD);
+    expect(text).not.toContain('example.invalid');
+    expect(readdirSync(statusDir)).toEqual(['last.json']);
+  });
+
+  it('упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную', () => {
+    const before =
+      '{"at":"2026-09-23T23:30:07Z","file":"wetop-20260923T233001Z.dump","bytes":207886,"tables":41}\n';
+    for (const opts of [{ dumpFails: true }, { tables: 0 }]) {
+      const sb = sandbox(opts);
+      mkdirSync(join(sb.backups, 'status'), { recursive: true });
+      writeFileSync(join(sb.backups, 'status', 'last.json'), before);
+      expect(sb.run().status, JSON.stringify(opts)).not.toBe(0);
+      expect(readFileSync(join(sb.backups, 'status', 'last.json'), 'utf8')).toBe(before);
+    }
   });
 
   it('копии старше срока удаляются, свежие и чужие файлы остаются', () => {

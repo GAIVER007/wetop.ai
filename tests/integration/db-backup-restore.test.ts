@@ -1,9 +1,10 @@
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { parseBackupStatus } from '../../packages/domain/src/incidents/signals';
 
 /**
  * Копия рабочей базы и её пробное восстановление на настоящей PostgreSQL (Q-073, остаток проверки SECURITY.md, О1).
@@ -63,6 +64,9 @@ describe.skipIf(!url || pgMajor === null)('db-backup.sh и db-restore-check.sh �
     expect(backup.stdout).toContain('таблиц с данными: 2');
     const [dump] = readdirSync(dir).filter((f) => /^wetop-.*\.dump$/.test(f));
     expect(dump).toBeDefined();
+    // статус для сторожа стойки (ADR-077) после настоящего pg_dump читается тем же разбором, что у сторожа
+    const status = parseBackupStatus(readFileSync(join(dir, 'status', 'last.json'), 'utf8'));
+    expect(status).toMatchObject({ file: dump, tables: 2 });
 
     const check = spawnSync('bash', [resolve('scripts/ops/db-restore-check.sh'), join(dir, dump!)], {
       encoding: 'utf8',

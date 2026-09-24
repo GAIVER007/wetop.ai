@@ -9,6 +9,10 @@
 # не входит. Копия проверяется pg_restore --list, кладётся с правами 600, копии старше срока удаляются. Строка
 # подключения не печатается: в ней пароль, а сообщение pg_dump об ошибке проходит через маску.
 #
+# После проверенной копии скрипт пишет статус для сторожа стойки (ADR-077): $BACKUP_DIR/status/last.json — время, имя,
+# размер и число таблиц. Упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную и через
+# 26 часов поднимает неисправность «ночной копии базы нет».
+#
 #   scripts/ops/db-backup.sh
 #
 # BACKUP_DIR        куда класть копии (/root/backups)
@@ -71,8 +75,10 @@ umask 077
 mkdir -p "$BACKUP_DIR"
 file="$BACKUP_DIR/wetop-$(date -u +%Y%m%dT%H%M%SZ).dump"
 partial="$file.partial"
+status_dir="$BACKUP_DIR/status"
+status_partial="$status_dir/last.json.partial"
 errors="$(mktemp)"
-trap 'rm -f "$partial" "$errors"' EXIT
+trap 'rm -f "$partial" "$errors" "$status_partial"' EXIT
 
 # Пароль в сообщении pg_dump (адрес вида postgresql://user:pass@host) заменяется на ***
 if ! pg_dump --format=custom --schema=public --no-owner --no-privileges --file="$partial" "$url" 2>"$errors"; then
@@ -84,6 +90,15 @@ tables="$(pg_restore --list "$partial" 2>/dev/null | grep -c ' TABLE DATA ' || t
 [ "${tables:-0}" -gt 0 ] || fail "в копии нет ни одной таблицы с данными — копия не принята, прежние не тронуты" 1
 chmod 600 "$partial"
 mv "$partial" "$file"
+
+# Статус для сторожа (ADR-077). В контейнер API монтируется только папка status, только на чтение, а API там работает
+# под node, не root: папка 755, файл 644. Поэтому в статусе нет ни адреса базы, ни пароля — только время и копия.
+mkdir -p "$status_dir"
+chmod 755 "$status_dir"
+printf '{"at":"%s","file":"%s","bytes":%s,"tables":%s}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(basename "$file")" \
+  "$(wc -c <"$file" | tr -d ' ')" "$tables" >"$status_partial"
+chmod 644 "$status_partial"
+mv "$status_partial" "$status_dir/last.json"
 
 find "$BACKUP_DIR" -maxdepth 1 -type f -name 'wetop-*.dump' -mtime "+$KEEP_DAYS" -print -delete |
   while read -r old; do echo "db-backup: удалена копия старше $KEEP_DAYS сут.: $(basename "$old")"; done

@@ -1986,3 +1986,15 @@
 | 24.09.2026 22:20 | typecheck | ✅ без ошибок | 56 с | 7a04641 +9 | [лог](logs/2026-09-24T17-20-35Z-typecheck-e41a.log) |  |
 | 24.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts --workers=1) | ✅ 4 из 4 | 32 с | 7a04641 +9 | [лог](logs/2026-09-24T17-21-46Z-e2e-2e44.log) | Короткая бронь: имя целиком в двух строках; финальные продление, отмена и отказы |
 | 24.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --grep шахматк --workers=1) | ✅ 2 из 2 | 24 с | 7a04641 +9 | [лог](logs/2026-09-24T17-22-39Z-e2e-cbdc.log) | Регрессия существующего меню шахматки: продлить на ночь, цена, отмена, клавиатура |
+| 24.09.2026 22:25 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ❌ упало 8 из 90 | 5 с | c5b9529 +5 | [лог](logs/2026-09-24T17-25-36Z-unit-17ca.log) | ADR-076 red: storozh nochnoy kopii do realizatsii |
+| 24.09.2026 22:27 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ✅ 93 из 93 | 2 с | c5b9529 +13 | [лог](logs/2026-09-24T17-27-35Z-unit-1b05.log) | ADR-076 green: storozh nochnoy kopii |
+| 24.09.2026 22:27 | typecheck | ✅ без ошибок | 24 с | c5b9529 +14 | [лог](logs/2026-09-24T17-27-51Z-typecheck-49e4.log) |  |
+| 24.09.2026 22:28 | lint | ✅ без ошибок | 14 с | c5b9529 +14 | [лог](logs/2026-09-24T17-28-16Z-lint-c892.log) |  |
+| 24.09.2026 22:30 | unit | ✅ 1530 из 1533, пропущено 3 | 1 мин 12 с | c5b9529 +13 | [лог](logs/2026-09-24T17-30-03Z-unit-8529.log) | ADR-076: storozh nochnoy kopii, polnyy nabor |
+| 24.09.2026 22:31 | typecheck | ✅ без ошибок | 17 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-36Z-typecheck-d8f5.log) |  |
+| 24.09.2026 22:31 | lint | ✅ без ошибок | 12 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-53Z-lint-fe48.log) |  |
+| 24.09.2026 22:32 | integration | ✅ 53 из 53 | 17 с | c5b9529 +12 | [лог](logs/2026-09-24T17-32-20Z-integration-3935.log) |  |
+| 24.09.2026 22:36 | typecheck | ✅ без ошибок | 21 с | 2d0e90a | [лог](logs/2026-09-24T17-36-23Z-typecheck-6d53.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | lint | ✅ без ошибок | 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-44Z-lint-f5ba.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | unit | ❌ упало 4 из 1535, пропущено 3 | 1 мин 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-56Z-unit-d1f8.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:39 | integration | ✅ 53 из 53 | 16 с | 2d0e90a | [лог](logs/2026-09-24T17-39-07Z-integration-5909.log) | ADR-077 posle rebase na main s PR 64 |

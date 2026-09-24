@@ -6,6 +6,7 @@ import {
   latestReportResults,
   narrowsTestSelection,
   overbookedNights,
+  parseBackupStatus,
   reportIsFresh,
   suiteRunIsFresh,
 } from './signals';
@@ -204,5 +205,50 @@ describe('channelOversold', () => {
     expect(
       channelOversold({ pms: m({ MALE: { '2026-09-14': 0 } }), channel: m({ MALE: {} }) }),
     ).toEqual([]);
+  });
+});
+
+/**
+ * Статус ночной копии базы (ADR-077): одну строку JSON пишет `scripts/ops/db-backup.sh`, сторож стойки читает её раз в
+ * минуту. Разбор строгий: чего не понял — того нет, и сторож говорит «статус не читается», а не «копия свежая».
+ */
+describe('parseBackupStatus: статус ночной копии базы', () => {
+  it('строка скрипта копии → время, имя файла, размер и число таблиц', () => {
+    expect(
+      parseBackupStatus(
+        '{"at":"2026-09-24T23:30:07Z","file":"wetop-20260924T233001Z.dump","bytes":207886,"tables":41}\n',
+      ),
+    ).toEqual({
+      at: new Date('2026-09-24T23:30:07Z'),
+      file: 'wetop-20260924T233001Z.dump',
+      bytes: 207_886,
+      tables: 41,
+    });
+  });
+
+  it('не JSON, не объект, без полей, с чужой датой, путём вместо имени или без таблиц — null', () => {
+    const ok = {
+      at: '2026-09-24T23:30:07Z',
+      file: 'wetop-20260924T233001Z.dump',
+      bytes: 207_886,
+      tables: 41,
+    };
+    const bad = [
+      '',
+      'PGDMP',
+      '[]',
+      'null',
+      '41',
+      JSON.stringify({ ...ok, at: 'вчера' }),
+      JSON.stringify({ ...ok, at: 1_727_220_607 }),
+      JSON.stringify({ ...ok, file: '' }),
+      JSON.stringify({ ...ok, file: '../etc/passwd' }),
+      JSON.stringify({ ...ok, bytes: 0 }),
+      JSON.stringify({ ...ok, tables: 0 }),
+      JSON.stringify({ ...ok, tables: 4.5 }),
+      JSON.stringify({ ...ok, tables: '41' }),
+      JSON.stringify({ at: ok.at, file: ok.file, bytes: ok.bytes }),
+    ];
+    for (const text of bad) expect(parseBackupStatus(text), text).toBeNull();
   });
 });

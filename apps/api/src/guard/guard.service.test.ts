@@ -3,6 +3,7 @@ import { POLICY, type Observation } from '@pms/domain';
 import type { IncidentRow, IncidentsRepository, ResolvedBy } from './incidents.repository';
 import type {
   AlertNotifier,
+  BackupSignal,
   FixOutcome,
   GuardFixes,
   GuardProbes,
@@ -129,6 +130,7 @@ function setup(
     enabled: GuardProbes['enabled'];
     reports: GuardProbes['reports'];
     failingSuites: GuardProbes['failingSuites'];
+    backup: GuardProbes['backup'];
   }> = {},
 ) {
   const state = {
@@ -172,6 +174,8 @@ function setup(
     stays: async () => state.stays,
     reports: over.reports ?? (() => []),
     failingSuites: over.failingSuites ?? (() => []),
+    // по умолчанию проверка копии не настроена — как на Mac и в тестах; её случаи — в своём блоке ниже
+    backup: over.backup ?? (() => null),
     webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
     channelAvailability: async () => state.avail,
   };
@@ -719,5 +723,80 @@ describe('локальные файлы: отчёты и журнал тесто
     const later = setup({ reports: FAILED_REPORT, failingSuites: FAILED_SUITE });
     await later.guard.tick(new Date('2026-09-23T12:00:00Z'));
     expect(fileKinds(later.repo.rows)).toEqual([]);
+  });
+});
+
+/*
+ * ADR-077. Ночную копию базы снимает cron на сервере; до 24.09.2026 о её сбое узнавали только по журналу на сервере
+ * при недельной проверке руками. Сторож читает файл статуса копии и поднимает `backup.stale`: копия старше 26 часов,
+ * статуса нет или он не читается. Починить копию сторож не может — к человеку, днём.
+ */
+describe('GuardService: ночная копия базы', () => {
+  const FILE = 'wetop-20260912T233001Z.dump';
+  const copyAt = (at: Date): BackupSignal => ({
+    state: 'ok',
+    status: { at, file: FILE, bytes: 207_886, tables: 41 },
+  });
+  const backupRows = (rows: IncidentRow[]) => rows.filter((r) => r.kind === 'backup.stale');
+  const aboutBackup = (sent: string[]) => sent.filter((m) => m.includes('копии базы'));
+
+  it('копия свежая — неисправности нет, а проверка отработала', async () => {
+    const t = setup({ backup: () => copyAt(plus(NIGHT, -3 * 60)) });
+    const s = await t.guard.tick(NIGHT);
+    expect(s.checked).toContain('backup.stale');
+    expect(backupRows(t.repo.rows)).toEqual([]);
+  });
+
+  it('копии нет 27 часов — к человеку: ночью молчит, днём будит один раз; свежая копия закрывает сама', async () => {
+    let signal = copyAt(plus(NIGHT, -27 * 60));
+    const t = setup({ backup: () => signal });
+    await t.guard.tick(NIGHT);
+    const [row] = backupRows(t.repo.rows);
+    expect(row).toMatchObject({ class: 'A', severity: 'WARNING', status: 'ESCALATED' });
+    expect(row!.title).toContain('27 ч');
+    expect(row!.title).toContain(FILE);
+    expect(t.calls).toEqual([]);
+    expect(aboutBackup(t.sent)).toEqual([]); // 03:00 по Алматы: WARNING до утра терпит
+
+    const day = plus(NIGHT, 7 * 60); // 10:00 по Алматы
+    t.state.pullOkAt = day; // остальные датчики стенда живут в ночи 13.09 — не даём им шуметь
+    await t.guard.tick(day);
+    expect(aboutBackup(t.sent)).toHaveLength(1);
+    expect(aboutBackup(t.sent)[0]).toContain('владельцу');
+    await t.guard.tick(plus(day, 1));
+    expect(aboutBackup(t.sent)).toHaveLength(1);
+
+    signal = copyAt(plus(day, 2));
+    await t.guard.tick(plus(day, 2));
+    expect(backupRows(t.repo.rows)[0]).toMatchObject({ status: 'RESOLVED', resolvedBy: 'GUARD' });
+  });
+
+  it('статуса нет или он не читается — тоже неисправность: подтвердить свежесть копии нечем', async () => {
+    const missing = setup({ backup: () => ({ state: 'missing' }) });
+    await missing.guard.tick(NIGHT);
+    expect(backupRows(missing.repo.rows)[0]!.title).toContain('статус копии не найден');
+
+    const broken = setup({ backup: () => ({ state: 'unreadable', error: 'EACCES' }) });
+    await broken.guard.tick(NIGHT);
+    expect(backupRows(broken.repo.rows)[0]!.title).toContain('не читается (EACCES)');
+  });
+
+  it('проверка не настроена или выключена — вид не проверен, и открытая неисправность не закрывается', async () => {
+    let signal: BackupSignal | null = copyAt(plus(NIGHT, -30 * 60));
+    const t = setup({ backup: () => signal });
+    await t.guard.tick(NIGHT);
+    expect(backupRows(t.repo.rows)).toHaveLength(1);
+    signal = null; // не смог посмотреть — не значит «починилось»
+    const s = await t.guard.tick(plus(NIGHT, 1));
+    expect(s.checked).not.toContain('backup.stale');
+    expect(backupRows(t.repo.rows)[0]!.status).not.toBe('RESOLVED');
+
+    const off = setup({
+      backup: () => copyAt(plus(NIGHT, -30 * 60)),
+      enabled: (what) => what !== 'backup',
+    });
+    const s2 = await off.guard.tick(NIGHT);
+    expect(s2.checked).not.toContain('backup.stale');
+    expect(backupRows(off.repo.rows)).toEqual([]);
   });
 });

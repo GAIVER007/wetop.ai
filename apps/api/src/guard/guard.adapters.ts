@@ -26,8 +26,10 @@ import { InboundBookingsService } from '../channels/inbound.service';
 import { OutboxWorker } from '../channels/outbox.worker';
 import { ChannexSyncService } from '../channels/sync.service';
 import { WebhookHealthService } from '../channels/webhook-health.service';
+import { readBackupStatus } from './backup-status';
 import type {
   AlertNotifier,
+  BackupSignal,
   FailedEvent,
   FixOutcome,
   GuardFixes,
@@ -71,7 +73,9 @@ export class NestGuardProbes implements GuardProbes {
     return !!process.env.CHANNEX_API_KEY?.trim();
   }
 
-  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut'): boolean {
+  enabled(
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut' | 'backup',
+  ): boolean {
     if (what === 'ariOut') return !isAriStopped();
     const flag = {
       pull: 'CHANNEX_PULL',
@@ -79,6 +83,7 @@ export class NestGuardProbes implements GuardProbes {
       fullSync: 'CHANNEX_FULL_SYNC',
       web: 'GUARD_WEB',
       ari: 'GUARD_ARI',
+      backup: 'GUARD_BACKUP',
     }[what];
     return process.env[flag] !== 'off';
   }
@@ -202,6 +207,12 @@ export class NestGuardProbes implements GuardProbes {
   failingSuites(): FailingSuite[] | null {
     const file = resolve(ROOT, 'tests/runs/journal.jsonl');
     return existsSync(file) ? failingSuites(readFileSync(file, 'utf8')) : null;
+  }
+
+  /** В контейнере путь задаёт deploy/compose.yml; на Mac и в тестах его нет — копий там не снимают */
+  backup(): BackupSignal | null {
+    const path = process.env.GUARD_BACKUP_STATUS?.trim();
+    return path ? readBackupStatus(path) : null;
   }
 
   /** Любой ответ сервера ниже 500 (и 404 на favicon) — стойка жива; отказ сети или молчание 10 с — нет */

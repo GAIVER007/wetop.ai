@@ -1,4 +1,10 @@
-import type { FailingSuite, IncidentKind, Observation, ReportResult } from '@pms/domain';
+import type {
+  BackupStatus,
+  FailingSuite,
+  IncidentKind,
+  Observation,
+  ReportResult,
+} from '@pms/domain';
 
 /** Что сторож читает о системе. В бою — `guard.probes.ts`, в тестах — подделка. */
 export const GUARD_PROBES = Symbol('GUARD_PROBES');
@@ -61,12 +67,25 @@ export interface StaySignal {
   categoryNames: Record<string, string>;
 }
 
+/**
+ * Статус ночной копии базы (ADR-077).
+ * - `ok` — последняя удачная копия;
+ * - `missing` — файла статуса нет: cron копию этим скриптом не снимал или папка статуса не смонтирована;
+ * - `unreadable` — файл есть, но не читается (права, мусор); `error` — код ошибки или «не статус копии».
+ */
+export type BackupSignal =
+  | { state: 'ok'; status: BackupStatus }
+  | { state: 'missing' }
+  | { state: 'unreadable'; error: string };
+
 export interface GuardProbes {
   /** Фоновые части Channex работают только с ключом (как у outbox/опроса/сторожа webhook) */
   channexEnabled(): boolean;
   /** Выключатели фоновых задач из .env: проверять то, что выключено, — плодить ложные неисправности */
   /** ariOut — исходящий ARI не остановлен выключателем CHANNEX_ARI (Q-126) */
-  enabled(what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut'): boolean;
+  enabled(
+    what: 'pull' | 'webhookHealth' | 'fullSync' | 'web' | 'ari' | 'ariOut' | 'backup',
+  ): boolean;
   dbPing(): Promise<void>;
   webhook(): WebhookSignal;
   pullHealth(): { startedAt: Date; okAt: Date | null; failedAt: Date | null; error: string | null };
@@ -81,6 +100,11 @@ export interface GuardProbes {
   reports(): ReportResult[] | null;
   /** null — журнала тестов нет */
   failingSuites(): FailingSuite[] | null;
+  /**
+   * Статус ночной копии базы (ADR-077): файл, который пишет `scripts/ops/db-backup.sh` на хосте; в контейнер API
+   * смонтирована только его папка. null — проверка не настроена (нет GUARD_BACKUP_STATUS: Mac, тесты).
+   */
+  backup(): BackupSignal | null;
   /** Стойка отвечает? Лёгкий статический адрес, чтобы не путать зависание с медленной сборкой страницы */
   webHealth(): Promise<{ ok: boolean; error: string | null }>;
   /**

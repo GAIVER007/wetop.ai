@@ -261,16 +261,26 @@ Supabase на бесплатном плане сам копий не делае�
 Журнал — `/var/log/wetop-deploy.log`, состояние — `/var/lib/wetop-deploy/` (`deployed`, `previous`, `refused`).
 Проверки скрипта — `tests/unit/auto-deploy.test.ts` (исполняет его на временных репозиториях с подставным `docker`).
 
-**Установка — один раз, в веб-терминале сервера:**
+**Установка — один раз, в веб-терминале сервера.** Скрипт ставится отдельным файлом `/usr/local/sbin/wetop-auto-deploy`,
+а не запускается из клона: `release` может стоять на коммите, где скрипта ещё нет (первая вершина — 3da7a2c6, она
+уже на сервере), а выкладка не меняет сам исполняемый файл. Обновить скрипт — повторить вторую строку.
 
 ```bash
 cd /root/wetop && git fetch origin && git status --short          # пусто или только ?? deploy/compose.hostinger.yml
-git checkout -B release origin/release                            # клон теперь на ветке выкладки
-chmod +x scripts/ops/auto-deploy.sh
-( crontab -l 2>/dev/null | grep -v 'auto-deploy.sh'
-  echo "*/2 * * * * /root/wetop/scripts/ops/auto-deploy.sh >> /var/log/wetop-deploy.log 2>&1" ) | crontab -
-crontab -l | grep auto-deploy                                     # строка на месте
+git show origin/main:scripts/ops/auto-deploy.sh > /usr/local/sbin/wetop-auto-deploy && chmod +x /usr/local/sbin/wetop-auto-deploy
+git checkout -B release origin/release                            # клон теперь на ветке выкладки; HEAD тот же коммит
+( crontab -l 2>/dev/null | grep -v 'wetop-auto-deploy'
+  echo "*/2 * * * * /usr/local/sbin/wetop-auto-deploy >> /var/log/wetop-deploy.log 2>&1" ) | crontab -
+crontab -l | grep wetop-auto-deploy                               # строка на месте
+/usr/local/sbin/wetop-auto-deploy; echo "код $?"                   # вершина та же — молча, код 0
 ```
+
+**Первая выкладка через `release` ждёт Q-177.** В `main` с 24.09 лежат миграции ИИ-помощника и продавца
+(`20260924000018_user_errors`, `20260924000019_seller_profiles`), а `DATA_MODEL.md` v1.8 ещё не утверждён. Скрипт такой
+коммит не выложит и напишет, какие миграции ждут. Порядок: владелец утверждает Q-177; `release` перематывается на
+проверенный коммит `main`; скрипт отказывает и называет миграции; владелец применяет их (бэкап → миграция → проверка —
+`docs/ops/backups.md`) и запускает `/usr/local/sbin/wetop-auto-deploy --migrations-applied` — скрипт выкладывает эту
+вершину без проверки миграций, остальные проверки и откат остаются. Следующие вершины снова проверяются.
 
 Выключить — убрать строку из `crontab -e`. Ручная выкладка по §1а остаётся рабочей: перед ней убрать строку cron, чтобы
 два процесса не собирали образ одновременно (скрипт держит замок, но о ручной сборке он не знает).

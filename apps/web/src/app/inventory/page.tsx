@@ -1,5 +1,8 @@
+import { FundTabs } from './fund-tabs';
+import { FundEditor } from './fund-editor';
+import './fund.css';
 import Link from 'next/link';
-import { api } from '../../lib/api';
+import { api, inventoryEditorApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { InventoryCatalog } from './inventory-catalog';
@@ -7,13 +10,19 @@ import './inventory.css';
 
 /** Состав фонда из API; занятость и команды остаются в шахматке и карточке места. */
 export default async function InventoryPage() {
-  const [summary, units] = await Promise.all([api.inventorySummary(), api.inventoryUnits()]);
+  const [summary, units, categories] = await Promise.all([
+    api.inventorySummary(),
+    api.inventoryUnits(),
+    inventoryEditorApi.categories(),
+  ]);
   return (
     <Page
       title="Номерной фонд"
       subtitle={summary.property.name}
       actions={
         <>
+          <FundEditor categories={categories} mode="category" />
+          <FundEditor categories={categories} />
           <Link href="/rooms/availability" className="btn btn--secondary">
             Доступность
           </Link>
@@ -24,6 +33,14 @@ export default async function InventoryPage() {
         </>
       }
     >
+      <FundTabs active="inventory" />
+      {!summary.totalUnits && (
+        <section className="fund-empty">
+          <h2>Создайте свой номерной фонд</h2>
+          <p>1. Добавьте категорию · 2. Создайте номера или койки · 3. Настройте тарифы</p>
+          <Link href="/onboarding">Первоначальная настройка с ценами →</Link>
+        </section>
+      )}
       <dl className="inventory-summary" data-testid="inventory-summary">
         {[
           ['В фонде', summary.totalUnits, 'total-units'],
@@ -38,7 +55,11 @@ export default async function InventoryPage() {
           </div>
         ))}
       </dl>
-      <InventoryCatalog units={units} categories={summary.byCategory} />
+      <InventoryCatalog
+        units={units}
+        categories={summary.byCategory}
+        editorCategories={categories}
+      />
     </Page>
   );
 }

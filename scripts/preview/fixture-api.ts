@@ -1522,7 +1522,8 @@ function read(path: string, q: URLSearchParams): unknown {
     if (path === '/finance/services') return [];
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
-    if (['/guests', '/analytics/sites', '/inventory/units'].includes(path)) return [];
+    if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
+      return [];
     if (path === '/inventory/summary')
       return {
         property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -1681,6 +1682,15 @@ function read(path: string, q: URLSearchParams): unknown {
           ],
     };
   }
+  if (path === '/inventory/categories')
+    return categories.map((c) => ({
+      code: c.code,
+      name: c.name,
+      kind: units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
+        ? 'DORM_BED'
+        : 'PRIVATE_ROOM',
+      capacityAdults: c.capacityAdults,
+    }));
   if (path === '/inventory/summary')
     return {
       property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -1754,16 +1764,18 @@ function read(path: string, q: URLSearchParams): unknown {
         penaltyMinor: action === 'no_show' ? night.toString() : '0',
         policy: 'FIRST_NIGHT',
       };
-    if (action === 'extend')
+    if (action === 'extend') {
+      const nights = Number(q.get('nights') ?? 1);
       return {
         action,
         currentPriceMinor: item.priceMinor,
         currency: 'KZT',
-        nights: 1,
-        departureDate: add(item.departureDate, 1),
-        newPriceMinor: (current + night).toString(),
-        differenceMinor: night.toString(),
+        nights,
+        departureDate: add(item.departureDate, nights),
+        newPriceMinor: (current + night * BigInt(nights)).toString(),
+        differenceMinor: (night * BigInt(nights)).toString(),
       };
+    }
     const unitCode = q.get('unitCode') ?? '';
     const unit = units.find((u) => u.code === unitCode);
     const changesCategory = !!unit && unit.accommodationTypeCode !== item.accommodationTypeCode;
@@ -2125,7 +2137,16 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
-    const entries = [
+    const entries: Array<{
+      id: string;
+      at: string;
+      entityType: string;
+      entityId: string;
+      action: string;
+      subject: string | null;
+      targetAvailable: boolean | null;
+      author: string | null;
+    }> = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
@@ -2133,6 +2154,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: 'ui-item',
         action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        targetAvailable: true,
         // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
         author: uiUser.name,
       },
@@ -2143,6 +2165,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: uiUser.id,
         action: 'user.login',
         subject: null,
+        targetAvailable: null,
         author: uiUser.name,
       },
       {
@@ -2152,6 +2175,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: 'ui-property',
         action: 'channex.fullSync',
         subject: null,
+        targetAvailable: null,
         // без автора: так ходят импорт, сторож и скрипты сверки
         author: null,
       },
@@ -2165,6 +2189,7 @@ function read(path: string, q: URLSearchParams): unknown {
           entityId: 'ui-unit',
           action: 'unit.block',
           subject: 'R01',
+          targetAvailable: null,
           author: uiUser.name,
         },
         {
@@ -2174,6 +2199,7 @@ function read(path: string, q: URLSearchParams): unknown {
           entityId: 'ui-item',
           action: 'reservation.create',
           subject: card.confirmationNumber,
+          targetAvailable: false,
           author: null,
         },
       );
@@ -2248,6 +2274,7 @@ createServer(async (req, res) => {
       connectionState = 'READY';
       // A long browser run can cross midnight in the property's timezone.
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+      units.splice(88);
       categories.splice(0, categories.length, ...structuredClone(categorySeed));
       for (const unit of units)
         unit.accommodationTypeName = categories.find(
@@ -2778,6 +2805,42 @@ createServer(async (req, res) => {
       return send(200, { ok: true });
     }
 
+    if (path === '/inventory/categories' && req.method === 'POST') {
+      const code = `test-category-${categories.length}`;
+      categories.push({
+        code,
+        name: String(body.name),
+        capacityAdults: Number(body.capacityAdults),
+        count: 0,
+      } as (typeof categories)[number]);
+      return send(201, { code });
+    }
+    if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
+      const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
+      if (!c) return send(404, { message: 'Категория не найдена' });
+      c.name = String(body.name);
+      return send(200, { code: c.code });
+    }
+    if (path === '/inventory/rooms' && req.method === 'POST') {
+      const c = categories.find((c) => c.code === body.categoryCode);
+      if (!c) return send(404, { message: 'Категория не найдена' });
+      const codes = body.codes as string[];
+      if (codes.some((code) => units.some((u) => u.code === code)))
+        return send(409, { message: 'Обозначение уже существует' });
+      for (const code of codes)
+        units.push({
+          code,
+          exelyRoomNumber: null,
+          kind: 'ROOM',
+          accommodationTypeCode: c.code,
+          accommodationTypeName: c.name,
+          roomNumber: String(body.roomNumber),
+          roomCapacity: c.capacityAdults,
+          isDorm: false,
+        });
+      c.count += codes.length;
+      return send(201, { codes });
+    }
     if (req.method === 'GET') {
       const result = read(path, url.searchParams);
       return send(

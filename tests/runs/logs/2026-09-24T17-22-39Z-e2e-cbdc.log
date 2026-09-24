@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 24.09.2026 22:22 Алматы · MacBook-Air-Urij.local
+# коммит 7a04641 (codex/chessboard-comfort), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/manager-actions.spec.ts' '--grep' 'шахматк' '--workers=1'
+[WebServer] (node:34095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34197) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer]
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer]
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:34204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/manager-actions.spec.ts:229:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (8.8s)
+[WebServer] (node:34290) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/manager-actions.spec.ts:353:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.9s)
+
+  2 passed (22.5s)
+
+# код выхода 0 · 24 с

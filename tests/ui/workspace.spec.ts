@@ -50,7 +50,7 @@ test('все разделы, карточки и печать открывают
     ['/incidents', 'Неисправности'],
     ['/analytics', 'Аналитика сайта'],
     ['/analytics/setup', 'Настройки сайта'],
-    ['/rooms', 'Управление номерами'],
+    ['/rooms', 'Номерной фонд'],
     ['/rooms/categories', 'Категории номеров'],
     ['/rooms/availability', 'Доступность номеров'],
     ['/hotel-settings', 'Настройки гостиницы'],
@@ -134,7 +134,8 @@ test('доступность переносит даты и свободное �
   page,
 }) => {
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
-  await page.getByRole('link', { name: 'Создать бронь', exact: true }).first().click();
+  await page.locator('.fund-availability summary').first().click();
+  await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
   await expect(
     page
@@ -1019,7 +1020,7 @@ test('доступность: период длиннее 62 ночей объя
   await expect(page.getByLabel('Выезд')).toHaveAttribute('max', '2026-12-02');
   await page.getByRole('link', { name: 'Неделя' }).click();
   await expect(page.getByText('не больше 62 ночей')).toHaveCount(0);
-  await expect(page.getByText('Доступно на весь срок')).toBeVisible();
+  await expect(page.getByText('Свободно на весь срок')).toBeVisible();
 });
 
 /**
@@ -1029,21 +1030,18 @@ test('доступность: период длиннее 62 ночей объя
  * при любой ошибке каждая карточка писала «Нет данных», а каждая категория — «нет данных».
  * Смена читала это как «в системе пусто» и шла заводить брони заново.
  */
-test('номера: сбой шахматки назван сбоем, а не пустотой', async ({ page, request }) => {
+test('фонд и категории открываются независимо от сбоя шахматки', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
   await page.goto('/rooms');
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
-  await expect(page.getByText('Нет данных')).toHaveCount(0);
-
+  await expect(page).toHaveURL(/\/inventory$/);
+  await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await page.goto('/rooms/categories');
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('Занятость');
-  await expect(page.getByText('нет данных')).toHaveCount(0);
-
-  // как только шахматка отвечает, занятость на месте и предупреждения нет
-  await request.post(`${fixture}/__test/control`, { data: {} });
-  await page.goto('/rooms/categories');
+  await expect(page.locator('.fund-category')).toHaveCount(3);
   await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
-  await expect(page.getByText('занято').first()).toBeVisible();
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/categories' } });
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Не удалось загрузить данные' })).toBeVisible();
+  await expect(page.locator('.fund-category')).toHaveCount(0);
 });
 
 /**
@@ -1487,47 +1485,29 @@ test('деньги D2: период словами, три блока с поя�
  * карточки без « · » и стрелок; таблицы категорий и доступности на телефоне без прокрутки вбок;
  * пока фонд идёт — скелетон с подписью словом.
  */
-test('номера D4: пустота фильтров словами со сбросом, телефон без прокрутки вбок, скелетон', async ({
-  page,
-  request,
-}) => {
+test('единый фонд: старый адрес, сброс фильтров и адаптивные категории', async ({ page }) => {
   await page.goto('/rooms');
+  await expect(page).toHaveURL(/\/inventory$/);
   const main = page.getByRole('main');
-  await expect(main.getByTestId('rooms-shown')).toContainText('Показано 16 из 88');
-  await main.getByLabel('Поиск номеров').fill('нет такого');
-  const empty = main.getByTestId('rooms-empty');
-  await expect(empty).toContainText('Нет подходящих номеров');
-  await expect(empty).toContainText('«нет такого»');
-  await empty.getByRole('button', { name: 'Сбросить фильтры' }).click();
-  await expect(main.getByTestId('rooms-shown')).toContainText('из 88');
-  await expect(main.locator('.room-card').first()).toBeVisible();
-  await expect(main.locator('.room-card-footer').first()).not.toContainText('·');
-
+  await main.getByRole('searchbox', { name: 'Поиск по номерному фонду' }).fill('нет такого');
+  await expect(main.getByRole('heading', { name: 'Ничего не найдено' })).toBeVisible();
+  await main.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
+  await expect(main.getByTestId('unit-row')).toHaveCount(88);
   await page.setViewportSize({ width: 390, height: 844 });
   for (const route of [
     '/rooms/categories',
     '/rooms/availability?arrival=2026-10-01&departure=2026-10-04',
   ]) {
     await page.goto(route);
-    await expect(main.locator('.dir-table tbody tr').first()).toBeVisible();
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    expect(overflow, route).toBeLessThanOrEqual(1);
+    await expect(main.locator('.fund-category,.fund-availability article').first()).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
   }
-  await expect(
-    main.getByRole('link', { name: 'Создать бронь', exact: true }).first(),
-  ).toBeVisible();
-
-  await request.post(`${fixture}/__test/control`, {
-    data: { delayPath: '/inventory/units', delayMs: 2500 },
-  });
-  await page.goto('/rooms', { waitUntil: 'commit' });
-  const loading = page.getByTestId('rooms-loading');
-  await expect(loading).toBeVisible();
-  await expect(loading.getByRole('status')).toHaveText('Загружаем номера и занятость…');
-  await expect(page.getByRole('main').locator('.room-card').first()).toBeVisible();
-  await request.post(`${fixture}/__test/control`, { data: {} });
+  await main.locator('.fund-availability summary').first().click();
+  await expect(main.locator('.fund-book-unit').first()).toBeVisible();
 });
 
 test('отмена брони: окно называет, что сторнируется и будет ли штраф', async ({ page }) => {

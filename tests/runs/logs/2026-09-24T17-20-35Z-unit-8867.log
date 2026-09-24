@@ -1,0 +1,18 @@
+# Модульные (unit) · 24.09.2026 22:20 Алматы · MacBook-Air-Urij.local
+# коммит 7a04641 (codex/chessboard-comfort), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-24T17-20-35Z-unit-8867.json' 'apps/web/src/app/chessboard/extend-plan.test.ts' 'apps/web/src/app/chessboard/drag-plan.test.ts' 'apps/web/src/app/chessboard/stay-labels.test.ts' '--maxWorkers=2'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (2 tests) 61ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 178ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 9ms
+
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  21:20:41
+   Duration  4.96s (transform 61%, import 22%, worker 10%, tests 7%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-24T17-20-35Z-unit-8867.json
+
+# код выхода 0 · 11 с

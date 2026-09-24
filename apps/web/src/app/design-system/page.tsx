@@ -22,9 +22,16 @@ import {
   StatusBadge,
   Table,
 } from '../../components/ui';
-import { Tooltip } from '../../components/tooltip';
 import { DateInput } from '../../components/date-field';
-import { ConfirmDemo, ErrorDemo, MenuDemo, ToastDemo, ToastStatic, TooltipDemo } from './demos';
+import {
+  ConfirmDemo,
+  DisabledTooltipDemo,
+  ErrorDemo,
+  MenuDemo,
+  ToastDemo,
+  ToastStatic,
+  TooltipDemo,
+} from './demos';
 import './kit.css';
 
 /**
@@ -921,13 +928,7 @@ function Kit() {
           </span>
         </State>
         <State name="disabled" note="подсказка у отключённой кнопки объясняет, почему">
-          <Tooltip text="Заселение без гражданства не пройдёт">
-            <span tabIndex={0} className="kit-disabled-host">
-              <Button type="button" disabled>
-                Заселить
-              </Button>
-            </span>
-          </Tooltip>
+          <DisabledTooltipDemo />
         </State>
         <State name="loading" note="нет">
           <span className="hint">—</span>

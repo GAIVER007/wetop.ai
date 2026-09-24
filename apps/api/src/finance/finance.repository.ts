@@ -326,8 +326,13 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
     return a ? { code: a.inventoryUnit.code } : null;
   }
+  // Поиск по id — только внутри объекта (замок организаций ADR-061, Q-152): чужой счёт по известному id не найдётся
   async folioById(id: string): Promise<FolioRecord | null> {
-    const f = await this.prisma.db.folio.findUnique({ where: { id }, include: folioInclude });
+    const { id: propertyId } = await this.property();
+    const f = await this.prisma.db.folio.findFirst({
+      where: { id, reservationItem: { reservation: { propertyId } } },
+      include: folioInclude,
+    });
     return f ? toFolio(f) : null;
   }
   async services(): Promise<ServiceRef[]> {
@@ -440,8 +445,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return row.id;
   }
   async chargeById(id: string): Promise<ChargeRecord | null> {
-    const c = await this.prisma.db.charge.findUnique({
-      where: { id },
+    const { id: propertyId } = await this.property();
+    const c = await this.prisma.db.charge.findFirst({
+      where: { id, folio: { reservationItem: { reservation: { propertyId } } } },
       include: { service: { select: { code: true } } },
     });
     return c ? toCharge(c) : null;
@@ -472,8 +478,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return row.id;
   }
   async paymentById(id: string): Promise<PaymentRecord | null> {
-    const p = await this.prisma.db.payment.findUnique({
-      where: { id },
+    const { id: propertyId } = await this.property();
+    const p = await this.prisma.db.payment.findFirst({
+      where: { id, propertyId },
       include: { allocations: true, refunds: true },
     });
     return p

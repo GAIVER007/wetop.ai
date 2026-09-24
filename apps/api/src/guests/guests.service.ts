@@ -195,6 +195,8 @@ export class GuestsService {
   }
 
   async deleteDocument(id: string, documentId: string) {
+    // гость своего объекта (замок организаций, Q-152) — иначе 404, как у правки и добавления документа
+    if (!(await this.repo.byId(id))) throw new NotFoundException(`Гость ${id} не найден`);
     const removed = await this.repo.deleteDocument(id, documentId);
     if (!removed) throw new NotFoundException(`Документ ${documentId} не найден у гостя ${id}`);
     await this.repo.audit(id, 'guest.document.delete', ['id'], { documentId, type: removed.type });

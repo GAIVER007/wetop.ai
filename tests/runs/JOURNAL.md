@@ -1875,3 +1875,7 @@
 | 24.09.2026 15:16 | typecheck | ❌ ошибок: 1 | 19 с | 209bab5 +17 | [лог](logs/2026-09-24T10-16-30Z-typecheck-3ce5.log) | П3 |
 | 24.09.2026 15:17 | typecheck | ✅ без ошибок | 19 с | 209bab5 +18 | [лог](logs/2026-09-24T10-17-06Z-typecheck-d060.log) | П3 |
 | 24.09.2026 15:17 | unit (частично: apps/api/src/rates/) | ✅ 17 из 17 | 3 с | 209bab5 +16 | [лог](logs/2026-09-24T10-17-26Z-unit-7872.log) | П3: service forwards before to the audit |
+| 24.09.2026 15:19 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 1 | 3 с | 57ffa89 +1 | [лог](logs/2026-09-24T10-19-18Z-integration-ee30.log) | red: guests, audit and folio lookups bypass the organization lock (Q-152, П4) |
+| 24.09.2026 15:20 | integration (частично: tests/integration/organization-isolation.test.ts tests/integration/audit-list.test.ts tests/integration/audit-author.test.ts) | ✅ 7 из 7 | 5 с | 57ffa89 +5 | [лог](logs/2026-09-24T10-20-15Z-integration-405f.log) | green: guests, audit list and folio lookups behind the organization lock (Q-152, П4) |
+| 24.09.2026 15:20 | unit (частично: apps/api/src/guests/ apps/api/src/finance/ apps/api/src/audit/) | ✅ 33 из 33 | 3 с | 57ffa89 +4 | [лог](logs/2026-09-24T10-20-27Z-unit-4e35.log) | П4: unit neighbours |
+| 24.09.2026 15:20 | typecheck | ✅ без ошибок | 19 с | 57ffa89 +5 | [лог](logs/2026-09-24T10-20-30Z-typecheck-59e0.log) | П4 |

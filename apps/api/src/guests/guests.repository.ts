@@ -1,7 +1,11 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
+import type { Prisma } from '@pms/database';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
+import { hasSignedInActor } from '../auth/request-context';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface GuestSummary {
   id: string;
@@ -86,15 +90,34 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 @Injectable()
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  /**
+   * Замок организаций (ADR-061, Q-152). У гостя нет своего объекта: вошедший видит гостя, если у того есть бронь
+   * объекта его организации — основным гостем или на проживании. Служебный ходок (сторож, скрипты) — как раньше.
+   */
+  private async visible(): Promise<Prisma.GuestWhereInput> {
+    if (!hasSignedInActor()) return {};
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return {
+      OR: [
+        { primaryReservations: { some: { propertyId } } },
+        { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+      ],
+    };
+  }
   async search(q: string, limit: number): Promise<GuestSummary[]> {
     const digits = q.replace(/\D/g, '');
     const rows = await this.prisma.db.guest.findMany({
       where: {
-        OR: [
-          { lastName: { contains: q, mode: 'insensitive' } },
-          { firstName: { contains: q, mode: 'insensitive' } },
-          { email: { contains: q, mode: 'insensitive' } },
-          ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
+        AND: [
+          await this.visible(),
+          {
+            OR: [
+              { lastName: { contains: q, mode: 'insensitive' } },
+              { firstName: { contains: q, mode: 'insensitive' } },
+              { email: { contains: q, mode: 'insensitive' } },
+              ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
+            ],
+          },
         ],
       },
       orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
@@ -118,8 +141,8 @@ export class PrismaGuestsRepository implements GuestsRepository {
     }));
   }
   async byId(id: string): Promise<GuestProfile | null> {
-    const g = await this.prisma.db.guest.findUnique({
-      where: { id },
+    const g = await this.prisma.db.guest.findFirst({
+      where: { AND: [{ id }, await this.visible()] },
       include: {
         documents: { orderBy: { createdAt: 'asc' } },
         stays: {

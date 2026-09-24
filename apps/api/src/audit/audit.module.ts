@@ -1,7 +1,10 @@
 import 'reflect-metadata';
 import { Controller, Get, Inject, Injectable, Module, Query } from '@nestjs/common';
 import { Prisma } from '@pms/database';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface AuditRow {
   id: string;
@@ -53,6 +56,8 @@ export class AuditService {
     if (!q.system && !q.action)
       where.push(Prisma.sql`a."action" <> ALL(${SYSTEM_AUDIT_ACTIONS}::text[])`);
     if (text) where.push(Prisma.sql`${SUBJECT_SQL} LIKE ${`%${text}%`}`);
+    // Замок организаций (ADR-061, Q-152): вошедший видит записи только о сущностях своего объекта и своих сотрудниках
+    if (hasSignedInActor()) where.push(await ownAuditRows(this.prisma.db));
     // Волна 4: снимки брони в списке не нужны — из них берут одну короткую строку. На bulk-правке цен
     // и на импорте `after` весит мегабайты, и 200 строк тянули их целиком через пулер в Сингапур.
     // Автор — имя из учётной записи (§13.2): почта сотрудника в журнал не выводится.
@@ -84,6 +89,46 @@ export class AuditService {
       author: r.author ?? null,
     }));
   }
+}
+
+/**
+ * Строки журнала своей организации. У `audit_logs` нет объекта: принадлежность выводится по типу сущности через её
+ * таблицу. Незнакомый тип вошедшему не показывается — лучше не показать своё, чем показать чужое.
+ */
+async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
+  const propertyId = await propertyIdRef(db, LUXX_APARTS_PROPERTY.name);
+  const organizationId = currentOrganizationId();
+  const p = Prisma.sql`${propertyId}::uuid`;
+  return Prisma.sql`(
+    (a."entity_type" = 'Property' AND a."entity_id" = ${propertyId})
+    OR (a."entity_type" = 'Reservation' AND a."entity_id" IN (
+      SELECT r."id"::text FROM "reservations" r WHERE r."property_id" = ${p}))
+    OR (a."entity_type" = 'ReservationItem' AND a."entity_id" IN (
+      SELECT i."id"::text FROM "reservation_items" i JOIN "reservations" r ON r."id" = i."reservation_id"
+      WHERE r."property_id" = ${p}))
+    OR (a."entity_type" = 'Folio' AND a."entity_id" IN (
+      SELECT f."id"::text FROM "folios" f
+      JOIN "reservation_items" i ON i."id" = f."reservation_item_id"
+      JOIN "reservations" r ON r."id" = i."reservation_id"
+      WHERE r."property_id" = ${p}))
+    OR (a."entity_type" = 'Payment' AND a."entity_id" IN (
+      SELECT pay."id"::text FROM "payments" pay WHERE pay."property_id" = ${p}))
+    OR (a."entity_type" = 'InventoryUnit' AND a."entity_id" IN (
+      SELECT u."id"::text FROM "inventory_units" u
+      JOIN "accommodation_types" t ON t."id" = u."accommodation_type_id" WHERE t."property_id" = ${p}))
+    OR (a."entity_type" = 'TrackedSite' AND a."entity_id" IN (
+      SELECT s."id"::text FROM "tracked_sites" s WHERE s."property_id" = ${p}))
+    OR (a."entity_type" = 'Guest' AND a."entity_id" IN (
+      SELECT r."primary_guest_id"::text FROM "reservations" r
+      WHERE r."property_id" = ${p} AND r."primary_guest_id" IS NOT NULL
+      UNION
+      SELECT sg."guest_id"::text FROM "stay_guests" sg
+      JOIN "reservation_items" i ON i."id" = sg."reservation_item_id"
+      JOIN "reservations" r ON r."id" = i."reservation_id"
+      WHERE r."property_id" = ${p}))
+    OR (a."entity_type" = 'user' AND a."entity_id" IN (
+      SELECT m."user_id"::text FROM "memberships" m WHERE m."organization_id" = ${organizationId}::uuid))
+  )`;
 }
 
 @Controller('audit')

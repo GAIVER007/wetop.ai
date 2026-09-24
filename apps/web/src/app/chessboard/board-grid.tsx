@@ -13,6 +13,7 @@ import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../
 import { Alert, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
 import { stayLabels } from './stay-labels';
+import { StayResize } from './stay-resize';
 import {
   assignUnitAction,
   cancelPreviewAction,
@@ -170,21 +171,39 @@ export function ChessboardGrid({
   // C2: те же действия, что перетаскивание и карточка, — пунктами меню на плашке (DESIGN.md §12).
   // Логика не своя: предпросмотр и команда — те же server actions, что зовёт карточка брони.
   const router = useRouter();
-  const extendStay = async (p: StayMenuPayload) => {
-    const summary = await previewAction(p.number, p.itemId, { action: 'extend', nights: '1' });
+  const extending = useRef(false);
+  const extendStay = async (p: StayMenuPayload, addedNights = 1) => {
+    if (pending || extending.current) return;
+    extending.current = true;
+    setError(null);
+    const summary = await previewAction(p.number, p.itemId, {
+      action: 'extend',
+      nights: String(addedNights),
+    });
+    if (!summary) {
+      extending.current = false;
+      setError('Не удалось рассчитать продление. Проверьте тариф в карточке брони и повторите.');
+      return;
+    }
     if (
       !(await ask({
-        title: `Продлить на ночь — ${p.guest}, ${p.unitCode}?`,
+        title: `Продлить на ${addedNights === 1 ? 'ночь' : `${addedNights} ноч.`} — ${p.guest}, ${p.unitCode}?`,
         body: previewLine(summary),
         confirmLabel: 'Продлить',
       }))
-    )
+    ) {
+      extending.current = false;
       return;
+    }
     start(async () => {
-      const r = await extendStayAction(p.number, p.itemId, 1);
+      const r = await extendStayAction(p.number, p.itemId, addedNights);
+      extending.current = false;
       setError(r.error);
       if (!r.error) {
-        toast({ text: `Бронь ${p.number} продлена на ночь, ${p.unitCode}`, tone: 'success' });
+        toast({
+          text: `Бронь ${p.number} продлена на ${addedNights === 1 ? 'ночь' : `${addedNights} ноч.`}, ${p.unitCode}`,
+          tone: 'success',
+        });
         router.refresh();
       }
     });
@@ -522,6 +541,7 @@ export function ChessboardGrid({
                           onDragStart={onDragStart}
                           onDragEnd={onDragEnd}
                           onExtend={extendStay}
+                          pending={pending}
                           onCancel={cancelStay}
                         />
                       ))}
@@ -534,7 +554,7 @@ export function ChessboardGrid({
       </div>
       {pending && (
         <p className="hint" data-testid="drag-pending">
-          Переселяем…
+          Сохраняем изменения…
         </p>
       )}
       {error && <Alert data-testid="drag-error">{error}</Alert>}
@@ -552,6 +572,7 @@ function Cell({
   onDragEnd,
   onExtend,
   onCancel,
+  pending,
 }: {
   cell: ChessboardCell;
   label: { span: number; continues: boolean; lastDate: string } | undefined;
@@ -559,7 +580,8 @@ function Cell({
   today: string;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
   onDragEnd: () => void;
-  onExtend: (payload: StayMenuPayload) => void;
+  onExtend: (payload: StayMenuPayload, nights?: number) => void;
+  pending: boolean;
   onCancel: (payload: StayMenuPayload) => void;
 }) {
   // цвет клетки зависит от данных — единственный инлайн-стиль сетки; значения из токенов globals.css
@@ -628,11 +650,11 @@ function Cell({
             {label && (
               <span
                 className="board-stay-caption"
+                data-span={label.span}
                 style={{ width: `calc(${label.span * 100}% - var(--board-caption-end, 40px))` }}
               >
-                {label.continues ? '← ' : ''}
                 <b className="board-stay-glyph" aria-hidden="true">
-                  {STATUS_GLYPH[cell.itemStatus ?? ''] ?? ''}
+                  {label.continues ? '←' : (STATUS_GLYPH[cell.itemStatus ?? ''] ?? '')}
                 </b>
                 <span className="board-stay-name">
                   {cell.guestLabel || cell.confirmationNumber}
@@ -674,7 +696,26 @@ function Cell({
                 onExtend,
                 onCancel,
               )}
-              style={{ left: `calc(${label.span * 100}% - 30px)` }}
+              style={{ left: `calc(${label.span * 100}% - 54px)` }}
+            />
+          )}
+          {draggable && cell.isLastNight && (
+            <StayResize
+              guest={cell.guestLabel || cell.confirmationNumber!}
+              lastNight={cell.date}
+              disabled={pending}
+              onExtend={(nights) =>
+                onExtend(
+                  {
+                    number: cell.confirmationNumber!,
+                    itemId: cell.itemId!,
+                    unitCode,
+                    guest: cell.guestLabel || cell.confirmationNumber!,
+                    status: cell.itemStatus ?? '',
+                  },
+                  nights,
+                )
+              }
             />
           )}
           {cell.isArrival && messengerLinks(cell.guestPhone) && (

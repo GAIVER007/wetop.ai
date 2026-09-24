@@ -215,20 +215,24 @@ export default async function ChessboardPage({
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
       <div className="board-footer">
-        <Legend
-          data-testid="board-legend"
-          items={[
-            { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
-            { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
-            { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
-            { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
-            { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
-            // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
-            { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
-            { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
-            { label: 'без значка — проверена, доступна' },
-          ]}
-        />
+        <details className="board-legend-details">
+          <summary>Обозначения</summary>
+          <Legend
+            data-testid="board-legend"
+            items={[
+              { color: 'var(--st-confirmed)', label: 'подтверждена', glyph: '•' },
+              { color: 'var(--st-checked-in)', label: 'заселён', glyph: '✓' },
+              { color: 'var(--st-checked-out)', label: 'выселен', glyph: '✕' },
+              { color: 'var(--st-tentative)', label: 'не подтверждена', glyph: '?' },
+              { color: 'var(--st-blocked)', label: 'блокировка', glyph: '▨' },
+              // уборка (22.09): значок стоит, пока с ячейкой надо что-то делать; проверенная — без значка
+              { color: 'var(--warning-bg)', label: 'требует уборки', icon: 'dirty' },
+              { color: 'var(--primary-soft)', label: 'убрано, ждёт проверки', icon: 'clean' },
+              { label: 'без значка — проверена, доступна' },
+            ]}
+          />
+        </details>
+        <span className="board-gesture-hint">Плашка — переселить · правый край — продлить</span>
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
       </div>
     </Page>

@@ -2016,7 +2016,16 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
-    const entries = [
+    const entries: Array<{
+      id: string;
+      at: string;
+      entityType: string;
+      entityId: string;
+      action: string;
+      subject: string | null;
+      targetAvailable: boolean | null;
+      author: string | null;
+    }> = [
       {
         id: 'ui-audit',
         at: `${today}T08:30:00Z`,
@@ -2024,6 +2033,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: 'ui-item',
         action: 'reservation.checkIn',
         subject: card.confirmationNumber,
+        targetAvailable: true,
         // кто сделал: имя вошедшего (ADR-023, ADR-046). Сотрудник вымышленный, как и всё в фикстуре
         author: uiUser.name,
       },
@@ -2034,6 +2044,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: uiUser.id,
         action: 'user.login',
         subject: null,
+        targetAvailable: null,
         author: uiUser.name,
       },
       {
@@ -2043,6 +2054,7 @@ function read(path: string, q: URLSearchParams): unknown {
         entityId: 'ui-property',
         action: 'channex.fullSync',
         subject: null,
+        targetAvailable: null,
         // без автора: так ходят импорт, сторож и скрипты сверки
         author: null,
       },
@@ -2056,6 +2068,7 @@ function read(path: string, q: URLSearchParams): unknown {
           entityId: 'ui-unit',
           action: 'unit.block',
           subject: 'R01',
+          targetAvailable: null,
           author: uiUser.name,
         },
         {
@@ -2065,6 +2078,7 @@ function read(path: string, q: URLSearchParams): unknown {
           entityId: 'ui-item',
           action: 'reservation.create',
           subject: card.confirmationNumber,
+          targetAvailable: false,
           author: null,
         },
       );

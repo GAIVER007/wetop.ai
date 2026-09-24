@@ -14,7 +14,7 @@ import {
 import { SellerService } from './seller.service';
 import { SellerSyncService } from './seller-sync.service';
 
-/** Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-077): профиль, прокси к продавцу, применение и сверка */
+/** Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079): профиль, прокси к продавцу, применение и сверка */
 @Module({
   controllers: [AiSellerController],
   providers: [

@@ -3,6 +3,10 @@ import { defineConfig } from '@playwright/test';
 if (process.env.WETOP_LIVE_AUDIT !== '1')
   throw new Error('Set WETOP_LIVE_AUDIT=1 to audit Supabase');
 
+// Один обычный API, audit API и независимый клиент проверок делят лимит Session pooler (15).
+// По одному соединению на процесс достаточно для последовательного live-аудита и оставляет запас серверу.
+process.env.DATABASE_POOL_MAX = '1';
+
 /** Separate from default e2e: no global cleanup, provider calls, traces or guest screenshots. */
 export default defineConfig({
   testDir: '.',

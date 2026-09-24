@@ -1889,3 +1889,6 @@
 | 24.09.2026 15:33 | e2e | ✅ 25 из 25 | 1 мин 28 с | 7fbd9e9 +6 | [лог](logs/2026-09-24T10-33-51Z-e2e-6a0b.log) | SECURITY plan 24.09 executed: final tree, local PostgreSQL 16, production build |
 | 24.09.2026 15:52 | lint | ✅ без ошибок | 20 с | 7fbd9e9 +8 | [лог](logs/2026-09-24T10-52-44Z-lint-6278.log) | green: test DB guard without a useless assignment (lint no-useless-assignment) |
 | 24.09.2026 15:53 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 18 из 18 | 9 с | 7fbd9e9 +7 | [лог](logs/2026-09-24T10-53-10Z-unit-1738.log) | green: repo-sync block timeout 60 s (5th 5000 ms timeout under load, TESTING.md rake 21.09) |
+| 24.09.2026 15:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 336 из 336 | 25 мин 46 с | 7fbd9e9 +6 | [лог](logs/2026-09-24T10-35-20Z-e2e-dc94.log) | SECURITY plan 24.09 executed: final tree: full UI suite |
+| 24.09.2026 16:01 | unit | ✅ 1497 из 1500, пропущено 3 | 1 мин 12 с | 451a0a1 | [лог](logs/2026-09-24T11-01-21Z-unit-2395.log) | SECURITY plan 24.09 executed: final tree |
+| 24.09.2026 16:02 | typecheck | ✅ без ошибок | 20 с | 451a0a1 | [лог](logs/2026-09-24T11-02-34Z-typecheck-9166.log) | SECURITY plan 24.09 executed: final tree |

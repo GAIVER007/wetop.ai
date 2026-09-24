@@ -8,6 +8,7 @@ import { ANALYTICS_REPOSITORY, PrismaAnalyticsRepository } from './analytics.rep
 import { AnalyticsService } from './analytics.service';
 import { CollectController } from './collect.controller';
 import { CollectService } from './collect.service';
+import { WebRetentionService } from './retention.service';
 
 /** Аналитика сайта (DATA_MODEL §11, срез 8): публичный приёмник `/a/*` и отчёты `/analytics/*`. */
 @Module({
@@ -16,6 +17,8 @@ import { CollectService } from './collect.service';
     PrismaService,
     CollectService,
     AnalyticsService,
+    // хранение 13 месяцев: раз в сутки после 04:00 Алматы (проверка SECURITY.md 24.09.2026, П9)
+    WebRetentionService,
     { provide: ANALYTICS_REPOSITORY, useClass: PrismaAnalyticsRepository },
   ],
   // Виджет бронирования (срез 9) работает с тем же «сайтом»

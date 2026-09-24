@@ -1,0 +1,43 @@
+# Модульные (unit) · 24.09.2026 16:18 Алматы · vm
+# коммит 69aba4f (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T11-18-55Z-unit-e906.json' 'packages/domain/src/web-analytics/retention.test.ts' 'apps/api/src/analytics/retention.service.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/web-analytics/retention.test.ts (0 test)
+ ❯ |unit| apps/api/src/analytics/retention.service.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/analytics/retention.service.test.ts [ apps/api/src/analytics/retention.service.test.ts ]
+Error: Cannot find module './retention.service' imported from /home/user/wetop.ai/apps/api/src/analytics/retention.service.test.ts
+ ❯ apps/api/src/analytics/retention.service.test.ts:4:1
+      2| import { describe, expect, it } from 'vitest';
+      3| import { FakeAnalyticsRepository } from './fake-repository';
+      4| import { RETENTION_HOUR_LOCAL, WebRetentionService, retentionDue } fro…
+       | ^
+      5|
+      6| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/retention.test.ts [ packages/domain/src/web-analytics/retention.test.ts ]
+Error: Cannot find module './retention' imported from /home/user/wetop.ai/packages/domain/src/web-analytics/retention.test.ts
+ ❯ packages/domain/src/web-analytics/retention.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { WEB_RETENTION_MONTHS, webRetentionCutoff } from './retention';
+       | ^
+      3|
+      4| describe('хранение сырых данных счётчика (план среза 8 §12, DATA_MODEL…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  11:18:56
+   Duration  245ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-24T11-18-55Z-unit-e906.json
+
+# код выхода 1 · 1 с

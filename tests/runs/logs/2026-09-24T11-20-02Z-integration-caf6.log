@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 24.09.2026 16:20 Алматы · vm
+# коммит 69aba4f (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T11-20-02Z-integration-caf6.json' 'tests/integration/web-analytics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 337ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  11:20:03
+   Duration  1.87s (transform 45%, tests 31%, import 23%)
+
+JSON report written to /tmp/pms-test-2026-09-24T11-20-02Z-integration-caf6.json
+
+# код выхода 0 · 3 с

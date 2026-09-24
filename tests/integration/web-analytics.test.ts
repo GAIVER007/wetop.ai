@@ -223,4 +223,38 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
       pageviewsToday: 4,
     });
   });
+
+  // Проверка SECURITY.md 24.09.2026, П9: очистку раз в сутки делает API (`retention.service.ts`) этим методом
+  it(
+    'хранение: сессия старше границы уходит с просмотрами и событиями, свежие остаются',
+    { timeout: 60_000 },
+    async () => {
+      const old = new Date('2020-01-10T05:00:00Z');
+      const border = new Date('2021-01-01T00:00:00Z');
+      await repo.record([
+        base({ at: old, visitorKey: 'visitor-old', sessionKey: 'sess-old' }),
+        base({
+          at: new Date(old.getTime() + 20_000),
+          visitorKey: 'visitor-old',
+          sessionKey: 'sess-old',
+          type: 'event',
+          eventName: 'search',
+          props: { adults: 1 },
+        }),
+      ]);
+      const oldSession = await db.webSession.findFirstOrThrow({
+        where: { siteId, sessionKey: 'sess-old' },
+      });
+      const fresh = await db.webSession.count({ where: { siteId, startedAt: { gte: border } } });
+      expect(fresh).toBe(3);
+      expect(await db.webPageview.count({ where: { sessionId: oldSession.id } })).toBe(1);
+      expect(await db.webEvent.count({ where: { sessionId: oldSession.id } })).toBe(1);
+
+      expect(await repo.deleteSessionsStartedBefore(border)).toBeGreaterThanOrEqual(1);
+      expect(await db.webSession.count({ where: { id: oldSession.id } })).toBe(0);
+      expect(await db.webPageview.count({ where: { sessionId: oldSession.id } })).toBe(0);
+      expect(await db.webEvent.count({ where: { sessionId: oldSession.id } })).toBe(0);
+      expect(await db.webSession.count({ where: { siteId, startedAt: { gte: border } } })).toBe(3);
+    },
+  );
 });

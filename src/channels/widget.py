@@ -47,7 +47,7 @@ from src.channels.widget_guards import (
     sniff_type,
     visitor_from,
 )
-from src.channels.widget_identity import key_tail
+from src.channels.widget_identity import current_visitor, key_tail
 from src.channels.widget_runner import WidgetRunner, WidgetSender, build_runner, get_runner
 from src.channels.widget_store import (
     CHANNEL,
@@ -180,6 +180,10 @@ async def post_message(request: Request) -> Response:
         channel=CHANNEL, external_id=visitor.key, text=text, received_at=utcnow(),
         client_name=visitor.display_name, ip=client_ip(request) or None,
     )
+    # 🔴 Кто спрашивает — знает канал, а не движок. Ставим до submit:
+    # create_task копирует контекст, и инструменты помощника увидят именно
+    # этого посетителя. Снимается значение после хода, в runner.
+    current_visitor.set(visitor)
     if get_runner(request.app).submit(incoming) is None:
         # Ходов уже столько, сколько процесс тянет. Честный отказ: браузер
         # повторит, а молча потерять реплику клиента нельзя.

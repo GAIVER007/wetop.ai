@@ -99,9 +99,13 @@ def test_lead_ref_created_flag() -> None:
 def test_providers_facade_fields() -> None:
     facade = Providers(orders=None, customers=None, availability=None, leads=None, mode="stub")
     assert facade.mode == "stub"
+    # incidents и health добавлены ролью «помощник платформы»; у них есть
+    # умолчание None, поэтому сборки продавца остались прежними.
     assert {f.name for f in dataclasses.fields(Providers)} == {
         "orders", "customers", "availability", "leads", "mode",
+        "incidents", "health",
     }
+    assert facade.incidents is None and facade.health is None
 
 
 # ─── Заглушка ───

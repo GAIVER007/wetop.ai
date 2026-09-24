@@ -9,11 +9,14 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import date, datetime
 
+from src.db.base import utcnow
 from src.integrations.providers import (
     Availability,
     Customer,
+    HealthReport,
+    Incident,
     LeadRef,
     OrderStatus,
     Quote,
@@ -26,8 +29,14 @@ NO_SOURCE = "нет связи со справочником"
 
 
 class StubProviders:
-    """Реализует все четыре протокола сразу: на разработке подключать
-    четыре разные заглушки незачем."""
+    """Реализует все протоколы сразу: на разработке подключать по заглушке
+    на каждую роль незачем.
+
+    🔴 Помощник платформы эту заглушку в бою не видит: фабрика в режиме stub
+    оставляет incidents и health равными None, и инструменты отвечают «не
+    знаю». Заглушка, сказавшая «всё работает», неотличима от незнания —
+    а это ровно то, что нельзя показывать человеку с поломанной платформой.
+    """
 
     async def check(
         self, arrival: date, departure: date, guests: int, category: str | None
@@ -61,3 +70,34 @@ class StubProviders:
             len(payload),
         )
         return LeadRef(external_id="stub:" + natural_key[:16], created=True)
+
+
+    # ─── Помощник платформы ───
+
+    async def recent_for_user(
+        self,
+        *,
+        user_id: str | None,
+        org_id: str | None,
+        since: datetime,
+        limit: int,
+    ) -> list[Incident]:
+        """Журнала у заглушки нет — пустой список, а не выдуманные ошибки.
+
+        🔴 В журнал ни user_id, ни org_id: это чужие идентификаторы.
+        """
+        logger.debug("заглушка журнала платформы: происшествий нет")
+        return []
+
+    async def search(
+        self, *, text: str, since: datetime, limit: int
+    ) -> list[Incident]:
+        """Поиск по журналу платформы: не найдено — признак, а не исключение."""
+        return []
+
+    async def status(self) -> HealthReport:
+        """Отвечает «всё работает» только потому, что это заглушка, и говорит
+        об этом в журнал. Инструменту такой ответ не достаётся: фабрика
+        в режиме stub не подставляет health."""
+        logger.info("заглушка состояния платформы: %s", NO_SOURCE)
+        return HealthReport(ok=True, degraded=[], checked_at=utcnow())

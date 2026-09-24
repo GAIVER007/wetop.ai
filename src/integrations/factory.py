@@ -28,10 +28,16 @@ MODE_WETOP = "wetop"
 
 
 def _stub() -> Providers:
-    """Один объект заглушки на все четыре роли."""
+    """Один объект заглушки на все роли продавца.
+
+    🔴 incidents и health остаются None намеренно: инструменты помощника
+    ответят «не знаю». Подставить сюда заглушку значило бы сказать человеку
+    «всё работает» и «ошибок у вас нет» тогда, когда мы просто не смотрели.
+    """
     stub = StubProviders()
     return Providers(
-        orders=stub, customers=stub, availability=stub, leads=stub, mode=MODE_STUB
+        orders=stub, customers=stub, availability=stub, leads=stub, mode=MODE_STUB,
+        incidents=None, health=None,
     )
 
 
@@ -58,6 +64,11 @@ def build_providers(
             availability=wetop,
             leads=wetop,
             mode=MODE_WETOP,
+            # Источник журнала происшествий платформы подставляется после
+            # решения владельца по Q-166: пока его нет, помощник честно
+            # говорит «не знаю», а не пересказывает чужой журнал.
+            incidents=None,
+            health=None,
         )
 
     if mode != MODE_STUB:

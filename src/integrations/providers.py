@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 # Признак наличия. 'unknown' — честный ответ «не знаю», а не ошибка.
@@ -129,6 +129,73 @@ class LeadSink(Protocol):
     async def create_lead(self, natural_key: str, payload: dict) -> LeadRef: ...
 
 
+# ─── Помощник платформы (роль support) ───
+#
+# Это тоже интерфейсы ядра, но нужны они только роли «помощник платформы»:
+# бот отвечает пользователям самой платформы, а не покупателям. Отдельная
+# секция, чтобы при переносе было видно, что можно не подключать.
+
+
+@dataclass(frozen=True)
+class Incident:
+    """Одно происшествие из журнала платформы, как его можно показать человеку.
+
+    🔴 summary — короткое человеческое описание. Ни трассировки, ни имён
+    таблиц, ни кусков чужих данных: это уйдёт в ответ бота, а ответ бота
+    видит посторонний. Приводит текст к такому виду реализация провайдера,
+    а не бот: только она знает, что в её журнале лишнее.
+    """
+
+    at: datetime
+    kind: str
+    summary: str
+    section: str | None = None
+    ref: str | None = None
+
+
+@dataclass(frozen=True)
+class HealthReport:
+    """Состояние платформы. degraded — имена разделов, а не адреса узлов.
+
+    ok=True с пустым degraded — «всё работает». Незнание состояния этим
+    объектом не описывается: у него нет значения «не знаю», поэтому
+    отсутствующий провайдер отвечает признаком, а не выдуманным ok.
+    """
+
+    ok: bool
+    degraded: list[str]
+    checked_at: datetime
+
+
+@runtime_checkable
+class IncidentProvider(Protocol):
+    """Журнал происшествий платформы.
+
+    🔴 recent_for_user ищет по идентификатору пользователя и организации:
+    человек видит только свои ошибки. Пусто — признак, а не исключение.
+    """
+
+    async def recent_for_user(
+        self,
+        *,
+        user_id: str | None,
+        org_id: str | None,
+        since: datetime,
+        limit: int,
+    ) -> list[Incident]: ...
+
+    async def search(
+        self, *, text: str, since: datetime, limit: int
+    ) -> list[Incident]: ...
+
+
+@runtime_checkable
+class PlatformHealthProvider(Protocol):
+    """Общее состояние платформы: «всё работает» или список больных разделов."""
+
+    async def status(self) -> HealthReport: ...
+
+
 @dataclass
 class Providers:
     """Набор провайдеров для этого запуска. None — такой системы нет:
@@ -140,3 +207,7 @@ class Providers:
     availability: AvailabilityProvider | None
     leads: LeadSink | None
     mode: str
+    # Роль «помощник платформы». Умолчание None, чтобы существующие сборки
+    # (и следующий проект, где помощника нет) не пришлось править.
+    incidents: IncidentProvider | None = None
+    health: PlatformHealthProvider | None = None

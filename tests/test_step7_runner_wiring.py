@@ -31,13 +31,18 @@ def _engine_of(runner):
 
 @pytest.fixture
 async def runner(fake_embedder, fake_redis):
-    """Боевая сборка канала на подменах: сети и модели здесь нет."""
+    """Боевая сборка канала на подменах: сети и модели здесь нет.
+
+    Роль задана явно: этот файл сторожит путь ПРОДАВЦА (хук заявок и
+    инструменты отеля). Помощник платформы собирается иначе, и его сборку
+    сторожат тесты роли.
+    """
     from src.ai.llm import reset_cascade_client
     from src.dependencies import close_resources
 
     reset_providers()
     reset_cascade_client()
-    built = build_runner(get_settings())
+    built = build_runner(get_settings().model_copy(update={"bot_role": "seller"}))
     try:
         yield built
     finally:

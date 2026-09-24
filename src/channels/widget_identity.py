@@ -14,6 +14,7 @@ script стоит десяти секунд. Неподписанный посе
 from __future__ import annotations
 
 import base64
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 from src.security.signatures import sign_hmac_sha256, verify_hmac_sha256
@@ -133,3 +134,31 @@ def is_platform_key(visitor_key: str) -> bool:
 def key_tail(visitor_key: str) -> str:
     """Хвост ключа для журнала. Целый ключ — это доступ к диалогу."""
     return str(visitor_key)[-6:]
+
+
+# ─── Текущий посетитель хода ───
+
+# 🔴 Инструментам модели нужно знать, КТО спрашивает: журнал происшествий
+# показывается только своему хозяину. Тащить посетителя через движок нельзя —
+# движок про платформу не знает и знать не должен (это ядро). Поэтому канал
+# кладёт его сюда, а инструменты берут отсюда.
+#
+# ContextVar, а не глобал: ход идёт фоновой задачей, задач одновременно много,
+# и обычная переменная процесса подменила бы одного пользователя другим —
+# то есть показала бы чужие ошибки. asyncio.create_task копирует контекст,
+# поэтому значение, поставленное перед submit, доезжает до задачи и дальше
+# никуда не расходится.
+current_visitor: ContextVar["Visitor | None"] = ContextVar(
+    "current_visitor", default=None
+)
+
+
+def get_current_visitor() -> "Visitor | None":
+    """Посетитель текущего хода или None (вне хода и в фоновых прогонах)."""
+    return current_visitor.get()
+
+
+def clear_current_visitor() -> None:
+    """Снять посетителя после хода. Оставленное значение — это чужие ошибки
+    в следующем ответе, если задача переиспользует контекст."""
+    current_visitor.set(None)

@@ -5,6 +5,7 @@
 иначе через полгода не найти, откуда взялось значение.
 """
 
+import logging
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -193,6 +194,21 @@ class Settings(BaseSettings):
         "llm_model,sla_seconds,alert_heartbeat_enabled,guard_max_input_chars"
     )
 
+    # ─── Роль бота ───
+    # support — помощник платформы, seller — продавец. От роли зависят
+    # инструменты, промпт и сбор контакта, поэтому это настройка, а не
+    # правка кода. Незнакомое значение сводит к support normalize_bot_role.
+    bot_role: str = "support"
+    # Справочник ошибок и папка документации платформы — ДАННЫЕ на томе,
+    # их правит владелец без выкатки.
+    errors_catalog_path: str = "data/errors.md"
+    knowledge_dir: str = "data/knowledge"
+    # Окно и предел происшествий пользователя. 🔴 Это политика владельца,
+    # а не константы: шире окно — больше чужого шума, длиннее список —
+    # человек в нём утонет.
+    support_incident_window_hours: int = 24
+    support_max_incidents: int = 5
+
     # ─── Бэкап ───
     # Сколько суток храним дампы (scripts/backup.sh).
     backup_keep_days: int = 14
@@ -278,6 +294,26 @@ class Settings(BaseSettings):
     def pii_allowlist_emails_list(self) -> list[str]:
         """PII_ALLOWLIST_EMAILS через запятую, в нижнем регистре."""
         return [e.strip().lower() for e in self.pii_allowlist_emails.split(",") if e.strip()]
+
+
+# Роли бота. Список здесь, а не в канале: канал только спрашивает.
+BOT_ROLES: tuple[str, ...] = ("support", "seller")
+
+
+def normalize_bot_role(value: str | None) -> str:
+    """BOT_ROLE в одну из известных ролей.
+
+    🔴 Незнакомое значение не роняет запуск, а сводится к support: опечатка
+    в .env оставила бы пользователей без ответа вовсе. Но не молча — иначе
+    потом не найти, почему бот ведёт себя не так.
+    """
+    role = (value or "").strip().lower()
+    if role in BOT_ROLES:
+        return role
+    logging.getLogger(__name__).warning(
+        "неизвестная роль бота %r, работаем помощником платформы (support)", value
+    )
+    return "support"
 
 
 @lru_cache

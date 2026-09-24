@@ -15,8 +15,9 @@ from typing import Any
 from src import dependencies
 from src.ai.engine_types import IncomingMessage
 from src.channels.sender import SendResult
+from src.channels.widget_identity import current_visitor
 from src.channels.widget_store import new_flag_key
-from src.config import Settings
+from src.config import Settings, normalize_bot_role
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,13 @@ NEW_FLAG_TTL_SECONDS = 120
 # задачи с каскадом моделей без счёта нельзя: это память процесса и деньги
 # за вызовы. Сверх потолка канал честно отвечает отказом.
 MAX_INFLIGHT_TASKS = 200
+
+# Роль бота нормализует config (там же список ролей): канал только
+# спрашивает. Неизвестная роль сводится к support с предупреждением —
+# помощник в худшем случае скажет «не знаю», а продавец по ошибке начнёт
+# собирать контакты у людей, которые уже внутри платформы.
+ROLE_SUPPORT = "support"
+ROLE_SELLER = "seller"
 
 
 @dataclass
@@ -80,9 +88,15 @@ class WidgetRunner:
         if len(self._tasks) >= MAX_INFLIGHT_TASKS:
             logger.warning("widget: одновременных ходов слишком много, сообщение не принято")
             return None
+        # create_task копирует контекст: посетитель, поставленный каналом
+        # перед вызовом, доезжает до задачи.
         task = asyncio.create_task(self._handle(incoming))
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
+        # 🔴 В своём контексте значение снимаем сразу: обработчик запроса
+        # с ним больше ничего не делает, а забытый посетитель — это чужие
+        # ошибки в следующем ответе.
+        current_visitor.set(None)
         return task
 
     async def drain(self) -> None:
@@ -96,6 +110,11 @@ class WidgetRunner:
             await self.engine.process_message(incoming)
         except Exception:
             logger.exception("widget: обработка сообщения упала")
+        finally:
+            # 🔴 Посетитель снимается в finally, а не последней строкой:
+            # после падения хода он остался бы виден следующему, и человек
+            # получил бы чужие происшествия.
+            current_visitor.set(None)
 
 
 def build_runner(settings: Settings) -> WidgetRunner:
@@ -104,33 +123,56 @@ def build_runner(settings: Settings) -> WidgetRunner:
 
     🔴 Здесь внешняя система подключается к живому пути: без хука заявка
     наружу не пишется никогда и алерт «горячий лид» не приходит, а без
-    реестра модель не видит инструментов наличия и цены. Провайдеров
-    выбирает фабрика по настройке — канал о конкретной системе не знает.
+    реестра модель не видит инструментов. Провайдеров выбирает фабрика
+    по настройке — канал о конкретной системе не знает.
+
+    🔴 Набор зависит от роли. Помощник платформы не собирает заявки: человек
+    уже внутри платформы, просить у него контакт — значит делать вид, что мы
+    не знаем, кто он.
     """
     from src.ai.engine import build_engine
-    from src.ai.hotel_tools import build_registry
     from src.ai.llm import CascadeClient, set_cascade_client
     from src.integrations.factory import get_providers
-    from src.integrations.lead_writer import LeadWriter
+
+    role = normalize_bot_role(getattr(settings, "bot_role", None))
+    if role == ROLE_SUPPORT:
+        from src.ai.support_tools import build_registry as build_support_registry
+
+        registry = build_support_registry(
+            get_providers,
+            settings_getter=lambda: settings,
+            # Посетителя инструменты берут из contextvar: движок про
+            # платформу и её пользователей не знает.
+            visitor_getter=current_visitor.get,
+        )
+        lead_hook = None
+        # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.
+        channel_emoji = False
+    else:
+        from src.ai.hotel_tools import build_registry as build_seller_registry
+        from src.integrations.lead_writer import LeadWriter
+
+        registry = build_seller_registry(get_providers)
+        lead_hook = LeadWriter(
+            sessionmaker=dependencies.get_sessionmaker(), redis=dependencies.get_redis(),
+            # Фабрика, а не готовый набор: режим внешней системы читается настройкой.
+            providers_getter=get_providers, settings=settings,
+        )
+        channel_emoji = True
 
     # Каскад пересобирается с реестром: build_engine берёт его синглтоном,
     # а пустой реестр означал бы модель без инструментов.
     set_cascade_client(
         CascadeClient(
-            settings, http_client=dependencies.get_http_client(), tools=build_registry(get_providers)
+            settings, http_client=dependencies.get_http_client(), tools=registry
         )
-    )
-    lead_hook = LeadWriter(
-        sessionmaker=dependencies.get_sessionmaker(), redis=dependencies.get_redis(),
-        # Фабрика, а не готовый набор: режим внешней системы читается настройкой.
-        providers_getter=get_providers, settings=settings,
     )
 
     def factory() -> Any:
-        # Виджет — веб-страница: эмодзи она показывает, разметку humanizer снимает.
+        # Виджет — веб-страница: разметку humanizer снимает в обеих ролях.
         return build_engine(
             settings, sender=WidgetSender(), lead_hook=lead_hook,
-            channel_markdown=False, channel_emoji=True,
+            channel_markdown=False, channel_emoji=channel_emoji,
         )
 
     return WidgetRunner(

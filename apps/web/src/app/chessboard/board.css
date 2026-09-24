@@ -914,7 +914,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 45%;
-  font-weight: var(--weight-normal, 400);
+  font-weight: var(--weight-regular);
 }
 .board-stay-caption[data-span='1'] .board-stay-channel,
 .board-stay-caption[data-span='1'] .board-stay-due {
@@ -949,9 +949,9 @@
   top: 3px;
   bottom: 3px;
   width: 24px;
-  z-index: 3;
+  z-index: 3; /* slop-allow: z-index-literal — внутренняя шкала слоёв сетки 1–8 (§13, долг 7.4): над плашкой, под закреплённой колонкой (5) */
   border: 0;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   padding: 0;
   background: transparent;
   color: var(--text);
@@ -968,7 +968,7 @@
 }
 .board-resize-preview {
   position: absolute;
-  z-index: 8;
+  z-index: 8; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): подсказка продления выше закреплённой колонки, как меню уборки */
   right: 0;
   bottom: 100%;
   white-space: nowrap;
@@ -1056,10 +1056,10 @@
   left: 100%;
   top: 3px;
   height: 36px;
-  z-index: 4;
+  z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): рамка продления над плашкой-соседом, под колонкой (5) */
   pointer-events: none;
   border: 2px dashed var(--primary);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   background: var(--primary-soft);
 }
 .board--month {

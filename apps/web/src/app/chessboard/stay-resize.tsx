@@ -95,7 +95,7 @@ export function StayResize({
       )}
       {nights > 0 && (
         <span className="board-resize-preview" role="status">
-          +{nights} ноч. · отпустите для подтверждения
+          +{nights} ноч., отпустите для подтверждения
         </span>
       )}
     </>

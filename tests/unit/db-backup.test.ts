@@ -107,6 +107,41 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
     expect(sb.dumpArgs()).toContain(own);
   });
 
+  // 24.09.2026 на сервере не оказалось pg_dump: копию снимает образ postgres:17, куда смонтированы только скрипт и .env
+  it('работает вне клона, как в контейнере postgres:17: скрипт и .env смонтированы отдельными файлами', () => {
+    const sb = sandbox();
+    const alone = join(sb.dir, 'mounted');
+    mkdirSync(alone);
+    writeFileSync(join(alone, 'db-backup.sh'), readFileSync(SCRIPT));
+    const r = spawnSync('bash', [join(alone, 'db-backup.sh')], {
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: {
+        PATH: `${join(sb.dir, 'bin')}:/usr/bin:/bin`,
+        ENV_FILE: join(sb.dir, '.env'),
+        BACKUP_DIR: sb.backups,
+        AUDIT_DIR: sb.dir,
+      },
+    });
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+    expect(sb.dumps()).toHaveLength(1);
+  });
+
+  it('адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL', () => {
+    const own = 'postgresql://reader:pw@backup.example.invalid:5432/postgres';
+    const sb = sandbox({ env: `BACKUP_DATABASE_URL=${own}\nDIRECT_URL=${DIRECT}\n` });
+    expect(sb.run().status).toBe(0);
+    expect(sb.dumpArgs()).toContain(own);
+  });
+
+  it('параметры Prisma из адреса срезаются: pg_dump их не понимает и падает', () => {
+    const sb = sandbox({
+      env: `DATABASE_URL=postgresql://app:pw@pooler.example.invalid:5432/postgres?pgbouncer=true&sslmode=require&connection_limit=3&schema=public\n`,
+    });
+    expect(sb.run().status).toBe(0);
+    expect(sb.dumpArgs()).toContain('postgresql://app:pw@pooler.example.invalid:5432/postgres?sslmode=require');
+  });
+
   it('pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17', () => {
     const sb = sandbox({ pgVersion: '16.13' });
     const r = sb.run();

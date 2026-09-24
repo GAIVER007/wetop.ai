@@ -28,26 +28,33 @@ Supabase «hotel» — на бесплатном плане. По докумен
 
 ## Установка на сервере — владелец, один раз
 
-Hostinger, `/root/wetop`. Клиент PostgreSQL 17 там уже стоит: им снимали дамп 19.09. Если нет — ставится по
-`docs/ops/server-setup-2026-09-18.md` §2.1. Скрипт работает на хосте из клона, а не в контейнере API: ему нужен
-`pg_dump` хоста. Поэтому его обновляет `git pull`, пересборка образа не нужна. Правило «скрипты берут код из образа»
-(`docs/deploy.md` §1а) — про node-скрипты внутри контейнера.
+Hostinger, `/root/wetop`. **Клиента PostgreSQL на сервере нет.** 24.09.2026 `pg_dump --version` ответил
+«Command 'pg_dump' not found». Раньше здесь ошибочно стояло «клиент уже стоит, им снимали дамп 19.09». Ставить
+его не нужно: копию снимает официальный образ `postgres:17`, в нём `pg_dump` 17 — той же версии, что Supabase. В
+контейнер монтируются только три вещи: скрипт из клона, `.env` клона (только чтение) и папка копий. Поэтому скрипт
+обновляет `git pull`, а пересобирать образ стойки не нужно.
 
 ```bash
-cd /root/wetop && git pull
-pg_dump --version                          # ждём 17.x: pg_dump 16 не снимет базу 17
-scripts/ops/db-backup.sh                   # первая копия руками
+cd /root/wetop && git pull                 # после слияния PR с этим скриптом
+mkdir -p /root/backups && chmod 700 /root/backups
+BACKUP='docker run --rm -v /root/wetop/scripts/ops/db-backup.sh:/db-backup.sh:ro -v /root/wetop/.env:/wetop.env:ro -v /root/backups:/root/backups -e ENV_FILE=/wetop.env postgres:17 bash /db-backup.sh'
+$BACKUP                                    # первая копия руками; первый раз Docker скачает образ
 # ждём строку: db-backup: wetop-…Z.dump — …, таблиц с данными: 41; копий в /root/backups: 1
 
 # каждую ночь в 04:30 по Алматы (23:30 UTC) — после полной выгрузки ARI (03:00) и очистки счётчика (04:00)
-( crontab -l 2>/dev/null | grep -v 'scripts/ops/db-backup.sh'
-  echo '30 23 * * * cd /root/wetop && scripts/ops/db-backup.sh >> /var/log/wetop-db-backup.log 2>&1' ) | crontab -
+( crontab -l 2>/dev/null | grep -v 'db-backup.sh'
+  echo "30 23 * * * $BACKUP >> /var/log/wetop-db-backup.log 2>&1" ) | crontab -
 crontab -l | grep db-backup                # строка на месте
 ```
 
-Строка подключения берётся из `/root/wetop/.env`: сначала `DIRECT_URL`, затем `DATABASE_URL`. Для `pg_dump` нужно
-прямое подключение или сессионный режим пулера Supabase (порт 5432), а не транзакционный (6543). `DIRECT_URL` для
-этого и заведён: по нему идут миграции. Если нужен другой адрес — `BACKUP_DATABASE_URL`.
+Строка подключения берётся из `.env`: сначала `BACKUP_DATABASE_URL`, затем `DIRECT_URL`, затем `DATABASE_URL`.
+Параметры Prisma (`pgbouncer`, `connection_limit`, `schema` и т. п.) скрипт срезает: `pg_dump` на них падает. Для
+`pg_dump` нужно прямое подключение или сессионный режим пулера Supabase (порт 5432), а не транзакционный (6543). Если
+первая копия упадёт на подключении, владелец вписывает в `.env` строку `BACKUP_DATABASE_URL=` с сессионным адресом из
+панели Supabase (Connect → Session pooler) и повторяет `$BACKUP`.
+
+С клиентом PostgreSQL 17 на хосте (`docs/ops/server-setup-2026-09-18.md` §2.1) то же самое делает просто
+`cd /root/wetop && scripts/ops/db-backup.sh`.
 
 ## Проверка раз в неделю — минута
 
@@ -61,15 +68,16 @@ tail -3 /var/log/wetop-db-backup.log       # последняя строка —
 
 ## Пробное восстановление — раз в месяц и перед каждой миграцией
 
-Копия, которую ни разу не разворачивали, — не копия. Проба делается на отдельной PostgreSQL в Docker на том же
-сервере. Она живёт минуту и слушает только `127.0.0.1`:
+Копия, которую ни разу не разворачивали, — не копия. Проба делается в отдельной PostgreSQL в Docker на том же сервере.
+Контейнер живёт минуту, наружу портов не открывает. `psql` и `pg_restore` берутся из него же, так что клиент на хосте
+не нужен:
 
 ```bash
-cd /root/wetop
-docker run -d --rm --name wetop-restore-check -e POSTGRES_HOST_AUTH_METHOD=trust -p 127.0.0.1:55499:5432 postgres:17
-sleep 5
-RESTORE_CHECK_URL=postgresql://postgres@127.0.0.1:55499/postgres \
-  scripts/ops/db-restore-check.sh "$(ls -t /root/backups/wetop-*.dump | head -1)"
+docker run -d --rm --name wetop-restore-check -e POSTGRES_HOST_AUTH_METHOD=trust \
+  -v /root/backups:/root/backups:ro -v /root/wetop/scripts/ops/db-restore-check.sh:/db-restore-check.sh:ro postgres:17
+until docker exec wetop-restore-check pg_isready -h 127.0.0.1 -q; do sleep 1; done   # сервер принял TCP
+docker exec -e RESTORE_CHECK_URL=postgresql://postgres@127.0.0.1:5432/postgres wetop-restore-check \
+  bash /db-restore-check.sh "$(ls -t /root/backups/wetop-*.dump | head -1)"
 docker rm -f wetop-restore-check
 ```
 
@@ -89,7 +97,7 @@ restore-check: wetop-20260924T130250Z.dump восстановлена — таб
 
 Production-миграцию делает только владелец (CLAUDE.md §3). Порядок:
 
-1. **Бэкап** — `scripts/ops/db-backup.sh` прямо перед миграцией, не полагаясь на ночную копию.
+1. **Бэкап** — `$BACKUP` (команда из установки) прямо перед миграцией, не полагаясь на ночную копию.
 2. **Проба этой копии** — `db-restore-check.sh`, как выше. Не восстановилась — миграцию не начинать.
 3. **Миграция** — `npm run migrate:deploy -w @pms/database` на сервере, по `docs/deploy.md`.
 4. **Проверка** — `/health`, вход, «Сегодня», шахматка, карточка брони. Число строк в затронутых таблицах сверяется

@@ -13,7 +13,11 @@
 #
 # BACKUP_DIR        куда класть копии (/root/backups)
 # BACKUP_KEEP_DAYS  сколько суток хранить (14)
-# BACKUP_DATABASE_URL  откуда снимать; иначе DIRECT_URL, затем DATABASE_URL из ENV_FILE (.env корня)
+# BACKUP_DATABASE_URL  откуда снимать: из окружения или из ENV_FILE (.env корня); иначе DIRECT_URL, затем DATABASE_URL
+#                   оттуда же. Параметры Prisma (pgbouncer, connection_limit, schema…) срезаются: pg_dump на них падает
+#
+# На сервере без клиента PostgreSQL скрипт запускают в образе postgres:17 (docs/ops/backups.md): смонтированы только он
+# сам, .env и папка копий — поэтому он не опирается на расположение клона.
 # BACKUP_MIN_PG     не старше какой версии pg_dump (17: Supabase на PostgreSQL 17, pg_dump 16 её не снимет)
 set -euo pipefail
 
@@ -46,9 +50,17 @@ env_value() {
 }
 
 url="${BACKUP_DATABASE_URL:-}"
+[ -n "$url" ] || url="$(env_value BACKUP_DATABASE_URL)"
 [ -n "$url" ] || url="$(env_value DIRECT_URL)"
 [ -n "$url" ] || url="$(env_value DATABASE_URL)"
 [ -n "$url" ] || fail "нет строки подключения: BACKUP_DATABASE_URL или DIRECT_URL / DATABASE_URL в $ENV_FILE" 2
+
+# Параметры, которые понимает Prisma, но не libpq: с ними pg_dump отвечает «invalid URI query parameter»
+if [[ "$url" == *\?* ]]; then
+  query="$(printf '%s' "${url#*\?}" | tr '&' '\n' |
+    grep -vE '^(pgbouncer|connection_limit|pool_timeout|schema|statement_cache_size|socket_timeout)=' | paste -sd '&' - || true)"
+  url="${url%%\?*}${query:+?$query}"
+fi
 
 major="$(pg_dump --version 2>/dev/null | sed -nE 's/^pg_dump \(PostgreSQL\) ([0-9]+).*/\1/p' | head -n 1 || true)"
 [ -n "$major" ] || fail "pg_dump не найден: нужен клиент PostgreSQL $MIN_PG (docs/ops/server-setup-2026-09-18.md §2.1)" 2

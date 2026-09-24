@@ -236,7 +236,7 @@ test('8. подробности дня на графике без наведен
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта в блоках главной — из шкалы §6, число плитки 28 px', async ({ page }) => {
+test('9. размеры шрифта на главной — из шкалы §6, число плитки 28 px', async ({ page }) => {
   const scale = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px'];
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -247,9 +247,8 @@ test('9. размеры шрифта в блоках главной — из ш�
     const off = await main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
       for (const el of root.querySelectorAll('*')) {
-        // закрытое окно и скрытая подпись в DOM есть, но на экране их нет — считаем то, что видно;
-        // заголовок страницы общий для всех экранов (его 25 px на телефоне — долг §6, не «Главной»)
-        if (!el.checkVisibility() || el.closest('.page__head')) continue;
+        // закрытое окно и скрытая подпись в DOM есть, но на экране их нет — считаем то, что видно
+        if (!el.checkVisibility()) continue;
         if (!(el as HTMLElement).innerText?.trim() && !el.matches('input')) continue;
         const size = getComputedStyle(el).fontSize;
         if (!allowed.includes(size) && !seen.has(size))
@@ -260,4 +259,33 @@ test('9. размеры шрифта в блоках главной — из ш�
     expect(off, `ширина ${width}`).toEqual([]);
     if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
   }
+});
+
+/**
+ * 24.09.2026, остаток разбора: заголовок страницы задан в трёх файлах (28, 30 и на телефоне 23 и 25), побеждал
+ * последний — 25 px на телефоне и 19 px в панели брони, вне шкалы §6. Теперь 28 / 24 / 20 токенами везде.
+ */
+test('10. заголовок страницы и панели брони — по шкале §6', async ({ page }) => {
+  const title = () => fontSize(page.getByRole('main').locator('.page__title').first());
+  for (const [width, size] of [
+    [1440, '28px'],
+    [650, '28px'],
+    [390, '24px'],
+  ] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/today');
+    expect(await title(), `ширина ${width}`).toBe(size);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/today');
+  await quick(page)
+    .getByRole('button', { name: /Выселить гостя/ })
+    .click();
+  await page
+    .getByRole('dialog', { name: 'Выселить гостя' })
+    .getByRole('link', { name: /20260913-TEST3/ })
+    .click();
+  const drawer = page.locator('.booking-drawer .page__title');
+  await expect(drawer).toBeVisible();
+  expect(await fontSize(drawer)).toBe('20px');
 });

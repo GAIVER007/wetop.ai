@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 24.09.2026 18:32 Алматы · vm
+# коммит 6c95595 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/dashboard-desk.spec.ts' '-g' 'заголовок страницы и панели'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/dashboard-desk.spec.ts:268:1 › 10. заголовок страницы и панели брони — по шкале §6 (3.7s)
+
+
+  1) tests/ui/dashboard-desk.spec.ts:268:1 › 10. заголовок страницы и панели брони — по шкале §6 ───
+
+    Error: ширина 390
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "24px"
+    Received: "25px"
+
+      275 |     await page.setViewportSize({ width, height: 900 });
+      276 |     await page.goto('/today');
+    > 277 |     expect(await title(), `ширина ${width}`).toBe(size);
+          |                                              ^
+      278 |   }
+      279 |   await page.setViewportSize({ width: 1440, height: 900 });
+      280 |   await page.goto('/today');
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:277:46
+
+    Error Context: test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/dashboard-desk.spec.ts:268:1 › 10. заголовок страницы и панели брони — по шкале §6 ────
+
+# код выхода 1 · 10 с

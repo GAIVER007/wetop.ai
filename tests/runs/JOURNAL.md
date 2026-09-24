@@ -1952,3 +1952,6 @@
 | 24.09.2026 18:33 | typecheck | ✅ без ошибок | 20 с | 77ca2d1 | [лог](logs/2026-09-24T13-33-43Z-typecheck-ce2a.log) | слияние main (PR #60) |
 | 24.09.2026 18:34 | lint | ✅ без ошибок | 15 с | 77ca2d1 | [лог](logs/2026-09-24T13-34-04Z-lint-e580.log) | слияние main (PR #60) |
 | 24.09.2026 18:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | 77ca2d1 | [лог](logs/2026-09-24T13-35-01Z-e2e-3bee.log) | 24.09: заголовок по шкале + слияние PR #60, живые сквозные |
+| 24.09.2026 19:30 | typecheck | ✅ без ошибок | 23 с | 67e8aee | [лог](logs/2026-09-24T14-30-26Z-typecheck-0922.log) | merged origin/main (PR #60, page title fix) into the leftover-plan branch |
+| 24.09.2026 19:30 | lint | ✅ без ошибок | 17 с | 67e8aee | [лог](logs/2026-09-24T14-30-50Z-lint-4a79.log) | merged origin/main (PR #60, page title fix) into the leftover-plan branch |
+| 24.09.2026 19:31 | unit | ✅ 1514 из 1517, пропущено 3 | 1 мин 12 с | 67e8aee | [лог](logs/2026-09-24T14-31-08Z-unit-daba.log) | merged origin/main (PR #60, page title fix) into the leftover-plan branch |

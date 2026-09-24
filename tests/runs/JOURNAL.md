@@ -1932,3 +1932,6 @@
 | 24.09.2026 18:05 | integration (частично: tests/integration/db-backup-restore.test.ts) | ✅ 2 из 2 | 4 с | 987ef55 +3 | [лог](logs/2026-09-24T13-05-39Z-integration-36c7.log) | green: backup restores into a new database - schema entries skipped, btree_gist first; the check refuses a non-local server (Q-073, О1) |
 | 24.09.2026 19:23 | typecheck | ✅ без ошибок | 34 с | 987ef55 +4 | [лог](logs/2026-09-24T14-23-44Z-typecheck-ebe4.log) | О1: backup and restore-check tests |
 | 24.09.2026 19:24 | lint | ✅ без ошибок | 20 с | 987ef55 +4 | [лог](logs/2026-09-24T14-24-19Z-lint-7ccc.log) | О1: backup and restore-check tests |
+| 24.09.2026 19:26 | unit | ✅ 1514 из 1517, пропущено 3 | 1 мин 14 с | 9d88340 | [лог](logs/2026-09-24T14-26-59Z-unit-587b.log) | leftover plan 24.09 evening: backups (Q-073), docs |
+| 24.09.2026 19:28 | integration | ❌ код выхода 1 | 2 с | 9d88340 | [лог](logs/2026-09-24T14-28-14Z-integration-0421.log) | leftover plan 24.09 evening: backups (Q-073), docs, local PostgreSQL 16 |
+| 24.09.2026 19:28 | integration | ✅ 53 из 53 | 23 с | 9d88340 | [лог](logs/2026-09-24T14-28-37Z-integration-18b2.log) | leftover plan 24.09 evening: backups (Q-073), docs, local PostgreSQL 16 (retry: the local database had stopped, no test body ran) |

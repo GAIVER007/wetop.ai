@@ -2,11 +2,12 @@
 # Проверка миграций на чистом PostgreSQL: ложатся ли они на пустую базу и возвращает ли down.sql схему назад.
 #
 # Зачем: рабочая схема живёт на Supabase, а по Q-112 база переезжает на сервер в Казахстане — там будет
-# обычный PostgreSQL. Скрипт отвечает на два вопроса заранее: (1) применяется ли вся цепочка миграций
-# на голой базе, (2) для каждой миграции — совпадает ли схема после `migration.sql` + `down.sql`
-# со схемой до неё, снимок в снимок (`pg_dump -s`).
+# обычный PostgreSQL. Скрипт отвечает на три вопроса заранее: (1) применяется ли вся цепочка миграций
+# на голой базе, (2) описывает ли `schema.prisma` ровно эту базу (`prisma migrate diff`; 24.09.2026 они
+# разошлись на таблицах v1.6 — reports/schema-drift-2026-09-24.md), (3) для каждой миграции — совпадает ли
+# схема после `migration.sql` + `down.sql` со схемой до неё, снимок в снимок (`pg_dump -s`).
 #
-# Запуск (нужен локальный PostgreSQL 16 и расширение btree_gist):
+# Запуск (нужен локальный PostgreSQL 16 с расширением btree_gist и `npm ci` — для CLI Prisma):
 #   MIGRATION_CHECK_URL=postgresql://pms@127.0.0.1:5433/postgres scripts/ops/check-migrations.sh
 #
 # Скрипт создаёт и удаляет базы `_mig_before` и `_mig_after`, поэтому работает только с локальным адресом:
@@ -36,6 +37,24 @@ snapshot() { # $1 — база; снимок схемы без коммента�
   "$PG_DUMP" -s "$BASE_URL/$1" | grep -vE '^--|^.restrict |^.unrestrict '
 }
 
+drift() { # schema.prisma против базы из всех миграций; иначе следующий `prisma migrate dev` впишет разницу в чужую миграцию
+  # Адрес — только временная _mig_after: DIRECT_URL задан явно, иначе prisma.config.ts дочитал бы его из .env
+  local prisma="$ROOT/packages/database/node_modules/.bin/prisma" rc
+  if [ ! -x "$prisma" ]; then
+    echo "FAIL schema.prisma не с чем сверить: нет CLI Prisma (сначала npm ci)"; return 1
+  fi
+  (cd "$ROOT/packages/database" && DIRECT_URL="$BASE_URL/_mig_after" DATABASE_URL="$BASE_URL/_mig_after" \
+    "$prisma" migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code --script \
+    > "$TMP/drift.sql" 2> "$TMP/drift.err")
+  rc=$?
+  case $rc in
+    0) echo "ok   schema.prisma описывает ровно ту базу, что строят миграции" ;;
+    2) echo "FAIL schema.prisma расходится с миграциями — prisma migrate dev вписал бы:"
+       grep -vE '^--|^$|^Loaded Prisma config' "$TMP/drift.sql" | head -10 | sed 's/^/       /'; return 1 ;;
+    *) echo "FAIL prisma migrate diff не выполнился: $(grep -v '^Loaded Prisma config' "$TMP/drift.err" | tail -1)"; return 1 ;;
+  esac
+}
+
 build() { # $1 — база, $2 — сколько миграций применить
   "${PSQL[@]}" "$ADMIN" -c "DROP DATABASE IF EXISTS $1" >/dev/null 2>&1
   "${PSQL[@]}" "$ADMIN" -c "CREATE DATABASE $1" >/dev/null || return 1
@@ -51,6 +70,7 @@ build() { # $1 — база, $2 — сколько миграций примен
 echo "Миграций: ${#MIGS[@]}"
 if build _mig_after "${#MIGS[@]}"; then
   echo "ok   вся цепочка легла на пустую базу"
+  drift || fails=$((fails + 1))
 else
   echo "FAIL цепочка не применилась на пустую базу"; fails=$((fails + 1))
 fi

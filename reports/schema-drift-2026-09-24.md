@@ -163,6 +163,52 @@ Integration и до правки шёл на правильной стороне
 - **Рабочая база ничего не ждёт.** Правка приводит схему к тому, что уже стоит на рабочей базе с 20.09, миграции
   не нужно. Проверить это на самой рабочей базе агент не может и не должен: сверка шла только с базой, собранной
   из миграций.
-- Сторожа от повторения нет: такое расхождение появляется, когда миграцию пишут руками и не правят схему, а
-  `--from-migrations` без `migration_lock.toml` не работает. Можно добавить тот же `migrate diff --exit-code` на
-  собранной базе в `scripts/ops/check-migrations.sh` или в CI — отдельной задачей, в это поручение не входило.
+- Сторож от повторения поставлен тем же вечером — раздел ниже.
+
+## Сторож: `check-migrations.sh` сверяет схему (тем же вечером, «делай что осталось»; план ИИ-продавца §13)
+
+Такое расхождение появляется, когда миграцию пишут руками и не правят схему. `--from-migrations` без
+`migration_lock.toml` не работает, поэтому сверять можно только с базой, которую построили миграции.
+`scripts/ops/check-migrations.sh` такую базу уже строит: `_mig_after` — вся цепочка на пустом PostgreSQL.
+
+Сразу после её сборки идёт шаг `drift` — `prisma migrate diff … --exit-code`:
+
+- код 0 — `ok`;
+- код 2 — `FAIL` и первые операторы расхождения;
+- нет CLI Prisma или сбой — тоже `FAIL`: пропуск был бы молчанием.
+
+`DIRECT_URL` и `DATABASE_URL` заданы явно — на временную `_mig_after`: иначе `prisma.config.ts` взял бы `DIRECT_URL`
+из `.env`, то есть рабочую базу. В CI задание `db` теперь ставит зависимости до этой проверки; само задание не идёт,
+пока нет минут Actions.
+
+**Красный** — схема до правки (`e505a601^`), подставлена на время прогона и возвращена, код выхода 1:
+
+```
+Миграций: 20
+ok   вся цепочка легла на пустую базу
+FAIL schema.prisma расходится с миграциями — prisma migrate dev вписал бы:
+       ALTER TABLE "email_verifications" DROP CONSTRAINT "email_verifications_user_id_fkey";
+       ALTER TABLE "properties" DROP CONSTRAINT "properties_organization_id_fkey";
+       DROP INDEX "properties_organization_id_idx";
+       ALTER TABLE "email_verifications" ALTER COLUMN "id" DROP DEFAULT;
+       ALTER TABLE "properties" ADD CONSTRAINT "properties_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+       ALTER TABLE "email_verifications" ADD CONSTRAINT "email_verifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ok   20260907000001_init_inventory — откат вернул схему в прежнее состояние
+…
+RESULT: FAIL (1)
+```
+
+**Зелёный** — текущая схема, код выхода 0:
+
+```
+Миграций: 20
+ok   вся цепочка легла на пустую базу
+ok   schema.prisma описывает ровно ту базу, что строят миграции
+ok   20260907000001_init_inventory — откат вернул схему в прежнее состояние
+…
+ok   20260924000019_seller_profiles — откат вернул схему в прежнее состояние
+RESULT: OK
+```
+
+Всего 22 строки `ok`: цепочка, сверка и 20 откатов. Запуск — как раньше, на локальной базе
+(`MIGRATION_CHECK_URL=postgresql://postgres@127.0.0.1:55432/postgres scripts/ops/check-migrations.sh`); нужен ещё `npm ci`.

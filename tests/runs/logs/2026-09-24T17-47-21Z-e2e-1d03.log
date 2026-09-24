@@ -1,0 +1,134 @@
+# Сквозные (e2e) · 24.09.2026 22:47 Алматы · MacBook-Air-Urij.local
+# коммит e9182f5 (codex/inventory-workspace), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/inventory-catalog.spec.ts' '--workers=1'
+[WebServer] (node:42881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+(node:43044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (12.9s)
+[WebServer] (node:43232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="availability/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <AvailabilityFinder today="2026-09-24" arrival="2026-09-24" departure="2026-09-27" result={{...}} ...>
+[WebServer]                           <form className="fund-search" method="get">
+[WebServer]                             <Field label="Заезд">
+[WebServer]                               <label className="field">
+[WebServer]                                 <DateInput name="arrival" defaultValue="2026-09-24" required={true}>
+[WebServer]                                   <span className="date-field">
+[WebServer]                                     <input
+[WebServer]                                       ref={{current:null}}
+[WebServer]                                       type="date"
+[WebServer]                                       className="inp date-field__input"
+[WebServer]                                       id={undefined}
+[WebServer]                                       name="arrival"
+[WebServer]                                       defaultValue="2026-09-24"
+[WebServer]                                       required={true}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                             <Field label="Выезд">
+[WebServer]                               <label className="field">
+[WebServer]                                 <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-09-27" ...>
+[WebServer]                                   <span className="date-field">
+[WebServer]                                     <input
+[WebServer]                                       ref={{current:null}}
+[WebServer]                                       type="date"
+[WebServer]                                       className="inp date-field__input"
+[WebServer]                                       id={undefined}
+[WebServer]                                       name="departure"
+[WebServer]                                       defaultValue="2026-09-27"
+[WebServer]                                       required={true}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                             ...
+[WebServer]                           <div>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Select>
+[WebServer]                             <Select>
+[WebServer]                             <label className="fund-checkbox">
+[WebServer]                               <input
+[WebServer]                                 type="checkbox"
+[WebServer]                                 checked={true}
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]  
+  ✓  2 tests/ui/fund-workspace.spec.ts:33:1 › availability preserves exact unit and dates; responsive category design (14.2s)
+[WebServer] (node:43268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (4.9s)
+[WebServer] (node:43314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/inventory-catalog.spec.ts:31:1 › прямая ссылка на категорию и вид списка сохраняются, карточка открывается (5.7s)
+  ✓  5 tests/ui/inventory-catalog.spec.ts:49:1 › пустой поиск объясняется, сброс возвращает фонд (2.8s)
+  ✓  6 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: light (15.2s)
+  ✓  7 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: dark (13.8s)
+  ✓  8 tests/ui/inventory-catalog.spec.ts:93:1 › пустой фонд отличается от пустого поиска (1.7s)
+  ✓  9 tests/ui/inventory-catalog.spec.ts:101:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (3.3s)
+
+  9 passed (1.5m)
+
+# код выхода 0 · 1 мин 35 с

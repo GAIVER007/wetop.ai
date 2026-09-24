@@ -1,8 +1,9 @@
 'use client';
+import { FundEditor } from './fund-editor';
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import type { CategorySummary, InventoryUnit } from '../../lib/api';
+import type { CategorySummary, InventoryUnit, InventoryCategory } from '../../lib/api';
 import { Button, EmptyState, Input, Select, Table, cx } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
@@ -11,15 +12,17 @@ import { pluralRu } from '../../lib/plural';
 export function InventoryCatalog({
   units,
   categories,
+  editorCategories,
 }: {
   units: InventoryUnit[];
   categories: CategorySummary[];
+  editorCategories: InventoryCategory[];
 }) {
   const search = useSearchParams();
   const category = search.get('category') ?? '';
   const kind = ['ROOM', 'BED'].includes(search.get('kind') ?? '') ? search.get('kind')! : '';
   const q = search.get('q') ?? '';
-  const view = search.get('view') === 'list' ? 'list' : 'cards';
+  const view = search.get('view') === 'cards' ? 'cards' : 'list';
   const query = q.trim().toLocaleLowerCase('ru');
   const filtered = units
     .filter(
@@ -241,6 +244,7 @@ export function InventoryCatalog({
                 <th>Категория</th>
                 <th>Комната</th>
                 <th>Размещение</th>
+                <th>Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -264,6 +268,9 @@ export function InventoryCatalog({
                   <td>{unit.accommodationTypeName}</td>
                   <td>{unit.roomNumber}</td>
                   <td>{guests(unit)}</td>
+                  <td>
+                    <FundEditor categories={editorCategories} room={unit} />
+                  </td>
                 </tr>
               ))}
             </tbody>

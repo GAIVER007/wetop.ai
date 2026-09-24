@@ -14,6 +14,8 @@ export interface AuditRow {
   action: string;
   /** Короткая сводка без ПД: номер брони / код ячейки, если есть в снимке */
   subject: string | null;
+  /** Для брони: существует ли карточка, на которую можно перейти. Для остальных сущностей — null. */
+  targetAvailable: boolean | null;
   /**
    * Кто это сделал: имя вошедшего сотрудника (ADR-023, DATA_MODEL §13.2). `null` — система: импорт из
    * Exely, сторож, скрипт сверки. Почта сотрудника сюда не идёт — на экране довольно имени.
@@ -69,13 +71,18 @@ export class AuditService {
         entity_id: string;
         action: string;
         subject: string | null;
+        target_available: boolean | null;
         author: string | null;
       }>
     >`
       SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", ${SUBJECT_SQL} AS "subject",
+             CASE WHEN a."entity_type" = 'Reservation' THEN reservation_target."id" IS NOT NULL ELSE NULL END
+               AS "target_available",
              u."name" AS "author"
       FROM "audit_logs" a
       LEFT JOIN "users" u ON u."id" = a."user_id"
+      LEFT JOIN "reservations" reservation_target
+        ON a."entity_type" = 'Reservation' AND reservation_target."id"::text = a."entity_id"
       WHERE ${Prisma.join(where, ' AND ')}
       ORDER BY a."created_at" DESC
       LIMIT ${take}`;
@@ -86,6 +93,7 @@ export class AuditService {
       entityId: r.entity_id,
       action: r.action,
       subject: r.subject,
+      targetAvailable: r.target_available,
       author: r.author ?? null,
     }));
   }

@@ -22,6 +22,8 @@ interface AuditRow {
   entityId: string;
   action: string;
   subject: string | null;
+  /** false означает, что audit trail сохранён, но сама бронь уже удалена */
+  targetAvailable: boolean | null;
   /** Имя вошедшего; null — система: импорт, сторож, скрипт сверки (ADR-023, ADR-046) */
   author: string | null;
 }
@@ -252,13 +254,16 @@ async function JournalEntries({
                       <span className="muted-2">{ENTITY_RU[r.entityType] ?? r.entityType}</span>
                       {r.subject && ' '}
                       {r.subject &&
-                        (r.entityType === 'Reservation' ? (
+                        (r.entityType === 'Reservation' && r.targetAvailable !== false ? (
                           <Link href={`/reservations/${encodeURIComponent(r.subject)}`}>
                             {r.subject}
                           </Link>
                         ) : (
                           r.subject
                         ))}
+                      {r.entityType === 'Reservation' && r.subject && r.targetAvailable === false && (
+                        <span className="muted-2"> (удалена)</span>
+                      )}
                     </td>
                   </tr>
                 </Fragment>

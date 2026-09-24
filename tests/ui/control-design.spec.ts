@@ -81,6 +81,10 @@ test('журнал: дни группами, время без года, объ�
   await expect(first).toContainText('Бронь 20260913-TESTAA');
   await expect(main.getByText(/ui-\w+…/)).toHaveCount(0);
   await expect(main.getByTestId('journal-row').nth(1)).toContainText('Сотрудник');
+  const deleted = main.getByTestId('journal-row').filter({ hasText: 'бронь создана' });
+  await expect(deleted).toContainText('20260913-TESTAA');
+  await expect(deleted.getByRole('link', { name: '20260913-TESTAA' })).toHaveCount(0);
+  await expect(deleted).toContainText('удалена');
 
   // разделы — такие же чипы, как отбор на «Неисправностях»
   const filters = main.getByRole('navigation', { name: 'Раздел журнала' });

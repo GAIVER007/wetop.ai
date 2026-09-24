@@ -138,6 +138,22 @@ export function TooltipDemo() {
 }
 
 /**
+ * Disabled controls cannot receive focus themselves. Keep the focusable wrapper and Tooltip in the
+ * same client boundary so React renders identical markup on the server and during hydration.
+ */
+export function DisabledTooltipDemo() {
+  return (
+    <Tooltip text="Заселение без гражданства не пройдёт">
+      <span tabIndex={0} className="kit-disabled-host">
+        <Button type="button" disabled>
+          Заселить
+        </Button>
+      </span>
+    </Tooltip>
+  );
+}
+
+/**
  * Экран сбоя из каталога: `Error` нельзя передать из серверного компонента, поэтому он собирается
  * здесь. `digest` — как у `ApiError`: `API_503` — нет связи, `API_404` — отклонённый запрос.
  */

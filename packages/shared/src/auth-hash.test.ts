@@ -26,8 +26,15 @@ describe('отпечатки для входа', () => {
   });
 
   it('без секрета — ошибка, а не тихий хэш без него', () => {
-    expect(() => hashSecret('123456', undefined)).toThrow(SessionSecretMissingError);
-    expect(() => hashSecret('123456', '   ')).toThrow(SessionSecretMissingError);
+    const previous = process.env.SESSION_SECRET;
+    delete process.env.SESSION_SECRET;
+    try {
+      expect(() => hashSecret('123456')).toThrow(SessionSecretMissingError);
+      expect(() => hashSecret('123456', '   ')).toThrow(SessionSecretMissingError);
+    } finally {
+      if (previous === undefined) delete process.env.SESSION_SECRET;
+      else process.env.SESSION_SECRET = previous;
+    }
   });
 });
 

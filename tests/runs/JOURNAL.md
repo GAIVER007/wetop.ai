@@ -1949,6 +1949,15 @@
 | 24.09.2026 17:58 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ❌ упало 1 из 1 | 5 мин 13 с | 39563c1 | [лог](logs/2026-09-24T12-58-58Z-e2e-0794.log) | GREEN: live frontend API Supabase persistence on current navigation and bounded pool |
 | 24.09.2026 18:05 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ❌ упало 1 из 1 | 5 мин 9 с | 39563c1 | [лог](logs/2026-09-24T13-05-21Z-e2e-665e.log) | GREEN: full current frontend API Supabase persistence with cleanup |
 | 24.09.2026 18:10 | e2e (частично: --config tests/live-system/playwright.config.ts --workers=1) | ✅ 1 из 1 | 4 мин 43 с | 39563c1 | [лог](logs/2026-09-24T13-10-59Z-e2e-b2a8.log) | GREEN final: current frontend API Supabase persistence and guarded cleanup |
+| 24.09.2026 18:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 336 | 31 мин 40 с | 837209a +6 | [лог](logs/2026-09-24T13-52-50Z-e2e-63fd.log) | Полный аудит всех экранов, кнопок, форм, responsive и accessibility после ручного обхода 24.09.2026 |
+| 24.09.2026 19:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 336 из 336 | 36 мин 54 с | 837209a +9 | [лог](logs/2026-09-24T14-43-15Z-e2e-bbb6.log) | Повторный полный аудит всех экранов, кнопок, форм, responsive, accessibility и производительности после исправления журнала и дизайн-системы 24.09.2026 |
+| 24.09.2026 20:34 | unit | ❌ упало 5 из 1511, пропущено 3 | 1 мин 16 с | 837209a +8 | [лог](logs/2026-09-24T15-34-22Z-unit-ce37.log) | status.sh: состояние туннеля ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает |
+| 24.09.2026 20:35 | unit | ✅ 1508 из 1511, пропущено 3 | 1 мин 16 с | 837209a +8 | [лог](logs/2026-09-24T15-35-55Z-unit-733c.log) |  |
+| 24.09.2026 20:37 | integration | ✅ 51 из 51 | 16 с | 837209a +6 | [лог](logs/2026-09-24T15-37-19Z-integration-824f.log) |  |
+| 24.09.2026 20:37 | typecheck | ✅ без ошибок | 17 с | 837209a +10 | [лог](logs/2026-09-24T15-37-36Z-typecheck-a2dd.log) |  |
+| 24.09.2026 20:37 | lint | ✅ без ошибок | 17 с | 837209a +10 | [лог](logs/2026-09-24T15-37-54Z-lint-1f35.log) |  |
+| 24.09.2026 20:38 | e2e | ❌ код выхода 1 | 13 с | 837209a +9 | [лог](logs/2026-09-24T15-38-22Z-e2e-da07.log) | Полный сквозной контроль сохранения и чтения после UI-аудита 24.09.2026 |
+| 24.09.2026 20:39 | e2e | ✅ 25 из 25 | 1 мин 34 с | 837209a +9 | [лог](logs/2026-09-24T15-39-08Z-e2e-cff1.log) | Полный сквозной контроль сохранения и чтения в локальной изолированной базе после UI-аудита 24.09.2026 |
 | 24.09.2026 18:33 | typecheck | ✅ без ошибок | 20 с | 77ca2d1 | [лог](logs/2026-09-24T13-33-43Z-typecheck-ce2a.log) | слияние main (PR #60) |
 | 24.09.2026 18:34 | lint | ✅ без ошибок | 15 с | 77ca2d1 | [лог](logs/2026-09-24T13-34-04Z-lint-e580.log) | слияние main (PR #60) |
 | 24.09.2026 18:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | 77ca2d1 | [лог](logs/2026-09-24T13-35-01Z-e2e-3bee.log) | 24.09: заголовок по шкале + слияние PR #60, живые сквозные |
@@ -1961,3 +1970,10 @@
 | 24.09.2026 19:43 | unit | ✅ 1517 из 1520, пропущено 3 | 1 мин 12 с | 0574649 +2 | [лог](logs/2026-09-24T14-43-55Z-unit-cabb.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
 | 24.09.2026 19:45 | typecheck | ✅ без ошибок | 23 с | 0574649 +2 | [лог](logs/2026-09-24T14-45-08Z-typecheck-5551.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
 | 24.09.2026 19:45 | lint | ✅ без ошибок | 18 с | 0574649 +2 | [лог](logs/2026-09-24T14-45-32Z-lint-e863.log) | O1 follow-up: backup runs in postgres:17 (no pg_dump on the server), address from the env file, Prisma params stripped |
+| 24.09.2026 20:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 337 | 25 мин 34 с | b6ae441 | [лог](logs/2026-09-24T15-47-02Z-e2e-8d1e.log) | Полный UI-аудит после слияния актуального main 9f1db986, все экраны и действия 24.09.2026 |
+| 24.09.2026 21:13 | unit | ✅ 1518 из 1521, пропущено 3 | 1 мин 13 с | b6ae441 | [лог](logs/2026-09-24T16-13-25Z-unit-b4bc.log) | Unit после слияния актуального main и полного UI-аудита 24.09.2026 |
+| 24.09.2026 21:14 | integration | ✅ 51 из 53, пропущено 2 | 9 с | b6ae441 | [лог](logs/2026-09-24T16-14-45Z-integration-0306.log) | Интеграция после слияния актуального main и полного UI-аудита 24.09.2026 |
+| 24.09.2026 21:15 | lint | ✅ без ошибок | 11 с | b6ae441 | [лог](logs/2026-09-24T16-15-03Z-lint-6889.log) | Lint после слияния актуального main и полного UI-аудита 24.09.2026 |
+| 24.09.2026 21:15 | typecheck | ✅ без ошибок | 12 с | b6ae441 | [лог](logs/2026-09-24T16-15-03Z-typecheck-055d.log) | TypeScript после слияния актуального main и полного UI-аудита 24.09.2026 |
+| 24.09.2026 21:15 | e2e | ✅ 25 из 25 | 59 с | b6ae441 | [лог](logs/2026-09-24T16-15-25Z-e2e-3948.log) | Изолированный E2E после слияния актуального main и полного UI-аудита 24.09.2026 |
+| 24.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/control-design.spec.ts --grep поиск журнала и переходы доступны --workers=1) | ✅ 1 из 1 | 18 с | b6ae441 | [лог](logs/2026-09-24T16-28-44Z-e2e-891e.log) | Повтор единственного таймаута полного UI-аудита в чистом процессе после merge main 24.09.2026 |

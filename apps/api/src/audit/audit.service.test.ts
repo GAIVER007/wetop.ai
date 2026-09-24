@@ -56,6 +56,7 @@ const row = (over: Record<string, unknown> = {}) => ({
   entity_id: 'r-1',
   action: 'reservation.checkIn',
   subject: 'WT-1',
+  target_available: true,
   author: null,
   ...over,
 });
@@ -85,6 +86,17 @@ describe('AuditService.list', () => {
     expect(select).toContain('SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", COALESCE(');
     expect(select).toContain('AS "subject"');
     expect(select.replace(/COALESCE\([^]*\)\s*AS "subject"/, '')).not.toMatch(/"(before|after)"/);
+  });
+
+  it('одним запросом отмечает, можно ли открыть бронь из истории', async () => {
+    const { service, queries } = fakePrisma([
+      row({ target_available: false, subject: 'WT-DELETED' }),
+    ]);
+    const [entry] = await service.list({ limit: 10 });
+
+    expect(entry).toMatchObject({ subject: 'WT-DELETED', targetAvailable: false });
+    expect(queries[0]!.sql).toContain('AS "target_available"');
+    expect(queries[0]!.sql).toContain('LEFT JOIN "reservations"');
   });
 });
 

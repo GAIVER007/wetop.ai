@@ -4,7 +4,7 @@
 `docs/assistant/tz-2026-09-24.md` (тот же текст лежит на ветке бота `ai-seller`, `TZ-integratsiya-wetop.md`; копия
 снята с `e48e1d4` и 24.09 вечером обновлена до `3014331d` — уточнения `items`, `x-wetop-service-key`,
 `platform:facts.md`). Владелец прислал ТЗ, затем поручил: «давай проверяй внимательно что осталось составь
-план и заряжай делай все по плану четко». Решение о приёме ТЗ — ADR-075.
+план и заряжай делай все по плану четко». Решение о приёме ТЗ — ADR-078.
 
 **Ветка:** `claude/festive-johnson-0aark9` от `main` `39563c1`. Задачи бота (Б1–Б8) здесь не делаются: их исполняет
 сессия на ветке `ai-seller`. Контракт между сторонами — `docs/assistant/README.md`.
@@ -179,7 +179,7 @@
 
 ## 6. Что за владельцем
 
-- Адреса экземпляров (Q-173), сервер (Q-174), права раздела (Q-175), вторая организация (Q-176).
+- Адреса экземпляров (Q-180), сервер (Q-174), права раздела (Q-175), вторая организация (Q-176).
 - Вписать переменные раздела 5 в `.env` сервера и имена — в `.env.example`.
 - Применить миграции `20260924000018`, `20260924000019` на рабочей базе (`docs/deploy.md`).
 - Выложить: из контейнера SSH нет.
@@ -230,7 +230,7 @@
 
 Поправки сделаны тем же порядком: тест красный на прежнем коде → правка → зелёный (`reports/ai-assistant-seller-2026-09-24.md` §7).
 Там же исправлено найденное перечитыванием П6–П8: версия, отклонённая продавцом по содержанию (400, 422), сверкой раз в
-минуту больше не повторяется — только после правки или по «Применить» (ADR-075).
+минуту больше не повторяется — только после правки или по «Применить» (ADR-078).
 
 ## 10. Файлы по задачам
 
@@ -246,11 +246,11 @@
 | П7 | `packages/integrations/src/assistant/{seller-client.ts, seller-client.test.ts}`, `apps/api/src/ai-seller/{seller.connection.ts, seller.service.ts, ai-seller.controller.ts, ai-seller.controller.test.ts, ai-seller.module.ts, fakes.ts}`, `apps/api/src/app.module.ts` |
 | П8 | `packages/domain/src/ai-seller/{facts.ts, facts.test.ts}`, `apps/api/src/ai-seller/{seller.service.ts, seller-sync.service.ts, seller-sync.service.test.ts}` |
 | П6 | `apps/web/src/app/ai-seller/{[[...section]]/page.tsx, actions.ts, forms.tsx, ai-seller.css}`, `apps/web/src/lib/{ai-seller.ts, ai-seller.test.ts, api.ts, navigation.ts}`, `apps/web/src/components/icon.tsx`, `apps/web/next.config.ts`, `scripts/preview/fixture-api.ts`, `tests/ui/{ai-seller.spec.ts, accessibility.spec.ts, navigation.spec.ts, playwright.config.ts}` |
-| Документы | `docs/assistant/{README.md, tz-2026-09-24.md}`, `DATA_MODEL.md`, `DECISIONS.md` (ADR-075), `QUESTIONS.md` (Q-173…Q-179), `SPEC.md`, `SECURITY.md` §13, `DESIGN.md` §7–8, `TESTING.md`, `CLAUDE.md` §2, этот план, `reports/ai-assistant-seller-2026-09-24.md` |
+| Документы | `docs/assistant/{README.md, tz-2026-09-24.md}`, `DATA_MODEL.md`, `DECISIONS.md` (ADR-078), `QUESTIONS.md` (Q-174…Q-180), `SPEC.md`, `SECURITY.md` §13, `DESIGN.md` §7–8, `TESTING.md`, `CLAUDE.md` §2, этот план, `reports/ai-assistant-seller-2026-09-24.md` |
 
-## 11. Переделка П5, П6, П8 под схемы бота Б6 и Б7 — **утверждено 24.09.2026** («давай все утверждай», ADR-076)
+## 11. Переделка П5, П6, П8 под схемы бота Б6 и Б7 — **утверждено 24.09.2026** («давай все утверждай», ADR-079)
 
-Ждала владельца: меняет таблицу §15, а цена в фактах — решение по деньгам. Владелец утвердил (ADR-076): §15 в редакции
+Ждала владельца: меняет таблицу §15, а цена в фактах — решение по деньгам. Владелец утвердил (ADR-079): §15 в редакции
 под Б6; цена — одна на категорию, если за 60 дней не меняется, иначе «уточнит администратор», при наибольшем числе гостей
 с ценой; валюта — тарифа сайта.
 
@@ -265,5 +265,5 @@
 
 **Исполнено 24.09.2026** (`723ffdc9`): шаги 1–6 по таблице выше, каждый — красный → зелёный; шаг 5 — тела платформы
 проходят модели бота `SellerProfile` и `ObjectFacts` без единой ошибки (отчёт §9). Сверх плана: тег чата на главной по
-адресу из Q-173 и тест, что он там есть.
+адресу из Q-180 и тест, что он там есть.
 

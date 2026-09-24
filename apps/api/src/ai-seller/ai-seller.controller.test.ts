@@ -22,7 +22,7 @@ import { SELLER_AUDIT, SELLER_FACTS, SELLER_PROFILES } from './seller.repository
 import { SELLER_NO_PROPERTY, SellerService } from './seller.service';
 
 /**
- * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-075). Настоящие замок и автор запроса, подставные продавец
+ * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-078). Настоящие замок и автор запроса, подставные продавец
  * и хранилища. Копия продавца привязана к одной организации (`SELLER_ORGANIZATION_ID`): вошедший из другой
  * организации не видит ни диалогов, ни знаний, ни песочницы.
  */
@@ -209,7 +209,7 @@ describe('«Применить» (П8)', () => {
     expect(res.body).toMatchObject({ profileApplied: true, factsApplied: true });
     expect(connection.seller.ops()).toEqual(['putProfile', 'putFacts']);
     const [profileCall, factsCall] = connection.seller.calls;
-    // тела — ровно модели бота SellerProfile и ObjectFacts (Б6, Б7; ADR-076)
+    // тела — ровно модели бота SellerProfile и ObjectFacts (Б6, Б7; ADR-079)
     expect(profileCall!.args[0]).toEqual({
       object_name: 'Тестовый хостел',
       bot_name: 'Айгерим',

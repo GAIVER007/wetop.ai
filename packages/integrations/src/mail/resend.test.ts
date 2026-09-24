@@ -160,6 +160,22 @@ describe('Resend: отказы', () => {
     expect((err as Error).message).not.toContain('re_secret_value_do_not_leak');
   });
 
+  it('адрес почты не протекает в текст ошибки, даже если Resend назвал его в своём сообщении', async () => {
+    // Почта — персональные данные (SECURITY.md §11): текст ошибки уходит в журнал API и на экран
+    const s = sender([
+      errorResponse(
+        403,
+        'validation_error',
+        'You can only send testing emails to your own email address (owner.test@example.org), not gost@example.com',
+      ),
+    ]);
+    const err = (await s.send(letter).catch((e: Error) => e)) as MailError;
+    expect(err.message).toContain('403');
+    expect(err.message).toContain('<почта>');
+    expect(err.message).not.toContain('gost@example.com');
+    expect(err.message).not.toContain('owner.test@example.org');
+  });
+
   it('сеть не ответила — ошибка помечена повторяемой, ключ в ней не светится', async () => {
     const s = new ResendMailSender({
       config,

@@ -6,7 +6,10 @@ loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 const apiKey = process.env.CHANNEX_API_KEY?.trim();
 if (!apiKey) throw new Error('CHANNEX_API_KEY пуст');
 const baseUrl = process.env.CHANNEX_API_BASE_URL?.trim();
-const client = new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey });
+const client = new channex.ChannexClient({
+  ...(baseUrl ? { apiKey, baseUrl } : { apiKey }),
+  allowProduction: channex.channexProductionAllowed(),
+});
 const feed = await client.bookingRevisionsFeed();
 console.log(`в ленте неподтверждённых ревизий: ${feed.length}`);
 for (const r of feed)

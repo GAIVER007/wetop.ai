@@ -1,7 +1,11 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
+import type { Prisma } from '@pms/database';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
+import { hasSignedInActor } from '../auth/request-context';
+import { propertyIdRef } from '../database/property-ref';
 
 export interface GuestSummary {
   id: string;
@@ -67,9 +71,16 @@ export interface GuestsRepository {
       expiresAt: string | null;
     },
   ): Promise<string>;
-  deleteDocument(guestId: string, documentId: string): Promise<boolean>;
+  /** Удалённый документ (его тип — для журнала) или null, если такого нет */
+  deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null>;
   /** Без ПД: только имена изменённых полей */
-  audit(guestId: string, action: string, fields: string[]): Promise<void>;
+  /** Журнал: имена полей без значений; `details` — идентификаторы (какой документ), не данные гостя */
+  audit(
+    guestId: string,
+    action: string,
+    fields: string[],
+    details?: Record<string, unknown>,
+  ): Promise<void>;
 }
 export const GUESTS_REPOSITORY = Symbol('GUESTS_REPOSITORY');
 
@@ -79,15 +90,34 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 @Injectable()
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  /**
+   * Замок организаций (ADR-061, Q-152). У гостя нет своего объекта: вошедший видит гостя, если у того есть бронь
+   * объекта его организации — основным гостем или на проживании. Служебный ходок (сторож, скрипты) — как раньше.
+   */
+  private async visible(): Promise<Prisma.GuestWhereInput> {
+    if (!hasSignedInActor()) return {};
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return {
+      OR: [
+        { primaryReservations: { some: { propertyId } } },
+        { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+      ],
+    };
+  }
   async search(q: string, limit: number): Promise<GuestSummary[]> {
     const digits = q.replace(/\D/g, '');
     const rows = await this.prisma.db.guest.findMany({
       where: {
-        OR: [
-          { lastName: { contains: q, mode: 'insensitive' } },
-          { firstName: { contains: q, mode: 'insensitive' } },
-          { email: { contains: q, mode: 'insensitive' } },
-          ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
+        AND: [
+          await this.visible(),
+          {
+            OR: [
+              { lastName: { contains: q, mode: 'insensitive' } },
+              { firstName: { contains: q, mode: 'insensitive' } },
+              { email: { contains: q, mode: 'insensitive' } },
+              ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
+            ],
+          },
         ],
       },
       orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
@@ -111,8 +141,8 @@ export class PrismaGuestsRepository implements GuestsRepository {
     }));
   }
   async byId(id: string): Promise<GuestProfile | null> {
-    const g = await this.prisma.db.guest.findUnique({
-      where: { id },
+    const g = await this.prisma.db.guest.findFirst({
+      where: { AND: [{ id }, await this.visible()] },
       include: {
         documents: { orderBy: { createdAt: 'asc' } },
         stays: {
@@ -205,15 +235,31 @@ export class PrismaGuestsRepository implements GuestsRepository {
     });
     return row.id;
   }
-  async deleteDocument(guestId: string, documentId: string): Promise<boolean> {
+  async deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null> {
+    const doc = await this.prisma.db.guestDocument.findFirst({
+      where: { id: documentId, guestId },
+      select: { type: true },
+    });
+    if (!doc) return null;
     const res = await this.prisma.db.guestDocument.deleteMany({
       where: { id: documentId, guestId },
     });
-    return res.count > 0;
+    return res.count > 0 ? doc : null;
   }
-  async audit(guestId: string, action: string, fields: string[]): Promise<void> {
+  async audit(
+    guestId: string,
+    action: string,
+    fields: string[],
+    details?: Record<string, unknown>,
+  ): Promise<void> {
     await this.prisma.db.auditLog.create({
-      data: { userId: auditUserId(), entityType: 'Guest', entityId: guestId, action, after: { fields } },
+      data: {
+        userId: auditUserId(),
+        entityType: 'Guest',
+        entityId: guestId,
+        action,
+        after: { ...(fields.length ? { fields } : {}), ...(details ?? {}) },
+      },
     });
   }
 }

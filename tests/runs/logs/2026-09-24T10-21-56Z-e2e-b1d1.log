@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 24.09.2026 15:21 Алматы · vm
+# коммит 7fbd9e9 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/login-access.spec.ts' '-g' 'Cloudflare Access'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (17.3s)
+
+
+  1) tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('main').getByLabel('Email', { exact: true })
+    Expected: ""
+    Received: "<email>"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByLabel('Email', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Email', { exact: true })
+        34 × locator resolved to <input class="inp" required="" type="email" name="email" autocomplete="username" placeholder="<email>" value="<email>"/>
+           - unexpected value "<email>"
+
+
+      193 |
+      194 |   await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
+    > 195 |   await expect(main.getByLabel('Email', { exact: true })).toHaveValue('');
+          |                                                           ^
+      196 |   await expect(main).not.toContainText('Cloudflare Access');
+      197 |   await expect(main.getByRole('link', { name: 'Выйти из Access' })).toHaveCount(0);
+      198 | });
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:195:59
+
+    Error Context: test-results/login-access-заголовок-Clo-1d686-ход-—-только-почта-и-пароль/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-заголовок-Clo-1d686-ход-—-только-почта-и-пароль/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-заголовок-Clo-1d686-ход-—-только-почта-и-пароль/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль 
+
+# код выхода 1 · 24 с

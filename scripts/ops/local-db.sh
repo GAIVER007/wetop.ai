@@ -111,7 +111,9 @@ start() {
     })().catch((e) => { console.error("local-db: база не создалась —", e.message); process.exit(1); });
   ' "postgresql://postgres@127.0.0.1:$PORT/postgres" "$DBNAME" )
   fi
-  ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
+  # DIRECT_URL — тоже на локальную: prisma.config.ts предпочитает его DATABASE_URL и дочитывает из .env корня,
+  # и прямой адрес рабочей базы оттуда молча уводил миграции в рабочую (24.09.2026, local-db-migrate-target.test.ts)
+  ( cd "$ROOT" && DATABASE_URL="$URL" DIRECT_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )
   # public нужен локальным скриптам. pms_test уже заполнен test:schema выше:

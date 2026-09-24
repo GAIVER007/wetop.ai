@@ -1,0 +1,70 @@
+# Модульные (unit) · 24.09.2026 14:58 Алматы · vm
+# коммит 9108e40 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-58-19Z-unit-6e63.json' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/units/units.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/units/units.controller.test.ts (5 tests | 1 failed) 257ms
+   ❯ units API: blocks and housekeeping (5)
+     ✓ GET /units/:code returns the card; 404 for unknown 30ms
+     ✓ код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500 35ms
+     × block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes 26ms
+     ✓ housekeeping status change is recorded once per change 12ms
+     ✓ housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step 10ms
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (11 tests | 1 failed) 429ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (11)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 72ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 20ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 33ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 13ms
+     × Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 16ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 11ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 17ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 9ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления 9ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 15ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются
+AssertionError: expected '[{"confirmationNumber":"B-1","currenc…' not to contain '701 234 56 78'
+
+Expected: "701 234 56 78"
+Received: "[{"confirmationNumber":"B-1","currency":"KZT","folios":[{"id":"f1","reservationItemId":"S-1","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f1","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"1200000","amountMinor":"1200000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null},{"id":"c1","kind":"ADJUSTMENT","serviceCode":null,"description":"Скидка по звонку <телефон>","quantity":1,"unitPriceMinor":"-10000","amountMinor":"-10000","serviceDate":"2026-09-24","createdAt":"2026-09-09T10:00:00.000Z","voidedAt":null}],"payments":[],"refunds":[],"chargedMinor":"1190000","paidMinor":"0","refundedMinor":"0","balanceMinor":"1190000"},{"id":"f2","reservationItemId":"S-2","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f2","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"800000","amountMinor":"800000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null}],"payments":[],"refunds":[],"chargedMinor":"800000","paidMinor":"0","refundedMinor":"0","balanceMinor":"800000"}],"chargedMinor":"1990000","paidMinor":"0","refundedMinor":"0","balanceMinor":"1990000"},{"confirmationNumber":"B-1","currency":"KZT","folios":[{"id":"f1","reservationItemId":"S-1","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f1","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"1200000","amountMinor":"1200000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null},{"id":"c1","kind":"ADJUSTMENT","serviceCode":null,"description":"Скидка по звонку <телефон>","quantity":1,"unitPriceMinor":"-10000","amountMinor":"-10000","serviceDate":"2026-09-24","createdAt":"2026-09-09T10:00:00.000Z","voidedAt":null}],"payments":[{"paymentId":"p2","method":"KASPI","status":"COMPLETED","paidAt":"2026-09-09T12:00:00.000Z","note":"чек на <email>","externalReference":null,"paymentAmountMinor":"100000","allocatedMinor":"100000","refundedMinor":"0"}],"refunds":[],"chargedMinor":"1190000","paidMinor":"100000","refundedMinor":"0","balanceMinor":"1090000"},{"id":"f2","reservationItemId":"S-2","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f2","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"800000","amountMinor":"800000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null}],"payments":[],"refunds":[],"chargedMinor":"800000","paidMinor":"0","refundedMinor":"0","balanceMinor":"800000"}],"chargedMinor":"1990000","paidMinor":"100000","refundedMinor":"0","balanceMinor":"1890000"},{"confirmationNumber":"B-1","currency":"KZT","folios":[{"id":"f1","reservationItemId":"S-1","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f1","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"1200000","amountMinor":"1200000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null},{"id":"c1","kind":"ADJUSTMENT","serviceCode":null,"description":"Скидка по звонку <телефон>","quantity":1,"unitPriceMinor":"-10000","amountMinor":"-10000","serviceDate":"2026-09-24","createdAt":"2026-09-09T10:00:00.000Z","voidedAt":null}],"payments":[{"paymentId":"p2","method":"KASPI","status":"COMPLETED","paidAt":"2026-09-09T12:00:00.000Z","note":"чек на <email>","externalReference":null,"paymentAmountMinor":"100000","allocatedMinor":"100000","refundedMinor":"50000"}],"refunds":[{"id":"r3","paymentId":"p2","amountMinor":"50000","reason":"вернуть на <телефон>","createdAt":"2026-09-09T13:00:00.000Z"}],"chargedMinor":"1190000","paidMinor":"100000","refundedMinor":"50000","balanceMinor":"1140000"},{"id":"f2","reservationItemId":"S-2","status":"OPEN","currency":"KZT","stay":{"accommodationTypeName":"Одноместная","arrivalDate":"2026-10-01","departureDate":"2026-10-03","status":"CONFIRMED"},"charges":[{"id":"acc-f2","kind":"ACCOMMODATION","serviceCode":null,"description":"Проживание 2026-10-01 → 2026-10-03","quantity":1,"unitPriceMinor":"800000","amountMinor":"800000","serviceDate":null,"createdAt":"2026-09-09T09:00:00.000Z","voidedAt":null}],"payments":[],"refunds":[],"chargedMinor":"800000","paidMinor":"0","refundedMinor":"0","balanceMinor":"800000"}],"chargedMinor":"1990000","paidMinor":"100000","refundedMinor":"50000","balanceMinor":"1940000"}]"
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:450:103
+    448|         .expect(201);
+    449|       const all = JSON.stringify([charge.body, pay.body, refund.body]);
+    450|       for (const raw of ['701 234 56 78', '<email>', '7…
+       |                                                                                                       ^
+    451|       expect(all).toContain('Скидка по звонку <телефон>');
+    452|       expect(all).toContain('чек на <почта>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/units/units.controller.test.ts > units API: blocks and housekeeping > block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes
+AssertionError: expected '{"id":"u1","code":"9001","kind":"ROOM…' not to contain '701 234 56 78'
+
+Expected: "701 234 56 78"
+Received: "{"id":"u1","code":"9001","kind":"ROOM","active":true,"housekeepingStatus":"DIRTY","accommodationTypeCode":"exely-900001","accommodationTypeName":"Одиночная","roomNumber":"9001","blocks":[{"id":"blk1","dateFrom":"2026-10-12","dateTo":"2026-10-13","type":"MAINTENANCE","reason":"мастер, звонить <телефон>"}],"stays":[{"confirmationNumber":"B-1","startDate":"2026-10-05","endDate":"2026-10-07","status":"CONFIRMED","guestLabel":"Гость"}],"housekeepingHistory":[]}"
+
+ ❯ apps/api/src/units/units.controller.test.ts:200:47
+    198|         })
+    199|         .expect(201);
+    200|       expect(JSON.stringify(masked.body)).not.toContain('701 234 56 78…
+       |                                               ^
+    201|       expect(JSON.stringify(masked.body)).toContain('мастер, звонить <…
+    202|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 14 passed (16)
+   Start at  09:58:19
+   Duration  2.10s (transform 55%, import 27%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-58-19Z-unit-6e63.json
+
+# код выхода 1 · 3 с

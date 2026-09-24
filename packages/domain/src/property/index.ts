@@ -11,7 +11,8 @@
 export const LUXX_APARTS_PROPERTY = {
   name: 'Luxx Aparts',
   legalName: 'ИП «L.A»',
-  bin: '851101300781',
+  // ИИН/БИН здесь не держим: это ИИН физлица-ИП, персональные данные (проверка SECURITY.md 24.09.2026, Н12).
+  // Он в записи объекта (`properties.bin`), печатные формы берут его из `/hotel/settings`.
   address: 'Казахстан, Алматы, ул. Толе би, 286/8, 050005',
   timezone: 'Asia/Almaty',
   currency: 'KZT',

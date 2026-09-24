@@ -7,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { housekeepingRefusal } from '@pms/domain';
+import { freeTextForStorage } from '@pms/shared';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import {
   UNITS_REPOSITORY,
@@ -74,14 +75,16 @@ export class UnitsService {
         `В ячейке ${code} есть проживание: ${busy.map((b) => `${b.confirmationNumber} (${b.startDate} → ${b.endDate})`).join(', ')} — сначала переселите`,
       );
     const before = await this.repo.card(code, dto.dateFrom!, dto.dateTo!);
-    const id = await this.repo.createBlock(unit.id, {
+    const block = {
       dateFrom: dto.dateFrom!,
       dateTo: dto.dateTo!,
       type: dto.type as BlockType,
-      reason: dto.reason?.trim() || null,
-    });
+      // Q-169: пока база не в РК, почта и телефоны в причине маскируются — и в журнале тоже
+      reason: freeTextForStorage(dto.reason?.trim() || null),
+    };
+    // SECURITY.md §6: ручное изменение доступности — блокировка и журнал одной транзакцией
+    await this.repo.createBlock(unit.id, block, { before: before?.blocks ?? [], after: block });
     const after = await this.card(code);
-    await this.repo.audit(unit.id, 'unit.block', before?.blocks ?? [], { blockId: id, ...dto });
     await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],
       from: dto.dateFrom!,
@@ -97,8 +100,7 @@ export class UnitsService {
     const b = await this.repo.blockById(blockId);
     if (!b || b.unitId !== unit.id)
       throw new NotFoundException(`Блокировка ${blockId} не найдена у ячейки ${code}`);
-    await this.repo.deleteBlock(blockId);
-    await this.repo.audit(unit.id, 'unit.unblock', b, null);
+    await this.repo.deleteBlock(blockId, { unitId: unit.id, before: b });
     await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],
       from: b.dateFrom,

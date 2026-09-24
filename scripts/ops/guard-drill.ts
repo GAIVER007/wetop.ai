@@ -7,7 +7,7 @@
  *
  * Пишет только в технические таблицы (`channel_outbox`, `external_events`) строки с меткой GUARD-DRILL; брони, гости,
  * счета не трогаются. Работает с API на 127.0.0.1:3001 (API_URL). Полная выгрузка идёт туда же, куда смотрит API, —
- * скрипт отказывается работать, если CHANNEX_BASE_URL не staging.
+ * скрипт отказывается работать, если CHANNEX_API_BASE_URL не staging (пустой — staging, умолчание клиента).
  */
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
@@ -21,9 +21,10 @@ if (kind !== 'outbox' && kind !== 'event') {
   console.error('Учения: outbox | event');
   process.exit(2);
 }
-const base = process.env.CHANNEX_BASE_URL ?? '';
+// Адрес Channex — CHANNEX_API_BASE_URL, как у API (до 24.09.2026 здесь читалась CHANNEX_BASE_URL, которой никто не задаёт)
+const base = process.env.CHANNEX_API_BASE_URL?.trim() ?? '';
 if (kind === 'outbox' && base && !base.includes('staging')) {
-  console.error('CHANNEX_BASE_URL не staging — учения с полной выгрузкой запрещены');
+  console.error('CHANNEX_API_BASE_URL не staging — учения с полной выгрузкой запрещены');
   process.exit(2);
 }
 

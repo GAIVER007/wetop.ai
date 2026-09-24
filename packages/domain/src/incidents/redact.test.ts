@@ -11,6 +11,24 @@ const PASS = ['not', 'a', 'real', 'pass'].join('-');
 const TOKEN = ['fake', 'token', 'abcdefghijklmnopqrstuvwxyz0123456789'].join('');
 
 describe('redactText', () => {
+  it('SECURITY.md §7: почта и телефоны в тексте ошибки маскируются, номера броней остаются', () => {
+    const t = redactText(
+      'Invalid value for notes: call +7 700 000 00 00, write test.guest@example.com (бронь BDC-9996013801)',
+    );
+    expect(t).not.toContain('700 000 00 00');
+    expect(t).not.toContain('test.guest@example.com');
+    expect(t).toContain('<телефон>');
+    expect(t).toContain('<почта>');
+    expect(t).toContain('BDC-9996013801');
+  });
+
+  it('длина по умолчанию — 500 знаков, для last_error задаётся своя', () => {
+    // обычный текст: длинная строка без пробелов для redactText — это ключ, и она маскируется целиком
+    const long = 'слово '.repeat(150);
+    expect(redactText(long)).toHaveLength(501);
+    expect(redactText(long, 1000)).toBe(long);
+  });
+
   it('маскирует JWT, пароль в строке подключения, Bearer и длинные ключи', () => {
     const t = redactText(
       `db postgresql://app:${PASS}@db.example.com:5432/pms; auth Bearer ${TOKEN}; jwt ${JWT}; key ${TOKEN}`,

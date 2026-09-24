@@ -1,0 +1,66 @@
+# Модульные (unit) · 24.09.2026 15:16 Алматы · vm
+# коммит 209bab5 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-16-07Z-unit-0261.json' 'apps/api/src/hotel/onboarding.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/hotel/onboarding.test.ts (8 tests | 1 failed) 24ms
+   ❯ OnboardingService (8)
+     ✓ status: пустой объект просит онбординг, отдаёт имя и валюту 3ms
+     ✓ status: объект с категориями онбординг не просит 1ms
+     × provision: заводит номера, тариф, связи и цены под объект своей организации 14ms
+     ✓ provision: повторный онбординг закрыт — объект уже настроен 2ms
+     ✓ provision: пустой список категорий — 400, а не 500 1ms
+     ✓ provision: негодная цена — 400 с текстом из домена 1ms
+     ✓ онбординг только для вошедшего человека: служебный ходок и вошедший без организации не проходят 1ms
+     ✓ у организации нет объекта — 404 (при регистрации объект создаётся, это редкость) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/onboarding.test.ts > OnboardingService > provision: заводит номера, тариф, связи и цены под объект своей организации
+AssertionError: expected [] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+- [
+-   ObjectContaining {
+-     "action": "hotel.onboarding",
+-     "after": ObjectContaining {
+-       "categories": [
+-         ObjectContaining {
+-           "name": "Двухместный",
+-           "units": 3,
+-         },
+-         ObjectContaining {
+-           "name": "Койко-место",
+-           "units": 8,
+-         },
+-       ],
+-       "currency": "KZT",
+-       "days": 500,
+-     },
+-     "entityId": "prop-1",
+-   },
+- ]
++ []
+
+ ❯ apps/api/src/hotel/onboarding.test.ts:162:24
+    160|     expect(rec.dailyRates.some((r) => r.price === 900000n && r.occupan…
+    161|     // SECURITY.md §6: первые цены и фонд — в журнале одной строкой, б…
+    162|     expect(rec.audits).toEqual([
+       |                        ^
+    163|       expect.objectContaining({
+    164|         action: 'hotel.onboarding',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  10:16:08
+   Duration  1.47s (transform 76%, import 22%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-16-07Z-unit-0261.json
+
+# код выхода 1 · 2 с

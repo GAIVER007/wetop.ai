@@ -3,3 +3,4 @@ export * from './source';
 export * from './device';
 export * from './hit';
 export * from './metrics';
+export * from './retention';

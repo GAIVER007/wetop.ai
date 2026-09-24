@@ -70,3 +70,21 @@ test('карточка гостя: меняются только граждан�
     })
     .toEqual(['citizenship', 'gender']);
 });
+
+test('Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'pseudonymized' } });
+  await page.goto('/reservations/20260913-TESTAA');
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  const notes = page.getByTestId('edit-reservation-form').locator('textarea[name="notes"]');
+  await expect(notes).toHaveAttribute('placeholder', /без имён и телефонов гостя/);
+
+  await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'real' } });
+  await page.reload();
+  await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  await expect(
+    page.getByTestId('edit-reservation-form').locator('textarea[name="notes"]'),
+  ).toHaveAttribute('placeholder', 'Заметки');
+});

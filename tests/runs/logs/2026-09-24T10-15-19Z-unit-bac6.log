@@ -1,0 +1,54 @@
+# Модульные (unit) · 24.09.2026 15:15 Алматы · vm
+# коммит 209bab5 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-15-19Z-unit-bac6.json' 'apps/api/src/units/' 'apps/api/src/finance/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 8ms
+ ❯ |unit| apps/api/src/units/units.controller.test.ts (5 tests | 1 failed) 238ms
+   ❯ units API: blocks and housekeeping (5)
+     ✓ GET /units/:code returns the card; 404 for unknown 30ms
+     ✓ код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500 19ms
+     × block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes 29ms
+     ✓ housekeeping status change is recorded once per change 7ms
+     ✓ housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step 9ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (11 tests) 307ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/units/units.controller.test.ts > units API: blocks and housekeeping > block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes
+AssertionError: expected { before: [], after: { …(4) } } to match object { before: [], after: { …(4) } }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,8 +1,7 @@
+  {
+    "after": {
+-     "blockId": "blk1",
+      "dateFrom": "2026-10-08",
+      "dateTo": "2026-10-10",
+      "reason": "сломан замок",
+    },
+    "before": [],
+
+ ❯ apps/api/src/units/units.controller.test.ts:202:34
+    200|     // SECURITY.md §6: блокировка и снятие пишутся в журнал в той же т…
+    201|     expect(fakes.separateAudits).toEqual([]);
+    202|     expect(fakes.blockAudits[0]).toMatchObject({
+       |                                  ^
+    203|       before: [],
+    204|       after: { blockId: 'blk1', dateFrom: '2026-10-08', dateTo: '2026-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 19 passed (20)
+   Start at  10:15:20
+   Duration  2.02s (transform 58%, import 30%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-15-19Z-unit-bac6.json
+
+# код выхода 1 · 3 с

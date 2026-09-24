@@ -1,0 +1,46 @@
+# Модульные (unit) · 24.09.2026 14:58 Алматы · vm
+# коммит 9108e40 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-58-39Z-unit-3c3a.json' 'apps/api/src/finance/' 'apps/api/src/units/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 16ms
+ ❯ |unit| apps/api/src/units/units.controller.test.ts (5 tests | 1 failed) 246ms
+   ❯ units API: blocks and housekeeping (5)
+     ✓ GET /units/:code returns the card; 404 for unknown 27ms
+     ✓ код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500 18ms
+     × block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes 33ms
+     ✓ housekeeping status change is recorded once per change 7ms
+     ✓ housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step 8ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (11 tests) 361ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/units/units.controller.test.ts > units API: blocks and housekeeping > block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes
+AssertionError: expected [ { id: 'blk1', unitId: 'u1', …(4) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ apps/api/src/units/units.controller.test.ts:206:26
+    204|       else process.env.PII_STORAGE = piiBefore;
+    205|     }
+    206|     expect(fakes.blocks).toHaveLength(0);
+       |                          ^
+    207|     expect(fakes.published).toHaveLength(2);
+    208|     await request(app.getHttpServer()).delete('/units/9001/blocks/blk1…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 19 passed (20)
+   Start at  09:58:39
+   Duration  1.99s (transform 57%, import 30%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-58-39Z-unit-3c3a.json
+
+# код выхода 1 · 3 с

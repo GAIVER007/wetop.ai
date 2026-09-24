@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { guestForStorage } from '@pms/shared';
+import { freeTextForStorage, guestForStorage, realPiiAllowed } from '@pms/shared';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import {
   BadRequestException,
@@ -18,6 +18,7 @@ import {
   matchImportedReservation,
   penaltyAmount,
   penaltyDue,
+  redactText,
   sameStaySet,
   type ReservationStatus,
 } from '@pms/domain';
@@ -59,13 +60,112 @@ export const MAX_INBOUND_ATTEMPTS = 6;
 /** Метка броней автотестов в заметке (ставят сами тесты, снимает `cli-e2e-cleanup.ts`) — с ними ревизии не сопоставляются */
 const E2E_NOTE = 'E2E-АВТОТЕСТ';
 
-/** Ревизия целиком, кроме `guarantee` (данные карты — не хранить, SECURITY.md §4) и `services` мусора. */
+/** Верхние поля ревизии, которые хранит журнал событий, пока база не в РК: номера, даты, суммы, занятость, канал */
+const REVISION_KEEP = [
+  'id',
+  'property_id',
+  'booking_id',
+  'unique_id',
+  'system_id',
+  'revision_id',
+  'ota_reservation_code',
+  'ota_name',
+  'status',
+  'occupancy',
+  'arrival_date',
+  'departure_date',
+  'arrival_hour',
+  'amount',
+  'currency',
+  'ota_commission',
+  'payment_collect',
+  'payment_type',
+  'inserted_at',
+  'services',
+  'channel_id',
+  'secondary_ota',
+  'acknowledge_status',
+  'has_unacked_revisions',
+  'is_crs_revision',
+] as const;
+/** Поля номера брони: без `guests` (имена) и `meta` (пожелания и заметки к номеру) */
+const ROOM_KEEP = [
+  'booking_room_id',
+  'checkin_date',
+  'checkout_date',
+  'rate_plan_id',
+  'room_type_id',
+  'occupancy',
+  'amount',
+  'days',
+  'ota_unique_id',
+  'is_cancelled',
+] as const;
+
+const pick = (src: Record<string, unknown>, keys: readonly string[]): Record<string, unknown> =>
+  Object.fromEntries(keys.filter((k) => k in src).map((k) => [k, src[k]]));
+
+/**
+ * Данные карты не хранятся нигде и никогда (SECURITY.md §1) — и в копии брони внутри другого события тоже.
+ * `raw_message` — исходное сообщение канала (bookings-collection.md): в нём та же бронь как её прислала площадка,
+ * вместе с гостем и, возможно, картой, поэтому оно не хранится и в РК.
+ */
+const NEVER_STORED = new Set(['guarantee', 'raw_message']);
+function withoutCard(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutCard);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([k]) => !NEVER_STORED.has(k))
+      .map(([k, v]) => [k, withoutCard(v)]),
+  );
+}
+
+/**
+ * Что из ревизии ложится в `external_events.payload`. Карта (`guarantee`) — никогда. Пока база не в РК
+ * (PII_STORAGE ≠ real, ADR-018, SECURITY.md §2) — только номера, даты, суммы, занятость и канал: без заказчика
+ * (кроме страны), имён гостей, заметки и `meta` номеров. Экран «Приём брони» и поиск читают только эти поля
+ * (`revision-facts.ts`), а повтор берёт ревизию из ленты Channex заново (`retryEvent` → `pull`). Список разрешённый,
+ * а не запретный: новое поле Channex в журнал не попадёт, пока его сюда не впишут.
+ */
 export function sanitizeRevision(
   attrs: channex.ChannexBookingRevisionAttributes,
+  env: NodeJS.ProcessEnv = process.env,
 ): Record<string, unknown> {
-  const copy: Record<string, unknown> = { ...attrs };
-  delete copy['guarantee'];
-  return copy;
+  if (realPiiAllowed(env)) return withoutCard({ ...attrs }) as Record<string, unknown>;
+  const copy = pick(attrs, REVISION_KEEP);
+  if (attrs.customer && typeof attrs.customer === 'object')
+    copy['customer'] = pick(attrs.customer as Record<string, unknown>, ['country']);
+  copy['rooms'] = (Array.isArray(attrs.rooms) ? attrs.rooms : [])
+    .filter((r): r is channex.ChannexBookingRoom => !!r && typeof r === 'object')
+    .map((r) => pick(r, ROOM_KEEP));
+  return withoutCard(copy) as Record<string, unknown>;
+}
+
+/** Поля событий не о брони, в которых нет гостя: канал и тип ошибки у `sync_error`, решённость запроса */
+const EVENT_SAFE_KEYS = new Set(['channel', 'channel_name', 'error_type', 'resolved', 'status']);
+
+/**
+ * Событие не о брони. У `message` в теле текст гостя, у `review` — отзыв и имя, у `reservation_request` — копия брони
+ * вместе с картой. Пока база не в РК — только идентификаторы (`*_id`) и поля из `EVENT_SAFE_KEYS`, остальные ключи
+ * перечислены в `omitted`, чтобы было видно, что пришло. Карта не хранится и в РК.
+ */
+export function sanitizeWebhookPayload(
+  payload: unknown,
+  env: NodeJS.ProcessEnv = process.env,
+): unknown {
+  if (realPiiAllowed(env)) return withoutCard(payload ?? null);
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+    return payload === undefined || payload === null ? null : { omitted: ['payload'] };
+  const kept: Record<string, unknown> = {};
+  const omitted: string[] = [];
+  for (const [k, v] of Object.entries(payload as Record<string, unknown>)) {
+    const scalar = v === null || ['string', 'number', 'boolean'].includes(typeof v);
+    if (scalar && (k === 'id' || k.endsWith('_id') || EVENT_SAFE_KEYS.has(k))) kept[k] = v;
+    else omitted.push(k);
+  }
+  if (omitted.length) kept['omitted'] = omitted.sort();
+  return kept;
 }
 
 /** "153.00" → 15300n без float. */
@@ -129,7 +229,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       if (r.received > 0)
         this.log.log(`опрос ленты: получено ${r.received}, подтверждено ${r.acknowledged}`);
     } catch (e) {
-      this.log.warn(`опрос ленты Channex не удался: ${(e as Error).message}`);
+      this.log.warn(`опрос ленты Channex не удался: ${redactText((e as Error).message, 1000)}`);
     } finally {
       this.pulling = false;
     }
@@ -179,7 +279,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     const event = body.event;
     const run = () =>
       this.processWebhookEvent(body).catch((e) =>
-        this.log.error(`webhook ${event}: ${(e as Error).message}`),
+        this.log.error(`webhook ${event}: ${redactText((e as Error).message, 1000)}`),
       );
     this.queue = this.queue.then(run, run);
     return { ok: true, accepted: true };
@@ -199,13 +299,14 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       return;
     }
     // Остальные события журналируем и считаем обработанными (sync_error и т.п. — для человека)
+    const stored = sanitizeWebhookPayload(body.payload);
     await this.uow.run(async (repo) => {
       const ev = await repo.recordExternalEvent({
         provider: PROVIDER,
         externalEventId: `${body.event}:${body.timestamp ?? Date.now()}:${payloadHash(body.payload).slice(0, 12)}`,
         type: body.event!,
-        payloadHash: payloadHash(body.payload),
-        payload: body.payload,
+        payloadHash: payloadHash(stored),
+        payload: stored,
         receivedVia: 'WEBHOOK',
       });
       if (ev.isNew)
@@ -342,7 +443,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       ...(sameCurrency ? { totalAmountMinor: header.totalAmountMinor } : {}),
       externalId: a.unique_id,
       channel: a.ota_name,
-      ...(a.notes != null ? { notes: a.notes } : {}),
+      ...(a.notes != null ? { notes: freeTextForStorage(a.notes) } : {}),
     });
     await repo.audit({
       entityType: 'Reservation',
@@ -462,7 +563,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     try {
       feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
     } catch (e) {
-      this.pullState = { ...this.pullState, failedAt: new Date(), error: (e as Error).message };
+      this.pullState = { ...this.pullState, failedAt: new Date(), error: redactText((e as Error).message, 1000) };
       throw e;
     }
     this.pullState = { okAt: new Date(), failedAt: null, error: null };
@@ -476,7 +577,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       try {
         o = await this.processRevision(rev, via);
       } catch (e) {
-        const message = e instanceof Error ? e.message : String(e);
+        // SECURITY.md §7: текст ошибки уходит в ответ и в журнал API — без почты и телефонов гостя
+        const message = redactText(e instanceof Error ? e.message : String(e), 1000);
         this.log.error(`Ревизия ${rev.id}: ${message}`);
         o = {
           revisionId: rev.id,
@@ -576,14 +678,17 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
             // Предупреждения разбора («без ячейки», «предоплата не записана») сохраняются вместе с событием:
             // webhook и фоновый опрос результат никому не показывают, а на /channels колонка видна.
             // Отдельного поля у события нет — заявка на `warnings` в DATA_MODEL.md (ADR-024).
-            lastError: base.warnings.length ? `Предупреждение: ${base.warnings.join('; ')}` : null,
+            lastError: base.warnings.length
+              ? redactText(`Предупреждение: ${base.warnings.join('; ')}`, 1000)
+              : null,
             processedAt: new Date(),
           });
           return applied;
         });
         outcome = { ...base, ...r };
       } catch (e) {
-        const message = e instanceof Error ? e.message : String(e);
+        // SECURITY.md §7: last_error без почты и телефонов — ошибка записи может напечатать заметку гостя
+        const message = redactText(e instanceof Error ? e.message : String(e), 1000);
         // Транзакция 3: FAILED пишется отдельно — внутри прерванной транзакции Postgres это невозможно (25P02).
         await this.uow.run((repo) =>
           repo.updateExternalEvent(ev.id, {
@@ -661,6 +766,8 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         warnings.push(`Отмена ${a.unique_id}: брони нет в PMS — записана только в журнал`);
         return { result: 'cancelled', confirmationNumber: null };
       }
+      // SECURITY.md §6: отмена каналом — в журнале карточка до и после, как у отмены со стойки
+      const before = await repo.card(existing.confirmationNumber);
       const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
       for (const item of existing.items) {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
@@ -699,11 +806,13 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
           toExclusive: b.toExclusive,
         });
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
+      const after = await repo.card(existing.confirmationNumber);
       await repo.audit({
         entityType: 'Reservation',
         entityId: existing.id,
         action: 'channex.booking.cancelled',
-        after: { uniqueId: a.unique_id },
+        ...(before ? { before } : {}),
+        after: { ...(after ?? {}), uniqueId: a.unique_id },
       });
       return {
         result: 'cancelled',
@@ -768,7 +877,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         children: a.occupancy?.children ?? 0,
         currency: a.currency,
         primaryGuestId: guestId,
-        notes: a.notes ?? null,
+        notes: freeTextForStorage(a.notes),
         items,
       } satisfies NewReservation);
       for (const [i, itemId] of created.itemIds.entries()) {
@@ -844,7 +953,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       status: 'CONFIRMED',
       externalId: a.unique_id,
       channel: a.ota_name,
-      notes: a.notes ?? null,
+      notes: freeTextForStorage(a.notes),
     });
     await repo.audit({
       entityType: 'Reservation',

@@ -4,6 +4,7 @@ import type { DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { mergeRestrictions } from './restriction-merge';
+import { priceRuns, restrictionRuns, type RateChangeBefore } from './rate-history';
 import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
@@ -46,16 +47,21 @@ export interface RatesRepository {
   ): Promise<RateCalendarDay[]>;
   /**
    * Применить изменения одной транзакцией; вернуть число затронутых строк. `inTransaction` выполняется в той же
-   * транзакции после записи цен (журнал, очередь каналов): упал — не записано ничего (Б5).
+   * транзакции после записи цен (журнал, очередь каналов): упал — не записано ничего (Б5). `before` — прежние цены
+   * и ограничения тех же дат диапазонами, для журнала (SECURITY.md §6).
    */
   applyChanges(
     changes: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
     >,
-    inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+    inTransaction?: (
+      tx: unknown,
+      counts: RateRowCounts,
+      before: RateChangeBefore[],
+    ) => Promise<void>,
   ): Promise<RateRowCounts>;
   /** `tx` — транзакция из `inTransaction`; без неё запись идёт отдельно */
-  audit(action: string, after: unknown, tx?: unknown): Promise<void>;
+  audit(action: string, after: unknown, tx?: unknown, before?: unknown): Promise<void>;
 }
 export interface RateRowCounts {
   rateRows: number;
@@ -134,21 +140,40 @@ export class PrismaRatesRepository implements RatesRepository {
     changes: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
     >,
-    inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+    inTransaction?: (
+      tx: unknown,
+      counts: RateRowCounts,
+      before: RateChangeBefore[],
+    ) => Promise<void>,
   ): Promise<RateRowCounts> {
     return this.prisma.db.$transaction(
       async (tx) => {
         let rateRows = 0;
         let restrictionRows = 0;
+        const before: RateChangeBefore[] = [];
         for (const c of changes) {
           const dates = expandDates(c.dateFrom, c.dateTo, c.days);
           if (dates.length === 0) continue;
           const dateValues = dates.map(asDate);
           const key = { accommodationTypeId: c.accommodationTypeId, ratePlanId: c.ratePlanId };
+          const history: RateChangeBefore = { ...key, prices: [], restrictions: [] };
+          before.push(history);
           if (c.priceMinor !== undefined) {
             const occupancies = c.occupancy
               ? [c.occupancy]
               : Array.from({ length: c.capacityAdults }, (_, i) => i + 1);
+            // журнал: прежние цены — до удаления, в той же транзакции (SECURITY.md §6)
+            const old = await tx.dailyRate.findMany({
+              where: { ...key, occupancy: { in: occupancies }, date: { in: dateValues } },
+              select: { date: true, occupancy: true, price: true },
+            });
+            history.prices = priceRuns(
+              old.map((r) => ({
+                date: iso(r.date),
+                occupancy: r.occupancy,
+                priceMinor: r.price.toString(),
+              })),
+            );
             await tx.dailyRate.deleteMany({
               where: { ...key, occupancy: { in: occupancies }, date: { in: dateValues } },
             });
@@ -172,6 +197,16 @@ export class PrismaRatesRepository implements RatesRepository {
             const existing = await tx.restriction.findMany({
               where: { ...key, date: { in: dateValues } },
             });
+            history.restrictions = restrictionRuns(
+              existing.map((r) => ({
+                date: iso(r.date),
+                minStay: r.minStay,
+                maxStay: r.maxStay,
+                stopSell: r.stopSell,
+                closedToArrival: r.closedToArrival,
+                closedToDeparture: r.closedToDeparture,
+              })),
+            );
             const byDate = new Map(existing.map((r) => [iso(r.date), r]));
             await tx.restriction.deleteMany({ where: { ...key, date: { in: dateValues } } });
             // даты, где после правки ничего не закрыто, строку не получают (restriction-merge.ts)
@@ -189,13 +224,13 @@ export class PrismaRatesRepository implements RatesRepository {
           }
         }
         const counts = { rateRows, restrictionRows };
-        if (inTransaction) await inTransaction(tx, counts);
+        if (inTransaction) await inTransaction(tx, counts, before);
         return counts;
       },
       { timeout: 120_000, maxWait: 10_000 },
     );
   }
-  async audit(action: string, after: unknown, tx?: unknown): Promise<void> {
+  async audit(action: string, after: unknown, tx?: unknown, before?: unknown): Promise<void> {
     const db = (tx as DbTx | undefined) ?? this.prisma.db;
     await db.auditLog.create({
       data: {
@@ -203,6 +238,7 @@ export class PrismaRatesRepository implements RatesRepository {
         entityType: 'Property',
         entityId: await this.propertyId(),
         action,
+        ...(before === undefined ? {} : { before: JSON.parse(JSON.stringify(before)) }),
         after: JSON.parse(JSON.stringify(after)),
       },
     });

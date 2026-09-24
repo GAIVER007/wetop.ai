@@ -7,6 +7,8 @@ export interface HotelSettings {
     id: string;
     name: string;
     legalName: string | null;
+    /** ИИН/БИН объекта для печатных форм; старый API поля не шлёт */
+    bin?: string | null;
     address: string | null;
     timezone: string;
     currency: string;

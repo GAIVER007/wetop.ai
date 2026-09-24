@@ -45,11 +45,12 @@ try {
   });
   if (!mapping) throw new Error('маппинг Channex пуст — объект не настроен');
   const propertyId = mapping.providerPropertyId;
-  const client = new channex.ChannexClient(
-    process.env.CHANNEX_API_BASE_URL?.trim()
+  const client = new channex.ChannexClient({
+    ...(process.env.CHANNEX_API_BASE_URL?.trim()
       ? { apiKey, baseUrl: process.env.CHANNEX_API_BASE_URL.trim() }
-      : { apiKey },
-  );
+      : { apiKey }),
+    allowProduction: channex.channexProductionAllowed(),
+  });
 
   // bookings-collection.md «Booking Revisions List» + api-reference.md: filter[property_id], order[field], pagination (limit ≤ 100)
   interface RevisionAttrs {

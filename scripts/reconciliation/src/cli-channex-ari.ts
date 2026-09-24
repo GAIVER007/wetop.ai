@@ -34,11 +34,12 @@ const mapped = mapping.filter((m) => m.providerRoomTypeId && m.localAccommodatio
 if (mapped.length === 0) throw new Error('маппинг Channex пуст — сначала setup');
 const propertyId = mapped[0]!.providerPropertyId;
 
-const client = new channex.ChannexClient(
-  process.env.CHANNEX_API_BASE_URL?.trim()
+const client = new channex.ChannexClient({
+  ...(process.env.CHANNEX_API_BASE_URL?.trim()
     ? { apiKey, baseUrl: process.env.CHANNEX_API_BASE_URL.trim() }
-    : { apiKey },
-);
+    : { apiKey }),
+  allowProduction: channex.channexProductionAllowed(),
+});
 const channexAvail = await client.getAvailability(propertyId, today, to);
 
 interface Row {

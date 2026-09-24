@@ -1,0 +1,72 @@
+# Сквозные (e2e) · 24.09.2026 15:22 Алматы · vm
+# коммит 7fbd9e9 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/login-access.spec.ts' 'tests/ui/pii-storage.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 2 workers
+
+  ✓   1 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (2.0s)
+  ✓   2 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (4.6s)
+  ✓   3 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (3.0s)
+  ✓   5 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.5s)
+  ✓   6 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (1.1s)
+  ✓   7 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (1.6s)
+  ✓   8 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (1.6s)
+  ✓   9 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (10.4s)
+  ✘   4 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (17.1s)
+  ✓  11 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (4.5s)
+  ✓  10 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (10.9s)
+  ✓  12 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (934ms)
+  ✓  13 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.1s)
+  ✓  14 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (903ms)
+  ✓  15 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.0s)
+  ✓  16 tests/ui/login-access.spec.ts:250:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (880ms)
+  ✓  17 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (2.4s)
+  ✓  18 tests/ui/login-access.spec.ts:277:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.8s)
+  ✓  19 tests/ui/login-access.spec.ts:300:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (1.1s)
+  ✓  20 tests/ui/login-access.spec.ts:307:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.5s)
+
+
+  1) tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('guest-form').getByTestId('guest-pseudonymized')
+    Expected substring: "не в Казахстане"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('guest-form').getByTestId('guest-pseudonymized') with timeout 15000ms
+      - waiting for getByTestId('guest-form').getByTestId('guest-pseudonymized')
+
+
+      42 |   await page.goto('/guests/ui-guest');
+      43 |   const form = page.getByTestId('guest-form');
+    > 44 |   await expect(form.getByTestId('guest-pseudonymized')).toContainText('не в Казахстане');
+         |                                                         ^
+      45 |   for (const name of [
+      46 |     'firstName',
+      47 |     'lastName',
+        at /home/user/wetop.ai/tests/ui/pii-storage.spec.ts:44:57
+
+    Error Context: test-results/pii-storage-карточка-гостя-acebf-и-пол-документы-не-вносятся/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pii-storage-карточка-гостя-acebf-и-пол-документы-не-вносятся/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pii-storage-карточка-гостя-acebf-и-пол-документы-не-вносятся/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся 
+  19 passed (51.1s)
+
+# код выхода 1 · 52 с

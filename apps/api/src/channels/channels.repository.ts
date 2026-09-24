@@ -774,5 +774,12 @@ export function channexGatewayFromEnv(): ChannexGateway {
     };
   }
   // Остатки и ограничения — только через выключатель ARI (Q-126, ADR-041)
-  return guardAriGateway(new channex.ChannexClient(baseUrl ? { apiKey, baseUrl } : { apiKey }));
+  // Production — только с CHANNEX_PRODUCTION=1 (Q-171): без него клиент отказывает до сети
+  return guardAriGateway(
+    new channex.ChannexClient({
+      apiKey,
+      ...(baseUrl ? { baseUrl } : {}),
+      allowProduction: channex.channexProductionAllowed(),
+    }),
+  );
 }

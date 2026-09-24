@@ -277,7 +277,7 @@ bash scripts/ops/ari.sh status
 **Пока боевая копия работает на Hostinger, новая — «вторая копия» по `docs/deploy.md` §1б** (поправка 22.09.2026:
 лист ждал `CHANNEX_ARI=on`, и две машины отправляли бы остатки в один объект Channex). До переключения туннеля в
 `.env` на ps.kz: `GUARD=off`, `CHANNEX_PULL=off`, `CHANNEX_OUTBOX_WORKER=off`, `CHANNEX_FULL_SYNC=off`,
-`CHANNEX_WEBHOOK_HEALTH=off`, плюс `deploy/ari.env` выше. Включаются в момент переключения (§8).
+`CHANNEX_WEBHOOK_HEALTH=off`, `ANALYTICS_RETENTION=off` (с 24.09.2026), плюс `deploy/ari.env` выше. Включаются в момент переключения (§8).
 
 Туннель (`cloudflared`) здесь **намеренно не поднимается** — это шаг 4 плана, отдельно и только после сверки
 двух баз. Пока он не поднят, `api.wetop.ai` и `app.wetop.ai` по-прежнему смотрят туда, где туннель работает

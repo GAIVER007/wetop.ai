@@ -4,7 +4,7 @@ import { hashSessionToken, verifyPassword } from '@pms/domain';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
-import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
+import { fakeDb, fakeUser } from './fake-db';
 
 const NOW = new Date('2026-09-15T10:00:00Z');
 const APP = 'https://app.wetop.ai';
@@ -157,53 +157,6 @@ describe('PasswordResetService.confirm', () => {
   });
 });
 
-describe('PasswordResetService.invite', () => {
-  it('заводит сотрудника, шлёт приглашение и возвращает ссылку', async () => {
-    const box = sent();
-    const { reset, users, resets, memberships } = service([fakeUser()], box.mailer);
-
-    const result = await reset.invite(
-      { email: 'Nova@Example.Invalid', name: 'Нова Тестова', organizationId: FAKE_ORG },
-      NOW,
-    );
-
-    expect(result.sent).toBe(true);
-    expect(result.link).toContain('/login/set-password?token=');
-    expect(users.map((u) => u.email)).toContain('nova@example.invalid');
-    // статуса «приглашён» в модели нет: приглашённый это человек без пароля (§13.2)
-    expect(users.find((u) => u.email === 'nova@example.invalid')!.passwordHash).toBe('');
-    expect(resets).toHaveLength(1);
-    expect(box.letters[0]!.subject).toBe('WETOP: задайте пароль для входа');
-    expect(box.letters[0]!.text).toContain('Нова Тестова');
-    expect(memberships.some((m) => m.organizationId === FAKE_ORG && m.userId !== 'u-1')).toBe(true);
-  });
-
-  it('без настроенной отправки заводит сотрудника и отдаёт ссылку владельцу', async () => {
-    const { reset, users } = service([fakeUser()], null);
-    const result = await reset.invite(
-      { email: 'nova2@example.invalid', name: 'Нова Вторая', organizationId: FAKE_ORG },
-      NOW,
-    );
-    expect(result.sent).toBe(false);
-    expect(result.link).toContain('/login/set-password?token=');
-    expect(users).toHaveLength(2);
-  });
-
-  it('повторное приглашение на занятую почту не создаёт второго сотрудника', async () => {
-    const { reset } = service();
-    await expect(
-      reset.invite({ email: 'admin@example.invalid', name: 'Дубль', organizationId: FAKE_ORG }, NOW),
-    ).rejects.toThrow(/уже есть|занята/i);
-  });
-
-  it('мусор вместо почты не принимается', async () => {
-    const { reset } = service();
-    await expect(
-      reset.invite({ email: 'не-почта', name: 'Имя', organizationId: FAKE_ORG }, NOW),
-    ).rejects.toThrow();
-  });
-});
-
 /**
  * Отказ почтовой службы (сверка 20.09.2026). До правки письмо слалось без `try/catch`: Resend
  * отвечает ошибкой — ссылка уже выдана и погасила прежнюю, человек остаётся без обеих, а повтор
@@ -226,15 +179,5 @@ describe('почтовая служба отказала', () => {
     const second = service([fakeUser()], box.mailer);
     await second.reset.request('admin@example.invalid', NOW);
     expect(box.letters).toHaveLength(1);
-  });
-
-  it('приглашение: ссылка возвращается владельцу с пометкой «не отправлено», а не теряется', async () => {
-    const { reset } = service([fakeUser()], broken);
-    const invite = await reset.invite(
-      { email: 'novyj@example.invalid', name: 'Новый сотрудник', organizationId: FAKE_ORG },
-      NOW,
-    );
-    expect(invite.sent).toBe(false);
-    expect(invite.link).toContain('/login/set-password?token=');
   });
 });

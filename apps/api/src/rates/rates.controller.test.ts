@@ -7,6 +7,7 @@ import { ARI_PUBLISHER, type AriPublisher, type LocalRateChange } from '../chann
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { RatesModule } from './rates.module';
+import type { RateChangeBefore } from './rate-history';
 import {
   RATES_REPOSITORY,
   expandDates,
@@ -18,6 +19,11 @@ function makeFakes() {
   const applied: unknown[] = [];
   const published: LocalRateChange[][] = [];
   const audits: string[] = [];
+  /** `before` журнала правки цен (SECURITY.md §6) — что репозиторий прочитал до записи */
+  const auditBefore: unknown[] = [];
+  const history: RateChangeBefore[] = [
+    { accommodationTypeId: 't1', ratePlanId: 'p1', prices: [], restrictions: [] },
+  ];
   const repo: RatesRepository = {
     async categories() {
       return [
@@ -42,15 +48,20 @@ function makeFakes() {
     // Как настоящая транзакция: хук внутри неё (журнал, очередь каналов) упал — ничего не записано
     async applyChanges(
       changes,
-      inTransaction?: (tx: unknown, counts: RateRowCounts) => Promise<void>,
+      inTransaction?: (
+        tx: unknown,
+        counts: RateRowCounts,
+        before: RateChangeBefore[],
+      ) => Promise<void>,
     ) {
       const counts = { rateRows: changes.length, restrictionRows: 0 };
-      if (inTransaction) await inTransaction({ fakeTx: true }, counts);
+      if (inTransaction) await inTransaction({ fakeTx: true }, counts, history);
       applied.push(...changes);
       return counts;
     },
-    async audit(action) {
+    async audit(action, _after, _tx, before) {
       audits.push(action);
+      auditBefore.push(before);
     },
   };
   const publisher: AriPublisher = {
@@ -61,7 +72,7 @@ function makeFakes() {
       return changes.filter((c) => c.accommodationTypeCode !== 'exely-900001').length;
     },
   };
-  return { repo, publisher, applied, published, audits };
+  return { repo, publisher, applied, published, audits, auditBefore, history };
 }
 
 describe('rates API', () => {
@@ -211,6 +222,8 @@ describe('rates API', () => {
       },
     ]);
     expect(fakes.audits).toEqual(['rates.bulk']);
+    // прежние цены и ограничения, прочитанные репозиторием в той же транзакции, уходят в before журнала
+    expect(fakes.auditBefore).toEqual([{ changes: fakes.history }]);
   });
 
   it('rejects bad input with 400: no changes, bad date, nothing to change, occupancy above capacity', async () => {

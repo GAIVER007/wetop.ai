@@ -342,8 +342,8 @@ describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.m
     const c = new ChannexClient({ apiKey: 'k', fetch: f.fn, sleep: noSleep.sleep });
 
     const updated = await c.updateProperty('prop-1', {
-      phone: '+7 777 187 77 65',
-      email: 'luxxaparts@gmail.com',
+      phone: '+7 700 000 00 00',
+      email: 'hostel@example.com',
       content: { description: 'Хостел в центре Алматы' },
     });
     expect(updated.id).toBe('prop-1');
@@ -351,8 +351,8 @@ describe('ChannexClient content (hotels-collection.md, hotel-policy-collection.m
     expect(f.calls[0]!.url).toBe('https://staging.channex.io/api/v1/properties/prop-1');
     expect(JSON.parse(f.calls[0]!.init.body as string)).toEqual({
       property: {
-        phone: '+7 777 187 77 65',
-        email: 'luxxaparts@gmail.com',
+        phone: '+7 700 000 00 00',
+        email: 'hostel@example.com',
         content: { description: 'Хостел в центре Алматы' },
       },
     });
@@ -576,5 +576,41 @@ describe('таймаут запроса', () => {
     });
     await expect(c.request('GET', '/properties')).rejects.toThrow(/таймаут/i);
     expect(attempts).toBe(2); // первый запрос и один повтор
+  });
+});
+
+/**
+ * AGENTS.md §9, SECURITY.md §9, Q-171 (решение 24.09.2026): до разрешения на переключение в Channex production
+ * не уходит ни один запрос. Раньше запрет держался только на ключе и адресе в .env: адрес production и ключ —
+ * и очередь ARI, суточная выгрузка и починка сторожа начинали слать сами.
+ */
+describe('ChannexClient: production только с явным разрешением', () => {
+  const ok = () => fakeFetch(() => ({ status: 200, body: { data: [], meta: { total: 0 } } }));
+
+  it('адрес production без разрешения — отказ до сети, в тексте что сделать', async () => {
+    const f = ok();
+    const c = new ChannexClient({
+      apiKey: 'test-key',
+      baseUrl: 'https://app.channex.io/api/v1',
+      fetch: f.fn,
+      sleep: noSleep.sleep,
+    });
+    await expect(c.listProperties()).rejects.toThrow(/CHANNEX_PRODUCTION=1/);
+    await expect(c.uploadPhoto(new Blob(['x']), 'a.jpg')).rejects.toBeInstanceOf(ChannexApiError);
+    expect(f.calls).toHaveLength(0);
+  });
+
+  it('с разрешением production вызывается; staging и свои адреса (подделки тестов) — без разрешения', async () => {
+    for (const opts of [
+      { baseUrl: 'https://app.channex.io/api/v1', allowProduction: true },
+      { baseUrl: 'https://staging.channex.io/api/v1' },
+      {},
+      { baseUrl: 'http://127.0.0.1:4390/api/v1' },
+    ]) {
+      const f = ok();
+      const c = new ChannexClient({ apiKey: 'test-key', fetch: f.fn, sleep: noSleep.sleep, ...opts });
+      await c.listProperties();
+      expect(f.calls).toHaveLength(1);
+    }
   });
 });

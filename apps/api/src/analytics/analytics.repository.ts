@@ -102,6 +102,11 @@ export interface AnalyticsRepository {
     sessionKey: string,
     confirmationNumber: string,
   ): Promise<boolean>;
+  /**
+   * Хранение (план среза 8 §12): удалить сессии всех сайтов, начатые раньше `cutoff`; просмотры и события уходят
+   * каскадом. Возвращает число удалённых сессий. Служебный путь — вызывает только суточная очистка API и скрипт.
+   */
+  deleteSessionsStartedBefore(cutoff: Date): Promise<number>;
 }
 export const ANALYTICS_REPOSITORY = Symbol('ANALYTICS_REPOSITORY');
 
@@ -383,5 +388,11 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       data: { reservationId: reservation.id },
     });
     return count > 0;
+  }
+  async deleteSessionsStartedBefore(cutoff: Date): Promise<number> {
+    const { count } = await this.prisma.db.webSession.deleteMany({
+      where: { startedAt: { lt: cutoff } },
+    });
+    return count;
   }
 }

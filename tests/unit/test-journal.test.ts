@@ -87,6 +87,17 @@ describe('лог уходит в репозиторий без секретов 
     expect(out).toContain('db.example.com:5432/pms');
   });
 
+  it('соль обезличивания и кука сессии из окружения тоже скрываются дословно', () => {
+    // ANONYMIZE_SALT открывает псевдонимы гостей (ADR-018), WEB_SESSION_COOKIE — живую сессию стойки (проверка 24.09.2026)
+    const salt = ['fake', 'salt', 'value', '0123'].join('-');
+    const cookie = ['fake', 'session', 'cookie', '4567'].join('-');
+    const values = secretValuesFromEnv({ ANONYMIZE_SALT: salt, WEB_SESSION_COOKIE: cookie });
+    expect(values).toEqual(expect.arrayContaining([salt, cookie]));
+    const out = maskSecrets(`seed ${salt}; cookie=${cookie}`, values);
+    expect(out).not.toContain(salt);
+    expect(out).not.toContain(cookie);
+  });
+
   it('email и телефон скрыты, номер брони и итоги прогона остаются', () => {
     const out = maskSecrets(
       'Гость test.guest@example.com, +7 700 000 00 00, бронь 20260912-ABC123, 31 passed (13.0m)',

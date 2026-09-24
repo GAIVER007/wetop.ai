@@ -51,7 +51,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const longPeriods = [...periods.values()].filter(tooLong).length;
   // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
-  const [ratePlans, finance, services, summary, periodResults] = await Promise.all([
+  const [ratePlans, finance, services, summary, periodResults, piiStorage] = await Promise.all([
     reservationsApi.ratePlans().catch(() => null),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
     financeApi.services().catch(() => null),
@@ -63,6 +63,8 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           : reservationsApi.availability(it.arrivalDate, it.departureDate).catch(() => null),
       ),
     ),
+    // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
+    api.piiStorage(),
   ]);
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
@@ -350,6 +352,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   status={r.status}
                   source={r.source}
                   notes={r.notes}
+                  piiStorage={piiStorage}
                   channel={r.channel}
                   externalId={r.externalId ?? null}
                   arrivalDate={r.arrivalDate}

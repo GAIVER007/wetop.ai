@@ -86,3 +86,43 @@ describe('registerWebhook: успех считается по ответу Chann
     expect(r.created).toBe(false);
   });
 });
+
+/**
+ * Проверка webhook: Channex шлёт пробный запрос на указанный адрес вместе с заголовком секрета. При заданном
+ * постоянном адресе — то же правило, что у регистрации: другой адрес не принимается, иначе любой вошедший уведёт
+ * секрет на свой сервер (SECURITY.md §11, проверка 24.09.2026).
+ */
+describe('testWebhook: при заданном PUBLIC_API_URL секрет уходит только на постоянный адрес', () => {
+  beforeEach(() => {
+    process.env.PUBLIC_API_URL = PERMANENT;
+    process.env.CHANNEX_WEBHOOK_SECRET = 'secret-for-test';
+  });
+
+  function gatewayRecordingTests() {
+    const tested: string[] = [];
+    const gateway = {
+      testWebhook: async (input: channex.ChannexWebhookInput) => {
+        tested.push(input.callback_url);
+        return { status_code: 200, body: 'ok' };
+      },
+    } as unknown as ChannexGateway;
+    return { gateway, tested };
+  }
+
+  it('чужой адрес — 409, Channex не вызывается', async () => {
+    const { gateway, tested } = gatewayRecordingTests();
+    const sync = new ChannexSyncService(gateway, repo);
+    await expect(sync.testWebhook('https://collector.example.test/hook')).rejects.toThrow(
+      /постоянный адрес/,
+    );
+    expect(tested).toEqual([]);
+  });
+
+  it('постоянный адрес — явно или по умолчанию — проверяется', async () => {
+    const { gateway, tested } = gatewayRecordingTests();
+    const sync = new ChannexSyncService(gateway, repo);
+    await sync.testWebhook();
+    await sync.testWebhook(`${PERMANENT}${WEBHOOK_PATH}`);
+    expect(tested).toEqual([`${PERMANENT}${WEBHOOK_PATH}`, `${PERMANENT}${WEBHOOK_PATH}`]);
+  });
+});

@@ -19,6 +19,7 @@ import {
   refreshPlan,
   seedIsStale,
   selectExpressions,
+  testDatabaseRefusal,
   type ColumnInfo,
 } from './test-schema-plan';
 
@@ -42,6 +43,8 @@ function connectionString(): string {
   loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL не задан в .env — тестовую схему создать не к чему');
+  const refusal = testDatabaseRefusal(url);
+  if (refusal) throw new Error(refusal);
   return url;
 }
 

@@ -52,17 +52,6 @@ export function bearer(header: string | undefined): string | null {
   return token || null;
 }
 
-/**
- * За Cloudflare адрес соединения всегда один и тот же — адрес самого Cloudflare, и предел по
- * нему бесполезен. Настоящий адрес приходит заголовком `CF-Connecting-IP`
- * (`reports/wetop-domain-2026-09-15.md`). Если заголовка нет, предела по сети просто не будет:
- * выдумывать адрес нельзя, а предел на почтовый адрес работает в любом случае.
- */
-export function clientIp(cfIp: string | undefined): string | null {
-  const v = cfIp?.trim();
-  return v ? v : null;
-}
-
 @Controller('auth')
 export class AccountsController {
   constructor(@Inject(AccountsService) private readonly accounts: AccountsService) {}

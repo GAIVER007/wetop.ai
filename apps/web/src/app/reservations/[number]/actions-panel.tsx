@@ -23,7 +23,7 @@ import {
 } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
 import { ConfirmDialog } from '../../../components/confirm-dialog';
-import type { CancelPreview, ExtendPreview, MovePreview } from '../../../lib/api';
+import type { CancelPreview, ExtendPreview, MovePreview, PiiStorage } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { penaltyText } from '../../../lib/penalty-text';
 import { pluralRu } from '../../../lib/plural';
@@ -105,6 +105,8 @@ export function ReservationActions(props: {
   status: string;
   source: string;
   notes: string | null;
+  /** Где лежит база (ADR-072): пока не в РК, у заметки подсказка «без имён и телефонов гостя» (Q-169) */
+  piiStorage?: PiiStorage;
   /** ADR-071: канал и номер брони в канале (ручная бронь OTA) или `unique_id` Channex */
   channel?: string | null;
   externalId?: string | null;
@@ -242,6 +244,7 @@ export function ReservationActions(props: {
         number={props.number}
         source={props.source}
         notes={props.notes}
+        piiStorage={props.piiStorage ?? 'pseudonymized'}
         channel={props.channel ?? null}
         externalId={props.externalId ?? null}
       />
@@ -302,6 +305,7 @@ function EditForm(props: {
   number: string;
   source: string;
   notes: string | null;
+  piiStorage: PiiStorage;
   channel: string | null;
   externalId: string | null;
 }) {
@@ -368,7 +372,11 @@ function EditForm(props: {
         <Textarea
           name="notes"
           rows={2}
-          placeholder="Заметки"
+          placeholder={
+            props.piiStorage === 'real'
+              ? 'Заметки'
+              : 'Заметки — без имён и телефонов гостя: почта и телефоны маскируются'
+          }
           defaultValue={state.values?.notes ?? props.notes ?? ''}
           className="inp--grow"
         />

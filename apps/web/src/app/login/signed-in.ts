@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import { ApiError, authApi, type SignedIn } from '../../lib/api';
 
 /** ADR-055: настройку определяет API. При сбое или старом API регистрация закрыта. */
@@ -23,11 +22,3 @@ export async function signedInUser(): Promise<SignedIn | null> {
   return me.user ?? null;
 }
 
-/**
- * Почта, под которой пропустил Cloudflare Access (ADR-045). Только для показа и подстановки в поле:
- * права по ней не выдаются — стойка слушает 127.0.0.1, снаружи к ней ведёт лишь туннель, который сам
- * проверяет токен Access.
- */
-export async function accessEmail(): Promise<string | null> {
-  return (await headers()).get('cf-access-authenticated-user-email')?.trim() || null;
-}

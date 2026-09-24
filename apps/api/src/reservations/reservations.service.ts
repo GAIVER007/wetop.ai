@@ -29,7 +29,7 @@ import {
   hasCitizenship,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
-import { deskGuestForStorage } from '@pms/shared';
+import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
@@ -473,7 +473,8 @@ export class ReservationsService {
           currency: currency!,
           totalAmountMinor: prepared.reduce((s, p) => s + p.totalMinor, 0n),
           primaryGuestId: guestId,
-          notes: dto.notes ?? null,
+          // Q-169: пока база не в РК, почта и телефоны в заметке маскируются (сайт приходит сюда же)
+          notes: freeTextForStorage(dto.notes),
           items: prepared.map((p) => ({
             accommodationTypeId: p.typeId,
             ratePlanId: p.ratePlanId,
@@ -984,7 +985,7 @@ export class ReservationsService {
     if (dto.notes !== undefined) {
       if (dto.notes !== null && typeof dto.notes !== 'string')
         throw new BadRequestException('notes — строка или null');
-      patch.notes = dto.notes === null ? null : dto.notes.trim() || null;
+      patch.notes = dto.notes === null ? null : freeTextForStorage(dto.notes.trim() || null);
     }
     if (dto.source !== undefined) {
       if (!(RESERVATION_SOURCES as readonly string[]).includes(dto.source))

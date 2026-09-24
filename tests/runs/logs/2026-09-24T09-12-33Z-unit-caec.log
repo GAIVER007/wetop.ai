@@ -1,0 +1,18 @@
+# Модульные (unit) · 24.09.2026 14:12 Алматы · vm
+# коммит 3268a94 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T09-12-33Z-unit-caec.json' 'packages/integrations/src/mail/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (3 tests) 5ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 8ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (15 tests) 65ms
+
+ Test Files  3 passed (3)
+      Tests  26 passed (26)
+   Start at  09:12:34
+   Duration  338ms (transform 65%, tests 19%, import 12%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-24T09-12-33Z-unit-caec.json
+
+# код выхода 0 · 1 с

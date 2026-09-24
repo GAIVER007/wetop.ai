@@ -8,21 +8,44 @@ import type { ReservationFinance } from '../../../../lib/api';
 export type Lang = 'ru' | 'kz';
 export const pickLang = (lang: string | undefined): Lang => (lang === 'kz' ? 'kz' : 'ru');
 
-/** Реквизиты объекта — OBJECT.md §1. Чего там нет (банк, подписант) — плейсхолдеры для образца владельца. */
+/**
+ * Чего нет в записи объекта: контакты (полей в модели нет — предложение в DATA_MODEL §1) и плейсхолдеры банка и
+ * подписанта для образца владельца. Название, юрлицо, ИИН/БИН, адрес и часы — из записи объекта, `propertyParty`.
+ */
 export const PROPERTY = {
-  name: 'Luxx Aparts',
-  legalEntity: 'ИП «L.A»',
-  bin: '851101300781',
-  address: 'Казахстан, Алматы, ул. Толе би, 286/8, 050005',
   phone: '+7 777 187 77 65',
   email: 'luxxaparts@gmail.com',
-  checkInTime: '14:00',
-  checkOutTime: '12:00',
   bank: '___',
   iban: '___',
   bic: '___',
   signer: '___',
 } as const;
+
+/** Что форма знает об объекте из `/hotel/settings`: у старого API поля `bin` нет */
+export interface StoredProperty {
+  name: string;
+  legalName: string | null;
+  bin?: string | null;
+  address: string | null;
+  checkInTime: string;
+  checkOutTime: string;
+}
+
+/**
+ * Реквизиты объекта для печати — из записи объекта, пустое — прочерком. До 24.09.2026 они были зашиты сюда, и ИИН/БИН
+ * (ИИН физлица-ИП — персональные данные) напечатался бы в договоре любой организации (проверка SECURITY.md, Н12).
+ */
+export function propertyParty(p: StoredProperty): Required<{ [K in keyof StoredProperty]: string }> {
+  const or = (v: string | null | undefined) => (v && v.trim() ? v : '___');
+  return {
+    name: p.name,
+    legalName: or(p.legalName),
+    bin: or(p.bin),
+    address: or(p.address),
+    checkInTime: p.checkInTime,
+    checkOutTime: p.checkOutTime,
+  };
+}
 
 export const DRAFT_BANNER = 'ЗАГОТОВКА: содержание заменяется формой объекта';
 

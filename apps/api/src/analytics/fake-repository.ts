@@ -197,4 +197,12 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     this.linked.push({ siteId, sessionKey, confirmationNumber });
     return true;
   }
+  /** Границы, с которыми звали очистку: сколько раз и с какой датой API ходил в базу */
+  retentionCutoffs: string[] = [];
+  async deleteSessionsStartedBefore(cutoff: Date): Promise<number> {
+    this.retentionCutoffs.push(cutoff.toISOString());
+    const before = this.sessionRows.length;
+    this.sessionRows = this.sessionRows.filter((r) => r.startedAt >= cutoff);
+    return before - this.sessionRows.length;
+  }
 }

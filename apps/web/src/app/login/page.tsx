@@ -2,7 +2,7 @@ import { ApiError, authApi, type AuthInvite, type AuthSessionRow } from '../../l
 import { clientInfo, sessionToken } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { LoginForm, type LoginMode } from './login-form';
-import { accessEmail, registrationAvailable, signedInUser } from './signed-in';
+import { registrationAvailable, signedInUser } from './signed-in';
 
 /** Ожидающие приглашения своей организации — только вошедшему; сбой списка экран входа не роняет. */
 async function pendingInvites(): Promise<AuthInvite[]> {
@@ -40,7 +40,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
-      accessEmail={await accessEmail()}
       user={user}
       invites={user?.organization ? await pendingInvites() : []}
       // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)

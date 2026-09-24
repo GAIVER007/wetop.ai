@@ -376,6 +376,14 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
 
   /** Channex шлёт пробный POST на наш адрес с нашими заголовками и возвращает ответ endpoint'а. */
   async testWebhook(callbackUrl?: string): Promise<WebhookTestResult> {
+    // Пробный запрос несёт заголовок секрета: при постоянном адресе — только на него, как регистрация (Д1).
+    // Иначе любой вошедший уведёт секрет на свой сервер (SECURITY.md §11, проверка 24.09.2026)
+    const permanent = this.expectedCallbackUrl();
+    const asked = callbackUrl?.trim();
+    if (permanent && asked && asked !== permanent)
+      throw new ConflictException(
+        `Задан постоянный адрес PMS (PUBLIC_API_URL → ${permanent}): проверка webhook идёт только на него, не на ${asked}`,
+      );
     const { url, secret } = this.webhookInput(callbackUrl);
     const propertyId = await this.providerPropertyId();
     const t = await viaChannex(() =>

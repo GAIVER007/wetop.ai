@@ -1510,6 +1510,7 @@ function read(path: string, q: URLSearchParams): unknown {
         id: 'test-property',
         name: propertyName,
         legalName: null,
+        bin: null,
         address: 'Тестовый адрес, 1',
         timezone: 'Asia/Almaty',
         currency: 'KZT',

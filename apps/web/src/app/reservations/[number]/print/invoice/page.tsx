@@ -1,5 +1,6 @@
 import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
-import { api, chessboardApi, financeApi, formatMinor } from '../../../../../lib/api';
+import { chessboardApi, financeApi, formatMinor } from '../../../../../lib/api';
+import { hotelApi } from '../../../../../lib/hotel-api';
 import { PrintButton } from '../print-button';
 import {
   DRAFT_BANNER,
@@ -8,13 +9,15 @@ import {
   almatyNow,
   invoiceLines,
   pickLang,
+  propertyParty,
   sumMinor,
 } from '../forms';
 
 /**
  * Заготовка счёта на оплату — печатная форма RU / KZ. Номер счёта = номер брони. Строки — начисления
  * всех счетов брони (DATA_MODEL §6) без сторнированных; оплачено / к оплате — из finance API, суммы
- * в тиынах через BigInt. Реквизиты объекта — OBJECT.md, банк — плейсхолдеры под образец владельца.
+ * в тиынах через BigInt. Реквизиты объекта — из его записи (`/hotel/settings`), банк — плейсхолдеры под образец
+ * владельца.
  */
 export default async function PrintInvoice({
   params,
@@ -28,10 +31,11 @@ export default async function PrintInvoice({
   const l = pickLang(lang);
   const t = INVOICE_T[l];
   const r = await chessboardApi.reservation(decodeURIComponent(number));
-  const [summary, finance] = await Promise.all([
-    api.inventorySummary(),
+  const [settings, finance] = await Promise.all([
+    hotelApi.settings(),
     financeApi.reservation(r.confirmationNumber),
   ]);
+  const party = propertyParty(settings.property);
   const lines = invoiceLines(finance);
   const total = sumMinor(lines.map((x) => x.amountMinor));
   const balance = BigInt(finance.balanceMinor);
@@ -83,11 +87,11 @@ export default async function PrintInvoice({
             <td style={{ ...cell, width: '50%', verticalAlign: 'top' }}>
               <b>{t.property}</b>
               <br />
-              {summary.property.name} — {PROPERTY.legalEntity}
+              {party.name} — {party.legalName}
               <br />
-              {t.bin}: {PROPERTY.bin}
+              {t.bin}: {party.bin}
               <br />
-              {t.address}: {PROPERTY.address}
+              {t.address}: {party.address}
               <br />
               {t.phone}: {PROPERTY.phone}
               <br />

@@ -1274,6 +1274,41 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  it('Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке', async () => {
+    const before = process.env.PII_STORAGE;
+    delete process.env.PII_STORAGE;
+    try {
+      const created = await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ notes: 'просил звонить +7 701 234 56 78 или писать guest.test@example.com' }))
+        .expect(201);
+      expect(created.body.notes).toBe('просил звонить <телефон> или писать <почта>');
+      const patched = await request(app.getHttpServer())
+        .patch(`/reservations/${created.body.confirmationNumber as string}`)
+        .send({ notes: 'поздний заезд, WhatsApp 8 (777) 123-45-67' })
+        .expect(200);
+      expect(patched.body.notes).toBe('поздний заезд, WhatsApp <телефон>');
+    } finally {
+      if (before === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = before;
+    }
+  });
+
+  it('Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена', async () => {
+    const before = process.env.PII_STORAGE;
+    process.env.PII_STORAGE = 'real';
+    try {
+      const created = await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ notes: 'звонить +7 701 234 56 78', guest: { firstName: 'Тест', lastName: 'Гостев' } }))
+        .expect(201);
+      expect(created.body.notes).toBe('звонить +7 701 234 56 78');
+    } finally {
+      if (before === undefined) delete process.env.PII_STORAGE;
+      else process.env.PII_STORAGE = before;
+    }
+  });
+
   it('правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')

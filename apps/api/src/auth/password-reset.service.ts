@@ -10,7 +10,6 @@ import {
   checkPassword,
   hashPassword,
   hashSessionToken,
-  invitationLetter,
   newSessionToken,
   validEmail,
   passwordResetLetter,
@@ -115,47 +114,6 @@ export class PasswordResetService {
       data: { revokedAt: now },
     });
     await this.record(row.user.id, 'user.password.changed', { by: 'link', sessionsRevoked: count });
-  }
-
-  /**
-   * Пригласить сотрудника: учётная запись без пароля, письмо со ссылкой. Пароля не выдаём даже владельцу —
-   * человек задаёт его сам. Если отправка не настроена, ссылка возвращается вызывающему (это CLI владельца).
-   */
-  async invite(
-    input: { email: string; name: string; organizationId: string },
-    now = new Date(),
-  ): Promise<{ link: string; sent: boolean }> {
-    const email = validEmail(input.email);
-    if (!email) throw new BadRequestException('email: непохоже на почту');
-    const name = input.name.trim();
-    if (!name) throw new BadRequestException('name: журналу нужно имя, а не только почта');
-    if (!input.organizationId) throw new BadRequestException('organizationId: в какую организацию звать');
-
-    const existing = await this.prisma.db.user.findUnique({ where: { email } });
-    if (existing) throw new BadRequestException(`Сотрудник с почтой ${email} уже есть`);
-
-    // Пароль пустой: человек задаст его сам по ссылке. Членство в организации даёт доступ (§13.3)
-    const user = await this.prisma.db.user.create({
-      data: { email, name, status: 'ACTIVE', passwordHash: '' },
-    });
-    await this.prisma.db.membership.create({
-      data: { userId: user.id, organizationId: input.organizationId },
-    });
-    await this.record(user.id, 'user.invited', { email, organizationId: input.organizationId });
-
-    const link = await this.issue(user.id, now);
-    if (!this.mailer) return { link, sent: false };
-
-    const letter = invitationLetter({ name, link });
-    try {
-      await this.mailer.send({ to: email, subject: letter.subject, text: letter.text });
-    } catch {
-      // Учётная запись уже заведена, ссылка выдана. Отдаём её вызывающему (это CLI владельца) с
-      // пометкой «не отправлено» — ровно как при ненастроенной отправке, а не теряем молча.
-      return { link, sent: false };
-    }
-    this.lastSent.set(email, now.getTime());
-    return { link, sent: true };
   }
 
   /** Новая ссылка гасит прежние неиспользованные: одна живая ссылка на человека. */

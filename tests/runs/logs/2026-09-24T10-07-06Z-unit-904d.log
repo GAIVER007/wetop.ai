@@ -1,0 +1,59 @@
+# Модульные (unit) · 24.09.2026 15:07 Алматы · vm
+# коммит 35c05fa (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T10-07-06Z-unit-904d.json' 'tests/unit/test-database-guard.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/test-database-guard.test.ts (3 tests | 3 failed) 7ms
+   ❯ testDatabaseRefusal (3)
+     × локальная база — можно 4ms
+     × нелокальная — отказ со словами, что делать; адрес в тексте не печатается 1ms
+     × осознанно — PMS_TEST_REMOTE_DB=1 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/test-database-guard.test.ts > testDatabaseRefusal > локальная база — можно
+TypeError: testDatabaseRefusal is not a function
+ ❯ tests/unit/test-database-guard.test.ts:17:14
+     15|       'postgresql:///pms?host=/var/run/postgresql',
+     16|     ])
+     17|       expect(testDatabaseRefusal(url, {}), url).toBeNull();
+       |              ^
+     18|   });
+     19|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/test-database-guard.test.ts > testDatabaseRefusal > нелокальная — отказ со словами, что делать; адрес в тексте не печатается
+TypeError: testDatabaseRefusal is not a function
+ ❯ tests/unit/test-database-guard.test.ts:22:21
+     20|   it('нелокальная — отказ со словами, что делать; адрес в тексте не пе…
+     21|     const url = 'postgresql://owner:***@aws-0-ap-southeast…
+     22|     const refusal = testDatabaseRefusal(url, {});
+       |                     ^
+     23|     expect(refusal).toMatch(/db:local/);
+     24|     expect(refusal).toMatch(/PMS_TEST_REMOTE_DB=1/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/test-database-guard.test.ts > testDatabaseRefusal > осознанно — PMS_TEST_REMOTE_DB=1
+TypeError: testDatabaseRefusal is not a function
+ ❯ tests/unit/test-database-guard.test.ts:31:7
+     29|   it('осознанно — PMS_TEST_REMOTE_DB=1', () => {
+     30|     expect(
+     31|       testDatabaseRefusal('postgresql://u:***@db.example.com:5432/x', { …
+       |       ^
+     32|     ).toBeNull();
+     33|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  10:07:07
+   Duration  254ms (transform 77%, import 12%, tests 7%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-24T10-07-06Z-unit-904d.json
+
+# код выхода 1 · 1 с

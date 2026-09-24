@@ -1,0 +1,115 @@
+# Сквозные (e2e) · 24.09.2026 17:55 Алматы · MacBook-Air-Urij.local
+# коммит 39563c1 (codex/live-supabase-audit-20260924)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/live-system/playwright.config.ts' '--workers=1'
+[WebServer] (node:18268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:18360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18305) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (node:18424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '20234023'
+[WebServer] }
+[WebServer] (node:18439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей (1.5m)
+
+
+  1) tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей › редактирование гостя обновляет Supabase, бронь, историю и шахматку 
+
+    AggregateError: System audit failed: E2E-АВТОТЕСТ audit-20a5877c-4f74-4dc9-81ee-197892cd45ca
+
+      325 |   }
+      326 |   if (failures.length)
+    > 327 |     throw new AggregateError(failures, `System audit failed: ${marker}`, { cause: failures[0] });
+          |           ^
+      328 | });
+      329 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:327:11
+    [cause]: Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('guest-link')
+    Expected substring: "Проверено"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('guest-link') with timeout 20000ms
+      - waiting for getByTestId('guest-link')
+
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:129:52
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:96:5
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('guest-link')
+    Expected substring: "Проверено"
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('guest-link') with timeout 20000ms
+      - waiting for getByTestId('guest-link')
+
+
+      127 |       await page.getByRole('tab', { name: 'Проживания', exact: true }).click();
+      128 |       await page.getByRole('link', { name: `Открыть бронь ${number}`, exact: true }).click();
+    > 129 |       await expect(page.getByTestId('guest-link')).toContainText('Проверено');
+          |                                                    ^
+      130 |       await page.goto(`/chessboard?from=${arrival}&to=${plus(departure, -1)}`);
+      131 |       await expect(
+      132 |         page.locator(`[data-testid="stay-cell"][data-number="${number}"]`).first(),
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:129:52
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/live-system/persistence.spec.ts:96:5
+
+    Error Context: test-results/persistence-UI-→-Nest-→-Su-1c1a4-боркой-только-своих-записей/error-context.md
+
+  1 failed
+    tests/live-system/persistence.spec.ts:13:1 › UI → Nest → Supabase → связанные экраны, с уборкой только своих записей 
+
+# код выхода 1 · 1 мин 45 с

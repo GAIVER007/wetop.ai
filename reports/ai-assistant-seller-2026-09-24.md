@@ -221,7 +221,8 @@ PUT /seller/facts: бот отклонит — 15 ошибок
 
 `prisma migrate diff` базы, поднятой из миграций, против `schema.prisma`: у `seller_profiles` и `user_errors`
 расхождений нет. Нашлось давнее расхождение в чужих таблицах v1.6 от 20.09 (внешние ключи и индекс `properties`,
-умолчание `id` и ключ `email_verifications`) — к разделу не относится, вынесено отдельной задачей.
+умолчание `id` и ключ `email_verifications`) — к разделу не относится, вынесено отдельной задачей. Снято тем же днём
+правкой схемы, миграций нет: `reports/schema-drift-2026-09-24.md`.
 
 **Итог на дереве `723ffdc9`:** unit **1728 из 1731** (`…17-49-36Z-unit-b070.log`), typecheck (`…17-48-46Z-typecheck-f247.log`)
 и lint (`…17-49-14Z-lint-52f0.log`) чисто, integration **63 из 63** на локальной PostgreSQL 16 (`…17-52-24Z-integration-bc16.log`),

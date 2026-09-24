@@ -41,7 +41,9 @@ model Property {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
+  /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
+  organization       Organization?       @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -51,6 +53,7 @@ model Property {
   services           Service[]
   trackedSites       TrackedSite[]
 
+  @@index([organizationId])
   @@map("properties")
 }
 
@@ -1013,9 +1016,10 @@ model PasswordReset {
 /// Ссылка подтверждения почты. В базе только хеш ссылки, срок 72 часа, ссылка одноразовая.
 /// Новая ссылка гасит прежние: одна живая ссылка на человека.
 model EmailVerification {
-  id        String    @id @default(uuid()) @db.Uuid
+  /// id выдаёт база, у ключа на users нет ON UPDATE — как в миграции 20260920000015
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String    @map("user_id") @db.Uuid
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tokenHash String    @unique @map("token_hash")
   expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
   usedAt    DateTime? @map("used_at") @db.Timestamptz(6)

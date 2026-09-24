@@ -1,0 +1,290 @@
+# Channex — разбор отказа по сертификации (24.09.2026)
+
+Письмо Channex 24.09 (ответ на анкету, переподанную 23.09): **Full Sync принят**, тесты **2–11 не приняты**.
+Разбор сделан по анкете (`reports/channex-certification-form-2026-09-20.md`), отчёту о переподаче
+(`reports/channex-recert-2026-09-23.md`), автотесту `tests/e2e/channex-certification.spec.ts`, документу
+`docs/channex/site/api-v.1-documentation/pms-certification-tests.md` и рабочей базе (только чтение: `channel_mappings`,
+`channel_outbox`, `external_events`, `reservation_items`, `inventory_units`; без гостей и почт). Правки кода по
+решению владельца — в разделе «Решение владельца и что сделано 24.09».
+
+## Коротко
+
+1. **Тесты 2–8 — анкета и задачи из разных прогонов.** Анкета объявляет Twin = «Двухместная комната»,
+   Double = «Одноместная комната с окном», B&B = «Базовый тариф». А task ID в ней — от автотеста 14.09, где было
+   наоборот (Twin = одноместная с окном, Double = двухместная) и только «Тариф для ОТА»: строк B&B не было вовсе.
+   Отсюда «перевёрнутые» даты и цены и «Missing update … Bed & Breakfast» во всех тестах. Код отправки не виноват.
+2. **22.09 тесты 2–8 уже перепрогнаны правильно — но в анкету не попали.** 22.09 в 11:00–11:25 UTC под учётной
+   записью владельца на `/rates` сделано семь массовых правок ровно по анкете. Их задачи Channex проверены по
+   очереди каналов против таблиц документа — **все семь совпадают**. 23.09 анкету переподали со старыми ID 14.09,
+   а сами значения в тот же день вернули как «пробные» (Q-168).
+3. **Тесты 9–10 — нужны точные остатки.** Channex ждёт: тест 9 — Twin 21.11 = 7, Double 25.11 = 0; тест 10 —
+   Twin 10–16.11 = 3, Double 17–24.11 = 4. Автотест делал одну бронь на одну ночь. При Twin = двухместная
+   (4 номера) «8 → 7» невозможно в принципе.
+4. **Тест 11 — список ревизий позвал наш скрипт, а не PMS.** `scripts/reconciliation/src/cli-channex-wetop-cycle.ts`
+   после цикла печатал ID ревизий для анкеты запросом `GET /booking_revisions?filter[booking_id]=…` — это список.
+   У брони `6e28ce4b…` три ревизии — ровно три события `booking_revision_received_via_list`. Сама PMS все три
+   получила по webhook (`external_events.received_via = WEBHOOK`) и подтвердила.
+
+## Доказательства
+
+### Раскладка в базе (`channel_mappings`, объект staging `60fc6ef0-5cdc-4f53-a2ca-3f477964cb2a`)
+
+| Категория | Единиц | Room type | «Тариф для ОТА +35%» | «Базовый тариф» |
+|---|---|---|---|---|
+| Двухместная комната | 4 | `1a9bd53b-1c5e-4063-b654-d377839125b3` | `6ee98055-57cf-4831-a231-eba142307235` | `ea6bfd9a-0cf3-48f9-a9af-7dce2b8dffc0` |
+| Одноместная комната с окном | 4 | `b0655bc0-f559-4abc-be1f-b9a241ddf036` | `428d744c-0c7d-4469-9002-f323d4bf8cbe` | `9e9795e6-3bc2-4866-85a9-b2b770b4eaaa` |
+| Одноместная комната без окон | 8 | `65ef6dd7-e0cd-4dbf-bf9b-e8dfe9cf4c2b` | `2d1bc399-5857-4f98-a929-bffb8e16bcb9` | `a3681abd-505c-42f9-bddb-4d606b46a973` |
+| Общая мужская комната | 36 | `6269649c-e765-4c13-9010-be7cb195ce92` | `ba25fbce-fee3-47de-82a4-13443e8e9a85` | `e3c3fb2c-2589-4653-8fec-878e8e32cb95` |
+| Общая женская комната | 36 | `0bceeb60-06a2-4c7c-93c1-d19c8885d1b8` | `96d6b4fb-c209-45c2-9c01-668dc2e545d3` | `f2b1124d-ca6a-4e73-9c35-700147d19e43` |
+
+Анкета: Twin = строка 1 (`1a9bd53b…`, BAR `6ee98055…`, B&B `ea6bfd9a…`), Double = строка 2 (`b0655bc0…`, BAR
+`428d744c…`, B&B `9e9795e6…`). Автотест 14.09: `SINGLE = exely-5074312 // аналог Twin`, `DOUBLE = exely-5074687 //
+аналог Double`, тариф только `exely-10158310` (ОТА). Пакет 11.09 (`plans/channex-certification-pack-2026-09-11.md`)
+тоже писал «вместо Twin/Double — одноместная с окном и двухместная»: перевернула раскладку анкета 20.09.
+
+### Тесты 2–8: воспроизведение замечаний
+
+Восстановил, что слал автотест 14.09, и проверил против ID анкеты тем же правилом, что у Channex (одно обновление
+на тариф, даты, значения). Воспроизводятся все замечания письма, например:
+
+- тест 3: «Expected one update for Twin BAR, found 2» — двухместная по ОТА получила и 444 на 25.11, и 456,23 на
+  29.11: строка B&B ушла на тариф ОТА;
+- тест 4: у Twin BAR 10–16.11 и 312,66 — это строка Double; у Double BAR 1–10.11 и 241 — строка Twin;
+- тест 7: «Missing update for Twin B&B» — строк B&B в автотесте нет.
+
+### Тесты 2–8: задачи 22.09 (готовы к анкете при текущей раскладке)
+
+Полезные данные каждой задачи сверены с таблицами документа программой: даты, цена (тиыны: 33300 = 333,00),
+`min_stay_arrival` и `min_stay_through`, `max_stay`, `stop_sell`, CTA/CTD, одно обновление на тариф, лишних тарифов нет.
+
+| Тест | Task ID | Отправлено (UTC) | Итог |
+|---|---|---|---|
+| 2 | `65fa7ce0-8781-4f0a-8b1d-66d9b5010d2d` | 22.09 11:00:41 | совпадает |
+| 3 | `a3e951a7-dfbf-490f-81bb-3a50c88898db` | 22.09 11:06:16 | совпадает |
+| 4 | `be012710-8506-44c2-ba43-3385de916f1b` | 22.09 11:09:31 | совпадает |
+| 5 | `beb9a6d5-b5a9-482d-ba52-110e6aafea26` | 22.09 11:11:22 | совпадает |
+| 6 | `ef6aa072-f647-4f6a-b7b2-2d1fe2150b2c` | 22.09 11:18:07 | совпадает |
+| 7 | `e51b4155-bcde-433c-a721-f3f8c3fc4651` | 22.09 11:23:42 | совпадает |
+| 8 | `c5535cbf-4cf8-4b7b-9a1c-5f82b83d6140` | 22.09 11:25:52 | совпадает |
+
+Предупреждений Channex в ответах нет (`channel_outbox.last_error` пуст).
+
+### Тесты 9–10: что было
+
+- 14.09: бронь на одноместную с окном (в анкете это Double) на 21.11 → 3, отмена → 4. Отсюда «Double Room targets
+  2026-11-21» в тесте 9 и «covers 2026-11-21» в тесте 10 (значение 4 в тесте 10 даже совпало — поэтому названы только даты).
+- 22.09 (брони стойки `20260922-*`): Twin 21.11 → 3 (`a9d0d09e…`), Double 25.11 → 3 (`43b91b5e…`), **Twin 10–16.11 → 3 одним
+  диапазоном** (`e64ef555-e97a-469f-9b78-0efa35604e85` — совпадает с тестом 10), Double 17–24.11 → 3 (`6408bd24…`, нужно 4).
+- Предупреждение «Use date_range syntax with merged sequences» относится к задаче 14.09 на одну ночь. Код уже шлёт
+  диапазоны `date_from`/`date_to` и склеивает подряд идущие дни (`apps/api/src/channels/ari-publisher.ts`,
+  `compressRuns`) — видно по задаче `e64ef555…`. Правка не нужна.
+
+## Варианты
+
+**А — быстро.** Раскладку не менять. Тесты 2–8 — задачи 22.09 из таблицы выше, без перепрогона. Тест 10: Twin —
+`e64ef555…`, Double — отменить бронь `20260922-7T72YW` (одноместная с окном 17→25.11), остаток станет 4. Тест 11 —
+новый цикл. **Тест 9 не пройдёт:** у двухместной 4 номера, «8 → 7» не получить; только пояснение в анкете,
+автопроверка отклонит снова.
+
+**Б — всё зелёное (рекомендую).** Twin = «Одноместная комната без окон» (ровно 8 номеров, как «Have the
+availability of Twin at 8» в документе), Double остаётся одноместной с окном. Перепрогнать 2–8 на `/rates`
+(семь сохранений, как 22.09, ~25 минут), 9–10 бронями с подготовленными блокировками, 11 — новый цикл. Потом
+вернуть цены четырьмя строками и снять тестовые брони и блокировки.
+
+## Порядок прогона по варианту Б
+
+Тарифы: BAR = «Тариф для ОТА +35%», B&B = «Базовый тариф». «Без окон» = одноместная без окон (Twin), «с окном» =
+одноместная с окном (Double). Каждый тест — **одно** «Сохранить N изменений»; перед следующим дождаться на
+`/channels` «ожидает 0» и записать ID задачи. Дни недели — все, «Гостей» — пусто.
+
+| Тест | Строки массовой правки |
+|---|---|
+| 2 | без окон · BAR · 22.11.2026 · цена 333 |
+| 3 | без окон · BAR · 21.11 · 333; с окном · BAR · 25.11 · 444; с окном · B&B · 29.11 · 456.23 |
+| 4 | без окон · BAR · 01–10.11 · 241; с окном · BAR · 10–16.11 · 312.66; с окном · B&B · 01–20.11 · 111 |
+| 5 | без окон · BAR · 23.11 · мин. 3; с окном · BAR · 25.11 · мин. 2; с окном · B&B · 15.11 · мин. 5 |
+| 6 | без окон · BAR · 14.11 · стоп-продажа да; с окном · BAR · 16.11 · да; с окном · B&B · 20.11 · да |
+| 7 | без окон · BAR · 01–10.11 · заезд закрыт да, выезд закрыт нет, макс. 4, мин. 1; без окон · B&B · 12–16.11 · заезд нет, выезд да, мин. 6; с окном · BAR · 10–16.11 · заезд да, мин. 2; с окном · B&B · 01–20.11 · мин. 10 |
+| 8 | без окон · BAR · 01.12.2026–01.05.2027 · 432, мин. 2, заезд нет, выезд нет; с окном · BAR · тот же период · 342, мин. 3 |
+
+**Тесты 9–10 (остатки).** Подготовка — блокировками ячеек (не бронями), потом «ожидает 0» на `/channels`:
+с окном 25→26.11 — заблокировать 2 ячейки (одна уже занята бронью `20260922-3C5DPC`, свободна останется 1);
+без окон 10→17.11 — заблокировать 4 ячейки (свободно 4). Без окон 21.11 — свободны все 8, проверить на шахматке.
+
+- Тест 9 — подряд, за несколько секунд: бронь без окон 21→22.11 (8 → 7) и бронь с окном 25→26.11 (1 → 0).
+- Тест 10 — подряд: бронь без окон 10→17.11 (4 → 3 на 10–16) и отмена `20260922-7T72YW` (с окном 17–24: 3 → 4).
+
+Документ разрешает «1 or 2 API calls»: если ушло двумя задачами, в анкету писать обе.
+
+**Тест 11.** Channex → Booking CRS: создать бронь на сопоставленную категорию вдали от тестовых дат, изменить даты,
+отменить. Booking ID — из кабинета Channex, ID трёх ревизий — из журнала событий на `/channels` WETOP.
+**Ни скриптом, ни руками не открывать список ревизий** (`GET /booking_revisions?…`) и `GET /bookings…`.
+Скриншоты из WETOP: карточка брони, шахматка, журнал событий.
+
+**Возврат после прогона** — одно сохранение на `/rates` («0» в мин./макс. — «снять»):
+
+| Категория | Тариф | С | По | Цена | Мин. | Макс. | Стоп | Заезд закрыт | Выезд закрыт |
+|---|---|---|---|---|---|---|---|---|---|
+| без окон | BAR | 01.11.2026 | 01.05.2027 | 14000 | 0 | 0 | нет | нет | нет |
+| с окном | BAR | 01.11.2026 | 01.05.2027 | 15400 | 0 | 0 | нет | нет | нет |
+| с окном | B&B | 01.11.2026 | 30.11.2026 | 11000 | 0 | 0 | нет | нет | нет |
+| без окон | B&B | 12.11.2026 | 16.11.2026 | пусто | 0 | 0 | нет | нет | нет |
+
+Затем отменить тестовые брони (тест 9 — две, тест 10 — одна, прежние `20260922-NACHUY`, `-VL6MHL`, `-3C5DPC`),
+снять шесть блокировок, отменить в Booking CRS старую `BDC-WETOP-CERT-SC11-01` (20.12).
+
+**Анкета.** Twin Room `65ef6dd7-e0cd-4dbf-bf9b-e8dfe9cf4c2b`, Twin BAR `2d1bc399-5857-4f98-a929-bffb8e16bcb9`,
+Twin B&B `a3681abd-505c-42f9-bddb-4d606b46a973`; Double — без изменений. Новые ID тестов 2–11. Переписать пояснение
+к тесту 2 (сейчас там «один тариф на категорию, несколько тарифов показаны на разных категориях» — неправда) и к
+тесту 1 (про «цены на 361 день, дальше без цены» — после исправления 23.09 уже не так).
+
+## Правки кода
+
+**1. Скрипт цикла брони (нужна при любом варианте).**
+- Что сломано: тест 11 не принят — «3 booking_revision_received_via_list».
+- Почему: `cli-channex-wetop-cycle.ts` в конце зовёт список ревизий Channex, чтобы напечатать ID для анкеты.
+- Что меняем: ID ревизий брать из своего журнала (`GET /channels/events` WETOP); сторож-тест — в `apps/` и
+  `scripts/` нет вызовов списка ревизий и `GET /bookings`; `cli-rollback-window.ts` (тоже список) — исключение
+  с пометкой «не запускать на объекте сертификации».
+- Чего не трогаем: создание, изменение и отмену брони через Booking CRS, приём брони в PMS.
+- Готово, когда: сторож красный на нынешнем коде (два места) → зелёный; новый цикл даёт четыре ID, все три
+  ревизии в журнале WETOP — «webhook».
+
+**2. Приём брони по webhook через ленту (рекомендую).**
+- Что: проверка пишет «via webhook/feed, not list-polling or by-id fetching». Сейчас PMS на webhook берёт
+  ревизию по ID (`apps/api/src/channels/inbound.service.ts`, `processWebhookEvent` → `fetchRevision`). Документация
+  Channex это допускает, но основным путём называет ленту (`booking_revisions/feed`), а проверка называет by-id отдельно.
+- Меняем: webhook запускает `pull(property_id)` — лента неподтверждённых ревизий, обработка, ack; источник в
+  журнале — WEBHOOK. Лента уже работает в опросе раз в 5 минут.
+- Не трогаем: разбор ревизии (`processRevision`), ack, опрос раз в 5 минут.
+- Готово, когда: тест красный → зелёный (на webhook вызывается лента, `getBookingRevision` — нет); выкладка на
+  `app.wetop.ai` (команды владельца); живой цикл — три ревизии пришли и подтверждены.
+
+**3. Автотест `tests/e2e/channex-certification.spec.ts`** зашивает старую раскладку (Twin = с окном, только ОТА)
+и возвращает цены из снимка Exely. До переписывания — не запускать.
+
+## Критерии готовности после прогона (только чтение)
+
+```sql
+-- у каждой пары «категория — тариф» одна цена на весь горизонт
+select t.name, rp.code, string_agg(distinct (dr.price / 100)::text, ', ') as prices
+from daily_rates dr
+join accommodation_types t on t.id = dr.accommodation_type_id
+join rate_plans rp on rp.id = dr.rate_plan_id
+group by 1, 2 order by 1, 2;
+select count(*) from restrictions;                                   -- 0
+select count(*) from inventory_blocks;                               -- 0
+select count(*) from reservations where status <> 'CANCELLED';       -- 0 (в базе только тестовые брони)
+select status, count(*) from channel_outbox where status <> 'SENT' group by 1;  -- пусто
+```
+
+## Чего не делать
+
+- Не переподавать анкету с ID 14.09.
+- Не запускать `tests/e2e/channex-certification.spec.ts` и `cli-channex-wetop-cycle.ts` в нынешнем виде.
+- Не вызывать список ревизий и `GET /bookings` на объекте staging, пока идёт проверка.
+
+## Решение владельца и что сделано 24.09
+
+**Выбран вариант Б** (ответ в чате 24.09). Код изменён, не закоммичен:
+
+- `scripts/reconciliation/src/cli-channex-wetop-cycle.ts` — ID ревизий для анкеты берутся из журнала событий WETOP
+  (`GET /channels/channex/events?q=<код брони>`), список ревизий Channex скрипт больше не зовёт.
+- `apps/api/src/channels/inbound.service.ts` — по webhook брони PMS читает ленту неподтверждённых ревизий своего
+  объекта (`pull(property_id, 'WEBHOOK')`); «Обработать заново» — тоже из ленты; чтения ленты (webhook, опрос раз
+  в 5 минут, кнопки) идут строго по одному. Так и было задумано в `docs/channex/how-channex-works-for-us.md`
+  («webhook → feed → запись в журнал → … → acknowledge»); реализация отступала — брала ревизию по ID.
+- `packages/integrations/src/channex/client.ts` — метод «ревизия по ID» снят; `ChannexGateway` и подделки тестов — без него.
+- Новый сторож `tests/unit/channex-booking-receiving.test.ts`: в `apps/api/src`, `packages/integrations/src`,
+  `scripts` нет списка ревизий (исключение с причиной — `cli-rollback-window.ts`), ревизии по ID и `GET /bookings`;
+  webhook читает ленту.
+
+Red → green: `…09-56-41Z-unit-c873.log` (6 красных: сторож нашёл список в скрипте цикла и ревизию по ID в клиенте;
+webhook и «Обработать заново» не читали ленту) → `…09-58-39Z-unit-5f07.log` (каналы, клиент Channex, сторож —
+162/162). Весь `unit` **1467/1473**, пропущено 6 macOS-тестов (`…10-06-29Z-unit-4914.log`), `typecheck`
+(`…10-05-22Z-typecheck-a9e2.log`) и `lint` (`…10-06-07Z-lint-5f93.log`) чисто.
+
+**Параллельно в дереве появился чужой файл** `scripts/reconciliation/src/cli-cert-scenarios.ts` (24.09, 09:48 UTC,
+не закоммичен): скрипт шлёт значения таблиц Channex в `/rates/bulk` со старой раскладкой (Twin = двухместная).
+Это ровно анти-паттерн документа («A standalone script, CLI … that posts the exact values from the tables below» —
+отказ на живой проверке), а тест 9 с этой раскладкой не пройти. Не запускать; судьбу файла решает владелец.
+
+## Дальше — по шагам
+
+1. **Коммит** — с разрешения владельца (удаление в папке проекта нужно git в VM, CLAUDE.md §5), только файлы из
+   списка выше; `git push` — владелец с Mac.
+2. **Выкладка API** (веб-терминал Hostinger; приём брони меняется только после неё):
+
+```bash
+cd /root/wetop && git pull
+cd deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --build api web
+docker compose -f compose.yml -f compose.hostinger.yml ps
+docker compose -f compose.yml -f compose.hostinger.yml exec api wget -qO- http://127.0.0.1:3001/health
+docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api grep -c "pullOnce" apps/api/src/channels/inbound.service.ts
+```
+
+   Готово, когда: `api` и `web` healthy, `/health` → `"database":"up"`, последняя команда печатает `3` (новый код в образе; в старом — `0`).
+3. **Тесты 2–10** — клики на `/rates`, шахматке и в карточках брони по таблицам выше; ID задач — с `/channels`.
+   Можно до выкладки: от приёма брони они не зависят.
+4. **Тест 11** — только после выкладки: новая бронь в Booking CRS, изменение, отмена; ID — из журнала событий WETOP.
+5. **Возврат цен и уборка** — таблица «Возврат после прогона», затем SQL из «Критериев готовности».
+6. **Анкета** — тексты ниже; отправляет владелец.
+
+## Тексты для анкеты (вставлять как есть, ID задач — после прогона)
+
+Setup Testing Property:
+
+| Поле | Значение |
+|---|---|
+| Property ID | `60fc6ef0-5cdc-4f53-a2ca-3f477964cb2a` |
+| Twin Room ID | `65ef6dd7-e0cd-4dbf-bf9b-e8dfe9cf4c2b` |
+| Twin Room Best Available Rate ID | `2d1bc399-5857-4f98-a929-bffb8e16bcb9` |
+| Twin Room Bed & Breakfast Rate ID | `a3681abd-505c-42f9-bddb-4d606b46a973` |
+| Double Room ID | `b0655bc0-f559-4abc-be1f-b9a241ddf036` |
+| Double Room Best Available Rate ID | `428d744c-0c7d-4469-9002-f323d4bf8cbe` |
+| Double Room Bed & Breakfast Rate ID | `9e9795e6-3bc2-4866-85a9-b2b770b4eaaa` |
+
+Test case #1:
+
+```
+Applicable: yes. Full sync runs from the "Full push" button in our PMS UI and automatically once a day after
+03:00 Asia/Almaty if it was not run manually that day. 500 days in two calls. Task IDs:
+0d200fc5-f786-4db5-9eed-e7e0ae4219de (availability), b06adde8-f30b-4ea6-8cbb-45aca8ec98fe (rates and
+restrictions), sent 2026-09-23. Rates and restrictions cover the same window as availability; dates after our
+last loaded price are sent closed (stop_sell) with the last known rate.
+```
+
+Test case #2:
+
+```
+Applicable: yes. Task ID <ID>. Property setup: our staging property mirrors our real hostel (5 room types, two
+rate plans on every room type, currency KZT). For the tests: Twin Room = "Single room without window" (8 rooms),
+Double Room = "Single room with window" (4 rooms); Best Available Rate = our "OTA rate", Bed & Breakfast = our
+"Base rate". Values follow the certification tables (in KZT). Every update was made in the PMS UI: the rates
+screen and its bulk editor, front desk bookings and room blocks.
+```
+
+Test cases #3–#8: `Applicable: yes. Task ID <ID>.`
+
+Test case #9:
+
+```
+Applicable: yes. Task ID(s) <ID>. Before the test we blocked rooms at the front desk so that Twin had 8 and Double
+had 1 available on the requested nights, then created one booking in each room type in the PMS UI.
+```
+
+Test case #10:
+
+```
+Applicable: yes. Task ID(s) <ID>. Twin: a booking for 10-16 Nov created in the PMS UI (availability 4 -> 3);
+Double: a booking for 17-24 Nov cancelled in the PMS UI (3 -> 4).
+```
+
+Test case #11 (к четырём ID и скриншотам):
+
+```
+Bookings are received via webhook: on every booking event our PMS reads the booking revisions feed of the
+property (GET /api/v1/booking_revisions/feed), stores each revision and acknowledges it
+(POST /api/v1/booking_revisions/:id/ack). A backup poll reads the same feed every 5 minutes. We do not use the
+bookings endpoints, the booking revisions list or fetching revisions by ID.
+```

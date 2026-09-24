@@ -1816,3 +1816,10 @@
 | 24.09.2026 12:33 | integration | ❌ код выхода 1 | 2 с | 17ea117 | [лог](logs/2026-09-24T07-33-41Z-integration-14ab.log) | слияние origin/main |
 | 24.09.2026 12:34 | e2e | ✅ 25 из 25 | 1 мин 3 с | 17ea117 | [лог](logs/2026-09-24T07-34-25Z-e2e-d671.log) | слияние origin/main: живые сквозные (повтор: база не встала — порт был занят) |
 | 24.09.2026 12:35 | integration | ✅ 47 из 47 | 16 с | 17ea117 | [лог](logs/2026-09-24T07-35-28Z-integration-793d.log) | слияние origin/main |
+| 24.09.2026 14:56 | unit (частично: apps/api/src/channels/inbound.controller.test.ts tests/unit/channex-booking-receiving.test.ts) | ❌ упало 6 из 31 | 13 с | f6817ef +3 | [лог](logs/2026-09-24T09-56-41Z-unit-c873.log) | red: webhook и повтор читают ревизию по ID, скрипт цикла зовёт список ревизий (сценарий 11 Channex, 24.09) |
+| 24.09.2026 14:58 | unit (частично: apps/api/src/channels packages/integrations/src/channex tests/unit/channex-booking-receiving.test.ts) | ✅ 162 из 162 | 30 с | f6817ef +9 | [лог](logs/2026-09-24T09-58-39Z-unit-5f07.log) | green: webhook и повтор — из ленты, клиент без ревизии по ID, скрипт цикла без списка ревизий |
+| 24.09.2026 15:01 | unit | ✅ 1467 из 1473, пропущено 6 | 2 мин 2 с | f6817ef +9 | [лог](logs/2026-09-24T10-01-36Z-unit-9de6.log) | Channex сценарий 11: приём брони только из ленты (webhook, опрос, повтор), без ревизии по ID и списка |
+| 24.09.2026 15:03 | typecheck | ❌ ошибок: 1 | 1 мин 13 с | f6817ef +9 | [лог](logs/2026-09-24T10-03-55Z-typecheck-41de.log) | TS2379 |
+| 24.09.2026 15:05 | typecheck | ✅ без ошибок | 39 с | f6817ef +9 | [лог](logs/2026-09-24T10-05-22Z-typecheck-a9e2.log) |  |
+| 24.09.2026 15:06 | lint | ✅ без ошибок | 17 с | f6817ef +9 | [лог](logs/2026-09-24T10-06-07Z-lint-5f93.log) |  |
+| 24.09.2026 15:06 | unit | ✅ 1467 из 1473, пропущено 6 | 1 мин 14 с | f6817ef +9 | [лог](logs/2026-09-24T10-06-29Z-unit-4914.log) | после правки типа в фальшивке журнала событий (exactOptionalPropertyTypes) |

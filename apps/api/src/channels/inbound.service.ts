@@ -6,6 +6,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
   type OnModuleDestroy,
   type OnModuleInit,
   ServiceUnavailableException,
@@ -140,7 +141,12 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
   ) {}
 
-  /** Webhook Channex (webhook-collection.md): общий секрет в заголовке, затем pull ревизии по ID. */
+  /**
+   * Webhook Channex (webhook-collection.md): общий секрет в заголовке, затем чтение ленты неподтверждённых ревизий
+   * своего объекта (bookings-collection.md, «Booking Revisions Feed» — «primary way to get bookings»). Ревизию по ID
+   * и список ревизий PMS не читает: 24.09.2026 Channex не принял сценарий 11 сертификации — «bookings must be received
+   * via webhook/feed, not list-polling or by-id fetching» (reports/channex-cert-review-2026-09-24.md).
+   */
   /** Очередь фоновой обработки webhook: по одному, в порядке прихода. Тесты ждут через drain(). */
   private queue: Promise<void> = Promise.resolve();
   private readonly log = new Logger(InboundBookingsService.name);
@@ -186,9 +192,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     timestamp?: string;
   }): Promise<void> {
     if (body.event!.startsWith('booking')) {
-      const p = body.payload as { revision_id: string };
-      const rev = await this.fetchRevision(p.revision_id);
-      await this.processRevision(rev, 'WEBHOOK');
+      // Событие — сигнал забрать ревизию: читаем ленту своего объекта целиком (в ней и эта ревизия, и всё, что
+      // не подтвердилось раньше), разбираем по порядку inserted_at и подтверждаем каждую разобранную
+      const p = body.payload as { property_id?: string } | undefined;
+      await this.pull(body.property_id ?? p?.property_id, 'WEBHOOK');
       return;
     }
     // Остальные события журналируем и считаем обработанными (sync_error и т.п. — для человека)
@@ -431,8 +438,26 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     return { startedAt: this.startedAt, ...this.pullState };
   }
 
-  /** Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook. */
-  async pull(propertyId?: string): Promise<PullResult> {
+  /** Чтения ленты идут по одному: webhook, опрос раз в 5 минут и кнопки не разбирают одну ревизию дважды разом */
+  private pullChain: Promise<unknown> = Promise.resolve();
+
+  /**
+   * Лента неподтверждённых ревизий → обработка каждой → ack. Работает и без публичного webhook.
+   * `via` — как ревизия дошла, для журнала событий: по webhook, опросом или по кнопке.
+   */
+  pull(propertyId?: string, via: ExternalEventVia = 'PULL'): Promise<PullResult> {
+    const run = this.pullChain.then(
+      () => this.pullOnce(propertyId, via),
+      () => this.pullOnce(propertyId, via),
+    );
+    this.pullChain = run.catch(() => undefined);
+    return run;
+  }
+
+  private async pullOnce(
+    propertyId: string | undefined,
+    via: ExternalEventVia,
+  ): Promise<PullResult> {
     let feed: Awaited<ReturnType<ChannexGateway['bookingRevisionsFeed']>>;
     try {
       feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
@@ -449,7 +474,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       // Событие уже помечено FAILED внутри processRevision, ack не отправляется — Channex вернёт её снова.
       let o: RevisionOutcome;
       try {
-        o = await this.processRevision(rev);
+        o = await this.processRevision(rev, via);
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         this.log.error(`Ревизия ${rev.id}: ${message}`);
@@ -469,15 +494,19 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     return { received: feed.length, outcomes, acknowledged };
   }
 
-  /** Снять потолок попыток и разобрать ревизию заново — по кнопке администратора */
+  /**
+   * Снять потолок попыток и разобрать ревизию заново — по кнопке администратора. Ревизию берём из ленты:
+   * неразобранная не подтверждена и в ленте остаётся (bookings-collection.md, «Booking Revisions Feed»).
+   */
   async retryEvent(revisionId: string): Promise<RevisionOutcome> {
     await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
-    const rev = await this.fetchRevision(revisionId);
-    return this.processRevision(rev, 'MANUAL');
-  }
-
-  private fetchRevision(id: string) {
-    return this.viaChannex(() => this.gateway.getBookingRevision(id));
+    const r = await this.pull(undefined, 'MANUAL');
+    const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
+    if (!outcome)
+      throw new NotFoundException(
+        `Ревизии ${revisionId} нет в ленте неподтверждённых: Channex её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
+      );
+    return outcome;
   }
 
   private async viaChannex<T>(fn: () => Promise<T>): Promise<T> {

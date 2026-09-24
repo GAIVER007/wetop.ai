@@ -52,9 +52,6 @@ function makeFakes() {
     async bookingRevisionsFeed() {
       return [];
     },
-    async getBookingRevision(): Promise<never> {
-      throw new Error('not in this test');
-    },
     async ackBookingRevision() {},
     async listWebhooks() {
       // Channex не отвечает: запрос висит (повторы клиента и пауза на 429 до минуты)

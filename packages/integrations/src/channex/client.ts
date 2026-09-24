@@ -465,20 +465,14 @@ export class ChannexClient {
   }
 
   // ── Bookings (bookings-collection.md): лента неподтверждённых ревизий → обработка → ack ──
+  // Ревизию по ID и список ревизий клиент не читает: сценарий 11 сертификации Channex требует приёма
+  // «via webhook/feed, not list-polling or by-id fetching» (reports/channex-cert-review-2026-09-24.md).
   bookingRevisionsFeed(
     propertyId?: string,
   ): Promise<ChannexResource<ChannexBookingRevisionAttributes>[]> {
     const q: Record<string, string> = { 'order[inserted_at]': 'asc' };
     if (propertyId) q['filter[property_id]'] = propertyId;
     return this.listAll<ChannexBookingRevisionAttributes>('/booking_revisions/feed', q);
-  }
-  async getBookingRevision(id: string): Promise<ChannexResource<ChannexBookingRevisionAttributes>> {
-    return (
-      await this.request<OneResponse<ChannexBookingRevisionAttributes>>(
-        'GET',
-        `/booking_revisions/${encodeURIComponent(id)}`,
-      )
-    ).data;
   }
   /** Подтвердить получение: без ack ревизия возвращается в ленту 30 минут, потом письмо-предупреждение. */
   async ackBookingRevision(id: string): Promise<void> {

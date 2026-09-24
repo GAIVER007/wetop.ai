@@ -89,7 +89,7 @@ const minutes = (ms: number) => Math.round(ms / MIN);
 const errText = (e: unknown) => redactText(e instanceof Error ? e.message : String(e));
 
 /**
- * Ночная копия базы (ADR-077). Копия старше BACKUP_STALE_MS, статуса нет или он не читается — одна неисправность
+ * Ночная копия базы (ADR-078). Копия старше BACKUP_STALE_MS, статуса нет или он не читается — одна неисправность
  * `backup.stale`; заголовок говорит, что именно: часы и последняя копия, «не найден» или код ошибки чтения.
  */
 function backupObservations(b: BackupSignal, now: Date): Observation[] {
@@ -563,7 +563,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           : [{ kind: 'web.down', title: 'Стойка PMS не отвечает', details: { error: w.error } }];
       });
 
-    // Ночная копия базы (ADR-077): статус пишет cron на сервере, сторож его только читает. Не настроено (null) —
+    // Ночная копия базы (ADR-078): статус пишет cron на сервере, сторож его только читает. Не настроено (null) —
     // вид не проверен, и открытая неисправность не закрывается: «не смог посмотреть» ≠ «починилось»
     if (this.probes.enabled('backup')) {
       const backup = this.probes.backup();

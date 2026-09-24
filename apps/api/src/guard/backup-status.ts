@@ -3,7 +3,7 @@ import { parseBackupStatus } from '@pms/domain';
 import type { BackupSignal } from './guard.ports';
 
 /**
- * Статус ночной копии с диска (ADR-077). В контейнере это `/backup-status/last.json`: папка `/root/backups/status`
+ * Статус ночной копии с диска (ADR-078). В контейнере это `/backup-status/last.json`: папка `/root/backups/status`
  * хоста, смонтированная только на чтение (deploy/compose.yml). Ошибка чтения — не исключение, а исход: сторож называет
  * её в заголовке неисправности (EACCES — права, EISDIR — не тот путь).
  */

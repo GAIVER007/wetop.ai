@@ -64,7 +64,7 @@ describe.skipIf(!url || pgMajor === null)('db-backup.sh и db-restore-check.sh �
     expect(backup.stdout).toContain('таблиц с данными: 2');
     const [dump] = readdirSync(dir).filter((f) => /^wetop-.*\.dump$/.test(f));
     expect(dump).toBeDefined();
-    // статус для сторожа стойки (ADR-077) после настоящего pg_dump читается тем же разбором, что у сторожа
+    // статус для сторожа стойки (ADR-078) после настоящего pg_dump читается тем же разбором, что у сторожа
     const status = parseBackupStatus(readFileSync(join(dir, 'status', 'last.json'), 'utf8'));
     expect(status).toMatchObject({ file: dump, tables: 2 });
 

@@ -255,7 +255,7 @@ export function channelOversold(input: {
 }
 
 /**
- * Статус последней удачной ночной копии базы (ADR-077). Одну строку JSON пишет `scripts/ops/db-backup.sh` после
+ * Статус последней удачной ночной копии базы (ADR-078). Одну строку JSON пишет `scripts/ops/db-backup.sh` после
  * проверенной копии. Сторож стойки видит только её: ни самих копий, ни адреса базы.
  */
 export interface BackupStatus {

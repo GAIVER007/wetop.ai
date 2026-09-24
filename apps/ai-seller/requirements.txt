@@ -1,0 +1,60 @@
+# Зависимости ИИ-продавца. Источник пинов — zavisimosti.txt в корне,
+# секции один к одному. Правя версию, правьте её там же.
+#
+# torch идёт первым: сборка CPU с индекса PyTorch, иначе с PyPI приедет
+# CUDA-сборка и образ раздуется с ~2 ГБ до ~9. --extra-index-url, а не
+# --index-url: на индексе PyTorch нет fastapi и остальных пакетов, а wheel
+# torch там имеет локальную версию «+cpu», которая по PEP 440 старше
+# одноимённой с PyPI, и pip берёт именно её. Dockerfile дополнительно
+# ставит torch с CPU-индекса явно, до этого файла.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.14,<2.15
+
+# ─── Веб ───
+fastapi>=0.141,<0.142
+uvicorn[standard]>=0.53,<0.54
+gunicorn>=26.2,<27
+python-multipart>=0.0.32,<0.1
+
+# ─── Настройки и контракты ───
+pydantic>=2.13,<3
+pydantic-settings>=2.15,<3
+
+# ─── База ───
+sqlalchemy[asyncio]>=2.0.52,<2.1
+asyncpg>=0.31,<0.32
+alembic>=1.20,<1.21
+pgvector>=0.5,<0.6
+
+# ─── Кэш и состояние ───
+redis[hiredis]>=8.1,<9
+
+# ─── Модели ───
+openai>=3.17,<4
+httpx>=0.28,<0.29
+
+# ─── Эмбеддинги ───
+sentence-transformers>=6.1,<7
+
+# ─── Разбор документов для базы знаний ───
+pypdf>=6.19,<7
+python-docx>=1.2,<2
+openpyxl>=3.1,<4
+markdown>=3.10,<4
+trafilatura>=2.2,<3
+
+# ─── Почта для алертов ───
+aiosmtplib>=5.1,<6
+
+# ─── Панель ───
+pyjwt>=2.14,<3
+bcrypt>=5,<6
+pyotp>=2.10,<3
+qrcode[pil]>=8.2,<9
+
+# ─── Тесты ───
+pytest>=9.1,<10
+pytest-asyncio>=1.4,<2
+fakeredis>=2.38,<3
+aiosqlite>=0.22,<0.23
+anyio>=4.15,<5

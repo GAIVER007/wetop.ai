@@ -44,3 +44,5 @@ test-results/
 coverage/
 deploy/ari.env
 deploy/compose.hostinger.yml
+# Бот «ИИ-продавец» собирается своим образом из своей папки (apps/ai-seller/Dockerfile) — в образ стойки не нужен
+apps/ai-seller/

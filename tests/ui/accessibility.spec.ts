@@ -35,6 +35,14 @@ const routes = [
   '/login',
   '/incidents',
   '/journal',
+  // раздел «ИИ-продавец» (ТЗ ред. 1 П6): все шесть экранов и открытая карточка диалога
+  '/ai-seller',
+  '/ai-seller/data',
+  '/ai-seller/knowledge',
+  '/ai-seller/dialogs',
+  '/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c',
+  '/ai-seller/embed',
+  '/ai-seller/check',
 ];
 
 for (const width of [1440, 390]) {

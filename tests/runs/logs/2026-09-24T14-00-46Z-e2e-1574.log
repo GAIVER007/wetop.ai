@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 24.09.2026 19:00 Алматы · vm
+# коммит 7af76cb (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-seller.spec.ts' 'tests/ui/navigation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (2.9s)
+  ✓   2 tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (3.9s)
+  ✓   3 tests/ui/ai-seller.spec.ts:63:1 › без языков «Применить» отказывает словами продавца, введённое не пропадает (1.7s)
+  ✓   4 tests/ui/ai-seller.spec.ts:72:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.2s)
+  ✓   5 tests/ui/ai-seller.spec.ts:90:1 › «Знания»: список и загрузка документа (1.8s)
+  ✓   6 tests/ui/ai-seller.spec.ts:103:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.6s)
+  ✓   7 tests/ui/ai-seller.spec.ts:128:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (1.1s)
+  ✓   8 tests/ui/ai-seller.spec.ts:136:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.1s)
+  ✓   9 tests/ui/navigation.spec.ts:34:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.8s)
+  ✓  10 tests/ui/navigation.spec.ts:47:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.6s)
+  ✓  11 tests/ui/navigation.spec.ts:88:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.2s)
+  ✓  12 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (19.2s)
+  ✓  13 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: light (6.0s)
+  ✓  14 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: dark (5.1s)
+
+  14 passed (1.0m)
+
+# код выхода 0 · 1 мин 2 с

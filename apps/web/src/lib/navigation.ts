@@ -107,6 +107,12 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
+        href: '/ai-seller',
+        label: 'ИИ-продавец',
+        icon: 'chat',
+        description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+      },
+      {
         href: '/analytics',
         label: 'Аналитика',
         icon: 'analytics',
@@ -210,6 +216,8 @@ export const sidebarSections: SidebarSection[] = [
       menuItem('/rates'),
       menuItem('/channel-manager'),
       menuItem('/channels', 'Синхронизация каналов'),
+      // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
+      menuItem('/ai-seller'),
       menuItem('/analytics', 'Аналитика сайта'),
     ],
   },

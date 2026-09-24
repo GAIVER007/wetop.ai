@@ -1356,6 +1356,86 @@ const uiSessions = new Map<string, UiUser>();
 /** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
 const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
 
+// ── ИИ-продавец (ТЗ П5–П8): подставной продавец стенда. Гости и переписка — вымышленные (ADR-010) ──────
+const sellerProfileSeed = {
+  botName: null as string | null,
+  addressForm: 'FORMAL' as 'FORMAL' | 'INFORMAL',
+  useEmoji: false,
+  replyLength: 'SHORT' as 'SHORT' | 'MEDIUM' | 'LONG',
+  languages: ['ru'],
+  greeting: '',
+  includedInPrice: '',
+  paidExtras: '',
+  houseRules: '',
+  prohibitions: '',
+  handoffRules: '',
+  faq: [] as Array<{ question: string; answer: string }>,
+};
+const SELLER_DIALOG_A = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
+const SELLER_DIALOG_B = '8c7d6e5f-4a3b-4c2d-9e1f-0a9b8c7d6e5f';
+const sellerDialogSeed = () => [
+  {
+    id: SELLER_DIALOG_A,
+    channel: 'widget',
+    clientName: 'А***',
+    mode: 'needs_human',
+    stage: 'closing',
+    lastActivityAt: new Date(Date.now() - 20 * 60_000).toISOString(),
+    hasContact: true,
+    contact: { name: 'Алия Тестова', phone: '+7 700 000 00 01', email: null, channel: 'widget', externalId: 'ui-a' },
+    // как `LeadFields` бота: ядро (имя, телефон, интерес, сроки) и свободная сумка `extra`
+    leadData: {
+      name: 'Алия Тестова',
+      phone: '+7 700 000 00 01',
+      interest: 'двухместный номер',
+      timeframe: '1–3 октября',
+      extra: { guests: 2 },
+    },
+    messages: [
+      { role: 'user', text: 'Здравствуйте, есть двухместный на 1–3 октября?', at: new Date(Date.now() - 25 * 60_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Здравствуйте! Уточню у администратора и вернусь.', at: new Date(Date.now() - 24 * 60_000).toISOString(), sentByUs: true },
+    ],
+  },
+  {
+    id: SELLER_DIALOG_B,
+    channel: 'widget',
+    clientName: null as string | null,
+    mode: 'bot_active',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 3 * 3600_000).toISOString(),
+    hasContact: false,
+    contact: { name: null as string | null, phone: null, email: null, channel: 'widget', externalId: 'ui-b' },
+    leadData: {},
+    messages: [
+      { role: 'user', text: 'Во сколько заезд?', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Заезд с 14:00, выезд до 12:00.', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: true },
+    ],
+  },
+];
+let sellerProfile = structuredClone(sellerProfileSeed);
+let sellerAppliedProfile = structuredClone(sellerProfileSeed);
+let sellerSaved = false;
+let sellerApplied = false;
+let sellerUpdatedAt: string | null = null;
+let sellerDialogs = sellerDialogSeed();
+let sellerKnowledge = [{ source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' }];
+/** Состояние копии продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }` */
+let sellerState: 'ready' | 'not-configured' | 'other-organization' = 'ready';
+let sellerLastError: string | null = null;
+let sellerRetrying = false;
+function resetSeller() {
+  sellerProfile = structuredClone(sellerProfileSeed);
+  sellerAppliedProfile = structuredClone(sellerProfileSeed);
+  sellerSaved = false;
+  sellerApplied = false;
+  sellerUpdatedAt = null;
+  sellerDialogs = sellerDialogSeed();
+  sellerKnowledge = [{ source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' }];
+  sellerState = 'ready';
+  sellerLastError = null;
+  sellerRetrying = false;
+}
+
 /**
  * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
  * лишние рейсы к API, на машине владельца стоит лишние сотни миллисекунд — и это видно только счётчиком.
@@ -2101,9 +2181,11 @@ createServer(async (req, res) => {
     const path = url.pathname;
     const chunks: Buffer[] = [];
     for await (const chunk of req) chunks.push(Buffer.from(chunk));
-    const body = chunks.length
-      ? (JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>)
-      : {};
+    const raw = Buffer.concat(chunks);
+    // Файл знаний продавца приходит multipart — JSON там не разобрать (ТЗ П6)
+    const multipart = String(req.headers['content-type'] ?? '').startsWith('multipart/form-data');
+    const body =
+      chunks.length && !multipart ? (JSON.parse(raw.toString()) as Record<string, unknown>) : {};
     const send = (status: number, data: unknown) => {
       res.writeHead(status, {
         'content-type': 'application/json',
@@ -2182,6 +2264,7 @@ createServer(async (req, res) => {
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
+      resetSeller();
       return send(200, {});
     }
     if (path === '/__test/control') {
@@ -2252,6 +2335,13 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      // ИИ-продавец: не подключён, чужая копия, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
+      sellerState =
+        body['sellerState'] === 'not-configured' || body['sellerState'] === 'other-organization'
+          ? body['sellerState']
+          : 'ready';
+      sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
+      sellerRetrying = body['sellerRetrying'] === true;
       return send(200, {});
     }
     // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
@@ -2415,6 +2505,160 @@ createServer(async (req, res) => {
         }),
         expiresAt: new Date((issuedAt + assistant.IDENTITY_TTL_SECONDS) * 1000).toISOString(),
       });
+    }
+    // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
+    if (path.startsWith('/ai-seller/')) {
+      const sellerView = () => ({
+        saved: sellerSaved,
+        profile: sellerProfile,
+        updatedAt: sellerUpdatedAt,
+        applied: sellerApplied,
+      });
+      const dialog = path.match(/^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/);
+      if (req.method === 'GET') {
+        if (path === '/ai-seller/status')
+          return send(200, {
+            state: sellerState,
+            profile: { saved: sellerSaved, updatedAt: sellerUpdatedAt, applied: sellerApplied },
+            facts: { applied: sellerApplied, appliedAt: sellerApplied ? sellerUpdatedAt : null },
+            lastError: sellerLastError,
+            lastErrorAt: sellerLastError ? new Date(Date.now() - 5 * 60_000).toISOString() : null,
+            retrying: sellerLastError !== null && sellerRetrying,
+            embedAvailable: true,
+          });
+        if (path === '/ai-seller/profile') return send(200, sellerView());
+        if (path === '/ai-seller/facts') {
+          const from = today;
+          const dates = Array.from({ length: 3 }, (_, i) => add(from, i));
+          return send(200, {
+            facts: {
+              source: 'platform:facts',
+              generated_at: new Date().toISOString(),
+              property: {
+                name: propertyName,
+                address: 'Алматы, ул. Тестовая, 1',
+                timezone: 'Asia/Almaty',
+                currency: 'KZT',
+                check_in_time: '14:00',
+                check_out_time: '12:00',
+              },
+              categories: categories.map((c) => ({
+                code: c.code,
+                name: c.name,
+                kind: c.code === 'ROOM' ? 'PRIVATE_ROOM' : 'DORM_BED',
+                capacity_adults: c.capacityAdults,
+                units: c.count,
+              })),
+              rate_plan: { code: 'BASE', name: 'Базовый тариф' },
+              window: { from, to: add(from, 59) },
+              prices: categories.flatMap((c) =>
+                dates.map((date, i) => ({
+                  category_code: c.code,
+                  date,
+                  guests: 1,
+                  price_minor: String((c.code === 'ROOM' ? 1_500_000 : 450_000) + i * 50_000),
+                  price_text: '',
+                })),
+              ),
+            },
+            hash: 'f'.repeat(64),
+            applied: sellerApplied,
+          });
+        }
+        if (path === '/ai-seller/conversations') {
+          const mode = url.searchParams.get('mode');
+          return send(200, {
+            items: sellerDialogs
+              .filter((d) => !mode || d.mode === mode)
+              .map((d) => ({
+                id: d.id,
+                channel: d.channel,
+                clientName: d.clientName,
+                mode: d.mode,
+                stage: d.stage,
+                lastActivityAt: d.lastActivityAt,
+                messages: d.messages.length,
+                hasContact: d.hasContact,
+              })),
+          });
+        }
+        if (dialog && !dialog[2]) {
+          const d = sellerDialogs.find((x) => x.id === dialog[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          return send(200, {
+            id: d.id,
+            mode: d.mode,
+            stage: d.stage,
+            leadData: d.leadData,
+            contact: d.contact,
+            messages: d.messages,
+          });
+        }
+        if (path === '/ai-seller/knowledge') return send(200, { items: sellerKnowledge });
+        if (path === '/ai-seller/summary')
+          return send(200, { hours: 24, dialogs: sellerDialogs.length, replies: 5, leads: 1, slaBreaches: 0 });
+        if (path === '/ai-seller/embed')
+          return send(200, {
+            snippet: '<script async src="https://seller.example.invalid/widget/widget.js"></script>',
+          });
+      }
+      if (path === '/ai-seller/profile' && req.method === 'PUT') {
+        const languages = Array.isArray(body['languages']) ? (body['languages'] as string[]) : [];
+        if (languages.length === 0) return send(400, { message: 'Языки: нужен хотя бы один' });
+        sellerProfile = {
+          ...sellerProfileSeed,
+          ...(body as Partial<typeof sellerProfileSeed>),
+          botName: String(body['botName'] ?? '').trim() || null,
+          languages,
+          faq: ((body['faq'] as Array<{ question: string; answer: string }>) ?? []).filter(
+            (f) => f.question.trim() !== '' || f.answer.trim() !== '',
+          ),
+        };
+        sellerSaved = true;
+        sellerApplied = false;
+        sellerUpdatedAt = new Date().toISOString();
+        return send(200, sellerView());
+      }
+      if (path === '/ai-seller/apply' && req.method === 'POST') {
+        if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
+        if (sellerState === 'not-configured')
+          return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
+        if (sellerState === 'other-organization')
+          return send(403, { message: 'ИИ-продавец для вашей организации не подключён' });
+        sellerApplied = true;
+        sellerAppliedProfile = structuredClone(sellerProfile);
+        return send(200, { profileApplied: true, factsApplied: true });
+      }
+      if (dialog && dialog[2] && req.method === 'POST') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        if (dialog[2] === 'reply') {
+          const text = String(body['text'] ?? '').trim();
+          if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
+          d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+          return send(200, { ok: true });
+        }
+        const previousMode = d.mode;
+        d.mode = dialog[2] === 'takeover' ? 'owner_takeover' : 'bot_active';
+        return send(200, { mode: d.mode, previousMode });
+      }
+      if (path === '/ai-seller/knowledge' && req.method === 'POST') {
+        const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
+        if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
+          return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
+        sellerKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...sellerKnowledge];
+        return send(201, { source: name, created: true, chunks: 1 });
+      }
+      if (path === '/ai-seller/sandbox' && req.method === 'POST') {
+        // ответ зависит от ПРИМЕНЁННОГО обращения: так видно, что «Применить» дошло до продавца (ТЗ §4.4)
+        const informal = sellerAppliedProfile.addressForm === 'INFORMAL';
+        return send(200, {
+          reply: informal ? 'Привет! Чем могу тебе помочь?' : 'Здравствуйте! Чем могу вам помочь?',
+          needsHuman: false,
+          reasons: [],
+        });
+      }
+      return send(404, { message: 'Нет такого адреса продавца' });
     }
     // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
     const noContent = () => {

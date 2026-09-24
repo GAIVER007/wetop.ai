@@ -294,7 +294,7 @@ export interface RatePlanOption {
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
 
 async function sendJson<T>(
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
 ): Promise<T> {
@@ -1255,6 +1255,154 @@ export const assistantApi = {
       throw error;
     }
   },
+};
+
+// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-075; контракт — docs/assistant/README.md) ──────────────
+
+export type SellerAddressForm = 'FORMAL' | 'INFORMAL';
+export type SellerReplyLength = 'SHORT' | 'MEDIUM' | 'LONG';
+
+/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15) */
+export interface SellerProfileBody {
+  botName: string | null;
+  addressForm: SellerAddressForm;
+  useEmoji: boolean;
+  replyLength: SellerReplyLength;
+  languages: string[];
+  greeting: string;
+  includedInPrice: string;
+  paidExtras: string;
+  houseRules: string;
+  prohibitions: string;
+  handoffRules: string;
+  faq: Array<{ question: string; answer: string }>;
+}
+
+export interface SellerProfileView {
+  saved: boolean;
+  profile: SellerProfileBody;
+  updatedAt: string | null;
+  applied: boolean;
+}
+
+export interface SellerStatus {
+  /** `not-configured` — у платформы нет адреса и ключа продавца; `other-organization` — копия чужой организации */
+  state: 'not-configured' | 'other-organization' | 'ready';
+  profile: { saved: boolean; updatedAt: string | null; applied: boolean };
+  facts: { applied: boolean; appliedAt: string | null };
+  lastError: string | null;
+  lastErrorAt: string | null;
+  /** Отказ временный — платформа повторит сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
+  retrying: boolean;
+  embedAvailable: boolean;
+}
+
+/** Факты объекта ровно в том виде, в каком их получает продавец (`PUT /seller/facts`, snake_case) */
+export interface SellerFactsPayload {
+  source: 'platform:facts';
+  generated_at: string;
+  property: {
+    name: string;
+    address: string | null;
+    timezone: string;
+    currency: string;
+    check_in_time: string;
+    check_out_time: string;
+  };
+  categories: Array<{ code: string; name: string; kind: string; capacity_adults: number; units: number }>;
+  rate_plan: { code: string; name: string } | null;
+  window: { from: string; to: string };
+  prices: Array<{
+    category_code: string;
+    date: string;
+    guests: number;
+    price_minor: string;
+    price_text: string;
+  }>;
+}
+
+export interface SellerConversationRow {
+  id: string;
+  channel: string;
+  /** Имя маскирует продавец: в списке контакта нет, он — в карточке */
+  clientName: string | null;
+  mode: string;
+  stage: string;
+  lastActivityAt: string | null;
+  messages: number;
+  hasContact: boolean;
+}
+
+export interface SellerConversationCard {
+  id: string;
+  mode: string;
+  stage: string;
+  leadData: Record<string, unknown>;
+  contact: {
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    channel: string | null;
+    externalId: string | null;
+  };
+  messages: Array<{ role: string; text: string; at: string | null; sentByUs: boolean }>;
+}
+
+export interface SellerSummary {
+  hours: number;
+  dialogs: number;
+  replies: number;
+  leads: number;
+  slaBreaches: number;
+}
+
+export const sellerApi = {
+  status: () => getJson<SellerStatus>('/ai-seller/status'),
+  profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
+  saveProfile: (body: SellerProfileBody) =>
+    sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),
+  apply: () =>
+    sendJson<{ profileApplied: boolean; factsApplied: boolean }>('POST', '/ai-seller/apply', {}),
+  facts: () =>
+    getJson<{ facts: SellerFactsPayload; hash: string; applied: boolean }>('/ai-seller/facts'),
+  conversations: (mode?: string) =>
+    getJson<{ items: SellerConversationRow[] }>(
+      `/ai-seller/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
+    ),
+  conversation: (id: string) =>
+    getJson<SellerConversationCard>(`/ai-seller/conversations/${encodeURIComponent(id)}`),
+  switchMode: (id: string, action: 'takeover' | 'release') =>
+    sendJson<{ mode: string | null; previousMode: string | null }>(
+      'POST',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/${action}`,
+      {},
+    ),
+  reply: (id: string, text: string) =>
+    sendJson<{ ok: true }>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/reply`, {
+      text,
+    }),
+  knowledge: () =>
+    getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
+      '/ai-seller/knowledge',
+    ),
+  /** Документ базы знаний: multipart, поле `file`; заголовок с границей ставит сам fetch */
+  uploadKnowledge: async (
+    file: File,
+  ): Promise<{ source: string; created: boolean; chunks: number }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/ai-seller/knowledge', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { source: string; created: boolean; chunks: number };
+  },
+  summary: () => getJson<SellerSummary>('/ai-seller/summary'),
+  sandbox: (text: string) =>
+    sendJson<{ reply: string | null; needsHuman: boolean; reasons: string[] }>(
+      'POST',
+      '/ai-seller/sandbox',
+      { text },
+    ),
+  embed: () => getJson<{ snippet: string | null }>('/ai-seller/embed'),
 };
 
 export const guardApi = {

@@ -2015,3 +2015,7 @@
 | 24.09.2026 22:56 | lint | ✅ без ошибок | 37 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-02Z-lint-2349.log) |  |
 | 24.09.2026 22:56 | typecheck | ✅ без ошибок | 32 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-41Z-typecheck-01d7.log) |  |
 | 24.09.2026 22:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --grep dark categories --workers=1) | ✅ 1 из 1 | 44 с | e9182f5 +27 | [лог](logs/2026-09-24T17-58-38Z-e2e-d73c.log) |  |
+| 24.09.2026 23:46 | typecheck | ✅ без ошибок | 24 с | 704a032 | [лог](logs/2026-09-24T18-46-05Z-typecheck-b0ae.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | lint | ✅ без ошибок | 14 с | 704a032 | [лог](logs/2026-09-24T18-46-29Z-lint-3da4.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | unit | ❌ упало 7 из 1538, пропущено 3 | 1 мин 12 с | 704a032 | [лог](logs/2026-09-24T18-46-43Z-unit-041c.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:48 | integration | ✅ 54 из 54 | 17 с | 704a032 | [лог](logs/2026-09-24T18-48-23Z-integration-148c.log) | ADR-078: sliyanie main s PR 66 |

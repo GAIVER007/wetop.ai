@@ -12,6 +12,7 @@ describe('Hotel read projections', () => {
     id: 'test-property',
     name: 'Тестовый хостел',
     legalName: null,
+    bin: null,
     address: null,
     timezone: 'Asia/Almaty',
     currency: 'KZT',
@@ -48,6 +49,13 @@ describe('Hotel read projections', () => {
     const r = await request(app.getHttpServer()).get('/hotel/settings').expect(200);
     expect(r.body.property).toEqual(property);
     expect(r.body.ratePlans).toEqual([]);
+    // реквизиты для печатных форм — из записи объекта, не из кода (проверка SECURITY.md 24.09.2026, Н12)
+    expect(findFirst.mock.calls[0]?.[0]?.select).toMatchObject({
+      name: true,
+      legalName: true,
+      bin: true,
+      address: true,
+    });
   });
   /**
    * Волна 4: настройки объекта читает КАЖДАЯ страница стойки (их запрашивает `layout.tsx`), а это

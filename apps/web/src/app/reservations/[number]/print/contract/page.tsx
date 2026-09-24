@@ -1,5 +1,6 @@
 import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
-import { api, chessboardApi, formatMinor, guestsApi } from '../../../../../lib/api';
+import { chessboardApi, formatMinor, guestsApi } from '../../../../../lib/api';
+import { hotelApi } from '../../../../../lib/hotel-api';
 import { PrintButton } from '../print-button';
 import {
   CONTRACT_T,
@@ -9,11 +10,12 @@ import {
   cancellationRule,
   nightsBetween,
   pickLang,
+  propertyParty,
 } from '../forms';
 
 /**
  * Заготовка договора на проживание — печатная форма RU / KZ по образцу регистрационной карты.
- * Стороны: объект (реквизиты из OBJECT.md, банк — плейсхолдеры) и гость (документ — маской,
+ * Стороны: объект (реквизиты из его записи, `/hotel/settings`; банк — плейсхолдеры) и гость (документ — маской,
  * полный номер хранится только зашифрованным, SECURITY §4). Содержание заменит образец владельца.
  */
 export default async function PrintContract({
@@ -28,10 +30,11 @@ export default async function PrintContract({
   const l = pickLang(lang);
   const t = CONTRACT_T[l];
   const r = await chessboardApi.reservation(decodeURIComponent(number));
-  const [summary, guest] = await Promise.all([
-    api.inventorySummary(),
+  const [settings, guest] = await Promise.all([
+    hotelApi.settings(),
     r.primaryGuest ? guestsApi.card(r.primaryGuest.id) : Promise.resolve(null),
   ]);
+  const party = propertyParty(settings.property);
   const doc = guest?.documents[0];
   const now = almatyNow();
   const guestName = guest
@@ -89,11 +92,11 @@ export default async function PrintContract({
             <td style={{ ...cell, width: '50%', verticalAlign: 'top' }}>
               <b>{t.propertyParty}</b>
               <br />
-              {summary.property.name} — {PROPERTY.legalEntity}
+              {party.name} — {party.legalName}
               <br />
-              {t.bin}: {PROPERTY.bin}
+              {t.bin}: {party.bin}
               <br />
-              {t.address}: {PROPERTY.address}
+              {t.address}: {party.address}
               <br />
               {t.phone}: {PROPERTY.phone} · {t.email}: {PROPERTY.email}
               <br />
@@ -162,7 +165,7 @@ export default async function PrintContract({
         </tbody>
       </table>
       <p style={{ fontSize: 13, margin: '8px 0 0' }}>
-        {t.checkInTime}: {PROPERTY.checkInTime} · {t.checkOutTime}: {PROPERTY.checkOutTime} ·{' '}
+        {t.checkInTime}: {party.checkInTime} · {t.checkOutTime}: {party.checkOutTime} ·{' '}
         {t.tariff}: ___
       </p>
 

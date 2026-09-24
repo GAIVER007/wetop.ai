@@ -29,6 +29,26 @@ describe('реквизиты объекта', () => {
     });
   });
 
+  /**
+   * Проверка SECURITY.md 24.09.2026, Н12: ИИН/БИН объекта — это ИИН физлица-ИП, то есть персональные данные. В коде
+   * он печатался бы в договоре и счёте любой организации. Живёт в записи объекта (`properties.bin`), формы берут его
+   * из `/hotel/settings`. Сторож ищет присваивание двенадцати цифр полю `bin`, не называя самих цифр.
+   */
+  it('ИИН/БИН объекта в коде не держим', () => {
+    expect(Object.keys(LUXX_APARTS_PROPERTY)).not.toContain('bin');
+    const sources = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+        if (e.name === 'node_modules' || e.name.startsWith('.')) return [];
+        const p = join(dir, e.name);
+        if (e.isDirectory()) return sources(p);
+        return /\.(ts|tsx)$/.test(p) ? [p] : [];
+      });
+    const guilty = ['apps', 'packages', 'scripts']
+      .flatMap((d) => sources(resolve(ROOT, d)))
+      .filter((p) => /\bbin\s*:\s*['"`]\d{12}['"`]/.test(readFileSync(p, 'utf8')));
+    expect(guilty.map((p) => p.slice(ROOT.length + 1)), 'ИИН/БИН зашит в код').toEqual([]);
+  });
+
   it('API не тянет объект из @pms/imports', () => {
     const guilty = tsFiles(resolve(ROOT, 'apps/api/src')).filter((p) => {
       const text = readFileSync(p, 'utf8');

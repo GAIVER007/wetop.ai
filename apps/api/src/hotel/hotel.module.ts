@@ -62,6 +62,8 @@ export class HotelService {
         id: true,
         name: true,
         legalName: true,
+        // ИИН/БИН для печатных форм — из записи объекта, не из кода (проверка SECURITY.md 24.09.2026, Н12)
+        bin: true,
         address: true,
         timezone: true,
         currency: true,

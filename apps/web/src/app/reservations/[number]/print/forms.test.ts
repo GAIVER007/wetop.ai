@@ -7,6 +7,7 @@ import {
   cancellationRule,
   invoiceLines,
   nightsBetween,
+  propertyParty,
   sumMinor,
 } from './forms';
 
@@ -130,9 +131,30 @@ describe('печатные формы: словари и расчёты', () => 
     expect(cancellationRule('kz')).not.toBe('');
     expect(cancellationRule('kz')).not.toBe(cancellationRule('ru'));
   });
-  it('реквизиты объекта взяты из OBJECT.md, банковские — плейсхолдеры', () => {
-    expect(PROPERTY.name).toBe('Luxx Aparts');
-    expect(PROPERTY.legalEntity).toMatch(/ИП/);
+  /**
+   * Проверка SECURITY.md 24.09.2026, Н12: название, юрлицо, ИИН/БИН, адрес и часы были зашиты в заготовку форм и
+   * печатались бы в договоре любой организации. Теперь — из записи объекта (`/hotel/settings`), пустое — прочерком.
+   */
+  it('реквизиты объекта — из записи объекта, пустые — прочерком', () => {
+    const stored = {
+      name: 'Тестовый хостел',
+      legalName: 'ИП «Тест»',
+      bin: 'БИН-ТЕСТ',
+      address: 'Тестовый адрес, 1',
+      checkInTime: '15:00',
+      checkOutTime: '11:00',
+    };
+    expect(propertyParty(stored)).toEqual(stored);
+    expect(
+      propertyParty({ ...stored, legalName: null, bin: null, address: null }),
+    ).toMatchObject({ legalName: '___', bin: '___', address: '___' });
+    // старый API поля bin не шлёт вовсе
+    const { name, legalName, address, checkInTime, checkOutTime } = stored;
+    expect(propertyParty({ name, legalName, address, checkInTime, checkOutTime }).bin).toBe('___');
+  });
+  it('в заготовке остались только плейсхолдеры банка и подписанта и контакты объекта', () => {
+    for (const key of ['name', 'legalEntity', 'bin', 'address', 'checkInTime', 'checkOutTime'])
+      expect(Object.keys(PROPERTY)).not.toContain(key);
     expect(PROPERTY.bank).toBe('___');
     expect(PROPERTY.iban).toBe('___');
   });

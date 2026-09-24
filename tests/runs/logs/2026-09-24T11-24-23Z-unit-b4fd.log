@@ -1,0 +1,106 @@
+# Модульные (unit) · 24.09.2026 16:24 Алматы · vm
+# коммит 924db9b (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T11-24-23Z-unit-b4fd.json' 'packages/domain/src/property/' 'apps/web/src/app/reservations/[number]/print/forms.test.ts' 'apps/api/src/hotel/hotel.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/property/property.test.ts (3 tests | 1 failed) 22ms
+   ❯ реквизиты объекта (3)
+     ✓ значения те же, что в OBJECT.md §1 3ms
+     × ИИН/БИН объекта в коде не держим 5ms
+     ✓ API не тянет объект из @pms/imports 13ms
+ ❯ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests | 2 failed) 24ms
+   ❯ печатные формы: словари и расчёты (7)
+     ✓ казахский словарь покрывает те же ключи, что русский, и без пустых строк 8ms
+     ✓ ночи считаются по датам проживания, а не по часам 0ms
+     ✓ строки счёта — все счета брони, сторнированные начисления не попадают 1ms
+     ✓ сумма строк — integer minor units через BigInt, без потери точности 0ms
+     ✓ правило отмены объекта (Q-103) есть на обоих языках и различается 0ms
+     × реквизиты объекта — из записи объекта, пустые — прочерком 9ms
+     × в заготовке остались только плейсхолдеры банка и подписанта и контакты объекта 3ms
+ ❯ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests | 1 failed) 205ms
+   ❯ Hotel read projections (12)
+     × returns stored hotel settings without inventing defaults 31ms
+     ✓ настройки объекта читаются из базы один раз на окно кэша, а не на каждый запрос 7ms
+     ✓ aggregates by channel/source/currency with precise money and separate cancellations 5ms
+     ✓ один канал под двумя именами Channex — одна строка отчёта (plans/channel-name-canonical-2026-09-22.md) 4ms
+     ✓ filters by stored reservation status and returns a real empty report 3ms
+     ✓ rejects invalid query before touching the database: from=2026-02-30&to=2026-03-01 3ms
+     ✓ rejects invalid query before touching the database: from=2026-09-02&to=2026-09-01 3ms
+     ✓ rejects invalid query before touching the database: from=2020-01-01&to=2026-09-01 4ms
+     ✓ rejects invalid query before touching the database: from=x&to=2026-09-01 3ms
+     ✓ rejects invalid query before touching the database: from=2026-09-01&to=2026-09-02&status=BOGUS 2ms
+     ✓ rejects invalid query before touching the database:  2ms
+     ✓ does not disguise an unconfigured property as a zero report 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/hotel.controller.test.ts > Hotel read projections > returns stored hotel settings without inventing defaults
+AssertionError: expected { id: true, name: true, …(6) } to match object { name: true, legalName: true, …(2) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "address": true,
+-   "bin": true,
+    "legalName": true,
+    "name": true,
+  }
+
+ ❯ apps/api/src/hotel/hotel.controller.test.ts:53:50
+     51|     expect(r.body.ratePlans).toEqual([]);
+     52|     // реквизиты для печатных форм — из записи объекта, не из кода (пр…
+     53|     expect(findFirst.mock.calls[0]?.[0]?.select).toMatchObject({
+       |                                                  ^
+     54|       name: true,
+     55|       legalName: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/domain/src/property/property.test.ts > реквизиты объекта > ИИН/БИН объекта в коде не держим
+AssertionError: expected [ 'name', 'legalName', 'bin', …(5) ] to not include 'bin'
+ ❯ packages/domain/src/property/property.test.ts:38:51
+     36|    */
+     37|   it('ИИН/БИН объекта в коде не держим', () => {
+     38|     expect(Object.keys(LUXX_APARTS_PROPERTY)).not.toContain('bin');
+       |                                                   ^
+     39|     const sources = (dir: string): string[] =>
+     40|       readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts > печатные формы: словари и расчёты > реквизиты объекта — из записи объекта, пустые — прочерком
+TypeError: propertyParty is not a function
+ ❯ apps/web/src/app/reservations/[number]/print/forms.test.ts:147:12
+    145|       checkOutTime: '11:00',
+    146|     };
+    147|     expect(propertyParty(stored)).toEqual(stored);
+       |            ^
+    148|     expect(
+    149|       propertyParty({ ...stored, legalName: null, bin: null, address: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts > печатные формы: словари и расчёты > в заготовке остались только плейсхолдеры банка и подписанта и контакты объекта
+AssertionError: expected [ 'name', 'legalEntity', 'bin', …(9) ] to not include 'name'
+ ❯ apps/web/src/app/reservations/[number]/print/forms.test.ts:157:41
+    155|   it('в заготовке остались только плейсхолдеры банка и подписанта и ко…
+    156|     for (const key of ['name', 'legalEntity', 'bin', 'address', 'check…
+    157|       expect(Object.keys(PROPERTY)).not.toContain(key);
+       |                                         ^
+    158|     expect(PROPERTY.bank).toBe('___');
+    159|     expect(PROPERTY.iban).toBe('___');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  4 failed | 18 passed (22)
+   Start at  11:24:24
+   Duration  1.80s (transform 64%, import 23%, tests 12%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T11-24-23Z-unit-b4fd.json
+
+# код выхода 1 · 3 с

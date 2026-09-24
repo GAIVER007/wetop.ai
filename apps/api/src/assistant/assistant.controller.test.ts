@@ -8,6 +8,12 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AssistantController } from './assistant.controller';
+import {
+  USER_ERRORS_REPOSITORY,
+  type UserErrorRecord,
+  type UserErrorsQuery,
+  type UserErrorsRepository,
+} from './user-errors.repository';
 
 /**
  * `GET /assistant/identity` (ТЗ П1): подпись вошедшего для тега виджета помощника. Настоящий замок
@@ -26,6 +32,20 @@ const USER = {
 
 let app: INestApplication;
 
+class FakeUserErrors implements UserErrorsRepository {
+  queries: UserErrorsQuery[] = [];
+  rows: UserErrorRecord[] = [];
+  async record(): Promise<void> {}
+  async list(query: UserErrorsQuery): Promise<UserErrorRecord[]> {
+    this.queries.push(query);
+    return this.rows;
+  }
+  async deleteBefore(): Promise<number> {
+    return 0;
+  }
+}
+const userErrors = new FakeUserErrors();
+
 beforeAll(async () => {
   const auth = {
     whoami: vi.fn(async (token: string) =>
@@ -38,6 +58,7 @@ beforeAll(async () => {
     controllers: [AssistantController],
     providers: [
       { provide: AuthService, useValue: auth },
+      { provide: USER_ERRORS_REPOSITORY, useValue: userErrors },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();
@@ -51,6 +72,8 @@ afterAll(async () => {
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  userErrors.queries = [];
+  userErrors.rows = [];
 });
 
 function decode(token: string) {
@@ -138,3 +161,144 @@ describe('GET /assistant/identity — подпись вошедшего (ТЗ П
     expect(JSON.stringify(res.body)).not.toContain(USER.email);
   });
 });
+
+/**
+ * `GET /assistant/errors` (ТЗ П4): ошибки, которые API отдал человеку (DATA_MODEL §14), — только по ключу помощника
+ * `ASSISTANT_READ_KEY` или служебному. Ключ сверяет и сам адрес, не только замок: при выключенном `AUTH_REQUIRED` замок
+ * пускает всех, а вошедший человек проходит его сессией — и прочёл бы чужие ошибки, подставив `userId`.
+ */
+describe('GET /assistant/errors — ошибки человека для помощника (ТЗ П4)', () => {
+  const ASSISTANT_KEY = 'assistant-read-key-for-run';
+  const USER_ID = USER.id;
+  const ORG_ID = USER.organizationId;
+  const query = `userId=${USER_ID}&organizationId=${ORG_ID}`;
+
+  function withKeys() {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    vi.stubEnv('ASSISTANT_READ_KEY', ASSISTANT_KEY);
+    vi.stubEnv('GUARD_READ_KEY', 'guard-read-key-for-run');
+    vi.stubEnv('SERVICE_API_KEY', 'service-key-for-run');
+  }
+
+  it('по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище', async () => {
+    withKeys();
+    userErrors.rows = [
+      {
+        at: new Date('2026-09-24T09:12:03.120Z'),
+        userId: USER_ID,
+        organizationId: ORG_ID,
+        method: 'POST',
+        route: '/reservations',
+        status: 400,
+        message: 'adults — целое ≥ 1',
+        requestId: '11111111-1111-4111-8111-111111111111',
+      },
+      {
+        at: new Date('2026-09-24T09:10:00.000Z'),
+        userId: USER_ID,
+        organizationId: ORG_ID,
+        method: 'GET',
+        route: '/chessboard',
+        status: 503,
+        message: 'Нет связи с базой',
+        requestId: '22222222-2222-4222-8222-222222222222',
+      },
+    ];
+    const res = await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}&since=2026-09-24T00:00:00.000Z&limit=5`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    expect(res.body).toEqual([
+      { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 400, message: 'adults — целое ≥ 1' },
+      { at: '2026-09-24T09:10:00.000Z', section: 'Шахматка', status: 503, message: 'Нет связи с базой' },
+    ]);
+    expect(userErrors.queries).toEqual([
+      { userId: USER_ID, organizationId: ORG_ID, since: new Date('2026-09-24T00:00:00.000Z'), limit: 5 },
+    ]);
+    expect(res.headers['cache-control']).toBe('no-store');
+  });
+
+  it('по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт', async () => {
+    withKeys();
+    const before = Date.now();
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}&limit=500`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    const [first, second] = userErrors.queries;
+    expect(first!.limit).toBe(20);
+    expect(Math.abs(first!.since.getTime() - (before - 86_400_000))).toBeLessThan(5_000);
+    expect(second!.limit).toBe(50);
+  });
+
+  it('userId и organizationId обязательны и должны быть UUID; since — дата', async () => {
+    withKeys();
+    for (const bad of [
+      `organizationId=${ORG_ID}`,
+      `userId=${USER_ID}`,
+      `userId=42&organizationId=${ORG_ID}`,
+      `${query}&since=вчера`,
+      `${query}&limit=много`,
+    ]) {
+      await request(app.getHttpServer())
+        .get(`/assistant/errors?${bad}`)
+        .set('x-wetop-service-key', ASSISTANT_KEY)
+        .expect(400);
+    }
+    expect(userErrors.queries).toHaveLength(0);
+  });
+
+  it('служебный ключ владельца тоже читает', async () => {
+    withKeys();
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', 'service-key-for-run')
+      .expect(200);
+  });
+
+  it('ключ дежурного агента — 403: ошибки человека не его', async () => {
+    withKeys();
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', 'guard-read-key-for-run')
+      .expect(403);
+    expect(userErrors.queries).toHaveLength(0);
+  });
+
+  it('вошедший человек без ключа не читает даже свои ошибки через этот адрес', async () => {
+    withKeys();
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-session', 'good-session')
+      .expect(403);
+    expect(userErrors.queries).toHaveLength(0);
+  });
+
+  it('при выключенном замке без ключа — отказ, а не чужие ошибки', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', ASSISTANT_KEY);
+    await request(app.getHttpServer()).get(`/assistant/errors?${query}`).expect(401);
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', 'not-the-key')
+      .expect(403);
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', ASSISTANT_KEY)
+      .expect(200);
+    expect(userErrors.queries).toHaveLength(1);
+  });
+
+  it('ключ помощника не задан в окружении — адрес закрыт для всех, кроме служебного ключа', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', '');
+    await request(app.getHttpServer())
+      .get(`/assistant/errors?${query}`)
+      .set('x-wetop-service-key', '')
+      .expect(401);
+    expect(userErrors.queries).toHaveLength(0);
+  });
+});
+

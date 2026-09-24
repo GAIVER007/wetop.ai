@@ -1947,3 +1947,8 @@
 | 24.09.2026 18:28 | lint | ❌ ошибок: 3 | 15 с | 0ad921a +16 | [лог](logs/2026-09-24T13-28-28Z-lint-8515.log) | @typescript-eslint/no-unused-vars |
 | 24.09.2026 18:28 | lint | ✅ без ошибок | 15 с | 0ad921a +16 | [лог](logs/2026-09-24T13-28-55Z-lint-f8af.log) |  |
 | 24.09.2026 18:29 | unit (частично: apps/api/src/guard/api-error.filter.test.ts apps/api/src/assistant/user-errors-retention.service.test.ts) | ✅ 11 из 11 | 3 с | 0ad921a +15 | [лог](logs/2026-09-24T13-29-11Z-unit-eac4.log) | П3: тесты после правки линтера |
+| 24.09.2026 18:31 | unit (частично: apps/api/src/auth/auth.guard.test.ts apps/api/src/assistant/assistant.controller.test.ts) | ❌ упало 10 из 37 | 3 с | b8db4dc +2 | [лог](logs/2026-09-24T13-31-15Z-unit-4401.log) | П4 red: ключа помощника и GET /assistant/errors нет |
+| 24.09.2026 18:31 | unit (частично: apps/api/src/auth/auth.guard.test.ts apps/api/src/assistant/assistant.controller.test.ts apps/api/src/auth/accounts-public-routes.test.ts apps/a | ✅ 48 из 48 | 5 с | b8db4dc +4 | [лог](logs/2026-09-24T13-31-24Z-unit-a526.log) | П4 green: ключ помощника и GET /assistant/errors |
+| 24.09.2026 18:31 | unit | ✅ 1605 из 1608, пропущено 3 | 1 мин 27 с | b8db4dc +4 | [лог](logs/2026-09-24T13-31-35Z-unit-80ca.log) | после П1–П4 |
+| 24.09.2026 18:33 | typecheck | ✅ без ошибок | 20 с | b8db4dc +4 | [лог](logs/2026-09-24T13-33-03Z-typecheck-52d7.log) |  |
+| 24.09.2026 18:33 | lint | ✅ без ошибок | 15 с | b8db4dc +4 | [лог](logs/2026-09-24T13-33-24Z-lint-19e1.log) |  |

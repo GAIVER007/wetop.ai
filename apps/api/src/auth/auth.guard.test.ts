@@ -47,6 +47,7 @@ describe('SessionGuard', () => {
     delete process.env.AUTH_REQUIRED;
     delete process.env.SERVICE_API_KEY;
     delete process.env.GUARD_READ_KEY;
+    delete process.env.ASSISTANT_READ_KEY;
   });
 
   it('пока вход не включён, пускает всех и никого не спрашивает', async () => {
@@ -223,6 +224,81 @@ describe('SessionGuard', () => {
       );
       await expect(
         new SessionGuard(reflector(false), auth(false)).canActivate(чужой.ctx),
+      ).rejects.toThrow(/не подходит/);
+    });
+  });
+
+  /**
+   * Узкий ключ ИИ-помощника (ТЗ ред. 1 П4, ADR-075) — по образцу ключа дежурного агента (ADR-067): помощник видит
+   * ошибки человека и состояние системы и больше ничего. Всё остальное, включая запись, — 403.
+   */
+  describe('ключ ИИ-помощника (ASSISTANT_READ_KEY)', () => {
+    beforeEach(() => {
+      process.env.AUTH_REQUIRED = '1';
+      process.env.SERVICE_API_KEY = 'служебный-ключ-длинный';
+      process.env.GUARD_READ_KEY = 'ключ-агента-только-чтение';
+      process.env.ASSISTANT_READ_KEY = 'ключ-помощника-только-чтение';
+    });
+
+    it('пускает ровно на два адреса: ошибки человека и состояние системы', async () => {
+      for (const url of [
+        '/assistant/errors?userId=u&organizationId=o',
+        '/assistant/errors',
+        '/guard/status',
+      ]) {
+        const { ctx, request } = context(
+          { 'x-wetop-service-key': 'ключ-помощника-только-чтение' },
+          'GET',
+          url,
+        );
+        await expect(
+          new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+        ).resolves.toBe(true);
+        expect(request.service).toBe(true);
+      }
+    });
+
+    it('неисправности, запись и остальной API — 403', async () => {
+      for (const [method, url] of [
+        ['GET', '/guard/incidents'],
+        ['POST', '/guard/tick'],
+        ['POST', '/assistant/errors'],
+        ['GET', '/assistant/identity'],
+        ['GET', '/reservations'],
+        ['GET', '/guests'],
+        ['POST', '/finance/payments'],
+        ['GET', '/auth/me'],
+      ] as const) {
+        const { ctx } = context(
+          { 'x-wetop-service-key': 'ключ-помощника-только-чтение' },
+          method,
+          url,
+        );
+        await expect(
+          new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+        ).rejects.toThrow(/Ключ помощника читает только/);
+      }
+    });
+
+    it('ключ дежурного агента ошибок человека не читает', async () => {
+      const { ctx } = context(
+        { 'x-wetop-service-key': 'ключ-агента-только-чтение' },
+        'GET',
+        '/assistant/errors',
+      );
+      await expect(
+        new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+      ).rejects.toThrow(/читает только неисправности/);
+    });
+
+    it('похожий ключ не пускает: сравнение до конца', async () => {
+      const { ctx } = context(
+        { 'x-wetop-service-key': 'ключ-помощника-только-чтениЕ' },
+        'GET',
+        '/guard/status',
+      );
+      await expect(
+        new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
       ).rejects.toThrow(/не подходит/);
     });
   });

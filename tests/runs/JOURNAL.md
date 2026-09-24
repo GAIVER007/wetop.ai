@@ -1986,3 +1986,20 @@
 | 24.09.2026 22:20 | typecheck | ✅ без ошибок | 56 с | 7a04641 +9 | [лог](logs/2026-09-24T17-20-35Z-typecheck-e41a.log) |  |
 | 24.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts --workers=1) | ✅ 4 из 4 | 32 с | 7a04641 +9 | [лог](logs/2026-09-24T17-21-46Z-e2e-2e44.log) | Короткая бронь: имя целиком в двух строках; финальные продление, отмена и отказы |
 | 24.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --grep шахматк --workers=1) | ✅ 2 из 2 | 24 с | 7a04641 +9 | [лог](logs/2026-09-24T17-22-39Z-e2e-cbdc.log) | Регрессия существующего меню шахматки: продлить на ночь, цена, отмена, клавиатура |
+| 24.09.2026 22:33 | unit (частично: apps/api/src/inventory/inventory-input.test.ts) | ❌ код выхода 1 | 2 с | e9182f5 +4 | [лог](logs/2026-09-24T17-33-01Z-unit-c651.log) | (файл не выполнился) |
+| 24.09.2026 22:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 2 из 2 | 1 мин 22 с | e9182f5 +22 | [лог](logs/2026-09-24T17-39-57Z-e2e-22e7.log) | category creation, rename, room creation and reload |
+| 24.09.2026 22:42 | unit (частично: apps/api/src/inventory/inventory-input.test.ts apps/api/src/inventory/inventory.controller.test.ts) | ✅ 6 из 6 | 3 с | e9182f5 +21 | [лог](logs/2026-09-24T17-42-26Z-unit-c447.log) |  |
+| 24.09.2026 22:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 1 из 2 | 27 с | e9182f5 +23 | [лог](logs/2026-09-24T17-43-18Z-e2e-61cf.log) | availability preserves exact unit and dates; responsive category design |
+| 24.09.2026 22:44 | integration (частично: tests/integration/inventory-editor.test.ts) | ❌ код выхода 1 | 2 с | e9182f5 +7 | [лог](logs/2026-09-24T17-44-25Z-integration-bda7.log) |  |
+| 24.09.2026 22:45 | integration (частично: tests/integration/inventory-editor.test.ts) | ✅ 1 из 1 | 4 с | e9182f5 +7 | [лог](logs/2026-09-24T17-45-59Z-integration-ff71.log) |  |
+| 24.09.2026 22:46 | unit (частично: apps/api/src/inventory/empty-category.test.ts) | ❌ упало 1 из 1 | 2 с | e9182f5 +22 | [лог](logs/2026-09-24T17-46-43Z-unit-3d6e.log) | keeps category capacity before the first unit is created |
+| 24.09.2026 22:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/inventory-catalog.spec.ts --workers=1) | ✅ 9 из 9 | 1 мин 35 с | e9182f5 +25 | [лог](logs/2026-09-24T17-47-21Z-e2e-1d03.log) |  |
+| 24.09.2026 22:49 | integration (частично: tests/integration/inventory-editor.test.ts) | ✅ 1 из 1 | 3 с | e9182f5 +9 | [лог](logs/2026-09-24T17-49-53Z-integration-3786.log) |  |
+| 24.09.2026 22:49 | unit (частично: apps/api/src/inventory packages/domain/src/inventory) | ✅ 9 из 9 | 3 с | e9182f5 +23 | [лог](logs/2026-09-24T17-49-57Z-unit-4b54.log) |  |
+| 24.09.2026 22:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ✅ 3 из 3 | 38 с | e9182f5 +25 | [лог](logs/2026-09-24T17-50-45Z-e2e-fab2.log) |  |
+| 24.09.2026 22:52 | typecheck | ✅ без ошибок | 22 с | e9182f5 +27 | [лог](logs/2026-09-24T17-52-23Z-typecheck-bc3a.log) |  |
+| 24.09.2026 22:52 | lint | ❌ ошибок: 1 | 15 с | e9182f5 +27 | [лог](logs/2026-09-24T17-52-46Z-lint-78d9.log) | no-control-regex |
+| 24.09.2026 22:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/workspace.spec.ts --grep category creation\|availability preserves | ✅ 7 из 7 | 2 мин 3 с | e9182f5 +27 | [лог](logs/2026-09-24T17-53-29Z-e2e-ff98.log) |  |
+| 24.09.2026 22:56 | lint | ✅ без ошибок | 37 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-02Z-lint-2349.log) |  |
+| 24.09.2026 22:56 | typecheck | ✅ без ошибок | 32 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-41Z-typecheck-01d7.log) |  |
+| 24.09.2026 22:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --grep dark categories --workers=1) | ✅ 1 из 1 | 44 с | e9182f5 +27 | [лог](logs/2026-09-24T17-58-38Z-e2e-d73c.log) |  |

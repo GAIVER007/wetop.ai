@@ -21,7 +21,7 @@ import {
   extendStayAction,
   previewAction,
 } from '../reservations/actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ActionMenu } from '../../components/action-menu';
 import { HousekeepingMenu } from './housekeeping-menu';
 import { penaltyText } from '../../lib/penalty-text';
@@ -99,7 +99,8 @@ export function ChessboardGrid({
   fitMonth?: boolean;
 }) {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('');
+  const searchParams = useSearchParams();
+  const [category, setCategory] = useState(searchParams.get('category') ?? '');
   const [kind, setKind] = useState('');
   const [state, setState] = useState('all');
   const [filtersOpen, setFiltersOpen] = useState(false);

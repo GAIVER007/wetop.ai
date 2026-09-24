@@ -1262,3 +1262,19 @@ export interface AuthInvitePreview {
   /** Только у принятия: ключ, по которому человек задаёт себе пароль. null — пароль у него уже есть. */
   setPasswordToken?: string | null;
 }
+
+export interface InventoryCategory {
+  code: string;
+  name: string;
+  kind: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
+  capacityAdults: number;
+}
+export const inventoryEditorApi = {
+  categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
+  save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
+    sendJson(
+      code ? 'PATCH' : 'POST',
+      `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
+      body,
+    ),
+};

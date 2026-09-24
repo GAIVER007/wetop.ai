@@ -205,7 +205,6 @@ export const sidebarSections: SidebarSection[] = [
       menuItem('/inventory', 'Номера и койки'),
       menuItem('/rooms/categories', 'Категории номеров'),
       menuItem('/rooms/availability', 'Доступность'),
-      menuItem('/rooms', 'Обзор номеров'),
     ],
   },
   {

@@ -27,6 +27,10 @@ export function summarizeInventoryPlan(plan: InventoryImportPlan): InventorySumm
     cat.maxGuests += guests;
     cat.capacityAdults = Math.max(cat.capacityAdults, guests);
   }
+  for (const type of plan.accommodationTypes) {
+    const category = byCode.get(type.code)!;
+    if (category.units === 0) category.capacityAdults = type.capacityAdults;
+  }
   return {
     totalUnits: plan.units.length,
     rooms,

@@ -207,10 +207,10 @@ describe('ChannexClient', () => {
     expect(u.pathname.endsWith('/booking_revisions/feed')).toBe(true);
     expect(u.searchParams.get('filter[property_id]')).toBe('716305c4-561a-4561-a187-7f5b8aeb5920');
     expect(u.searchParams.get('order[inserted_at]')).toBe('asc');
-    expect((await c.getBookingRevision(rev.id)).id).toBe(rev.id);
     await c.ackBookingRevision(rev.id);
-    expect(f.calls[2]!.init.method).toBe('POST');
-    expect(f.calls[2]!.url.endsWith(`/booking_revisions/${rev.id}/ack`)).toBe(true);
+    expect(f.calls).toHaveLength(2);
+    expect(f.calls[1]!.init.method).toBe('POST');
+    expect(f.calls[1]!.url.endsWith(`/booking_revisions/${rev.id}/ack`)).toBe(true);
   });
 });
 

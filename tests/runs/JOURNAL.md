@@ -1892,3 +1892,14 @@
 | 24.09.2026 15:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 336 из 336 | 25 мин 46 с | 7fbd9e9 +6 | [лог](logs/2026-09-24T10-35-20Z-e2e-dc94.log) | SECURITY plan 24.09 executed: final tree: full UI suite |
 | 24.09.2026 16:01 | unit | ✅ 1497 из 1500, пропущено 3 | 1 мин 12 с | 451a0a1 | [лог](logs/2026-09-24T11-01-21Z-unit-2395.log) | SECURITY plan 24.09 executed: final tree |
 | 24.09.2026 16:02 | typecheck | ✅ без ошибок | 20 с | 451a0a1 | [лог](logs/2026-09-24T11-02-34Z-typecheck-9166.log) | SECURITY plan 24.09 executed: final tree |
+| 24.09.2026 14:56 | unit (частично: apps/api/src/channels/inbound.controller.test.ts tests/unit/channex-booking-receiving.test.ts) | ❌ упало 6 из 31 | 13 с | f6817ef +3 | [лог](logs/2026-09-24T09-56-41Z-unit-c873.log) | red: webhook и повтор читают ревизию по ID, скрипт цикла зовёт список ревизий (сценарий 11 Channex, 24.09) |
+| 24.09.2026 14:58 | unit (частично: apps/api/src/channels packages/integrations/src/channex tests/unit/channex-booking-receiving.test.ts) | ✅ 162 из 162 | 30 с | f6817ef +9 | [лог](logs/2026-09-24T09-58-39Z-unit-5f07.log) | green: webhook и повтор — из ленты, клиент без ревизии по ID, скрипт цикла без списка ревизий |
+| 24.09.2026 15:01 | unit | ✅ 1467 из 1473, пропущено 6 | 2 мин 2 с | f6817ef +9 | [лог](logs/2026-09-24T10-01-36Z-unit-9de6.log) | Channex сценарий 11: приём брони только из ленты (webhook, опрос, повтор), без ревизии по ID и списка |
+| 24.09.2026 15:03 | typecheck | ❌ ошибок: 1 | 1 мин 13 с | f6817ef +9 | [лог](logs/2026-09-24T10-03-55Z-typecheck-41de.log) | TS2379 |
+| 24.09.2026 15:05 | typecheck | ✅ без ошибок | 39 с | f6817ef +9 | [лог](logs/2026-09-24T10-05-22Z-typecheck-a9e2.log) |  |
+| 24.09.2026 15:06 | lint | ✅ без ошибок | 17 с | f6817ef +9 | [лог](logs/2026-09-24T10-06-07Z-lint-5f93.log) |  |
+| 24.09.2026 15:06 | unit | ✅ 1467 из 1473, пропущено 6 | 1 мин 14 с | f6817ef +9 | [лог](logs/2026-09-24T10-06-29Z-unit-4914.log) | после правки типа в фальшивке журнала событий (exactOptionalPropertyTypes) |
+| 24.09.2026 15:31 | unit | ✅ 1467 из 1473, пропущено 6 | 1 мин 57 с | 6a0792d +1 | [лог](logs/2026-09-24T10-31-47Z-unit-cc75.log) | слитое дерево: 922495ed поверх origin/main 3268a945 |
+| 24.09.2026 15:33 | typecheck | ✅ без ошибок | 55 с | 6a0792d +1 | [лог](logs/2026-09-24T10-33-56Z-typecheck-eadd.log) | слитое дерево |
+| 24.09.2026 15:35 | lint | ⏹ прерван | 23 с | 6a0792d +1 | [лог](logs/2026-09-24T10-35-00Z-lint-7c45.log) | слитое дерево |
+| 24.09.2026 15:35 | lint | ✅ без ошибок | 23 с | 6a0792d +1 | [лог](logs/2026-09-24T10-35-40Z-lint-dea5.log) | слитое дерево (повтор: прошлый прерван моим таймаутом 25 с) |

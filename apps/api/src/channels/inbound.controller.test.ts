@@ -71,7 +71,12 @@ function revision(
 function makeFakes() {
   const events = new Map<
     string,
-    ExternalEventRef & { type: string; payload: unknown; lastError?: string | null }
+    ExternalEventRef & {
+      type: string;
+      payload: unknown;
+      lastError?: string | null;
+      receivedVia?: string | undefined;
+    }
   >();
   const reservations = new Map<
     string,
@@ -95,20 +100,16 @@ function makeFakes() {
   /** Записи журнала целиком — для before/after (SECURITY.md §6) */
   const auditEntries: Array<{ action: string; before?: unknown; after?: unknown }> = [];
   const acks: string[] = [];
+  /** С каким объектом читали ленту: webhook читает ленту своего объекта (property_id события) */
+  const feedCalls: Array<string | undefined> = [];
   let feed: Array<channex.ChannexResource<channex.ChannexBookingRevisionAttributes>> = [];
   let n = 0;
   const id = (p: string) => `${p}${++n}`;
-  const gateway: Pick<
-    ChannexGateway,
-    'bookingRevisionsFeed' | 'getBookingRevision' | 'ackBookingRevision'
-  > = {
-    async bookingRevisionsFeed() {
+  // Только лента и ack: ревизию по ID PMS не читает (сценарий 11 сертификации Channex, 24.09.2026)
+  const gateway: Pick<ChannexGateway, 'bookingRevisionsFeed' | 'ackBookingRevision'> = {
+    async bookingRevisionsFeed(propertyId) {
+      feedCalls.push(propertyId);
       return feed;
-    },
-    async getBookingRevision(revId) {
-      const r = feed.find((x) => x.id === revId);
-      if (!r) throw new Error('unknown revision');
-      return r;
     },
     async ackBookingRevision(revId) {
       acks.push(revId);
@@ -349,6 +350,7 @@ function makeFakes() {
         isNew: true,
         type: ev.type,
         payload: ev.payload,
+        receivedVia: ev.receivedVia,
       };
       events.set(key, created);
       return {
@@ -460,6 +462,7 @@ function makeFakes() {
     audits,
     auditEntries,
     acks,
+    feedCalls,
     setFeed: (f: typeof feed) => (feed = f),
     state,
   };
@@ -1119,6 +1122,8 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .expect(200);
     expect(retried.body).toMatchObject({ result: 'created', confirmationNumber: 'BDC-CEIL' });
     expect(fakes.acks).toContain('rev-ceiling');
+    // «Обработать заново» берёт ревизию из ленты (неподтверждённая в ней остаётся), а не по ID
+    expect(fakes.feedCalls.length).toBeGreaterThan(7);
   });
 
   it('ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК', async () => {
@@ -1317,7 +1322,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect([...fakes.events.values()][0]!.status).toBe('FAILED');
   });
 
-  it('webhook: wrong secret → 401, missing secret config → 503, booking event → pulled by revision id', async () => {
+  it('webhook: wrong secret → 401, missing secret config → 503, booking event → the feed of its property is read, never the revision by ID', async () => {
     fakes.setFeed([revision({ id: 'rev-7' })]);
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')
@@ -1338,6 +1343,11 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(ok.body).toEqual({ ok: true, accepted: true });
     await inbound.drain();
     expect(fakes.events.has('channex|rev-7')).toBe(true);
+    // Сценарий 11 сертификации: «received via webhook/feed, not list-polling or by-id fetching» (24.09.2026) —
+    // по webhook PMS читает ленту неподтверждённых ревизий своего объекта; в журнале — «пришла по webhook»
+    expect(fakes.feedCalls).toEqual(['prop-1']);
+    expect(fakes.events.get('channex|rev-7')?.receivedVia).toBe('WEBHOOK');
+    expect(fakes.acks).toEqual(['rev-7']);
     await request(app.getHttpServer())
       .post('/channels/channex/webhook')
       .set('x-channex-webhook-secret', 'test-webhook-secret')

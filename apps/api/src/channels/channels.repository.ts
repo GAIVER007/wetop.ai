@@ -26,7 +26,6 @@ export type ChannexGateway = Pick<
   | 'updateRestrictions'
   | 'listProperties'
   | 'bookingRevisionsFeed'
-  | 'getBookingRevision'
   | 'ackBookingRevision'
   | 'listWebhooks'
   | 'createWebhook'
@@ -767,7 +766,6 @@ export function channexGatewayFromEnv(): ChannexGateway {
       updateRestrictions: fail,
       listProperties: fail,
       bookingRevisionsFeed: fail,
-      getBookingRevision: fail,
       ackBookingRevision: fail,
       listWebhooks: fail,
       createWebhook: fail,

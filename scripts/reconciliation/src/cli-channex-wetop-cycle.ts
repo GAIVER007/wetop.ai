@@ -296,24 +296,30 @@ try {
 }
 
 /**
- * Для формы сертификации (сценарий 11) нужны идентификаторы самого Channex, а не наши номера броней:
- * id брони и по одной ревизии на каждый статус. Печатаем их отдельным блоком, чтобы владельцу было
- * что перенести в форму, не заходя в кабинет.
+ * Для формы сертификации (сценарий 11) нужны id брони Channex и по одной ревизии на каждый статус. Ревизии берём
+ * из своего журнала событий (`GET /channels/channex/events` WETOP), а не у Channex: список ревизий Channex
+ * засчитывает как «received via list», и 24.09.2026 сценарий 11 не приняли ровно из-за такого вызова здесь
+ * (reports/channex-cert-review-2026-09-24.md). В журнале видно и то, как ревизия дошла: webhook или опрос ленты.
  */
 try {
-  const revisions = await client.request<{
-    data: Array<{ id: string; attributes: { status?: string; inserted_at?: string } }>;
-  }>('GET', `/booking_revisions?filter[booking_id]=${encodeURIComponent(bookingId)}`);
-  console.log('\nДля формы сертификации, сценарий 11:');
+  const journal = await get<{
+    rows: Array<{
+      externalEventId: string;
+      type: string;
+      status: string;
+      receivedVia: string | null;
+      receivedAt: string;
+    }>;
+  }>(`/channels/channex/events?q=${encodeURIComponent(code)}&limit=20`);
+  console.log('\nДля формы сертификации, сценарий 11 (из журнала событий WETOP):');
   console.log(`  Booking ID: ${bookingId}`);
-  for (const r of revisions.data ?? []) {
+  for (const r of [...journal.rows].reverse())
     console.log(
-      `  Revision ${r.attributes?.status ?? '—'}: ${r.id}  (${r.attributes?.inserted_at ?? ''})`,
+      `  ${r.type}: ${r.externalEventId}  (${r.receivedVia ?? '—'}, ${r.status}, ${r.receivedAt})`,
     );
-  }
 } catch (e) {
   console.log(
-    `\nСписок ревизий не прочитался: ${(e as Error).message}. Идентификаторы есть в кабинете Channex.`,
+    `\nЖурнал событий WETOP не прочитался: ${(e as Error).message}. Ревизии — на /channels, «Журнал событий».`,
   );
 }
 

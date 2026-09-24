@@ -125,8 +125,8 @@ function withoutCard(value: unknown): unknown {
  * Что из ревизии ложится в `external_events.payload`. Карта (`guarantee`) — никогда. Пока база не в РК
  * (PII_STORAGE ≠ real, ADR-018, SECURITY.md §2) — только номера, даты, суммы, занятость и канал: без заказчика
  * (кроме страны), имён гостей, заметки и `meta` номеров. Экран «Приём брони» и поиск читают только эти поля
- * (`revision-facts.ts`), а повтор забирает ревизию из Channex заново (`retryEvent`). Список разрешённый, а не
- * запретный: новое поле Channex в журнал не попадёт, пока его сюда не впишут.
+ * (`revision-facts.ts`), а повтор берёт ревизию из ленты Channex заново (`retryEvent` → `pull`). Список разрешённый,
+ * а не запретный: новое поле Channex в журнал не попадёт, пока его сюда не впишут.
  */
 export function sanitizeRevision(
   attrs: channex.ChannexBookingRevisionAttributes,

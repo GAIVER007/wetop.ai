@@ -1903,3 +1903,8 @@
 | 24.09.2026 15:33 | typecheck | ✅ без ошибок | 55 с | 6a0792d +1 | [лог](logs/2026-09-24T10-33-56Z-typecheck-eadd.log) | слитое дерево |
 | 24.09.2026 15:35 | lint | ⏹ прерван | 23 с | 6a0792d +1 | [лог](logs/2026-09-24T10-35-00Z-lint-7c45.log) | слитое дерево |
 | 24.09.2026 15:35 | lint | ✅ без ошибок | 23 с | 6a0792d +1 | [лог](logs/2026-09-24T10-35-40Z-lint-dea5.log) | слитое дерево (повтор: прошлый прерван моим таймаутом 25 с) |
+| 24.09.2026 16:10 | unit | ✅ 1503 из 1506, пропущено 3 | 1 мин 12 с | 21a3597 +1 | [лог](logs/2026-09-24T11-10-42Z-unit-64fd.log) | merged origin/main (Channex feed-only receiving) into the SECURITY plan branch |
+| 24.09.2026 16:11 | typecheck | ✅ без ошибок | 20 с | 21a3597 +1 | [лог](logs/2026-09-24T11-11-55Z-typecheck-8591.log) | merged origin/main (Channex feed-only receiving) into the SECURITY plan branch |
+| 24.09.2026 16:12 | lint | ✅ без ошибок | 15 с | 21a3597 +1 | [лог](logs/2026-09-24T11-12-15Z-lint-e669.log) | merged origin/main (Channex feed-only receiving) into the SECURITY plan branch |
+| 24.09.2026 16:12 | integration | ✅ 50 из 50 | 18 с | 21a3597 +1 | [лог](logs/2026-09-24T11-12-31Z-integration-2e8e.log) | merged origin/main (Channex feed-only receiving) into the SECURITY plan branch, local PostgreSQL 16 |
+| 24.09.2026 16:12 | e2e | ✅ 25 из 25 | 1 мин 28 с | 21a3597 +1 | [лог](logs/2026-09-24T11-12-56Z-e2e-b1c8.log) | merged origin/main (Channex feed-only receiving) into the SECURITY plan branch, local PostgreSQL 16, production build |

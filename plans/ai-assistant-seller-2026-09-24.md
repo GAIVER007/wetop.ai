@@ -1,8 +1,9 @@
 # План: ИИ-помощник и раздел «ИИ-продавец» — задачи платформы П1–П8 (24.09.2026)
 
 **Источник.** ТЗ «ИИ-помощник и раздел «ИИ-продавец» в платформе WETOP», редакция 1 от 24.09.2026 — копия
-`docs/assistant/tz-2026-09-24.md` (тот же текст лежит на ветке бота `ai-seller`, коммит `e48e1d4`,
-`TZ-integratsiya-wetop.md`). Владелец прислал ТЗ, затем поручил: «давай проверяй внимательно что осталось составь
+`docs/assistant/tz-2026-09-24.md` (тот же текст лежит на ветке бота `ai-seller`, `TZ-integratsiya-wetop.md`; копия
+снята с `e48e1d4` и 24.09 вечером обновлена до `3014331d` — уточнения `items`, `x-wetop-service-key`,
+`platform:facts.md`). Владелец прислал ТЗ, затем поручил: «давай проверяй внимательно что осталось составь
 план и заряжай делай все по плану четко». Решение о приёме ТЗ — ADR-075.
 
 **Ветка:** `claude/festive-johnson-0aark9` от `main` `39563c1`. Задачи бота (Б1–Б8) здесь не делаются: их исполняет
@@ -189,3 +190,74 @@
 Код — revert коммитов ветки. База — `down.sql` обеих миграций (таблицы новые, чужих данных в них нет).
 Без переменных окружения всё новое молчит: тега нет, подпись не выдаётся, раздел говорит «не подключён», службы
 сверки и уборки не делают ничего.
+
+## 8. Исполнение (24.09.2026)
+
+| Этап | Шаги | Состояние | Коммит |
+|---|---|---|---|
+| 1 | П1, П2 | сделано | `c3ae230`, `0ad921a` |
+| 2 | П3, П4 | сделано; миграция `20260924000018` | `b8db4dc`, `14bb92a` |
+| 3 | П5, П7, П8 | сделано; миграция `20260924000019` | `7af76cb` |
+| 3–4 | П6 — все шесть экранов, меню, значок | сделано | `028bb1f4` |
+| — | сверка с кодом бота (§9): `items`, песочница, отказы; отказ по содержанию без повтора | сделано | `c628e4bd` |
+| — | П5, П6, П8 под схемы бота Б6, Б7 (§11) | **ждёт владельца** — Q-177, Q-179 | — |
+| 5 | часть 3 | не делается — условия не выполнены | — |
+
+Отклонения от плана: предел документа знаний — 10 МБ, как у продавца (`kb_max_file_mb`), а не 20; ради него предел тела
+серверного действия стойки поднят до 11 МБ. Доказательства и приёмка по пунктам — `reports/ai-assistant-seller-2026-09-24.md`.
+
+## 9. Сверка с кодом бота (24.09.2026, вечер)
+
+Владелец прислал порядок работ: сначала план со списком файлов, потом код; новые таблицы П3 и П5 — `DATA_MODEL.md` и
+миграция с откатом — сначала ему; в `main` без него не сливать; контракт бота молча не менять; расхождение с ТЗ —
+сначала вопрос, потом правка. Сторона бота готова (Б1–Б7), ветка `origin/ai-seller` на `3014331d`; ТЗ там уточнено после
+нашей копии (`items`, `x-wetop-service-key`, `platform:facts.md`). Сверено по коду бота:
+
+| Что | Бот (`origin/ai-seller`) | Платформа до сверки | Итог |
+|---|---|---|---|
+| Подпись П1 | `src/channels/widget_identity.py` | тот же формат | совпадает; проверено кодом бота на эталоне ТЗ и на живых полях (отчёт §7) |
+| Ключ помощника | `x-wetop-service-key` (`src/integrations/wetop.py`) | так же | совпадает |
+| `GET /assistant/errors` — параметры | `userId`, `organizationId`, `since` (Python `isoformat()`), `limit` | так же | совпадает; `since` с микросекундами и смещением принимается (тест) |
+| `GET /assistant/errors` — ответ | `{ items: […] }`, поле `errors` — признак отказа | голый список | **исправлено** — обёртка `items` |
+| `GET /guard/status` | берёт `dbDownSince`, `open.critical` | есть | совпадает |
+| Служебный ключ продавца | `X-Service-Key`, маршруты `SERVICE_ROUTES` под путём панели | так же | совпадает |
+| Песочница | `POST /internal/sandbox` в корне экземпляра, `X-Service-Key` | `POST {SELLER_URL}/sandbox` | **исправлено** — корень адреса `SELLER_URL` |
+| Отказ профиля | `detail: { message, fields }` | понимала строку и список | **исправлено** — причина и названия полей экрана |
+| 403 продавца | «Доступ с этого адреса закрыт», «маршрут закрыт» | всё называла «ключ не принят» | **исправлено** — слова продавца |
+| Диалоги, знания, сводка | как в контракте | так же | совпадает |
+| Профиль (Б6) | `SellerProfile`, `extra='forbid'`: `object_name`, `emoji` ×3, `reply_length` ×2, списки запретов и «звать человека», `extra_charges`, `faq {q, a}` | своя первая редакция | **не совпадает — вопрос Q-177** (таблица §15) |
+| Факты (Б7) | `ObjectFacts`, `extra='forbid'`: плоско, одна цена на категорию | окно цен на 60 дней | **не совпадает — вопросы Q-177, Q-179** |
+
+Поправки сделаны тем же порядком: тест красный на прежнем коде → правка → зелёный (`reports/ai-assistant-seller-2026-09-24.md` §7).
+Там же исправлено найденное перечитыванием П6–П8: версия, отклонённая продавцом по содержанию (400, 422), сверкой раз в
+минуту больше не повторяется — только после правки или по «Применить» (ADR-075).
+
+## 10. Файлы по задачам
+
+Всё — на ветке `claude/festive-johnson-0aark9`; в `main` не слито. Тесты и логи прогонов (`tests/runs/`) не перечислены.
+
+| Задача | Файлы |
+|---|---|
+| П1 | `packages/integrations/src/assistant/{identity.ts, identity.test.ts, index.ts}`, `packages/integrations/src/index.ts`, `apps/api/src/assistant/{assistant.controller.ts, assistant.controller.test.ts, assistant.module.ts}`, `apps/api/src/app.module.ts` |
+| П2 | `apps/web/src/components/shell/{assistant-widget.tsx, assistant-widget-script.tsx, assistant-widget.css}`, `apps/web/src/lib/{assistant-widget.ts, assistant-widget-owner.ts, assistant-widget.test.ts, api.ts}`, `apps/web/src/app/layout.tsx`, `apps/site/src/{site.config.ts, lib/site.ts, lib/site.test.ts, app/layout.tsx}`, `scripts/preview/fixture-api.ts`, `tests/ui/{assistant-widget.spec.ts, fake-assistant.ts, playwright.assistant.config.ts}` |
+| П3 | `DATA_MODEL.md` §14, `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260924000018_user_errors/{migration.sql, down.sql}`, `packages/domain/src/assistant/{user-errors.ts, user-errors.test.ts, index.ts}`, `packages/domain/src/index.ts`, `apps/api/src/assistant/{user-errors.repository.ts, user-errors.module.ts, user-errors-retention.service.ts, user-errors-retention.service.test.ts, assistant.module.ts}`, `apps/api/src/guard/{api-error.filter.ts, api-error.filter.test.ts, guard.module.ts}`, `tests/integration/user-errors.test.ts` |
+| П4 | `apps/api/src/auth/{auth.guard.ts, auth.guard.test.ts}`, `apps/api/src/assistant/{assistant.controller.ts, assistant.controller.test.ts}` |
+| П5 | `DATA_MODEL.md` §15, `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260924000019_seller_profiles/{migration.sql, down.sql}`, `packages/domain/src/ai-seller/{profile.ts, profile.test.ts, index.ts}`, `apps/api/src/ai-seller/seller.repository.ts`, `tests/integration/seller-profiles.test.ts` |
+| П7 | `packages/integrations/src/assistant/{seller-client.ts, seller-client.test.ts}`, `apps/api/src/ai-seller/{seller.connection.ts, seller.service.ts, ai-seller.controller.ts, ai-seller.controller.test.ts, ai-seller.module.ts, fakes.ts}`, `apps/api/src/app.module.ts` |
+| П8 | `packages/domain/src/ai-seller/{facts.ts, facts.test.ts}`, `apps/api/src/ai-seller/{seller.service.ts, seller-sync.service.ts, seller-sync.service.test.ts}` |
+| П6 | `apps/web/src/app/ai-seller/{[[...section]]/page.tsx, actions.ts, forms.tsx, ai-seller.css}`, `apps/web/src/lib/{ai-seller.ts, ai-seller.test.ts, api.ts, navigation.ts}`, `apps/web/src/components/icon.tsx`, `apps/web/next.config.ts`, `scripts/preview/fixture-api.ts`, `tests/ui/{ai-seller.spec.ts, accessibility.spec.ts, navigation.spec.ts, playwright.config.ts}` |
+| Документы | `docs/assistant/{README.md, tz-2026-09-24.md}`, `DATA_MODEL.md`, `DECISIONS.md` (ADR-075), `QUESTIONS.md` (Q-173…Q-179), `SPEC.md`, `SECURITY.md` §13, `DESIGN.md` §7–8, `TESTING.md`, `CLAUDE.md` §2, этот план, `reports/ai-assistant-seller-2026-09-24.md` |
+
+## 11. Переделка П5, П6, П8 под схемы бота Б6 и Б7 — **ждёт владельца** (Q-177, Q-179)
+
+Не начата: меняет таблицу §15, а цена в фактах — решение по деньгам. После «да» по Q-177 и ответа по Q-179:
+
+| Шаг | Файлы |
+|---|---|
+| 1. Таблица §15 в редакции под Б6: `emoji` ×3, `reply_length` ×2, `extra_charges`, `prohibitions` и `call_human_when` — `text[]`, пределы бота | `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260924000019_seller_profiles/{migration.sql, down.sql}` (переписываются: на рабочей базе не применялись), `tests/integration/seller-profiles.test.ts` |
+| 2. Домен: поля и пределы профиля; тело `PUT /seller/profile` по схеме бота (`object_name` из карточки, языки названиями, `faq` → `{q, a}`); факты плоско, одна цена на категорию по ответу Q-179, `kind` `room`/`bed` | `packages/domain/src/ai-seller/{profile.ts, profile.test.ts, facts.ts, facts.test.ts}` |
+| 3. API: сборка тела, отпечаток новых фактов | `apps/api/src/ai-seller/{seller.service.ts, seller.repository.ts, ai-seller.controller.test.ts, seller-sync.service.test.ts}` |
+| 4. Экран «Настройки»: три варианта эмодзи, две длины, запреты и «когда звать человека» списком; «Данные объекта» — цена, которую получает продавец | `apps/web/src/app/ai-seller/{forms.tsx, [[...section]]/page.tsx}`, `apps/web/src/lib/{ai-seller.ts, ai-seller.test.ts, api.ts}`, `scripts/preview/fixture-api.ts`, `tests/ui/ai-seller.spec.ts` |
+| 5. Проверка тел на схемах бота: тела платформы проходят `SellerProfile` и `ObjectFacts` бота (pydantic) без 422 | сценарий сверки в `reports/`, по образцу проверки подписи (отчёт §7) |
+| 6. Документы | `DATA_MODEL.md` §15, `docs/assistant/README.md` §4, отчёт |
+

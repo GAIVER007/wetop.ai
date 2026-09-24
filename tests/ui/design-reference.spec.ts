@@ -124,6 +124,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/incidents');
     await shot(page, 'incidents', theme);
     await page.goto('/rooms');
+    await expect(page).toHaveURL(/\/inventory$/); // с PR #66 /rooms — переход в /inventory
     await shot(page, 'rooms', theme);
   });
 }

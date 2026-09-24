@@ -15,6 +15,8 @@ from src.config import normalize_bot_role
 from src.dashboard.auth_router import require_owner
 from src.dashboard.panel_common import log_action, sessions
 from src.dashboard.panel_settings import _write_atomic
+from src.knowledge.facts import ObjectFacts, replace_facts
+from src.knowledge.ingestor import SuspiciousDocument
 from src.knowledge.prompt import reset_prompt_cache
 
 router = APIRouter()
@@ -46,3 +48,31 @@ async def apply_profile(request: Request, profile: SellerProfile) -> dict:
         log_action(session, action="seller_profile", payload={"length": len(text)})
         await session.commit()
     return {"status": "ok", "length": len(text)}
+
+
+@router.put("/seller/facts", dependencies=[Depends(require_owner)])
+async def apply_facts(request: Request, facts: ObjectFacts) -> dict:
+    """Адрес, заезд, категории и цены из платформы. Заменяют прежние атомарно."""
+    from src.knowledge.embedder import get_embedder
+
+    _require_seller(request)
+    settings = request.app.state.settings
+    async with sessions()() as session:
+        try:
+            status = await replace_facts(
+                session,
+                get_embedder(),
+                facts,
+                max_bytes=settings.kb_max_file_mb * 1024 * 1024,
+                chunk_chars=settings.kb_chunk_chars,
+                overlap=settings.kb_chunk_overlap,
+                min_chars=settings.kb_chunk_min_chars,
+            )
+        except SuspiciousDocument:
+            # Инструкция для модели в поле платформы (адрес, имя категории):
+            # отказ, прежние факты целы — замена откатилась.
+            raise HTTPException(status_code=422, detail="в фактах найдены инструкции для модели") from None
+        if status == "replaced":
+            log_action(session, action="seller_facts", payload={"categories": len(facts.categories)})
+            await session.commit()
+    return {"status": status}

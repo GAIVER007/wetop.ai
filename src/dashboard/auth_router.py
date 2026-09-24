@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -226,6 +227,46 @@ async def submit_code(request: Request, body: CodeIn) -> JSONResponse:
     return _issued(settings, security.issue_token(settings, email=email, role=role, twofa_done=True), "ok")
 
 
+SERVICE_HEADER = "x-service-key"
+SERVICE_ACTOR_EMAIL = "service:platform"
+
+# ТЗ интеграции, Б5: маршруты, которые открывает служебный ключ платформы.
+# 🔴 PUT /prompt здесь нет намеренно: платформа шлёт профиль полями (Б6),
+# и ядро правил продавца владелец объекта переписать не может.
+SERVICE_ROUTES = frozenset({
+    ("GET", "/conversations"),
+    ("GET", "/conversations/{conv_id}"),
+    ("POST", "/conversations/{conv_id}/takeover"),
+    ("POST", "/conversations/{conv_id}/release"),
+    ("POST", "/conversations/{conv_id}/reply"),
+    ("GET", "/knowledge"),
+    ("POST", "/knowledge"),
+    ("GET", "/summary"),
+    ("PUT", "/seller/profile"),
+    ("PUT", "/seller/facts"),
+})
+
+
+def _service_actor(request: Request, settings: Settings, provided: str) -> DashboardUser:
+    """Служебный вход: ключ совпал и маршрут в списке -> временный владелец.
+
+    Маршрут сверяется по шаблону, а не по адресу: подставленный в путь
+    идентификатор не должен выводить запрос за пределы списка.
+    """
+    expected = settings.seller_service_key
+    # Сравнение байтами: compare_digest на строках падает на не-ASCII.
+    if not expected or not secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
+        raise HTTPException(status_code=401, detail=SESSION_EXPIRED)
+    template = getattr(request.scope.get("route"), "path", "")
+    prefix = getattr(request.app.state, "dashboard_path", "")
+    if prefix and template.startswith(prefix):
+        template = template[len(prefix):]
+    if (request.method, template) not in SERVICE_ROUTES:
+        raise HTTPException(status_code=403, detail="Служебному ключу этот маршрут закрыт")
+    # Без записи в базе: обработчики панели смотрят только на роль.
+    return DashboardUser(email=SERVICE_ACTOR_EMAIL, role="owner")
+
+
 async def current_user(request: Request) -> DashboardUser:
     """Вошедший человек. Нет токена, истёк, чужая подпись или не пройден
     второй фактор -> 401.
@@ -237,6 +278,11 @@ async def current_user(request: Request) -> DashboardUser:
     settings = _settings(request)
     if not security.check_ip_allowed(settings, _client_ip(request)):
         raise HTTPException(status_code=403, detail=IP_DENIED)
+    # После проверки адресов, а не до: утёкший ключ не должен открывать
+    # панель из любой точки. Сузили вход — добавьте адрес сервера платформы.
+    provided = request.headers.get(SERVICE_HEADER)
+    if provided is not None:
+        return _service_actor(request, settings, provided)
     payload = security.read_token(_settings(request), _token_from(request))
     if payload is None or not payload.get("tfa"):
         raise HTTPException(status_code=401, detail=SESSION_EXPIRED)

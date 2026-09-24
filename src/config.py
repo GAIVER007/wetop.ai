@@ -219,6 +219,9 @@ class Settings(BaseSettings):
     database_url: str | None = None
     # Пусто — подробная проверка живости закрыта.
     internal_health_key: str = ""
+    # Служебный вход платформы в панель бота (ТЗ интеграции, Б5): раздел
+    # «ИИ-продавец» управляет ботом с сервера. Пусто — вход закрыт.
+    seller_service_key: str = ""
 
     @property
     def sqlalchemy_url(self) -> str:

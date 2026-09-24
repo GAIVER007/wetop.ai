@@ -62,14 +62,19 @@ class CollectSender:
 
 
 def _key_ok(request: Request) -> bool:
-    """Тот же ключ и то же сравнение, что у /internal/health.
-    Пустой ключ в настройках — вход закрыт."""
-    expected = request.app.state.settings.internal_health_key
-    provided = request.headers.get("x-internal-key", "")
-    # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
-    return bool(expected) and secrets.compare_digest(
-        provided.encode("utf-8"), expected.encode("utf-8")
-    )
+    """Внутренний ключ (как у /internal/health) или служебный ключ платформы:
+    экран «Проверка» раздела «ИИ-продавец» говорит с ботом через песочницу.
+    Пустой ключ в настройках этот вход не открывает."""
+    settings = request.app.state.settings
+    for expected, header in (
+        (settings.internal_health_key, "x-internal-key"),
+        (settings.seller_service_key, "x-service-key"),
+    ):
+        provided = request.headers.get(header, "")
+        # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
+        if expected and secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
+            return True
+    return False
 
 
 @router.post("/internal/sandbox")

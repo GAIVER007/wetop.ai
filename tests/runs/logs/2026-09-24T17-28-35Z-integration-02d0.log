@@ -1,0 +1,89 @@
+# Интеграционные (integration) · 24.09.2026 22:28 Алматы · vm
+# коммит 6c10964 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T17-28-35Z-integration-02d0.json' 'tests/integration/seller-profiles.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/seller-profiles.test.ts (6 tests | 3 failed) 612ms
+   ❯ seller_profiles и факты объекта (integration, DATABASE_URL required) (6)
+     × первая правка заводит строку организации и пишет журнал: до — пусто, после — поля 27ms
+     × отметки доставки и ошибки продавца 10ms
+     ✓ языков от одного до шести — правило самой базы 27ms
+     × запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота 19ms
+     ✓ факты: активные категории с числом активных мест, тариф сайта, его цены в окне 35ms
+     ✓ у организации нет объекта — фактов нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > первая правка заводит строку организации и пишет журнал: до — пусто, после — поля
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.findUnique()` invocation:
+
+
+The column `seller_profiles.emoji` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ PrismaSellerProfilesRepository.get apps/api/src/ai-seller/seller.repository.ts:127:15
+    125|
+    126|   async get(organizationId: string): Promise<SellerProfileRow | null> {
+    127|     const r = await this.prisma.db.sellerProfile.findUnique({ where: {…
+       |               ^
+    128|     return r ? rowOf(r as ProfileRecord) : null;
+    129|   }
+ ❯ tests/integration/seller-profiles.test.ts:129:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > отметки доставки и ошибки продавца
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.findUnique()` invocation:
+
+
+The column `seller_profiles.emoji` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ PrismaSellerProfilesRepository.get apps/api/src/ai-seller/seller.repository.ts:127:15
+    125|
+    126|   async get(organizationId: string): Promise<SellerProfileRow | null> {
+    127|     const r = await this.prisma.db.sellerProfile.findUnique({ where: {…
+       |               ^
+    128|     return r ? rowOf(r as ProfileRecord) : null;
+    129|   }
+ ❯ tests/integration/seller-profiles.test.ts:170:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота
+AssertionError: promise resolved "1" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+1
+
+ ❯ tests/integration/seller-profiles.test.ts:207:47
+    205|       );
+    206|     const many = Array.from({ length: 31 }, (_, i) => `Правило ${i + 1…
+    207|     await expect(insert('prohibitions', many)).rejects.toThrow(
+       |                                               ^
+    208|       /seller_profiles_prohibitions_check|check constraint/i,
+    209|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  17:28:35
+   Duration  3.38s (import 34%, tests 33%, transform 32%)
+
+JSON report written to /tmp/pms-test-2026-09-24T17-28-35Z-integration-02d0.json
+
+# код выхода 1 · 4 с

@@ -1260,21 +1260,23 @@ export const assistantApi = {
 // ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-075; контракт — docs/assistant/README.md) ──────────────
 
 export type SellerAddressForm = 'FORMAL' | 'INFORMAL';
-export type SellerReplyLength = 'SHORT' | 'MEDIUM' | 'LONG';
+export type SellerEmoji = 'NEVER' | 'MODERATE' | 'GREETING_ONLY';
+export type SellerReplyLength = 'SHORT' | 'DETAILED';
 
-/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15) */
+/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15, ADR-076) */
 export interface SellerProfileBody {
   botName: string | null;
   addressForm: SellerAddressForm;
-  useEmoji: boolean;
+  emoji: SellerEmoji;
   replyLength: SellerReplyLength;
   languages: string[];
   greeting: string;
   includedInPrice: string;
-  paidExtras: string;
+  extraCharges: string;
   houseRules: string;
-  prohibitions: string;
-  handoffRules: string;
+  /** По одному в строке */
+  prohibitions: string[];
+  callHumanWhen: string[];
   faq: Array<{ question: string; answer: string }>;
 }
 
@@ -1299,26 +1301,39 @@ export interface SellerStatus {
 
 /** Факты объекта ровно в том виде, в каком их получает продавец (`PUT /seller/facts`, snake_case) */
 export interface SellerFactsPayload {
-  source: 'platform:facts';
-  generated_at: string;
-  property: {
-    name: string;
-    address: string | null;
-    timezone: string;
-    currency: string;
-    check_in_time: string;
-    check_out_time: string;
-  };
-  categories: Array<{ code: string; name: string; kind: string; capacity_adults: number; units: number }>;
-  rate_plan: { code: string; name: string } | null;
+  object_name: string;
+  address: string;
+  timezone: string;
+  check_in: string;
+  check_out: string;
+  currency: string;
+  categories: Array<{ name: string; kind: 'room' | 'bed'; capacity: number; price_minor: number | null }>;
+}
+
+/** Цена категории глазами стойки: что ушло продавцу и почему (ADR-076, Q-179) */
+export interface SellerCategoryPrice {
+  code: string;
+  name: string;
+  kind: string;
+  capacity: number;
+  units: number;
+  occupancy: number | null;
+  /** Тиыны строкой — то, что уходит продавцу; `null` — цена не уходит */
+  priceMinor: string | null;
+  reason: 'same' | 'varies' | 'none';
+  min: string | null;
+  max: string | null;
+  days: number;
+}
+
+/** «Данные объекта»: ровно факты, что уходят продавцу, и для экрана — тариф сайта, окно и разбор цен */
+export interface SellerFactsView {
+  facts: SellerFactsPayload;
+  hash: string;
+  applied: boolean;
+  ratePlan: { code: string; name: string; currency: string } | null;
   window: { from: string; to: string };
-  prices: Array<{
-    category_code: string;
-    date: string;
-    guests: number;
-    price_minor: string;
-    price_text: string;
-  }>;
+  prices: SellerCategoryPrice[];
 }
 
 export interface SellerConversationRow {
@@ -1363,8 +1378,7 @@ export const sellerApi = {
     sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),
   apply: () =>
     sendJson<{ profileApplied: boolean; factsApplied: boolean }>('POST', '/ai-seller/apply', {}),
-  facts: () =>
-    getJson<{ facts: SellerFactsPayload; hash: string; applied: boolean }>('/ai-seller/facts'),
+  facts: () => getJson<SellerFactsView>('/ai-seller/facts'),
   conversations: (mode?: string) =>
     getJson<{ items: SellerConversationRow[] }>(
       `/ai-seller/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,

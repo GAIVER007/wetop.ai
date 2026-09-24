@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 24.09.2026 22:47 Алматы · vm
+# коммит 6c10964 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/site/landing.spec.ts:19:1 › чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-076) (10.4s)
+  ✓  2 tests/site/landing.spec.ts:28:3 › / — открывается, доступна и без «TODO» на экране (1.6s)
+  ✓  3 tests/site/landing.spec.ts:43:3 › / — на телефоне нет горизонтальной прокрутки (338ms)
+  ✓  4 tests/site/landing.spec.ts:28:3 › /blog/ — открывается, доступна и без «TODO» на экране (918ms)
+  ✓  5 tests/site/landing.spec.ts:43:3 › /blog/ — на телефоне нет горизонтальной прокрутки (249ms)
+  ✓  6 tests/site/landing.spec.ts:56:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (664ms)
+  ✓  7 tests/site/landing.spec.ts:74:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (103ms)
+  ✓  8 tests/site/landing.spec.ts:95:1 › главная: шаги под заявку без снятых обещаний, блог скрыт без статей, подсказка макета внутри карточки, без « · » (1.9s)
+
+
+  1) tests/site/landing.spec.ts:19:1 › чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-076) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[src="https://assistant.wetop.ai/widget/widget.js"]')
+    Expected: 1
+    Received: 0
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[src="https://assistant.wetop.ai/widget/widget.js"]') with timeout 10000ms
+      - waiting for locator('script[src="https://assistant.wetop.ai/widget/widget.js"]')
+        24 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      20 |   await page.goto('/');
+      21 |   const tag = page.locator(`script[src="${ASSISTANT}/widget/widget.js"]`);
+    > 22 |   await expect(tag).toHaveCount(1);
+         |                     ^
+      23 |   // на главной человек не вошёл: подписи в теге нет
+      24 |   expect(await tag.getAttribute('data-identity')).toBeNull();
+      25 | });
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:22:21
+
+    Error Context: test-results/landing-чат-ИИ-помощника-а-522fc-су-помощника-ТЗ-П2-ADR-076-/error-context.md
+
+  1 failed
+    tests/site/landing.spec.ts:19:1 › чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-076) 
+  7 passed (32.5s)
+
+# код выхода 1 · 34 с

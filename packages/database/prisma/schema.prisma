@@ -1110,28 +1110,38 @@ enum SellerAddressForm {
   INFORMAL
 }
 
-enum SellerReplyLength {
-  SHORT
-  MEDIUM
-  LONG
+/// Эмодзи в ответах продавца — значения модели бота `SellerProfile` (Б6): нет, изредка, только в приветствии
+enum SellerEmoji {
+  NEVER
+  MODERATE
+  GREETING_ONLY
 }
 
-/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-075). Поля экрана «Настройки»,
-/// не текст промпта: ядро правил держит бот. Поля доставки (П8) ведёт платформа. CHECK на число языков — в миграции.
+/// Длина реплик — значения модели бота: коротко или развёрнуто
+enum SellerReplyLength {
+  SHORT
+  DETAILED
+}
+
+/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-075, ADR-076). Поля экрана
+/// «Настройки», не текст промпта: ядро правил держит бот. Перечисления и пределы — модели бота `SellerProfile`. Поля
+/// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
 model SellerProfile {
   organizationId   String            @id @map("organization_id") @db.Uuid
-  botName          String?           @map("bot_name") @db.VarChar(60)
+  botName          String?           @map("bot_name") @db.VarChar(40)
   addressForm      SellerAddressForm @map("address_form")
-  useEmoji         Boolean           @default(false) @map("use_emoji")
+  emoji            SellerEmoji       @default(NEVER)
   replyLength      SellerReplyLength @map("reply_length")
   languages        String[]
-  greeting         String            @default("") @db.VarChar(500)
+  greeting         String            @default("") @db.VarChar(300)
   includedInPrice  String            @default("") @map("included_in_price") @db.VarChar(1000)
-  paidExtras       String            @default("") @map("paid_extras") @db.VarChar(1000)
+  extraCharges     String            @default("") @map("extra_charges") @db.VarChar(1000)
   houseRules       String            @default("") @map("house_rules") @db.VarChar(2000)
-  prohibitions     String            @default("") @db.VarChar(1000)
-  handoffRules     String            @default("") @map("handoff_rules") @db.VarChar(1000)
-  /// [{ question, answer }], до 30 — проверяет домен (`parseSellerProfile`)
+  /// Запреты по одному в строке: до 30 (CHECK в миграции), строка до 300 — проверяет домен
+  prohibitions     String[]          @default([])
+  /// Когда звать человека, по одному в строке: до 30 (CHECK), строка до 300
+  callHumanWhen    String[]          @default([]) @map("call_human_when")
+  /// [{ question, answer }], до 50 — проверяет домен (`parseSellerProfile`)
   faq              Json              @default("[]")
   updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
   updatedBy        String?           @map("updated_by") @db.Uuid

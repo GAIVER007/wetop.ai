@@ -14,9 +14,11 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Профиль ИИ-продавца и факты объекта (DATA_MODEL §15, миграция 20260924000019, ТЗ ред. 1 П5, П8). Проверяется сама
- * база: одна строка на организацию, правка пишет журнал действий, языков от одного до шести; факты берут только
- * активные категории и номера, тариф виджета сайта и его цены в окне. Всё вымышленное (ADR-010), убирается за собой.
+ * Профиль ИИ-продавца и факты объекта (DATA_MODEL §15 v1.8, миграция 20260924000019, ТЗ ред. 1 П5, П8; ADR-076).
+ * Проверяется сама база: одна строка на организацию, правка пишет журнал действий; перечисления и пределы — модели бота
+ * `SellerProfile`: эмодзи тремя значениями, длина двумя, языков от одного до шести, запретов и «когда звать человека»
+ * не больше 30 строк. Факты берут только активные категории и номера, тариф виджета сайта с его валютой и его цены в
+ * окне. Всё вымышленное (ADR-010), убирается за собой.
  */
 describe.skipIf(!url)('seller_profiles и факты объекта (integration, DATABASE_URL required)', () => {
   let db: Db;
@@ -129,12 +131,29 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     expect(saved).toMatchObject({ organizationId: org, botName: 'Айгерим', profileAppliedAt: null });
     const again = await profiles.save(
       org,
-      { ...DEFAULT_SELLER_PROFILE, botName: 'Айгерим', useEmoji: true, faq: [{ question: 'Завтрак?', answer: 'Нет' }] },
+      {
+        ...DEFAULT_SELLER_PROFILE,
+        botName: 'Айгерим',
+        emoji: 'GREETING_ONLY',
+        replyLength: 'DETAILED',
+        extraCharges: 'Трансфер',
+        prohibitions: ['Не курить в номерах', 'Без животных'],
+        callHumanWhen: ['Группа от 6 человек'],
+        faq: [{ question: 'Завтрак?', answer: 'Нет' }],
+      },
       null,
       new Date(now.getTime() + 1_000),
     );
-    expect(again.useEmoji).toBe(true);
+    expect(again).toMatchObject({
+      emoji: 'GREETING_ONLY',
+      replyLength: 'DETAILED',
+      extraCharges: 'Трансфер',
+      prohibitions: ['Не курить в номерах', 'Без животных'],
+      callHumanWhen: ['Группа от 6 человек'],
+    });
     expect(again.faq).toEqual([{ question: 'Завтрак?', answer: 'Нет' }]);
+    // списки читаются из базы теми же, что записаны: порядок строк — порядок правил
+    expect((await profiles.get(org))!.prohibitions).toEqual(['Не курить в номерах', 'Без животных']);
     expect(await db.sellerProfile.count({ where: { organizationId: org } })).toBe(1);
 
     const log = await db.auditLog.findMany({
@@ -143,8 +162,8 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     });
     expect(log.map((l) => l.action)).toEqual(['seller.profile.updated', 'seller.profile.updated']);
     expect(log[0]!.before).toBeNull();
-    expect(log[1]!.before).toMatchObject({ useEmoji: false });
-    expect(log[1]!.after).toMatchObject({ useEmoji: true });
+    expect(log[1]!.before).toMatchObject({ emoji: 'NEVER', prohibitions: [] });
+    expect(log[1]!.after).toMatchObject({ emoji: 'GREETING_ONLY', prohibitions: ['Не курить в номерах', 'Без животных'] });
   });
 
   it('отметки доставки и ошибки продавца', async () => {
@@ -176,6 +195,48 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     );
   });
 
+  it('запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота', async () => {
+    const insert = (column: 'prohibitions' | 'call_human_when', items: string[]) =>
+      db.$executeRawUnsafe(
+        `INSERT INTO seller_profiles (organization_id, address_form, reply_length, languages, ${column}, updated_at)
+         VALUES ($1::uuid, 'FORMAL', 'SHORT', ARRAY['ru'], $2::text[], now())`,
+        emptyOrg,
+        items,
+      );
+    const many = Array.from({ length: 31 }, (_, i) => `Правило ${i + 1}`);
+    await expect(insert('prohibitions', many)).rejects.toThrow(
+      /seller_profiles_prohibitions_check|check constraint/i,
+    );
+    await expect(insert('call_human_when', many)).rejects.toThrow(
+      /seller_profiles_call_human_when_check|check constraint/i,
+    );
+    const withLength = (length: string) =>
+      db.$executeRawUnsafe(
+        `INSERT INTO seller_profiles (organization_id, address_form, reply_length, languages, updated_at)
+         VALUES ($1::uuid, 'FORMAL', $2::"SellerReplyLength", ARRAY['ru'], now())`,
+        emptyOrg,
+        length,
+      );
+    // «средне» и «подробно» первой редакции у бота нет — у базы тоже
+    await expect(withLength('MEDIUM')).rejects.toThrow(/invalid input value for enum/i);
+    const withEmoji = (emoji: string) =>
+      db.$executeRawUnsafe(
+        `INSERT INTO seller_profiles (organization_id, address_form, emoji, reply_length, languages, updated_at)
+         VALUES ($1::uuid, 'FORMAL', $2::"SellerEmoji", 'SHORT', ARRAY['ru'], now())`,
+        emptyOrg,
+        emoji,
+      );
+    await expect(withEmoji('ALWAYS')).rejects.toThrow(/invalid input value for enum/i);
+    // пустые списки по умолчанию — годятся
+    await withEmoji('GREETING_ONLY');
+    expect((await profiles.get(emptyOrg))!).toMatchObject({
+      emoji: 'GREETING_ONLY',
+      prohibitions: [],
+      callHumanWhen: [],
+    });
+    await db.sellerProfile.deleteMany({ where: { organizationId: emptyOrg } });
+  });
+
   it('факты: активные категории с числом активных мест, тариф сайта, его цены в окне', async () => {
     const source = await factsRepo.load(org, now);
     expect(source).not.toBeNull();
@@ -191,7 +252,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
       { code: 'DBL', name: 'Двухместная', kind: 'PRIVATE_ROOM', capacityAdults: 2, units: 2 },
       { code: 'DORM', name: 'Место в общем', kind: 'DORM_BED', capacityAdults: 1, units: 1 },
     ]);
-    expect(source!.ratePlan).toEqual({ code: `SITE-${mark}`, name: 'Базовый тариф' });
+    expect(source!.ratePlan).toEqual({ code: `SITE-${mark}`, name: 'Базовый тариф', currency: 'KZT' });
     expect(source!.window).toEqual({ from: '2026-09-24', to: '2026-11-22' });
     const rates = source!.rates
       .map((r) => `${r.categoryCode} ${r.date} ${r.occupancy} ${r.priceMinor}`)

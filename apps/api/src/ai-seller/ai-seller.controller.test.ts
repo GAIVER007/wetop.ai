@@ -19,7 +19,7 @@ import {
 } from './fakes';
 import { SELLER_CONNECTION, type SellerConfig } from './seller.connection';
 import { SELLER_AUDIT, SELLER_FACTS, SELLER_PROFILES } from './seller.repository';
-import { SellerService } from './seller.service';
+import { SELLER_NO_PROPERTY, SellerService } from './seller.service';
 
 /**
  * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-075). Настоящие замок и автор запроса, подставные продавец
@@ -54,7 +54,7 @@ const factsSource = (): SellerFactsSource => ({
   categories: [
     { code: 'DBL', name: 'Двухместная', kind: 'PRIVATE_ROOM', capacityAdults: 2, units: 4 },
   ],
-  ratePlan: { code: 'BASE', name: 'Базовый тариф' },
+  ratePlan: { code: 'BASE', name: 'Базовый тариф', currency: 'KZT' },
   rates: [{ categoryCode: 'DBL', date: '2026-09-25', occupancy: 2, priceMinor: 1_500_000n }],
   window: { from: '2026-09-24', to: '2026-11-22' },
 });
@@ -62,15 +62,15 @@ const factsSource = (): SellerFactsSource => ({
 const profile = {
   botName: 'Айгерим',
   addressForm: 'INFORMAL',
-  useEmoji: false,
+  emoji: 'NEVER',
   replyLength: 'SHORT',
   languages: ['ru', 'en'],
   greeting: 'Привет!',
   includedInPrice: 'Бельё и Wi-Fi.',
-  paidExtras: '',
+  extraCharges: '',
   houseRules: 'Тишина с 23:00.',
-  prohibitions: '',
-  handoffRules: '',
+  prohibitions: ['Не курить в номерах'],
+  callHumanWhen: [],
   faq: [],
 };
 
@@ -209,10 +209,30 @@ describe('«Применить» (П8)', () => {
     expect(res.body).toMatchObject({ profileApplied: true, factsApplied: true });
     expect(connection.seller.ops()).toEqual(['putProfile', 'putFacts']);
     const [profileCall, factsCall] = connection.seller.calls;
-    expect(profileCall!.args[0]).toMatchObject({ address_form: 'informal', bot_name: 'Айгерим' });
-    expect(factsCall!.args[0]).toMatchObject({
-      source: 'platform:facts',
-      prices: [{ category_code: 'DBL', price_text: '15 000 ₸' }],
+    // тела — ровно модели бота SellerProfile и ObjectFacts (Б6, Б7; ADR-076)
+    expect(profileCall!.args[0]).toEqual({
+      object_name: 'Тестовый хостел',
+      bot_name: 'Айгерим',
+      address_form: 'ty',
+      emoji: 'never',
+      reply_length: 'short',
+      languages: ['русский', 'английский'],
+      greeting: 'Привет!',
+      included_in_price: 'Бельё и Wi-Fi.',
+      extra_charges: '',
+      house_rules: 'Тишина с 23:00.',
+      prohibitions: ['Не курить в номерах'],
+      call_human_when: [],
+      faq: [],
+    });
+    expect(factsCall!.args[0]).toEqual({
+      object_name: 'Тестовый хостел',
+      address: 'Алматы, ул. Вымышленная, 1',
+      timezone: 'Asia/Almaty',
+      check_in: '14:00',
+      check_out: '12:00',
+      currency: 'KZT',
+      categories: [{ name: 'Двухместная', kind: 'room', capacity: 2, price_minor: 1_500_000 }],
     });
     const row = profiles.rows.get(ORG_A)!;
     expect(row.profileAppliedAt?.getTime()).toBe(row.updatedAt.getTime());
@@ -244,6 +264,15 @@ describe('«Применить» (П8)', () => {
     expect(connection.seller.ops()).toEqual([]);
   });
 
+  it('у организации нет объекта — применить нечего: 404 словами, причина в разделе, продавцу ни одного вызова', async () => {
+    await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(200);
+    facts.source = null;
+    const res = await api().post('/ai-seller/apply').set(as('session-a')).expect(404);
+    expect(res.body.message).toBe(SELLER_NO_PROPERTY);
+    expect(connection.seller.ops()).toEqual([]);
+    expect(profiles.rows.get(ORG_A)!.lastError).toBe(SELLER_NO_PROPERTY);
+  });
+
   it('продавец не подключён — 503 и ни одного вызова', async () => {
     connection.settings = { ...baseConfig(), baseUrl: null };
     await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(200);
@@ -255,10 +284,13 @@ describe('«Применить» (П8)', () => {
 describe('данные объекта для продавца', () => {
   it('отдаёт ровно те факты, что уйдут продавцу, и отпечаток', async () => {
     const res = await api().get('/ai-seller/facts').set(as('session-a')).expect(200);
-    expect(res.body.facts).toMatchObject({
-      property: { name: 'Тестовый хостел', check_in_time: '14:00' },
-      rate_plan: { code: 'BASE' },
-    });
+    expect(res.body.facts).toMatchObject({ object_name: 'Тестовый хостел', check_in: '14:00', currency: 'KZT' });
+    // для экрана — ещё тариф сайта, окно и разбор цены по категориям: что ушло продавцу и почему
+    expect(res.body.ratePlan).toEqual({ code: 'BASE', name: 'Базовый тариф', currency: 'KZT' });
+    expect(res.body.window).toEqual({ from: '2026-09-24', to: '2026-11-22' });
+    expect(res.body.prices).toMatchObject([
+      { code: 'DBL', name: 'Двухместная', occupancy: 2, priceMinor: '1500000', reason: 'same', units: 4 },
+    ]);
     expect(res.body.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(res.body.applied).toBe(false);
     expect(facts.asked[0]?.organizationId).toBe(ORG_A);

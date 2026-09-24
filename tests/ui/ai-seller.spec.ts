@@ -60,6 +60,26 @@ test('«вы» → «ты», «Применить» — следующий от�
   await expect(page.getByTestId('sandbox-history')).toContainText('Чем могу тебе помочь?');
 });
 
+test('эмодзи — из трёх вариантов бота, запреты — по одному в строке; после перезагрузки всё на месте (ADR-076)', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller');
+  const emoji = page.getByLabel('Эмодзи');
+  await expect(emoji.locator('option')).toHaveText(['без эмодзи', 'изредка', 'только в приветствии']);
+  await expect(page.getByLabel('Длина реплик').locator('option')).toHaveText(['коротко', 'развёрнуто']);
+  await emoji.selectOption('GREETING_ONLY');
+  await page.getByLabel('Запреты — по одному в строке').fill('Не курить в номерах\n\nБез животных');
+  await page.getByLabel('Когда звать человека — по одному в строке').fill('Группа от 6 человек');
+  await page.getByTestId('seller-apply').click();
+  await expect(page.getByTestId('seller-apply-result')).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByLabel('Эмодзи')).toHaveValue('GREETING_ONLY');
+  // пустая строка — не правило: у продавца список из двух запретов
+  await expect(page.getByLabel('Запреты — по одному в строке')).toHaveValue('Не курить в номерах\nБез животных');
+  await expect(page.getByLabel('Когда звать человека — по одному в строке')).toHaveValue('Группа от 6 человек');
+});
+
 test('без языков «Применить» отказывает словами продавца, введённое не пропадает', async ({ page }) => {
   await page.goto('/ai-seller');
   await page.getByLabel('Имя бота').fill('Айгерим');
@@ -76,7 +96,11 @@ test('«Данные объекта» — только просмотр: фак�
   await expect(facts).toContainText('14:00');
   const table = page.getByRole('region', { name: 'Категории и цены продавца' });
   await expect(table).toContainText('Двухместный номер');
-  await expect(table).toContainText('от 15 000 ₸ до 16 000 ₸');
+  // одна цена весь срок — её продавец и называет; меняется — «уточнит администратор» (ADR-076, Q-179)
+  await expect(table.getByRole('row', { name: /Двухместный номер/ })).toContainText('15 000 ₸ за ночь за 2 гостей');
+  await expect(table.getByRole('row', { name: /Мужской общий номер/ })).toContainText(
+    'уточнит администратор — цена меняется по датам: от 4 500 ₸ до 5 200 ₸',
+  );
   await expect(page.getByRole('link', { name: 'Изменить карточку объекта' })).toHaveAttribute(
     'href',
     '/hotel-settings',
@@ -90,6 +114,9 @@ test('«Данные объекта» — только просмотр: фак�
 test('«Знания»: список и загрузка документа', async ({ page }) => {
   await page.goto('/ai-seller/knowledge');
   await expect(page.getByTestId('seller-knowledge')).toContainText('правила.md');
+  // документ, который бот собирает из «Данных объекта», — словами, а не именем файла
+  await expect(page.getByTestId('seller-knowledge')).toContainText('Данные объекта (от платформы)');
+  await expect(page.getByTestId('seller-knowledge')).not.toContainText('platform:facts.md');
   await page.getByTestId('knowledge-file').setInputFiles({
     name: 'прайс.md',
     mimeType: 'text/markdown',

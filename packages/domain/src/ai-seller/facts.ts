@@ -2,16 +2,24 @@ import { createHash } from 'node:crypto';
 import { localDate } from '../web-analytics/metrics';
 
 /**
- * Факты объекта для ИИ-продавца (ТЗ ред. 1 П8, Б7; docs/assistant/README.md §4): адрес, заезд и выезд, категории и цены
- * по тарифу виджета сайта — из самой платформы. Руками их не перепечатывают: второй прайс в боте разошёлся бы с
- * первым в день смены тарифа (ТЗ §2 п. 1).
+ * Факты объекта для ИИ-продавца (ТЗ ред. 1 П8, Б7; ADR-075, ADR-076; docs/assistant/README.md §4): адрес, заезд и выезд,
+ * категории и цены по тарифу виджета сайта — из самой платформы. Руками их не перепечатывают: второй прайс в боте
+ * разошёлся бы с первым в день смены тарифа (ТЗ §2 п. 1).
+ *
+ * Тело — ровно модель бота `ObjectFacts` (`src/knowledge/facts.py` на ветке `ai-seller`, `extra='forbid'`): у неё одна
+ * цена за ночь на категорию. Цена уходит, только если за окно она не меняется; иначе `null`, и бот говорит «уточнит
+ * администратор» — названная им цена становится обещанием гостю (Q-179). Цены по датам — следующий шаг контракта Б7.
  *
  * Наличия мест в фактах нет: занятость меняется каждую минуту, её отдаст котировка в части 3 ТЗ.
  */
 
-export const SELLER_FACTS_SOURCE = 'platform:facts';
 /** Окно цен — от сегодняшнего дня объекта */
 export const SELLER_FACTS_DAYS = 60;
+/** Так бот называет документ фактов в своих знаниях (источник ставит он сам) */
+export const SELLER_FACTS_DOCUMENT = 'platform:facts.md';
+
+/** Пределы модели бота `ObjectFacts` */
+const LIMITS = { objectName: 120, address: 300, timezone: 64, categories: 50, categoryName: 120, capacity: 50 };
 
 export interface SellerFactsSource {
   property: {
@@ -27,55 +35,49 @@ export interface SellerFactsSource {
     name: string;
     kind: string;
     capacityAdults: number;
-    /** Активных единиц продажи категории */
+    /** Активных единиц продажи категории — для экрана; продавцу не уходит */
     units: number;
   }>;
   /** Тариф виджета бронирования на сайте объекта; `null` — не выбран */
-  ratePlan: { code: string; name: string } | null;
+  ratePlan: { code: string; name: string; currency: string } | null;
   rates: Array<{ categoryCode: string; date: string; occupancy: number; priceMinor: bigint }>;
   window: { from: string; to: string };
 }
 
+/** Тело `PUT /seller/facts` — модель бота `ObjectFacts` (Б7) */
 export interface SellerFactsPayload {
-  source: typeof SELLER_FACTS_SOURCE;
-  generated_at: string;
-  property: {
-    name: string;
-    address: string | null;
-    timezone: string;
-    currency: string;
-    check_in_time: string;
-    check_out_time: string;
-  };
+  object_name: string;
+  address: string;
+  timezone: string;
+  check_in: string;
+  check_out: string;
+  currency: string;
   categories: Array<{
-    code: string;
     name: string;
-    kind: string;
-    capacity_adults: number;
-    units: number;
-  }>;
-  rate_plan: { code: string; name: string } | null;
-  window: { from: string; to: string };
-  prices: Array<{
-    category_code: string;
-    date: string;
-    guests: number;
-    price_minor: string;
-    price_text: string;
+    kind: 'room' | 'bed';
+    capacity: number;
+    /** Целые тиыны (ADR-008); `null` — цены нет, бот скажет «уточнит администратор» */
+    price_minor: number | null;
   }>;
 }
 
-/**
- * Сумма словами для продавца — как деньги на экранах стойки (DESIGN.md §14, `formatMoney` стойки): «12 500 ₸» без
- * тиынов, если сумма целая; «12 500,50 ₸», если нет. Только целые числа: float здесь нет (ADR-008).
- */
-export function priceText(minor: bigint, currency: string): string {
-  const neg = minor < 0n;
-  const abs = neg ? -minor : minor;
-  const whole = (abs / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  const cents = abs % 100n;
-  const tail = cents === 0n ? '' : `,${cents.toString().padStart(2, '0')}`;
-  return `${neg ? '−' : ''}${whole}${tail} ${currency === 'KZT' ? '₸' : currency}`;
+/** Цена категории глазами стойки: что уходит продавцу и почему (экран «Данные объекта») */
+export interface SellerCategoryPrice {
+  code: string;
+  name: string;
+  kind: string;
+  capacity: number;
+  units: number;
+  /** Для скольких гостей цена; `null` — цен нет */
+  occupancy: number | null;
+  /** Что уходит продавцу, тиыны строкой; `null` — цена не уходит */
+  priceMinor: string | null;
+  /** `same` — одна весь срок, уходит; `varies` — меняется, не уходит; `none` — цен в тарифе сайта нет */
+  reason: 'same' | 'varies' | 'none';
+  min: string | null;
+  max: string | null;
+  /** Дней с ценой в окне */
+  days: number;
 }
 
 const addDays = (date: string, n: number): string => {
@@ -90,53 +92,83 @@ export function sellerFactsWindow(now: Date, timezone: string): { from: string; 
   return { from, to: addDays(from, SELLER_FACTS_DAYS - 1) };
 }
 
-/** Тело `PUT /seller/facts`. Цены — по коду категории, дате и числу гостей: порядок не зависит от выборки */
-export function buildSellerFacts(source: SellerFactsSource, generatedAt: Date): SellerFactsPayload {
-  const currency = source.property.currency;
+const byCode = <T extends { code: string }>(list: readonly T[]): T[] =>
+  [...list].sort((a, b) => a.code.localeCompare(b.code));
+
+/**
+ * Какая цена уходит продавцу по каждой категории (ADR-076, Q-179): цена за ночь при наибольшем числе гостей, на которое
+ * она есть в тарифе сайта (у «Двухместной» — за двоих; у остальных категорий цена от числа гостей не зависит, строка
+ * одна), и только если за окно она ни разу не меняется. Сравнение — целыми (BigInt), без float.
+ */
+export function sellerCategoryPrices(source: SellerFactsSource): SellerCategoryPrice[] {
+  return byCode(source.categories).map((c): SellerCategoryPrice => {
+    const capacity = Math.max(1, c.capacityAdults);
+    const rows = source.ratePlan
+      ? source.rates.filter((r) => r.categoryCode === c.code && r.occupancy <= capacity)
+      : [];
+    const base = { code: c.code, name: c.name, kind: c.kind, capacity, units: c.units };
+    if (rows.length === 0)
+      return { ...base, occupancy: null, priceMinor: null, reason: 'none', min: null, max: null, days: 0 };
+    const occupancy = Math.max(...rows.map((r) => r.occupancy));
+    const at = rows.filter((r) => r.occupancy === occupancy);
+    let min = at[0]!.priceMinor;
+    let max = min;
+    for (const r of at) {
+      if (r.priceMinor < min) min = r.priceMinor;
+      if (r.priceMinor > max) max = r.priceMinor;
+    }
+    const same = min === max;
+    return {
+      ...base,
+      occupancy,
+      priceMinor: same ? min.toString() : null,
+      reason: same ? 'same' : 'varies',
+      min: min.toString(),
+      max: max.toString(),
+      days: new Set(at.map((r) => r.date)).size,
+    };
+  });
+}
+
+/** Время заезда и выезда — ЧЧ:ММ, как требует бот (в карточке бывает и «14:00:00», и «9:30») */
+const hhmm = (value: string): string => {
+  const m = /^(\d{1,2}):(\d{2})/.exec(value.trim());
+  return m ? `${m[1]!.padStart(2, '0')}:${m[2]}` : value.trim();
+};
+
+/** Цена числом для тела: тиыны больше безопасного целого JavaScript — не шлём, чем исказить */
+const minorNumber = (minor: string | null): number | null => {
+  if (minor === null) return null;
+  const n = BigInt(minor);
+  return n <= BigInt(Number.MAX_SAFE_INTEGER) && n >= 0n ? Number(n) : null;
+};
+
+/**
+ * Тело `PUT /seller/facts`. Категории — по коду: порядок не зависит от выборки. Адрес длиннее предела бота не режется,
+ * а не шлётся: обрезанный адрес бот назвал бы гостю как настоящий.
+ */
+export function buildSellerFacts(source: SellerFactsSource): SellerFactsPayload {
   const address = source.property.address?.trim() ?? '';
-  const prices = source.ratePlan
-    ? [...source.rates]
-        .sort(
-          (a, b) =>
-            a.categoryCode.localeCompare(b.categoryCode) ||
-            a.date.localeCompare(b.date) ||
-            a.occupancy - b.occupancy,
-        )
-        .map((r) => ({
-          category_code: r.categoryCode,
-          date: r.date,
-          guests: r.occupancy,
-          price_minor: r.priceMinor.toString(),
-          price_text: priceText(r.priceMinor, currency),
-        }))
-    : [];
+  const prices = new Map(sellerCategoryPrices(source).map((p) => [p.code, p]));
   return {
-    source: SELLER_FACTS_SOURCE,
-    generated_at: generatedAt.toISOString(),
-    property: {
-      name: source.property.name,
-      address: address === '' ? null : address,
-      timezone: source.property.timezone,
-      currency,
-      check_in_time: source.property.checkInTime,
-      check_out_time: source.property.checkOutTime,
-    },
-    categories: source.categories.map((c) => ({
-      code: c.code,
-      name: c.name,
-      kind: c.kind,
-      capacity_adults: c.capacityAdults,
-      units: c.units,
-    })),
-    rate_plan: source.ratePlan ? { code: source.ratePlan.code, name: source.ratePlan.name } : null,
-    window: { from: source.window.from, to: source.window.to },
-    prices,
+    object_name: source.property.name.trim().slice(0, LIMITS.objectName),
+    address: address.length > LIMITS.address ? '' : address,
+    timezone: source.property.timezone.slice(0, LIMITS.timezone),
+    check_in: hhmm(source.property.checkInTime),
+    check_out: hhmm(source.property.checkOutTime),
+    currency: source.ratePlan?.currency ?? source.property.currency,
+    categories: byCode(source.categories)
+      .slice(0, LIMITS.categories)
+      .map((c) => ({
+        name: c.name.trim().slice(0, LIMITS.categoryName),
+        kind: c.kind === 'DORM_BED' ? ('bed' as const) : ('room' as const),
+        capacity: Math.min(Math.max(1, c.capacityAdults), LIMITS.capacity),
+        price_minor: minorNumber(prices.get(c.code)?.priceMinor ?? null),
+      })),
   };
 }
 
-/** Отпечаток фактов — SHA-256 без времени сборки: по нему служба сверки решает, слать ли продавцу заново */
+/** Отпечаток фактов — SHA-256 тела: по нему служба сверки решает, слать ли продавцу заново */
 export function sellerFactsHash(payload: SellerFactsPayload): string {
-  // undefined JSON.stringify пропускает: время сборки в отпечаток не попадает
-  const stable = { ...payload, generated_at: undefined };
-  return createHash('sha256').update(JSON.stringify(stable), 'utf8').digest('hex');
+  return createHash('sha256').update(JSON.stringify(payload), 'utf8').digest('hex');
 }

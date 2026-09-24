@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   SELLER_TABS,
+  categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
   conversationStageLabel,
+  knowledgeSourceLabel,
   leadFacts,
-  priceRanges,
   sellerBanner,
   sellerProfileFromForm,
 } from './ai-seller';
-import type { SellerFactsPayload, SellerStatus } from './api';
+import type { SellerCategoryPrice, SellerStatus } from './api';
 
 /** Раздел «ИИ-продавец» стойки (ТЗ ред. 1 П6): то, что экраны считают сами, без API */
 
@@ -98,20 +99,20 @@ describe('sellerBanner — полоса состояния над экранам
 });
 
 describe('sellerProfileFromForm — поля формы «Настройки» в тело PUT /ai-seller/profile', () => {
-  it('флажки, языки по порядку и частые вопросы по строкам', () => {
+  it('выпадающие списки, языки по порядку, запреты и «когда звать человека» — по одному в строке', () => {
     const form = new FormData();
     form.set('botName', ' Айгерим ');
     form.set('addressForm', 'INFORMAL');
-    form.set('useEmoji', 'on');
-    form.set('replyLength', 'MEDIUM');
+    form.set('emoji', 'GREETING_ONLY');
+    form.set('replyLength', 'DETAILED');
     form.append('languages', 'ru');
     form.append('languages', 'en');
     form.set('greeting', 'Привет!');
     form.set('includedInPrice', 'Бельё');
-    form.set('paidExtras', '');
+    form.set('extraCharges', 'Трансфер');
     form.set('houseRules', 'Тишина с 23:00');
-    form.set('prohibitions', '');
-    form.set('handoffRules', '');
+    form.set('prohibitions', 'Не курить в номерах\r\n\n  Без животных  \n');
+    form.set('callHumanWhen', '');
     form.set('faqCount', '2');
     form.set('faq-question-0', 'Парковка?');
     form.set('faq-answer-0', 'Нет');
@@ -120,15 +121,15 @@ describe('sellerProfileFromForm — поля формы «Настройки» �
     expect(sellerProfileFromForm(form)).toEqual({
       botName: ' Айгерим ',
       addressForm: 'INFORMAL',
-      useEmoji: true,
-      replyLength: 'MEDIUM',
+      emoji: 'GREETING_ONLY',
+      replyLength: 'DETAILED',
       languages: ['ru', 'en'],
       greeting: 'Привет!',
       includedInPrice: 'Бельё',
-      paidExtras: '',
+      extraCharges: 'Трансфер',
       houseRules: 'Тишина с 23:00',
-      prohibitions: '',
-      handoffRules: '',
+      prohibitions: ['Не курить в номерах', 'Без животных'],
+      callHumanWhen: [],
       faq: [
         { question: 'Парковка?', answer: 'Нет' },
         { question: '', answer: '' },
@@ -136,56 +137,62 @@ describe('sellerProfileFromForm — поля формы «Настройки» �
     });
   });
 
-  it('снятый флажок эмодзи — false; число строк вопросов не больше 30 даже при подделке', () => {
+  it('число строк вопросов не больше 50 даже при подделке', () => {
     const form = new FormData();
     form.set('faqCount', '1000');
-    const body = sellerProfileFromForm(form);
-    expect(body.useEmoji).toBe(false);
-    expect(body.faq).toHaveLength(30);
+    expect(sellerProfileFromForm(form).faq).toHaveLength(50);
   });
 });
 
-describe('priceRanges — цены продавца по категориям для «Данных объекта»', () => {
-  const facts = (prices: SellerFactsPayload['prices']): SellerFactsPayload => ({
-    source: 'platform:facts',
-    generated_at: '2026-09-24T09:00:00.000Z',
-    property: {
-      name: 'Хостел',
-      address: null,
-      timezone: 'Asia/Almaty',
-      currency: 'KZT',
-      check_in_time: '14:00',
-      check_out_time: '12:00',
-    },
-    categories: [
-      { code: 'DBL', name: 'Двухместная', kind: 'PRIVATE_ROOM', capacity_adults: 2, units: 4 },
-      { code: 'DORM', name: 'Место', kind: 'DORM_BED', capacity_adults: 1, units: 18 },
-    ],
-    rate_plan: { code: 'BASE', name: 'Базовый тариф' },
-    window: { from: '2026-09-24', to: '2026-11-22' },
-    prices,
+describe('categoryPriceLine — цена категории в «Данных объекта»: что знает продавец и почему', () => {
+  const price = (over: Partial<SellerCategoryPrice>): SellerCategoryPrice => ({
+    code: 'DBL',
+    name: 'Двухместная',
+    kind: 'PRIVATE_ROOM',
+    capacity: 2,
+    units: 4,
+    occupancy: 2,
+    priceMinor: '1500000',
+    reason: 'same',
+    min: '1500000',
+    max: '1500000',
+    days: 60,
+    ...over,
   });
 
-  it('от и до по каждой категории, числом дней; без цен — null', () => {
-    const p = (category_code: string, date: string, price_minor: string) => ({
-      category_code,
-      date,
-      guests: 1,
-      price_minor,
-      price_text: '',
+  it('одна цена весь срок — её продавец и называет; для нескольких гостей — за скольких', () => {
+    expect(categoryPriceLine(price({}), 'KZT')).toEqual({
+      value: '15 000 ₸ за ночь за 2 гостей',
+      note: null,
+      known: true,
     });
+    expect(categoryPriceLine(price({ occupancy: 1 }), 'KZT').value).toBe('15 000 ₸ за ночь');
+  });
+
+  it('цена меняется — продавец скажет «уточнит администратор», стойка показывает разброс', () => {
     expect(
-      priceRanges(
-        facts([
-          p('DBL', '2026-09-24', '1500000'),
-          p('DBL', '2026-09-25', '990000'),
-          p('DBL', '2026-09-25', '10000000'),
-        ]),
+      categoryPriceLine(price({ reason: 'varies', priceMinor: null, min: '450000', max: '520000' }), 'KZT'),
+    ).toEqual({
+      value: 'уточнит администратор',
+      note: 'цена меняется по датам: от 4 500 ₸ до 5 200 ₸',
+      known: false,
+    });
+  });
+
+  it('цены нет — тоже «уточнит администратор»', () => {
+    expect(
+      categoryPriceLine(
+        price({ reason: 'none', priceMinor: null, min: null, max: null, occupancy: null, days: 0 }),
+        'KZT',
       ),
-    ).toEqual([
-      { code: 'DBL', name: 'Двухместная', units: 4, capacity: 2, min: '990000', max: '10000000', days: 2 },
-      { code: 'DORM', name: 'Место', units: 18, capacity: 1, min: null, max: null, days: 0 },
-    ]);
+    ).toEqual({ value: 'уточнит администратор', note: 'в тарифе сайта цены нет', known: false });
+  });
+});
+
+describe('knowledgeSourceLabel — документы в «Знаниях»', () => {
+  it('документ фактов бота — словами, а не именем файла; остальные — как загружены', () => {
+    expect(knowledgeSourceLabel('platform:facts.md')).toBe('Данные объекта (от платформы)');
+    expect(knowledgeSourceLabel('прайс.md')).toBe('прайс.md');
   });
 });
 

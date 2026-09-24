@@ -1,5 +1,6 @@
 import type { BadgeTone } from '../components/ui';
-import type { SellerFactsPayload, SellerProfileBody, SellerStatus } from './api';
+import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
+import { formatMoney } from './money';
 
 /**
  * Раздел «ИИ-продавец» стойки (ТЗ ред. 1 П6, ADR-075): то, что экраны считают сами. Без зависимостей от сервера —
@@ -18,8 +19,10 @@ export const SELLER_TABS = [
 
 export type SellerView = (typeof SELLER_TABS)[number]['view'];
 
-/** Предел строк частых вопросов — как в домене (`SELLER_PROFILE_LIMITS.faqItems`) */
-export const FAQ_MAX = 30;
+/** Предел строк частых вопросов — как в домене и у бота (`SELLER_PROFILE_LIMITS.faqItems`) */
+export const FAQ_MAX = 50;
+/** Строк в «Запретах» и «Когда звать человека» — как у бота (`SELLER_PROFILE_LIMITS.listItems`) */
+export const LIST_MAX = 30;
 
 export interface SellerBanner {
   tone: 'alarm' | 'warn' | 'calm';
@@ -87,24 +90,32 @@ const text = (form: FormData, name: string): string => {
   return typeof value === 'string' ? value : '';
 };
 
+/** Поле «по одному в строке» → список: края строк обрезаются, пустые строки — не правила */
+const lines = (form: FormData, name: string): string[] =>
+  text(form, name)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+
 /**
  * Поля формы «Настройки» → тело `PUT /ai-seller/profile`. Проверяет API (домен `parseSellerProfile`): здесь только
- * сборка, края пробелов не трогаются. Строки частых вопросов — `faq-question-N` / `faq-answer-N`, их число — `faqCount`.
+ * сборка, края пробелов не трогаются. «Запреты» и «Когда звать человека» — по одному в строке, у продавца это списки.
+ * Строки частых вопросов — `faq-question-N` / `faq-answer-N`, их число — `faqCount`.
  */
 export function sellerProfileFromForm(form: FormData): SellerProfileBody {
   const count = Math.min(Math.max(Number(text(form, 'faqCount')) || 0, 0), FAQ_MAX);
   return {
     botName: text(form, 'botName'),
     addressForm: text(form, 'addressForm') as SellerProfileBody['addressForm'],
-    useEmoji: form.get('useEmoji') === 'on',
+    emoji: text(form, 'emoji') as SellerProfileBody['emoji'],
     replyLength: text(form, 'replyLength') as SellerProfileBody['replyLength'],
     languages: form.getAll('languages').filter((v): v is string => typeof v === 'string'),
     greeting: text(form, 'greeting'),
     includedInPrice: text(form, 'includedInPrice'),
-    paidExtras: text(form, 'paidExtras'),
+    extraCharges: text(form, 'extraCharges'),
     houseRules: text(form, 'houseRules'),
-    prohibitions: text(form, 'prohibitions'),
-    handoffRules: text(form, 'handoffRules'),
+    prohibitions: lines(form, 'prohibitions'),
+    callHumanWhen: lines(form, 'callHumanWhen'),
     faq: Array.from({ length: count }, (_, i) => ({
       question: text(form, `faq-question-${i}`),
       answer: text(form, `faq-answer-${i}`),
@@ -112,39 +123,30 @@ export function sellerProfileFromForm(form: FormData): SellerProfileBody {
   };
 }
 
-export interface PriceRange {
-  code: string;
-  name: string;
-  units: number;
-  capacity: number;
-  /** Тиыны строкой (ADR-008); `null` — цен в окне нет */
-  min: string | null;
-  max: string | null;
-  /** Дней с ценой в окне */
-  days: number;
+/**
+ * Цена категории в «Данных объекта»: ровно то, что продавец скажет гостю (ADR-076, Q-179). Одна цена весь срок — она;
+ * иначе продавец говорит «уточнит администратор», а стойка объясняет почему.
+ */
+export function categoryPriceLine(
+  price: SellerCategoryPrice,
+  currency: string,
+): { value: string; note: string | null; known: boolean } {
+  if (price.reason === 'same' && price.priceMinor !== null) {
+    const guests = price.occupancy && price.occupancy > 1 ? ` за ${price.occupancy} гостей` : '';
+    return { value: `${formatMoney(price.priceMinor, currency)} за ночь${guests}`, note: null, known: true };
+  }
+  if (price.reason === 'varies' && price.min !== null && price.max !== null)
+    return {
+      value: 'уточнит администратор',
+      note: `цена меняется по датам: от ${formatMoney(price.min, currency)} до ${formatMoney(price.max, currency)}`,
+      known: false,
+    };
+  return { value: 'уточнит администратор', note: 'в тарифе сайта цены нет', known: false };
 }
 
-/** Цены продавца по категориям: от и до за окно фактов. Сравнение — целыми (BigInt), без float */
-export function priceRanges(facts: SellerFactsPayload): PriceRange[] {
-  return facts.categories.map((c) => {
-    const rows = facts.prices.filter((p) => p.category_code === c.code);
-    let min: bigint | null = null;
-    let max: bigint | null = null;
-    for (const r of rows) {
-      const v = BigInt(r.price_minor);
-      if (min === null || v < min) min = v;
-      if (max === null || v > max) max = v;
-    }
-    return {
-      code: c.code,
-      name: c.name,
-      units: c.units,
-      capacity: c.capacity_adults,
-      min: min === null ? null : min.toString(),
-      max: max === null ? null : max.toString(),
-      days: new Set(rows.map((r) => r.date)).size,
-    };
-  });
+/** Документ фактов, который бот собирает из «Данных объекта» (`platform:facts.md`), — словами, а не именем файла */
+export function knowledgeSourceLabel(source: string): string {
+  return source === 'platform:facts.md' ? 'Данные объекта (от платформы)' : source;
 }
 
 /** Режим диалога словами стойки; «нужен человек» — пометка, которую ищут глазами (ТЗ §4.1) */

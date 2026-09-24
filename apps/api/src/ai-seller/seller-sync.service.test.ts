@@ -28,7 +28,7 @@ const source = (price = 1_500_000n): SellerFactsSource => ({
     checkOutTime: '12:00',
   },
   categories: [{ code: 'DBL', name: 'Двухместная', kind: 'PRIVATE_ROOM', capacityAdults: 2, units: 4 }],
-  ratePlan: { code: 'BASE', name: 'Базовый тариф' },
+  ratePlan: { code: 'BASE', name: 'Базовый тариф', currency: 'KZT' },
   rates: [{ categoryCode: 'DBL', date: '2026-09-25', occupancy: 2, priceMinor: price }],
   window: { from: '2026-09-24', to: '2026-11-22' },
 });
@@ -83,16 +83,40 @@ describe('SellerService.syncOnce', () => {
       profile: false,
       facts: true,
     });
-    const sent = connection.seller.calls[0]!.args[0] as { prices: Array<{ price_text: string }> };
-    expect(sent.prices[0]!.price_text).toBe('16 000 ₸');
+    // бот деньги не форматирует за платформу и не считает: ему уходят целые тиыны (ADR-008)
+    const sent = connection.seller.calls[0]!.args[0] as { categories: Array<{ price_minor: number | null }> };
+    expect(sent.categories[0]!.price_minor).toBe(1_600_000);
   });
 
   it('профиль поправили, пока он уходил продавцу, — отправится ещё раз', async () => {
     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
     await service.syncOnce(now);
-    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, useEmoji: true }, null, new Date(now.getTime() + 1));
+    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, new Date(now.getTime() + 1));
     connection.seller.calls = [];
     expect(await service.syncOnce(new Date(now.getTime() + 60_000))).toMatchObject({ profile: true });
+  });
+
+  it('название объекта в карточке поменялось — профиль уходит заново: бот представляется именем из карточки', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await service.syncOnce(now);
+    connection.seller.calls = [];
+    const renamed = source();
+    renamed.property.name = 'Хостел на Абая';
+    facts.source = renamed;
+    expect(await service.syncOnce(new Date(now.getTime() + 60_000))).toEqual({ profile: true, facts: true });
+    const [profileCall, factsCall] = connection.seller.calls;
+    expect(profileCall!.args[0]).toMatchObject({ object_name: 'Хостел на Абая' });
+    expect(factsCall!.args[0]).toMatchObject({ object_name: 'Хостел на Абая' });
+  });
+
+  it('у организации нет объекта — продавцу не уходит ничего, причина словами и с повтором', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    facts.source = null;
+    expect(await service.syncOnce(now)).toEqual({
+      failed: 'У организации нет объекта: факты для продавца собрать не из чего',
+      retry: true,
+    });
+    expect(connection.seller.ops()).toEqual([]);
   });
 
   it('продавец недоступен — ошибка запомнена, исключения нет; следующая минута доставляет и снимает ошибку', async () => {
@@ -145,7 +169,7 @@ describe('SellerService: отказ по содержанию не повтор�
     expect(connection.seller.ops()).toEqual([]);
 
     delete connection.seller.failOn.putProfile;
-    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, useEmoji: true }, null, minute(3));
+    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, minute(3));
     expect(await service.syncOnce(minute(4))).toEqual({ profile: true, facts: false });
     expect(profiles.rows.get(ORG)!.lastError).toBeNull();
   });

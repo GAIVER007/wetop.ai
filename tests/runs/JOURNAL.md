@@ -2108,3 +2108,8 @@
 | 24.09.2026 23:45 | integration | ✅ 63 из 63 | 22 с | 6f83e01 | [лог](logs/2026-09-24T18-45-23Z-integration-e9c6.log) | объединённое дерево после PR #66 |
 | 24.09.2026 23:45 | e2e | ❌ упало 1 из 25 | 1 мин 17 с | 6f83e01 | [лог](logs/2026-09-24T18-45-58Z-e2e-faf3.log) | живые сквозные, объединённое дерево после PR #66 |
 | 24.09.2026 23:47 | e2e | ✅ 25 из 25 | 1 мин 5 с | 6f83e01 +1 | [лог](logs/2026-09-24T18-47-50Z-e2e-330d.log) | живые сквозные: inventory.spec под вид списком (PR #66) |
+| 24.09.2026 23:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 356 | 24 мин 59 с | ed40adf | [лог](logs/2026-09-24T18-49-17Z-e2e-a54e.log) | полный UI: объединённое дерево после PR #66 |
+| 25.09.2026 00:14 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 17 с | 7ac8fed | [лог](logs/2026-09-24T19-14-17Z-e2e-1bc2.log) | стенд помощника после PR #66 |
+| 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 7 | 7 с | 7ac8fed +1 | [лог](logs/2026-09-24T19-14-48Z-unit-d84d.log) | автовыкладка --migrations-applied: red |
+| 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 7 из 7 | 8 с | 7ac8fed +2 | [лог](logs/2026-09-24T19-14-56Z-unit-2189.log) | автовыкладка --migrations-applied: green |
+| 25.09.2026 00:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/r | ✅ 42 из 42 | 8 мин 16 с | 7ac8fed +5 | [лог](logs/2026-09-24T19-15-10Z-e2e-42b1.log) | тесты стойки под /rooms → /inventory (PR #66) |

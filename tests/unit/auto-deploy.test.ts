@@ -35,8 +35,8 @@ function commit(file: string, text: string, message: string, force = false) {
   return git(dev, 'rev-parse', 'HEAD');
 }
 
-function run(env: Record<string, string> = {}) {
-  const r = spawnSync('bash', [SCRIPT], {
+function run(env: Record<string, string> = {}, args: string[] = []) {
+  const r = spawnSync('bash', [SCRIPT, ...args], {
     encoding: 'utf8',
     env: {
       ...process.env,
@@ -131,6 +131,20 @@ describe('scripts/ops/auto-deploy.sh', () => {
     const again = run();
     expect(again.code).toBe(0);
     expect(again.out).toBe('');
+  });
+
+  it('владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину', () => {
+    const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    expect(run().code).toBe(1);
+    const r = run({}, ['--migrations-applied']);
+    expect(r.code, r.out).toBe(0);
+    expect(head()).toBe(target);
+    expect(dockerCalls()).toMatch(/up -d --build api web/);
+    // флаг — только на этот запуск: следующая миграция снова ждёт владельца
+    commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
+    const next = run();
+    expect(next.code).toBe(1);
+    expect(next.out).toContain('0003_next');
   });
 
   it('локальные правки в клоне — не затирает их', () => {

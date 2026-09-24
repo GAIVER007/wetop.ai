@@ -103,17 +103,12 @@ test('новые фильтры шахматки, список броней и �
     .getByRole('link', { name: /^Отменены/ })
     .click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
+  // Карточки номеров с PR #66 живут в /inventory (/rooms — переход туда); фильтры, поиск и вид
+  // каталога проверяет inventory-catalog.spec
   await page.goto('/rooms');
-  await expect(page.locator('.room-card')).toHaveCount(16);
+  await expect(page).toHaveURL(/\/inventory$/);
+  await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/rooms-light.png` });
-  // Пока страница догружается, в DOM на миг есть скрытая копия фильтров — ищем в видимом main
-  const rooms = page.getByRole('main');
-  await rooms.getByLabel('Тип единиц').selectOption('BED');
-  await expect(page.locator('.room-card')).toHaveCount(72);
-  await rooms.getByLabel('Поиск номеров').fill('M03');
-  await expect(page.locator('.room-card')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Список', exact: true }).click();
-  await expect(page.locator('.room-cards')).toHaveClass(/room-cards--list/);
 });
 test('новые страницы и обе темы: адаптивность и отсутствие ошибок браузера', async ({ page }) => {
   test.setTimeout(180000);
@@ -129,7 +124,7 @@ test('новые страницы и обе темы: адаптивность �
     '/chessboard',
     '/reservations',
     '/guests',
-    '/rooms',
+    '/inventory',
     '/finance',
     '/profile',
     '/login',

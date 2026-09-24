@@ -15,7 +15,9 @@
 # Выложил — проверяет: /health API, /login стойки (200) и что страницы без входа не падают (не 5xx). Не прошло —
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
-#   scripts/ops/auto-deploy.sh            одна проверка (так его зовёт cron)
+#   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
+#   scripts/ops/auto-deploy.sh --migrations-applied   владелец применил миграции этой вершины — выложить её
+#                                                     без проверки миграций; остальные проверки и откат остаются
 #
 # DEPLOY_REPO        клон на сервере (/root/wetop)
 # DEPLOY_BRANCH      ветка выкладки (release)
@@ -35,6 +37,8 @@ IMAGE="${DEPLOY_IMAGE:-pms-lux}"
 WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
 ENV_FILE="$REPO/.env"
+APPLIED=0
+[ "${1:-}" = --migrations-applied ] && APPLIED=1
 
 # git pull меняет и этот файл, а bash читает скрипт по ходу исполнения: работаем с копией
 if [ -z "${AUTO_DEPLOY_COPY:-}" ]; then
@@ -86,7 +90,7 @@ short() { git rev-parse --short=8 "$1"; }
 
 [ "$target" != "$current" ] || exit 0
 # Эту вершину уже отказались выкладывать — сказали один раз, ждём следующий коммит или человека
-[ "$(cat "$STATE/refused" 2>/dev/null || true)" != "$target" ] || exit 0
+[ "$APPLIED" = 1 ] || [ "$(cat "$STATE/refused" 2>/dev/null || true)" != "$target" ] || exit 0
 
 refuse() {
   printf '%s\n' "$target" >"$STATE/refused"
@@ -99,8 +103,8 @@ refuse() {
 git merge-base --is-ancestor "$current" "$target" ||
   refuse "новая вершина $BRANCH не продолжает текущую — история переписана, нужна выкладка руками"
 migrations="$(git diff --name-only "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
-[ -z "$migrations" ] ||
-  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем выкладка руками по docs/deploy.md §1а"
+[ -z "$migrations" ] || [ "$APPLIED" = 1 ] ||
+  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: $0 --migrations-applied"
 
 compose=(docker compose -f deploy/compose.yml)
 [ -f deploy/compose.hostinger.yml ] && compose+=(-f deploy/compose.hostinger.yml)

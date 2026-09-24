@@ -1986,6 +1986,18 @@
 | 24.09.2026 22:20 | typecheck | ✅ без ошибок | 56 с | 7a04641 +9 | [лог](logs/2026-09-24T17-20-35Z-typecheck-e41a.log) |  |
 | 24.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts --workers=1) | ✅ 4 из 4 | 32 с | 7a04641 +9 | [лог](logs/2026-09-24T17-21-46Z-e2e-2e44.log) | Короткая бронь: имя целиком в двух строках; финальные продление, отмена и отказы |
 | 24.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --grep шахматк --workers=1) | ✅ 2 из 2 | 24 с | 7a04641 +9 | [лог](logs/2026-09-24T17-22-39Z-e2e-cbdc.log) | Регрессия существующего меню шахматки: продлить на ночь, цена, отмена, клавиатура |
+| 24.09.2026 22:25 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ❌ упало 8 из 90 | 5 с | c5b9529 +5 | [лог](logs/2026-09-24T17-25-36Z-unit-17ca.log) | ADR-076 red: storozh nochnoy kopii do realizatsii |
+| 24.09.2026 22:27 | unit (частично: tests/unit/db-backup.test.ts tests/unit/deploy-server.test.ts packages/domain/src/incidents/signals.test.ts apps/api/src/guard/guard.service.tes | ✅ 93 из 93 | 2 с | c5b9529 +13 | [лог](logs/2026-09-24T17-27-35Z-unit-1b05.log) | ADR-076 green: storozh nochnoy kopii |
+| 24.09.2026 22:27 | typecheck | ✅ без ошибок | 24 с | c5b9529 +14 | [лог](logs/2026-09-24T17-27-51Z-typecheck-49e4.log) |  |
+| 24.09.2026 22:28 | lint | ✅ без ошибок | 14 с | c5b9529 +14 | [лог](logs/2026-09-24T17-28-16Z-lint-c892.log) |  |
+| 24.09.2026 22:30 | unit | ✅ 1530 из 1533, пропущено 3 | 1 мин 12 с | c5b9529 +13 | [лог](logs/2026-09-24T17-30-03Z-unit-8529.log) | ADR-076: storozh nochnoy kopii, polnyy nabor |
+| 24.09.2026 22:31 | typecheck | ✅ без ошибок | 17 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-36Z-typecheck-d8f5.log) |  |
+| 24.09.2026 22:31 | lint | ✅ без ошибок | 12 с | c5b9529 +14 | [лог](logs/2026-09-24T17-31-53Z-lint-fe48.log) |  |
+| 24.09.2026 22:32 | integration | ✅ 53 из 53 | 17 с | c5b9529 +12 | [лог](logs/2026-09-24T17-32-20Z-integration-3935.log) |  |
+| 24.09.2026 22:36 | typecheck | ✅ без ошибок | 21 с | 2d0e90a | [лог](logs/2026-09-24T17-36-23Z-typecheck-6d53.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | lint | ✅ без ошибок | 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-44Z-lint-f5ba.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:36 | unit | ❌ упало 4 из 1535, пропущено 3 | 1 мин 12 с | 2d0e90a | [лог](logs/2026-09-24T17-36-56Z-unit-d1f8.log) | ADR-077 posle rebase na main s PR 64 |
+| 24.09.2026 22:39 | integration | ✅ 53 из 53 | 16 с | 2d0e90a | [лог](logs/2026-09-24T17-39-07Z-integration-5909.log) | ADR-077 posle rebase na main s PR 64 |
 | 24.09.2026 22:33 | unit (частично: apps/api/src/inventory/inventory-input.test.ts) | ❌ код выхода 1 | 2 с | e9182f5 +4 | [лог](logs/2026-09-24T17-33-01Z-unit-c651.log) | (файл не выполнился) |
 | 24.09.2026 22:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 2 из 2 | 1 мин 22 с | e9182f5 +22 | [лог](logs/2026-09-24T17-39-57Z-e2e-22e7.log) | category creation, rename, room creation and reload |
 | 24.09.2026 22:42 | unit (частично: apps/api/src/inventory/inventory-input.test.ts apps/api/src/inventory/inventory.controller.test.ts) | ✅ 6 из 6 | 3 с | e9182f5 +21 | [лог](logs/2026-09-24T17-42-26Z-unit-c447.log) |  |
@@ -2003,3 +2015,7 @@
 | 24.09.2026 22:56 | lint | ✅ без ошибок | 37 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-02Z-lint-2349.log) |  |
 | 24.09.2026 22:56 | typecheck | ✅ без ошибок | 32 с | e9182f5 +28 | [лог](logs/2026-09-24T17-56-41Z-typecheck-01d7.log) |  |
 | 24.09.2026 22:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --grep dark categories --workers=1) | ✅ 1 из 1 | 44 с | e9182f5 +27 | [лог](logs/2026-09-24T17-58-38Z-e2e-d73c.log) |  |
+| 24.09.2026 23:46 | typecheck | ✅ без ошибок | 24 с | 704a032 | [лог](logs/2026-09-24T18-46-05Z-typecheck-b0ae.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | lint | ✅ без ошибок | 14 с | 704a032 | [лог](logs/2026-09-24T18-46-29Z-lint-3da4.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:46 | unit | ❌ упало 7 из 1538, пропущено 3 | 1 мин 12 с | 704a032 | [лог](logs/2026-09-24T18-46-43Z-unit-041c.log) | ADR-078: sliyanie main s PR 66 |
+| 24.09.2026 23:48 | integration | ✅ 54 из 54 | 17 с | 704a032 | [лог](logs/2026-09-24T18-48-23Z-integration-148c.log) | ADR-078: sliyanie main s PR 66 |

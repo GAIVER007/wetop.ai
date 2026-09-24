@@ -8,6 +8,7 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import {
+  BACKUP_STALE_MS,
   POLICY,
   REALERT_MS,
   alertDue,
@@ -36,6 +37,7 @@ import {
   GUARD_HEARTBEAT,
   GUARD_PROBES,
   type AlertNotifier,
+  type BackupSignal,
   type FixOutcome,
   type GuardFixes,
   type GuardHeartbeat,
@@ -85,6 +87,39 @@ const ddmm = (day: string) => `${day.slice(8, 10)}.${day.slice(5, 7)}`;
 const hhmm = (d: Date) => new Date(d.getTime() + 5 * 60 * MIN).toISOString().slice(11, 16);
 const minutes = (ms: number) => Math.round(ms / MIN);
 const errText = (e: unknown) => redactText(e instanceof Error ? e.message : String(e));
+
+/**
+ * Ночная копия базы (ADR-078). Копия старше BACKUP_STALE_MS, статуса нет или он не читается — одна неисправность
+ * `backup.stale`; заголовок говорит, что именно: часы и последняя копия, «не найден» или код ошибки чтения.
+ */
+function backupObservations(b: BackupSignal, now: Date): Observation[] {
+  if (b.state === 'ok') {
+    const age = now.getTime() - b.status.at.getTime();
+    if (age < BACKUP_STALE_MS) return [];
+    return [
+      {
+        kind: 'backup.stale',
+        title: `Ночной копии базы нет ${Math.floor(age / (60 * MIN))} ч: последняя — ${ddmm(almatyDay(b.status.at))} ${hhmm(b.status.at)} по Алматы, ${b.status.file}`,
+        details: {
+          lastOkAt: b.status.at.toISOString(),
+          file: b.status.file,
+          tables: b.status.tables,
+        },
+      },
+    ];
+  }
+  return [
+    {
+      kind: 'backup.stale',
+      title:
+        b.state === 'missing'
+          ? 'Ночной копии базы нет: статус копии не найден — cron на сервере её не снимал или папка статуса не смонтирована'
+          : `Статус ночной копии базы не читается (${b.error}) — свежесть копии не подтвердить`,
+      details:
+        b.state === 'missing' ? { status: 'missing' } : { status: 'unreadable', error: b.error },
+    },
+  ];
+}
 
 function toOpen(r: IncidentRow): OpenIncident {
   return {
@@ -527,6 +562,13 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           ? []
           : [{ kind: 'web.down', title: 'Стойка PMS не отвечает', details: { error: w.error } }];
       });
+
+    // Ночная копия базы (ADR-078): статус пишет cron на сервере, сторож его только читает. Не настроено (null) —
+    // вид не проверен, и открытая неисправность не закрывается: «не смог посмотреть» ≠ «починилось»
+    if (this.probes.enabled('backup')) {
+      const backup = this.probes.backup();
+      if (backup) await run('backup', ['backup.stale'], () => backupObservations(backup, now));
+    }
 
     const ariDue =
       !this.ariCheckedAt || now.getTime() - this.ariCheckedAt.getTime() >= ARI_EVERY_MS;

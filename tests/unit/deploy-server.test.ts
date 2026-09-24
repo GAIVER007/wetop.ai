@@ -223,6 +223,17 @@ describe('deploy/compose.yml', () => {
   it('ключ туннеля монтируется только на чтение', () => {
     expect(COMPOSE).toContain('./cloudflared:/etc/cloudflared:ro');
   });
+
+  it('сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение', () => {
+    // ADR-078. В копиях хеши паролей и почты сотрудников — API они не нужны, ему нужна одна дата. Смонтируй
+    // по ошибке всю /root/backups — и дамп базы окажется в контейнере, который смотрит в интернет через туннель.
+    const api = service('api');
+    expect(api).toContain('/root/backups/status:/backup-status:ro');
+    expect(api).toMatch(/GUARD_BACKUP_STATUS:\s*\/backup-status\/last\.json/);
+    expect(withoutComments(api)).not.toMatch(/\/root\/backups(?!\/status:)/);
+    // сторож читает ровно то, что пишет скрипт копии
+    expect(read('scripts/ops/db-backup.sh')).toContain('status/last.json');
+  });
 });
 
 describe('контекст сборки', () => {

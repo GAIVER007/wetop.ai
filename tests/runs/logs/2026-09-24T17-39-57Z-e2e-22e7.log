@@ -1,0 +1,452 @@
+# Сквозные (e2e) · 24.09.2026 22:39 Алматы · MacBook-Air-Urij.local
+# коммит e9182f5 (codex/inventory-workspace), незакоммиченных файлов набора: 22
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/fund-workspace.spec.ts' '--workers=1'
+[WebServer] (node:39225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:39358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/lib/session.ts:1:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/lib/session.ts:1:1)
+[WebServer] [browser] ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component] 
+  ✘  1 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (45.4s)
+(node:39628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⨯ ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer] [browser] Uncaught Error: ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer] 
+[WebServer]     at <unknown> (Error: ./apps/web/src/lib/session.ts:1:1)
+[WebServer]     at <unknown> (Error: (./apps/web/src/lib/session.ts:1:1)
+[WebServer] [browser] ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component] 
+[WebServer] [browser] ./apps/web/src/lib/session.ts:1:1
+[WebServer] Error: You're importing a module that depends on "next/headers". This API is only available in Server Components in the App Router, but you are using it in the Pages Router.
+[WebServer]     Learn more: https://nextjs.org/docs/app/building-your-application/rendering/server-components
+[WebServer] > 1 | import { cookies, headers } from 'next/headers';
+[WebServer]     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   2 | import type { AuthClientInfo } from './api';
+[WebServer]   3 | import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+[WebServer]   4 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] Import traces:
+[WebServer]   #1 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/lib/api.ts
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #2 [Server Component]:
+[WebServer]     ./apps/web/src/lib/session.ts
+[WebServer]     ./apps/web/src/app/login/actions.ts
+[WebServer]     ./apps/web/src/components/shell/account-menu.tsx
+[WebServer]     ./apps/web/src/app/layout.tsx
+[WebServer] 
+[WebServer]   #3 [Client Component Browser]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component Browser]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component]
+[WebServer] 
+[WebServer]   #4 [Client Component SSR]:
+[WebServer]     ./apps/web/src/lib/session.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/lib/hotel-api.ts [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Client Component SSR]
+[WebServer]     ./apps/web/src/app/rooms/availability-finder.tsx [Server Component]
+[WebServer]     ./apps/web/src/app/rooms/[[...section]]/page.tsx [Server Component] 
+  ✘  2 tests/ui/fund-workspace.spec.ts:27:1 › availability preserves exact unit and dates; responsive category design (17.1s)
+
+
+  1) tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload ─────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '+ Категория', exact: true }).first()
+
+
+      3 | test('category creation, rename, room creation and reload', async ({page})=>{
+      4 |  await page.goto('/rooms/categories');
+    > 5 |  await page.getByRole('button',{name:'+ Категория',exact:true}).first().click();
+        |                                                                         ^
+      6 |  await page.getByLabel('Название категории').fill('Тестовая новая категория');
+      7 |  await page.getByRole('button',{name:'Создать',exact:true}).click();
+      8 |  const category=page.locator('.fund-category').filter({hasText:'Тестовая новая категория'});
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/fund-workspace.spec.ts:5:73
+
+    Error Context: test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-category-cr-f0a18-me-room-creation-and-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/fund-workspace.spec.ts:27:1 › availability preserves exact unit and dates; responsive category design 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Свободно на весь срок' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Свободно на весь срок' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Свободно на весь срок' })
+
+
+      27 | test('availability preserves exact unit and dates; responsive category design',async({page})=>{
+      28 |  await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27');
+    > 29 |  await expect(page.getByRole('heading',{name:'Свободно на весь срок'})).toBeVisible();
+         |                                                                         ^
+      30 |  await page.locator('.fund-availability summary').first().click();
+      31 |  const link=page.locator('.fund-book-unit').first();
+      32 |  await expect(link).toHaveAttribute('href',/arrival=2026-09-24&departure=2026-09-27&unit=/);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/fund-workspace.spec.ts:29:73
+
+    Error Context: test-results/fund-workspace-availabilit-7f64f--responsive-category-design/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-availabilit-7f64f--responsive-category-design/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload ──────
+    tests/ui/fund-workspace.spec.ts:27:1 › availability preserves exact unit and dates; responsive category design 
+
+# код выхода 1 · 1 мин 22 с

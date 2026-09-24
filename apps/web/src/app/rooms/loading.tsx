@@ -5,7 +5,7 @@ import { LoadingState, Skeleton } from '../../components/ui';
 export default function Loading() {
   return (
     <Page title="Номера">
-      <LoadingState label="Загружаем номера и занятость…" data-testid="rooms-loading">
+      <LoadingState label="Загружаем номерной фонд…" data-testid="rooms-loading">
         <div className="stats">
           <Skeleton variant="stat" />
           <Skeleton variant="stat" />

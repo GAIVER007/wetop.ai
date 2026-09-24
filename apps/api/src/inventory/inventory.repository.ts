@@ -21,6 +21,7 @@ export interface InventoryReadModel {
 /** Порт чтения фонда. В тестах подменяется фальшивкой без БД. */
 export interface InventoryRepository {
   read(): Promise<InventoryReadModel | null>;
+  invalidate?(propertyId: string): void;
 }
 
 export const INVENTORY_REPOSITORY = Symbol('INVENTORY_REPOSITORY');
@@ -42,6 +43,10 @@ export class PrismaInventoryRepository implements InventoryRepository {
   >();
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  invalidate(propertyId: string): void {
+    this.cached.delete(propertyId);
+  }
 
   async read(): Promise<InventoryReadModel | null> {
     // Объект организации вошедшего — id из property-ref (по имени читать нельзя, имена между

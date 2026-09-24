@@ -23,3 +23,11 @@ def test_monitor_is_a_separate_process() -> None:
 
 def test_app_has_healthcheck_on_public_health() -> None:
     assert "http://127.0.0.1:8000/health" in COMPOSE_TEXT
+
+
+def test_postgres_18_volume_is_mounted_one_level_up() -> None:
+    """С 18-й версии образ Postgres кладёт данные в подкаталог версии и
+    отказывается стартовать, если том смонтирован в .../data: база «unhealthy»,
+    app и monitor не поднимаются. Поймано живым docker compose up."""
+    assert "pgdata:/var/lib/postgresql\n" in COMPOSE_TEXT
+    assert "pgdata:/var/lib/postgresql/data" not in COMPOSE_TEXT

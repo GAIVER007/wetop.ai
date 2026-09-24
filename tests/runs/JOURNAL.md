@@ -1920,3 +1920,9 @@
 | 24.09.2026 16:26 | lint | ❌ ошибок: 1 | 15 с | 924db9b +10 | [лог](logs/2026-09-24T11-26-06Z-lint-af65.log) | Н12: print requisites from the property record |
 | 24.09.2026 16:26 | lint | ✅ без ошибок | 15 с | 924db9b +10 | [лог](logs/2026-09-24T11-26-31Z-lint-cde0.log) | green: lint after print requisites test fix |
 | 24.09.2026 16:26 | unit (частично: apps/web/src/app/reservations/[number]/print/) | ✅ 7 из 7 | 1 с | 924db9b +10 | [лог](logs/2026-09-24T11-26-47Z-unit-dbb3.log) | print requisites test without unused binding |
+| 24.09.2026 16:27 | unit | ✅ 1507 из 1510, пропущено 3 | 1 мин 12 с | 8d9e2df | [лог](logs/2026-09-24T11-27-32Z-unit-9fe5.log) | continued on my own: merged main, retention schedule, print requisites from the property record |
+| 24.09.2026 16:28 | typecheck | ✅ без ошибок | 20 с | 8d9e2df | [лог](logs/2026-09-24T11-28-45Z-typecheck-2e69.log) | continued on my own: merged main, retention schedule, print requisites from the property record |
+| 24.09.2026 16:29 | lint | ✅ без ошибок | 15 с | 8d9e2df | [лог](logs/2026-09-24T11-29-06Z-lint-75ed.log) | continued on my own: merged main, retention schedule, print requisites from the property record |
+| 24.09.2026 16:29 | integration | ✅ 51 из 51 | 18 с | 8d9e2df | [лог](logs/2026-09-24T11-29-21Z-integration-bd74.log) | continued on my own: merged main, retention schedule, print requisites from the property record, local PostgreSQL 16 |
+| 24.09.2026 16:29 | e2e | ✅ 25 из 25 | 1 мин 26 с | 8d9e2df | [лог](logs/2026-09-24T11-29-51Z-e2e-815e.log) | continued on my own: merged main, retention schedule, print requisites from the property record, local PostgreSQL 16, production build |
+| 24.09.2026 16:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 336 из 336 | 25 мин 44 с | 8d9e2df | [лог](logs/2026-09-24T11-31-17Z-e2e-868a.log) | continued on my own: merged main, retention schedule, print requisites from the property record: full UI suite |

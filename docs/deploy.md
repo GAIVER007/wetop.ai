@@ -212,7 +212,8 @@ API отвечал на запросы, ни один из которых не �
    Копии задавать `DATABASE_POOL_MAX=3` и меньше.
 2. **Выключить всё фоновое.** У копии не должно быть ни сторожа, ни опроса ленты Channex, ни очереди ARI,
    ни полной выгрузки, ни проверки webhook: `GUARD=off`, `CHANNEX_PULL=off`, `CHANNEX_OUTBOX_WORKER=off`,
-   `CHANNEX_FULL_SYNC=off`, `CHANNEX_WEBHOOK_HEALTH=off`, плюс `deploy/ari.env` с `CHANNEX_ARI=off`.
+   `CHANNEX_FULL_SYNC=off`, `CHANNEX_WEBHOOK_HEALTH=off`, `ANALYTICS_RETENTION=off` (суточная очистка счётчика сайта,
+   с 24.09.2026), плюс `deploy/ari.env` с `CHANNEX_ARI=off`.
    Иначе две копии тянут одну ленту, сторожат один адрес и чинят наперегонки.
 
 Синхронизацию Exely у копии не поднимать вовсе: два синхронизатора на одной базе — это гонка за одни и те же

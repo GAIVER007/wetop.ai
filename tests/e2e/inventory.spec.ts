@@ -27,6 +27,8 @@ test('фильтр по категории оставляет только её 
   expect(double).toBeDefined();
   await page.goto(`/inventory?category=${encodeURIComponent(double.code)}`);
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(4);
+  // с PR #66 по умолчанию список; группа с именем категории — в виде карточками
+  await page.goto(`/inventory?category=${encodeURIComponent(double.code)}&view=cards`);
   await expect(
     page.getByRole('region', { name: double.name, exact: true }).getByTestId('unit-row'),
   ).toHaveCount(4);

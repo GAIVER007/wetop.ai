@@ -2113,3 +2113,6 @@
 | 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 7 | 7 с | 7ac8fed +1 | [лог](logs/2026-09-24T19-14-48Z-unit-d84d.log) | автовыкладка --migrations-applied: red |
 | 25.09.2026 00:14 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 7 из 7 | 8 с | 7ac8fed +2 | [лог](logs/2026-09-24T19-14-56Z-unit-2189.log) | автовыкладка --migrations-applied: green |
 | 25.09.2026 00:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/r | ✅ 42 из 42 | 8 мин 16 с | 7ac8fed +5 | [лог](logs/2026-09-24T19-15-10Z-e2e-42b1.log) | тесты стойки под /rooms → /inventory (PR #66) |
+| 25.09.2026 00:23 | typecheck | ✅ без ошибок | 22 с | 2137b48 | [лог](logs/2026-09-24T19-23-40Z-typecheck-ae36.log) | итог объединённого дерева |
+| 25.09.2026 00:24 | lint | ✅ без ошибок | 16 с | 2137b48 | [лог](logs/2026-09-24T19-24-02Z-lint-4ed8.log) | итог объединённого дерева |
+| 25.09.2026 00:24 | unit | ✅ 1729 из 1732, пропущено 3 | 1 мин 12 с | 2137b48 | [лог](logs/2026-09-24T19-24-19Z-unit-e873.log) | итог объединённого дерева |

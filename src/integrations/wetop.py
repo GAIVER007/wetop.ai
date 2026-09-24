@@ -17,13 +17,14 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import date, datetime
 
 import httpx
 
 from src.config import Settings
 from src.integrations.providers import (
     Availability,
+    Incident,
     LeadRef,
     ProviderUnavailable,
     Quote,
@@ -33,6 +34,8 @@ from src.integrations.wetop_parse import (
     as_int,
     body_reason,
     categories,
+    parse_health,
+    parse_incident,
     currency,
     free_units,
     has_error,
@@ -42,6 +45,12 @@ from src.integrations.wetop_parse import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Адреса помощника у платформы (ТЗ интеграции, П4) и заголовок узкого ключа:
+# платформа читает служебные ключи из x-wetop-service-key (auth.guard.ts).
+PATH_ERRORS = "/assistant/errors"
+PATH_GUARD_STATUS = "/guard/status"
+KEY_HEADER = "x-wetop-service-key"
 
 PATH_AVAILABILITY = "/w/availability"
 PATH_BOOK = "/w/book"
@@ -88,10 +97,10 @@ class WetopProviders:
         """Запрос к WETOP. Любой отказ — ProviderUnavailable с коротким кодом.
 
         🔴 Ключ уходит заголовком, а не параметром адреса: адреса пишутся
-        в журналы прокси целиком. Конкретный заголовок подставляется после
-        решения по Q-166 — меняется одной строкой.
+        в журналы прокси целиком. Заголовок — тот, из которого платформа
+        читает служебные ключи (x-wetop-service-key, auth.guard.ts).
         """
-        headers = {"Authorization": f"Bearer {self._api_key}"}
+        headers = {KEY_HEADER: self._api_key}
         try:
             response = await self._http.request(
                 method,
@@ -243,3 +252,49 @@ class WetopProviders:
             logger.error("wetop: бронь без идентификатора в ответе")
             raise ProviderUnavailable("no_external_id")
         return LeadRef(external_id=str(raw_id), created=True)
+
+
+    # ─── Помощник платформы (ТЗ интеграции, Б1 поверх П4) ───
+
+    async def recent_for_user(
+        self, *, user_id: str | None, org_id: str | None, since: datetime, limit: int
+    ) -> list[Incident]:
+        """Ошибки, которые видел этот человек. Спрашиваем только о подписанном:
+        userId и organizationId обязательны и в контракте платформы."""
+        if not user_id or not org_id:
+            return []
+        body = await self._request(
+            "GET",
+            PATH_ERRORS,
+            params={
+                "userId": user_id,
+                "organizationId": org_id,
+                "since": since.isoformat(),
+                "limit": limit,
+            },
+        )
+        # Обёртка «items», а не «errors»: поле errors проверка тела считает
+        # признаком отказа, и каждый удачный ответ читался бы как сбой.
+        items = body.get("items")
+        if not isinstance(items, list):
+            raise ProviderUnavailable("bad_body")
+        out: list[Incident] = []
+        for item in items:
+            incident = parse_incident(item)
+            if incident is None:
+                # Кривая запись не роняет ответ: остальные ошибки человеку нужнее.
+                logger.warning("wetop %s: запись без времени или текста пропущена", PATH_ERRORS)
+                continue
+            out.append(incident)
+        return out[:limit]
+
+    async def search(self, *, text: str, since: datetime, limit: int) -> list[Incident]:
+        """Поиска по журналу у платформы нет: честно пусто, а не догадка."""
+        return []
+
+    async def status(self) -> HealthReport:
+        """Состояние из сторожа платформы. 🔴 Берём только «в порядке или нет»
+        и короткий список сбоев: в ответе сторожа есть адреса получателей
+        оповещений, и пользователю помощника они уходить не должны."""
+        return parse_health(await self._request("GET", PATH_GUARD_STATUS))
+

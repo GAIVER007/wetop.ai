@@ -12,6 +12,10 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
+from src.integrations.providers import HealthReport, Incident
+
 import logging
 from typing import Any
 
@@ -156,3 +160,42 @@ def per_night_minor(item: dict) -> list[int] | None:
         return None
     values = [as_int(v) for v in raw]
     return [v for v in values if v is not None] or None
+
+
+def parse_incident(item: object) -> Incident | None:
+    """Запись журнала платформы -> Incident. Без времени или текста — None."""
+    if not isinstance(item, dict):
+        return None
+    message = item.get("message")
+    raw_at = item.get("at")
+    if not isinstance(message, str) or not message.strip() or not isinstance(raw_at, str):
+        return None
+    try:
+        at = datetime.fromisoformat(raw_at.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    section = item.get("section") if isinstance(item.get("section"), str) else None
+    status = as_int(item.get("status"))
+    return Incident(
+        at=at,
+        kind=f"http_{status}" if status else "error",
+        summary=message.strip(),
+        section=section,
+        ref=None,
+    )
+
+
+def parse_health(body: dict) -> HealthReport:
+    """Ответ сторожа платформы -> «в порядке или нет» и короткий список сбоев.
+
+    🔴 Из ответа берём только это: в нём есть адреса получателей оповещений,
+    и пользователю помощника они уходить не должны.
+    """
+    opened = body.get("open") if isinstance(body.get("open"), dict) else {}
+    critical = as_int(opened.get("critical")) or 0
+    degraded: list[str] = []
+    if body.get("dbDownSince"):
+        degraded.append("база данных недоступна")
+    if critical:
+        degraded.append(f"критических неисправностей: {critical}")
+    return HealthReport(ok=not degraded, degraded=degraded, checked_at=datetime.now().astimezone())

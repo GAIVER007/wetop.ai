@@ -75,7 +75,7 @@ export function CategoryCatalog({
                   </div>
                 </dl>
                 <details>
-                  <summary>Показать состав · {members.length}</summary>
+                  <summary>Показать состав ({members.length})</summary>
                   <div className="fund-members">
                     {members.length ? (
                       members.map((u) => (
@@ -101,7 +101,7 @@ export function CategoryCatalog({
                     Настроить тарифы
                   </Link>
                   <Link href={`/chessboard?category=${encodeURIComponent(c.code)}`}>
-                    В шахматке →
+                    Открыть в шахматке
                   </Link>
                 </div>
               </article>

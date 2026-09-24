@@ -176,15 +176,14 @@ export function AvailabilityFinder({
                     <details>
                       <summary>
                         {(c.availability?.available ?? 0) > 0
-                          ? 'Выбрать номер / койку'
-                          : 'Нет свободных мест'}{' '}
-                        · {c.availability?.available ?? 0}
+                          ? `Выбрать номер или койку, свободно ${c.availability?.available ?? 0}`
+                          : 'Нет свободных мест'}
                       </summary>
                       <div className="fund-members">
                         {c.availability?.availableUnitCodes.map((code) => (
                           <Link key={code} className="fund-book-unit" href={booking(code)}>
                             {c.bed ? 'Койка' : 'Номер'} {code}
-                            <span>Создать бронь →</span>
+                            <span>Создать бронь</span>
                           </Link>
                         ))}
                       </div>
@@ -201,7 +200,7 @@ export function AvailabilityFinder({
                 className="btn btn--secondary"
                 href={`/chessboard?${new URLSearchParams({ from: arrival, to: plusDays(departure, -1), ...(category ? { category } : {}) })}`}
               >
-                В шахматке →
+                Открыть в шахматке
               </Link>
             </div>
           </>

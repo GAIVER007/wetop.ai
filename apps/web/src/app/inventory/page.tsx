@@ -37,8 +37,12 @@ export default async function InventoryPage() {
       {!summary.totalUnits && (
         <section className="fund-empty">
           <h2>Создайте свой номерной фонд</h2>
-          <p>1. Добавьте категорию · 2. Создайте номера или койки · 3. Настройте тарифы</p>
-          <Link href="/onboarding">Первоначальная настройка с ценами →</Link>
+          <ol>
+            <li>Добавьте категорию</li>
+            <li>Создайте номера или койки</li>
+            <li>Настройте тарифы</li>
+          </ol>
+          <Link href="/onboarding">Первоначальная настройка с ценами</Link>
         </section>
       )}
       <dl className="inventory-summary" data-testid="inventory-summary">

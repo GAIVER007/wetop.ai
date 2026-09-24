@@ -327,3 +327,28 @@
     `tests/ui/ai-seller.spec.ts`.
 - Слияние: 31 файл с конфликтами по пробному слиянию (`git merge-tree`) — перечисленные выше и `tests/ui/accessibility.spec.ts`.
 - Не трогаю: `apps/ai-seller/` (код бота), `main`, объединённую ветку, PR #65.
+
+## 13. Сторож: схема Prisma и миграции не расходятся (24.09.2026, поздний вечер; «делай что осталось»)
+
+Остаток из `reports/schema-drift-2026-09-24.md`. Расхождение `schema.prisma` с миграциями нашлось только ручной сверкой,
+а следующий `prisma migrate dev` вписал бы его в чужую миграцию. `--from-migrations` без `migration_lock.toml` не
+работает, поэтому сверять можно только с базой, которую построили миграции. Такая база уже есть в
+`scripts/ops/check-migrations.sh` (`_mig_after` — вся цепочка на пустом PostgreSQL).
+
+**Шаги.**
+
+1. В скрипт, сразу после сборки `_mig_after` целиком, добавляется
+   `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code`:
+   - код 0 — `ok`;
+   - код 2 — `FAIL` и первые операторы расхождения;
+   - иное — `FAIL` с причиной;
+   - нет CLI Prisma — тоже `FAIL`, а не пропуск: молчание не доказательство.
+2. Адрес — только временная `_mig_after`. `DIRECT_URL` и `DATABASE_URL` заданы явно: иначе `prisma.config.ts` взял бы
+   `DIRECT_URL` из `.env`, то есть рабочую базу.
+3. В CI задание `db` ставит зависимости до проверки миграций (`npm ci`, `prisma generate`), иначе сверять нечем.
+   Задание сейчас не идёт (бюджет Actions), порядок — на будущее.
+4. Красное → зелёное: на схеме до `e505a601` скрипт падает на сверке и печатает те же операторы, на текущей — `ok`.
+   Вывод обоих прогонов — в `reports/schema-drift-2026-09-24.md`. Это не набор `test:record`, как и сам `migrate diff`.
+
+**Файлы:** `scripts/ops/check-migrations.sh`, `.github/workflows/checks.yml`, `TESTING.md` (строка про скрипт),
+`reports/schema-drift-2026-09-24.md`.

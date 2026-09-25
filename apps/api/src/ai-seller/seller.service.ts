@@ -97,6 +97,8 @@ export interface SellerStatus {
   embedAvailable: boolean;
   /** Расширение организации; `null` — организации нет (служебный ходок без привязанной копии) */
   extension: AiSellerAccessView | null;
+  /** Подключена ли копия продавца к этой организации — отдельно от расширения: после срока диалоги читаются, если она есть */
+  connection: 'not-configured' | 'other-organization' | 'ready';
   /** Может ли вошедший менять настройки: владелец организации и действующее расширение */
   canConfigure: boolean;
 }
@@ -329,6 +331,7 @@ export class SellerService {
         }),
       embedAvailable: this.connection.config().publicUrl !== null,
       extension,
+      connection,
       canConfigure: actorIsOwner() && extension?.access === 'active',
     };
   }

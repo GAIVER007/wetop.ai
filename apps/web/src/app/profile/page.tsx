@@ -1,68 +1,18 @@
-'use client';
-import { Page } from '../../components/page';
-import { Icon } from '../../components/icon';
-import { useTheme, type Theme } from '../../components/theme-provider';
-import { RecordTabs } from '../../components/record-tabs';
-import Link from 'next/link';
-export default function ProfilePage() {
-  const { theme, setTheme } = useTheme();
+import { ApiError } from '../../lib/api';
+import { deskShellOf } from '../../lib/desk-person';
+import { currentMe } from '../../lib/desk-shell';
+import { ProfileView } from './profile-view';
+
+/** Кто вошёл и что открыто организации — с сервера; отказ API — как «никто не вошёл», тема работает и так */
+export default async function ProfilePage() {
+  const me = await currentMe().catch((error: unknown) => {
+    if (error instanceof ApiError) return { user: null };
+    throw error;
+  });
   return (
-    <Page
-      title="Настройки рабочего места"
-      subtitle="Ваш интерфейс, в удобном для вас виде"
-      width="narrow"
-    >
-      <RecordTabs
-        tabs={[
-          {
-            id: 'appearance',
-            label: 'Оформление',
-            content: (
-              <section className="panel">
-                <h2 className="section-title">Тема интерфейса</h2>
-                <p className="muted">Выбор сохраняется на этом устройстве.</p>
-                <div className="theme-options">
-                  {(['light', 'dark', 'system'] as Theme[]).map((t) => (
-                    <button
-                      key={t}
-                      className={`theme-option ${theme === t ? 'is-selected' : ''}`}
-                      onClick={() => setTheme(t)}
-                      aria-pressed={theme === t}
-                    >
-                      <Icon name={t === 'light' ? 'sun' : t === 'dark' ? 'moon' : 'system'} />
-                      <strong>
-                        {t === 'light' ? 'Светлая' : t === 'dark' ? 'Тёмная' : 'Как на устройстве'}
-                      </strong>
-                      {theme === t && <Icon name="check" width={16} />}
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ),
-          },
-          {
-            id: 'access',
-            label: 'Доступ',
-            content: (
-              <section className="panel">
-                <span className="round-icon">
-                  <Icon name="shield" />
-                </span>
-                <h2 className="section-title">Вход и сотрудники</h2>
-                {/* Правда на 20.09 (ADR-053): вход по почте и паролю, приглашения и список сессий есть, ролей нет (ADR-023) */}
-                <p className="muted" data-testid="profile-access">
-                  Кто вошёл, приглашения администраторов, где ещё открыт вход и выход везде — на
-                  экране входа. Вход по почте и паролю. Ролей пока нет: каждый вошедший видит и
-                  делает всё.
-                </p>
-                <Link href="/login" className="btn btn--secondary">
-                  Экран входа
-                </Link>
-              </section>
-            ),
-          },
-        ]}
-      />
-    </Page>
+    <ProfileView
+      person={deskShellOf(me).person}
+      seller={me.user ? (me.access?.aiSeller ?? null) : null}
+    />
   );
 }

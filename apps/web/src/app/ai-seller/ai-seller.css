@@ -144,3 +144,16 @@
   border-color: var(--primary);
   box-shadow: inset 0 0 0 1px var(--primary);
 }
+
+/* Настройки только для просмотра (сотрудник или срок расширения вышел, ADR-083): поля на месте, рамки fieldset нет */
+.seller-readonly {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.seller-readonly .seller-manner__option {
+  cursor: default;
+}

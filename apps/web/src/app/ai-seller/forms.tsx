@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useActionState, useState, useTransition, type ReactNode } from 'react';
 import {
   Alert,
@@ -15,6 +16,7 @@ import {
   FAQ_MAX,
   LIST_MAX,
   SELLER_FAQ_SUGGESTIONS,
+  SELLER_SETUP_STEPS,
   type SellerProfileStep,
 } from '../../lib/ai-seller';
 import type { SellerProfileBody } from '../../lib/api';
@@ -46,6 +48,9 @@ export interface MannerChoice {
  * Шаг настройки продавца (`plans/ai-seller-setup-wizard-2026-09-25.md`): поля шага и внизу «Назад» и «Сохранить и
  * дальше» — обе кнопки сохраняют. Варианты и пределы — модели бота `SellerProfile` (ADR-081): чего бот не примет,
  * форма не предлагает. Над полями — `children`: то, что шаг показывает только для чтения (цены по тарифу сайта).
+ *
+ * `readOnly` — почему менять нельзя (сотрудник или срок расширения вышел, ADR-083): поля видны, но выключены, а внизу
+ * вместо «Сохранить и дальше» — переход по шагам.
  */
 export function SellerStepForm({
   stepKey,
@@ -56,6 +61,7 @@ export function SellerStepForm({
   emojis,
   replyLengths,
   children,
+  readOnly = null,
 }: {
   stepKey: SellerProfileStep;
   initial: SellerProfileBody;
@@ -65,20 +71,15 @@ export function SellerStepForm({
   emojis: MannerChoice[];
   replyLengths: MannerChoice[];
   children?: ReactNode;
+  readOnly?: string | null;
 }) {
   const [state, action, pending] = useActionState<SellerFormResult | null, FormData>(
     saveSellerStepAction.bind(null, stepKey),
     null,
   );
   const values = state?.values ?? initial;
-  return (
-    <form
-      key={state?.attempt ?? 0}
-      action={action}
-      className="stack"
-      data-testid={`seller-step-${stepKey}`}
-    >
-      {children}
+  const fields = (
+    <>
       {stepKey === 'intro' && <IntroFields values={values} languages={languages} />}
       {stepKey === 'manner' && (
         <Stack>
@@ -100,6 +101,43 @@ export function SellerStepForm({
       {stepKey === 'prices' && <PricesFields values={values} />}
       {stepKey === 'rules' && <RulesFields values={values} />}
       {stepKey === 'faq' && <FaqRows initial={values.faq} />}
+    </>
+  );
+  if (readOnly) {
+    const step = SELLER_SETUP_STEPS.findIndex((s) => s.key === stepKey) + 1;
+    return (
+      <div className="stack" data-testid={`seller-step-${stepKey}`}>
+        {children}
+        <Notice tone="muted" data-testid="seller-read-only">
+          {readOnly}
+        </Notice>
+        <fieldset disabled className="seller-readonly">
+          {fields}
+        </fieldset>
+        <div className="form-footer">
+          {first ? (
+            <span />
+          ) : (
+            <Link className="btn btn--secondary" href={`/ai-seller?step=${step - 1}`}>
+              Назад
+            </Link>
+          )}
+          <Link className="btn" href={`/ai-seller?step=${step + 1}`} data-testid="seller-step-next">
+            Дальше
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <form
+      key={state?.attempt ?? 0}
+      action={action}
+      className="stack"
+      data-testid={`seller-step-${stepKey}`}
+    >
+      {children}
+      {fields}
       {state?.error && <Alert data-testid="seller-step-error">{state.error}</Alert>}
       <div className="form-footer">
         {first ? (
@@ -267,8 +305,8 @@ function RulesFields({ values }: { values: SellerProfileBody }) {
         </Field>
       </Grid>
       <p className="settings-note">
-        В списках — до {LIST_MAX} строк, строка до 300 знаков. Жалобы, возврат денег, изменение и отмену брони продавец
-        передаёт человеку и без этого списка.
+        В списках — до {LIST_MAX} строк, строка до 300 знаков. Жалобы, возврат денег, изменение и
+        отмену брони продавец передаёт человеку и без этого списка.
       </p>
     </Stack>
   );
@@ -290,7 +328,9 @@ function FaqRows({ initial }: { initial: Array<{ question: string; answer: strin
     <Stack data-testid="seller-faq">
       <input type="hidden" name="faqCount" value={rows.length} />
       {rows.length === 0 && (
-        <p className="settings-note">Вопросов нет. Добавьте то, о чём гости спрашивают чаще всего.</p>
+        <p className="settings-note">
+          Вопросов нет. Добавьте то, о чём гости спрашивают чаще всего.
+        </p>
       )}
       {rows.map((r, i) => (
         <Grid key={i} min={260} className="seller-faq__row">
@@ -337,7 +377,9 @@ function FaqRows({ initial }: { initial: Array<{ question: string; answer: strin
       </Row>
       {!full && suggestions.length > 0 && (
         <div role="group" aria-label="Частые вопросы гостей" className="stack stack--sm">
-          <p className="settings-note">Частые вопросы гостей — нажмите, чтобы добавить и написать ответ:</p>
+          <p className="settings-note">
+            Частые вопросы гостей — нажмите, чтобы добавить и написать ответ:
+          </p>
           <Row>
             {suggestions.map((q) => (
               <Button key={q} type="button" tone="secondary" size="sm" onClick={() => add(q)}>
@@ -473,7 +515,11 @@ export function SandboxForm() {
   return (
     <Stack>
       {history.length > 0 && (
-        <ol className="seller-transcript" data-testid="sandbox-history" aria-label="Проверка продавца">
+        <ol
+          className="seller-transcript"
+          data-testid="sandbox-history"
+          aria-label="Проверка продавца"
+        >
           {history.map((h, i) => (
             <li key={i}>
               <p className="seller-transcript__guest">

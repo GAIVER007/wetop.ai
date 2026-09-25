@@ -13,6 +13,12 @@ test.beforeEach(async ({ request }) => {
 });
 
 test('раздел в меню «Продажи», шесть вкладок, полоса состояния', async ({ page }) => {
+  // пункт меню — у вошедшего, чья организация с расширением (ADR-083; без входа — tests/ui/platform-access.spec.ts)
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // меню раскрывает группу текущего раздела и подсвечивает его (DESIGN.md §8, боковое меню)

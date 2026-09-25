@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { Suspense, use, useEffect, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
 import { Sidebar, type PropertyIdentity } from './shell/sidebar';
 import { GlobalSearch } from './shell/search';
@@ -9,18 +9,22 @@ import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
 import { activeNavigation } from '../lib/navigation';
+import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 export function TopNav({
   children,
   demo = false,
   property = null,
   account = null,
+  desk,
 }: {
   children: ReactNode;
   demo?: boolean;
   property?: PropertyIdentity | null;
   /** «Кто на смене» и «Выйти» — серверный кусок, см. components/shell/account-menu.tsx */
   account?: ReactNode;
+  /** Кто вошёл и что ему открыто (ADR-083) — из `lib/desk-shell.ts`; макет его не ждёт */
+  desk?: Promise<DeskShell>;
 }) {
   const path = usePathname() ?? '';
   const [search, setSearch] = useState(false);
@@ -71,7 +75,13 @@ export function TopNav({
           К содержимому
         </a>
         <aside className="workspace-sidebar">
-          <Sidebar property={property} path={path} collapsed={collapsed} onCollapse={collapse} />
+          <Sidebar
+            property={property}
+            path={path}
+            collapsed={collapsed}
+            onCollapse={collapse}
+            desk={desk}
+          />
         </aside>
         <div className="workspace-body">
           <header className="workspace-header">
@@ -122,9 +132,13 @@ export function TopNav({
                   aria-controls="profile-dropdown"
                   onClick={() => setProfile(!profile)}
                 >
-                  <span className="desk-avatar">АД</span>
+                  <Suspense fallback={<HeaderPerson person={null} />}>
+                    <GrantedHeaderPerson desk={desk} />
+                  </Suspense>
                   <span className="profile-caption">
-                    <strong>Администратор</strong>
+                    <Suspense fallback={<strong>Администратор</strong>}>
+                      <GrantedHeaderName desk={desk} />
+                    </Suspense>
                     <small>{property?.name ?? 'Объект не загружен'}</small>
                   </span>
                   <Icon name="down" width={14} />
@@ -197,10 +211,39 @@ export function TopNav({
           title="Навигация"
           className="mobile-navigation"
         >
-          <Sidebar property={property} path={path} close={() => setMenu(false)} />
+          <Sidebar property={property} path={path} close={() => setMenu(false)} desk={desk} />
         </Overlay>
-        <GlobalSearch open={search} close={() => setSearch(false)} />
+        <Suspense fallback={<GlobalSearch open={search} close={() => setSearch(false)} />}>
+          <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+        </Suspense>
       </div>
     </DataFreshnessProvider>
   );
+}
+
+function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <HeaderPerson person={shell?.person ?? null} />;
+}
+
+function HeaderPerson({ person }: { person: DeskPerson | null }) {
+  return <span className="desk-avatar">{person?.initials ?? 'АД'}</span>;
+}
+
+function GrantedHeaderName({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <strong>{shell?.person?.name ?? 'Администратор'}</strong>;
+}
+
+/** Поиск по разделам — только по открытым вошедшему, как и меню */
+function GrantedSearch({
+  desk,
+  ...props
+}: {
+  desk: Promise<DeskShell> | undefined;
+  open: boolean;
+  close: () => void;
+}) {
+  const shell = desk ? use(desk) : null;
+  return <GlobalSearch {...props} access={shell?.access} />;
 }

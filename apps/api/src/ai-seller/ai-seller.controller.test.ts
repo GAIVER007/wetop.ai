@@ -541,7 +541,12 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     extensions.access = 'expired';
     connection.seller.replies.listConversations = { items: [] };
     const status = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
-    expect(status.body).toMatchObject({ state: 'extension-expired', canConfigure: false });
+    // копия продавца подключена — поэтому диалоги и читаются
+    expect(status.body).toMatchObject({
+      state: 'extension-expired',
+      connection: 'ready',
+      canConfigure: false,
+    });
     await api().get('/ai-seller/conversations').set(as('session-a')).expect(200);
     const reply = await api()
       .post(`/ai-seller/conversations/${CONV}/reply`)

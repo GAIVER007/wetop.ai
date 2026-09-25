@@ -18,6 +18,7 @@ import {
   Fact,
   Grid,
   LoadingState,
+  Notice,
   Panel,
   Row,
   SectionTitle,
@@ -36,10 +37,14 @@ import {
   conversationModeLabel,
   conversationStageLabel,
   defaultSellerStep,
+  extensionReminder,
   knowledgeSourceLabel,
   leadFacts,
   sellerBanner,
   sellerBriefing,
+  sellerCanAct,
+  sellerConnected,
+  sellerReadOnlyReason,
   sellerSetupProgress,
   sellerStepNumber,
   userDocuments,
@@ -74,6 +79,9 @@ import '../ai-seller.css';
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079). Шесть экранов вкладками — так же, как «Настройки гостиницы».
  * Всё — через API платформы: адреса и ключа продавца стойка не знает. Копия продавца обслуживает одну организацию;
  * у остальных раздел открывается, но говорит, что продавец не подключён.
+ *
+ * Раздел работает у организации с расширением «ИИ-продавец» (ADR-083): без него — объяснение вместо экранов; срок
+ * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняет владелец организации.
  */
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -130,7 +138,12 @@ export default async function AiSellerPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
-        <SellerScreen view={view} mode={one(query.mode)} id={one(query.id)} step={one(query.step)} />
+        <SellerScreen
+          view={view}
+          mode={one(query.mode)}
+          id={one(query.id)}
+          step={one(query.step)}
+        />
       </Suspense>
     </Page>
   );
@@ -149,16 +162,40 @@ async function SellerScreen({
 }) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
+  if (status.value.state === 'extension-off') return <ExtensionOff status={status.value} />;
+  // напоминание — тому, кто продлевает: владельцу организации (Q-183)
+  const reminder =
+    status.value.canConfigure === false ? null : extensionReminder(status.value.extension);
   return (
     <Stack>
       <SellerBanner status={status.value} />
+      {reminder && (
+        <Alert tone="warning" data-testid="seller-extension-ending">
+          {reminder}
+        </Alert>
+      )}
       {view === '' && <SetupView status={status.value} step={step} />}
       {view === 'data' && <DataView />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
-      {view === 'embed' && <EmbedView />}
+      {view === 'embed' && <EmbedView status={status.value} />}
       {view === 'check' && <CheckView status={status.value} />}
     </Stack>
+  );
+}
+
+/** Расширение не подключено: вместо экранов — что это и кто подключает; прочитать сохранённое API тоже не даст */
+function ExtensionOff({ status }: { status: SellerStatus }) {
+  const banner = sellerBanner(status);
+  return (
+    <EmptyState
+      icon={<Icon name="chat" width={32} height={32} />}
+      title={banner.title}
+      data-testid="seller-extension-off"
+    >
+      Продавец отвечает гостям в чате на сайте объекта: называет цены по тарифу сайта, рассказывает
+      о правилах, берёт контакт и зовёт человека, когда нужно. {banner.text}
+    </EmptyState>
   );
 }
 
@@ -176,7 +213,11 @@ function SellerBanner({ status }: { status: SellerStatus }) {
       <StateFact
         label="Настройки"
         value={
-          !status.profile.saved ? 'не сохранены' : status.profile.applied ? 'применены' : 'ждут отправки'
+          !status.profile.saved
+            ? 'не сохранены'
+            : status.profile.applied
+              ? 'применены'
+              : 'ждут отправки'
         }
       >
         {status.profile.updatedAt ? `правка ${almatyWhen(status.profile.updatedAt)}` : undefined}
@@ -208,7 +249,11 @@ const manner = <T extends string>(
   labels: Readonly<Record<T, string>>,
   examples: Readonly<Record<T, string>>,
 ): MannerChoice[] =>
-  (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value], example: examples[value] }));
+  (Object.keys(labels) as T[]).map((value) => ({
+    value,
+    label: labels[value],
+    example: examples[value],
+  }));
 
 /**
  * «Настройки» — пошаговая настройка продавца (поручение владельца 25.09.2026,
@@ -216,11 +261,13 @@ const manner = <T extends string>(
  * адресе открывается первый незаполненный; всё заполнено — «Запуск».
  */
 async function SetupView({ status, step: raw }: { status: SellerStatus; step: string }) {
+  const readOnly = sellerReadOnlyReason(status);
   const [loaded, knowledge] = await Promise.all([
     settle(sellerApi.profile()),
-    status.state === 'ready' ? settle(sellerApi.knowledge()) : Promise.resolve(null),
+    sellerConnected(status) ? settle(sellerApi.knowledge()) : Promise.resolve(null),
   ]);
-  if (!loaded.ok) return <LoadError testId="seller-profile-error" {...loadErrorProps(loaded.error)} />;
+  if (!loaded.ok)
+    return <LoadError testId="seller-profile-error" {...loadErrorProps(loaded.error)} />;
   const items = knowledge?.ok ? knowledge.value.items : null;
   const progress = sellerSetupProgress({
     saved: loaded.value.saved,
@@ -244,11 +291,11 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
           </div>
         </div>
         {current.key === 'docs' ? (
-          <DocsStep ready={status.state === 'ready'} items={items} />
+          <DocsStep ready={sellerConnected(status)} items={items} readOnly={readOnly} />
         ) : current.key === 'launch' ? (
-          <LaunchStep profile={profile} progress={progress} />
+          <LaunchStep profile={profile} progress={progress} readOnly={readOnly} />
         ) : (
-          <ProfileStep stepKey={current.key} profile={profile} />
+          <ProfileStep stepKey={current.key} profile={profile} readOnly={readOnly} />
         )}
       </Panel>
     </Stack>
@@ -284,13 +331,22 @@ function SetupSteps({ progress, current }: { progress: SellerStepProgress[]; cur
 }
 
 /** Шаг с полями профиля; у «Цен» над полями — что продавец скажет о цене (только для чтения) */
-function ProfileStep({ stepKey, profile }: { stepKey: SellerProfileStep; profile: SellerProfileBody }) {
+function ProfileStep({
+  stepKey,
+  profile,
+  readOnly,
+}: {
+  stepKey: SellerProfileStep;
+  profile: SellerProfileBody;
+  readOnly: string | null;
+}) {
   return (
     <SellerStepForm
       // своя форма на шаг: ответ действия прошлого шага (отказ и введённое) не переезжает на следующий
       key={stepKey}
       stepKey={stepKey}
       initial={profile}
+      readOnly={readOnly}
       first={stepKey === SELLER_SETUP_STEPS[0].key}
       languages={Object.entries(SELLER_LANGUAGES).map(([value, label]) => ({ value, label }))}
       addressForms={manner(SELLER_ADDRESS_FORMS, SELLER_MANNER_EXAMPLES.addressForm)}
@@ -309,7 +365,8 @@ function ProfileStep({ stepKey, profile }: { stepKey: SellerProfileStep; profile
 /** Цены на шаге «Цены»: их продавец берёт из тарифа сайта, здесь их не вводят — иначе у ночи было бы две цены */
 async function StepPrices() {
   const loaded = await settle(sellerApi.facts());
-  if (!loaded.ok) return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
+  if (!loaded.ok)
+    return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
   return (
     <Stack>
       <PricesTable view={loaded.value} />
@@ -332,19 +389,27 @@ async function StepPrices() {
 function DocsStep({
   ready,
   items,
+  readOnly,
 }: {
   ready: boolean;
   items: Array<{ source: string; chunks: number; createdAt: string | null }> | null;
+  readOnly: string | null;
 }) {
   return (
     <Stack>
       {ready ? (
         <>
           <p className="settings-note">
-            Прайс, правила, описание номеров — продавец отвечает и по ним. Цены и адрес сюда класть не нужно: их
-            продавец берёт из «Данных объекта». Шаг можно пропустить.
+            Прайс, правила, описание номеров — продавец отвечает и по ним. Цены и адрес сюда класть
+            не нужно: их продавец берёт из «Данных объекта». Шаг можно пропустить.
           </p>
-          <KnowledgeUploadForm />
+          {readOnly ? (
+            <Notice tone="muted" data-testid="seller-read-only">
+              {readOnly}
+            </Notice>
+          ) : (
+            <KnowledgeUploadForm />
+          )}
           {items && items.length > 0 && <KnowledgeTable items={items} />}
         </>
       ) : (
@@ -353,8 +418,8 @@ function DocsStep({
           title="Документы — после подключения продавца"
           data-testid="seller-docs-later"
         >
-          Сюда загружают прайс, правила и описание файлом. Шаг можно пропустить и вернуться, когда продавец будет
-          подключён.
+          Сюда загружают прайс, правила и описание файлом. Шаг можно пропустить и вернуться, когда
+          продавец будет подключён.
         </EmptyState>
       )}
       <div className="form-footer">
@@ -376,11 +441,15 @@ function DocsStep({
 async function LaunchStep({
   profile,
   progress,
+  readOnly,
 }: {
   profile: SellerProfileBody;
   progress: SellerStepProgress[];
+  readOnly: string | null;
 }) {
-  const missing = progress.filter((p) => p.key !== 'docs' && p.key !== 'launch' && p.state === 'todo');
+  const missing = progress.filter(
+    (p) => p.key !== 'docs' && p.key !== 'launch' && p.state === 'todo',
+  );
   const facts = await settle(sellerApi.facts());
   const prices = facts.ok ? facts.value.prices : [];
   // та же граница, что в «Данных объекта»: цена уходит продавцу, только если она одна весь срок (ADR-081)
@@ -389,8 +458,8 @@ async function LaunchStep({
     <Stack>
       {missing.length > 0 && (
         <Alert tone="warning" data-testid="seller-setup-missing">
-          Не заполнено: {missing.map((m) => `«${m.title}»`).join(', ')}. Продавец будет работать и так, но гостю
-          ответит хуже — вернитесь к этим шагам.
+          Не заполнено: {missing.map((m) => `«${m.title}»`).join(', ')}. Продавец будет работать и
+          так, но гостю ответит хуже — вернитесь к этим шагам.
         </Alert>
       )}
       <SectionTitle first>Что получит продавец</SectionTitle>
@@ -401,17 +470,24 @@ async function LaunchStep({
       </Grid>
       {facts.ok && (
         <p className="settings-note" data-testid="seller-briefing-facts">
-          О гостинице продавец знает из «Данных объекта»: адрес, заезд с {facts.value.facts.check_in}, выезд до{' '}
-          {facts.value.facts.check_out},{' '}
-          {pluralRu(prices.length, ['категория', 'категории', 'категорий'])}. Цену за ночь он назовёт у {known} из{' '}
-          {prices.length}, у остальных скажет «уточнит администратор».
+          О гостинице продавец знает из «Данных объекта»: адрес, заезд с{' '}
+          {facts.value.facts.check_in}, выезд до {facts.value.facts.check_out},{' '}
+          {pluralRu(prices.length, ['категория', 'категории', 'категорий'])}. Цену за ночь он
+          назовёт у {known} из {prices.length}, у остальных скажет «уточнит администратор».
         </p>
       )}
       <p className="settings-note">
-        Промпт продавец собирает сам: из этих ответов и своих правил — не считать деньги, не обещать того, чего он не
-        делает, звать человека. Свои правила стереть нельзя, поэтому текста промпта здесь нет.
+        Промпт продавец собирает сам: из этих ответов и своих правил — не считать деньги, не обещать
+        того, чего он не делает, звать человека. Свои правила стереть нельзя, поэтому текста промпта
+        здесь нет.
       </p>
-      <ApplySellerForm />
+      {readOnly ? (
+        <Notice tone="muted" data-testid="seller-read-only">
+          {readOnly}
+        </Notice>
+      ) : (
+        <ApplySellerForm />
+      )}
       <Row>
         <Link className="btn btn--secondary" href="/ai-seller/check">
           Поговорить с продавцом
@@ -436,7 +512,8 @@ async function LaunchStep({
  */
 async function DataView() {
   const loaded = await settle(sellerApi.facts());
-  if (!loaded.ok) return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
+  if (!loaded.ok)
+    return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
   const { facts, applied } = loaded.value;
   return (
     <Stack>
@@ -480,11 +557,13 @@ function PricesTable({ view }: { view: SellerFactsView }) {
   const { facts, ratePlan, window, prices } = view;
   return (
     <Stack>
-      <SectionTitle first>Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}</SectionTitle>
+      <SectionTitle first>
+        Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}
+      </SectionTitle>
       {!ratePlan && (
         <Alert tone="warning" data-testid="seller-no-rate-plan">
-          Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор». Выберите тариф
-          виджета бронирования в «Настройках сайта».
+          Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор».
+          Выберите тариф виджета бронирования в «Настройках сайта».
         </Alert>
       )}
       <Table aria-label="Категории и цены продавца" data-testid="seller-prices">
@@ -514,9 +593,10 @@ function PricesTable({ view }: { view: SellerFactsView }) {
         </tbody>
       </Table>
       <p className="settings-note">
-        Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не меняется: названная им
-        цена становится обещанием гостю. Иначе он говорит «уточнит администратор». Наличие мест продавец не знает:
-        забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).
+        Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не
+        меняется: названная им цена становится обещанием гостю. Иначе он говорит «уточнит
+        администратор». Наличие мест продавец не знает: забронировать гость сможет, когда будет
+        подключена котировка (часть 3 ТЗ).
       </p>
     </Stack>
   );
@@ -551,7 +631,7 @@ function KnowledgeTable({
 }
 
 function NotReady({ status, title }: { status: SellerStatus; title: string }) {
-  if (status.state === 'ready') return null;
+  if (sellerConnected(status)) return null;
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
@@ -564,8 +644,9 @@ function NotReady({ status, title }: { status: SellerStatus; title: string }) {
 }
 
 async function KnowledgeView({ status }: { status: SellerStatus }) {
-  if (status.state !== 'ready')
+  if (!sellerConnected(status))
     return <NotReady status={status} title="Знания появятся, когда продавец будет подключён" />;
+  const readOnly = sellerReadOnlyReason(status);
   const loaded = await settle(sellerApi.knowledge());
   return (
     <Stack>
@@ -575,7 +656,13 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
           Прайс, правила, ответы на вопросы — продавец отвечает по ним. Цены и адрес сюда класть не
           нужно: их продавец берёт из «Данных объекта».
         </p>
-        <KnowledgeUploadForm />
+        {readOnly ? (
+          <Notice tone="muted" data-testid="seller-read-only">
+            {readOnly}
+          </Notice>
+        ) : (
+          <KnowledgeUploadForm />
+        )}
       </Panel>
       {!loaded.ok ? (
         <LoadError testId="seller-knowledge-error" {...loadErrorProps(loaded.error)} />
@@ -593,8 +680,16 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
   );
 }
 
-async function DialogsView({ status, mode, id }: { status: SellerStatus; mode: string; id: string }) {
-  if (status.state !== 'ready')
+async function DialogsView({
+  status,
+  mode,
+  id,
+}: {
+  status: SellerStatus;
+  mode: string;
+  id: string;
+}) {
+  if (!sellerConnected(status))
     return <NotReady status={status} title="Диалоги появятся, когда продавец будет подключён" />;
   const selected = MODES.some((m) => m.value === mode) ? mode : '';
   const [summary, list, card] = await Promise.all([
@@ -623,9 +718,12 @@ async function DialogsView({ status, mode, id }: { status: SellerStatus; mode: s
           </Link>
         ))}
       </nav>
-      {card && (card.ok ? <DialogCard card={card.value} /> : (
-        <LoadError testId="seller-dialog-error" {...loadErrorProps(card.error)} />
-      ))}
+      {card &&
+        (card.ok ? (
+          <DialogCard card={card.value} canAct={sellerCanAct(status)} />
+        ) : (
+          <LoadError testId="seller-dialog-error" {...loadErrorProps(card.error)} />
+        ))}
       {!list.ok ? (
         <LoadError testId="seller-dialogs-error" {...loadErrorProps(list.error)} />
       ) : list.value.items.length === 0 ? (
@@ -649,7 +747,9 @@ async function DialogsView({ status, mode, id }: { status: SellerStatus; mode: s
               return (
                 <tr key={c.id}>
                   <td>
-                    <Link href={`/ai-seller/dialogs?${new URLSearchParams({ ...(selected ? { mode: selected } : {}), id: c.id })}`}>
+                    <Link
+                      href={`/ai-seller/dialogs?${new URLSearchParams({ ...(selected ? { mode: selected } : {}), id: c.id })}`}
+                    >
                       {c.clientName || 'Гость без имени'}
                     </Link>
                     {c.hasContact && <span className="sub"> — оставил контакт</span>}
@@ -670,7 +770,13 @@ async function DialogsView({ status, mode, id }: { status: SellerStatus; mode: s
   );
 }
 
-function DialogCard({ card }: { card: Awaited<ReturnType<typeof sellerApi.conversation>> }) {
+function DialogCard({
+  card,
+  canAct,
+}: {
+  card: Awaited<ReturnType<typeof sellerApi.conversation>>;
+  canAct: boolean;
+}) {
   const m = conversationModeLabel(card.mode);
   const lead = leadFacts(card.leadData);
   return (
@@ -700,22 +806,52 @@ function DialogCard({ card }: { card: Awaited<ReturnType<typeof sellerApi.conver
       <ol className="seller-transcript" aria-label="Переписка">
         {card.messages.map((msg, i) => (
           <li key={i}>
-            <p className={msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'}>
+            <p
+              className={
+                msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'
+              }
+            >
               <b>{ROLE[msg.role] ?? msg.role}</b>
               {msg.at ? <span className="sub"> {almatyMoment(msg.at)}</span> : null}: {msg.text}
             </p>
           </li>
         ))}
       </ol>
-      <DialogModeButtons id={card.id} mode={card.mode} />
-      <DialogReplyForm id={card.id} />
+      {canAct ? (
+        <>
+          <DialogModeButtons id={card.id} mode={card.mode} />
+          <DialogReplyForm id={card.id} />
+        </>
+      ) : (
+        <Notice tone="muted" data-testid="seller-dialog-read-only">
+          Срок расширения вышел: переписку видно, но отвечать гостю и перехватывать диалог нельзя.
+          Продлевает администратор WETOP.
+        </Notice>
+      )}
     </Panel>
   );
 }
 
-async function EmbedView() {
+/** Без действующего расширения кода нет: продавец, срок которого вышел, на сайт не ставится (Q-183) */
+function ActionClosed({ title }: { title: string }) {
+  return (
+    <EmptyState
+      icon={<Icon name="chat" width={32} height={32} />}
+      title={title}
+      data-testid="seller-action-closed"
+    >
+      Срок расширения «ИИ-продавец» вышел. Продлевает администратор WETOP — после этого всё
+      заработает с теми же настройками.
+    </EmptyState>
+  );
+}
+
+async function EmbedView({ status }: { status: SellerStatus }) {
+  if (status.state === 'extension-expired')
+    return <ActionClosed title="Код для сайта — при действующем расширении" />;
   const loaded = await settle(sellerApi.embed());
-  if (!loaded.ok) return <LoadError testId="seller-embed-error" {...loadErrorProps(loaded.error)} />;
+  if (!loaded.ok)
+    return <LoadError testId="seller-embed-error" {...loadErrorProps(loaded.error)} />;
   const snippet = loaded.value.snippet;
   if (!snippet)
     return (
@@ -731,8 +867,8 @@ async function EmbedView() {
     <Panel data-testid="seller-embed">
       <SectionTitle first>Чат продавца на сайте объекта</SectionTitle>
       <p className="settings-note">
-        Вставьте код перед закрывающим &lt;/body&gt; каждой страницы сайта (в Tilda и WordPress — поле
-        «HTML-код»). Гость пишет анонимно; домен сайта должен быть в списке продавца.
+        Вставьте код перед закрывающим &lt;/body&gt; каждой страницы сайта (в Tilda и WordPress —
+        поле «HTML-код»). Гость пишет анонимно; домен сайта должен быть в списке продавца.
       </p>
       <pre className="code" data-testid="seller-embed-snippet">
         {snippet}
@@ -745,14 +881,15 @@ async function EmbedView() {
 }
 
 function CheckView({ status }: { status: SellerStatus }) {
-  if (status.state !== 'ready')
+  if (!sellerConnected(status))
     return <NotReady status={status} title="Проверка заработает, когда продавец будет подключён" />;
+  if (!sellerCanAct(status)) return <ActionClosed title="Проверка — при действующем расширении" />;
   return (
     <Panel data-testid="seller-check">
       <SectionTitle first>Поговорить с продавцом до публикации</SectionTitle>
       <p className="settings-note">
-        Напишите так, как написал бы гость. Разговор идёт в песочнице: гости и «Диалоги» его не видят.
-        Нажмите «Применить» в «Настройках», чтобы проверить новую версию.
+        Напишите так, как написал бы гость. Разговор идёт в песочнице: гости и «Диалоги» его не
+        видят. Нажмите «Применить» в «Настройках», чтобы проверить новую версию.
       </p>
       <SandboxForm />
     </Panel>

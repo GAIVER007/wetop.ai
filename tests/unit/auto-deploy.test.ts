@@ -125,6 +125,8 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(r.code).toBe(1);
     expect(r.out).toContain('миграции');
     expect(r.out).toContain('0002_more');
+    // подсказка называет сам скрипт, а не временную копию, с которой он перезапускается (25.09: «/tmp/tmp.… --migrations-applied»)
+    expect(r.out).toContain(`${SCRIPT} --migrations-applied`);
     expect(head()).toBe(before);
     expect(dockerCalls()).not.toContain('up -d');
     // тот же коммит — повторной тревоги нет

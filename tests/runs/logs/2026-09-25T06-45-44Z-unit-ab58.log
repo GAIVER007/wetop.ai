@@ -1,0 +1,47 @@
+# Модульные (unit) · 25.09.2026 11:45 Алматы · vm
+# коммит 40bd841 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T06-45-44Z-unit-ab58.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (7 tests | 1 failed) 5410ms
+   ❯ scripts/ops/auto-deploy.sh (7)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 484ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 508ms
+     × в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 421ms
+     ✓ владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину 605ms
+     ✓ локальные правки в клоне — не затирает их 366ms
+     ✓ историю ветки переписали — не выкладывает поверх 567ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2458ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца
+AssertionError: expected '2026-09-25T06:45:52Z auto-deploy: c7c…' to contain '/home/user/wetop.ai/scripts/ops/auto-…'
+
+- Expected
++ Received
+
+- /home/user/wetop.ai/scripts/ops/auto-deploy.sh --migrations-applied
++ 2026-09-25T06:45:52Z auto-deploy: c7cabb9b не выложен: в обновлении миграции (packages/database/prisma/migrations/0002_more) — их применяет владелец (AGENTS.md §15), затем на сервере: /tmp/tmp.G7g239G6K9 --migrations-applied. На сервере по-прежнему 139d323c.
++
+
+ ❯ tests/unit/auto-deploy.test.ts:129:19
+    127|     expect(r.out).toContain('0002_more');
+    128|     // подсказка называет сам скрипт, а не временную копию, с которой …
+    129|     expect(r.out).toContain(`${SCRIPT} --migrations-applied`);
+       |                   ^
+    130|     expect(head()).toBe(before);
+    131|     expect(dockerCalls()).not.toContain('up -d');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  06:45:50
+   Duration  5.82s (tests 98%, transform 2%)
+
+JSON report written to /tmp/pms-test-2026-09-25T06-45-44Z-unit-ab58.json
+
+# код выхода 1 · 12 с

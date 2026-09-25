@@ -292,8 +292,8 @@ services:
 networks:
   wetop-internal: { external: true }
 YML
-docker compose run --rm --no-deps app python -c 'import getpass; from src.dashboard.security import hash_password; print(hash_password(getpass.getpass()))'
-#    хеш — в .env: DASHBOARD_ADMIN_PASSWORD_HASH='<хеш>' в одинарных кавычках (в хеше знаки $)
+#    Пароля у панели бота нет (поручение владельца 25.09.2026): DASHBOARD_ADMIN_EMAIL и DASHBOARD_ADMIN_PASSWORD_HASH
+#    оставить пустыми. Людей в панели нет, платформа ходит в неё служебным ключом (plans/platform-roles-extensions-2026-09-25.md §3)
 docker compose up -d --build && docker compose ps && curl -s 127.0.0.1:8000/health
 
 # 5б. Продавец — то же в /opt/wetop-bot/seller, но: aliases: [seller], BOT_ROLE=seller, и порт на хосте другой
@@ -316,7 +316,7 @@ cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml 
 | сервис | `APP_ENV=production`, `PUBLIC_BASE_URL=https://assistant.wetop.ai`, `CORS_ORIGINS=https://app.wetop.ai,https://wetop.ai,https://www.wetop.ai` |
 | своя база и Redis | `POSTGRES_HOST=postgres`, `POSTGRES_PORT=5432`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (придумать), `REDIS_URL=redis://redis:6379/0` |
 | модель | `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` и запасные — ключ роутера владельца |
-| панель | `DASHBOARD_JWT_SECRET` (`openssl rand -hex 32`), `DASHBOARD_ADMIN_EMAIL`, `DASHBOARD_ADMIN_PASSWORD_HASH`, `DASHBOARD_PATH_PREFIX` (случайный отрезок пути) |
+| панель | `DASHBOARD_PATH_PREFIX` — случайный отрезок пути, например `/p` и 12 знаков из `openssl rand -hex 6`: без него бот не подключает маршруты панели, и платформе некуда ходить. `DASHBOARD_JWT_SECRET` — `openssl rand -hex 32`. `DASHBOARD_ADMIN_EMAIL` и `DASHBOARD_ADMIN_PASSWORD_HASH` — **пустые**: людей в панели нет, пароль не нужен (поручение владельца 25.09.2026). `SELLER_SERVICE_KEY` у помощника пока пустой — панель закрыта целиком; значение появится с разделом «Платформа → Техподдержка» (план `plans/platform-roles-extensions-2026-09-25.md`, этап Э3) |
 | роль и платформа | `BOT_ROLE=support`, `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `ASSISTANT_READ_KEY` платформы |
 | виджет | `WIDGET_IDENTITY_SECRET` = тот же, что у платформы, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` |
 

@@ -2207,3 +2207,8 @@
 | 25.09.2026 11:38 | lint | ✅ без ошибок | 24 с | 6edb8f5 +1 | [лог](logs/2026-09-25T06-38-37Z-lint-79c9.log) |  |
 | 25.09.2026 11:45 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 7 | 12 с | 40bd841 +1 | [лог](logs/2026-09-25T06-45-44Z-unit-ab58.log) | подсказка --migrations-applied с путём к скрипту: red |
 | 25.09.2026 11:46 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 7 из 7 | 6 с | 40bd841 +2 | [лог](logs/2026-09-25T06-46-03Z-unit-f9be.log) | подсказка --migrations-applied с путём к скрипту: green |
+| 25.09.2026 11:50 | typecheck | ✅ без ошибок | 26 с | 08e992a | [лог](logs/2026-09-25T06-50-34Z-typecheck-0d1a.log) | main 08e992a1 перед release |
+| 25.09.2026 11:51 | lint | ✅ без ошибок | 14 с | 08e992a | [лог](logs/2026-09-25T06-51-00Z-lint-697c.log) | main 08e992a1 перед release |
+| 25.09.2026 11:51 | unit | ✅ 1754 из 1757, пропущено 3 | 1 мин 12 с | 08e992a | [лог](logs/2026-09-25T06-51-15Z-unit-6b9b.log) | main 08e992a1 перед release |
+| 25.09.2026 11:53 | integration | ✅ 64 из 64 | 19 с | 08e992a | [лог](logs/2026-09-25T06-53-14Z-integration-77af.log) | main 08e992a1 перед release |
+| 25.09.2026 11:53 | e2e | ✅ 25 из 25 | 58 с | 08e992a | [лог](logs/2026-09-25T06-53-44Z-e2e-bdf3.log) | живые сквозные: main 08e992a1 |

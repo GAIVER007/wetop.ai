@@ -245,8 +245,14 @@ SERVICE_ROUTES = frozenset({
     ("GET", "/summary"),
     ("PUT", "/seller/profile"),
     ("PUT", "/seller/facts"),
+    # С1 «под ключ»: рассказ партнёра -> поля анкеты (свободный текст промптом не становится).
+    ("POST", "/extract-profile"),
     # Э4: платформа заводит и выключает гостиницу у продавца.
     ("PUT", "/seller/organizations/{org_id}"),
+    # С2: ключ модели партнёра — поставить/снять, статус (set+last4), проверка.
+    ("GET", "/seller/organizations/{org_id}/llm-key"),
+    ("PUT", "/seller/organizations/{org_id}/llm-key"),
+    ("POST", "/seller/organizations/{org_id}/llm-key/check"),
 })
 
 # «Платформа → Техподдержка» (ADR-084): помощник — бот самой платформы, его

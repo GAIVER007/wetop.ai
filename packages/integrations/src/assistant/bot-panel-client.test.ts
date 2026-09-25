@@ -99,6 +99,18 @@ describe('SellerClient — адреса и ключ', () => {
     });
   });
 
+  it('рассказ владельца уходит на /extract-profile под путём панели телом { story }', async () => {
+    const { calls, seller } = client(() => Response.json({ status: 'ok', profile: {} }));
+    await seller.extractProfile('У нас хостел в Алматы, койка 8000 тенге.');
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'POST http://seller:8000/panel-x/extract-profile',
+    ]);
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({
+      story: 'У нас хостел в Алматы, койка 8000 тенге.',
+    });
+    expect(header(calls[0]!, 'x-service-key')).toBe(KEY);
+  });
+
   it('панель под длинным путём — песочница всё равно в корне того же адреса', async () => {
     const calls: Call[] = [];
     const seller = new SellerClient({

@@ -1592,6 +1592,8 @@ const sellerKnowledgeSeed = () => [
   { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
 ];
 let sellerKnowledge = sellerKnowledgeSeed();
+// С2: ключ модели партнёра — подставной бот хранит только последние 4 знака
+let sellerLlmKey: string | null = null;
 /** Состояние продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }`.
  * Э4: продавец общий для всех гостиниц, состояния `other-organization` больше нет. */
 let sellerState: 'ready' | 'not-configured' = 'ready';
@@ -1604,6 +1606,7 @@ function resetSeller() {
   sellerAppliedProfile = structuredClone(sellerProfileSeed);
   sellerSaved = false;
   sellerApplied = false;
+  sellerLlmKey = null;
   sellerUpdatedAt = null;
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
@@ -2840,8 +2843,11 @@ createServer(async (req, res) => {
         req.method === 'GET'
           ? path === '/ai-seller/embed'
             ? 'act'
-            : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge'
+            : path === '/ai-seller/llm-key'
+              ? 'configure'
+              : 'read'
+          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge' ||
+              path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key')
             ? 'configure'
             : 'act';
       if (path !== '/ai-seller/status') {
@@ -2947,6 +2953,67 @@ createServer(async (req, res) => {
         sellerApplied = false;
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
+      }
+      if (path === '/ai-seller/llm-key' && req.method === 'GET')
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      if (path === '/ai-seller/llm-key' && req.method === 'PUT') {
+        const key = String(body['key'] ?? '').trim();
+        sellerLlmKey = key === '' ? null : key.slice(-4);
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      }
+      if (path === '/ai-seller/llm-key/check' && req.method === 'POST') {
+        const key = String(body['key'] ?? '').trim();
+        if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
+        // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
+        return send(200, key.includes('valid')
+          ? { valid: true, reason: null }
+          : { valid: false, reason: 'Роутер не принял ключ' });
+      }
+      if (path === '/ai-seller/extract' && req.method === 'POST') {
+        // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
+        const story = String(body['story'] ?? '').trim();
+        if (story.length < 10)
+          return send(400, { message: 'Рассказ короче 10 знаков — расскажите подробнее' });
+        const extracted: Array<[keyof typeof sellerProfile, unknown]> = [
+          ['botName', 'Айсулу'],
+          ['greeting', 'Здравствуйте! Помогу выбрать место и ответить на вопросы.'],
+          ['includedInPrice', 'Бельё и Wi-Fi.'],
+          ['houseRules', 'Тишина после 23:00.'],
+        ];
+        const filled: string[] = [];
+        const skipped: string[] = [];
+        for (const [field, value] of extracted) {
+          const current = sellerProfile[field];
+          const empty =
+            current === null ||
+            (typeof current === 'string' && current.trim() === '') ||
+            (Array.isArray(current) && current.length === 0);
+          if (!empty) {
+            skipped.push(field);
+            continue;
+          }
+          (sellerProfile as unknown as Record<string, unknown>)[field] = value;
+          filled.push(field);
+        }
+        if (filled.length > 0) {
+          sellerSaved = true;
+          sellerApplied = false;
+          sellerUpdatedAt = new Date().toISOString();
+        }
+        return send(200, {
+          filled,
+          skipped,
+          rejected: [],
+          unparsed: ['как добраться от вокзала — в рассказе нет'],
+          aside: {
+            objectName: 'Хостел «Тёплый»',
+            address: 'Алматы, ул. Вымышленная, 1',
+            checkIn: '14:00',
+            checkOut: '12:00',
+            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+          },
+          profile: sellerView(),
+        });
       }
       if (path === '/ai-seller/apply' && req.method === 'POST') {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });

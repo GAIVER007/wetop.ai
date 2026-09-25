@@ -69,8 +69,10 @@ import {
   DialogModeButtons,
   DialogReplyForm,
   KnowledgeUploadForm,
+  LlmKeyForm,
   SandboxForm,
   SellerStepForm,
+  StoryIntake,
   type MannerChoice,
 } from '../forms';
 import '../ai-seller.css';
@@ -179,8 +181,31 @@ async function SellerScreen({
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
       {view === 'embed' && <EmbedView status={status.value} />}
+      {view === 'model' && <ModelView status={status.value} />}
       {view === 'check' && <CheckView status={status.value} />}
     </Stack>
+  );
+}
+
+/** «Модель» (С2): ключ модели самого партнёра — вводится и проверяется здесь, хранится только у бота */
+async function ModelView({ status }: { status: SellerStatus }) {
+  const readOnly = sellerReadOnlyReason(status);
+  if (!sellerConnected(status))
+    return (
+      <Panel data-testid="seller-llm-key-offline">
+        <p className="settings-note">
+          Продавец не подключён к платформе — ключ модели вводится после подключения
+          (адрес и служебный ключ в окружении API).
+        </p>
+      </Panel>
+    );
+  const loaded = await settle(sellerApi.llmKey());
+  if (!loaded.ok)
+    return <LoadError testId="seller-llm-key-error-load" {...loadErrorProps(loaded.error)} />;
+  return (
+    <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
+      <LlmKeyForm status={loaded.value} readOnly={readOnly} />
+    </Panel>
   );
 }
 
@@ -281,6 +306,9 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
   const profile = loaded.value.profile;
   return (
     <Stack>
+      <Panel data-testid="seller-story-panel">
+        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
+      </Panel>
       <SetupSteps progress={progress} current={step} />
       <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
         <div className="form-section-title">

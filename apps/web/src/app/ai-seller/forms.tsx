@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useActionState, useState, useTransition, type ReactNode } from 'react';
+import { useActionState, useEffect, useState, useTransition, type ReactNode } from 'react';
 import {
   Alert,
   Button,
@@ -17,19 +17,26 @@ import {
   LIST_MAX,
   SELLER_FAQ_SUGGESTIONS,
   SELLER_SETUP_STEPS,
+  sellerStoryFieldWords,
   type SellerProfileStep,
 } from '../../lib/ai-seller';
+import { formatMoney } from '../../lib/money';
 import type { SellerProfileBody } from '../../lib/api';
 import {
   applySellerAction,
   dialogModeAction,
+  extractStoryAction,
+  llmKeyCheckAction,
+  llmKeySaveAction,
   replyAction,
   sandboxAction,
   saveSellerStepAction,
   uploadKnowledgeAction,
   type SandboxResult,
   type SellerFormResult,
+  type LlmKeyResult,
   type SimpleResult,
+  type StoryResult,
 } from './actions';
 
 export interface Choice {
@@ -598,6 +605,283 @@ export function SandboxForm({
         </Row>
         {state?.error && <Alert data-testid="sandbox-error">{state.error}</Alert>}
       </form>
+    </Stack>
+  );
+}
+
+/** Распознавание речи браузера, если оно есть; наружу аудио не уходит — текст появляется в поле на устройстве */
+type Recognition = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+function speechRecognition(): (new () => Recognition) | null {
+  const w = window as unknown as {
+    SpeechRecognition?: new () => Recognition;
+    webkitSpeechRecognition?: new () => Recognition;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+
+/**
+ * Окно рассказа (С1 «под ключ», `plans/seller-partner-bot-2026-09-25.md`): партнёр рассказывает о гостинице
+ * голосом или текстом, «Создать» раскладывает рассказ по полям мастера ниже. Свободный текст промптом не
+ * становится (ТЗ §2 п. 2): извлечённое ложится в черновик профиля, занятые руками поля не затираются,
+ * а адрес, заезд и цены из рассказа не пишутся никуда — их сверяют с «Данными объекта» и «Тарифами» глазами.
+ */
+export function StoryIntake({
+  saved,
+  readOnly,
+  extract = extractStoryAction,
+}: {
+  saved: boolean;
+  readOnly: string | null;
+  extract?: (prev: StoryResult | null, form: FormData) => Promise<StoryResult>;
+}) {
+  const [state, action, pending] = useActionState<StoryResult | null, FormData>(extract, null);
+  const [story, setStory] = useState('');
+  const [listening, setListening] = useState(false);
+  const [recognizer, setRecognizer] = useState<Recognition | null>(null);
+  const [noSpeech, setNoSpeech] = useState(false);
+  // раскрытость запоминается при первом показе: успех делает saved=true, но открытое окно с итогом не схлопывается
+  const [startOpen] = useState(!saved);
+  useEffect(() => {
+    if (state?.result) setStory('');
+  }, [state]);
+
+  const toggleMic = () => {
+    if (listening) {
+      recognizer?.stop();
+      return;
+    }
+    const Ctor = speechRecognition();
+    if (!Ctor) {
+      setNoSpeech(true);
+      return;
+    }
+    const rec = new Ctor();
+    rec.lang = 'ru-RU';
+    rec.continuous = true;
+    rec.interimResults = false;
+    rec.onresult = (event) => {
+      let heard = '';
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i]!;
+        if (result.isFinal) heard += result[0].transcript;
+      }
+      if (heard.trim() !== '')
+        setStory((prev) => `${prev}${prev !== '' && !prev.endsWith(' ') ? ' ' : ''}${heard.trim()}`);
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => setListening(false);
+    setRecognizer(rec);
+    setListening(true);
+    rec.start();
+  };
+
+  const result = state?.result ?? null;
+  return (
+    <details className="seller-story" open={startOpen} data-testid="seller-story">
+      <summary>Расскажите о вашем объекте своими словами — поля мастера заполнятся сами</summary>
+      <form action={action} className="stack stack--sm">
+        <p className="settings-note">
+          Город и адрес, сколько номеров и коек, цены, заезд и выезд, что входит в цену, правила.
+        </p>
+        <Field label="Рассказ">
+          <Textarea
+            name="story"
+            rows={5}
+            maxLength={4000}
+            required
+            minLength={10}
+            value={story !== '' ? story : (state?.story ?? '')}
+            onChange={(e) => setStory(e.currentTarget.value)}
+            placeholder="У нас хостел в Алматы, улица… Койка — … тенге за ночь, заезд с 14:00…"
+            data-testid="seller-story-text"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Row>
+          <Button
+            type="button"
+            tone="secondary"
+            onClick={toggleMic}
+            aria-pressed={listening}
+            disabled={readOnly !== null}
+            data-testid="seller-story-mic"
+          >
+            {listening ? 'Остановить запись' : 'Говорить голосом'}
+          </Button>
+          <Button
+            type="submit"
+            disabled={pending || readOnly !== null}
+            aria-busy={pending}
+            data-testid="seller-story-send"
+          >
+            {pending ? 'Разбираем…' : 'Создать'}
+          </Button>
+        </Row>
+        {noSpeech && (
+          <p className="settings-note">Этот браузер не умеет распознавать речь — печатайте текст.</p>
+        )}
+        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {state?.error && <Alert data-testid="seller-story-error">{state.error}</Alert>}
+        {result && (
+          <div className="stack stack--sm" data-testid="seller-story-result">
+            {result.filled.length > 0 && (
+              <Notice>Заполнено из рассказа: {sellerStoryFieldWords(result.filled)}. Проверьте шаги ниже.</Notice>
+            )}
+            {result.filled.length === 0 && (
+              <p className="settings-note">Из рассказа не удалось заполнить ни одного пустого поля.</p>
+            )}
+            {result.skipped.length > 0 && (
+              <p className="settings-note">
+                Уже заполнено раньше и не тронуто: {sellerStoryFieldWords(result.skipped)}.
+              </p>
+            )}
+            {result.rejected.length > 0 && (
+              <Alert data-testid="seller-story-rejected">
+                Отброшено защитой (в тексте инструкции для модели): {sellerStoryFieldWords(result.rejected)}.
+              </Alert>
+            )}
+            {(result.aside.address || result.aside.checkIn || result.aside.categories.length > 0) && (
+              <div data-testid="seller-story-aside">
+                <p className="settings-note">
+                  Из рассказа, никуда не записано — сверьте с «Данными объекта» и «Тарифами»:
+                </p>
+                <ul className="settings-note">
+                  {result.aside.objectName && <li>Название: {result.aside.objectName}</li>}
+                  {result.aside.address && <li>Адрес: {result.aside.address}</li>}
+                  {(result.aside.checkIn || result.aside.checkOut) && (
+                    <li>
+                      Заезд {result.aside.checkIn ?? '—'}, выезд {result.aside.checkOut ?? '—'}
+                    </li>
+                  )}
+                  {result.aside.categories.map((c, i) => (
+                    <li key={i}>
+                      {c.name} ({c.kind === 'bed' ? 'койка' : 'номер'}, до {c.capacity} гостей)
+                      {c.priceMinor !== null ? ` — ${formatMoney(String(c.priceMinor), 'KZT')} за ночь` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.unparsed.length > 0 && (
+              <p className="settings-note">Не разобрано: {result.unparsed.join('; ')}</p>
+            )}
+          </div>
+        )}
+      </form>
+    </details>
+  );
+}
+
+/**
+ * Окно «Модель» (С2, Q-186): API-ключ модели самого партнёра — расход на нём. Ключ хранит только бот,
+ * шифрованным; здесь он вводится, проверяется живым вызовом и сохраняется, обратно не читается —
+ * видны лишь последние 4 знака. Ключ снят — ходы идут ключом платформы, как раньше.
+ */
+export function LlmKeyForm({
+  status,
+  readOnly,
+  save = llmKeySaveAction,
+  check = llmKeyCheckAction,
+}: {
+  status: { set: boolean; last4: string | null };
+  readOnly: string | null;
+  save?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
+  check?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
+}) {
+  const [saved, saveAction, saving] = useActionState<LlmKeyResult | null, FormData>(save, null);
+  const [checked, checkAction, checking] = useActionState<LlmKeyResult | null, FormData>(check, null);
+  // снятие — своя форма со скрытым полем: name на кнопке с formAction-функцией React затирает
+  const [cleared, clearAction, clearing] = useActionState<LlmKeyResult | null, FormData>(save, null);
+  const busy = saving || checking || clearing;
+  // состояние — серверное: удачное действие зовёт refresh(), и props приходят свежими
+  return (
+    <Stack>
+      <p data-testid="seller-llm-key-state">
+        {status.set ? (
+          <>
+            Ключ установлен, оканчивается на <b>····{status.last4}</b>. Расход модели — на ключе
+            партнёра.
+          </>
+        ) : (
+          <>Ключ не задан: продавец ходит ключом платформы.</>
+        )}
+      </p>
+      <form key={saved?.attempt ?? 0} className="stack stack--sm">
+        <Field label="API-ключ модели">
+          <Input
+            name="key"
+            type="password"
+            maxLength={200}
+            autoComplete="off"
+            placeholder="sk-…"
+            data-testid="seller-llm-key-input"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Row>
+          <Button
+            type="submit"
+            formAction={checkAction}
+            tone="secondary"
+            disabled={busy || readOnly !== null}
+            aria-busy={checking}
+            data-testid="seller-llm-key-check"
+          >
+            {checking ? 'Проверяем…' : 'Проверить'}
+          </Button>
+          <Button
+            type="submit"
+            formAction={saveAction}
+            disabled={busy || readOnly !== null}
+            aria-busy={saving}
+            data-testid="seller-llm-key-save"
+          >
+            {saving ? 'Сохраняем…' : 'Сохранить'}
+          </Button>
+        </Row>
+        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {(saved?.message || checked?.message) && (
+          <Notice data-testid="seller-llm-key-message">{saved?.message ?? checked?.message}</Notice>
+        )}
+        {(saved?.error || checked?.error) && (
+          <Alert data-testid="seller-llm-key-error">{saved?.error ?? checked?.error}</Alert>
+        )}
+      </form>
+      {status.set && (
+        <form action={clearAction} className="stack stack--sm">
+          <input type="hidden" name="clear" value="1" />
+          <Row>
+            <Button
+              type="submit"
+              tone="danger"
+              disabled={busy || readOnly !== null}
+              aria-busy={clearing}
+              data-testid="seller-llm-key-clear"
+            >
+              Снять ключ
+            </Button>
+          </Row>
+        </form>
+      )}
+      {cleared?.message && (
+        <Notice data-testid="seller-llm-key-cleared">{cleared.message}</Notice>
+      )}
+      {cleared?.error && <Alert data-testid="seller-llm-key-error">{cleared.error}</Alert>}
+      <p className="settings-note">
+        Ключ хранит только продавец — шифрованным; здесь видны лишь последние 4 знака. Ключ
+        недействителен или кончились средства — продавец гостиницы молчит и раздел предупредит,
+        ключ платформы вместо партнёрского не подставляется.
+      </p>
     </Stack>
   );
 }

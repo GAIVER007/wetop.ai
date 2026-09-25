@@ -176,9 +176,19 @@ class CascadeClient:
         return self._settings.llm_models
 
     async def generate(
-        self, messages: list[dict], *, use_tools: bool = True, max_tool_rounds: int = 3
+        self,
+        messages: list[dict],
+        *,
+        use_tools: bool = True,
+        max_tool_rounds: int = 3,
+        api_key: str | None = None,
     ) -> LlmResult:
-        """Один вызов слоя модели. Никогда не поднимает исключение."""
+        """Один вызов слоя модели. Никогда не поднимает исключение.
+
+        `api_key` — ключ модели партнёра на этот ход (С2, Q-186): с ним каскад
+        ходит к тому же роутеру, но расход ложится на партнёра. None — ключ
+        платформы; пустая строка — честный отказ роутера, подмены нет.
+        """
         # маскировка до каскада: запасная ступень не должна увидеть ПД
         masker = MessageMasker(
             allowlist_phones=self._settings.pii_allowlist_phones_list,
@@ -196,7 +206,12 @@ class CascadeClient:
             for model in self.models:
                 started = time.perf_counter()
                 outcome, text, tokens = await self._attempt(
-                    model, masked, masker, use_tools=use_tools, max_tool_rounds=max_tool_rounds
+                    model,
+                    masked,
+                    masker,
+                    use_tools=use_tools,
+                    max_tool_rounds=max_tool_rounds,
+                    api_key=api_key,
                 )
                 seconds = round(time.perf_counter() - started, 3)
                 if outcome == OK:
@@ -227,6 +242,7 @@ class CascadeClient:
         *,
         use_tools: bool,
         max_tool_rounds: int,
+        api_key: str | None = None,
     ) -> tuple[str, str, int | None]:
         """Одна ступень -> (исход, текст, токены).
 
@@ -236,6 +252,8 @@ class CascadeClient:
         исход invalid: сбой одной ступени не должен класть остальные.
         """
         assert self._client is not None
+        # Ключ партнёра — тем же клиентом и пулом соединений, только другой Authorization.
+        client = self._client if api_key is None else self._client.with_options(api_key=api_key)
         settings = self._settings
         tools = self._tools.specs_for_openai() if use_tools else []
         # Копия: раунды инструментов дописывают сообщения, а следующая
@@ -246,7 +264,7 @@ class CascadeClient:
         try:
             for round_no in range(max_tool_rounds + 1):
                 try:
-                    response = await self._client.chat.completions.create(
+                    response = await client.chat.completions.create(
                         model=model,
                         messages=convo,
                         temperature=settings.llm_temperature,

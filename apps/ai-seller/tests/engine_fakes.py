@@ -69,10 +69,14 @@ class ScriptedLlm:
         self.mapping = mapping or {}
         self.calls = 0
         self.last_messages: list[dict] | None = None
+        # С2: ключ модели партнёра, который движок передал на ходе (None — ключ платформы)
+        self.last_api_key: str | None = None
 
-    async def generate(self, messages: list[dict], *, use_tools: bool = True, **_: object) -> LlmResult:
+    async def generate(self, messages: list[dict], *, use_tools: bool = True, **kwargs: object) -> LlmResult:
         self.calls += 1
         self.last_messages = messages
+        key = kwargs.get("api_key")
+        self.last_api_key = key if isinstance(key, str) else None
         item = self.replies.pop(0) if len(self.replies) > 1 else self.replies[0]
         if isinstance(item, Exception):
             return LlmResult(ok=False, error="all_models_failed", mapping=dict(self.mapping), attempts=[])

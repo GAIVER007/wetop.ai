@@ -49,6 +49,31 @@ export class AiSellerController {
     return this.seller.apply();
   }
 
+  /** Рассказ о гостинице своими словами → черновик профиля мастера (С1); адрес и цены — только сверить */
+  @Post('extract')
+  @HttpCode(200)
+  extract(@Body() body: { story?: unknown } | undefined) {
+    return this.seller.extract(body?.story);
+  }
+
+  /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
+  @Get('llm-key')
+  @Header('Cache-Control', 'no-store')
+  llmKey() {
+    return this.seller.llmKey();
+  }
+
+  @Put('llm-key')
+  saveLlmKey(@Body() body: { key?: unknown } | undefined) {
+    return this.seller.saveLlmKey(body?.key);
+  }
+
+  @Post('llm-key/check')
+  @HttpCode(200)
+  checkLlmKey(@Body() body: { key?: unknown } | undefined) {
+    return this.seller.checkLlmKey(body?.key);
+  }
+
   @Get('facts')
   @Header('Cache-Control', 'no-store')
   facts() {

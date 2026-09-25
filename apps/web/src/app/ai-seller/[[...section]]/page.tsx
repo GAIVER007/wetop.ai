@@ -13,6 +13,7 @@ import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
   Badge,
+  type BadgeTone,
   EmptyState,
   Fact,
   Grid,
@@ -27,27 +28,45 @@ import {
 } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import {
+  SELLER_MANNER_EXAMPLES,
+  SELLER_SETUP_STEPS,
   SELLER_TABS,
   categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
   conversationStageLabel,
+  defaultSellerStep,
   knowledgeSourceLabel,
   leadFacts,
   sellerBanner,
+  sellerBriefing,
+  sellerSetupProgress,
+  sellerStepNumber,
+  userDocuments,
+  type SellerProfileStep,
+  type SellerStepProgress,
+  type SellerStepState,
   type SellerView,
 } from '../../../lib/ai-seller';
 import { almatyMoment, almatyWhen } from '../../../lib/almaty';
 import { displayPeriod } from '../../../lib/display-date';
-import { sellerApi, type SellerStatus } from '../../../lib/api';
+import {
+  sellerApi,
+  type SellerFactsView,
+  type SellerProfileBody,
+  type SellerStatus,
+} from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
+import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../analytics/setup/forms';
 import {
+  ApplySellerForm,
   DialogModeButtons,
   DialogReplyForm,
   KnowledgeUploadForm,
   SandboxForm,
-  SellerProfileForm,
+  SellerStepForm,
+  type MannerChoice,
 } from '../forms';
 import '../ai-seller.css';
 
@@ -111,19 +130,29 @@ export default async function AiSellerPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
-        <SellerScreen view={view} mode={one(query.mode)} id={one(query.id)} />
+        <SellerScreen view={view} mode={one(query.mode)} id={one(query.id)} step={one(query.step)} />
       </Suspense>
     </Page>
   );
 }
 
-async function SellerScreen({ view, mode, id }: { view: SellerView; mode: string; id: string }) {
+async function SellerScreen({
+  view,
+  mode,
+  id,
+  step,
+}: {
+  view: SellerView;
+  mode: string;
+  id: string;
+  step: string;
+}) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   return (
     <Stack>
       <SellerBanner status={status.value} />
-      {view === '' && <SettingsView />}
+      {view === '' && <SetupView status={status.value} step={step} />}
       {view === 'data' && <DataView />}
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
@@ -165,17 +194,239 @@ function SellerBanner({ status }: { status: SellerStatus }) {
   );
 }
 
-async function SettingsView() {
-  const loaded = await settle(sellerApi.profile());
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const STEP_TONE: Record<SellerStepState, BadgeTone> = {
+  done: 'ok',
+  todo: 'warn',
+  optional: 'neutral',
+  later: 'neutral',
+};
+
+/** Варианты «Манеры» из слов домена и примеров, как это звучит у продавца */
+const manner = <T extends string>(
+  labels: Readonly<Record<T, string>>,
+  examples: Readonly<Record<T, string>>,
+): MannerChoice[] =>
+  (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value], example: examples[value] }));
+
+/**
+ * «Настройки» — пошаговая настройка продавца (поручение владельца 25.09.2026,
+ * `plans/ai-seller-setup-wizard-2026-09-25.md`): наверху шаги с состоянием словом, ниже — открытый шаг. Без шага в
+ * адресе открывается первый незаполненный; всё заполнено — «Запуск».
+ */
+async function SetupView({ status, step: raw }: { status: SellerStatus; step: string }) {
+  const [loaded, knowledge] = await Promise.all([
+    settle(sellerApi.profile()),
+    status.state === 'ready' ? settle(sellerApi.knowledge()) : Promise.resolve(null),
+  ]);
   if (!loaded.ok) return <LoadError testId="seller-profile-error" {...loadErrorProps(loaded.error)} />;
+  const items = knowledge?.ok ? knowledge.value.items : null;
+  const progress = sellerSetupProgress({
+    saved: loaded.value.saved,
+    profile: loaded.value.profile,
+    // продавец подключён, а список не пришёл — шаг «по желанию», а не «после подключения»
+    documents: knowledge === null ? null : items ? userDocuments(items) : 0,
+    applied: status.profile.applied && status.facts.applied,
+  });
+  const step = sellerStepNumber(raw) ?? defaultSellerStep(progress);
+  const current = progress[step - 1]!;
+  const profile = loaded.value.profile;
   return (
-    <SellerProfileForm
-      initial={loaded.value.profile}
+    <Stack>
+      <SetupSteps progress={progress} current={step} />
+      <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
+        <div className="form-section-title">
+          <span>{pad(step)}</span>
+          <div>
+            <h2 id="seller-step-title">{current.title}</h2>
+            <p>{current.hint}</p>
+          </div>
+        </div>
+        {current.key === 'docs' ? (
+          <DocsStep ready={status.state === 'ready'} items={items} />
+        ) : current.key === 'launch' ? (
+          <LaunchStep profile={profile} progress={progress} />
+        ) : (
+          <ProfileStep stepKey={current.key} profile={profile} />
+        )}
+      </Panel>
+    </Stack>
+  );
+}
+
+/** Список шагов: номер, название и состояние словом; открытый шаг — `aria-current="step"` */
+function SetupSteps({ progress, current }: { progress: SellerStepProgress[]; current: number }) {
+  return (
+    <nav aria-label="Шаги настройки продавца">
+      <ol className="seller-steps">
+        {progress.map((p) => (
+          <li key={p.key}>
+            <Link
+              href={`/ai-seller?step=${p.step}`}
+              prefetch={false}
+              className="seller-steps__link"
+              aria-current={p.step === current ? 'step' : undefined}
+            >
+              <span className="seller-steps__num" aria-hidden="true">
+                {pad(p.step)}
+              </span>
+              <span className="seller-steps__title">{p.title}</span>
+              <Badge tone={STEP_TONE[p.state]} className="seller-steps__state">
+                {p.word}
+              </Badge>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+/** Шаг с полями профиля; у «Цен» над полями — что продавец скажет о цене (только для чтения) */
+function ProfileStep({ stepKey, profile }: { stepKey: SellerProfileStep; profile: SellerProfileBody }) {
+  return (
+    <SellerStepForm
+      // своя форма на шаг: ответ действия прошлого шага (отказ и введённое) не переезжает на следующий
+      key={stepKey}
+      stepKey={stepKey}
+      initial={profile}
+      first={stepKey === SELLER_SETUP_STEPS[0].key}
       languages={Object.entries(SELLER_LANGUAGES).map(([value, label]) => ({ value, label }))}
-      addressForms={Object.entries(SELLER_ADDRESS_FORMS).map(([value, label]) => ({ value, label }))}
-      emojis={Object.entries(SELLER_EMOJI).map(([value, label]) => ({ value, label }))}
-      replyLengths={Object.entries(SELLER_REPLY_LENGTHS).map(([value, label]) => ({ value, label }))}
-    />
+      addressForms={manner(SELLER_ADDRESS_FORMS, SELLER_MANNER_EXAMPLES.addressForm)}
+      emojis={manner(SELLER_EMOJI, SELLER_MANNER_EXAMPLES.emoji)}
+      replyLengths={manner(SELLER_REPLY_LENGTHS, SELLER_MANNER_EXAMPLES.replyLength)}
+    >
+      {stepKey === 'prices' && (
+        <Suspense fallback={<LoadingState label="Загружаем цены…" />}>
+          <StepPrices />
+        </Suspense>
+      )}
+    </SellerStepForm>
+  );
+}
+
+/** Цены на шаге «Цены»: их продавец берёт из тарифа сайта, здесь их не вводят — иначе у ночи было бы две цены */
+async function StepPrices() {
+  const loaded = await settle(sellerApi.facts());
+  if (!loaded.ok) return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
+  return (
+    <Stack>
+      <PricesTable view={loaded.value} />
+      <Row>
+        <Link className="btn btn--secondary" href="/rates">
+          Изменить цены в «Тарифах»
+        </Link>
+        <Link className="btn btn--secondary" href="/hotel-settings">
+          Изменить карточку объекта
+        </Link>
+      </Row>
+      <p className="settings-note">
+        Ниже — что добавить к цене словами: продавец скажет это гостю вместе с суммой.
+      </p>
+    </Stack>
+  );
+}
+
+/** Шаг «Документы»: загрузка в знания продавца; без подключённого продавца — пропустить и вернуться позже */
+function DocsStep({
+  ready,
+  items,
+}: {
+  ready: boolean;
+  items: Array<{ source: string; chunks: number; createdAt: string | null }> | null;
+}) {
+  return (
+    <Stack>
+      {ready ? (
+        <>
+          <p className="settings-note">
+            Прайс, правила, описание номеров — продавец отвечает и по ним. Цены и адрес сюда класть не нужно: их
+            продавец берёт из «Данных объекта». Шаг можно пропустить.
+          </p>
+          <KnowledgeUploadForm />
+          {items && items.length > 0 && <KnowledgeTable items={items} />}
+        </>
+      ) : (
+        <EmptyState
+          icon={<Icon name="journal" width={32} height={32} />}
+          title="Документы — после подключения продавца"
+          data-testid="seller-docs-later"
+        >
+          Сюда загружают прайс, правила и описание файлом. Шаг можно пропустить и вернуться, когда продавец будет
+          подключён.
+        </EmptyState>
+      )}
+      <div className="form-footer">
+        <Link className="btn btn--secondary" href="/ai-seller?step=5">
+          Назад
+        </Link>
+        <Link className="btn" href="/ai-seller?step=7" data-testid="seller-step-next">
+          Дальше
+        </Link>
+      </div>
+    </Stack>
+  );
+}
+
+/**
+ * «Запуск»: что продавец получит — словами, а не текстом промпта (ТЗ §2 п. 2); чего не хватает; «Применить» — сейчас,
+ * а не через минуту; дальше — «Проверка» и «Код для сайта».
+ */
+async function LaunchStep({
+  profile,
+  progress,
+}: {
+  profile: SellerProfileBody;
+  progress: SellerStepProgress[];
+}) {
+  const missing = progress.filter((p) => p.key !== 'docs' && p.key !== 'launch' && p.state === 'todo');
+  const facts = await settle(sellerApi.facts());
+  const prices = facts.ok ? facts.value.prices : [];
+  // та же граница, что в «Данных объекта»: цена уходит продавцу, только если она одна весь срок (ADR-081)
+  const known = prices.filter((p) => p.reason === 'same' && p.priceMinor !== null).length;
+  return (
+    <Stack>
+      {missing.length > 0 && (
+        <Alert tone="warning" data-testid="seller-setup-missing">
+          Не заполнено: {missing.map((m) => `«${m.title}»`).join(', ')}. Продавец будет работать и так, но гостю
+          ответит хуже — вернитесь к этим шагам.
+        </Alert>
+      )}
+      <SectionTitle first>Что получит продавец</SectionTitle>
+      <Grid min={240} data-testid="seller-briefing">
+        {sellerBriefing(profile).map((line) => (
+          <Fact key={line.label} label={line.label} value={line.value} />
+        ))}
+      </Grid>
+      {facts.ok && (
+        <p className="settings-note" data-testid="seller-briefing-facts">
+          О гостинице продавец знает из «Данных объекта»: адрес, заезд с {facts.value.facts.check_in}, выезд до{' '}
+          {facts.value.facts.check_out},{' '}
+          {pluralRu(prices.length, ['категория', 'категории', 'категорий'])}. Цену за ночь он назовёт у {known} из{' '}
+          {prices.length}, у остальных скажет «уточнит администратор».
+        </p>
+      )}
+      <p className="settings-note">
+        Промпт продавец собирает сам: из этих ответов и своих правил — не считать деньги, не обещать того, чего он не
+        делает, звать человека. Свои правила стереть нельзя, поэтому текста промпта здесь нет.
+      </p>
+      <ApplySellerForm />
+      <Row>
+        <Link className="btn btn--secondary" href="/ai-seller/check">
+          Поговорить с продавцом
+        </Link>
+        <Link className="btn btn--secondary" href="/ai-seller/embed">
+          Код для сайта
+        </Link>
+      </Row>
+      <div className="form-footer">
+        <Link className="btn btn--secondary" href="/ai-seller?step=6">
+          Назад
+        </Link>
+        <span />
+      </div>
+    </Stack>
   );
 }
 
@@ -186,7 +437,7 @@ async function SettingsView() {
 async function DataView() {
   const loaded = await settle(sellerApi.facts());
   if (!loaded.ok) return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
-  const { facts, applied, ratePlan, window, prices } = loaded.value;
+  const { facts, applied } = loaded.value;
   return (
     <Stack>
       <Panel data-testid="seller-facts">
@@ -207,46 +458,7 @@ async function DataView() {
         </p>
       </Panel>
       <Panel>
-        <SectionTitle first>
-          Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}
-        </SectionTitle>
-        {!ratePlan && (
-          <Alert tone="warning" data-testid="seller-no-rate-plan">
-            Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор». Выберите тариф
-            виджета бронирования в «Настройках сайта».
-          </Alert>
-        )}
-        <Table aria-label="Категории и цены продавца" data-testid="seller-prices">
-          <thead>
-            <tr>
-              <th>Категория</th>
-              <th>Мест</th>
-              <th>Гостей</th>
-              <th>Продавец скажет гостю</th>
-            </tr>
-          </thead>
-          <tbody>
-            {prices.map((p) => {
-              const line = categoryPriceLine(p, facts.currency);
-              return (
-                <tr key={p.code}>
-                  <td>{p.name}</td>
-                  <td>{p.units}</td>
-                  <td>{p.capacity}</td>
-                  <td>
-                    {line.value}
-                    {line.note && <span className="sub"> — {line.note}</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-        <p className="settings-note">
-          Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не меняется: названная им
-          цена становится обещанием гостю. Иначе он говорит «уточнит администратор». Наличие мест продавец не знает:
-          забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).
-        </p>
+        <PricesTable view={loaded.value} />
       </Panel>
       <Row>
         <Link className="btn btn--secondary" href="/hotel-settings">
@@ -260,6 +472,81 @@ async function DataView() {
         </Link>
       </Row>
     </Stack>
+  );
+}
+
+/** Категории и цены — ровно то, что продавец скажет гостю, и почему у категории цены нет (ADR-081, Q-179) */
+function PricesTable({ view }: { view: SellerFactsView }) {
+  const { facts, ratePlan, window, prices } = view;
+  return (
+    <Stack>
+      <SectionTitle first>Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}</SectionTitle>
+      {!ratePlan && (
+        <Alert tone="warning" data-testid="seller-no-rate-plan">
+          Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор». Выберите тариф
+          виджета бронирования в «Настройках сайта».
+        </Alert>
+      )}
+      <Table aria-label="Категории и цены продавца" data-testid="seller-prices">
+        <thead>
+          <tr>
+            <th>Категория</th>
+            <th>Мест</th>
+            <th>Гостей</th>
+            <th>Продавец скажет гостю</th>
+          </tr>
+        </thead>
+        <tbody>
+          {prices.map((p) => {
+            const line = categoryPriceLine(p, facts.currency);
+            return (
+              <tr key={p.code}>
+                <td>{p.name}</td>
+                <td>{p.units}</td>
+                <td>{p.capacity}</td>
+                <td>
+                  {line.value}
+                  {line.note && <span className="sub"> — {line.note}</span>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+      <p className="settings-note">
+        Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не меняется: названная им
+        цена становится обещанием гостю. Иначе он говорит «уточнит администратор». Наличие мест продавец не знает:
+        забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).
+      </p>
+    </Stack>
+  );
+}
+
+/** Загруженные документы продавца */
+function KnowledgeTable({
+  items,
+}: {
+  items: Array<{ source: string; chunks: number; createdAt: string | null }>;
+}) {
+  return (
+    <Table aria-label="Документы продавца" data-testid="seller-knowledge">
+      <thead>
+        <tr>
+          <th>Документ</th>
+          <th>Частей</th>
+          <th>Загружен</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((d, i) => (
+          <tr key={`${d.source}-${i}`}>
+            <td>{knowledgeSourceLabel(d.source)}</td>
+            <td>{d.chunks}</td>
+            <td>{almatyMoment(d.createdAt)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 }
 
@@ -299,24 +586,7 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
       ) : (
         <Panel>
           <SectionTitle first>Загружено</SectionTitle>
-          <Table aria-label="Документы продавца" data-testid="seller-knowledge">
-            <thead>
-              <tr>
-                <th>Документ</th>
-                <th>Частей</th>
-                <th>Загружен</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loaded.value.items.map((d, i) => (
-                <tr key={`${d.source}-${i}`}>
-                  <td>{knowledgeSourceLabel(d.source)}</td>
-                  <td>{d.chunks}</td>
-                  <td>{almatyMoment(d.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <KnowledgeTable items={loaded.value.items} />
         </Panel>
       )}
     </Stack>

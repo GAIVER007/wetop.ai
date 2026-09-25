@@ -309,6 +309,67 @@ curl -s https://assistant.wetop.ai/health                 # 200
 cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d api web
 ```
 
+**Помощник одним скриптом (25.09.2026).** Шаги 2, 3 и 5 для помощника разом, когда папка `/opt/wetop-bot/assistant` с
+`.env` из `env.example` и `compose.override.yml` уже есть (шаг 5а), а в `.env` вписаны данные роутера моделей
+(`LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`). Скрипт ставит переменные помощника из таблицы ниже, пароль панели оставляет
+пустым, делает два общих ключа и пишет их в оба файла, не печатая значений; пустые настройки своей базы заполняет,
+заполненные не трогает. Затем поднимает бота, добавляет правило туннеля и перезапускает `api`, `web` и `cloudflared` —
+стойка на минуту-две недоступна. Запись DNS `assistant` — CNAME на `<ID туннеля>.cfargotunnel.com` с оранжевым облаком —
+делается в панели Cloudflare после скрипта: ID — в строке `tunnel:` вывода шага 3/4.
+
+```bash
+cat > /root/assistant-setup.sh <<'SH'
+set -eu
+B=/opt/wetop-bot/assistant/.env
+P=/root/wetop/.env
+F=/root/wetop/deploy/cloudflared/wetop.yml
+for f in "$B" "$P" "$F" /opt/wetop-bot/assistant/compose.override.yml; do
+  [ -f "$f" ] || { echo "СТОП: нет файла $f"; exit 1; }
+done
+put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
+empty() { ! grep -qE "^$2=[^[:space:]#]" "$1"; }
+for k in LLM_API_KEY LLM_BASE_URL LLM_MODEL; do
+  if empty "$B" "$k"; then echo "СТОП: в $B пусто $k — впишите данные роутера моделей (nano $B) и запустите снова"; exit 1; fi
+done
+put "$B" APP_ENV production
+put "$B" PUBLIC_BASE_URL https://assistant.wetop.ai
+put "$B" CORS_ORIGINS https://app.wetop.ai,https://wetop.ai,https://www.wetop.ai
+put "$B" BOT_ROLE support
+put "$B" INTEGRATION_MODE wetop
+put "$B" INTEGRATION_BASE_URL http://api:3001
+put "$B" WIDGET_SITE_HOSTS app.wetop.ai,wetop.ai,www.wetop.ai
+put "$B" DASHBOARD_ADMIN_EMAIL ''
+put "$B" DASHBOARD_ADMIN_PASSWORD_HASH ''
+put "$B" SELLER_SERVICE_KEY ''
+if empty "$B" DASHBOARD_PATH_PREFIX; then put "$B" DASHBOARD_PATH_PREFIX "/p$(openssl rand -hex 6)"; fi
+if empty "$B" DASHBOARD_JWT_SECRET; then put "$B" DASHBOARD_JWT_SECRET "$(openssl rand -hex 32)"; fi
+if empty "$B" POSTGRES_HOST; then put "$B" POSTGRES_HOST postgres; fi
+if empty "$B" POSTGRES_PORT; then put "$B" POSTGRES_PORT 5432; fi
+if empty "$B" POSTGRES_DB; then put "$B" POSTGRES_DB assistant; fi
+if empty "$B" POSTGRES_USER; then put "$B" POSTGRES_USER assistant; fi
+if empty "$B" POSTGRES_PASSWORD; then put "$B" POSTGRES_PASSWORD "$(openssl rand -hex 16)"; fi
+if empty "$B" REDIS_URL; then put "$B" REDIS_URL redis://redis:6379/0; fi
+W=$(openssl rand -hex 32); K=$(openssl rand -hex 32)
+put "$B" WIDGET_IDENTITY_SECRET "$W"; put "$B" INTEGRATION_API_KEY "$K"
+put "$P" ASSISTANT_URL https://assistant.wetop.ai
+put "$P" WIDGET_IDENTITY_SECRET "$W"; put "$P" ASSISTANT_READ_KEY "$K"
+unset W K
+echo "1/4 переменные записаны"
+cd /opt/wetop-bot/assistant
+docker compose up -d --build --force-recreate app monitor
+for i in $(seq 1 36); do curl -sf 127.0.0.1:8000/health >/dev/null && break; sleep 5; done
+echo "2/4 помощник: $(curl -s 127.0.0.1:8000/health)"
+grep -q 'assistant.wetop.ai' "$F" || sed -i 's#^\(\s*\)- service: http_status:404#\1- hostname: assistant.wetop.ai\n\1  path: ^/(widget/.*|health)$\n\1  service: http://assistant:8000\n\1- service: http_status:404#' "$F"
+echo "3/4 правило туннеля: $(grep -c 'assistant.wetop.ai' "$F"), $(grep '^tunnel:' "$F")"
+cd /root/wetop/deploy
+docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api web cloudflared
+echo "4/4 в общей сети: $(docker network inspect wetop-internal --format '{{range .Containers}}{{.Name}} {{end}}')"
+SH
+bash /root/assistant-setup.sh
+```
+
+Проверка после записи DNS: `curl -s https://assistant.wetop.ai/health` — `ok`; в стойке справа внизу — кнопка чата.
+
 **Что вписать в `.env` помощника.**
 
 | Группа | Переменные |

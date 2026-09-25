@@ -1,6 +1,12 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { sellerProfileFromForm } from '../../lib/ai-seller';
+import { redirect } from 'next/navigation';
+import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
+import {
+  SELLER_SETUP_STEPS,
+  sellerStepFromForm,
+  type SellerProfileStep,
+} from '../../lib/ai-seller';
 import { ApiError, sellerApi, type SellerProfileBody } from '../../lib/api';
 
 /**
@@ -23,18 +29,37 @@ export interface SellerFormResult {
   values?: SellerProfileBody;
 }
 
-/** «Применить»: сохранить профиль и сразу отправить продавцу профиль и факты объекта */
-export async function applySellerAction(
+/**
+ * Шаг настройки (`plans/ai-seller-setup-wizard-2026-09-25.md`): сохранить поля шага поверх сохранённого профиля и
+ * перейти. «Назад» и «Сохранить и дальше» сохраняют оба — возврат назад введённого не теряет. Отказ домена
+ * остаётся на шаге вместе с введённым.
+ */
+export async function saveSellerStepAction(
+  key: SellerProfileStep,
   prev: SellerFormResult | null,
   form: FormData,
 ): Promise<SellerFormResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
-  const body = sellerProfileFromForm(form);
+  const index = SELLER_SETUP_STEPS.findIndex((s) => s.key === key);
+  let body: SellerProfileBody | undefined;
   try {
+    const current = await sellerApi.profile();
+    body = sellerStepFromForm(key, form, current.profile);
     await sellerApi.saveProfile(body);
   } catch (e) {
-    return { error: describe(e), warning: null, message: null, attempt, values: body };
+    // профиль не загрузился — на экран вернутся хотя бы поля этого шага: форма после ответа сбрасывается сама
+    const values = body ?? sellerStepFromForm(key, form, DEFAULT_SELLER_PROFILE);
+    return { error: describe(e), warning: null, message: null, attempt, values };
   }
+  refresh();
+  const back = form.get('go') === 'back';
+  const next = back ? Math.max(index - 1, 0) : Math.min(index + 1, SELLER_SETUP_STEPS.length - 1);
+  redirect(`/ai-seller?step=${SELLER_SETUP_STEPS[next]!.step}`);
+}
+
+/** «Применить» на шаге «Запуск»: сразу отправить продавцу сохранённые настройки и данные объекта */
+export async function applySellerAction(prev: SellerFormResult | null): Promise<SellerFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
   try {
     await sellerApi.apply();
     refresh();
@@ -47,13 +72,19 @@ export async function applySellerAction(
   } catch (e) {
     refresh();
     const status = e instanceof ApiError ? e.status : undefined;
+    if (status === 409)
+      return {
+        error: null,
+        warning: 'Сначала заполните и сохраните первый шаг — «Знакомство».',
+        message: null,
+        attempt,
+      };
     if (status === 422)
       return {
-        error: `Настройки сохранены, но продавец их отклонил: ${describe(e)}`,
+        error: `Продавец отклонил настройки: ${describe(e)}`,
         warning: null,
         message: null,
         attempt,
-        values: body,
       };
     if (status === 403)
       return { error: null, warning: `Настройки сохранены. ${describe(e)}.`, message: null, attempt };
@@ -90,7 +121,8 @@ export async function uploadKnowledgeAction(
     return { error: 'Выберите файл: md, txt, pdf, docx или xlsx', message: null, attempt };
   try {
     const r = await sellerApi.uploadKnowledge(file);
-    revalidatePath('/ai-seller/knowledge');
+    // список документов — и во вкладке «Знания», и на шаге «Документы» настройки
+    refresh();
     return {
       error: null,
       message: `${r.created ? 'Загружено' : 'Обновлено'}: «${r.source}», частей ${r.chunks}.`,

@@ -9,6 +9,8 @@
  * тексте ошибки.
  */
 
+import { createHmac } from 'node:crypto';
+
 const TIMEOUT_MS = 15_000;
 /** Ход в песочнице — каскад моделей, до минуты (ТЗ §3 бота); ждём с запасом */
 const SANDBOX_TIMEOUT_MS = 90_000;
@@ -45,9 +47,34 @@ export interface BotPanelClientConfig {
   /** Внутренний адрес API панели бота, с путём панели (`DASHBOARD_PATH_PREFIX` бота) */
   baseUrl: string;
   serviceKey: string;
+  /**
+   * Организация вызова (Э4, ADR-083): у продавца много гостиниц, и панель отдаёт строки ровно одной — заголовок
+   * `X-Organization` на каждом вызове, `organization_id` в теле песочницы. Без неё — помощник, как раньше.
+   */
+  organizationId?: string;
   /** Чья это панель — для слов ошибок; без него — продавец, как было до «Техподдержки» */
   bot?: BotNames;
   fetch?: typeof fetch;
+}
+
+/** Гостиница у продавца, как её заводит платформа (`PUT /seller/organizations/{id}`, Э4) */
+export interface BotOrganization {
+  name: string;
+  publicKey: string;
+  active: boolean;
+  hosts: string[];
+}
+
+/**
+ * Публичный ключ виджета гостиницы (Э4): `sk_` + первые 24 hex HMAC-SHA256(служебный ключ, `seller-widget|<org id>`).
+ * Считает платформа и никуда не записывает — ключ выводим заново; из него служебный ключ не восстановить, поэтому ему
+ * можно стоять в теге на чужой странице. Продавец хранит строку и просто сравнивает.
+ */
+export function widgetOrgKey(serviceKey: string, organizationId: string): string {
+  return (
+    'sk_' +
+    createHmac('sha256', serviceKey).update(`seller-widget|${organizationId}`).digest('hex').slice(0, 24)
+  );
 }
 
 export interface BotKnowledgeFile {
@@ -104,6 +131,7 @@ export class BotPanelClient {
   /** Корень экземпляра без пути панели — для песочницы */
   private readonly origin: string;
   private readonly key: string;
+  private readonly organizationId: string | null;
   private readonly bot: BotNames;
   private readonly fetchFn: typeof fetch;
 
@@ -116,6 +144,7 @@ export class BotPanelClient {
     this.base = base.replace(/\/+$/, '');
     this.origin = new URL(this.base).origin;
     this.key = config.serviceKey.trim();
+    this.organizationId = config.organizationId?.trim() || null;
     this.bot = config.bot ?? SELLER_BOT;
     this.fetchFn = config.fetch ?? fetch;
   }
@@ -163,10 +192,25 @@ export class BotPanelClient {
     return this.request(
       'POST',
       SANDBOX_PATH,
-      JSON.stringify({ external_id: input.externalId, text: input.text }),
+      JSON.stringify({
+        external_id: input.externalId,
+        text: input.text,
+        // у продавца ход песочницы идёт в организации: чей промпт и чьи знания брать (Э4)
+        ...(this.organizationId ? { organization_id: this.organizationId } : {}),
+      }),
       SANDBOX_TIMEOUT_MS,
       this.origin,
     );
+  }
+
+  /** Завести или поправить гостиницу у продавца (Э4): имя, действует ли, домены, публичный ключ виджета */
+  putOrganization(id: string, org: BotOrganization): Promise<Json> {
+    return this.json('PUT', `/seller/organizations/${encodeURIComponent(id)}`, {
+      name: org.name,
+      public_key: org.publicKey,
+      active: org.active,
+      hosts: org.hosts,
+    });
   }
 
   /**
@@ -218,6 +262,7 @@ export class BotPanelClient {
     const headers: Record<string, string> = {
       accept: 'application/json',
       'x-service-key': this.key,
+      ...(this.organizationId ? { 'x-organization': this.organizationId } : {}),
     };
     // У FormData заголовок с границей ставит сам fetch
     if (typeof body === 'string') headers['content-type'] = 'application/json';

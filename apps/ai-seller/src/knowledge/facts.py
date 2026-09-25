@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 from typing import Annotated, Literal
 
 import sqlalchemy as sa
@@ -82,8 +83,13 @@ def render(facts: ObjectFacts) -> str:
     return "\n".join(lines).strip() + "\n"
 
 
-async def replace_facts(session, embedder, facts: ObjectFacts, **ingest_kwargs) -> str:
+async def replace_facts(
+    session, embedder, facts: ObjectFacts, *, organization_id: uuid.UUID | None = None, **ingest_kwargs
+) -> str:
     """Заменить факты одной транзакцией. Возвращает 'unchanged' или 'replaced'.
+
+    organization_id (Э4): у каждой гостиницы свой platform:facts.md — замена
+    фактов одной не трогает цены другой.
 
     🔴 Удаление старых и запись новых фиксируются вместе: ingest_document делает
     единственный commit в конце. Упала запись (инъекция в поле, отказ модели
@@ -92,13 +98,17 @@ async def replace_facts(session, embedder, facts: ObjectFacts, **ingest_kwargs) 
     """
     data = render(facts).encode("utf-8")
     digest = hashlib.sha256(data).hexdigest()
-    old = (await session.execute(sa.select(Document).where(Document.source == SOURCE))).scalars().all()
+    stmt = sa.select(Document).where(Document.source == SOURCE)
+    if organization_id is not None:
+        stmt = stmt.where(Document.organization_id == organization_id)
+    old = (await session.execute(stmt)).scalars().all()
     if any(doc.file_hash == digest for doc in old):
         return "unchanged"
     try:
         for doc in old:
             await session.delete(doc)  # каскад ORM уносит куски документа
-        await ingest_document(session, embedder, source=SOURCE, data=data, **ingest_kwargs)
+        await ingest_document(session, embedder, source=SOURCE, data=data,
+                              organization_id=organization_id, **ingest_kwargs)
     except Exception:
         await session.rollback()
         raise

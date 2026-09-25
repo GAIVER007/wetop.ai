@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import secrets
+import uuid
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
@@ -21,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from src.ai.engine import IncomingMessage, build_engine
 from src.channels.sender import SendResult
-from src.dashboard import panel_conversations, panel_seller, panel_settings
+from src.dashboard import panel_conversations, panel_orgs, panel_seller, panel_settings
 from src.dashboard.auth_router import current_user
 from src.db.base import utcnow
 
@@ -36,6 +37,7 @@ panel_router = APIRouter(dependencies=[Depends(current_user)])
 panel_router.include_router(panel_conversations.router)
 panel_router.include_router(panel_settings.router)
 panel_router.include_router(panel_seller.router)
+panel_router.include_router(panel_orgs.router)
 
 SANDBOX_CHANNEL = "sandbox"
 
@@ -48,6 +50,9 @@ class SandboxIn(BaseModel):
     external_id: str
     text: str
     client_name: str | None = None
+    # Э4: у продавца ход песочницы идёт в организации — без неё непонятно,
+    # чей промпт и чьи знания брать.
+    organization_id: str | None = None
 
 
 class CollectSender:
@@ -91,6 +96,15 @@ async def sandbox(request: Request) -> JSONResponse:
     except (ValueError, ValidationError):
         return JSONResponse(status_code=400, content={"status": "bad_request"})
 
+    from src.config import normalize_bot_role
+
+    organization_id: str | None = None
+    if normalize_bot_role(request.app.state.settings.bot_role) == "seller":
+        try:
+            organization_id = str(uuid.UUID((body.organization_id or "").strip()))
+        except ValueError:
+            return JSONResponse(status_code=400, content={"status": "bad_request"})
+
     sender = CollectSender()
     try:
         engine = build_engine(request.app.state.settings, sender=sender)
@@ -101,6 +115,7 @@ async def sandbox(request: Request) -> JSONResponse:
                 text=body.text,
                 received_at=utcnow(),
                 client_name=body.client_name,
+                organization_id=organization_id,
             )
         )
     except Exception:

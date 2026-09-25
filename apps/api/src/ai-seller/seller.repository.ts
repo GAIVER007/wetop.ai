@@ -17,6 +17,24 @@ import { PrismaService } from '../database/prisma.provider';
 export const SELLER_PROFILES = Symbol('SELLER_PROFILES');
 export const SELLER_FACTS = Symbol('SELLER_FACTS');
 export const SELLER_AUDIT = Symbol('SELLER_AUDIT');
+export const SELLER_ORGS = Symbol('SELLER_ORGS');
+
+/** Организация для заведения у продавца (Э4) */
+export interface SellerOrganizationRow {
+  organizationId: string;
+  name: string;
+}
+
+/**
+ * Гостиницы для сверки с продавцом (Э4, ADR-083): организации со строкой расширения «ИИ-продавец» — любым статусом,
+ * потому что погашенное расширение тоже уходит продавцу (active=false гасит виджет, Q-183), — и домены их сайтов.
+ */
+export interface SellerOrgsRepository {
+  withExtension(): Promise<SellerOrganizationRow[]>;
+  one(organizationId: string): Promise<SellerOrganizationRow | null>;
+  /** Домены действующих сайтов организации («Настройки сайта», срез 8): с них открывается виджет */
+  hosts(organizationId: string): Promise<string[]>;
+}
 
 /** Строка `seller_profiles` (DATA_MODEL §15): поля «Настроек» плюс отметки доставки продавцу */
 export interface SellerProfileRow extends SellerProfileInput {
@@ -284,6 +302,38 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
       })),
       window,
     };
+  }
+}
+
+@Injectable()
+export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async withExtension(): Promise<SellerOrganizationRow[]> {
+    const rows = await this.prisma.db.organizationExtension.findMany({
+      where: { extension: 'AI_SELLER' },
+      select: { organizationId: true, organization: { select: { name: true } } },
+      orderBy: { organizationId: 'asc' },
+    });
+    return rows.map((r) => ({ organizationId: r.organizationId, name: r.organization.name }));
+  }
+
+  async one(organizationId: string): Promise<SellerOrganizationRow | null> {
+    const row = await this.prisma.db.organization.findUnique({
+      where: { id: organizationId },
+      select: { id: true, name: true },
+    });
+    return row ? { organizationId: row.id, name: row.name } : null;
+  }
+
+  async hosts(organizationId: string): Promise<string[]> {
+    const sites = await this.prisma.db.trackedSite.findMany({
+      where: { property: { organizationId }, status: 'ACTIVE' },
+      select: { hosts: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    // Свои домены без повторов, в порядке сайтов: их сравнивает дверь виджета продавца
+    return [...new Set(sites.flatMap((s) => s.hosts))];
   }
 }
 

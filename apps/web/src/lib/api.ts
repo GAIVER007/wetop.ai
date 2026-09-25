@@ -1312,9 +1312,10 @@ export interface SellerProfileView {
 export interface SellerStatus {
   /**
    * `extension-off` — расширение не подключено; `extension-expired` — срок вышел, раздел только для чтения (ADR-083);
-   * `not-configured` — у платформы нет адреса и ключа продавца; `other-organization` — копия чужой организации
+   * `not-configured` — у платформы нет адреса и ключа продавца. Состояния `other-organization` больше нет (Э4):
+   * продавец общий, вызовы идут с организацией вошедшего.
    */
-  state: 'extension-off' | 'extension-expired' | 'not-configured' | 'other-organization' | 'ready';
+  state: 'extension-off' | 'extension-expired' | 'not-configured' | 'ready';
   profile: { saved: boolean; updatedAt: string | null; applied: boolean };
   facts: { applied: boolean; appliedAt: string | null };
   lastError: string | null;
@@ -1324,8 +1325,8 @@ export interface SellerStatus {
   embedAvailable: boolean;
   /** Расширение организации; старый API его не присылает */
   extension?: ExtensionAccessView | null;
-  /** Подключена ли копия продавца, какое бы ни было расширение: читать диалоги после срока можно, только если она есть */
-  connection?: 'not-configured' | 'other-organization' | 'ready';
+  /** Подключён ли продавец, какое бы ни было расширение: читать диалоги после срока можно, только если он есть */
+  connection?: 'not-configured' | 'ready';
   /** Может ли вошедший менять настройки: владелец организации при действующем расширении */
   canConfigure?: boolean;
 }
@@ -1447,7 +1448,7 @@ export const sellerApi = {
       '/ai-seller/sandbox',
       { text },
     ),
-  embed: () => getJson<{ snippet: string | null }>('/ai-seller/embed'),
+  embed: () => getJson<{ snippet: string | null; hosts?: string[] }>('/ai-seller/embed'),
 };
 
 /** Организация глазами главного администратора платформы (ADR-083): без броней, гостей и переписки */

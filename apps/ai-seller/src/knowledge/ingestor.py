@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import io
 import logging
+import uuid
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
@@ -190,8 +191,12 @@ async def ingest_document(
     chunk_chars: int,
     overlap: int,
     min_chars: int,
+    organization_id: uuid.UUID | None = None,
 ) -> IngestResult:
     """Загружает один файл. Повторная загрузка того же содержимого — no-op.
+
+    organization_id (Э4): документ гостиницы. Дедуп по хешу — в её пределах:
+    один и тот же прайс у двух гостиниц — две записи. None — как раньше.
 
     Граница транзакции: один документ = одна транзакция, commit делает эта
     функция. В сессию до вызова ничего не кладут: незавершённая чужая работа
@@ -206,9 +211,10 @@ async def ingest_document(
     file_hash = hashlib.sha256(data).hexdigest()
 
     # (3) Проверка «уже сделано» ДО действия.
-    existing = (
-        await session.execute(sa.select(Document).where(Document.file_hash == file_hash))
-    ).scalar_one_or_none()
+    dedup = sa.select(Document).where(Document.file_hash == file_hash)
+    if organization_id is not None:
+        dedup = dedup.where(Document.organization_id == organization_id)
+    existing = (await session.execute(dedup)).scalar_one_or_none()
     if existing is not None:
         logger.info("Документ %s уже в базе (hash=%s…), пропускаем", source, file_hash[:12])
         return IngestResult(document=existing, created=False, chunks_added=0)
@@ -226,6 +232,7 @@ async def ingest_document(
 
     document = Document(
         source=source,
+        organization_id=organization_id,
         file_hash=file_hash,
         chunk_count=len(chunks),
         created_at=utcnow(),

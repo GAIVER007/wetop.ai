@@ -7,9 +7,11 @@ import { EnvSellerConnection, SELLER_CONNECTION } from './seller.connection';
 import {
   PrismaSellerAudit,
   PrismaSellerFactsRepository,
+  PrismaSellerOrgsRepository,
   PrismaSellerProfilesRepository,
   SELLER_AUDIT,
   SELLER_FACTS,
+  SELLER_ORGS,
   SELLER_PROFILES,
 } from './seller.repository';
 import { SellerService } from './seller.service';
@@ -28,6 +30,7 @@ import { SellerSyncService } from './seller-sync.service';
     { provide: SELLER_PROFILES, useClass: PrismaSellerProfilesRepository },
     { provide: SELLER_FACTS, useClass: PrismaSellerFactsRepository },
     { provide: SELLER_AUDIT, useClass: PrismaSellerAudit },
+    { provide: SELLER_ORGS, useClass: PrismaSellerOrgsRepository },
     SellerService,
     SellerSyncService,
   ],

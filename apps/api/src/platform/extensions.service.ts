@@ -30,9 +30,21 @@ export function aiSellerView(row: ExtensionRow | null, now: Date): AiSellerAcces
 /** Состояние расширений организации. Срок проверяется при каждом запросе: вышедший срок действует сразу */
 @Injectable()
 export class ExtensionsService {
+  /** Кому сказать о смене расширения (Э4): раздел продавца сразу заводит гостиницу у бота, лучшим усилием */
+  private readonly aiSellerListeners: Array<(organizationId: string) => void> = [];
+
   constructor(@Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository) {}
 
   async aiSeller(organizationId: string, now: Date = new Date()): Promise<AiSellerAccessView> {
     return aiSellerView(await this.repo.aiSeller(organizationId), now);
+  }
+
+  /** Подписка модуля продавца: обратный вызов, а не импорт — PlatformModule о продавце не знает */
+  onAiSellerChange(listener: (organizationId: string) => void): void {
+    this.aiSellerListeners.push(listener);
+  }
+
+  notifyAiSellerChanged(organizationId: string): void {
+    for (const listener of this.aiSellerListeners) listener(organizationId);
   }
 }

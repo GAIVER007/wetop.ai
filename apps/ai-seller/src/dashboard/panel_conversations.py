@@ -15,11 +15,12 @@ import logging
 import uuid
 
 import sqlalchemy as sa
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 
 from src import dependencies
 from src.config import Settings
+from src.dashboard.auth_router import request_org
 from src.dashboard.panel_common import iso, log_action, mask_name, sessions
 from src.db.base import ConversationMode, MessageRole, utcnow
 from src.db.models import Client, Conversation, Message
@@ -52,8 +53,13 @@ def build_reply_sender(settings: Settings):
 
 
 @router.get("/conversations")
-async def list_conversations(mode: str | None = None, limit: int = 50) -> dict:
-    """Список диалогов. 🔴 Телефона в ответе нет, имя маскировано."""
+async def list_conversations(
+    mode: str | None = None,
+    limit: int = 50,
+    org: uuid.UUID | None = Depends(request_org),
+) -> dict:
+    """Список диалогов. 🔴 Телефона в ответе нет, имя маскировано.
+    У продавца — только диалоги организации из X-Organization (Э4)."""
     try:
         wanted = ConversationMode(mode) if mode else None
     except ValueError:
@@ -75,6 +81,8 @@ async def list_conversations(mode: str | None = None, limit: int = 50) -> dict:
     )
     if wanted is not None:
         stmt = stmt.where(Conversation.mode == wanted)
+    if org is not None:
+        stmt = stmt.where(Conversation.organization_id == org)
 
     async with sessions()() as session:
         rows = (await session.execute(stmt)).all()
@@ -95,12 +103,18 @@ async def list_conversations(mode: str | None = None, limit: int = 50) -> dict:
     }
 
 
+def _foreign(conv: Conversation | None, org: uuid.UUID | None) -> bool:
+    """Чужой диалог для организации запроса — как несуществующий (Э4):
+    404 не подтверждает чужому даже сам факт диалога."""
+    return conv is not None and org is not None and conv.organization_id != org
+
+
 @router.get("/conversations/{conv_id}")
-async def conversation_card(conv_id: uuid.UUID) -> dict:
+async def conversation_card(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Карточка: контакт целиком — оператор за ним и пришёл."""
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None:
+        if conv is None or _foreign(conv, org):
             raise HTTPException(status_code=404, detail="диалог не найден")
         client = await session.get(Client, conv.client_id)
         stmt = sa.select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at)
@@ -124,11 +138,13 @@ async def conversation_card(conv_id: uuid.UUID) -> dict:
     }
 
 
-async def _switch_mode(conv_id: uuid.UUID, target: ConversationMode, action: str) -> dict:
+async def _switch_mode(
+    conv_id: uuid.UUID, target: ConversationMode, action: str, org: uuid.UUID | None
+) -> dict:
     """Смена режима руками оператора + запись прежнего значения в журнал."""
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None:
+        if conv is None or _foreign(conv, org):
             raise HTTPException(status_code=404, detail="диалог не найден")
         previous = conv.mode.value
         conv.mode = target
@@ -138,19 +154,24 @@ async def _switch_mode(conv_id: uuid.UUID, target: ConversationMode, action: str
 
 
 @router.post("/conversations/{conv_id}/takeover")
-async def takeover(conv_id: uuid.UUID) -> dict:
+async def takeover(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Перехват: дальше отвечает человек."""
-    return await _switch_mode(conv_id, ConversationMode.OWNER_TAKEOVER, "takeover")
+    return await _switch_mode(conv_id, ConversationMode.OWNER_TAKEOVER, "takeover", org)
 
 
 @router.post("/conversations/{conv_id}/release")
-async def release(conv_id: uuid.UUID) -> dict:
+async def release(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Возврат боту — тоже кнопкой, а не по таймеру."""
-    return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release")
+    return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", org)
 
 
 @router.post("/conversations/{conv_id}/reply")
-async def reply(conv_id: uuid.UUID, body: ReplyIn, request: Request) -> dict:
+async def reply(
+    conv_id: uuid.UUID,
+    body: ReplyIn,
+    request: Request,
+    org: uuid.UUID | None = Depends(request_org),
+) -> dict:
     """Реплика оператора в канал клиента."""
     text = body.text.strip()
     if not text:
@@ -158,7 +179,7 @@ async def reply(conv_id: uuid.UUID, body: ReplyIn, request: Request) -> dict:
 
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None:
+        if conv is None or _foreign(conv, org):
             raise HTTPException(status_code=404, detail="диалог не найден")
         client = await session.get(Client, conv.client_id)
         channel, external_id = client.channel, client.external_id

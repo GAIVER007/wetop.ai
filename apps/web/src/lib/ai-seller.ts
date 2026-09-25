@@ -111,13 +111,6 @@ export function sellerBanner(status: SellerStatus): SellerBanner {
       title: 'ИИ-продавец не подключён',
       text: 'Настройки можно сохранить заранее: продавец получит их, как только его подключат. Адрес и ключ продавца задаёт владелец в настройках сервера.',
     };
-  if (status.state === 'other-organization')
-    return {
-      tone: 'warn',
-      value: 'не подключён',
-      title: 'ИИ-продавец для вашей организации не подключён',
-      text: 'Эта копия продавца работает с другой гостиницей. Настройки можно сохранить заранее.',
-    };
   if (status.lastError && status.retrying)
     return {
       tone: 'alarm',

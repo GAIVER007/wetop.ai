@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 import {
   BotPanelClient,
@@ -7,6 +8,7 @@ import {
   SellerClient,
   SellerRejectedError,
   SellerUnavailableError,
+  widgetOrgKey,
 } from './bot-panel-client';
 
 /**
@@ -230,6 +232,68 @@ describe('SellerClient — отказы', () => {
  * `plans/platform-roles-extensions-2026-09-25.md` Э3): у обеих ролей бота маршруты панели и служебный ключ одни
  * (`src/dashboard/auth_router.py`, `SERVICE_ROUTES`). Отличаются только слова: отказ называет того бота, что отказал.
  */
+describe('Э4 — организация в клиенте панели (ADR-083)', () => {
+  const ORG = '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
+
+  it('X-Organization на каждом вызове панели и organization_id в песочнице', async () => {
+    const calls: Call[] = [];
+    const fetch = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return Response.json({ status: 'ok' });
+    });
+    const seller = new BotPanelClient({
+      baseUrl: BASE,
+      serviceKey: KEY,
+      organizationId: ORG,
+      fetch,
+    });
+    await seller.listConversations({});
+    await seller.putProfile({ object_name: 'Гостиница А' });
+    await seller.sandbox({ externalId: 'check-1', text: 'Привет' });
+    for (const call of calls) expect(header(call, 'x-organization')).toBe(ORG);
+    const sandboxBody = JSON.parse(String(calls[2]!.init.body)) as Record<string, unknown>;
+    expect(sandboxBody.organization_id).toBe(ORG);
+    // без организации (помощник) заголовка нет — поведение прежнее
+    calls.length = 0;
+    const support = new BotPanelClient({ baseUrl: BASE, serviceKey: KEY, fetch });
+    await support.listConversations({});
+    await support.sandbox({ externalId: 'check-1', text: 'Привет' });
+    expect(header(calls[0]!, 'x-organization')).toBeNull();
+    expect(
+      JSON.parse(String(calls[1]!.init.body)) as Record<string, unknown>,
+    ).not.toHaveProperty('organization_id');
+  });
+
+  it('заведение гостиницы: PUT /seller/organizations/{id} полями бота', async () => {
+    const { calls, seller } = client(() => Response.json({ status: 'ok' }));
+    await seller.putOrganization(ORG, {
+      name: 'Гостиница А',
+      publicKey: 'sk_' + 'a1'.repeat(12),
+      active: false,
+      hosts: ['hotel-a.example.test'],
+    });
+    expect(calls[0]!.init.method).toBe('PUT');
+    expect(calls[0]!.url).toBe(`http://seller:8000/panel-x/seller/organizations/${ORG}`);
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({
+      name: 'Гостиница А',
+      public_key: 'sk_' + 'a1'.repeat(12),
+      active: false,
+      hosts: ['hotel-a.example.test'],
+    });
+  });
+
+  it('widgetOrgKey: sk_ + 24 hex, свой у каждой организации, из ключа не восстановим', () => {
+    const key = widgetOrgKey(KEY, ORG);
+    expect(key).toMatch(/^sk_[0-9a-f]{24}$/);
+    // контракт деривации (docs/assistant/README.md §4): HMAC-SHA256(ключ, 'seller-widget|<org>')
+    const reference =
+      'sk_' + createHmac('sha256', KEY).update(`seller-widget|${ORG}`).digest('hex').slice(0, 24);
+    expect(key).toBe(reference);
+    expect(widgetOrgKey(KEY, 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb')).not.toBe(key);
+    expect(key).not.toContain(KEY);
+  });
+});
+
 describe('BotPanelClient — панель помощника', () => {
   const support = (respond: () => Response | Promise<Response>) =>
     new BotPanelClient({

@@ -18,7 +18,7 @@ import {
   type ExtensionsRepository,
   type OrganizationSummary,
 } from './extensions.repository';
-import { aiSellerView } from './extensions.service';
+import { ExtensionsService, aiSellerView } from './extensions.service';
 
 export { PLATFORM_ADMIN_ONLY } from './admin';
 export const PLATFORM_NO_ORGANIZATION = 'Такой организации нет';
@@ -31,7 +31,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  */
 @Controller('platform')
 export class PlatformController {
-  constructor(@Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository) {}
+  constructor(
+    @Inject(EXTENSIONS_REPOSITORY) private readonly repo: ExtensionsRepository,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+  ) {}
 
   @Get('organizations')
   @Header('Cache-Control', 'no-store')
@@ -56,6 +59,8 @@ export class PlatformController {
       by: currentUserId(),
       now,
     });
+    // Э4: гостиница уходит продавцу сразу (active по новому состоянию), сверка догонит при отказе
+    this.extensions.notifyAiSellerChanged(id);
     const saved = await this.repo.organization(id);
     return organizationJson(saved!, now);
   }

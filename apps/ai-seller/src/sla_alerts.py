@@ -70,6 +70,7 @@ async def find_stale(
     now: datetime,
     limit: int = 100,
     lookback_hours: int | None = None,
+    organization_id: uuid.UUID | None = None,
 ) -> list[StaleTurn]:
     """Диалоги, где последнее сообщение клиента старше срока и не отвечено.
 
@@ -125,6 +126,10 @@ async def find_stale(
         .order_by(last_user.c.asked_at.desc())
         .limit(limit)
     )
+    if organization_id is not None:
+        # Сводка панели продавца (Э4): нарушения — только своей организации.
+        # Сторож алертов зовёт без организации и видит всё, как раньше.
+        stmt = stmt.where(Conversation.organization_id == organization_id)
 
     rows = (await session.execute(stmt)).all()
     return [

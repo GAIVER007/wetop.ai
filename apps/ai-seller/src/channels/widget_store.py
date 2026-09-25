@@ -37,20 +37,34 @@ async def _active_conversation(session, client_id) -> Conversation | None:
     return (await session.execute(stmt)).scalar_one_or_none()
 
 
-async def ensure_conversation(session, visitor: Visitor) -> Conversation:
+def _same_org(stmt, organization_id: uuid.UUID | None):
+    """Отбор по организации (Э4). None — строки без неё (помощник и старые
+    диалоги): NULL не равен NULL, поэтому явное IS NULL, а не ==."""
+    if organization_id is None:
+        return stmt.where(Client.organization_id.is_(None))
+    return stmt.where(Client.organization_id == organization_id)
+
+
+async def ensure_conversation(
+    session, visitor: Visitor, organization_id: uuid.UUID | None = None
+) -> Conversation:
     """Тот же поиск, что делает движок в _accept: клиент по (канал, внешний
-    id) и его активный диалог. Дальше движок найдёт их же."""
-    stmt = sa.select(Client).where(Client.channel == CHANNEL, Client.external_id == visitor.key)
+    id) в пределах организации и его активный диалог. Дальше движок найдёт их же."""
+    stmt = _same_org(
+        sa.select(Client).where(Client.channel == CHANNEL, Client.external_id == visitor.key),
+        organization_id,
+    )
     client = (await session.execute(stmt)).scalar_one_or_none()
     if client is None:
         client = Client(channel=CHANNEL, external_id=visitor.key, name=visitor.display_name,
-                        created_at=utcnow())
+                        organization_id=organization_id, created_at=utcnow())
         session.add(client)
         await session.flush()
     conv = await _active_conversation(session, client.id)
     if conv is None:
         now = utcnow()
-        conv = Conversation(client_id=client.id, lead_data={}, created_at=now, last_activity_at=now)
+        conv = Conversation(client_id=client.id, organization_id=organization_id,
+                            lead_data={}, created_at=now, last_activity_at=now)
         session.add(conv)
         await session.flush()
     if visitor.signed:
@@ -64,9 +78,15 @@ async def ensure_conversation(session, visitor: Visitor) -> Conversation:
     return conv
 
 
-async def conversation_for_key(session, key: str) -> Conversation | None:
-    """Активный диалог посетителя. Нет клиента — нет и диалога."""
-    stmt = sa.select(Client.id).where(Client.channel == CHANNEL, Client.external_id == str(key))
+async def conversation_for_key(
+    session, key: str, organization_id: uuid.UUID | None = None
+) -> Conversation | None:
+    """Активный диалог посетителя — в пределах организации двери. Нет
+    клиента (или он чужой гостиницы) — нет и диалога."""
+    stmt = _same_org(
+        sa.select(Client.id).where(Client.channel == CHANNEL, Client.external_id == str(key)),
+        organization_id,
+    )
     client_id = (await session.execute(stmt)).scalar_one_or_none()
     if client_id is None:
         return None
@@ -86,13 +106,16 @@ async def _marker(session, after: str):
     return (await session.execute(stmt)).scalar_one_or_none()
 
 
-async def load_messages(sessionmaker, key: str, after: str) -> tuple[list[dict], str]:
+async def load_messages(
+    sessionmaker, key: str, after: str, organization_id: uuid.UUID | None = None
+) -> tuple[list[dict], str]:
     """Новые сообщения и режим диалога.
 
-    🔴 Только сообщения ЭТОГО диалога: ключ приводит ровно к одному клиенту.
+    🔴 Только сообщения ЭТОГО диалога: ключ приводит ровно к одному клиенту
+    своей организации — чужим ключом гостиницы историю не открыть.
     """
     async with sessionmaker() as session:
-        conv = await conversation_for_key(session, key)
+        conv = await conversation_for_key(session, key, organization_id)
         if conv is None:
             return [], ConversationMode.BOT_ACTIVE.value
         stmt = sa.select(Message).where(Message.conversation_id == conv.id)

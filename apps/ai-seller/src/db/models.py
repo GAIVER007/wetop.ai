@@ -41,13 +41,62 @@ UUID = sa.Uuid(as_uuid=True)
 TZ = sa.DateTime(timezone=True)
 
 
+# ─── Организации (Э4, ADR-083): один продавец обслуживает много гостиниц ───
+
+# Публичный ключ гостиницы в теге чата: sk_ + hex. Считает его платформа
+# (HMAC от служебного ключа), продавец только сверяет строку.
+ORG_KEY_RE_TEXT = r"^sk_[0-9a-f]{16,64}$"
+
+
+class Organization(Base):
+    """Гостиница у продавца — так, как её завела платформа (PUT
+    /seller/organizations/{id}). id — идентификатор организации платформы.
+
+    🔴 У экземпляра-помощника (BOT_ROLE=support) таблица пуста: его строки
+    живут с organization_id IS NULL, и поведение помощника не меняется.
+    """
+
+    __tablename__ = "organizations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
+    name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    public_key: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
+    active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
+    # Домены сайтов гостиницы («Настройки сайта» платформы): дверь виджета
+    # открывается только с них.
+    hosts: Mapped[list[Any]] = mapped_column(JSONType, nullable=False, default=list)
+    # Промпт продавца этой гостиницы: ядро правил + профиль из «Настроек».
+    system_prompt: Mapped[str | None] = mapped_column(sa.Text)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
 # ─── Клиенты ───
 
 
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (
-        sa.UniqueConstraint("channel", "external_id", name="uq_clients_channel_external_id"),
+        # Уникальность внешнего id — в пределах организации (Э4). Строки без
+        # организации (помощник, старые диалоги продавца) — своя уникальность:
+        # NULL в обычном уникальном индексе различен, дубли прошли бы молча.
+        sa.Index(
+            "uq_clients_org_channel_external",
+            "organization_id",
+            "channel",
+            "external_id",
+            unique=True,
+            postgresql_where=sa.text("organization_id IS NOT NULL"),
+            sqlite_where=sa.text("organization_id IS NOT NULL"),
+        ),
+        sa.Index(
+            "uq_clients_channel_external_null",
+            "channel",
+            "external_id",
+            unique=True,
+            postgresql_where=sa.text("organization_id IS NULL"),
+            sqlite_where=sa.text("organization_id IS NULL"),
+        ),
         sa.Index(
             "idx_clients_phone",
             "phone",
@@ -57,6 +106,10 @@ class Client(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    # NULL — строка помощника или диалог продавца до Э4 (в панели не виден).
+    organization_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID, sa.ForeignKey("organizations.id")
+    )
     # Всегда строка, даже если канал прислал число: приводит тип ExternalId.
     external_id: Mapped[str] = mapped_column(ExternalId, nullable=False)
     channel: Mapped[str] = mapped_column(sa.Text, nullable=False)
@@ -132,6 +185,11 @@ class Conversation(Base):
     client_id: Mapped[uuid.UUID] = mapped_column(
         UUID, sa.ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
     )
+    # Дублирует организацию клиента намеренно: политика RLS и панель
+    # отбирают диалоги без соединения с clients.
+    organization_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID, sa.ForeignKey("organizations.id")
+    )
     mode: Mapped[ConversationMode] = mapped_column(
         enum_column(ConversationMode, "conversation_mode"),
         nullable=False,
@@ -198,10 +256,32 @@ class OwnerAction(Base):
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = (
+        # Дедуп по хешу — в пределах организации: один и тот же прайс у двух
+        # гостиниц — две записи, а не молчаливый пропуск второй (Э4).
+        sa.Index(
+            "uq_documents_org_hash",
+            "organization_id",
+            "file_hash",
+            unique=True,
+            postgresql_where=sa.text("organization_id IS NOT NULL"),
+            sqlite_where=sa.text("organization_id IS NOT NULL"),
+        ),
+        sa.Index(
+            "uq_documents_hash_null",
+            "file_hash",
+            unique=True,
+            postgresql_where=sa.text("organization_id IS NULL"),
+            sqlite_where=sa.text("organization_id IS NULL"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    organization_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID, sa.ForeignKey("organizations.id")
+    )
     source: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    file_hash: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
+    file_hash: Mapped[str] = mapped_column(sa.Text, nullable=False)
     chunk_count: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 

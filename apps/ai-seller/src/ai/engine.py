@@ -31,7 +31,7 @@ from src.channels.sender import Sender, SendResult
 from src.config import Settings, get_settings
 from src.db.base import ConversationMode, FunnelStage, MessageRole, utcnow
 from src.db.dedup import is_duplicate
-from src.db.models import Client, Conversation, Message
+from src.db.models import Client, Conversation, Message, Organization
 from src.knowledge import retriever
 from src.knowledge.prompt import PromptMissing, load_system_prompt
 from src.security.pii import unmask
@@ -128,10 +128,15 @@ class Engine:
     async def _accept(self, t: Turn) -> None:
         t.step("accept")
         inc, session = t.incoming, t.session
+        org = inc.org_uuid()
         stmt = sa.select(Client).where(Client.channel == inc.channel, Client.external_id == str(inc.external_id))
+        # Клиент — в пределах организации входящего (Э4): один человек на
+        # сайтах двух гостиниц — два клиента. Без организации — как раньше.
+        stmt = stmt.where(Client.organization_id == org) if org else stmt.where(Client.organization_id.is_(None))
         client = (await session.execute(stmt)).scalar_one_or_none()
         if client is None:
-            client = Client(channel=inc.channel, external_id=str(inc.external_id), name=inc.client_name, created_at=utcnow())
+            client = Client(channel=inc.channel, external_id=str(inc.external_id), name=inc.client_name,
+                            organization_id=org, created_at=utcnow())
             session.add(client)
             await session.flush()
         stmt = (sa.select(Conversation).where(Conversation.client_id == client.id, Conversation.is_active.is_(True))
@@ -139,8 +144,8 @@ class Engine:
         conv = (await session.execute(stmt)).scalar_one_or_none()
         if conv is None:
             now = utcnow()
-            conv = Conversation(client_id=client.id, mode=ConversationMode.BOT_ACTIVE, funnel_stage=FunnelStage.NEW,
-                                lead_data={}, created_at=now, last_activity_at=now)
+            conv = Conversation(client_id=client.id, organization_id=org, mode=ConversationMode.BOT_ACTIVE,
+                                funnel_stage=FunnelStage.NEW, lead_data={}, created_at=now, last_activity_at=now)
             session.add(conv)
         await session.commit()
         t.client, t.conversation, t.lead = client, conv, dict(conv.lead_data or {})
@@ -207,13 +212,25 @@ class Engine:
     async def _context(self, t: Turn) -> None:
         t.step("context")
         s = self._settings
+        org = t.incoming.org_uuid()
+        if org is not None:
+            # Промпт гостиницы (Э4): ядро правил + профиль, собранные в
+            # organizations.system_prompt. Нет строки или промпта — отказ,
+            # а не файл PROMPT_PATH: отвечать по чужой инструкции нельзя.
+            row = await t.session.get(Organization, org)
+            system_prompt = (row.system_prompt or "") if row is not None else ""
+            if not system_prompt.strip():
+                logger.error("системный промпт организации %s недоступен", org)
+                return self._fail(t, "prompt_missing")
+        else:
+            try:
+                system_prompt = self._prompt_loader()
+            except PromptMissing:
+                logger.error("системный промпт недоступен: %s", s.prompt_path)
+                return self._fail(t, "prompt_missing")
         try:
-            system_prompt = self._prompt_loader()
-        except PromptMissing:
-            logger.error("системный промпт недоступен: %s", s.prompt_path)
-            return self._fail(t, "prompt_missing")
-        try:
-            chunks = await retriever.search(t.session, self._embedder, t.verdict.text, top_k=s.kb_top_k)
+            chunks = await retriever.search(t.session, self._embedder, t.verdict.text, top_k=s.kb_top_k,
+                                            organization_id=org)
             knowledge = [c.content for c in chunks]
         except Exception:
             logger.warning("поиск по базе знаний не удался, отвечаем без фактов", exc_info=True)

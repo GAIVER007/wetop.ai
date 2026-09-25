@@ -5,6 +5,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SellerFactsSource } from '@pms/domain';
+import { assistant } from '@pms/integrations';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
@@ -14,13 +15,14 @@ import {
   FakeAudit,
   FakeConnection,
   FakeFacts,
+  FakeOrgs,
   FakeProfiles,
   FakeSellerExtensions,
   rejected,
   unavailable,
 } from './fakes';
 import { SELLER_CONNECTION, type SellerConfig } from './seller.connection';
-import { SELLER_AUDIT, SELLER_FACTS, SELLER_PROFILES } from './seller.repository';
+import { SELLER_AUDIT, SELLER_FACTS, SELLER_ORGS, SELLER_PROFILES } from './seller.repository';
 import {
   SELLER_EXTENSION_EXPIRED,
   SELLER_EXTENSION_OFF,
@@ -30,9 +32,9 @@ import {
 } from './seller.service';
 
 /**
- * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-079). Настоящие замок и автор запроса, подставные продавец
- * и хранилища. Копия продавца привязана к одной организации (`SELLER_ORGANIZATION_ID`): вошедший из другой
- * организации не видит ни диалогов, ни знаний, ни песочницы.
+ * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-079; Э4 — ADR-083). Настоящие замок и автор запроса,
+ * подставные продавец и хранилища. Один продавец обслуживает все гостиницы: каждый вызов уходит с организацией
+ * вошедшего, и панель продавца отдаёт только её строки.
  */
 
 const ORG_A = '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
@@ -46,7 +48,6 @@ const KEY = 'seller-service-key-for-run-0123456789';
 const baseConfig = (): SellerConfig => ({
   baseUrl: 'http://seller:8000/panel-x',
   serviceKey: KEY,
-  organizationId: ORG_A,
   publicUrl: 'https://seller.example.invalid',
   syncEnabled: true,
 });
@@ -88,6 +89,7 @@ const profiles = new FakeProfiles();
 const facts = new FakeFacts();
 const audit = new FakeAudit();
 const extensions = new FakeSellerExtensions();
+const orgs = new FakeOrgs();
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -122,6 +124,7 @@ beforeAll(async () => {
       { provide: SELLER_PROFILES, useValue: profiles },
       { provide: SELLER_FACTS, useValue: facts },
       { provide: SELLER_AUDIT, useValue: audit },
+      { provide: SELLER_ORGS, useValue: orgs },
       { provide: ExtensionsService, useValue: extensions },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
@@ -139,6 +142,7 @@ afterAll(async () => {
 beforeEach(() => {
   vi.stubEnv('AUTH_REQUIRED', '1');
   connection.settings = baseConfig();
+  connection.requestedOrgs = [];
   connection.seller.calls = [];
   connection.seller.failWith = null;
   connection.seller.replies = {};
@@ -146,6 +150,11 @@ beforeEach(() => {
   profiles.audits = [];
   facts.source = factsSource();
   facts.asked = [];
+  orgs.rows = [
+    { organizationId: ORG_A, name: 'Гостиница А' },
+    { organizationId: ORG_B, name: 'Гостиница Б' },
+  ];
+  orgs.siteHosts.clear();
   audit.events = [];
   extensions.access = 'active';
   extensions.asked = [];
@@ -161,9 +170,13 @@ describe('состояние раздела', () => {
     expect(res.body.state).toBe('not-configured');
   });
 
-  it('вошедший из другой организации — «не подключён для вашей организации»', async () => {
+  it('вошедший из другой организации видит свой раздел: продавец общий (Э4)', async () => {
     const res = await api().get('/ai-seller/status').set(as('session-b')).expect(200);
-    expect(res.body.state).toBe('other-organization');
+    expect(res.body.state).toBe('ready');
+    // и его вызовы уходят с его организацией, а не с чьей-нибудь
+    connection.requestedOrgs = [];
+    await api().get('/ai-seller/conversations').set(as('session-b')).expect(200);
+    expect(connection.requestedOrgs).toEqual([ORG_B]);
   });
 
   it('своя организация: профиль не сохранён и не применён', async () => {
@@ -278,10 +291,13 @@ describe('«Применить» (П8)', () => {
     expect(res.body.message).toBe('ИИ-продавец отклонил: в поле найдены инструкции для модели');
   });
 
-  it('другая организация применить не может', async () => {
+  it('«Применить» другой организации уходит с её организацией, а не с чужой (Э4)', async () => {
     await api().put('/ai-seller/profile').set(as('session-b')).send(profile).expect(200);
-    await api().post('/ai-seller/apply').set(as('session-b')).expect(403);
-    expect(connection.seller.ops()).toEqual([]);
+    connection.requestedOrgs = [];
+    await api().post('/ai-seller/apply').set(as('session-b')).expect(200);
+    expect(connection.requestedOrgs).toEqual([ORG_B]);
+    // факты собраны по её организации: чужой объект в её профиль не попадёт
+    expect(facts.asked.at(-1)?.organizationId).toBe(ORG_B);
   });
 
   it('у организации нет объекта — применить нечего: 404 словами, причина в разделе, продавцу ни одного вызова', async () => {
@@ -477,7 +493,8 @@ describe('диалоги, знания, сводка, песочница (П7)',
     expect(call.args[0]).toEqual({ externalId: `wetop-check-${USER_A}`, text: 'Есть места на выходные?' });
   });
 
-  it('другая организация — 403 на всё, продавец не спрошен', async () => {
+  it('другая организация ходит к продавцу со своей организацией: изоляция — на панели бота (Э4)', async () => {
+    connection.seller.replies.conversation = { id: CONV, mode: 'bot_active', messages: [] };
     for (const [method, path] of [
       ['get', '/ai-seller/conversations'],
       ['get', `/ai-seller/conversations/${CONV}`],
@@ -486,9 +503,10 @@ describe('диалоги, знания, сводка, песочница (П7)',
       ['get', '/ai-seller/summary'],
       ['post', '/ai-seller/sandbox'],
     ] as const) {
-      await api()[method](path).set(as('session-b')).send({ text: 'x' }).expect(403);
+      connection.requestedOrgs = [];
+      await api()[method](path).set(as('session-b')).send({ text: 'Есть места?' }).expect(200);
+      expect(connection.requestedOrgs, `${method} ${path}`).toEqual([ORG_B]);
     }
-    expect(connection.seller.ops()).toEqual([]);
   });
 
   it('продавец недоступен — 503 со словами, а не 500', async () => {
@@ -499,17 +517,22 @@ describe('диалоги, знания, сводка, песочница (П7)',
 });
 
 describe('код для сайта объекта', () => {
-  it('тег чата продавца по публичному адресу, без подписи и без ключей', async () => {
+  it('тег чата продавца: публичный адрес и data-key гостиницы, служебного ключа в теге нет (Э4)', async () => {
+    orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
+    const key = assistant.widgetOrgKey(KEY, ORG_A);
     expect(res.body).toEqual({
-      snippet: '<script async src="https://seller.example.invalid/widget/widget.js"></script>',
+      snippet: `<script async src="https://seller.example.invalid/widget/widget.js" data-key="${key}"></script>`,
+      hosts: ['hotel-a.example.invalid'],
     });
+    expect(String(res.body.snippet)).not.toContain(KEY);
   });
 
-  it('публичного адреса нет — кода нет', async () => {
+  it('публичного адреса нет — кода нет; доменов нет — экран скажет завести сайт', async () => {
+    orgs.siteHosts.delete(ORG_A);
     connection.settings = { ...baseConfig(), publicUrl: null };
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
-    expect(res.body).toEqual({ snippet: null });
+    expect(res.body).toEqual({ snippet: null, hosts: [] });
   });
 });
 

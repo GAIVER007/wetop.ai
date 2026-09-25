@@ -6,15 +6,15 @@ import { assistant } from '@pms/integrations';
  *
  * - `SELLER_URL` — внутренний адрес API панели продавца (с путём панели);
  * - `SELLER_SERVICE_KEY` — служебный ключ продавца (Б5);
- * - `SELLER_ORGANIZATION_ID` — чья это копия продавца: одна копия — одна организация (Q-176). Без привязки любой
- *   зарегистрировавшийся увидел бы диалоги гостей чужой гостиницы;
  * - `SELLER_PUBLIC_URL` — публичный адрес продавца: из него код чата для сайта объекта;
  * - `SELLER_SYNC=off` — не сверять профиль и факты по расписанию.
+ *
+ * `SELLER_ORGANIZATION_ID` снят (Э4, ADR-083): один продавец обслуживает все гостиницы, организация вызова
+ * передаётся клиенту панели, а гостиниц у продавца заводит сверка. Оставшаяся в `.env` переменная игнорируется.
  */
 export interface SellerConfig {
   baseUrl: string | null;
   serviceKey: string | null;
-  organizationId: string | null;
   publicUrl: string | null;
   syncEnabled: boolean;
 }
@@ -32,17 +32,23 @@ export interface SellerPort {
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
   putProfile(payload: unknown): Promise<unknown>;
   putFacts(payload: unknown): Promise<unknown>;
+  /** Завести или поправить гостиницу у продавца (Э4) */
+  putOrganization(
+    id: string,
+    org: { name: string; publicKey: string; active: boolean; hosts: string[] },
+  ): Promise<unknown>;
 }
 
 export interface SellerConnection {
   config(): SellerConfig;
-  /** `null` — продавец не подключён: нет адреса или ключа */
-  client(): SellerPort | null;
+  /**
+   * `null` — продавец не подключён: нет адреса или ключа. `organizationId` — организация вызова (Э4): панель
+   * продавца отдаёт строки ровно этой гостиницы; без неё — только заведение гостиниц и помощниковские пути.
+   */
+  client(organizationId?: string): SellerPort | null;
 }
 
 export const SELLER_CONNECTION = Symbol('SELLER_CONNECTION');
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const httpUrl = (value: string | undefined): string | null => {
   const v = value?.trim();
@@ -51,13 +57,10 @@ const httpUrl = (value: string | undefined): string | null => {
 };
 
 export function sellerConfigFromEnv(env: Record<string, string | undefined> = process.env): SellerConfig {
-  const organizationId = env.SELLER_ORGANIZATION_ID?.trim() ?? '';
   const serviceKey = env.SELLER_SERVICE_KEY?.trim() ?? '';
   return {
     baseUrl: httpUrl(env.SELLER_URL),
     serviceKey: serviceKey === '' ? null : serviceKey,
-    // Кривой идентификатор — всё равно что никакого: иначе привязка молча не совпала бы ни с одной организацией
-    organizationId: UUID.test(organizationId) ? organizationId.toLowerCase() : null,
     publicUrl: httpUrl(env.SELLER_PUBLIC_URL),
     syncEnabled: env.SELLER_SYNC?.trim() !== 'off',
   };
@@ -68,9 +71,13 @@ export class EnvSellerConnection implements SellerConnection {
     return sellerConfigFromEnv();
   }
 
-  client(): SellerPort | null {
+  client(organizationId?: string): SellerPort | null {
     const config = this.config();
     if (!config.baseUrl || !config.serviceKey) return null;
-    return new assistant.SellerClient({ baseUrl: config.baseUrl, serviceKey: config.serviceKey });
+    return new assistant.SellerClient({
+      baseUrl: config.baseUrl,
+      serviceKey: config.serviceKey,
+      ...(organizationId ? { organizationId } : {}),
+    });
   }
 }

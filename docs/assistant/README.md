@@ -126,6 +126,15 @@ networks:
 `SELLER_URL` — внутренний адрес API панели продавца (с путём панели, если он задан). Список ниже — всё, что нужно
 платформе; остальное ей не нужно.
 
+**Организация вызова (Э4, ADR-083).** Один продавец обслуживает все гостиницы. Каждый вызов таблицы (кроме
+`PUT /seller/organizations/{id}`) платформа шлёт с заголовком `X-Organization: <uuid организации>` — панель продавца
+отдаёт и меняет строки ровно этой гостиницы; без заголовка продавец отвечает 400. В песочнице организация идёт полем
+`organization_id` в теле. Гостиниц у продавца заводит сама платформа: при смене расширения и каждой сверкой (раз в
+минуту) уходит `PUT /seller/organizations/{id}` — имя, `active` (действует ли расширение: `false` гасит виджет, Q-183),
+домены сайтов организации и её публичный ключ виджета. Ключ платформа выводит и нигде не хранит:
+`sk_` + первые 24 hex `HMAC-SHA256(SELLER_SERVICE_KEY, "seller-widget|<uuid организации>")`; он стоит в теге на сайте
+гостиницы (`data-key`), из него служебный ключ не восстановить. Хранит строку и сравнивает только продавец.
+
 | Метод и путь | Зачем | Тело и ответ |
 |---|---|---|
 | `GET /conversations?mode=&limit=` | «Диалоги», список | как у панели сегодня: `{ items: [{ id, channel, client_name, mode, stage, last_activity_at, messages, has_contact }] }` |
@@ -136,9 +145,10 @@ networks:
 | `GET /knowledge` | «Знания», список | `{ items: [{ source, chunks, created_at }] }` |
 | `POST /knowledge` | загрузка документа | `multipart/form-data`, поле `file` (md, txt, pdf, docx, xlsx; платформа пропускает до 10 МБ — как `kb_max_file_mb` продавца, имя в UTF-8); `{ status, source, created, chunks }` |
 | `GET /summary` | сводка за сутки | `{ hours, dialogs, replies, leads, sla_breaches }` |
-| `POST /internal/sandbox` — **в корне экземпляра**, не под путём панели | «Проверка» | тело `{ external_id, text }`, текст до 2000 знаков, `external_id` = `wetop-check-<user_id>` — у каждого сотрудника свой разговор; ответ `{ status, reply, needs_human, edits, reasons, conversation_id }` |
+| `POST /internal/sandbox` — **в корне экземпляра**, не под путём панели | «Проверка» | тело `{ external_id, text, organization_id }`, текст до 2000 знаков, `external_id` = `wetop-check-<user_id>` — у каждого сотрудника свой разговор; ответ `{ status, reply, needs_human, edits, reasons, conversation_id }` |
 | `PUT /seller/profile` | профиль (Б6) | ниже |
 | `PUT /seller/facts` | факты объекта (Б7) | ниже |
+| `PUT /seller/organizations/{id}` | гостиница у продавца (Э4) | тело `{ name, public_key, active, hosts }`; `{ status }`; идемпотентно — та же строка перезаписывается |
 
 **Песочница.** У бота она осталась в корне экземпляра — `POST /internal/sandbox`, путь зафиксирован его сборочным
 планом — и принимает служебный ключ платформы тем же заголовком `X-Service-Key` (`src/dashboard_router.py`). Платформа
@@ -264,7 +274,7 @@ networks:
 | API платформы | `WIDGET_IDENTITY_SECRET` | общий с помощником |
 | API платформы | `ASSISTANT_READ_KEY` | общий с помощником |
 | API платформы | `SELLER_URL`, `SELLER_SERVICE_KEY` | адрес панели продавца с её путём (`DASHBOARD_PATH_PREFIX` бота) и ключ Б5; песочница — по корню того же адреса |
-| API платформы | `SELLER_ORGANIZATION_ID` | UUID организации, чья это копия продавца |
+| API платформы | ~~`SELLER_ORGANIZATION_ID`~~ | **снята (Э4, ADR-083):** продавец общий, организация — в каждом вызове; оставшаяся в `.env` строка игнорируется, можно удалить |
 | API платформы | `SELLER_PUBLIC_URL` | публичный адрес продавца — из него код чата для сайта объекта |
 | API платформы | `ASSISTANT_PANEL_URL`, `ASSISTANT_SERVICE_KEY` | внутренний адрес панели помощника с её путём (`http://assistant:8000<DASHBOARD_PATH_PREFIX>`) и ключ «Техподдержки»; у помощника тот же ключ — в `SELLER_SERVICE_KEY` |
 | API платформы | `USER_ERRORS_RETENTION`, `SELLER_SYNC` | `off` — выключить уборку журнала ошибок и сверку фактов |
@@ -272,7 +282,7 @@ networks:
 | главная | `assistantUrl` в `apps/site/src/site.config.ts` | то же для wetop.ai |
 | помощник | `WIDGET_IDENTITY_SECRET`, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` | Б2, Б3 |
 | помощник | `BOT_ROLE=support`, `SELLER_SERVICE_KEY` = `ASSISTANT_SERVICE_KEY` платформы, `LLM_ALLOWED_MODELS` (по желанию) | «Техподдержка»; без ключа панель закрыта целиком |
-| продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY`, домены сайта объекта в `WIDGET_SITE_HOSTS` | Б5, Б8 |
+| продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY` | Б5, Б8. Домены у продавца — от платформы по каждой гостинице (Э4): `WIDGET_SITE_HOSTS` его дверей больше не касается и остаётся помощнику |
 
 ## 6. Включение по шагам (владелец; 25.09.2026)
 
@@ -284,13 +294,14 @@ networks:
 |---|---|---|---|
 | 1 | Бэкап рабочей базы, затем две миграции: `20260924000018_user_errors` и `20260924000019_seller_profiles`. Откат — `down.sql` рядом | `docs/ops/backups.md`: бэкап → `migration.sql` каждой по порядку → проверка | `select count(*) from user_errors;` и `select count(*) from seller_profiles;` — оба `0`, без ошибки |
 | 2 | Три общих ключа: `openssl rand -hex 32`, трижды | `WIDGET_IDENTITY_SECRET`, `ASSISTANT_READ_KEY`, `SELLER_SERVICE_KEY` — одинаковые у платформы и бота (§5; у помощника `ASSISTANT_READ_KEY` зовётся `INTEGRATION_API_KEY`) | — |
-| 3 | Переменные платформы в `.env` корня клона: `ASSISTANT_URL=https://assistant.wetop.ai`, `SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`, `SELLER_PUBLIC_URL=https://seller.wetop.ai`, `SELLER_ORGANIZATION_ID=<uuid организации>` и ключи шага 2 | имена — и в `.env.example` | — |
+| 3 | Переменные платформы в `.env` корня клона: `ASSISTANT_URL=https://assistant.wetop.ai`, `SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`, `SELLER_PUBLIC_URL=https://seller.wetop.ai` и ключи шага 2 (`SELLER_ORGANIZATION_ID` с Э4 не нужна) | имена — и в `.env.example` | — |
 | 4 | Выкладка платформы | `release` → проверенный коммит `main`, затем `/usr/local/sbin/wetop-auto-deploy --migrations-applied` (`docs/deploy.md` §1д) | `/health` — ok; в «Продажах» есть «ИИ-продавец»; `docker network inspect wetop-internal` — в сети `api` |
 | 4а | С 25.09 (ADR-083): отметка главного администратора и расширение своей гостиницы — после миграции `20260925000020_access_extensions`. Без расширения пункта «ИИ-продавец» нет, а раздел отвечает 403 | `accounts -- platform-admin --email=<ваша почта>` и `accounts -- extension --email=<ваша почта> --status=active` в контейнере `api` (`plans/platform-roles-extensions-2026-09-25.md` §11) | `accounts -- list` — у вас «владелец» и «главный администратор»; в стойке — «ИИ-продавец» в «Продажах» и «Платформа» внизу меню |
 | 5 | Экземпляры бота: помощник (`BOT_ROLE=support`) и продавец (`BOT_ROLE=seller`) — каждый своей папкой и проектом compose, с файлом сети из §3; `assistant.wetop.ai` — правилом туннеля и записью DNS | команды ниже; перед деплоем — `apps/ai-seller/vykatka.md` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
 | 6 | Главная wetop.ai | `CLOUDFLARE_ACCOUNT_ID=… npm run site:deploy` (`docs/deploy.md` §2) | `curl -s https://wetop.ai/ \| grep -c assistant.wetop.ai/widget/widget.js` — `1` |
 | 7 | «ИИ-продавец» → «Настройки» → «Применить» | стойка | баннер «Применено: продавец получил настройки и данные объекта» |
 | 8 | Правила помощника (ADR-084): «Платформа → Техподдержка → Настройки» — вписать системный промпт по шаблону `apps/ai-seller/sistemnyy-prompt-pomoshchnik.md` (подстановки `{{…}}` заменить) и сохранить. Пока правил нет, помощник не отвечает: файла `data/system_prompt.md` в его томе ещё нет | стойка | вкладка «Проверка» — помощник отвечает; предупреждения «Правил нет» нет |
+| 9 | Э4 «один продавец на все гостиницы» (после слияния Э4, план `plans/seller-multitenancy-2026-09-25.md` §3): `release` на свежий `main`; обновить код копии продавца («Обновить код…» ниже, папка `seller`) — его alembic применит `0002_organizations` сам при старте; сверка платформы заведёт гостиницу у продавца в течение минуты. Тег чата на сайте гостиницы заменить на новый из «Код для сайта» — теперь в нём `data-key`. Старые диалоги виджета (по желанию): `UPDATE clients SET organization_id='<uuid организации>' WHERE channel='widget' AND organization_id IS NULL;` в базе продавца — uuid показывает «Платформа → Организации» | веб-терминал | в «Код для сайта» тег с `data-key`; чат на сайте отвечает; «Диалоги» раздела показывают новые разговоры |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).

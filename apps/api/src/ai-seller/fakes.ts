@@ -4,6 +4,8 @@ import type { SellerConfig, SellerConnection, SellerPort } from './seller.connec
 import type {
   SellerAudit,
   SellerFactsRepository,
+  SellerOrganizationRow,
+  SellerOrgsRepository,
   SellerProfileRow,
   SellerProfilesRepository,
 } from './seller.repository';
@@ -56,6 +58,12 @@ export class FakeSeller implements SellerPort {
   putFacts(payload: unknown) {
     return this.call('putFacts', payload);
   }
+  putOrganization(
+    id: string,
+    org: { name: string; publicKey: string; active: boolean; hosts: string[] },
+  ) {
+    return this.call('putOrganization', id, org);
+  }
   // правила и модель — у помощника («Платформа → Техподдержка», ADR-084)
   prompt() {
     return this.call('prompt');
@@ -81,6 +89,8 @@ export const rejected = (status: number, detail: string, fields: string[] = []) 
   new assistant.SellerRejectedError(status, detail, fields);
 
 export class FakeConnection implements SellerConnection {
+  /** С какой организацией просили клиента (Э4): каждая отправка — со своей */
+  requestedOrgs: Array<string | undefined> = [];
   constructor(
     public settings: SellerConfig,
     public seller: FakeSeller = new FakeSeller(),
@@ -88,8 +98,25 @@ export class FakeConnection implements SellerConnection {
   config(): SellerConfig {
     return this.settings;
   }
-  client(): SellerPort | null {
-    return this.settings.baseUrl && this.settings.serviceKey ? this.seller : null;
+  client(organizationId?: string): SellerPort | null {
+    if (!this.settings.baseUrl || !this.settings.serviceKey) return null;
+    this.requestedOrgs.push(organizationId);
+    return this.seller;
+  }
+}
+
+/** Гостиницы для сверки (Э4): организации со строкой расширения и домены их сайтов */
+export class FakeOrgs implements SellerOrgsRepository {
+  rows: SellerOrganizationRow[] = [];
+  siteHosts = new Map<string, string[]>();
+  async withExtension(): Promise<SellerOrganizationRow[]> {
+    return this.rows;
+  }
+  async one(organizationId: string): Promise<SellerOrganizationRow | null> {
+    return this.rows.find((r) => r.organizationId === organizationId) ?? null;
+  }
+  async hosts(organizationId: string): Promise<string[]> {
+    return this.siteHosts.get(organizationId) ?? [];
   }
 }
 

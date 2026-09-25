@@ -99,7 +99,9 @@ def test_script_styles_are_prefixed() -> None:
 
 def test_script_is_short_enough_to_read() -> None:
     lines = _text().splitlines()
-    assert len(lines) <= 300, f"{len(lines)} строк — скрипт виджета перерос себя"
+    # 300 → 320 с Э4: ключ гостиницы в каждом запросе и тихий старт (Q-183)
+    # не помещаются в прежний бюджет без выкидывания поясняющих комментариев.
+    assert len(lines) <= 320, f"{len(lines)} строк — скрипт виджета перерос себя"
 
 
 def test_script_holds_no_secrets_and_no_hardcoded_host() -> None:

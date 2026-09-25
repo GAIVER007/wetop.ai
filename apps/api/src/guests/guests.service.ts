@@ -75,13 +75,22 @@ export class GuestsService {
       } catch {
         /* нет ключа или чужой ключ — не показываем ничего */
       }
+      // v1.7 (ADR-082): даты в базе шифртекстом; нет ключа — null, как «недоступно» у номера
+      const date = (token: string | null): string | null => {
+        if (!token) return null;
+        try {
+          return decryptPii(token);
+        } catch {
+          return null;
+        }
+      };
       return {
         id: d.id,
         type: d.type,
         numberMasked,
         issueCountry: d.issueCountry,
-        issuedAt: d.issuedAt,
-        expiresAt: d.expiresAt,
+        issuedAt: date(d.issuedAtEncrypted),
+        expiresAt: date(d.expiresAtEncrypted),
       };
     });
     // SECURITY.md §1, §5: каждый просмотр документа — событие журнала (кто и какой документ, без номера)
@@ -173,8 +182,13 @@ export class GuestsService {
       throw new BadRequestException('issueCountry — ISO 3166-1 alpha-3');
     if (!(await this.repo.byId(id))) throw new NotFoundException(`Гость ${id} не найден`);
     let numberEncrypted: string;
+    let issuedAtEncrypted: string | null;
+    let expiresAtEncrypted: string | null;
     try {
       numberEncrypted = encryptPii(number);
+      // v1.7 (ADR-082): даты — особо чувствительные (SECURITY.md §1), шифруются тем же ключом
+      issuedAtEncrypted = dto.issuedAt ? encryptPii(dto.issuedAt) : null;
+      expiresAtEncrypted = dto.expiresAt ? encryptPii(dto.expiresAt) : null;
     } catch (e) {
       if (e instanceof PiiKeyMissingError) throw new ServiceUnavailableException(e.message);
       throw e;
@@ -183,8 +197,8 @@ export class GuestsService {
       type: dto.type,
       numberEncrypted,
       issueCountry: country,
-      issuedAt: dto.issuedAt || null,
-      expiresAt: dto.expiresAt || null,
+      issuedAtEncrypted,
+      expiresAtEncrypted,
     });
     // какой документ добавлен — идентификатором и типом, номер в журнал не пишется (SECURITY.md §6)
     await this.repo.audit(id, 'guest.document.add', ['type', 'number'], {

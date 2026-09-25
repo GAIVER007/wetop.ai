@@ -98,7 +98,7 @@ export default async function PrintContract({
               <br />
               {t.address}: {party.address}
               <br />
-              {t.phone}: {PROPERTY.phone} · {t.email}: {PROPERTY.email}
+              {t.phone}: {party.phone} · {t.email}: {party.email}
               <br />
               {t.bank}: {PROPERTY.bank} · {t.iban}: {PROPERTY.iban} · {t.bic}: {PROPERTY.bic}
             </td>

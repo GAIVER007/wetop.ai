@@ -30,6 +30,10 @@ model Property {
   legalName    String?  @map("legal_name")
   bin          String?
   address      String?
+  /// Контакты объекта для печатных форм (v1.7, ADR-082): до них телефон и почта были зашиты в код
+  /// печати и напечатались бы в договоре любой организации. Пустое — в формах прочерк.
+  phone        String?
+  email        String?
   /// IANA timezone объекта, например Asia/Almaty
   timezone     String
   /// ISO 4217, на объекте KZT
@@ -349,9 +353,12 @@ model GuestDocument {
   type            String
   numberEncrypted String    @map("number_encrypted")
   /// ISO 3166-1 alpha-3 либо NULL; CHECK guest_documents_issue_country_alpha3 (Q-117)
+  /// Открытым остаётся намеренно: класс «персональные», как citizenship, нужен eQonaq (v1.7, ADR-082)
   issueCountry    String?   @map("issue_country") @db.VarChar(3)
-  issuedAt        DateTime? @map("issued_at") @db.Date
-  expiresAt       DateTime? @map("expires_at") @db.Date
+  /// Даты документа — особо чувствительные (SECURITY.md §1): ISO-дата, зашифрованная тем же ключом,
+  /// что номер (v1.7, ADR-082). В запросах не участвуют — только запись и показ, расшифровка в приложении
+  issuedAtEncrypted  String? @map("issued_at_encrypted")
+  expiresAtEncrypted String? @map("expires_at_encrypted")
   documentFileId  String?   @map("document_file_id")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 

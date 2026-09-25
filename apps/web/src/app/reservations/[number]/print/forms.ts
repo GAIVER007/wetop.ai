@@ -9,24 +9,27 @@ export type Lang = 'ru' | 'kz';
 export const pickLang = (lang: string | undefined): Lang => (lang === 'kz' ? 'kz' : 'ru');
 
 /**
- * Чего нет в записи объекта: контакты (полей в модели нет — предложение в DATA_MODEL §1) и плейсхолдеры банка и
- * подписанта для образца владельца. Название, юрлицо, ИИН/БИН, адрес и часы — из записи объекта, `propertyParty`.
+ * Чего нет в записи объекта: плейсхолдеры банка и подписанта для образца владельца. Всё остальное — название,
+ * юрлицо, ИИН/БИН, адрес, часы, а с v1.7 (ADR-082) и телефон с почтой — из записи объекта, `propertyParty`:
+ * зашитые сюда контакты напечатались бы в договоре любой организации. Значения Luxx перенесены в запись
+ * миграцией 20260925000021.
  */
 export const PROPERTY = {
-  phone: '+7 777 187 77 65',
-  email: 'luxxaparts@gmail.com',
   bank: '___',
   iban: '___',
   bic: '___',
   signer: '___',
 } as const;
 
-/** Что форма знает об объекте из `/hotel/settings`: у старого API поля `bin` нет */
+/** Что форма знает об объекте из `/hotel/settings`: у старого API полей `bin`, `phone` и `email` нет */
 export interface StoredProperty {
   name: string;
   legalName: string | null;
   bin?: string | null;
   address: string | null;
+  /** v1.7 (ADR-082): контакты объекта для печатных форм */
+  phone?: string | null;
+  email?: string | null;
   checkInTime: string;
   checkOutTime: string;
 }
@@ -42,6 +45,8 @@ export function propertyParty(p: StoredProperty): Required<{ [K in keyof StoredP
     legalName: or(p.legalName),
     bin: or(p.bin),
     address: or(p.address),
+    phone: or(p.phone),
+    email: or(p.email),
     checkInTime: p.checkInTime,
     checkOutTime: p.checkOutTime,
   };

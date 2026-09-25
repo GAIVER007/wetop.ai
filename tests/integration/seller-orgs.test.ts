@@ -93,7 +93,9 @@ describe.skipIf(!url)('гостиницы продавца (integration, DATABAS
 
   it('withExtension: организации со строкой расширения любым статусом; без строки — не в списке', async () => {
     const rows = await repo.withExtension();
-    const mine = rows.filter((r) => [orgA, orgB, orgNoExt].includes(r.organizationId));
+    // string[]: randomUUID типизирован шаблонной строкой, и без расширения includes(string) не сходится
+    const ours: string[] = [orgA, orgB, orgNoExt];
+    const mine = rows.filter((r) => ours.includes(r.organizationId));
     expect(mine.map((r) => r.organizationId).sort()).toEqual([orgA, orgB].sort());
     expect(mine.find((r) => r.organizationId === orgA)?.name).toBe(`Продавец-гостиница А ${mark}`);
   });

@@ -1,0 +1,73 @@
+# Модульные (unit) · 25.09.2026 11:34 Алматы · vm
+# коммит 6edb8f5 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T06-34-17Z-unit-6036.json' 'tests/unit/deploy-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/deploy-server.test.ts (32 tests | 1 failed) 52ms
+   ✓ deploy/Dockerfile (6)
+     ✓ копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся 5ms
+     ✓ копирует схему базы и prisma.config.ts до npm ci: клиент Prisma генерируется на postinstall 1ms
+     ✓ ставит и devDependencies: API и скрипты идут через tsx, стойка собирается next-ом 0ms
+     ✓ собирает стойку: next start без сборки не поднимется 1ms
+     ✓ ставит пояс объекта 0ms
+     ✓ не запускается от root и держит PID 1 за tini 1ms
+   ❯ deploy/compose.yml (21)
+     ✓ поднимает три службы: API, стойка, туннель 1ms
+     ✓ службы синхронизации с Exely нет: Exely перестал быть источником (ADR-052, 19.09.2026) 1ms
+     ✓ API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются 1ms
+     ✓ туннель ровно один и никогда не масштабируется 2ms
+     ✓ живость меряется маршрутами, которые отвечают и с включённым замком 1ms
+     ✓ API в контейнере слушает 0.0.0.0 — иначе до него не достучится никто, даже стойка 1ms
+     ✓ API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает 1ms
+     ✓ у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию 0ms
+     ✓ стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1 1ms
+     ✓ стойка ходит в API по имени службы, а не в собственный контейнер 0ms
+     ✓ проверки синхронизации из Exely у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073) 0ms
+     ✓ выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам 0ms
+     × API в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, в ней только API 10ms
+     ✓ сторож проверяет стойку по имени службы, а не собственный контейнер 1ms
+     ✓ порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose 0ms
+     ✓ выключатель ARI подхватывается файлом и не обязателен 0ms
+     ✓ секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория 1ms
+     ✓ боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15) 0ms
+     ✓ команды служб зовут то, что есть в репозитории 1ms
+     ✓ ключ туннеля монтируется только на чтение 0ms
+     ✓ сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение 1ms
+   ✓ контекст сборки (5)
+     ✓ runtime multer не содержит известные multipart DoS из версий до 2.3.0 15ms
+     ✓ Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile 0ms
+     ✓ секреты в образ не попадают 0ms
+     ✓ папка с ключом туннеля не едет в git 0ms
+     ✓ образец конфига туннеля ходит в службы по именам, а не на 127.0.0.1 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > API в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, в ней только API
+AssertionError: expected '' to match /^ {2}wetop-internal:\n/m
+
+- Expected:
+/^ {2}wetop-internal:\n/m
+
++ Received:
+""
+
+ ❯ tests/unit/deploy-server.test.ts:191:19
+    189|     const code = withoutComments(COMPOSE);
+    190|     const block = code.match(/^networks:\n((?: {2,}.*\n)+)/m)?.[1] ?? …
+    191|     expect(block).toMatch(/^ {2}wetop-internal:\n/m);
+       |                   ^
+    192|     expect(block).toMatch(/name: wetop-internal/);
+    193|     expect(block).toMatch(/internal: true/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 31 passed (32)
+   Start at  06:34:25
+   Duration  928ms (transform 60%, tests 23%, import 14%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-25T06-34-17Z-unit-6036.json
+
+# код выхода 1 · 9 с

@@ -182,6 +182,21 @@ describe('deploy/compose.yml', () => {
     expect(service('api')).not.toMatch(/GUARD_LOCAL_FILES/);
   });
 
+  it('API в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, в ней только API', () => {
+    // Помощник читает у API ошибки человека и состояние сторожа, API зовёт продавца по SELLER_URL — по внутренней
+    // сети, туннель остаётся с шестью путями (docs/assistant/README.md §3). Внешней (external) сеть не объявлена:
+    // иначе выкладка платформы падала бы, пока сеть не завели руками. Стойке и туннелю бот не нужен.
+    const code = withoutComments(COMPOSE);
+    const block = code.match(/^networks:\n((?: {2,}.*\n)+)/m)?.[1] ?? '';
+    expect(block).toMatch(/^ {2}wetop-internal:\n/m);
+    expect(block).toMatch(/name: wetop-internal/);
+    expect(block).toMatch(/internal: true/);
+    expect(block).not.toMatch(/external:/);
+    expect(withoutComments(service('api'))).toMatch(/networks: \[default, wetop-internal\]/);
+    for (const s of ['web', 'cloudflared'])
+      expect(withoutComments(service(s)), s).not.toContain('wetop-internal');
+  });
+
   it('сторож проверяет стойку по имени службы, а не собственный контейнер', () => {
     // Умолчание в коде (guard.adapters.ts) — http://127.0.0.1:3000: верно на Mac, где службы рядом.
     // В контейнере это сам api, где на 3000 никто не слушает, и «стойка не отвечает» горит всегда.

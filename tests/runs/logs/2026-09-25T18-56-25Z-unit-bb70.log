@@ -1,0 +1,136 @@
+# Модульные (unit) · 25.09.2026 23:56 Алматы · vm
+# коммит 46ae4a2 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T18-56-25Z-unit-bb70.json' 'apps/api/src/auth/auth.service.test.ts' 'apps/api/src/auth/auth.guard.test.ts' 'tests/unit/auto-deploy.test.ts' 'apps/web/src/lib/auth-lock.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/auth.guard.test.ts (25 tests | 2 failed) 39ms
+   ✓ tokenFromHeaders (1)
+     ✓ берёт токен из Authorization: Bearer <скрыто> из x-wetop-session 2ms
+   ❯ SessionGuard (24)
+     ✓ пока вход не включён, пускает всех и никого не спрашивает 3ms
+     ❯ в production (NODE_ENV=production) (3)
+       × переменная не задана — замок закрыт 6ms
+       × опечатка вроде AUTH_REQUIRED=true — замок закрыт, а не молча открыт 2ms
+       ✓ выключается только явным нулём 1ms
+     ✓ когда AUTH_REQUIRED=1 (9)
+       ✓ без токена не пускает 2ms
+       ✓ с годным токеном пускает и кладёт вошедшего в запрос 2ms
+       ✓ с негодным токеном не пускает 4ms
+       ✓ публичный маршрут пускает без токена: счётчик сайта, виджет и webhook работают снаружи 1ms
+       ✓ служебный ключ пускает сторожа и скрипты сверки 1ms
+       ✓ неверный служебный ключ не пускает 1ms
+       ✓ ключ той же длины, но другой, не пускает — сравнение идёт до конца, а не до первого знака 1ms
+       ✓ ключ другой длины не пускает и не роняет замок 0ms
+       ✓ когда служебный ключ в окружении не задан, служебный заголовок ничего не даёт 0ms
+     ✓ пока вход не включён, но токен пришёл — узнаёт автора, чтобы журнал знал, кто действовал 0ms
+     ✓ пока вход не включён, негодный токен не мешает работать 0ms
+     ✓ метка публичного маршрута читается тем же ключом, которым её ставит декоратор 0ms
+     ✓ ключ дежурного агента (GUARD_READ_KEY) (4)
+       ✓ пускает читать неисправности сторожа 1ms
+       ✓ не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу 1ms
+       ✓ не открывает остальной API: ни броней, ни денег, ни учёток 1ms
+       ✓ служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда 1ms
+     ✓ ключ ИИ-помощника (ASSISTANT_READ_KEY) (4)
+       ✓ пускает ровно на два адреса: ошибки человека и состояние системы 1ms
+       ✓ неисправности, запись и остальной API — 403 8ms
+       ✓ ключ дежурного агента ошибок человека не читает 0ms
+       ✓ похожий ключ не пускает: сравнение до конца 0ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (29 tests) 2578ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (9 tests) 6931ms
+   ✓ scripts/ops/auto-deploy.sh (9)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 331ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 545ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 490ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 697ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 462ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 725ms
+     ✓ локальные правки в клоне — не затирает их 482ms
+     ✓ историю ветки переписали — не выкладывает поверх 656ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2540ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > в production (NODE_ENV=production) > переменная не задана — замок закрыт
+ReferenceError: UnauthorizedException is not defined
+ ❯ apps/api/src/auth/auth.guard.test.ts:79:9
+     77|       const { ctx } = context();
+     78|       await expect(new SessionGuard(reflector(false), auth(true)).canA…
+     79|         UnauthorizedException,
+       |         ^
+     80|       );
+     81|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > в production (NODE_ENV=production) > опечатка вроде AUTH_REQUIRED=true — замок закрыт, а не молча открыт
+ReferenceError: UnauthorizedException is not defined
+ ❯ apps/api/src/auth/auth.guard.test.ts:87:9
+     85|       const { ctx } = context();
+     86|       await expect(new SessionGuard(reflector(false), auth(true)).canA…
+     87|         UnauthorizedException,
+       |         ^
+     88|       );
+     89|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+UnauthorizedException: Войдите в систему
+ ❯ SessionGuard.canActivate apps/api/src/auth/auth.guard.ts:157:26
+    155|     const token = <скрыто>;
+    156|     const signedIn = token ? await this.auth.whoami(token) : null;
+    157|     if (!signedIn) throw new UnauthorizedException('Войдите в систему'…
+       |                          ^
+    158|
+    159|     request.user = signedIn.user;
+ ❯ apps/api/src/auth/auth.guard.test.ts:78:67
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:1628:35
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:26
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3319:20
+ ❯ runWithCancel node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3314:10
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3299:20
+ ❯ runWithTimeout node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3257:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { response: { message: 'Войдите в систему', error: 'Unauthorized', statusCode: 401 }, status: 401, options: {}, errorCode: undefined, initCause: 'Function<initCause>', initErrorCode: 'Function<initErrorCode>', initMessage: 'Function<initMessage>', initName: 'Function<initName>', getResponse: 'Function<getResponse>', getStatus: 'Function<getStatus>' }
+This error originated in "apps/api/src/auth/auth.guard.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+UnauthorizedException: Войдите в систему
+ ❯ SessionGuard.canActivate apps/api/src/auth/auth.guard.ts:157:26
+    155|     const token = <скрыто>;
+    156|     const signedIn = token ? await this.auth.whoami(token) : null;
+    157|     if (!signedIn) throw new UnauthorizedException('Войдите в систему'…
+       |                          ^
+    158|
+    159|     request.user = signedIn.user;
+ ❯ apps/api/src/auth/auth.guard.test.ts:86:67
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:1628:35
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:26
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3319:20
+ ❯ runWithCancel node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3314:10
+ ❯ node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3299:20
+ ❯ runWithTimeout node_modules/vitest/dist/chunks/run.CQOUYP-x.js:3257:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { response: { message: 'Войдите в систему', error: 'Unauthorized', statusCode: 401 }, status: 401, options: {}, errorCode: undefined, initCause: 'Function<initCause>', initErrorCode: 'Function<initErrorCode>', initMessage: 'Function<initMessage>', initName: 'Function<initName>', getResponse: 'Function<getResponse>', getStatus: 'Function<getStatus>' }
+This error originated in "apps/api/src/auth/auth.guard.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  2 failed | 63 passed (65)
+     Errors  2 errors
+   Start at  18:56:26
+   Duration  7.22s (tests 79%, transform 14%, import 7%)
+
+JSON report written to /tmp/pms-test-2026-09-25T18-56-25Z-unit-bb70.json
+
+# код выхода 1 · 8 с

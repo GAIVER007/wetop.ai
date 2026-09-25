@@ -135,10 +135,13 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(again.out).toBe('');
   });
 
-  it('владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину', () => {
+  it('владелец применил миграции и назвал вершину — выкладывает ровно её', () => {
     const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
-    expect(run().code).toBe(1);
-    const r = run({}, ['--migrations-applied']);
+    const refusal = run();
+    expect(refusal.code).toBe(1);
+    // подсказка называет точную вершину — её владелец и передаёт
+    expect(refusal.out).toContain(`--migrations-applied ${target.slice(0, 8)}`);
+    const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
     expect(r.code, r.out).toBe(0);
     expect(head()).toBe(target);
     expect(dockerCalls()).toMatch(/up -d --build api web/);
@@ -147,6 +150,37 @@ describe('scripts/ops/auto-deploy.sh', () => {
     const next = run();
     expect(next.code).toBe(1);
     expect(next.out).toContain('0003_next');
+  });
+
+  // ТЗ аудита 25.09.2026, С-1: флаг без вершины разрешал бы ту вершину, что стоит СЕЙЧАС, а не ту,
+  // чьи миграции применял владелец, — release могли перемотать между отказом и запуском
+  it('--migrations-applied без вершины — отказ с подсказкой, ничего не выложено', () => {
+    commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    expect(run().code).toBe(1);
+    const before = head();
+    const r = run({}, ['--migrations-applied']);
+    expect(r.code).toBe(2);
+    expect(r.out).toContain('вершин');
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+  });
+
+  it('release перемотали после отказа — флаг со старой вершиной не выкладывает новую', () => {
+    const applied = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    expect(run().code).toBe(1);
+    // пока владелец применял миграции, в release уехала ещё одна вершина с новой миграцией
+    const moved = commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
+    const before = head();
+    const r = run({}, ['--migrations-applied', applied.slice(0, 8)]);
+    expect(r.code).toBe(2);
+    expect(r.out).toContain('не совпадает');
+    expect(r.out).toContain(moved.slice(0, 8));
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+    // с вершиной, которая стоит в release сейчас, — выкладывает
+    const ok = run({}, ['--migrations-applied', moved]);
+    expect(ok.code, ok.out).toBe(0);
+    expect(head()).toBe(moved);
   });
 
   it('локальные правки в клоне — не затирает их', () => {

@@ -26,10 +26,10 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
 /**
  * Замок на непубличных маршрутах API (DATA_MODEL §13 шаг 1, ADR-046).
  *
- * **Включается переменной `AUTH_REQUIRED=1` и по умолчанию выключен** — иначе первый же выкат положил бы
- * живую стойку, сторожа, импорт из Exely и скрипты сверки: они ходят в API без токена (ADR-023). Порядок
- * включения и проверки — `plans/slice-13-accounts-saas.md`. Пока выключен, охрану держит Cloudflare Access
- * на периметре (ADR-045).
+ * **В production включён всегда** и выключается только явным `AUTH_REQUIRED=0` (fail-closed, ТЗ аудита
+ * 25.09.2026 В-2); вне production включается `AUTH_REQUIRED=1` — dev-стенды, сквозные наборы и скрипты
+ * сверки ходят в API без токена (ADR-023). Порядок включения и проверки — `plans/slice-13-accounts-saas.md`;
+ * Cloudflare Access снят 20.09.2026 (ADR-053), периметр держит сам замок.
  *
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
  * записи в журнале от него идут без автора.
@@ -94,7 +94,12 @@ export class SessionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const required = process.env.AUTH_REQUIRED === '1';
+    // ТЗ аудита 25.09.2026, В-2: fail-closed. В production замок включён всегда и выключается только
+    // явным AUTH_REQUIRED=0 — опечатка или пустая переменная не открывают API молча. Вне production
+    // прежнее правило ('1' включает): dev-стенды, сквозные наборы и демо работают без входа.
+    const flag = process.env.AUTH_REQUIRED;
+    const required =
+      flag === '1' || (process.env.NODE_ENV === 'production' && flag !== '0');
 
     if (!required) {
       // Замок молчит, но токен, если он пришёл, всё равно опознаём: журналу нужен автор действия.

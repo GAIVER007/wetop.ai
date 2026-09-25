@@ -16,8 +16,11 @@
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
 #   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
-#   scripts/ops/auto-deploy.sh --migrations-applied   владелец применил миграции этой вершины — выложить её
-#                                                     без проверки миграций; остальные проверки и откат остаются
+#   scripts/ops/auto-deploy.sh --migrations-applied <вершина>
+#                                владелец применил миграции ИМЕННО этой вершины release — выложить её без
+#                                проверки миграций; вершина сверяется с origin/release (ТЗ аудита 25.09, С-1:
+#                                иначе флаг разрешил бы вершину, перемотанную после отказа), остальные
+#                                проверки и откат остаются
 #
 # DEPLOY_REPO        клон на сервере (/root/wetop)
 # DEPLOY_BRANCH      ветка выкладки (release)
@@ -37,8 +40,14 @@ IMAGE="${DEPLOY_IMAGE:-pms-lux}"
 WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
 ENV_FILE="$REPO/.env"
-APPLIED=0
-[ "${1:-}" = --migrations-applied ] && APPLIED=1
+APPLIED_SHA=""
+if [ "${1:-}" = --migrations-applied ]; then
+  APPLIED_SHA="${2:-}"
+  if [ -z "$APPLIED_SHA" ]; then
+    echo "auto-deploy: --migrations-applied требует вершину из отказа: --migrations-applied <sha> (ТЗ аудита 25.09, С-1)" >&2
+    exit 2
+  fi
+fi
 
 # git pull меняет и этот файл, а bash читает скрипт по ходу исполнения: работаем с копией
 if [ -z "${AUTO_DEPLOY_COPY:-}" ]; then
@@ -90,8 +99,25 @@ current="$(git rev-parse HEAD)"
 short() { git rev-parse --short=8 "$1"; }
 
 [ "$target" != "$current" ] || exit 0
+
+# Флаг --migrations-applied действует только на ту вершину, чьи миграции применял владелец:
+# release могли перемотать между отказом и запуском (ТЗ аудита 25.09, С-1)
+applied_ok=0
+if [ -n "$APPLIED_SHA" ]; then
+  applied_commit="$(git rev-parse --verify --quiet "${APPLIED_SHA}^{commit}" || true)"
+  if [ -z "$applied_commit" ]; then
+    say "--migrations-applied: не узнаю вершину «$APPLIED_SHA» — возьмите sha из сообщения об отказе"
+    exit 2
+  fi
+  if [ "$applied_commit" != "$target" ]; then
+    say "--migrations-applied $(short "$applied_commit") не совпадает с вершиной $BRANCH $(short "$target") — её перемотали после отказа; проверьте миграции текущей вершины и повторите с её sha"
+    exit 2
+  fi
+  applied_ok=1
+fi
+
 # Эту вершину уже отказались выкладывать — сказали один раз, ждём следующий коммит или человека
-[ "$APPLIED" = 1 ] || [ "$(cat "$STATE/refused" 2>/dev/null || true)" != "$target" ] || exit 0
+[ "$applied_ok" = 1 ] || [ "$(cat "$STATE/refused" 2>/dev/null || true)" != "$target" ] || exit 0
 
 refuse() {
   printf '%s\n' "$target" >"$STATE/refused"
@@ -104,8 +130,8 @@ refuse() {
 git merge-base --is-ancestor "$current" "$target" ||
   refuse "новая вершина $BRANCH не продолжает текущую — история переписана, нужна выкладка руками"
 migrations="$(git diff --name-only "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
-[ -z "$migrations" ] || [ "$APPLIED" = 1 ] ||
-  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied"
+[ -z "$migrations" ] || [ "$applied_ok" = 1 ] ||
+  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
 
 compose=(docker compose -f deploy/compose.yml)
 [ -f deploy/compose.hostinger.yml ] && compose+=(-f deploy/compose.hostinger.yml)

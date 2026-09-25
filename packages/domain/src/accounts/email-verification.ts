@@ -10,6 +10,14 @@
  */
 export const VERIFY_HOURS = 72;
 
+/**
+ * Сколько повторный заход по УЖЕ использованной ссылке ещё впускает (ТЗ аудита 25.09.2026, В-1).
+ * Нужен, потому что почтовые клиенты ходят по ссылкам сами: первый «переход» делает антиспам, а через
+ * секунды кликает человек. Дольше окна использованная ссылка — не вход: письмо лежит в ящике годами,
+ * и вечная ссылка превращала бы доступ к ящику в бессрочный обход пароля.
+ */
+export const VERIFY_REUSE_WINDOW_MS = 10 * 60_000;
+
 export type VerifyState = 'active' | 'expired' | 'used';
 
 export function verifyExpiry(from: Date): Date {
@@ -33,6 +41,7 @@ export const VERIFY_PENDING_MESSAGE =
   'Почта не подтверждена. Откройте письмо со ссылкой — или запросите его заново.';
 export const VERIFY_BAD_LINK_MESSAGE = 'Ссылка не годится: запросите письмо заново.';
 export const VERIFY_EXPIRED_MESSAGE = 'Срок ссылки истёк: запросите письмо заново.';
+export const VERIFY_ALREADY_MESSAGE = 'Почта уже подтверждена: войдите с почтой и паролем.';
 
 import type { MailText } from './reset';
 

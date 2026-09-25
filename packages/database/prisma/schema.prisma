@@ -962,6 +962,7 @@ model Organization {
   properties  Property[]
   userErrors  UserError[]
   sellerProfile SellerProfile?
+  extensions  OrganizationExtension[]
 
   @@map("organizations")
 }
@@ -994,6 +995,8 @@ model User {
   auditLogs      AuditLog[]
   userErrors     UserError[]
   sellerProfileEdits SellerProfile[]
+  platformAdmin  PlatformAdmin?
+  extensionEdits OrganizationExtension[]
 
   @@map("users")
 }
@@ -1029,11 +1032,19 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-/// Человек в организации. Ролей нет: ADR-023 в этой части в силе, контролем остаётся журнал действий.
+/// Роль в организации (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет — ADR-023 там в силе; владельцу —
+/// сотрудники, приглашения и настройки ИИ-продавца.
+enum MembershipRole {
+  OWNER
+  STAFF
+}
+
+/// Человек в организации. Роль — §16.1: у самого раннего участника организации `OWNER` (миграция 20260925000020).
 model Membership {
-  userId         String   @map("user_id") @db.Uuid
-  organizationId String   @map("organization_id") @db.Uuid
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  userId         String         @map("user_id") @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  role           MembershipRole @default(STAFF)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
@@ -1163,4 +1174,51 @@ model SellerProfile {
   editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
 
   @@map("seller_profiles")
+}
+
+/// Главный администратор платформы (DATA_MODEL §16.2, ADR-083). Ставит и снимает только команда на сервере
+/// (`npm run accounts -- platform-admin`): маршрута API, который пишет сюда, нет. Действует, пока `revoked_at` пуст.
+/// Отдельная таблица, а не поле в `users`: правка профиля человека не может задеть отметку.
+model PlatformAdmin {
+  userId    String    @id @map("user_id") @db.Uuid
+  grantedAt DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  note      String?   @db.VarChar(200)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("platform_admins")
+}
+
+/// Платное расширение организации (DATA_MODEL §16.3, ADR-083)
+enum ExtensionKind {
+  AI_SELLER
+}
+
+/// `TRIAL` — пробный, `ACTIVE` — оплачен, `OFF` — выключен
+enum ExtensionStatus {
+  TRIAL
+  ACTIVE
+  OFF
+}
+
+/// Расширение действует, если статус `TRIAL` или `ACTIVE` и срок не вышел (`active_until` пуст — бессрочно). Меняет
+/// только главный администратор; строки не удаляются, выключение — `OFF`. Денег здесь нет (Q-141, Q-143).
+model OrganizationExtension {
+  organizationId String          @map("organization_id") @db.Uuid
+  extension      ExtensionKind
+  status         ExtensionStatus
+  /// NULL — бессрочно; у пробного обязателен (CHECK в миграции)
+  activeUntil    DateTime?       @map("active_until") @db.Timestamptz(6)
+  /// Номер счёта и т. п.; без персональных данных
+  note           String?         @db.VarChar(300)
+  updatedAt      DateTime        @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?         @map("updated_by") @db.Uuid
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@id([organizationId, extension])
+  @@map("organization_extensions")
 }

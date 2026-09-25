@@ -2240,3 +2240,7 @@
 | 25.09.2026 14:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ✅ 14 из 14 | 1 мин 1 с | 0729998 +8 | [лог](logs/2026-09-25T09-18-16Z-e2e-2728.log) | green: one form per step |
 | 25.09.2026 14:19 | typecheck | ✅ без ошибок | 27 с | 0729998 +8 | [лог](logs/2026-09-25T09-19-17Z-typecheck-61ad.log) |  |
 | 25.09.2026 14:19 | lint | ✅ без ошибок | 20 с | 0729998 +8 | [лог](logs/2026-09-25T09-19-52Z-lint-1168.log) |  |
+| 25.09.2026 14:30 | integration (частично: tests/integration/access-extensions.test.ts) | ❌ код выхода 1 | 3 с | 6cecb0d +2 | [лог](logs/2026-09-25T09-30-52Z-integration-1520.log) | red: access migration not yet present |
+| 25.09.2026 14:31 | integration (частично: tests/integration/access-extensions.test.ts) | ❌ упало 3 из 3 | 3 с | 6cecb0d +2 | [лог](logs/2026-09-25T09-31-10Z-integration-c238.log) | red: access migration not yet present |
+| 25.09.2026 14:31 | integration (частично: tests/integration/access-extensions.test.ts) | ❌ код выхода 1 | 3 с | 6cecb0d +4 | [лог](logs/2026-09-25T09-31-21Z-integration-3b37.log) | green: access migration |
+| 25.09.2026 14:32 | integration (частично: tests/integration/access-extensions.test.ts) | ✅ 3 из 3 | 3 с | 6cecb0d +4 | [лог](logs/2026-09-25T09-32-06Z-integration-3393.log) | green: access migration |

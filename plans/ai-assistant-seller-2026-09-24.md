@@ -436,3 +436,23 @@ Q-174». Q-174 решён: ADR-081 — экземпляры бота стоят 
 
 **Файлы:** `deploy/compose.yml`, `tests/unit/deploy-server.test.ts`, `docs/assistant/README.md`, `docs/deploy.md`,
 этот план. `CLAUDE.md` и `docs/history.md` — после PR #68.
+
+## 16. Адрес помощника наружу через туннель (25.09.2026; «поднимай бота где надо и выложи»)
+
+Поднять бота и выложить агент не может: SSH к серверу из облачной сессии закрыт, у бота секреты владельца
+(`LLM_API_KEY`, пароль панели), выкладку в production фильтр Claude Code агенту запрещает. Со стороны репозитория
+не хватает одного: `assistant.wetop.ai` должен дойти до бота. Наружу платформа смотрит только через туннель, а
+туннель видит лишь службы своей сети.
+
+**Шаги.**
+
+1. `cloudflared` — в сеть `wetop-internal`, `web` — по-прежнему нет. Правило туннеля в `deploy/cloudflared.example.yml`:
+   `assistant.wetop.ai` → `http://assistant:8000`, только `^/(widget/.*|health)$`. Панель бота и `/internal/*` наружу не
+   идут. Красное → зелёное — `tests/unit/deploy-server.test.ts`.
+2. У продавца публичного адреса пока нет: код его чата на сайт объекта ставится, только когда база бота в РК
+   (ADR-009, ADR-081). Платформа ходит к нему по внутренней сети.
+3. `docs/assistant/README.md` §3 и §6 — туннель вместо nginx, команды для веб-терминала.
+4. unit, typecheck, lint; PR и слияние.
+
+**Файлы:** `deploy/compose.yml`, `deploy/cloudflared.example.yml`, `tests/unit/deploy-server.test.ts`,
+`docs/assistant/README.md`, этот план.

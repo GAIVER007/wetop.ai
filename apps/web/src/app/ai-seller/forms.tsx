@@ -26,12 +26,15 @@ import {
   applySellerAction,
   dialogModeAction,
   extractStoryAction,
+  llmKeyCheckAction,
+  llmKeySaveAction,
   replyAction,
   sandboxAction,
   saveSellerStepAction,
   uploadKnowledgeAction,
   type SandboxResult,
   type SellerFormResult,
+  type LlmKeyResult,
   type SimpleResult,
   type StoryResult,
 } from './actions';
@@ -776,5 +779,109 @@ export function StoryIntake({
         )}
       </form>
     </details>
+  );
+}
+
+/**
+ * Окно «Модель» (С2, Q-186): API-ключ модели самого партнёра — расход на нём. Ключ хранит только бот,
+ * шифрованным; здесь он вводится, проверяется живым вызовом и сохраняется, обратно не читается —
+ * видны лишь последние 4 знака. Ключ снят — ходы идут ключом платформы, как раньше.
+ */
+export function LlmKeyForm({
+  status,
+  readOnly,
+  save = llmKeySaveAction,
+  check = llmKeyCheckAction,
+}: {
+  status: { set: boolean; last4: string | null };
+  readOnly: string | null;
+  save?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
+  check?: (prev: LlmKeyResult | null, form: FormData) => Promise<LlmKeyResult>;
+}) {
+  const [saved, saveAction, saving] = useActionState<LlmKeyResult | null, FormData>(save, null);
+  const [checked, checkAction, checking] = useActionState<LlmKeyResult | null, FormData>(check, null);
+  // снятие — своя форма со скрытым полем: name на кнопке с formAction-функцией React затирает
+  const [cleared, clearAction, clearing] = useActionState<LlmKeyResult | null, FormData>(save, null);
+  const busy = saving || checking || clearing;
+  // состояние — серверное: удачное действие зовёт refresh(), и props приходят свежими
+  return (
+    <Stack>
+      <p data-testid="seller-llm-key-state">
+        {status.set ? (
+          <>
+            Ключ установлен, оканчивается на <b>····{status.last4}</b>. Расход модели — на ключе
+            партнёра.
+          </>
+        ) : (
+          <>Ключ не задан: продавец ходит ключом платформы.</>
+        )}
+      </p>
+      <form key={saved?.attempt ?? 0} className="stack stack--sm">
+        <Field label="API-ключ модели">
+          <Input
+            name="key"
+            type="password"
+            maxLength={200}
+            autoComplete="off"
+            placeholder="sk-…"
+            data-testid="seller-llm-key-input"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Row>
+          <Button
+            type="submit"
+            formAction={checkAction}
+            tone="secondary"
+            disabled={busy || readOnly !== null}
+            aria-busy={checking}
+            data-testid="seller-llm-key-check"
+          >
+            {checking ? 'Проверяем…' : 'Проверить'}
+          </Button>
+          <Button
+            type="submit"
+            formAction={saveAction}
+            disabled={busy || readOnly !== null}
+            aria-busy={saving}
+            data-testid="seller-llm-key-save"
+          >
+            {saving ? 'Сохраняем…' : 'Сохранить'}
+          </Button>
+        </Row>
+        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {(saved?.message || checked?.message) && (
+          <Notice data-testid="seller-llm-key-message">{saved?.message ?? checked?.message}</Notice>
+        )}
+        {(saved?.error || checked?.error) && (
+          <Alert data-testid="seller-llm-key-error">{saved?.error ?? checked?.error}</Alert>
+        )}
+      </form>
+      {status.set && (
+        <form action={clearAction} className="stack stack--sm">
+          <input type="hidden" name="clear" value="1" />
+          <Row>
+            <Button
+              type="submit"
+              tone="danger"
+              disabled={busy || readOnly !== null}
+              aria-busy={clearing}
+              data-testid="seller-llm-key-clear"
+            >
+              Снять ключ
+            </Button>
+          </Row>
+        </form>
+      )}
+      {cleared?.message && (
+        <Notice data-testid="seller-llm-key-cleared">{cleared.message}</Notice>
+      )}
+      {cleared?.error && <Alert data-testid="seller-llm-key-error">{cleared.error}</Alert>}
+      <p className="settings-note">
+        Ключ хранит только продавец — шифрованным; здесь видны лишь последние 4 знака. Ключ
+        недействителен или кончились средства — продавец гостиницы молчит и раздел предупредит,
+        ключ платформы вместо партнёрского не подставляется.
+      </p>
+    </Stack>
   );
 }

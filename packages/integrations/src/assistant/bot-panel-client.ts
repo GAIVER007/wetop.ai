@@ -239,6 +239,23 @@ export class BotPanelClient {
     return this.json('PUT', '/seller/profile', payload);
   }
 
+  /** Ключ модели партнёра (С2): статус — только «установлен + последние 4 знака», сам ключ бот не отдаёт */
+  llmKeyStatus(orgId: string): Promise<Json> {
+    return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key`);
+  }
+
+  /** Пустой ключ снимает сохранённый */
+  putLlmKey(orgId: string, key: string): Promise<Json> {
+    return this.json('PUT', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key`, { key });
+  }
+
+  /** Проверка ключа живым вызовом роутера у бота; наружу — только вердикт */
+  checkLlmKey(orgId: string, key: string): Promise<Json> {
+    return this.json('POST', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key/check`, {
+      key,
+    });
+  }
+
   /**
    * Рассказ владельца → поля анкеты (С1 «под ключ»): бот раскладывает свободный текст по полям Б6/Б7 своей
    * моделью и слоем 9; промптом рассказ не становится. Таймаут — как у песочницы: внутри вызов модели.

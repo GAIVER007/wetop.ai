@@ -34,13 +34,14 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
 });
 
 describe('вкладки раздела (ТЗ §4.1)', () => {
-  it('шесть экранов в порядке ТЗ', () => {
+  it('семь экранов: шесть по ТЗ и «Модель» (С2, Q-186)', () => {
     expect(SELLER_TABS.map((t) => t.label)).toEqual([
       'Настройки',
       'Данные объекта',
       'Знания',
       'Диалоги',
       'Код для сайта',
+      'Модель',
       'Проверка',
     ]);
     expect(SELLER_TABS.map((t) => t.href)).toEqual([
@@ -49,6 +50,7 @@ describe('вкладки раздела (ТЗ §4.1)', () => {
       '/ai-seller/knowledge',
       '/ai-seller/dialogs',
       '/ai-seller/embed',
+      '/ai-seller/model',
       '/ai-seller/check',
     ]);
   });

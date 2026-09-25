@@ -25,6 +25,7 @@ from src.ai.schemas import parse_model_json
 from src.dashboard.auth_router import request_org, require_owner
 from src.dashboard.panel_common import log_action, sessions
 from src.knowledge.facts import Category
+from src.security.llm_keys import org_llm_api_key
 from src.security.pii import unmask
 
 logger = logging.getLogger(__name__)
@@ -181,12 +182,16 @@ async def extract_profile(
     if not scan_document(story).clean:
         raise HTTPException(status_code=422, detail="В рассказе найдены инструкции для модели")
 
+    async with sessions()() as session:
+        # С2: извлечение — тоже расход модели, идёт ключом партнёра, если он подключён.
+        api_key = await org_llm_api_key(session, org, request.app.state.settings)
     result = await get_cascade_client().generate(
         [
             {"role": "system", "content": EXTRACT_PROMPT},
             {"role": "user", "content": story},
         ],
         use_tools=False,
+        api_key=api_key,
     )
     if not result.ok:
         # Причина — в журнале каскада; наружу нейтрально, без адресов и кодов.

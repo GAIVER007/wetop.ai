@@ -58,6 +58,15 @@ export class FakeSeller implements SellerPort {
   extractProfile(story: string) {
     return this.call('extractProfile', story);
   }
+  llmKeyStatus(orgId: string) {
+    return this.call('llmKeyStatus', orgId);
+  }
+  putLlmKey(orgId: string, key: string) {
+    return this.call('putLlmKey', orgId, key);
+  }
+  checkLlmKey(orgId: string, key: string) {
+    return this.call('checkLlmKey', orgId, key);
+  }
   putFacts(payload: unknown) {
     return this.call('putFacts', payload);
   }

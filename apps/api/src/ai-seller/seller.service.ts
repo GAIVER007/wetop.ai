@@ -82,6 +82,8 @@ const SANDBOX_MAX = 2000;
 // Рассказ владельца (С1): границы — как у двери бота `/extract-profile`
 const STORY_MIN = 10;
 const STORY_MAX = 4000;
+// Ключ модели партнёра (С2): предел — как у двери бота
+const LLM_KEY_MAX = 200;
 
 /** Поля профиля, которые рассказ вправе заполнить; манера (обращение, эмодзи, длина) — выбор партнёра в мастере */
 const STORY_FIELDS: ReadonlyArray<readonly [botField: string, field: string]> = [
@@ -467,6 +469,36 @@ export class SellerService {
       aside: storyAside(extracted, obj(body.facts)),
       profile: await this.savedProfile(),
     };
+  }
+
+  // ── ключ модели партнёра (С2, Q-186) ──────────────────────────────────────────────────────
+
+  /** Статус ключа: хранит его только бот, платформа видит «установлен + последние 4 знака» */
+  async llmKey(now: Date = new Date()): Promise<{ set: boolean; last4: string | null }> {
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.llmKeyStatus(organizationId)));
+    return { set: body.set === true, last4: str(body.last4) };
+  }
+
+  /** Поставить или снять (пустая строка) ключ; в ответах платформы ключа нет */
+  async saveLlmKey(raw: unknown, now: Date = new Date()) {
+    const key = typeof raw === 'string' ? raw.trim() : '';
+    if (key.length > LLM_KEY_MAX)
+      throw new BadRequestException(`Ключ длиннее ${LLM_KEY_MAX} знаков — это не ключ`);
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.putLlmKey(organizationId, key)));
+    return { set: body.set === true, last4: str(body.last4) };
+  }
+
+  /** Проверка ключа до сохранения: живой вызов роутера делает бот, наружу — вердикт словами */
+  async checkLlmKey(raw: unknown, now: Date = new Date()) {
+    const key = typeof raw === 'string' ? raw.trim() : '';
+    if (key === '') throw new BadRequestException('Нечего проверять: ключ пуст');
+    if (key.length > LLM_KEY_MAX)
+      throw new BadRequestException(`Ключ длиннее ${LLM_KEY_MAX} знаков — это не ключ`);
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.checkLlmKey(organizationId, key)));
+    return { valid: body.valid === true, reason: str(body.reason) };
   }
 
   // ── применение (П8) ────────────────────────────────────────────────────────────────────────

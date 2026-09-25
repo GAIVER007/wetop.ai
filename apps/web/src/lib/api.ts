@@ -1424,6 +1424,12 @@ export const sellerApi = {
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
+  /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
+  llmKey: () => getJson<{ set: boolean; last4: string | null }>('/ai-seller/llm-key'),
+  saveLlmKey: (key: string) =>
+    sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
+  checkLlmKey: (key: string) =>
+    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', { key }),
   profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
   saveProfile: (body: SellerProfileBody) =>
     sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),

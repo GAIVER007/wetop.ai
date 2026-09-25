@@ -93,9 +93,31 @@ SELECT message, status, count(*) AS n
 а платформа в продавца — по `SELLER_URL`, и туннель платформы остаётся с шестью путями. Адреса и сервер — Q-180, Q-174.
 
 У платформы и бота разные проекты compose (`deploy/compose.yml` — `pms-lux`; у бота свой `compose.yml`). Внутреннее имя
-службы видно только внутри общей сети: её заводят один раз (`docker network create wetop-internal`) и подключают к ней
-`api` платформы и оба экземпляра бота как внешнюю (`networks: { wetop-internal: { external: true } }`). Правка
-`deploy/compose.yml` под это — вместе с решением Q-174, не раньше.
+службы видно только внутри общей сети. **Сеть `wetop-internal` заводит сама платформа** (25.09.2026, после решения
+Q-174, ADR-081):
+- имя постоянное, `internal: true` — выхода наружу у сети нет;
+- в ней только `api`, стойке и туннелю бот не нужен;
+- сторож — `tests/unit/deploy-server.test.ts`.
+
+Руками сеть не заводят. `docker network create` создаёт сеть без меток compose, и `up` платформы с такой сетью
+откажется. Если её уже завели, удалить (`docker network rm wetop-internal`), пока к ней никто не подключён.
+
+Оба экземпляра бота подключаются к ней как к внешней и берут в ней свои имена — файлом рядом с `compose.yml` бота:
+
+```yaml
+# compose.override.yml экземпляра бота; у продавца aliases: [seller]
+services:
+  app:
+    networks:
+      default: {}
+      wetop-internal: { aliases: [assistant] }
+networks:
+  wetop-internal: { external: true }
+```
+
+Тогда помощник ходит в API по `INTEGRATION_BASE_URL=http://api:3001`, а платформа в продавца — по
+`SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`. Экземпляр бота поднимается после платформы: сети до первой
+выкладки платформы нет.
 
 ## 4. Продавец: что зовёт платформа (П7, П8) — для Б5–Б7
 
@@ -226,3 +248,22 @@ SELECT message, status, count(*) AS n
 | главная | `assistantUrl` в `apps/site/src/site.config.ts` | то же для wetop.ai |
 | помощник | `WIDGET_IDENTITY_SECRET`, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` | Б2, Б3 |
 | продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY`, домены сайта объекта в `WIDGET_SITE_HOSTS` | Б5, Б8 |
+
+## 6. Включение по шагам (владелец; 25.09.2026)
+
+Код платформы — в `main` с PR #67 (`afe82ab9`). Пока шаги не сделаны, всё новое молчит: тега чата нет, подпись не
+выдаётся, раздел «ИИ-продавец» пишет «продавец не подключён». Агент этих шагов не делает: боевые миграции, `.env` и
+сервер — владелец (AGENTS.md §15, SECURITY.md §3).
+
+| # | Шаг | Как | Проверка |
+|---|---|---|---|
+| 1 | Бэкап рабочей базы, затем две миграции: `20260924000018_user_errors` и `20260924000019_seller_profiles`. Откат — `down.sql` рядом | `docs/ops/backups.md`: бэкап → `migration.sql` каждой по порядку → проверка | `select count(*) from user_errors;` и `select count(*) from seller_profiles;` — оба `0`, без ошибки |
+| 2 | Три общих ключа: `openssl rand -hex 32`, трижды | `WIDGET_IDENTITY_SECRET`, `ASSISTANT_READ_KEY`, `SELLER_SERVICE_KEY` — одинаковые у платформы и бота (§5; у помощника `ASSISTANT_READ_KEY` зовётся `INTEGRATION_API_KEY`) | — |
+| 3 | Переменные платформы в `.env` корня клона: `ASSISTANT_URL=https://assistant.wetop.ai`, `SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`, `SELLER_PUBLIC_URL=https://seller.wetop.ai`, `SELLER_ORGANIZATION_ID=<uuid организации>` и ключи шага 2 | имена — и в `.env.example` | — |
+| 4 | Выкладка платформы | `release` → проверенный коммит `main`, затем `/usr/local/sbin/wetop-auto-deploy --migrations-applied` (`docs/deploy.md` §1д) | `/health` — ok; в «Продажах» есть «ИИ-продавец»; `docker network inspect wetop-internal` — в сети `api` |
+| 5 | Экземпляры бота: помощник (`BOT_ROLE=support`, `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`) и продавец (`BOT_ROLE=seller`, `SELLER_SERVICE_KEY`) — каждый своим проектом compose, с файлом сети из §3 | `apps/ai-seller/vykatka.md` — перед деплоем и перед открытием адреса наружу; наружу только `/widget/*` и `/health` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
+| 6 | Главная wetop.ai | `CLOUDFLARE_ACCOUNT_ID=… npm run site:deploy` (`docs/deploy.md` §2) | `curl -s https://wetop.ai/ \| grep -c assistant.wetop.ai/widget/widget.js` — `1` |
+| 7 | «ИИ-продавец» → «Настройки» → «Применить» | стойка | баннер «Применено: продавец получил настройки и данные объекта» |
+
+Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
+данные (ADR-009, ADR-081).

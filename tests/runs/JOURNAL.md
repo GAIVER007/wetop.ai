@@ -2340,3 +2340,4 @@
 | 25.09.2026 23:10 | e2e | ❌ упало 21 из 25, пропущено 3 | 29 с | 1cbd2e9 | [лог](logs/2026-09-25T18-10-18Z-e2e-e913.log) | predpokaznaya proverka na 1cbd2e9d |
 | 25.09.2026 23:12 | e2e | ❌ упало 21 из 25, пропущено 3 | 18 с | 1cbd2e9 | [лог](logs/2026-09-25T18-12-02Z-e2e-859b.log) | predpokaznaya proverka na 1cbd2e9d posle regeneratsii klienta |
 | 25.09.2026 23:13 | e2e | ✅ 25 из 25 | 52 с | 1cbd2e9 | [лог](logs/2026-09-25T18-13-54Z-e2e-1984.log) | predpokaznaya proverka na 1cbd2e9d, brauzer 1243 iz predustanovlennogo 1194 |
+| 25.09.2026 23:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 375 из 377 | 6 мин 52 с | 1cbd2e9 | [лог](logs/2026-09-25T18-15-13Z-e2e-56de.log) | predpokaznaya proverka: polnyy UI na 1cbd2e9d |

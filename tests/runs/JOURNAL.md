@@ -2212,3 +2212,5 @@
 | 25.09.2026 11:51 | unit | ✅ 1754 из 1757, пропущено 3 | 1 мин 12 с | 08e992a | [лог](logs/2026-09-25T06-51-15Z-unit-6b9b.log) | main 08e992a1 перед release |
 | 25.09.2026 11:53 | integration | ✅ 64 из 64 | 19 с | 08e992a | [лог](logs/2026-09-25T06-53-14Z-integration-77af.log) | main 08e992a1 перед release |
 | 25.09.2026 11:53 | e2e | ✅ 25 из 25 | 58 с | 08e992a | [лог](logs/2026-09-25T06-53-44Z-e2e-bdf3.log) | живые сквозные: main 08e992a1 |
+| 25.09.2026 11:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 356 из 356 | 24 мин 42 с | 08e992a | [лог](logs/2026-09-25T06-54-49Z-e2e-c883.log) | полный UI: main 08e992a1 |
+| 25.09.2026 12:19 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 16 с | 02f1e3c | [лог](logs/2026-09-25T07-19-32Z-e2e-b5eb.log) | стенд помощника: main 08e992a1 |

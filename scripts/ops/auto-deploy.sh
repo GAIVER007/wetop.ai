@@ -42,6 +42,7 @@ APPLIED=0
 
 # git pull меняет и этот файл, а bash читает скрипт по ходу исполнения: работаем с копией
 if [ -z "${AUTO_DEPLOY_COPY:-}" ]; then
+  export AUTO_DEPLOY_SELF="$0" # в подсказках — сам скрипт, а не временная копия
   copy="$(mktemp)"
   cp "$0" "$copy"
   AUTO_DEPLOY_COPY="$copy" exec bash "$copy" "$@"
@@ -104,7 +105,7 @@ git merge-base --is-ancestor "$current" "$target" ||
   refuse "новая вершина $BRANCH не продолжает текущую — история переписана, нужна выкладка руками"
 migrations="$(git diff --name-only "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
 [ -z "$migrations" ] || [ "$APPLIED" = 1 ] ||
-  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: $0 --migrations-applied"
+  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied"
 
 compose=(docker compose -f deploy/compose.yml)
 [ -f deploy/compose.hostinger.yml ] && compose+=(-f deploy/compose.hostinger.yml)

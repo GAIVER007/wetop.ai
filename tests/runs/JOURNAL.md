@@ -2205,3 +2205,5 @@
 | 25.09.2026 11:36 | unit | ✅ 1754 из 1757, пропущено 3 | 1 мин 13 с | 6edb8f5 +1 | [лог](logs/2026-09-25T06-36-52Z-unit-9947.log) |  |
 | 25.09.2026 11:38 | typecheck | ✅ без ошибок | 30 с | 6edb8f5 +1 | [лог](logs/2026-09-25T06-38-06Z-typecheck-10a1.log) |  |
 | 25.09.2026 11:38 | lint | ✅ без ошибок | 24 с | 6edb8f5 +1 | [лог](logs/2026-09-25T06-38-37Z-lint-79c9.log) |  |
+| 25.09.2026 11:45 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 1 из 7 | 12 с | 40bd841 +1 | [лог](logs/2026-09-25T06-45-44Z-unit-ab58.log) | подсказка --migrations-applied с путём к скрипту: red |
+| 25.09.2026 11:46 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 7 из 7 | 6 с | 40bd841 +2 | [лог](logs/2026-09-25T06-46-03Z-unit-f9be.log) | подсказка --migrations-applied с путём к скрипту: green |

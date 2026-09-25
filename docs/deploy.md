@@ -290,6 +290,23 @@ ADR-081). Скрипт такой коммит не выложит и напиш
 `docs/ops/backups.md`) и запускает `/usr/local/sbin/wetop-auto-deploy --migrations-applied` — скрипт выкладывает эту
 вершину без проверки миграций, остальные проверки и откат остаются. Следующие вершины снова проверяются.
 
+**Миграции без Node на сервере** — Prisma CLI есть в образе стойки, миграции берутся из той вершины `release`, на
+которой скрипт отказал (здесь `afe82ab9`). Строка подключения — сессионная (`BACKUP_DATABASE_URL`, как у копии), иначе
+`DIRECT_URL`; на экран не печатается:
+
+```bash
+cd /root/wetop && V=afe82ab9
+rm -rf /tmp/wetop-mig && mkdir -p /tmp/wetop-mig && git archive "$V" packages/database/prisma | tar -x -C /tmp/wetop-mig
+mig() { ( set -a; . ./.env; set +a
+  docker run --rm -e DIRECT_URL="${BACKUP_DATABASE_URL:-${DIRECT_URL:-$DATABASE_URL}}" \
+    -v /tmp/wetop-mig/packages/database/prisma:/app/packages/database/prisma:ro \
+    -w /app/packages/database pms-lux:latest npx prisma migrate "$@" ); }
+mig status     # ждём: две не применены — 20260924000018_user_errors, 20260924000019_seller_profiles
+mig deploy     # только после свежей копии ($BACKUP, docs/ops/backups.md)
+mig status     # ждём: Database schema is up to date
+/usr/local/sbin/wetop-auto-deploy --migrations-applied
+```
+
 Выключить — убрать строку из `crontab -e`. Ручная выкладка по §1а остаётся рабочей: перед ней убрать строку cron, чтобы
 два процесса не собирали образ одновременно (скрипт держит замок, но о ручной сборке он не знает).
 

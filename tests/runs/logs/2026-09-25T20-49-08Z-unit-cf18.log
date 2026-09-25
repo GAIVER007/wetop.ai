@@ -1,0 +1,38 @@
+# Модульные (unit) · 26.09.2026 01:49 Алматы · vm
+# коммит cd20193 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T20-49-08Z-unit-cf18.json' 'apps/api/src/reservations/audit-card-redact.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/reservations/audit-card-redact.test.ts (2 tests | 1 failed) 11ms
+   ❯ В-5: карточка брони в журнале — без ФИО, телефон маской (2)
+     × before/after-карточки редактируются на пути в журнал: id гостя вместо label, телефон маской 9ms
+     ✓ не-карточки в журнал идут как были: проекция не трогает другие записи 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/audit-card-redact.test.ts > В-5: карточка брони в журнале — без ФИО, телефон маской > before/after-карточки редактируются на пути в журнал: id гостя вместо label, телефон маской
+AssertionError: expected '{"userId":null,"entityType":"Reservat…' not to contain 'Айгерим'
+
+Expected: "Айгерим"
+Received: "{"userId":null,"entityType":"Reservation","entityId":"r-1","action":"reservation.create","after":{"confirmationNumber":"20260925-TEST01","source":"DESK","channel":null,"externalId":null,"status":"CONFIRMED","arrivalDate":"2026-09-26","departureDate":"2026-09-28","adults":2,"children":0,"currency":"KZT","totalAmountMinor":"2200000","notes":null,"primaryGuest":{"id":"g-1","label":"Айгерим Тестова","citizenship":"KAZ","phone":"<телефон>"},"items":[{"id":"i-1","accommodationTypeCode":"exely-900001","accommodationTypeName":"Одиночная","arrivalDate":"2026-09-26","departureDate":"2026-09-28","status":"CONFIRMED","priceMinor":"2200000","ratePlanCode":null,"ratePlanName":null,"adults":2,"children":0,"unitCode":"9001","unitHousekeepingStatus":null,"guests":[{"id":"g-1","label":"Айгерим Тестова","isPrimary":true},{"id":"g-2","label":"Санжар Тестов","isPrimary":false}]}]}}"
+
+ ❯ apps/api/src/reservations/audit-card-redact.test.ts:81:24
+     79|     expect(rows).toHaveLength(1);
+     80|     const stored = JSON.stringify(rows[0]!.data);
+     81|     expect(stored).not.toContain('Айгерим');
+       |                        ^
+     82|     expect(stored).not.toContain('Тестов');
+     83|     expect(stored).not.toContain('<телефон>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  20:49:09
+   Duration  1.17s (transform 72%, import 26%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T20-49-08Z-unit-cf18.json
+
+# код выхода 1 · 2 с

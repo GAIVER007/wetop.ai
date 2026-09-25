@@ -53,6 +53,10 @@ function makeFakes() {
     housekeepingHistory: [],
   });
   const repo: UnitsRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async unitByCode(code) {
       return code === '9001' ? { ...unit, housekeepingStatus: hk } : null;
     },

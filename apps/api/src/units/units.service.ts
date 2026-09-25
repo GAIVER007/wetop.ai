@@ -45,7 +45,7 @@ export class UnitsService {
 
   async card(code: string): Promise<UnitCard> {
     this.assertCode(code);
-    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const today = await this.repo.today();
     const card = await this.repo.card(code, today, plusDays(today, 60));
     if (!card) throw new NotFoundException(`Ячейка ${code} не найдена`);
     return card;

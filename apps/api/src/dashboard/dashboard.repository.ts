@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { DashboardCharge, DashboardDay, DashboardPayment, DashboardStay } from '@pms/domain';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, zonedStartOfDay } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { ChessboardService } from '../chessboard/chessboard.service';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyRef } from '../database/property-ref';
 
 export interface DashboardBoard {
   categories: Array<{ code: string; name: string; units: number }>;
@@ -32,14 +32,9 @@ const plusDays = (iso: string, n: number) => {
   x.setUTCDate(x.getUTCDate() + n);
   return x.toISOString().slice(0, 10);
 };
-/** Границы суток объекта (Asia/Almaty, UTC+5) для событий со временем — как в финансовом отчёте */
-const ALMATY_OFFSET = '+05:00';
-const localStart = (d: string) => new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
-const localEndExclusive = (d: string) => {
-  const x = new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
-  x.setUTCDate(x.getUTCDate() + 1);
-  return x;
-};
+// С-13 (ТЗ аудита 25.09.2026): границы суток — по Property.timezone, как в финансовом отчёте
+const localStart = (d: string, tz: string) => zonedStartOfDay(d, tz);
+const localEndExclusive = (d: string, tz: string) => zonedStartOfDay(plusDays(d, 1), tz);
 
 @Injectable()
 export class PrismaDashboardRepository implements DashboardRepository {
@@ -51,6 +46,9 @@ export class PrismaDashboardRepository implements DashboardRepository {
   /** id объекта — из памяти процесса: дашборд спрашивал его восемь раз за один запрос */
   private propertyId(): Promise<string> {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
+  private async timezone(): Promise<string> {
+    return (await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name)).timezone;
   }
 
   /** Та же шахматка, что на экране, кусками по 62 дня (её потолок за запрос) */
@@ -138,12 +136,13 @@ export class PrismaDashboardRepository implements DashboardRepository {
   }
 
   async payments(from: string, to: string): Promise<DashboardPayment[]> {
+    const tz = await this.timezone();
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.payment.findMany({
       where: {
         propertyId,
         status: 'COMPLETED',
-        paidAt: { gte: localStart(from), lt: localEndExclusive(to) },
+        paidAt: { gte: localStart(from, tz), lt: localEndExclusive(to, tz) },
       },
       select: { method: true, amount: true },
     });
@@ -151,10 +150,11 @@ export class PrismaDashboardRepository implements DashboardRepository {
   }
 
   async refundsMinor(from: string, to: string): Promise<bigint> {
+    const tz = await this.timezone();
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.refund.findMany({
       where: {
-        createdAt: { gte: localStart(from), lt: localEndExclusive(to) },
+        createdAt: { gte: localStart(from, tz), lt: localEndExclusive(to, tz) },
         folio: { reservationItem: { reservation: { propertyId } } },
       },
       select: { amount: true },

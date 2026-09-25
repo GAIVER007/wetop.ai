@@ -9,7 +9,7 @@ import type {
 import { folioBalance, LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyToday, propertyIdRef } from '../database/property-ref';
 
 export type { ReservationCard, ReservationCardItem } from '../reservations/reservation-card';
 
@@ -21,6 +21,8 @@ export interface SoldStay {
   departureDate: string;
 }
 export interface ChessboardRepository {
+  /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
+  today(): Promise<string>;
   units(): Promise<ChessboardUnit[]>;
   allocations(from: string, to: string): Promise<ChessboardAllocation[]>;
   blocks(from: string, to: string): Promise<ChessboardBlock[]>;
@@ -43,6 +45,10 @@ export class PrismaChessboardRepository implements ChessboardRepository {
   /** id объекта — из памяти процесса: рейс в базу за ним на каждый запрос стоил дороже самих данных */
   private propertyId(): Promise<string> {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
+
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
 
   async units(): Promise<ChessboardUnit[]> {

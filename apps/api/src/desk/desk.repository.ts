@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyToday, propertyIdRef } from '../database/property-ref';
 
 export interface DeskStay {
   itemId: string;
@@ -24,6 +24,8 @@ export interface DeskStay {
 }
 /** Рабочий день стойки: кто заезжает, кто выезжает, кто живёт (SPEC §6). */
 export interface DeskRepository {
+  /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
+  today(): Promise<string>;
   stays(date: string): Promise<DeskStay[]>;
 }
 export const DESK_REPOSITORY = Symbol('DESK_REPOSITORY');
@@ -34,6 +36,10 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 @Injectable()
 export class PrismaDeskRepository implements DeskRepository {
   private readonly propertyName = LUXX_APARTS_PROPERTY.name;
+
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, this.propertyName);
+  }
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   /**

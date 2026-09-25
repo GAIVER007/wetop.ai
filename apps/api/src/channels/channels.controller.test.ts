@@ -188,6 +188,10 @@ function makeFakes() {
     return x.toISOString().slice(0, 10);
   };
   const repo: ChannelsRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async lastEventAt() {
       return null;
     },
@@ -452,6 +456,10 @@ function makeFakes() {
     },
   };
   const board: ChessboardRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async unassignedStays() {
       return [];
     },

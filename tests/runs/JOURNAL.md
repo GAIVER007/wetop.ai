@@ -2400,3 +2400,23 @@
 | 26.09.2026 01:12 | typecheck | ✅ без ошибок | 18 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-09Z-typecheck-5d1a.log) | TZ audita blok 4 final |
 | 26.09.2026 01:12 | lint | ✅ без ошибок | 13 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-28Z-lint-d5fb.log) | TZ audita blok 4 final |
 | 26.09.2026 01:12 | unit | ✅ 1878 из 1881, пропущено 3 | 1 мин 12 с | 6d072bd +19 | [лог](logs/2026-09-25T20-12-41Z-unit-1a5d.log) | TZ audita blok 4 final |
+| 26.09.2026 01:24 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ❌ упало 1 из 1 | 1 с | cd20193 +1 | [лог](logs/2026-09-25T20-24-51Z-unit-df03.log) | TZ audita blok 6 S-13: red - 11 kopii UTC+5 |
+| 26.09.2026 01:32 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +18 | [лог](logs/2026-09-25T20-32-26Z-unit-8e49.log) | scan posle pravok API |
+| 26.09.2026 01:33 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ❌ упало 1 из 1 | 1 с | cd20193 +1 | [лог](logs/2026-09-25T20-33-15Z-unit-ba33.log) | TZ audita blok 6 S-13: red na starom dereve (proverka skanera) |
+| 26.09.2026 01:34 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +18 | [лог](logs/2026-09-25T20-34-05Z-unit-b178.log) | TZ audita blok 6 S-13: green (-E skaner) |
+| 26.09.2026 01:34 | typecheck | ❌ ошибок: 8 | 24 с | cd20193 +18 | [лог](logs/2026-09-25T20-34-06Z-typecheck-583e.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:38 | typecheck | ✅ без ошибок | 19 с | cd20193 +25 | [лог](logs/2026-09-25T20-38-11Z-typecheck-9bf4.log) | TZ audita blok 6 S-13: feiki s today |
+| 26.09.2026 01:39 | lint | ❌ ошибок: 1 | 13 с | cd20193 +25 | [лог](logs/2026-09-25T20-39-21Z-lint-061c.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:39 | unit | ✅ 1879 из 1882, пропущено 3 | 1 мин 12 с | cd20193 +25 | [лог](logs/2026-09-25T20-39-35Z-unit-3ff4.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:40 | integration | ✅ 84 из 84 | 24 с | cd20193 +24 | [лог](logs/2026-09-25T20-40-47Z-integration-b21e.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:41 | e2e | ✅ 25 из 25 | 53 с | cd20193 +24 | [лог](logs/2026-09-25T20-41-12Z-e2e-590f.log) | TZ audita blok 6 S-13: zhivye |
+| 26.09.2026 01:43 | lint | ✅ без ошибок | 14 с | cd20193 +25 | [лог](logs/2026-09-25T20-43-24Z-lint-c1b9.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:43 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +25 | [лог](logs/2026-09-25T20-43-39Z-unit-9b36.log) | posle pravki lint |
+| 26.09.2026 01:49 | unit (частично: apps/api/src/reservations/audit-card-redact.test.ts) | ❌ упало 1 из 2 | 2 с | cd20193 +26 | [лог](logs/2026-09-25T20-49-08Z-unit-cf18.log) | TZ audita blok 6 V-5: red do proekcii |
+| 26.09.2026 01:49 | unit (частично: apps/api/src/reservations/audit-card-redact.test.ts) | ✅ 2 из 2 | 2 с | cd20193 +27 | [лог](logs/2026-09-25T20-49-43Z-unit-0a67.log) | TZ audita blok 6 V-5: green |
+| 26.09.2026 01:49 | typecheck | ❌ ошибок: 4 | 21 с | cd20193 +27 | [лог](logs/2026-09-25T20-49-53Z-typecheck-d2cb.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:51 | typecheck | ✅ без ошибок | 19 с | cd20193 +27 | [лог](logs/2026-09-25T20-51-36Z-typecheck-6133.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:51 | lint | ✅ без ошибок | 13 с | cd20193 +27 | [лог](logs/2026-09-25T20-51-55Z-lint-3f4a.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:52 | unit | ✅ 1881 из 1884, пропущено 3 | 1 мин 12 с | cd20193 +27 | [лог](logs/2026-09-25T20-52-09Z-unit-5eb0.log) | TZ audita blok 6 itog |
+| 26.09.2026 01:53 | integration | ✅ 84 из 84 | 24 с | cd20193 +26 | [лог](logs/2026-09-25T20-53-21Z-integration-729d.log) | TZ audita blok 6 itog |
+| 26.09.2026 01:54 | e2e | ✅ 25 из 25 | 51 с | cd20193 +26 | [лог](logs/2026-09-25T20-54-11Z-e2e-311f.log) | TZ audita blok 6 itog: zhivye |

@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
@@ -32,6 +34,8 @@ export interface UnitCard {
   housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus }>;
 }
 export interface UnitsRepository {
+  /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
+  today(): Promise<string>;
   unitByCode(code: string): Promise<{
     id: string;
     code: string;
@@ -70,6 +74,10 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 @Injectable()
 export class PrismaUnitsRepository implements UnitsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
   async unitByCode(code: string) {
     const u = await this.prisma.db.inventoryUnit.findUnique({
       where: { code },

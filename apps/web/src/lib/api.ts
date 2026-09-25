@@ -1419,6 +1419,13 @@ export interface SellerExtractResult {
   profile: SellerProfileView;
 }
 
+export interface SellerWhatsAppView {
+  set: boolean;
+  phoneNumberId: string | null;
+  verifyToken: string | null;
+  webhookUrl: string | null;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
@@ -1430,6 +1437,16 @@ export const sellerApi = {
     sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
   checkLlmKey: (key: string) =>
     sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', { key }),
+  /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */
+  whatsapp: () => getJson<SellerWhatsAppView>('/ai-seller/whatsapp'),
+  saveWhatsApp: (input: { phoneNumberId: string; token?: string; appSecret?: string }) =>
+    sendJson<SellerWhatsAppView>('PUT', '/ai-seller/whatsapp', input),
+  checkWhatsApp: (input: { phoneNumberId: string; token: string }) =>
+    sendJson<{ valid: boolean; phone: string | null; reason: string | null }>(
+      'POST',
+      '/ai-seller/whatsapp/check',
+      input,
+    ),
   profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
   saveProfile: (body: SellerProfileBody) =>
     sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),

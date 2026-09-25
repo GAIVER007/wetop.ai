@@ -501,6 +501,57 @@ export class SellerService {
     return { valid: body.valid === true, reason: str(body.reason) };
   }
 
+  // ── подключение WhatsApp (С3, Q-185 (а)) ───────────────────────────────────────────────────
+
+  /** Адрес вебхука для консоли Meta: публичный адрес продавца + дверь организации */
+  private whatsappWebhookUrl(organizationId: string): string | null {
+    const publicUrl = this.connection.config().publicUrl;
+    return publicUrl ? `${publicUrl}/channels/whatsapp/webhook/${organizationId}` : null;
+  }
+
+  private whatsappView(body: Record<string, unknown>, organizationId: string) {
+    const set = body.set === true;
+    return {
+      set,
+      phoneNumberId: str(body.phone_number_id),
+      verifyToken: str(body.verify_token),
+      webhookUrl: set ? this.whatsappWebhookUrl(organizationId) : null,
+    };
+  }
+
+  async whatsapp(now: Date = new Date()) {
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.whatsappStatus(organizationId)));
+    return this.whatsappView(body, organizationId);
+  }
+
+  /** Пустой `phoneNumberId` — отключить; токен и секрет Meta платформа не хранит и не показывает */
+  async saveWhatsApp(raw: unknown, now: Date = new Date()) {
+    const body = obj(raw);
+    const input = {
+      phoneNumberId: str(body.phoneNumberId)?.trim() ?? '',
+      token: str(body.token)?.trim() ?? '',
+      appSecret: str(body.appSecret)?.trim() ?? '',
+    };
+    const { client, organizationId } = await this.bound('configure', now);
+    const answer = obj(await this.call(() => client.putWhatsApp(organizationId, input)));
+    return this.whatsappView(answer, organizationId);
+  }
+
+  /** Проверка до сохранения: Graph отдаёт номер по токену — вызов делает бот */
+  async checkWhatsApp(raw: unknown, now: Date = new Date()) {
+    const body = obj(raw);
+    const input = {
+      phoneNumberId: str(body.phoneNumberId)?.trim() ?? '',
+      token: str(body.token)?.trim() ?? '',
+    };
+    if (input.phoneNumberId === '' || input.token === '')
+      throw new BadRequestException('Нужны phone_number_id и токен');
+    const { client, organizationId } = await this.bound('configure', now);
+    const answer = obj(await this.call(() => client.checkWhatsApp(organizationId, input)));
+    return { valid: answer.valid === true, phone: str(answer.phone), reason: str(answer.reason) };
+  }
+
   // ── применение (П8) ────────────────────────────────────────────────────────────────────────
 
   /** «Применить»: профиль и факты уходят продавцу сейчас; отказ — понятные слова и повтор службой сверки */

@@ -14,7 +14,7 @@ from typing import Any
 
 from src import dependencies
 from src.ai.engine_types import IncomingMessage
-from src.channels.sender import SendResult
+from src.channels.sender import Sender, SendResult
 from src.channels.widget_identity import current_visitor
 from src.channels.widget_store import new_flag_key
 from src.config import Settings, normalize_bot_role
@@ -117,7 +117,7 @@ class WidgetRunner:
             current_visitor.set(None)
 
 
-def build_runner(settings: Settings) -> WidgetRunner:
+def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunner:
     """Боевая сборка канала. Импорты внутри: движок и каскад не нужны тем,
     кто подменяет runner в тестах.
 
@@ -169,9 +169,9 @@ def build_runner(settings: Settings) -> WidgetRunner:
     )
 
     def factory() -> Any:
-        # Виджет — веб-страница: разметку humanizer снимает в обеих ролях.
+        # Виджет и WhatsApp — простой текст: разметку humanizer снимает в обеих ролях.
         return build_engine(
-            settings, sender=WidgetSender(), lead_hook=lead_hook,
+            settings, sender=sender if sender is not None else WidgetSender(), lead_hook=lead_hook,
             channel_markdown=False, channel_emoji=channel_emoji,
         )
 

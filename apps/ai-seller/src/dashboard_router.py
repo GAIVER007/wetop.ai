@@ -27,6 +27,7 @@ from src.dashboard import (
     panel_extract,
     panel_llm_key,
     panel_orgs,
+    panel_whatsapp,
     panel_seller,
     panel_settings,
 )
@@ -46,6 +47,7 @@ panel_router.include_router(panel_settings.router)
 panel_router.include_router(panel_seller.router)
 panel_router.include_router(panel_extract.router)
 panel_router.include_router(panel_llm_key.router)
+panel_router.include_router(panel_whatsapp.router)
 panel_router.include_router(panel_orgs.router)
 
 SANDBOX_CHANNEL = "sandbox"

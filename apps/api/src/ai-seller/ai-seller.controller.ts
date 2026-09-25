@@ -74,6 +74,24 @@ export class AiSellerController {
     return this.seller.checkLlmKey(body?.key);
   }
 
+  /** Подключение WhatsApp (С3): номер, слово и адрес вебхука для консоли Meta; токена в ответах нет */
+  @Get('whatsapp')
+  @Header('Cache-Control', 'no-store')
+  whatsapp() {
+    return this.seller.whatsapp();
+  }
+
+  @Put('whatsapp')
+  saveWhatsApp(@Body() body: unknown) {
+    return this.seller.saveWhatsApp(body);
+  }
+
+  @Post('whatsapp/check')
+  @HttpCode(200)
+  checkWhatsApp(@Body() body: unknown) {
+    return this.seller.checkWhatsApp(body);
+  }
+
   @Get('facts')
   @Header('Cache-Control', 'no-store')
   facts() {

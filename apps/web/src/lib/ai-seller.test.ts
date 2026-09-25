@@ -34,7 +34,7 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
 });
 
 describe('вкладки раздела (ТЗ §4.1)', () => {
-  it('семь экранов: шесть по ТЗ и «Модель» (С2, Q-186)', () => {
+  it('восемь экранов: шесть по ТЗ, «Модель» (С2) и «WhatsApp» (С3)', () => {
     expect(SELLER_TABS.map((t) => t.label)).toEqual([
       'Настройки',
       'Данные объекта',
@@ -42,6 +42,7 @@ describe('вкладки раздела (ТЗ §4.1)', () => {
       'Диалоги',
       'Код для сайта',
       'Модель',
+      'WhatsApp',
       'Проверка',
     ]);
     expect(SELLER_TABS.map((t) => t.href)).toEqual([
@@ -51,6 +52,7 @@ describe('вкладки раздела (ТЗ §4.1)', () => {
       '/ai-seller/dialogs',
       '/ai-seller/embed',
       '/ai-seller/model',
+      '/ai-seller/whatsapp',
       '/ai-seller/check',
     ]);
   });

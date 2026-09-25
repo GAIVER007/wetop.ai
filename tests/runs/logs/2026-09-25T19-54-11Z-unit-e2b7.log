@@ -1,0 +1,31 @@
+# Модульные (unit) · 26.09.2026 00:54 Алматы · vm
+# коммит 6d072bd (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T19-54-11Z-unit-e2b7.json' 'apps/api/src/auth/auth.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/auth.controller.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.controller.test.ts [ apps/api/src/auth/auth.controller.test.ts ]
+TypeError: Cannot read properties of undefined (reading 'loginPerHour')
+ ❯ apps/api/src/auth/auth.controller.test.ts:49:36
+     47|
+     48| describe('AuthController: лимиты попыток по адресу (С-5)', () => {
+     49|   it(`вход: после ${AUTH_IP_LIMITS.loginPerHour} попыток с одного адре…
+       |                                    ^
+     50|     const { controller, calls } = make();
+     51|     for (let i = 0; i < AUTH_IP_LIMITS.loginPerHour; i += 1) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:54:12
+   Duration  1.25s (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-25T19-54-11Z-unit-e2b7.json
+
+# код выхода 1 · 2 с

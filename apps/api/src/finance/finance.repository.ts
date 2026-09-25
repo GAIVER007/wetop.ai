@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { assertRefundWithin, FinanceRuleError, LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
@@ -495,9 +495,35 @@ export class PrismaFinanceRepository implements FinanceRepository {
         }
       : null;
   }
+  /**
+   * Предел «не больше, чем платёж внёс на счёт, минус уже возвращённое» держит сама транзакция
+   * (С-2, ТЗ аудита 25.09.2026): замок платежа выстраивает одновременные возвраты в очередь,
+   * распределение и уже возвращённое перечитываются под ним — проверка в сервисе до транзакции
+   * осталась только ради раннего 400.
+   */
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
-    const row = await this.withAudit(audit, (tx) =>
-      tx.refund.create({
+    const row = await this.prisma.db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.payment:${r.paymentId}`}, 0))`;
+      const alloc = await tx.paymentAllocation.findFirst({
+        where: { paymentId: r.paymentId, folioId: r.folioId },
+        select: { amount: true },
+      });
+      if (!alloc) throw new ConflictException('Этот платёж на указанный счёт не распределялся');
+      const refunded = await tx.refund.aggregate({
+        where: { paymentId: r.paymentId, folioId: r.folioId },
+        _sum: { amount: true },
+      });
+      try {
+        assertRefundWithin({
+          allocatedMinor: alloc.amount,
+          refundedMinor: refunded._sum.amount ?? 0n,
+          refundMinor: r.amountMinor,
+        });
+      } catch (e) {
+        if (e instanceof FinanceRuleError) throw new ConflictException(e.message);
+        throw e;
+      }
+      const created = await tx.refund.create({
         data: {
           paymentId: r.paymentId,
           folioId: r.folioId,
@@ -505,8 +531,10 @@ export class PrismaFinanceRepository implements FinanceRepository {
           reason: r.reason,
         },
         select: { id: true },
-      }),
-    );
+      });
+      if (audit) await writeAudit(tx as unknown as TxClient, audit, created.id);
+      return created;
+    });
     return row.id;
   }
   async closeFolio(id: string, audit?: AuditEntry): Promise<void> {

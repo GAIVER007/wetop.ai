@@ -2374,3 +2374,29 @@
 | 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-12Z-integration-309a.log) | merged main 78803032 |
 | 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-40Z-integration-75b7.log) | merged main 78803032, local DB restarted |
 | 26.09.2026 00:32 | integration | ✅ 81 из 81 | 22 с | 789b483 | [лог](logs/2026-09-25T19-32-06Z-integration-9607.log) | merged main 78803032 |
+| 26.09.2026 00:37 | integration (частично: tests/integration/refund-race.test.ts) | ❌ упало 3 из 3 | 3 с | 6d072bd +1 | [лог](logs/2026-09-25T19-37-20Z-integration-9db5.log) | TZ audita blok 4 S-2: red do pravki |
+| 26.09.2026 00:38 | integration (частично: tests/integration/refund-race.test.ts) | ✅ 3 из 3 | 3 с | 6d072bd +2 | [лог](logs/2026-09-25T19-38-03Z-integration-8011.log) | TZ audita blok 4 S-2: green |
+| 26.09.2026 00:45 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 31 | 5 с | 6d072bd +2 | [лог](logs/2026-09-25T19-45-40Z-unit-3a4d.log) | TZ audita blok 4 S-5a: red |
+| 26.09.2026 00:46 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 31 из 31 | 5 с | 6d072bd +4 | [лог](logs/2026-09-25T19-46-47Z-unit-d0cf.log) | TZ audita blok 4 S-5a: green |
+| 26.09.2026 00:50 | unit (частично: apps/api/src/rate-window.test.ts) | ❌ упало 2 из 5 | 1 с | 6d072bd +6 | [лог](logs/2026-09-25T19-50-45Z-unit-cd6d.log) | TZ audita blok 4 S-6: red na starom clear() |
+| 26.09.2026 00:51 | unit (частично: apps/api/src/rate-window.test.ts) | ✅ 5 из 5 | 1 с | 6d072bd +6 | [лог](logs/2026-09-25T19-51-22Z-unit-dc71.log) | TZ audita blok 4 S-6: green |
+| 26.09.2026 00:51 | unit (частично: apps/api/src/web-booking apps/api/src/analytics) | ✅ 52 из 52 | 4 с | 6d072bd +8 | [лог](logs/2026-09-25T19-51-59Z-unit-291d.log) | TZ audita blok 4 S-6: servisy na obshchem klasse |
+| 26.09.2026 00:54 | unit (частично: apps/api/src/auth/auth.controller.test.ts) | ❌ код выхода 1 | 2 с | 6d072bd +9 | [лог](logs/2026-09-25T19-54-11Z-unit-e2b7.log) | TZ audita blok 4 S-5b: red do limitov |
+| 26.09.2026 00:54 | unit (частично: apps/api/src/auth/auth.controller.test.ts) | ❌ упало 3 из 4 | 2 с | 6d072bd +10 | [лог](logs/2026-09-25T19-54-57Z-unit-eb1c.log) | TZ audita blok 4 S-5b: green |
+| 26.09.2026 00:56 | unit (частично: apps/api/src/auth) | ✅ 112 из 112 | 5 с | 6d072bd +10 | [лог](logs/2026-09-25T19-56-11Z-unit-ce6e.log) | TZ audita blok 4 S-5b: green + ves auth |
+| 26.09.2026 00:56 | unit (частично: apps/web/src/lib) | ✅ 100 из 100 | 2 с | 6d072bd +12 | [лог](logs/2026-09-25T19-56-59Z-unit-dcf4.log) | TZ audita blok 4 S-5b: stoika probrasyvaet adres |
+| 26.09.2026 00:57 | typecheck | ✅ без ошибок | 23 с | 6d072bd +13 | [лог](logs/2026-09-25T19-57-02Z-typecheck-c5da.log) | TZ audita blok 4 S-5/S-6 |
+| 26.09.2026 01:03 | unit (частично: apps/api/src/web-booking packages/domain/src/incidents) | ❌ упало 3 из 74 | 4 с | 6d072bd +16 | [лог](logs/2026-09-25T20-03-07Z-unit-3596.log) | TZ audita blok 4 S-7: red do koda |
+| 26.09.2026 01:03 | unit (частично: apps/api/src/web-booking packages/domain/src/incidents) | ✅ 74 из 74 | 3 с | 6d072bd +17 | [лог](logs/2026-09-25T20-03-55Z-unit-ab3d.log) | TZ audita blok 4 S-7: green |
+| 26.09.2026 01:04 | typecheck | ✅ без ошибок | 25 с | 6d072bd +18 | [лог](logs/2026-09-25T20-04-41Z-typecheck-680d.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:05 | lint | ❌ ошибок: 1 | 14 с | 6d072bd +18 | [лог](logs/2026-09-25T20-05-07Z-lint-df73.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:05 | unit | ❌ упало 1 из 1880, пропущено 3 | 1 мин 12 с | 6d072bd +17 | [лог](logs/2026-09-25T20-05-21Z-unit-efdb.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:06 | integration | ✅ 84 из 84 | 24 с | 6d072bd +16 | [лог](logs/2026-09-25T20-06-34Z-integration-7842.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:07 | unit (частично: apps/api/src/finance) | ✅ 15 из 15 | 3 с | 6d072bd +18 | [лог](logs/2026-09-25T20-07-56Z-unit-6b4a.log) | TZ audita blok 4: fake tx pod S-2 |
+| 26.09.2026 01:07 | lint | ✅ без ошибок | 13 с | 6d072bd +19 | [лог](logs/2026-09-25T20-07-59Z-lint-1807.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:08 | unit | ✅ 1877 из 1880, пропущено 3 | 1 мин 12 с | 6d072bd +18 | [лог](logs/2026-09-25T20-08-12Z-unit-57ce.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:10 | unit (частично: apps/api/src/auth apps/api/src/web-booking) | ✅ 137 из 137 | 6 с | 6d072bd +19 | [лог](logs/2026-09-25T20-10-33Z-unit-680f.log) | TZ audita blok 4: visitorIp dlya vhoda |
+| 26.09.2026 01:10 | e2e | ✅ 25 из 25 | 49 с | 6d072bd +19 | [лог](logs/2026-09-25T20-10-53Z-e2e-a513.log) | TZ audita blok 4 itog: vhod i limity zhivyom |
+| 26.09.2026 01:12 | typecheck | ✅ без ошибок | 18 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-09Z-typecheck-5d1a.log) | TZ audita blok 4 final |
+| 26.09.2026 01:12 | lint | ✅ без ошибок | 13 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-28Z-lint-d5fb.log) | TZ audita blok 4 final |
+| 26.09.2026 01:12 | unit | ✅ 1878 из 1881, пропущено 3 | 1 мин 12 с | 6d072bd +19 | [лог](logs/2026-09-25T20-12-41Z-unit-1a5d.log) | TZ audita blok 4 final |

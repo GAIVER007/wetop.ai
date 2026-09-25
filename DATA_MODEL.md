@@ -952,7 +952,8 @@ kind              вид неисправности, ровно виды POLICY 
                   webhook.suspect | webhook.unreachable | webhook.misrouted | feed.stale |
                   outbox.failed | outbox.stuck | ari.delta.lost | event.failed | event.rejected |
                   sync.missing | db.down | stay.overbooked | stay.unassigned | api.error |
-                  reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale
+                  reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale |
+                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час — С-7 ТЗ аудита)
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката
 severity          CRITICAL | WARNING

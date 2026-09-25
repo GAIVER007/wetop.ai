@@ -74,6 +74,24 @@ describe('AuthService.login', () => {
     expect(JSON.stringify(audit)).not.toContain('не тот');
   });
 
+  it('два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5)', async () => {
+    const { auth, users } = service();
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    // обе попытки читают пользователя до того, как первая запишет счётчик, — как два запроса в API
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(2);
+  });
+
+  it('пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5)', async () => {
+    const { auth, users } = service([fakeUser({ failedAttempts: MAX_FAILED_ATTEMPTS - 2 })]);
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+    expect(users[0]!.lockedUntil).not.toBeNull();
+  });
+
   it('неизвестная почта отвечает тем же текстом, что и неверный пароль', async () => {
     const { auth } = service();
     await expect(

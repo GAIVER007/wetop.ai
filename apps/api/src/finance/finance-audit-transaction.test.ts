@@ -44,6 +44,11 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
         calls.push({ table: 'refund', on });
         return { id: 'ref-1' };
       },
+      // перепроверка предела в транзакции (С-2): ещё ничего не возвращено
+      aggregate: async () => ({ _sum: { amount: 0n } }),
+    },
+    paymentAllocation: {
+      findFirst: async () => ({ amount: 1_000n }),
     },
     folio: {
       update: async () => {
@@ -61,7 +66,11 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
     // объект читается через `propertyIdRef` (findFirst, один раз на процесс) — как у остальных хранилищ
     property: { findFirst: async () => ({ id: 'prop-1', name: 'Luxx Aparts' }) },
   });
-  const tx = tables('tx');
+  const tx = {
+    ...tables('tx'),
+    // замок платежа (С-2) — в подделке просто проглатывается
+    $executeRaw: async () => 0,
+  };
   const db = {
     ...tables('db'),
     $transaction: async <T>(fn: (t: typeof tx) => Promise<T>): Promise<T> => {

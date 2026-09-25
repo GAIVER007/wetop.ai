@@ -352,3 +352,48 @@ test('снимки экранов раздела', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 2, name: 'Манера' })).toBeVisible();
   await page.screenshot({ path: `${dir}/step-2-390.png`, fullPage: false });
 });
+
+test('окно рассказа (С1): «Создать» раскладывает рассказ по пустым полям, адрес и цены — только сверить', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller');
+  const story = page.getByTestId('seller-story');
+  await expect(story).toBeVisible();
+  // голос — по желанию: кнопка на месте, аудио на сервер не уходит (распознаёт браузер)
+  await expect(page.getByTestId('seller-story-mic')).toHaveText('Говорить голосом');
+  await page
+    .getByTestId('seller-story-text')
+    .fill('У нас хостел «Тёплый» в Алматы, улица Вымышленная, 1. Койка — 8000 тенге, заезд с 14:00.');
+  await page.getByTestId('seller-story-send').click();
+  const result = page.getByTestId('seller-story-result');
+  await expect(result).toContainText('Имя бота');
+  await expect(result).toContainText('Проверьте шаги ниже');
+  // адрес и цены из рассказа никуда не записаны — блок «сверьте» с ценой словами
+  const aside = page.getByTestId('seller-story-aside');
+  await expect(aside).toContainText('Алматы, ул. Вымышленная, 1');
+  await expect(aside).toContainText('8 000');
+  await expect(aside).toContainText('сверьте с «Данными объекта» и «Тарифами»');
+  // извлечённое легло в черновик: шаг «Знакомство» показывает имя (мастер сам открылся бы на незаполненном)
+  await page.goto('/ai-seller?step=1');
+  await expect(page.getByLabel('Имя бота')).toHaveValue('Айсулу');
+});
+
+test('окно рассказа: занятые руками поля не затираются, слишком короткий рассказ — отказ словами', async ({
+  page,
+}) => {
+  // сначала рука: имя бота на шаге «Знакомство»
+  await page.goto('/ai-seller?step=1');
+  await page.getByLabel('Имя бота').fill('Дана');
+  await page.getByTestId('seller-step-next').click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Манера', exact: true })).toBeVisible();
+  await page.goto('/ai-seller');
+  await page.getByTestId('seller-story').locator('summary').click();
+  await page
+    .getByTestId('seller-story-text')
+    .fill('Хостел «Тёплый» в Алматы, койка 8000 тенге, бельё и Wi-Fi в цене.');
+  await page.getByTestId('seller-story-send').click();
+  const result = page.getByTestId('seller-story-result');
+  await expect(result).toContainText('Уже заполнено раньше и не тронуто: Имя бота');
+  await page.goto('/ai-seller?step=1');
+  await expect(page.getByLabel('Имя бота')).toHaveValue('Дана');
+});

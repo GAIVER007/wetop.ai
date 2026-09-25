@@ -2841,7 +2841,8 @@ createServer(async (req, res) => {
           ? path === '/ai-seller/embed'
             ? 'act'
             : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge'
+          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge' ||
+              path === '/ai-seller/extract'
             ? 'configure'
             : 'act';
       if (path !== '/ai-seller/status') {
@@ -2947,6 +2948,52 @@ createServer(async (req, res) => {
         sellerApplied = false;
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
+      }
+      if (path === '/ai-seller/extract' && req.method === 'POST') {
+        // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
+        const story = String(body['story'] ?? '').trim();
+        if (story.length < 10)
+          return send(400, { message: 'Рассказ короче 10 знаков — расскажите подробнее' });
+        const extracted: Array<[keyof typeof sellerProfile, unknown]> = [
+          ['botName', 'Айсулу'],
+          ['greeting', 'Здравствуйте! Помогу выбрать место и ответить на вопросы.'],
+          ['includedInPrice', 'Бельё и Wi-Fi.'],
+          ['houseRules', 'Тишина после 23:00.'],
+        ];
+        const filled: string[] = [];
+        const skipped: string[] = [];
+        for (const [field, value] of extracted) {
+          const current = sellerProfile[field];
+          const empty =
+            current === null ||
+            (typeof current === 'string' && current.trim() === '') ||
+            (Array.isArray(current) && current.length === 0);
+          if (!empty) {
+            skipped.push(field);
+            continue;
+          }
+          (sellerProfile as Record<string, unknown>)[field] = value;
+          filled.push(field);
+        }
+        if (filled.length > 0) {
+          sellerSaved = true;
+          sellerApplied = false;
+          sellerUpdatedAt = new Date().toISOString();
+        }
+        return send(200, {
+          filled,
+          skipped,
+          rejected: [],
+          unparsed: ['как добраться от вокзала — в рассказе нет'],
+          aside: {
+            objectName: 'Хостел «Тёплый»',
+            address: 'Алматы, ул. Вымышленная, 1',
+            checkIn: '14:00',
+            checkOut: '12:00',
+            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+          },
+          profile: sellerView(),
+        });
       }
       if (path === '/ai-seller/apply' && req.method === 'POST') {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });

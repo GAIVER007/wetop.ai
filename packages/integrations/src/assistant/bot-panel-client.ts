@@ -239,6 +239,14 @@ export class BotPanelClient {
     return this.json('PUT', '/seller/profile', payload);
   }
 
+  /**
+   * Рассказ владельца → поля анкеты (С1 «под ключ»): бот раскладывает свободный текст по полям Б6/Б7 своей
+   * моделью и слоем 9; промптом рассказ не становится. Таймаут — как у песочницы: внутри вызов модели.
+   */
+  extractProfile(story: string): Promise<Json> {
+    return this.request('POST', '/extract-profile', JSON.stringify({ story }), SANDBOX_TIMEOUT_MS);
+  }
+
   putFacts(payload: unknown): Promise<Json> {
     return this.json('PUT', '/seller/facts', payload);
   }

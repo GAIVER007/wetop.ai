@@ -71,6 +71,7 @@ import {
   KnowledgeUploadForm,
   SandboxForm,
   SellerStepForm,
+  StoryIntake,
   type MannerChoice,
 } from '../forms';
 import '../ai-seller.css';
@@ -281,6 +282,9 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
   const profile = loaded.value.profile;
   return (
     <Stack>
+      <Panel data-testid="seller-story-panel">
+        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
+      </Panel>
       <SetupSteps progress={progress} current={step} />
       <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
         <div className="form-section-title">

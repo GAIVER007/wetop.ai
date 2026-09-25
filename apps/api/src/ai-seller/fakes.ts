@@ -55,6 +55,9 @@ export class FakeSeller implements SellerPort {
   putProfile(payload: unknown) {
     return this.call('putProfile', payload);
   }
+  extractProfile(story: string) {
+    return this.call('extractProfile', story);
+  }
   putFacts(payload: unknown) {
     return this.call('putFacts', payload);
   }

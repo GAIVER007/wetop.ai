@@ -16,6 +16,7 @@ import {
   sellerStepFromForm,
   sellerStepNumber,
   userDocuments,
+  sellerStoryFieldWords,
 } from './ai-seller';
 import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
 
@@ -481,5 +482,16 @@ describe('leadFacts — что продавец узнал о госте, сло
     ]);
     expect(leadFacts({})).toEqual([]);
     expect(leadFacts({ extra: 'не объект' })).toEqual([]);
+  });
+});
+
+describe('итог рассказа: имена полей словами мастера (С1)', () => {
+  it('известные поля — подписями шагов, незнакомое — как пришло', () => {
+    expect(sellerStoryFieldWords(['botName', 'includedInPrice', 'faq'])).toBe(
+      'Имя бота, Что входит в цену, Частые вопросы',
+    );
+    expect(sellerStoryFieldWords(['objectName'])).toBe('Название объекта');
+    expect(sellerStoryFieldWords(['neizvestnoe'])).toBe('neizvestnoe');
+    expect(sellerStoryFieldWords([])).toBe('');
   });
 });

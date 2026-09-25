@@ -32,6 +32,8 @@ export interface SellerPort {
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
   putProfile(payload: unknown): Promise<unknown>;
   putFacts(payload: unknown): Promise<unknown>;
+  /** Рассказ владельца → поля анкеты (С1): раскладывает бот, промптом рассказ не становится */
+  extractProfile(story: string): Promise<unknown>;
   /** Завести или поправить гостиницу у продавца (Э4) */
   putOrganization(
     id: string,

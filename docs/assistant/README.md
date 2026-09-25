@@ -147,6 +147,7 @@ networks:
 | `GET /summary` | сводка за сутки | `{ hours, dialogs, replies, leads, sla_breaches }` |
 | `POST /internal/sandbox` — **в корне экземпляра**, не под путём панели | «Проверка» | тело `{ external_id, text, organization_id }`, текст до 2000 знаков, `external_id` = `wetop-check-<user_id>` — у каждого сотрудника свой разговор; ответ `{ status, reply, needs_human, edits, reasons, conversation_id }` |
 | `PUT /seller/profile` | профиль (Б6) | ниже |
+| `POST /extract-profile` | рассказ владельца → поля анкеты (С1 «под ключ»): раскладывает модель бота, каждое поле — через слой 9; свободный текст промптом не становится | тело `{ story }` (10…4000 знаков); ответ `{ status, profile, facts, unparsed, rejected }` — поля схем Б6/Б7 в snake_case, цены категорий в `price_minor`; 422 — инъекция в рассказе, 503 — модель не ответила |
 | `PUT /seller/facts` | факты объекта (Б7) | ниже |
 | `PUT /seller/organizations/{id}` | гостиница у продавца (Э4) | тело `{ name, public_key, active, hosts }`; `{ status }`; идемпотентно — та же строка перезаписывается |
 

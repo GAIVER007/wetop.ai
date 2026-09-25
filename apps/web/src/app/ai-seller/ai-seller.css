@@ -157,3 +157,12 @@
 .seller-readonly .seller-manner__option {
   cursor: default;
 }
+
+/* Окно рассказа (С1): summary как заголовок, раскрытое — с отступом до формы */
+.seller-story > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.seller-story[open] > summary {
+  margin-bottom: var(--space-2);
+}

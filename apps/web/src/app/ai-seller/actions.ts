@@ -7,7 +7,7 @@ import {
   sellerStepFromForm,
   type SellerProfileStep,
 } from '../../lib/ai-seller';
-import { ApiError, sellerApi, type SellerProfileBody } from '../../lib/api';
+import { ApiError, sellerApi, type SellerExtractResult, type SellerProfileBody } from '../../lib/api';
 
 /**
  * Действия раздела «ИИ-продавец» (ТЗ ред. 1 П6, П8). Всё идёт через API платформы: ни адреса, ни ключа продавца
@@ -55,6 +55,30 @@ export async function saveSellerStepAction(
   const back = form.get('go') === 'back';
   const next = back ? Math.max(index - 1, 0) : Math.min(index + 1, SELLER_SETUP_STEPS.length - 1);
   redirect(`/ai-seller?step=${SELLER_SETUP_STEPS[next]!.step}`);
+}
+
+export interface StoryResult {
+  error: string | null;
+  result: SellerExtractResult | null;
+  attempt: number;
+  /** Введённый рассказ — вернуть в поле при отказе, чтобы не перепечатывать */
+  story: string;
+}
+
+/** Рассказ своими словами → черновик профиля (С1): извлекает бот, поля увидит мастер ниже */
+export async function extractStoryAction(
+  prev: StoryResult | null,
+  form: FormData,
+): Promise<StoryResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const story = String(form.get('story') ?? '').trim();
+  try {
+    const result = await sellerApi.extract(story);
+    refresh();
+    return { error: null, result, attempt, story: '' };
+  } catch (e) {
+    return { error: describe(e), result: null, attempt, story };
+  }
 }
 
 /** «Применить» на шаге «Запуск»: сразу отправить продавцу сохранённые настройки и данные объекта */

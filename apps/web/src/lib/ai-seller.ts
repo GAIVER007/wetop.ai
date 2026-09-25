@@ -292,6 +292,27 @@ export const SELLER_MANNER_EXAMPLES = {
   replyLength: Record<SellerProfileBody['replyLength'], string>;
 };
 
+/**
+ * Подписи полей для итога рассказа (С1 «под ключ»): теми же словами, что поля мастера.
+ * Ключи — имена полей из ответа `POST /ai-seller/extract` (`filled`, `skipped`, `rejected`).
+ */
+export const SELLER_STORY_FIELD_LABELS: Readonly<Record<string, string>> = {
+  botName: 'Имя бота',
+  greeting: 'Приветствие',
+  includedInPrice: 'Что входит в цену',
+  extraCharges: 'Что за доплату',
+  houseRules: 'Правила проживания',
+  prohibitions: 'Запреты',
+  callHumanWhen: 'Когда звать человека',
+  faq: 'Частые вопросы',
+  objectName: 'Название объекта',
+};
+
+/** Имена полей словами: «botName, faq» → «Имя бота, Частые вопросы»; незнакомое имя — как пришло */
+export function sellerStoryFieldWords(names: string[]): string {
+  return names.map((name) => SELLER_STORY_FIELD_LABELS[name] ?? name).join(', ');
+}
+
 /** Вопросы, которые гости задают чаще всего, — подсказки шага «Частые вопросы»: щелчок добавляет строку */
 export const SELLER_FAQ_SUGGESTIONS: readonly string[] = [
   'Можно заселиться раньше?',

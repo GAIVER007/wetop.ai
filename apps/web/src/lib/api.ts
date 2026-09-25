@@ -1403,8 +1403,27 @@ export interface SellerSummary {
   slaBreaches: number;
 }
 
+export interface SellerExtractResult {
+  filled: string[];
+  skipped: string[];
+  rejected: string[];
+  unparsed: string[];
+  /** Не записывается никуда: адрес, заезд и цены из рассказа — сверить с данными платформы */
+  aside: {
+    objectName: string | null;
+    address: string | null;
+    checkIn: string | null;
+    checkOut: string | null;
+    categories: Array<{ name: string; kind: string; capacity: number; priceMinor: number | null }>;
+  };
+  profile: SellerProfileView;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
+  extract: (story: string) =>
+    sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
   profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
   saveProfile: (body: SellerProfileBody) =>
     sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),

@@ -418,11 +418,14 @@ export function ApplySellerForm() {
 }
 
 /** «Знания»: загрузка документа в базу знаний продавца */
-export function KnowledgeUploadForm() {
-  const [state, action, pending] = useActionState<SimpleResult | null, FormData>(
-    uploadKnowledgeAction,
-    null,
-  );
+type SimpleAction = (prev: SimpleResult | null, form: FormData) => Promise<SimpleResult>;
+
+/**
+ * Формы диалога и знаний — общие для обоих ботов: «ИИ-продавец» и «Платформа → Техподдержка» (ADR-083, Э3).
+ * Действие передаётся параметром; без него — действие раздела продавца.
+ */
+export function KnowledgeUploadForm({ upload = uploadKnowledgeAction }: { upload?: SimpleAction }) {
+  const [state, action, pending] = useActionState<SimpleResult | null, FormData>(upload, null);
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm form-narrow">
       <Field label="Документ: md, txt, pdf, docx или xlsx, до 10 МБ">
@@ -446,11 +449,19 @@ export function KnowledgeUploadForm() {
 }
 
 /** «Перехватить» и «Вернуть боту» в карточке диалога */
-export function DialogModeButtons({ id, mode }: { id: string; mode: string }) {
+export function DialogModeButtons({
+  id,
+  mode,
+  switchMode = dialogModeAction,
+}: {
+  id: string;
+  mode: string;
+  switchMode?: (id: string, action: 'takeover' | 'release') => Promise<SimpleResult>;
+}) {
   const [result, setResult] = useState<SimpleResult | null>(null);
   const [pending, start] = useTransition();
   const run = (action: 'takeover' | 'release') =>
-    start(async () => setResult(await dialogModeAction(id, action)));
+    start(async () => setResult(await switchMode(id, action)));
   return (
     <Stack gap="sm">
       <Row>
@@ -484,14 +495,23 @@ export function DialogModeButtons({ id, mode }: { id: string; mode: string }) {
 }
 
 /** Ответ гостю от человека — тем же путём, что ответ бота */
-export function DialogReplyForm({ id }: { id: string }) {
+export function DialogReplyForm({
+  id,
+  reply = replyAction,
+  label = 'Ответ гостю',
+}: {
+  id: string;
+  reply?: (id: string, prev: SimpleResult | null, form: FormData) => Promise<SimpleResult>;
+  /** Кому отвечают: гостю — в разделе продавца, пользователю платформы — в «Техподдержке» */
+  label?: string;
+}) {
   const [state, action, pending] = useActionState<SimpleResult | null, FormData>(
-    replyAction.bind(null, id),
+    reply.bind(null, id),
     null,
   );
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-      <Field label="Ответ гостю">
+      <Field label={label}>
         <Textarea name="text" rows={3} maxLength={4000} required data-testid="dialog-reply-text" />
       </Field>
       <Row>

@@ -1480,6 +1480,60 @@ export const platformApi = {
     ),
 };
 
+/** Кто пишет в техподдержку — из подписи стойки; анонимный посетитель wetop.ai — `null` в карточке */
+export interface SupportPlatformUser {
+  userId: string | null;
+  email: string | null;
+  organizationId: string | null;
+  organizationName: string | null;
+  role: 'owner' | 'staff' | null;
+}
+
+export type SupportConversationCard = SellerConversationCard & {
+  platformUser: SupportPlatformUser | null;
+};
+
+/**
+ * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
+ * стойка не знает. Только главному администратору; остальным API отвечает 403.
+ */
+export const supportApi = {
+  status: () => getJson<{ state: 'not-configured' | 'ready' }>('/platform/support/status'),
+  conversations: (mode?: string) =>
+    getJson<{ items: SellerConversationRow[] }>(
+      `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
+    ),
+  conversation: (id: string) =>
+    getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
+  switchMode: (id: string, action: 'takeover' | 'release') =>
+    sendJson<{ mode: string | null; previousMode: string | null }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/${action}`,
+      {},
+    ),
+  reply: (id: string, text: string) =>
+    sendJson<{ ok: true }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/reply`,
+      { text },
+    ),
+  knowledge: () =>
+    getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
+      '/platform/support/knowledge',
+    ),
+  /** Документ базы знаний помощника: multipart, поле `file`; заголовок с границей ставит сам fetch */
+  uploadKnowledge: async (
+    file: File,
+  ): Promise<{ source: string; created: boolean; chunks: number }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/platform/support/knowledge', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { source: string; created: boolean; chunks: number };
+  },
+  summary: () => getJson<SellerSummary>('/platform/support/summary'),
+};
+
 export const guardApi = {
   status: () => getJson<GuardStatus>('/guard/status'),
   incidents: (status: 'open' | 'all', limit = 100) =>

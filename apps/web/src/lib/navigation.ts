@@ -189,6 +189,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Гостиницы платформы и их расширения — только для главного администратора.',
         requires: 'platform',
       },
+      {
+        href: '/platform/support',
+        label: 'Техподдержка',
+        icon: 'chat',
+        description: 'Диалоги ИИ-помощника с пользователями платформы, его знания и сводка.',
+        requires: 'platform',
+      },
     ],
   },
 ];
@@ -268,7 +275,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform')],
+    items: [menuItem('/platform'), menuItem('/platform/support')],
   },
 ];
 

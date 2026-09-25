@@ -11,6 +11,7 @@ import {
   type SellerReplyLength,
 } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
+import type { BotAudit } from '../bots/audit';
 import { PrismaService } from '../database/prisma.provider';
 
 export const SELLER_PROFILES = Symbol('SELLER_PROFILES');
@@ -51,14 +52,8 @@ export interface SellerFactsRepository {
 }
 
 /** Действия сотрудника в разделе, которые продавец сам записать не может: он видит только ключ платформы */
-export interface SellerAudit {
-  record(event: {
-    entityType: string;
-    entityId: string;
-    action: string;
-    after: Record<string, unknown>;
-  }): Promise<void>;
-}
+/** Журнал раздела — общий для обоих ботов (`bots/audit.ts`) */
+export type SellerAudit = BotAudit;
 
 const faqOf = (value: unknown): SellerFaqItem[] =>
   Array.isArray(value)
@@ -156,7 +151,11 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
           entityId: organizationId,
           action: 'seller.profile.updated',
           ...(before
-            ? { before: JSON.parse(JSON.stringify(pickSellerProfile(rowOf(before as ProfileRecord)))) }
+            ? {
+                before: JSON.parse(
+                  JSON.stringify(pickSellerProfile(rowOf(before as ProfileRecord))),
+                ),
+              }
             : {}),
           after: JSON.parse(JSON.stringify(fields)),
         },
@@ -250,7 +249,10 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
           where: {
             ratePlanId: plan.id,
             accommodationTypeId: { in: types.map((t) => t.id) },
-            date: { gte: new Date(`${window.from}T00:00:00Z`), lte: new Date(`${window.to}T00:00:00Z`) },
+            date: {
+              gte: new Date(`${window.from}T00:00:00Z`),
+              lte: new Date(`${window.to}T00:00:00Z`),
+            },
           },
           select: { date: true, accommodationTypeId: true, occupancy: true, price: true },
         })
@@ -285,24 +287,5 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
   }
 }
 
-@Injectable()
-export class PrismaSellerAudit implements SellerAudit {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-
-  async record(event: {
-    entityType: string;
-    entityId: string;
-    action: string;
-    after: Record<string, unknown>;
-  }): Promise<void> {
-    await this.prisma.db.auditLog.create({
-      data: {
-        userId: auditUserId(),
-        entityType: event.entityType,
-        entityId: event.entityId,
-        action: event.action,
-        after: JSON.parse(JSON.stringify(event.after)),
-      },
-    });
-  }
-}
+/** Запись журнала раздела — общая для обоих ботов (`bots/audit.ts`) */
+export { PrismaBotAudit as PrismaSellerAudit } from '../bots/audit';

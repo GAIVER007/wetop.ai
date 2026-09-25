@@ -39,6 +39,9 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     );
     expect(hrefs({ aiSeller: true, platform: false })).toContain('/ai-seller');
     expect(hrefs({ aiSeller: false, platform: true })).toContain('/platform');
+    // «Техподдержка» — там же, в «Платформе», и тоже только главному администратору (Э3)
+    expect(hrefs({ aiSeller: false, platform: true })).toContain('/platform/support');
+    expect(hrefs({ aiSeller: true, platform: false })).not.toContain('/platform/support');
   });
 
   it('подпись: имя и роль; без имени — почта; главный администратор — отдельно', () => {

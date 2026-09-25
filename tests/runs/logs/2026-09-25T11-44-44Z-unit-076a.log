@@ -1,0 +1,49 @@
+# Модульные (unit) · 25.09.2026 16:44 Алматы · vm
+# коммит c4fba0e (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T11-44-44Z-unit-076a.json' 'apps/api/src/platform' 'apps/api/src/ai-seller' 'packages/integrations/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (7 tests) 332ms
+ ❯ |unit| apps/api/src/platform/support.controller.test.ts (11 tests | 1 failed) 218ms
+   ❯ только главный администратор (2)
+     × владелец организации получает 403 на всё, помощника не спрашиваем 51ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 7ms
+   ✓ помощник не подключён (2)
+     ✓ состояние так и говорит; остальное — 503 словами, без вызова помощника 14ms
+     ✓ подключён — «ready», и ни адреса, ни ключа помощника в ответе 6ms
+   ✓ диалоги (4)
+     ✓ список: отбор уходит помощнику, ответ — в словах стойки 10ms
+     ✓ карточка: кто пишет — почта, организация названием и роль из подписи стойки 18ms
+     ✓ карточка анонимного посетителя wetop.ai — «кто пишет» пусто, организацию не ищем 9ms
+     ✓ перехват, ответ, возврат — помощнику и в журнал; текста ответа в журнале нет 31ms
+   ✓ знания, сводка и отказы помощника (3)
+     ✓ знания: список и загрузка файлом; не тот формат — 415 без вызова; загрузка — в журнал 21ms
+     ✓ сводка за сутки 3ms
+     ✓ отказ помощника — его словами и с его именем; недоступен — 503; не нашёл — 404 12ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (32 tests) 395ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (17 tests) 120ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 11ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (18 tests) 24ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > только главный администратор > владелец организации получает 403 на всё, помощника не спрашиваем
+Error: ECONNREFUSED: Connection refused
+ ❯ Test.assert node_modules/supertest/lib/test.js:187:20
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ node_modules/supertest/lib/test.js:156:7
+ ❯ fn node_modules/superagent/src/node/index.js:904:3
+ ❯ callback node_modules/superagent/src/node/index.js:817:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 95 passed (96)
+   Start at  11:44:45
+   Duration  3.45s (transform 50%, import 37%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-25T11-44-44Z-unit-076a.json
+
+# код выхода 1 · 5 с

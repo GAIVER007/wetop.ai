@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Header,
   Inject,
@@ -12,7 +11,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { parseExtensionChange } from '@pms/domain';
-import { actorIsPlatformAdmin, currentUserId } from '../auth/request-context';
+import { currentUserId } from '../auth/request-context';
+import { requirePlatformAdmin } from './admin';
 import {
   EXTENSIONS_REPOSITORY,
   type ExtensionsRepository,
@@ -20,7 +20,7 @@ import {
 } from './extensions.repository';
 import { aiSellerView } from './extensions.service';
 
-export const PLATFORM_ADMIN_ONLY = 'Раздел «Платформа» — только для главного администратора платформы';
+export { PLATFORM_ADMIN_ONLY } from './admin';
 export const PLATFORM_NO_ORGANIZATION = 'Такой организации нет';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -36,7 +36,7 @@ export class PlatformController {
   @Get('organizations')
   @Header('Cache-Control', 'no-store')
   async organizations() {
-    requireAdmin();
+    requirePlatformAdmin();
     const now = new Date();
     return { items: (await this.repo.organizations()).map((o) => organizationJson(o, now)) };
   }
@@ -44,20 +44,21 @@ export class PlatformController {
   /** Включить, продлить или выключить «ИИ-продавца» организации: статус, дата «до» и заметка (Q-183) */
   @Put('organizations/:id/extensions/ai-seller')
   async changeAiSeller(@Param('id') id: string, @Body() body: unknown) {
-    requireAdmin();
+    requirePlatformAdmin();
     if (!UUID.test(id)) throw new BadRequestException('Организация: ожидается идентификатор');
     const now = new Date();
     const parsed = parseExtensionChange(body, now);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     if (!(await this.repo.organization(id))) throw new NotFoundException(PLATFORM_NO_ORGANIZATION);
-    await this.repo.saveAiSeller({ organizationId: id, change: parsed.value, by: currentUserId(), now });
+    await this.repo.saveAiSeller({
+      organizationId: id,
+      change: parsed.value,
+      by: currentUserId(),
+      now,
+    });
     const saved = await this.repo.organization(id);
     return organizationJson(saved!, now);
   }
-}
-
-function requireAdmin(): void {
-  if (!actorIsPlatformAdmin()) throw new ForbiddenException(PLATFORM_ADMIN_ONLY);
 }
 
 function organizationJson(o: OrganizationSummary, now: Date) {

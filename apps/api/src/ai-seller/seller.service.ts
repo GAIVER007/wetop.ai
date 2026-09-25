@@ -8,8 +8,6 @@ import {
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
-  UnprocessableEntityException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import {
   DEFAULT_SELLER_PROFILE,
@@ -31,6 +29,23 @@ import {
   currentUserId,
   hasSignedInActor,
 } from '../auth/request-context';
+import {
+  conversationId,
+  conversationQuery,
+  conversationView,
+  conversationsView,
+  knowledgeFile,
+  knowledgeView,
+  list,
+  modeView,
+  obj,
+  panelHttpError,
+  replyText,
+  str,
+  summaryView,
+  uploadedView,
+  type UploadedFile,
+} from '../bots/panel';
 import { ExtensionsService, type AiSellerAccessView } from '../platform/extensions.service';
 import { SELLER_CONNECTION, type SellerConnection, type SellerPort } from './seller.connection';
 import {
@@ -48,7 +63,8 @@ export const SELLER_NOT_CONNECTED =
 export const SELLER_OTHER_ORGANIZATION = 'ИИ-продавец для вашей организации не подключён';
 export const SELLER_NO_PROFILE = 'Сначала сохраните настройки продавца';
 export const SELLER_NO_ORGANIZATION = 'Не выбрана организация: войдите в систему';
-export const SELLER_NO_PROPERTY = 'У организации нет объекта: факты для продавца собрать не из чего';
+export const SELLER_NO_PROPERTY =
+  'У организации нет объекта: факты для продавца собрать не из чего';
 /** Расширение «ИИ-продавец» (DATA_MODEL §16.3, ADR-083, Q-183) */
 export const SELLER_EXTENSION_OFF =
   'Расширение «ИИ-продавец» для вашей организации не подключено. Подключает администратор WETOP после оплаты';
@@ -57,19 +73,8 @@ export const SELLER_EXTENSION_EXPIRED =
 /** Роли в организации (§16.1): настройки, знания и «Применить» — у владельца, диалоги ведут все */
 export const SELLER_OWNER_ONLY = 'Настройки продавца меняет владелец организации';
 
-const CONVERSATION_MODES = ['bot_active', 'needs_human', 'owner_takeover'] as const;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-/** Форматы знаний по ТЗ §4.1 и что сообщить продавцу вместо того, что прислал браузер */
-const KNOWLEDGE_TYPES: Readonly<Record<string, string>> = {
-  md: 'text/markdown',
-  txt: 'text/plain',
-  pdf: 'application/pdf',
-  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-};
-/** Как у продавца (`kb_max_file_mb = 10`, `apps/ai-seller/src/config.py`): больше он всё равно не примет */
-export const KNOWLEDGE_MAX_BYTES = 10 * 1024 * 1024;
-const REPLY_MAX = 4000;
+/** Предел файла знаний — общий для обоих ботов (`bots/panel.ts`); контроллер раздела берёт его отсюда */
+export { KNOWLEDGE_MAX_BYTES } from '../bots/panel';
 const SANDBOX_MAX = 2000;
 
 /**
@@ -77,11 +82,7 @@ const SANDBOX_MAX = 2000;
  * (ADR-083, Q-183); дальше — подключена ли копия продавца к этой организации.
  */
 export type SellerState =
-  | 'extension-off'
-  | 'extension-expired'
-  | 'not-configured'
-  | 'other-organization'
-  | 'ready';
+  'extension-off' | 'extension-expired' | 'not-configured' | 'other-organization' | 'ready';
 
 /** Что открывает вызов: читать — и после срока; действовать (ответ гостю, песочница) — при действующем; настраивать — ещё и владельцу */
 type SellerUse = 'read' | 'act' | 'configure';
@@ -137,13 +138,6 @@ export function rejectedForContent(error: unknown): boolean {
   return error instanceof assistant.SellerRejectedError && !NOT_ABOUT_CONTENT.has(error.status);
 }
 
-// ── ответы продавца: только известные поля и в словах стойки (camelCase) ─────────────────────────
-const obj = (v: unknown): Record<string, unknown> =>
-  v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
-const str = (v: unknown): string | null => (typeof v === 'string' ? v : null);
-const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
-const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
-
 /** Поля профиля продавца (имена Б6, `detail.fields` отказа) — названиями полей стойки */
 const SELLER_FIELD_LABELS: Readonly<Record<string, string>> = {
   object_name: 'Название объекта',
@@ -169,28 +163,10 @@ export function sellerErrorText(error: unknown): string {
   return 'Не удалось связаться с ИИ-продавцом';
 }
 
-/** Отказ в доступе (401, 403) — слова продавца с его именем: «Доступ с этого адреса закрыт» без него непонятно чей */
-const accessText = (detail: string): string =>
-  detail.startsWith('ИИ-продавец') ? detail : `ИИ-продавец: ${detail}`;
-
-/** Отказ продавца → ответ API: недоступен — 503, не нашёл — 404, не принял ключ — 503, отклонил — 422 */
+/** Отказ продавца → ответ API (`bots/panel.ts`): по содержанию — его причина с названиями полей стойки */
 function httpError(error: unknown): never {
-  if (error instanceof HttpException) throw error;
-  if (error instanceof assistant.SellerUnavailableError)
-    throw new ServiceUnavailableException(error.message);
-  if (error instanceof assistant.SellerRejectedError) {
-    if (error.status === 404) throw new NotFoundException(error.detail);
-    if (error.status === 401 || error.status === 403)
-      throw new ServiceUnavailableException(accessText(error.detail));
-    throw new UnprocessableEntityException(sellerErrorText(error));
-  }
-  throw error;
+  return panelHttpError(error, assistant.SELLER_BOT, sellerErrorText);
 }
-
-const conversationId = (id: string): string => {
-  if (!UUID.test(id)) throw new BadRequestException('Диалог: ожидается идентификатор');
-  return id.toLowerCase();
-};
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079). Одна копия продавца — одна организация
@@ -267,8 +243,10 @@ export class SellerService {
   ): Promise<{ client: SellerPort; organizationId: string }> {
     const { extension, connection } = await this.gate(now);
     this.checkUse(extension, use);
-    if (connection === 'not-configured') throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
-    if (connection === 'other-organization') throw new ForbiddenException(SELLER_OTHER_ORGANIZATION);
+    if (connection === 'not-configured')
+      throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
+    if (connection === 'other-organization')
+      throw new ForbiddenException(SELLER_OTHER_ORGANIZATION);
     const client = this.connection.client();
     const organizationId = this.connection.config().organizationId;
     if (!client || !organizationId) throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
@@ -474,74 +452,23 @@ export class SellerService {
   // ── диалоги, знания, сводка, песочница (П7) ────────────────────────────────────────────────
 
   async conversations(query: { mode?: unknown; limit?: unknown }) {
-    const mode = query.mode === undefined || query.mode === '' ? undefined : String(query.mode);
-    if (mode !== undefined && !(CONVERSATION_MODES as readonly string[]).includes(mode))
-      throw new BadRequestException('Режим диалога: bot_active, needs_human или owner_takeover');
-    let limit: number | undefined;
-    if (query.limit !== undefined) {
-      const n = Number(query.limit);
-      if (!Number.isInteger(n)) throw new BadRequestException('limit: ожидается целое число');
-      limit = Math.min(Math.max(n, 1), 200);
-    }
+    const wanted = conversationQuery(query);
     const { client } = await this.bound('read');
-    const body = obj(
-      await this.call(() =>
-        client.listConversations({ ...(mode ? { mode } : {}), ...(limit ? { limit } : {}) }),
-      ),
-    );
-    return {
-      items: list(body.items).map((item) => {
-        const i = obj(item);
-        return {
-          id: str(i.id) ?? '',
-          channel: str(i.channel) ?? '',
-          clientName: str(i.client_name),
-          mode: str(i.mode) ?? '',
-          stage: str(i.stage) ?? '',
-          lastActivityAt: str(i.last_activity_at),
-          messages: num(i.messages),
-          hasContact: i.has_contact === true,
-        };
-      }),
-    };
+    return conversationsView(await this.call(() => client.listConversations(wanted)));
   }
 
   async conversation(rawId: string) {
     const id = conversationId(rawId);
     const { client } = await this.bound('read');
-    const body = obj(await this.call(() => client.conversation(id)));
-    const contact = obj(body.contact);
-    return {
-      id: str(body.id) ?? id,
-      mode: str(body.mode) ?? '',
-      stage: str(body.stage) ?? '',
-      leadData: obj(body.lead_data),
-      contact: {
-        name: str(contact.name),
-        phone: str(contact.phone),
-        email: str(contact.email),
-        channel: str(contact.channel),
-        externalId: str(contact.external_id),
-      },
-      messages: list(body.messages).map((m) => {
-        const x = obj(m);
-        return {
-          role: str(x.role) ?? '',
-          text: str(x.text) ?? '',
-          at: str(x.at),
-          sentByUs: x.sent_by_us === true,
-        };
-      }),
-    };
+    return conversationView(await this.call(() => client.conversation(id)), id);
   }
 
   async switchMode(rawId: string, action: 'takeover' | 'release') {
     const id = conversationId(rawId);
     const { client } = await this.bound('act');
-    const body = obj(
+    const result = modeView(
       await this.call(() => (action === 'takeover' ? client.takeover(id) : client.release(id))),
     );
-    const result = { mode: str(body.mode), previousMode: str(body.previous_mode) };
     await this.audit.record({
       entityType: 'SellerConversation',
       entityId: id,
@@ -553,10 +480,7 @@ export class SellerService {
 
   async reply(rawId: string, rawText: unknown) {
     const id = conversationId(rawId);
-    const text = typeof rawText === 'string' ? rawText.trim() : '';
-    if (text === '') throw new BadRequestException('Ответ: пустое сообщение');
-    if (text.length > REPLY_MAX)
-      throw new BadRequestException(`Ответ: не длиннее ${REPLY_MAX} знаков`);
+    const text = replyText(rawText);
     const { client } = await this.bound('act');
     await this.call(() => client.reply(id, text));
     // Текст ответа — переписка с гостем: в журнал платформы идёт только факт и длина
@@ -571,46 +495,25 @@ export class SellerService {
 
   async knowledge() {
     const { client } = await this.bound('read');
-    const body = obj(await this.call(() => client.knowledge()));
-    return {
-      items: list(body.items).map((item) => {
-        const i = obj(item);
-        return { source: str(i.source) ?? '', chunks: num(i.chunks), createdAt: str(i.created_at) };
-      }),
-    };
+    return knowledgeView(await this.call(() => client.knowledge()));
   }
 
-  async uploadKnowledge(file: { originalname: string; size: number; buffer: Buffer } | undefined) {
-    if (!file) throw new BadRequestException('Знания: приложите файл');
-    const name = file.originalname.trim() || 'документ';
-    const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
-    const type = KNOWLEDGE_TYPES[ext];
-    if (!type) throw new UnsupportedMediaTypeException('Знания: md, txt, pdf, docx или xlsx');
+  async uploadKnowledge(upload: UploadedFile | undefined) {
+    const { name, type, data, size } = knowledgeFile(upload);
     const { client, organizationId } = await this.bound('configure');
-    const body = obj(
-      await this.call(() =>
-        client.uploadKnowledge({ name, type, data: new Uint8Array(file.buffer) }),
-      ),
-    );
+    const body = await this.call(() => client.uploadKnowledge({ name, type, data }));
     await this.audit.record({
       entityType: 'SellerKnowledge',
       entityId: organizationId,
       action: 'seller.knowledge.uploaded',
-      after: { name, size: file.size },
+      after: { name, size },
     });
-    return { source: str(body.source) ?? name, created: body.created === true, chunks: num(body.chunks) };
+    return uploadedView(body, name);
   }
 
   async summary() {
     const { client } = await this.bound('read');
-    const body = obj(await this.call(() => client.summary()));
-    return {
-      hours: num(body.hours),
-      dialogs: num(body.dialogs),
-      replies: num(body.replies),
-      leads: num(body.leads),
-      slaBreaches: num(body.sla_breaches),
-    };
+    return summaryView(await this.call(() => client.summary()));
   }
 
   /** «Проверка»: у каждого сотрудника свой разговор в песочнице продавца */

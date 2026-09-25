@@ -37,6 +37,11 @@ const routes = [
   '/journal',
   // раздел «ИИ-продавец» (ТЗ ред. 1 П6): все шесть экранов и открытая карточка диалога
   '/ai-seller',
+  // шаги настройки (25.09.2026): варианты «Манеры», цены внутри формы, частые вопросы с подсказками, «Запуск»
+  '/ai-seller?step=2',
+  '/ai-seller?step=3',
+  '/ai-seller?step=5',
+  '/ai-seller?step=7',
   '/ai-seller/data',
   '/ai-seller/knowledge',
   '/ai-seller/dialogs',

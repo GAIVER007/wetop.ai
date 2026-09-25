@@ -330,6 +330,27 @@ export interface SignedIn {
   organizationId: string;
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
+  /**
+   * Роль в организации сессии (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет (ADR-023): владельцу — сотрудники,
+   * приглашения и настройки ИИ-продавца. Старый API роли не присылает — тогда считаем сотрудником
+   */
+  role?: 'OWNER' | 'STAFF';
+  /** Главный администратор платформы (§16.2): раздел «Платформа» */
+  platformAdmin?: boolean;
+}
+
+/** Расширение «ИИ-продавец» организации (ADR-083, Q-183): `expired` — срок вышел, раздел только для чтения */
+export interface ExtensionAccessView {
+  access: 'active' | 'expired' | 'off';
+  status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+  activeUntil: string | null;
+  /** Дней до конца срока; бессрочно или выключено — `null` */
+  daysLeft: number | null;
+}
+
+/** Что открыто организации вошедшего — от этого зависят пункты меню */
+export interface DeskAccessView {
+  aiSeller: ExtensionAccessView;
 }
 
 export interface SignedInOrganization {
@@ -372,7 +393,8 @@ export const authApi = {
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
   login: (body: { email: string; password: string }) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
-  me: () => getJson<{ user: SignedIn | null; expiresAt?: string }>('/auth/me'),
+  me: () =>
+    getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
@@ -1288,8 +1310,11 @@ export interface SellerProfileView {
 }
 
 export interface SellerStatus {
-  /** `not-configured` — у платформы нет адреса и ключа продавца; `other-organization` — копия чужой организации */
-  state: 'not-configured' | 'other-organization' | 'ready';
+  /**
+   * `extension-off` — расширение не подключено; `extension-expired` — срок вышел, раздел только для чтения (ADR-083);
+   * `not-configured` — у платформы нет адреса и ключа продавца; `other-organization` — копия чужой организации
+   */
+  state: 'extension-off' | 'extension-expired' | 'not-configured' | 'other-organization' | 'ready';
   profile: { saved: boolean; updatedAt: string | null; applied: boolean };
   facts: { applied: boolean; appliedAt: string | null };
   lastError: string | null;
@@ -1297,6 +1322,12 @@ export interface SellerStatus {
   /** Отказ временный — платформа повторит сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
   retrying: boolean;
   embedAvailable: boolean;
+  /** Расширение организации; старый API его не присылает */
+  extension?: ExtensionAccessView | null;
+  /** Подключена ли копия продавца, какое бы ни было расширение: читать диалоги после срока можно, только если она есть */
+  connection?: 'not-configured' | 'other-organization' | 'ready';
+  /** Может ли вошедший менять настройки: владелец организации при действующем расширении */
+  canConfigure?: boolean;
 }
 
 /** Факты объекта ровно в том виде, в каком их получает продавец (`PUT /seller/facts`, snake_case) */
@@ -1417,6 +1448,36 @@ export const sellerApi = {
       { text },
     ),
   embed: () => getJson<{ snippet: string | null }>('/ai-seller/embed'),
+};
+
+/** Организация глазами главного администратора платформы (ADR-083): без броней, гостей и переписки */
+export interface PlatformOrganization {
+  id: string;
+  name: string;
+  status: SignedInOrganization['status'];
+  trialEndsAt: string | null;
+  createdAt: string;
+  members: number;
+  owners: string[];
+  aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
+}
+
+/** Изменение расширения: статус, дата «до» (`ГГГГ-ММ-ДД`, включительно; пусто — бессрочно) и заметка */
+export interface ExtensionChangeBody {
+  status: 'TRIAL' | 'ACTIVE' | 'OFF';
+  activeUntil: string;
+  note: string;
+}
+
+/** Раздел «Платформа» (DATA_MODEL §16, ADR-083): только главному администратору, остальным API отвечает 403 */
+export const platformApi = {
+  organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  changeAiSeller: (organizationId: string, body: ExtensionChangeBody) =>
+    sendJson<PlatformOrganization>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
+      body,
+    ),
 };
 
 export const guardApi = {

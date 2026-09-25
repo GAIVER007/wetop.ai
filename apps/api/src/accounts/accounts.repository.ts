@@ -1,4 +1,4 @@
-import type { OrganizationStatus } from '@pms/domain';
+import type { MembershipRole, OrganizationStatus } from '@pms/domain';
 
 /** Пользователь и его организация — всё, что нужно для выдачи сессии (DATA_MODEL §13). */
 export interface AccountRecord {
@@ -8,6 +8,8 @@ export interface AccountRecord {
   organizationName: string;
   organizationStatus: OrganizationStatus;
   trialEndsAt: Date | null;
+  /** Роль в этой организации (DATA_MODEL §16.1) */
+  role: MembershipRole;
 }
 
 export interface SessionRecord {
@@ -19,6 +21,8 @@ export interface SessionRecord {
   trialEndsAt: Date | null;
   expiresAt: Date;
   revokedAt: Date | null;
+  /** Роль человека в организации сессии (DATA_MODEL §16.1): приглашает только владелец */
+  role: MembershipRole;
 }
 
 /** Строка списка «где я вошёл» (§13.5). Отпечаток нужен только чтобы отметить свой сеанс; наружу не едет. */

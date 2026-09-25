@@ -1,0 +1,25 @@
+# Модульные (unit) · 25.09.2026 14:51 Алматы · vm
+# коммит 81632d7 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-51-19Z-unit-2c30.json' 'apps/api/src/auth'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (2 tests) 215ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1361ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (13 tests) 1076ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (11 tests) 18ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (22 tests) 26ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (6 tests) 12ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (26 tests) 2946ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 315ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 14ms
+
+ Test Files  8 passed (8)
+      Tests  100 passed (100)
+   Start at  09:51:21
+   Duration  4.85s (tests 45%, import 32%, transform 23%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-51-19Z-unit-2c30.json
+
+# код выхода 0 · 6 с

@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import type { MembershipRole } from '@pms/domain';
 
 /**
  * Кто делает текущий запрос — чтобы `audit_logs.user_id` заполнялся сам, а не в каждом репозитории руками
@@ -14,6 +15,10 @@ interface RequestActor {
    * скрипт владельца. Такие ходоки видят объект целиком, и это осознанно: они и есть владелец.
    */
   organizationId: string | null;
+  /** Роль вошедшего в его организации (DATA_MODEL §16.1, ADR-083); у служебного ходока нет */
+  role?: MembershipRole | null;
+  /** Главный администратор платформы (§16.2) */
+  platformAdmin?: boolean;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -59,4 +64,22 @@ export function attachAuthor<T extends AuditCreateArgs>(args: T, userId: string 
     ...args,
     data: Array.isArray(args.data) ? args.data.map(stamp) : stamp(args.data),
   };
+}
+
+/** Роль вошедшего в его организации. `null` — за запросом нет человека (или роль не передана) */
+export function currentRole(): MembershipRole | null {
+  return storage.getStore()?.role ?? null;
+}
+
+/**
+ * Разрешено ли текущему запросу то, что может только владелец организации (ADR-083): вошедший владелец — да,
+ * служебный ходок — да (он и есть владелец, как и для объекта), вошедший с другой или неизвестной ролью — нет.
+ */
+export function actorIsOwner(): boolean {
+  return !hasSignedInActor() || currentRole() === 'OWNER';
+}
+
+/** Главный администратор платформы — только вошедший с отметкой: служебные ключи раздел «Платформа» не открывают */
+export function actorIsPlatformAdmin(): boolean {
+  return hasSignedInActor() && storage.getStore()?.platformAdmin === true;
 }

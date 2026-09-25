@@ -1,7 +1,14 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useId, useState, type ReactNode } from 'react';
-import { sidebarSections, activeNavigation } from '../../lib/navigation';
+import { Suspense, use, useEffect, useId, useState, type ReactNode } from 'react';
+import {
+  CLOSED_ACCESS,
+  sidebarSections,
+  sidebarSectionsFor,
+  activeNavigation,
+  type SidebarSection,
+} from '../../lib/navigation';
+import type { DeskPerson, DeskShell } from '../../lib/desk-person';
 import { DataFreshness } from '../data-freshness';
 import { Icon } from '../icon';
 import { cx } from '../ui';
@@ -16,12 +23,15 @@ export function Sidebar({
   collapsed,
   onCollapse,
   property,
+  desk,
 }: {
   path: string;
   close?: () => void;
   collapsed?: boolean;
   onCollapse?: () => void;
   property?: PropertyIdentity | null;
+  /** Что открыто вошедшему и кто он (ADR-083); пока API не ответил — меню без закрытых пунктов */
+  desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
   const active = route?.startsWith('/hotel-settings') ? '/hotel-settings' : route;
@@ -33,6 +43,16 @@ export function Sidebar({
   useEffect(() => {
     if (activeSection) setExpanded(activeSection);
   }, [activeSection, path]);
+  const links: LinksProps = {
+    id,
+    active,
+    activeSection,
+    expanded,
+    setExpanded,
+    collapsed,
+    onCollapse,
+    close,
+  };
   return (
     <div className={cx('sidebar-shell', collapsed && 'is-compact')}>
       <div className="brand-row">
@@ -68,47 +88,11 @@ export function Sidebar({
         <Icon name="chevron" width={14} />
       </Link>
       <nav className="workspace-links" aria-label="Разделы">
-        {sidebarSections.map((section) => {
-          const open = !collapsed && expanded === section.id;
-          const selected = activeSection === section.id;
-          const panelId = `${id}-${section.id}`;
-          return (
-            <div className="sidebar-section" key={section.id}>
-              <button
-                type="button"
-                className={cx('sidebar-section-toggle', selected && 'has-current-page')}
-                aria-label={section.label}
-                aria-expanded={open}
-                aria-controls={panelId}
-                title={collapsed ? section.label : undefined}
-                onClick={() => {
-                  setExpanded(open ? null : section.id);
-                  if (collapsed) onCollapse?.();
-                }}
-              >
-                <Icon name={section.icon} />
-                <span>{section.label}</span>
-                <Icon className="sidebar-section-chevron" name="down" />
-              </button>
-              <div id={panelId} className="sidebar-section-links" hidden={!open}>
-                {section.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    prefetch={false}
-                    onClick={() => close?.()}
-                    title={item.label}
-                    className={cx('workspace-link', item.href === active && 'is-active')}
-                    aria-current={item.href === active ? 'page' : undefined}
-                  >
-                    <Icon name={item.icon} />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        <Suspense
+          fallback={<SectionLinks sections={sidebarSectionsFor(CLOSED_ACCESS)} {...links} />}
+        >
+          <GrantedSectionLinks desk={desk} {...links} />
+        </Suspense>
       </nav>
       <div className="sidebar-bottom">
         {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
@@ -116,14 +100,107 @@ export function Sidebar({
           <DataFreshness />
         </div>
         <Link href="/profile" className="workspace-footer" onClick={() => close?.()}>
-          <span className="desk-avatar">АД</span>
-          <div>
-            <strong>Администратор</strong>
-            <span>Рабочее пространство</span>
-          </div>
+          <Suspense fallback={<FooterPerson person={null} />}>
+            <GrantedFooterPerson desk={desk} />
+          </Suspense>
           <Icon name="more" />
         </Link>
       </div>
     </div>
+  );
+}
+
+interface LinksProps {
+  id: string;
+  active: string | undefined;
+  activeSection: string | undefined;
+  expanded: string | null;
+  setExpanded: (value: string | null) => void;
+  collapsed: boolean | undefined;
+  onCollapse: (() => void) | undefined;
+  close: (() => void) | undefined;
+}
+
+function GrantedSectionLinks({
+  desk,
+  ...props
+}: LinksProps & { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <SectionLinks sections={sidebarSectionsFor(shell?.access ?? CLOSED_ACCESS)} {...props} />;
+}
+
+function SectionLinks({
+  sections,
+  id,
+  active,
+  activeSection,
+  expanded,
+  setExpanded,
+  collapsed,
+  onCollapse,
+  close,
+}: LinksProps & { sections: SidebarSection[] }) {
+  return (
+    <>
+      {sections.map((section) => {
+        const open = !collapsed && expanded === section.id;
+        const selected = activeSection === section.id;
+        const panelId = `${id}-${section.id}`;
+        return (
+          <div className="sidebar-section" key={section.id}>
+            <button
+              type="button"
+              className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+              aria-label={section.label}
+              aria-expanded={open}
+              aria-controls={panelId}
+              title={collapsed ? section.label : undefined}
+              onClick={() => {
+                setExpanded(open ? null : section.id);
+                if (collapsed) onCollapse?.();
+              }}
+            >
+              <Icon name={section.icon} />
+              <span>{section.label}</span>
+              <Icon className="sidebar-section-chevron" name="down" />
+            </button>
+            <div id={panelId} className="sidebar-section-links" hidden={!open}>
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  onClick={() => close?.()}
+                  title={item.label}
+                  className={cx('workspace-link', item.href === active && 'is-active')}
+                  aria-current={item.href === active ? 'page' : undefined}
+                >
+                  <Icon name={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })}{' '}
+    </>
+  );
+}
+
+function GrantedFooterPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  return <FooterPerson person={shell?.person ?? null} />;
+}
+
+/** Подпись внизу панели: кто вошёл и его роль; вошедшего нет — прежняя «Администратор» */
+function FooterPerson({ person }: { person: DeskPerson | null }) {
+  return (
+    <>
+      <span className="desk-avatar">{person?.initials ?? 'АД'}</span>
+      <div>
+        <strong>{person?.name ?? 'Администратор'}</strong>
+        <span>{person?.caption ?? 'Рабочее пространство'}</span>
+      </div>
+    </>
   );
 }

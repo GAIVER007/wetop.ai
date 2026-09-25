@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { attachAuthor, currentUserId, withSignedInUser } from './request-context';
+import {
+  actorIsOwner,
+  actorIsPlatformAdmin,
+  attachAuthor,
+  currentRole,
+  currentUserId,
+  withSignedInUser,
+} from './request-context';
 
 describe('withSignedInUser и currentUserId', () => {
   it('внутри запроса виден вошедший, снаружи — никто', async () => {
@@ -58,5 +65,39 @@ describe('attachAuthor — подстановка автора в запись �
 
   it('чужую форму аргументов не ломает', () => {
     expect(attachAuthor({ where: { id: 'x' } } as never, 'u-1')).toEqual({ where: { id: 'x' } });
+  });
+});
+
+describe('роль и главный администратор в запросе (DATA_MODEL §16, ADR-083)', () => {
+  it('владелец и сотрудник организации различаются; служебный ходок считается владельцем — он и есть владелец', async () => {
+    await withSignedInUser({ userId: 'u-1', organizationId: 'org-1', role: 'OWNER' }, async () => {
+      expect(currentRole()).toBe('OWNER');
+      expect(actorIsOwner()).toBe(true);
+    });
+    await withSignedInUser({ userId: 'u-2', organizationId: 'org-1', role: 'STAFF' }, async () => {
+      expect(currentRole()).toBe('STAFF');
+      expect(actorIsOwner()).toBe(false);
+    });
+    await withSignedInUser(null, async () => {
+      expect(currentRole()).toBeNull();
+      expect(actorIsOwner()).toBe(true);
+    });
+  });
+
+  it('вошедший без известной роли — не владелец: права не выдаются по умолчанию', async () => {
+    await withSignedInUser({ userId: 'u-3', organizationId: 'org-1' }, async () => {
+      expect(actorIsOwner()).toBe(false);
+    });
+  });
+
+  it('главный администратор — только вошедший с отметкой; служебный ходок им не считается', async () => {
+    await withSignedInUser(
+      { userId: 'u-1', organizationId: 'org-1', role: 'OWNER', platformAdmin: true },
+      async () => expect(actorIsPlatformAdmin()).toBe(true),
+    );
+    await withSignedInUser({ userId: 'u-2', organizationId: 'org-1', role: 'OWNER' }, async () =>
+      expect(actorIsPlatformAdmin()).toBe(false),
+    );
+    await withSignedInUser(null, async () => expect(actorIsPlatformAdmin()).toBe(false));
   });
 });

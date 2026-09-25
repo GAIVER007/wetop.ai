@@ -1,5 +1,5 @@
 import { assistant } from '@pms/integrations';
-import type { SellerFactsSource, SellerProfileInput } from '@pms/domain';
+import type { ExtensionAccess, SellerFactsSource, SellerProfileInput } from '@pms/domain';
 import type { SellerConfig, SellerConnection, SellerPort } from './seller.connection';
 import type {
   SellerAudit,
@@ -146,5 +146,21 @@ export class FakeAudit implements SellerAudit {
     after: Record<string, unknown>;
   }): Promise<void> {
     this.events.push(event);
+  }
+}
+
+/** Расширение «ИИ-продавец» организации для тестов раздела (ADR-083): по умолчанию действует */
+export class FakeSellerExtensions {
+  access: ExtensionAccess = 'active';
+  daysLeft: number | null = null;
+  asked: string[] = [];
+  async aiSeller(organizationId: string) {
+    this.asked.push(organizationId);
+    return {
+      access: this.access,
+      status: this.access === 'off' ? null : ('ACTIVE' as const),
+      activeUntil: null,
+      daysLeft: this.daysLeft,
+    };
   }
 }

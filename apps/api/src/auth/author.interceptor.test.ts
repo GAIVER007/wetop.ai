@@ -2,9 +2,14 @@ import 'reflect-metadata';
 import { of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { AuthorInterceptor } from './author.interceptor';
-import { currentOrganizationId, currentUserId } from './request-context';
+import { actorIsPlatformAdmin, currentOrganizationId, currentRole, currentUserId } from './request-context';
 
-const context = (user?: { id: string; organizationId?: string }) =>
+const context = (user?: {
+  id: string;
+  organizationId?: string;
+  role?: 'OWNER' | 'STAFF';
+  platformAdmin?: boolean;
+}) =>
   ({ switchToHttp: () => ({ getRequest: () => ({ user }) }) }) as never;
 
 describe('AuthorInterceptor — автор виден всему, что делает обработчик', () => {
@@ -66,5 +71,22 @@ describe('AuthorInterceptor — автор виден всему, что дел�
     await expect(
       new AuthorInterceptor().intercept(context({ id: 'u-1' }), next as never),
     ).resolves.toBeDefined();
+  });
+});
+
+describe('AuthorInterceptor — роль и отметка главного администратора (ADR-083)', () => {
+  it('внутри обработчика видны роль вошедшего и его отметка', async () => {
+    let seen: unknown = 'не спрашивали';
+    const next = {
+      handle: () => {
+        seen = { role: currentRole(), admin: actorIsPlatformAdmin() };
+        return of('ответ');
+      },
+    };
+    await new AuthorInterceptor().intercept(
+      context({ id: 'u-1', organizationId: 'org-luxx', role: 'STAFF', platformAdmin: true }),
+      next as never,
+    );
+    expect(seen).toEqual({ role: 'STAFF', admin: true });
   });
 });

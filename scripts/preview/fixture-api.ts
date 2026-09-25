@@ -13,6 +13,12 @@ import {
   sellerCategoryPrices,
   sellerFactsHash,
   type SellerFactsSource,
+  extensionAccess,
+  extensionDaysLeft,
+  identityRole,
+  parseExtensionChange,
+  INVITE_OWNER_ONLY_MESSAGE,
+  type ExtensionStatus,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -1359,6 +1365,87 @@ let registrationEnabled = true;
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
+// ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
+// `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
+let uiRole: 'OWNER' | 'STAFF' = 'OWNER';
+let uiPlatformAdmin = false;
+interface FixtureExtension {
+  status: ExtensionStatus;
+  activeUntil: Date | null;
+  note: string | null;
+  updatedAt: Date;
+}
+/** Строки `organization_extensions` стенда: у своей гостиницы — «оплачен, бессрочно», как после шага выкладки Э2 */
+const platformExtensions = new Map<string, FixtureExtension>();
+const DAY_MS = 86_400_000;
+function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
+  const status: ExtensionStatus = trial ? 'TRIAL' : 'ACTIVE';
+  const now = Date.now();
+  if (state === 'off') platformExtensions.delete('ui-org');
+  else if (state === 'expired')
+    platformExtensions.set('ui-org', { status, activeUntil: new Date(now - DAY_MS), note: null, updatedAt: new Date() });
+  else
+    platformExtensions.set('ui-org', {
+      status,
+      // «осталось N дней»: конец срока чуть раньше N полных суток — неполный день считается днём
+      activeUntil:
+        typeof days === 'number' ? new Date(now + days * DAY_MS - 3_600_000) : trial ? new Date(now + 7 * DAY_MS) : null,
+      note: null,
+      updatedAt: new Date(),
+    });
+}
+function resetAccess() {
+  uiRole = 'OWNER';
+  uiPlatformAdmin = false;
+  platformExtensions.clear();
+  setSellerExtension('active', null, false);
+}
+resetAccess();
+const aiSellerView = (organizationId: string) => {
+  const row = platformExtensions.get(organizationId) ?? null;
+  const now = new Date();
+  return {
+    access: extensionAccess(row, now),
+    status: row?.status ?? null,
+    activeUntil: row?.activeUntil?.toISOString() ?? null,
+    daysLeft: extensionDaysLeft(row, now),
+  };
+};
+/** Вошедший так, как его отдаёт API после ADR-083: с ролью и отметкой главного администратора */
+const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin });
+/** Гостиницы платформы глазами главного администратора — вымышленные (ADR-010) */
+const platformOrganizations = () => [
+  {
+    id: 'ui-org',
+    name: uiUser.organization.name,
+    status: 'ACTIVE',
+    trialEndsAt: null,
+    createdAt: '2026-09-01T04:00:00.000Z',
+    members: uiMembers.size,
+    owners: ['admin@wetop.test'],
+  },
+  {
+    id: 'ui-org-2',
+    name: 'Хостел «Пример»',
+    status: 'TRIAL',
+    trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
+    createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
+    members: 1,
+    owners: ['owner@example.com'],
+  },
+];
+const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
+  const row = platformExtensions.get(o.id);
+  return {
+    ...o,
+    aiSeller: {
+      ...aiSellerView(o.id),
+      note: row?.note ?? null,
+      updatedAt: row?.updatedAt.toISOString() ?? null,
+    },
+  };
+};
+
 /** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
 const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
 
@@ -2269,6 +2356,7 @@ createServer(async (req, res) => {
       hits.clear();
       requestHits.clear();
       resetUiAuth();
+      resetAccess();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -2395,6 +2483,10 @@ createServer(async (req, res) => {
           : 'ready';
       sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
+      // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
+      uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
+      uiPlatformAdmin = body['platformAdmin'] === true;
+      setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
       return send(200, {});
     }
     // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
@@ -2495,6 +2587,8 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
+      if (uiRole !== 'OWNER') return send(403, { message: INVITE_OWNER_ONLY_MESSAGE });
       if (req.method === 'POST') {
         const email = String(body['email'] ?? '')
           .trim()
@@ -2539,7 +2633,29 @@ createServer(async (req, res) => {
     }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);
-      return send(200, { user: (token && uiSessions.get(token)) || null });
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(200, { user: null });
+      // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
+      return send(200, { user: signedInView(who), access: { aiSeller: aiSellerView(who.organizationId) } });
+    }
+    // «Платформа» (ADR-083): только вошедшему главному администратору
+    if (path === '/platform/organizations' || path.startsWith('/platform/')) {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who || !uiPlatformAdmin)
+        return send(403, { message: 'Раздел «Платформа» — только для главного администратора платформы' });
+      if (path === '/platform/organizations' && req.method === 'GET')
+        return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
+      if (change && req.method === 'PUT') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(change[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const parsed = parseExtensionChange(body, new Date());
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        platformExtensions.set(org.id, { ...parsed.value, updatedAt: new Date() });
+        return send(200, platformOrganizationJson(org));
+      }
+      return send(404, { message: 'Нет такого адреса платформы' });
     }
     // ИИ-помощник (ТЗ П1): подпись только вошедшему — тем же форматом и той же функцией, что у API,
     // с секретом стенда. Набор `tests/ui/assistant-widget.spec.ts` читает её из тега виджета.
@@ -2553,7 +2669,7 @@ createServer(async (req, res) => {
           userId: who.id,
           email: who.email,
           organizationId: who.organizationId,
-          role: '',
+          role: identityRole(uiRole),
           issuedAt,
         }),
         expiresAt: new Date((issuedAt + assistant.IDENTITY_TTL_SECONDS) * 1000).toISOString(),
@@ -2561,6 +2677,31 @@ createServer(async (req, res) => {
     }
     // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
     if (path.startsWith('/ai-seller/')) {
+      const sellerToken = sessionOf(req as never);
+      // служебный ходок (без сессии) для API — владелец; вошедший сотрудник — нет (ADR-083)
+      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole === 'OWNER';
+      const extension = aiSellerView('ui-org');
+      const sellerUse =
+        req.method === 'GET'
+          ? path === '/ai-seller/embed'
+            ? 'act'
+            : 'read'
+          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge'
+            ? 'configure'
+            : 'act';
+      if (path !== '/ai-seller/status') {
+        if (sellerUse === 'configure' && !sellerOwner)
+          return send(403, { message: 'Настройки продавца меняет владелец организации' });
+        if (extension.access === 'off')
+          return send(403, {
+            message:
+              'Расширение «ИИ-продавец» для вашей организации не подключено. Подключает администратор WETOP после оплаты',
+          });
+        if (extension.access === 'expired' && sellerUse !== 'read')
+          return send(403, {
+            message: 'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
+          });
+      }
       const sellerView = () => ({
         saved: sellerSaved,
         profile: sellerProfile,
@@ -2571,7 +2712,15 @@ createServer(async (req, res) => {
       if (req.method === 'GET') {
         if (path === '/ai-seller/status')
           return send(200, {
-            state: sellerState,
+            state:
+              extension.access === 'off'
+                ? 'extension-off'
+                : extension.access === 'expired'
+                  ? 'extension-expired'
+                  : sellerState,
+            connection: sellerState,
+            extension,
+            canConfigure: sellerOwner && extension.access === 'active',
             profile: { saved: sellerSaved, updatedAt: sellerUpdatedAt, applied: sellerApplied },
             facts: { applied: sellerApplied, appliedAt: sellerApplied ? sellerUpdatedAt : null },
             lastError: sellerLastError,
@@ -2796,7 +2945,7 @@ createServer(async (req, res) => {
       return send(200, {
         token,
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
-        user: uiUser,
+        user: signedInView(uiUser),
       });
     }
     if (path === '/auth/logout' && req.method === 'POST') {

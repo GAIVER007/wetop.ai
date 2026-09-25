@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 25.09.2026 14:08 Алматы · vm
+# коммит 0729998 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/accessibility.spec.ts' '-g' 'всех разделов'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 1440px (1.7m)
+  ✓  2 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 1440px (1.6m)
+  ✓  3 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 390px (1.5m)
+  ✓  4 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 390px (1.5m)
+
+  Slow test file: tests/ui/accessibility.spec.ts (6.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  4 passed (6.4m)
+
+# код выхода 0 · 6 мин 26 с

@@ -1,7 +1,15 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SELLER_PROFILE, type SellerFactsSource } from '@pms/domain';
-import { FakeAudit, FakeConnection, FakeFacts, FakeProfiles, rejected, unavailable } from './fakes';
+import {
+  FakeAudit,
+  FakeConnection,
+  FakeFacts,
+  FakeProfiles,
+  FakeSellerExtensions,
+  rejected,
+  unavailable,
+} from './fakes';
 import type { SellerConfig } from './seller.connection';
 import { SellerService } from './seller.service';
 
@@ -37,13 +45,15 @@ let connection: FakeConnection;
 let profiles: FakeProfiles;
 let facts: FakeFacts;
 let service: SellerService;
+let extensions: FakeSellerExtensions;
 
 beforeEach(() => {
   connection = new FakeConnection(config());
   profiles = new FakeProfiles();
   facts = new FakeFacts();
   facts.source = source();
-  service = new SellerService(connection, profiles, facts, new FakeAudit());
+  extensions = new FakeSellerExtensions();
+  service = new SellerService(connection, profiles, facts, new FakeAudit(), extensions as never);
 });
 
 const now = new Date('2026-09-24T09:00:00Z');
@@ -54,6 +64,16 @@ describe('SellerService.syncOnce', () => {
     await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
     expect(await service.syncOnce(now)).toEqual({ skipped: 'not-configured' });
     expect(connection.seller.ops()).toEqual([]);
+  });
+
+  it('расширение организации не действует — сверка ничего не шлёт (ADR-083, Q-183)', async () => {
+    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    for (const access of ['off', 'expired'] as const) {
+      extensions.access = access;
+      expect(await service.syncOnce(now)).toEqual({ skipped: 'extension-off' });
+    }
+    expect(connection.seller.ops()).toEqual([]);
+    expect(extensions.asked).toContain(ORG);
   });
 
   it('профиля ещё нет — продавца никто не настраивал, ничего не шлёт', async () => {

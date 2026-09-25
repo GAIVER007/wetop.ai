@@ -335,7 +335,10 @@ test('вход и профиль: «Вы вошли» без точек, при�
   // профиль: «Доступ» говорит правду о входе, а не «появится после подключения авторизации»
   await page.goto('/profile');
   await main.getByRole('tab', { name: 'Доступ' }).click();
-  await expect(main.getByTestId('profile-access')).toContainText('Ролей пока нет');
+  // роли есть с ADR-083: на стойке все равны, у владельца — приглашения и настройки продавца
+  await expect(main.getByTestId('profile-access')).toContainText(
+    'владелец организации ещё приглашает сотрудников',
+  );
   await expect(main).not.toContainText('появится после подключения авторизации');
   await expect(main.getByRole('link', { name: 'Экран входа' })).toHaveAttribute('href', '/login');
 });

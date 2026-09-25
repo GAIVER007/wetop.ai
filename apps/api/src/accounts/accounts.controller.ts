@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   BadRequestException,
+  ForbiddenException,
   Body,
   Controller,
   Get,
@@ -18,6 +19,7 @@ import {
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
+  INVITE_OWNER_ONLY_MESSAGE,
   SESSION_ENDED_MESSAGE,
 } from '@pms/domain';
 import {
@@ -108,6 +110,8 @@ export class AccountsController {
   ): Promise<InviteJson> {
     const outcome = await this.accounts.createInvite(tokenFrom(cookie, authorization), body?.email);
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    // приглашает только владелец организации (DATA_MODEL §16.1, ADR-083)
+    if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
     if (!outcome.ok) {
       throw new BadRequestException(
         outcome.reason === 'member' ? INVITE_ALREADY_MEMBER_MESSAGE : INVITE_EMAIL_MESSAGE,
@@ -124,6 +128,7 @@ export class AccountsController {
   ): Promise<InviteJson[]> {
     const list = await this.accounts.pendingInvites(tokenFrom(cookie, authorization));
     if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (list === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
     return list.map(inviteJson);
   }
 

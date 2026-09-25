@@ -11,7 +11,7 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { userErrorSection } from '@pms/domain';
+import { identityRole, userErrorSection } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import { serviceKeyKind } from '../auth/auth.guard';
 import type { SignedInUser } from '../auth/auth.service';
@@ -71,8 +71,8 @@ export class AssistantController {
         userId: user.id,
         email: user.email,
         organizationId: user.organizationId,
-        // Ролей нет (ADR-023, `memberships` без роли): придумывать её нельзя, бот пустую принимает
-        role: '',
+        // Роль в организации строчными — `owner` или `staff` (DATA_MODEL §16.1, ADR-083); прав у бота она не даёт
+        role: identityRole(user.role),
         issuedAt,
       }),
       expiresAt: new Date((issuedAt + assistant.IDENTITY_TTL_SECONDS) * 1000).toISOString(),

@@ -18,6 +18,7 @@ export const ACCOUNT: AccountRecord = {
   organizationName: 'Хостел «Пример»',
   organizationStatus: 'TRIAL',
   trialEndsAt: new Date('2026-09-23T12:00:00.000Z'),
+  role: 'OWNER',
 };
 
 interface StoredSession {
@@ -55,6 +56,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       organizationName: input.organizationName,
       organizationStatus: 'TRIAL',
       trialEndsAt: input.trialEndsAt,
+      role: 'OWNER',
     };
     this.accounts.push(account);
     return account;
@@ -118,6 +120,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       trialEndsAt: a.trialEndsAt,
       expiresAt: s.expiresAt,
       revokedAt: s.revokedAt,
+      role: a.role,
     };
   }
 
@@ -192,6 +195,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       organizationName: org?.organizationName ?? input.organizationId,
       organizationStatus: org?.organizationStatus ?? 'TRIAL',
       trialEndsAt: org?.trialEndsAt ?? null,
+      role: 'STAFF',
     };
     this.accounts.push(account);
     return account;

@@ -1,0 +1,16 @@
+# Модульные (unit) · 25.09.2026 14:06 Алматы · vm
+# коммит 0729998 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-06-25Z-unit-61f7.json' 'apps/web/src/lib/ai-seller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (36 tests) 72ms
+
+ Test Files  1 passed (1)
+      Tests  36 passed (36)
+   Start at  09:06:26
+   Duration  1.10s (transform 82%, import 9%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-06-25Z-unit-61f7.json
+
+# код выхода 0 · 2 с

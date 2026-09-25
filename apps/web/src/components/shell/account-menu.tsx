@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { signOut } from '../../app/login/actions';
-import { ApiError, authApi } from '../../lib/api';
+import { ApiError } from '../../lib/api';
+import { currentMe } from '../../lib/desk-shell';
 import { Icon } from '../icon';
 
 /**
@@ -9,7 +10,7 @@ import { Icon } from '../icon';
  * Пока вход не обязателен (APP_AUTH_REQUIRED не задан), без сессии здесь просто ссылка на экран входа.
  */
 export async function AccountMenu() {
-  const me = await authApi.me().catch((error: unknown) => {
+  const me = await currentMe().catch((error: unknown) => {
     if (error instanceof ApiError) return { user: null };
     throw error;
   });

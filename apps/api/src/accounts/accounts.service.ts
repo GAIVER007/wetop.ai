@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   INVITE_TTL_MS,
+  canManageStaff,
   checkInvite,
   checkSession,
   describeUserAgent,
@@ -53,7 +54,7 @@ export interface InvitePreview {
 }
 
 export type InviteOutcome =
-  { ok: true; invite: InviteView } | { ok: false; reason: 'email' | 'member' };
+  { ok: true; invite: InviteView } | { ok: false; reason: 'email' | 'member' | 'owner' };
 
 @Injectable()
 export class AccountsService {
@@ -121,6 +122,8 @@ export class AccountsService {
   ): Promise<InviteOutcome | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
+    // приглашает только владелец организации (DATA_MODEL §16.1, ADR-083)
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'owner' };
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
@@ -148,10 +151,14 @@ export class AccountsService {
     return { ok: true, invite: toInviteView(invite) };
   }
 
-  /** `null` — сессии нет: список приглашений видит только вошедший, и только своей организации. */
-  async pendingInvites(sessionToken: string | null): Promise<InviteView[] | null> {
+  /**
+   * `null` — сессии нет: список приглашений видит только вошедший, и только своей организации; `'owner'` — вошедший не
+   * владелец (DATA_MODEL §16.1): приглашениями распоряжается владелец.
+   */
+  async pendingInvites(sessionToken: string | null): Promise<InviteView[] | 'owner' | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
+    if (!canManageStaff(who.role)) return 'owner';
     return (await this.repo.pendingInvites(who.organizationId, new Date())).map(toInviteView);
   }
 

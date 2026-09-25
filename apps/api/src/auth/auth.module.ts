@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
+import { PlatformModule } from '../platform/platform.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-reset.service';
@@ -13,6 +14,8 @@ import { EmailVerificationService } from './email-verification.service';
  * владелец командой `npm run accounts -- invite` (docs/mail/README.md).
  */
 @Module({
+  // расширения организации — для `/auth/me` (ADR-083)
+  imports: [PlatformModule],
   controllers: [AuthController],
   providers: [
     PrismaService,

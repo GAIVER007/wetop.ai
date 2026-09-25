@@ -26,6 +26,18 @@ export function isExtensionActive(row: ExtensionState | null, now: Date): boolea
 }
 
 /**
+ * Доступ к разделу по расширению (ADR-083, Q-183 вариант (а)): `active` — раздел целиком; `expired` — срок пробного или
+ * оплаченного вышел: раздел только для чтения, правка и ответы гостям закрыты, ничего не удаляется; `off` — выключено
+ * или не подключали: раздела в меню нет.
+ */
+export type ExtensionAccess = 'active' | 'expired' | 'off';
+
+export function extensionAccess(row: ExtensionState | null, now: Date): ExtensionAccess {
+  if (isExtensionActive(row, now)) return 'active';
+  return row && row.status !== 'OFF' ? 'expired' : 'off';
+}
+
+/**
  * Сколько дней до конца — для напоминания владельцу организации за 7 дней и в последний день (Q-183). Неполный день
  * считается днём; срок вышел — 0; бессрочно или выключено — `null`.
  */

@@ -20,6 +20,7 @@ import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HotelModule } from './hotel/hotel.module';
+import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UnitsModule } from './units/units.module';
@@ -35,6 +36,8 @@ import { DataConnectionModule } from './database/connection';
     // одноразовый код на почту — AccountsModule (ADR-046).
     AuthModule,
     AccountsModule,
+    // главный администратор: организации и их расширения (ADR-083)
+    PlatformModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,

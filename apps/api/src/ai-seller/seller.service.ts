@@ -26,10 +26,12 @@ import {
 } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import {
+  actorIsOwner,
   currentOrganizationId,
   currentUserId,
   hasSignedInActor,
 } from '../auth/request-context';
+import { ExtensionsService, type AiSellerAccessView } from '../platform/extensions.service';
 import { SELLER_CONNECTION, type SellerConnection, type SellerPort } from './seller.connection';
 import {
   SELLER_AUDIT,
@@ -47,6 +49,13 @@ export const SELLER_OTHER_ORGANIZATION = 'ИИ-продавец для ваше�
 export const SELLER_NO_PROFILE = 'Сначала сохраните настройки продавца';
 export const SELLER_NO_ORGANIZATION = 'Не выбрана организация: войдите в систему';
 export const SELLER_NO_PROPERTY = 'У организации нет объекта: факты для продавца собрать не из чего';
+/** Расширение «ИИ-продавец» (DATA_MODEL §16.3, ADR-083, Q-183) */
+export const SELLER_EXTENSION_OFF =
+  'Расширение «ИИ-продавец» для вашей организации не подключено. Подключает администратор WETOP после оплаты';
+export const SELLER_EXTENSION_EXPIRED =
+  'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP';
+/** Роли в организации (§16.1): настройки, знания и «Применить» — у владельца, диалоги ведут все */
+export const SELLER_OWNER_ONLY = 'Настройки продавца меняет владелец организации';
 
 const CONVERSATION_MODES = ['bot_active', 'needs_human', 'owner_takeover'] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -63,7 +72,19 @@ export const KNOWLEDGE_MAX_BYTES = 10 * 1024 * 1024;
 const REPLY_MAX = 4000;
 const SANDBOX_MAX = 2000;
 
-export type SellerState = 'not-configured' | 'other-organization' | 'ready';
+/**
+ * `extension-off` — расширение не подключено или выключено; `extension-expired` — срок вышел, раздел только для чтения
+ * (ADR-083, Q-183); дальше — подключена ли копия продавца к этой организации.
+ */
+export type SellerState =
+  | 'extension-off'
+  | 'extension-expired'
+  | 'not-configured'
+  | 'other-organization'
+  | 'ready';
+
+/** Что открывает вызов: читать — и после срока; действовать (ответ гостю, песочница) — при действующем; настраивать — ещё и владельцу */
+type SellerUse = 'read' | 'act' | 'configure';
 
 export interface SellerStatus {
   state: SellerState;
@@ -74,10 +95,21 @@ export interface SellerStatus {
   /** Отказ временный, платформа повторит отправку сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
   retrying: boolean;
   embedAvailable: boolean;
+  /** Расширение организации; `null` — организации нет (служебный ходок без привязанной копии) */
+  extension: AiSellerAccessView | null;
+  /** Может ли вошедший менять настройки: владелец организации и действующее расширение */
+  canConfigure: boolean;
+}
+
+export interface SellerProfileView {
+  saved: boolean;
+  profile: SellerProfileInput;
+  updatedAt: string | null;
+  applied: boolean;
 }
 
 export type SyncResult =
-  | { skipped: 'not-configured' | 'no-profile' }
+  | { skipped: 'not-configured' | 'no-profile' | 'extension-off' }
   | { failed: string; retry: boolean }
   | { profile: boolean; facts: boolean };
 
@@ -183,6 +215,7 @@ export class SellerService {
     @Inject(SELLER_PROFILES) private readonly profiles: SellerProfilesRepository,
     @Inject(SELLER_FACTS) private readonly facts: SellerFactsRepository,
     @Inject(SELLER_AUDIT) private readonly audit: SellerAudit,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
 
   /** Организация профиля: своя у вошедшего; у служебного ходока — та, к которой привязан продавец */
@@ -197,19 +230,43 @@ export class SellerService {
     return bound;
   }
 
-  private state(): SellerState {
+  /**
+   * Расширение организации, которой служит запрос (своя у вошедшего, привязанная — у служебного ходока), и подключена ли
+   * к ней копия продавца. Срок расширения проверяется при каждом вызове: вышедший действует сразу.
+   */
+  private async gate(now: Date): Promise<{
+    extension: AiSellerAccessView | null;
+    connection: 'not-configured' | 'other-organization' | 'ready';
+  }> {
     const config = this.connection.config();
-    if (!config.baseUrl || !config.serviceKey || !config.organizationId) return 'not-configured';
-    if (hasSignedInActor() && currentOrganizationId() !== config.organizationId)
-      return 'other-organization';
-    return 'ready';
+    const organizationId = hasSignedInActor() ? currentOrganizationId() : config.organizationId;
+    const extension = organizationId ? await this.extensions.aiSeller(organizationId, now) : null;
+    const connection =
+      !config.baseUrl || !config.serviceKey || !config.organizationId
+        ? 'not-configured'
+        : hasSignedInActor() && currentOrganizationId() !== config.organizationId
+          ? 'other-organization'
+          : 'ready';
+    return { extension, connection };
   }
 
-  /** Продавец подключён и это его организация — иначе отказ до любого вызова продавца */
-  private bound(): { client: SellerPort; organizationId: string } {
-    const state = this.state();
-    if (state === 'not-configured') throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
-    if (state === 'other-organization') throw new ForbiddenException(SELLER_OTHER_ORGANIZATION);
+  /** Отказ по расширению и роли — до любого вызова продавца и до записи в базу */
+  private checkUse(extension: AiSellerAccessView | null, use: SellerUse): void {
+    if (use === 'configure' && !actorIsOwner()) throw new ForbiddenException(SELLER_OWNER_ONLY);
+    if (extension?.access === 'off') throw new ForbiddenException(SELLER_EXTENSION_OFF);
+    if (extension?.access === 'expired' && use !== 'read')
+      throw new ForbiddenException(SELLER_EXTENSION_EXPIRED);
+  }
+
+  /** Расширение и роль позволяют, продавец подключён и это его организация — иначе отказ до любого вызова продавца */
+  private async bound(
+    use: SellerUse,
+    now: Date = new Date(),
+  ): Promise<{ client: SellerPort; organizationId: string }> {
+    const { extension, connection } = await this.gate(now);
+    this.checkUse(extension, use);
+    if (connection === 'not-configured') throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
+    if (connection === 'other-organization') throw new ForbiddenException(SELLER_OTHER_ORGANIZATION);
     const client = this.connection.client();
     const organizationId = this.connection.config().organizationId;
     if (!client || !organizationId) throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
@@ -237,7 +294,13 @@ export class SellerService {
   // ── состояние и профиль (П5) ───────────────────────────────────────────────────────────────
 
   async status(now: Date = new Date()): Promise<SellerStatus> {
-    const state = this.state();
+    const { extension, connection } = await this.gate(now);
+    const state: SellerState =
+      extension?.access === 'off'
+        ? 'extension-off'
+        : extension?.access === 'expired'
+          ? 'extension-expired'
+          : connection;
     // служебный ходок без привязанной копии: организации нет — и профиля, значит, тоже
     const organizationId = hasSignedInActor()
       ? this.profileOrganization()
@@ -265,15 +328,18 @@ export class SellerService {
           facts: false,
         }),
       embedAvailable: this.connection.config().publicUrl !== null,
+      extension,
+      canConfigure: actorIsOwner() && extension?.access === 'active',
     };
   }
 
-  async profile(): Promise<{
-    saved: boolean;
-    profile: SellerProfileInput;
-    updatedAt: string | null;
-    applied: boolean;
-  }> {
+  /** Настройки продавца: читать — и после срока расширения, без расширения — отказ, как у всего раздела (§4.1 плана) */
+  async profile(now: Date = new Date()): Promise<SellerProfileView> {
+    this.checkUse((await this.gate(now)).extension, 'read');
+    return this.savedProfile();
+  }
+
+  private async savedProfile(): Promise<SellerProfileView> {
     const row = await this.profiles.get(this.profileOrganization());
     return {
       saved: row !== null,
@@ -284,17 +350,19 @@ export class SellerService {
   }
 
   async saveProfile(raw: unknown, now: Date = new Date()) {
+    // сохранить заранее можно и без подключённой копии продавца, но не без расширения и не сотруднику (ADR-083)
+    this.checkUse((await this.gate(now)).extension, 'configure');
     const parsed = parseSellerProfile(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     await this.profiles.save(this.profileOrganization(), parsed.value, currentUserId(), now);
-    return this.profile();
+    return this.savedProfile();
   }
 
   // ── применение (П8) ────────────────────────────────────────────────────────────────────────
 
   /** «Применить»: профиль и факты уходят продавцу сейчас; отказ — понятные слова и повтор службой сверки */
   async apply(now: Date = new Date()): Promise<{ profileApplied: boolean; factsApplied: boolean }> {
-    const { client, organizationId } = this.bound();
+    const { client, organizationId } = await this.bound('configure', now);
     const row = await this.profiles.get(organizationId);
     if (!row) throw new ConflictException(SELLER_NO_PROFILE);
     try {
@@ -314,6 +382,9 @@ export class SellerService {
     const config = this.connection.config();
     const client = this.connection.client();
     if (!client || !config.organizationId) return { skipped: 'not-configured' };
+    // расширение не действует — продавцу ничего не шлём: после срока раздел только для чтения (Q-183)
+    const extension = await this.extensions.aiSeller(config.organizationId, now);
+    if (extension.access !== 'active') return { skipped: 'extension-off' };
     const row = await this.profiles.get(config.organizationId);
     if (!row) return { skipped: 'no-profile' };
     try {
@@ -381,6 +452,7 @@ export class SellerService {
   }
 
   async factsPreview(now: Date = new Date()) {
+    this.checkUse((await this.gate(now)).extension, 'read');
     const organizationId = this.profileOrganization();
     const facts = await this.currentFacts(organizationId, now);
     if (!facts) throw new NotFoundException(SELLER_NO_PROPERTY);
@@ -408,7 +480,7 @@ export class SellerService {
       if (!Number.isInteger(n)) throw new BadRequestException('limit: ожидается целое число');
       limit = Math.min(Math.max(n, 1), 200);
     }
-    const { client } = this.bound();
+    const { client } = await this.bound('read');
     const body = obj(
       await this.call(() =>
         client.listConversations({ ...(mode ? { mode } : {}), ...(limit ? { limit } : {}) }),
@@ -433,7 +505,7 @@ export class SellerService {
 
   async conversation(rawId: string) {
     const id = conversationId(rawId);
-    const { client } = this.bound();
+    const { client } = await this.bound('read');
     const body = obj(await this.call(() => client.conversation(id)));
     const contact = obj(body.contact);
     return {
@@ -462,7 +534,7 @@ export class SellerService {
 
   async switchMode(rawId: string, action: 'takeover' | 'release') {
     const id = conversationId(rawId);
-    const { client } = this.bound();
+    const { client } = await this.bound('act');
     const body = obj(
       await this.call(() => (action === 'takeover' ? client.takeover(id) : client.release(id))),
     );
@@ -482,7 +554,7 @@ export class SellerService {
     if (text === '') throw new BadRequestException('Ответ: пустое сообщение');
     if (text.length > REPLY_MAX)
       throw new BadRequestException(`Ответ: не длиннее ${REPLY_MAX} знаков`);
-    const { client } = this.bound();
+    const { client } = await this.bound('act');
     await this.call(() => client.reply(id, text));
     // Текст ответа — переписка с гостем: в журнал платформы идёт только факт и длина
     await this.audit.record({
@@ -495,7 +567,7 @@ export class SellerService {
   }
 
   async knowledge() {
-    const { client } = this.bound();
+    const { client } = await this.bound('read');
     const body = obj(await this.call(() => client.knowledge()));
     return {
       items: list(body.items).map((item) => {
@@ -511,7 +583,7 @@ export class SellerService {
     const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
     const type = KNOWLEDGE_TYPES[ext];
     if (!type) throw new UnsupportedMediaTypeException('Знания: md, txt, pdf, docx или xlsx');
-    const { client, organizationId } = this.bound();
+    const { client, organizationId } = await this.bound('configure');
     const body = obj(
       await this.call(() =>
         client.uploadKnowledge({ name, type, data: new Uint8Array(file.buffer) }),
@@ -527,7 +599,7 @@ export class SellerService {
   }
 
   async summary() {
-    const { client } = this.bound();
+    const { client } = await this.bound('read');
     const body = obj(await this.call(() => client.summary()));
     return {
       hours: num(body.hours),
@@ -544,7 +616,7 @@ export class SellerService {
     if (text === '') throw new BadRequestException('Проверка: пустое сообщение');
     if (text.length > SANDBOX_MAX)
       throw new BadRequestException(`Проверка: не длиннее ${SANDBOX_MAX} знаков`);
-    const { client } = this.bound();
+    const { client } = await this.bound('act');
     const externalId = `wetop-check-${currentUserId() ?? 'service'}`;
     const body = obj(await this.call(() => client.sandbox({ externalId, text })));
     return {
@@ -554,8 +626,9 @@ export class SellerService {
     };
   }
 
-  /** Код чата продавца для сайта объекта: публичный адрес, без подписи и без ключей */
-  embed(): { snippet: string | null } {
+  /** Код чата продавца для сайта объекта: публичный адрес, без подписи и без ключей; только при действующем расширении */
+  async embed(now: Date = new Date()): Promise<{ snippet: string | null }> {
+    this.checkUse((await this.gate(now)).extension, 'act');
     const publicUrl = this.connection.config().publicUrl;
     return {
       snippet: publicUrl ? `<script async src="${publicUrl}/widget/widget.js"></script>` : null,

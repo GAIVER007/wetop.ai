@@ -2261,3 +2261,16 @@
 | 25.09.2026 14:43 | unit | ✅ 1795 из 1798, пропущено 3 | 1 мин 12 с | 7fe897b +24 | [лог](logs/2026-09-25T09-43-34Z-unit-41b8.log) |  |
 | 25.09.2026 14:44 | integration | ✅ 67 из 67 | 29 с | 7fe897b +24 | [лог](logs/2026-09-25T09-44-56Z-integration-d346.log) |  |
 | 25.09.2026 14:45 | lint | ✅ без ошибок | 21 с | 7fe897b +24 | [лог](logs/2026-09-25T09-45-31Z-lint-599f.log) |  |
+| 25.09.2026 14:48 | unit (частично: packages/domain/src/accounts/extensions.test.ts) | ❌ упало 1 из 10 | 2 с | 81632d7 +1 | [лог](logs/2026-09-25T09-48-24Z-unit-38ea.log) | red: extension access states |
+| 25.09.2026 14:48 | unit (частично: packages/domain/src/accounts/extensions.test.ts) | ✅ 10 из 10 | 1 с | 81632d7 +2 | [лог](logs/2026-09-25T09-48-37Z-unit-d7c1.log) | green: extension access states |
+| 25.09.2026 14:50 | unit (частично: apps/api/src/platform/platform.controller.test.ts) | ❌ код выхода 1 | 3 с | 81632d7 +6 | [лог](logs/2026-09-25T09-50-15Z-unit-2461.log) | red: platform section not yet present |
+| 25.09.2026 14:50 | unit (частично: apps/api/src/platform/platform.controller.test.ts) | ✅ 7 из 7 | 3 с | 81632d7 +7 | [лог](logs/2026-09-25T09-50-19Z-unit-cc8a.log) | green: platform section |
+| 25.09.2026 14:51 | unit (частично: apps/api/src/auth/me-access.test.ts) | ❌ упало 1 из 2 | 3 с | 81632d7 +8 | [лог](logs/2026-09-25T09-51-02Z-unit-3a71.log) | red: me tells the desk what the organization has |
+| 25.09.2026 14:51 | unit (частично: apps/api/src/auth) | ✅ 100 из 100 | 6 с | 81632d7 +12 | [лог](logs/2026-09-25T09-51-19Z-unit-2c30.log) | green: me tells the desk what the organization has |
+| 25.09.2026 14:52 | unit (частично: apps/api/src/ai-seller) | ❌ упало 4 из 50 | 4 с | 81632d7 +15 | [лог](logs/2026-09-25T09-52-49Z-unit-fac3.log) | red: seller gated by the extension and the owner role |
+| 25.09.2026 14:56 | unit (частично: apps/api/src/ai-seller) | ✅ 50 из 50 | 4 с | 81632d7 +17 | [лог](logs/2026-09-25T09-56-14Z-unit-3faf.log) | green: seller gated by the extension and the owner role |
+| 25.09.2026 14:56 | unit (частично: apps/api/src/ai-seller/ai-seller.controller.test.ts) | ❌ упало 1 из 32 | 4 с | 81632d7 +17 | [лог](logs/2026-09-25T09-56-39Z-unit-cdc4.log) | red: profile and facts reads refused without the extension (gate removed on purpose) |
+| 25.09.2026 14:56 | unit (частично: apps/api/src/ai-seller) | ✅ 50 из 50 | 3 с | 81632d7 +17 | [лог](logs/2026-09-25T09-56-44Z-unit-384c.log) | green: profile and facts reads refused without the extension, readable after the term |
+| 25.09.2026 14:58 | unit | ✅ 1809 из 1812, пропущено 3 | 1 мин 13 с | 81632d7 +17 | [лог](logs/2026-09-25T09-58-02Z-unit-4beb.log) | E2 API: extension gate, platform routes, me access |
+| 25.09.2026 15:00 | integration (частично: tests/integration/platform-extensions.test.ts) | ❌ упало 1 из 3 | 4 с | 81632d7 +18 | [лог](logs/2026-09-25T10-00-13Z-integration-89b5.log) | red: extension change and its journal row are not atomic (broken on purpose) |
+| 25.09.2026 15:00 | integration (частично: tests/integration/platform-extensions.test.ts) | ✅ 3 из 3 | 4 с | 81632d7 +18 | [лог](logs/2026-09-25T10-00-23Z-integration-97d6.log) | green: extension change and its journal row in one transaction |

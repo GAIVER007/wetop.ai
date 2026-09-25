@@ -9,17 +9,25 @@ import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
 import { AiSellerController } from './ai-seller.controller';
+import { ExtensionsService } from '../platform/extensions.service';
 import {
   FakeAudit,
   FakeConnection,
   FakeFacts,
   FakeProfiles,
+  FakeSellerExtensions,
   rejected,
   unavailable,
 } from './fakes';
 import { SELLER_CONNECTION, type SellerConfig } from './seller.connection';
 import { SELLER_AUDIT, SELLER_FACTS, SELLER_PROFILES } from './seller.repository';
-import { SELLER_NO_PROPERTY, SellerService } from './seller.service';
+import {
+  SELLER_EXTENSION_EXPIRED,
+  SELLER_EXTENSION_OFF,
+  SELLER_NO_PROPERTY,
+  SELLER_OWNER_ONLY,
+  SellerService,
+} from './seller.service';
 
 /**
  * Раздел «ИИ-продавец» в API (ТЗ ред. 1 П5, П7, П8; ADR-079). Настоящие замок и автор запроса, подставные продавец
@@ -31,6 +39,7 @@ const ORG_A = '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
 const ORG_B = '7a1c2b3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const USER_A = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
 const USER_B = '1c7d4d2f-5a5f-4b64-8c8f-3a2e8b0d1b22';
+const USER_STAFF = '2d8e5e3a-6b6a-4c75-9d9a-4b3f9c1e2c33';
 const CONV = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
 const KEY = 'seller-service-key-for-run-0123456789';
 
@@ -78,19 +87,27 @@ const connection = new FakeConnection(baseConfig());
 const profiles = new FakeProfiles();
 const facts = new FakeFacts();
 const audit = new FakeAudit();
+const extensions = new FakeSellerExtensions();
 let app: INestApplication;
 
 beforeAll(async () => {
-  const users: Record<string, { id: string; organizationId: string }> = {
-    'session-a': { id: USER_A, organizationId: ORG_A },
-    'session-b': { id: USER_B, organizationId: ORG_B },
+  // владельцы своих организаций и сотрудник организации A (DATA_MODEL §16.1, ADR-083)
+  const users: Record<string, { id: string; organizationId: string; role: 'OWNER' | 'STAFF' }> = {
+    'session-a': { id: USER_A, organizationId: ORG_A, role: 'OWNER' },
+    'session-b': { id: USER_B, organizationId: ORG_B, role: 'OWNER' },
+    'session-staff': { id: USER_STAFF, organizationId: ORG_A, role: 'STAFF' },
   };
   const auth = {
     whoami: vi.fn(async (token: string) => {
       const who = users[token];
       return who
         ? {
-            user: { ...who, email: `${who.id.slice(0, 4)}@example.invalid`, name: null },
+            user: {
+              ...who,
+              email: `${who.id.slice(0, 4)}@example.invalid`,
+              name: null,
+              platformAdmin: false,
+            },
             organization: null,
             expiresAt: '2026-09-25T00:00:00.000Z',
           }
@@ -105,6 +122,7 @@ beforeAll(async () => {
       { provide: SELLER_PROFILES, useValue: profiles },
       { provide: SELLER_FACTS, useValue: facts },
       { provide: SELLER_AUDIT, useValue: audit },
+      { provide: ExtensionsService, useValue: extensions },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
@@ -129,6 +147,8 @@ beforeEach(() => {
   facts.source = factsSource();
   facts.asked = [];
   audit.events = [];
+  extensions.access = 'active';
+  extensions.asked = [];
 });
 
 const as = (session: string) => ({ 'x-wetop-session': session });
@@ -490,5 +510,74 @@ describe('код для сайта объекта', () => {
     connection.settings = { ...baseConfig(), publicUrl: null };
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
     expect(res.body).toEqual({ snippet: null });
+  });
+});
+
+describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', () => {
+  it('расширение не подключено — раздел так и говорит, продавца не спрашиваем, настройки не сохраняются', async () => {
+    extensions.access = 'off';
+    const status = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
+    expect(status.body).toMatchObject({
+      state: 'extension-off',
+      canConfigure: false,
+      extension: { access: 'off' },
+    });
+    const list = await api().get('/ai-seller/conversations').set(as('session-a')).expect(403);
+    expect(list.body.message).toBe(SELLER_EXTENSION_OFF);
+    const saved = await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(403);
+    expect(saved.body.message).toBe(SELLER_EXTENSION_OFF);
+    await api().get('/ai-seller/embed').set(as('session-a')).expect(403);
+    // и прочитать сохранённое нельзя: без расширения раздела нет целиком, а не только кнопок (§4.1 плана)
+    const read = await api().get('/ai-seller/profile').set(as('session-a')).expect(403);
+    expect(read.body.message).toBe(SELLER_EXTENSION_OFF);
+    await api().get('/ai-seller/facts').set(as('session-a')).expect(403);
+    expect(connection.seller.calls).toEqual([]);
+    expect(profiles.rows.size).toBe(0);
+    // расширение спрашивали у своей организации вошедшего
+    expect(new Set(extensions.asked)).toEqual(new Set([ORG_A]));
+  });
+
+  it('срок вышел — читать можно, а отвечать гостям и менять настройки нельзя', async () => {
+    extensions.access = 'expired';
+    connection.seller.replies.listConversations = { items: [] };
+    const status = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
+    expect(status.body).toMatchObject({ state: 'extension-expired', canConfigure: false });
+    await api().get('/ai-seller/conversations').set(as('session-a')).expect(200);
+    const reply = await api()
+      .post(`/ai-seller/conversations/${CONV}/reply`)
+      .set(as('session-a'))
+      .send({ text: 'Здравствуйте!' })
+      .expect(403);
+    expect(reply.body.message).toBe(SELLER_EXTENSION_EXPIRED);
+    const saved = await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(403);
+    expect(saved.body.message).toBe(SELLER_EXTENSION_EXPIRED);
+    // сохранённое читается: владелец видит, что было настроено, и продлевает не вслепую
+    await api().get('/ai-seller/profile').set(as('session-a')).expect(200);
+    await api().post('/ai-seller/sandbox').set(as('session-a')).send({ text: 'Есть места?' }).expect(403);
+    expect(connection.seller.ops()).toEqual(['listConversations']);
+  });
+
+  it('сотрудник ведёт диалоги, а настройки, знания и «Применить» — у владельца', async () => {
+    connection.seller.replies.listConversations = { items: [] };
+    const status = await api().get('/ai-seller/status').set(as('session-staff')).expect(200);
+    expect(status.body.canConfigure).toBe(false);
+    const saved = await api().put('/ai-seller/profile').set(as('session-staff')).send(profile).expect(403);
+    expect(saved.body.message).toBe(SELLER_OWNER_ONLY);
+    await api().post('/ai-seller/apply').set(as('session-staff')).expect(403);
+    await api()
+      .post('/ai-seller/knowledge')
+      .set(as('session-staff'))
+      .attach('file', Buffer.from('# Правила'), 'правила.md')
+      .expect(403);
+    await api().get('/ai-seller/conversations').set(as('session-staff')).expect(200);
+    await api()
+      .post(`/ai-seller/conversations/${CONV}/reply`)
+      .set(as('session-staff'))
+      .send({ text: 'Здравствуйте!' })
+      .expect(200);
+    expect(profiles.rows.size).toBe(0);
+
+    const owner = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
+    expect(owner.body.canConfigure).toBe(true);
   });
 });

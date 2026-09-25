@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { EXTENSION_STATUSES, extensionDaysLeft, isExtensionActive, parseExtensionChange } from './extensions';
+import {
+  EXTENSION_STATUSES,
+  extensionAccess,
+  extensionDaysLeft,
+  isExtensionActive,
+  parseExtensionChange,
+} from './extensions';
 
 /** Платные расширения организации (DATA_MODEL §16.3, ADR-083, Q-183) */
 describe('расширение действует или нет', () => {
@@ -71,5 +77,19 @@ describe('изменение расширения главным админис�
       ok: true,
       value: { status: 'OFF', activeUntil: null, note: null },
     });
+  });
+});
+
+describe('доступ к разделу по расширению (Q-183, вариант (а))', () => {
+  const now = new Date('2026-09-25T09:00:00.000Z');
+  const day = 24 * 60 * 60 * 1000;
+
+  it('действует — раздел целиком; срок вышел — только чтение; выключено или не подключали — раздела нет', () => {
+    expect(extensionAccess({ status: 'ACTIVE', activeUntil: null }, now)).toBe('active');
+    expect(extensionAccess({ status: 'TRIAL', activeUntil: new Date(now.getTime() + day) }, now)).toBe('active');
+    expect(extensionAccess({ status: 'ACTIVE', activeUntil: new Date(now.getTime() - day) }, now)).toBe('expired');
+    expect(extensionAccess({ status: 'TRIAL', activeUntil: new Date(now.getTime() - day) }, now)).toBe('expired');
+    expect(extensionAccess({ status: 'OFF', activeUntil: null }, now)).toBe('off');
+    expect(extensionAccess(null, now)).toBe('off');
   });
 });

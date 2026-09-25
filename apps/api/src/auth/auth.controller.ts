@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, Body, Controller, Get, Headers, Inject, Post } from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
+import { ExtensionsService } from '../platform/extensions.service';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
@@ -24,6 +25,7 @@ export class AuthController {
     @Inject(AuthService) private readonly auth: AuthService,
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
 
   @Public()
@@ -90,7 +92,12 @@ export class AuthController {
   async me(@Headers() headers: Record<string, string>) {
     const token = tokenFromHeaders(headers);
     const signedIn = token ? await this.auth.whoami(token) : null;
-    return signedIn ?? { user: null };
+    if (!signedIn) return { user: null };
+    // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке расширения (ADR-083, Q-183)
+    return {
+      ...signedIn,
+      access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
+    };
   }
 
   @Public()

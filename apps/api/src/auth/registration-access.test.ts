@@ -5,6 +5,7 @@ import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
+import { ExtensionsService } from '../platform/extensions.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './auth.guard';
@@ -33,6 +34,7 @@ describe('единая настройка самостоятельной рег�
       providers: [
         AuthService,
         { provide: PrismaService, useValue: world.prisma },
+        { provide: ExtensionsService, useValue: {} },
         { provide: PasswordResetService, useValue: {} },
         {
           provide: EmailVerificationService,

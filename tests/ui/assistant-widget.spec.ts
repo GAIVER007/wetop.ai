@@ -54,7 +54,8 @@ test('после входа виджет загружен с подписью в
     userId: 'ui-user',
     email: EMAIL,
     organizationId: 'ui-org',
-    role: '',
+    // роль в организации (ADR-083): вошедший стенда — владелец
+    role: 'owner',
   });
   expect(Math.abs(Number(issuedAt) - Date.now() / 1000)).toBeLessThan(600);
   // подпись — в атрибуте тега, а не в адресе: адреса оседают в журналах (ТЗ §6)

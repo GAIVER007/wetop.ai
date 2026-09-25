@@ -28,6 +28,9 @@ const USER = {
   email: 'admin@example.invalid',
   name: 'Айгуль Тестова',
   organizationId: '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00',
+  // сотрудник, а не владелец: в подписи роль строчными — `staff` (ADR-083, было пусто по ADR-081 Q-178)
+  role: 'STAFF' as const,
+  platformAdmin: false,
 };
 
 let app: INestApplication;
@@ -103,7 +106,7 @@ describe('GET /assistant/identity — подпись вошедшего (ТЗ П
       userId: USER.id,
       email: USER.email,
       organizationId: USER.organizationId,
-      role: '',
+      role: 'staff',
     });
     expect(Number(issuedAt)).toBeGreaterThanOrEqual(before);
     expect(Number(issuedAt)).toBeLessThanOrEqual(after);

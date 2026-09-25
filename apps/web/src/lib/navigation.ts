@@ -1,5 +1,16 @@
 import type { IconName } from '../components/icon';
 
+/**
+ * Что открыто вошедшему (ADR-083): пункт «ИИ-продавец» — организации с расширением, которое действует или у которого
+ * вышел срок (тогда раздел только для чтения, Q-183); «Платформа» — главному администратору. Не знаем — закрыто.
+ */
+export interface NavigationAccess {
+  aiSeller: boolean;
+  platform: boolean;
+}
+
+export const CLOSED_ACCESS: NavigationAccess = { aiSeller: false, platform: false };
+
 export interface NavigationItem {
   href: string;
   label: string;
@@ -8,6 +19,8 @@ export interface NavigationItem {
   description: string;
   pending?: boolean;
   children?: NavigationItem[];
+  /** Пункт виден только тому, кому это открыто; без поля — всем */
+  requires?: keyof NavigationAccess;
 }
 export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
@@ -111,6 +124,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'ИИ-продавец',
         icon: 'chat',
         description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+        requires: 'aiSeller',
       },
       {
         href: '/analytics',
@@ -167,6 +181,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Журнал',
         icon: 'journal',
         description: 'История операций в системе.',
+      },
+      {
+        href: '/platform',
+        label: 'Организации',
+        icon: 'inventory',
+        description: 'Гостиницы платформы и их расширения — только для главного администратора.',
+        requires: 'platform',
       },
     ],
   },
@@ -242,7 +263,44 @@ export const sidebarSections: SidebarSection[] = [
     icon: 'shield',
     items: [menuItem('/incidents'), menuItem('/journal')],
   },
+  {
+    // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения
+    id: 'platform',
+    label: 'Платформа',
+    icon: 'system',
+    items: [menuItem('/platform')],
+  },
 ];
+
+/** Открыт ли пункт этому вошедшему */
+export function allowedItem(item: NavigationItem, access: NavigationAccess): boolean {
+  return !item.requires || access[item.requires];
+}
+
+/** Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается */
+export function sidebarSectionsFor(access: NavigationAccess): SidebarSection[] {
+  return sidebarSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => allowedItem(item, access)),
+    }))
+    .filter((section) => section.items.length > 0);
+}
+
+/** Ответ `/auth/me` → что открыто. Нет вошедшего или ответа — закрыто: пункт не появляется по ошибке */
+export function deskAccessOf(
+  me: {
+    user: { platformAdmin?: boolean } | null;
+    access?: { aiSeller?: { access?: string } | null } | null;
+  } | null,
+): NavigationAccess {
+  if (!me?.user) return CLOSED_ACCESS;
+  const seller = me.access?.aiSeller?.access;
+  return {
+    aiSeller: seller === 'active' || seller === 'expired',
+    platform: me.user.platformAdmin === true,
+  };
+}
 
 export function activeNavigation(path: string) {
   return navigationItems

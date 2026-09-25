@@ -33,6 +33,9 @@ describe('AuthService.login', () => {
       email: 'admin@example.invalid',
       name: 'Айгуль Тестова',
       organizationId: FAKE_ORG,
+      // единственный участник организации — её владелец (DATA_MODEL §16.1); главным администратором не назначен
+      role: 'OWNER',
+      platformAdmin: false,
     });
     expect(result.token).toHaveLength(43);
     expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
@@ -150,6 +153,22 @@ describe('AuthService.whoami', () => {
     });
   });
 
+  it('роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083)', async () => {
+    const { auth, memberships, platformAdmins } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+
+    memberships[0]!.role = 'STAFF';
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({
+      user: { role: 'STAFF', platformAdmin: false },
+    });
+
+    platformAdmins.push({ userId: 'u-1', grantedAt: NOW, revokedAt: null, note: null });
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: true } });
+
+    platformAdmins[0]!.revokedAt = NOW;
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false } });
+  });
+
   // Сессии входа по коду (второй отпечаток, HMAC с SESSION_SECRET) сняты 20.09.2026 вместе с самим
   // входом по коду (ADR-053): отпечаток остался один, SHA-256, и проверять здесь больше нечего.
 });
@@ -265,8 +284,9 @@ describe('AuthService.register', () => {
     expect(org, 'организация заведена').toBeDefined();
     expect(org!.status).toBe('TRIAL');
     expect(org!.trialEndsAt!.getTime()).toBeGreaterThan(NOW.getTime());
-    expect(memberships.some((m) => m.userId === created!.id && m.organizationId === org!.id)).toBe(
-      true,
+    // зарегистрировавший — владелец своей организации (DATA_MODEL §16.1, ADR-083)
+    expect(memberships.find((m) => m.userId === created!.id && m.organizationId === org!.id)?.role).toBe(
+      'OWNER',
     );
 
     // объект организации создан сразу, назван отелем — иначе новый кабинет упирался бы в

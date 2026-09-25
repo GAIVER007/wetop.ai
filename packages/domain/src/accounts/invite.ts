@@ -31,4 +31,6 @@ export function checkInvite(stored: StoredInvite, now: Date): InviteCheck {
 /** Тексты. Про ввод говорим прямо; про чужую или мёртвую ссылку — одной фразой, без подробностей. */
 export const INVITE_EMAIL_MESSAGE = 'Укажите почту человека, которого приглашаете.';
 export const INVITE_ALREADY_MEMBER_MESSAGE = 'Этот человек уже в организации.';
+/** Приглашать может только владелец организации (DATA_MODEL §16.1, ADR-083) */
+export const INVITE_OWNER_ONLY_MESSAGE = 'Приглашать сотрудников может только владелец организации.';
 export const INVITE_INVALID_MESSAGE = 'Приглашение не найдено, уже принято или его срок истёк.';

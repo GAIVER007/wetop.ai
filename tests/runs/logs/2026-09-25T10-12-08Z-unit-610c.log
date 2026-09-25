@@ -1,0 +1,61 @@
+# Модульные (unit) · 25.09.2026 15:12 Алматы · vm
+# коммит f10ab33 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T10-12-08Z-unit-610c.json' 'apps/web/src/lib/platform.test.ts' 'apps/web/src/lib/desk-person.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (3 tests | 1 failed) 12ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 3ms
+     × закрытых пунктов в меню нет, а раздел «Платформа» без прав не показывается вовсе 6ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+ ❯ |unit| apps/web/src/lib/platform.test.ts (4 tests | 1 failed) 12ms
+   ✓ «Платформа → Организации»: слова таблицы (ADR-083) (3)
+     ✓ расширение: действует, срок вышел, не подключали, выключен — с последним днём по Алматы 3ms
+     ✓ состояние организации словами; пробный — по какой день 1ms
+     ✓ форма подставляет то, что стоит сейчас; не подключали — «оплачен» без срока 0ms
+   ❯ напоминание владельцу о сроке расширения (Q-183) (1)
+     × за 7 дней и в последний день; бессрочно, дальше недели и после срока — молчит 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > закрытых пунктов в меню нет, а раздел «Платформа» без прав не показывается вовсе
+AssertionError: expected [ '/today', '/chessboard', …(18) ] to not include '/ai-seller'
+ ❯ apps/web/src/lib/desk-person.test.ts:35:61
+     33|
+     34|   it('закрытых пунктов в меню нет, а раздел «Платформа» без прав не по…
+     35|     expect(hrefs({ aiSeller: false, platform: false })).not.toContain(…
+       |                                                             ^
+     36|     expect(hrefs({ aiSeller: false, platform: false })).not.toContain(…
+     37|     expect(sidebarSectionsFor({ aiSeller: false, platform: false }).ma…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/platform.test.ts > напоминание владельцу о сроке расширения (Q-183) > за 7 дней и в последний день; бессрочно, дальше недели и после срока — молчит
+AssertionError: expected 'Расширение «ИИ-продавец» действует ещ…' to be null
+
+- Expected:
+null
+
++ Received:
+"Расширение «ИИ-продавец» действует ещё 8 дней — по 02.10.2026. Потом раздел останется только для чтения. Продлевает администратор WETOP после оплаты."
+
+ ❯ apps/web/src/lib/platform.test.ts:74:76
+     72|       'Пробный доступ к ИИ-продавцу действует последний день — по 02.1…
+     73|     );
+     74|     expect(extensionReminder(seller({ activeUntil: UNTIL, daysLeft: 8 …
+       |                                                                            ^
+     75|     expect(extensionReminder(seller())).toBeNull();
+     76|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 5 passed (7)
+   Start at  10:12:10
+   Duration  1.10s (transform 87%, import 11%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T10-12-08Z-unit-610c.json
+
+# код выхода 1 · 2 с

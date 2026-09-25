@@ -1,0 +1,44 @@
+# Модульные (unit) · 25.09.2026 14:48 Алматы · vm
+# коммит 81632d7 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-48-24Z-unit-38ea.json' 'packages/domain/src/accounts/extensions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/extensions.test.ts (10 tests | 1 failed) 44ms
+   ✓ расширение действует или нет (5)
+     ✓ нет строки или выключено — не действует 2ms
+     ✓ оплачено бессрочно — действует; оплачено до даты — до неё, в саму минуту окончания уже нет 1ms
+     ✓ пробное — только со сроком: без срока не действует 0ms
+     ✓ дней до конца: для напоминания за 7 дней и в последний день; бессрочно — не считаем 1ms
+     ✓ статусы словами стойки 1ms
+   ✓ изменение расширения главным администратором (4)
+     ✓ оплачен до даты или бессрочно, с заметкой; края пробелов обрезаются 28ms
+     ✓ дата «до» — конец этого дня по Алматы (UTC+5): «до 25 октября» включает весь день 1ms
+     ✓ отказы словами: без статуса, пробный без срока, срок в прошлом, кривая дата, длинная заметка 1ms
+     ✓ выключить можно без срока и заметки 1ms
+   ❯ доступ к разделу по расширению (Q-183, вариант (а)) (1)
+     × действует — раздел целиком; срок вышел — только чтение; выключено или не подключали — раздела нет 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/extensions.test.ts > доступ к разделу по расширению (Q-183, вариант (а)) > действует — раздел целиком; срок вышел — только чтение; выключено или не подключали — раздела нет
+TypeError: extensionAccess is not a function
+ ❯ packages/domain/src/accounts/extensions.test.ts:88:12
+     86|
+     87|   it('действует — раздел целиком; срок вышел — только чтение; выключен…
+     88|     expect(extensionAccess({ status: 'ACTIVE', activeUntil: null }, no…
+       |            ^
+     89|     expect(extensionAccess({ status: 'TRIAL', activeUntil: new Date(no…
+     90|     expect(extensionAccess({ status: 'ACTIVE', activeUntil: new Date(n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  09:48:25
+   Duration  440ms (transform 71%, tests 18%, import 9%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-48-24Z-unit-38ea.json
+
+# код выхода 1 · 2 с

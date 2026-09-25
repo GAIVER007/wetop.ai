@@ -5,7 +5,14 @@ import {
   SELLER_REPLY_LENGTHS,
 } from '@pms/domain';
 import type { BadgeTone } from '../components/ui';
-import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
+import type {
+  ExtensionAccessView,
+  SellerCategoryPrice,
+  SellerProfileBody,
+  SellerStatus,
+} from './api';
+import { almatyDate } from './almaty';
+import { displayDay } from './display-date';
 import { formatMoney } from './money';
 import { pluralRu } from './plural';
 
@@ -39,8 +46,64 @@ export interface SellerBanner {
   text: string;
 }
 
+/** Кто и почему не может менять настройки — одной строкой для шагов и форм; `null` — может */
+export function sellerReadOnlyReason(status: SellerStatus): string | null {
+  if (status.state === 'extension-expired')
+    return 'Срок расширения вышел: настройки только для просмотра. Продлевает администратор WETOP.';
+  // старый API ролей не знает — тогда настраивать может каждый, как было до ADR-083
+  if (status.canConfigure === false) return 'Настройки продавца меняет владелец организации.';
+  return null;
+}
+
+/** Подключена ли копия продавца — для экранов, которые читают у продавца и после срока расширения */
+export function sellerConnected(status: SellerStatus): boolean {
+  return (status.connection ?? status.state) === 'ready';
+}
+
+/** Отвечать гостям, говорить с продавцом в «Проверке» и брать код для сайта — только при действующем расширении */
+export function sellerCanAct(status: SellerStatus): boolean {
+  return status.state === 'ready';
+}
+
+/** Последний день расширения по Алматы: срок хранится моментом начала следующего дня (DATA_MODEL §16.3) */
+export function extensionLastDay(activeUntil: string): string {
+  const t = Date.parse(activeUntil);
+  return Number.isNaN(t) ? '' : almatyDate(new Date(t - 1).toISOString());
+}
+
+/** Напоминание владельцу организации за 7 дней и в последний день (Q-183); бессрочно или дальше — `null` */
+export function extensionReminder(
+  extension: ExtensionAccessView | null | undefined,
+): string | null {
+  if (!extension || extension.access !== 'active' || !extension.activeUntil) return null;
+  const days = extension.daysLeft;
+  if (days === null || days > 7) return null;
+  const day = displayDay(extensionLastDay(extension.activeUntil));
+  const what =
+    extension.status === 'TRIAL' ? 'Пробный доступ к ИИ-продавцу' : 'Расширение «ИИ-продавец»';
+  const left =
+    days <= 1
+      ? `действует последний день — по ${day}`
+      : `действует ещё ${pluralRu(days, ['день', 'дня', 'дней'])} — по ${day}`;
+  return `${what} ${left}. Потом раздел останется только для чтения. Продлевает администратор WETOP после оплаты.`;
+}
+
 /** Полоса состояния над экранами раздела: подключён ли продавец и дошли ли до него правки */
 export function sellerBanner(status: SellerStatus): SellerBanner {
+  if (status.state === 'extension-off')
+    return {
+      tone: 'warn',
+      value: 'не подключён',
+      title: 'Расширение «ИИ-продавец» не подключено',
+      text: 'Раздел открывается организациям с подключённым расширением. Подключает администратор WETOP после оплаты по счёту.',
+    };
+  if (status.state === 'extension-expired')
+    return {
+      tone: 'alarm',
+      value: 'срок вышел',
+      title: 'Срок расширения «ИИ-продавец» вышел',
+      text: 'Раздел только для чтения: настройки, знания и диалоги видны, но отвечать гостям и менять настройки нельзя. Ничего не удалено. Продлевает администратор WETOP.',
+    };
   if (status.state === 'not-configured')
     return {
       tone: 'warn',
@@ -98,10 +161,25 @@ export function sellerBanner(status: SellerStatus): SellerBanner {
  * порядку, в котором владелец о них думает.
  */
 export const SELLER_SETUP_STEPS = [
-  { step: 1, key: 'intro', title: 'Знакомство', hint: 'Как продавец представится гостю и на каких языках ответит.' },
+  {
+    step: 1,
+    key: 'intro',
+    title: 'Знакомство',
+    hint: 'Как продавец представится гостю и на каких языках ответит.',
+  },
   { step: 2, key: 'manner', title: 'Манера', hint: 'На «вы» или на «ты», эмодзи и длина ответов.' },
-  { step: 3, key: 'prices', title: 'Цены', hint: 'Какие цены продавец назовёт гостю и что в них входит.' },
-  { step: 4, key: 'rules', title: 'Правила', hint: 'Правила проживания, запреты и когда звать человека.' },
+  {
+    step: 3,
+    key: 'prices',
+    title: 'Цены',
+    hint: 'Какие цены продавец назовёт гостю и что в них входит.',
+  },
+  {
+    step: 4,
+    key: 'rules',
+    title: 'Правила',
+    hint: 'Правила проживания, запреты и когда звать человека.',
+  },
   {
     step: 5,
     key: 'faq',
@@ -114,7 +192,12 @@ export const SELLER_SETUP_STEPS = [
     title: 'Документы',
     hint: 'Прайс, описание, правила файлом — продавец ответит и по ним.',
   },
-  { step: 7, key: 'launch', title: 'Запуск', hint: 'Проверьте, что знает продавец, и отправьте ему настройки.' },
+  {
+    step: 7,
+    key: 'launch',
+    title: 'Запуск',
+    hint: 'Проверьте, что знает продавец, и отправьте ему настройки.',
+  },
 ] as const;
 
 export type SellerSetupKey = (typeof SELLER_SETUP_STEPS)[number]['key'];
@@ -153,7 +236,8 @@ export function sellerSetupProgress(input: {
     intro: saved && filled(p.greeting),
     manner: saved,
     prices: saved && (filled(p.includedInPrice) || filled(p.extraCharges)),
-    rules: saved && (filled(p.houseRules) || p.prohibitions.length > 0 || p.callHumanWhen.length > 0),
+    rules:
+      saved && (filled(p.houseRules) || p.prohibitions.length > 0 || p.callHumanWhen.length > 0),
     faq: saved && p.faq.length > 0,
   };
   return SELLER_SETUP_STEPS.map((s) => {
@@ -304,7 +388,8 @@ export function sellerBriefing(p: SellerProfileBody): Array<{ label: string; val
   return [
     {
       label: 'Представляется',
-      value: p.botName && filled(p.botName) ? `«${p.botName.trim()}»` : 'без имени — от лица гостиницы',
+      value:
+        p.botName && filled(p.botName) ? `«${p.botName.trim()}»` : 'без имени — от лица гостиницы',
     },
     { label: 'Обращается к гостю', value: SELLER_ADDRESS_FORMS[p.addressForm] ?? p.addressForm },
     { label: 'Эмодзи', value: SELLER_EMOJI[p.emoji] ?? p.emoji },
@@ -336,7 +421,11 @@ export function categoryPriceLine(
 ): { value: string; note: string | null; known: boolean } {
   if (price.reason === 'same' && price.priceMinor !== null) {
     const guests = price.occupancy && price.occupancy > 1 ? ` за ${price.occupancy} гостей` : '';
-    return { value: `${formatMoney(price.priceMinor, currency)} за ночь${guests}`, note: null, known: true };
+    return {
+      value: `${formatMoney(price.priceMinor, currency)} за ночь${guests}`,
+      note: null,
+      known: true,
+    };
   }
   if (price.reason === 'varies' && price.min !== null && price.max !== null)
     return {
@@ -425,4 +514,3 @@ export function conversationChannelLabel(channel: string | null): string {
   if (channel === 'sandbox') return 'проверка';
   return channel;
 }
-

@@ -1,0 +1,30 @@
+# Сквозные (e2e) · 25.09.2026 15:34 Алматы · vm
+# коммит f10ab33 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 30
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-seller.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (4.2s)
+  ✓   2 tests/ui/ai-seller.spec.ts:55:1 › семь шагов по порядку: «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (9.9s)
+  ✓   3 tests/ui/ai-seller.spec.ts:126:1 › «Назад» сохраняет введённое; эмодзи — из трёх вариантов бота, запреты — по одному в строке (ADR-081) (7.3s)
+  ✓   4 tests/ui/ai-seller.spec.ts:152:1 › без языков шаг отказывает словами домена и остаётся открытым, введённое не пропадает (2.5s)
+  ✓   5 tests/ui/ai-seller.spec.ts:162:1 › «Запуск» называет незаполненные шаги и не прячет правила ядра (1.8s)
+  ✓   6 tests/ui/ai-seller.spec.ts:172:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.9s)
+  ✓   7 tests/ui/ai-seller.spec.ts:194:1 › «Знания»: список и загрузка документа (2.4s)
+  ✓   8 tests/ui/ai-seller.spec.ts:210:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.9s)
+  ✓   9 tests/ui/ai-seller.spec.ts:244:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (1.6s)
+  ✓  10 tests/ui/ai-seller.spec.ts:252:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.5s)
+  ✓  11 tests/ui/ai-seller.spec.ts:258:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) (8.7s)
+  ✓  12 tests/ui/ai-seller.spec.ts:286:1 › продавец недоступен — раздел говорит об этом и обещает повтор (1.7s)
+  ✓  13 tests/ui/ai-seller.spec.ts:296:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (2.0s)
+  ✓  14 tests/ui/ai-seller.spec.ts:313:1 › снимки экранов раздела (11.0s)
+
+  14 passed (1.1m)
+
+# код выхода 0 · 1 мин 9 с

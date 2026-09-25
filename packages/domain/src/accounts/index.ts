@@ -12,3 +12,5 @@ export * from './trial';
 export * from './session';
 export * from './registration';
 export * from './invite';
+export * from './roles';
+export * from './extensions';

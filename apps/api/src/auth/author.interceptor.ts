@@ -21,6 +21,9 @@ export class AuthorInterceptor implements NestInterceptor {
       userId: request?.user?.id ?? null,
       // Организация вошедшего — то, по чему видно, чей объект открывать (ADR-061)
       organizationId: request?.user?.organizationId ?? null,
+      // роль и отметка главного администратора — для прав владельца и раздела «Платформа» (ADR-083)
+      role: request?.user?.role ?? null,
+      platformAdmin: request?.user?.platformAdmin === true,
     };
     const value = await withSignedInUser(actor, () =>
       lastValueFrom(next.handle(), { defaultValue: undefined }),

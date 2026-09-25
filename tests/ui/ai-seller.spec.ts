@@ -241,12 +241,21 @@ test('«Диалоги»: пометка «нужен человек», отбо
   await expect(page.getByTestId('seller-dialog-card')).toContainText('Двухместный на эти даты свободен');
 });
 
-test('«Код для сайта»: тег чата продавца и кнопка «Скопировать»', async ({ page }) => {
+test('«Код для сайта»: тег с ключом гостиницы, домены её сайта, кнопка «Скопировать» (Э4)', async ({
+  page,
+  request,
+}) => {
   await page.goto('/ai-seller/embed');
   await expect(page.getByTestId('seller-embed-snippet')).toHaveText(
-    '<script async src="https://seller.example.invalid/widget/widget.js"></script>',
+    `<script async src="https://seller.example.invalid/widget/widget.js" data-key="sk_${'a1'.repeat(12)}"></script>`,
   );
+  await expect(page.getByTestId('seller-embed-hosts')).toContainText('hotel-a.example.invalid');
   await expect(page.getByRole('button', { name: 'Скопировать код' })).toBeVisible();
+
+  // сайта у гостиницы нет — экран говорит завести его, а не молчит (план Э4 §1)
+  await request.post(`${API}/__test/control`, { data: { sellerHosts: [] } });
+  await page.reload();
+  await expect(page.getByTestId('seller-embed-no-site')).toContainText('Настройках сайта');
 });
 
 test('карточка диалога по неизвестному id не падает, а говорит словами', async ({ page }) => {

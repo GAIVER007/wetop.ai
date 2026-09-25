@@ -6,6 +6,7 @@ import {
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
+import { ExtensionsService } from '../platform/extensions.service';
 import { SELLER_CONNECTION, type SellerConnection } from './seller.connection';
 import { SellerService } from './seller.service';
 
@@ -28,9 +29,19 @@ export class SellerSyncService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(SellerService) private readonly seller: SellerService,
     @Inject(SELLER_CONNECTION) private readonly connection: SellerConnection,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
 
   onModuleInit(): void {
+    // Смена расширения — гостиница уходит продавцу сразу, лучшим усилием (Э4); сверка догонит.
+    // Регистрируется и при SELLER_SYNC=off: выключена сверка по расписанию, а не раздел.
+    this.extensions.onAiSellerChange((organizationId) => {
+      void this.seller
+        .pushOrganization(organizationId)
+        .then((sent) => {
+          if (!sent) this.log.warn('смена расширения: гостиница до продавца не дошла, сверка догонит');
+        });
+    });
     if (process.env.NODE_ENV === 'test' || !this.connection.config().syncEnabled) return;
     this.timer = setInterval(() => void this.tick(), TICK_MS);
     this.timer.unref();
@@ -45,22 +56,20 @@ export class SellerSyncService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
     try {
       const result = await this.seller.syncOnce(now);
-      if ('failed' in result) {
-        // одна запись на серию отказов, а не каждую минуту
-        if (this.lastFailure !== result.failed)
-          this.log.warn(
-            `сверка с ИИ-продавцом: ${result.failed}; ${
-              result.retry ? 'повтор через минуту' : 'эту версию сверка больше не шлёт — ждём правки или «Применить»'
-            }`,
-          );
-        this.lastFailure = result.failed;
+      if ('skipped' in result) return;
+      if (result.failed.length > 0) {
+        // одна запись на серию одинаковых отказов, а не каждую минуту
+        const failure = result.failed.join('; ');
+        if (this.lastFailure !== failure)
+          this.log.warn(`сверка с ИИ-продавцом: ${failure}; отказ по содержанию сверка не повторяет — ждём правки или «Применить»`);
+        this.lastFailure = failure;
       } else {
         this.lastFailure = null;
-        if ('profile' in result && (result.profile || result.facts))
-          this.log.log(
-            `ИИ-продавцу отправлено:${result.profile ? ' профиль' : ''}${result.facts ? ' факты объекта' : ''}`,
-          );
       }
+      if (result.profile > 0 || result.facts > 0)
+        this.log.log(
+          `ИИ-продавцу отправлено: профиль — ${result.profile}, факты — ${result.facts} (гостиниц: ${result.organizations})`,
+        );
     } catch (e) {
       this.log.warn(`сверка с ИИ-продавцом не прошла: ${(e as Error).message}`);
     } finally {

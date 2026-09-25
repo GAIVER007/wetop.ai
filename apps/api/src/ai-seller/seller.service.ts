@@ -51,16 +51,18 @@ import { SELLER_CONNECTION, type SellerConnection, type SellerPort } from './sel
 import {
   SELLER_AUDIT,
   SELLER_FACTS,
+  SELLER_ORGS,
   SELLER_PROFILES,
   type SellerAudit,
   type SellerFactsRepository,
+  type SellerOrganizationRow,
+  type SellerOrgsRepository,
   type SellerProfileRow,
   type SellerProfilesRepository,
 } from './seller.repository';
 
 export const SELLER_NOT_CONNECTED =
   'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца';
-export const SELLER_OTHER_ORGANIZATION = 'ИИ-продавец для вашей организации не подключён';
 export const SELLER_NO_PROFILE = 'Сначала сохраните настройки продавца';
 export const SELLER_NO_ORGANIZATION = 'Не выбрана организация: войдите в систему';
 export const SELLER_NO_PROPERTY =
@@ -79,10 +81,10 @@ const SANDBOX_MAX = 2000;
 
 /**
  * `extension-off` — расширение не подключено или выключено; `extension-expired` — срок вышел, раздел только для чтения
- * (ADR-083, Q-183); дальше — подключена ли копия продавца к этой организации.
+ * (ADR-083, Q-183); дальше — подключён ли продавец к платформе. Состояния `other-organization` больше нет (Э4):
+ * один продавец обслуживает все гостиницы, вызовы идут с организацией вошедшего.
  */
-export type SellerState =
-  'extension-off' | 'extension-expired' | 'not-configured' | 'other-organization' | 'ready';
+export type SellerState = 'extension-off' | 'extension-expired' | 'not-configured' | 'ready';
 
 /** Что открывает вызов: читать — и после срока; действовать (ответ гостю, песочница) — при действующем; настраивать — ещё и владельцу */
 type SellerUse = 'read' | 'act' | 'configure';
@@ -96,10 +98,10 @@ export interface SellerStatus {
   /** Отказ временный, платформа повторит отправку сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
   retrying: boolean;
   embedAvailable: boolean;
-  /** Расширение организации; `null` — организации нет (служебный ходок без привязанной копии) */
+  /** Расширение организации; `null` — организации нет (служебный ходок) */
   extension: AiSellerAccessView | null;
-  /** Подключена ли копия продавца к этой организации — отдельно от расширения: после срока диалоги читаются, если она есть */
-  connection: 'not-configured' | 'other-organization' | 'ready';
+  /** Подключён ли продавец к платформе — отдельно от расширения: после срока диалоги читаются, если он есть */
+  connection: 'not-configured' | 'ready';
   /** Может ли вошедший менять настройки: владелец организации и действующее расширение */
   canConfigure: boolean;
 }
@@ -111,10 +113,10 @@ export interface SellerProfileView {
   applied: boolean;
 }
 
+/** Итог одного прохода сверки (Э4): сколько гостиниц обошли и скольким ушли профиль и факты */
 export type SyncResult =
-  | { skipped: 'not-configured' | 'no-profile' | 'extension-off' }
-  | { failed: string; retry: boolean }
-  | { profile: boolean; facts: boolean };
+  | { skipped: 'not-configured' }
+  | { organizations: number; profile: number; facts: number; failed: string[] };
 
 /**
  * Что продавец отклонил по содержанию: профиль — версией (`updated_at` в мс) вместе с названием объекта, которое едет в
@@ -169,9 +171,10 @@ function httpError(error: unknown): never {
 }
 
 /**
- * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079). Одна копия продавца — одна организация
- * (`SELLER_ORGANIZATION_ID`): вошедший из другой организации не получает ни одного вызова продавца. Служебные ходоки
- * (скрипты владельца, служба сверки) проходят, как везде в API (ADR-061).
+ * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079; Э4 — ADR-083). Один продавец обслуживает все гостиницы:
+ * каждый вызов идёт с организацией вошедшего (`X-Organization` в клиенте панели), сверка обходит организации со
+ * строкой расширения и заводит их у продавца. Служебные ходоки без организации к путям раздела не ходят — им
+ * не с чем: продавец без организации отвечает 400.
  */
 @Injectable()
 export class SellerService {
@@ -194,37 +197,29 @@ export class SellerService {
     @Inject(SELLER_FACTS) private readonly facts: SellerFactsRepository,
     @Inject(SELLER_AUDIT) private readonly audit: SellerAudit,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Inject(SELLER_ORGS) private readonly orgs: SellerOrgsRepository,
   ) {}
 
-  /** Организация профиля: своя у вошедшего; у служебного ходока — та, к которой привязан продавец */
+  /** Организация вызова — вошедшего: продавец общий, и «чьи строки отдавать» решает только она (Э4) */
   private profileOrganization(): string {
-    if (hasSignedInActor()) {
-      const organizationId = currentOrganizationId();
-      if (!organizationId) throw new ForbiddenException(SELLER_NO_ORGANIZATION);
-      return organizationId;
-    }
-    const bound = this.connection.config().organizationId;
-    if (!bound) throw new BadRequestException(SELLER_NO_ORGANIZATION);
-    return bound;
+    if (!hasSignedInActor()) throw new BadRequestException(SELLER_NO_ORGANIZATION);
+    const organizationId = currentOrganizationId();
+    if (!organizationId) throw new ForbiddenException(SELLER_NO_ORGANIZATION);
+    return organizationId;
   }
 
   /**
-   * Расширение организации, которой служит запрос (своя у вошедшего, привязанная — у служебного ходока), и подключена ли
-   * к ней копия продавца. Срок расширения проверяется при каждом вызове: вышедший действует сразу.
+   * Расширение организации вошедшего и подключён ли продавец к платформе. Срок расширения проверяется при каждом
+   * вызове: вышедший действует сразу.
    */
   private async gate(now: Date): Promise<{
     extension: AiSellerAccessView | null;
-    connection: 'not-configured' | 'other-organization' | 'ready';
+    connection: 'not-configured' | 'ready';
   }> {
     const config = this.connection.config();
-    const organizationId = hasSignedInActor() ? currentOrganizationId() : config.organizationId;
+    const organizationId = hasSignedInActor() ? currentOrganizationId() : null;
     const extension = organizationId ? await this.extensions.aiSeller(organizationId, now) : null;
-    const connection =
-      !config.baseUrl || !config.serviceKey || !config.organizationId
-        ? 'not-configured'
-        : hasSignedInActor() && currentOrganizationId() !== config.organizationId
-          ? 'other-organization'
-          : 'ready';
+    const connection = !config.baseUrl || !config.serviceKey ? 'not-configured' : 'ready';
     return { extension, connection };
   }
 
@@ -236,7 +231,7 @@ export class SellerService {
       throw new ForbiddenException(SELLER_EXTENSION_EXPIRED);
   }
 
-  /** Расширение и роль позволяют, продавец подключён и это его организация — иначе отказ до любого вызова продавца */
+  /** Расширение и роль позволяют и продавец подключён — иначе отказ до любого вызова; клиент — с организацией вошедшего */
   private async bound(
     use: SellerUse,
     now: Date = new Date(),
@@ -245,11 +240,9 @@ export class SellerService {
     this.checkUse(extension, use);
     if (connection === 'not-configured')
       throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
-    if (connection === 'other-organization')
-      throw new ForbiddenException(SELLER_OTHER_ORGANIZATION);
-    const client = this.connection.client();
-    const organizationId = this.connection.config().organizationId;
-    if (!client || !organizationId) throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
+    const organizationId = this.profileOrganization();
+    const client = this.connection.client(organizationId);
+    if (!client) throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
     return { client, organizationId };
   }
 
@@ -281,10 +274,8 @@ export class SellerService {
         : extension?.access === 'expired'
           ? 'extension-expired'
           : connection;
-    // служебный ходок без привязанной копии: организации нет — и профиля, значит, тоже
-    const organizationId = hasSignedInActor()
-      ? this.profileOrganization()
-      : this.connection.config().organizationId;
+    // служебный ходок: организации нет — и профиля, значит, тоже
+    const organizationId = hasSignedInActor() ? this.profileOrganization() : null;
     const row = organizationId ? await this.profiles.get(organizationId) : null;
     const held = organizationId ? this.rejected.get(organizationId) : undefined;
     const facts = organizationId && row ? await this.currentFacts(organizationId, now) : null;
@@ -355,23 +346,76 @@ export class SellerService {
   }
 
   /**
-   * Сверка раз в минуту (служба `SellerSyncService`): профиль новее принятого — отправить; отпечаток фактов другой —
-   * отправить. Так цена, поправленная в «Тарифах», доходит до продавца без действий в разделе (ТЗ §4.4), а отказ
-   * продавца повторяется, а не теряется.
+   * Сверка раз в минуту (служба `SellerSyncService`), Э4: обходит организации со строкой расширения. Гостиница
+   * (имя, active, домены, публичный ключ) уходит продавцу каждый раз — упавший и поднятый бот догоняет за минуту;
+   * профиль и факты — только действующим, где профиль сохранён: цена, поправленная в «Тарифах», доходит до продавца
+   * без действий в разделе (ТЗ §4.4), а отказ продавца повторяется, а не теряется. Отказ одной гостиницы не
+   * останавливает остальные.
    */
   async syncOnce(now: Date = new Date()): Promise<SyncResult> {
     const config = this.connection.config();
-    const client = this.connection.client();
-    if (!client || !config.organizationId) return { skipped: 'not-configured' };
-    // расширение не действует — продавцу ничего не шлём: после срока раздел только для чтения (Q-183)
-    const extension = await this.extensions.aiSeller(config.organizationId, now);
-    if (extension.access !== 'active') return { skipped: 'extension-off' };
-    const row = await this.profiles.get(config.organizationId);
-    if (!row) return { skipped: 'no-profile' };
+    if (!config.baseUrl || !config.serviceKey) return { skipped: 'not-configured' };
+    const organizations = await this.orgs.withExtension();
+    const out = { organizations: organizations.length, profile: 0, facts: 0, failed: [] as string[] };
+    for (const org of organizations) {
+      try {
+        const pushed = await this.syncOrganization(org, now);
+        out.profile += pushed.profile ? 1 : 0;
+        out.facts += pushed.facts ? 1 : 0;
+      } catch (error) {
+        // имя гостиницы, не идентификатор: строка уходит в журнал платформы и должна читаться человеком
+        out.failed.push(`${org.name}: ${sellerErrorText(error)}`);
+      }
+    }
+    return out;
+  }
+
+  /** Одна гостиница за проход сверки: сначала её строка у продавца, потом профиль и факты действующей */
+  private async syncOrganization(
+    org: SellerOrganizationRow,
+    now: Date,
+  ): Promise<{ profile: boolean; facts: boolean }> {
+    const client = this.connection.client(org.organizationId);
+    if (!client) return { profile: false, facts: false };
+    const extension = await this.extensions.aiSeller(org.organizationId, now);
+    await this.putOrganization(client, org, extension.access === 'active');
+    // расширение не действует — профиль и факты не шлём: продавец уже получил active=false и молчит (Q-183)
+    if (extension.access !== 'active') return { profile: false, facts: false };
+    const row = await this.profiles.get(org.organizationId);
+    if (!row) return { profile: false, facts: false };
+    return this.push(client, org.organizationId, row, now, false);
+  }
+
+  private async putOrganization(
+    client: SellerPort,
+    org: SellerOrganizationRow,
+    active: boolean,
+  ): Promise<void> {
+    const serviceKey = this.connection.config().serviceKey;
+    if (!serviceKey) return;
+    await client.putOrganization(org.organizationId, {
+      name: org.name,
+      // ключ выводится заново на каждый вызов: платформа его нигде не хранит (Э4, план §1)
+      publicKey: assistant.widgetOrgKey(serviceKey, org.organizationId),
+      active,
+      hosts: await this.orgs.hosts(org.organizationId),
+    });
+  }
+
+  /**
+   * Смена расширения («Платформа → Организации»): гостиница уходит продавцу сразу, лучшим усилием — отказ не
+   * поднимается, сверка догонит в течение минуты (Э4). Возвращает, дошло ли.
+   */
+  async pushOrganization(organizationId: string, now: Date = new Date()): Promise<boolean> {
     try {
-      return await this.push(client, config.organizationId, row, now, false);
-    } catch (error) {
-      return { failed: sellerErrorText(error), retry: !rejectedForContent(error) };
+      const org = await this.orgs.one(organizationId);
+      const client = this.connection.client(organizationId);
+      if (!org || !client) return false;
+      const extension = await this.extensions.aiSeller(organizationId, now);
+      await this.putOrganization(client, org, extension.access === 'active');
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -532,12 +576,21 @@ export class SellerService {
     };
   }
 
-  /** Код чата продавца для сайта объекта: публичный адрес, без подписи и без ключей; только при действующем расширении */
-  async embed(now: Date = new Date()): Promise<{ snippet: string | null }> {
+  /**
+   * Код чата продавца для сайта объекта: публичный адрес и `data-key` — публичный ключ гостиницы (Э4). Ключ выводим,
+   * секретов в теге нет; продавец по нему узнаёт гостиницу и пускает только с её доменов, поэтому рядом — домены
+   * сайтов организации: их нет — виджет не подключить, экран говорит завести сайт.
+   */
+  async embed(now: Date = new Date()): Promise<{ snippet: string | null; hosts: string[] }> {
     this.checkUse((await this.gate(now)).extension, 'act');
-    const publicUrl = this.connection.config().publicUrl;
+    const organizationId = this.profileOrganization();
+    const { publicUrl, serviceKey } = this.connection.config();
     return {
-      snippet: publicUrl ? `<script async src="${publicUrl}/widget/widget.js"></script>` : null,
+      snippet:
+        publicUrl && serviceKey
+          ? `<script async src="${publicUrl}/widget/widget.js" data-key="${assistant.widgetOrgKey(serviceKey, organizationId)}"></script>`
+          : null,
+      hosts: await this.orgs.hosts(organizationId),
     };
   }
 }

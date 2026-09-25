@@ -853,6 +853,7 @@ async function EmbedView({ status }: { status: SellerStatus }) {
   if (!loaded.ok)
     return <LoadError testId="seller-embed-error" {...loadErrorProps(loaded.error)} />;
   const snippet = loaded.value.snippet;
+  const hosts = loaded.value.hosts ?? [];
   if (!snippet)
     return (
       <EmptyState
@@ -868,7 +869,8 @@ async function EmbedView({ status }: { status: SellerStatus }) {
       <SectionTitle first>Чат продавца на сайте объекта</SectionTitle>
       <p className="settings-note">
         Вставьте код перед закрывающим &lt;/body&gt; каждой страницы сайта (в Tilda и WordPress —
-        поле «HTML-код»). Гость пишет анонимно; домен сайта должен быть в списке продавца.
+        поле «HTML-код»). Гость пишет анонимно. В коде — публичный ключ вашей гостиницы: по нему
+        продавец узнаёт её и отвечает только с доменов её сайта.
       </p>
       <pre className="code" data-testid="seller-embed-snippet">
         {snippet}
@@ -876,6 +878,16 @@ async function EmbedView({ status }: { status: SellerStatus }) {
       <Row className="items-start">
         <CopyButton text={snippet} />
       </Row>
+      {hosts.length > 0 ? (
+        <p className="settings-note" data-testid="seller-embed-hosts">
+          Чат откроется на доменах: {hosts.join(', ')}.
+        </p>
+      ) : (
+        <p className="settings-note" data-testid="seller-embed-no-site">
+          У гостиницы нет сайта в «Настройках сайта» — виджету не с чего открываться. Заведите
+          сайт с доменом, и продавец начнёт пускать с него.
+        </p>
+      )}
     </Panel>
   );
 }

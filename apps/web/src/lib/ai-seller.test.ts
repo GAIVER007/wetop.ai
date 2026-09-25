@@ -60,13 +60,6 @@ describe('sellerBanner — полоса состояния над экранам
     expect(b.text).toMatch(/заранее/);
   });
 
-  it('другая организация — не её копия продавца', () => {
-    expect(sellerBanner(status({ state: 'other-organization' }))).toMatchObject({
-      tone: 'warn',
-      title: 'ИИ-продавец для вашей организации не подключён',
-    });
-  });
-
   it('продавец недоступен — тревога с его словами и обещанием повтора', () => {
     const b = sellerBanner(
       status({ lastError: 'ИИ-продавец недоступен (HTTP 502)', retrying: true }),
@@ -436,7 +429,6 @@ describe('короткое значение полосы состояния', ()
   it('слово, а не фраза: фраза — в пояснении', () => {
     expect(sellerBanner(status()).value).toBe('работает');
     expect(sellerBanner(status({ state: 'not-configured' })).value).toBe('не подключён');
-    expect(sellerBanner(status({ state: 'other-organization' })).value).toBe('не подключён');
     expect(sellerBanner(status({ lastError: 'x', retrying: true })).value).toBe('не принял правки');
     expect(sellerBanner(status({ lastError: 'x', retrying: false })).value).toBe('отклонил правки');
     expect(

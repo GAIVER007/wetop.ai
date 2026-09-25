@@ -1592,8 +1592,11 @@ const sellerKnowledgeSeed = () => [
   { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
 ];
 let sellerKnowledge = sellerKnowledgeSeed();
-/** Состояние копии продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }` */
-let sellerState: 'ready' | 'not-configured' | 'other-organization' = 'ready';
+/** Состояние продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }`.
+ * Э4: продавец общий для всех гостиниц, состояния `other-organization` больше нет. */
+let sellerState: 'ready' | 'not-configured' = 'ready';
+/** Домены сайтов гостиницы для экрана «Код для сайта» (Э4): пусто — экран говорит завести сайт */
+let sellerHosts: string[] = ['hotel-a.example.invalid'];
 let sellerLastError: string | null = null;
 let sellerRetrying = false;
 function resetSeller() {
@@ -1605,6 +1608,7 @@ function resetSeller() {
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
   sellerState = 'ready';
+  sellerHosts = ['hotel-a.example.invalid'];
   sellerLastError = null;
   sellerRetrying = false;
 }
@@ -2537,11 +2541,11 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
-      // ИИ-продавец: не подключён, чужая копия, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
-      sellerState =
-        body['sellerState'] === 'not-configured' || body['sellerState'] === 'other-organization'
-          ? body['sellerState']
-          : 'ready';
+      // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
+      sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
+      sellerHosts = Array.isArray(body['sellerHosts'])
+        ? (body['sellerHosts'] as string[]).map(String)
+        : ['hotel-a.example.invalid'];
       sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
@@ -2922,8 +2926,13 @@ createServer(async (req, res) => {
         if (path === '/ai-seller/summary')
           return send(200, { hours: 24, dialogs: sellerDialogs.length, replies: 5, leads: 1, slaBreaches: 0 });
         if (path === '/ai-seller/embed')
+          // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов
           return send(200, {
-            snippet: '<script async src="https://seller.example.invalid/widget/widget.js"></script>',
+            snippet:
+              '<script async src="https://seller.example.invalid/widget/widget.js" data-key="sk_' +
+              'a1'.repeat(12) +
+              '"></script>',
+            hosts: sellerHosts,
           });
       }
       if (path === '/ai-seller/profile' && req.method === 'PUT') {
@@ -2940,8 +2949,6 @@ createServer(async (req, res) => {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
         if (sellerState === 'not-configured')
           return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
-        if (sellerState === 'other-organization')
-          return send(403, { message: 'ИИ-продавец для вашей организации не подключён' });
         sellerApplied = true;
         sellerAppliedProfile = structuredClone(sellerProfile);
         return send(200, { profileApplied: true, factsApplied: true });

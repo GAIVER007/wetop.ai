@@ -13,6 +13,7 @@ import {
   type ExtensionsRepository,
   type OrganizationSummary,
 } from './extensions.repository';
+import { ExtensionsService } from './extensions.service';
 import { PLATFORM_ADMIN_ONLY, PLATFORM_NO_ORGANIZATION, PlatformController } from './platform.controller';
 
 /**
@@ -67,6 +68,8 @@ beforeAll(async () => {
     controllers: [PlatformController],
     providers: [
       { provide: EXTENSIONS_REPOSITORY, useValue: repo },
+      // настоящая служба поверх подставного хранилища: смена расширения зовёт её слушателей (Э4)
+      ExtensionsService,
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
       { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },

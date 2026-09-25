@@ -102,9 +102,9 @@ def test_providers_facade_fields() -> None:
     # incidents и health добавлены ролью «помощник платформы»; у них есть
     # умолчание None, поэтому сборки продавца остались прежними.
     assert {f.name for f in dataclasses.fields(Providers)} == {
-        "orders", "customers", "availability", "leads", "mode",
-        "incidents", "health",
-    }
+            "orders", "customers", "availability", "leads", "mode",
+            "incidents", "health", "subscriptions",
+        }
     assert facade.incidents is None and facade.health is None
 
 

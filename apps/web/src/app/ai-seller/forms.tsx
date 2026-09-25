@@ -526,31 +526,54 @@ export function DialogReplyForm({
 }
 
 /** «Проверка»: поговорить с продавцом до публикации. Разговор — в песочнице, в диалоги сайта он не попадает */
-export function SandboxForm() {
-  const [state, action, pending] = useActionState<SandboxResult | null, FormData>(
-    sandboxAction,
-    null,
-  );
+/** Слова «Проверки»: у продавца спрашивает «гость», у помощника — пользователь стойки */
+export interface SandboxWords {
+  asker: string;
+  bot: string;
+  field: string;
+  placeholder: string;
+  button: string;
+  pending: string;
+  human: string;
+  label: string;
+}
+
+const SELLER_SANDBOX_WORDS: SandboxWords = {
+  asker: 'Гость',
+  bot: 'Продавец',
+  field: 'Сообщение как от гостя',
+  placeholder: 'Здравствуйте, есть места на выходные?',
+  button: 'Спросить продавца',
+  pending: 'Жду ответ продавца…',
+  human: 'Продавец позвал бы человека',
+  label: 'Проверка продавца',
+};
+
+export function SandboxForm({
+  ask = sandboxAction,
+  words = SELLER_SANDBOX_WORDS,
+}: {
+  ask?: (prev: SandboxResult | null, form: FormData) => Promise<SandboxResult>;
+  words?: SandboxWords;
+}) {
+  const [state, action, pending] = useActionState<SandboxResult | null, FormData>(ask, null);
   const history = state?.history ?? [];
   return (
     <Stack>
       {history.length > 0 && (
-        <ol
-          className="seller-transcript"
-          data-testid="sandbox-history"
-          aria-label="Проверка продавца"
-        >
+        <ol className="seller-transcript" data-testid="sandbox-history" aria-label={words.label}>
           {history.map((h, i) => (
             <li key={i}>
               <p className="seller-transcript__guest">
-                <b>Гость:</b> {h.question}
+                <b>{words.asker}:</b> {h.question}
               </p>
               <p className="seller-transcript__bot">
-                <b>Продавец:</b> {h.reply ?? 'ответа нет'}
+                <b>{words.bot}:</b> {h.reply ?? 'ответа нет'}
               </p>
               {h.needsHuman && (
                 <p className="settings-note">
-                  Продавец позвал бы человека{h.reasons.length ? `: ${h.reasons.join('; ')}` : ''}.
+                  {words.human}
+                  {h.reasons.length ? `: ${h.reasons.join('; ')}` : ''}.
                 </p>
               )}
             </li>
@@ -558,19 +581,19 @@ export function SandboxForm() {
         </ol>
       )}
       <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-        <Field label="Сообщение как от гостя">
+        <Field label={words.field}>
           <Textarea
             name="text"
             rows={2}
             maxLength={2000}
             required
-            placeholder="Здравствуйте, есть места на выходные?"
+            placeholder={words.placeholder}
             data-testid="sandbox-text"
           />
         </Field>
         <Row>
           <Button type="submit" disabled={pending} aria-busy={pending} data-testid="sandbox-send">
-            {pending ? 'Жду ответ продавца…' : 'Спросить продавца'}
+            {pending ? words.pending : words.button}
           </Button>
         </Row>
         {state?.error && <Alert data-testid="sandbox-error">{state.error}</Alert>}

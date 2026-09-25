@@ -271,6 +271,32 @@ describe('BotPanelClient — панель помощника', () => {
     );
   });
 
+  it('правила и модель помощника — под путём панели, тем же ключом (ADR-084)', async () => {
+    const calls: Call[] = [];
+    const client = new BotPanelClient({
+      baseUrl: 'http://assistant:8000/p0123456789ab',
+      serviceKey: KEY,
+      bot: SUPPORT_BOT,
+      fetch: vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+        calls.push({ url: String(url), init: init ?? {} });
+        return Response.json({ status: 'ok' });
+      }),
+    });
+    await client.prompt();
+    await client.putPrompt('Ты — помощник WETOP.');
+    await client.settings();
+    await client.putModel('модель-б');
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'GET http://assistant:8000/p0123456789ab/prompt',
+      'PUT http://assistant:8000/p0123456789ab/prompt',
+      'GET http://assistant:8000/p0123456789ab/settings',
+      'PUT http://assistant:8000/p0123456789ab/settings/model',
+    ]);
+    expect(JSON.parse(String(calls[1]!.init.body))).toEqual({ text: 'Ты — помощник WETOP.' });
+    expect(JSON.parse(String(calls[3]!.init.body))).toEqual({ model: 'модель-б' });
+    expect(calls.every((c) => header(c, 'x-service-key') === KEY)).toBe(true);
+  });
+
   it('прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются', async () => {
     expect(SellerClient).toBe(BotPanelClient);
     expect(SellerRejectedError).toBe(BotRejectedError);

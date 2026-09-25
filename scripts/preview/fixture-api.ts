@@ -1481,10 +1481,17 @@ const supportKnowledgeSeed = () => [
 let supportKnowledge = supportKnowledgeSeed();
 /** Подключена ли панель помощника — `POST /__test/control { supportState: 'not-configured' }` */
 let supportState: 'ready' | 'not-configured' = 'ready';
+/** Правила и модель помощника (ADR-084): песочница отвечает по сохранённым правилам — так видно, что они дошли */
+const SUPPORT_PROMPT_SEED = 'Ты — ИИ-помощник WETOP. Отвечай на «вы», коротко и по делу.';
+let supportPrompt = SUPPORT_PROMPT_SEED;
+const SUPPORT_MODELS = ['модель-а', 'модель-б'];
+let supportModel = SUPPORT_MODELS[0]!;
 function resetSupport() {
   supportDialogs = supportDialogSeed();
   supportKnowledge = supportKnowledgeSeed();
   supportState = 'ready';
+  supportPrompt = SUPPORT_PROMPT_SEED;
+  supportModel = SUPPORT_MODELS[0]!;
 }
 
 const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
@@ -2542,6 +2549,8 @@ createServer(async (req, res) => {
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
       supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
+      // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
+      if (body['supportPromptEmpty'] === true) supportPrompt = '';
       return send(200, {});
     }
     // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
@@ -2767,6 +2776,32 @@ createServer(async (req, res) => {
         }
         if (path === '/platform/support/summary' && req.method === 'GET')
           return send(200, { hours: 24, dialogs: supportDialogs.length, replies: 3, leads: 0, slaBreaches: 1 });
+        if (path === '/platform/support/prompt' && req.method === 'GET') return send(200, { text: supportPrompt });
+        if (path === '/platform/support/prompt' && req.method === 'PUT') {
+          const text = String(body['text'] ?? '').trim();
+          if (!text) return send(400, { message: 'Правила: пустой текст' });
+          supportPrompt = text;
+          return send(200, { length: text.length });
+        }
+        if (path === '/platform/support/settings' && req.method === 'GET')
+          return send(200, { models: SUPPORT_MODELS, model: supportModel });
+        if (path === '/platform/support/settings/model' && req.method === 'PUT') {
+          const model = String(body['model'] ?? '').trim();
+          if (!SUPPORT_MODELS.includes(model))
+            return send(422, { message: 'ИИ-помощник отклонил: модель не из списка разрешённых' });
+          const previous = supportModel;
+          supportModel = model;
+          return send(200, { model, previous });
+        }
+        if (path === '/platform/support/sandbox' && req.method === 'POST') {
+          if (!String(body['text'] ?? '').trim()) return send(400, { message: 'Проверка: пустое сообщение' });
+          const informal = supportPrompt.includes('на «ты»');
+          return send(200, {
+            reply: informal ? 'Привет! Чем помочь?' : 'Здравствуйте! Чем помочь?',
+            needsHuman: false,
+            reasons: [],
+          });
+        }
       }
       return send(404, { message: 'Нет такого адреса платформы' });
     }

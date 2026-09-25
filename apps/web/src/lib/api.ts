@@ -1532,6 +1532,23 @@ export const supportApi = {
     return (await res.json()) as { source: string; created: boolean; chunks: number };
   },
   summary: () => getJson<SellerSummary>('/platform/support/summary'),
+  // ── настройка помощника (ADR-084): правила, модель, песочница ──
+  prompt: () => getJson<{ text: string }>('/platform/support/prompt'),
+  savePrompt: (text: string) =>
+    sendJson<{ length: number }>('PUT', '/platform/support/prompt', { text }),
+  settings: () => getJson<{ models: string[]; model: string | null }>('/platform/support/settings'),
+  saveModel: (model: string) =>
+    sendJson<{ model: string | null; previous: string | null }>(
+      'PUT',
+      '/platform/support/settings/model',
+      { model },
+    ),
+  sandbox: (text: string) =>
+    sendJson<{ reply: string | null; needsHuman: boolean; reasons: string[] }>(
+      'POST',
+      '/platform/support/sandbox',
+      { text },
+    ),
 };
 
 export const guardApi = {

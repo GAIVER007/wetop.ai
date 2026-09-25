@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 25.09.2026 17:12 Алматы · vm
+# коммит 6d215d5 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/platform-support.spec.ts' '-g' 'настройка помощника'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/platform-support.spec.ts:128:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (19.7s)
+
+
+  1) tests/ui/platform-support.spec.ts:128:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('sandbox-history')
+    Expected substring: "Помощник: Здравствуйте! Чем помочь?"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('sandbox-history') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('sandbox-history')
+
+
+      141 |   await page.goto('/platform/support/check');
+      142 |   await ask('Привет');
+    > 143 |   await expect(main.getByTestId('sandbox-history')).toContainText(
+          |                                                     ^
+      144 |     'Помощник: Здравствуйте! Чем помочь?',
+      145 |   );
+      146 |
+        at /home/user/wetop.ai/tests/ui/platform-support.spec.ts:143:53
+
+    Error Context: test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-настройка-1ec05--отвечает-по-новым-правилам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/platform-support.spec.ts:128:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам 
+
+# код выхода 1 · 27 с

@@ -156,6 +156,28 @@ networks:
 (ключ), 404 (адреса ещё нет), 408, 429, 5xx, тайм-аут, нет связи — не про содержание: платформа говорит об этом в
 разделе и повторяет доставку профиля и фактов раз в минуту. Тайм-ауты: 15 с, песочница — 90 с.
 
+### Помощник: что зовёт «Платформа → Техподдержка» (Э3, ADR-083, ADR-084)
+
+Та же панель, тот же клиент (`packages/integrations/src/assistant/bot-panel-client.ts`): `{ASSISTANT_PANEL_URL}{путь}`
+с заголовком `X-Service-Key: <ASSISTANT_SERVICE_KEY>`; у помощника тот же ключ стоит в его `SELLER_SERVICE_KEY` (у бота
+одно имя переменной для обеих ролей). Зовёт только API платформы и только для главного администратора.
+
+| Маршруты | Что | Кому открыт ключ |
+|---|---|---|
+| диалоги, карточка, перехват, ответ, возврат, знания, сводка — как в таблице выше | «Диалоги», «Знания», сводка | обеим ролям (`SERVICE_ROUTES`) |
+| `GET /prompt` → `{ text }`, `PUT /prompt` тело `{ text }` → `{ status, length }` | «Настройки»: правила помощника — текст его системного промпта; пустой текст бот считает ошибкой настройки — платформа такой не шлёт | **только `BOT_ROLE=support`** (`SUPPORT_SERVICE_ROUTES`) |
+| `GET /settings` → `{ models, model, values }`, `PUT /settings/model` тело `{ model }` → `{ status, model, previous }` | «Настройки»: модель из списка `LLM_ALLOWED_MODELS`; пустой список — выбора нет (404). Платформа берёт из ответа только `models` и `model` | **только `BOT_ROLE=support`** |
+| `POST /internal/sandbox` в корне экземпляра, `external_id` = `wetop-support-check-<user_id>` | «Проверка» | обеим ролям |
+
+Роль сверяется буквально: `support` открывает правила и модель, опечатка в `BOT_ROLE` — нет, хотя поведение бота она
+сводит к `support`. У продавца `PUT /prompt` и `/settings` служебному ключу закрыты по-прежнему: ядро его правил
+платформа не переписывает (Б6).
+
+**Кто пишет.** Вошедшего бот узнаёт по подписи стойки (§2) и хранит её в диалоге: `lead_data.platform_user` =
+`{ user_id, email, org_id, role }` (`src/channels/widget_store.py`), имя клиента в списке — почта, маскированная
+(`d***`). Карточка «Техподдержки» показывает почту, организацию названием из базы платформы (по `org_id`) и роль
+словом. Посетитель wetop.ai пишет без подписи — `platform_user` нет.
+
 ### `PUT /seller/profile` — схема бота (Б6, `src/ai/seller_prompt.py`)
 
 Поля экрана «Настройки», не текст промпта. Ядро правил бот держит сам, в профиле его нет и стереть его нельзя. Модель —
@@ -244,10 +266,12 @@ networks:
 | API платформы | `SELLER_URL`, `SELLER_SERVICE_KEY` | адрес панели продавца с её путём (`DASHBOARD_PATH_PREFIX` бота) и ключ Б5; песочница — по корню того же адреса |
 | API платформы | `SELLER_ORGANIZATION_ID` | UUID организации, чья это копия продавца |
 | API платформы | `SELLER_PUBLIC_URL` | публичный адрес продавца — из него код чата для сайта объекта |
+| API платформы | `ASSISTANT_PANEL_URL`, `ASSISTANT_SERVICE_KEY` | внутренний адрес панели помощника с её путём (`http://assistant:8000<DASHBOARD_PATH_PREFIX>`) и ключ «Техподдержки»; у помощника тот же ключ — в `SELLER_SERVICE_KEY` |
 | API платформы | `USER_ERRORS_RETENTION`, `SELLER_SYNC` | `off` — выключить уборку журнала ошибок и сверку фактов |
 | стойка | `ASSISTANT_URL` | публичный адрес помощника |
 | главная | `assistantUrl` в `apps/site/src/site.config.ts` | то же для wetop.ai |
 | помощник | `WIDGET_IDENTITY_SECRET`, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` | Б2, Б3 |
+| помощник | `BOT_ROLE=support`, `SELLER_SERVICE_KEY` = `ASSISTANT_SERVICE_KEY` платформы, `LLM_ALLOWED_MODELS` (по желанию) | «Техподдержка»; без ключа панель закрыта целиком |
 | продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY`, домены сайта объекта в `WIDGET_SITE_HOSTS` | Б5, Б8 |
 
 ## 6. Включение по шагам (владелец; 25.09.2026)
@@ -266,6 +290,7 @@ networks:
 | 5 | Экземпляры бота: помощник (`BOT_ROLE=support`) и продавец (`BOT_ROLE=seller`) — каждый своей папкой и проектом compose, с файлом сети из §3; `assistant.wetop.ai` — правилом туннеля и записью DNS | команды ниже; перед деплоем — `apps/ai-seller/vykatka.md` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
 | 6 | Главная wetop.ai | `CLOUDFLARE_ACCOUNT_ID=… npm run site:deploy` (`docs/deploy.md` §2) | `curl -s https://wetop.ai/ \| grep -c assistant.wetop.ai/widget/widget.js` — `1` |
 | 7 | «ИИ-продавец» → «Настройки» → «Применить» | стойка | баннер «Применено: продавец получил настройки и данные объекта» |
+| 8 | Правила помощника (ADR-084): «Платформа → Техподдержка → Настройки» — вписать системный промпт по шаблону `apps/ai-seller/sistemnyy-prompt-pomoshchnik.md` (подстановки `{{…}}` заменить) и сохранить. Пока правил нет, помощник не отвечает: файла `data/system_prompt.md` в его томе ещё нет | стойка | вкладка «Проверка» — помощник отвечает; предупреждения «Правил нет» нет |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).
@@ -341,7 +366,6 @@ put "$B" INTEGRATION_BASE_URL http://api:3001
 put "$B" WIDGET_SITE_HOSTS app.wetop.ai,wetop.ai,www.wetop.ai
 put "$B" DASHBOARD_ADMIN_EMAIL ''
 put "$B" DASHBOARD_ADMIN_PASSWORD_HASH ''
-put "$B" SELLER_SERVICE_KEY ''
 if empty "$B" DASHBOARD_PATH_PREFIX; then put "$B" DASHBOARD_PATH_PREFIX "/p$(openssl rand -hex 6)"; fi
 if empty "$B" DASHBOARD_JWT_SECRET; then put "$B" DASHBOARD_JWT_SECRET "$(openssl rand -hex 32)"; fi
 if empty "$B" POSTGRES_HOST; then put "$B" POSTGRES_HOST postgres; fi
@@ -350,11 +374,12 @@ if empty "$B" POSTGRES_DB; then put "$B" POSTGRES_DB assistant; fi
 if empty "$B" POSTGRES_USER; then put "$B" POSTGRES_USER assistant; fi
 if empty "$B" POSTGRES_PASSWORD; then put "$B" POSTGRES_PASSWORD "$(openssl rand -hex 16)"; fi
 if empty "$B" REDIS_URL; then put "$B" REDIS_URL redis://redis:6379/0; fi
-W=$(openssl rand -hex 32); K=$(openssl rand -hex 32)
-put "$B" WIDGET_IDENTITY_SECRET "$W"; put "$B" INTEGRATION_API_KEY "$K"
+W=$(openssl rand -hex 32); K=$(openssl rand -hex 32); S=$(openssl rand -hex 32)
+put "$B" WIDGET_IDENTITY_SECRET "$W"; put "$B" INTEGRATION_API_KEY "$K"; put "$B" SELLER_SERVICE_KEY "$S"
 put "$P" ASSISTANT_URL https://assistant.wetop.ai
-put "$P" WIDGET_IDENTITY_SECRET "$W"; put "$P" ASSISTANT_READ_KEY "$K"
-unset W K
+put "$P" WIDGET_IDENTITY_SECRET "$W"; put "$P" ASSISTANT_READ_KEY "$K"; put "$P" ASSISTANT_SERVICE_KEY "$S"
+put "$P" ASSISTANT_PANEL_URL "http://assistant:8000$(grep '^DASHBOARD_PATH_PREFIX=' "$B" | cut -d= -f2-)"
+unset W K S
 echo "1/4 переменные записаны"
 cd /opt/wetop-bot/assistant
 docker compose up -d --build --force-recreate app monitor
@@ -369,7 +394,32 @@ SH
 bash /root/assistant-setup.sh
 ```
 
-Проверка после записи DNS: `curl -s https://assistant.wetop.ai/health` — `ok`; в стойке справа внизу — кнопка чата.
+Проверка после записи DNS: `curl -s https://assistant.wetop.ai/health` — `ok`; в стойке справа внизу — кнопка чата;
+в «Платформа → Техподдержка» — диалоги, а не «ИИ-помощник не подключён».
+
+**Обновить код уже поднятого помощника** (например, после ADR-084: ключ помощника открывает правила и модель). Копия
+бота обновляется из клона, а `.env`, `compose.override.yml`, том `data/` (там правила, сохранённые из «Техподдержки») и
+`logs/` не трогаются:
+
+```bash
+cd /root/wetop && git log -1 --oneline
+tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./.env -cf - . | tar -C /opt/wetop-bot/assistant -xf -
+cd /opt/wetop-bot/assistant && docker compose up -d --build app && curl -s 127.0.0.1:8000/health
+```
+
+**Скрипт уже запускали до «Техподдержки» (Э3)?** Тогда у помощника пустой `SELLER_SERVICE_KEY`, и панель закрыта. Ключ
+и адрес панели — одной вставкой в веб-терминал; значения не печатаются, `api` и помощник перезапускаются:
+
+```bash
+set -eu
+B=/opt/wetop-bot/assistant/.env; P=/root/wetop/.env
+put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
+S=$(openssl rand -hex 32)
+put "$B" SELLER_SERVICE_KEY "$S"; put "$P" ASSISTANT_SERVICE_KEY "$S"; unset S
+put "$P" ASSISTANT_PANEL_URL "http://assistant:8000$(grep '^DASHBOARD_PATH_PREFIX=' "$B" | cut -d= -f2-)"
+cd /opt/wetop-bot/assistant && docker compose up -d --force-recreate app
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api
+```
 
 **Что вписать в `.env` помощника.**
 
@@ -378,7 +428,7 @@ bash /root/assistant-setup.sh
 | сервис | `APP_ENV=production`, `PUBLIC_BASE_URL=https://assistant.wetop.ai`, `CORS_ORIGINS=https://app.wetop.ai,https://wetop.ai,https://www.wetop.ai` |
 | своя база и Redis | `POSTGRES_HOST=postgres`, `POSTGRES_PORT=5432`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (придумать), `REDIS_URL=redis://redis:6379/0` |
 | модель | `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` и запасные — ключ роутера владельца |
-| панель | `DASHBOARD_PATH_PREFIX` — случайный отрезок пути, например `/p` и 12 знаков из `openssl rand -hex 6`: без него бот не подключает маршруты панели, и платформе некуда ходить. `DASHBOARD_JWT_SECRET` — `openssl rand -hex 32`. `DASHBOARD_ADMIN_EMAIL` и `DASHBOARD_ADMIN_PASSWORD_HASH` — **пустые**: людей в панели нет, пароль не нужен (поручение владельца 25.09.2026). `SELLER_SERVICE_KEY` у помощника пока пустой — панель закрыта целиком; значение появится с разделом «Платформа → Техподдержка» (план `plans/platform-roles-extensions-2026-09-25.md`, этап Э3) |
+| панель | `DASHBOARD_PATH_PREFIX` — случайный отрезок пути, например `/p` и 12 знаков из `openssl rand -hex 6`: без него бот не подключает маршруты панели, и платформе некуда ходить. `DASHBOARD_JWT_SECRET` — `openssl rand -hex 32`. `DASHBOARD_ADMIN_EMAIL` и `DASHBOARD_ADMIN_PASSWORD_HASH` — **пустые**: людей в панели нет, пароль не нужен (поручение владельца 25.09.2026). `SELLER_SERVICE_KEY` у помощника — ключ «Техподдержки» (тот же, что `ASSISTANT_SERVICE_KEY` платформы; скрипт выше делает его сам); пустой — панель закрыта целиком |
 | роль и платформа | `BOT_ROLE=support`, `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `ASSISTANT_READ_KEY` платформы |
 | виджет | `WIDGET_IDENTITY_SECRET` = тот же, что у платформы, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` |
 

@@ -1,5 +1,10 @@
 import 'reflect-metadata';
-import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { redactText } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import {
@@ -9,6 +14,7 @@ import {
   conversationsView,
   knowledgeFile,
   knowledgeView,
+  list,
   modeView,
   obj,
   panelHttpError,
@@ -18,6 +24,7 @@ import {
   uploadedView,
   type UploadedFile,
 } from '../bots/panel';
+import { currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
 import { EXTENSIONS_REPOSITORY, type ExtensionsRepository } from './extensions.repository';
 import { SUPPORT_AUDIT, type SupportAudit } from './support.audit';
@@ -27,6 +34,11 @@ export const SUPPORT_NOT_CONNECTED =
   'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Правила помощника — текст системного промпта; нынешний ~12 тыс. знаков, запас вчетверо */
+export const SUPPORT_PROMPT_MAX = 50_000;
+/** Как у песочницы продавца: ход длиннее бот всё равно не примет */
+const SANDBOX_MAX = 2000;
 
 /** Кто пишет в техподдержку — из подписи стойки, которую бот хранит в диалоге (`lead_data.platform_user`) */
 export interface SupportPlatformUser {
@@ -137,6 +149,78 @@ export class SupportService {
     requirePlatformAdmin();
     const client = this.client();
     return summaryView(await call(() => client.summary()));
+  }
+
+  // ── настройка помощника (ADR-084): правила, модель, песочница ─────────────────────────────────
+
+  /** Правила помощника — текст его системного промпта, как он лежит у бота */
+  async prompt(): Promise<{ text: string }> {
+    requirePlatformAdmin();
+    const client = this.client();
+    return { text: str(obj(await call(() => client.prompt())).text) ?? '' };
+  }
+
+  async savePrompt(raw: unknown): Promise<{ length: number }> {
+    requirePlatformAdmin();
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    // пустые правила бот считает ошибкой настройки и перестаёт отвечать — такое не отправляем
+    if (text === '') throw new BadRequestException('Правила: пустой текст');
+    if (text.length > SUPPORT_PROMPT_MAX)
+      throw new BadRequestException(`Правила: не длиннее ${SUPPORT_PROMPT_MAX} знаков`);
+    const client = this.client();
+    await call(() => client.putPrompt(text));
+    // В журнал — длина, а не текст: правила большие, журнал не хранилище их версий (так же пишет и бот)
+    await this.audit.record({
+      entityType: 'SupportAssistant',
+      entityId: 'assistant',
+      action: 'support.prompt.updated',
+      after: { length: text.length },
+    });
+    return { length: text.length };
+  }
+
+  /** Модель помощника и разрешённые: прочие настройки бота стойке не нужны и не отдаются */
+  async settings(): Promise<{ models: string[]; model: string | null }> {
+    requirePlatformAdmin();
+    const client = this.client();
+    const body = obj(await call(() => client.settings()));
+    return {
+      models: list(body.models).filter((m): m is string => typeof m === 'string'),
+      model: str(body.model),
+    };
+  }
+
+  async saveModel(raw: unknown): Promise<{ model: string | null; previous: string | null }> {
+    requirePlatformAdmin();
+    const model = typeof raw === 'string' ? raw.trim() : '';
+    if (model === '') throw new BadRequestException('Модель: выберите из списка');
+    const client = this.client();
+    const body = obj(await call(() => client.putModel(model)));
+    const result = { model: str(body.model), previous: str(body.previous) };
+    await this.audit.record({
+      entityType: 'SupportAssistant',
+      entityId: 'assistant',
+      action: 'support.model.changed',
+      after: result,
+    });
+    return result;
+  }
+
+  /** «Проверка»: свой разговор в песочнице помощника — гости и «Диалоги» его не видят */
+  async sandbox(raw: unknown) {
+    requirePlatformAdmin();
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    if (text === '') throw new BadRequestException('Проверка: пустое сообщение');
+    if (text.length > SANDBOX_MAX)
+      throw new BadRequestException(`Проверка: не длиннее ${SANDBOX_MAX} знаков`);
+    const client = this.client();
+    const externalId = `wetop-support-check-${currentUserId() ?? 'service'}`;
+    const body = obj(await call(() => client.sandbox({ externalId, text })));
+    return {
+      reply: str(body.reply),
+      needsHuman: body.needs_human === true,
+      reasons: list(body.reasons).filter((r): r is string => typeof r === 'string'),
+    };
   }
 
   private client(): SupportPort {

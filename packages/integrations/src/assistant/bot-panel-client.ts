@@ -169,6 +169,28 @@ export class BotPanelClient {
     );
   }
 
+  /**
+   * Правила бота — текст системного промпта (`GET /prompt`). Служебному ключу бот открывает их только у помощника
+   * (`BOT_ROLE=support`, ADR-084): ядро правил продавца платформа не переписывает.
+   */
+  prompt(): Promise<Json> {
+    return this.json('GET', '/prompt');
+  }
+
+  putPrompt(text: string): Promise<Json> {
+    return this.json('PUT', '/prompt', { text });
+  }
+
+  /** Модель и список разрешённых (`GET /settings`): секретов в ответе бота нет */
+  settings(): Promise<Json> {
+    return this.json('GET', '/settings');
+  }
+
+  /** Смена модели — только из списка бота (`LLM_ALLOWED_MODELS`), свободного поля нет */
+  putModel(model: string): Promise<Json> {
+    return this.json('PUT', '/settings/model', { model });
+  }
+
   putProfile(payload: unknown): Promise<Json> {
     return this.json('PUT', '/seller/profile', payload);
   }

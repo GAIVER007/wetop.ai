@@ -23,7 +23,7 @@ import {
   type SupportPort,
 } from './support.connection';
 import { SupportController } from './support.controller';
-import { SUPPORT_NOT_CONNECTED, SupportService } from './support.service';
+import { SUPPORT_NOT_CONNECTED, SUPPORT_PROMPT_MAX, SupportService } from './support.service';
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план `plans/platform-roles-extensions-2026-09-25.md` Э3). Настоящие замок и
@@ -151,6 +151,11 @@ describe('только главный администратор', () => {
           .set(owner)
           .attach('file', Buffer.from('# Ошибки'), 'ошибки.md'),
       () => api().get('/platform/support/summary').set(owner),
+      () => api().get('/platform/support/prompt').set(owner),
+      () => api().put('/platform/support/prompt').set(owner).send({ text: 'Новые правила' }),
+      () => api().get('/platform/support/settings').set(owner),
+      () => api().put('/platform/support/settings/model').set(owner).send({ model: 'б' }),
+      () => api().post('/platform/support/sandbox').set(owner).send({ text: 'Привет' }),
     ];
     for (const send of refused) {
       const res = await send().expect(403);
@@ -420,5 +425,110 @@ describe('знания, сводка и отказы помощника', () => 
       .send({ text: 'Да' })
       .expect(422);
     expect(bad.body.message).toBe('ИИ-помощник отклонил: слишком длинно');
+  });
+});
+
+describe('настройка помощника (ADR-084)', () => {
+  it('правила: читать и сохранять; пусто или слишком длинно — 400 без вызова; в журнал — длина, не текст', async () => {
+    connection.bot.replies.prompt = { text: 'Ты — помощник WETOP.' };
+    connection.bot.replies.putPrompt = { status: 'ok', length: 22 };
+    const admin = as('session-admin');
+    const read = await api().get('/platform/support/prompt').set(admin).expect(200);
+    expect(read.body).toEqual({ text: 'Ты — помощник WETOP.' });
+    await api().put('/platform/support/prompt').set(admin).send({ text: '   ' }).expect(400);
+    const long = await api()
+      .put('/platform/support/prompt')
+      .set(admin)
+      .send({ text: 'я'.repeat(SUPPORT_PROMPT_MAX + 1) })
+      .expect(400);
+    expect(long.body.message).toBe(`Правила: не длиннее ${SUPPORT_PROMPT_MAX} знаков`);
+    const saved = await api()
+      .put('/platform/support/prompt')
+      .set(admin)
+      .send({ text: '\nТы — помощник WETOP. Отвечай коротко.\n' })
+      .expect(200);
+    expect(saved.body).toEqual({ length: 37 });
+    expect(connection.bot.calls).toEqual([
+      { op: 'prompt', args: [] },
+      { op: 'putPrompt', args: ['Ты — помощник WETOP. Отвечай коротко.'] },
+    ]);
+    expect(audit.events).toEqual([
+      {
+        entityType: 'SupportAssistant',
+        entityId: 'assistant',
+        action: 'support.prompt.updated',
+        after: { length: 37 },
+      },
+    ]);
+  });
+
+  it('модель: список и текущая — без прочих настроек бота; смена — в журнал с прежней', async () => {
+    connection.bot.replies.settings = {
+      models: ['модель-а', 'модель-б'],
+      model: 'модель-а',
+      values: { sla_seconds: 900 },
+    };
+    connection.bot.replies.putModel = { status: 'ok', model: 'модель-б', previous: 'модель-а' };
+    const admin = as('session-admin');
+    const read = await api().get('/platform/support/settings').set(admin).expect(200);
+    expect(read.body).toEqual({ models: ['модель-а', 'модель-б'], model: 'модель-а' });
+    await api().put('/platform/support/settings/model').set(admin).send({ model: ' ' }).expect(400);
+    const changed = await api()
+      .put('/platform/support/settings/model')
+      .set(admin)
+      .send({ model: 'модель-б' })
+      .expect(200);
+    expect(changed.body).toEqual({ model: 'модель-б', previous: 'модель-а' });
+    expect(audit.events).toEqual([
+      {
+        entityType: 'SupportAssistant',
+        entityId: 'assistant',
+        action: 'support.model.changed',
+        after: { model: 'модель-б', previous: 'модель-а' },
+      },
+    ]);
+  });
+
+  it('модели не из списка бот отказывает — его словами с именем', async () => {
+    connection.bot.failOn.putModel = new assistant.BotRejectedError(
+      400,
+      'модель не из списка разрешённых',
+      [],
+      assistant.SUPPORT_BOT,
+    );
+    const res = await api()
+      .put('/platform/support/settings/model')
+      .set(as('session-admin'))
+      .send({ model: 'чужая' })
+      .expect(422);
+    expect(res.body.message).toBe('ИИ-помощник отклонил: модель не из списка разрешённых');
+    expect(audit.events).toEqual([]);
+  });
+
+  it('«Проверка»: у главного администратора свой разговор в песочнице помощника', async () => {
+    connection.bot.replies.sandbox = {
+      status: 'ok',
+      reply: 'Здравствуйте! Чем помочь?',
+      needs_human: false,
+      reasons: [],
+    };
+    const res = await api()
+      .post('/platform/support/sandbox')
+      .set(as('session-admin'))
+      .send({ text: ' Привет ' })
+      .expect(200);
+    expect(res.body).toEqual({
+      reply: 'Здравствуйте! Чем помочь?',
+      needsHuman: false,
+      reasons: [],
+    });
+    expect(connection.bot.calls).toEqual([
+      { op: 'sandbox', args: [{ externalId: `wetop-support-check-${ADMIN}`, text: 'Привет' }] },
+    ]);
+    await api()
+      .post('/platform/support/sandbox')
+      .set(as('session-admin'))
+      .send({ text: '' })
+      .expect(400);
   });
 });

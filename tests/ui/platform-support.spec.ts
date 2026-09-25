@@ -31,8 +31,17 @@ const menuLinks = (page: Page) =>
     .locator('.workspace-sidebar .workspace-links a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
-const shot = (page: Page, name: string) =>
-  page.screenshot({ path: `reports/platform-support-2026-09-25/${name}.png`, fullPage: true });
+/** Снимок для отчёта: без фокуса и с начала страницы — иначе закреплённые шапка и меню снимаются со сдвигом */
+async function shot(page: Page, name: string) {
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur();
+    window.scrollTo(0, 0);
+  });
+  await page.screenshot({
+    path: `reports/platform-support-2026-09-25/${name}.png`,
+    fullPage: true,
+  });
+}
 
 test('не главный администратор: пункта нет, а страница говорит, чей это раздел', async ({
   page,
@@ -125,6 +134,67 @@ test('знания помощника: список и загрузка доку
   await shot(page, 'support-knowledge');
 });
 
+test('настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await control(request, { platformAdmin: true });
+  const main = page.getByRole('main');
+  const ask = async (text: string) => {
+    await main.getByTestId('sandbox-text').fill(text);
+    await main.getByTestId('sandbox-send').click();
+  };
+
+  // до правки помощник на «вы»
+  await page.goto('/platform/support/check');
+  await ask('Привет');
+  await expect(main.getByTestId('sandbox-history')).toContainText(
+    'Помощник: Здравствуйте! Чем помочь?',
+  );
+
+  await page.goto('/platform/support/settings');
+  const rules = main.getByTestId('support-prompt-text');
+  await expect(rules).toHaveValue(/Отвечай на «вы»/);
+  await rules.fill('Ты — ИИ-помощник WETOP. Отвечай на «ты», коротко.');
+  await main.getByTestId('support-prompt-save').click();
+  await expect(main.getByTestId('support-prompt-result')).toContainText('Сохранено: 49 знаков');
+  await page.reload();
+  await expect(main.getByTestId('support-prompt-text')).toHaveValue(
+    'Ты — ИИ-помощник WETOP. Отвечай на «ты», коротко.',
+  );
+
+  await main.getByTestId('support-model-form').getByLabel('Модель').selectOption('модель-б');
+  await main.getByTestId('support-model-save').click();
+  await expect(main.getByTestId('support-model-result')).toHaveText(
+    'Модель: модель-б (была модель-а).',
+  );
+  await shot(page, 'support-settings');
+
+  // правила дошли до помощника: теперь на «ты»
+  await page.goto('/platform/support/check');
+  await ask('Привет');
+  await expect(main.getByTestId('sandbox-history')).toContainText('Помощник: Привет! Чем помочь?');
+  await shot(page, 'support-check');
+});
+
+test('правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await control(request, { platformAdmin: true, supportPromptEmpty: true });
+  await page.goto('/platform/support/settings');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('support-prompt-missing')).toContainText(
+    'помощник сейчас не отвечает',
+  );
+  await expect(main.getByTestId('support-prompt-missing')).toContainText(
+    'sistemnyy-prompt-pomoshchnik.md',
+  );
+  await expect(main.getByTestId('support-prompt-text')).toHaveValue('');
+});
+
 test('помощник не подключён — раздел говорит, что вписать владельцу', async ({ page, request }) => {
   await signIn(page);
   await control(request, { platformAdmin: true, supportState: 'not-configured' });
@@ -145,6 +215,8 @@ for (const width of [1440, 390]) {
         `/platform/support?id=${SIGNED}`,
         `/platform/support?id=${ANONYMOUS}`,
         '/platform/support/knowledge',
+        '/platform/support/settings',
+        '/platform/support/check',
       ]) {
         await page.goto(route);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

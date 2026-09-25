@@ -246,6 +246,25 @@ SERVICE_ROUTES = frozenset({
     ("PUT", "/seller/facts"),
 })
 
+# «Платформа → Техподдержка» (ADR-084): помощник — бот самой платформы, его
+# правила и модель ведёт главный администратор WETOP, и ключ помощника
+# открывает ещё их. У продавца их нет по-прежнему (см. выше).
+SUPPORT_SERVICE_ROUTES = SERVICE_ROUTES | frozenset({
+    ("GET", "/prompt"),
+    ("PUT", "/prompt"),
+    ("GET", "/settings"),
+    ("PUT", "/settings/model"),
+})
+
+
+def _service_routes(settings: Settings) -> frozenset:
+    """Маршруты ключа по роли. 🔴 Только явное BOT_ROLE=support: опечатка
+    сводится к support для поведения бота (normalize_bot_role), но ядро
+    правил продавца ключу из-за неё не открывается."""
+    if (settings.bot_role or "").strip().lower() == "support":
+        return SUPPORT_SERVICE_ROUTES
+    return SERVICE_ROUTES
+
 
 def _service_actor(request: Request, settings: Settings, provided: str) -> DashboardUser:
     """Служебный вход: ключ совпал и маршрут в списке -> временный владелец.
@@ -261,7 +280,7 @@ def _service_actor(request: Request, settings: Settings, provided: str) -> Dashb
     prefix = getattr(request.app.state, "dashboard_path", "")
     if prefix and template.startswith(prefix):
         template = template[len(prefix):]
-    if (request.method, template) not in SERVICE_ROUTES:
+    if (request.method, template) not in _service_routes(settings):
         raise HTTPException(status_code=403, detail="Служебному ключу этот маршрут закрыт")
     # Без записи в базе: обработчики панели смотрят только на роль.
     return DashboardUser(email=SERVICE_ACTOR_EMAIL, role="owner")

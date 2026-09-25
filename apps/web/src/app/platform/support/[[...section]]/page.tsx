@@ -6,6 +6,7 @@ import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
 import {
+  Alert,
   Badge,
   EmptyState,
   Fact,
@@ -27,8 +28,20 @@ import {
 import { almatyMoment } from '../../../../lib/almaty';
 import { ApiError, supportApi, type SupportConversationCard } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
-import { DialogModeButtons, DialogReplyForm, KnowledgeUploadForm } from '../../../ai-seller/forms';
-import { supportModeAction, supportReplyAction, supportUploadAction } from '../actions';
+import {
+  DialogModeButtons,
+  DialogReplyForm,
+  KnowledgeUploadForm,
+  SandboxForm,
+  type SandboxWords,
+} from '../../../ai-seller/forms';
+import {
+  supportModeAction,
+  supportReplyAction,
+  supportSandboxAction,
+  supportUploadAction,
+} from '../actions';
+import { SupportModelForm, SupportPromptForm } from '../forms';
 // переписка — тем же списком строками, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
 
@@ -41,7 +54,23 @@ import '../../../ai-seller/ai-seller.css';
 const TABS = [
   { view: '', href: '/platform/support', label: 'Диалоги' },
   { view: 'knowledge', href: '/platform/support/knowledge', label: 'Знания' },
+  { view: 'settings', href: '/platform/support/settings', label: 'Настройки' },
+  { view: 'check', href: '/platform/support/check', label: 'Проверка' },
 ] as const;
+
+/** Как у API (`SUPPORT_PROMPT_MAX`): длиннее правила помощник не получит */
+const PROMPT_MAX = 50_000;
+
+const SUPPORT_SANDBOX_WORDS: SandboxWords = {
+  asker: 'Вы',
+  bot: 'Помощник',
+  field: 'Сообщение как от пользователя стойки',
+  placeholder: 'Не могу сохранить бронь — что делать?',
+  button: 'Спросить помощника',
+  pending: 'Жду ответ помощника…',
+  human: 'Помощник позвал бы человека',
+  label: 'Проверка помощника',
+};
 
 type SupportView = (typeof TABS)[number]['view'];
 
@@ -117,7 +146,8 @@ async function SupportScreen({ view, mode, id }: { view: SupportView; mode: stri
           title="Раздел главного администратора платформы"
           data-testid="support-forbidden"
         >
-          Диалоги техподдержки видит только главный администратор. Отметку ставит команда на сервере.
+          Диалоги техподдержки видит только главный администратор. Отметку ставит команда на
+          сервере.
         </EmptyState>
       );
     return <LoadError testId="support-error" {...loadErrorProps(status.error)} />;
@@ -129,11 +159,76 @@ async function SupportScreen({ view, mode, id }: { view: SupportView; mode: stri
         title="ИИ-помощник не подключён"
         data-testid="support-not-configured"
       >
-        Платформе нужны адрес панели помощника и ключ — ASSISTANT_PANEL_URL и ASSISTANT_SERVICE_KEY в настройках
-        сервера, а в настройках помощника тот же ключ в SELLER_SERVICE_KEY. Их вписывает владелец.
+        Платформе нужны адрес панели помощника и ключ — ASSISTANT_PANEL_URL и ASSISTANT_SERVICE_KEY
+        в настройках сервера, а в настройках помощника тот же ключ в SELLER_SERVICE_KEY. Их
+        вписывает владелец.
       </EmptyState>
     );
-  return view === 'knowledge' ? <KnowledgeView /> : <DialogsView mode={mode} id={id} />;
+  if (view === 'knowledge') return <KnowledgeView />;
+  if (view === 'settings') return <SettingsView />;
+  if (view === 'check') return <CheckView />;
+  return <DialogsView mode={mode} id={id} />;
+}
+
+/**
+ * «Настройки» (ADR-084): правила помощника — текст его системного промпта — и модель из списка разрешённых у бота.
+ * Правила действуют со следующего ответа; проверить их — во вкладке «Проверка».
+ */
+async function SettingsView() {
+  const [prompt, settings] = await Promise.all([
+    settle(supportApi.prompt()),
+    settle(supportApi.settings()),
+  ]);
+  return (
+    <Stack>
+      <Panel data-testid="support-prompt">
+        <SectionTitle first>Правила помощника</SectionTitle>
+        <p className="settings-note">
+          Это системный промпт: кто помощник, что он делает и чего не делает, как отвечает и когда
+          зовёт человека. Что он знает о стойке — во вкладке «Знания».
+        </p>
+        {prompt.ok && prompt.value.text.trim() === '' && (
+          <Alert tone="warning" data-testid="support-prompt-missing">
+            Правил нет — помощник сейчас не отвечает: без системного промпта бот не работает.
+            Впишите правила и сохраните. Устройство — по шаблону
+            apps/ai-seller/sistemnyy-prompt-pomoshchnik.md в репозитории: роль, запреты, что знает,
+            как говорит; подстановки в фигурных скобках заменить.
+          </Alert>
+        )}
+        {prompt.ok ? (
+          <SupportPromptForm initial={prompt.value.text} max={PROMPT_MAX} />
+        ) : (
+          <LoadError testId="support-prompt-load-error" {...loadErrorProps(prompt.error)} />
+        )}
+      </Panel>
+      <Panel data-testid="support-model">
+        <SectionTitle first>Модель</SectionTitle>
+        {!settings.ok ? (
+          <LoadError testId="support-model-load-error" {...loadErrorProps(settings.error)} />
+        ) : settings.value.models.length === 0 ? (
+          <p className="settings-note" data-testid="support-model-fixed">
+            Сейчас — {settings.value.model ?? 'не указана'}. Выбор не настроен: список разрешённых
+            моделей задаётся в настройках помощника на сервере (LLM_ALLOWED_MODELS).
+          </p>
+        ) : (
+          <SupportModelForm models={settings.value.models} current={settings.value.model} />
+        )}
+      </Panel>
+    </Stack>
+  );
+}
+
+function CheckView() {
+  return (
+    <Panel data-testid="support-check">
+      <SectionTitle first>Поговорить с помощником</SectionTitle>
+      <p className="settings-note">
+        Напишите так, как написал бы пользователь стойки. Разговор идёт в песочнице: в «Диалогах»
+        его нет. Правила меняются во вкладке «Настройки».
+      </p>
+      <SandboxForm ask={supportSandboxAction} words={SUPPORT_SANDBOX_WORDS} />
+    </Panel>
+  );
 }
 
 async function DialogsView({ mode, id }: { mode: string; id: string }) {
@@ -249,13 +344,18 @@ function DialogCard({ card }: { card: SupportConversationCard }) {
       </Grid>
       {!who && (
         <p className="settings-note">
-          Писал без входа — например, с главной wetop.ai: подписи стойки нет, кто это, помощник не знает.
+          Писал без входа — например, с главной wetop.ai: подписи стойки нет, кто это, помощник не
+          знает.
         </p>
       )}
       <ol className="seller-transcript" aria-label="Переписка">
         {card.messages.map((msg, i) => (
           <li key={i}>
-            <p className={msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'}>
+            <p
+              className={
+                msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'
+              }
+            >
               <b>{ROLE[msg.role] ?? msg.role}</b>
               {msg.at ? <span className="sub"> {almatyMoment(msg.at)}</span> : null}: {msg.text}
             </p>
@@ -275,8 +375,8 @@ async function KnowledgeView() {
       <Panel>
         <SectionTitle first>Загрузить документ</SectionTitle>
         <p className="settings-note">
-          Документация стойки и справочник ошибок — помощник отвечает по ним. Правила самого помощника меняются в
-          репозитории, а не здесь.
+          Документация стойки и справочник ошибок — помощник отвечает по ним. Правила самого
+          помощника меняются в репозитории, а не здесь.
         </p>
         <KnowledgeUploadForm upload={supportUploadAction} />
       </Panel>

@@ -8,6 +8,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -83,5 +84,35 @@ export class SupportController {
   @Header('Cache-Control', 'no-store')
   summary() {
     return this.support.summary();
+  }
+
+  // ── настройка помощника (ADR-084) ──────────────────────────────────────────────────────────
+
+  @Get('prompt')
+  @Header('Cache-Control', 'no-store')
+  prompt() {
+    return this.support.prompt();
+  }
+
+  @Put('prompt')
+  savePrompt(@Body() body: { text?: unknown } | undefined) {
+    return this.support.savePrompt(body?.text);
+  }
+
+  @Get('settings')
+  @Header('Cache-Control', 'no-store')
+  settings() {
+    return this.support.settings();
+  }
+
+  @Put('settings/model')
+  saveModel(@Body() body: { model?: unknown } | undefined) {
+    return this.support.saveModel(body?.model);
+  }
+
+  @Post('sandbox')
+  @HttpCode(200)
+  sandbox(@Body() body: { text?: unknown } | undefined) {
+    return this.support.sandbox(body?.text);
   }
 }

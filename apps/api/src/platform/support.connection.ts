@@ -15,7 +15,10 @@ export interface SupportConfig {
   serviceKey: string | null;
 }
 
-/** То, что «Техподдержке» нужно от панели помощника: без профиля, фактов и песочницы — они у продавца */
+/**
+ * То, что «Техподдержке» нужно от панели помощника: диалоги, знания, сводка, а с ADR-084 — правила, модель и песочница.
+ * Профиля и фактов нет — они у продавца.
+ */
 export interface SupportPort {
   listConversations(query: { mode?: string; limit?: number }): Promise<unknown>;
   conversation(id: string): Promise<unknown>;
@@ -25,6 +28,11 @@ export interface SupportPort {
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;
   summary(): Promise<unknown>;
+  prompt(): Promise<unknown>;
+  putPrompt(text: string): Promise<unknown>;
+  settings(): Promise<unknown>;
+  putModel(model: string): Promise<unknown>;
+  sandbox(input: { externalId: string; text: string }): Promise<unknown>;
 }
 
 export interface SupportConnection {

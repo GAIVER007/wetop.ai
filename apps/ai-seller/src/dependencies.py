@@ -29,6 +29,16 @@ conversation_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar
     "conversation_id", default=None
 )
 
+# Организация текущего хода (Э4/Q-166): ставит движок в accept, читает провайдер
+# котировки — инструменты наличия и цены спрашивают платформу про СВОЮ гостиницу.
+organization_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "organization_id", default=None
+)
+
+
+def get_current_organization_id() -> str | None:
+    return organization_id_var.get()
+
 _LOG_FORMAT = "%(asctime)s | %(levelname)s | %(conversation_id)s | %(name)s | %(message)s"
 _STDOUT_HANDLER = "app_stdout"
 _FILE_HANDLER = "app_file"

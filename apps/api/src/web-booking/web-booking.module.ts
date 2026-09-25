@@ -13,6 +13,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { ANALYTICS_REPOSITORY, type AnalyticsRepository } from '../analytics/analytics.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from '../reservations/reservations.module';
+import { BotQuoteController } from './bot-quote.controller';
 import { WebBookingController } from './web-booking.controller';
 import { WebBookingService } from './web-booking.service';
 
@@ -72,7 +73,7 @@ export class WidgetCorsMiddleware implements NestMiddleware {
 /** Бронирование с сайта (срез 9): тот же «сайт», что у счётчика, брони — через ReservationsService. */
 @Module({
   imports: [AnalyticsModule, ReservationsModule],
-  controllers: [WebBookingController],
+  controllers: [WebBookingController, BotQuoteController],
   providers: [PrismaService, WebBookingService, WidgetCorsMiddleware],
 })
 export class WebBookingModule implements NestModule {

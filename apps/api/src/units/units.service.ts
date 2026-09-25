@@ -83,7 +83,7 @@ export class UnitsService {
       reason: freeTextForStorage(dto.reason?.trim() || null),
     };
     // SECURITY.md §6: ручное изменение доступности — блокировка и журнал одной транзакцией
-    await this.repo.createBlock(unit.id, block, { before: before?.blocks ?? [], after: block });
+    await this.repo.createBlock(unit, block, { before: before?.blocks ?? [], after: block });
     const after = await this.card(code);
     await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],

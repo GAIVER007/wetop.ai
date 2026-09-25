@@ -14,6 +14,7 @@ import { InventoryService } from '../../apps/api/src/inventory/inventory.service
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
+import { purgeAuditRows } from '../tools/audit-purge';
 config({ quiet: true });
 describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and isolation', () => {
   it('commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically', async () => {
@@ -129,7 +130,7 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
         expect(await db.auditLog.count({ where: { userId: user.id } })).toBe(4);
       });
     } finally {
-      await db.auditLog.deleteMany({ where: { userId: user.id } });
+      await purgeAuditRows(db, { userId: user.id });
       await db.inventoryUnit.deleteMany({
         where: { accommodationType: { propertyId: property.id } },
       });

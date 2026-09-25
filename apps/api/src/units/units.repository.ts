@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
 
@@ -35,6 +35,7 @@ export interface UnitsRepository {
   unitByCode(code: string): Promise<{
     id: string;
     code: string;
+    accommodationTypeId: string;
     accommodationTypeCode: string;
     housekeepingStatus: HousekeepingStatus;
   } | null>;
@@ -47,7 +48,7 @@ export interface UnitsRepository {
   ): Promise<Array<{ confirmationNumber: string; startDate: string; endDate: string }>>;
   /** Блокировка и её запись в журнале — одной транзакцией (SECURITY.md §6); `after` дополняется её id */
   createBlock(
-    unitId: string,
+    unit: { id: string; accommodationTypeId: string },
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
     audit: { before: unknown; after: Record<string, unknown> },
   ): Promise<string>;
@@ -78,6 +79,7 @@ export class PrismaUnitsRepository implements UnitsRepository {
       ? {
           id: u.id,
           code: u.code,
+          accommodationTypeId: u.accommodationTypeId,
           accommodationTypeCode: u.accommodationType.code,
           housekeepingStatus: u.housekeepingStatus,
         }
@@ -162,11 +164,37 @@ export class PrismaUnitsRepository implements UnitsRepository {
     }));
   }
   async createBlock(
-    unitId: string,
+    unit: { id: string; accommodationTypeId: string },
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
     audit: { before: unknown; after: Record<string, unknown> },
   ) {
+    const unitId = unit.id;
     return this.prisma.db.$transaction(async (tx) => {
+      /*
+       * ТЗ аудита 25.09.2026, С-3: проверка «нет ли проживаний» до транзакции — гонка: гость успевал
+       * заселиться между проверкой и вставкой, и ячейка закрывалась вместе с ним. Берём тот же
+       * категорийный замок, что путь брони (lockCategories в reservations.repository), и перепроверяем
+       * уже под ним: бронь либо завершилась до нас — и мы её видим, либо ждёт нас — и увидит блокировку
+       * (hasBlockOverlap) под тем же замком.
+       */
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${unit.accommodationTypeId}`}, 0))`;
+      const busy = await tx.allocation.findMany({
+        where: {
+          inventoryUnitId: unitId,
+          startDate: { lt: asDate(b.dateTo) },
+          endDate: { gt: asDate(b.dateFrom) },
+          reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+        },
+        include: {
+          reservationItem: { select: { reservation: { select: { confirmationNumber: true } } } },
+        },
+      });
+      if (busy.length)
+        throw new ConflictException(
+          `В ячейке есть проживание: ${busy
+            .map((a) => `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`)
+            .join(', ')} — сначала переселите`,
+        );
       const row = await tx.inventoryBlock.create({
         data: {
           inventoryUnitId: unitId,

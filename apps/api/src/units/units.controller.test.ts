@@ -24,7 +24,7 @@ function makeFakes() {
   const blockAudits: unknown[] = [];
   const separateAudits: string[] = [];
   let hk: 'DIRTY' | 'CLEAN' | 'INSPECTED' = 'DIRTY';
-  const unit = { id: 'u1', code: '9001', accommodationTypeCode: 'exely-900001' };
+  const unit = { id: 'u1', code: '9001', accommodationTypeId: 'type-1', accommodationTypeCode: 'exely-900001' };
   const card = (): UnitCard => ({
     id: 'u1',
     code: '9001',
@@ -65,8 +65,8 @@ function makeFakes() {
         : [];
     },
     // Блокировка и её запись в журнале — одна транзакция (SECURITY.md §6): журнал приходит вместе с командой
-    async createBlock(unitId, b, audit) {
-      blocks.push({ id: `blk${blocks.length + 1}`, unitId, ...b });
+    async createBlock(unit, b, audit) {
+      blocks.push({ id: `blk${blocks.length + 1}`, unitId: unit.id, ...b });
       audits.push('unit.block');
       blockAudits.push(audit);
       return `blk${blocks.length}`;

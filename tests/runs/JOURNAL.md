@@ -2348,3 +2348,19 @@
 | 25.09.2026 23:57 | unit | ✅ 1857 из 1860, пропущено 3 | 1 мин 12 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-57-23Z-unit-cbd3.log) | TZ audita blok 1 na polnom dereve |
 | 25.09.2026 23:58 | typecheck | ✅ без ошибок | 27 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-58-35Z-typecheck-e8a5.log) | TZ audita blok 1 na polnom dereve |
 | 25.09.2026 23:59 | lint | ✅ без ошибок | 14 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-59-03Z-lint-8891.log) | TZ audita blok 1 na polnom dereve |
+| 26.09.2026 00:08 | integration (частично: tests/integration/integrity-guards.test.ts) | ❌ упало 5 из 5 | 3 с | 6972a66 +1 | [лог](logs/2026-09-25T19-08-17Z-integration-afe0.log) | TZ audita blok 3: red do migratsii i koda |
+| 26.09.2026 00:09 | integration (частично: tests/integration/integrity-guards.test.ts) | ✅ 5 из 5 | 3 с | 6972a66 +8 | [лог](logs/2026-09-25T19-09-46Z-integration-a469.log) | TZ audita blok 3: green |
+| 26.09.2026 00:10 | integration | ❌ упало 2 из 81 | 24 с | 6972a66 +8 | [лог](logs/2026-09-25T19-10-51Z-integration-275d.log) | TZ audita blok 3 na polnom nabore |
+| 26.09.2026 00:11 | unit | ✅ 1858 из 1861, пропущено 3 | 1 мин 12 с | 6972a66 +7 | [лог](logs/2026-09-25T19-11-16Z-unit-0c4c.log) | TZ audita blok 3 |
+| 26.09.2026 00:12 | typecheck | ❌ ошибок: 2 | 20 с | 6972a66 +8 | [лог](logs/2026-09-25T19-12-29Z-typecheck-c396.log) | TZ audita blok 3 |
+| 26.09.2026 00:12 | lint | ✅ без ошибок | 14 с | 6972a66 +8 | [лог](logs/2026-09-25T19-12-49Z-lint-1981.log) | TZ audita blok 3 |
+| 26.09.2026 00:14 | integration | ❌ код выхода 1 | 23 с | 6972a66 +12 | [лог](logs/2026-09-25T19-14-57Z-integration-0ece.log) | TZ audita blok 3: polnyy nabor posle popravok triggera |
+| 26.09.2026 00:15 | integration | ✅ 81 из 81 | 23 с | 6972a66 +13 | [лог](logs/2026-09-25T19-15-55Z-integration-6f07.log) | TZ audita blok 3: polnyy nabor, green |
+| 26.09.2026 00:16 | typecheck | ❌ ошибок: 6 | 19 с | 6972a66 +14 | [лог](logs/2026-09-25T19-16-25Z-typecheck-3703.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:16 | unit | ✅ 1858 из 1861, пропущено 3 | 1 мин 12 с | 6972a66 +8 | [лог](logs/2026-09-25T19-16-45Z-unit-bdfa.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:17 | lint | ✅ без ошибок | 13 с | 6972a66 +14 | [лог](logs/2026-09-25T19-17-57Z-lint-8a8d.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:18 | typecheck | ❌ ошибок: 1 | 20 с | 6972a66 +14 | [лог](logs/2026-09-25T19-18-58Z-typecheck-2c47.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:19 | typecheck | ✅ без ошибок | 19 с | 6972a66 +14 | [лог](logs/2026-09-25T19-19-34Z-typecheck-cc0f.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:19 | unit (частично: apps/api/src/units/units.controller.test.ts) | ✅ 5 из 5 | 3 с | 6972a66 +8 | [лог](logs/2026-09-25T19-19-53Z-unit-4fbd.log) | TZ audita blok 3: fake posle popravki |
+| 26.09.2026 00:19 | integration (частично: tests/integration/audit-list.test.ts tests/integration/integrity-guards.test.ts) | ✅ 8 из 8 | 4 с | 6972a66 +13 | [лог](logs/2026-09-25T19-19-57Z-integration-277f.log) | helper types |
+| 26.09.2026 00:20 | lint | ✅ без ошибок | 13 с | 6972a66 +14 | [лог](logs/2026-09-25T19-20-41Z-lint-1f2f.log) | TZ audita blok 3 itog |

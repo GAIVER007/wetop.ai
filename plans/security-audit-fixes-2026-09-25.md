@@ -33,9 +33,17 @@
 
 ## Блок 3 — одна миграция (С-4, С-14, С-3)
 
-Сначала правка `DATA_MODEL.md` (частичный `UNIQUE(property_id, external_id)`, CHECK'и на деньги, запрет
-`UPDATE/DELETE` на `audit_logs` триггером), затем миграция с `down.sql` и advisory-lock в `units.service.block()`.
-На рабочую базу применяет владелец по процедуре «бэкап → миграция → `--migrations-applied <sha>`». Статус: следующий.
+✅ Сделано 25.09, red → green (`…19-08-17Z-integration-afe0.log` — 5 из 5 красные до миграции и кода → `…-a469.log` 5/5;
+полный integration **81/81** `…19-15-55Z-integration-6f07.log`, unit **1858/1861** `…-bdfa.log`, typecheck `…-cc0f.log` и lint `…-1f2f.log` чисто). `DATA_MODEL.md` v1.10
+(§2, §6, §10), миграция `20260925000022_integrity_guards` (+`down.sql`; ворота `check-migrations.sh` — RESULT: OK по
+всем 22, дрейф чист); обычный `UNIQUE(property_id, external_id)` вместо частичного — NULL в PG различны, ручные брони
+не ограничены, Prisma выражает его в схеме и дрейф не ломается. `createBlock` берёт категорийный замок пути брони
+(`pms.category:<id>`) и перепроверяет проживания в транзакции; журнал только дописывается уже сейчас — триггер с двумя
+исключениями (FK `SET NULL` автора; уборка с `set_config`), уборки тестов переведены на `tests/tools/audit-purge.ts`.
+**На рабочую базу применяет владелец**: перед применением проверить дубли
+`select property_id, external_id, count(*) from reservations where external_id is not null group by 1,2 having count(*)>1;`
+и суммы `select count(*) from payments where amount <= 0;` (обе должны дать 0), затем «бэкап → миграция →
+`--migrations-applied <sha>».
 
 ## Блок 4 — гонки и лимиты API (С-2, С-5/С-6, С-7)
 

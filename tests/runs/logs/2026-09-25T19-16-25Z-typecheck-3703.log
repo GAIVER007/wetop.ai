@@ -1,0 +1,26 @@
+# Типы (typecheck) · 26.09.2026 00:16 Алматы · vm
+# коммит 6972a66 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/audit-list.test.ts(42,32): error TS2345: Argument of type '{ entityId: string; }' is not assignable to parameter of type 'never'.
+tests/integration/integrity-guards.test.ts(35,30): error TS2345: Argument of type '{ entityId: string; }' is not assignable to parameter of type 'never'.
+tests/integration/inventory-editor.test.ts(133,32): error TS2345: Argument of type '{ userId: string; }' is not assignable to parameter of type 'never'.
+tests/integration/platform-extensions.test.ts(62,30): error TS2345: Argument of type '{ entityType: string; entityId: { in: `${string}-${string}-${string}-${string}-${string}`[]; }; }' is not assignable to parameter of type 'never'.
+tests/integration/seller-profiles.test.ts(114,30): error TS2345: Argument of type '{ entityType: string; entityId: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type 'never'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/units/units.controller.test.ts(56,11): error TS2322: Type '(code: string) => Promise<{ housekeepingStatus: "DIRTY" | "CLEAN" | "INSPECTED"; id: string; code: string; accommodationTypeCode: string; } | null>' is not assignable to type '(code: string) => Promise<{ id: string; code: string; accommodationTypeId: string; accommodationTypeCode: string; housekeepingStatus: HousekeepingStatus; } | null>'.
+  Type 'Promise<{ housekeepingStatus: "DIRTY" | "CLEAN" | "INSPECTED"; id: string; code: string; accommodationTypeCode: string; } | null>' is not assignable to type 'Promise<{ id: string; code: string; accommodationTypeId: string; accommodationTypeCode: string; housekeepingStatus: HousekeepingStatus; } | null>'.
+    Type '{ housekeepingStatus: "DIRTY" | "CLEAN" | "INSPECTED"; id: string; code: string; accommodationTypeCode: string; } | null' is not assignable to type '{ id: string; code: string; accommodationTypeId: string; accommodationTypeCode: string; housekeepingStatus: HousekeepingStatus; } | null'.
+      Property 'accommodationTypeId' is missing in type '{ housekeepingStatus: "DIRTY" | "CLEAN" | "INSPECTED"; id: string; code: string; accommodationTypeCode: string; }' but required in type '{ id: string; code: string; accommodationTypeId: string; accommodationTypeCode: string; housekeepingStatus: HousekeepingStatus; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 19 с

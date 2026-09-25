@@ -291,7 +291,14 @@ async function purge(ids: Ids): Promise<void> {
   await phase('guestDocuments', (p) => db.guestDocument.deleteMany({ where: { id: { in: p } } }));
   await phase('guests', (p) => db.guest.deleteMany({ where: { id: { in: p } } }));
   await phase('housekeepingEvents', (p) => db.housekeepingEvent.deleteMany({ where: { id: { in: p } } }));
-  await phase('auditLogs', (p) => db.auditLog.deleteMany({ where: { id: { in: p } } }));
+  // Журнал только дописывается (миграция 20260925000022, ТЗ аудита С-14): уборка — единственный путь
+  // удаления, и она объявляет себя set_config'ом в той же транзакции
+  await phase('auditLogs', (p) =>
+    db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+      return tx.auditLog.deleteMany({ where: { id: { in: p } } });
+    }),
+  );
 }
 
 async function remaining(ids: Ids): Promise<Record<Table, number>> {

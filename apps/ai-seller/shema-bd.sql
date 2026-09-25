@@ -38,6 +38,27 @@ CREATE TYPE funnel_stage AS ENUM (
 CREATE TYPE message_role AS ENUM ('user', 'assistant', 'system', 'operator');
 
 
+-- ─── Организации (Э4, ADR-083 платформы) ───
+-- Один экземпляр-продавец обслуживает много гостиниц. Строку заводит
+-- платформа (PUT /seller/organizations/{id}); у помощника таблица пуста,
+-- его строки везде с organization_id IS NULL.
+
+CREATE TABLE organizations (
+    id            UUID PRIMARY KEY,           -- идентификатор организации платформы
+    name          TEXT NOT NULL,
+    -- Публичный ключ виджета (sk_ + hex): стоит в теге на сайте гостиницы.
+    public_key    TEXT NOT NULL UNIQUE,
+    -- FALSE — расширение «ИИ-продавец» погашено: виджет отвечает 403 и гаснет.
+    active        BOOLEAN NOT NULL DEFAULT TRUE,
+    -- Домены сайтов гостиницы: дверь виджета открывается только с них.
+    hosts         JSONB NOT NULL DEFAULT '[]'::jsonb,
+    -- Промпт продавца гостиницы: ядро правил + профиль из «Настроек».
+    system_prompt TEXT,
+    created_at    TIMESTAMPTZ NOT NULL,
+    updated_at    TIMESTAMPTZ NOT NULL
+);
+
+
 -- ─── Клиенты ───
 
 CREATE TABLE clients (
@@ -49,10 +70,18 @@ CREATE TABLE clients (
     name         TEXT,
     phone        TEXT,
     email        TEXT,
-    created_at   TIMESTAMPTZ NOT NULL,
-    UNIQUE (channel, external_id)
+    -- NULL — строка помощника или диалог продавца до Э4 (в панели не виден).
+    organization_id UUID REFERENCES organizations(id),
+    created_at   TIMESTAMPTZ NOT NULL
 );
 
+-- Уникальность внешнего id — в пределах организации; у строк без неё своя:
+-- NULL в обычном уникальном индексе различен, дубли прошли бы молча.
+CREATE UNIQUE INDEX uq_clients_org_channel_external
+    ON clients (organization_id, channel, external_id) WHERE organization_id IS NOT NULL;
+CREATE UNIQUE INDEX uq_clients_channel_external_null
+    ON clients (channel, external_id) WHERE organization_id IS NULL;
+CREATE INDEX idx_clients_org ON clients (organization_id) WHERE organization_id IS NOT NULL;
 CREATE INDEX idx_clients_phone ON clients (phone) WHERE phone IS NOT NULL;
 
 
@@ -132,6 +161,9 @@ CREATE TABLE dashboard_users (
 CREATE TABLE conversations (
     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id        UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    -- Дублирует организацию клиента намеренно: политика RLS и панель
+    -- отбирают диалоги без соединения с clients.
+    organization_id  UUID REFERENCES organizations(id),
     mode             conversation_mode NOT NULL DEFAULT 'bot_active',
     funnel_stage     funnel_stage      NOT NULL DEFAULT 'new',
     -- Свободная сумка: имя, контакт, боли, интересы, бюджет, срок.
@@ -148,6 +180,21 @@ CREATE TABLE conversations (
 CREATE INDEX idx_conv_active   ON conversations (is_active, last_activity_at DESC);
 CREATE INDEX idx_conv_mode     ON conversations (mode) WHERE mode <> 'bot_active';
 CREATE INDEX idx_conv_lead     ON conversations USING GIN (lead_data);
+CREATE INDEX idx_conversations_org ON conversations (organization_id) WHERE organization_id IS NOT NULL;
+
+-- RLS изоляции организаций (Э4). 🔴 Честно: пока бот ходит в базу
+-- владельцем таблиц, владелец политики ОБХОДИТ — действующая гарантия
+-- изоляции сегодня это фильтры приложения (tests/test_orgs_isolation.py).
+-- Политики заработают, когда появится непривилегированный пользователь БД.
+ALTER TABLE clients       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE documents     ENABLE ROW LEVEL SECURITY;
+CREATE POLICY org_isolation_clients ON clients
+    USING (organization_id IS NOT DISTINCT FROM NULLIF(current_setting('app.org_id', true), '')::uuid);
+CREATE POLICY org_isolation_conversations ON conversations
+    USING (organization_id IS NOT DISTINCT FROM NULLIF(current_setting('app.org_id', true), '')::uuid);
+CREATE POLICY org_isolation_documents ON documents
+    USING (organization_id IS NOT DISTINCT FROM NULLIF(current_setting('app.org_id', true), '')::uuid);
 
 
 -- ─── Сообщения ───
@@ -185,12 +232,20 @@ CREATE TABLE owner_actions (
 
 CREATE TABLE documents (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organization_id UUID REFERENCES organizations(id),
     source      TEXT NOT NULL,
-    -- Хеш содержимого: один и тот же документ не грузится дважды.
-    file_hash   TEXT NOT NULL UNIQUE,
+    -- Хеш содержимого: один и тот же документ не грузится дважды —
+    -- в пределах организации (у двух гостиниц бывает одинаковый прайс).
+    file_hash   TEXT NOT NULL,
     chunk_count INTEGER NOT NULL DEFAULT 0,
     created_at  TIMESTAMPTZ NOT NULL
 );
+
+CREATE UNIQUE INDEX uq_documents_org_hash
+    ON documents (organization_id, file_hash) WHERE organization_id IS NOT NULL;
+CREATE UNIQUE INDEX uq_documents_hash_null
+    ON documents (file_hash) WHERE organization_id IS NULL;
+CREATE INDEX idx_documents_org ON documents (organization_id) WHERE organization_id IS NOT NULL;
 
 CREATE TABLE knowledge_chunks (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -281,6 +336,8 @@ CREATE INDEX idx_outbox_dedup ON outbox (dedup_key, created_at)
 -- Если он нужен, добавьте флаг вида seen_in_feed: снятое с выгрузки
 -- помечается, а не удаляется, иначе бот рассказывает про товары-призраки.
 --
--- tenant_id и всё, что связано с мультиарендностью. Один экземпляр
--- обслуживает одну компанию.
+-- tenant_id ОТДЕЛЬНЫМ полем всего подряд. С Э4 (ADR-083) мультиарендность
+-- продавца есть, но ровно в объёме organization_id у clients, conversations
+-- и documents: сообщения, согласия и очередь наследуют организацию через
+-- диалог и клиента, и дублировать её в каждую таблицу не нужно.
 -- ─────────────────────────────────────────────────────────────────────

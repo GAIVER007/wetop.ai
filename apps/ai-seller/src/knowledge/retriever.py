@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.models import KnowledgeChunk
+from src.db.models import Document, KnowledgeChunk
 
 if TYPE_CHECKING:  # только для аннотаций: retriever не зависит от загрузки модели
     from src.knowledge.embedder import Embedder
@@ -60,21 +60,37 @@ def _cosine(a: list[float], b: list[float]) -> float:
 
 
 async def search(
-    session: AsyncSession, embedder: Embedder, query: str, *, top_k: int
+    session: AsyncSession,
+    embedder: Embedder,
+    query: str,
+    *,
+    top_k: int,
+    organization_id: uuid.UUID | None = None,
 ) -> list[RetrievedChunk]:
     """Ближайшие top_k чанков к запросу по косинусу, по убыванию оценки.
 
     Postgres — расстояние считает pgvector (оператор <=>, индекс hnsw из
     миграции). SQLite (только тесты) — косинус в Python по всем чанкам:
     индекса нет, но и данных в тестах мало.
+
+    🔴 organization_id (Э4): поиск не выносит знания одной гостиницы
+    в ответы другой. None — как раньше, без отбора: экземпляр-помощник
+    держит все документы без организации.
     """
     if not query.strip() or top_k <= 0:
         return []
     vec = await embedder.embed_query(query)
 
+    def scoped(stmt):
+        if organization_id is None:
+            return stmt
+        return stmt.join(Document, Document.id == KnowledgeChunk.document_id).where(
+            Document.organization_id == organization_id
+        )
+
     if _dialect_name(session) == "postgresql":
         distance = _cosine_distance(vec).label("distance")
-        stmt = (
+        stmt = scoped(
             sa.select(KnowledgeChunk, distance)
             .where(KnowledgeChunk.embedding.is_not(None))
             .order_by(distance)
@@ -92,7 +108,7 @@ async def search(
             for chunk, dist in rows
         ]
 
-    stmt = sa.select(KnowledgeChunk).where(KnowledgeChunk.embedding.is_not(None))
+    stmt = scoped(sa.select(KnowledgeChunk).where(KnowledgeChunk.embedding.is_not(None)))
     chunks = (await session.execute(stmt)).scalars().all()
     scored = [
         RetrievedChunk(

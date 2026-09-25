@@ -4,6 +4,7 @@ from alembic import command
 from sqlalchemy import create_engine, inspect
 
 CORE_TABLES = {
+    "organizations",
     "clients",
     "consents",
     "dashboard_users",

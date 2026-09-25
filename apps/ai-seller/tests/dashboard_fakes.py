@@ -33,6 +33,7 @@ from src.db.models import (
     DashboardUser,
     Document,
     Message,
+    Organization,
     OutboxItem,
     OwnerAction,
 )
@@ -192,6 +193,35 @@ def sync_db(migrated_db: str) -> Iterator[Any]:
         yield sa_sessionmaker(engine, expire_on_commit=False)
     finally:
         engine.dispose()
+
+
+def seed_org(
+    sessions: Any,
+    org_id: str,
+    key: str = "sk_" + "ab" * 12,
+    hosts: list[str] | tuple[str, ...] = (),
+    *,
+    active: bool = True,
+    prompt: str | None = None,
+    name: str = "Гостиница-стенд",
+) -> uuid.UUID:
+    """Гостиница у продавца (Э4) — так, как её заводит платформа."""
+    now = utcnow()
+    with sessions() as session:
+        session.add(
+            Organization(
+                id=uuid.UUID(org_id),
+                name=name,
+                public_key=key,
+                active=active,
+                hosts=list(hosts),
+                system_prompt=prompt,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        session.commit()
+    return uuid.UUID(org_id)
 
 
 def _all(sessions: Any, stmt: Any) -> list[Any]:

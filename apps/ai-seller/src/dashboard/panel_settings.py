@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
+import uuid
 from datetime import timedelta
 from pathlib import Path
 
@@ -20,7 +21,7 @@ from pydantic import BaseModel, ConfigDict
 from starlette.concurrency import run_in_threadpool
 
 from src.config import Settings
-from src.dashboard.auth_router import require_owner
+from src.dashboard.auth_router import request_org, require_owner
 from src.dashboard.panel_common import (
     allowed_models,
     is_secret_name,
@@ -112,8 +113,13 @@ async def write_prompt(request: Request, body: PromptIn) -> dict:
 
 
 @router.post("/knowledge", dependencies=[Depends(require_owner)])
-async def upload_knowledge(request: Request, file: UploadFile = File(...)) -> dict:
-    """Загрузка документа базы знаний. Ответы понятные: формат, размер, инъекция."""
+async def upload_knowledge(
+    request: Request,
+    file: UploadFile = File(...),
+    org: uuid.UUID | None = Depends(request_org),
+) -> dict:
+    """Загрузка документа базы знаний. Ответы понятные: формат, размер, инъекция.
+    У продавца документ ложится в организацию запроса (Э4)."""
     from src.knowledge.embedder import get_embedder
 
     settings: Settings = request.app.state.settings
@@ -134,6 +140,7 @@ async def upload_knowledge(request: Request, file: UploadFile = File(...)) -> di
                 chunk_chars=settings.kb_chunk_chars,
                 overlap=settings.kb_chunk_overlap,
                 min_chars=settings.kb_chunk_min_chars,
+                organization_id=org,
             )
     except UnsupportedFormat as exc:
         raise HTTPException(status_code=415, detail=str(exc)) from None
@@ -151,9 +158,11 @@ async def upload_knowledge(request: Request, file: UploadFile = File(...)) -> di
 
 
 @router.get("/knowledge")
-async def list_knowledge() -> dict:
+async def list_knowledge(org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Что загружено: источник, число кусков, время. Содержимого здесь нет."""
     stmt = sa.select(Document).order_by(Document.created_at.desc()).limit(200)
+    if org is not None:
+        stmt = stmt.where(Document.organization_id == org)
     async with sessions()() as session:
         docs = (await session.execute(stmt)).scalars().all()
     return {
@@ -204,33 +213,44 @@ async def change_model(request: Request, body: ModelIn) -> dict:
 
 
 @router.get("/summary")
-async def summary(request: Request) -> dict:
+async def summary(request: Request, org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Сводка за сутки. Считает база: выбрать всё и посчитать в Python —
-    тот отказ, который на боевых объёмах находят последним."""
+    тот отказ, который на боевых объёмах находят последним.
+    У продавца числа считаются в организации запроса (Э4)."""
     from src.sla_alerts import find_stale
 
     settings: Settings = request.app.state.settings
     now = utcnow()
     since = now - timedelta(hours=SUMMARY_HOURS)
     async with sessions()() as session:
-        dialogs = await session.scalar(
+        dialogs_stmt = (
             sa.select(sa.func.count())
             .select_from(Conversation)
             .where(Conversation.last_activity_at >= since)
         )
-        replies = await session.scalar(
+        replies_stmt = (
             sa.select(sa.func.count())
             .select_from(Message)
             .where(Message.sent_by_us.is_(True), Message.created_at >= since)
         )
         # Лид — клиент с контактом: телефон дороже любой другой метки.
-        leads = await session.scalar(
+        leads_stmt = (
             sa.select(sa.func.count())
             .select_from(Client)
             .where(Client.created_at >= since, Client.phone.is_not(None))
         )
+        if org is not None:
+            dialogs_stmt = dialogs_stmt.where(Conversation.organization_id == org)
+            replies_stmt = replies_stmt.join(
+                Conversation, Conversation.id == Message.conversation_id
+            ).where(Conversation.organization_id == org)
+            leads_stmt = leads_stmt.where(Client.organization_id == org)
+        dialogs = await session.scalar(dialogs_stmt)
+        replies = await session.scalar(replies_stmt)
+        leads = await session.scalar(leads_stmt)
         stale = await find_stale(
-            session, sla_seconds=settings.sla_seconds, now=now, lookback_hours=SUMMARY_HOURS
+            session, sla_seconds=settings.sla_seconds, now=now, lookback_hours=SUMMARY_HOURS,
+            organization_id=org,
         )
     return {
         "hours": SUMMARY_HOURS,

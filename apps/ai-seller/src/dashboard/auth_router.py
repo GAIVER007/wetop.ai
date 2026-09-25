@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import secrets
+import uuid
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -244,6 +245,8 @@ SERVICE_ROUTES = frozenset({
     ("GET", "/summary"),
     ("PUT", "/seller/profile"),
     ("PUT", "/seller/facts"),
+    # Э4: платформа заводит и выключает гостиницу у продавца.
+    ("PUT", "/seller/organizations/{org_id}"),
 })
 
 # «Платформа → Техподдержка» (ADR-084): помощник — бот самой платформы, его
@@ -317,6 +320,31 @@ async def require_owner(user: DashboardUser = Depends(current_user)) -> Dashboar
     if user.role != "owner":
         raise HTTPException(status_code=403, detail="Действие доступно только владельцу")
     return user
+
+
+ORG_HEADER = "X-Organization"
+
+
+async def request_org(request: Request) -> uuid.UUID | None:
+    """Организация запроса панели (Э4): у продавца обязательна — без неё
+    непонятно, чьи диалоги и знания отдавать, поэтому 400, а не «все подряд».
+    У помощника заголовок не читается вовсе: его строки без организации.
+
+    🔴 Только явное BOT_ROLE=seller (как _service_routes, но в другую
+    сторону): опечатка в роли не должна открыть панель без отбора.
+    """
+    from src.config import normalize_bot_role
+
+    settings = _settings(request)
+    if normalize_bot_role(settings.bot_role) != "seller":
+        return None
+    raw = (request.headers.get(ORG_HEADER) or "").strip()
+    if not raw:
+        raise HTTPException(status_code=400, detail="У продавца нужен заголовок X-Organization")
+    try:
+        return uuid.UUID(raw)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="X-Organization — не идентификатор") from None
 
 
 def _reconnect_allowed(user: DashboardUser, code: str, settings: Settings) -> bool:

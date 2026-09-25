@@ -16,13 +16,15 @@ import re
 import secrets
 import time
 
+import sqlalchemy as sa
 from fastapi import HTTPException, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 from src import dependencies
 from src.channels.widget_identity import Visitor, anonymous, is_platform_key, read_identity
-from src.config import Settings
+from src.config import Settings, normalize_bot_role
+from src.db.models import ORG_KEY_RE_TEXT, Organization
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,8 @@ RATE_WINDOW_SECONDS = 3600
 # платформы под это правило не попадает: его выдаёт подпись, а в user_id
 # платформы бывает и точка, и собака (почта как идентификатор).
 KEY_RE = re.compile(r"^[A-Za-z0-9_:-]{1,64}$")
+# Публичный ключ гостиницы из тега чата (Э4): формат проверяется до базы.
+ORG_KEY_RE = re.compile(ORG_KEY_RE_TEXT)
 
 
 # ─── Origin и CORS ───
@@ -63,6 +67,54 @@ def check_origin(request: Request) -> None:
         raise HTTPException(status_code=403, detail="forbidden")
 
 
+# ─── Гостиница по ключу из тега (Э4, ADR-083) ───
+
+
+def seller_mode(settings: Settings) -> bool:
+    """Только явное BOT_ROLE=seller: опечатка в роли сводится к помощнику,
+    и двери по организациям у неё не открываются."""
+    return normalize_bot_role(settings.bot_role) == "seller"
+
+
+def org_hosts_allowed(origin: str, org: Organization, own_host: str = "") -> bool:
+    """Домены гостиницы, а не WIDGET_SITE_HOSTS. 🔴 Пустой список доменов —
+    отказ, а не «пускаем всех»: у гостиницы без сайта виджет не подключить,
+    и режим разработки этой двери не касается."""
+    hosts = [str(h) for h in (org.hosts or [])]
+    return bool(hosts) and origin_allowed(origin, hosts, own_host)
+
+
+async def organization_by_key(org_key: str) -> Organization | None:
+    if not org_key or not ORG_KEY_RE.match(org_key):
+        return None
+    async with dependencies.get_sessionmaker()() as session:
+        stmt = sa.select(Organization).where(Organization.public_key == org_key)
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+
+async def require_org(request: Request) -> Organization | None:
+    """Дверь канала: у продавца её открывает ключ гостиницы (?k=sk_…),
+    и только с её доменов. Помощник — как раньше: Origin по настройке,
+    ключа в теге нет, возвращаем None.
+
+    🔴 Неизвестный ключ, чужой домен и active=false отвечают одинаково
+    (403 без подробностей): так после конца срока расширения виджет
+    на сайте гостиницы молча гаснет (Q-183), а чужой сайт не узнаёт,
+    чем именно не подошёл.
+    """
+    settings = settings_of(request)
+    if not seller_mode(settings):
+        check_origin(request)
+        return None
+    org = await organization_by_key(as_str(request.query_params.get("k")))
+    origin = request.headers.get("origin", "")
+    if org is None or not org.active or not org_hosts_allowed(
+        origin, org, request.headers.get("host", "")
+    ):
+        raise HTTPException(status_code=403, detail="forbidden")
+    return org
+
+
 class WidgetCorsMiddleware(BaseHTTPMiddleware):
     """CORS только для /widget и только для доменов платформы: виджет стоит
     на чужой странице, а открывать под него общий CORS приложения нельзя.
@@ -77,9 +129,7 @@ class WidgetCorsMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         settings: Settings = request.app.state.settings
         origin = request.headers.get("origin", "")
-        allowed = bool(origin) and origin_allowed(
-            origin, settings.widget_site_hosts_list, request.headers.get("host", "")
-        )
+        allowed = bool(origin) and await self._allowed(request, settings, origin)
         if request.method == "OPTIONS" and allowed:
             response: Response = Response(status_code=204)
         else:
@@ -96,6 +146,21 @@ class WidgetCorsMiddleware(BaseHTTPMiddleware):
                 "Content-Type, X-Widget-Identity"
             )
         return response
+
+    @staticmethod
+    async def _allowed(request: Request, settings: Settings, origin: str) -> bool:
+        """У продавца CORS открывают домены гостиницы по её ключу (Э4):
+        preflight несёт адрес с ?k=, тела у него нет. Сбой базы дверь
+        не открывает — браузеру честнее не отдать заголовки."""
+        own_host = request.headers.get("host", "")
+        if not seller_mode(settings):
+            return origin_allowed(origin, settings.widget_site_hosts_list, own_host)
+        try:
+            org = await organization_by_key(as_str(request.query_params.get("k")))
+        except Exception:  # noqa: BLE001 — база недоступна
+            logger.warning("widget: CORS не смог проверить ключ гостиницы", exc_info=True)
+            return False
+        return org is not None and bool(org.active) and org_hosts_allowed(origin, org, own_host)
 
 
 # ─── Тело запроса ───

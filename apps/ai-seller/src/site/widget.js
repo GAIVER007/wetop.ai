@@ -21,6 +21,9 @@
   var BASE = script.src.replace(/\/widget\.js(\?.*)?$/, '');
   // Признак пользователя платформы: подписан её ключом, бот проверит подпись.
   var IDENTITY = script.getAttribute('data-identity') || '';
+  // Ключ гостиницы (Э4): публичный, стоит в теге, уходит каждым запросом —
+  // продавец по нему узнаёт гостиницу и сверяет домен страницы.
+  var ORG_KEY = script.getAttribute('data-key') || '';
   var STORE_KEY = 'pmsw.visitor';
   // Срок жизни ключа задаёт настройка бота: он приходит ответом /session
   // и хранится рядом с ключом. Здесь запас на самый первый заход.
@@ -93,6 +96,7 @@
 
   function send(method, path, body, isForm, done, fail) {
     var xhr = new XMLHttpRequest();
+    if (ORG_KEY) { path += (path.indexOf('?') >= 0 ? '&' : '?') + 'k=' + encodeURIComponent(ORG_KEY); }
     xhr.open(method, BASE + path, true);
     if (!isForm) { xhr.setRequestHeader('Content-Type', 'application/json'); }
     // Признак — заголовком: адреса оседают в журналах, а в нём почта.
@@ -265,12 +269,16 @@
     send('POST', '/session', { visitor_key: key, identity: IDENTITY }, false, function (data) {
       resetting = false;
       if (!data.visitor_key) { return; }
+      if (!root) { build(); } // с ключом кнопка рисуется после открытой двери
       visitorKey = String(data.visitor_key);
       remember(visitorKey, data.session_ttl_hours);
       restartPoll();
       if (data.consent_required) { askConsent(); }
     }, function () {
       resetting = false;
+      // Дверь закрыта до первой отрисовки (погасшее расширение, чужой
+      // домен) — виджет молча не появляется вовсе (Q-183).
+      if (!root) { return; }
       chip.textContent = 'Чат сейчас недоступен.';
     });
   }
@@ -288,7 +296,8 @@
   }
 
   function start() {
-    build();
+    // Без ключа (помощник платформы) — как раньше: кнопка рисуется сразу.
+    if (!ORG_KEY) { build(); }
     openSession(saved());
   }
 

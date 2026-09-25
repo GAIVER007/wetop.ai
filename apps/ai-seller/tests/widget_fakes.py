@@ -229,19 +229,31 @@ class WidgetApp:
             out["X-Widget-Identity"] = identity
         return out
 
+    @staticmethod
+    def door(path: str, org_key: str | None) -> str:
+        """Ключ гостиницы (Э4) идёт параметром k на каждой двери — так же
+        его шлёт widget.js. Ключ публичный (стоит в теге страницы), поэтому
+        адресная строка ему не вредит."""
+        if org_key is None:
+            return path
+        return f"{path}{'&' if '?' in path else '?'}k={org_key}"
+
     def session(
         self,
         *,
         visitor_key: str | None = None,
         identity: str | None = None,
         origin: str | None = SITE_ORIGIN,
+        org_key: str | None = None,
     ) -> Any:
         body: dict[str, str] = {}
         if visitor_key is not None:
             body["visitor_key"] = visitor_key
         if identity is not None:
             body["identity"] = identity
-        return self.client.post(f"{PREFIX}/session", json=body, headers=self.headers(origin))
+        return self.client.post(
+            self.door(f"{PREFIX}/session", org_key), json=body, headers=self.headers(origin)
+        )
 
     def new_visitor(self, **kwargs: Any) -> str:
         response = self.session(**kwargs)
@@ -256,13 +268,16 @@ class WidgetApp:
         identity: str | None = None,
         attachment_id: str | None = None,
         origin: str | None = SITE_ORIGIN,
+        org_key: str | None = None,
     ) -> Any:
         body: dict[str, str] = {"visitor_key": visitor_key, "text": text}
         if identity is not None:
             body["identity"] = identity
         if attachment_id is not None:
             body["attachment_id"] = attachment_id
-        return self.client.post(f"{PREFIX}/message", json=body, headers=self.headers(origin))
+        return self.client.post(
+            self.door(f"{PREFIX}/message", org_key), json=body, headers=self.headers(origin)
+        )
 
     def poll(
         self,
@@ -271,10 +286,13 @@ class WidgetApp:
         *,
         identity: str | None = None,
         origin: str | None = SITE_ORIGIN,
+        org_key: str | None = None,
     ) -> Any:
         params: dict[str, str] = {"visitor_key": visitor_key}
         if after is not None:
             params["after"] = after
+        if org_key is not None:
+            params["k"] = org_key
         return self.client.get(
             f"{PREFIX}/messages", params=params, headers=self.headers(origin, identity)
         )
@@ -285,11 +303,14 @@ class WidgetApp:
         *,
         identity: str | None = None,
         origin: str | None = SITE_ORIGIN,
+        org_key: str | None = None,
     ) -> Any:
         body: dict[str, str] = {"visitor_key": visitor_key}
         if identity is not None:
             body["identity"] = identity
-        return self.client.post(f"{PREFIX}/consent", json=body, headers=self.headers(origin))
+        return self.client.post(
+            self.door(f"{PREFIX}/consent", org_key), json=body, headers=self.headers(origin)
+        )
 
     def attach(
         self,
@@ -300,10 +321,13 @@ class WidgetApp:
         content_type: str = "image/png",
         identity: str | None = None,
         origin: str | None = SITE_ORIGIN,
+        org_key: str | None = None,
     ) -> Any:
         # Ключ идёт в адресе, а не в форме: его проверяют ДО разбора формы,
         # иначе файл окажется на диске раньше, чем спросят, чей он.
         params: dict[str, str] = {"visitor_key": visitor_key}
+        if org_key is not None:
+            params["k"] = org_key
         return self.client.post(
             f"{PREFIX}/attachment",
             params=params,

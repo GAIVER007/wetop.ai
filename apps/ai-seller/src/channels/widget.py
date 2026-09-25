@@ -38,11 +38,11 @@ from src.channels.widget_guards import (
     KEY_RE,
     WidgetCorsMiddleware,
     as_str,
-    check_origin,
     client_ip,
     origin_allowed,
     rate_exceeded,
     read_json,
+    require_org,
     settings_of,
     sniff_type,
     visitor_from,
@@ -110,8 +110,9 @@ async def demo_page() -> HTMLResponse:
 
 @router.post("/session")
 async def open_session(request: Request) -> Response:
-    """Начало разговора: ключ посетителя, его диалог и признак пользователя."""
-    check_origin(request)
+    """Начало разговора: ключ посетителя, его диалог и признак пользователя.
+    У продавца дверь открывает ключ гостиницы из тега (Э4, require_org)."""
+    org = await require_org(request)
     settings = settings_of(request)
     data = await read_json(request, settings.widget_max_body_bytes)
     visitor = visitor_from(settings, data.get("identity"), data.get("visitor_key"), allow_new=True)
@@ -120,7 +121,9 @@ async def open_session(request: Request) -> Response:
     if await rate_exceeded(settings, "session", client_ip(request)):
         return JSONResponse(status_code=429, content={"status": "too_many"})
     async with dependencies.get_sessionmaker()() as session:
-        conversation = await ensure_conversation(session, visitor)
+        conversation = await ensure_conversation(
+            session, visitor, org.id if org is not None else None
+        )
         needs_consent = await consent_required(session, settings, conversation.client_id)
     # 🔴 Ни токена, ни почты: только признак и хвост ключа.
     logger.info("widget: сессия, %s, ключ …%s",
@@ -143,7 +146,7 @@ async def accept_consent(request: Request) -> Response:
     каждое сообщение, а записать согласие нечем, и бот не отвечает никогда.
     Кнопку рисовал удалённый канал; здесь её место.
     """
-    check_origin(request)
+    org = await require_org(request)
     settings = settings_of(request)
     data = await read_json(request, settings.widget_max_body_bytes)
     visitor = visitor_from(settings, data.get("identity"), data.get("visitor_key"), allow_new=False)
@@ -152,7 +155,9 @@ async def accept_consent(request: Request) -> Response:
     # Доказательством идёт дословно тот текст, который видел человек.
     shown = consent_screen(settings).text
     async with dependencies.get_sessionmaker()() as session:
-        conversation = await ensure_conversation(session, visitor)
+        conversation = await ensure_conversation(
+            session, visitor, org.id if org is not None else None
+        )
         await grant_consent(session, settings, conversation.client_id,
                             method=CHANNEL, shown_text=shown)
     return JSONResponse(content={"status": "ok"})
@@ -161,7 +166,7 @@ async def accept_consent(request: Request) -> Response:
 @router.post("/message")
 async def post_message(request: Request) -> Response:
     """Приём реплики. Ответ отдаётся сразу, ход идёт фоном."""
-    check_origin(request)
+    org = await require_org(request)
     settings = settings_of(request)
     data = await read_json(request, settings.widget_max_body_bytes)
     visitor = visitor_from(settings, data.get("identity"), data.get("visitor_key"), allow_new=False)
@@ -179,6 +184,7 @@ async def post_message(request: Request) -> Response:
     incoming = IncomingMessage(
         channel=CHANNEL, external_id=visitor.key, text=text, received_at=utcnow(),
         client_name=visitor.display_name, ip=client_ip(request) or None,
+        organization_id=str(org.id) if org is not None else None,
     )
     # 🔴 Кто спрашивает — знает канал, а не движок. Ставим до submit:
     # create_task копирует контекст, и инструменты помощника увидят именно
@@ -225,14 +231,15 @@ async def poll_messages(request: Request, visitor_key: str = "", after: str = ""
     параметром адреса: в нём идентификатор и почта, а адреса целиком
     оседают в журналах привратника, в истории браузера и в Referer.
     """
-    check_origin(request)
+    org = await require_org(request)
     settings = settings_of(request)
     identity = request.headers.get(IDENTITY_HEADER, "")
     visitor = visitor_from(settings, identity, visitor_key, allow_new=False)
     deadline = time.monotonic() + max(0, settings.widget_poll_timeout_seconds)
     while True:
         messages, mode = await load_messages(
-            dependencies.get_sessionmaker(), visitor.key, as_str(after)
+            dependencies.get_sessionmaker(), visitor.key, as_str(after),
+            org.id if org is not None else None,
         )
         if messages or time.monotonic() >= deadline:
             return {"messages": messages, "mode": mode}
@@ -245,7 +252,7 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
 
     Признак пользователя — заголовком, как и на опросе: в адресе ему не место.
     """
-    check_origin(request)
+    org = await require_org(request)
     settings = settings_of(request)
     if not settings.widget_attachments_enabled:
         # Выключено — двери нет: лишний маршрут не объявляем даже отказом.
@@ -266,7 +273,9 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
     # Диск открыт только знакомому посетителю: у незнакомого нет диалога,
     # а значит и снимок класть не к чему.
     async with dependencies.get_sessionmaker()() as session:
-        if await conversation_for_key(session, visitor.key) is None:
+        if await conversation_for_key(
+            session, visitor.key, org.id if org is not None else None
+        ) is None:
             raise HTTPException(status_code=403, detail="forbidden")
     allowed = settings.widget_attachment_types_list
     async with request.form() as form:

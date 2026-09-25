@@ -25,6 +25,14 @@ class IncomingMessage:
     received_at: datetime
     client_name: str | None = None
     ip: str | None = None
+    # Гостиница (Э4): ставит дверь канала — виджет из ключа в теге,
+    # песочница из тела. None — экземпляр-помощник или строки до Э4.
+    organization_id: str | None = None
+
+    def org_uuid(self) -> uuid.UUID | None:
+        """Организация как UUID на границе с базой. В JSON и по каналам она
+        ездит строкой: from_json не должен зависеть от типа поля."""
+        return uuid.UUID(self.organization_id) if self.organization_id else None
 
     def to_json(self) -> str:
         return json.dumps({**self.__dict__, "received_at": self.received_at.isoformat()}, ensure_ascii=False)

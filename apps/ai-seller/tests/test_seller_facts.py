@@ -10,10 +10,12 @@ import pytest
 import sqlalchemy as sa
 
 from src.db.models import Document, KnowledgeChunk
-from tests.dashboard_fakes import PANEL, _all, panel, sync_db  # noqa: F401 — фикстура
+from tests.dashboard_fakes import PANEL, _all, panel, seed_org, sync_db  # noqa: F401 — фикстура
 
 KEY = "service-key-for-tests-only"
-SERVICE = {"X-Service-Key": KEY}
+# Э4: у продавца факты кладутся в организацию из заголовка запроса.
+ORG = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa"
+SERVICE = {"X-Service-Key": KEY, "X-Organization": ORG}
 SOURCE = "platform:facts.md"
 FACTS = {
     "object_name": "Хостел на Толе би",
@@ -32,6 +34,7 @@ FACTS = {
 @pytest.fixture
 def app(monkeypatch, fake_redis, fake_embedder, sync_db):  # noqa: F811
     with panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="seller") as p:
+        seed_org(sync_db, ORG)
         yield p
 
 

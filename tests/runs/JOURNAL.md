@@ -2364,3 +2364,7 @@
 | 26.09.2026 00:19 | unit (частично: apps/api/src/units/units.controller.test.ts) | ✅ 5 из 5 | 3 с | 6972a66 +8 | [лог](logs/2026-09-25T19-19-53Z-unit-4fbd.log) | TZ audita blok 3: fake posle popravki |
 | 26.09.2026 00:19 | integration (частично: tests/integration/audit-list.test.ts tests/integration/integrity-guards.test.ts) | ✅ 8 из 8 | 4 с | 6972a66 +13 | [лог](logs/2026-09-25T19-19-57Z-integration-277f.log) | helper types |
 | 26.09.2026 00:20 | lint | ✅ без ошибок | 13 с | 6972a66 +14 | [лог](logs/2026-09-25T19-20-41Z-lint-1f2f.log) | TZ audita blok 3 itog |
+| 25.09.2026 23:54 | typecheck | ✅ без ошибок | 29 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-54-23Z-typecheck-8098.log) |  |
+| 25.09.2026 23:54 | lint | ✅ без ошибок | 22 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-54-53Z-lint-0a84.log) |  |
+| 25.09.2026 23:55 | unit | ✅ 1853 из 1856, пропущено 3 | 1 мин 13 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-55-23Z-unit-149a.log) |  |
+| 25.09.2026 23:56 | integration | ✅ 76 из 76 | 31 с | 1cbd2e9 +7 | [лог](logs/2026-09-25T18-56-49Z-integration-c512.log) |  |

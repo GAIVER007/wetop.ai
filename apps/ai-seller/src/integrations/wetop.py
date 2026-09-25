@@ -1,12 +1,10 @@
 """[КЛИЕНТ] Провайдер WETOP: наличие, расчёт, бронь.
 
-🔴 Способ подключения бота к WETOP владельцем ЕЩЁ НЕ ВЫБРАН (вопрос Q-166):
-адрес и порядок авторизации подставляются после его решения, поэтому режим
-по умолчанию — 'stub', а файл включается настройкой INTEGRATION_MODE=wetop.
-
-Здесь рабочий разбор ответа и отказов по публичному контракту бронирования
-(GET /w/availability, POST /w/book). Имена полей тела уточняются после того же
-решения, поэтому разбор мягкий: незнакомое тело даёт «не знаю» с пометкой
+Наличие и цену продавец читает дверью котировки GET /bot/availability
+(Q-166 в объёме чтения — ADR-085): узкий ключ SELLER_QUOTE_KEY, организация
+в запросе, JSON — тот же, что у публичного виджета. Бронь из чата не
+включена — заявка администратору до базы в РК (Q-166б, ADR-086); POST /w/book
+здесь на тот день. Разбор мягкий: незнакомое тело даёт «не знаю» с пометкой
 в журнал, а не выдуманное число мест и не выдуманную сумму. Сам разбор —
 в wetop_parse.py, чтобы этот файл читался целиком.
 
@@ -30,19 +28,8 @@ from src.integrations.providers import (
     Quote,
 )
 from src.integrations.wetop_parse import (
-    NAME_KEYS,
-    as_int,
-    body_reason,
-    categories,
-    parse_health,
-    parse_incident,
-    currency,
-    free_units,
-    has_error,
-    per_night_minor,
-    pick,
-    total_minor,
-)
+    NAME_KEYS, as_int, body_reason, categories, currency, free_units, has_error,
+    parse_health, parse_incident, per_night_minor, pick, sellable, total_minor)
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +39,8 @@ PATH_ERRORS = "/assistant/errors"
 PATH_GUARD_STATUS = "/guard/status"
 KEY_HEADER = "x-wetop-service-key"
 
-PATH_AVAILABILITY = "/w/availability"
+# Дверь котировки продавца (ADR-085, подробности в шапке файла) и бронь.
+PATH_AVAILABILITY = "/bot/availability"
 PATH_BOOK = "/w/book"
 
 # Порог «мест мало». Число остатка наружу не уходит — только признак.
@@ -133,16 +121,22 @@ class WetopProviders:
         return body
 
     async def _availability(self, arrival: date, departure: date, guests: int) -> dict:
-        """Остаток и сумму отдаёт один адрес, поэтому запрос общий."""
-        return await self._request(
-            "GET",
-            PATH_AVAILABILITY,
-            params={
-                "arrival": arrival.isoformat(),
-                "departure": departure.isoformat(),
-                "guests": guests,
-            },
-        )
+        """Остаток и сумму отдаёт один адрес, поэтому запрос общий.
+
+        Организация — из хода (ставит движок): продавец спрашивает про СВОЮ
+        гостиницу. Поле гостей у платформы зовётся adults — контракт виджета.
+        """
+        from src.dependencies import get_current_organization_id
+
+        params: dict = {
+            "arrival": arrival.isoformat(),
+            "departure": departure.isoformat(),
+            "adults": guests,
+        }
+        organization = get_current_organization_id()
+        if organization:
+            params["organization"] = organization
+        return await self._request("GET", PATH_AVAILABILITY, params=params)
 
     async def check(
         self, arrival: date, departure: date, guests: int, category: str | None
@@ -184,6 +178,11 @@ class WetopProviders:
             return None
 
         item = items[0]
+        if not sellable(item):
+            # Закрыта ограничением или не вмещает гостей: цена по ней —
+            # обещание, которое стойка не выполнит.
+            logger.info("wetop: категория закрыта или не вмещает гостей, цену не называем")
+            return None
         total = total_minor(item)
         money = currency(item, body)
         if total is None or money is None:
@@ -252,7 +251,6 @@ class WetopProviders:
             logger.error("wetop: бронь без идентификатора в ответе")
             raise ProviderUnavailable("no_external_id")
         return LeadRef(external_id=str(raw_id), created=True)
-
 
     # ─── Помощник платформы (ТЗ интеграции, Б1 поверх П4) ───
 

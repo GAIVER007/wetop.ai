@@ -18,6 +18,7 @@ import httpx
 
 from src import dependencies
 from src.config import Settings, get_settings
+from src.config import normalize_bot_role
 from src.integrations.providers import Providers
 from src.integrations.stub import StubProviders
 
@@ -58,15 +59,25 @@ def build_providers(
         # Через модуль, а не импортом имени: тесты подменяют get_http_client.
         client = http_client or dependencies.get_http_client()
         wetop = WetopProviders(settings, client)
+        role = normalize_bot_role(settings.bot_role)
+        if role == "seller":
+            # Продавец (Q-166 в объёме чтения, ADR-085): наличие и цена своей
+            # гостиницы узким ключом котировки. Брони из чата НЕТ — заявка
+            # остаётся как была (заглушка, lead_data + панель) до базы в РК
+            # (Q-166б, ADR-086); ошибки человека и здоровье — пути помощника.
+            stub = StubProviders()
+            return Providers(
+                orders=None, customers=None, availability=wetop, leads=stub,
+                mode=MODE_WETOP, incidents=None, health=None,
+            )
+        # Помощник: ошибки человека и состояние платформы (ТЗ, Б1 поверх П4)
+        # своим узким ключом ASSISTANT_READ_KEY; наличие и цены — не его работа.
         return Providers(
             orders=None,
             customers=None,
-            availability=wetop,
-            leads=wetop,
+            availability=None,
+            leads=StubProviders(),
             mode=MODE_WETOP,
-            # Ошибки человека и состояние платформы (ТЗ интеграции, Б1 поверх П4).
-            # Пока платформа адреса не открыла, запрос вернёт отказ, и помощник
-            # честно скажет «не знаю», а не перескажет чужой журнал.
             incidents=wetop,
             health=wetop,
         )

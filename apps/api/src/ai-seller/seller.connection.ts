@@ -38,6 +38,13 @@ export interface SellerPort {
   llmKeyStatus(orgId: string): Promise<unknown>;
   putLlmKey(orgId: string, key: string): Promise<unknown>;
   checkLlmKey(orgId: string, key: string): Promise<unknown>;
+  /** Подключение WhatsApp (С3): статус, поставить/снять, проверка номера и токена */
+  whatsappStatus(orgId: string): Promise<unknown>;
+  putWhatsApp(
+    orgId: string,
+    input: { phoneNumberId: string; token: string; appSecret: string },
+  ): Promise<unknown>;
+  checkWhatsApp(orgId: string, input: { phoneNumberId: string; token: string }): Promise<unknown>;
   /** Завести или поправить гостиницу у продавца (Э4) */
   putOrganization(
     id: string,

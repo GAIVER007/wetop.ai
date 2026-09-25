@@ -7,7 +7,13 @@ import {
   sellerStepFromForm,
   type SellerProfileStep,
 } from '../../lib/ai-seller';
-import { ApiError, sellerApi, type SellerExtractResult, type SellerProfileBody } from '../../lib/api';
+import {
+  ApiError,
+  sellerApi,
+  type SellerExtractResult,
+  type SellerProfileBody,
+  type SellerWhatsAppView,
+} from '../../lib/api';
 
 /**
  * Действия раздела «ИИ-продавец» (ТЗ ред. 1 П6, П8). Всё идёт через API платформы: ни адреса, ни ключа продавца
@@ -129,6 +135,64 @@ export async function llmKeyCheckAction(
     };
   } catch (e) {
     return { error: describe(e), message: null, set: null, last4: null, attempt };
+  }
+}
+
+export interface WhatsAppResult {
+  error: string | null;
+  message: string | null;
+  view: SellerWhatsAppView | null;
+  attempt: number;
+}
+
+/** «Подключить» и «Отключить» WhatsApp (С3): поля уходят боту, платформа токен не хранит */
+export async function whatsappSaveAction(
+  prev: WhatsAppResult | null,
+  form: FormData,
+): Promise<WhatsAppResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const off = form.get('disconnect') === '1';
+  try {
+    const view = await sellerApi.saveWhatsApp(
+      off
+        ? { phoneNumberId: '' }
+        : {
+            phoneNumberId: String(form.get('phoneNumberId') ?? '').trim(),
+            token: String(form.get('token') ?? '').trim(),
+            appSecret: String(form.get('appSecret') ?? '').trim(),
+          },
+    );
+    refresh();
+    return {
+      error: null,
+      message: view.set ? 'WhatsApp подключён: впишите адрес и слово в консоль Meta' : 'WhatsApp отключён',
+      view,
+      attempt,
+    };
+  } catch (e) {
+    return { error: describe(e), message: null, view: null, attempt };
+  }
+}
+
+/** «Проверить» — Graph отдаёт номер по токену; вызов делает бот */
+export async function whatsappCheckAction(
+  prev: WhatsAppResult | null,
+  form: FormData,
+): Promise<WhatsAppResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  try {
+    const verdict = await sellerApi.checkWhatsApp({
+      phoneNumberId: String(form.get('phoneNumberId') ?? '').trim(),
+      token: String(form.get('token') ?? '').trim(),
+    });
+    return {
+      error: verdict.valid ? null : (verdict.reason ?? 'Meta не приняла номер или токен'),
+      message: verdict.valid ? `Номер подтверждён${verdict.phone ? `: ${verdict.phone}` : ''}` : null,
+      view: null,
+      attempt,
+    };
+  } catch (e) {
+    return { error: describe(e), message: null, view: null, attempt };
   }
 }
 

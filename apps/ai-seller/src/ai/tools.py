@@ -56,6 +56,10 @@ class ToolRegistry:
             raise ValueError(f"инструмент уже зарегистрирован: {spec.name}")
         self._specs[spec.name] = spec
 
+    def get(self, name: str):
+        """Спецификация по имени; None — такого инструмента нет."""
+        return self._specs.get(name)
+
     @property
     def names(self) -> list[str]:
         return list(self._specs)

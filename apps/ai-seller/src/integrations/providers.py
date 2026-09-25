@@ -196,6 +196,14 @@ class PlatformHealthProvider(Protocol):
     async def status(self) -> HealthReport: ...
 
 
+class SubscriptionProvider(Protocol):
+    """Карточка организации платформы для техподдержки (С5, Q-187):
+    название, статус и срок расширения. Денег и гостей здесь нет.
+    None — организации с таким id не существует."""
+
+    async def organization_card(self, organization_id: str) -> dict | None: ...
+
+
 @dataclass
 class Providers:
     """Набор провайдеров для этого запуска. None — такой системы нет:
@@ -211,3 +219,5 @@ class Providers:
     # (и следующий проект, где помощника нет) не пришлось править.
     incidents: IncidentProvider | None = None
     health: PlatformHealthProvider | None = None
+    # С5: подписка организации — только у помощника, ключом ASSISTANT_READ_KEY.
+    subscriptions: SubscriptionProvider | None = None

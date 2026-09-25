@@ -39,6 +39,31 @@ export class ExtensionsService {
     return aiSellerView(await this.repo.aiSeller(organizationId), now);
   }
 
+  /**
+   * Карточка организации для техподдержки (С5, Q-187): название, статус, срок расширения.
+   * Почт владельцев, числа сотрудников, денег и гостей здесь нет — ответ уходит боту.
+   */
+  async organizationCard(
+    id: string,
+    now: Date = new Date(),
+  ): Promise<{
+    id: string;
+    name: string;
+    status: string;
+    createdAt: string;
+    aiSeller: AiSellerAccessView;
+  } | null> {
+    const row = await this.repo.organization(id);
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+      aiSeller: aiSellerView(row.aiSeller, now),
+    };
+  }
+
   /** Подписка модуля продавца: обратный вызов, а не импорт — PlatformModule о продавце не знает */
   onAiSellerChange(listener: (organizationId: string) => void): void {
     this.aiSellerListeners.push(listener);

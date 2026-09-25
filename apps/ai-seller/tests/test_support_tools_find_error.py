@@ -24,7 +24,7 @@ from tests.support_fakes import (
 )
 
 ADULTS = "adults — целое ≥ 1"
-TOOLS = ["find_error", "my_recent_errors", "platform_status"]
+TOOLS = ["find_error", "my_recent_errors", "my_subscription", "platform_status"]
 
 
 @pytest.fixture(autouse=True)
@@ -54,7 +54,7 @@ def registry(tmp_path: Path):
 # ─── Реестр ───
 
 
-def test_registry_exposes_three_tools(registry) -> None:
+def test_registry_exposes_the_support_tools(registry) -> None:
     names = [spec["function"]["name"] for spec in registry.specs_for_openai()]
     assert names == TOOLS
 

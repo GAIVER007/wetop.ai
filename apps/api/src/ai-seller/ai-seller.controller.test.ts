@@ -771,3 +771,65 @@ describe('ключ модели партнёра (С2, Q-186; план `plans/se
     expect(res.text).not.toContain('sk-partner');
   });
 });
+
+describe('подключение WhatsApp (С3, Q-185 (а); план `plans/seller-partner-bot-2026-09-25.md`)', () => {
+  // Токен и секрет приложения Meta хранит только бот (шифрованными); платформа
+  // показывает phone_number_id, проверочное слово и адрес вебхука для консоли Meta.
+  it('подключить: поля уходят боту, назад — номер, слово и адрес вебхука без токена', async () => {
+    connection.seller.replies.putWhatsApp = {
+      set: true,
+      phone_number_id: '555000111',
+      verify_token: 'slovo-dlya-meta',
+    };
+    const res = await api()
+      .put('/ai-seller/whatsapp')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' })
+      .expect(200);
+    expect(res.body).toEqual({
+      set: true,
+      phoneNumberId: '555000111',
+      verifyToken: 'slovo-dlya-meta',
+      webhookUrl: `https://seller.example.invalid/channels/whatsapp/webhook/${ORG_A}`,
+    });
+    expect(res.text).not.toContain('EAAG-token');
+    expect(connection.seller.calls).toContainEqual({
+      op: 'putWhatsApp',
+      args: [ORG_A, { phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' }],
+    });
+  });
+
+  it('статус и отключение; проверка отдаёт вердикт и номер словами', async () => {
+    connection.seller.replies.whatsappStatus = {
+      set: true,
+      phone_number_id: '555000111',
+      verify_token: 'slovo',
+    };
+    const got = await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(200);
+    expect(got.body).toMatchObject({ set: true, phoneNumberId: '555000111' });
+    connection.seller.replies.putWhatsApp = { set: false, phone_number_id: null, verify_token: null };
+    const off = await api().put('/ai-seller/whatsapp').set(as('session-a')).send({ phoneNumberId: '' }).expect(200);
+    expect(off.body).toMatchObject({ set: false, phoneNumberId: null, webhookUrl: null });
+    connection.seller.replies.checkWhatsApp = { valid: true, phone: '+7 701 000-00-00', reason: null };
+    const check = await api()
+      .post('/ai-seller/whatsapp/check')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '555000111', token: 'EAAG-token-16chars-min' })
+      .expect(200);
+    expect(check.body).toEqual({ valid: true, phone: '+7 701 000-00-00', reason: null });
+  });
+
+  it('настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова', async () => {
+    const staff = await api()
+      .put('/ai-seller/whatsapp')
+      .set(as('session-staff'))
+      .send({ phoneNumberId: '1', token: 'EAAG-token-16chars-min', appSecret: 's' })
+      .expect(403);
+    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    extensions.access = 'expired';
+    await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(403);
+    extensions.access = 'active';
+    await api().post('/ai-seller/whatsapp/check').set(as('session-a')).send({ phoneNumberId: '' }).expect(400);
+    expect(connection.seller.calls).toEqual([]);
+  });
+});

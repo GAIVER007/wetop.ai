@@ -67,6 +67,15 @@ export class FakeSeller implements SellerPort {
   checkLlmKey(orgId: string, key: string) {
     return this.call('checkLlmKey', orgId, key);
   }
+  whatsappStatus(orgId: string) {
+    return this.call('whatsappStatus', orgId);
+  }
+  putWhatsApp(orgId: string, input: { phoneNumberId: string; token: string; appSecret: string }) {
+    return this.call('putWhatsApp', orgId, input);
+  }
+  checkWhatsApp(orgId: string, input: { phoneNumberId: string; token: string }) {
+    return this.call('checkWhatsApp', orgId, input);
+  }
   putFacts(payload: unknown) {
     return this.call('putFacts', payload);
   }

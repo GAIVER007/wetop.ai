@@ -71,6 +71,7 @@ import {
   KnowledgeUploadForm,
   LlmKeyForm,
   SandboxForm,
+  WhatsAppForm,
   SellerStepForm,
   StoryIntake,
   type MannerChoice,
@@ -182,6 +183,7 @@ async function SellerScreen({
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
       {view === 'embed' && <EmbedView status={status.value} />}
       {view === 'model' && <ModelView status={status.value} />}
+      {view === 'whatsapp' && <WhatsAppView status={status.value} />}
       {view === 'check' && <CheckView status={status.value} />}
     </Stack>
   );
@@ -205,6 +207,28 @@ async function ModelView({ status }: { status: SellerStatus }) {
   return (
     <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
       <LlmKeyForm status={loaded.value} readOnly={readOnly} />
+    </Panel>
+  );
+}
+
+/** «WhatsApp» (С3): подключение номера партнёра; токен и секрет живут только у бота */
+async function WhatsAppView({ status }: { status: SellerStatus }) {
+  const readOnly = sellerReadOnlyReason(status);
+  if (!sellerConnected(status))
+    return (
+      <Panel data-testid="seller-whatsapp-offline">
+        <p className="settings-note">
+          Продавец не подключён к платформе — WhatsApp подключается после него (адрес и служебный
+          ключ в окружении API).
+        </p>
+      </Panel>
+    );
+  const loaded = await settle(sellerApi.whatsapp());
+  if (!loaded.ok)
+    return <LoadError testId="seller-whatsapp-error-load" {...loadErrorProps(loaded.error)} />;
+  return (
+    <Panel data-testid="seller-whatsapp" aria-label="Подключение WhatsApp">
+      <WhatsAppForm status={loaded.value} readOnly={readOnly} />
     </Panel>
   );
 }

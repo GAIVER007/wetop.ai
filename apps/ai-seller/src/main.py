@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src import dashboard_router
+from src.channels import whatsapp as whatsapp_channel
 from src.channels import widget as widget_channel
 from src.config import Settings, get_settings
 from src.dashboard import auth_router
@@ -43,11 +44,17 @@ async def _drain_channel_runner(app: FastAPI) -> None:
     Зависшая задача не держит остановку вечно: по таймауту уходим дальше,
     но ресурсы закрываются уже после ожидания, а не до него.
     """
-    runner = getattr(app.state, "widget_runner", None)
-    if runner is None:
+    runners = [
+        r
+        for name in ("widget_runner", "whatsapp_runner")
+        if (r := getattr(app.state, name, None)) is not None
+    ]
+    if not runners:
         return
     try:
-        await asyncio.wait_for(runner.drain(), timeout=GRACEFUL_STOP_SECONDS)
+        await asyncio.wait_for(
+            asyncio.gather(*(r.drain() for r in runners)), timeout=GRACEFUL_STOP_SECONDS
+        )
     except (TimeoutError, asyncio.TimeoutError):
         logger.warning("Остановка: задачи канала не уложились в отведённое время")
     except Exception:
@@ -178,6 +185,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(dashboard_router.router)
     # Виджет на сайте: префикс /widget уже под IpBlockMiddleware.
     app.include_router(widget_channel.router)
+    # WhatsApp Cloud API: вебхук под организацией (С3); подпись проверяет дверь
+    app.include_router(whatsapp_channel.router)
     _mount_dashboard(app, app_settings)
 
     return app

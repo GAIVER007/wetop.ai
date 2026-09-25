@@ -209,7 +209,7 @@ describe('GET /assistant/errors — ошибки человека для пом�
       .set('x-wetop-service-key', ASSISTANT_KEY)
       .expect(200);
     // Обёртка — `items`, а не голый список и не `errors`: бот считает непустое поле `errors` в теле отказом
-    // (ТЗ ред. 1 на ветке `ai-seller`, П4; `src/integrations/wetop.py`, `recent_for_user`)
+    // (ТЗ ред. 1, П4; `apps/ai-seller/src/integrations/wetop.py`, `recent_for_user`)
     expect(res.body).toEqual({
       items: [
         { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 400, message: 'adults — целое ≥ 1' },

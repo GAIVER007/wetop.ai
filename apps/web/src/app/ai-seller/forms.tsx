@@ -14,7 +14,7 @@ import {
   Stack,
   Textarea,
 } from '../../components/ui';
-import { FAQ_MAX } from '../../lib/ai-seller';
+import { FAQ_MAX, LIST_MAX } from '../../lib/ai-seller';
 import type { SellerProfileBody } from '../../lib/api';
 import {
   applySellerAction,
@@ -34,17 +34,20 @@ export interface Choice {
 
 /**
  * «Настройки» продавца (ТЗ §4.1): личность и правила продаж полями. «Применить» сохраняет и сразу отправляет продавцу;
- * если продавец не ответил — настройки всё равно сохранены, отправит служба сверки.
+ * если продавец не ответил — настройки всё равно сохранены, отправит служба сверки. Варианты и пределы — модели бота
+ * `SellerProfile` (ADR-081): чего бот не примет, форма не предлагает.
  */
 export function SellerProfileForm({
   initial,
   languages,
   addressForms,
+  emojis,
   replyLengths,
 }: {
   initial: SellerProfileBody;
   languages: Choice[];
   addressForms: Choice[];
+  emojis: Choice[];
   replyLengths: Choice[];
 }) {
   const [state, action, pending] = useActionState<SellerFormResult | null, FormData>(
@@ -62,7 +65,7 @@ export function SellerProfileForm({
               <Input
                 name="botName"
                 defaultValue={values.botName ?? ''}
-                maxLength={60}
+                maxLength={40}
                 placeholder="Без имени"
               />
             </Field>
@@ -84,10 +87,16 @@ export function SellerProfileForm({
                 ))}
               </Select>
             </Field>
+            <Field label="Эмодзи">
+              <Select name="emoji" defaultValue={values.emoji}>
+                {emojis.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
           </Grid>
-          <label className="check">
-            <input type="checkbox" name="useEmoji" defaultChecked={values.useEmoji} /> Можно эмодзи
-          </label>
           <fieldset className="seller-choices">
             <legend className="seller-choices__legend">
               Языки — первый отмеченный продавец считает основным
@@ -107,7 +116,7 @@ export function SellerProfileForm({
             </div>
           </fieldset>
           <Field label="Приветствие">
-            <Textarea name="greeting" rows={2} maxLength={500} defaultValue={values.greeting} />
+            <Textarea name="greeting" rows={2} maxLength={300} defaultValue={values.greeting} />
           </Field>
         </Stack>
       </Panel>
@@ -124,28 +133,37 @@ export function SellerProfileForm({
             />
           </Field>
           <Field label="Что за доплату">
-            <Textarea name="paidExtras" rows={3} maxLength={1000} defaultValue={values.paidExtras} />
+            <Textarea
+              name="extraCharges"
+              rows={3}
+              maxLength={1000}
+              defaultValue={values.extraCharges}
+            />
           </Field>
           <Field label="Правила проживания">
             <Textarea name="houseRules" rows={4} maxLength={2000} defaultValue={values.houseRules} />
           </Field>
-          <Field label="Запреты">
+          <Field label="Запреты — по одному в строке">
             <Textarea
               name="prohibitions"
               rows={4}
-              maxLength={1000}
-              defaultValue={values.prohibitions}
+              defaultValue={values.prohibitions.join('\n')}
+              placeholder={'Не курить в номерах\nБез животных'}
             />
           </Field>
-          <Field label="Когда звать человека">
+          <Field label="Когда звать человека — по одному в строке">
             <Textarea
-              name="handoffRules"
+              name="callHumanWhen"
               rows={3}
-              maxLength={1000}
-              defaultValue={values.handoffRules}
+              defaultValue={values.callHumanWhen.join('\n')}
+              placeholder={'Группа от 6 человек\nОплата по счёту'}
             />
           </Field>
         </Grid>
+        <p className="settings-note">
+          В списках — до {LIST_MAX} строк, строка до 300 знаков. Жалобы, возврат денег, изменение и отмену брони продавец
+          передаёт человеку и без этого списка.
+        </p>
       </Panel>
 
       <FaqRows initial={values.faq} />
@@ -190,7 +208,7 @@ function FaqRows({ initial }: { initial: Array<{ question: string; answer: strin
               <Input
                 name={`faq-question-${i}`}
                 value={r.question}
-                maxLength={200}
+                maxLength={300}
                 onChange={(e) => update(i, 'question', e.target.value)}
               />
             </Field>

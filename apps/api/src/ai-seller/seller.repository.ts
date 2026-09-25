@@ -3,9 +3,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   pickSellerProfile,
   sellerFactsWindow,
+  type SellerAddressForm,
+  type SellerEmoji,
   type SellerFaqItem,
   type SellerFactsSource,
   type SellerProfileInput,
+  type SellerReplyLength,
 } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import { PrismaService } from '../database/prisma.provider';
@@ -73,16 +76,16 @@ const faqOf = (value: unknown): SellerFaqItem[] =>
 type ProfileRecord = {
   organizationId: string;
   botName: string | null;
-  addressForm: 'FORMAL' | 'INFORMAL';
-  useEmoji: boolean;
-  replyLength: 'SHORT' | 'MEDIUM' | 'LONG';
+  addressForm: SellerAddressForm;
+  emoji: SellerEmoji;
+  replyLength: SellerReplyLength;
   languages: string[];
   greeting: string;
   includedInPrice: string;
-  paidExtras: string;
+  extraCharges: string;
   houseRules: string;
-  prohibitions: string;
-  handoffRules: string;
+  prohibitions: string[];
+  callHumanWhen: string[];
   faq: unknown;
   updatedAt: Date;
   updatedBy: string | null;
@@ -97,15 +100,15 @@ const rowOf = (r: ProfileRecord): SellerProfileRow => ({
   organizationId: r.organizationId,
   botName: r.botName,
   addressForm: r.addressForm,
-  useEmoji: r.useEmoji,
+  emoji: r.emoji,
   replyLength: r.replyLength,
   languages: r.languages,
   greeting: r.greeting,
   includedInPrice: r.includedInPrice,
-  paidExtras: r.paidExtras,
+  extraCharges: r.extraCharges,
   houseRules: r.houseRules,
-  prohibitions: r.prohibitions,
-  handoffRules: r.handoffRules,
+  prohibitions: r.prohibitions ?? [],
+  callHumanWhen: r.callHumanWhen ?? [],
   faq: faqOf(r.faq),
   updatedAt: r.updatedAt,
   updatedBy: r.updatedBy,
@@ -238,7 +241,7 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
         bookingRatePlanId: { not: null },
       },
       orderBy: { createdAt: 'asc' },
-      select: { bookingRatePlan: { select: { id: true, code: true, name: true } } },
+      select: { bookingRatePlan: { select: { id: true, code: true, name: true, currency: true } } },
     });
     const plan = site?.bookingRatePlan ?? null;
     const codeOf = new Map(types.map((t) => [t.id, t.code]));
@@ -269,7 +272,8 @@ export class PrismaSellerFactsRepository implements SellerFactsRepository {
         capacityAdults: t.capacityAdults,
         units: t._count.units,
       })),
-      ratePlan: plan ? { code: plan.code, name: plan.name } : null,
+      // цены — в единицах тарифа сайта (у тарифа «ОТА в USD» — центы), и валюта уходит его
+      ratePlan: plan ? { code: plan.code, name: plan.name, currency: plan.currency } : null,
       rates: rates.map((r) => ({
         categoryCode: codeOf.get(r.accommodationTypeId)!,
         date: r.date.toISOString().slice(0, 10),

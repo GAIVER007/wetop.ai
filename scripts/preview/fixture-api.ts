@@ -7,6 +7,12 @@ import {
   previousPeriod,
   type DashboardPeriod,
   housekeepingRefusal,
+  DEFAULT_SELLER_PROFILE,
+  buildSellerFacts,
+  parseSellerProfile,
+  sellerCategoryPrices,
+  sellerFactsHash,
+  type SellerFactsSource,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -1357,20 +1363,36 @@ const uiSessions = new Map<string, UiUser>();
 const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
 
 // ── ИИ-продавец (ТЗ П5–П8): подставной продавец стенда. Гости и переписка — вымышленные (ADR-010) ──────
-const sellerProfileSeed = {
-  botName: null as string | null,
-  addressForm: 'FORMAL' as 'FORMAL' | 'INFORMAL',
-  useEmoji: false,
-  replyLength: 'SHORT' as 'SHORT' | 'MEDIUM' | 'LONG',
-  languages: ['ru'],
-  greeting: '',
-  includedInPrice: '',
-  paidExtras: '',
-  houseRules: '',
-  prohibitions: '',
-  handoffRules: '',
-  faq: [] as Array<{ question: string; answer: string }>,
-};
+// профиль и факты — теми же функциями домена, что у API (ADR-081): стенд не расходится со схемой бота
+const sellerProfileSeed = structuredClone(DEFAULT_SELLER_PROFILE);
+/** Факты стенда: двухместный номер — одна цена весь срок, общие — по субботам дороже (цена меняется) */
+const sellerFactsSource = (): SellerFactsSource => ({
+  property: {
+    name: propertyName,
+    address: 'Алматы, ул. Тестовая, 1',
+    timezone: 'Asia/Almaty',
+    currency: 'KZT',
+    checkInTime: '14:00',
+    checkOutTime: '12:00',
+  },
+  categories: categories.map((c) => ({
+    code: c.code,
+    name: c.name,
+    kind: c.code === 'ROOM' ? 'PRIVATE_ROOM' : 'DORM_BED',
+    capacityAdults: c.capacityAdults,
+    units: c.count,
+  })),
+  ratePlan: { code: 'BASE', name: 'Базовый тариф', currency: 'KZT' },
+  rates: categories.flatMap((c) =>
+    Array.from({ length: 60 }, (_, i) => ({
+      categoryCode: c.code,
+      date: add(today, i),
+      occupancy: c.capacityAdults,
+      priceMinor: c.code === 'ROOM' ? 1_500_000n : i % 7 === 5 ? 520_000n : 450_000n,
+    })),
+  ),
+  window: { from: today, to: add(today, 59) },
+});
 const SELLER_DIALOG_A = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
 const SELLER_DIALOG_B = '8c7d6e5f-4a3b-4c2d-9e1f-0a9b8c7d6e5f';
 const sellerDialogSeed = () => [
@@ -1418,7 +1440,11 @@ let sellerSaved = false;
 let sellerApplied = false;
 let sellerUpdatedAt: string | null = null;
 let sellerDialogs = sellerDialogSeed();
-let sellerKnowledge = [{ source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' }];
+const sellerKnowledgeSeed = () => [
+  { source: 'platform:facts.md', chunks: 2, createdAt: '2026-09-24T06:00:00.000Z' },
+  { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
+];
+let sellerKnowledge = sellerKnowledgeSeed();
 /** Состояние копии продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }` */
 let sellerState: 'ready' | 'not-configured' | 'other-organization' = 'ready';
 let sellerLastError: string | null = null;
@@ -1430,7 +1456,7 @@ function resetSeller() {
   sellerApplied = false;
   sellerUpdatedAt = null;
   sellerDialogs = sellerDialogSeed();
-  sellerKnowledge = [{ source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' }];
+  sellerKnowledge = sellerKnowledgeSeed();
   sellerState = 'ready';
   sellerLastError = null;
   sellerRetrying = false;
@@ -2555,41 +2581,15 @@ createServer(async (req, res) => {
           });
         if (path === '/ai-seller/profile') return send(200, sellerView());
         if (path === '/ai-seller/facts') {
-          const from = today;
-          const dates = Array.from({ length: 3 }, (_, i) => add(from, i));
+          const src = sellerFactsSource();
+          const facts = buildSellerFacts(src);
           return send(200, {
-            facts: {
-              source: 'platform:facts',
-              generated_at: new Date().toISOString(),
-              property: {
-                name: propertyName,
-                address: 'Алматы, ул. Тестовая, 1',
-                timezone: 'Asia/Almaty',
-                currency: 'KZT',
-                check_in_time: '14:00',
-                check_out_time: '12:00',
-              },
-              categories: categories.map((c) => ({
-                code: c.code,
-                name: c.name,
-                kind: c.code === 'ROOM' ? 'PRIVATE_ROOM' : 'DORM_BED',
-                capacity_adults: c.capacityAdults,
-                units: c.count,
-              })),
-              rate_plan: { code: 'BASE', name: 'Базовый тариф' },
-              window: { from, to: add(from, 59) },
-              prices: categories.flatMap((c) =>
-                dates.map((date, i) => ({
-                  category_code: c.code,
-                  date,
-                  guests: 1,
-                  price_minor: String((c.code === 'ROOM' ? 1_500_000 : 450_000) + i * 50_000),
-                  price_text: '',
-                })),
-              ),
-            },
-            hash: 'f'.repeat(64),
+            facts,
+            hash: sellerFactsHash(facts),
             applied: sellerApplied,
+            ratePlan: src.ratePlan,
+            window: src.window,
+            prices: sellerCategoryPrices(src),
           });
         }
         if (path === '/ai-seller/conversations') {
@@ -2630,17 +2630,10 @@ createServer(async (req, res) => {
           });
       }
       if (path === '/ai-seller/profile' && req.method === 'PUT') {
-        const languages = Array.isArray(body['languages']) ? (body['languages'] as string[]) : [];
-        if (languages.length === 0) return send(400, { message: 'Языки: нужен хотя бы один' });
-        sellerProfile = {
-          ...sellerProfileSeed,
-          ...(body as Partial<typeof sellerProfileSeed>),
-          botName: String(body['botName'] ?? '').trim() || null,
-          languages,
-          faq: ((body['faq'] as Array<{ question: string; answer: string }>) ?? []).filter(
-            (f) => f.question.trim() !== '' || f.answer.trim() !== '',
-          ),
-        };
+        // та же проверка, что у API: слова отказа — домена
+        const parsed = parseSellerProfile(body);
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        sellerProfile = parsed.value;
         sellerSaved = true;
         sellerApplied = false;
         sellerUpdatedAt = new Date().toISOString();

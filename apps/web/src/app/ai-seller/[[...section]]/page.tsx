@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { SELLER_ADDRESS_FORMS, SELLER_LANGUAGES, SELLER_REPLY_LENGTHS } from '@pms/domain';
+import {
+  SELLER_ADDRESS_FORMS,
+  SELLER_EMOJI,
+  SELLER_LANGUAGES,
+  SELLER_REPLY_LENGTHS,
+} from '@pms/domain';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { RefreshButton } from '../../../components/refresh-button';
@@ -23,11 +28,12 @@ import {
 import { Icon } from '../../../components/icon';
 import {
   SELLER_TABS,
+  categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
   conversationStageLabel,
+  knowledgeSourceLabel,
   leadFacts,
-  priceRanges,
   sellerBanner,
   type SellerView,
 } from '../../../lib/ai-seller';
@@ -35,7 +41,6 @@ import { almatyMoment, almatyWhen } from '../../../lib/almaty';
 import { displayPeriod } from '../../../lib/display-date';
 import { sellerApi, type SellerStatus } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
-import { formatMoney } from '../../../lib/money';
 import { CopyButton } from '../../analytics/setup/forms';
 import {
   DialogModeButtons,
@@ -168,32 +173,34 @@ async function SettingsView() {
       initial={loaded.value.profile}
       languages={Object.entries(SELLER_LANGUAGES).map(([value, label]) => ({ value, label }))}
       addressForms={Object.entries(SELLER_ADDRESS_FORMS).map(([value, label]) => ({ value, label }))}
+      emojis={Object.entries(SELLER_EMOJI).map(([value, label]) => ({ value, label }))}
       replyLengths={Object.entries(SELLER_REPLY_LENGTHS).map(([value, label]) => ({ value, label }))}
     />
   );
 }
 
-/** Данные объекта: ровно то, что уходит продавцу. Только просмотр — правят в «Настройках гостиницы» и «Тарифах» */
+/**
+ * Данные объекта: ровно то, что уходит продавцу (тело `PUT /seller/facts`), и почему у категории цена ушла или нет
+ * (ADR-081). Только просмотр — правят в «Настройках гостиницы», «Тарифах» и «Настройках сайта».
+ */
 async function DataView() {
   const loaded = await settle(sellerApi.facts());
   if (!loaded.ok) return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
-  const { facts, applied } = loaded.value;
-  const ranges = priceRanges(facts);
-  const currency = facts.property.currency;
+  const { facts, applied, ratePlan, window, prices } = loaded.value;
   return (
     <Stack>
       <Panel data-testid="seller-facts">
         <Row gap="lg" className="row--baseline">
-          <SectionTitle first>{facts.property.name}</SectionTitle>
+          <SectionTitle first>{facts.object_name}</SectionTitle>
           <Badge tone={applied ? 'ok' : 'warn'} data-testid="seller-facts-applied">
             {applied ? 'Продавец знает эти данные' : 'Отправим продавцу в течение минуты'}
           </Badge>
         </Row>
         <Grid min={180}>
-          <Fact label="Адрес" value={facts.property.address ?? 'не указан'} />
-          <Fact label="Заезд с" value={facts.property.check_in_time} />
-          <Fact label="Выезд до" value={facts.property.check_out_time} />
-          <Fact label="Часовой пояс" value={facts.property.timezone} />
+          <Fact label="Адрес" value={facts.address || 'не указан'} />
+          <Fact label="Заезд с" value={facts.check_in} />
+          <Fact label="Выезд до" value={facts.check_out} />
+          <Fact label="Часовой пояс" value={facts.timezone} />
         </Grid>
         <p className="settings-note">
           Город входит в адрес. Правка — в карточке объекта, продавец получит её сам.
@@ -201,43 +208,44 @@ async function DataView() {
       </Panel>
       <Panel>
         <SectionTitle first>
-          Категории и цены {facts.rate_plan ? `по тарифу «${facts.rate_plan.name}»` : ''}
+          Категории и цены {ratePlan ? `по тарифу «${ratePlan.name}»` : ''}
         </SectionTitle>
-        {!facts.rate_plan && (
+        {!ratePlan && (
           <Alert tone="warning" data-testid="seller-no-rate-plan">
-            Тариф сайта не выбран: продавец знает категории, но не цены. Выберите тариф виджета
-            бронирования в «Настройках сайта».
+            Тариф сайта не выбран: продавец знает категории, но о цене скажет «уточнит администратор». Выберите тариф
+            виджета бронирования в «Настройках сайта».
           </Alert>
         )}
-        <Table aria-label="Категории и цены продавца">
+        <Table aria-label="Категории и цены продавца" data-testid="seller-prices">
           <thead>
             <tr>
               <th>Категория</th>
               <th>Мест</th>
               <th>Гостей</th>
-              <th>Цена за ночь</th>
+              <th>Продавец скажет гостю</th>
             </tr>
           </thead>
           <tbody>
-            {ranges.map((r) => (
-              <tr key={r.code}>
-                <td>{r.name}</td>
-                <td>{r.units}</td>
-                <td>{r.capacity}</td>
-                <td>
-                  {r.min === null || r.max === null
-                    ? 'цен нет'
-                    : r.min === r.max
-                      ? formatMoney(r.min, currency)
-                      : `от ${formatMoney(r.min, currency)} до ${formatMoney(r.max, currency)}`}
-                </td>
-              </tr>
-            ))}
+            {prices.map((p) => {
+              const line = categoryPriceLine(p, facts.currency);
+              return (
+                <tr key={p.code}>
+                  <td>{p.name}</td>
+                  <td>{p.units}</td>
+                  <td>{p.capacity}</td>
+                  <td>
+                    {line.value}
+                    {line.note && <span className="sub"> — {line.note}</span>}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </Table>
         <p className="settings-note">
-          Продавец получает цены на каждый день: {displayPeriod(facts.window.from, facts.window.to)}. Наличие мест
-          он не знает: забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).
+          Продавец называет цену, только если за {displayPeriod(window.from, window.to)} она не меняется: названная им
+          цена становится обещанием гостю. Иначе он говорит «уточнит администратор». Наличие мест продавец не знает:
+          забронировать гость сможет, когда будет подключена котировка (часть 3 ТЗ).
         </p>
       </Panel>
       <Row>
@@ -302,7 +310,7 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
             <tbody>
               {loaded.value.items.map((d, i) => (
                 <tr key={`${d.source}-${i}`}>
-                  <td>{d.source}</td>
+                  <td>{knowledgeSourceLabel(d.source)}</td>
                   <td>{d.chunks}</td>
                   <td>{almatyMoment(d.createdAt)}</td>
                 </tr>

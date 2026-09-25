@@ -845,14 +845,16 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await page.goto('/finance');
   for (const id of ['charged', 'paid', 'refunded', 'balance'])
     await expect(page.getByRole('main').getByTestId(id)).toHaveText('0 ₸');
-  // /rooms с PR #66 — переход в /inventory: goto на переход обрывал следующий goto (ERR_ABORTED)
+  // Номерной фонд с PR #66 — `/inventory`; `/rooms` уводит туда потоком, и переход в пути обрывал следующий goto
   await page.goto('/inventory');
-  for (const stat of await page.locator('.stat__value').all()) await expect(stat).toHaveText('0');
+  for (const id of ['total-units', 'rooms', 'beds', 'max-guests', 'blocks'])
+    await expect(page.getByRole('main').getByTestId(id)).toHaveText('0');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   for (const route of ['/chessboard', '/inventory']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Не удалось загрузить данные');
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
+    await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
   }
   // «Менеджер каналов» с D4 (20.09) остаётся на экране: заголовок и форма на месте, вместо чисел — сбой
   await page.goto('/channel-manager');

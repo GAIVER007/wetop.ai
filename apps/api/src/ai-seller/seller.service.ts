@@ -17,9 +17,11 @@ import {
   parseSellerProfile,
   pickSellerProfile,
   redactText,
+  sellerCategoryPrices,
   sellerFactsHash,
   sellerProfilePayload,
   type SellerFactsPayload,
+  type SellerFactsSource,
   type SellerProfileInput,
 } from '@pms/domain';
 import { assistant } from '@pms/integrations';
@@ -56,7 +58,7 @@ const KNOWLEDGE_TYPES: Readonly<Record<string, string>> = {
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
-/** Как у продавца (`kb_max_file_mb = 10` на ветке `ai-seller`): больше он всё равно не примет */
+/** Как у продавца (`kb_max_file_mb = 10`, `apps/ai-seller/src/config.py`): больше он всё равно не примет */
 export const KNOWLEDGE_MAX_BYTES = 10 * 1024 * 1024;
 const REPLY_MAX = 4000;
 const SANDBOX_MAX = 2000;
@@ -79,11 +81,17 @@ export type SyncResult =
   | { failed: string; retry: boolean }
   | { profile: boolean; facts: boolean };
 
-/** Что продавец отклонил по содержанию: версия профиля (`updated_at` в мс) и отпечаток фактов */
+/**
+ * Что продавец отклонил по содержанию: профиль — версией (`updated_at` в мс) вместе с названием объекта, которое едет в
+ * нём же (переименовали объект — это уже другой профиль); факты — отпечатком
+ */
 interface Rejected {
-  profile: number | null;
+  profile: string | null;
   facts: string | null;
 }
+
+const profileKey = (row: SellerProfileRow, objectName: string): string =>
+  `${row.updatedAt.getTime()}|${objectName}`;
 
 /**
  * Отказ по содержанию: продавец прочёл и не принял (400, 422 — длины, слой 9). Та же версия будет отклонена снова, а
@@ -118,6 +126,8 @@ const SELLER_FIELD_LABELS: Readonly<Record<string, string>> = {
 /** Текст отказа продавца для человека и для `last_error`: без адреса, ключа и тел запросов */
 export function sellerErrorText(error: unknown): string {
   if (error instanceof assistant.SellerUnavailableError) return error.message;
+  // отказ самой платформы до вызова продавца («у организации нет объекта») — её же словами
+  if (error instanceof HttpException) return redactText(error.message, 500);
   if (error instanceof assistant.SellerRejectedError) {
     const fields = error.fields.map((f) => `«${SELLER_FIELD_LABELS[f] ?? f}»`).join(', ');
     return redactText(`ИИ-продавец отклонил: ${error.detail}${fields ? ` — ${fields}` : ''}`, 500);
@@ -161,6 +171,12 @@ export class SellerService {
    * повторится один раз и запомнится снова.
    */
   private readonly rejected = new Map<string, Rejected>();
+  /**
+   * Название объекта, с которым профиль последний раз ушёл продавцу: оно едет в профиле (`object_name`), и после
+   * переименования объекта в карточке профиль уходит заново. Память процесса: после перезапуска API профиль уйдёт
+   * один лишний раз.
+   */
+  private readonly sentObjectName = new Map<string, string>();
 
   constructor(
     @Inject(SELLER_CONNECTION) private readonly connection: SellerConnection,
@@ -211,11 +227,11 @@ export class SellerService {
   private async currentFacts(
     organizationId: string,
     now: Date,
-  ): Promise<{ payload: SellerFactsPayload; hash: string } | null> {
+  ): Promise<{ source: SellerFactsSource; payload: SellerFactsPayload; hash: string } | null> {
     const source = await this.facts.load(organizationId, now);
     if (!source) return null;
-    const payload = buildSellerFacts(source, now);
-    return { payload, hash: sellerFactsHash(payload) };
+    const payload = buildSellerFacts(source);
+    return { source, payload, hash: sellerFactsHash(payload) };
   }
 
   // ── состояние и профиль (П5) ───────────────────────────────────────────────────────────────
@@ -228,10 +244,7 @@ export class SellerService {
       : this.connection.config().organizationId;
     const row = organizationId ? await this.profiles.get(organizationId) : null;
     const held = organizationId ? this.rejected.get(organizationId) : undefined;
-    const facts =
-      organizationId && (row?.factsHash || held?.facts)
-        ? await this.currentFacts(organizationId, now)
-        : null;
+    const facts = organizationId && row ? await this.currentFacts(organizationId, now) : null;
     return {
       state,
       profile: {
@@ -246,7 +259,11 @@ export class SellerService {
       lastError: row?.lastError ?? null,
       lastErrorAt: row?.lastErrorAt?.toISOString() ?? null,
       retrying:
-        !!row?.lastError && !stillRejected(held, row, facts?.hash ?? null, { profile: false, facts: false }),
+        !!row?.lastError &&
+        !stillRejected(held, row, facts?.hash ?? null, facts?.payload.object_name ?? null, {
+          profile: false,
+          facts: false,
+        }),
       embedAvailable: this.connection.config().publicUrl !== null,
     };
   }
@@ -314,23 +331,29 @@ export class SellerService {
     force: boolean,
   ): Promise<{ profile: boolean; facts: boolean }> {
     const pushed = { profile: false, facts: false };
+    // Факты — первыми: из той же карточки профилю нужно название объекта, а без объекта продавцу сказать нечего
+    const facts = await this.currentFacts(organizationId, now);
+    if (!facts) {
+      await this.profiles.markError(organizationId, SELLER_NO_PROPERTY, now);
+      throw new NotFoundException(SELLER_NO_PROPERTY);
+    }
+    const objectName = facts.payload.object_name;
+    const key = profileKey(row, objectName);
     // «Применить» шлёт всё: отклонённую версию отправляет человек, а не сверка
     if (force) this.rejected.delete(organizationId);
     const held: Rejected = this.rejected.get(organizationId) ?? { profile: null, facts: null };
-    const version = row.updatedAt.getTime();
     let part: keyof Rejected = 'profile';
-    let factsHash: string | null = null;
     try {
-      if (force || (!profileApplied(row) && held.profile !== version)) {
-        await client.putProfile(sellerProfilePayload(pickSellerProfile(row), row.updatedAt));
+      const renamed = this.sentObjectName.get(organizationId) !== objectName;
+      if (force || ((!profileApplied(row) || renamed) && held.profile !== key)) {
+        await client.putProfile(sellerProfilePayload(pickSellerProfile(row), objectName));
         // принятой считается ровно отправленная версия: правка во время отправки уйдёт следующей сверкой
         await this.profiles.markProfileApplied(organizationId, row.updatedAt);
+        this.sentObjectName.set(organizationId, objectName);
         pushed.profile = true;
       }
       part = 'facts';
-      const facts = await this.currentFacts(organizationId, now);
-      factsHash = facts?.hash ?? null;
-      if (facts && (force || (facts.hash !== row.factsHash && held.facts !== facts.hash))) {
+      if (force || (facts.hash !== row.factsHash && held.facts !== facts.hash)) {
         await client.putFacts(facts.payload);
         await this.profiles.markFactsApplied(organizationId, facts.hash, now);
         pushed.facts = true;
@@ -340,7 +363,7 @@ export class SellerService {
         this.rejected.set(organizationId, {
           ...held,
           ...(pushed.profile ? { profile: null } : {}),
-          [part]: part === 'profile' ? version : factsHash,
+          [part]: part === 'profile' ? key : facts.hash,
         });
       await this.profiles.markError(organizationId, sellerErrorText(error), now);
       throw error;
@@ -352,7 +375,7 @@ export class SellerService {
     if (left.profile === null && left.facts === null) this.rejected.delete(organizationId);
     else this.rejected.set(organizationId, left);
     // отказ снимается, когда отклонённого больше нет: иначе раздел потерял бы причину, а сверка её не повторит
-    if (row.lastError !== null && !stillRejected(left, row, factsHash, pushed))
+    if (row.lastError !== null && !stillRejected(left, row, facts.hash, objectName, pushed))
       await this.profiles.clearError(organizationId);
     return pushed;
   }
@@ -362,7 +385,15 @@ export class SellerService {
     const facts = await this.currentFacts(organizationId, now);
     if (!facts) throw new NotFoundException(SELLER_NO_PROPERTY);
     const row = await this.profiles.get(organizationId);
-    return { facts: facts.payload, hash: facts.hash, applied: row?.factsHash === facts.hash };
+    return {
+      facts: facts.payload,
+      hash: facts.hash,
+      applied: row?.factsHash === facts.hash,
+      // для экрана «Данные объекта»: тариф сайта, окно цен и почему у категории цена ушла или нет (ADR-081)
+      ratePlan: facts.source.ratePlan,
+      window: facts.source.window,
+      prices: sellerCategoryPrices(facts.source),
+    };
   }
 
   // ── диалоги, знания, сводка, песочница (П7) ────────────────────────────────────────────────
@@ -537,16 +568,17 @@ function profileApplied(row: SellerProfileRow): boolean {
   return row.profileAppliedAt !== null && row.profileAppliedAt.getTime() >= row.updatedAt.getTime();
 }
 
-/** Отклонённое продавцом всё ещё текущее: версия профиля та же и не принята, или отпечаток фактов тот же */
+/** Отклонённое продавцом всё ещё текущее: та же версия профиля с тем же названием объекта или тот же отпечаток фактов */
 function stillRejected(
   held: Rejected | undefined,
   row: SellerProfileRow,
   factsHash: string | null,
+  objectName: string | null,
   pushed: { profile: boolean; facts: boolean },
 ): boolean {
   if (!held) return false;
   const profile =
-    !pushed.profile && !profileApplied(row) && held.profile === row.updatedAt.getTime();
+    !pushed.profile && objectName !== null && held.profile === profileKey(row, objectName);
   const facts = !pushed.facts && factsHash !== null && held.facts === factsHash;
   return profile || facts;
 }

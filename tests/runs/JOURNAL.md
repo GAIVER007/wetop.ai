@@ -2321,3 +2321,4 @@
 | 25.09.2026 18:05 | unit | ✅ 1834 из 1837, пропущено 3 | 1 мин 13 с | 6d215d5 +15 | [лог](logs/2026-09-25T13-05-58Z-unit-bafd.log) | E3 + ADR-084: full unit |
 | 25.09.2026 18:07 | typecheck | ✅ без ошибок | 29 с | 6d215d5 +16 | [лог](logs/2026-09-25T13-07-12Z-typecheck-c14f.log) | E3 + ADR-084 |
 | 25.09.2026 18:07 | lint | ✅ без ошибок | 24 с | 6d215d5 +16 | [лог](logs/2026-09-25T13-07-42Z-lint-0a00.log) | E3 + ADR-084 |
+| 25.09.2026 18:09 | unit (частично: tests/unit/deploy-server.test.ts apps/api/src/platform) | ✅ 55 из 55 | 4 с | 5dd1aa6 | [лог](logs/2026-09-25T13-09-04Z-unit-6b20.log) | green after merging main 239e3371 (docs-only) |

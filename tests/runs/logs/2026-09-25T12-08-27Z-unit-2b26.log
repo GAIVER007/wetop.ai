@@ -1,0 +1,52 @@
+# Модульные (unit) · 25.09.2026 17:08 Алматы · vm
+# коммит 6d215d5 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T12-08-27Z-unit-2b26.json' 'packages/integrations/src/assistant/bot-panel-client.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (18 tests | 1 failed) 88ms
+   ✓ SellerClient — адреса и ключ (5)
+     ✓ список диалогов: адрес панели, служебный ключ заголовком, не в адресе 56ms
+     ✓ карточка, перехват, возврат, ответ — по id диалога, id экранируется 5ms
+     ✓ знания: список и загрузка файлом в поле file 2ms
+     ✓ сводка, песочница, профиль, факты 3ms
+     ✓ панель под длинным путём — песочница всё равно в корне того же адреса 1ms
+   ✓ SellerClient — отказы (10)
+     ✓ нет связи — «недоступен», ключа в тексте нет 1ms
+     ✓ 5xx — «недоступен» с кодом 2ms
+     ✓ тайм-аут — «не ответил вовремя» 1ms
+     ✓ 4xx — «отклонил» с причиной продавца 1ms
+     ✓ проверка полей FastAPI списком — причины через «; » 1ms
+     ✓ 401 и 403 без причины — ключ платформы не принят 1ms
+     ✓ 403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт 1ms
+     ✓ отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей 1ms
+     ✓ песочница ждёт дольше остальных: ход с каскадом моделей длится до минуты 1ms
+     ✓ без адреса или ключа клиент не создаётся 1ms
+   ❯ BotPanelClient — панель помощника (3)
+     ✓ отказы называют помощника, а не продавца 2ms
+     × правила и модель помощника — под путём панели, тем же ключом (ADR-084) 6ms
+     ✓ прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > BotPanelClient — панель помощника > правила и модель помощника — под путём панели, тем же ключом (ADR-084)
+TypeError: client.prompt is not a function
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:285:18
+    283|       }),
+    284|     });
+    285|     await client.prompt();
+       |                  ^
+    286|     await client.putPrompt('Ты — помощник WETOP.');
+    287|     await client.settings();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  12:08:29
+   Duration  478ms (transform 60%, tests 31%, import 7%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-25T12-08-27Z-unit-2b26.json
+
+# код выхода 1 · 2 с

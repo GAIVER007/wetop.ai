@@ -56,13 +56,27 @@ export class FakeSeller implements SellerPort {
   putFacts(payload: unknown) {
     return this.call('putFacts', payload);
   }
+  // правила и модель — у помощника («Платформа → Техподдержка», ADR-084)
+  prompt() {
+    return this.call('prompt');
+  }
+  putPrompt(text: string) {
+    return this.call('putPrompt', text);
+  }
+  settings() {
+    return this.call('settings');
+  }
+  putModel(model: string) {
+    return this.call('putModel', model);
+  }
 
   ops(): string[] {
     return this.calls.map((c) => c.op);
   }
 }
 
-export const unavailable = () => new assistant.SellerUnavailableError('ИИ-продавец недоступен (HTTP 502)');
+export const unavailable = () =>
+  new assistant.SellerUnavailableError('ИИ-продавец недоступен (HTTP 502)');
 export const rejected = (status: number, detail: string, fields: string[] = []) =>
   new assistant.SellerRejectedError(status, detail, fields);
 

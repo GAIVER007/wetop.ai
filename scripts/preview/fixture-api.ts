@@ -1434,6 +1434,66 @@ const platformOrganizations = () => [
     owners: ['owner@example.com'],
   },
 ];
+// ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
+const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
+const SUPPORT_DIALOG_B = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
+const supportDialogSeed = () => [
+  {
+    id: SUPPORT_DIALOG_A,
+    channel: 'widget',
+    clientName: 'd***',
+    mode: 'needs_human',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 15 * 60_000).toISOString(),
+    hasContact: false,
+    // так API отдаёт подпись стойки из `lead_data.platform_user` вместе с названием организации
+    platformUser: {
+      userId: 'ui-user-staff',
+      email: 'dana@example.invalid',
+      organizationId: 'ui-org',
+      organizationName: 'Luxx Aparts',
+      role: 'staff' as 'owner' | 'staff' | null,
+    },
+    messages: [
+      { role: 'user', text: 'Не сохраняется бронь: пишет «Нет связи с API».', at: new Date(Date.now() - 20 * 60_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Вижу ошибку в журнале. Позову человека.', at: new Date(Date.now() - 19 * 60_000).toISOString(), sentByUs: true },
+    ],
+  },
+  {
+    id: SUPPORT_DIALOG_B,
+    channel: 'widget',
+    clientName: '—',
+    mode: 'bot_active',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
+    hasContact: false,
+    platformUser: null,
+    messages: [
+      { role: 'user', text: 'Сколько стоит WETOP для хостела?', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: true },
+    ],
+  },
+];
+let supportDialogs = supportDialogSeed();
+const supportKnowledgeSeed = () => [
+  { source: 'справочник-ошибок.md', chunks: 5, createdAt: '2026-09-24T06:00:00.000Z' },
+];
+let supportKnowledge = supportKnowledgeSeed();
+/** Подключена ли панель помощника — `POST /__test/control { supportState: 'not-configured' }` */
+let supportState: 'ready' | 'not-configured' = 'ready';
+/** Правила и модель помощника (ADR-084): песочница отвечает по сохранённым правилам — так видно, что они дошли */
+const SUPPORT_PROMPT_SEED = 'Ты — ИИ-помощник WETOP. Отвечай на «вы», коротко и по делу.';
+let supportPrompt = SUPPORT_PROMPT_SEED;
+const SUPPORT_MODELS = ['модель-а', 'модель-б'];
+let supportModel = SUPPORT_MODELS[0]!;
+function resetSupport() {
+  supportDialogs = supportDialogSeed();
+  supportKnowledge = supportKnowledgeSeed();
+  supportState = 'ready';
+  supportPrompt = SUPPORT_PROMPT_SEED;
+  supportModel = SUPPORT_MODELS[0]!;
+}
+
 const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
   const row = platformExtensions.get(o.id);
   return {
@@ -2357,6 +2417,7 @@ createServer(async (req, res) => {
       requestHits.clear();
       resetUiAuth();
       resetAccess();
+      resetSupport();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -2487,6 +2548,9 @@ createServer(async (req, res) => {
       uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
+      supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
+      // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
+      if (body['supportPromptEmpty'] === true) supportPrompt = '';
       return send(200, {});
     }
     // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
@@ -2654,6 +2718,90 @@ createServer(async (req, res) => {
         if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
         platformExtensions.set(org.id, { ...parsed.value, updatedAt: new Date() });
         return send(200, platformOrganizationJson(org));
+      }
+      if (path.startsWith('/platform/support/')) {
+        if (path === '/platform/support/status' && req.method === 'GET') return send(200, { state: supportState });
+        if (supportState === 'not-configured')
+          return send(503, { message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа' });
+        const dialog = /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
+        if (path === '/platform/support/conversations' && req.method === 'GET') {
+          const mode = url.searchParams.get('mode');
+          return send(200, {
+            items: supportDialogs
+              .filter((d) => !mode || d.mode === mode)
+              .map((d) => ({
+                id: d.id,
+                channel: d.channel,
+                clientName: d.clientName,
+                mode: d.mode,
+                stage: d.stage,
+                lastActivityAt: d.lastActivityAt,
+                messages: d.messages.length,
+                hasContact: d.hasContact,
+              })),
+          });
+        }
+        if (dialog) {
+          const d = supportDialogs.find((x) => x.id === dialog[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          if (!dialog[2] && req.method === 'GET')
+            return send(200, {
+              id: d.id,
+              mode: d.mode,
+              stage: d.stage,
+              leadData: {},
+              contact: { name: d.platformUser?.email ?? null, phone: null, email: null, channel: d.channel, externalId: null },
+              messages: d.messages,
+              platformUser: d.platformUser,
+            });
+          if (dialog[2] === 'reply' && req.method === 'POST') {
+            const text = String(body['text'] ?? '').trim();
+            if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
+            d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+            return send(200, { ok: true });
+          }
+          if (dialog[2] && req.method === 'POST') {
+            const previousMode = d.mode;
+            d.mode = dialog[2] === 'takeover' ? 'owner_takeover' : 'bot_active';
+            return send(200, { mode: d.mode, previousMode });
+          }
+        }
+        if (path === '/platform/support/knowledge' && req.method === 'GET') return send(200, { items: supportKnowledge });
+        if (path === '/platform/support/knowledge' && req.method === 'POST') {
+          const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
+          if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
+            return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
+          supportKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...supportKnowledge];
+          return send(201, { source: name, created: true, chunks: 1 });
+        }
+        if (path === '/platform/support/summary' && req.method === 'GET')
+          return send(200, { hours: 24, dialogs: supportDialogs.length, replies: 3, leads: 0, slaBreaches: 1 });
+        if (path === '/platform/support/prompt' && req.method === 'GET') return send(200, { text: supportPrompt });
+        if (path === '/platform/support/prompt' && req.method === 'PUT') {
+          const text = String(body['text'] ?? '').trim();
+          if (!text) return send(400, { message: 'Правила: пустой текст' });
+          supportPrompt = text;
+          return send(200, { length: text.length });
+        }
+        if (path === '/platform/support/settings' && req.method === 'GET')
+          return send(200, { models: SUPPORT_MODELS, model: supportModel });
+        if (path === '/platform/support/settings/model' && req.method === 'PUT') {
+          const model = String(body['model'] ?? '').trim();
+          if (!SUPPORT_MODELS.includes(model))
+            return send(422, { message: 'ИИ-помощник отклонил: модель не из списка разрешённых' });
+          const previous = supportModel;
+          supportModel = model;
+          return send(200, { model, previous });
+        }
+        if (path === '/platform/support/sandbox' && req.method === 'POST') {
+          if (!String(body['text'] ?? '').trim()) return send(400, { message: 'Проверка: пустое сообщение' });
+          const informal = supportPrompt.includes('на «ты»');
+          return send(200, {
+            reply: informal ? 'Привет! Чем помочь?' : 'Здравствуйте! Чем помочь?',
+            needsHuman: false,
+            reasons: [],
+          });
+        }
       }
       return send(404, { message: 'Нет такого адреса платформы' });
     }

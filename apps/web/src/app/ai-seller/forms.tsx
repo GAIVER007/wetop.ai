@@ -418,11 +418,14 @@ export function ApplySellerForm() {
 }
 
 /** «Знания»: загрузка документа в базу знаний продавца */
-export function KnowledgeUploadForm() {
-  const [state, action, pending] = useActionState<SimpleResult | null, FormData>(
-    uploadKnowledgeAction,
-    null,
-  );
+type SimpleAction = (prev: SimpleResult | null, form: FormData) => Promise<SimpleResult>;
+
+/**
+ * Формы диалога и знаний — общие для обоих ботов: «ИИ-продавец» и «Платформа → Техподдержка» (ADR-083, Э3).
+ * Действие передаётся параметром; без него — действие раздела продавца.
+ */
+export function KnowledgeUploadForm({ upload = uploadKnowledgeAction }: { upload?: SimpleAction }) {
+  const [state, action, pending] = useActionState<SimpleResult | null, FormData>(upload, null);
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm form-narrow">
       <Field label="Документ: md, txt, pdf, docx или xlsx, до 10 МБ">
@@ -446,11 +449,19 @@ export function KnowledgeUploadForm() {
 }
 
 /** «Перехватить» и «Вернуть боту» в карточке диалога */
-export function DialogModeButtons({ id, mode }: { id: string; mode: string }) {
+export function DialogModeButtons({
+  id,
+  mode,
+  switchMode = dialogModeAction,
+}: {
+  id: string;
+  mode: string;
+  switchMode?: (id: string, action: 'takeover' | 'release') => Promise<SimpleResult>;
+}) {
   const [result, setResult] = useState<SimpleResult | null>(null);
   const [pending, start] = useTransition();
   const run = (action: 'takeover' | 'release') =>
-    start(async () => setResult(await dialogModeAction(id, action)));
+    start(async () => setResult(await switchMode(id, action)));
   return (
     <Stack gap="sm">
       <Row>
@@ -484,14 +495,23 @@ export function DialogModeButtons({ id, mode }: { id: string; mode: string }) {
 }
 
 /** Ответ гостю от человека — тем же путём, что ответ бота */
-export function DialogReplyForm({ id }: { id: string }) {
+export function DialogReplyForm({
+  id,
+  reply = replyAction,
+  label = 'Ответ гостю',
+}: {
+  id: string;
+  reply?: (id: string, prev: SimpleResult | null, form: FormData) => Promise<SimpleResult>;
+  /** Кому отвечают: гостю — в разделе продавца, пользователю платформы — в «Техподдержке» */
+  label?: string;
+}) {
   const [state, action, pending] = useActionState<SimpleResult | null, FormData>(
-    replyAction.bind(null, id),
+    reply.bind(null, id),
     null,
   );
   return (
     <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-      <Field label="Ответ гостю">
+      <Field label={label}>
         <Textarea name="text" rows={3} maxLength={4000} required data-testid="dialog-reply-text" />
       </Field>
       <Row>
@@ -506,31 +526,54 @@ export function DialogReplyForm({ id }: { id: string }) {
 }
 
 /** «Проверка»: поговорить с продавцом до публикации. Разговор — в песочнице, в диалоги сайта он не попадает */
-export function SandboxForm() {
-  const [state, action, pending] = useActionState<SandboxResult | null, FormData>(
-    sandboxAction,
-    null,
-  );
+/** Слова «Проверки»: у продавца спрашивает «гость», у помощника — пользователь стойки */
+export interface SandboxWords {
+  asker: string;
+  bot: string;
+  field: string;
+  placeholder: string;
+  button: string;
+  pending: string;
+  human: string;
+  label: string;
+}
+
+const SELLER_SANDBOX_WORDS: SandboxWords = {
+  asker: 'Гость',
+  bot: 'Продавец',
+  field: 'Сообщение как от гостя',
+  placeholder: 'Здравствуйте, есть места на выходные?',
+  button: 'Спросить продавца',
+  pending: 'Жду ответ продавца…',
+  human: 'Продавец позвал бы человека',
+  label: 'Проверка продавца',
+};
+
+export function SandboxForm({
+  ask = sandboxAction,
+  words = SELLER_SANDBOX_WORDS,
+}: {
+  ask?: (prev: SandboxResult | null, form: FormData) => Promise<SandboxResult>;
+  words?: SandboxWords;
+}) {
+  const [state, action, pending] = useActionState<SandboxResult | null, FormData>(ask, null);
   const history = state?.history ?? [];
   return (
     <Stack>
       {history.length > 0 && (
-        <ol
-          className="seller-transcript"
-          data-testid="sandbox-history"
-          aria-label="Проверка продавца"
-        >
+        <ol className="seller-transcript" data-testid="sandbox-history" aria-label={words.label}>
           {history.map((h, i) => (
             <li key={i}>
               <p className="seller-transcript__guest">
-                <b>Гость:</b> {h.question}
+                <b>{words.asker}:</b> {h.question}
               </p>
               <p className="seller-transcript__bot">
-                <b>Продавец:</b> {h.reply ?? 'ответа нет'}
+                <b>{words.bot}:</b> {h.reply ?? 'ответа нет'}
               </p>
               {h.needsHuman && (
                 <p className="settings-note">
-                  Продавец позвал бы человека{h.reasons.length ? `: ${h.reasons.join('; ')}` : ''}.
+                  {words.human}
+                  {h.reasons.length ? `: ${h.reasons.join('; ')}` : ''}.
                 </p>
               )}
             </li>
@@ -538,19 +581,19 @@ export function SandboxForm() {
         </ol>
       )}
       <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-        <Field label="Сообщение как от гостя">
+        <Field label={words.field}>
           <Textarea
             name="text"
             rows={2}
             maxLength={2000}
             required
-            placeholder="Здравствуйте, есть места на выходные?"
+            placeholder={words.placeholder}
             data-testid="sandbox-text"
           />
         </Field>
         <Row>
           <Button type="submit" disabled={pending} aria-busy={pending} data-testid="sandbox-send">
-            {pending ? 'Жду ответ продавца…' : 'Спросить продавца'}
+            {pending ? words.pending : words.button}
           </Button>
         </Row>
         {state?.error && <Alert data-testid="sandbox-error">{state.error}</Alert>}

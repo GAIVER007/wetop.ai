@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SellerClient, SellerRejectedError, SellerUnavailableError } from './seller-client';
+import {
+  BotPanelClient,
+  BotRejectedError,
+  BotUnavailableError,
+  SUPPORT_BOT,
+  SellerClient,
+  SellerRejectedError,
+  SellerUnavailableError,
+} from './bot-panel-client';
 
 /**
  * Клиент ИИ-продавца (ТЗ ред. 1 П7, Б5; docs/assistant/README.md §4): все вызовы — из API платформы по внутреннему
@@ -27,7 +35,9 @@ describe('SellerClient — адреса и ключ', () => {
   it('список диалогов: адрес панели, служебный ключ заголовком, не в адресе', async () => {
     const { calls, seller } = client(() => Response.json({ items: [] }));
     await seller.listConversations({ mode: 'needs_human', limit: 30 });
-    expect(calls[0]!.url).toBe('http://seller:8000/panel-x/conversations?mode=needs_human&limit=30');
+    expect(calls[0]!.url).toBe(
+      'http://seller:8000/panel-x/conversations?mode=needs_human&limit=30',
+    );
     expect(calls[0]!.init.method).toBe('GET');
     expect(header(calls[0]!, 'x-service-key')).toBe(KEY);
     expect(calls[0]!.url).not.toContain(KEY);
@@ -115,7 +125,7 @@ describe('SellerClient — отказы', () => {
   it('5xx — «недоступен» с кодом', async () => {
     const { seller } = client(() => new Response('{"status":"error"}', { status: 502 }));
     await expect(seller.summary()).rejects.toMatchObject({
-      name: 'SellerUnavailableError',
+      name: 'BotUnavailableError',
       message: 'ИИ-продавец недоступен (HTTP 502)',
     });
   });
@@ -125,7 +135,7 @@ describe('SellerClient — отказы', () => {
       throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
     });
     await expect(seller.summary()).rejects.toMatchObject({
-      name: 'SellerUnavailableError',
+      name: 'BotUnavailableError',
       message: 'ИИ-продавец не ответил вовремя',
     });
   });
@@ -212,5 +222,93 @@ describe('SellerClient — отказы', () => {
     expect(() => new SellerClient({ baseUrl: '', serviceKey: KEY })).toThrow(/адрес/);
     expect(() => new SellerClient({ baseUrl: BASE, serviceKey: ' ' })).toThrow(/ключ/);
     expect(() => new SellerClient({ baseUrl: 'seller:8000', serviceKey: KEY })).toThrow(/адрес/);
+  });
+});
+
+/**
+ * Тот же клиент — к панели ИИ-помощника (`BOT_ROLE=support`, «Платформа → Техподдержка», план
+ * `plans/platform-roles-extensions-2026-09-25.md` Э3): у обеих ролей бота маршруты панели и служебный ключ одни
+ * (`src/dashboard/auth_router.py`, `SERVICE_ROUTES`). Отличаются только слова: отказ называет того бота, что отказал.
+ */
+describe('BotPanelClient — панель помощника', () => {
+  const support = (respond: () => Response | Promise<Response>) =>
+    new BotPanelClient({
+      baseUrl: 'http://assistant:8000/p0123456789ab',
+      serviceKey: KEY,
+      bot: SUPPORT_BOT,
+      fetch: vi.fn(async () => respond()),
+    });
+
+  it('отказы называют помощника, а не продавца', async () => {
+    await expect(
+      support(() => new Response('{}', { status: 502 })).summary(),
+    ).rejects.toMatchObject({
+      message: 'ИИ-помощник недоступен (HTTP 502)',
+    });
+    await expect(
+      support(() => {
+        throw new DOMException('timeout', 'TimeoutError');
+      }).summary(),
+    ).rejects.toMatchObject({ message: 'ИИ-помощник не ответил вовремя' });
+    await expect(
+      support(() => {
+        throw new TypeError('fetch failed');
+      }).summary(),
+    ).rejects.toMatchObject({ message: 'Нет связи с ИИ-помощником' });
+    await expect(
+      support(() =>
+        Response.json({ detail: 'Сессия истекла, войдите заново' }, { status: 401 }),
+      ).summary(),
+    ).rejects.toMatchObject({ detail: 'ИИ-помощник не принял служебный ключ платформы' });
+    const rejected = await support(() =>
+      Response.json({ detail: 'диалог не найден' }, { status: 404 }),
+    )
+      .conversation('x')
+      .catch((e: unknown) => e);
+    expect(rejected).toBeInstanceOf(BotRejectedError);
+    expect((rejected as Error).message).toBe(
+      'ИИ-помощник отклонил запрос (HTTP 404): диалог не найден',
+    );
+  });
+
+  it('правила и модель помощника — под путём панели, тем же ключом (ADR-084)', async () => {
+    const calls: Call[] = [];
+    const client = new BotPanelClient({
+      baseUrl: 'http://assistant:8000/p0123456789ab',
+      serviceKey: KEY,
+      bot: SUPPORT_BOT,
+      fetch: vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+        calls.push({ url: String(url), init: init ?? {} });
+        return Response.json({ status: 'ok' });
+      }),
+    });
+    await client.prompt();
+    await client.putPrompt('Ты — помощник WETOP.');
+    await client.settings();
+    await client.putModel('модель-б');
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'GET http://assistant:8000/p0123456789ab/prompt',
+      'PUT http://assistant:8000/p0123456789ab/prompt',
+      'GET http://assistant:8000/p0123456789ab/settings',
+      'PUT http://assistant:8000/p0123456789ab/settings/model',
+    ]);
+    expect(JSON.parse(String(calls[1]!.init.body))).toEqual({ text: 'Ты — помощник WETOP.' });
+    expect(JSON.parse(String(calls[3]!.init.body))).toEqual({ model: 'модель-б' });
+    expect(calls.every((c) => header(c, 'x-service-key') === KEY)).toBe(true);
+  });
+
+  it('прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются', async () => {
+    expect(SellerClient).toBe(BotPanelClient);
+    expect(SellerRejectedError).toBe(BotRejectedError);
+    expect(SellerUnavailableError).toBe(BotUnavailableError);
+    // без названия клиент говорит о продавце, как раньше
+    const seller = new SellerClient({
+      baseUrl: BASE,
+      serviceKey: KEY,
+      fetch: vi.fn(async () => new Response('{}', { status: 503 })),
+    });
+    await expect(seller.summary()).rejects.toMatchObject({
+      message: 'ИИ-продавец недоступен (HTTP 503)',
+    });
   });
 });

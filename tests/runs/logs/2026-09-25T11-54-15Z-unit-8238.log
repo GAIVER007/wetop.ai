@@ -1,0 +1,35 @@
+# Модульные (unit) · 25.09.2026 16:54 Алматы · vm
+# коммит c4fba0e (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 22
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T11-54-15Z-unit-8238.json' 'apps/web/src/lib/desk-person.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (3 tests | 1 failed) 22ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 7ms
+     × закрытых пунктов в меню нет, а раздел «Платформа» без прав не показывается вовсе 11ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > закрытых пунктов в меню нет, а раздел «Платформа» без прав не показывается вовсе
+AssertionError: expected [ '/today', '/chessboard', …(17) ] to include '/platform/support'
+ ❯ apps/web/src/lib/desk-person.test.ts:43:56
+     41|     expect(hrefs({ aiSeller: false, platform: true })).toContain('/pla…
+     42|     // «Техподдержка» — там же, в «Платформе», и тоже только главному …
+     43|     expect(hrefs({ aiSeller: false, platform: true })).toContain('/pla…
+       |                                                        ^
+     44|     expect(hrefs({ aiSeller: true, platform: false })).not.toContain('…
+     45|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  11:54:16
+   Duration  1.12s (transform 85%, import 12%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T11-54-15Z-unit-8238.json
+
+# код выхода 1 · 2 с

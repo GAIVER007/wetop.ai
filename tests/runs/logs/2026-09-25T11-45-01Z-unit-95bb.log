@@ -1,0 +1,21 @@
+# Модульные (unit) · 25.09.2026 16:45 Алматы · vm
+# коммит c4fba0e (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T11-45-01Z-unit-95bb.json' 'apps/api/src/platform' 'apps/api/src/ai-seller' 'packages/integrations/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (7 tests) 266ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (11 tests) 254ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (17 tests) 110ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (32 tests) 385ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 13ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (18 tests) 23ms
+
+ Test Files  6 passed (6)
+      Tests  96 passed (96)
+   Start at  11:45:02
+   Duration  3.47s (transform 46%, import 41%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-09-25T11-45-01Z-unit-95bb.json
+
+# код выхода 0 · 5 с

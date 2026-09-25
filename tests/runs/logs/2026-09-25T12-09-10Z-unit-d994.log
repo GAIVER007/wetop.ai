@@ -1,0 +1,129 @@
+# Модульные (unit) · 25.09.2026 17:09 Алматы · vm
+# коммит 6d215d5 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T12-09-10Z-unit-d994.json' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/platform/support.controller.test.ts (15 tests | 5 failed) 211ms
+   ❯ только главный администратор (2)
+     × владелец организации получает 403 на всё, помощника не спрашиваем 103ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 5ms
+   ✓ помощник не подключён (2)
+     ✓ состояние так и говорит; остальное — 503 словами, без вызова помощника 6ms
+     ✓ подключён — «ready», и ни адреса, ни ключа помощника в ответе 3ms
+   ✓ диалоги (4)
+     ✓ список: отбор уходит помощнику, ответ — в словах стойки 6ms
+     ✓ карточка: кто пишет — почта, организация названием и роль из подписи стойки 5ms
+     ✓ карточка анонимного посетителя wetop.ai — «кто пишет» пусто, организацию не ищем 5ms
+     ✓ перехват, ответ, возврат — помощнику и в журнал; текста ответа в журнале нет 10ms
+   ✓ знания, сводка и отказы помощника (3)
+     ✓ знания: список и загрузка файлом; не тот формат — 415 без вызова; загрузка — в журнал 11ms
+     ✓ сводка за сутки 3ms
+     ✓ отказ помощника — его словами и с его именем; недоступен — 503; не нашёл — 404 11ms
+   ❯ настройка помощника (ADR-084) (4)
+     × правила: читать и сохранять; пусто или слишком длинно — 400 без вызова; в журнал — длина, не текст 3ms
+     × модель: список и текущая — без прочих настроек бота; смена — в журнал с прежней 2ms
+     × модели не из списка бот отказывает — его словами с именем 2ms
+     × «Проверка»: у главного администратора свой разговор в песочнице помощника 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > только главный администратор > владелец организации получает 403 на всё, помощника не спрашиваем
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:161:32
+    159|     ];
+    160|     for (const send of refused) {
+    161|       const res = await send().expect(403);
+       |                                ^
+    162|       expect(res.body.message).toBe(PLATFORM_ADMIN_ONLY);
+    163|     }
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > настройка помощника (ADR-084) > правила: читать и сохранять; пусто или слишком длинно — 400 без вызова; в журнал — длина, не текст
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:436:73
+    434|     connection.bot.replies.putPrompt = { status: 'ok', length: 22 };
+    435|     const admin = as('session-admin');
+    436|     const read = await api().get('/platform/support/prompt').set(admin…
+       |                                                                         ^
+    437|     expect(read.body).toEqual({ text: 'Ты — помощник WETOP.' });
+    438|     await api().put('/platform/support/prompt').set(admin).send({ text…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > настройка помощника (ADR-084) > модель: список и текущая — без прочих настроек бота; смена — в журнал с прежней
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:473:75
+    471|     connection.bot.replies.putModel = { status: 'ok', model: 'модель-б…
+    472|     const admin = as('session-admin');
+    473|     const read = await api().get('/platform/support/settings').set(adm…
+       |                                                                           ^
+    474|     expect(read.body).toEqual({ models: ['модель-а', 'модель-б'], mode…
+    475|     await api().put('/platform/support/settings/model').set(admin).sen…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > настройка помощника (ADR-084) > модели не из списка бот отказывает — его словами с именем
+Error: expected 422 "Unprocessable Entity", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:503:8
+    501|       .set(as('session-admin'))
+    502|       .send({ model: 'чужая' })
+    503|       .expect(422);
+       |        ^
+    504|     expect(res.body.message).toBe('ИИ-помощник отклонил: модель не из …
+    505|     expect(audit.events).toEqual([]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > настройка помощника (ADR-084) > «Проверка»: у главного администратора свой разговор в песочнице помощника
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:519:8
+    517|       .set(as('session-admin'))
+    518|       .send({ text: ' Привет ' })
+    519|       .expect(200);
+       |        ^
+    520|     expect(res.body).toEqual({
+    521|       reply: 'Здравствуйте! Чем помочь?',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 10 passed (15)
+   Start at  12:09:12
+   Duration  2.68s (transform 59%, import 32%, tests 9%)
+
+JSON report written to /tmp/pms-test-2026-09-25T12-09-10Z-unit-d994.json
+
+# код выхода 1 · 4 с

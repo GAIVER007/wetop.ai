@@ -1,42 +1,56 @@
 /**
- * Клиент ИИ-продавца (ТЗ ред. 1 П7, Б5; ADR-079; контракт — docs/assistant/README.md §4).
+ * Клиент панели бота (ТЗ ред. 1 П7, Б5; ADR-079, ADR-083; контракт — docs/assistant/README.md §4). Один образ бота —
+ * две роли, и панель у них одна: продавец (`SELLER_URL`, раздел «ИИ-продавец») и помощник (`ASSISTANT_PANEL_URL`,
+ * «Платформа → Техподдержка»). Отличаются только слова ошибок — `bot`.
  *
- * Все вызовы идут из API платформы по внутреннему адресу `SELLER_URL` с заголовком `X-Service-Key` — браузер ни
- * адреса, ни ключа не видит. Отказы двух видов, и раздел показывает их по-разному: продавец **недоступен** (нет связи,
- * тайм-аут, 5xx) — повторить позже; продавец **отклонил** (4xx) — показать его причину, повтор не поможет.
- * Ключа нет ни в адресе, ни в тексте ошибки.
+ * Все вызовы идут из API платформы по внутреннему адресу с заголовком `X-Service-Key` — браузер ни адреса, ни ключа не
+ * видит. Отказы двух видов, и экраны показывают их по-разному: бот **недоступен** (нет связи, тайм-аут, 5xx) —
+ * повторить позже; бот **отклонил** (4xx) — показать его причину, повтор не поможет. Ключа нет ни в адресе, ни в
+ * тексте ошибки.
  */
 
 const TIMEOUT_MS = 15_000;
 /** Ход в песочнице — каскад моделей, до минуты (ТЗ §3 бота); ждём с запасом */
 const SANDBOX_TIMEOUT_MS = 90_000;
 
-/** Продавец не ответил или ответил 5xx: повторить позже */
-export class SellerUnavailableError extends Error {
-  override readonly name = 'SellerUnavailableError';
+/** Как бот называется в словах ошибок: «ИИ-продавец не ответил», «нет связи с ИИ-помощником» */
+export interface BotNames {
+  name: string;
+  withName: string;
 }
 
-/** Продавец отказал (4xx): причина — его, повтор не поможет */
-export class SellerRejectedError extends Error {
-  override readonly name = 'SellerRejectedError';
+export const SELLER_BOT: BotNames = { name: 'ИИ-продавец', withName: 'ИИ-продавцом' };
+export const SUPPORT_BOT: BotNames = { name: 'ИИ-помощник', withName: 'ИИ-помощником' };
+
+/** Бот не ответил или ответил 5xx: повторить позже */
+export class BotUnavailableError extends Error {
+  override readonly name = 'BotUnavailableError';
+}
+
+/** Бот отказал (4xx): причина — его, повтор не поможет */
+export class BotRejectedError extends Error {
+  override readonly name = 'BotRejectedError';
   constructor(
     readonly status: number,
     readonly detail: string,
-    /** Поля, которые продавец назвал в отказе (Б6: `detail.fields`), — его имена, как в теле запроса */
+    /** Поля, которые бот назвал в отказе (Б6: `detail.fields`), — его имена, как в теле запроса */
     readonly fields: readonly string[] = [],
+    bot: BotNames = SELLER_BOT,
   ) {
-    super(`ИИ-продавец отклонил запрос (HTTP ${status}): ${detail}`);
+    super(`${bot.name} отклонил запрос (HTTP ${status}): ${detail}`);
   }
 }
 
-export interface SellerClientConfig {
-  /** Внутренний адрес API панели продавца, с путём панели */
+export interface BotPanelClientConfig {
+  /** Внутренний адрес API панели бота, с путём панели (`DASHBOARD_PATH_PREFIX` бота) */
   baseUrl: string;
   serviceKey: string;
+  /** Чья это панель — для слов ошибок; без него — продавец, как было до «Техподдержки» */
+  bot?: BotNames;
   fetch?: typeof fetch;
 }
 
-export interface SellerKnowledgeFile {
+export interface BotKnowledgeFile {
   name: string;
   type: string;
   data: Uint8Array;
@@ -44,19 +58,24 @@ export interface SellerKnowledgeFile {
 
 type Json = Record<string, unknown>;
 
-const KEY_REJECTED = 'ИИ-продавец не принял служебный ключ платформы';
-
 /**
  * Причина отказа из ответа FastAPI: `detail` строкой, списком проверок `{ msg }` или объектом `{ message, fields }`
  * (Б6: поля, в которых слой 9 нашёл инструкции для модели). 401 у панели бота — «сессия истекла»: для служебного
  * ключа это неверный ключ. 403 бывает разным — адрес платформы не в списке панели, маршрут закрыт ключу, — и тогда
  * нужны слова продавца; без них это тоже ключ.
  */
-function rejectionOf(body: unknown, status: number): { detail: string; fields: string[] } {
+function rejectionOf(
+  body: unknown,
+  status: number,
+  bot: BotNames,
+): { detail: string; fields: string[] } {
+  const keyRejected = `${bot.name} не принял служебный ключ платформы`;
   const none = { detail: '', fields: [] as string[] };
-  const detail = body && typeof body === 'object' ? (body as { detail?: unknown }).detail : undefined;
+  const detail =
+    body && typeof body === 'object' ? (body as { detail?: unknown }).detail : undefined;
   let found = none;
-  if (typeof detail === 'string' && detail.trim() !== '') found = { detail: detail.trim(), fields: [] };
+  if (typeof detail === 'string' && detail.trim() !== '')
+    found = { detail: detail.trim(), fields: [] };
   else if (Array.isArray(detail)) {
     const messages = detail
       .map((d) => (d && typeof d === 'object' ? (d as { msg?: unknown }).msg : d))
@@ -72,28 +91,32 @@ function rejectionOf(body: unknown, status: number): { detail: string; fields: s
           : [],
       };
   }
-  if (status === 401) return { detail: KEY_REJECTED, fields: [] };
-  if (status === 403) return found.detail ? found : { detail: KEY_REJECTED, fields: [] };
+  if (status === 401) return { detail: keyRejected, fields: [] };
+  if (status === 403) return found.detail ? found : { detail: keyRejected, fields: [] };
   return found.detail ? found : { detail: `HTTP ${status}`, fields: [] };
 }
 
 /** Песочница у бота — в корне экземпляра (`/internal/sandbox`), а не под путём панели: путь зафиксирован его планом */
 const SANDBOX_PATH = '/internal/sandbox';
 
-export class SellerClient {
+export class BotPanelClient {
   private readonly base: string;
   /** Корень экземпляра без пути панели — для песочницы */
   private readonly origin: string;
   private readonly key: string;
+  private readonly bot: BotNames;
   private readonly fetchFn: typeof fetch;
 
-  constructor(config: SellerClientConfig) {
+  constructor(config: BotPanelClientConfig) {
     const base = config.baseUrl.trim();
-    if (!/^https?:\/\/[^\s/]+/i.test(base)) throw new Error('Клиент продавца: нужен адрес http(s)://');
-    if (config.serviceKey.trim() === '') throw new Error('Клиент продавца: нужен служебный ключ');
+    if (!/^https?:\/\/[^\s/]+/i.test(base))
+      throw new Error('Клиент панели бота: нужен адрес http(s)://');
+    if (config.serviceKey.trim() === '')
+      throw new Error('Клиент панели бота: нужен служебный ключ');
     this.base = base.replace(/\/+$/, '');
     this.origin = new URL(this.base).origin;
     this.key = config.serviceKey.trim();
+    this.bot = config.bot ?? SELLER_BOT;
     this.fetchFn = config.fetch ?? fetch;
   }
 
@@ -125,7 +148,7 @@ export class SellerClient {
     return this.json('GET', '/knowledge');
   }
 
-  uploadKnowledge(file: SellerKnowledgeFile): Promise<Json> {
+  uploadKnowledge(file: BotKnowledgeFile): Promise<Json> {
     const form = new FormData();
     // копия на своём ArrayBuffer: Blob не принимает представление поверх чужого (SharedArrayBuffer)
     form.append('file', new Blob([new Uint8Array(file.data)], { type: file.type }), file.name);
@@ -144,6 +167,28 @@ export class SellerClient {
       SANDBOX_TIMEOUT_MS,
       this.origin,
     );
+  }
+
+  /**
+   * Правила бота — текст системного промпта (`GET /prompt`). Служебному ключу бот открывает их только у помощника
+   * (`BOT_ROLE=support`, ADR-084): ядро правил продавца платформа не переписывает.
+   */
+  prompt(): Promise<Json> {
+    return this.json('GET', '/prompt');
+  }
+
+  putPrompt(text: string): Promise<Json> {
+    return this.json('PUT', '/prompt', { text });
+  }
+
+  /** Модель и список разрешённых (`GET /settings`): секретов в ответе бота нет */
+  settings(): Promise<Json> {
+    return this.json('GET', '/settings');
+  }
+
+  /** Смена модели — только из списка бота (`LLM_ALLOWED_MODELS`), свободного поля нет */
+  putModel(model: string): Promise<Json> {
+    return this.json('PUT', '/settings/model', { model });
   }
 
   putProfile(payload: unknown): Promise<Json> {
@@ -186,19 +231,33 @@ export class SellerClient {
       });
     } catch (error) {
       const timedOut =
-        error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError');
+        error instanceof DOMException &&
+        (error.name === 'TimeoutError' || error.name === 'AbortError');
       // Текст исходной ошибки не пробрасываем: в нём бывает адрес, а то и заголовки запроса
-      throw new SellerUnavailableError(
-        timedOut ? 'ИИ-продавец не ответил вовремя' : 'Нет связи с ИИ-продавцом',
+      throw new BotUnavailableError(
+        timedOut ? `${this.bot.name} не ответил вовремя` : `Нет связи с ${this.bot.withName}`,
       );
     }
     // тело не JSON — отказ всё равно называется по коду ответа
     const parsed: unknown = await res.json().catch(() => null);
-    if (res.status >= 500) throw new SellerUnavailableError(`ИИ-продавец недоступен (HTTP ${res.status})`);
+    if (res.status >= 500)
+      throw new BotUnavailableError(`${this.bot.name} недоступен (HTTP ${res.status})`);
     if (!res.ok) {
-      const { detail, fields } = rejectionOf(parsed, res.status);
-      throw new SellerRejectedError(res.status, detail, fields);
+      const { detail, fields } = rejectionOf(parsed, res.status, this.bot);
+      throw new BotRejectedError(res.status, detail, fields, this.bot);
     }
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as Json) : {};
   }
 }
+
+/**
+ * Прежние имена раздела «ИИ-продавец» — те же классы, а не копии: его проверки `instanceof` и заглушки тестов работают
+ * как раньше.
+ */
+export {
+  BotPanelClient as SellerClient,
+  BotRejectedError as SellerRejectedError,
+  BotUnavailableError as SellerUnavailableError,
+};
+export type SellerClientConfig = BotPanelClientConfig;
+export type SellerKnowledgeFile = BotKnowledgeFile;

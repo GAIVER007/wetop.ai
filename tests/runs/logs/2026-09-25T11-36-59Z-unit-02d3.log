@@ -1,0 +1,118 @@
+# Модульные (unit) · 25.09.2026 16:36 Алматы · vm
+# коммит c4fba0e (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T11-36-59Z-unit-02d3.json' 'packages/integrations/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 17ms
+ ❯ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (17 tests | 4 failed) 147ms
+   ✓ SellerClient — адреса и ключ (5)
+     ✓ список диалогов: адрес панели, служебный ключ заголовком, не в адресе 85ms
+     ✓ карточка, перехват, возврат, ответ — по id диалога, id экранируется 7ms
+     ✓ знания: список и загрузка файлом в поле file 3ms
+     ✓ сводка, песочница, профиль, факты 4ms
+     ✓ панель под длинным путём — песочница всё равно в корне того же адреса 1ms
+   ❯ SellerClient — отказы (10)
+     ✓ нет связи — «недоступен», ключа в тексте нет 1ms
+     × 5xx — «недоступен» с кодом 19ms
+     × тайм-аут — «не ответил вовремя» 4ms
+     ✓ 4xx — «отклонил» с причиной продавца 3ms
+     ✓ проверка полей FastAPI списком — причины через «; » 2ms
+     ✓ 401 и 403 без причины — ключ платформы не принят 2ms
+     ✓ 403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт 2ms
+     ✓ отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей 2ms
+     ✓ песочница ждёт дольше остальных: ход с каскадом моделей длится до минуты 2ms
+     ✓ без адреса или ключа клиент не создаётся 2ms
+   ❯ BotPanelClient — панель помощника (2)
+     × отказы называют помощника, а не продавца 2ms
+     × прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > SellerClient — отказы > 5xx — «недоступен» с кодом
+AssertionError: expected SellerUnavailableError: ИИ-продавец недос… to match object { name: 'BotUnavailableError', …(1) }
+
+- Expected
++ Received
+
+- {
+-   "message": "ИИ-продавец недоступен (HTTP 502)",
+-   "name": "BotUnavailableError",
++ SellerUnavailableError {
++   "name": "SellerUnavailableError",
+  }
+
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:125:35
+    123|   it('5xx — «недоступен» с кодом', async () => {
+    124|     const { seller } = client(() => new Response('{"status":"error"}',…
+    125|     await expect(seller.summary()).rejects.toMatchObject({
+       |                                   ^
+    126|       name: 'BotUnavailableError',
+    127|       message: 'ИИ-продавец недоступен (HTTP 502)',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > SellerClient — отказы > тайм-аут — «не ответил вовремя»
+AssertionError: expected SellerUnavailableError: ИИ-продавец не от… to match object { name: 'BotUnavailableError', …(1) }
+
+- Expected
++ Received
+
+- {
+-   "message": "ИИ-продавец не ответил вовремя",
+-   "name": "BotUnavailableError",
++ SellerUnavailableError {
++   "name": "SellerUnavailableError",
+  }
+
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:135:35
+    133|       throw new DOMException('The operation was aborted due to timeout…
+    134|     });
+    135|     await expect(seller.summary()).rejects.toMatchObject({
+       |                                   ^
+    136|       name: 'BotUnavailableError',
+    137|       message: 'ИИ-продавец не ответил вовремя',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > BotPanelClient — панель помощника > отказы называют помощника, а не продавца
+TypeError: BotPanelClient is not a constructor
+ ❯ support packages/integrations/src/assistant/bot-panel-client.test.ts:233:5
+    231| describe('BotPanelClient — панель помощника', () => {
+    232|   const support = (respond: () => Response | Promise<Response>) =>
+    233|     new BotPanelClient({
+       |     ^
+    234|       baseUrl: 'http://assistant:8000/p0123456789ab',
+    235|       serviceKey: KEY,
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:241:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > BotPanelClient — панель помощника > прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются
+AssertionError: expected [Function SellerClient] to be undefined // Object.is equality
+
+- Expected:
+undefined
+
++ Received:
+[Function SellerClient]
+
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:265:26
+    263|
+    264|   it('прежние имена раздела продавца — те же классы: его проверки `ins…
+    265|     expect(SellerClient).toBe(BotPanelClient);
+       |                          ^
+    266|     expect(SellerRejectedError).toBe(BotRejectedError);
+    267|     expect(SellerUnavailableError).toBe(BotUnavailableError);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 24 passed (28)
+   Start at  11:37:00
+   Duration  796ms (transform 62%, tests 25%, import 10%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-25T11-36-59Z-unit-02d3.json
+
+# код выхода 1 · 2 с

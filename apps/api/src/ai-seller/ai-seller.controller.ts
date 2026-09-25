@@ -49,6 +49,13 @@ export class AiSellerController {
     return this.seller.apply();
   }
 
+  /** Рассказ о гостинице своими словами → черновик профиля мастера (С1); адрес и цены — только сверить */
+  @Post('extract')
+  @HttpCode(200)
+  extract(@Body() body: { story?: unknown } | undefined) {
+    return this.seller.extract(body?.story);
+  }
+
   @Get('facts')
   @Header('Cache-Control', 'no-store')
   facts() {

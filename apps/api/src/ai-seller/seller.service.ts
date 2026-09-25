@@ -38,6 +38,7 @@ import {
   knowledgeView,
   list,
   modeView,
+  num,
   obj,
   panelHttpError,
   replyText,
@@ -78,6 +79,96 @@ export const SELLER_OWNER_ONLY = 'Настройки продавца меняе
 /** Предел файла знаний — общий для обоих ботов (`bots/panel.ts`); контроллер раздела берёт его отсюда */
 export { KNOWLEDGE_MAX_BYTES } from '../bots/panel';
 const SANDBOX_MAX = 2000;
+// Рассказ владельца (С1): границы — как у двери бота `/extract-profile`
+const STORY_MIN = 10;
+const STORY_MAX = 4000;
+
+/** Поля профиля, которые рассказ вправе заполнить; манера (обращение, эмодзи, длина) — выбор партнёра в мастере */
+const STORY_FIELDS: ReadonlyArray<readonly [botField: string, field: string]> = [
+  ['bot_name', 'botName'],
+  ['greeting', 'greeting'],
+  ['included_in_price', 'includedInPrice'],
+  ['extra_charges', 'extraCharges'],
+  ['house_rules', 'houseRules'],
+  ['prohibitions', 'prohibitions'],
+  ['call_human_when', 'callHumanWhen'],
+  ['faq', 'faq'],
+];
+
+/** Имена полей бота → имена экрана: ими же бот называет отброшенное защитой */
+const STORY_FIELD_NAMES: Readonly<Record<string, string>> = Object.fromEntries(
+  [...STORY_FIELDS, ['object_name', 'objectName'] as const].map(([b, f]) => [b, f]),
+);
+
+export interface SellerExtractView {
+  filled: string[];
+  skipped: string[];
+  rejected: string[];
+  unparsed: string[];
+  /** Не пишется никуда: адрес, заезд и цены живут в «Настройках гостиницы» и «Тарифах» — это сверить глазами */
+  aside: {
+    objectName: string | null;
+    address: string | null;
+    checkIn: string | null;
+    checkOut: string | null;
+    categories: Array<{ name: string; kind: string; capacity: number; priceMinor: number | null }>;
+  };
+  profile: SellerProfileView;
+}
+
+/** Значение поля из ответа бота в форме экрана; пустое или кривое — null, поле не трогается */
+function storyValue(field: string, raw: unknown): unknown | null {
+  if (field === 'prohibitions' || field === 'callHumanWhen') {
+    const items = list(raw)
+      .filter((v): v is string => typeof v === 'string' && v.trim() !== '')
+      .map((v) => v.trim());
+    return items.length > 0 ? items : null;
+  }
+  if (field === 'faq') {
+    const items = list(raw).flatMap((v) => {
+      const q = str(obj(v).q)?.trim() ?? '';
+      const a = str(obj(v).a)?.trim() ?? '';
+      return q !== '' && a !== '' ? [{ question: q, answer: a }] : [];
+    });
+    return items.length > 0 ? items : null;
+  }
+  const text = str(raw)?.trim() ?? '';
+  return text === '' ? null : text;
+}
+
+/** Поле черновика занято — рассказ его не трогает */
+function storyOccupied(base: SellerProfileInput, field: string): boolean {
+  const value = base[field as keyof SellerProfileInput];
+  if (value === null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+/** Адрес, заезд и категории из рассказа — сверить с данными платформы, а не записать поверх */
+function storyAside(
+  profile: Record<string, unknown>,
+  facts: Record<string, unknown>,
+): SellerExtractView['aside'] {
+  return {
+    objectName: str(profile.object_name),
+    address: str(facts.address),
+    checkIn: str(facts.check_in),
+    checkOut: str(facts.check_out),
+    categories: list(facts.categories).flatMap((item) => {
+      const row = obj(item);
+      const name = str(row.name)?.trim() ?? '';
+      const kind = str(row.kind) ?? '';
+      const capacity = num(row.capacity);
+      if (name === '' || kind === '' || capacity < 1) return [];
+      const priceMinor =
+        typeof row.price_minor === 'number' && Number.isFinite(row.price_minor)
+          ? Math.trunc(row.price_minor)
+          : null;
+      return [{ name, kind, capacity, priceMinor }];
+    }),
+  };
+}
 
 /**
  * `extension-off` — расширение не подключено или выключено; `extension-expired` — срок вышел, раздел только для чтения
@@ -328,6 +419,54 @@ export class SellerService {
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     await this.profiles.save(this.profileOrganization(), parsed.value, currentUserId(), now);
     return this.savedProfile();
+  }
+
+  // ── рассказ владельца (С1 «под ключ», план `plans/seller-partner-bot-2026-09-25.md`) ──────
+
+  /** Извлечённое ложится только в пустые поля черновика: занятое рукой партнёра рассказ не затирает */
+  async extract(rawStory: unknown, now: Date = new Date()): Promise<SellerExtractView> {
+    const story = typeof rawStory === 'string' ? rawStory.trim() : '';
+    if (story.length < STORY_MIN)
+      throw new BadRequestException(`Рассказ короче ${STORY_MIN} знаков — расскажите подробнее`);
+    if (story.length > STORY_MAX)
+      throw new BadRequestException(`Рассказ длиннее ${STORY_MAX} знаков — сократите`);
+    const { client, organizationId } = await this.bound('configure', now);
+    const body = obj(await this.call(() => client.extractProfile(story)));
+    const extracted = obj(body.profile);
+
+    const row = await this.profiles.get(organizationId);
+    const base = row ? pickSellerProfile(row) : DEFAULT_SELLER_PROFILE;
+    const draft: Record<string, unknown> = { ...base };
+    const filled: string[] = [];
+    const skipped: string[] = [];
+    for (const [botField, field] of STORY_FIELDS) {
+      const value = storyValue(field, extracted[botField]);
+      if (value === null) continue;
+      if (storyOccupied(base, field)) {
+        skipped.push(field);
+        continue;
+      }
+      draft[field] = value;
+      filled.push(field);
+    }
+    if (filled.length > 0) {
+      // пределы у бота и платформы одинаковые, но черновик всё равно идёт через общую проверку
+      const parsed = parseSellerProfile(draft);
+      if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
+      await this.profiles.save(organizationId, parsed.value, currentUserId(), now);
+    }
+    return {
+      filled,
+      skipped,
+      rejected: list(body.rejected).flatMap((name) =>
+        typeof name === 'string' ? [STORY_FIELD_NAMES[name] ?? name] : [],
+      ),
+      unparsed: list(body.unparsed)
+        .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+        .slice(0, 30),
+      aside: storyAside(extracted, obj(body.facts)),
+      profile: await this.savedProfile(),
+    };
   }
 
   // ── применение (П8) ────────────────────────────────────────────────────────────────────────

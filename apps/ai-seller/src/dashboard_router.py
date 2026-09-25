@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from src.ai.engine import IncomingMessage, build_engine
 from src.channels.sender import SendResult
-from src.dashboard import panel_conversations, panel_orgs, panel_seller, panel_settings
+from src.dashboard import panel_conversations, panel_extract, panel_orgs, panel_seller, panel_settings
 from src.dashboard.auth_router import current_user
 from src.db.base import utcnow
 
@@ -37,6 +37,7 @@ panel_router = APIRouter(dependencies=[Depends(current_user)])
 panel_router.include_router(panel_conversations.router)
 panel_router.include_router(panel_settings.router)
 panel_router.include_router(panel_seller.router)
+panel_router.include_router(panel_extract.router)
 panel_router.include_router(panel_orgs.router)
 
 SANDBOX_CHANNEL = "sandbox"

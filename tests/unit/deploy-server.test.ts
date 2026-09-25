@@ -182,19 +182,20 @@ describe('deploy/compose.yml', () => {
     expect(service('api')).not.toMatch(/GUARD_LOCAL_FILES/);
   });
 
-  it('API в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, в ней только API', () => {
+  it('API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет', () => {
     // Помощник читает у API ошибки человека и состояние сторожа, API зовёт продавца по SELLER_URL — по внутренней
     // сети, туннель остаётся с шестью путями (docs/assistant/README.md §3). Внешней (external) сеть не объявлена:
-    // иначе выкладка платформы падала бы, пока сеть не завели руками. Стойке и туннелю бот не нужен.
+    // иначе выкладка платформы падала бы, пока сеть не завели руками. Туннелю сеть нужна, чтобы вывести наружу
+    // assistant.wetop.ai (только чат и живость — правило ниже); стойке бот не нужен.
     const code = withoutComments(COMPOSE);
     const block = code.match(/^networks:\n((?: {2,}.*\n)+)/m)?.[1] ?? '';
     expect(block).toMatch(/^ {2}wetop-internal:\n/m);
     expect(block).toMatch(/name: wetop-internal/);
     expect(block).toMatch(/internal: true/);
     expect(block).not.toMatch(/external:/);
-    expect(withoutComments(service('api'))).toMatch(/networks: \[default, wetop-internal\]/);
-    for (const s of ['web', 'cloudflared'])
-      expect(withoutComments(service(s)), s).not.toContain('wetop-internal');
+    for (const s of ['api', 'cloudflared'])
+      expect(withoutComments(service(s)), s).toMatch(/networks: \[default, wetop-internal\]/);
+    expect(withoutComments(service('web'))).not.toContain('wetop-internal');
   });
 
   it('сторож проверяет стойку по имени службы, а не собственный контейнер', () => {
@@ -283,5 +284,17 @@ describe('контекст сборки', () => {
     // В шапке 127.0.0.1 упомянут как раз для того, чтобы объяснить разницу с версией для Mac,
     // поэтому смотрим только правила, без комментариев
     expect(withoutComments(example)).not.toContain('127.0.0.1');
+  });
+
+  it('помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает', () => {
+    const rules = withoutComments(read('deploy/cloudflared.example.yml'));
+    const assistant = [
+      ...rules.matchAll(/- hostname: assistant\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g),
+    ];
+    expect(assistant.map((m) => [m[1], m[2]])).toEqual([['^/(widget/.*|health)$', 'http://assistant:8000']]);
+    // У продавца адреса наружу пока нет: код его чата на сайт объекта — только когда база бота в РК (ADR-009)
+    expect(rules).not.toContain('seller.wetop.ai');
+    // Последнее правило — отказ всему остальному
+    expect(rules.trimEnd().split('\n').at(-1)).toMatch(/- service: http_status:404$/);
   });
 });

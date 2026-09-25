@@ -96,7 +96,8 @@ SELECT message, status, count(*) AS n
 службы видно только внутри общей сети. **Сеть `wetop-internal` заводит сама платформа** (25.09.2026, после решения
 Q-174, ADR-081):
 - имя постоянное, `internal: true` — выхода наружу у сети нет;
-- в ней только `api`, стойке и туннелю бот не нужен;
+- в ней `api` и туннель (`cloudflared`). Туннель выводит наружу `assistant.wetop.ai`, и только чат (`/widget/*`) и
+  живость (`/health`) — правило в `deploy/cloudflared.example.yml`. Стойке бот не нужен;
 - сторож — `tests/unit/deploy-server.test.ts`.
 
 Руками сеть не заводят. `docker network create` создаёт сеть без меток compose, и `up` платформы с такой сетью
@@ -261,9 +262,65 @@ networks:
 | 2 | Три общих ключа: `openssl rand -hex 32`, трижды | `WIDGET_IDENTITY_SECRET`, `ASSISTANT_READ_KEY`, `SELLER_SERVICE_KEY` — одинаковые у платформы и бота (§5; у помощника `ASSISTANT_READ_KEY` зовётся `INTEGRATION_API_KEY`) | — |
 | 3 | Переменные платформы в `.env` корня клона: `ASSISTANT_URL=https://assistant.wetop.ai`, `SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`, `SELLER_PUBLIC_URL=https://seller.wetop.ai`, `SELLER_ORGANIZATION_ID=<uuid организации>` и ключи шага 2 | имена — и в `.env.example` | — |
 | 4 | Выкладка платформы | `release` → проверенный коммит `main`, затем `/usr/local/sbin/wetop-auto-deploy --migrations-applied` (`docs/deploy.md` §1д) | `/health` — ok; в «Продажах» есть «ИИ-продавец»; `docker network inspect wetop-internal` — в сети `api` |
-| 5 | Экземпляры бота: помощник (`BOT_ROLE=support`, `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`) и продавец (`BOT_ROLE=seller`, `SELLER_SERVICE_KEY`) — каждый своим проектом compose, с файлом сети из §3 | `apps/ai-seller/vykatka.md` — перед деплоем и перед открытием адреса наружу; наружу только `/widget/*` и `/health` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
+| 5 | Экземпляры бота: помощник (`BOT_ROLE=support`) и продавец (`BOT_ROLE=seller`) — каждый своей папкой и проектом compose, с файлом сети из §3; `assistant.wetop.ai` — правилом туннеля и записью DNS | команды ниже; перед деплоем — `apps/ai-seller/vykatka.md` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
 | 6 | Главная wetop.ai | `CLOUDFLARE_ACCOUNT_ID=… npm run site:deploy` (`docs/deploy.md` §2) | `curl -s https://wetop.ai/ \| grep -c assistant.wetop.ai/widget/widget.js` — `1` |
 | 7 | «ИИ-продавец» → «Настройки» → «Применить» | стойка | баннер «Применено: продавец получил настройки и данные объекта» |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).
+
+### Команды для веб-терминала сервера (шаги 4–5)
+
+Порядок важен: сеть `wetop-internal` появляется, когда выложена вершина `main` с PR #69 и дальше. Бот подключается к ней
+как к внешней, поэтому поднимается после платформы.
+
+```bash
+# 4. Платформа: после перемотки release автовыкладка поднимет api в новой сети. Туннель она не трогает — один раз руками:
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d cloudflared
+docker network inspect wetop-internal --format '{{range .Containers}}{{.Name}} {{end}}'   # ждём api и cloudflared
+
+# 5а. Помощник — своя папка, копия бота из клона
+mkdir -p /opt/wetop-bot && cp -a /root/wetop/apps/ai-seller /opt/wetop-bot/assistant && cd /opt/wetop-bot/assistant
+cp env.example .env && nano .env          # что вписать — ниже
+mkdir -p data logs && chown 1000:1000 data logs
+cat > compose.override.yml <<'YML'
+services:
+  app:
+    networks:
+      default: {}
+      wetop-internal: { aliases: [assistant] }
+networks:
+  wetop-internal: { external: true }
+YML
+docker compose run --rm --no-deps app python -c 'import getpass; from src.dashboard.security import hash_password; print(hash_password(getpass.getpass()))'
+#    хеш — в .env: DASHBOARD_ADMIN_PASSWORD_HASH='<хеш>' в одинарных кавычках (в хеше знаки $)
+docker compose up -d --build && docker compose ps && curl -s 127.0.0.1:8000/health
+
+# 5б. Продавец — то же в /opt/wetop-bot/seller, но: aliases: [seller], BOT_ROLE=seller, и порт на хосте другой
+#     (sed -i 's/127.0.0.1:8000:8000/127.0.0.1:8001:8000/' compose.yml), проверка — curl -s 127.0.0.1:8001/health
+
+# 5в. Адрес помощника наружу: правило из deploy/cloudflared.example.yml (hostname: assistant.wetop.ai …) — в
+#     /root/wetop/deploy/cloudflared/wetop.yml перед последней строкой `- service: http_status:404`, затем:
+cloudflared tunnel route dns wetop assistant.wetop.ai     # или запись CNAME на туннель в панели Cloudflare
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml restart cloudflared
+curl -s https://assistant.wetop.ai/health                 # 200
+
+# 3 (после 5). Переменные платформы из шага 3 — в /root/wetop/.env, затем перечитать их:
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d api web
+```
+
+**Что вписать в `.env` помощника.**
+
+| Группа | Переменные |
+|---|---|
+| сервис | `APP_ENV=production`, `PUBLIC_BASE_URL=https://assistant.wetop.ai`, `CORS_ORIGINS=https://app.wetop.ai,https://wetop.ai,https://www.wetop.ai` |
+| своя база и Redis | `POSTGRES_HOST=postgres`, `POSTGRES_PORT=5432`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (придумать), `REDIS_URL=redis://redis:6379/0` |
+| модель | `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` и запасные — ключ роутера владельца |
+| панель | `DASHBOARD_JWT_SECRET` (`openssl rand -hex 32`), `DASHBOARD_ADMIN_EMAIL`, `DASHBOARD_ADMIN_PASSWORD_HASH`, `DASHBOARD_PATH_PREFIX` (случайный отрезок пути) |
+| роль и платформа | `BOT_ROLE=support`, `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `ASSISTANT_READ_KEY` платформы |
+| виджет | `WIDGET_IDENTITY_SECRET` = тот же, что у платформы, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` |
+
+У продавца отличаются `BOT_ROLE=seller`, `SELLER_SERVICE_KEY` = тот же, что у платформы, `PUBLIC_BASE_URL=https://seller.wetop.ai`,
+свой `DASHBOARD_PATH_PREFIX` — из него платформе `SELLER_URL=http://seller:8000<DASHBOARD_PATH_PREFIX>`. Остальное — по
+комментариям в `env.example`; своя база бота накатывает миграции сама при старте (`alembic upgrade head`).
+

@@ -117,6 +117,14 @@ async function StoredSettings({ view }: { view: string }) {
             <dd>{p.address || '—'}</dd>
           </div>
           <div>
+            <dt>Телефон</dt>
+            <dd>{p.phone || '—'}</dd>
+          </div>
+          <div>
+            <dt>Почта</dt>
+            <dd>{p.email || '—'}</dd>
+          </div>
+          <div>
             <dt>Валюта</dt>
             <dd>{p.currency}</dd>
           </div>

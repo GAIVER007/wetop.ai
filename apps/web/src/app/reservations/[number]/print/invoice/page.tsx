@@ -93,7 +93,7 @@ export default async function PrintInvoice({
               <br />
               {t.address}: {party.address}
               <br />
-              {t.phone}: {PROPERTY.phone}
+              {t.phone}: {party.phone}
               <br />
               {t.bank}: {PROPERTY.bank} · {t.iban}: {PROPERTY.iban} · {t.bic}: {PROPERTY.bic}
             </td>

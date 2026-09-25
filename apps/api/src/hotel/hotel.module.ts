@@ -65,6 +65,9 @@ export class HotelService {
         // ИИН/БИН для печатных форм — из записи объекта, не из кода (проверка SECURITY.md 24.09.2026, Н12)
         bin: true,
         address: true,
+        // контакты для печатных форм — тоже из записи (v1.7, ADR-082)
+        phone: true,
+        email: true,
         timezone: true,
         currency: true,
         checkInTime: true,

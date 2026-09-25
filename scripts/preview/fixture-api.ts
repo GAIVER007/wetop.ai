@@ -1773,6 +1773,9 @@ function read(path: string, q: URLSearchParams): unknown {
         legalName: null,
         bin: null,
         address: 'Тестовый адрес, 1',
+        // контакты объекта для печатных форм (v1.7, ADR-082)
+        phone: '+7 700 000 00 00',
+        email: 'hostel@example.invalid',
         timezone: 'Asia/Almaty',
         currency: 'KZT',
         checkInTime: '14:00',

@@ -141,19 +141,27 @@ describe('печатные формы: словари и расчёты', () => 
       legalName: 'ИП «Тест»',
       bin: 'БИН-ТЕСТ',
       address: 'Тестовый адрес, 1',
+      // v1.7 (ADR-082): контакты — тоже из записи, до этого были зашиты в заготовку
+      phone: '+7 700 000 00 00',
+      email: 'hostel@example.invalid',
       checkInTime: '15:00',
       checkOutTime: '11:00',
     };
     expect(propertyParty(stored)).toEqual(stored);
     expect(
-      propertyParty({ ...stored, legalName: null, bin: null, address: null }),
-    ).toMatchObject({ legalName: '___', bin: '___', address: '___' });
-    // старый API поля bin не шлёт вовсе
+      propertyParty({ ...stored, legalName: null, bin: null, address: null, phone: null, email: null }),
+    ).toMatchObject({ legalName: '___', bin: '___', address: '___', phone: '___', email: '___' });
+    // старый API полей bin, phone и email не шлёт вовсе
     const { name, legalName, address, checkInTime, checkOutTime } = stored;
-    expect(propertyParty({ name, legalName, address, checkInTime, checkOutTime }).bin).toBe('___');
+    const party = propertyParty({ name, legalName, address, checkInTime, checkOutTime });
+    expect([party.bin, party.phone, party.email]).toEqual(['___', '___', '___']);
   });
-  it('в заготовке остались только плейсхолдеры банка и подписанта и контакты объекта', () => {
-    for (const key of ['name', 'legalEntity', 'bin', 'address', 'checkInTime', 'checkOutTime'])
+  it('в заготовке остались только плейсхолдеры банка и подписанта — контакты ушли в запись объекта (v1.7)', () => {
+    for (const key of [
+      'name', 'legalEntity', 'bin', 'address', 'checkInTime', 'checkOutTime',
+      // v1.7 (ADR-082): телефон и почта — из записи объекта, в коде их больше нет
+      'phone', 'email',
+    ])
       expect(Object.keys(PROPERTY)).not.toContain(key);
     expect(PROPERTY.bank).toBe('___');
     expect(PROPERTY.iban).toBe('___');

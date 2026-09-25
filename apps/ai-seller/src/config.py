@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     # ─── Модели ───
     llm_api_key: str = ""
     llm_base_url: str = ""
+    # С2: секрет хранилища ключей партнёров (Fernet, base64url 32 байта).
+    # Пуст — ключи партнёров не принимаются, ходы идут ключом платформы.
+    llm_keys_secret: str = ""
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""

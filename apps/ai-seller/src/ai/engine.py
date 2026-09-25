@@ -34,6 +34,7 @@ from src.db.dedup import is_duplicate
 from src.db.models import Client, Conversation, Message, Organization
 from src.knowledge import retriever
 from src.knowledge.prompt import PromptMissing, load_system_prompt
+from src.security.llm_keys import org_llm_api_key
 from src.security.pii import unmask
 
 __all__ = ["Engine", "IncomingMessage", "NEUTRAL_REPLY", "PIPELINE", "REFUSAL_REPLY", "Status", "TurnOutcome", "build_engine"]
@@ -222,6 +223,8 @@ class Engine:
             # а не файл PROMPT_PATH: отвечать по чужой инструкции нельзя.
             row = await t.session.get(Organization, org)
             system_prompt = (row.system_prompt or "") if row is not None else ""
+            # С2: ход гостиницы идёт с её ключом модели, если партнёр его подключил.
+            t.llm_api_key = await org_llm_api_key(t.session, org, s)
             if not system_prompt.strip():
                 logger.error("системный промпт организации %s недоступен", org)
                 return self._fail(t, "prompt_missing")
@@ -245,7 +248,7 @@ class Engine:
     async def _model(self, t: Turn) -> None:
         t.step("model")
         try:
-            t.result = await self._llm.generate(t.messages)
+            t.result = await self._llm.generate(t.messages, api_key=t.llm_api_key)
         except Exception:
             logger.exception("слой модели поднял исключение")
             t.result = None

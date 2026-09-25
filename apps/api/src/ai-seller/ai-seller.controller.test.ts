@@ -703,3 +703,71 @@ describe('рассказ владельца → поля мастера (С1, п
     expect(profiles.rows.size).toBe(0);
   });
 });
+
+describe('ключ модели партнёра (С2, Q-186; план `plans/seller-partner-bot-2026-09-25.md`)', () => {
+  // Ключ хранит только бот (шифрованным); платформа его ставит, проверяет и видит
+  // только последние 4 знака — ни в её базе, ни в её ответах ключа нет.
+  it('поставить и прочитать: наружу — set и последние 4 знака, ключ уходит боту как есть', async () => {
+    connection.seller.replies.putLlmKey = { status: 'ok', set: true, last4: '7890' };
+    const saved = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-1234567890' })
+      .expect(200);
+    expect(saved.body).toEqual({ set: true, last4: '7890' });
+    expect(connection.seller.calls).toContainEqual({
+      op: 'putLlmKey',
+      args: [ORG_A, 'sk-partner-1234567890'],
+    });
+    connection.seller.replies.llmKeyStatus = { set: true, last4: '7890' };
+    const got = await api().get('/ai-seller/llm-key').set(as('session-a')).expect(200);
+    expect(got.body).toEqual({ set: true, last4: '7890' });
+    expect(got.text).not.toContain('sk-partner');
+  });
+
+  it('пустой ключ снимает сохранённый; проверка отдаёт вердикт словами', async () => {
+    connection.seller.replies.putLlmKey = { status: 'ok', set: false, last4: null };
+    const cleared = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: '' })
+      .expect(200);
+    expect(cleared.body).toEqual({ set: false, last4: null });
+    connection.seller.replies.checkLlmKey = { valid: false, reason: 'Роутер не принял ключ' };
+    const res = await api()
+      .post('/ai-seller/llm-key/check')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-000111' })
+      .expect(200);
+    expect(res.body).toEqual({ valid: false, reason: 'Роутер не принял ключ' });
+    expect(connection.seller.calls).toContainEqual({
+      op: 'checkLlmKey',
+      args: [ORG_A, 'sk-partner-000111'],
+    });
+  });
+
+  it('настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова', async () => {
+    const staff = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-staff'))
+      .send({ key: 'sk-x-12345678' })
+      .expect(403);
+    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    extensions.access = 'expired';
+    await api().get('/ai-seller/llm-key').set(as('session-a')).expect(403);
+    extensions.access = 'active';
+    await api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: '' }).expect(400);
+    expect(connection.seller.calls).toEqual([]);
+  });
+
+  it('продавец недоступен — 503 словами, ключ в тексте не всплывает', async () => {
+    connection.seller.failWith = unavailable();
+    const res = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-1234567890' })
+      .expect(503);
+    expect(res.body.message).toMatch(/недоступен/);
+    expect(res.text).not.toContain('sk-partner');
+  });
+});

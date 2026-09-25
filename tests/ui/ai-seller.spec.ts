@@ -35,6 +35,7 @@ test('раздел в меню «Продажи», шесть вкладок, п
     'Знания',
     'Диалоги',
     'Код для сайта',
+    'Модель',
     'Проверка',
   ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
@@ -396,4 +397,26 @@ test('окно рассказа: занятые руками поля не за�
   await expect(result).toContainText('Уже заполнено раньше и не тронуто: Имя бота');
   await page.goto('/ai-seller?step=1');
   await expect(page.getByLabel('Имя бота')).toHaveValue('Дана');
+});
+
+test('окно «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять', async ({ page }) => {
+  await page.goto('/ai-seller/model');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+  // «Проверить» — живой вызов роутера у бота: чужой ключ он не принимает
+  await page.getByTestId('seller-llm-key-input').fill('sk-bad-key-123456');
+  await page.getByTestId('seller-llm-key-check').click();
+  await expect(page.getByTestId('seller-llm-key-error')).toContainText('Роутер не принял ключ');
+  // действительный — сохраняется; наружу — только последние 4 знака
+  await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+  await page.getByTestId('seller-llm-key-check').click();
+  await expect(page.getByTestId('seller-llm-key-message')).toContainText('Ключ действителен');
+  await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+  await page.getByTestId('seller-llm-key-save').click();
+  await expect(page.getByTestId('seller-llm-key-message')).toContainText('оканчивается на 7890');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('····7890');
+  await expect(page.locator('body')).not.toContainText('sk-valid-key-7890');
+  // «Снять ключ» возвращает ход на ключ платформы
+  await page.getByTestId('seller-llm-key-clear').click();
+  await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
 });

@@ -68,6 +68,7 @@ class Turn:
     verdict: Any = None
     messages: list[dict] = field(default_factory=list)
     result: Any = None  # LlmResult, если модель вызывалась
+    llm_api_key: str | None = None  # ключ модели партнёра на ход (С2); None — ключ платформы
     reply: str | None = None  # выставлен до модели — значит ранняя ветка
     lock: Any = None  # TurnLock, если замок наш: после хода разбираем очередь
     sent: bool = False

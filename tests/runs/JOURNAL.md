@@ -2221,3 +2221,22 @@
 | 25.09.2026 12:05 | lint | ✅ без ошибок | 20 с | 6cd565f +1 | [лог](logs/2026-09-25T07-05-17Z-lint-eddc.log) |  |
 | 25.09.2026 12:06 | integration | ✅ 64 из 64 | 28 с | 6cd565f | [лог](logs/2026-09-25T07-06-17Z-integration-78df.log) |  |
 | 25.09.2026 12:06 | e2e | ✅ 25 из 25 | 2 мин 2 с | 6cd565f | [лог](logs/2026-09-25T07-06-45Z-e2e-6569.log) |  |
+| 25.09.2026 13:47 | unit (частично: apps/web/src/lib/ai-seller.test.ts) | ❌ упало 17 из 36 | 3 с | 0729998 +1 | [лог](logs/2026-09-25T08-47-51Z-unit-9a1e.log) | red: setup steps before implementation |
+| 25.09.2026 13:48 | unit (частично: apps/web/src/lib/ai-seller.test.ts) | ✅ 36 из 36 | 3 с | 0729998 +2 | [лог](logs/2026-09-25T08-48-45Z-unit-6486.log) | green: setup steps |
+| 25.09.2026 13:53 | typecheck | ✅ без ошибок | 30 с | 0729998 +6 | [лог](logs/2026-09-25T08-53-47Z-typecheck-91b1.log) |  |
+| 25.09.2026 13:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ❌ упало 14 из 14 | 1 мин 34 с | 0729998 +2 | [лог](logs/2026-09-25T08-55-57Z-e2e-8421.log) | red: new setup-step tests on the old settings screen |
+| 25.09.2026 13:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ❌ упало 14 из 14 | 23 с | 0729998 +2 | [лог](logs/2026-09-25T08-57-58Z-e2e-f986.log) | red: new setup-step tests on the old settings screen |
+| 25.09.2026 13:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ❌ упало 7 из 14 | 3 мин 27 с | 0729998 +2 | [лог](logs/2026-09-25T08-58-39Z-e2e-dbf4.log) | red: new setup-step tests on the old settings screen |
+| 25.09.2026 14:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ❌ упало 1 из 14 | 1 мин 9 с | 0729998 +8 | [лог](logs/2026-09-25T09-02-23Z-e2e-305e.log) | green: setup steps |
+| 25.09.2026 14:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ✅ 14 из 14 | 1 мин 3 с | 0729998 +8 | [лог](logs/2026-09-25T09-03-45Z-e2e-c840.log) | green: setup steps |
+| 25.09.2026 14:06 | unit (частично: apps/web/src/lib/ai-seller.test.ts) | ❌ упало 2 из 36 | 2 с | 0729998 +6 | [лог](logs/2026-09-25T09-06-04Z-unit-68d4.log) | red: banner points to setup steps |
+| 25.09.2026 14:06 | unit (частично: apps/web/src/lib/ai-seller.test.ts) | ✅ 36 из 36 | 2 с | 0729998 +6 | [лог](logs/2026-09-25T09-06-25Z-unit-61f7.log) | green: banner points to setup steps |
+| 25.09.2026 14:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ✅ 14 из 14 | 1 мин 6 с | 0729998 +8 | [лог](logs/2026-09-25T09-06-36Z-e2e-1da9.log) | green: setup steps, compact launch |
+| 25.09.2026 14:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts -g всех разделов) | ✅ 4 из 4 | 6 мин 26 с | 0729998 +8 | [лог](logs/2026-09-25T09-08-14Z-e2e-fb2c.log) | a11y: setup steps added to the audit |
+| 25.09.2026 14:14 | lint | ✅ без ошибок | 21 с | 0729998 +8 | [лог](logs/2026-09-25T09-14-48Z-lint-c8e3.log) |  |
+| 25.09.2026 14:15 | typecheck | ✅ без ошибок | 28 с | 0729998 +8 | [лог](logs/2026-09-25T09-15-10Z-typecheck-5618.log) |  |
+| 25.09.2026 14:15 | unit | ✅ 1770 из 1773, пропущено 3 | 1 мин 13 с | 0729998 +6 | [лог](logs/2026-09-25T09-15-45Z-unit-22ef.log) |  |
+| 25.09.2026 14:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts) | ✅ 6 из 6 | 47 с | 0729998 +8 | [лог](logs/2026-09-25T09-17-05Z-e2e-88df.log) | navigation after setup steps |
+| 25.09.2026 14:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-seller.spec.ts) | ✅ 14 из 14 | 1 мин 1 с | 0729998 +8 | [лог](logs/2026-09-25T09-18-16Z-e2e-2728.log) | green: one form per step |
+| 25.09.2026 14:19 | typecheck | ✅ без ошибок | 27 с | 0729998 +8 | [лог](logs/2026-09-25T09-19-17Z-typecheck-61ad.log) |  |
+| 25.09.2026 14:19 | lint | ✅ без ошибок | 20 с | 0729998 +8 | [лог](logs/2026-09-25T09-19-52Z-lint-1168.log) |  |

@@ -1,16 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import {
+  SELLER_FAQ_SUGGESTIONS,
+  SELLER_SETUP_STEPS,
   SELLER_TABS,
   categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
   conversationStageLabel,
+  defaultSellerStep,
   knowledgeSourceLabel,
   leadFacts,
   sellerBanner,
-  sellerProfileFromForm,
+  sellerBriefing,
+  sellerSetupProgress,
+  sellerStepFromForm,
+  sellerStepNumber,
+  userDocuments,
 } from './ai-seller';
-import type { SellerCategoryPrice, SellerStatus } from './api';
+import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
 
 /** Раздел «ИИ-продавец» стойки (ТЗ ред. 1 П6): то, что экраны считают сами, без API */
 
@@ -79,12 +86,13 @@ describe('sellerBanner — полоса состояния над экранам
     // обещания повтора нет: «Повторяем отправку…» — слова временного отказа
     expect(b.text).not.toContain('Повторяем отправку');
     expect(b.text).toContain('Сами не повторяем');
+    expect(b.text).toContain('нажмите «Применить» на шаге «Запуск»');
   });
 
-  it('профиль не сохранён — просим заполнить и применить', () => {
-    expect(
-      sellerBanner(status({ profile: { saved: false, updatedAt: null, applied: false } })),
-    ).toMatchObject({ tone: 'warn', title: 'Продавец ещё не настроен' });
+  it('профиль не сохранён — ведём по шагам настройки к «Применить» на «Запуске»', () => {
+    const b = sellerBanner(status({ profile: { saved: false, updatedAt: null, applied: false } }));
+    expect(b).toMatchObject({ tone: 'warn', title: 'Продавец ещё не настроен' });
+    expect(b.text).toBe('Пройдите шаги во вкладке «Настройки» и нажмите «Применить» на последнем — «Запуск».');
   });
 
   it('всё доставлено — спокойно', () => {
@@ -98,49 +106,247 @@ describe('sellerBanner — полоса состояния над экранам
   });
 });
 
-describe('sellerProfileFromForm — поля формы «Настройки» в тело PUT /ai-seller/profile', () => {
-  it('выпадающие списки, языки по порядку, запреты и «когда звать человека» — по одному в строке', () => {
-    const form = new FormData();
-    form.set('botName', ' Айгерим ');
-    form.set('addressForm', 'INFORMAL');
-    form.set('emoji', 'GREETING_ONLY');
-    form.set('replyLength', 'DETAILED');
-    form.append('languages', 'ru');
-    form.append('languages', 'en');
-    form.set('greeting', 'Привет!');
-    form.set('includedInPrice', 'Бельё');
-    form.set('extraCharges', 'Трансфер');
-    form.set('houseRules', 'Тишина с 23:00');
-    form.set('prohibitions', 'Не курить в номерах\r\n\n  Без животных  \n');
-    form.set('callHumanWhen', '');
-    form.set('faqCount', '2');
-    form.set('faq-question-0', 'Парковка?');
-    form.set('faq-answer-0', 'Нет');
-    form.set('faq-question-1', '');
-    form.set('faq-answer-1', '');
-    expect(sellerProfileFromForm(form)).toEqual({
-      botName: ' Айгерим ',
-      addressForm: 'INFORMAL',
-      emoji: 'GREETING_ONLY',
-      replyLength: 'DETAILED',
-      languages: ['ru', 'en'],
-      greeting: 'Привет!',
-      includedInPrice: 'Бельё',
-      extraCharges: 'Трансфер',
-      houseRules: 'Тишина с 23:00',
+const EMPTY: SellerProfileBody = {
+  botName: null,
+  addressForm: 'FORMAL',
+  emoji: 'NEVER',
+  replyLength: 'SHORT',
+  languages: ['ru'],
+  greeting: '',
+  includedInPrice: '',
+  extraCharges: '',
+  houseRules: '',
+  prohibitions: [],
+  callHumanWhen: [],
+  faq: [],
+};
+
+const FILLED: SellerProfileBody = {
+  ...EMPTY,
+  botName: 'Айгерим',
+  addressForm: 'INFORMAL',
+  emoji: 'GREETING_ONLY',
+  replyLength: 'DETAILED',
+  languages: ['ru', 'kk'],
+  greeting: 'Привет! Я Айгерим из хостела.',
+  includedInPrice: 'Бельё и полотенца',
+  extraCharges: 'Трансфер из аэропорта',
+  houseRules: 'Тишина с 23:00',
+  prohibitions: ['Не курить в номерах'],
+  callHumanWhen: ['Группа от 6 человек'],
+  faq: [{ question: 'Есть парковка?', answer: 'Нет, рядом городская.' }],
+};
+
+describe('шаги настройки продавца (поручение владельца 25.09.2026)', () => {
+  it('семь шагов по порядку: от знакомства до запуска', () => {
+    expect(SELLER_SETUP_STEPS.map((s) => `${s.step} ${s.title}`)).toEqual([
+      '1 Знакомство',
+      '2 Манера',
+      '3 Цены',
+      '4 Правила',
+      '5 Частые вопросы',
+      '6 Документы',
+      '7 Запуск',
+    ]);
+  });
+
+  it('новый продавец: всё не заполнено, документы — после подключения, открывается первый шаг', () => {
+    const progress = sellerSetupProgress({ saved: false, profile: EMPTY, documents: null, applied: false });
+    expect(progress.map((p) => `${p.key}:${p.word}`)).toEqual([
+      'intro:не заполнено',
+      'manner:не заполнено',
+      'prices:не заполнено',
+      'rules:не заполнено',
+      'faq:не заполнено',
+      'docs:после подключения',
+      'launch:не отправлено',
+    ]);
+    expect(defaultSellerStep(progress)).toBe(1);
+  });
+
+  it('сохранили только знакомство: манера — с умолчаниями, дальше открывается «Цены»', () => {
+    const progress = sellerSetupProgress({
+      saved: true,
+      profile: { ...EMPTY, greeting: 'Здравствуйте!' },
+      documents: 0,
+      applied: false,
+    });
+    expect(progress.map((p) => p.state)).toEqual(['done', 'done', 'todo', 'todo', 'todo', 'optional', 'todo']);
+    expect(progress[5]!.word).toBe('по желанию');
+    expect(defaultSellerStep(progress)).toBe(3);
+  });
+
+  it('всё заполнено и продавец принял — все шаги готовы, открывается «Запуск»', () => {
+    const progress = sellerSetupProgress({ saved: true, profile: FILLED, documents: 2, applied: true });
+    expect(progress.map((p) => p.word)).toEqual([
+      'готово',
+      'готово',
+      'готово',
+      'готово',
+      'готово',
+      'готово',
+      'отправлено',
+    ]);
+    expect(defaultSellerStep(progress)).toBe(7);
+  });
+
+  it('документы и отправка на шаг по умолчанию не влияют: без них — тоже «Запуск»', () => {
+    const progress = sellerSetupProgress({ saved: true, profile: FILLED, documents: null, applied: false });
+    expect(defaultSellerStep(progress)).toBe(7);
+  });
+
+  it('правила готовы и по одному запрету, и цены — по одной доплате', () => {
+    const progress = sellerSetupProgress({
+      saved: true,
+      profile: { ...EMPTY, greeting: 'Здравствуйте!', extraCharges: 'Завтрак', prohibitions: ['Без животных'] },
+      documents: 0,
+      applied: false,
+    });
+    expect(progress[2]!.state).toBe('done');
+    expect(progress[3]!.state).toBe('done');
+  });
+
+  it('номер шага из адреса: 1…7, остальное — не шаг', () => {
+    expect(sellerStepNumber('3')).toBe(3);
+    expect(sellerStepNumber('7')).toBe(7);
+    for (const raw of ['', '0', '8', '2.5', 'три', '1e0', ' 3']) expect(sellerStepNumber(raw)).toBeNull();
+  });
+
+  it('документы людей считаются без фактов платформы', () => {
+    expect(
+      userDocuments([{ source: 'platform:facts.md' }, { source: 'правила.md' }, { source: 'прайс.pdf' }]),
+    ).toBe(2);
+    expect(userDocuments([{ source: 'platform:facts.md' }])).toBe(0);
+  });
+});
+
+describe('sellerStepFromForm — шаг меняет только свои поля, остальное берёт из сохранённого', () => {
+  const form = (fields: Array<[string, string]>) => {
+    const f = new FormData();
+    for (const [k, v] of fields) f.append(k, v);
+    return f;
+  };
+
+  it('знакомство: имя, приветствие, языки по порядку', () => {
+    const next = sellerStepFromForm(
+      'intro',
+      form([
+        ['botName', ' Айгерим '],
+        ['greeting', 'Привет!'],
+        ['languages', 'kk'],
+        ['languages', 'ru'],
+        ['houseRules', 'подделка чужого шага'],
+      ]),
+      FILLED,
+    );
+    expect(next).toEqual({ ...FILLED, botName: ' Айгерим ', greeting: 'Привет!', languages: ['kk', 'ru'] });
+  });
+
+  it('знакомство без языков — пустой список: отказ назовёт домен', () => {
+    expect(sellerStepFromForm('intro', form([['greeting', 'Привет!']]), FILLED).languages).toEqual([]);
+  });
+
+  it('манера: обращение, эмодзи, длина', () => {
+    const next = sellerStepFromForm(
+      'manner',
+      form([
+        ['addressForm', 'FORMAL'],
+        ['emoji', 'NEVER'],
+        ['replyLength', 'SHORT'],
+      ]),
+      FILLED,
+    );
+    expect(next).toEqual({ ...FILLED, addressForm: 'FORMAL', emoji: 'NEVER', replyLength: 'SHORT' });
+  });
+
+  it('цены: что входит и что за доплату', () => {
+    const next = sellerStepFromForm(
+      'prices',
+      form([
+        ['includedInPrice', 'Завтрак'],
+        ['extraCharges', ''],
+      ]),
+      FILLED,
+    );
+    expect(next).toEqual({ ...FILLED, includedInPrice: 'Завтрак', extraCharges: '' });
+  });
+
+  it('правила: запреты и «когда звать человека» — по одному в строке, пустые строки не правила', () => {
+    const next = sellerStepFromForm(
+      'rules',
+      form([
+        ['houseRules', 'Тишина с 22:00'],
+        ['prohibitions', 'Не курить в номерах\r\n\n  Без животных  \n'],
+        ['callHumanWhen', ''],
+      ]),
+      FILLED,
+    );
+    expect(next).toEqual({
+      ...FILLED,
+      houseRules: 'Тишина с 22:00',
       prohibitions: ['Не курить в номерах', 'Без животных'],
       callHumanWhen: [],
-      faq: [
-        { question: 'Парковка?', answer: 'Нет' },
-        { question: '', answer: '' },
-      ],
     });
   });
 
-  it('число строк вопросов не больше 50 даже при подделке', () => {
-    const form = new FormData();
-    form.set('faqCount', '1000');
-    expect(sellerProfileFromForm(form).faq).toHaveLength(50);
+  it('частые вопросы: строки по счётчику, не больше 50 даже при подделке', () => {
+    const next = sellerStepFromForm(
+      'faq',
+      form([
+        ['faqCount', '2'],
+        ['faq-question-0', 'Есть завтрак?'],
+        ['faq-answer-0', 'Нет'],
+        ['faq-question-1', ''],
+        ['faq-answer-1', ''],
+      ]),
+      FILLED,
+    );
+    expect(next).toEqual({
+      ...FILLED,
+      faq: [
+        { question: 'Есть завтрак?', answer: 'Нет' },
+        { question: '', answer: '' },
+      ],
+    });
+    expect(sellerStepFromForm('faq', form([['faqCount', '1000']]), FILLED).faq).toHaveLength(50);
+  });
+
+  it('подсказки частых вопросов — живые вопросы гостей, без повторов', () => {
+    expect(SELLER_FAQ_SUGGESTIONS.length).toBeGreaterThanOrEqual(4);
+    expect(new Set(SELLER_FAQ_SUGGESTIONS).size).toBe(SELLER_FAQ_SUGGESTIONS.length);
+    for (const q of SELLER_FAQ_SUGGESTIONS) expect(q.endsWith('?')).toBe(true);
+  });
+});
+
+describe('sellerBriefing — что получит продавец, словами', () => {
+  it('заполненный профиль: имя, манера, языки, цены, правила, вопросы', () => {
+    expect(sellerBriefing(FILLED)).toEqual([
+      { label: 'Представляется', value: '«Айгерим»' },
+      { label: 'Обращается к гостю', value: 'на «ты»' },
+      { label: 'Эмодзи', value: 'только в приветствии' },
+      { label: 'Ответы', value: 'развёрнуто' },
+      { label: 'Языки', value: 'Русский (основной), Казахский' },
+      { label: 'Приветствие', value: 'Привет! Я Айгерим из хостела.' },
+      { label: 'Что входит в цену', value: 'Бельё и полотенца' },
+      { label: 'За доплату', value: 'Трансфер из аэропорта' },
+      { label: 'Правила проживания', value: 'Тишина с 23:00' },
+      { label: 'Запреты', value: 'Не курить в номерах' },
+      {
+        label: 'Зовёт человека',
+        value: 'Группа от 6 человек; всегда — жалоба, возврат денег, изменение или отмена брони',
+      },
+      { label: 'Частые вопросы', value: '1 готовый ответ' },
+    ]);
+  });
+
+  it('пустой профиль: без имени, прочерки, человека зовёт в обязательных случаях', () => {
+    const lines = Object.fromEntries(sellerBriefing(EMPTY).map((l) => [l.label, l.value]));
+    expect(lines['Представляется']).toBe('без имени — от лица гостиницы');
+    expect(lines['Языки']).toBe('Русский (основной)');
+    expect(lines['Приветствие']).toBe('—');
+    expect(lines['Запреты']).toBe('—');
+    expect(lines['Зовёт человека']).toBe('всегда — жалоба, возврат денег, изменение или отмена брони');
+    expect(lines['Частые вопросы']).toBe('—');
   });
 });
 

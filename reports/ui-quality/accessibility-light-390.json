@@ -224,6 +224,38 @@
     }
   },
   {
+    "route": "/ai-seller?step=2",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/ai-seller?step=3",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/ai-seller?step=5",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/ai-seller?step=7",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
     "route": "/ai-seller/data",
     "violations": [],
     "layout": {

@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 25.09.2026 14:17 Алматы · vm
+# коммит 0729998 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/navigation.spec.ts:33:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.5s)
+  ✓  2 tests/ui/navigation.spec.ts:46:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.5s)
+  ✓  3 tests/ui/navigation.spec.ts:87:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.4s)
+  ✓  4 tests/ui/navigation.spec.ts:112:1 › все пункты меню открывают существующие страницы (17.0s)
+  ✓  5 tests/ui/navigation.spec.ts:136:3 › навигация ровная, адаптивная и доступная: light (6.1s)
+  ✓  6 tests/ui/navigation.spec.ts:136:3 › навигация ровная, адаптивная и доступная: dark (6.1s)
+
+  6 passed (45.4s)
+
+# код выхода 0 · 47 с

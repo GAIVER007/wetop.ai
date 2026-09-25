@@ -215,19 +215,21 @@ Booking.com — последним (ADR-012).
 
 # Гейты проекта
 
-| Gate | Название | Критерий |
-|---|---|---|
-| 0 | Readiness | Контекст передаётся без чата; DATA_MODEL утверждён; опросник заполнен; docs Channex есть |
-| 1 | Inventory | 88 номеров/ресурсов сходятся |
-| 2 | Chessboard | Загрузка совпадает с Exely |
-| 3 | Reservation | Ручная бронь правильно влияет на availability |
-| 4 | Front Desk | Полный stay lifecycle проходит |
-| 5 | Channex Sandbox | Booking lifecycle + ARI работает |
-| 6 | Finance | Folio и оплаты сходятся |
-| 7 | Kazakhstan | eQonaq + fiscal test контур работает |
-| 8 | Parallel Day | Exely = New PMS |
-| 9 | OTA Migration | Первый малый OTA работает в production |
-| 10 | Full migration | Все OTA мигрированы, Booking последним |
+Отметки состояния добавлены 25.09.2026; подробности — в тексте недель выше и в `CLAUDE.md` §2.
+
+| Gate | Название | Критерий | Состояние на 25.09.2026 |
+|---|---|---|---|
+| 0 | Readiness | Контекст передаётся без чата; DATA_MODEL утверждён; опросник заполнен; docs Channex есть | 🟡 всё есть, кроме опросника (переезд не блокирует, ADR-023) |
+| 1 | Inventory | 88 номеров/ресурсов сходятся | ✅ 08.09, diff 0 |
+| 2 | Chessboard | Загрузка совпадает с Exely | ✅ 08–10.09, сутки в ноль |
+| 3 | Reservation | Ручная бронь правильно влияет на availability | ✅ 09.09, e2e |
+| 4 | Front Desk | Полный stay lifecycle проходит | ✅ 10.09, e2e |
+| 5 | Channex Sandbox | Booking lifecycle + ARI работает | 🟡 живьём по шести каналам; сертификация: Full Sync принят, тесты 2–11 на перепрогоне (вариант Б, за владельцем) |
+| 6 | Finance | Folio и оплаты сходятся | ✅ 10.09, 1 449/1 449 до тиына |
+| 7 | Kazakhstan | eQonaq + fiscal test контур работает | ❌ ККМ снят владельцем (Q-050), eQonaq отложен (Q-122) |
+| 8 | Parallel Day | Exely = New PMS | 🟡 механизм двойного ввода в ноль 08–10.09; с 19.09 объект ведётся в WETOP (ADR-052), Exely выключен — формальное закрытие за владельцем |
+| 9 | OTA Migration | Первый малый OTA работает в production | ❌ до сертификации и базы в РК |
+| 10 | Full migration | Все OTA мигрированы, Booking последним | ❌ |
 
 ---
 

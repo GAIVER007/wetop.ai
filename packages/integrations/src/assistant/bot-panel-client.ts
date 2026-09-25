@@ -256,6 +256,29 @@ export class BotPanelClient {
     });
   }
 
+  /** Подключение WhatsApp (С3): токен и секрет Meta бот хранит шифрованными и назад не отдаёт */
+  whatsappStatus(orgId: string): Promise<Json> {
+    return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`);
+  }
+
+  putWhatsApp(
+    orgId: string,
+    input: { phoneNumberId: string; token: string; appSecret: string },
+  ): Promise<Json> {
+    return this.json('PUT', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`, {
+      phone_number_id: input.phoneNumberId,
+      token: input.token,
+      app_secret: input.appSecret,
+    });
+  }
+
+  checkWhatsApp(orgId: string, input: { phoneNumberId: string; token: string }): Promise<Json> {
+    return this.json('POST', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp/check`, {
+      phone_number_id: input.phoneNumberId,
+      token: input.token,
+    });
+  }
+
   /**
    * Рассказ владельца → поля анкеты (С1 «под ключ»): бот раскладывает свободный текст по полям Б6/Б7 своей
    * моделью и слоем 9; промптом рассказ не становится. Таймаут — как у песочницы: внутри вызов модели.

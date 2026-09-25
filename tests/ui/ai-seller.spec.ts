@@ -36,6 +36,7 @@ test('раздел в меню «Продажи», шесть вкладок, п
     'Диалоги',
     'Код для сайта',
     'Модель',
+    'WhatsApp',
     'Проверка',
   ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
@@ -419,4 +420,32 @@ test('окно «Модель» (С2): проверить, сохранить (�
   await page.getByTestId('seller-llm-key-clear').click();
   await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
   await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+});
+
+test('окно «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller/whatsapp');
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('не подключён');
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-bad-token-16chars');
+  await page.getByTestId('seller-whatsapp-check').click();
+  await expect(page.getByTestId('seller-whatsapp-error')).toContainText('Meta не приняла номер или токен');
+  // после действия форма сбрасывается — заполняем оба поля заново
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-check').click();
+  await expect(page.getByTestId('seller-whatsapp-message')).toContainText('Номер подтверждён');
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-secret').fill('meta-app-secret');
+  await page.getByTestId('seller-whatsapp-save').click();
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('555000111');
+  // партнёру — что вписать в консоль Meta; токен на экран не возвращается
+  const meta = page.getByTestId('seller-whatsapp-meta');
+  await expect(meta).toContainText('/channels/whatsapp/webhook/');
+  await expect(meta).toContainText('slovo-dlya-meta-ui');
+  await expect(page.locator('body')).not.toContainText('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-disconnect').click();
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('не подключён');
 });

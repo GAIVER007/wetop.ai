@@ -29,6 +29,7 @@ export const SELLER_TABS = [
   { view: 'dialogs', href: '/ai-seller/dialogs', label: 'Диалоги' },
   { view: 'embed', href: '/ai-seller/embed', label: 'Код для сайта' },
   { view: 'model', href: '/ai-seller/model', label: 'Модель' },
+  { view: 'whatsapp', href: '/ai-seller/whatsapp', label: 'WhatsApp' },
   { view: 'check', href: '/ai-seller/check', label: 'Проверка' },
 ] as const;
 

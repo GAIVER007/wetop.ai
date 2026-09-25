@@ -153,6 +153,9 @@ networks:
 | `GET /seller/organizations/{id}/llm-key` | ключ модели партнёра (С2, Q-186): статус | `{ set, last4 }` — сам ключ бот не отдаёт никогда |
 | `PUT /seller/organizations/{id}/llm-key` | поставить или снять ключ | тело `{ key }`; пустой — снять; ключ ложится в базу бота шифрованным (`LLM_KEYS_SECRET`), без секрета — 409; `{ status, set, last4 }` |
 | `POST /seller/organizations/{id}/llm-key/check` | проверка ключа до сохранения | тело `{ key }`; бот живым вызовом спрашивает роутер (`GET {LLM_BASE_URL}/models`); `{ valid, reason }` — ключа в ответе нет |
+| `GET /seller/organizations/{id}/whatsapp` | WhatsApp (С3, Q-185 (а)): статус | `{ set, phone_number_id, verify_token }` — токена и секрета в ответах нет никогда |
+| `PUT /seller/organizations/{id}/whatsapp` | подключить или снять | тело `{ phone_number_id, token, app_secret }` (пустой номер — снять); токен и секрет ложатся шифрованными (`LLM_KEYS_SECRET`); слово вебхука выдаёт бот |
+| `POST /seller/organizations/{id}/whatsapp/check` | проверка до сохранения | тело `{ phone_number_id, token }`; бот спрашивает Graph (`GET {WHATSAPP_GRAPH_BASE_URL}/{id}?fields=display_phone_number`); `{ valid, phone, reason }` |
 
 **Песочница.** У бота она осталась в корне экземпляра — `POST /internal/sandbox`, путь зафиксирован его сборочным
 планом — и принимает служебный ключ платформы тем же заголовком `X-Service-Key` (`src/dashboard_router.py`). Платформа
@@ -306,6 +309,7 @@ networks:
 | продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY` | Б5, Б8. Домены у продавца — от платформы по каждой гостинице (Э4): `WIDGET_SITE_HOSTS` его дверей больше не касается и остаётся помощнику |
 | продавец | `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `SELLER_QUOTE_KEY` платформы | котировка (ADR-085): без них инструменты наличия и цены отвечают «не знаю» |
 | продавец | `LLM_KEYS_SECRET` | хранилище ключей моделей партнёров (С2, Q-186): Fernet, `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`; пуст — ключи партнёров не принимаются, ходы идут ключом платформы |
+| продавец | `WHATSAPP_GRAPH_BASE_URL` | по умолчанию `https://graph.facebook.com/v20.0`; менять не нужно |
 
 ## 6. Включение по шагам (владелец; 25.09.2026)
 
@@ -327,6 +331,7 @@ networks:
 | 9 | Э4 «один продавец на все гостиницы» (после слияния Э4, план `plans/seller-multitenancy-2026-09-25.md` §3): `release` на свежий `main`; обновить код копии продавца («Обновить код…» ниже, папка `seller`) — его alembic применит `0002_organizations` сам при старте; сверка платформы заведёт гостиницу у продавца в течение минуты. Тег чата на сайте гостиницы заменить на новый из «Код для сайта» — теперь в нём `data-key`. Старые диалоги виджета (по желанию): `UPDATE clients SET organization_id='<uuid организации>' WHERE channel='widget' AND organization_id IS NULL;` в базе продавца — uuid показывает «Платформа → Организации» | веб-терминал | в «Код для сайта» тег с `data-key`; чат на сайте отвечает; «Диалоги» раздела показывают новые разговоры |
 | 10 | Котировка продавца (после слияния ADR-085): `openssl rand -hex 32` → `SELLER_QUOTE_KEY` в `.env` платформы; тот же ключ у продавца в `.env` — `INTEGRATION_API_KEY`, там же `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`; перезапуск `api` и продавца | веб-терминал; имена — в `.env.example` вписать владельцу | в чате продавца «есть места на завтра на двоих?» — признак и цена тарифа сайта, а не «уточнит администратор» |
 | 11 | Ключ модели партнёра (С2): сгенерировать `LLM_KEYS_SECRET` (команда в §5) → в `.env` продавца; обновить код копии продавца («Обновить код…» выше) — alembic применит `0003_org_llm_keys` при старте; затем в стойке «ИИ-продавец → Модель» — ключ, «Проверить», «Сохранить» | веб-терминал, затем стойка | в окне «Модель» — «оканчивается на ····…»; ход в «Проверке» отвечает как раньше |
+| 12 | WhatsApp гостиницы (С3; после ответа Q-185 и при базе бота в РК для чужих сайтов — ADR-009): партнёр заводит номер, Meta Business c проверкой и постоянный токен; в стойке «ИИ-продавец → WhatsApp» — номер, токен, секрет → «Проверить» → «Подключить»; адрес вебхука и слово с экрана — в консоль Meta (Webhook → Callback URL / Verify token, подписка на messages). Наружу нужен путь `/channels/whatsapp/webhook/*` к продавцу (`SELLER_PUBLIC_URL`) | стойка + консоль Meta; ingress продавца | сообщение на номер → ответ бота в WhatsApp; диалог в «Диалогах» раздела |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).

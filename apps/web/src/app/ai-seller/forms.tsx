@@ -21,13 +21,15 @@ import {
   type SellerProfileStep,
 } from '../../lib/ai-seller';
 import { formatMoney } from '../../lib/money';
-import type { SellerProfileBody } from '../../lib/api';
+import type { SellerProfileBody, SellerWhatsAppView } from '../../lib/api';
 import {
   applySellerAction,
   dialogModeAction,
   extractStoryAction,
   llmKeyCheckAction,
   llmKeySaveAction,
+  whatsappCheckAction,
+  whatsappSaveAction,
   replyAction,
   sandboxAction,
   saveSellerStepAction,
@@ -37,6 +39,7 @@ import {
   type LlmKeyResult,
   type SimpleResult,
   type StoryResult,
+  type WhatsAppResult,
 } from './actions';
 
 export interface Choice {
@@ -881,6 +884,140 @@ export function LlmKeyForm({
         Ключ хранит только продавец — шифрованным; здесь видны лишь последние 4 знака. Ключ
         недействителен или кончились средства — продавец гостиницы молчит и раздел предупредит,
         ключ платформы вместо партнёрского не подставляется.
+      </p>
+    </Stack>
+  );
+}
+
+/**
+ * Окно «WhatsApp» (С3, Q-185 (а)): номер и приложение Meta заводит партнёр, бот хранит токен
+ * и секрет шифрованными и назад не отдаёт. После подключения экран показывает адрес вебхука
+ * и проверочное слово — их партнёр вписывает в консоль Meta. Бот только отвечает написавшим.
+ */
+export function WhatsAppForm({
+  status,
+  readOnly,
+  save = whatsappSaveAction,
+  check = whatsappCheckAction,
+}: {
+  status: SellerWhatsAppView;
+  readOnly: string | null;
+  save?: (prev: WhatsAppResult | null, form: FormData) => Promise<WhatsAppResult>;
+  check?: (prev: WhatsAppResult | null, form: FormData) => Promise<WhatsAppResult>;
+}) {
+  const [saved, saveAction, saving] = useActionState<WhatsAppResult | null, FormData>(save, null);
+  const [checked, checkAction, checking] = useActionState<WhatsAppResult | null, FormData>(check, null);
+  const [off, offAction, offing] = useActionState<WhatsAppResult | null, FormData>(save, null);
+  const busy = saving || checking || offing;
+  return (
+    <Stack>
+      <p data-testid="seller-whatsapp-state">
+        {status.set ? (
+          <>
+            Подключён номер <b>{status.phoneNumberId}</b>: бот отвечает написавшим в WhatsApp.
+          </>
+        ) : (
+          <>WhatsApp не подключён. Понадобятся номер, аккаунт Meta Business с проверкой и постоянный токен —
+          их заводит партнёр.</>
+        )}
+      </p>
+      {status.set && status.webhookUrl && (
+        <div data-testid="seller-whatsapp-meta" className="stack stack--sm">
+          <p className="settings-note">В консоли Meta (WhatsApp → Configuration → Webhook) впишите:</p>
+          <ul className="settings-note">
+            <li>
+              Callback URL: <code>{status.webhookUrl}</code>
+            </li>
+            <li>
+              Verify token: <code>{status.verifyToken}</code>
+            </li>
+          </ul>
+        </div>
+      )}
+      <form key={saved?.attempt ?? 0} className="stack stack--sm">
+        <Field label="phone_number_id">
+          <Input
+            name="phoneNumberId"
+            inputMode="numeric"
+            maxLength={64}
+            placeholder="из консоли Meta, только цифры"
+            data-testid="seller-whatsapp-phone-id"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Field label="Постоянный токен">
+          <Input
+            name="token"
+            type="password"
+            maxLength={512}
+            autoComplete="off"
+            placeholder="EAAG…"
+            data-testid="seller-whatsapp-token"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Field label="Секрет приложения (App secret)">
+          <Input
+            name="appSecret"
+            type="password"
+            maxLength={200}
+            autoComplete="off"
+            data-testid="seller-whatsapp-secret"
+            disabled={readOnly !== null}
+          />
+        </Field>
+        <Row>
+          <Button
+            type="submit"
+            formAction={checkAction}
+            tone="secondary"
+            disabled={busy || readOnly !== null}
+            aria-busy={checking}
+            data-testid="seller-whatsapp-check"
+          >
+            {checking ? 'Проверяем…' : 'Проверить'}
+          </Button>
+          <Button
+            type="submit"
+            formAction={saveAction}
+            disabled={busy || readOnly !== null}
+            aria-busy={saving}
+            data-testid="seller-whatsapp-save"
+          >
+            {saving ? 'Подключаем…' : 'Подключить'}
+          </Button>
+        </Row>
+        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
+        {(saved?.message || checked?.message) && (
+          <Notice data-testid="seller-whatsapp-message">{saved?.message ?? checked?.message}</Notice>
+        )}
+        {(saved?.error || checked?.error) && (
+          <Alert data-testid="seller-whatsapp-error">{saved?.error ?? checked?.error}</Alert>
+        )}
+      </form>
+      {status.set && (
+        <form action={offAction} className="stack stack--sm">
+          <input type="hidden" name="disconnect" value="1" />
+          <Row>
+            <Button
+              type="submit"
+              tone="danger"
+              disabled={busy || readOnly !== null}
+              aria-busy={offing}
+              data-testid="seller-whatsapp-disconnect"
+            >
+              Отключить
+            </Button>
+          </Row>
+        </form>
+      )}
+      {off?.message && <Notice data-testid="seller-whatsapp-off">{off.message}</Notice>}
+      {off?.error && <Alert data-testid="seller-whatsapp-error">{off.error}</Alert>}
+      <p className="settings-note">
+        Токен и секрет приложения хранит только продавец — шифрованными, назад они не показываются.
+        Бот отвечает написавшим в течение суток после их сообщения (окно Cloud API), первым не пишет.
+        Переписка гостей — персональные данные: канал на сайты партнёров включается при базе бота
+        в Казахстане (ADR-009).
       </p>
     </Stack>
   );

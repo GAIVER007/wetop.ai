@@ -13,7 +13,7 @@
 #      docs/ops/server-setup-2026-09-18.md §8). Тогда шаги 1–4 не нужны
 #   3. cloudflared tunnel create wetop           — новый TUNNEL-ID и файл ключа; положить в deploy/cloudflared/
 #   4. cloudflared tunnel route dns --overwrite-dns wetop app.wetop.ai   (и то же для api.wetop.ai)
-#      имена те же → webhook Channex не трогается
+#      имена те же → webhook Channex не трогается; для ИИ-помощника — то же для assistant.wetop.ai
 #   5. подставить ниже TUNNEL-ID
 #   6. docker compose -f deploy/compose.yml up -d cloudflared; проверить: cloudflared tunnel info wetop →
 #      ровно один коннектор, linux_amd64, IP сервера
@@ -39,4 +39,10 @@ ingress:
   - hostname: api.wetop.ai
     path: ^/channels/channex/webhook$
     service: http://api:3001
+  # ИИ-помощник (ADR-081, docs/assistant/README.md §3): наружу только чат (/widget/*) и живость (/health). Панель
+  # бота и /internal/* — только внутренняя сеть wetop-internal. У продавца адреса наружу пока нет: код его чата
+  # на сайт объекта ставится, только когда база бота в РК (ADR-009).
+  - hostname: assistant.wetop.ai
+    path: ^/(widget/.*|health)$
+    service: http://assistant:8000
   - service: http_status:404

@@ -43,7 +43,8 @@ x-app: &app
 # Общая сеть с ИИ-помощником и ИИ-продавцом (ADR-081, docs/assistant/README.md §3): помощник читает у API ошибки
 # человека и состояние сторожа, API зовёт продавца по SELLER_URL. Заводит её платформа — с постоянным именем, чтобы бот
 # подключился к ней из своего compose как к внешней; внешней здесь она не объявлена, иначе выкладка падала бы, пока сеть
-# не заведена руками. internal: true — выхода наружу у этой сети нет, она только для служб между собой. В ней только api.
+# не заведена руками. internal: true — выхода наружу у этой сети нет, она только для служб между собой. В ней api и
+# cloudflared: туннель выводит наружу assistant.wetop.ai (только чат и живость, deploy/cloudflared.example.yml). Стойки нет.
 networks:
   wetop-internal:
     name: wetop-internal
@@ -136,6 +137,8 @@ services:
     # Правила маршрутизации живут в репозитории и видны в ревью, а не в панели Cloudflare.
     # Ключ туннеля кладёт владелец рядом с конфигом; в git не едет.
     volumes: ['./cloudflared:/etc/cloudflared:ro']
+    # default — стойка и API; wetop-internal — ИИ-помощник для assistant.wetop.ai (ADR-081)
+    networks: [default, wetop-internal]
     depends_on:
       api: { condition: service_healthy }
       web: { condition: service_healthy }

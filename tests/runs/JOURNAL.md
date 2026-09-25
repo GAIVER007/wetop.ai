@@ -2443,3 +2443,10 @@
 | 26.09.2026 02:30 | lint | ✅ без ошибок | 22 с | 2a5cc98 +16 | [лог](logs/2026-09-25T21-30-02Z-lint-8fb7.log) |  |
 | 26.09.2026 02:30 | unit | ✅ 1870 из 1873, пропущено 3 | 1 мин 13 с | 2a5cc98 +16 | [лог](logs/2026-09-25T21-30-25Z-unit-5e7d.log) |  |
 | 26.09.2026 02:31 | integration | ✅ 76 из 76 | 29 с | 2a5cc98 +5 | [лог](logs/2026-09-25T21-31-38Z-integration-9eaf.log) |  |
+| 26.09.2026 03:54 | typecheck | ✅ без ошибок | 37 с | 6338f43 | [лог](logs/2026-09-25T22-54-31Z-typecheck-f8ba.log) | merged main 733d556d |
+| 26.09.2026 03:55 | lint | ✅ без ошибок | 19 с | 6338f43 | [лог](logs/2026-09-25T22-55-09Z-lint-3ac7.log) | merged main 733d556d |
+| 26.09.2026 03:55 | unit | ❌ упало 1 из 1901, пропущено 3 | 1 мин 17 с | 6338f43 | [лог](logs/2026-09-25T22-55-28Z-unit-a78c.log) | merged main 733d556d |
+| 26.09.2026 03:56 | integration | ❌ код выхода 1 | 1 с | 6338f43 | [лог](logs/2026-09-25T22-56-45Z-integration-db52.log) | merged main 733d556d |
+| 26.09.2026 03:57 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 9 из 9 | 7 с | 6338f43 | [лог](logs/2026-09-25T22-57-37Z-unit-41b5.log) | posle sliyaniya 733d556d: povtor odinochnogo taymauta |
+| 26.09.2026 03:57 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 12 с | 6338f43 | [лог](logs/2026-09-25T22-57-59Z-unit-6f69.log) | merged main 733d556d: povtor posle taymauta |
+| 26.09.2026 03:59 | integration | ✅ 84 из 84 | 23 с | 6338f43 | [лог](logs/2026-09-25T22-59-11Z-integration-752c.log) | merged main 733d556d |

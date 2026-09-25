@@ -2336,3 +2336,7 @@
 | 25.09.2026 22:43 | unit | ✅ 1847 из 1850, пропущено 3 | 1 мин 26 с | 2c5fb03 +15 | [лог](logs/2026-09-25T17-43-42Z-unit-a824.log) |  |
 | 25.09.2026 22:46 | typecheck | ✅ без ошибок | 29 с | 2c5fb03 +17 | [лог](logs/2026-09-25T17-46-01Z-typecheck-52f2.log) |  |
 | 25.09.2026 22:46 | integration | ✅ 76 из 76 | 32 с | 2c5fb03 +11 | [лог](logs/2026-09-25T17-46-39Z-integration-0923.log) |  |
+| 25.09.2026 23:09 | lint | ✅ без ошибок | 19 с | 1cbd2e9 | [лог](logs/2026-09-25T18-09-38Z-lint-8022.log) | predpokaznaya proverka na 1cbd2e9d |
+| 25.09.2026 23:10 | e2e | ❌ упало 21 из 25, пропущено 3 | 29 с | 1cbd2e9 | [лог](logs/2026-09-25T18-10-18Z-e2e-e913.log) | predpokaznaya proverka na 1cbd2e9d |
+| 25.09.2026 23:12 | e2e | ❌ упало 21 из 25, пропущено 3 | 18 с | 1cbd2e9 | [лог](logs/2026-09-25T18-12-02Z-e2e-859b.log) | predpokaznaya proverka na 1cbd2e9d posle regeneratsii klienta |
+| 25.09.2026 23:13 | e2e | ✅ 25 из 25 | 52 с | 1cbd2e9 | [лог](logs/2026-09-25T18-13-54Z-e2e-1984.log) | predpokaznaya proverka na 1cbd2e9d, brauzer 1243 iz predustanovlennogo 1194 |

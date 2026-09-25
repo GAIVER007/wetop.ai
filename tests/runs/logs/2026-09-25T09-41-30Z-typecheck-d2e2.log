@@ -1,0 +1,19 @@
+# Типы (typecheck) · 25.09.2026 14:41 Алматы · vm
+# коммит 7fe897b (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 24
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(47,5): error TS2741: Property 'role' is missing in type '{ userId: string; email: string; organizationId: string; organizationName: string; organizationStatus: OrganizationStatus; trialEndsAt: Date | null; }' but required in type 'AccountRecord'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(47,5): error TS2741: Property 'role' is missing in type '{ userId: string; email: string; organizationId: string; organizationName: string; organizationStatus: OrganizationStatus; trialEndsAt: Date | null; }' but required in type 'AccountRecord'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 35 с

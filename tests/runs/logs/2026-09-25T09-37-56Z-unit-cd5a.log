@@ -1,0 +1,50 @@
+# Модульные (unit) · 25.09.2026 14:37 Алматы · vm
+# коммит 7fe897b (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-37-56Z-unit-cd5a.json' 'apps/api/src/accounts/invites.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/accounts/invites.controller.test.ts (8 tests | 1 failed) 289ms
+   ❯ приглашение: только владелец организации (DATA_MODEL §16.1, ADR-083) (2)
+     × сотрудник получает 403 и на создание, и на список; письма и приглашения нет 42ms
+     ✓ владелец приглашает как прежде 6ms
+   ✓ приглашение: только для вошедшего (1)
+     ✓ без сессии — 401 и на создание, и на список 9ms
+   ✓ приглашение: создание и список (2)
+     ✓ вошедший зовёт по почте: 201, письмо со ссылкой на 7 суток, в базе только отпечаток 10ms
+     ✓ не почта — 400 с текстом; уже в организации — 400 с текстом; письма нет 7ms
+   ✓ приглашение: проверка и принятие по ссылке (3)
+     ✓ по ключу видно, кто зовёт и кого; чужой ключ — 404 одним текстом 12ms
+     ✓ принятие: членство заведено, выдан ключ «задайте пароль», письма нет; второй раз — 404 10ms
+     ✓ просроченная ссылка — 404 и на просмотр, и на принятие; членства нет 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: только владелец организации (DATA_MODEL §16.1, ADR-083) > сотрудник получает 403 и на создание, и на список; письма и приглашения нет
+AssertionError: expected 201 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 201
+
+ ❯ apps/api/src/accounts/invites.controller.test.ts:104:28
+    102|     const token = await login();
+    103|     const created = await invite(token, INVITEE);
+    104|     expect(created.status).toBe(403);
+       |                            ^
+    105|     expect(created.body.message).toBe(INVITE_OWNER_ONLY_MESSAGE);
+    106|     const listed = await request(app.getHttpServer())
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  09:37:57
+   Duration  2.23s (transform 58%, import 28%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-37-56Z-unit-cd5a.json
+
+# код выхода 1 · 3 с

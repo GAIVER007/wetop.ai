@@ -2244,3 +2244,20 @@
 | 25.09.2026 14:31 | integration (частично: tests/integration/access-extensions.test.ts) | ❌ упало 3 из 3 | 3 с | 6cecb0d +2 | [лог](logs/2026-09-25T09-31-10Z-integration-c238.log) | red: access migration not yet present |
 | 25.09.2026 14:31 | integration (частично: tests/integration/access-extensions.test.ts) | ❌ код выхода 1 | 3 с | 6cecb0d +4 | [лог](logs/2026-09-25T09-31-21Z-integration-3b37.log) | green: access migration |
 | 25.09.2026 14:32 | integration (частично: tests/integration/access-extensions.test.ts) | ✅ 3 из 3 | 3 с | 6cecb0d +4 | [лог](logs/2026-09-25T09-32-06Z-integration-3393.log) | green: access migration |
+| 25.09.2026 14:34 | unit (частично: packages/domain/src/accounts/roles.test.ts packages/domain/src/accounts/extensions.test.ts) | ❌ код выхода 1 | 1 с | 7fe897b +2 | [лог](logs/2026-09-25T09-34-39Z-unit-6d1a.log) | red: roles and extensions rules |
+| 25.09.2026 14:35 | unit (частично: packages/domain/src/accounts/roles.test.ts packages/domain/src/accounts/extensions.test.ts) | ✅ 14 из 14 | 2 с | 7fe897b +5 | [лог](logs/2026-09-25T09-35-21Z-unit-a23b.log) | green: roles and extensions rules |
+| 25.09.2026 14:36 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 3 из 26 | 6 с | 7fe897b +7 | [лог](logs/2026-09-25T09-36-09Z-unit-a60e.log) | red: role and main admin in the signed-in user |
+| 25.09.2026 14:36 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 26 из 26 | 6 с | 7fe897b +8 | [лог](logs/2026-09-25T09-36-43Z-unit-09c0.log) | green: role and main admin in the signed-in user |
+| 25.09.2026 14:37 | unit (частично: apps/api/src/auth/request-context.test.ts apps/api/src/auth/author.interceptor.test.ts) | ❌ упало 4 из 17 | 2 с | 7fe897b +10 | [лог](logs/2026-09-25T09-37-11Z-unit-649e.log) | red: role in the request context |
+| 25.09.2026 14:37 | unit (частично: apps/api/src/auth/request-context.test.ts apps/api/src/auth/author.interceptor.test.ts) | ✅ 17 из 17 | 2 с | 7fe897b +12 | [лог](logs/2026-09-25T09-37-26Z-unit-bcc0.log) | green: role in the request context |
+| 25.09.2026 14:37 | unit (частично: apps/api/src/accounts/invites.controller.test.ts) | ❌ упало 1 из 8 | 3 с | 7fe897b +13 | [лог](logs/2026-09-25T09-37-56Z-unit-cd5a.log) | red: invites for the organization owner only |
+| 25.09.2026 14:38 | unit (частично: apps/api/src/accounts) | ✅ 29 из 29 | 4 с | 7fe897b +19 | [лог](logs/2026-09-25T09-38-51Z-unit-5838.log) | green: invites for the organization owner only |
+| 25.09.2026 14:39 | unit (частично: apps/api/src/assistant/assistant.controller.test.ts) | ❌ упало 1 из 17 | 4 с | 7fe897b +20 | [лог](logs/2026-09-25T09-39-17Z-unit-2fef.log) | red: role in the assistant identity |
+| 25.09.2026 14:39 | unit (частично: apps/api/src/assistant/assistant.controller.test.ts) | ✅ 17 из 17 | 3 с | 7fe897b +21 | [лог](logs/2026-09-25T09-39-36Z-unit-77af.log) | green: role in the assistant identity |
+| 25.09.2026 14:40 | unit (частично: scripts/ops/accounts-args.test.ts) | ❌ упало 3 из 12 | 2 с | 7fe897b +22 | [лог](logs/2026-09-25T09-40-20Z-unit-41af.log) | red: role, platform admin and extension commands |
+| 25.09.2026 14:40 | unit (частично: scripts/ops/accounts-args.test.ts) | ✅ 12 из 12 | 2 с | 7fe897b +23 | [лог](logs/2026-09-25T09-40-40Z-unit-d31f.log) | green: role, platform admin and extension commands |
+| 25.09.2026 14:41 | typecheck | ❌ ошибок: 2 | 35 с | 7fe897b +24 | [лог](logs/2026-09-25T09-41-30Z-typecheck-d2e2.log) | TS2741 |
+| 25.09.2026 14:42 | typecheck | ✅ без ошибок | 28 с | 7fe897b +24 | [лог](logs/2026-09-25T09-42-16Z-typecheck-181f.log) |  |
+| 25.09.2026 14:43 | unit | ✅ 1795 из 1798, пропущено 3 | 1 мин 12 с | 7fe897b +24 | [лог](logs/2026-09-25T09-43-34Z-unit-41b8.log) |  |
+| 25.09.2026 14:44 | integration | ✅ 67 из 67 | 29 с | 7fe897b +24 | [лог](logs/2026-09-25T09-44-56Z-integration-d346.log) |  |
+| 25.09.2026 14:45 | lint | ✅ без ошибок | 21 с | 7fe897b +24 | [лог](logs/2026-09-25T09-45-31Z-lint-599f.log) |  |

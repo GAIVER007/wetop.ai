@@ -9,6 +9,7 @@ import {
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
+  INVITE_OWNER_ONLY_MESSAGE,
   INVITE_TTL_MS,
   SESSION_ENDED_MESSAGE,
   hashSessionToken,
@@ -94,6 +95,27 @@ function invite(token: string, email: unknown) {
     .set('Authorization', `Bearer ${token}`)
     .send({ email });
 }
+
+describe('приглашение: только владелец организации (DATA_MODEL §16.1, ADR-083)', () => {
+  it('сотрудник получает 403 и на создание, и на список; письма и приглашения нет', async () => {
+    repo.accounts = [{ ...ACCOUNT, role: 'STAFF' }];
+    const token = await login();
+    const created = await invite(token, INVITEE);
+    expect(created.status).toBe(403);
+    expect(created.body.message).toBe(INVITE_OWNER_ONLY_MESSAGE);
+    const listed = await request(app.getHttpServer())
+      .get('/auth/invites')
+      .set('Authorization', `Bearer ${token}`);
+    expect(listed.status).toBe(403);
+    expect(sender.sent).toHaveLength(0);
+    expect(repo.invites).toHaveLength(0);
+  });
+
+  it('владелец приглашает как прежде', async () => {
+    const token = await login();
+    expect((await invite(token, INVITEE)).status).toBe(201);
+  });
+});
 
 describe('приглашение: только для вошедшего', () => {
   it('без сессии — 401 и на создание, и на список', async () => {

@@ -1,0 +1,42 @@
+# Модульные (unit) · 25.09.2026 14:34 Алматы · vm
+# коммит 7fe897b (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-34-39Z-unit-6d1a.json' 'packages/domain/src/accounts/roles.test.ts' 'packages/domain/src/accounts/extensions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/roles.test.ts (0 test)
+ ❯ |unit| packages/domain/src/accounts/extensions.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/extensions.test.ts [ packages/domain/src/accounts/extensions.test.ts ]
+Error: Cannot find module './extensions' imported from /home/user/wetop.ai/packages/domain/src/accounts/extensions.test.ts
+ ❯ packages/domain/src/accounts/extensions.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { EXTENSION_STATUSES, extensionDaysLeft, isExtensionActive, par…
+       | ^
+      3|
+      4| /** Платные расширения организации (DATA_MODEL §16.3, ADR-083, Q-183) …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts [ packages/domain/src/accounts/roles.test.ts ]
+Error: Cannot find module './roles' imported from /home/user/wetop.ai/packages/domain/src/accounts/roles.test.ts
+ ❯ packages/domain/src/accounts/roles.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   MEMBERSHIP_ROLES,
+      4|   canChangeRole,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  09:34:40
+   Duration  277ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-34-39Z-unit-6d1a.json
+
+# код выхода 1 · 1 с

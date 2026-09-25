@@ -83,6 +83,8 @@ export const BOOKING_RATE_LIMITS = {
   perIpPerHour: 5,
   perSitePerHour: 30,
 } as const;
+/** Котировок продавца на организацию в час (Q-166, ADR-085): вопрос гостя — один-два вызова инструментов */
+export const BOT_QUOTES_PER_HOUR = 120;
 const HOUR_MS = 3_600_000;
 
 const addDays = (date: string, n: number): string => {
@@ -112,6 +114,30 @@ export class WebBookingService {
     const now = ctx.now ?? new Date();
     const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
     const site = await this.bookingSite(siteKey, ctx);
+    return this.quoteForSite(site, raw, now);
+  }
+
+  /**
+   * Котировка для ИИ-продавца (Q-166 в объёме чтения, ADR-085): тот же расчёт и тот же JSON, что у публичного
+   * виджета, но сайт находится по организации, а не по ключу в запросе, и домены не проверяются — дверь
+   * держит узкий ключ `SELLER_QUOTE_KEY` (контроллер `/bot/availability`). Брони здесь нет (Q-166б).
+   */
+  async quoteForOrganization(organizationId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
+    const site = await this.sites.bookingSiteForOrganization(organizationId);
+    if (!site) {
+      throw new NotFoundException('у организации нет сайта с включённым бронированием');
+    }
+    if (!this.allow(`bot:${organizationId}`, BOT_QUOTES_PER_HOUR, now)) {
+      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+    }
+    // Ключ сайта в тело подставляет дверь: разбор запроса общий с виджетом и требует его,
+    // а продавец знает организацию, не ключ.
+    const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
+    return this.quoteForSite(site, { ...body, k: site.publicKey }, now);
+  }
+
+  /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */
+  private async quoteForSite(site: SiteRecord, raw: unknown, now: Date): Promise<Quote> {
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const { arrivalDate, departureDate, adults } = parsed.value;

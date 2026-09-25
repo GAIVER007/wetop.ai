@@ -64,6 +64,9 @@ export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
+  /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
+   * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
+  bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
   createSite(input: { name: string; hosts: string[]; publicKey: string }): Promise<SiteRecord>;
   updateSite(
     id: string,
@@ -170,6 +173,19 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async siteByKey(publicKey: string): Promise<SiteRecord | null> {
     const r = await this.prisma.db.trackedSite.findUnique({
       where: { publicKey },
+      select: SITE_SELECT,
+    });
+    return r ? toRecord(r) : null;
+  }
+  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
+    const r = await this.prisma.db.trackedSite.findFirst({
+      where: {
+        property: { organizationId },
+        status: 'ACTIVE',
+        bookingEnabled: true,
+        bookingRatePlanId: { not: null },
+      },
+      orderBy: { createdAt: 'asc' },
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;

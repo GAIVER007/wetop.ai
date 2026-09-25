@@ -32,7 +32,8 @@ MESSAGE_KEYS = ("message", "error", "detail", "description")
 ERROR_KEYS = ("error", "errors")
 
 # 🔴 Сумма берётся ТОЛЬКО из поля с объявленными малыми единицами.
-TOTAL_MINOR_KEYS = ("total_minor",)
+# totalMinor — имя платформы (строка минорных, контракт виджета среза 9).
+TOTAL_MINOR_KEYS = ("total_minor", "totalMinor")
 # А эти единицами не подписаны: 45000 — это 45 000 или 450? Пока Q-166
 # не зафиксировал ответ, цену по ним не называем: ошибка в сто раз
 # становится обещанием, за которое платит заказчик.
@@ -123,9 +124,30 @@ def categories(body: dict, category: str | None) -> list[dict]:
     ]
 
 
+def sellable(item: dict) -> bool:
+    """Категорию можно предлагать: не закрыта ограничением и вмещает гостей.
+
+    Поля closed и fits шлёт платформа (контракт виджета); ответ без них
+    считается продаваемым — чужие формы разбираются как раньше.
+    """
+    if item.get("closed") is True:
+        return False
+    if item.get("fits") is False:
+        return False
+    return True
+
+
 def free_units(items: list[dict]) -> list[int]:
-    """Остатки по категориям. Наружу уходит признак, не эти числа."""
-    return [c for c in (as_int(pick(item, FREE_KEYS)) for item in items) if c is not None]
+    """Остатки по категориям. Наружу уходит признак, не эти числа.
+
+    🔴 Закрытая или не вмещающая гостей категория местом не считается:
+    «есть» по ней стало бы обещанием, которое стойка не выполнит.
+    """
+    return [
+        c
+        for c in (as_int(pick(item, FREE_KEYS)) for item in items if sellable(item))
+        if c is not None
+    ]
 
 
 def total_minor(item: dict) -> int | None:

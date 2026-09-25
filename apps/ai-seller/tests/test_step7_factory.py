@@ -81,9 +81,10 @@ def test_unknown_mode_falls_back_to_stub_with_warning(caplog: pytest.LogCaptureF
     assert "crm-v2" in caplog.text
 
 
-def test_wetop_with_address_and_key_builds_client_implementation() -> None:
-    """Настроенный режим собирает реализацию заказчика: ленивый импорт,
-    чтобы заглушечный прогон не тянул её вовсе."""
+def test_wetop_for_the_seller_wires_only_the_quote(caplog) -> None:
+    """Продавец (Q-166 в объёме чтения, ADR-085): наличие и цена своей
+    гостиницы; брони из чата нет — заявка остаётся заглушкой (Q-166б,
+    ADR-086); ошибки человека и здоровье платформы — пути помощника."""
     from src.integrations.wetop import WetopProviders
 
     providers = build_providers(
@@ -91,11 +92,34 @@ def test_wetop_with_address_and_key_builds_client_implementation() -> None:
             integration_mode="wetop",
             integration_base_url="https://example.com",
             integration_api_key="test-key",
+            bot_role="seller",
         ),
         http_client=_mock_client(),
     )
     assert providers.mode == "wetop"
     assert isinstance(providers.availability, WetopProviders)
+    assert isinstance(providers.leads, StubProviders)
+    assert providers.incidents is None and providers.health is None
+
+
+def test_wetop_for_the_support_wires_only_errors_and_health() -> None:
+    """Помощник: ошибки человека и состояние платформы своим узким ключом;
+    наличие и цены — не его работа."""
+    from src.integrations.wetop import WetopProviders
+
+    providers = build_providers(
+        _settings(
+            integration_mode="wetop",
+            integration_base_url="https://example.com",
+            integration_api_key="test-key",
+            bot_role="support",
+        ),
+        http_client=_mock_client(),
+    )
+    assert providers.mode == "wetop"
+    assert providers.availability is None
+    assert isinstance(providers.incidents, WetopProviders)
+    assert isinstance(providers.health, WetopProviders)
 
 
 def test_singleton_set_and_reset() -> None:

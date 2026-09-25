@@ -77,6 +77,8 @@ class Engine:
         отброшен как дубль самого себя), а замок держит внешний вызов."""
         outcome = TurnOutcome("error", None, None, False, [], [], [])
         ctx = dependencies.conversation_id_var.set(None)
+        # Организация хода — инструментам (котировка Q-166): снимается вместе с диалогом ниже.
+        org_ctx = dependencies.organization_id_var.set(incoming.organization_id)
         turn: Turn | None = None
         try:
             async with self._sessionmaker() as session:
@@ -96,6 +98,7 @@ class Engine:
             await self._on_exception(turn, incoming)
         finally:
             dependencies.conversation_id_var.reset(ctx)
+            dependencies.organization_id_var.reset(org_ctx)
         return outcome
 
     async def _run_locked(self, t: Turn) -> None:

@@ -2368,3 +2368,9 @@
 | 25.09.2026 23:54 | lint | ✅ без ошибок | 22 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-54-53Z-lint-0a84.log) |  |
 | 25.09.2026 23:55 | unit | ✅ 1853 из 1856, пропущено 3 | 1 мин 13 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-55-23Z-unit-149a.log) |  |
 | 25.09.2026 23:56 | integration | ✅ 76 из 76 | 31 с | 1cbd2e9 +7 | [лог](logs/2026-09-25T18-56-49Z-integration-c512.log) |  |
+| 26.09.2026 00:29 | typecheck | ✅ без ошибок | 18 с | 789b483 | [лог](logs/2026-09-25T19-29-28Z-typecheck-7543.log) | merged main 78803032 into block 3 branch |
+| 26.09.2026 00:29 | lint | ✅ без ошибок | 12 с | 789b483 | [лог](logs/2026-09-25T19-29-47Z-lint-49f6.log) | merged main 78803032 |
+| 26.09.2026 00:29 | unit | ✅ 1864 из 1867, пропущено 3 | 1 мин 12 с | 789b483 | [лог](logs/2026-09-25T19-29-59Z-unit-bf79.log) | merged main 78803032 |
+| 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-12Z-integration-309a.log) | merged main 78803032 |
+| 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-40Z-integration-75b7.log) | merged main 78803032, local DB restarted |
+| 26.09.2026 00:32 | integration | ✅ 81 из 81 | 22 с | 789b483 | [лог](logs/2026-09-25T19-32-06Z-integration-9607.log) | merged main 78803032 |

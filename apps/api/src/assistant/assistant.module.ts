@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { AssistantController } from './assistant.controller';
+import { PlatformModule } from '../platform/platform.module';
 import { UserErrorsModule } from './user-errors.module';
 import { UserErrorsRetentionService } from './user-errors-retention.service';
 
@@ -9,7 +10,8 @@ import { UserErrorsRetentionService } from './user-errors-retention.service';
  * (П3) — сам журнал пишет фильтр ошибок сторожа.
  */
 @Module({
-  imports: [UserErrorsModule],
+  // PlatformModule — ради ExtensionsService: карточка организации для техподдержки (С5)
+  imports: [UserErrorsModule, PlatformModule],
   controllers: [AssistantController],
   providers: [UserErrorsRetentionService],
 })

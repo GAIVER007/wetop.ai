@@ -6,6 +6,7 @@ import {
   Get,
   Header,
   Inject,
+  NotFoundException,
   Query,
   Req,
   ServiceUnavailableException,
@@ -15,11 +16,13 @@ import { identityRole, userErrorSection } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import { serviceKeyKind } from '../auth/auth.guard';
 import type { SignedInUser } from '../auth/auth.service';
+import { ExtensionsService } from '../platform/extensions.service';
 import { USER_ERRORS_REPOSITORY, type UserErrorsRepository } from './user-errors.repository';
 
 export const IDENTITY_SIGNED_IN_ONLY = 'Подпись помощника выдаётся только вошедшему';
 export const IDENTITY_NOT_CONFIGURED = 'Подпись помощника не настроена';
 export const ERRORS_KEY_REQUIRED = 'Ошибки человека читает только помощник по своему ключу';
+export const ORGANIZATION_KEY_REQUIRED = 'Подписку организации читает только помощник по своему ключу';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DAY_MS = 86_400_000;
@@ -54,6 +57,7 @@ const uuidParam = (value: unknown, name: string): string => {
 export class AssistantController {
   constructor(
     @Inject(USER_ERRORS_REPOSITORY) private readonly userErrors: UserErrorsRepository,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
 
   @Get('identity')
@@ -123,5 +127,26 @@ export class AssistantController {
         message: r.message,
       })),
     };
+  }
+
+  /**
+   * Клиент и подписка для техподдержки (С5, Q-187): название, статус и срок расширения «ИИ-продавец» —
+   * без почт, денег и гостей. Второй адрес узкого ключа помощника (`ASSISTANT_READ_ALLOWED`); ключ
+   * сверяется и здесь — по той же причине, что у `GET /assistant/errors`.
+   */
+  @Get('organization')
+  @Header('Cache-Control', 'no-store')
+  async organization(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Query() query: Record<string, unknown>,
+  ) {
+    const key = serviceKeyKind(request.headers);
+    if (key === null && !request.user) throw new UnauthorizedException(ORGANIZATION_KEY_REQUIRED);
+    if (key !== 'assistant-read' && key !== 'service')
+      throw new ForbiddenException(ORGANIZATION_KEY_REQUIRED);
+    const id = uuidParam(query.id, 'id');
+    const card = await this.extensions.organizationCard(id);
+    if (!card) throw new NotFoundException('Организация с таким ID не найдена');
+    return card;
   }
 }

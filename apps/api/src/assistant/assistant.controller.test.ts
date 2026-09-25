@@ -8,6 +8,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AssistantController } from './assistant.controller';
+import { ExtensionsService } from '../platform/extensions.service';
 import {
   USER_ERRORS_REPOSITORY,
   type UserErrorRecord,
@@ -49,6 +50,12 @@ class FakeUserErrors implements UserErrorsRepository {
 }
 const userErrors = new FakeUserErrors();
 
+/** Подставные организации для `GET /assistant/organization` (С5, Q-187) */
+const orgCards = new Map<string, unknown>();
+const extensions = {
+  organizationCard: async (id: string) => orgCards.get(id) ?? null,
+};
+
 beforeAll(async () => {
   const auth = {
     whoami: vi.fn(async (token: string) =>
@@ -62,6 +69,7 @@ beforeAll(async () => {
     providers: [
       { provide: AuthService, useValue: auth },
       { provide: USER_ERRORS_REPOSITORY, useValue: userErrors },
+      { provide: ExtensionsService, useValue: extensions },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();
@@ -77,6 +85,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
   userErrors.queries = [];
   userErrors.rows = [];
+  orgCards.clear();
 });
 
 function decode(token: string) {
@@ -328,3 +337,34 @@ describe('GET /assistant/errors — ошибки человека для пом�
   });
 });
 
+describe('GET /assistant/organization — клиент и подписка для техподдержки (С5, Q-187)', () => {
+  const CARD = {
+    id: USER.organizationId,
+    name: 'Гостиница А',
+    status: 'ACTIVE',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    aiSeller: { access: 'active', status: 'PAID', activeUntil: '2026-12-31', daysLeft: 97 },
+  };
+  const ask = (id: string, key?: string) => {
+    let r = request(app.getHttpServer()).get('/assistant/organization').query({ id });
+    if (key) r = r.set('x-wetop-service-key', key);
+    return r;
+  };
+
+  it('по узкому ключу помощника: название, статус и срок расширения — без почт и денег', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', 'assistant-key-123');
+    orgCards.set(USER.organizationId, CARD);
+    const res = await ask(USER.organizationId, 'assistant-key-123').expect(200);
+    expect(res.body).toEqual(CARD);
+    expect(res.text).not.toContain('@');
+  });
+
+  it('без ключа — 401; чужим ключом — 403; кривой id — 400; неизвестная организация — 404', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', 'assistant-key-123');
+    vi.stubEnv('GUARD_READ_KEY', 'guard-key-456');
+    await ask(USER.organizationId).expect(401);
+    await ask(USER.organizationId, 'guard-key-456').expect(403);
+    await ask('hotel-a', 'assistant-key-123').expect(400);
+    await ask('9f8e7d6c-5b4a-4392-8171-000000000000', 'assistant-key-123').expect(404);
+  });
+});

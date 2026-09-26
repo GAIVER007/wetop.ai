@@ -2557,3 +2557,12 @@
 | 26.09.2026 20:42 | integration | ✅ 86 из 86 | 29 с | 59dda9d | [лог](logs/2026-09-26T15-42-22Z-integration-777b.log) |  |
 | 26.09.2026 20:42 | e2e | ✅ 25 из 25 | 57 с | 59dda9d | [лог](logs/2026-09-26T15-42-55Z-e2e-ca77.log) |  |
 | 26.09.2026 20:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 389 из 389 | 33 мин 5 с | 59dda9d | [лог](logs/2026-09-26T15-44-00Z-e2e-c5d0.log) |  |
+| 26.09.2026 20:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts --grep мобильном экране --workers=1) | ❌ упало 1 из 1 | 9 с | 6f8cade +1 | [лог](logs/2026-09-26T15-47-46Z-e2e-4c82.log) | RED: step titles squeezed on 390px, flex-basis sits on the link instead of the list item |
+| 26.09.2026 20:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts tests/ui/seller-agent-editor.spec.ts --workers=1) | ✅ 5 из 5 | 16 с | 6f8cade +2 | [лог](logs/2026-09-26T15-48-18Z-e2e-aac0.log) | GREEN: step strip items get flex-basis on li; whole seller workspace + agent editor specs |
+| 26.09.2026 20:48 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts) | ✅ 24 из 24 | 1 с | 6f8cade +1 | [лог](logs/2026-09-26T15-48-35Z-unit-db66.log) | design guards after the strip fix |
+| 26.09.2026 20:49 | typecheck | ✅ без ошибок | 10 с | 38dd73e | [лог](logs/2026-09-26T15-49-46Z-typecheck-f564.log) | strip fix 38dd73ec |
+| 26.09.2026 20:49 | lint | ✅ без ошибок | 16 с | 38dd73e | [лог](logs/2026-09-26T15-49-57Z-lint-d087.log) | strip fix 38dd73ec |
+| 26.09.2026 20:54 | e2e | ✅ 25 из 25 | 53 с | 38dd73e | [лог](logs/2026-09-26T15-54-31Z-e2e-d1c6.log) | strip fix 38dd73ec: live e2e after db:local reset |
+| 26.09.2026 20:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 389 из 389 | 22 мин 49 с | 38dd73e | [лог](logs/2026-09-26T15-55-24Z-e2e-0a7b.log) | strip fix 38dd73ec: full UI suite |
+| 26.09.2026 20:51 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 24 с | 38dd73e | [лог](logs/2026-09-26T15-51-57Z-unit-5ec8.log) | Linux node:24 container (flock present): step strip fix: full unit on 38dd73ec |
+| 26.09.2026 20:53 | integration | ✅ 84 из 86, пропущено 2 | 18 с | 38dd73e | [лог](logs/2026-09-26T15-53-48Z-integration-c53d.log) | Linux container, own loopback PG16 on 55432: step strip fix, UTF-8 cluster, wizard tests run |

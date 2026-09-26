@@ -289,6 +289,13 @@ export class WebBookingService {
     if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
+    // Цены, тариф, фонд и выгрузка в Channex у бронирования с сайта — объекта этой установки (служебный контекст).
+    // Сайт другого объекта показывал бы цены Luxx и заводил брони с данными своих гостей в фонде Luxx (аудит 26.09,
+    // В-4; Q-186, ADR-085) — такому сайту честный отказ, пока бронирование с сайта не научится нескольким объектам.
+    const serving = await this.uow.read((repo) => repo.property());
+    if (site.propertyId !== serving.id) {
+      throw new NotFoundException('бронирование с сайта для этого объекта пока не подключено');
+    }
     return site;
   }
 

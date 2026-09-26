@@ -394,8 +394,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
         this.propertyCache = { id: found.id, currency: found.currency };
       } else {
+        // самый ранний с этим именем — как `propertyRef` (аудит 26.09, С-2)
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
+          orderBy: { createdAt: 'asc' },
           select: { id: true, currency: true },
         });
         this.propertyCache = { id: found.id, currency: found.currency };

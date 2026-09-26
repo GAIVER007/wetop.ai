@@ -10,6 +10,7 @@ import { PrismaGuestsRepository } from '../../apps/api/src/guests/guests.reposit
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaUnitsRepository } from '../../apps/api/src/units/units.repository';
 import { PrismaAnalyticsRepository } from '../../apps/api/src/analytics/analytics.repository';
+import { channelOperatorOrganizationId } from '../../apps/api/src/channels/operator-access';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -203,3 +204,42 @@ describe.skipIf(!url)('изоляция организаций: ячейки и 
     });
   });
 });
+
+/**
+ * Аудит 26.09, В-2 и С-3 (ADR-085): маршрутами Channex и сторожа распоряжается организация, чей объект подключён к
+ * Channex. Здесь — что запрос «чья организация подключена» работает на настоящей базе: по сопоставлениям, а без них —
+ * по объекту установки.
+ */
+describe.skipIf(!url)('организация подключённого к Channex объекта (integration, DATABASE_URL required)', () => {
+  let db: Db;
+  beforeAll(() => {
+    db = createPrismaClient(url);
+  });
+  afterAll(async () => {
+    await db?.$disconnect();
+  });
+
+  it('по сопоставлению Channex — организация объекта с сопоставлениями', async () => {
+    const unit = await db.inventoryUnit.findFirst({
+      select: { accommodationType: { select: { propertyId: true } } },
+    });
+    expect(unit).toBeTruthy();
+    const { propertyId } = unit!.accommodationType;
+    let seen: string | null = 'не спрашивали';
+    await expect(
+      db.$transaction(async (tx) => {
+        const org = await tx.organization.create({ data: { name: 'Integration Channex' }, select: { id: true } });
+        await tx.property.update({ where: { id: propertyId }, data: { organizationId: org.id } });
+        await tx.channelMapping.deleteMany({ where: { provider: 'channex' } });
+        await tx.channelMapping.create({
+          data: { propertyId, provider: 'channex', providerPropertyId: `integration-${randomUUID()}` },
+        });
+        seen = await channelOperatorOrganizationId(tx as unknown as Db);
+        expect(seen).toBe(org.id);
+        throw new Rollback();
+      }),
+    ).rejects.toBeInstanceOf(Rollback);
+    expect(seen).not.toBe('не спрашивали');
+  });
+});
+

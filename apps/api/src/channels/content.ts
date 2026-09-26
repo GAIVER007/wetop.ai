@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { Controller, Get, Inject, Injectable, Query } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
+import { ChannelOperatorInterceptor } from './operator-access';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
@@ -235,6 +236,8 @@ export class ChannelContentService {
 }
 
 @Controller('channels/channex')
+// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-085)
+@UseInterceptors(ChannelOperatorInterceptor)
 export class ChannelContentController {
   constructor(@Inject(ChannelContentService) private readonly service: ChannelContentService) {}
   /** ?refresh=1 — прочитать заново, минуя кэш на 10 минут */

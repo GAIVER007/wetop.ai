@@ -78,6 +78,10 @@ const plan = {
 };
 
 const fakeRepo = {
+  /** Объект, которым заняты цены и брони в служебном контексте (объект Luxx по имени) */
+  async property() {
+    return { id: SITE.propertyId, currency: 'KZT' };
+  },
   availability: { t1: 3, t2: 0 } as Record<string, number>,
   restrictions: [] as Array<StayRestriction & { typeId: string }>,
   async activeCategories() {
@@ -392,6 +396,31 @@ describe('виджет бронирования /w/*', () => {
     );
     await post(booking(), 'http://evil.local').expect(403);
     expect(created.dtos).toHaveLength(0);
+  });
+
+  // Аудит 26.09, В-4 (Q-186, ADR-085): публичные пути брали цены, тариф и фонд объекта Luxx по имени, а не объекта
+  // сайта. Сайт второй гостиницы показывал цены Luxx и заводил брони с данными её гостей в фонде Luxx.
+  it('сайт другого объекта: ни цен, ни брони в чужом фонде — понятный отказ', async () => {
+    const foreign = {
+      ...SITE,
+      id: '33333333-3333-4333-8333-333333333333',
+      propertyId: '44444444-4444-4444-8444-444444444444',
+      publicKey: 'pms_f0f0f0f0f0f0',
+      bookingEnabled: true,
+      bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
+    };
+    sites.sitesById.set(foreign.id, foreign);
+    try {
+      const quote = await get(
+        `/w/availability?k=${foreign.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+      );
+      expect(quote.status).toBe(404);
+      expect(quote.body.message).toMatch(/не подключено/);
+      await post({ ...booking(), k: foreign.publicKey }).expect(404);
+      expect(created.dtos).toHaveLength(0);
+    } finally {
+      sites.sitesById.delete(foreign.id);
+    }
   });
 
   it('лимит: шестая бронь с одного адреса за час — 429', async () => {

@@ -1,0 +1,570 @@
+# Модульные (unit) · 26.09.2026 16:44 Алматы · vm
+# коммит 27bdf62 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T11-44-25Z-unit-058b.json' 'apps/api/src/auth' 'apps/api/src/accounts' 'apps/web/src/lib/auth-required.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests | 1 failed) 889ms
+   ✓ PasswordResetService.request (5)
+     ✓ шлёт письмо со ссылкой и кладёт в базу только хеш токена 46ms
+     ✓ незнакомая почта: письма нет, но и наружу это не видно 36ms
+     ✓ заблокированному сотруднику ссылку не отправляем 36ms
+     ✓ второе письмо на ту же почту не уходит чаще раза в пять минут 44ms
+     ✓ без настроенной отправки — понятная ошибка, а не тишина 45ms
+   ❯ PasswordResetService.confirm (8)
+     ✓ ставит новый пароль, включает учётную запись и гасит прежние сессии 162ms
+     × приглашённый без подтверждённой почты после пароля по ссылке входит 78ms
+     ✓ вторая попытка по той же ссылке не проходит 72ms
+     ✓ просроченная ссылка не проходит 37ms
+     ✓ чужой токен не проходит 38ms
+     ✓ слабый пароль отклоняется, ссылка остаётся годной 37ms
+     ✓ смена пароля по ссылке отзывает открытые сессии сотрудника 108ms
+     ✓ пароль не попадает в журнал 73ms
+   ✓ почтовая служба отказала (1)
+     ✓ сброс пароля: живой ссылки не остаётся, и следующая попытка не упирается в ожидание 72ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1246ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 391ms
+ ❯ |unit| apps/api/src/accounts/invites.controller.test.ts (11 tests | 3 failed) 300ms
+   ✓ приглашение: только владелец организации (DATA_MODEL §16.1, ADR-083) (2)
+     ✓ сотрудник получает 403 и на создание, и на список; письма и приглашения нет 26ms
+     ✓ владелец приглашает как прежде 4ms
+   ✓ приглашение: только для вошедшего (1)
+     ✓ без сессии — 401 и на создание, и на список 9ms
+   ✓ приглашение: создание и список (2)
+     ✓ вошедший зовёт по почте: 201, письмо со ссылкой на 7 суток, в базе только отпечаток 12ms
+     ✓ не почта — 400 с текстом; уже в организации — 400 с текстом; письма нет 10ms
+   ✓ приглашение: проверка и принятие по ссылке (3)
+     ✓ по ключу видно, кто зовёт и кого; чужой ключ — 404 одним текстом 11ms
+     ✓ принятие: членство заведено, выдан ключ «задайте пароль», письма нет; второй раз — 404 25ms
+     ✓ просроченная ссылка — 404 и на просмотр, и на принятие; членства нет 9ms
+   ❯ приглашение: отзыв и предел в сутки (3)
+     × владелец отзывает приглашение: его нет в списке, а ссылка больше не открывается 8ms
+     × сотрудник не отзывает, чужое приглашение — 404 5ms
+     × больше 20 приглашений за сутки — 429 словами, письма нет 46ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 261ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (11 tests) 15ms
+ ❯ |unit| apps/api/src/auth/auth.guard.test.ts (29 tests | 6 failed) 32ms
+   ✓ tokenFromHeaders (1)
+     ✓ берёт токен из Authorization: Bearer <скрыто> из x-wetop-session 2ms
+   ❯ SessionGuard (28)
+     ❯ замок не снимается случайно (7)
+       × в боевом образе без AUTH_REQUIRED закрыт 9ms
+       × значение «true» замок включает, а не снимает 1ms
+       × значение «yes» замок включает, а не снимает 1ms
+       × значение «on» замок включает, а не снимает 1ms
+       × значение « 1 » замок включает, а не снимает 1ms
+       × значение «да» замок включает, а не снимает 1ms
+       ✓ явный «0» снимает замок и в боевом образе — это видно в .env и в ревью 1ms
+     ✓ пока вход не включён, пускает всех и никого не спрашивает 1ms
+     ✓ когда AUTH_REQUIRED=1 (9)
+       ✓ без токена не пускает 1ms
+       ✓ с годным токеном пускает и кладёт вошедшего в запрос 1ms
+       ✓ с негодным токеном не пускает 0ms
+       ✓ публичный маршрут пускает без токена: счётчик сайта, виджет и webhook работают снаружи 0ms
+       ✓ служебный ключ пускает сторожа и скрипты сверки 0ms
+       ✓ неверный служебный ключ не пускает 0ms
+       ✓ ключ той же длины, но другой, не пускает — сравнение идёт до конца, а не до первого знака 0ms
+       ✓ ключ другой длины не пускает и не роняет замок 0ms
+       ✓ когда служебный ключ в окружении не задан, служебный заголовок ничего не даёт 1ms
+     ✓ пока вход не включён, но токен пришёл — узнаёт автора, чтобы журнал знал, кто действовал 0ms
+     ✓ пока вход не включён, негодный токен не мешает работать 0ms
+     ✓ метка публичного маршрута читается тем же ключом, которым её ставит декоратор 0ms
+     ✓ ключ дежурного агента (GUARD_READ_KEY) (4)
+       ✓ пускает читать неисправности сторожа 1ms
+       ✓ не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу 1ms
+       ✓ не открывает остальной API: ни броней, ни денег, ни учёток 1ms
+       ✓ служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда 0ms
+     ✓ ключ ИИ-помощника (ASSISTANT_READ_KEY) (4)
+       ✓ пускает ровно на два адреса: ошибки человека и состояние системы 1ms
+       ✓ неисправности, запись и остальной API — 403 2ms
+       ✓ ключ дежурного агента ошибок человека не читает 0ms
+       ✓ похожий ключ не пускает: сравнение до конца 0ms
+ ❯ |unit| apps/api/src/auth/attempt-limits.test.ts (0 test)
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (35 tests | 10 failed) 2962ms
+   ❯ AuthService.login (9)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 83ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 68ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 74ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 73ms
+     ✓ мусор вместо почты не пускает 72ms
+     × после 5 промахов вход заперт, и верный пароль тоже не пускает 229ms
+     × когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 258ms
+     × одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6) 212ms
+     ✓ заблокированного сотрудника не пускает 34ms
+   ❯ AuthService.whoami (7)
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 75ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 66ms
+     ✓ сессия заблокированного сотрудника больше не годится 65ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 64ms
+     ✓ роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083) 65ms
+     × сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10) 70ms
+     × сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4) 73ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 76ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 227ms
+     ✓ неверный текущий пароль ничего не меняет 114ms
+     ✓ слабый новый пароль отклоняется с объяснением 120ms
+     ✓ без годной сессии пароль не сменить 45ms
+   ❯ AuthService.register (14)
+     ✓ явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу 42ms
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 75ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 91ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 87ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 58ms
+     × повтор по ссылке позже 10 минут не впускает, а просит войти паролем 58ms
+     × погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой 58ms
+     × повтор по ссылке заблокированного человека не впускает 58ms
+     × вход по ссылке пишется в журнал, а заблокированному сессию не открыть 59ms
+     × письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8) 65ms
+     ✓ негодная ссылка отвечает отказом и никого не впускает 29ms
+     ✓ занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку 58ms
+     ✓ короткий пароль не принимается, и организация от такой попытки не остаётся 30ms
+     ✓ пустое имя и строка, не похожая на почту, — отказ с понятным текстом 31ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 10ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (6 tests) 16ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (2 tests) 191ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 6ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 10ms
+ ❯ |unit| apps/web/src/lib/auth-required.test.ts (7 tests | 4 failed) 9ms
+   × в боевом образе без APP_AUTH_REQUIRED вход обязателен 5ms
+   ✓ значение «1» вход включает 0ms
+   × значение «true» вход включает 1ms
+   × значение «yes» вход включает 1ms
+   × значение « 1 » вход включает 0ms
+   ✓ явный «0» выключает вход и в боевом образе 0ms
+   ✓ в разработке без переменной стойка работает без входа, как раньше 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts [ apps/api/src/auth/attempt-limits.test.ts ]
+Error: Cannot find module './attempt-limits' imported from /home/user/wetop.ai/apps/api/src/auth/attempt-limits.test.ts
+ ❯ apps/api/src/auth/attempt-limits.test.ts:9:1
+      7| import { PrismaService } from '../database/prisma.provider';
+      8| import { ExtensionsService } from '../platform/extensions.service';
+      9| import { AttemptWindows, LOGIN_ATTEMPTS_PER_IP, PasswordGate } from '.…
+       | ^
+     10| import { AuthController } from './auth.controller';
+     11| import { AuthService } from './auth.service';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 24 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: отзыв и предел в сутки > владелец отзывает приглашение: его нет в списке, а ссылка больше не открывается
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ apps/api/src/accounts/invites.controller.test.ts:249:28
+    247|       .delete(`/auth/invites/${created.body.id}`)
+    248|       .set('Authorization', `Bearer ${token}`);
+    249|     expect(revoked.status).toBe(200);
+       |                            ^
+    250|     const listed = await request(app.getHttpServer())
+    251|       .get('/auth/invites')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: отзыв и предел в сутки > сотрудник не отзывает, чужое приглашение — 404
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ apps/api/src/accounts/invites.controller.test.ts:267:28
+    265|       .delete(`/auth/invites/${created.body.id}`)
+    266|       .set('Authorization', `Bearer ${token}`);
+    267|     expect(byStaff.status).toBe(403);
+       |                            ^
+    268|     repo.accounts = [ACCOUNT];
+    269|     repo.invites[0]!.organizationId = 'чужая-организация';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯
+
+ FAIL  |unit| apps/api/src/accounts/invites.controller.test.ts > приглашение: отзыв и предел в сутки > больше 20 приглашений за сутки — 429 словами, письма нет
+AssertionError: expected 201 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 201
+
+ ❯ apps/api/src/accounts/invites.controller.test.ts:282:25
+    280|     }
+    281|     const over = await invite(token, '<email>');
+    282|     expect(over.status).toBe(429);
+       |                         ^
+    283|     expect(over.body.message).toMatch(/приглашений/);
+    284|     expect(sender.to('<email>')).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > в боевом образе без AUTH_REQUIRED закрыт
+AssertionError: promise resolved "true" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+true
+
+ ❯ apps/api/src/auth/auth.guard.test.ts:63:8
+     61|       await expect(
+     62|         new SessionGuard(reflector(false), auth(false)).canActivate(ct…
+     63|       ).rejects.toThrow();
+       |        ^
+     64|     });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «true» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «yes» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «on» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение « 1 » замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «да» замок включает, а не снимает
+AssertionError: promise resolved "true" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+true
+
+ ❯ apps/api/src/auth/auth.guard.test.ts:71:8
+     69|       await expect(
+     70|         new SessionGuard(reflector(false), auth(false)).canActivate(ct…
+     71|       ).rejects.toThrow();
+       |        ^
+     72|     });
+     73|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.login > после 5 промахов вход заперт, и верный пароль тоже не пускает
+AssertionError: expected [Function] to throw error including 'Неверная почта или пароль' but got 'Вход заперт после нескольких неверных…'
+
+Expected: "Неверная почта или пароль"
+Received: "Вход заперт после нескольких неверных попыток. Попробуйте после 2026-09-15T10:15:00.000Z"
+
+ ❯ apps/api/src/auth/auth.service.test.ts:103:6
+    101|     await expect(
+    102|       auth.login({ email: '<email>', password: <скрыто> …
+    103|     ).rejects.toThrow('Неверная почта или пароль');
+       |      ^
+    104|     await expect(
+    105|       auth.login({ email: '<email>', password: PASS…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.login > когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6)
+AssertionError: expected 6 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 6
+
+ ❯ apps/api/src/auth/auth.service.test.ts:120:38
+    118|       auth.login({ email: '<email>', password: 'опять не…
+    119|     ).rejects.toThrow();
+    120|     expect(users[0]!.failedAttempts).toBe(1);
+       |                                      ^
+    121|     await expect(
+    122|       auth.login({ email: '<email>', password: <скрыто> …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.login > одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6)
+AssertionError: expected 1 to be 5 // Object.is equality
+
+- Expected
++ Received
+
+- 5
++ 1
+
+ ❯ apps/api/src/auth/auth.service.test.ts:133:38
+    131|       ),
+    132|     );
+    133|     expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+       |                                      ^
+    134|     expect(users[0]!.lockedUntil).not.toBeNull();
+    135|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.whoami > сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10)
+AssertionError: expected { user: { id: 'u-1', …(5) }, …(2) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "expiresAt": "2026-09-15T22:00:00.000Z",
+  "organization": {
+    "name": "Тестовый хостел",
+    "status": "TRIAL",
+    "trialEndsAt": "2026-09-22T00:00:00.000Z",
+  },
+  "user": {
+    "email": "<email>",
+    "id": "u-1",
+    "name": "Айгуль Тестова",
+    "organizationId": "org-1",
+    "platformAdmin": false,
+    "role": "STAFF",
+  },
+}
+
+ ❯ apps/api/src/auth/auth.service.test.ts:209:42
+    207|     const { token } = await auth.login({ email: '<email>…
+    208|     memberships.splice(0, memberships.length);
+    209|     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+       |                                          ^
+    210|   });
+    211|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.whoami > сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4)
+AssertionError: expected { user: { id: 'u-1', …(5) }, …(2) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "expiresAt": "2026-09-15T22:00:00.000Z",
+  "organization": {
+    "name": "Тестовый хостел",
+    "status": "SUSPENDED",
+    "trialEndsAt": "2026-09-22T00:00:00.000Z",
+  },
+  "user": {
+    "email": "<email>",
+    "id": "u-1",
+    "name": "Айгуль Тестова",
+    "organizationId": "org-1",
+    "platformAdmin": false,
+    "role": "OWNER",
+  },
+}
+
+ ❯ apps/api/src/auth/auth.service.test.ts:216:42
+    214|     const { token } = await auth.login({ email: '<email>…
+    215|     organizations[0]!.status = 'SUSPENDED';
+    216|     await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+       |                                          ^
+    217|     await expect(
+    218|       auth.login({ email: '<email>', password: <скрыто> …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > повтор по ссылке позже 10 минут не впускает, а просит войти паролем
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:413:53
+    411|     await verification.confirm(token, NOW);
+    412|     const later = new Date(NOW.getTime() + 11 * 60_000);
+    413|     await expect(verification.confirm(token, later)).rejects.toThrow(/…
+       |                                                     ^
+    414|     const year = new Date(NOW.getTime() + 365 * 24 * 3_600_000);
+    415|     await expect(verification.confirm(token, year)).rejects.toThrow(/в…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:430:53
+    428|     );
+    429|     await verification.confirm(second, later);
+    430|     await expect(verification.confirm(first, later)).rejects.toThrow();
+       |                                                     ^
+    431|   });
+    432|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > повтор по ссылке заблокированного человека не впускает
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:441:51
+    439|     await verification.confirm(token, NOW);
+    440|     users.find((u) => u.email === '<email>')!.status = '…
+    441|     await expect(verification.confirm(token, NOW)).rejects.toThrow();
+       |                                                   ^
+    442|   });
+    443|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > вход по ссылке пишется в журнал, а заблокированному сессию не открыть
+AssertionError: expected { userId: 'u-4', …(4) } to match object { action: 'user.login', …(1) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "action": "user.login",
++   "action": "user.email.verified",
+    "after": {
+-     "via": "email-link",
++     "email": "<email>",
+    },
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:452:26
+    450|     const confirmed = await verification.confirm(token, NOW);
+    451|     await auth.startSession({ ...confirmed }, NOW);
+    452|     expect(audit.at(-1)).toMatchObject({ action: 'user.login', after: …
+       |                          ^
+    453|
+    454|     users.find((u) => u.email === '<email>')!.status = '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8)
+AssertionError: expected 'Вячеслав Петров, здравствуйте.\n\nВы …' to match /не переходите по ссылке/
+
+- Expected:
+/не переходите по ссылке/
+
++ Received:
+"Вячеслав Петров, здравствуйте.
+
+Вы завели учётную запись в WETOP. Подтвердите почту по ссылке — после этого вход откроется:
+https://app.wetop.ai/login/verify?token=<скрыто>
+
+Ссылка работает 72 часа и только один раз. Если учётную запись заводили не вы —
+ничего делать не нужно, без подтверждения она не работает.
+
+Это письмо отправлено системой, не отвечайте на него."
+
+ ❯ apps/api/src/auth/auth.service.test.ts:461:30
+    459|     const { auth, letters } = service();
+    460|     await auth.register(NEW, NOW);
+    461|     expect(letters[0]!.text).toMatch(/не переходите по ссылке/);
+       |                              ^
+    462|   });
+    463|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/25]⎯
+
+ FAIL  |unit| apps/api/src/auth/password-reset.service.test.ts > PasswordResetService.confirm > приглашённый без подтверждённой почты после пароля по ссылке входит
+AssertionError: expected null to deeply equal 2026-09-15T10:00:00.000Z
+
+- Expected:
+2026-09-15T10:00:00.000Z
+
++ Received:
+null
+
+ ❯ apps/api/src/auth/password-reset.service.test.ts:117:45
+    115|     const world = await withLink([fakeUser({ passwordHash: '', emailVe…
+    116|     await world.reset.confirm({ token: <скрыто>, password: '<скрыто>
+    117|     expect(world.users[0]!.emailVerifiedAt).toEqual(NOW);
+       |                                             ^
+    118|     await expect(
+    119|       world.auth.login({ email: '<email>', password: 'zh…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/25]⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-required.test.ts > в боевом образе без APP_AUTH_REQUIRED вход обязателен
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/lib/auth-required.test.ts:14:26
+     12|   vi.stubEnv('NODE_ENV', 'production');
+     13|   vi.stubEnv('APP_AUTH_REQUIRED', '');
+     14|   expect(authRequired()).toBe(true);
+       |                          ^
+     15| });
+     16|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/25]⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-required.test.ts > значение «true» вход включает
+ FAIL  |unit| apps/web/src/lib/auth-required.test.ts > значение «yes» вход включает
+ FAIL  |unit| apps/web/src/lib/auth-required.test.ts > значение « 1 » вход включает
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/lib/auth-required.test.ts:19:26
+     17| it.each(['1', 'true', 'yes', ' 1 '])('значение «%s» вход включает', (v…
+     18|   vi.stubEnv('APP_AUTH_REQUIRED', value);
+     19|   expect(authRequired()).toBe(true);
+       |                          ^
+     20| });
+     21|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/25]⎯
+
+
+ Test Files  6 failed | 8 passed (14)
+      Tests  24 failed | 132 passed (156)
+   Start at  11:44:30
+   Duration  9.32s (import 56%, tests 27%, transform 17%)
+
+JSON report written to /tmp/pms-test-2026-09-26T11-44-25Z-unit-058b.json
+
+# код выхода 1 · 14 с

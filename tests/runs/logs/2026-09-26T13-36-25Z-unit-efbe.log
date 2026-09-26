@@ -1,0 +1,50 @@
+# Модульные (unit) · 26.09.2026 18:36 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 33
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-36-25Z-unit-efbe.json' 'tests/unit/db-backup.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/db-backup.test.ts (14 tests | 1 failed) 1053ms
+   ❯ db-backup.sh: ночная копия рабочей базы (14)
+     ✓ снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается 151ms
+     ✓ адрес из BACKUP_DATABASE_URL важнее .env 114ms
+     ✓ работает вне клона, как в контейнере postgres:17: скрипт и .env смонтированы отдельными файлами 88ms
+     ✓ адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL 59ms
+     ✓ параметры Prisma из адреса срезаются: pg_dump их не понимает и падает 60ms
+     ✓ пароль с %-кодированием уходит в PGPASSWORD раскодированным, в аргументах его нет 68ms
+     × обратная косая в пароле остаётся сама собой 123ms
+     ✓ pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17 51ms
+     ✓ без строки подключения — понятный отказ, pg_dump не зовётся 21ms
+     ✓ копия без таблиц с данными не принимается и недописанной не остаётся 63ms
+     ✓ pg_dump упал — копии нет, код ненулевой, пароль из его сообщения замаскирован 68ms
+     ✓ после проверенной копии пишет статус для сторожа: его читает разбор домена, права 644, папка 755 60ms
+     ✓ упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную 62ms
+     ✓ копии старше срока удаляются, свежие и чужие файлы остаются 62ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > обратная косая в пароле остаётся сама собой
+AssertionError: expected 'a' to be 'a\cb\n!' // Object.is equality
+
+Expected: "a\cb\n!"
+Received: "a"
+
+ ❯ tests/unit/db-backup.test.ts:179:68
+    177|     });
+    178|     expect(sb.run().status).toBe(0);
+    179|     expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toB…
+       |                                                                    ^
+    180|   });
+    181|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  13:36:26
+   Duration  1.60s (tests 80%, transform 18%, import 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-36-25Z-unit-efbe.json
+
+# код выхода 1 · 3 с

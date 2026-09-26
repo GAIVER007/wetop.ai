@@ -20,6 +20,7 @@ import { PasswordResetService } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
 import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
+import { visitorKey } from './attempt-limits';
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -31,13 +32,16 @@ const text = (value: unknown, field: string, max = 200): string => {
 /**
  * Попыток в час с одного адреса (С-5, ТЗ аудита 25.09.2026). Локаут учётки (5 промахов) остаётся первой
  * защитой; лимит по адресу сдерживает перебор МНОГИХ учёток и рассылку писем с одной точки. Вход щедрее
- * остальных: за офисным адресом гостиницы вся смена.
+ * остальных: за офисным адресом гостиницы вся смена. Переход по ссылке из письма и пароль по ссылке тоже впускают
+ * или меняют пароль — у них свои окна (аудит 26.09, С-5).
  */
 export const AUTH_IP_LIMITS = {
   loginPerHour: 30,
   registerPerHour: 10,
   resetPerHour: 10,
   resendPerHour: 10,
+  verifyPerHour: 30,
+  resetConfirmPerHour: 10,
 } as const;
 const HOUR_MS = 3_600_000;
 
@@ -60,7 +64,8 @@ export class AuthController {
   private ipLimit(kind: string, limit: number, socketIp?: string, cfConnectingIp?: string): void {
     const ip = visitorIp(socketIp, cfConnectingIp);
     if (!ip) return; // свои службы с туннеля без заголовка, юнит-тесты и вызовы без сокета
-    if (!this.windows.allow(`${kind}:${ip}`, limit, new Date())) {
+    // IPv6 — по сети /64: иначе перебор адресов одного абонента обходил бы предел (аудит 26.09)
+    if (!this.windows.allow(`${kind}:${visitorKey(ip)}`, limit, new Date())) {
       throw new HttpException(
         'слишком много попыток с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -117,13 +122,17 @@ export class AuthController {
   /**
    * Переход по ссылке из письма: подтверждаем почту и сразу впускаем — человек уже назвал пароль
    * при регистрации, спрашивать его второй раз незачем. Ответ тот же, что у /auth/login.
+   * Повтор по той же ссылке впускает только 10 минут (ADR-095).
    */
   @Public()
   @Post('email/verify')
   async verifyEmail(
     @Body() body: Record<string, unknown>,
     @Headers('user-agent') userAgent?: string,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
+    this.ipLimit('verify', AUTH_IP_LIMITS.verifyPerHour, socketIp, cfConnectingIp);
     const confirmed = await this.verification.confirm(text(body?.token, 'token', 200));
     return this.auth.startSession({
       userId: confirmed.userId,
@@ -184,7 +193,12 @@ export class AuthController {
   /** Пароль по ссылке из письма: ссылка одноразовая, пароль человек задаёт себе сам. */
   @Public()
   @Post('password-reset/confirm')
-  async confirmReset(@Body() body: Record<string, unknown>) {
+  async confirmReset(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('reset-confirm', AUTH_IP_LIMITS.resetConfirmPerHour, socketIp, cfConnectingIp);
     await this.reset.confirm({
       token: text(body?.token, 'token', 400),
       password: text(body?.password, 'password', 200),

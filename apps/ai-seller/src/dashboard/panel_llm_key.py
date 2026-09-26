@@ -17,7 +17,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.dashboard.auth_router import require_owner
+from src.dashboard.auth_router import require_platform
 from src.dashboard.panel_common import log_action, sessions
 from src.db.base import utcnow
 from src.db.models import Organization, OrganizationLlmKey
@@ -45,7 +45,7 @@ def _require_seller(request: Request) -> None:
         raise HTTPException(status_code=409, detail="Этот экземпляр бота — не продавец")
 
 
-@router.get("/seller/organizations/{org_id}/llm-key", dependencies=[Depends(require_owner)])
+@router.get("/seller/organizations/{org_id}/llm-key", dependencies=[Depends(require_platform)])
 async def llm_key_status(request: Request, org_id: uuid.UUID) -> dict:
     _require_seller(request)
     async with sessions()() as session:
@@ -53,7 +53,7 @@ async def llm_key_status(request: Request, org_id: uuid.UUID) -> dict:
         return {"set": row is not None, "last4": row.last4 if row else None}
 
 
-@router.put("/seller/organizations/{org_id}/llm-key", dependencies=[Depends(require_owner)])
+@router.put("/seller/organizations/{org_id}/llm-key", dependencies=[Depends(require_platform)])
 async def put_llm_key(request: Request, org_id: uuid.UUID, body: LlmKeyIn) -> dict:
     _require_seller(request)
     settings = request.app.state.settings
@@ -95,7 +95,7 @@ async def put_llm_key(request: Request, org_id: uuid.UUID, body: LlmKeyIn) -> di
     return {"status": "ok", "set": True, "last4": last4}
 
 
-@router.post("/seller/organizations/{org_id}/llm-key/check", dependencies=[Depends(require_owner)])
+@router.post("/seller/organizations/{org_id}/llm-key/check", dependencies=[Depends(require_platform)])
 async def check_llm_key(request: Request, org_id: uuid.UUID, body: LlmKeyIn) -> dict:
     """Пробный вызов роутера с ключом из тела (до сохранения). Наружу — только вердикт."""
     from src.dependencies import get_http_client

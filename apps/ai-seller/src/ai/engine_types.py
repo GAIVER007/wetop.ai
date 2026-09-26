@@ -14,7 +14,10 @@ from typing import Any, Literal
 
 from src.db.models import Client, Conversation, Message
 
-Status = Literal["replied", "queued", "duplicate", "blocked", "consent", "send_failed", "error"]
+# operator — диалог у оператора, модель не звали (С-59); budget — суточный бюджет модели исчерпан (С-10 от 25.09)
+Status = Literal[
+    "replied", "queued", "duplicate", "blocked", "consent", "send_failed", "error", "operator", "budget"
+]
 
 
 @dataclass(frozen=True)

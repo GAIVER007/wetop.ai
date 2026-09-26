@@ -61,7 +61,7 @@ import { DataConnectionModule } from './database/connection';
     AiSellerModule,
     WizardModule,
   ],
-  // Замок непубличных маршрутов. Молчит, пока не задан AUTH_REQUIRED=1 (auth.guard.ts)
+  // Замок непубличных маршрутов. В боевом образе включён, пока не выключен явным AUTH_REQUIRED=0 (auth.guard.ts)
   providers: [
     { provide: APP_GUARD, useClass: SessionGuard },
     // автор действия в журнале берётся из сессии (request-context.ts)

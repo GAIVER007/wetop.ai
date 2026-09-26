@@ -12,6 +12,7 @@
  */
 export class RateWindows {
   private windows = new Map<string, { start: number; count: number }>();
+  private lastEviction = Number.NEGATIVE_INFINITY;
 
   constructor(
     private readonly windowMs: number,
@@ -34,7 +35,13 @@ export class RateWindows {
     return true;
   }
 
+  /**
+   * Не чаще раза в десятую долю окна (не реже раза в секунду): на полном столе живых окон обход таблицы на каждом новом
+   * ключе сам становился отказом в обслуживании (проверка слияния 26.09). Протухнуть раньше окна ничто не может.
+   */
   private evictExpired(t: number): void {
+    if (t - this.lastEviction < Math.max(1_000, this.windowMs / 10)) return;
+    this.lastEviction = t;
     for (const [key, w] of this.windows) {
       if (t - w.start >= this.windowMs) this.windows.delete(key);
     }
@@ -43,6 +50,7 @@ export class RateWindows {
   /** Для тестов */
   reset(): void {
     this.windows = new Map();
+    this.lastEviction = Number.NEGATIVE_INFINITY;
   }
 
   get size(): number {

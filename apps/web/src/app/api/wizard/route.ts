@@ -45,7 +45,11 @@ export async function POST(request: Request) {
     if (body.operation === 'claim') return json(await sellerAgentsApi.claim(token));
     if (body.operation === 'open')
       return json(
-        await wizardApi.open(token, typeof body.ref === 'string' ? body.ref.slice(0, 200) : ''),
+        await wizardApi.open(
+          token,
+          typeof body.ref === 'string' ? body.ref.slice(0, 200) : '',
+          request.headers.get('cf-connecting-ip'),
+        ),
       );
     if (body.operation === 'save')
       return json(

@@ -8,6 +8,7 @@
  *
  * Здесь только сравнение — чистая функция без сети, чтобы её можно было проверить тестами.
  */
+import type { Chessboard } from '@pms/domain';
 
 export interface DayRow {
   confirmationNumber: string;
@@ -32,6 +33,27 @@ export interface BoardSnapshot {
 }
 
 export type Finding = { level: 'fail' | 'warn'; what: string };
+
+/**
+ * Ответ `/chessboard` за одну дату → то, что сравнивает `checkDay`. Тип — из домена, а не свой: своя копия читала у
+ * клетки поле `stay`, которого в ответе нет, и каждый заселённый выходил ложным FAIL (аудит 26.09, С-73).
+ */
+export function boardSnapshot(raw: Chessboard, date: string): BoardSnapshot {
+  const occupiedByNumber: Record<string, string[]> = {};
+  for (const r of raw.rows) {
+    for (const c of r.cells) {
+      if (c.date !== date || c.state !== 'OCCUPIED' || !c.confirmationNumber) continue;
+      (occupiedByNumber[c.confirmationNumber] ??= []).push(r.unit.code);
+    }
+  }
+  return {
+    occupiedByNumber,
+    unassigned: raw.unassigned
+      .filter((u) => u.arrivalDate <= date && date < u.departureDate)
+      .map((u) => ({ confirmationNumber: u.confirmationNumber, categoryName: u.categoryName })),
+    occupiedCells: Object.values(raw.byCategory[date] ?? {}).reduce((s, c) => s + c.occupied, 0),
+  };
+}
 
 /**
  * Правила, и каждое — про ошибку, которую смена увидит как «система врёт»:

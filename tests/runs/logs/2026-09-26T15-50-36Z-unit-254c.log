@@ -1,0 +1,38 @@
+# Модульные (unit) · 26.09.2026 20:50 Алматы · vm
+# коммит cdeddb1 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 151
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T15-50-36Z-unit-254c.json' 'apps/api/src/rate-window.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/rate-window.test.ts (6 tests | 1 failed) 927ms
+   ❯ RateWindows: лимиты в памяти с вытеснением только протухших окон (6)
+     ✓ пропускает до предела, дальше отказывает, после окна пропускает снова 2ms
+     ✓ переполнение таблицы ключей не сбрасывает живой счётчик (раньше clear() обнулял все) 0ms
+     ✓ когда стол полон живыми окнами, новый ключ не пропускается (fail closed), живые считаются дальше 0ms
+     ✓ протухшие окна вытесняются, и место достаётся новому ключу 0ms
+     ✓ свой же ключ с протухшим окном не занимает второе место в таблице 0ms
+     × полный стол живых окон: новые ключи отказываются быстро, без обхода таблицы на каждом 923ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rate-window.test.ts > RateWindows: лимиты в памяти с вытеснением только протухших окон > полный стол живых окон: новые ключи отказываются быстро, без обхода таблицы на каждом
+AssertionError: expected 916.763799 to be less than 400
+ ❯ apps/api/src/rate-window.test.ts:67:41
+     65|     const started = performance.now();
+     66|     for (let i = 0; i < 20_000; i += 1) expect(w.allow(`новый-${i}`, 5…
+     67|     expect(performance.now() - started).toBeLessThan(400);
+       |                                         ^
+     68|   });
+     69| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  15:50:36
+   Duration  1.14s (tests 92%, transform 6%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T15-50-36Z-unit-254c.json
+
+# код выхода 1 · 2 с

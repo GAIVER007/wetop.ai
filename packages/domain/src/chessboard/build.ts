@@ -115,14 +115,25 @@ const addDays = (d: string, n: number) => {
   return fmt(x);
 };
 
-/** Включительный список дат YYYY-MM-DD. */
+const DAY_MS = 86_400_000;
+
+/**
+ * Включительный список дат YYYY-MM-DD. Перебор идёт по миллисекундам, а не по строкам: после 9999-12-31 строка
+ * становится «+010000-01», а она по строкам меньше «9999-12-31» — цикл по строкам не кончался (аудит 26.09, В-6).
+ */
 export function dateRange(from: string, to: string): string[] {
   if (!ISO.test(from) || !ISO.test(to))
     throw new Error(`dateRange: даты должны быть YYYY-MM-DD, получено ${from}..${to}`);
   if (from > to) throw new Error(`dateRange: from ${from} позже to ${to}`);
   const out: string[] = [];
-  for (let d = from; d <= to; d = addDays(d, 1)) out.push(d);
+  const end = toUtc(to).getTime();
+  for (let t = toUtc(from).getTime(); t <= end; t += DAY_MS) out.push(fmt(new Date(t)));
   return out;
+}
+
+/** Сколько дат в `dateRange(from, to)` — без построения списка, чтобы проверять предел до работы. */
+export function daySpan(from: string, to: string): number {
+  return Math.round((toUtc(to).getTime() - toUtc(from).getTime()) / DAY_MS) + 1;
 }
 
 export function buildChessboard(input: ChessboardInput): Chessboard {
@@ -138,14 +149,22 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
     cells: dates.map((date) => ({ date, state: 'FREE' as CellState })),
   }));
   const dateIdx = new Map(dates.map((d, i) => [d, i]));
+  /**
+   * Первая клетка доски для отрезка, начатого `start`: обходим только окно доски, а не весь отрезок. Блокировка до 9999
+   * года обходилась день за днём — 2,9 млн шагов на каждую отрисовку (аудит 26.09, С-37). `undefined` — отрезок
+   * начинается после доски.
+   */
+  const firstCell = (start: string): number | undefined =>
+    start <= input.from ? 0 : dateIdx.get(start);
 
   for (const a of input.allocations) {
     const ri = unitIndex.get(a.unitId);
     if (ri === undefined) continue; // ячейка вне запрошенного фонда
     const lastNight = addDays(a.endDate, -1);
-    for (let d = a.startDate; d < a.endDate; d = addDays(d, 1)) {
-      const ci = dateIdx.get(d);
-      if (ci === undefined) continue;
+    const first = firstCell(a.startDate);
+    if (first === undefined) continue;
+    for (let ci = first; ci < dates.length && dates[ci]! < a.endDate; ci += 1) {
+      const d = dates[ci]!;
       const cell = rows[ri]!.cells[ci]!;
       if (cell.state === 'OCCUPIED') {
         throw new Error(
@@ -169,9 +188,9 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
   for (const b of input.blocks) {
     const ri = unitIndex.get(b.unitId);
     if (ri === undefined) continue;
-    for (let d = b.dateFrom; d < b.dateTo; d = addDays(d, 1)) {
-      const ci = dateIdx.get(d);
-      if (ci === undefined) continue;
+    const first = firstCell(b.dateFrom);
+    if (first === undefined) continue;
+    for (let ci = first; ci < dates.length && dates[ci]! < b.dateTo; ci += 1) {
       const cell = rows[ri]!.cells[ci]!;
       if (cell.state === 'FREE')
         Object.assign(cell, { state: 'BLOCKED', blockType: b.type, blockReason: b.reason ?? null });

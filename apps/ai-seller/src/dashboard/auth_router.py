@@ -332,6 +332,30 @@ async def require_owner(user: DashboardUser = Depends(current_user)) -> Dashboar
     return user
 
 
+async def require_platform(
+    request: Request, user: DashboardUser = Depends(require_owner)
+) -> DashboardUser:
+    """Маршруты гостиницы у продавца (`/seller/organizations/{id}/…`): только
+    служебный ключ платформы. Ключ сверил current_user; здесь — что пришёл
+    именно он, а не токен человека.
+
+    🔴 Человек, вошедший в собственную панель продавца, менял любой
+    гостинице номер WhatsApp и ключ модели, подставив её id в путь (проверка
+    26.09). Гостиницами у продавца управляет платформа (ADR-083) — как
+    request_org. У помощника прежнее поведение: там эти маршруты отвечают
+    409 «не продавец».
+    """
+    from src.config import normalize_bot_role
+
+    if normalize_bot_role(_settings(request).bot_role) != "seller":
+        return user
+    if request.headers.get(SERVICE_HEADER) is None or user.email != SERVICE_ACTOR_EMAIL:
+        raise HTTPException(
+            status_code=403, detail="Панель продавца открывается только из платформы WETOP"
+        )
+    return user
+
+
 ORG_HEADER = "X-Organization"
 
 
@@ -348,6 +372,14 @@ async def request_org(request: Request) -> uuid.UUID | None:
     settings = _settings(request)
     if normalize_bot_role(settings.bot_role) != "seller":
         return None
+    # 🔴 Организацию у продавца называет только платформа — служебным ключом (его
+    # проверил current_user). Человек, вошедший в собственную панель продавца,
+    # выбирал заголовком любую гостиницу и читал её диалоги с телефонами (аудит
+    # 26.09). Продавцом управляют из платформы (ADR-083).
+    if request.headers.get(SERVICE_HEADER) is None:
+        raise HTTPException(
+            status_code=403, detail="Панель продавца открывается только из платформы WETOP"
+        )
     raw = (request.headers.get(ORG_HEADER) or "").strip()
     if not raw:
         raise HTTPException(status_code=400, detail="У продавца нужен заголовок X-Organization")

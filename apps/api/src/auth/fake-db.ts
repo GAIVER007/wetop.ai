@@ -64,6 +64,8 @@ export interface AuditRow {
   after: unknown;
 }
 
+type LockFilter = null | { lte: Date };
+
 export const FAKE_ORG = 'org-1';
 
 export interface FakeOrganization {
@@ -175,20 +177,41 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         data,
       }: {
         where: { id: string };
-        data: Partial<Omit<FakeUser, 'failedAttempts'>> & {
-          failedAttempts?: number | { increment: number };
-        };
-        select?: Record<string, boolean>;
+        data: { [K in keyof FakeUser]?: FakeUser[K] | { increment: number } };
       }) {
         const user = users.find((u) => u.id === where.id);
         if (!user) throw new Error('нет такого пользователя');
-        const { failedAttempts, ...rest } = data;
-        Object.assign(user, rest);
-        if (typeof failedAttempts === 'number') user.failedAttempts = failedAttempts;
-        // атомарный счётчик промахов, как `{ increment }` у Prisma (С-5): прибавка к текущему значению в «базе»
-        if (typeof failedAttempts === 'object' && failedAttempts !== null)
-          user.failedAttempts += failedAttempts.increment;
+        // `{ increment }` — как у Prisma: счётчик меняется в самой строке, а не значением, прочитанным раньше
+        for (const [key, value] of Object.entries(data)) {
+          const row = user as unknown as Record<string, unknown>;
+          row[key] =
+            value !== null && typeof value === 'object' && 'increment' in value
+              ? (row[key] as number) + (value as { increment: number }).increment
+              : value;
+        }
         return { ...user };
+      },
+      // Условная запись, как у Prisma: только `id`, `lockedUntil` (null или `{ lte }`) и `OR` из них — этого хватает замку
+      async updateMany({
+        where,
+        data,
+      }: {
+        where: { id: string; lockedUntil?: LockFilter; OR?: Array<{ lockedUntil?: LockFilter }> };
+        data: Partial<FakeUser>;
+      }) {
+        const lockMatches = (u: FakeUser, f: LockFilter | undefined) =>
+          f === undefined ||
+          (f === null
+            ? u.lockedUntil === null
+            : u.lockedUntil !== null && u.lockedUntil.getTime() <= f.lte.getTime());
+        const hit = users.filter(
+          (u) =>
+            u.id === where.id &&
+            lockMatches(u, where.lockedUntil) &&
+            (where.OR === undefined || where.OR.some((o) => lockMatches(u, o.lockedUntil))),
+        );
+        for (const u of hit) Object.assign(u, data);
+        return { count: hit.length };
       },
       async create({
         data,
@@ -281,6 +304,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           ...row,
           user: { ...user, memberships: memberships.filter((m) => m.userId === user.id) },
         };
+      },
+      /** Последняя выданная ссылка человека: строки в массиве идут в порядке выдачи, как `created_at` в базе */
+      async findFirst({ where }: { where: { userId: string } }) {
+        const rows = verifications.filter((r) => r.userId === where.userId);
+        const last = rows.at(-1);
+        return last ? { id: last.id } : null;
       },
       async update({ where, data }: { where: { id: string }; data: Partial<FakeVerification> }) {
         const row = verifications.find((r) => r.id === where.id);

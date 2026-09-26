@@ -44,6 +44,7 @@ function sandbox(opts: { pgVersion?: string; tables?: number; env?: string | nul
     [
       `if [ "\${1:-}" = "--version" ]; then echo "pg_dump (PostgreSQL) ${opts.pgVersion ?? '17.6'}"; exit 0; fi`,
       'printf "%s\\n" "$@" > "$AUDIT_DIR/pg_dump-args"',
+      'printf "%s" "${PGPASSWORD:-}" > "$AUDIT_DIR/pg_dump-password"',
       opts.dumpFails
         ? // как настоящий pg_dump при отказе базы: сообщение, в котором бывает адрес
           `echo "pg_dump: error: connection to ${DIRECT} failed" >&2; exit 1`
@@ -96,9 +97,19 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
     expect(statSync(join(sb.backups, files[0]!)).mode & 0o777).toBe(0o600);
 
     const args = sb.dumpArgs()!;
+    // Пароль — не в аргументах: их видит любой процесс на сервере через `ps`, пока копия снимается (аудит 25.09).
+    // pg_dump получает его переменной PGPASSWORD, адрес — без пароля.
     expect(args).toEqual(
-      expect.arrayContaining(['--format=custom', '--schema=public', '--no-owner', '--no-privileges', DIRECT]),
+      expect.arrayContaining([
+        '--format=custom',
+        '--schema=public',
+        '--no-owner',
+        '--no-privileges',
+        'postgresql://owner@db.example.invalid:5432/postgres',
+      ]),
     );
+    expect(args.join(' ')).not.toContain(PASSWORD);
+    expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe(PASSWORD);
     expect(r.stdout).toContain('таблиц с данными: 3');
     expect(r.stdout + r.stderr).not.toContain(PASSWORD);
   });
@@ -134,7 +145,10 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
     const own = 'postgresql://reader:pw@backup.example.invalid:5432/postgres';
     const sb = sandbox({ env: `BACKUP_DATABASE_URL=${own}\nDIRECT_URL=${DIRECT}\n` });
     expect(sb.run().status).toBe(0);
-    expect(sb.dumpArgs()).toContain(own);
+    // пароль уходит в PGPASSWORD, а не в строку запуска pg_dump (её видно в `ps` всем на сервере)
+    expect(sb.dumpArgs()).toContain('postgresql://reader@backup.example.invalid:5432/postgres');
+    expect(sb.dumpArgs()).not.toContain(':pw@');
+    expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe('pw');
   });
 
   it('параметры Prisma из адреса срезаются: pg_dump их не понимает и падает', () => {
@@ -142,7 +156,27 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
       env: `DATABASE_URL=postgresql://app:pw@pooler.example.invalid:5432/postgres?pgbouncer=true&sslmode=require&connection_limit=3&schema=public\n`,
     });
     expect(sb.run().status).toBe(0);
-    expect(sb.dumpArgs()).toContain('postgresql://app:pw@pooler.example.invalid:5432/postgres?sslmode=require');
+    expect(sb.dumpArgs()).toContain('postgresql://app@pooler.example.invalid:5432/postgres?sslmode=require');
+  });
+
+  it('пароль с %-кодированием уходит в PGPASSWORD раскодированным, в аргументах его нет', () => {
+    const sb = sandbox({
+      env: `DIRECT_URL=postgresql://owner:p%40ss%2Fw0rd@db.example.invalid:5432/postgres\n`,
+    });
+    expect(sb.run().status).toBe(0);
+    expect(sb.dumpArgs()).toContain('postgresql://owner@db.example.invalid:5432/postgres');
+    expect(sb.dumpArgs()!.join(' ')).not.toContain('p%40ss');
+    expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe('p@ss/w0rd');
+  });
+
+  // Проверка исправлений 26.09: раскодирование шло через printf '%b', и обратная косая в пароле читалась как управляющая
+  // последовательность — «\c» обрезал пароль, «\n» превращался в перевод строки, и копия не снималась
+  it('обратная косая в пароле остаётся сама собой', () => {
+    const sb = sandbox({
+      env: `DIRECT_URL=postgresql://owner:a\\cb\\n%21@db.example.invalid:5432/postgres\n`,
+    });
+    expect(sb.run().status).toBe(0);
+    expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe('a\\cb\\n!');
   });
 
   it('pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17', () => {

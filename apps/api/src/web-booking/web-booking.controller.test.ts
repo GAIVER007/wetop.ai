@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
-import type { INestApplication } from '@nestjs/common';
+import { NotFoundException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StayRestriction } from '@pms/domain';
@@ -87,6 +87,10 @@ const plan = {
 };
 
 const fakeRepo = {
+  /** Объект, которым заняты цены и брони в служебном контексте (объект Luxx по имени) */
+  async property() {
+    return { id: SITE.propertyId, currency: 'KZT' };
+  },
   availability: { t1: 3, t2: 0 } as Record<string, number>,
   restrictions: [] as Array<StayRestriction & { typeId: string }>,
   async activeCategories() {
@@ -120,40 +124,39 @@ const uow = {
 };
 
 const created = { dtos: [] as unknown[] };
-const reservations = {
-  create: vi.fn(async (dto: { arrivalDate: string; departureDate: string }) => {
-    created.dtos.push(dto);
-    return {
-      confirmationNumber: '20260912-ABC123',
-      source: 'WEBSITE',
-      channel: null,
-      status: 'CONFIRMED',
-      arrivalDate: dto.arrivalDate,
-      departureDate: dto.departureDate,
-      adults: 1,
-      children: 0,
-      currency: 'KZT',
-      totalAmountMinor: '2200000',
-      notes: null,
-      primaryGuest: null,
-      items: [
-        {
-          id: 'i1',
-          accommodationTypeCode: 'exely-900001',
-          accommodationTypeName: 'Одиночная',
-          arrivalDate: dto.arrivalDate,
-          departureDate: dto.departureDate,
-          status: 'CONFIRMED',
-          priceMinor: '2200000',
-          adults: 1,
-          children: 0,
-          unitCode: '9001',
-          guests: [],
-        },
-      ],
-    };
-  }),
+const createBooking = async (dto: { arrivalDate: string; departureDate: string }) => {
+  created.dtos.push(dto);
+  return {
+    confirmationNumber: '20260912-ABC123',
+    source: 'WEBSITE',
+    channel: null,
+    status: 'CONFIRMED',
+    arrivalDate: dto.arrivalDate,
+    departureDate: dto.departureDate,
+    adults: 1,
+    children: 0,
+    currency: 'KZT',
+    totalAmountMinor: '2200000',
+    notes: null,
+    primaryGuest: null,
+    items: [
+      {
+        id: 'i1',
+        accommodationTypeCode: 'exely-900001',
+        accommodationTypeName: 'Одиночная',
+        arrivalDate: dto.arrivalDate,
+        departureDate: dto.departureDate,
+        status: 'CONFIRMED',
+        priceMinor: '2200000',
+        adults: 1,
+        children: 0,
+        unitCode: '9001',
+        guests: [],
+      },
+    ],
+  };
 };
+const reservations = { create: vi.fn(createBooking) };
 
 const booking = () => ({
   k: SITE.publicKey,
@@ -387,7 +390,9 @@ describe('виджет бронирования /w/*', () => {
     // Приёмник пишет события пачкой раз в секунду; посетитель на быстрой сети бронирует раньше — сессии в базе ещё нет.
     // Воспроизведено на изолированном стенде: хит → сразу /w/book → reservation_id пуст, через 2 с — привязан.
     const collect = app.get(CollectService);
-    expect(await collect.accept(firstPageview(), { userAgent: CHROME, origin: ORIGIN })).toBe('queued');
+    expect(await collect.accept(firstPageview(), { userAgent: CHROME, origin: ORIGIN })).toBe(
+      'queued',
+    );
     expect(sites.recorded).toHaveLength(0);
     await post(booking()).expect(201);
     expect(sites.recorded.map((h) => h.sessionKey)).toEqual(['session-0001']);
@@ -405,6 +410,99 @@ describe('виджет бронирования /w/*', () => {
     );
     await post(booking(), 'http://evil.local').expect(403);
     expect(created.dtos).toHaveLength(0);
+  });
+
+  // Аудит 26.09, В-4 (Q-194, ADR-095): публичные пути брали цены, тариф и фонд объекта Luxx по имени, а не объекта
+  // сайта. Сайт второй гостиницы показывал цены Luxx и заводил брони с данными её гостей в фонде Luxx.
+  it('сайт другого объекта: ни цен, ни брони в чужом фонде — понятный отказ', async () => {
+    const foreign = {
+      ...SITE,
+      id: '33333333-3333-4333-8333-333333333333',
+      propertyId: '44444444-4444-4444-8444-444444444444',
+      publicKey: 'pms_f0f0f0f0f0f0',
+      bookingEnabled: true,
+      bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
+    };
+    sites.sitesById.set(foreign.id, foreign);
+    try {
+      const quote = await get(
+        `/w/availability?k=${foreign.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+      );
+      expect(quote.status).toBe(404);
+      expect(quote.body.message).toMatch(/не подключено/);
+      await post({ ...booking(), k: foreign.publicKey }).expect(404);
+      expect(created.dtos).toHaveLength(0);
+    } finally {
+      sites.sitesById.delete(foreign.id);
+    }
+  });
+
+  // Аудит 26.09, С-35: лимит сайта (30 броней в час) считал попытки, а не брони — тридцать запросов с несуществующей
+  // категорией с шести адресов глушили бронирование с сайта на час.
+  it('неудачные попытки не расходуют лимит сайта', async () => {
+    reservations.create.mockImplementation(async () => {
+      throw new NotFoundException('категория не найдена');
+    });
+    try {
+      for (let i = 0; i < 30; i += 1) {
+        await request(app.getHttpServer())
+          .post('/w/book')
+          .set('Origin', ORIGIN)
+          .set('cf-connecting-ip', `198.51.100.${i}`)
+          .send(booking())
+          .expect(404);
+      }
+    } finally {
+      reservations.create.mockImplementation(createBooking);
+    }
+    await post(booking()).expect(201);
+  });
+
+  // Проверка исправлений 26.09: предел сайта проверялся до записи брони, а засчитывался после — параллельные запросы с
+  // разных адресов все проходили проверку, и сайт принимал больше броней в час, чем позволено
+  it('одновременные брони с разных адресов не выходят за предел сайта в час', async () => {
+    reservations.create.mockImplementation(async (dto: { arrivalDate: string; departureDate: string }) => {
+      await new Promise((ok) => setTimeout(ok, 20));
+      return createBooking(dto);
+    });
+    try {
+      const host = new URL(ORIGIN).hostname;
+      const results = await Promise.allSettled(
+        Array.from({ length: 40 }, (_, i) =>
+          service.book(booking(), { originHost: host, ownHost: null, ip: `198.51.100.${i}` }),
+        ),
+      );
+      expect(results.filter((r) => r.status === 'fulfilled').length).toBeLessThanOrEqual(30);
+    } finally {
+      reservations.create.mockImplementation(createBooking);
+    }
+  });
+
+  // Аудит 26.09, С-33: после записи брони шли привязка сессии и журнал без защиты. Их сбой отдавал гостю ошибку, кнопка
+  // снова была активна, и повтор создавал вторую настоящую бронь.
+  it('сбой после записи брони не превращается в ошибку для гостя', async () => {
+    const link = sites.linkSessionReservation;
+    sites.linkSessionReservation = async () => {
+      throw new Error('база занята');
+    };
+    try {
+      const res = await post(booking()).expect(201);
+      expect(res.body.confirmationNumber).toBe('20260912-ABC123');
+      expect(created.dtos).toHaveLength(1);
+    } finally {
+      sites.linkSessionReservation = link;
+    }
+  });
+
+  // Аудит 26.09, С-36: цены с сайта — около 30 обращений к базе на запрос, ключ публичен, лимита не было
+  it('цены: больше 60 запросов в минуту с одного адреса — 429', async () => {
+    const quote = () =>
+      request(app.getHttpServer())
+        .get(`/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`)
+        .set('Origin', ORIGIN)
+        .set('cf-connecting-ip', '203.0.113.50');
+    for (let i = 0; i < 60; i += 1) await quote().expect(200);
+    await quote().expect(429);
   });
 
   it('лимит: шестая бронь с одного адреса за час — 429', async () => {

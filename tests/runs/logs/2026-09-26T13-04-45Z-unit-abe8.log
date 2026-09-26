@@ -1,0 +1,169 @@
+# Модульные (unit) · 26.09.2026 18:04 Алматы · vm
+# коммит ac21b4e (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-04-45Z-unit-abe8.json' 'tests/unit/ari-switch-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/ari-switch-server.test.ts (8 tests | 7 failed) 541840ms
+   ❯ ari.sh на сервере (Docker) (8)
+     × stop кладёт выключатель файлом, пересоздаёт контейнер API и подтверждает ответом самого API 90288ms
+     × start убирает файл, пересоздаёт контейнер и проверяет, что API выключателя больше не видит 90288ms
+     × файл записан, а процесс выключателя не увидел — это ОШИБКА, а не успех 90308ms
+     × start не рапортует успех, если API всё ещё видит off 90289ms
+     × status показывает и файл, и то, что видит запущенный API 24ms
+     ✓ с хоста к API не ходит: портов наружу нет, всё через compose exec 21ms
+     × ходит в API со служебным ключом из окружения контейнера api, самого ключа в командах нет 90320ms
+     × на сервере с наложением Hostinger пересоздаёт API с ним, как автовыкладка 90301ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > stop кладёт выключатель файлом, пересоздаёт контейнер API и подтверждает ответом самого API
+AssertionError: 2026-09-26T13:04:46Z CHANNEX_ARI=off задан (docker), перезапускаю API
+2026-09-26T13:06:17Z API не поднялся за 90 с — смотреть: docker compose -f /tmp/ari-HtdrET/deploy/compose.yml logs --tail=50 api
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ari-switch-server.test.ts:100:27
+     98|   it('stop кладёт выключатель файлом, пересоздаёт контейнер API и подт…
+     99|     const r = run(['stop']);
+    100|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    101|     expect(r.envFile).toContain('CHANNEX_ARI=off');
+    102|     expect(r.docker).toMatch(/up -d --force-recreate api/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > start убирает файл, пересоздаёт контейнер и проверяет, что API выключателя больше не видит
+AssertionError: 2026-09-26T13:06:17Z CHANNEX_ARI снят (docker), перезапускаю API
+2026-09-26T13:07:47Z API не поднялся за 90 с — смотреть: docker compose -f /tmp/ari-MoEbCt/deploy/compose.yml logs --tail=50 api
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ari-switch-server.test.ts:109:27
+    107|   it('start убирает файл, пересоздаёт контейнер и проверяет, что API в…
+    108|     const r = run(['start'], { stopped: true, containerSwitch: 'on' });
+    109|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    110|     expect(r.envFile).toBeNull();
+    111|     expect(r.docker).toMatch(/up -d --force-recreate api/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > файл записан, а процесс выключателя не увидел — это ОШИБКА, а не успех
+AssertionError: expected '2026-09-26T13:07:47Z CHANNEX_ARI=off …' to match /ARI НЕ остановлен/
+
+- Expected:
+/ARI НЕ остановлен/
+
++ Received:
+"2026-09-26T13:07:47Z CHANNEX_ARI=off задан (docker), перезапускаю API
+2026-09-26T13:09:17Z API не поднялся за 90 с — смотреть: docker compose -f /tmp/ari-oFOhlk/deploy/compose.yml logs --tail=50 api
+"
+
+ ❯ tests/unit/ari-switch-server.test.ts:118:19
+    116|     const r = run(['stop'], { containerSwitch: 'on' });
+    117|     expect(r.code).not.toBe(0);
+    118|     expect(r.out).toMatch(/ARI НЕ остановлен/);
+       |                   ^
+    119|   });
+    120|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > start не рапортует успех, если API всё ещё видит off
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/ari-switch-server.test.ts:121:3
+    119|   });
+    120|
+    121|   it('start не рапортует успех, если API всё ещё видит off', () => {
+       |   ^
+    122|     const r = run(['start'], { stopped: true, containerSwitch: 'off' }…
+    123|     expect(r.code).not.toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > status показывает и файл, и то, что видит запущенный API
+AssertionError: expected 'машина: docker\nфайл /tmp/ari-73eMS0/…' to match /API сейчас: CHANNEX_ARI=off/
+
+- Expected:
+/API сейчас: CHANNEX_ARI=off/
+
++ Received:
+"машина: docker
+файл /tmp/ari-73eMS0/deploy/ari.env: CHANNEX_ARI=off
+API сейчас: CHANNEX_ARI=НЕПОНЯТНЫЙ ОТВЕТ
+очередь: {\"message\":\"Unauthorized\",\"statusCode\":401}
+"
+
+ ❯ tests/unit/ari-switch-server.test.ts:131:19
+    129|     expect(r.out).toContain('машина: docker');
+    130|     expect(r.out).toContain('CHANNEX_ARI=off');
+    131|     expect(r.out).toMatch(/API сейчас: CHANNEX_ARI=off/);
+       |                   ^
+    132|   });
+    133|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > ходит в API со служебным ключом из окружения контейнера api, самого ключа в командах нет
+AssertionError: 2026-09-26T13:10:47Z CHANNEX_ARI=off задан (docker), перезапускаю API
+2026-09-26T13:12:18Z API не поднялся за 90 с — смотреть: docker compose -f /tmp/ari-KzyvGf/deploy/compose.yml logs --tail=50 api
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ari-switch-server.test.ts:144:27
+    142|   it('ходит в API со служебным ключом из окружения контейнера api, сам…
+    143|     const r = run(['stop']);
+    144|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    145|     expect(r.docker).toContain('process.env.SERVICE_API_KEY');
+    146|     expect(r.docker).not.toMatch(/x-wetop-service-key['"]?\s*:\s*['"][…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| tests/unit/ari-switch-server.test.ts > ari.sh на сервере (Docker) > на сервере с наложением Hostinger пересоздаёт API с ним, как автовыкладка
+AssertionError: 2026-09-26T13:12:18Z CHANNEX_ARI=off задан (docker), перезапускаю API
+2026-09-26T13:13:48Z API не поднялся за 90 с — смотреть: docker compose -f /tmp/ari-fx8eEP/deploy/compose.yml logs --tail=50 api
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/ari-switch-server.test.ts:151:27
+    149|   it('на сервере с наложением Hostinger пересоздаёт API с ним, как авт…
+    150|     const r = run(['stop'], { hostinger: true });
+    151|     expect(r.code, r.out).toBe(0);
+       |                           ^
+    152|     expect(r.docker).toMatch(/-f \S*compose\.yml -f \S*compose\.hostin…
+    153|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+   Start at  13:04:46
+   Duration  542.05s (tests 100%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-04-45Z-unit-abe8.json
+
+# код выхода 1 · 9 мин 3 с

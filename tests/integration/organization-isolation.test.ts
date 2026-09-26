@@ -8,6 +8,9 @@ import { AuditService } from '../../apps/api/src/audit/audit.module';
 import { PrismaFinanceRepository } from '../../apps/api/src/finance/finance.repository';
 import { PrismaGuestsRepository } from '../../apps/api/src/guests/guests.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { PrismaUnitsRepository } from '../../apps/api/src/units/units.repository';
+import { PrismaAnalyticsRepository } from '../../apps/api/src/analytics/analytics.repository';
+import { channelOperatorOrganizationId } from '../../apps/api/src/channels/operator-access';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -106,3 +109,137 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     });
   });
 });
+
+/**
+ * Аудит комиссии 26.09.2026, В-1 и В-3: модуль ячеек искал ячейку по коду на всю базу, а аналитика сайта — сайт по
+ * голому id. Вошедший из другой организации видел гостей и брони объекта в карточке ячейки, ставил и снимал
+ * блокировки, читал, менял и удалял сайт объекта. Две организации — в откатываемой транзакции, как выше.
+ */
+describe.skipIf(!url)('изоляция организаций: ячейки и сайты (integration, DATABASE_URL required)', () => {
+  let db: Db;
+  beforeAll(() => {
+    db = createPrismaClient(url);
+  });
+  afterAll(async () => {
+    await db?.$disconnect();
+  });
+
+  it('чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит', async () => {
+    const unit = await db.inventoryUnit.findFirst({
+      select: { id: true, code: true, accommodationType: { select: { propertyId: true } } },
+    });
+    expect(unit).toBeTruthy();
+    const { propertyId } = unit!.accommodationType;
+    const seen: Record<string, unknown> = {};
+
+    await expect(
+      db.$transaction(async (tx) => {
+        const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
+        const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
+        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        await tx.property.create({
+          data: {
+            organizationId: orgB.id,
+            name: 'Чужой объект (integration)',
+            timezone: 'Asia/Almaty',
+            currency: 'KZT',
+            checkInTime: '14:00',
+            checkOutTime: '12:00',
+          },
+        });
+        const block = await tx.inventoryBlock.create({
+          data: {
+            inventoryUnitId: unit!.id,
+            dateFrom: new Date('2099-01-01T00:00:00Z'),
+            dateTo: new Date('2099-01-02T00:00:00Z'),
+            type: 'MAINTENANCE',
+          },
+          select: { id: true },
+        });
+        const site = await tx.trackedSite.create({
+          data: {
+            propertyId,
+            name: 'Сайт объекта A (integration)',
+            hosts: ['isolation-a.local'],
+            publicKey: `pms_${randomUUID().replace(/-/g, '').slice(0, 12)}`,
+          },
+          select: { id: true },
+        });
+        const prisma = { db: tx } as unknown as PrismaService;
+        const units = new PrismaUnitsRepository(prisma);
+        const sites = new PrismaAnalyticsRepository(prisma);
+        const as = <T>(organizationId: string, fn: () => Promise<T>) =>
+          withSignedInUser({ userId: randomUUID(), organizationId }, fn);
+        const look = async (organizationId: string) => ({
+          unit: (await as(organizationId, () => units.unitByCode(unit!.code))) !== null,
+          card: (await as(organizationId, () => units.card(unit!.code, '2099-01-01', '2099-01-02'))) !== null,
+          block: (await as(organizationId, () => units.blockById(block.id))) !== null,
+          siteInList: (await as(organizationId, () => sites.sites())).some((s) => s.id === site.id),
+          site: (await as(organizationId, () => sites.site(site.id))) !== null,
+          siteUpdated: (await as(organizationId, () => sites.updateSite(site.id, { name: 'Переименован' }))) !== null,
+        });
+        seen['B'] = await look(orgB.id);
+        seen['B:deleted'] = await as(orgB.id, () => sites.deleteSite(site.id));
+        seen['A'] = await look(orgA.id);
+        throw new Rollback();
+      }),
+    ).rejects.toBeInstanceOf(Rollback);
+
+    expect(seen['B']).toEqual({
+      unit: false,
+      card: false,
+      block: false,
+      siteInList: false,
+      site: false,
+      siteUpdated: false,
+    });
+    expect(seen['B:deleted']).toBe(false);
+    expect(seen['A']).toEqual({
+      unit: true,
+      card: true,
+      block: true,
+      siteInList: true,
+      site: true,
+      siteUpdated: true,
+    });
+  });
+});
+
+/**
+ * Аудит 26.09, В-2 и С-3 (ADR-095): маршрутами Channex и сторожа распоряжается организация, чей объект подключён к
+ * Channex. Здесь — что запрос «чья организация подключена» работает на настоящей базе: по сопоставлениям, а без них —
+ * по объекту установки.
+ */
+describe.skipIf(!url)('организация подключённого к Channex объекта (integration, DATABASE_URL required)', () => {
+  let db: Db;
+  beforeAll(() => {
+    db = createPrismaClient(url);
+  });
+  afterAll(async () => {
+    await db?.$disconnect();
+  });
+
+  it('по сопоставлению Channex — организация объекта с сопоставлениями', async () => {
+    const unit = await db.inventoryUnit.findFirst({
+      select: { accommodationType: { select: { propertyId: true } } },
+    });
+    expect(unit).toBeTruthy();
+    const { propertyId } = unit!.accommodationType;
+    let seen: string | null = 'не спрашивали';
+    await expect(
+      db.$transaction(async (tx) => {
+        const org = await tx.organization.create({ data: { name: 'Integration Channex' }, select: { id: true } });
+        await tx.property.update({ where: { id: propertyId }, data: { organizationId: org.id } });
+        await tx.channelMapping.deleteMany({ where: { provider: 'channex' } });
+        await tx.channelMapping.create({
+          data: { propertyId, provider: 'channex', providerPropertyId: `integration-${randomUUID()}` },
+        });
+        seen = await channelOperatorOrganizationId(tx as unknown as Db);
+        expect(seen).toBe(org.id);
+        throw new Rollback();
+      }),
+    ).rejects.toBeInstanceOf(Rollback);
+    expect(seen).not.toBe('не спрашивали');
+  });
+});
+

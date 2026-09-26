@@ -8,6 +8,7 @@ import {
   piiStorageMode,
   pseudonymSalt,
   realPiiAllowed,
+  withoutGuestIdentity,
 } from './pii-residency';
 
 /** ADR-009/ADR-018: настоящие ПД только в production-БД в Казахстане. Гости вымышленные (ADR-010). */
@@ -157,3 +158,82 @@ describe('maskContacts, freeTextForStorage', () => {
     expect(freeTextForStorage(undefined, {})).toBeNull();
   });
 });
+
+// Аудит 26.09, С-38: выражение почты без якоря перебирало каждую позицию длинного слова — квадратичная работа. Заметка
+// в 100 КБ маскировалась секунды, причём в создании брони — уже под блокировкой категорий.
+describe('маска контактов и длинный текст', () => {
+  it('100 КБ одного слова маскируются быстро', () => {
+    const started = performance.now();
+    maskContacts('a'.repeat(100_000));
+    const ms = performance.now() - started;
+    expect(ms, `маска заняла ${Math.round(ms)} мс`).toBeLessThan(200);
+  });
+});
+
+// Аудит 26.09, С-40: маска пропускала частые формы — «701 234 56 78» и «7011234567» без восьмёрки, ИИН и почту на
+// кириллице. Номера броней, суммы и даты должны остаться как были.
+describe('маска контактов: пропущенные формы', () => {
+  it.each([
+    ['звонить 701 234 56 78 после обеда', 'звонить <телефон> после обеда'],
+    ['номер 7011234567', 'номер <телефон>'],
+    ['тел. (777) 123-45-67', 'тел. <телефон>'],
+    ['ИИН 900101300017 для договора', 'ИИН <ИИН> для договора'],
+    ['почта иван.тестов@почта.рф', 'почта <почта>'],
+  ])('«%s»', (raw, masked) => {
+    expect(maskContacts(raw)).toBe(masked);
+  });
+
+  it.each([
+    'бронь BDC-4123456789 от канала',
+    'бронь 20260912-ABC123',
+    'сумма 12 500 000 тиын',
+    'даты 2026-09-12 — 2026-09-15',
+    'номер 900101300014 — не ИИН: контрольная цифра не сходится',
+  ])('не трогает «%s»', (text) => {
+    expect(maskContacts(text)).toBe(text);
+  });
+});
+
+// Аудит 25.09, В-5: карточка брони уходила в журнал целиком — имя и телефон основного гостя, имена гостей проживаний.
+// Пока база не в РК, это псевдонимы; после переезда и «журнал только дописывается» (ADR-082) настоящие ФИО и телефоны
+// стали бы в журнале неудаляемыми. У гостя в журнале остаются только id, гражданство и признак основного.
+describe('данные гостя для журнала', () => {
+  it('имя и контакты гостя не попадают в журнал ни на каком уровне', () => {
+    const card = {
+      confirmationNumber: '20260926-TEST01',
+      notes: 'поздний заезд',
+      primaryGuest: { id: 'g1', label: 'Айгерим Тестова', citizenship: 'KAZ', phone: '+77011234567' },
+      items: [{ id: 'i1', guests: [{ label: 'Айгерим Тестова', isPrimary: true }] }],
+    };
+    const safe = withoutGuestIdentity({ before: card, after: { ...card, status: 'CANCELLED' } });
+    const text = JSON.stringify(safe);
+    expect(text).not.toContain('Тестова');
+    expect(text).not.toContain('7011234567');
+    expect(safe).toMatchObject({
+      before: {
+        confirmationNumber: '20260926-TEST01',
+        notes: 'поздний заезд',
+        primaryGuest: { id: 'g1', citizenship: 'KAZ' },
+        items: [{ id: 'i1', guests: [{ isPrimary: true }] }],
+      },
+      after: { status: 'CANCELLED' },
+    });
+  });
+
+  it('значения без гостя проходят как есть', () => {
+    expect(withoutGuestIdentity(null)).toBeNull();
+    expect(withoutGuestIdentity({ amountMinor: '100', ids: ['a'] })).toEqual({ amountMinor: '100', ids: ['a'] });
+  });
+
+  // Проверка исправлений 26.09: заметка брони (замечания гостя из канала, комментарий с сайта) и причина возврата шли в
+  // журнал как есть — при PII_STORAGE=real с телефоном и почтой, в журнал, который только дописывается
+  it('свободный текст в журнале — с маской контактов, даже когда база хранит настоящие данные', () => {
+    const safe = withoutGuestIdentity({
+      after: { notes: 'Гость просит позвонить +7 701 555 12 34, почта ivan@example.invalid', reason: 'вернуть на 87015551234' },
+    }) as { after: { notes: string; reason: string } };
+    expect(safe.after.notes).not.toMatch(/555|ivan@/);
+    expect(safe.after.notes).toContain('Гость просит позвонить');
+    expect(safe.after.reason).not.toContain('87015551234');
+  });
+});
+

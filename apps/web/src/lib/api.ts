@@ -414,8 +414,8 @@ export const authApi = {
       info ? authHeaders(info) : {},
     ),
   /** Пароль по одноразовой ссылке из письма */
-  confirmReset: (body: { token: string; password: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
+  confirmReset: (body: { token: string; password: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body, info ? authHeaders(info) : {}),
   // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
@@ -432,11 +432,12 @@ export const authApi = {
       info ? authHeaders(info) : {},
     ),
   /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
-  verifyEmail: (body: { token: string }) =>
+  verifyEmail: (body: { token: string }, info?: AuthClientInfo) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
       'POST',
       '/auth/email/verify',
       body,
+      info ? authHeaders(info) : {},
     ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
   resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
@@ -1663,10 +1664,14 @@ export const inventoryEditorApi = {
 };
 
 
+/** Visitor address for the API's per-address wizard limit (proxy, not the browser) — never counted if absent. */
+const ipHeader = (ip?: string | null): Record<string, string> =>
+  ip ? { 'cf-connecting-ip': ip } : {};
+
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
-  open: (token: string, ref: string) => sendJson<import('./wizard-types').WizardState>(
-    'POST', '/wizard/session', { ref }, token ? { 'x-wizard-token': token } : {},
+  open: (token: string, ref: string, ip?: string | null) => sendJson<import('./wizard-types').WizardState>(
+    'POST', '/wizard/session', { ref }, { ...(token ? { 'x-wizard-token': token } : {}), ...ipHeader(ip) },
   ),
   save: (token: string, body: unknown) => sendJson<import('./wizard-types').WizardState>(
     'PATCH', '/wizard/config', body, { 'x-wizard-token': token },

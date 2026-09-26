@@ -78,3 +78,43 @@ describe('redactDetails', () => {
     expect(JSON.stringify(d)).not.toContain('"f":1');
   });
 });
+
+// Аудит 26.09, С-38: выражения маски работали квадратично (почта и пароль в строке подключения без якоря), а маска шла
+// по всему тексту до обрезки. Текст ошибки с эхом ввода в 100 КБ — секунды остановленного API на запрос.
+describe('маска и длинный текст', () => {
+  it('100 КБ одного слова маскируются быстро', () => {
+    for (const text of ['a'.repeat(100_000), `${'a'.repeat(100_000)}://`, `x${'1'.repeat(100_000)}`]) {
+      const started = performance.now();
+      const out = redactText(text);
+      const ms = performance.now() - started;
+      expect(out.length).toBeLessThanOrEqual(501);
+      expect(ms, `маска заняла ${Math.round(ms)} мс`).toBeLessThan(200);
+    }
+  });
+
+  it('обрезка до маски не оставляет почту на границе незамаскированной', () => {
+    const tail = ' me@example.com';
+    const text = `${'слово '.repeat(400)}${tail}`;
+    expect(redactText(text, 5_000)).not.toContain('me@example');
+  });
+});
+
+describe('обрезка до маски и длинное слово', () => {
+  it('текст из одного длинного слова не пропадает целиком: остаются его первые знаки', () => {
+    const out = redactText(`Ошибка разбора: ${'Z'.repeat(10_000)}`);
+    expect(out).toMatch(/^Ошибка разбора: ZZZZ/);
+  });
+
+  // Проверка исправлений 26.09: длинное слово на границе обрезки оставалось целиком — почта в его конце, лишённая
+  // окончания («…@mail» без «.kz»), под маску уже не подходила; длинные ключи впереди сжимались и открывали её в ответе
+  it('длинное слово на границе обрезки не выносит в ответ обрубок почты', () => {
+    const keys = Array.from({ length: 8 }, (_, i) => `${String.fromCharCode(65 + i)}${'k'.repeat(199)}`).join(' ');
+    // слово подобрано так, что обрезка на 2000 знаках приходится ровно после «@mail»
+    const word = `https://example.invalid/booking?${'p'.repeat(337)}&guest=ivan.petrov@mail.kz`;
+    const text = `${keys} ${word}`;
+    const cut = 2_000 - keys.length - 1;
+    expect(word.slice(0, cut).endsWith('ivan.petrov@mail')).toBe(true);
+    expect(redactText(text)).not.toContain('ivan.petrov');
+  });
+});
+

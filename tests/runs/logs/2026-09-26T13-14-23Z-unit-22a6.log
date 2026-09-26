@@ -1,0 +1,17 @@
+# Модульные (unit) · 26.09.2026 18:14 Алматы · vm
+# коммит ac21b4e (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-14-23Z-unit-22a6.json' 'tests/unit/ari-switch-server.test.ts' 'tests/unit/ari-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/ari-server.test.ts (5 tests) 165ms
+ ✓ |unit| tests/unit/ari-switch-server.test.ts (8 tests) 259ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  13:14:24
+   Duration  484ms (tests 75%, transform 17%, import 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-14-23Z-unit-22a6.json
+
+# код выхода 0 · 1 с

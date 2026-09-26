@@ -64,11 +64,14 @@ export class WebBookingController {
   @Get('availability')
   availability(
     @Query() query: Record<string, string>,
+    @Ip() socketIp: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
     @Headers('origin') origin?: string,
     @Headers('referer') referer?: string,
     @Headers('host') host?: string,
   ) {
-    return this.service.quote(query, context({ origin, referer, host }));
+    const ip = clientIp(socketIp, cfConnectingIp) ?? undefined;
+    return this.service.quote(query, context({ origin, referer, host, ip }));
   }
 
   @Post('book')

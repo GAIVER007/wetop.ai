@@ -1,0 +1,101 @@
+# Модульные (unit) · 26.09.2026 18:00 Алматы · vm
+# коммит ac21b4e (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-00-18Z-unit-856c.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (10 tests | 4 failed) 7353ms
+   ❯ scripts/ops/auto-deploy.sh (10)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 309ms
+     × новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 479ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 485ms
+     ✓ владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину 710ms
+     × release ушёл вперёд после отказа — --migrations-applied не выкладывает новую вершину 676ms
+     × --migrations-applied с номером вершины выкладывает ровно её, другую — нет 534ms
+     × прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 481ms
+     ✓ локальные правки в клоне — не затирает их 458ms
+     ✓ историю ветки переписали — не выкладывает поверх 668ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2552ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает
+Error: ENOENT: no such file or directory, open '/tmp/auto-deploy-KbFh3u/calls.log.curl.stdin'
+ ❯ tests/unit/auto-deploy.test.ts:120:12
+    118|     expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(…
+    119|     expect(r.out).toContain(`${target.slice(0, 8)} выложен`);
+    120|     expect(readFileSync(`${calls}.curl.stdin`, 'utf8')).toContain('sen…
+       |            ^
+    121|     expect(r.out).not.toContain(TOKEN);
+    122|     // Аудит 25.09, С-15: токен бота был частью адреса в аргументах cu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release ушёл вперёд после отказа — --migrations-applied не выкладывает новую вершину
+AssertionError: 2026-09-26T13:00:22Z auto-deploy: выкладываю be573ab4 поверх 9584932b
+2026-09-26T13:00:22Z auto-deploy: be573ab4 выложен за 0 с: next migration
+: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:168:27
+    166|     commit('packages/database/prisma/migrations/0003_next/migration.sq…
+    167|     const r = run({}, ['--migrations-applied']);
+    168|     expect(r.code, r.out).toBe(1);
+       |                           ^
+    169|     expect(r.out).toContain(applied.slice(0, 8));
+    170|     expect(head()).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied с номером вершины выкладывает ровно её, другую — нет
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:177:64
+    175|     const target = commit('packages/database/prisma/migrations/0002_mo…
+    176|     expect(run().code).toBe(1);
+    177|     expect(run({}, ['--migrations-applied', 'deadbeef']).code).toBe(1);
+       |                                                                ^
+    178|     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    179|     expect(r.code, r.out).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает
+AssertionError: expected '' to match /up -d --build api web/
+
+- Expected:
+/up -d --build api web/
+
++ Received:
+""
+
+ ❯ tests/unit/auto-deploy.test.ts:192:27
+    190|     const r = run();
+    191|     expect(r.code, r.out).toBe(0);
+    192|     expect(dockerCalls()).toMatch(/up -d --build api web/);
+       |                           ^
+    193|     expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(…
+    194|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 6 passed (10)
+   Start at  13:00:19
+   Duration  7.60s (tests 99%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-00-18Z-unit-856c.json
+
+# код выхода 1 · 9 с

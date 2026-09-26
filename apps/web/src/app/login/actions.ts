@@ -76,7 +76,7 @@ export async function setPassword(
   if (!token) return { error: 'Ссылка неполная: откройте её из письма целиком' };
   if (password !== again) return { error: 'Пароли не совпадают' };
   try {
-    await authApi.confirmReset({ token, password });
+    await authApi.confirmReset({ token, password }, await clientInfo());
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;
@@ -126,7 +126,7 @@ export async function registerAction(
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
   try {
-    const result = await authApi.verifyEmail({ token });
+    const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
   } catch (e) {
     return { error: errorText(e) };

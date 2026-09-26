@@ -43,8 +43,9 @@ describe('конфиг e2e и замок API', () => {
   it('без переменной прогон идёт как раньше: замка нет, шага входа нет', async () => {
     const c = await config(false);
     expect(c.projects?.map((p) => p.name)).toEqual(['schema-guard', 'isolated']);
-    expect(api(c)?.env?.['AUTH_REQUIRED']).toBeUndefined();
-    expect(web(c)?.env?.['APP_AUTH_REQUIRED']).toBeUndefined();
+    // выключен явным «0»: стойка стенда — production-сборка, а там без переменной вход обязателен (ADR-095)
+    expect(api(c)?.env?.['AUTH_REQUIRED']).toBe('0');
+    expect(web(c)?.env?.['APP_AUTH_REQUIRED']).toBe('0');
     expect(c.use?.storageState).toBeUndefined();
     expect(c.use?.extraHTTPHeaders).toBeUndefined();
   });

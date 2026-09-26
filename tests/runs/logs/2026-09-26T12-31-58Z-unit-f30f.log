@@ -1,0 +1,95 @@
+# Модульные (unit) · 26.09.2026 17:31 Алматы · vm
+# коммит bbc311a (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-31-58Z-unit-f30f.json' 'apps/api/src/finance'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/finance-audit-transaction.test.ts (4 tests | 4 failed) 17ms
+   ❯ деньги и журнал — одной транзакцией (4)
+     × платёж: обе записи внутри одного $transaction, id платежа попадает в строку журнала 7ms
+     × журнал не записался — вся операция отклонена, а не «деньги без следа» 6ms
+     × возврат, начисление, сторно и закрытие счёта — так же одной транзакцией 1ms
+     × без данных журнала методы работают как прежде — одним запросом, без транзакции 1ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (11 tests) 323ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance-audit-transaction.test.ts > деньги и журнал — одной транзакцией > платёж: обе записи внутри одного $transaction, id платежа попадает в строку журнала
+TypeError: tx.$queryRaw is not a function
+ ❯ lockOpenFolios apps/api/src/finance/finance.repository.ts:215:63
+    213| async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promi…
+    214|   for (const id of [...new Set(folioIds)].sort()) {
+    215|     const rows = await tx.$queryRaw<Array<{ status: string }>>`
+       |                                                               ^
+    216|       SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}…
+    217|     if (rows[0]?.status !== 'OPEN') throw new FolioClosedError(id);
+ ❯ row.locked.tx.payment.create.data.propertyId.propertyId apps/api/src/finance/finance.repository.ts:524:15
+ ❯ apps/api/src/finance/finance.repository.ts:468:13
+ ❯ Object.$transaction apps/api/src/finance/finance-audit-transaction.test.ts:69:14
+ ❯ PrismaFinanceRepository.locked apps/api/src/finance/finance.repository.ts:466:27
+ ❯ PrismaFinanceRepository.createPayment apps/api/src/finance/finance.repository.ts:522:28
+ ❯ apps/api/src/finance/finance-audit-transaction.test.ts:95:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance-audit-transaction.test.ts > деньги и журнал — одной транзакцией > журнал не записался — вся операция отклонена, а не «деньги без следа»
+AssertionError: expected [Function] to throw error including 'журнал недоступен' but got 'tx.$queryRaw is not a function'
+
+Expected: "журнал недоступен"
+Received: "tx.$queryRaw is not a function"
+
+ ❯ apps/api/src/finance/finance-audit-transaction.test.ts:107:53
+    105|     const f = fakePrisma({ auditThrows: true });
+    106|     const repo = new PrismaFinanceRepository(f.prisma);
+    107|     await expect(repo.createPayment(PAYMENT, AUDIT)).rejects.toThrow('…
+       |                                                     ^
+    108|   });
+    109|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance-audit-transaction.test.ts > деньги и журнал — одной транзакцией > возврат, начисление, сторно и закрытие счёта — так же одной транзакцией
+TypeError: tx.$queryRaw is not a function
+ ❯ lockOpenFolios apps/api/src/finance/finance.repository.ts:215:63
+    213| async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promi…
+    214|   for (const id of [...new Set(folioIds)].sort()) {
+    215|     const rows = await tx.$queryRaw<Array<{ status: string }>>`
+       |                                                               ^
+    216|       SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}…
+    217|     if (rows[0]?.status !== 'OPEN') throw new FolioClosedError(id);
+ ❯ lock apps/api/src/finance/finance.repository.ts:568:13
+ ❯ apps/api/src/finance/finance.repository.ts:468:13
+ ❯ Object.$transaction apps/api/src/finance/finance-audit-transaction.test.ts:69:14
+ ❯ PrismaFinanceRepository.locked apps/api/src/finance/finance.repository.ts:466:27
+ ❯ PrismaFinanceRepository.createRefund apps/api/src/finance/finance.repository.ts:586:28
+ ❯ apps/api/src/finance/finance-audit-transaction.test.ts:112:54
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance-audit-transaction.test.ts > деньги и журнал — одной транзакцией > без данных журнала методы работают как прежде — одним запросом, без транзакции
+TypeError: tx.$queryRaw is not a function
+ ❯ lockOpenFolios apps/api/src/finance/finance.repository.ts:215:63
+    213| async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promi…
+    214|   for (const id of [...new Set(folioIds)].sort()) {
+    215|     const rows = await tx.$queryRaw<Array<{ status: string }>>`
+       |                                                               ^
+    216|       SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}…
+    217|     if (rows[0]?.status !== 'OPEN') throw new FolioClosedError(id);
+ ❯ lock apps/api/src/finance/finance.repository.ts:605:13
+ ❯ apps/api/src/finance/finance.repository.ts:468:13
+ ❯ Object.$transaction apps/api/src/finance/finance-audit-transaction.test.ts:69:14
+ ❯ PrismaFinanceRepository.locked apps/api/src/finance/finance.repository.ts:466:27
+ ❯ PrismaFinanceRepository.closeFolio apps/api/src/finance/finance.repository.ts:621:16
+ ❯ apps/api/src/finance/finance-audit-transaction.test.ts:167:49
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 11 passed (15)
+   Start at  12:31:59
+   Duration  2.08s (transform 65%, import 24%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-31-58Z-unit-f30f.json
+
+# код выхода 1 · 3 с

@@ -2509,3 +2509,5 @@
 | 26.09.2026 19:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 389 | 17 мин 25 с | b62a189 | [лог](logs/2026-09-26T14-39-36Z-e2e-b090.log) | final SHA b62a1892: full UI suite |
 | 26.09.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --repeat-each=3 --workers=1) | ✅ 9 из 9 | 38 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-10Z-e2e-86b3.log) | fund-workspace: invalid-dates alert looked up inside main (TESTING.md rule), x3 |
 | 26.09.2026 19:58 | e2e | ✅ 25 из 25 | 48 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-54Z-e2e-ade3.log) | final: live e2e after db:local reset (clean stand, as TESTING.md requires) |
+| 26.09.2026 19:59 | typecheck | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T14-59-57Z-typecheck-282d.log) | final SHA cec8a797 |
+| 26.09.2026 20:00 | lint | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T15-00-04Z-lint-6eaf.log) | final SHA cec8a797 |

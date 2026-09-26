@@ -2475,3 +2475,14 @@
 | 26.09.2026 17:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-agent-editor.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 5 из 5 | 29 с | 92c30dc +21 | [лог](logs/2026-09-26T12-37-25Z-e2e-4b51.log) | Catalogue unavailable state and compact seller layout |
 | 26.09.2026 17:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-agent-editor.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 5 из 5 | 36 с | 92c30dc +21 | [лог](logs/2026-09-26T12-42-17Z-e2e-25c2.log) | Seller layout final mobile step strip and unavailable catalogue |
 | 26.09.2026 17:47 | integration (частично: --config tests/wizard.config.ts) | ✅ 2 из 2 | 4 с | aa15f31 +5 | [лог](logs/2026-09-26T12-47-20Z-integration-3088.log) | Verify agent persistence and isolation before enabling working catalogue |
+| 26.09.2026 16:53 | typecheck | ❌ ошибок: 15 | 43 с | 587ce97 | [лог](logs/2026-09-26T11-53-26Z-typecheck-8b4f.log) | TS2339 |
+| 26.09.2026 16:54 | lint | ✅ без ошибок | 22 с | 587ce97 | [лог](logs/2026-09-26T11-54-09Z-lint-b58f.log) |  |
+| 26.09.2026 16:54 | unit | ❌ упало 1 из 1902, пропущено 3 | 1 мин 19 с | 587ce97 | [лог](logs/2026-09-26T11-54-32Z-unit-74da.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 26.09.2026 16:57 | integration | ✅ 85 из 85 | 40 с | 587ce97 | [лог](logs/2026-09-26T11-57-10Z-integration-80d0.log) |  |
+| 26.09.2026 16:57 | typecheck | ✅ без ошибок | 28 с | 587ce97 +3 | [лог](logs/2026-09-26T11-57-51Z-typecheck-6955.log) |  |
+| 26.09.2026 16:58 | lint | ✅ без ошибок | 20 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-20Z-lint-3ef8.log) |  |
+| 26.09.2026 16:58 | unit | ✅ 1899 из 1902, пропущено 3 | 1 мин 12 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-41Z-unit-55e3.log) |  |
+| 26.09.2026 17:04 | typecheck | ✅ без ошибок | 36 с | 429f0da | [лог](logs/2026-09-26T12-04-30Z-typecheck-51f0.log) |  |
+| 26.09.2026 17:05 | lint | ✅ без ошибок | 20 с | 429f0da | [лог](logs/2026-09-26T12-05-07Z-lint-909a.log) |  |
+| 26.09.2026 17:05 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 14 с | 429f0da | [лог](logs/2026-09-26T12-05-28Z-unit-7014.log) |  |
+| 26.09.2026 17:06 | e2e | ❌ код выхода 1 | 5 с | 429f0da | [лог](logs/2026-09-26T12-06-59Z-e2e-3f6c.log) | (ошибка вне тестов) |

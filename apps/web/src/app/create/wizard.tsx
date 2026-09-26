@@ -164,7 +164,7 @@ export function GuestWizard() {
             </div>
           </dl>
           {values.advantages && <p className="guest-wizard__advantages">{values.advantages}</p>}
-          <p className="guest-wizard__note">Превью настроек · агент ещё не запущен</p>
+          <p className="guest-wizard__note">Превью настроек: агент ещё не запущен</p>
         </aside>
       </div>
     </main>

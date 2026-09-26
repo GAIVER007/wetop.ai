@@ -2473,3 +2473,5 @@
 | 26.09.2026 17:44 | lint | ✅ без ошибок | 15 с | 24df31a +3 | [лог](logs/2026-09-26T12-44-03Z-lint-5f62.log) | C-13 web: predel ozhidaniya |
 | 26.09.2026 17:44 | unit | ✅ 1911 из 1914, пропущено 3 | 1 мин 12 с | 24df31a +2 | [лог](logs/2026-09-26T12-44-18Z-unit-1f6e.log) | C-13 web: predel ozhidaniya, polnyy unit |
 | 26.09.2026 17:45 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ✅ 3 из 3 | 2 с | 24df31a +2 | [лог](logs/2026-09-26T12-45-35Z-unit-0f8c.log) | posle prettier |
+| 26.09.2026 17:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 381 из 381 | 31 мин 48 с | c6f8a2e | [лог](logs/2026-09-26T12-46-14Z-e2e-ee12.log) | C-13 web: polnyy UI posle predela ozhidaniya |
+| 26.09.2026 18:18 | e2e | ✅ 25 из 25 | 1 мин 1 с | c6f8a2e | [лог](logs/2026-09-26T13-18-19Z-e2e-06a7.log) | C-13 web: zhivye posle predela ozhidaniya |

@@ -21,7 +21,7 @@ export default async function AgentsPage() {
           <p>Создание и настройка помощников для вашего бизнеса.</p>
         </div>
         {!failure && (
-          <Link className="btn" href="/create">
+          <Link className="btn" href="/ai-seller/agents/new">
             Создать агента
           </Link>
         )}
@@ -71,7 +71,7 @@ export default async function AgentsPage() {
           <p>
             Расскажите о компании и задаче — настройки сохранятся в черновике вашей организации.
           </p>
-          <Link className="btn" href="/create">
+          <Link className="btn" href="/ai-seller/agents/new">
             Создать первого агента
           </Link>
         </section>

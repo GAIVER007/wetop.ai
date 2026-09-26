@@ -112,6 +112,49 @@ export class SellerAgentsService {
       return { id, updatedAt: updatedAt.toISOString() };
     });
   }
+  async create(body: unknown) {
+    const { userId, organizationId } = await this.owner();
+    if (!body || typeof body !== 'object' || Array.isArray(body))
+      throw new BadRequestException('Проверьте настройки');
+    const input = body as { id?: unknown; profile?: unknown };
+    if (typeof input.id !== 'string') throw new BadRequestException('Обновите форму');
+    const id = input.id;
+    this.validId(id);
+    const profile = wizardConfig(input.profile);
+    if (!profile.businessName || !profile.niche)
+      throw new BadRequestException('Заполните компанию и нишу');
+    const name = profile.assistantName || profile.businessName;
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${id}))::text`;
+      const existing = await tx.sellerAgent.findUnique({ where: { id } });
+      if (existing) {
+        if (existing.organizationId !== organizationId || existing.createdBy !== userId)
+          throw new NotFoundException('Агент не найден');
+        return { id };
+      }
+      await tx.sellerAgent.create({
+        data: {
+          id,
+          organizationId,
+          createdBy: userId,
+          name,
+          scenario: profile.botType || 'sales',
+          lifecycle: 'draft',
+          profile,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId,
+          entityType: 'seller-agent',
+          entityId: id,
+          action: 'agent.created',
+          after: { source: 'account', lifecycle: 'draft' },
+        },
+      });
+      return { id };
+    });
+  }
   async claim(token: string | undefined) {
     const { userId, organizationId } = await this.owner();
     if (!token || !/^wz_[a-f0-9]{64}$/.test(token))

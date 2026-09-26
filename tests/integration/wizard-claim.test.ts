@@ -77,6 +77,26 @@ it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
       await expect(
         wizard.save(first.guestToken, { revision: 1, step: 'review', config: { goal: 'changed' } }),
       ).rejects.toThrow();
+      const requestId = randomUUID();
+      const input = {
+        id: requestId,
+        profile: {
+          businessName: 'Synthetic direct',
+          niche: 'Hotel',
+          assistantName: 'Direct assistant',
+        },
+      };
+      await expect(agents.create(input)).rejects.toThrow();
+      const direct = await Promise.all(
+        [1, 2].map(() => withSignedInUser(actor, () => agents.create(input))),
+      );
+      expect(direct[0].id).toBe(direct[1].id);
+      expect((await withSignedInUser(actor, () => agents.get(requestId))).name).toBe(
+        'Direct assistant',
+      );
+      expect(
+        await db.auditLog.count({ where: { entityId: requestId, action: 'agent.created' } }),
+      ).toBe(1);
     } finally {
       if (session) await db.wizardSession.deleteMany({ where: { id: session } });
       await db.auditLog.deleteMany({ where: { entityType: 'seller-agent', userId: user } });

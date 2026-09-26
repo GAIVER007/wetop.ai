@@ -1675,6 +1675,7 @@ export const wizardApi = {
 
 export interface SellerAgentCard {id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}
 export const sellerAgentsApi = {
+  create: (id:string,profile:Record<string,string>) => sendJson<{id:string}>('POST','/seller-agents',{id,profile}),
   get: (id:string) => getJson<SellerAgentCard>('/seller-agents/'+encodeURIComponent(id)),
   update: (id:string,body:unknown) => sendJson<{id:string;updatedAt:string}>('PATCH','/seller-agents/'+encodeURIComponent(id),body),
   list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),

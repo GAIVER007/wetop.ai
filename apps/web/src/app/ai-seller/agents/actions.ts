@@ -11,3 +11,14 @@ export async function saveAgent(id: string, profile: Record<string, string>, upd
     throw e;
   }
 }
+
+export async function createAgent(id: string, profile: Record<string, string>) {
+  try {
+    const result = await sellerAgentsApi.create(id, profile);
+    revalidatePath('/ai-seller/agents');
+    return { ok: true as const, id: result.id };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false as const, error: e.message };
+    throw e;
+  }
+}

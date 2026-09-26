@@ -9,6 +9,10 @@ export class SellerAgentsController {
   @Get() @Header('Cache-Control', 'no-store') list() {
     return this.agents.list();
   }
+  @Post()
+  create(@Body() body: unknown) {
+    return this.agents.create(body);
+  }
   @Get(':id')
   get(@Param('id') id: string) {
     return this.agents.get(id);

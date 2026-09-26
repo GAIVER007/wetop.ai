@@ -2486,3 +2486,8 @@
 | 26.09.2026 17:05 | lint | ✅ без ошибок | 20 с | 429f0da | [лог](logs/2026-09-26T12-05-07Z-lint-909a.log) |  |
 | 26.09.2026 17:05 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 14 с | 429f0da | [лог](logs/2026-09-26T12-05-28Z-unit-7014.log) |  |
 | 26.09.2026 17:06 | e2e | ❌ код выхода 1 | 5 с | 429f0da | [лог](logs/2026-09-26T12-06-59Z-e2e-3f6c.log) | (ошибка вне тестов) |
+| 26.09.2026 17:58 | unit | ❌ упало 22 из 1904, пропущено 3 | 1 мин 56 с | f5e41a2 +13 | [лог](logs/2026-09-26T12-58-39Z-unit-94ec.log) | Seller catalogue release after main sync |
+| 26.09.2026 18:01 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 2 | 3 с | f5e41a2 +6 | [лог](logs/2026-09-26T13-01-41Z-integration-53af.log) | RED authenticated direct agent creation |
+| 26.09.2026 18:03 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 2 | 5 с | f5e41a2 +8 | [лог](logs/2026-09-26T13-03-08Z-integration-ed23.log) | GREEN direct account creation and idempotency |
+| 26.09.2026 18:04 | integration (частично: --config tests/wizard.config.ts) | ✅ 2 из 2 | 5 с | f5e41a2 +8 | [лог](logs/2026-09-26T13-04-11Z-integration-766b.log) | Direct creation lock result decoding fixed |
+| 26.09.2026 18:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-agent-editor.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 5 из 5 | 58 с | f5e41a2 +22 | [лог](logs/2026-09-26T13-07-09Z-e2e-264a.log) | Seller workspace regression after authenticated creation |

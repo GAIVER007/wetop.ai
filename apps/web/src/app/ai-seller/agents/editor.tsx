@@ -2,9 +2,18 @@
 import { useState, useEffect, useRef } from 'react';
 import type { SellerAgentCard } from '../../../lib/api';
 import { WizardFields, INITIAL_CONFIG } from '../../create/wizard-fields';
-import { saveAgent } from './actions';
+import { useRouter } from 'next/navigation';
+import { saveAgent, createAgent } from './actions';
 
-export function AgentEditor({ agent }: { agent: SellerAgentCard }) {
+export function AgentEditor({
+  agent,
+  creating = false,
+}: {
+  agent: SellerAgentCard;
+  creating?: boolean;
+}) {
+  const router = useRouter();
+  const creationId = useRef('');
   const [values, setValues] = useState({ ...INITIAL_CONFIG, ...agent.profile });
   const [saved, setSaved] = useState(JSON.stringify(values));
   const [version, setVersion] = useState(agent.updatedAt);
@@ -30,6 +39,15 @@ export function AgentEditor({ agent }: { agent: SellerAgentCard }) {
     setMessage('');
     const snapshot = JSON.stringify(values);
     try {
+      if (creating) {
+        creationId.current ||= crypto.randomUUID();
+        const created = await createAgent(creationId.current, values);
+        if (created.ok) {
+          setSaved(snapshot);
+          router.replace('/ai-seller/agents/' + created.id);
+        } else setError(created.error);
+        return;
+      }
       const result = await saveAgent(agent.id, values, version);
       if (result.ok) {
         setVersion(result.updatedAt);
@@ -65,15 +83,15 @@ export function AgentEditor({ agent }: { agent: SellerAgentCard }) {
               setMessage('');
             }}
           />
-          <button className="btn" type="submit" disabled={!dirty}>
-            Сохранить настройки
+          <button className="btn" type="submit" disabled={!dirty && !creating}>
+            {creating ? 'Создать агента' : 'Сохранить настройки'}
           </button>
         </fieldset>
       </form>
       <p role="status">
         {busy
           ? 'Сохраняем…'
-          : message || (dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены')}
+          : message || (creating ? 'Заполните данные и создайте черновик' : dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены')}
       </p>
       <p>
         Сохранение не запускает агента. Подключение новых агентов к модели и каналам ещё в

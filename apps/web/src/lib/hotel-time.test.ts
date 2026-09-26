@@ -54,3 +54,20 @@ it('API не ответил — пояс платформы, страница н
   const { hotelToday } = await import('./hotel-api');
   expect(await hotelToday()).toBe('2026-10-01');
 });
+
+/**
+ * Страница не ждёт настроек объекта дольше предела (поручение владельца 16.09: «выбираю период и нифига не
+ * открывает» — главная открывается, даже когда настройки гостиницы задерживаются). Ради пояса ждём не дольше
+ * `TIMEZONE_WAIT_MS`, дальше — пояс платформы, как было до С-13.
+ */
+it('настройки не ответили в срок — пояс платформы, страница не ждёт', async () => {
+  vi.useFakeTimers({ now: NOW, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => new Promise<Response>(() => {})),
+  );
+  const { TIMEZONE_WAIT_MS, hotelToday } = await import('./hotel-api');
+  const today = hotelToday();
+  await vi.advanceTimersByTimeAsync(TIMEZONE_WAIT_MS);
+  await expect(today).resolves.toBe('2026-10-01');
+});

@@ -89,16 +89,34 @@ export const hotelApi = {
 };
 
 /**
+ * Сколько страница ждёт настройки объекта ради пояса. Экраны намеренно не ждут настроек гостиницы (поручение
+ * владельца 16.09: «выбираю период и нифига не открывает»): API отдаёт их из своего кэша за миллисекунды,
+ * а задержались — стойка считает по поясу платформы, как до С-13, и не висит.
+ */
+export const TIMEZONE_WAIT_MS = 1000;
+
+/**
  * Пояс объекта для этого рендера (С-13, ТЗ аудита 25.09.2026): из `/hotel/settings` — тот же запрос, что
- * макет делает на каждой странице, `cache` не даёт ему повториться. API не ответил — пояс платформы:
- * экран не падает из-за часов, как не падает заголовок объекта в макете.
+ * макет делает на каждой странице, `cache` не даёт ему повториться. API не ответил или не успел за
+ * `TIMEZONE_WAIT_MS` — пояс платформы: экран не падает и не ждёт из-за часов.
  */
 export const propertyTimezone = cache(async (): Promise<string> => {
-  const hotel = await hotelApi.settings().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
+  const fromSettings = hotelApi.settings().then(
+    (hotel) => hotel.property.timezone || FALLBACK_TIMEZONE,
+    (error: unknown) => {
+      if (error instanceof ApiError) return FALLBACK_TIMEZONE;
+      throw error;
+    },
+  );
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<string>((resolve) => {
+    timer = setTimeout(() => resolve(FALLBACK_TIMEZONE), TIMEZONE_WAIT_MS);
   });
-  return hotel?.property.timezone || FALLBACK_TIMEZONE;
+  try {
+    return await Promise.race([fromSettings, late]);
+  } finally {
+    clearTimeout(timer);
+  }
 });
 /** Часы объекта для серверной страницы: «сегодня», месяц, моменты событий (`lib/property-time.ts`) */
 export const hotelClock = async (): Promise<PropertyClock> =>

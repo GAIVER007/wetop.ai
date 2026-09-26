@@ -2465,3 +2465,11 @@
 | 26.09.2026 16:59 | unit | ✅ 1910 из 1913, пропущено 3 | 1 мин 15 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-59-21Z-unit-04d8.log) | C-13 web: polnyy unit |
 | 26.09.2026 17:01 | integration | ✅ 84 из 84 | 27 с | 96cdb5e +4 | [лог](logs/2026-09-26T12-01-22Z-integration-3908.log) | C-13 web |
 | 26.09.2026 17:01 | e2e | ✅ 25 из 25 | 1 мин 5 с | 96cdb5e +49 | [лог](logs/2026-09-26T12-01-50Z-e2e-054a.log) | C-13 web: zhivye |
+| 26.09.2026 17:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 381 | 34 мин 45 с | 96cdb5e +49 | [лог](logs/2026-09-26T12-03-03Z-e2e-eae0.log) | C-13 web: polnyy UI (chasy obekta na stoyke) |
+| 26.09.2026 17:42 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ❌ упало 1 из 3 | 7 с | 24df31a +1 | [лог](logs/2026-09-26T12-42-00Z-unit-3fb5.log) | C-13 web: red - zhdat nastroyki ne dolshe predela |
+| 26.09.2026 17:42 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ✅ 3 из 3 | 2 с | 24df31a +2 | [лог](logs/2026-09-26T12-42-17Z-unit-3171.log) | C-13 web: green - predel ozhidaniya poyasa |
+| 26.09.2026 17:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/loading-performance.spec.ts tests/ui/real-data.spec.ts tests/ui/chessboard-extend.spe | ✅ 15 из 15 | 52 с | 24df31a +3 | [лог](logs/2026-09-26T12-42-39Z-e2e-8325.log) | C-13 web: tri upavshih posle pravki (predel ozhidaniya, shakhmatka v vykhodnye) |
+| 26.09.2026 17:43 | typecheck | ✅ без ошибок | 23 с | 24df31a +3 | [лог](logs/2026-09-26T12-43-39Z-typecheck-39ca.log) | C-13 web: predel ozhidaniya |
+| 26.09.2026 17:44 | lint | ✅ без ошибок | 15 с | 24df31a +3 | [лог](logs/2026-09-26T12-44-03Z-lint-5f62.log) | C-13 web: predel ozhidaniya |
+| 26.09.2026 17:44 | unit | ✅ 1911 из 1914, пропущено 3 | 1 мин 12 с | 24df31a +2 | [лог](logs/2026-09-26T12-44-18Z-unit-1f6e.log) | C-13 web: predel ozhidaniya, polnyy unit |
+| 26.09.2026 17:45 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ✅ 3 из 3 | 2 с | 24df31a +2 | [лог](logs/2026-09-26T12-45-35Z-unit-0f8c.log) | posle prettier |

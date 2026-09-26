@@ -2511,3 +2511,6 @@
 | 26.09.2026 19:58 | e2e | ✅ 25 из 25 | 48 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-54Z-e2e-ade3.log) | final: live e2e after db:local reset (clean stand, as TESTING.md requires) |
 | 26.09.2026 19:59 | typecheck | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T14-59-57Z-typecheck-282d.log) | final SHA cec8a797 |
 | 26.09.2026 20:00 | lint | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T15-00-04Z-lint-6eaf.log) | final SHA cec8a797 |
+| 26.09.2026 20:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts --grep мобильном экране --workers=1) | ❌ упало 1 из 1 | 9 с | 6f8cade +1 | [лог](logs/2026-09-26T15-47-46Z-e2e-4c82.log) | RED: step titles squeezed on 390px, flex-basis sits on the link instead of the list item |
+| 26.09.2026 20:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts tests/ui/seller-agent-editor.spec.ts --workers=1) | ✅ 5 из 5 | 16 с | 6f8cade +2 | [лог](logs/2026-09-26T15-48-18Z-e2e-aac0.log) | GREEN: step strip items get flex-basis on li; whole seller workspace + agent editor specs |
+| 26.09.2026 20:48 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts) | ✅ 24 из 24 | 1 с | 6f8cade +1 | [лог](logs/2026-09-26T15-48-35Z-unit-db66.log) | design guards after the strip fix |

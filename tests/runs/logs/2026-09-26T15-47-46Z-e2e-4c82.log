@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 26.09.2026 20:47 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6f8cade (claude/seller-steps-mobile-strip), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/seller-workspace.spec.ts' '--grep' 'мобильном экране' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/seller-workspace.spec.ts:22:1 › компактный статус и мастер помещаются на мобильном экране (2.2s)
+
+
+  1) tests/ui/seller-workspace.spec.ts:22:1 › компактный статус и мастер помещаются на мобильном экране 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 9
+
+    - Array []
+    + Array [
+    +   "Знакомство",
+    +   "Манера",
+    +   "Цены",
+    +   "Правила",
+    +   "Частые вопросы",
+    +   "Документы",
+    +   "Запуск",
+    + ]
+
+      36 |       titles.filter((t) => t.scrollWidth > t.clientWidth + 1).map((t) => t.textContent),
+      37 |     );
+    > 38 |   expect(clipped).toEqual([]);
+         |                   ^
+      39 | });
+      40 |
+      41 | test('превью: светлая и тёмная темы, мобильная ширина, без горизонтального скролла', async ({
+        at /Users/vyacheslav/Desktop/Проекты/WETOP-pr93/tests/ui/seller-workspace.spec.ts:38:19
+
+    Error Context: test-results/seller-workspace-компактны-55daa-ещаются-на-мобильном-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/seller-workspace-компактны-55daa-ещаются-на-мобильном-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/seller-workspace-компактны-55daa-ещаются-на-мобильном-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/seller-workspace.spec.ts:22:1 › компактный статус и мастер помещаются на мобильном экране 
+
+# код выхода 1 · 9 с

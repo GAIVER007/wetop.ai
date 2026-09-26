@@ -20,6 +20,7 @@ import {
   parseExtensionChange,
   INVITE_OWNER_ONLY_MESSAGE,
   type ExtensionStatus,
+  parseHotelSettingsPatch,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -511,6 +512,8 @@ function seedDesign() {
  * говорить, что броней нет, а не выглядеть сломанными.
  */
 let noBookings = false;
+/** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
+let hotelOverrides: Record<string, string | null> = {};
 /** Бронь создана на стенде после «пустой базы» — для «Первых шагов» (ТЗ ux-retention п. 2.1) */
 let createdReservation = false;
 // Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
@@ -1808,6 +1811,7 @@ function read(path: string, q: URLSearchParams): unknown {
         currency: 'KZT',
         checkInTime: '14:00',
         checkOutTime: '12:00',
+        ...hotelOverrides,
       },
       ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
       needsOnboarding: onboardingNeeded,
@@ -2490,6 +2494,7 @@ createServer(async (req, res) => {
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
+      hotelOverrides = {};
       onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
@@ -3145,6 +3150,14 @@ createServer(async (req, res) => {
       return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    if (path === '/hotel/settings' && req.method === 'PATCH') {
+      if (uiRole !== 'OWNER')
+        return send(403, { message: 'Сведения гостиницы меняет владелец организации' });
+      const parsed = parseHotelSettingsPatch(body);
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
+      return send(200, {});
+    }
     if (path === '/hotel/onboarding' && req.method === 'POST') {
       const cats = Array.isArray(body['categories']) ? (body['categories'] as unknown[]) : [];
       if (cats.length === 0)

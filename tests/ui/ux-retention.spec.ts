@@ -92,3 +92,35 @@ test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на ос�
   await page.goto('/today');
   await expect(page.locator('.workspace-search kbd')).toHaveText('Ctrl K');
 });
+
+/**
+ * П. 3.1 (UQ-1 — «да» владельца 26.09.2026): «Общие» настройки правит владелец организации, сотрудник только смотрит.
+ * Отказ API не стирает ввод. Валюта и часовой пояс остаются только для просмотра.
+ */
+test('владелец правит сведения гостиницы; отказ сохраняет ввод; сотрудник только смотрит (п. 3.1)', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await page.goto('/hotel-settings');
+  const form = page.getByTestId('hotel-settings-form');
+  await expect(form.getByLabel('Название', { exact: true })).toHaveValue('Luxx Aparts');
+  await expect(form.getByLabel('Валюта')).toHaveCount(0);
+  await form.getByLabel('Телефон').fill('+7 701 555 44 33');
+  await form.getByLabel('Заезд с').fill('15:00');
+  await form.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+  await page.reload();
+  await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
+  await expect(form.getByLabel('Заезд с')).toHaveValue('15:00');
+
+  await form.getByLabel('Почта').fill('не почта');
+  await form.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(form.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
+  await expect(form.getByLabel('Почта')).toHaveValue('не почта');
+
+  await control(request, { role: 'STAFF' });
+  await page.goto('/hotel-settings');
+  await expect(page.getByTestId('hotel-settings-form')).toHaveCount(0);
+  await expect(page.getByTestId('stored-property')).toContainText('Сведения меняет владелец организации');
+});

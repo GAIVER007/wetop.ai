@@ -1,4 +1,4 @@
-import { ApiError, wizardApi } from '../../../lib/api';
+import { ApiError, wizardApi, sellerAgentsApi } from '../../../lib/api';
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
   if (token && !/^wz_[a-f0-9]{64}$/.test(token))
     return json({ message: 'Сессия мастера недействительна' }, 401);
   try {
+    if (body.operation === 'claim') return json(await sellerAgentsApi.claim(token));
     if (body.operation === 'open')
       return json(
         await wizardApi.open(token, typeof body.ref === 'string' ? body.ref.slice(0, 200) : ''),

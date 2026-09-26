@@ -12,7 +12,7 @@ class WizardRequestError extends Error {
     super(message);
   }
 }
-async function call(body: unknown): Promise<WizardState> {
+async function call<T = WizardState>(body: unknown): Promise<T> {
   const response = await fetch('/api/wizard', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -25,7 +25,7 @@ async function call(body: unknown): Promise<WizardState> {
       typeof data.message === 'string' ? data.message : 'Не удалось сохранить. Повторите запрос',
       response.status,
     );
-  return data as WizardState;
+  return data as T;
 }
 
 export function useGuestDraft() {
@@ -121,6 +121,21 @@ export function useGuestDraft() {
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
 
+  async function claim() {
+    if (saving.current || busy || dirty) return;
+    setBusy(true);
+    setError('');
+    try {
+      const result = await call<{ id: string }>({ operation: 'claim', token: token.current });
+      // Keep the bearer until the server has confirmed the idempotent claim.
+      localStorage.removeItem(STORAGE_KEY);
+      location.assign('/ai-seller/agents/' + encodeURIComponent(result.id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Не удалось сохранить агента');
+    } finally {
+      setBusy(false);
+    }
+  }
   function restart() {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -144,5 +159,6 @@ export function useGuestDraft() {
     open,
     save,
     restart,
+    claim,
   };
 }

@@ -1,0 +1,444 @@
+# Модульные (unit) · 26.09.2026 18:53 Алматы · eb7bda122ebb
+# коммит 93b9884 (codex/seller-agent-handoff)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-53-49Z-unit-3689.json'
+
+ RUN  v5.0.0 /w
+
+[Nest] 204  - 09/26/2026, 1:54:05 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 204  - 09/26/2026, 1:54:05 PM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 204  - 09/26/2026, 1:54:05 PM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+ ✓  unit  apps/api/src/guard/guard.service.test.ts (32 tests) 371ms
+ ✓  unit  packages/integrations/src/channex/client.test.ts (18 tests) 452ms
+[Nest] 201  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ✓  unit  apps/api/src/finance/finance.controller.test.ts (11 tests) 3456ms
+   ✓ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (11)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 1070ms
+[Nest] 202  - 09/26/2026, 1:54:10 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 202  - 09/26/2026, 1:54:10 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+ ✓  unit  apps/api/src/channels/channels.controller.test.ts (10 tests) 3630ms
+   ✓ Channex setup and full sync (contract on fakes) (10)
+     ✓ setup creates property, room types and one rate plan per category, saves mapping; second run creates nothing 370ms
+[Nest] 202  - 09/26/2026, 1:54:10 PM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 202  - 09/26/2026, 1:54:10 PM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 202  - 09/26/2026, 1:54:10 PM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓  unit  apps/api/src/channels/inbound.controller.test.ts (30 tests) 4082ms
+   ✓ inbound bookings from Channex (contract on fakes) (30)
+     ✓ pull: new revision → reservation with the first free unit (Q-094), event PROCESSED without card data, ack; same revision again → duplicate skipped but acked; no free unit → without unit and a warning 1328ms
+ ✓  unit  apps/api/src/reservations/reservations.controller.test.ts (28 tests) 4089ms
+   ✓ manual reservation API (28)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 850ms
+ ✓  unit  tests/unit/deploy-server.test.ts (33 tests) 506ms
+ ✓  unit  apps/web/src/lib/ai-seller.test.ts (36 tests) 401ms
+ ✓  unit  tests/unit/test-journal.test.ts (22 tests) 210ms
+ ✓  unit  packages/integrations/src/assistant/bot-panel-client.test.ts (22 tests) 811ms
+   ✓ SellerClient — адреса и ключ (6)
+     ✓ список диалогов: адрес панели, служебный ключ заголовком, не в адресе 340ms
+ ✓  unit  apps/api/src/ai-seller/ai-seller.controller.test.ts (45 tests) 5395ms
+   ✓ состояние раздела (4)
+     ✓ без адреса и ключа продавца — «не подключён» 1864ms
+   ✓ профиль (П5) (4)
+     ✓ неверные поля — 400 со всеми причинами, ничего не сохранено 612ms
+   ✓ рассказ владельца → поля мастера (С1, план `plans/seller-partner-bot-2026-09-25.md`) (6)
+     ✓ настройка — владельцу с действующим расширением 383ms
+ ✓  unit  apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 668ms
+ ✓  unit  apps/api/src/auth/auth.service.test.ts (31 tests) 7194ms
+   ✓ AuthService.login (9)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 687ms
+     ✓ два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5) 909ms
+     ✓ пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5) 350ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 920ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 483ms
+     ✓ слабый новый пароль отклоняется с объяснением 468ms
+ ✓  unit  apps/api/src/auth/auth.guard.test.ts (25 tests) 171ms
+ ✓  unit  apps/api/src/platform/support.controller.test.ts (15 tests) 1022ms
+   ✓ только главный администратор (2)
+     ✓ владелец организации получает 403 на всё, помощника не спрашиваем 306ms
+ ✓  unit  scripts/imports/src/exely/seat-plan.test.ts (20 tests) 295ms
+[Nest] 1385  - 09/26/2026, 1:54:29 PM   ERROR [OutboxWorker] Channex отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ✓  unit  apps/api/src/channels/outbox.test.ts (9 tests) 231ms
+ ✓  unit  apps/api/src/assistant/assistant.controller.test.ts (19 tests) 4815ms
+   ✓ GET /assistant/identity — подпись вошедшего (ТЗ П1) (7)
+     ✓ вошедшему отдаёт токен, который сходится с общим секретом и несёт поля сессии 495ms
+     ✓ служебный ключ — не человек: подписи нет 903ms
+ ✓  unit  packages/domain/src/incidents/signals.test.ts (15 tests) 79ms
+ ✓  unit  packages/database/src/pool-timeouts.test.ts (5 tests) 13650ms
+   ✓ пул соединений: мёртвое соединение не вешает процесс (5)
+     ✓ запрос без ответа завершается ошибкой в срок, а следующий идёт по новому соединению 8072ms
+     ✓ запрос без ответа внутри транзакции: транзакция падает в срок, соединение не возвращается в пул 2552ms
+     ✓ все места пула заняты зависшими запросами — ожидание места ограничено сроком 744ms
+     ✓ сервер принял TCP-соединение и молчит — подключение завершается ошибкой в срок 652ms
+     ✓ срок не трогает живое соединение: ответ до срока приходит, простой в пуле дольше срока соединение не закрывает 1574ms
+ ✓  unit  apps/api/src/guests/guests.controller.test.ts (10 tests) 2898ms
+   ✓ guests API (10)
+     ✓ пока база не в Казахстане (PII_STORAGE не real, ADR-072) (4)
+       ✓ новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано 903ms
+ ✓  unit  apps/api/src/units/units.controller.test.ts (5 tests) 2680ms
+   ✓ units API: blocks and housekeeping (5)
+     ✓ GET /units/:code returns the card; 404 for unknown 1093ms
+ ✓  unit  apps/api/src/web-booking/web-booking.controller.test.ts (14 tests) 3565ms
+   ✓ виджет бронирования /w/* (14)
+     ✓ лимит: шестая бронь с одного адреса за час — 429 960ms
+     ✓ Д3: за туннелем Cloudflare все запросы приходят с 127.0.0.1 — лимит считается по CF-Connecting-IP посетителя 904ms
+ ✓  unit  tests/unit/db-backup.test.ts (12 tests) 5740ms
+   ✓ db-backup.sh: ночная копия рабочей базы (12)
+     ✓ снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается 608ms
+     ✓ адрес из BACKUP_DATABASE_URL важнее .env 347ms
+     ✓ работает вне клона, как в контейнере postgres:17: скрипт и .env смонтированы отдельными файлами 505ms
+     ✓ адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL 302ms
+     ✓ параметры Prisma из адреса срезаются: pg_dump их не понимает и падает 382ms
+     ✓ после проверенной копии пишет статус для сторожа: его читает разбор домена, права 644, папка 755 1033ms
+     ✓ упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную 1369ms
+     ✓ копии старше срока удаляются, свежие и чужие файлы остаются 605ms
+[Nest] 1685  - 09/26/2026, 1:54:45 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/w/apps/api/src/rates/rates.controller.test.ts:296:13)
+    at /w/apps/api/src/rates/rates.service.ts:191:37
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Proxy.applyChanges (/w/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/w/apps/api/src/rates/rates.service.ts:180:20)
+    at file:///w/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///w/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓  unit  apps/api/src/rates/rates.controller.test.ts (9 tests) 3469ms
+   ✓ rates API (9)
+     ✓ GET /rates returns the calendar for a category × tariff 760ms
+ ✓  unit  apps/api/src/channels/schedule.test.ts (26 tests) 50ms
+ ✓  unit  packages/domain/src/ai-seller/profile.test.ts (15 tests) 25ms
+ ✓  unit  apps/web/src/design-rules.test.ts (13 tests) 567ms
+ ✓  unit  apps/api/src/channels/channels.test.ts (9 tests) 30ms
+ ✓  unit  packages/domain/src/reservations/reservations.test.ts (16 tests) 28ms
+ ✓  unit  scripts/design/build-tokens.test.ts (14 tests) 118ms
+ ✓  unit  tests/unit/site-design.test.ts (6 tests) 97ms
+ ✓  unit  packages/integrations/src/channex/channel-names.test.ts (11 tests) 62ms
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] webhook Channex под подозрением: бронь 2026-09-11T13:57:28.000Z пришла опросом ленты, webhook её не доставил. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 3068  - 09/26/2026, 1:54:49 PM     LOG [WebhookHealthService] webhook Channex снова доставляет события — подозрение снято
+[Nest] 3068  - 09/26/2026, 1:54:49 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: НЕ отвечает
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 3068  - 09/26/2026, 1:54:49 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] в Channex зарегистрирован https://old-quick.trycloudflare.com/channels/channex/webhook, а постоянный адрес PMS — https://api.wetop.ai/channels/channex/webhook: перерегистрируйте webhook на /channels
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] webhook Channex под подозрением: зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь. Опрашиваю ленту каждую минуту; проверьте туннель/адрес (scripts/ops/channex-tunnel.sh) — после перерегистрации пробный вызов снимет подозрение
+[Nest] 3068  - 09/26/2026, 1:54:49 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 3068  - 09/26/2026, 1:54:49 PM     LOG [WebhookHealthService] адрес webhook https://tunnel.example/channels/channex/webhook: отвечает
+[Nest] 3068  - 09/26/2026, 1:54:49 PM    WARN [WebhookHealthService] адрес webhook не проверен: Channex 502
+ ✓  unit  apps/api/src/channels/webhook-health.test.ts (10 tests) 50ms
+ ✓  unit  tests/unit/launchd-install.test.ts (6 tests | 3 skipped) 798ms
+   ✓ launchd install.sh (6)
+     ✓ службам пул не урезаем: у API он свой 346ms
+ ✓  unit  apps/api/src/accounts/invites.controller.test.ts (8 tests) 1293ms
+ ✓  unit  apps/api/src/guard/api-error.filter.test.ts (9 tests) 3646ms
+   ✓ журнал ошибок человека (П3) (9)
+     ✓ вошедшему пишет шаблон маршрута, код, текст ответа и идентификатор запроса 645ms
+     ✓ почта в тексте ответа маскируется 442ms
+     ✓ 500 пишется и человеку, и в неисправности сторожа, как раньше 1322ms
+     ✓ одна и та же ошибка подряд — одна строка 424ms
+ ✓  unit  packages/domain/src/ai-seller/facts.test.ts (13 tests) 990ms
+   ✓ sellerFactsWindow — окно цен от сегодняшнего дня объекта (1)
+     ✓ 60 дней, день — по поясу объекта 440ms
+   ✓ sellerFactsHash — отпечаток фактов (2)
+     ✓ те же данные — тот же отпечаток; другая цена — другой 308ms
+ ✓  unit  apps/api/src/analytics/analytics.controller.test.ts (11 tests) 3187ms
+   ✓ сайты и отчёты /analytics (11)
+     ✓ создание сайта: ключ pms_ + 12 hex, домены нормализованы, код для вставки содержит ключ 1222ms
+     ✓ список сайтов и карточка со статусом счётчика 529ms
+     ✓ отчёт за период — контрольные числа гейта 568ms
+ ✓  unit  scripts/reconciliation/src/cutover-compare.test.ts (14 tests) 49ms
+ ✓  unit  scripts/imports/src/exely/normalize-reservation.test.ts (8 tests) 36ms
+ ✓  unit  packages/domain/src/finance/finance.test.ts (17 tests) 49ms
+ ✓  unit  packages/domain/src/chessboard/build.test.ts (11 tests) 76ms
+ ✓  unit  packages/integrations/src/mail/resend.test.ts (15 tests) 117ms
+ ✓  unit  tests/unit/design-slop.test.ts (11 tests) 10ms
+ ✓  unit  apps/api/src/auth/password-reset.service.test.ts (13 tests) 1281ms
+ ✓  unit  apps/api/src/chessboard/chessboard.controller.test.ts (7 tests) 1227ms
+ ✓  unit  apps/api/src/hotel/onboarding.test.ts (8 tests) 61ms
+ ✓  unit  apps/web/src/lib/api.test.ts (15 tests) 1628ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 1170ms
+   ✓ при включённом входе 401 ведёт на экран входа 351ms
+ ✓  unit  packages/domain/src/incidents/incidents.test.ts (17 tests) 21ms
+ ✓  unit  tests/unit/repo-sync.test.ts (18 tests) 62709ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 4062ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 1861ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 2448ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 3278ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 6848ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 7218ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 2895ms
+     ✓ чужой remote или папка не под git — код 2 и ни одного действия 2502ms
+     ✓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту 4476ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 10178ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 4625ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 1224ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 2263ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 4475ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 1172ms
+     ✓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению 529ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 813ms
+     ✓ находит вторую копию репозитория рядом с папкой 1598ms
+ ✓  unit  packages/domain/src/web-analytics/metrics.test.ts (13 tests) 139ms
+ ✓  unit  apps/api/src/analytics/collect.controller.test.ts (15 tests) 773ms
+ ✓  unit  apps/api/src/audit/audit.service.test.ts (9 tests) 28ms
+ ✓  unit  packages/shared/src/pii-residency.test.ts (16 tests) 44ms
+ ✓  unit  apps/api/src/platform/platform.controller.test.ts (7 tests) 397ms
+ ✓  unit  apps/api/src/accounts/sessions.controller.test.ts (6 tests) 761ms
+ ✓  unit  apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 18ms
+ ✓  unit  packages/domain/src/assistant/user-errors.test.ts (38 tests) 26ms
+ ✓  unit  tests/unit/auto-deploy.test.ts (9 tests) 15508ms
+   ✓ scripts/ops/auto-deploy.sh (9)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 1047ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1292ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 1468ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 4198ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 800ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 966ms
+     ✓ локальные правки в клоне — не затирает их 413ms
+     ✓ историю ветки переписали — не выкладывает поверх 1597ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3664ms
+ ✓  unit  packages/domain/src/dashboard/metrics.test.ts (8 tests) 24ms
+ ✓  unit  apps/api/src/web-booking/bot-quote.controller.test.ts (6 tests) 1557ms
+   ✓ котировка продавца /bot/availability (6)
+     ✓ предел частоты на организацию — 429, ключ платформы в ответе не всплывает 802ms
+ ✓  unit  apps/api/src/database/property-ref.test.ts (9 tests) 15ms
+ ✓  unit  apps/api/src/channels/content.test.ts (6 tests) 51ms
+ ✓  unit  scripts/reconciliation/src/system-trace.test.ts (9 tests) 29ms
+ ✓  unit  scripts/reconciliation/src/test-data-purge-rules.test.ts (11 tests) 36ms
+ ✓  unit  packages/integrations/src/telegram/client.test.ts (8 tests) 166ms
+ ✓  unit  apps/api/src/desk/desk.controller.test.ts (3 tests) 924ms
+ ✓  unit  apps/api/src/hotel/hotel.controller.test.ts (12 tests) 1153ms
+ ✓  unit  apps/api/src/finance/finance-audit-transaction.test.ts (4 tests) 51ms
+ ✓  unit  apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 65ms
+ ✓  unit  scripts/reconciliation/src/morning-report.test.ts (7 tests) 33ms
+ ✓  unit  tests/unit/ari-switch-server.test.ts (6 tests) 538ms
+ ✓  unit  packages/domain/src/accounts/accounts.test.ts (23 tests) 1033ms
+   ✓ hashPassword и verifyPassword (3)
+     ✓ хеш не содержит самого пароля и узнаёт его обратно 360ms
+ ✓  unit  apps/web/src/lib/assistant-widget.test.ts (15 tests) 226ms
+ ✓  unit  apps/api/src/hotel/reservation-directory.test.ts (8 tests) 41ms
+ ✓  unit  scripts/reconciliation/src/rollback-window.test.ts (10 tests) 18ms
+ ✓  unit  tests/unit/launchd-domain-guard.test.ts (4 tests) 684ms
+   ✓ install.sh domain: две проверки до установки (4)
+     ✓ с заполненным конфигом и молчащим адресом обе проверки пропускают 358ms
+ ✓  unit  packages/integrations/src/exely/client.test.ts (7 tests) 107ms
+ ✓  unit  scripts/reconciliation/src/e2e-cleanup-rules.test.ts (12 tests) 14ms
+ ✓  unit  apps/api/src/auth/auth.controller.test.ts (5 tests) 41ms
+ ✓  unit  packages/domain/src/accounts/extensions.test.ts (10 tests) 168ms
+ ✓  unit  packages/domain/src/incidents/alerts.test.ts (10 tests) 16ms
+ ✓  unit  apps/site/src/lib/posts.test.ts (10 tests) 30ms
+ ✓  unit  packages/domain/src/onboarding/plan.test.ts (15 tests) 27ms
+ ✓  unit  packages/integrations/src/assistant/identity.test.ts (11 tests) 20ms
+ ✓  unit  packages/domain/src/web-analytics/source.test.ts (11 tests) 21ms
+ ✓  unit  tests/unit/channex-booking-receiving.test.ts (6 tests) 232ms
+ ✓  unit  scripts/ops/accounts-args.test.ts (12 tests) 48ms
+ ✓  unit  tests/unit/desk-glass.test.ts (5 tests) 18ms
+ ✓  unit  scripts/ops/slow-report.test.ts (9 tests) 26ms
+ ✓  unit  tests/unit/launchd-status.test.ts (4 tests) 854ms
+ ✓  unit  apps/api/src/channels/webhook-register.test.ts (4 tests) 67ms
+ ✓  unit  scripts/ops/watch/watch-logic.test.ts (8 tests) 1024ms
+   ✓ запуск без сборки (1)
+     ✓ Node 24 загружает модуль как есть (в контейнер едут .ts файлы без компиляции) 971ms
+ ✓  unit  packages/domain/src/web-booking/request.test.ts (21 tests) 8ms
+ ✓  unit  apps/api/src/auth/request-context.test.ts (11 tests) 23ms
+ ✓  unit  apps/web/src/app/incidents/incident-view.test.ts (14 tests) 7ms
+ ✓  unit  apps/web/src/lib/action-preview.test.ts (8 tests) 9ms
+ ✓  unit  apps/web/src/app/reservations/actions.test.ts (5 tests) 222ms
+ ✓  unit  tests/unit/test-data-source.test.ts (9 tests) 99ms
+ ✓  unit  apps/api/src/auth/registration-access.test.ts (10 tests) 2804ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 731ms
+     ✓ настройка true: прямой HTTP-запрос получает 403 без записей 306ms
+     ✓ настройка undefined: регистрация и повторный вход доступны 409ms
+ ✓  unit  tests/unit/ari-server.test.ts (5 tests) 539ms
+ ✓  unit  apps/api/src/reservations/audit-card-redact.test.ts (2 tests) 14ms
+ ✓  unit  packages/domain/src/availability/availability.test.ts (4 tests) 57ms
+ ✓  unit  tests/unit/run-lock.test.ts (8 tests) 294ms
+ ✓  unit  packages/integrations/src/exely/universal.test.ts (5 tests) 170ms
+ ❯  unit  tests/unit/e2e-auth-config.test.ts (3 tests | 1 failed) 5442ms
+   ❯ конфиг e2e и замок API (3)
+     × изолированный API проверяет сессии без рабочего SESSION_SECRET 5071ms
+     ✓ без переменной прогон идёт как раньше: замка нет, шага входа нет 347ms
+     ✓ E2E_AUTH=1 включает замок на стенде, вход перед спеками и служебный ключ 20ms
+ ✓  unit  apps/api/src/inventory/inventory.controller.test.ts (4 tests) 4777ms
+   ✓ GET /inventory (4)
+     ✓ /inventory/summary returns totals, categories and property 601ms
+ ✓  unit  apps/api/src/health/health.test.ts (5 tests) 2694ms
+   ✓ GET /health (5)
+     ✓ живая база — 200 и status ok 538ms
+ ✓  unit  apps/api/src/database/connection.test.ts (7 tests) 2725ms
+   ✓ Database connection through the real API application (7)
+     ✓ reads stored property/counts and identifies Supabase without returning credentials or IDs 807ms
+ ✓  unit  apps/api/src/dashboard/dashboard.controller.test.ts (2 tests) 699ms
+ ✓  unit  tests/unit/test-schema-plan.test.ts (5 tests) 13ms
+ ✓  unit  apps/web/src/lib/platform.test.ts (4 tests) 16ms
+ ✓  unit  packages/domain/src/incidents/redact.test.ts (7 tests) 31ms
+ ✓  unit  apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 18ms
+ ✓  unit  scripts/imports/src/exely/import-screen.test.ts (4 tests) 5ms
+ ✓  unit  scripts/reconciliation/src/cutover-ambiguous.test.ts (9 tests) 11ms
+ ✓  unit  scripts/lib/desk-page.test.ts (8 tests) 12ms
+ ✓  unit  scripts/lib/service-api.test.ts (8 tests) 113ms
+ ✓  unit  packages/domain/src/web-analytics/hit.test.ts (15 tests) 7ms
+ ✓  unit  tests/unit/seed-local.test.ts (6 tests) 7ms
+ ✓  unit  apps/api/src/rate-window.test.ts (5 tests) 18ms
+ ✓  unit  scripts/imports/src/exely/price-calendar.test.ts (4 tests) 58ms
+ ✓  unit  scripts/preview/real-config.test.ts (24 tests) 111ms
+ ✓  unit  apps/api/src/auth/author.interceptor.test.ts (6 tests) 21ms
+ ✓  unit  apps/api/src/channels/connection.test.ts (10 tests) 10ms
+ ✓  unit  tests/unit/e2e-windows.test.ts (3 tests) 12ms
+ ✓  unit  apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 129ms
+ ✓  unit  apps/api/src/channels/ari-switch.test.ts (4 tests) 10ms
+ ✓  unit  scripts/imports/src/exely/adapt-universal.test.ts (2 tests) 5ms
+ ✓  unit  scripts/reconciliation/src/cancellations.test.ts (6 tests) 7ms
+ ✓  unit  apps/site/src/lib/site.test.ts (8 tests) 18ms
+ ✓  unit  apps/web/src/lib/desk-person.test.ts (3 tests) 26ms
+ ✓  unit  packages/domain/src/accounts/registration.test.ts (11 tests) 5ms
+ ✓  unit  packages/domain/src/web-analytics/device.test.ts (18 tests) 27ms
+ ✓  unit  scripts/imports/src/exely/anonymize.test.ts (6 tests) 16ms
+[Nest] 7030  - 09/26/2026, 1:55:27 PM     LOG [ChannexSyncService] полная выгрузка по расписанию: остатков 1, ограничений 1, задачи t1, t2
+[Nest] 7030  - 09/26/2026, 1:55:27 PM     LOG [ChannexSyncService] полная выгрузка вручную: остатков 1, ограничений 1, задачи t1, t2
+ ✓  unit  apps/api/src/channels/sync-schedule.test.ts (5 tests) 27ms
+ ✓  unit  packages/integrations/src/mail/stub.test.ts (8 tests) 8ms
+ ✓  unit  packages/domain/src/dashboard/period.test.ts (4 tests) 12ms
+ ✓  unit  tests/unit/ci-runner.test.ts (4 tests) 18ms
+ ✓  unit  packages/domain/src/property/property.test.ts (3 tests) 1274ms
+   ✓ реквизиты объекта (3)
+     ✓ ИИН/БИН объекта в коде не держим 1249ms
+ ✓  unit  apps/api/src/dashboard/dashboard.service.test.ts (1 test) 3ms
+ ✓  unit  apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 16ms
+ ✓  unit  packages/domain/src/accounts/reset.test.ts (9 tests) 11ms
+ ✓  unit  tests/unit/local-db-migrate-target.test.ts (1 test) 152ms
+[Nest] 7116  - 09/26/2026, 1:55:28 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓  unit  apps/api/src/analytics/retention.service.test.ts (4 tests) 8ms
+ ✓  unit  scripts/reconciliation/src/day-selfcheck.test.ts (6 tests) 11ms
+ ✓  unit  apps/api/src/auth/me-access.test.ts (2 tests) 633ms
+ ✓  unit  packages/domain/src/reservations/cutover-match.test.ts (6 tests) 4ms
+ ✓  unit  tests/unit/no-hardcoded-utc5.test.ts (1 test) 15ms
+ ✓  unit  packages/shared/src/auth-hash.test.ts (11 tests) 29ms
+stdout | tests/unit/desk-health.test.ts > стенд стойки перед e2e > пятисотка не от сборки прогон не останавливает, но называется
+[стенд] 500 на страницах: /finance — причина в журнале стойки
+
+ ✓  unit  tests/unit/desk-health.test.ts (5 tests) 11ms
+ ✓  unit  packages/domain/src/accounts/trial.test.ts (11 tests) 42ms
+ ✓  unit  apps/api/src/inventory/inventory.repository.test.ts (1 test) 8ms
+ ✓  unit  apps/api/src/channels/gateway-failure.test.ts (4 tests) 9ms
+ ✓  unit  apps/api/src/channels/ari-delta-lost.test.ts (3 tests) 26ms
+ ✓  unit  scripts/imports/src/exely/manual-seat.test.ts (4 tests) 13ms
+ ✓  unit  scripts/imports/src/exely/build-inventory-plan.test.ts (5 tests) 6ms
+ ✓  unit  packages/database/src/pool.test.ts (4 tests) 6ms
+ ✓  unit  apps/api/src/web-booking/client-ip.test.ts (4 tests) 11ms
+[Nest] 7202  - 09/26/2026, 1:55:30 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): Connection terminated
+[Nest] 7202  - 09/26/2026, 1:55:30 PM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (MALE 2026-09-20 → 2026-09-22): очередь недоступна
+[Nest] 7202  - 09/26/2026, 1:55:30 PM   ERROR [AriPublisher] След потерянной дельты не записан: и журнал недоступен
+ ✓  unit  tests/unit/nest-http-adapter.test.ts (2 tests) 9ms
+ ✓  unit  apps/api/src/rates/restriction-merge.test.ts (5 tests) 6ms
+ ✓  unit  scripts/reconciliation/src/rates-compare.test.ts (2 tests) 4ms
+ ✓  unit  apps/api/src/accounts/cookie.test.ts (10 tests) 5ms
+ ✓  unit  packages/domain/src/accounts/roles.test.ts (5 tests) 6ms
+ ✓  unit  apps/api/src/guard/backup-status.test.ts (3 tests) 33ms
+ ✓  unit  apps/api/src/channels/revision-facts.test.ts (3 tests) 7ms
+ ✓  unit  packages/domain/src/housekeeping/flow.test.ts (5 tests) 16ms
+ ✓  unit  scripts/reconciliation/src/inventory-compare.test.ts (3 tests) 6ms
+ ✓  unit  apps/api/src/rates/rate-history.test.ts (3 tests) 12ms
+ ✓  unit  apps/web/src/lib/block-types.test.ts (2 tests) 9ms
+ ✓  unit  apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 7ms
+ ✓  unit  apps/api/src/channels/outbox-rows.test.ts (3 tests) 6ms
+ ✓  unit  packages/domain/src/inventory/summarize.test.ts (1 test) 7ms
+ ✓  unit  apps/api/src/accounts/actor.test.ts (5 tests) 21ms
+ ✓  unit  tests/unit/local-db-start.test.ts (1 test) 92ms
+ ✓  unit  scripts/imports/src/exely/parse-inventory.test.ts (4 tests) 5ms
+ ✓  unit  apps/api/src/dashboard/dashboard.repository.test.ts (1 test) 11ms
+ ✓  unit  packages/domain/src/accounts/invite.test.ts (5 tests) 14ms
+ ✓  unit  scripts/reconciliation/src/ui-smoke.test.ts (3 tests) 4ms
+ ✓  unit  packages/domain/src/accounts/session-device.test.ts (2 tests) 2ms
+ ✓  unit  apps/web/src/app/form-retention.test.ts (4 tests) 62ms
+ ✓  unit  packages/domain/src/incidents/kinds-doc.test.ts (1 test) 16ms
+ ✓  unit  apps/web/src/app/guests/[id]/stay-now.test.ts (3 tests) 17ms
+ ✓  unit  tests/unit/test-database-guard.test.ts (3 tests) 4ms
+ ✓  unit  packages/domain/src/accounts/session.test.ts (6 tests) 4ms
+ ✓  unit  scripts/imports/src/exely/rate-plans.test.ts (3 tests) 8ms
+[Nest] 7473  - 09/26/2026, 1:55:33 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓  unit  apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 14ms
+ ✓  unit  apps/web/src/app/journal/journal-view.test.ts (6 tests) 8ms
+ ✓  unit  tests/unit/launchd-web-start.test.ts (1 test) 2290ms
+   ✓ exit-with-parent (1)
+     ✓ дочерний процесс завершается сам, когда родителя убили SIGKILL 2265ms
+ ✓  unit  packages/integrations/src/mail/invite-letter.test.ts (3 tests) 9ms
+ ✓  unit  tests/unit/fixture-incident-kinds.test.ts (1 test) 29ms
+ ✓  unit  apps/api/src/freshness/freshness.test.ts (2 tests) 4ms
+ ✓  unit  apps/web/src/lib/channels-sync.test.ts (2 tests) 270ms
+ ✓  unit  scripts/imports/src/exely/guest-fields.test.ts (4 tests) 7ms
+ ✓  unit  apps/api/src/reservations/rate-plans-read.test.ts (1 test) 3ms
+ ✓  unit  packages/database/src/schema.test.ts (4 tests) 15ms
+ ✓  unit  tests/unit/desk-auth.test.ts (4 tests) 12ms
+ ✓  unit  packages/domain/src/accounts/session-renew.test.ts (4 tests) 6ms
+ ✓  unit  apps/web/src/lib/dashboard-format.test.ts (4 tests) 7ms
+ ✓  unit  tests/unit/migrations-rollback.test.ts (25 tests) 24ms
+ ✓  unit  packages/domain/src/availability/category.test.ts (1 test) 5ms
+ ✓  unit  apps/api/src/listen-address.test.ts (5 tests) 4ms
+ ✓  unit  apps/web/src/app/login/signed-in.test.ts (8 tests) 8ms
+ ✓  unit  apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 3ms
+ ✓  unit  scripts/reconciliation/src/chunk.test.ts (3 tests) 34ms
+ ✓  unit  apps/web/src/lib/plural.test.ts (2 tests) 9ms
+ ✓  unit  apps/web/src/lib/auth-lock.test.ts (2 tests) 2ms
+ ✓  unit  apps/web/src/lib/route-param.test.ts (3 tests) 15ms
+ ✓  unit  apps/api/src/chessboard/stay-facts.test.ts (2 tests) 13ms
+ ✓  unit  apps/web/src/app/channels/actions.test.ts (2 tests) 21ms
+ ✓  unit  apps/api/src/inventory/inventory-input.test.ts (2 tests) 34ms
+ ✓  unit  tests/unit/fixture-demo.test.ts (1 test) 4616ms
+   ✓ local demo preview (1)
+     ✓ starts its synthetic API without a database or providers 4608ms
+ ✓  unit  packages/domain/src/guests/citizenship.test.ts (3 tests) 3ms
+ ✓  unit  scripts/imports/src/exely/parse-accommodation-types.test.ts (2 tests) 7ms
+ ✓  unit  tests/unit/guard-drill-staging.test.ts (1 test) 5187ms
+   ✓ guard-drill outbox refuses a production Channex address before touching the API 5170ms
+ ✓  unit  apps/web/src/app/analytics/actions.test.ts (3 tests) 5ms
+ ✓  unit  packages/shared/src/pii-crypto.test.ts (3 tests) 18ms
+ ✓  unit  apps/api/src/app.module.test.ts (1 test) 160ms
+ ✓  unit  scripts/imports/src/exely/parse-services.test.ts (2 tests) 28ms
+ ✓  unit  packages/shared/src/markdown-table.test.ts (3 tests) 43ms
+ ✓  unit  packages/domain/src/web-analytics/retention.test.ts (3 tests) 57ms
+ ✓  unit  apps/web/src/lib/money.test.ts (3 tests) 23ms
+ ✓  unit  packages/database/src/client-errors.test.ts (1 test) 462ms
+   ✓ createPrismaClient (1)
+     ✓ ошибки без аргументов вызова: errorFormat minimal 454ms
+ ✓  unit  apps/web/src/lib/almaty.test.ts (2 tests) 9ms
+ ✓  unit  tests/unit/scaffold.test.ts (1 test) 7ms
+ ✓  unit  apps/web/src/app/chessboard/extend-plan.test.ts (2 tests) 5ms
+ ✓  unit  apps/web/src/app/chessboard/week-period.test.ts (9 tests) 6ms
+ ✓  unit  apps/web/src/app/chessboard/month-period.test.ts (7 tests) 4ms
+ ✓  unit  apps/web/src/lib/seller-navigation.test.ts (2 tests) 6ms
+ ✓  unit  packages/shared/src/text.test.ts (2 tests) 4ms
+ ✓  unit  apps/api/src/inventory/empty-category.test.ts (1 test) 4ms
+ ✓  unit  tests/unit/channex-tunnel-guard.test.ts (7 tests) 74963ms
+   ✓ scripts/ops/channex-tunnel.sh: постоянный адрес важнее быстрого туннеля (7)
+     ✓ в Channex записан одноразовый туннель — работаем как прежде 21535ms
+     ✓ осознанный запуск с ALLOW_QUICK_TUNNEL=1 проходит защиту 20696ms
+     ✓ без постоянного адреса работает как прежде 21077ms
+     ✓ API ещё не поднялся — ждёт статус, не дождавшись, отказывается, а не считает адрес свободным 6171ms
+     ✓ API отвечает ошибкой на статус (Channex молчит) — тоже отказ 5144ms
+ ✓  unit  tests/unit/server-bootstrap.test.ts (3 tests) 87493ms
+   ✓ deploy/server-bootstrap.sh (root, Linux) (3)
+     ✓ репозиторий недоступен: печатает публичный ключ, просит добавить его в GitHub и выходит с кодом 3 5271ms
+     ✓ репозиторий доступен: клонирует нужную ветку, заводит папку туннеля и говорит, что дальше 69566ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL   unit  tests/unit/e2e-auth-config.test.ts > конфиг e2e и замок API > изолированный API проверяет сессии без рабочего SESSION_SECRET
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/e2e-auth-config.test.ts:36:3
+     34|
+     35| describe('конфиг e2e и замок API', () => {
+     36|   it('изолированный API проверяет сессии без рабочего SESSION_SECRET',…
+       |   ^
+     37|     vi.stubEnv('SESSION_SECRET', '');
+     38|     vi.stubEnv('E2E_SESSION_SECRET', '');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 233 passed (234)
+      Tests  1 failed | 1900 passed | 3 skipped (1904)
+   Start at  13:53:52
+   Duration  160.69s (tests 51%, import 24%, transform 24%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-53-49Z-unit-3689.json
+
+# код выхода 1 · 2 мин 46 с

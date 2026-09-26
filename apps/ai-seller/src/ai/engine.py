@@ -20,12 +20,14 @@ from urllib.parse import urlparse
 import sqlalchemy as sa
 
 from src import dependencies
+from src.ai import budget
 from src.ai import lead as lead_rules
 from src.ai.context import HistoryTurn, build_messages
 from src.ai.engine_types import IncomingMessage, Status, Turn, TurnOutcome
 from src.ai.guardrails import OutputContext, apply_strikes, check_input, check_output
 from src.ai.humanizer import humanize
 from src.ai.turn_lock import TurnLock, lock_ttl_seconds
+from src.alerts.raise_alert import raise_alert
 from src.channels.consent_gate import consent_required, consent_screen
 from src.channels.sender import Sender, SendResult
 from src.config import Settings, get_settings
@@ -247,6 +249,8 @@ class Engine:
 
     async def _model(self, t: Turn) -> None:
         t.step("model")
+        if await self._over_daily_budget(t):
+            return
         try:
             t.result = await self._llm.generate(t.messages, api_key=t.llm_api_key)
         except Exception:
@@ -256,6 +260,34 @@ class Engine:
             # Алерт владельцу — шаг 8; клиенту нейтральная фраза, не текст ошибки.
             logger.error("модель не ответила: %s", getattr(t.result, "error", None) or "exception")
             self._fail(t, "llm_failed")
+
+    async def _over_daily_budget(self, t: Turn) -> bool:
+        """Дневной предел гостиницы на ключе платформы (src/ai/budget.py).
+
+        Выше предела модель не зовём: гостю — нейтральная фраза, диалог помечен
+        для сотрудника (пометка, не перехват: бот и дальше отвечает), владельцу —
+        алерт раз в сутки. Сбой подсчёта продавца не глушит: ход идёт к модели.
+        """
+        org, limit = t.incoming.org_uuid(), self._settings.llm_daily_tokens_per_org
+        if org is None or t.llm_api_key is not None or limit <= 0:
+            return False
+        try:
+            spend = await budget.daily_budget(t.session, org, limit)
+        except Exception:
+            logger.exception("расход гостиницы %s за сутки не посчитан, зовём модель", org)
+            return False
+        if not spend.exceeded:
+            return False
+        logger.warning("гостиница %s: дневной предел %d исчерпан (%d), модель не зовём", org, limit, spend.spent)
+        hotel = await t.session.get(Organization, org)
+        await raise_alert(self._sessionmaker, self._redis, self._settings, event_type=budget.ALERT_EVENT,
+                          body=budget.alert_body(hotel.name if hotel else None, org, spend),
+                          dedup_key=f"{budget.ALERT_EVENT}:{org}:{spend.day}")
+        self._fail(t, "daily_budget")
+        t.outcome.needs_human = True
+        if t.conversation.mode == ConversationMode.BOT_ACTIVE:
+            t.conversation.mode = ConversationMode.NEEDS_HUMAN
+        return True
 
     def _unmask(self, t: Turn) -> None:
         t.step("unmask")
@@ -307,9 +339,12 @@ class Engine:
 
     async def _record(self, t: Turn) -> None:
         t.step("record")
-        tokens = t.result.tokens_used if t.result is not None else None
+        r = t.result
+        # Расход — только у ответа модели: у фраз без неё (отказ, согласие, предел) полей нет.
+        usage = dict(tokens_used=r.tokens_used, llm_model=r.model, tokens_input=r.tokens_input,
+                     tokens_cached=r.tokens_cached, tokens_output=r.tokens_output) if r is not None else {}
         t.session.add(Message(conversation_id=t.conversation.id, role=MessageRole.ASSISTANT, content=t.reply,
-                              sent_by_us=True, tokens_used=tokens, created_at=utcnow()))
+                              sent_by_us=True, created_at=utcnow(), **usage))
 
     async def _finish(self, t: Turn) -> None:
         """Общий выход: lead_data и режим сохраняются даже без доставки — они про клиента, не про канал."""

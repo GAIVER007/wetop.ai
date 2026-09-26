@@ -170,8 +170,10 @@ class Engine:
     async def _dedup(self, t: Turn) -> bool:
         t.step("dedup")
         inc = t.incoming
+        # Организация — в ключе: телефон гостя WhatsApp один на все гостиницы (26.09).
         duplicate = await is_duplicate(self._redis, channel=inc.channel, external_id=str(inc.external_id),
-                                       text=inc.text, ttl_seconds=self._settings.guard_dedup_ttl_seconds)
+                                       text=inc.text, ttl_seconds=self._settings.guard_dedup_ttl_seconds,
+                                       organization_id=inc.organization_id)
         if duplicate:
             t.outcome.status = "duplicate"
         return duplicate

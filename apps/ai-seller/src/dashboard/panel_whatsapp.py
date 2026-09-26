@@ -15,10 +15,12 @@ import uuid
 from typing import Annotated
 
 import httpx
+import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy.exc import IntegrityError
 
-from src.dashboard.auth_router import require_owner
+from src.dashboard.auth_router import require_platform
 from src.dashboard.panel_common import log_action, sessions
 from src.db.base import utcnow
 from src.db.models import Organization, WhatsAppConnection
@@ -29,6 +31,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 CHECK_TIMEOUT = 15.0
+
+# Номер WhatsApp — одной гостинице (уникальность `phone_number_id`, миграция 0004):
+# вебхук находит гостиницу по двери, а ответ уходит с её номера.
+NUMBER_TAKEN = "Этот номер уже подключён к другой гостинице"
 
 
 class WhatsAppIn(BaseModel):
@@ -56,14 +62,14 @@ def _view(row: WhatsAppConnection | None) -> dict:
     }
 
 
-@router.get("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_owner)])
+@router.get("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_platform)])
 async def whatsapp_status(request: Request, org_id: uuid.UUID) -> dict:
     _require_seller(request)
     async with sessions()() as session:
         return _view(await session.get(WhatsAppConnection, org_id))
 
 
-@router.put("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_owner)])
+@router.put("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_platform)])
 async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) -> dict:
     _require_seller(request)
     settings = request.app.state.settings
@@ -83,6 +89,14 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
             raise HTTPException(status_code=422, detail="Нужны постоянный токен и секрет приложения Meta")
         if await session.get(Organization, org_id) is None:
             raise HTTPException(status_code=404, detail="Организация у продавца не заведена")
+        taken = await session.scalar(
+            sa.select(WhatsAppConnection.organization_id).where(
+                WhatsAppConnection.phone_number_id == phone_id,
+                WhatsAppConnection.organization_id != org_id,
+            )
+        )
+        if taken is not None:
+            raise HTTPException(status_code=409, detail=NUMBER_TAKEN)
         try:
             token_blob = encrypt_key(token, settings)
             secret_blob = encrypt_key(app_secret, settings)
@@ -113,11 +127,17 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
             payload={"organization": str(org_id), "phone_number_id": phone_id},
         )
         view = _view(row)
-        await session.commit()
+        try:
+            await session.commit()
+        except IntegrityError:
+            # Гонка двух подключений одного номера: проверка выше прошла у обоих,
+            # уникальность базы пропустила одно. Второму — 409, а не 500.
+            await session.rollback()
+            raise HTTPException(status_code=409, detail=NUMBER_TAKEN) from None
     return view
 
 
-@router.post("/seller/organizations/{org_id}/whatsapp/check", dependencies=[Depends(require_owner)])
+@router.post("/seller/organizations/{org_id}/whatsapp/check", dependencies=[Depends(require_platform)])
 async def check_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) -> dict:
     """Проверка до сохранения: Graph отдаёт номер по токену. Наружу — вердикт и номер."""
     from src.dependencies import get_http_client

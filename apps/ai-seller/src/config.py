@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     llm_keys_secret: str = ""
     # С3: адрес Graph API для WhatsApp Cloud (в тестах подменяется).
     whatsapp_graph_base_url: str = "https://graph.facebook.com/v20.0"
+    # Предел тела вебхука WhatsApp; проверяется по Content-Length ДО чтения и подписи.
+    whatsapp_max_body_bytes: int = 256 * 1024
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""

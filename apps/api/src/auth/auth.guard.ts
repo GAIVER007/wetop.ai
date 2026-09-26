@@ -26,10 +26,8 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
 /**
  * Замок на непубличных маршрутах API (DATA_MODEL §13 шаг 1, ADR-046).
  *
- * **В production включён всегда** и выключается только явным `AUTH_REQUIRED=0` (fail-closed, ТЗ аудита
- * 25.09.2026 В-2); вне production включается `AUTH_REQUIRED=1` — dev-стенды, сквозные наборы и скрипты
- * сверки ходят в API без токена (ADR-023). Порядок включения и проверки — `plans/slice-13-accounts-saas.md`;
- * Cloudflare Access снят 20.09.2026 (ADR-053), периметр держит сам замок.
+ * **В боевом образе включён всегда, пока не выключен явным `AUTH_REQUIRED=0`** (ADR-095, `authRequired` ниже). В
+ * разработке без переменной выключен: сквозные тесты, сторож и скрипты сверки на Mac ходят в API без токена.
  *
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
  * записи в журнале от него идут без автора.
@@ -95,6 +93,19 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   return 'unknown';
 }
 
+/**
+ * Включён ли замок (ТЗ аудита 25.09 В-2, ADR-095). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда,
+ * пока его не выключили явным `AUTH_REQUIRED=0`. Вне production непонятное значение («true», «yes», опечатка) замок
+ * включает, а не снимает; без переменной, «0» и «false» — выключен, как раньше: сквозные тесты и сторож на Mac ходят
+ * без входа. То же правило у стойки — `apps/web/src/lib/auth-lock.ts`.
+ */
+export function authRequired(env: Record<string, string | undefined> = process.env): boolean {
+  const setting = env.AUTH_REQUIRED?.trim().toLowerCase();
+  // в production снимает только явный «0» — «false» или пустая строка замок не открывают (ТЗ аудита 25.09, В-2)
+  if (env.NODE_ENV === 'production') return setting !== '0';
+  return !!setting && setting !== '0' && setting !== 'false';
+}
+
 @Injectable()
 export class SessionGuard implements CanActivate {
   constructor(
@@ -103,12 +114,7 @@ export class SessionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // ТЗ аудита 25.09.2026, В-2: fail-closed. В production замок включён всегда и выключается только
-    // явным AUTH_REQUIRED=0 — опечатка или пустая переменная не открывают API молча. Вне production
-    // прежнее правило ('1' включает): dev-стенды, сквозные наборы и демо работают без входа.
-    const flag = process.env.AUTH_REQUIRED;
-    const required =
-      flag === '1' || (process.env.NODE_ENV === 'production' && flag !== '0');
+    const required = authRequired();
 
     if (!required) {
       // Замок молчит, но токен, если он пришёл, всё равно опознаём: журналу нужен автор действия.

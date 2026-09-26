@@ -1,0 +1,136 @@
+# Модульные (unit) · 26.09.2026 18:36 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 35
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-36-47Z-unit-f516.json' 'tests/unit/restore-rates-guard.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/restore-rates-guard.test.ts (3 tests | 1 failed) 3077ms
+   ❯ cli-restore-rates закрыт подтверждением (3)
+     ✓ без подтверждения — отказ до первого шага 763ms
+     ✓ с подтверждением, но против нелокального API — тоже отказ 663ms
+     × с подтверждением и локальным API, но с нелокальной базой — отказ 1649ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/restore-rates-guard.test.ts > cli-restore-rates закрыт подтверждением > с подтверждением и локальным API, но с нелокальной базой — отказ
+AssertionError: expected '1/3 импорт календаря цен из снимка Ex…' not to contain '1/3'
+
+- Expected
++ Received
+
+- 1/3
++ 1/3 импорт календаря цен из снимка Exely
++ node:fs:440
++     return binding.readFileUtf8(path, stringToFlags(options.flag));
++                    ^
++
++ Error: ENOENT: no such file or directory, open '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'
++     at readFileSync (node:fs:440:20)
++     at <anonymous> (/home/user/wetop.ai/scripts/imports/src/cli-import-price-calendar.ts:17:49)
++     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
++     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
++     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
++   errno: -2,
++   code: 'ENOENT',
++   syscall: 'open',
++   path: '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'
++ }
++
++ Node.js v22.22.2
++ node:internal/errors:983
++   const err = new Error(message);
++               ^
++
++ Error: Command failed: npx tsx scripts/imports/src/cli-import-price-calendar.ts
++ node:fs:440
++     return binding.readFileUtf8(path, stringToFlags(options.flag));
++                    ^
++
++ Error: ENOENT: no such file or directory, open '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'
++     at readFileSync (node:fs:440:20)
++     at <anonymous> (/home/user/wetop.ai/scripts/imports/src/cli-import-price-calendar.ts:17:49)
++     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
++     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
++     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
++   errno: -2,
++   code: 'ENOENT',
++   syscall: 'open',
++   path: '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'
++ }
++
++ Node.js v22.22.2
++
++     at genericNodeError (node:internal/errors:983:15)
++     at wrappedFn (node:internal/errors:537:14)
++     at checkExecSyncError (node:child_process:916:11)
++     at execSync (node:child_process:988:15)
++     at <anonymous> (/home/user/wetop.ai/scripts/reconciliation/src/cli-restore-rates.ts:36:3)
++     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
++     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
++     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
++   status: 1,
++   signal: null,
++   output: [
++     null,
++     '',
++     'node:fs:440\n' +
++       '    return binding.readFileUtf8(path, stringToFlags(options.flag));\n' +
++       '                   ^\n' +
++       '\n' +
++       "Error: ENOENT: no such file or directory, open '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'\n" +
++       '    at readFileSync (node:fs:440:20)\n' +
++       '    at <anonymous> (/home/user/wetop.ai/scripts/imports/src/cli-import-price-calendar.ts:17:49)\n' +
++       '    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n' +
++       '    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n' +
++       '    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {\n' +
++       '  errno: -2,\n' +
++       "  code: 'ENOENT',\n" +
++       "  syscall: 'open',\n" +
++       "  path: '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'\n" +
++       '}\n' +
++       '\n' +
++       'Node.js v22.22.2\n'
++   ],
++   pid: 6406,
++   stdout: '',
++   stderr: 'node:fs:440\n' +
++     '    return binding.readFileUtf8(path, stringToFlags(options.flag));\n' +
++     '                   ^\n' +
++     '\n' +
++     "Error: ENOENT: no such file or directory, open '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'\n" +
++     '    at readFileSync (node:fs:440:20)\n' +
++     '    at <anonymous> (/home/user/wetop.ai/scripts/imports/src/cli-import-price-calendar.ts:17:49)\n' +
++     '    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n' +
++     '    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n' +
++     '    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {\n' +
++     '  errno: -2,\n' +
++     "  code: 'ENOENT',\n" +
++     "  syscall: 'open',\n" +
++     "  path: '/home/user/wetop.ai/project-input/exely/prices/price-calendar-2026-09-09.json'\n" +
++     '}\n' +
++     '\n' +
++     'Node.js v22.22.2\n'
++ }
++
++ Node.js v22.22.2
++
+
+ ❯ tests/unit/restore-rates-guard.test.ts:47:23
+     45|     });
+     46|     expect(r.code).not.toBe(0);
+     47|     expect(r.out).not.toContain('1/3');
+       |                       ^
+     48|     expect(r.out).toMatch(/база.*только локальн/);
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  13:36:48
+   Duration  3.30s (tests 98%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-36-47Z-unit-f516.json
+
+# код выхода 1 · 4 с

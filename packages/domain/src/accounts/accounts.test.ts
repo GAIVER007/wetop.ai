@@ -87,7 +87,20 @@ describe('evaluateLogin', () => {
       outcome: 'wrong',
       failedAttempts: 1,
       lockedUntil: null,
+      resetCounter: false,
     });
+  });
+
+  it('после истёкшего замка первая ошибка считается первой, а не шестой (аудит 26.09, С-6)', () => {
+    const result = evaluateLogin({
+      user: user({
+        failedAttempts: MAX_FAILED_ATTEMPTS,
+        lockedUntil: new Date(now.getTime() - 60_000),
+      }),
+      password: 'не тот',
+      now,
+    });
+    expect(result).toMatchObject({ outcome: 'wrong', failedAttempts: 1, lockedUntil: null, resetCounter: true });
   });
 
   it(`после ${MAX_FAILED_ATTEMPTS} промахов вход запирается на ${LOCK_MINUTES} минут`, () => {

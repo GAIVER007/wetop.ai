@@ -65,6 +65,8 @@ class LlmResult:
     model: str | None = None
     attempts: list[AttemptLog] = field(default_factory=list)
     mapping: dict[str, str] = field(default_factory=dict)
+    # Токены всех ступеней, включая отказавшие: огрызок, отказ модели и лишний
+    # раунд инструментов тоже оплачены (ревизия 26.09). None — роутер не сообщил.
     tokens_used: int | None = None
     error: str | None = None
 
@@ -202,6 +204,7 @@ class CascadeClient:
             return LlmResult(ok=False, mapping=mapping, error=NOT_CONFIGURED)
 
         attempts: list[AttemptLog] = []
+        spent: int | None = None
         try:
             for model in self.models:
                 started = time.perf_counter()
@@ -214,6 +217,8 @@ class CascadeClient:
                     api_key=api_key,
                 )
                 seconds = round(time.perf_counter() - started, 3)
+                if tokens is not None:
+                    spent = (spent or 0) + tokens
                 if outcome == OK:
                     attempts.append(AttemptLog(model, OK, seconds))
                     return LlmResult(
@@ -223,7 +228,7 @@ class CascadeClient:
                         model=model,
                         attempts=attempts,
                         mapping=mapping,
-                        tokens_used=tokens,
+                        tokens_used=spent,
                     )
                 # При отказе слот text несёт короткую заметку, не текст ответа.
                 attempts.append(AttemptLog(model, outcome, seconds, note=text))
@@ -232,7 +237,7 @@ class CascadeClient:
             # Последний рубеж: сбой диспетчера или разбора не должен вылететь в движок.
             logger.exception("слой модели: непредвиденный сбой каскада")
         logger.error("все ступени каскада отказали")
-        return LlmResult(ok=False, attempts=attempts, mapping=mapping, error=ALL_FAILED)
+        return LlmResult(ok=False, attempts=attempts, mapping=mapping, tokens_used=spent, error=ALL_FAILED)
 
     async def _attempt(
         self,

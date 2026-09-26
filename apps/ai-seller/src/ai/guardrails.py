@@ -19,7 +19,9 @@ from redis.asyncio import Redis
 
 from src.ai.guard_patterns import (
     CRESCENDO_WORDS,
+    HOMOGLYPHS_GREEK_TO_CYR,
     HOMOGLYPHS_LATIN_TO_CYR,
+    HOMOGLYPHS_OTHER_TO_LATIN,
     INVISIBLE_CHARS,
     PATTERNS,
 )
@@ -33,8 +35,18 @@ ASK_PHONE = "Напишите, пожалуйста, ваш телефон, и �
 ASK_PRICE = "Точную стоимость подтвердит администратор."
 
 _INVISIBLE_TABLE = {ord(c): None for c in INVISIBLE_CHARS}
-_HOMOGLYPH_TABLE = str.maketrans(HOMOGLYPHS_LATIN_TO_CYR)
-_LETTER_RUN = re.compile(r"[A-Za-zА-Яа-яЁё]+")
+# В кириллицу: латинские и греческие двойники.
+_HOMOGLYPH_TABLE = str.maketrans({**HOMOGLYPHS_LATIN_TO_CYR, **HOMOGLYPHS_GREEK_TO_CYR})
+# Обратно: кириллические двойники в «латинском» слове (аудит 26.09, С-51) — только буквы, которые пишутся так же:
+# «ь», строчные «н», «м», «т» на «b», «h», «m», «t» не похожи, их не трогаем. Плюс двойники из других
+# кириллиц и греческого: «І» украинская, «ѕ» македонская, «Ι» и «Α» греческие (ревизия 26.09).
+_CYR_LOOKALIKES = "аеорсхукАВСЕНКМОРТХУ"
+_HOMOGLYPH_TABLE_TO_LATIN = str.maketrans(
+    {cyr: lat for lat, cyr in HOMOGLYPHS_LATIN_TO_CYR.items() if cyr in _CYR_LOOKALIKES}
+    | HOMOGLYPHS_OTHER_TO_LATIN
+)
+# Слово — любая буква любого алфавита: «[A-Za-zА-Яа-яЁё]» рвал «ІGNОRЕ» на «І» и «GNОRЕ».
+_LETTER_RUN = re.compile(r"[^\W\d_]+")
 _SPACES = re.compile(r"\s+")
 _CRESCENDO_RE = re.compile(
     r"\b(?:" + "|".join(re.escape(w) for w in CRESCENDO_WORDS) + r")\b", re.IGNORECASE
@@ -50,9 +62,14 @@ def clip(text: str, max_chars: int) -> str:
 
 def _fix_homoglyphs(word: str) -> str:
     # Латинские двойники меняем только там, где слово в основном кириллическое:
-    # «hotel» остаётся латиницей, «пoкaжи» становится «покажи».
+    # «hotel» остаётся латиницей, «пoкaжи» становится «покажи». И наоборот:
+    # в основном латинском слове кириллические двойники становятся латиницей —
+    # одна кириллическая «о» в «Ignоre» снимала все английские шаблоны (С-51).
     cyr = sum(1 for ch in word if "Ѐ" <= ch <= "ӿ")
-    return word.translate(_HOMOGLYPH_TABLE) if cyr * 2 > len(word) else word
+    if cyr * 2 > len(word):
+        return word.translate(_HOMOGLYPH_TABLE)
+    # Таблица трогает только не-ASCII буквы: чистая латиница остаётся как была.
+    return word.translate(_HOMOGLYPH_TABLE_TO_LATIN)
 
 
 def normalize(text: str) -> str:
@@ -70,8 +87,24 @@ class PatternHit:
     severity: str
 
 
+def _foldings(text: str) -> tuple[str, ...]:
+    """Текст как есть, целиком в латинице и целиком в кириллице.
+
+    Нормализация решает по большинству букв в слове, и слово из одних двойников
+    уходило не в тот алфавит: «РRОМРТ» (Р, О, М, Р, Т — кириллица) становилось
+    кириллицей и не попадало под «prompt» (ревизия 26.09). Шаблон проверяется
+    на всех трёх — попадание в любом считается.
+    """
+    return text, text.translate(_HOMOGLYPH_TABLE_TO_LATIN), text.translate(_HOMOGLYPH_TABLE)
+
+
 def find_patterns(text: str) -> list[PatternHit]:
-    return [PatternHit(name, sev) for name, sev, rx in PATTERNS if rx.search(text)]
+    variants = _foldings(text)
+    return [
+        PatternHit(name, sev)
+        for name, sev, rx in PATTERNS
+        if any(rx.search(variant) for variant in variants)
+    ]
 
 
 # ─── Слой 3. Крещендо ───
@@ -79,7 +112,11 @@ def find_patterns(text: str) -> list[PatternHit]:
 def crescendo_count(messages: list[str], *, window: int) -> int:
     """Сколько из последних window сообщений содержат слово словаря
     (одно сообщение считается один раз, сколько бы слов в нём ни было)."""
-    return sum(1 for m in messages[-window:] if _CRESCENDO_RE.search(normalize(m)))
+    return sum(1 for m in messages[-window:] if _has_crescendo_word(normalize(m)))
+
+
+def _has_crescendo_word(text: str) -> bool:
+    return any(_CRESCENDO_RE.search(variant) for variant in _foldings(text))
 
 
 # ─── Вердикт по входу ───
@@ -110,7 +147,7 @@ def check_input(
     # Страйк за крещендо только если текущее сообщение само из словаря:
     # иначе безобидный вопрос после серии получил бы отбой.
     total = crescendo_count(history + [text], window=crescendo_window)
-    crescendo = bool(_CRESCENDO_RE.search(text)) and total >= crescendo_hits
+    crescendo = _has_crescendo_word(text) and total >= crescendo_hits
     if crescendo:
         reasons.append(f"crescendo:{total}")
 

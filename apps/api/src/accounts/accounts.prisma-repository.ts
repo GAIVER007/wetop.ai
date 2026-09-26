@@ -13,6 +13,8 @@ import type {
  * Учётные записи в базе (DATA_MODEL §13). Ни кодов, ни ключей сессий здесь нет — только их
  * отпечатки: они приходят сюда уже посчитанными.
  */
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 @Injectable()
 export class PrismaAccountsRepository implements AccountsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
@@ -186,6 +188,20 @@ export class PrismaAccountsRepository implements AccountsRepository {
       select: INVITE_SELECT,
     });
     return rows.map(toInviteRecord);
+  }
+
+  async invitesCreatedSince(organizationId: string, since: Date): Promise<number> {
+    return this.prisma.db.invite.count({ where: { organizationId, createdAt: { gte: since } } });
+  }
+
+  async revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean> {
+    // id из адреса: не uuid — такого приглашения нет, а не ошибка базы
+    if (!UUID.test(id)) return false;
+    const { count } = await this.prisma.db.invite.updateMany({
+      where: { id, organizationId, acceptedAt: null, expiresAt: { gt: at } },
+      data: { expiresAt: at },
+    });
+    return count > 0;
   }
 
   async inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null> {

@@ -1,7 +1,13 @@
 import 'reflect-metadata';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
-import { assertRefundWithin, FinanceRuleError, LUXX_APARTS_PROPERTY, zonedStartOfDay } from '@pms/domain';
+import {
+  FinanceRuleError,
+  LUXX_APARTS_PROPERTY,
+  assertRefundWithin,
+  folioBalance,
+  zonedStartOfDay,
+} from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef, propertyRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
@@ -188,6 +194,35 @@ export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
  * Тип берём от самого клиента, чтобы он не разошёлся со схемой.
  */
 type TxClient = PrismaService['db'];
+
+/** Счёт закрыт или его нет: деньги в него не записываются (аудит 26.09, С-25) */
+export class FolioClosedError extends Error {
+  constructor(readonly folioId: string) {
+    super(`Счёт ${folioId} закрыт`);
+  }
+}
+/** Закрыть можно только счёт с нулевым балансом — пересчитанным под блокировкой */
+/** Начисление уже сторнировано или платёж уже аннулирован — проверено под блокировкой, конфликт (409), как в сервисе */
+export class FinanceStateError extends Error {}
+
+export class FolioBalanceError extends Error {
+  constructor(readonly balanceMinor: bigint) {
+    super(`На счёте баланс ${balanceMinor}`);
+  }
+}
+
+/**
+ * Строки счетов под блокировку до конца транзакции и проверка, что они открыты. Порядок id — один для всех, чтобы две
+ * записи на те же счета не ждали друг друга по кругу. Раньше «счёт открыт» проверялось до транзакции записи, и
+ * одновременное начисление ложилось в только что закрытый счёт (аудит 26.09, С-25).
+ */
+async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
+  for (const id of [...new Set(folioIds)].sort()) {
+    const rows = await tx.$queryRaw<Array<{ status: string }>>`
+      SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}::uuid FOR UPDATE`;
+    if (rows[0]?.status !== 'OPEN') throw new FolioClosedError(id);
+  }
+}
 
 /** Одна строка журнала. Пишется тем же клиентом, что и деньги, — своим или транзакционным. */
 async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
@@ -435,21 +470,39 @@ export class PrismaFinanceRepository implements FinanceRepository {
     });
   }
 
+  /** Запись денег под блокировкой: всегда одной транзакцией, даже без журнала — иначе блокировка ничего не держит */
+  private async locked<T extends { id: string } | void>(
+    audit: AuditEntry | undefined,
+    lock: (tx: TxClient) => Promise<void>,
+    write: (tx: TxClient) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.db.$transaction(async (tx) => {
+      const client = tx as unknown as TxClient;
+      await lock(client);
+      const row = await write(client);
+      if (audit) await writeAudit(client, audit, row && 'id' in row ? row.id : undefined);
+      return row;
+    });
+  }
+
   async addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string> {
-    const row = await this.withAudit(audit, (tx) =>
-      tx.charge.create({
-        data: {
-          folioId,
-          kind: c.kind,
-          serviceId: c.serviceId,
-          description: c.description,
-          quantity: c.quantity,
-          unitPrice: c.unitPriceMinor,
-          amount: c.amountMinor,
-          serviceDate: asDate(c.serviceDate),
-        },
-        select: { id: true },
-      }),
+    const row = await this.locked(
+      audit,
+      (tx) => lockOpenFolios(tx, [folioId]),
+      (tx) =>
+        tx.charge.create({
+          data: {
+            folioId,
+            kind: c.kind,
+            serviceId: c.serviceId,
+            description: c.description,
+            quantity: c.quantity,
+            unitPrice: c.unitPriceMinor,
+            amount: c.amountMinor,
+            serviceDate: asDate(c.serviceDate),
+          },
+          select: { id: true },
+        }),
     );
     return row.id;
   }
@@ -462,27 +515,44 @@ export class PrismaFinanceRepository implements FinanceRepository {
     return c ? toCharge(c) : null;
   }
   async voidCharge(id: string, audit?: AuditEntry): Promise<void> {
-    await this.withAudit(audit, async (tx) => {
-      await tx.charge.update({ where: { id }, data: { voidedAt: new Date() } });
-    });
+    await this.locked(
+      audit,
+      async (tx) => {
+        const charge = await tx.charge.findUniqueOrThrow({
+          where: { id },
+          select: { folioId: true },
+        });
+        await lockOpenFolios(tx, [charge.folioId]);
+        // Под блокировкой счёта: два одновременных сторно оба проходили проверку сервиса (проверка исправлений 26.09)
+        const now = await tx.charge.findUniqueOrThrow({ where: { id }, select: { voidedAt: true } });
+        if (now.voidedAt) throw new FinanceStateError('Начисление уже сторнировано');
+      },
+      async (tx) => {
+        await tx.charge.update({ where: { id }, data: { voidedAt: new Date() } });
+      },
+    );
   }
   async createPayment(p: NewPayment, audit?: AuditEntry): Promise<string> {
     const { id: propertyId } = await this.property();
-    const row = await this.withAudit(audit, (tx) =>
-      tx.payment.create({
-        data: {
-          propertyId,
-          method: p.method,
-          amount: p.amountMinor,
-          currency: p.currency,
-          note: p.note,
-          ...(p.paidAt ? { paidAt: new Date(p.paidAt) } : {}),
-          allocations: {
-            create: p.allocations.map((a) => ({ folioId: a.folioId, amount: a.amountMinor })),
+    const folioIds = p.allocations.map((a) => a.folioId);
+    const row = await this.locked(
+      audit,
+      (tx) => lockOpenFolios(tx, folioIds),
+      (tx) =>
+        tx.payment.create({
+          data: {
+            propertyId,
+            method: p.method,
+            amount: p.amountMinor,
+            currency: p.currency,
+            note: p.note,
+            ...(p.paidAt ? { paidAt: new Date(p.paidAt) } : {}),
+            allocations: {
+              create: p.allocations.map((a) => ({ folioId: a.folioId, amount: a.amountMinor })),
+            },
           },
-        },
-        select: { id: true },
-      }),
+          select: { id: true },
+        }),
     );
     return row.id;
   }
@@ -505,34 +575,34 @@ export class PrismaFinanceRepository implements FinanceRepository {
       : null;
   }
   /**
-   * Предел «не больше, чем платёж внёс на счёт, минус уже возвращённое» держит сама транзакция
-   * (С-2, ТЗ аудита 25.09.2026): замок платежа выстраивает одновременные возвраты в очередь,
-   * распределение и уже возвращённое перечитываются под ним — проверка в сервисе до транзакции
-   * осталась только ради раннего 400.
+   * Возврат: предел «не больше внесённого на этот счёт минус уже возвращённое» пересчитывается под блокировкой платежа.
+   * Раньше его считали до транзакции, и два одновременных возврата оба проходили — возвращали больше, чем внесено
+   * (аудит 25.09, С-2). Нарушение предела — `FinanceRuleError`, аннулированный платёж — `FinanceStateError`, как в сервисе.
    */
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
-    const row = await this.prisma.db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.payment:${r.paymentId}`}, 0))`;
-      const alloc = await tx.paymentAllocation.findFirst({
-        where: { paymentId: r.paymentId, folioId: r.folioId },
+    const lock = async (tx: TxClient) => {
+      // Распределение не меняется после записи платежа — проверка до блокировок: чужой счёт не блокируем
+      const allocated = await tx.paymentAllocation.findUnique({
+        where: { paymentId_folioId: { paymentId: r.paymentId, folioId: r.folioId } },
         select: { amount: true },
       });
-      if (!alloc) throw new ConflictException('Этот платёж на указанный счёт не распределялся');
+      if (!allocated) throw new FinanceRuleError('Этот платёж на указанный счёт не распределялся');
+      await lockOpenFolios(tx, [r.folioId]);
+      const payment = await tx.$queryRaw<Array<{ status: string }>>`
+        SELECT "status"::text AS status FROM "payments" WHERE "id" = ${r.paymentId}::uuid FOR UPDATE`;
+      if (payment[0]?.status !== 'COMPLETED') throw new FinanceStateError('Платёж аннулирован');
       const refunded = await tx.refund.aggregate({
         where: { paymentId: r.paymentId, folioId: r.folioId },
         _sum: { amount: true },
       });
-      try {
-        assertRefundWithin({
-          allocatedMinor: alloc.amount,
-          refundedMinor: refunded._sum.amount ?? 0n,
-          refundMinor: r.amountMinor,
-        });
-      } catch (e) {
-        if (e instanceof FinanceRuleError) throw new ConflictException(e.message);
-        throw e;
-      }
-      const created = await tx.refund.create({
+      assertRefundWithin({
+        allocatedMinor: allocated.amount,
+        refundedMinor: refunded._sum.amount ?? 0n,
+        refundMinor: r.amountMinor,
+      });
+    };
+    const row = await this.locked(audit, lock, (tx) =>
+      tx.refund.create({
         data: {
           paymentId: r.paymentId,
           folioId: r.folioId,
@@ -540,14 +610,33 @@ export class PrismaFinanceRepository implements FinanceRepository {
           reason: r.reason,
         },
         select: { id: true },
-      });
-      if (audit) await writeAudit(tx as unknown as TxClient, audit, created.id);
-      return created;
-    });
+      }),
+    );
     return row.id;
   }
+  /**
+   * Закрыть счёт: баланс пересчитывается под блокировкой той же строки, что берут начисления и платежи. Раньше сервис
+   * считал его до транзакции, и одновременное начисление оставляло долг на закрытом счёте (аудит 26.09, С-25).
+   */
   async closeFolio(id: string, audit?: AuditEntry): Promise<void> {
-    await this.withAudit(audit, async (tx) => {
+    const lock = async (tx: TxClient) => {
+      await lockOpenFolios(tx, [id]);
+      const [charged, paid, refunded] = await Promise.all([
+        tx.charge.aggregate({ where: { folioId: id, voidedAt: null }, _sum: { amount: true } }),
+        tx.paymentAllocation.aggregate({
+          where: { folioId: id, payment: { status: 'COMPLETED' } },
+          _sum: { amount: true },
+        }),
+        tx.refund.aggregate({ where: { folioId: id }, _sum: { amount: true } }),
+      ]);
+      const balance = folioBalance({
+        charges: [{ amountMinor: charged._sum.amount ?? 0n, voided: false }],
+        allocations: [{ amountMinor: paid._sum.amount ?? 0n }],
+        refunds: [{ amountMinor: refunded._sum.amount ?? 0n }],
+      }).balanceMinor;
+      if (balance !== 0n) throw new FolioBalanceError(balance);
+    };
+    await this.locked(audit, lock, async (tx) => {
       await tx.folio.update({
         where: { id },
         data: { status: 'CLOSED', closedAt: new Date() },

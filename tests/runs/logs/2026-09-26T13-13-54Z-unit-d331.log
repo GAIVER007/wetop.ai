@@ -1,0 +1,76 @@
+# Модульные (unit) · 26.09.2026 18:13 Алматы · vm
+# коммит ac21b4e (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-13-54Z-unit-d331.json' 'scripts/reconciliation/src/day-selfcheck.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| scripts/reconciliation/src/day-selfcheck.test.ts (8 tests | 2 failed) 16ms
+   ✓ сутки внутри PMS (6)
+     ✓ всё сходится — ни одного замечания 3ms
+     ✓ проживает по «Главной», а на шахматке нет — это койка, проданная дважды 0ms
+     ✓ без ячейки — предупреждение, а не отказ: это работа смены 2ms
+     ✓ ячейка в списке дня и на шахматке разные — расхождение с адресами обеих 0ms
+     ✓ счётчик не равен своему же списку 0ms
+     ✓ занятых клеток меньше, чем заселённых с ячейкой 0ms
+   ❯ ответ шахматки → снимок для сверки (2)
+     × занятая клетка даёт номер брони и ячейку; блокировка — не бронь 7ms
+     × заселённый на шахматке — без ложного FAIL; другая ячейка — FAIL 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/reconciliation/src/day-selfcheck.test.ts > ответ шахматки → снимок для сверки > занятая клетка даёт номер брони и ячейку; блокировка — не бронь
+AssertionError: expected {} to deeply equal { 'A-1': [ 'R01' ] }
+
+- Expected
++ Received
+
+- {
+-   "A-1": [
+-     "R01",
+-   ],
+- }
++ {}
+
+ ❯ scripts/reconciliation/src/day-selfcheck.test.ts:109:35
+    107|
+    108|   it('занятая клетка даёт номер брони и ячейку; блокировка — не бронь'…
+    109|     expect(snap.occupiedByNumber).toEqual({ 'A-1': ['R01'] });
+       |                                   ^
+    110|     expect(snap.occupiedCells).toBe(1);
+    111|     expect(snap.unassigned).toEqual([{ confirmationNumber: 'B-2', cate…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| scripts/reconciliation/src/day-selfcheck.test.ts > ответ шахматки → снимок для сверки > заселённый на шахматке — без ложного FAIL; другая ячейка — FAIL
+AssertionError: expected [ { level: 'fail', …(1) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "level": "fail",
++     "what": "A-1: проживает по «Главной», но на шахматке его нет",
++   },
++ ]
+
+ ❯ scripts/reconciliation/src/day-selfcheck.test.ts:115:35
+    113|
+    114|   it('заселённый на шахматке — без ложного FAIL; другая ячейка — FAIL'…
+    115|     expect(checkDay(day(), snap)).toEqual([]);
+       |                                   ^
+    116|     const moved = checkDay(day({ inHouse: [row('A-1', 'R03')] }), snap…
+    117|     expect(moved).toEqual([{ level: 'fail', what: 'A-1: на «Главной» я…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  13:13:55
+   Duration  917ms (transform 87%, import 10%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-13-54Z-unit-d331.json
+
+# код выхода 1 · 2 с

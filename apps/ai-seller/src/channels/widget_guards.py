@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import logging
 import re
@@ -171,8 +172,32 @@ def as_str(value: object) -> str:
     return "" if value is None else str(value).strip()
 
 
+def _from_tunnel(host: str) -> bool:
+    """Свои: loopback и частные сети compose — туннель cloudflared и привратник."""
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return address.is_loopback or address.is_private
+
+
 def client_ip(request: Request) -> str:
-    return request.client.host if request.client else ""
+    """Адрес посетителя для лимитов и блокировок.
+
+    🔴 За туннелем cloudflared сокет у всех посетителей один — адрес контейнера
+    туннеля: лимит и блокировка после трёх «инъекций» били сразу по всем
+    (аудит 26.09, С-63). CF-Connecting-IP ставит край Cloudflare; он
+    учитывается только от своих — снаружи заголовком чужой адрес не выбрать.
+    Так же делает платформа (apps/api/src/web-booking/client-ip.ts).
+    """
+    socket = request.client.host if request.client else ""
+    header = (request.headers.get("cf-connecting-ip") or "").strip()
+    if socket and _from_tunnel(socket) and header:
+        try:
+            return str(ipaddress.ip_address(header))
+        except ValueError:
+            return socket
+    return socket
 
 
 async def read_json(request: Request, max_bytes: int) -> dict:

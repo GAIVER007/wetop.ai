@@ -1,0 +1,56 @@
+# Модульные (unit) · 26.09.2026 17:11 Алматы · vm
+# коммит 40fd704 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-11-50Z-unit-f43b.json' 'apps/api/src/units' 'apps/api/src/rates'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 12ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 9ms
+ ❯ |unit| apps/api/src/units/units.controller.test.ts (6 tests | 1 failed) 255ms
+   ❯ units API: blocks and housekeeping (6)
+     ✓ GET /units/:code returns the card; 404 for unknown 34ms
+     ✓ код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500 19ms
+     ✓ block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes 22ms
+     × блокировка длиннее трёх лет — 400 словами, ничего не создано 5ms
+     ✓ housekeeping status change is recorded once per change 7ms
+     ✓ housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step 10ms
+[Nest] 4549  - 09/26/2026, 12:11:53 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 280ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/units/units.controller.test.ts > units API: blocks and housekeeping > блокировка длиннее трёх лет — 400 словами, ничего не создано
+AssertionError: expected 'Блокировка — не дольше трёх лет. Пров…' to match /три года/
+
+- Expected:
+/три года/
+
++ Received:
+"Блокировка — не дольше трёх лет. Проверьте год в датах."
+
+ ❯ apps/api/src/units/units.controller.test.ts:236:30
+    234|       .send({ dateFrom: '2026-10-01', dateTo: '9999-12-31', type: 'MAI…
+    235|     expect(res.status).toBe(400);
+    236|     expect(res.body.message).toMatch(/три года/);
+       |                              ^
+    237|   });
+    238|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 23 passed (24)
+   Start at  12:11:51
+   Duration  2.37s (transform 63%, import 25%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-11-50Z-unit-f43b.json
+
+# код выхода 1 · 3 с

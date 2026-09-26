@@ -1,0 +1,110 @@
+# Модульные (unit) · 26.09.2026 18:29 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-29-54Z-unit-9b2d.json' 'apps/api/src/auth/attempt-limits.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 24287  - 09/26/2026, 1:30:04 PM   ERROR [ExceptionsHandler] TypeError: checkPasswordQueued is not a function
+    at AuthService.login (/home/user/wetop.ai/apps/api/src/auth/auth.service.ts:198:13)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+ ❯ |unit| apps/api/src/auth/attempt-limits.test.ts (8 tests | 5 failed) 7064ms
+   ✓ окно попыток по ключу (2)
+     ✓ пускает до предела в окне, дальше отказывает, другой ключ считает отдельно 3ms
+     ✓ переполнение не сбрасывает чужие счётчики: вытесняются только протухшие окна 1ms
+   ❯ окно попыток: потолок памяти (2)
+     × сверх потолка новый ключ получает отказ, память не растёт, известный считается как прежде 144ms
+     × уборка на переполнении — не на каждой попытке 6434ms
+   ❯ адрес посетителя как ключ (2)
+     × IPv6 — по сети /64: адреса одного абонента делят счётчик 16ms
+     × IPv4 и IPv4 внутри IPv6 — один и тот же адрес 1ms
+   ✓ очередь проверки паролей (1)
+     ✓ держит не больше заданного числа проверок сразу, лишние сверх очереди — 429 сразу 11ms
+   ❯ вход: предел попыток с одного адреса (1)
+     × после 30 попыток с адреса — 429, а соседний адрес входит как прежде 450ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts > окно попыток: потолок памяти > сверх потолка новый ключ получает отказ, память не растёт, известный считается как прежде
+TypeError: actual value must be number or bigint, received "undefined"
+ ❯ apps/api/src/auth/attempt-limits.test.ts:58:20
+     56|     expect(w.allow('свой', t)).toBe(true);
+     57|     for (let i = 0; i < 1_000; i += 1) w.allow(`мусор-${i}`, t + 1);
+     58|     expect(w.size).toBeLessThanOrEqual(100);
+       |                    ^
+     59|     expect(w.allow('свой', t + 2)).toBe(true);
+     60|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts > окно попыток: потолок памяти > уборка на переполнении — не на каждой попытке
+AssertionError: expected 6429.858951 to be less than 500
+ ❯ apps/api/src/auth/attempt-limits.test.ts:68:41
+     66|     const started = performance.now();
+     67|     for (let i = 0; i < 20_000; i += 1) w.allow(`новый-${i}`, t + 1);
+     68|     expect(performance.now() - started).toBeLessThan(500);
+       |                                         ^
+     69|   });
+     70| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts > адрес посетителя как ключ > IPv6 — по сети /64: адреса одного абонента делят счётчик
+AssertionError: expected '2001:db8:1:2:aaaa::1' to be '2001:0db8:0001:0002:ffff:1:2:3' // Object.is equality
+
+Expected: "2001:0db8:0001:0002:ffff:1:2:3"
+Received: "2001:db8:1:2:aaaa::1"
+
+ ❯ apps/api/src/auth/attempt-limits.test.ts:74:48
+     72| describe('адрес посетителя как ключ', () => {
+     73|   it('IPv6 — по сети /64: адреса одного абонента делят счётчик', () =>…
+     74|     expect(visitorKey('2001:db8:1:2:aaaa::1')).toBe(visitorKey('2001:0…
+       |                                                ^
+     75|     expect(visitorKey('2001:db8:1:2::1')).not.toBe(visitorKey('2001:db…
+     76|     expect(visitorKey('2001:db8::1')).toBe('2001:db8:0:0::/64');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts > адрес посетителя как ключ > IPv4 и IPv4 внутри IPv6 — один и тот же адрес
+AssertionError: expected '::ffff:203.0.113.7' to be '203.0.113.7' // Object.is equality
+
+Expected: "203.0.113.7"
+Received: "::ffff:203.0.113.7"
+
+ ❯ apps/api/src/auth/attempt-limits.test.ts:81:46
+     79|   it('IPv4 и IPv4 внутри IPv6 — один и тот же адрес', () => {
+     80|     expect(visitorKey('203.0.113.7')).toBe('203.0.113.7');
+     81|     expect(visitorKey('::ffff:203.0.113.7')).toBe('203.0.113.7');
+       |                                              ^
+     82|   });
+     83| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/api/src/auth/attempt-limits.test.ts > вход: предел попыток с одного адреса > после 30 попыток с адреса — 429, а соседний адрес входит как прежде
+AssertionError: expected 500 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 500
+
+ ❯ apps/api/src/auth/attempt-limits.test.ts:131:102
+    129|
+    130|   it(`после ${LOGIN_ATTEMPTS_PER_IP} попыток с адреса — 429, а соседни…
+    131|     for (let i = 0; i < LOGIN_ATTEMPTS_PER_IP; i += 1) expect((await a…
+       |                                                                                                      ^
+    132|     const over = await attempt('203.0.113.7');
+    133|     expect(over.status).toBe(429);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 3 passed (8)
+   Start at  13:29:55
+   Duration  9.25s (tests 78%, transform 13%, import 9%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-29-54Z-unit-9b2d.json
+
+# код выхода 1 · 10 с

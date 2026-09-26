@@ -49,6 +49,13 @@ LeadHook = Callable[[uuid.UUID, dict], Awaitable[None]]
 
 # Общие фразы ядра; клиентские формулировки — в промпте.
 NEUTRAL_REPLY = "Сейчас не могу ответить, администратор свяжется с вами."
+# Суточный бюджет модели исчерпан: без платного вызова, контакт гостя сохранён шагом contact
+BUDGET_REPLY = "Сейчас не могу ответить подробно. Оставьте телефон или почту — администратор свяжется с вами."
+
+
+def _token_budget_key(org: uuid.UUID | None) -> str:
+    """Счётчик токенов модели за сутки (UTC) — на организацию; у помощника организации нет."""
+    return f"llm:tokens:{org or '-'}:{utcnow():%Y%m%d}"
 REFUSAL_REPLY = "Я помогаю с вопросами по размещению и бронированию, давайте вернёмся к ним."
 
 _QUEUE_DRAIN_LIMIT = 20  # предел на вызов: очередь не должна крутить нас вечно
@@ -112,7 +119,11 @@ class Engine:
         await t.session.commit()
         t.outcome.status = "replied"
         await self._contact(t)
-        if await self._guard_in(t):
+        if t.conversation.mode == ConversationMode.OWNER_TAKEOVER:
+            # Диалог у оператора: реплика и контакт сохранены, модель не зовём —
+            # иначе гостю «с вами оператор», а бот отвечает параллельно (аудит 26.09, С-59)
+            t.outcome.status = "operator"
+        elif await self._guard_in(t):
             if t.reply is None:
                 await self._consent(t)
             if t.reply is None:
@@ -159,8 +170,10 @@ class Engine:
     async def _dedup(self, t: Turn) -> bool:
         t.step("dedup")
         inc = t.incoming
+        # Организация — в ключе: телефон гостя WhatsApp один на все гостиницы (26.09).
         duplicate = await is_duplicate(self._redis, channel=inc.channel, external_id=str(inc.external_id),
-                                       text=inc.text, ttl_seconds=self._settings.guard_dedup_ttl_seconds)
+                                       text=inc.text, ttl_seconds=self._settings.guard_dedup_ttl_seconds,
+                                       organization_id=inc.organization_id)
         if duplicate:
             t.outcome.status = "duplicate"
         return duplicate
@@ -247,15 +260,67 @@ class Engine:
 
     async def _model(self, t: Turn) -> None:
         t.step("model")
+        budget_key = _token_budget_key(t.incoming.org_uuid())
+        reserved = await self._reserve_tokens(budget_key)
+        if reserved is None:
+            t.reply, t.outcome.status = BUDGET_REPLY, "budget"
+            t.outcome.reasons.append("token_budget")
+            return
+        t.result = None
         try:
             t.result = await self._llm.generate(t.messages, api_key=t.llm_api_key)
         except Exception:
             logger.exception("слой модели поднял исключение")
-            t.result = None
+        finally:
+            # Списание при любом исходе: неудачный ответ оплачен так же, как удачный (ревизия 26.09).
+            await self._settle_tokens(budget_key, reserved, getattr(t.result, "tokens_used", None))
         if t.result is None or not t.result.ok or t.result.parsed is None:
             # Алерт владельцу — шаг 8; клиенту нейтральная фраза, не текст ошибки.
             logger.error("модель не ответила: %s", getattr(t.result, "error", None) or "exception")
             self._fail(t, "llm_failed")
+            return
+
+    async def _reserve_tokens(self, key: str) -> int | None:
+        """Суточный бюджет модели: резерв под вызов одной операцией Redis -> размер резерва, None — исчерпан.
+
+        Проверка и списание врозь пропускали к модели все параллельные вызовы: каждый видел счётчик
+        до чужого списания. Резерв (предел ответа модели) виден соседям сразу; после вызова — _settle_tokens.
+        Redis недоступен — не исчерпан: бюджет защищает счёт, а не заменяет ответ клиенту.
+        """
+        budget = self._settings.llm_daily_token_budget
+        if budget <= 0:
+            return 0
+        reserve = max(int(self._settings.llm_max_tokens), 1)
+        try:
+            used = int(await self._redis.incrby(key, reserve))
+        except Exception:  # noqa: BLE001 — Redis недоступен
+            logger.warning("бюджет модели: Redis недоступен, считаем не исчерпанным", exc_info=True)
+            return 0
+        try:
+            await self._redis.expire(key, 2 * 86_400)
+        except Exception:  # noqa: BLE001 — срок поставит списание
+            logger.warning("бюджет модели: срок счётчика не поставлен", exc_info=True)
+        if used - reserve >= budget:
+            logger.warning("бюджет модели на сутки исчерпан: %s (%s из %s)", key, used - reserve, budget)
+            await self._settle_tokens(key, reserve, None)
+            return None
+        return reserve
+
+    async def _settle_tokens(self, key: str, reserved: int, tokens: int | None) -> None:
+        """Резерв меняется на фактический расход; счётчик не уходит ниже нуля и истекает через двое суток."""
+        if self._settings.llm_daily_token_budget <= 0:
+            return
+        delta = max(int(tokens or 0), 0) - reserved
+        if not delta:
+            return
+        try:
+            left = int(await self._redis.incrby(key, delta))
+            if left < 0:
+                # ключ истёк между резервом и списанием — ноль, а не долг
+                await self._redis.incrby(key, -left)
+            await self._redis.expire(key, 2 * 86_400)
+        except Exception:  # noqa: BLE001 — Redis недоступен
+            logger.warning("бюджет модели: расход не записан", exc_info=True)
 
     def _unmask(self, t: Turn) -> None:
         t.step("unmask")

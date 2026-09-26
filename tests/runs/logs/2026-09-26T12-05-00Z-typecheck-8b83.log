@@ -1,0 +1,17 @@
+# Типы (typecheck) · 26.09.2026 17:05 Алматы · vm
+# коммит 0e00b19 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 12
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 0 · 28 с

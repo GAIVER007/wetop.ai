@@ -6,7 +6,7 @@ import {
   capStayAvailability,
   categoryAvailability,
   buildChessboard,
-  dateRange,
+  daySpan,
   type Chessboard,
   type StayAvailability,
 } from '@pms/domain';
@@ -41,7 +41,7 @@ export class ChessboardService {
     ) {
       throw new BadRequestException('from/to должны быть датами YYYY-MM-DD, from ≤ to');
     }
-    if (dateRange(from, to).length > MAX_CHESSBOARD_DAYS)
+    if (daySpan(from, to) > MAX_CHESSBOARD_DAYS)
       throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} дней за запрос`);
     // Строка «Без ячейки»: ночи доски — [from, to], т.е. полуинтервал [from, to + 1)
     const [units, allocations, blocks, unassigned] = await Promise.all([
@@ -70,7 +70,7 @@ export class ChessboardService {
       );
     }
     const lastNight = plusDays(departure, -1);
-    if (dateRange(arrival, lastNight).length > MAX_CHESSBOARD_DAYS)
+    if (daySpan(arrival, lastNight) > MAX_CHESSBOARD_DAYS)
       throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} ночей`);
     const [units, allocations, blocks, sold] = await Promise.all([
       this.repo.units(),

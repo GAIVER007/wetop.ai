@@ -34,6 +34,9 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
         calls.push({ table: 'charge', on });
         return { id: 'chg-1' };
       },
+      // чтения под блокировкой (аудит 26.09, С-25) — в список записей не идут
+      findUniqueOrThrow: async () => ({ folioId: 'f-1' }),
+      aggregate: async () => ({ _sum: { amount: 0n } }),
       update: async () => {
         calls.push({ table: 'charge.update', on });
         return {};
@@ -44,12 +47,15 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
         calls.push({ table: 'refund', on });
         return { id: 'ref-1' };
       },
-      // перепроверка предела в транзакции (С-2): ещё ничего не возвращено
       aggregate: async () => ({ _sum: { amount: 0n } }),
     },
     paymentAllocation: {
-      findFirst: async () => ({ amount: 1_000n }),
+      findUnique: async () => ({ amount: 1_000n }),
+      aggregate: async () => ({ _sum: { amount: 0n } }),
     },
+    // блокировка строк счёта и платежа: счёт открыт, платёж проведён
+    $queryRaw: async (sql: TemplateStringsArray) =>
+      sql.join('?').includes('"payments"') ? [{ status: 'COMPLETED' }] : [{ status: 'OPEN' }],
     folio: {
       update: async () => {
         calls.push({ table: 'folio.update', on });
@@ -171,10 +177,12 @@ describe('деньги и журнал — одной транзакцией', (
     ]);
   });
 
-  it('без данных журнала методы работают как прежде — одним запросом, без транзакции', async () => {
+  // Аудит 26.09, С-25: правило «счёт открыт» и баланс при закрытии проверяются под блокировкой строки счёта, а
+  // блокировка держится только внутри транзакции — поэтому и без журнала запись идёт одной транзакцией.
+  it('без данных журнала — тоже одной транзакцией: блокировка вне транзакции ничего не держит', async () => {
     const f = fakePrisma();
     await new PrismaFinanceRepository(f.prisma).closeFolio('f-1');
-    expect(f.transactions).toBe(0);
-    expect(f.calls).toEqual([{ table: 'folio.update', on: 'db' }]);
+    expect(f.transactions).toBe(1);
+    expect(f.calls).toEqual([{ table: 'folio.update', on: 'tx' }]);
   });
 });

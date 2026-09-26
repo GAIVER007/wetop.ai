@@ -1,0 +1,77 @@
+# Модульные (unit) · 26.09.2026 17:12 Алматы · vm
+# коммит 40fd704 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-12-55Z-unit-f79c.json' 'packages/domain/src/incidents/redact.test.ts' 'packages/shared/src/pii-residency.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/incidents/redact.test.ts (9 tests | 1 failed) 4092ms
+   ✓ redactText (5)
+     ✓ SECURITY.md §7: почта и телефоны в тексте ошибки маскируются, номера броней остаются 3ms
+     ✓ длина по умолчанию — 500 знаков, для last_error задаётся своя 1ms
+     ✓ маскирует JWT, пароль в строке подключения, Bearer и длинные ключи 1ms
+     ✓ UUID и номера броней оставляет — по ним разбирают неисправность 0ms
+     ✓ обрезает слишком длинный текст 1ms
+   ✓ redactDetails (2)
+     ✓ поля с ФИО, телефоном, почтой, документом и картой скрываются целиком 1ms
+     ✓ глубокие и длинные структуры обрезаются 0ms
+   ❯ маска и длинный текст (2)
+     × 100 КБ одного слова маскируются быстро 4082ms
+     ✓ обрезка до маски не оставляет почту на границе незамаскированной 1ms
+ ❯ |unit| packages/shared/src/pii-residency.test.ts (17 tests | 1 failed) 6068ms
+   ✓ где можно хранить настоящие данные гостя (9)
+     ✓ по умолчанию гость канала записывается псевдонимом: ни имени, ни телефона, ни почты 3ms
+     ✓ псевдоним детерминирован по ключу брони: повтор ревизии не создаёт второго гостя 1ms
+     ✓ другая соль — другой псевдоним: по известной соли значение не подобрать 0ms
+     ✓ пустой телефон и почта остаются пустыми, а не превращаются в выдуманные 0ms
+     ✓ контакт из пробелов — это «нет контакта»: псевдоним не выдумывает телефон и почту 0ms
+     ✓ в боевом режиме пустой контакт хранится как NULL, а не пустой строкой; края обрезаются 1ms
+     ✓ настоящие данные проходят только при PII_STORAGE=real 0ms
+     ✓ без соли — отказ с инструкцией, а не тихая запись предсказуемого псевдонима 1ms
+     ✓ запасной вариант соли — уже заданный ключ шифрования ПД 1ms
+   ✓ гость, введённый стойкой руками (ADR-072) (4)
+     ✓ пока база не в Казахстане — «Гость Стойка-…» без отчества и контактов; соль не нужна 1ms
+     ✓ имя не обязательно: форма в этом режиме его не спрашивает 0ms
+     ✓ два ручных гостя — два разных псевдонима: у ручного ввода нет ключа брони канала 0ms
+     ✓ PII_STORAGE=real — как введено: края обрезаны, пустое — NULL 0ms
+   ✓ maskContacts, freeTextForStorage (3)
+     ✓ маскирует почту и телефоны: местные, международные, со скобками и дефисами 1ms
+     ✓ номера броней, даты, суммы и время не трогает 0ms
+     ✓ пока база не в РК — текст с маской; PII_STORAGE=real — как введён; пусто остаётся пустым 0ms
+   ❯ маска контактов и длинный текст (1)
+     × 100 КБ одного слова маскируются быстро 6056ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов и длинный текст > 100 КБ одного слова маскируются быстро
+AssertionError: маска заняла 6052 мс: expected 6052.061395 to be less than 200
+ ❯ packages/shared/src/pii-residency.test.ts:168:53
+    166|     maskContacts('a'.repeat(100_000));
+    167|     const ms = performance.now() - started;
+    168|     expect(ms, `маска заняла ${Math.round(ms)} мс`).toBeLessThan(200);
+       |                                                     ^
+    169|   });
+    170| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/domain/src/incidents/redact.test.ts > маска и длинный текст > 100 КБ одного слова маскируются быстро
+AssertionError: маска заняла 4077 мс: expected 4077.334952 to be less than 200
+ ❯ packages/domain/src/incidents/redact.test.ts:91:55
+     89|       const ms = performance.now() - started;
+     90|       expect(out.length).toBeLessThanOrEqual(501);
+     91|       expect(ms, `маска заняла ${Math.round(ms)} мс`).toBeLessThan(200…
+       |                                                       ^
+     92|     }
+     93|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 24 passed (26)
+   Start at  12:12:56
+   Duration  6.36s (tests 97%, transform 3%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-12-55Z-unit-f79c.json
+
+# код выхода 1 · 7 с

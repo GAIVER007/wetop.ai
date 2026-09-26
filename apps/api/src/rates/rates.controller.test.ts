@@ -253,6 +253,34 @@ describe('rates API', () => {
     expect(fakes.published).toHaveLength(0);
   });
 
+  // Аудит 26.09, С-32 и С-48: период правки не ограничивался — строка до 9999 года разворачивалась в миллионы дат
+  // синхронно внутри транзакции и останавливала весь API; число строк тоже. Пустой список дней недели API понимал как
+  // «все дни», и стоп-продажа уходила на весь период во все каналы.
+  it('отказывает до работы с базой: период длиннее года, больше 200 строк, пустой список дней', async () => {
+    const base = {
+      accommodationTypeCode: 'exely-900001',
+      ratePlanCode: 'exely-800002',
+      dateFrom: '2026-11-01',
+      dateTo: '2026-11-02',
+      price: '1000',
+    };
+    const long = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...base, dateTo: '9999-12-31' }] });
+    expect(long.status).toBe(400);
+    expect(long.body.message).toMatch(/366/);
+    const many = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: Array.from({ length: 201 }, () => base) });
+    expect(many.status).toBe(400);
+    const noDays = await request(app.getHttpServer())
+      .post('/rates/bulk')
+      .send({ changes: [{ ...base, days: [] }] });
+    expect(noDays.status).toBe(400);
+    expect(noDays.body.message).toMatch(/день/);
+    expect(fakes.published).toHaveLength(0);
+  });
+
   const one = {
     accommodationTypeCode: 'exely-900002',
     ratePlanCode: 'exely-800002',

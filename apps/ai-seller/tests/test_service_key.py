@@ -90,11 +90,12 @@ def test_support_key_writes_the_rules_the_engine_reads(monkeypatch, fake_redis, 
 
 
 def test_mistyped_role_keeps_the_rules_closed(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811
-    """Опечатка в BOT_ROLE сводится к support для поведения бота, но правила ключу не открывает: иначе опечатка
-    в .env продавца отдала бы его ядро правил платформе."""
-    with panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="suport") as p:
-        response = p.client.put(f"{PANEL}/prompt", headers={HEADER: KEY}, json={"text": "x"})
-        assert response.status_code == 403
+    """Опечатка в BOT_ROLE не открывает правила ключу: иначе опечатка в .env продавца отдала бы его ядро правил
+    платформе. С 26.09 (аудит, С-60) опечатка не сводится к support, а не даёт боту стартовать вовсе — закрыто всё."""
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError), panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="suport"):
+        pass
 
 
 def test_second_factor_setup_stays_closed_to_the_support_key(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811

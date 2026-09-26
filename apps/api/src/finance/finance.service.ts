@@ -17,9 +17,12 @@ import {
   stayExtraPercent,
   adjacentNight,
 } from '@pms/domain';
-import { freeTextForStorage } from '@pms/shared';
+import { freeTextForStorage, maskContacts } from '@pms/shared';
 import {
   FINANCE_REPOSITORY,
+  FolioBalanceError,
+  FinanceStateError,
+  FolioClosedError,
   MANUAL_CHARGE_KINDS,
   PAYMENT_METHODS,
   type ChargeKind,
@@ -124,6 +127,26 @@ function money(value: unknown, field: string): bigint {
   if (typeof value !== 'string' && typeof value !== 'number')
     throw new BadRequestException(`${field} — сумма, например 12000 или 456.50`);
   return rule(() => parseMoney(String(value)));
+}
+/**
+ * Запись денег: правила, которые репозиторий проверяет под блокировкой строки (счёт открыт, предел возврата, нулевой
+ * баланс при закрытии), отвечают теми же словами и кодами, что проверки сервиса до записи (аудит 26.09, С-25, С-2).
+ */
+async function lockedWrite<T>(write: Promise<T>): Promise<T> {
+  try {
+    return await write;
+  } catch (e) {
+    if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
+    if (e instanceof FolioClosedError) throw new ConflictException(`Счёт ${e.folioId} закрыт`);
+    if (e instanceof FinanceStateError) throw new ConflictException(e.message);
+    if (e instanceof FolioBalanceError)
+      throw new ConflictException(
+        `На счёте баланс ${formatMinorRu(e.balanceMinor)} — закрыть нельзя: ${
+          e.balanceMinor > 0n ? 'примите оплату' : 'оформите возврат переплаты'
+        }`,
+      );
+    throw e;
+  }
 }
 function rule<T>(fn: () => T): T {
   try {
@@ -306,16 +329,18 @@ export class FinanceService {
           balance > 0n ? 'примите оплату' : 'оформите возврат переплаты'
         }`,
       );
-    await this.repo.closeFolio(folioId, {
-      entityType: 'Folio',
-      entityId: folioId,
-      action: 'finance.folio.close',
-      before: { status: 'OPEN' },
-      after: {
-        status: 'CLOSED',
-        balanceMinor: '0',
-      },
-    });
+    await lockedWrite(
+      this.repo.closeFolio(folioId, {
+        entityType: 'Folio',
+        entityId: folioId,
+        action: 'finance.folio.close',
+        before: { status: 'OPEN' },
+        after: {
+          status: 'CLOSED',
+          balanceMinor: '0',
+        },
+      }),
+    );
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -367,23 +392,25 @@ export class FinanceService {
           : 'Цена должна быть больше нуля',
       );
     const amountMinor = unitPriceMinor * BigInt(quantity);
-    await this.repo.addCharge(
-      folioId,
-      { kind, serviceId, description, quantity, unitPriceMinor, amountMinor, serviceDate },
-      {
-        entityType: 'Folio',
-        entityId: folioId,
-        action: 'finance.charge',
-        idField: 'chargeId',
-        after: {
-          kind,
-          description,
-          quantity,
-          unitPriceMinor: s(unitPriceMinor),
-          amountMinor: s(amountMinor),
-          serviceDate,
+    await lockedWrite(
+      this.repo.addCharge(
+        folioId,
+        { kind, serviceId, description, quantity, unitPriceMinor, amountMinor, serviceDate },
+        {
+          entityType: 'Folio',
+          entityId: folioId,
+          action: 'finance.charge',
+          idField: 'chargeId',
+          after: {
+            kind,
+            description,
+            quantity,
+            unitPriceMinor: s(unitPriceMinor),
+            amountMinor: s(amountMinor),
+            serviceDate,
+          },
         },
-      },
+      ),
     );
     return this.reservation(folio.confirmationNumber);
   }
@@ -453,31 +480,33 @@ export class FinanceService {
         throw e;
       }
     }
-    await this.repo.addCharge(
-      folioId,
-      {
-        kind: 'SERVICE',
-        serviceId: null,
-        description: spec.description,
-        quantity: 1,
-        unitPriceMinor,
-        amountMinor: unitPriceMinor,
-        serviceDate,
-      },
-      {
-        entityType: 'Folio',
-        entityId: folioId,
-        action: 'finance.stayExtra',
-        idField: 'chargeId',
-        after: {
-          extra: dto.extra,
-          time: dto.time ?? null,
-          percent,
-          amountMinor: s(unitPriceMinor),
+    await lockedWrite(
+      this.repo.addCharge(
+        folioId,
+        {
+          kind: 'SERVICE',
+          serviceId: null,
+          description: spec.description,
+          quantity: 1,
+          unitPriceMinor,
+          amountMinor: unitPriceMinor,
           serviceDate,
-          defaultUsed: dto.unitPrice === undefined,
         },
-      },
+        {
+          entityType: 'Folio',
+          entityId: folioId,
+          action: 'finance.stayExtra',
+          idField: 'chargeId',
+          after: {
+            extra: dto.extra,
+            time: dto.time ?? null,
+            percent,
+            amountMinor: s(unitPriceMinor),
+            serviceDate,
+            defaultUsed: dto.unitPrice === undefined,
+          },
+        },
+      ),
     );
     return this.reservation(folio.confirmationNumber);
   }
@@ -506,20 +535,22 @@ export class FinanceService {
         releasedBlock = { unitCode: block.unitCode, dateFrom: block.dateFrom };
       }
     }
-    await this.repo.voidCharge(chargeId, {
-      entityType: 'Folio',
-      entityId: c.folioId,
-      action: 'finance.charge.void',
-      before: {
-        chargeId,
-        kind: c.kind,
-        description: c.description,
-        amountMinor: s(c.amountMinor),
-        ...(extra ? { releasedBlock } : {}),
-      },
-      // Сторно: состояние «до» — само начисление, «после» — его больше нет
-      after: { voided: true },
-    });
+    await lockedWrite(
+      this.repo.voidCharge(chargeId, {
+        entityType: 'Folio',
+        entityId: c.folioId,
+        action: 'finance.charge.void',
+        before: {
+          chargeId,
+          kind: c.kind,
+          description: c.description,
+          amountMinor: s(c.amountMinor),
+          ...(extra ? { releasedBlock } : {}),
+        },
+        // Сторно: состояние «до» — само начисление, «после» — его больше нет
+        after: { voided: true },
+      }),
+    );
     return this.reservation(folio.confirmationNumber);
   }
 
@@ -552,29 +583,31 @@ export class FinanceService {
       throw new BadRequestException('Счета в одном платеже должны быть в одной валюте');
     if (dto.currency !== undefined && dto.currency !== currency)
       throw new BadRequestException(`Валюта платежа должна быть ${currency}`);
-    await this.repo.createPayment(
-      {
-        method: dto.method as PaymentMethod,
-        amountMinor,
-        currency,
-        paidAt: dto.paidAt ?? null,
-        note: freeTextForStorage(dto.note?.trim() || null),
-        allocations,
-      },
-      {
-        // id платежа известен только после вставки — его подставит репозиторий в той же транзакции
-        entityType: 'Payment',
-        action: 'finance.payment',
-        after: {
-          method: dto.method,
-          amountMinor: s(amountMinor),
+    await lockedWrite(
+      this.repo.createPayment(
+        {
+          method: dto.method as PaymentMethod,
+          amountMinor,
           currency,
-          allocations: allocations.map((a) => ({
-            folioId: a.folioId,
-            amountMinor: s(a.amountMinor),
-          })),
+          paidAt: dto.paidAt ?? null,
+          note: freeTextForStorage(dto.note?.trim() || null),
+          allocations,
         },
-      },
+        {
+          // id платежа известен только после вставки — его подставит репозиторий в той же транзакции
+          entityType: 'Payment',
+          action: 'finance.payment',
+          after: {
+            method: dto.method,
+            amountMinor: s(amountMinor),
+            currency,
+            allocations: allocations.map((a) => ({
+              folioId: a.folioId,
+              amountMinor: s(a.amountMinor),
+            })),
+          },
+        },
+      ),
     );
     return this.reservation(folios[0]!.confirmationNumber);
   }
@@ -598,24 +631,29 @@ export class FinanceService {
       assertRefundWithin({ allocatedMinor: alloc.amountMinor, refundedMinor, refundMinor }),
     );
     const folio = await this.openFolio(dto.folioId);
-    await this.repo.createRefund(
-      {
-        paymentId,
-        folioId: dto.folioId,
-        amountMinor: refundMinor,
-        reason: freeTextForStorage(dto.reason?.trim() || null),
-      },
-      {
-        entityType: 'Payment',
-        entityId: paymentId,
-        action: 'finance.refund',
-        idField: 'refundId',
-        after: {
+    // Одна маска для таблицы и журнала: в журнал раньше уходил сырой текст (аудит 26.09, С-39)
+    const reason = freeTextForStorage(dto.reason?.trim() || null);
+    await lockedWrite(
+      this.repo.createRefund(
+        {
+          paymentId,
           folioId: dto.folioId,
-          amountMinor: s(refundMinor),
-          reason: dto.reason ?? null,
+          amountMinor: refundMinor,
+          reason,
         },
-      },
+        {
+          entityType: 'Payment',
+          entityId: paymentId,
+          action: 'finance.refund',
+          idField: 'refundId',
+          after: {
+            folioId: dto.folioId,
+            amountMinor: s(refundMinor),
+            // в журнал — с маской контактов и при PII_STORAGE=real: журнал только дописывается
+            reason: reason === null ? null : maskContacts(reason),
+          },
+        },
+      ),
     );
     return this.reservation(folio.confirmationNumber);
   }

@@ -233,3 +233,54 @@ describe('приглашение: проверка и принятие по сс
     expect(await repo.accountByEmail(INVITEE)).toBeNull();
   });
 });
+
+/**
+ * Аудит 26.09, С-10 и С-11: приглашение нельзя было отозвать — опечатка в адресе оставляла постороннему ссылку на 7
+ * суток; а число приглашений не ограничивалось, и письма с проверенного домена WETOP уходили на любые адреса.
+ */
+describe('приглашение: отзыв и предел в сутки', () => {
+  it('владелец отзывает приглашение: его нет в списке, а ссылка больше не открывается', async () => {
+    const token = await login();
+    const created = await invite(token, INVITEE);
+    const rawToken = linkFromLetter(INVITEE).split('/invite/')[1]!;
+    const revoked = await request(app.getHttpServer())
+      .delete(`/auth/invites/${created.body.id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(revoked.status).toBe(200);
+    const listed = await request(app.getHttpServer())
+      .get('/auth/invites')
+      .set('Authorization', `Bearer ${token}`);
+    expect(listed.body).toHaveLength(0);
+    expect((await request(app.getHttpServer()).get(`/auth/invites/${rawToken}`)).status).toBe(404);
+    expect(
+      (await request(app.getHttpServer()).post(`/auth/invites/${rawToken}/accept`)).status,
+    ).toBe(404);
+  });
+
+  it('сотрудник не отзывает, чужое приглашение — 404', async () => {
+    const token = await login();
+    const created = await invite(token, INVITEE);
+    repo.accounts = [{ ...ACCOUNT, role: 'STAFF' }];
+    const byStaff = await request(app.getHttpServer())
+      .delete(`/auth/invites/${created.body.id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(byStaff.status).toBe(403);
+    repo.accounts = [ACCOUNT];
+    repo.invites[0]!.organizationId = 'чужая-организация';
+    const foreign = await request(app.getHttpServer())
+      .delete(`/auth/invites/${created.body.id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(foreign.status).toBe(404);
+  });
+
+  it('больше 20 приглашений за сутки — 429 словами, письма нет', async () => {
+    const token = await login();
+    for (let i = 0; i < 20; i += 1) {
+      expect((await invite(token, `gost-${i}@example.com`)).status).toBe(201);
+    }
+    const over = await invite(token, 'lishnij@example.com');
+    expect(over.status).toBe(429);
+    expect(over.body.message).toMatch(/приглашений/);
+    expect(sender.to('lishnij@example.com')).toHaveLength(0);
+  });
+});

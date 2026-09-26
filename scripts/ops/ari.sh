@@ -29,7 +29,13 @@ API_URL="${API_URL:-http://127.0.0.1:3001}"
 API_PORT="${API_PORT:-3001}"
 DOMAIN="gui/$(id -u)"
 COMPOSE_FILE="${COMPOSE_FILE:-$REPO/deploy/compose.yml}"
-COMPOSE="${COMPOSE:-docker compose -f $COMPOSE_FILE}"
+# Наложение Hostinger (сеть и метки прокси) — как в автовыкладке: без него пересозданный API выпадал из сети прокси
+# (аудит 26.09, С-66)
+COMPOSE_OVERLAY="$(dirname "$COMPOSE_FILE")/compose.hostinger.yml"
+if [ -z "${COMPOSE:-}" ]; then
+  COMPOSE="docker compose -f $COMPOSE_FILE"
+  [ -f "$COMPOSE_OVERLAY" ] && COMPOSE="$COMPOSE -f $COMPOSE_OVERLAY"
+fi
 ARI_ENV="${ARI_ENV_FILE:-$(dirname "$COMPOSE_FILE")/ari.env}"
 
 say() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*"; }
@@ -51,10 +57,12 @@ mode() {
 }
 MODE="$(mode)"
 
-# Изнутри контейнера api: тело ответа API по адресу $1 (портов наружу нет). Пусто — нет ответа.
+# Изнутри контейнера api: тело ответа API по адресу $1 (портов наружу нет). Пусто и код 1 — нет ответа или не 2xx.
+# Замок API в боевом образе включён (ADR-095), поэтому запрос идёт со служебным ключом. Ключ берётся из окружения
+# самого контейнера (`process.env`) — на хосте его нет, и в строку запуска (`ps`) он не попадает (аудит 26.09, С-66).
 in_api() {
   dc exec -T api node -e \
-    "fetch('$API_URL$1',{method:'${2:-GET}'}).then(r=>r.text()).then(t=>process.stdout.write(t)).catch(()=>process.exit(1))" 2>/dev/null
+    "fetch('$API_URL$1',{method:'${2:-GET}',headers:{'x-wetop-service-key':process.env.SERVICE_API_KEY||''}}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>process.stdout.write(t)).catch(()=>process.exit(1))" 2>/dev/null
 }
 
 # Значение CHANNEX_ARI в процессе, который на самом деле обслуживает запросы. Не в настройках и не в файле:
@@ -149,17 +157,26 @@ stored_switch() {
   esac
 }
 
+# Mac: прямой запрос с хоста. Ключ, если задан в окружении, идёт через --config из stdin, а не аргументом (`ps`).
+api_curl() {
+  if [ -n "${SERVICE_API_KEY:-}" ]; then
+    printf 'header = "x-wetop-service-key: %s"\n' "$SERVICE_API_KEY" | curl -s --config - "$@"
+  else
+    curl -s "$@"
+  fi
+}
+
 queue() {
   case "$MODE" in
     docker) in_api /channels/channex/outbox || echo "нет ответа" ;;
-    *) curl -s -m 20 "$API_URL/channels/channex/outbox" ;;
+    *) api_curl -m 20 "$API_URL/channels/channex/outbox" ;;
   esac
 }
 
 flush() {
   case "$MODE" in
     docker) in_api /channels/channex/outbox/flush POST || echo "нет ответа" ;;
-    *) curl -s -m 60 -X POST "$API_URL/channels/channex/outbox/flush" ;;
+    *) api_curl -m 60 -X POST "$API_URL/channels/channex/outbox/flush" ;;
   esac
 }
 

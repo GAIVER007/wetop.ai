@@ -2450,3 +2450,6 @@
 | 26.09.2026 03:57 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 9 из 9 | 7 с | 6338f43 | [лог](logs/2026-09-25T22-57-37Z-unit-41b5.log) | posle sliyaniya 733d556d: povtor odinochnogo taymauta |
 | 26.09.2026 03:57 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 12 с | 6338f43 | [лог](logs/2026-09-25T22-57-59Z-unit-6f69.log) | merged main 733d556d: povtor posle taymauta |
 | 26.09.2026 03:59 | integration | ✅ 84 из 84 | 23 с | 6338f43 | [лог](logs/2026-09-25T22-59-11Z-integration-752c.log) | merged main 733d556d |
+| 26.09.2026 11:37 | lint | ✅ без ошибок | 24 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-20Z-lint-ad46.log) |  |
+| 26.09.2026 11:37 | typecheck | ✅ без ошибок | 29 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-44Z-typecheck-f096.log) |  |
+| 26.09.2026 11:38 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 15 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-38-14Z-unit-3343.log) |  |

@@ -2495,3 +2495,5 @@
 | 26.09.2026 18:38 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts) | ✅ 24 из 24 | 1 с | 3f8ad12 +5 | [лог](logs/2026-09-26T13-38-12Z-unit-612e.log) | PR93 design fixes: tokens instead of off-scale px, no dot separators |
 | 26.09.2026 18:40 | typecheck | ❌ ошибок: 5 | 14 с | 65668e7 | [лог](logs/2026-09-26T13-40-58Z-typecheck-edeb.log) | 65668e70: root, api, web |
 | 26.09.2026 18:41 | lint | ✅ без ошибок | 8 с | 65668e7 | [лог](logs/2026-09-26T13-41-13Z-lint-5ae6.log) | 65668e70 |
+| 26.09.2026 18:47 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 27 с | 4e5f639 | [лог](logs/2026-09-26T13-47-01Z-unit-1c84.log) | Linux node:24 container (flock present): full unit on 4e5f639a |
+| 26.09.2026 18:49 | integration | ❌ упало 2 из 86, пропущено 2 | 21 с | 4e5f639 | [лог](logs/2026-09-26T13-49-08Z-integration-baf9.log) | Linux container, own loopback PG16 on 55432: wizard tests run, not skipped |

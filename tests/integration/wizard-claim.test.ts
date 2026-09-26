@@ -99,7 +99,11 @@ it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
       ).toBe(1);
     } finally {
       if (session) await db.wizardSession.deleteMany({ where: { id: session } });
-      await db.auditLog.deleteMany({ where: { entityType: 'seller-agent', userId: user } });
+      // журнал только дописывается (миграция 20260925000022): уборка своих строк — с отметкой в той же транзакции
+      await db.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+        await tx.auditLog.deleteMany({ where: { entityType: 'seller-agent', userId: user } });
+      });
       await db.sellerAgent.deleteMany({ where: { organizationId: org } });
       await db.membership.deleteMany({ where: { organizationId: org } });
       await db.user.deleteMany({ where: { id: user } });

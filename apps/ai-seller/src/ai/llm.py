@@ -161,9 +161,11 @@ class CascadeClient:
         # httpx пишет полный URL запроса на INFO; в нём бывает токен.
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("openai").setLevel(logging.WARNING)
-        if settings.llm_base_url and settings.llm_api_key:
+        # Клиент — как только задан адрес роутера: ключ бывает только у гостиницы (вкладка «Модель», С2).
+        # Заглушка никуда не уходит: ход без ключа гостиницы и без ключа платформы отказывает в generate().
+        if settings.llm_base_url:
             self._client = AsyncOpenAI(
-                api_key=settings.llm_api_key,
+                api_key=settings.llm_api_key or "no-platform-key",
                 base_url=settings.llm_base_url,
                 # Повтор делаем сами, меняя модель между попытками.
                 max_retries=0,
@@ -199,7 +201,8 @@ class CascadeClient:
         masked = masker.mask(messages)
         # Тот же маскировщик дописывает метки из результатов инструментов.
         mapping = masker.mapping
-        if self._client is None or not self.models:
+        no_key = api_key is None and not self._settings.llm_api_key
+        if self._client is None or not self.models or no_key:
             logger.error("слой модели не настроен: нет адреса, ключа или списка моделей")
             return LlmResult(ok=False, mapping=mapping, error=NOT_CONFIGURED)
 

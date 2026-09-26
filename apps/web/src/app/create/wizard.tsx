@@ -18,6 +18,7 @@ export function GuestWizard() {
     open,
     save,
     restart,
+    claim,
   } = useGuestDraft();
   return (
     <main className="guest-wizard">
@@ -25,7 +26,6 @@ export function GuestWizard() {
         <Link href="/" className="guest-wizard__brand">
           WETOP<span>.AI</span>
         </Link>
-        <Link href="/login">Войти в аккаунт</Link>
       </header>
       <ol className="guest-wizard__progress" aria-label="Этапы создания">
         {['Источник', 'Проверка', 'Тест', 'Сохранение в аккаунт'].map((name, i) => (
@@ -119,6 +119,18 @@ export function GuestWizard() {
                   </button>
                 </div>
               </form>
+              <div className="guest-wizard__actions">
+                <button className="btn" disabled={busy || dirty} onClick={() => void claim()}>
+                  Сохранить агента в аккаунт
+                </button>
+                <a href="/login" target="_blank" rel="noopener noreferrer">
+                  Войти в аккаунт
+                </a>
+              </div>
+              <p className="guest-wizard__note">
+                Для сохранения нужен вход владельца организации. Войдите в соседней вкладке и
+                вернитесь сюда.
+              </p>
               <p className="guest-wizard__note">
                 Генерация и тестовый чат ещё не подключены. Сохранённый черновик не является
                 запущенным агентом.

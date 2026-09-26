@@ -85,7 +85,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
     });
   }
   await page.goto('/rooms/availability?arrival=2026-09-27&departure=2026-09-24');
-  await expect(page.getByText(/Выезд должен быть позже заезда/)).toBeVisible();
+  await expect(page.getByRole('main').getByText(/Выезд должен быть позже заезда/)).toBeVisible();
   await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { name: 'Начните с категории размещения' })).toBeVisible();

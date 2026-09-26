@@ -38,7 +38,7 @@ FAILED test_uvicorn_and_gunicorn_loggers_get_the_pii_mask                   (С-
 ## Прежние тесты, переписанные под новое правило
 
 - `tests/test_support_role.py::test_unknown_role_falls_back_to_support` → `test_unknown_role_refuses_to_start`:
-  незнакомая роль больше не сводится к помощнику, бот не стартует (С-60, ADR-085).
+  незнакомая роль больше не сводится к помощнику, бот не стартует (С-60, ADR-095).
 - `tests/test_service_key.py::test_mistyped_role_keeps_the_rules_closed`: цель та же — опечатка не открывает правила
   ключу; теперь закрыто всё, потому что бот не стартует.
 - `tests/test_step3_normalize.py::test_latin_word_stays_latin` не менялся: он поймал лишнее в первой версии обратных

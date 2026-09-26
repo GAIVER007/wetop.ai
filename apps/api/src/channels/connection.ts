@@ -92,7 +92,7 @@ export class ChannelConnectionService {
 }
 
 @Controller('channels/channex')
-// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-085)
+// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)
 export class ChannelConnectionController {
   constructor(

@@ -26,7 +26,7 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
 /**
  * Замок на непубличных маршрутах API (DATA_MODEL §13 шаг 1, ADR-046).
  *
- * **В боевом образе включён всегда, пока не выключен явным `AUTH_REQUIRED=0`** (ADR-085, `authRequired` ниже). В
+ * **В боевом образе включён всегда, пока не выключен явным `AUTH_REQUIRED=0`** (ADR-095, `authRequired` ниже). В
  * разработке без переменной выключен: сквозные тесты, сторож и скрипты сверки на Mac ходят в API без токена.
  *
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
@@ -85,7 +85,7 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
 }
 
 /**
- * Включён ли замок (ADR-085). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда, пока его не выключили
+ * Включён ли замок (ADR-095). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда, пока его не выключили
  * явным `AUTH_REQUIRED=0`. Непонятное значение («true», «yes», опечатка) замок включает, а не снимает: до 26.09 любое
  * значение, кроме строки «1», молча открывало весь API (аудит 25.09, В-2). В разработке без переменной — выключен, как
  * раньше: сквозные тесты и сторож на Mac ходят без входа.

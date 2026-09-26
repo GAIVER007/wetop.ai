@@ -122,7 +122,7 @@ export default defineConfig({
             GUARD_HEARTBEAT_URL: '',
             TELEGRAM_BOT_TOKEN: '',
             TELEGRAM_CHAT_ID: '',
-            // Замок выключается только явным «0» (ADR-085): без него стойка production-сборки требовала бы вход
+            // Замок выключается только явным «0» (ADR-095): без него стойка production-сборки требовала бы вход
             ...(AUTH ? { AUTH_REQUIRED: '1', SERVICE_API_KEY: SERVICE_KEY } : { AUTH_REQUIRED: '0' }),
           },
           // отвечает 200 и без готовой схемы — схему готовит globalSetup, проверяет schema-guard

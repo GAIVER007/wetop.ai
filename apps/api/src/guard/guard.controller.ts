@@ -22,7 +22,7 @@ import { GuardService } from './guard.service';
  * «Принято» — человек в курсе, будить больше не надо; «Решено» — закрыть руками то, что проверка не перепроверит.
  */
 @Controller('guard')
-// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-085)
+// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)
 export class GuardController {
   private lastAlertTestAt = 0;

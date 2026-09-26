@@ -2453,3 +2453,10 @@
 | 26.09.2026 11:37 | lint | ✅ без ошибок | 24 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-20Z-lint-ad46.log) |  |
 | 26.09.2026 11:37 | typecheck | ✅ без ошибок | 29 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-44Z-typecheck-f096.log) |  |
 | 26.09.2026 11:38 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 15 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-38-14Z-unit-3343.log) |  |
+| 26.09.2026 15:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts) | ❌ упало 2 из 2 | 1 мин 20 с | d2de85f +16 | [лог](logs/2026-09-26T10-41-18Z-e2e-f121.log) | RED: live seller preview and compact connection state |
+| 26.09.2026 15:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts tests/ui/ai-seller.spec.ts --workers=1) | ✅ 20 из 20 | 1 мин 33 с | d2de85f +19 | [лог](logs/2026-09-26T10-44-41Z-e2e-0a38.log) | GREEN: seller workspace and existing scenarios |
+| 26.09.2026 15:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 3 из 3 | 27 с | d2de85f +19 | [лог](logs/2026-09-26T10-49-14Z-e2e-c4fd.log) | Seller workspace final layout: persisted preview and responsive themes |
+| 26.09.2026 15:56 | integration (частично: tests/integration/wizard-drafts.test.ts) | ❌ код выхода 1 | 3 с | d2de85f +13 | [лог](logs/2026-09-26T10-56-06Z-integration-2c6c.log) | RED: guest draft storage before migration on loopback DB |
+| 26.09.2026 15:56 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 1 | 3 с | d2de85f +13 | [лог](logs/2026-09-26T10-56-51Z-integration-a4f5.log) | RED: isolated loopback draft storage, no shared-db setup |
+| 26.09.2026 15:57 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 1 | 6 с | d2de85f +13 | [лог](logs/2026-09-26T10-57-51Z-integration-db53.log) | GREEN: persisted guest drafts on loopback PostgreSQL |
+| 26.09.2026 15:58 | integration (частично: --config tests/wizard.config.ts) | ✅ 1 из 1 | 22 с | d2de85f +14 | [лог](logs/2026-09-26T10-58-40Z-integration-d6d0.log) | Guest drafts: persistence, concurrent writes, token isolation, expiry |

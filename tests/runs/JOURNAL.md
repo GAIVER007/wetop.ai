@@ -2503,3 +2503,9 @@
 | 26.09.2026 19:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts tests/ui/chessboard-extend.spec.ts --workers= | ✅ 20 из 20 | 1 мин 1 с | 93b9884 +3 | [лог](logs/2026-09-26T14-30-04Z-e2e-e43f.log) | ADR-090 menu specs + weekday-independent chessboard-extend window (with test-client header) |
 | 26.09.2026 18:53 | unit | ❌ упало 1 из 1904, пропущено 3 | 2 мин 46 с | 93b9884 | [лог](logs/2026-09-26T13-53-49Z-unit-3689.log) | Linux node:24 container (flock present): full unit (rerun, LANG=C.UTF-8) on 93b9884a |
 | 26.09.2026 18:58 | integration | ✅ 84 из 86, пропущено 2 | 1 мин 40 с | 93b9884 | [лог](logs/2026-09-26T13-58-21Z-integration-96c2.log) | Linux container, own loopback PG16 on 55432: UTF-8 cluster (LANG=C.UTF-8), wizard tests run |
+| 26.09.2026 19:32 | typecheck | ✅ без ошибок | 15 с | b62a189 | [лог](logs/2026-09-26T14-32-17Z-typecheck-a2bd.log) | final SHA b62a1892 |
+| 26.09.2026 19:32 | lint | ✅ без ошибок | 9 с | b62a189 | [лог](logs/2026-09-26T14-32-33Z-lint-a611.log) | final SHA b62a1892 |
+| 26.09.2026 19:38 | e2e | ❌ упало 1 из 25 | 1 мин 34 с | b62a189 | [лог](logs/2026-09-26T14-38-02Z-e2e-b3c5.log) | final SHA b62a1892: live e2e on local PG16 (55442) |
+| 26.09.2026 19:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 389 | 17 мин 25 с | b62a189 | [лог](logs/2026-09-26T14-39-36Z-e2e-b090.log) | final SHA b62a1892: full UI suite |
+| 26.09.2026 19:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --repeat-each=3 --workers=1) | ✅ 9 из 9 | 38 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-10Z-e2e-86b3.log) | fund-workspace: invalid-dates alert looked up inside main (TESTING.md rule), x3 |
+| 26.09.2026 19:58 | e2e | ✅ 25 из 25 | 48 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-54Z-e2e-ade3.log) | final: live e2e after db:local reset (clean stand, as TESTING.md requires) |

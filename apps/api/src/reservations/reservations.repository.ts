@@ -525,8 +525,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async unitByCode(code: string): Promise<UnitRef | null> {
-    return this.db.inventoryUnit.findUnique({
-      where: { code },
+    const { id: propertyId } = await this.property();
+    return this.db.inventoryUnit.findFirst({
+      where: { code, accommodationType: { propertyId } },
       select: { id: true, code: true, accommodationTypeId: true, active: true },
     });
   }

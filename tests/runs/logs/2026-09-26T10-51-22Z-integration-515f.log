@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 26.09.2026 15:51 Алматы · vm
+# коммит 7b98a24 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T10-51-22Z-integration-515f.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:31759) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/organization-isolation.test.ts (2 tests | 1 failed) 468ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (1)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 280ms
+   ❯ изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) (1)
+     × чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит 104ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) > чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит
+AssertionError: expected { unit: true, card: true, …(4) } to deeply equal { unit: false, card: false, …(4) }
+
+- Expected
++ Received
+
+  {
+-   "block": false,
+-   "card": false,
+-   "site": false,
+-   "siteInList": false,
+-   "siteUpdated": false,
+-   "unit": false,
++   "block": true,
++   "card": true,
++   "site": true,
++   "siteInList": true,
++   "siteUpdated": true,
++   "unit": true,
+  }
+
+ ❯ tests/integration/organization-isolation.test.ts:187:23
+    185|     ).rejects.toBeInstanceOf(Rollback);
+    186|
+    187|     expect(seen['B']).toEqual({
+       |                       ^
+    188|       unit: false,
+    189|       card: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:51:23
+   Duration  2.38s (transform 42%, tests 37%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-09-26T10-51-22Z-integration-515f.json
+
+# код выхода 1 · 3 с

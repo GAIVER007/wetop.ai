@@ -2336,3 +2336,17 @@
 | 25.09.2026 22:43 | unit | ✅ 1847 из 1850, пропущено 3 | 1 мин 26 с | 2c5fb03 +15 | [лог](logs/2026-09-25T17-43-42Z-unit-a824.log) |  |
 | 25.09.2026 22:46 | typecheck | ✅ без ошибок | 29 с | 2c5fb03 +17 | [лог](logs/2026-09-25T17-46-01Z-typecheck-52f2.log) |  |
 | 25.09.2026 22:46 | integration | ✅ 76 из 76 | 32 с | 2c5fb03 +11 | [лог](logs/2026-09-25T17-46-39Z-integration-0923.log) |  |
+| 26.09.2026 15:50 | unit (частично: packages/domain/src/chessboard/build.test.ts) | ❌ упало 2 из 13 | 16 с | 7b98a24 +1 | [лог](logs/2026-09-26T10-50-57Z-unit-a6db.log) | В-6 red: dateRange loops at 9999-12-31 |
+| 26.09.2026 15:51 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 2 | 3 с | 7b98a24 +2 | [лог](logs/2026-09-26T10-51-22Z-integration-515f.log) | В-1/В-3 red: units and sites visible to another org |
+| 26.09.2026 15:52 | unit (частично: packages/domain/src/chessboard/build.test.ts) | ✅ 13 из 13 | 1 с | 7b98a24 +6 | [лог](logs/2026-09-26T10-52-34Z-unit-de8b.log) | В-6 green |
+| 26.09.2026 15:52 | integration (частично: tests/integration/organization-isolation.test.ts) | ✅ 2 из 2 | 3 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-52-35Z-integration-6df1.log) | В-1/В-3 green |
+| 26.09.2026 15:52 | unit | ✅ 1849 из 1852, пропущено 3 | 1 мин 27 с | 7b98a24 +6 | [лог](logs/2026-09-26T10-52-48Z-unit-1fe4.log) | security fixes В-1/В-3/В-6 |
+| 26.09.2026 15:54 | typecheck | ✅ без ошибок | 28 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-54-16Z-typecheck-8fb0.log) | security fixes В-1/В-3/В-6 |
+| 26.09.2026 15:54 | lint | ✅ без ошибок | 15 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-54-44Z-lint-2aaf.log) | security fixes В-1/В-3/В-6 |
+| 26.09.2026 15:55 | integration | ✅ 77 из 77 | 24 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-55-03Z-integration-aebe.log) | security fixes В-1/В-3/В-6 |
+| 26.09.2026 15:56 | e2e | ✅ 25 из 25 | 1 мин 9 с | 7b98a24 +6 | [лог](logs/2026-09-26T10-56-01Z-e2e-5d4c.log) | security fixes В-1/В-3/В-6 |
+| 26.09.2026 15:57 | unit | ✅ 1849 из 1852, пропущено 3 | 1 мин 12 с | 7b98a24 +6 | [лог](logs/2026-09-26T10-57-57Z-unit-d059.log) | security fixes В-1/В-3/В-6, final tree |
+| 26.09.2026 15:59 | typecheck | ✅ без ошибок | 20 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-59-10Z-typecheck-97e5.log) | security fixes В-1/В-3/В-6, final tree |
+| 26.09.2026 15:59 | lint | ✅ без ошибок | 15 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-59-30Z-lint-5e49.log) | security fixes В-1/В-3/В-6, final tree |
+| 26.09.2026 15:59 | integration | ✅ 77 из 77 | 23 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-59-46Z-integration-a9cb.log) | security fixes В-1/В-3/В-6, final tree |
+| 26.09.2026 16:00 | e2e | ✅ 25 из 25 | 1 мин 3 с | 7b98a24 +6 | [лог](logs/2026-09-26T11-00-15Z-e2e-9647.log) | security fixes В-1/В-3/В-6, final tree |

@@ -115,14 +115,25 @@ const addDays = (d: string, n: number) => {
   return fmt(x);
 };
 
-/** Включительный список дат YYYY-MM-DD. */
+const DAY_MS = 86_400_000;
+
+/**
+ * Включительный список дат YYYY-MM-DD. Перебор идёт по миллисекундам, а не по строкам: после 9999-12-31 строка
+ * становится «+010000-01», а она по строкам меньше «9999-12-31» — цикл по строкам не кончался (аудит 26.09, В-6).
+ */
 export function dateRange(from: string, to: string): string[] {
   if (!ISO.test(from) || !ISO.test(to))
     throw new Error(`dateRange: даты должны быть YYYY-MM-DD, получено ${from}..${to}`);
   if (from > to) throw new Error(`dateRange: from ${from} позже to ${to}`);
   const out: string[] = [];
-  for (let d = from; d <= to; d = addDays(d, 1)) out.push(d);
+  const end = toUtc(to).getTime();
+  for (let t = toUtc(from).getTime(); t <= end; t += DAY_MS) out.push(fmt(new Date(t)));
   return out;
+}
+
+/** Сколько дат в `dateRange(from, to)` — без построения списка, чтобы проверять предел до работы. */
+export function daySpan(from: string, to: string): number {
+  return Math.round((toUtc(to).getTime() - toUtc(from).getTime()) / DAY_MS) + 1;
 }
 
 export function buildChessboard(input: ChessboardInput): Chessboard {

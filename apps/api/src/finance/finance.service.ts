@@ -599,12 +599,14 @@ export class FinanceService {
       assertRefundWithin({ allocatedMinor: alloc.amountMinor, refundedMinor, refundMinor }),
     );
     const folio = await this.openFolio(dto.folioId);
+    // Одна маска для таблицы и журнала: в журнал раньше уходил сырой текст (аудит 26.09, С-39)
+    const reason = freeTextForStorage(dto.reason?.trim() || null);
     await this.repo.createRefund(
       {
         paymentId,
         folioId: dto.folioId,
         amountMinor: refundMinor,
-        reason: freeTextForStorage(dto.reason?.trim() || null),
+        reason,
       },
       {
         entityType: 'Payment',
@@ -614,7 +616,7 @@ export class FinanceService {
         after: {
           folioId: dto.folioId,
           amountMinor: s(refundMinor),
-          reason: dto.reason ?? null,
+          reason,
         },
       },
     );

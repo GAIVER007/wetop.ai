@@ -18,6 +18,7 @@ import type {
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from './reservation-card';
 import { auditUserId } from '../accounts/actor';
@@ -1299,8 +1300,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,
-        before: json(entry.before),
-        after: json(entry.after),
+        // Карточка брони — без имени и контактов гостя (аудит 25.09, В-5)
+        before: json(withoutGuestIdentity(entry.before)),
+        after: json(withoutGuestIdentity(entry.after)),
       },
     });
   }

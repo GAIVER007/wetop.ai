@@ -2393,3 +2393,14 @@
 | 26.09.2026 17:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ❌ упало 1 из 4 | 30 с | 40fd704 +17 | [лог](logs/2026-09-26T12-18-57Z-e2e-7eb1.log) | С-48 UI red (старая форма) |
 | 26.09.2026 17:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ✅ 4 из 4 | 12 с | 40fd704 +18 | [лог](logs/2026-09-26T12-19-34Z-e2e-48a9.log) | С-48 UI green |
 | 26.09.2026 17:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 40fd704 +18 | [лог](logs/2026-09-26T12-19-59Z-e2e-305b.log) | пакет C |
+| 26.09.2026 17:22 | unit (частично: packages/shared/src/pii-residency.test.ts apps/api/src/finance/finance.controller.test.ts) | ❌ упало 6 из 38 | 3 с | d53aff7 +2 | [лог](logs/2026-09-26T12-22-26Z-unit-cba3.log) | пакет D red: С-39, С-40 |
+| 26.09.2026 17:22 | unit (частично: packages/shared packages/domain/src/incidents apps/api/src/finance/finance.controller.test.ts) | ✅ 110 из 110 | 3 с | d53aff7 +4 | [лог](logs/2026-09-26T12-22-56Z-unit-e268.log) | пакет D: С-39, С-40 green |
+| 26.09.2026 17:23 | integration (частично: tests/integration/audit-guest-identity.test.ts) | ❌ упало 1 из 1 | 3 с | d53aff7 +5 | [лог](logs/2026-09-26T12-23-48Z-integration-aed7.log) | В-5(25.09) red |
+| 26.09.2026 17:23 | unit (частично: packages/shared/src/pii-residency.test.ts) | ❌ упало 2 из 29 | 1 с | d53aff7 +4 | [лог](logs/2026-09-26T12-23-52Z-unit-7052.log) | В-5(25.09) red |
+| 26.09.2026 17:24 | unit (частично: packages/shared apps/api/src/reservations apps/api/src/channels) | ✅ 218 из 218 | 6 с | d53aff7 +6 | [лог](logs/2026-09-26T12-24-19Z-unit-0019.log) | пакет D green |
+| 26.09.2026 17:24 | integration (частично: tests/integration/audit-guest-identity.test.ts) | ✅ 1 из 1 | 3 с | d53aff7 +7 | [лог](logs/2026-09-26T12-24-25Z-integration-94fb.log) | В-5(25.09) green |
+| 26.09.2026 17:24 | unit | ✅ 1912 из 1915, пропущено 3 | 1 мин 12 с | d53aff7 +6 | [лог](logs/2026-09-26T12-24-44Z-unit-38e2.log) | пакет D: персональные данные |
+| 26.09.2026 17:25 | typecheck | ✅ без ошибок | 28 с | d53aff7 +7 | [лог](logs/2026-09-26T12-25-57Z-typecheck-068e.log) | пакет D: персональные данные |
+| 26.09.2026 17:26 | lint | ✅ без ошибок | 16 с | d53aff7 +7 | [лог](logs/2026-09-26T12-26-26Z-lint-fefa.log) | пакет D: персональные данные |
+| 26.09.2026 17:26 | integration | ✅ 80 из 80 | 26 с | d53aff7 +7 | [лог](logs/2026-09-26T12-26-43Z-integration-6252.log) | пакет D |
+| 26.09.2026 17:27 | e2e | ✅ 25 из 25 | 1 мин 8 с | d53aff7 +6 | [лог](logs/2026-09-26T12-27-21Z-e2e-3a11.log) | пакет D |

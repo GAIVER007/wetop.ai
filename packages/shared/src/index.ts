@@ -22,6 +22,7 @@ export {
   realPiiAllowed,
   pseudonymSalt,
   AnonymizeSaltMissingError,
+  withoutGuestIdentity,
   type DeskGuestInput,
   type GuestIdentity,
 } from './pii-residency';

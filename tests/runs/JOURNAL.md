@@ -2566,3 +2566,7 @@
 | 26.09.2026 20:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 389 из 389 | 22 мин 49 с | 38dd73e | [лог](logs/2026-09-26T15-55-24Z-e2e-0a7b.log) | strip fix 38dd73ec: full UI suite |
 | 26.09.2026 20:51 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 24 с | 38dd73e | [лог](logs/2026-09-26T15-51-57Z-unit-5ec8.log) | Linux node:24 container (flock present): step strip fix: full unit on 38dd73ec |
 | 26.09.2026 20:53 | integration | ✅ 84 из 86, пропущено 2 | 18 с | 38dd73e | [лог](logs/2026-09-26T15-53-48Z-integration-c53d.log) | Linux container, own loopback PG16 on 55432: step strip fix, UTF-8 cluster, wizard tests run |
+| 26.09.2026 21:24 | typecheck | ✅ без ошибок | 31 с | e1cbd81 | [лог](logs/2026-09-26T16-24-02Z-typecheck-c1af.log) |  |
+| 26.09.2026 21:24 | lint | ✅ без ошибок | 17 с | e1cbd81 | [лог](logs/2026-09-26T16-24-34Z-lint-2ec5.log) |  |
+| 26.09.2026 21:24 | unit | ✅ 1914 из 1917, пропущено 3 | 1 мин 12 с | e1cbd81 | [лог](logs/2026-09-26T16-24-51Z-unit-ed3c.log) |  |
+| 26.09.2026 21:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/seller-workspace.spec.ts tests/ui/ai-seller.spec.ts tests/ui/seller-agent-editor.spec | ✅ 23 из 23 | 1 мин 21 с | e1cbd81 | [лог](logs/2026-09-26T16-26-08Z-e2e-f4d4.log) |  |

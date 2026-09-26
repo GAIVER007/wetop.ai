@@ -35,13 +35,13 @@ const menuLinks = (page: Page) =>
     .locator('.workspace-sidebar .workspace-links a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
-test('меню: «ИИ-продавец» — у организации с расширением, «Платформа» — у главного администратора', async ({
+test('меню: «ИИ-продавец» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
   page,
   request,
 }) => {
-  // без входа стойка не знает организацию — закрытых пунктов нет
+  // без входа стойка не знает организацию: продавец виден для знакомства (ADR-090), «Платформы» нет
   await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).not.toContain('/ai-seller');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
   expect(await menuLinks(page)).not.toContain('/platform');
 
   await signIn(page);
@@ -55,7 +55,8 @@ test('меню: «ИИ-продавец» — у организации с ра�
   await control(request, { sellerExtension: 'off', platformAdmin: true });
   await page.goto('/today');
   await expect.poll(() => menuLinks(page)).toContain('/platform');
-  expect(await menuLinks(page)).not.toContain('/ai-seller');
+  // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
+  expect(await menuLinks(page)).toContain('/ai-seller');
   await expect(page.locator('.workspace-sidebar .sidebar-section-toggle')).toHaveText([
     'Работа с гостями',
     'Номерной фонд',
@@ -217,7 +218,7 @@ test('«Платформа → Организации»: главный адми
   );
   await shot(page, 'platform-organizations');
 
-  // своя гостиница: выключить — и пункт меню пропадает
+  // своя гостиница: выключить — пункт меню остаётся (ADR-090), а раздел закрыт и говорит почему
   await page.goto('/platform?org=ui-org');
   await page.getByTestId('platform-extension-form').getByLabel('Статус').selectOption('OFF');
   await page
@@ -225,8 +226,12 @@ test('«Платформа → Организации»: главный адми
     .getByRole('button', { name: 'Сохранить' })
     .click();
   await expect(page.getByTestId('platform-extension-result')).toContainText('не подключён');
-  await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).not.toContain('/ai-seller');
+  await page.goto('/ai-seller');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('seller-extension-off')).toContainText(
+    'Расширение «ИИ-продавец» не подключено',
+  );
+  await expect(main.getByTestId('seller-setup')).toHaveCount(0);
 });
 
 for (const width of [1440, 390]) {

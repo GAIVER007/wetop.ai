@@ -7,7 +7,10 @@ export default defineConfig({
       {
         test: {
           name: 'integration',
-          include: ['tests/integration/wizard-drafts.test.ts'],
+          include: [
+            'tests/integration/wizard-drafts.test.ts',
+            'tests/integration/wizard-claim.test.ts',
+          ],
           fileParallelism: false,
         },
       },

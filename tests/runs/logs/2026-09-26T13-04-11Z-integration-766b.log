@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 26.09.2026 18:04 Алматы · MacBook-Air-Urij.local
+# коммит f5e41a2 (codex/seller-agent-handoff), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-26T13-04-11Z-integration-766b.json' '--config' 'tests/wizard.config.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 556ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 554ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 287ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  17:04:14
+   Duration  2.16s (tests 47%, import 28%, transform 24%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-26T13-04-11Z-integration-766b.json
+
+# код выхода 0 · 5 с

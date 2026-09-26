@@ -313,7 +313,16 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .seller-workspace .seller-steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    scrollbar-width: thin;
+  }
+  .seller-workspace .seller-steps__link {
+    flex: 0 0 180px;
+  }
+  .seller-workspace .seller-steps__title {
+    overflow-wrap: normal;
   }
   .seller-preview {
     grid-column: 1;
@@ -321,4 +330,48 @@
   .seller-tabs > a {
     font-size: var(--text-sm);
   }
+}
+/* Keep the editor in view; secondary tools do not displace the first setup step. */
+.seller-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 4px;
+  gap: 4px;
+  background: var(--surface);
+  /* concentric corners: tab radius + container padding */
+  border-radius: calc(var(--radius-control) + var(--space-1));
+  scrollbar-width: thin;
+}
+.seller-tabs > a {
+  flex: none;
+  white-space: nowrap;
+  padding: var(--space-2) var(--space-4);
+  font-size: 14px;
+  min-height: 44px;
+  border-radius: var(--radius-control);
+}
+.seller-connection {
+  padding: var(--space-2) var(--space-4);
+}
+.seller-connection__summary {
+  gap: 8px 16px;
+}
+.seller-connection__summary strong {
+  font-size: 14px;
+}
+.seller-connection__summary > span:not(.badge) {
+  font-size: 12px;
+}
+.seller-workspace .seller-steps__link {
+  padding: var(--space-2);
+}
+.seller-workspace .seller-steps__link .badge {
+  white-space: normal;
+}
+.seller-story > summary {
+  font-size: 14px;
+}
+.seller-story textarea {
+  min-height: 100px;
 }

@@ -28,6 +28,14 @@ test('компактный статус и мастер помещаются н�
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
+  // лента шагов прокручивается сама, а подписи шагов не сжаты и не наезжают на соседние
+  // (26.09.2026 на телефоне пункты сжимались до 58 px: ширина стояла на ссылке, а не на пункте ленты)
+  const clipped = await page
+    .locator('.seller-workspace .seller-steps__title')
+    .evaluateAll((titles) =>
+      titles.filter((t) => t.scrollWidth > t.clientWidth + 1).map((t) => t.textContent),
+    );
+  expect(clipped).toEqual([]);
 });
 
 test('превью: светлая и тёмная темы, мобильная ширина, без горизонтального скролла', async ({

@@ -2475,3 +2475,38 @@
 | 26.09.2026 17:45 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ✅ 3 из 3 | 2 с | 24df31a +2 | [лог](logs/2026-09-26T12-45-35Z-unit-0f8c.log) | posle prettier |
 | 26.09.2026 17:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 381 из 381 | 31 мин 48 с | c6f8a2e | [лог](logs/2026-09-26T12-46-14Z-e2e-ee12.log) | C-13 web: polnyy UI posle predela ozhidaniya |
 | 26.09.2026 18:18 | e2e | ✅ 25 из 25 | 1 мин 1 с | c6f8a2e | [лог](logs/2026-09-26T13-18-19Z-e2e-06a7.log) | C-13 web: zhivye posle predela ozhidaniya |
+| 26.09.2026 15:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts) | ❌ упало 2 из 2 | 1 мин 20 с | d2de85f +16 | [лог](logs/2026-09-26T10-41-18Z-e2e-f121.log) | RED: live seller preview and compact connection state |
+| 26.09.2026 15:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts tests/ui/ai-seller.spec.ts --workers=1) | ✅ 20 из 20 | 1 мин 33 с | d2de85f +19 | [лог](logs/2026-09-26T10-44-41Z-e2e-0a38.log) | GREEN: seller workspace and existing scenarios |
+| 26.09.2026 15:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 3 из 3 | 27 с | d2de85f +19 | [лог](logs/2026-09-26T10-49-14Z-e2e-c4fd.log) | Seller workspace final layout: persisted preview and responsive themes |
+| 26.09.2026 15:56 | integration (частично: tests/integration/wizard-drafts.test.ts) | ❌ код выхода 1 | 3 с | d2de85f +13 | [лог](logs/2026-09-26T10-56-06Z-integration-2c6c.log) | RED: guest draft storage before migration on loopback DB |
+| 26.09.2026 15:56 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 1 | 3 с | d2de85f +13 | [лог](logs/2026-09-26T10-56-51Z-integration-a4f5.log) | RED: isolated loopback draft storage, no shared-db setup |
+| 26.09.2026 15:57 | integration (частично: --config tests/wizard.config.ts) | ❌ упало 1 из 1 | 6 с | d2de85f +13 | [лог](logs/2026-09-26T10-57-51Z-integration-db53.log) | GREEN: persisted guest drafts on loopback PostgreSQL |
+| 26.09.2026 15:58 | integration (частично: --config tests/wizard.config.ts) | ✅ 1 из 1 | 22 с | d2de85f +14 | [лог](logs/2026-09-26T10-58-40Z-integration-d6d0.log) | Guest drafts: persistence, concurrent writes, token isolation, expiry |
+| 26.09.2026 16:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/guest-wizard.spec.ts --workers=1) | ❌ упало 2 из 2 | 1 мин 53 с | 09cec40 +16 | [лог](logs/2026-09-26T11-05-12Z-e2e-5bfb.log) | RED: public guest wizard manual draft flow |
+| 26.09.2026 16:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/guest-wizard.spec.ts --workers=1) | ⏹ прерван | 18 с | 09cec40 +24 | [лог](logs/2026-09-26T11-10-56Z-e2e-b01a.log) | Guest wizard: manual draft, live preview, recovery, save failure |
+| 26.09.2026 16:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/guest-wizard.spec.ts --workers=1) | ❌ упало 1 из 2 | 20 с | 09cec40 +24 | [лог](logs/2026-09-26T11-12-00Z-e2e-9e94.log) | Guest wizard: persistence and failure UX after compile fix |
+| 26.09.2026 16:14 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 3 с | 09cec40 +24 | [лог](logs/2026-09-26T11-14-38Z-e2e-1938.log) | Actual browser to Next/Nest/local PostgreSQL guest persistence |
+| 26.09.2026 16:15 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 6 с | 09cec40 +24 | [лог](logs/2026-09-26T11-15-21Z-e2e-d7e6.log) | Guest persistence through real API with Nest decorator configuration |
+| 26.09.2026 16:16 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ❌ упало 1 из 1 | 59 с | 09cec40 +24 | [лог](logs/2026-09-26T11-16-31Z-e2e-f5be.log) | Guest UI persistence: isolated Next output and real loopback API |
+| 26.09.2026 16:18 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ✅ 1 из 1 | 33 с | 09cec40 +24 | [лог](logs/2026-09-26T11-18-42Z-e2e-4bfc.log) | Fix same-origin proxy behind Next adapter; actual guest persistence |
+| 26.09.2026 16:21 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ✅ 2 из 2 | 21 с | 09cec40 +25 | [лог](logs/2026-09-26T11-21-22Z-e2e-f508.log) | Final guest proxy/persistence/security boundaries and responsive evidence |
+| 26.09.2026 16:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/guest-wizard.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 10 с | 09cec40 +25 | [лог](logs/2026-09-26T11-24-25Z-e2e-9f99.log) | Guest wizard final UI recovery and seller regression |
+| 26.09.2026 16:53 | typecheck | ❌ ошибок: 15 | 43 с | 587ce97 | [лог](logs/2026-09-26T11-53-26Z-typecheck-8b4f.log) | TS2339 |
+| 26.09.2026 16:54 | lint | ✅ без ошибок | 22 с | 587ce97 | [лог](logs/2026-09-26T11-54-09Z-lint-b58f.log) |  |
+| 26.09.2026 16:54 | unit | ❌ упало 1 из 1902, пропущено 3 | 1 мин 19 с | 587ce97 | [лог](logs/2026-09-26T11-54-32Z-unit-74da.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 26.09.2026 16:57 | integration | ✅ 85 из 85 | 40 с | 587ce97 | [лог](logs/2026-09-26T11-57-10Z-integration-80d0.log) |  |
+| 26.09.2026 16:57 | typecheck | ✅ без ошибок | 28 с | 587ce97 +3 | [лог](logs/2026-09-26T11-57-51Z-typecheck-6955.log) |  |
+| 26.09.2026 16:58 | lint | ✅ без ошибок | 20 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-20Z-lint-3ef8.log) |  |
+| 26.09.2026 16:58 | unit | ✅ 1899 из 1902, пропущено 3 | 1 мин 12 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-41Z-unit-55e3.log) |  |
+| 26.09.2026 17:04 | typecheck | ✅ без ошибок | 36 с | 429f0da | [лог](logs/2026-09-26T12-04-30Z-typecheck-51f0.log) |  |
+| 26.09.2026 17:05 | lint | ✅ без ошибок | 20 с | 429f0da | [лог](logs/2026-09-26T12-05-07Z-lint-909a.log) |  |
+| 26.09.2026 17:05 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 14 с | 429f0da | [лог](logs/2026-09-26T12-05-28Z-unit-7014.log) |  |
+| 26.09.2026 17:06 | e2e | ❌ код выхода 1 | 5 с | 429f0da | [лог](logs/2026-09-26T12-06-59Z-e2e-3f6c.log) | (ошибка вне тестов) |
+| 26.09.2026 18:21 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ❌ упало 1 из 2 | 1 с | 5546ef1 +23 | [лог](logs/2026-09-26T13-21-51Z-unit-bfb7.log) | sliyanie main f76e5e54: skaner |
+| 26.09.2026 18:22 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 2 из 2 | 1 с | 5546ef1 +23 | [лог](logs/2026-09-26T13-22-05Z-unit-6a09.log) | sliyanie main f76e5e54: skaner posle pometki |
+| 26.09.2026 18:22 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 2 из 2 | 1 с | 5546ef1 +24 | [лог](logs/2026-09-26T13-22-31Z-unit-20cb.log) | sliyanie main: skaner, tz-allow strokoy vyshe |
+| 26.09.2026 18:22 | typecheck | ✅ без ошибок | 29 с | 5546ef1 +31 | [лог](logs/2026-09-26T13-22-57Z-typecheck-eb2e.log) | sliyanie main f76e5e54 |
+| 26.09.2026 18:23 | lint | ✅ без ошибок | 16 с | 5546ef1 +31 | [лог](logs/2026-09-26T13-23-27Z-lint-d21c.log) | sliyanie main f76e5e54 |
+| 26.09.2026 18:23 | unit | ✅ 1914 из 1917, пропущено 3 | 1 мин 12 с | 5546ef1 +24 | [лог](logs/2026-09-26T13-23-44Z-unit-68e3.log) | sliyanie main f76e5e54 |
+| 26.09.2026 18:24 | integration | ✅ 85 из 85 | 28 с | 5546ef1 +9 | [лог](logs/2026-09-26T13-24-57Z-integration-0028.log) | sliyanie main f76e5e54 |
+| 26.09.2026 18:25 | e2e | ✅ 25 из 25 | 1 мин 3 с | 5546ef1 +25 | [лог](logs/2026-09-26T13-25-26Z-e2e-2603.log) | sliyanie main f76e5e54: zhivye |

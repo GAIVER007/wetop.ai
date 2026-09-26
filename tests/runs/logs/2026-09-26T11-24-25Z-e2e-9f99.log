@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 26.09.2026 16:24 Алматы · MacBook-Air-Urij.local
+# коммит 09cec40 (codex/ai-seller-unified-plan), незакоммиченных файлов набора: 25
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/guest-wizard.spec.ts' 'tests/ui/seller-workspace.spec.ts' '--workers=1'
+[WebServer] (node:90747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90878) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:90942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/guest-wizard.spec.ts:3:1 › гостевой мастер: ручной ввод, живое превью, восстановление после перезагрузки (4.4s)
+  ✓  2 tests/ui/guest-wizard.spec.ts:54:1 › отказ сохранения не теряет ввод и не показывает успешный результат (4.3s)
+  ✓  3 tests/ui/guest-wizard.spec.ts:79:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (2.8s)
+[WebServer] (node:91119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/seller-workspace.spec.ts:7:1 › живое превью имени и приветствия, сохранение шага и восстановление (8.8s)
+[WebServer] (node:91139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/seller-workspace.spec.ts:22:1 › компактный статус и мастер помещаются на мобильном экране (3.0s)
+[WebServer] (node:91155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:91277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/ui/seller-workspace.spec.ts:33:1 › превью: светлая и тёмная темы, мобильная ширина, без горизонтального скролла (30.2s)
+
+  6 passed (1.1m)
+
+# код выхода 0 · 1 мин 10 с

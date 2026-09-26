@@ -1391,3 +1391,36 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
   владельцем 24.09.2026 (ADR-081). Миграции с `down.sql`; на рабочей базе применяет владелец
 
 Раздел 6 утверждён 09.09.2026 (Q-091 закрыт, ADR-014). Пробный маппинг 209 броней — задача Slice 2.
+
+## Гостевой мастер и несколько агентов — утверждено для реализации и тестовой базы (26.09.2026)
+
+Источник — `plans/ai-seller-unified-2026-09-26.md`, поручение владельца реализовать единый план.
+Владелец утвердил модель 26.09.2026 ответом «Утверждаю модель для реализации и тестовой базы». Production migration этим не разрешена; текущий SellerProfile не заменяется молча.
+
+- `Agent`: UUID, organization_id FK, name, scenario (sales/support), profile JSON с валидацией,
+  lifecycle (draft/preparing/ready/error/archived), created_by FK, created_at, updated_at.
+  Организация 1:N Agent. Существующий продавец переносится в один Agent своей организации;
+  знания, диалоги и подключения должны получить agent_id с проверкой принадлежности организации.
+- `WizardSession`: UUID, token_hash unique, ref до 200, last_step, created_at, expires_at.
+  Исходный секрет не хранится в таблице/журнале. Истёкшая сессия не получает доступ к черновику.
+- `WizardDraft`: UUID, guest_session_id unique FK, claimed_by nullable FK, organization_id nullable FK,
+  business_name, niche, description, config JSON, sources JSON, revision integer,
+  generated_revision nullable, generated_prompt, generated_knowledge JSON,
+  test_messages_used integer >= 0, agent_id nullable unique FK, created_at, updated_at.
+  1:1 с гостевой сессией; один черновик может стать только одним агентом.
+- `WizardJob`: UUID, draft_id FK, kind (scan/generate/index), revision,
+  state (queued/running/succeeded/failed), attempt, retry_at, masked_error, created_at, updated_at.
+  Уникальный ключ (draft_id, kind, revision); новые настройки не используют старую генерацию.
+- `WizardMessage`: UUID, draft_id FK, request_id, role, text, state, created_at;
+  уникальный request_id в пределах draft, серверная история. Квота резервируется атомарно;
+  технический отказ освобождает резерв, повтор с тем же ID не оплачивает второй ответ.
+- `WizardSurvey`: guest_session_id unique FK, goal, team_size, leads_per_day, source, industry.
+- `WizardEvent`: UUID, guest_session_id FK, event_type из allowlist, payload с лимитом,
+  deduplication_key unique, created_at; без токенов, текстов переписки и паролей.
+- Присвоение Agent, связь draft, запись outbox для индексации и право на trial — одна транзакция
+  платформы. Бот применяет outbox идемпотентно; общая транзакция двух баз не предполагается.
+- Email handoff: одноразовая серверная связь подтверждённой регистрации с draft, не guestToken
+  в публичных метаданных. Повтор после входа возвращает прежний agent_id только владельцу.
+
+До миграции: согласовать TTL/retention, trial с текущими расширениями и лимит расходов;
+описать backup, backfill существующего продавца, validation и rollback без удаления его истории.

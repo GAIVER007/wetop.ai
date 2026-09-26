@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -13,8 +14,9 @@ import { describe, expect, it } from 'vitest';
  * Зашитое имя пояса — тот же дефект, что и сдвиг: `Intl` с `'Asia/Almaty'` верен только для одного объекта.
  * Пояс платформы (сроки расширений, запасной пояс стойки) один — `PLATFORM_TIMEZONE` в домене.
  *
- * Разрешено только помеченное в той же строке `tz-allow: <причина>` (как `slop-allow` у сторожа слопа):
- * значение по умолчанию для новой записи — не вычисление времени. Тесты и подделки для тестов (`fake-*.ts`)
+ * Разрешено только помеченное `tz-allow: <причина>` в той же строке или строкой выше (JSX не держит комментарий
+ * в конце строки; как `slop-allow` у сторожа слопа): значение по умолчанию для новой записи или вариант в списке
+ * поясов — не вычисление времени. Тесты и подделки для тестов (`fake-*.ts`)
  * не проверяются. Намеренно живёт `confirmationNumber` в домене (домен сюда не входит): дата в НОМЕРЕ брони —
  * неизменный префикс, так задокументировано в самой функции.
  */
@@ -24,6 +26,13 @@ const PATTERNS = [
   String.raw`\+05:00`, // строка смещения
   String.raw`['"]Asia/Almaty['"]`, // зашитое имя пояса
 ];
+
+/** Пометка строкой выше: `path:line:…` → есть ли `tz-allow:` в строке line − 1 того же файла */
+function allowedAbove(hit: string): boolean {
+  const [path, lineNo] = hit.split(':');
+  const above = readFileSync(resolve(ROOT, path!), 'utf8').split('\n')[Number(lineNo) - 2];
+  return above?.includes('tz-allow:') ?? false;
+}
 
 function hardcodedTimezone(dir: string): string[] {
   const args = ['--line-number', '-E', '-r', '--include=*.ts', '--include=*.tsx'];
@@ -46,7 +55,7 @@ function hardcodedTimezone(dir: string): string[] {
       .filter((line) => !/\.(test|spec)\.tsx?:/.test(line) && !/\/fake-[^/:]*\.ts:/.test(line))
       // «(Asia/Almaty, UTC+5)» в человеческом комментарии — не вычисление
       .filter((line) => !/^\s*(\/\/|\*|\/\*\*)/.test(line.split(':').slice(2).join(':')))
-      .filter((line) => !line.includes('tz-allow:'))
+      .filter((line) => !line.includes('tz-allow:') && !allowedAbove(line))
   );
 }
 

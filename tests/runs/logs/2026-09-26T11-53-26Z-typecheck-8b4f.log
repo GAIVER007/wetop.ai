@@ -1,0 +1,32 @@
+# Типы (typecheck) · 26.09.2026 16:53 Алматы · vm
+# коммит 587ce97 (claude/festive-johnson-0aark9)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/wizard/wizard.service.ts(32,38): error TS2339: Property 'wizardSession' does not exist on type 'Db'.
+apps/api/src/wizard/wizard.service.ts(63,38): error TS2339: Property 'wizardSession' does not exist on type 'Db'.
+apps/api/src/wizard/wizard.service.ts(93,32): error TS2339: Property 'wizardDraft' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/wizard/wizard.service.ts(104,16): error TS2339: Property 'wizardSession' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/wizard/wizard.service.ts(105,16): error TS2339: Property 'wizardEvent' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/wizard-drafts.test.ts(43,18): error TS2339: Property 'wizardEvent' does not exist on type 'PrismaClient'.
+tests/integration/wizard-drafts.test.ts(45,16): error TS2339: Property 'wizardSession' does not exist on type 'PrismaClient'.
+tests/integration/wizard-drafts.test.ts(51,24): error TS2339: Property 'wizardSession' does not exist on type 'PrismaClient'.
+tests/wizard-ui/persistence.spec.ts(18,30): error TS2339: Property 'wizardSession' does not exist on type 'PrismaClient'.
+tests/wizard-ui/persistence.spec.ts(48,16): error TS2339: Property 'wizardSession' does not exist on type 'PrismaClient'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/wizard/wizard.service.ts(32,38): error TS2339: Property 'wizardSession' does not exist on type 'Db'.
+apps/api/src/wizard/wizard.service.ts(63,38): error TS2339: Property 'wizardSession' does not exist on type 'Db'.
+apps/api/src/wizard/wizard.service.ts(93,32): error TS2339: Property 'wizardDraft' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/wizard/wizard.service.ts(104,16): error TS2339: Property 'wizardSession' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/wizard/wizard.service.ts(105,16): error TS2339: Property 'wizardEvent' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 43 с

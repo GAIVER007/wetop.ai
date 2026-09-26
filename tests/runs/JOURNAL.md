@@ -2735,3 +2735,10 @@
 | 27.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 66 из 66 | 1 мин 50 с | 35aa561 +2 | [лог](logs/2026-09-26T19-46-59Z-e2e-d9eb.log) | chessboard specs independent of the weekday (Sunday in Almaty now) |
 | 27.09.2026 00:49 | typecheck | ✅ без ошибок | 8 с | 0278091 | [лог](logs/2026-09-26T19-49-06Z-typecheck-5c93.log) | branch tip after chessboard spec fixes |
 | 27.09.2026 00:49 | lint | ✅ без ошибок | 7 с | 0278091 | [лог](logs/2026-09-26T19-49-15Z-lint-3939.log) | branch tip after chessboard spec fixes |
+| 27.09.2026 01:31 | typecheck | ✅ без ошибок | 29 с | df2b47f | [лог](logs/2026-09-26T20-31-02Z-typecheck-e5f9.log) | stage B df2b47f2: typecheck root, api, web |
+| 27.09.2026 01:31 | lint | ✅ без ошибок | 17 с | df2b47f | [лог](logs/2026-09-26T20-31-32Z-lint-f688.log) | stage B df2b47f2: eslint |
+| 27.09.2026 01:32 | unit | ❌ упало 2 из 2007, пропущено 3 | 1 мин 39 с | df2b47f | [лог](logs/2026-09-26T20-32-10Z-unit-464b.log) | Linux node:24 container (flock present): seller prompt window: full unit on df2b47f2 |
+| 27.09.2026 01:34 | integration | ✅ 97 из 99, пропущено 2 | 47 с | df2b47f | [лог](logs/2026-09-26T20-34-34Z-integration-ba5f.log) | Linux container, own loopback PG16 on 55432: seller prompt window, UTF-8 cluster, wizard tests run |
+| 27.09.2026 01:36 | unit | ✅ 2004 из 2007, пропущено 3 | 1 мин 32 с | df2b47f | [лог](logs/2026-09-26T20-36-50Z-unit-35ba.log) | Linux node:24 container, nothing else running: stage B full unit rerun on df2b47f2 (first pass: 2 load timeouts in restore-rates-guard, green 3/3 alone) |
+| 27.09.2026 01:39 | e2e | ✅ 25 из 25 | 52 с | df2b47f | [лог](logs/2026-09-26T20-39-09Z-e2e-2d77.log) | stage B df2b47f2: live e2e after db:local reset |
+| 27.09.2026 01:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 387 из 387 | 14 мин 24 с | df2b47f | [лог](logs/2026-09-26T20-40-02Z-e2e-54e9.log) | stage B df2b47f2: full UI suite |

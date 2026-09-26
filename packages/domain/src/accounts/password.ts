@@ -41,6 +41,20 @@ export function hashPassword(raw: string): string {
   return `scrypt$${N}$${R}$${P}$${salt}$${derive(raw, salt, { N, r: R, p: P })}`;
 }
 
+/**
+ * То же, что `hashPassword`, но scrypt считается в пуле потоков Node: регистрация, сброс и смена пароля не должны
+ * останавливать главный поток API, как не останавливает его вход (аудит 26.09, С-5, и проверка исправлений).
+ */
+export async function hashPasswordAsync(raw: string): Promise<string> {
+  const salt = randomBytes(SALT_BYTES).toString('base64url');
+  const key = await new Promise<string>((resolve, reject) =>
+    scrypt(raw.normalize('NFKC'), salt, KEY_LENGTH, { N, r: R, p: P }, (err, derived) =>
+      err ? reject(err) : resolve(derived.toString('base64url')),
+    ),
+  );
+  return `scrypt$${N}$${R}$${P}$${salt}$${key}`;
+}
+
 /** Проверка пароля. Испорченная или чужая строка хеша — это «не пустить», а не исключение. */
 export function verifyPassword(raw: string, stored: string): boolean {
   const parts = stored.split('$');

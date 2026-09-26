@@ -339,7 +339,11 @@ export interface ReservationsRepository {
     confirmationNumber: string,
   ): Promise<Array<{ categoryCode: string; from: string; toExclusive: string }>>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
-  stayBalanceMinor(itemId: string): Promise<bigint>;
+  /**
+   * Остаток к оплате по счёту проживания. `forUpdate` — сначала блокировка строки счёта, той же, что берут начисления и
+   * платежи (`finance.repository`): для выезда, который по этому остатку закрывает счёт (проверка исправлений 26.09).
+   */
+  stayBalanceMinor(itemId: string, opts?: { forUpdate?: boolean }): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
   closeFolio(itemId: string): Promise<void>;
   /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
@@ -1172,7 +1176,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       data: { status: 'CLOSED', closedAt: new Date() },
     });
   }
-  async stayBalanceMinor(itemId: string): Promise<bigint> {
+  async stayBalanceMinor(itemId: string, opts: { forUpdate?: boolean } = {}): Promise<bigint> {
+    if (opts.forUpdate)
+      await this.db.$queryRaw`
+        SELECT "id" FROM "folios" WHERE "reservation_item_id" = ${itemId}::uuid FOR UPDATE`;
     const folio = await this.db.folio.findUnique({
       where: { reservationItemId: itemId },
       select: {

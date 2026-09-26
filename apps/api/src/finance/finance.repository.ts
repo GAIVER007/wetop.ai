@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import {
-  FinanceRuleError,
   LUXX_APARTS_PROPERTY,
   assertRefundWithin,
   folioBalance,
@@ -199,6 +198,9 @@ export class FolioClosedError extends Error {
   }
 }
 /** Закрыть можно только счёт с нулевым балансом — пересчитанным под блокировкой */
+/** Начисление уже сторнировано или платёж уже аннулирован — проверено под блокировкой, конфликт (409), как в сервисе */
+export class FinanceStateError extends Error {}
+
 export class FolioBalanceError extends Error {
   constructor(readonly balanceMinor: bigint) {
     super(`На счёте баланс ${balanceMinor}`);
@@ -510,6 +512,9 @@ export class PrismaFinanceRepository implements FinanceRepository {
           select: { folioId: true },
         });
         await lockOpenFolios(tx, [charge.folioId]);
+        // Под блокировкой счёта: два одновременных сторно оба проходили проверку сервиса (проверка исправлений 26.09)
+        const now = await tx.charge.findUniqueOrThrow({ where: { id }, select: { voidedAt: true } });
+        if (now.voidedAt) throw new FinanceStateError('Начисление уже сторнировано');
       },
       async (tx) => {
         await tx.charge.update({ where: { id }, data: { voidedAt: new Date() } });
@@ -561,14 +566,14 @@ export class PrismaFinanceRepository implements FinanceRepository {
   /**
    * Возврат: предел «не больше внесённого на этот счёт минус уже возвращённое» пересчитывается под блокировкой платежа.
    * Раньше его считали до транзакции, и два одновременных возврата оба проходили — возвращали больше, чем внесено
-   * (аудит 25.09, С-2). Нарушение — `FinanceRuleError`, как у проверки в сервисе.
+   * (аудит 25.09, С-2). Нарушение предела — `FinanceRuleError`, аннулированный платёж — `FinanceStateError`, как в сервисе.
    */
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
     const lock = async (tx: TxClient) => {
       await lockOpenFolios(tx, [r.folioId]);
       const payment = await tx.$queryRaw<Array<{ status: string }>>`
         SELECT "status"::text AS status FROM "payments" WHERE "id" = ${r.paymentId}::uuid FOR UPDATE`;
-      if (payment[0]?.status !== 'COMPLETED') throw new FinanceRuleError('Платёж аннулирован');
+      if (payment[0]?.status !== 'COMPLETED') throw new FinanceStateError('Платёж аннулирован');
       const allocation = await tx.paymentAllocation.findUnique({
         where: { paymentId_folioId: { paymentId: r.paymentId, folioId: r.folioId } },
         select: { amount: true },

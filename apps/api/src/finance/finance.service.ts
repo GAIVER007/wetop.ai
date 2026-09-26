@@ -17,10 +17,11 @@ import {
   stayExtraPercent,
   adjacentNight,
 } from '@pms/domain';
-import { freeTextForStorage } from '@pms/shared';
+import { freeTextForStorage, maskContacts } from '@pms/shared';
 import {
   FINANCE_REPOSITORY,
   FolioBalanceError,
+  FinanceStateError,
   FolioClosedError,
   MANUAL_CHARGE_KINDS,
   PAYMENT_METHODS,
@@ -138,6 +139,7 @@ async function lockedWrite<T>(write: Promise<T>): Promise<T> {
   } catch (e) {
     if (e instanceof FinanceRuleError) throw new BadRequestException(e.message);
     if (e instanceof FolioClosedError) throw new ConflictException(`Счёт ${e.folioId} закрыт`);
+    if (e instanceof FinanceStateError) throw new ConflictException(e.message);
     if (e instanceof FolioBalanceError)
       throw new ConflictException(
         `На счёте баланс ${formatMinorRu(e.balanceMinor)} — закрыть нельзя: ${
@@ -648,7 +650,8 @@ export class FinanceService {
           after: {
             folioId: dto.folioId,
             amountMinor: s(refundMinor),
-            reason,
+            // в журнал — с маской контактов и при PII_STORAGE=real: журнал только дописывается
+            reason: reason === null ? null : maskContacts(reason),
           },
         },
       ),

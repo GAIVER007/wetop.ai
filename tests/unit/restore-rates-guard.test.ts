@@ -35,4 +35,17 @@ describe('cli-restore-rates закрыт подтверждением', () => {
     expect(r.out).not.toContain('1/3');
     expect(r.out).toMatch(/только локальн/);
   });
+
+  // Проверка исправлений 26.09: шаг 1 — импорт снимка прямо в базу из DATABASE_URL, и локальный API не доказывает, что
+  // база не рабочая
+  it('с подтверждением и локальным API, но с нелокальной базой — отказ', () => {
+    const r = run(['--yes-restore-exely-snapshot'], {
+      APP_API_URL: 'http://127.0.0.1:9',
+      DATABASE_URL: 'postgresql://app@db.example.invalid:5432/postgres',
+    });
+    expect(r.code).not.toBe(0);
+    expect(r.out).not.toContain('1/3');
+    expect(r.out).toMatch(/база.*только локальн/);
+  });
 });
+

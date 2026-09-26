@@ -163,6 +163,9 @@ class Settings(BaseSettings):
     # адреса набегало ~7 ГБ в сутки (аудит 26.09, С-62): сверх предела —
     # отказ, старше срока — удаляются.
     widget_attachment_dir_max_mb: int = 500
+    # Доля одной гостиницы (ревизия 26.09): у продавца вложения лежат в подпапке
+    # организации, и одна гостиница не забивает папку всем. 0 — без доли.
+    widget_attachment_org_max_mb: int = 100
     widget_attachment_keep_days: int = 30
     # Что принимаем: снимок экрана — это картинка.
     widget_attachment_types: str = "image/png,image/jpeg,image/webp"

@@ -445,6 +445,26 @@ describe('виджет бронирования /w/*', () => {
     await post(booking()).expect(201);
   });
 
+  // Проверка исправлений 26.09: предел сайта проверялся до записи брони, а засчитывался после — параллельные запросы с
+  // разных адресов все проходили проверку, и сайт принимал больше броней в час, чем позволено
+  it('одновременные брони с разных адресов не выходят за предел сайта в час', async () => {
+    reservations.create.mockImplementation(async (dto: { arrivalDate: string; departureDate: string }) => {
+      await new Promise((ok) => setTimeout(ok, 20));
+      return createBooking(dto);
+    });
+    try {
+      const host = new URL(ORIGIN).hostname;
+      const results = await Promise.allSettled(
+        Array.from({ length: 40 }, (_, i) =>
+          service.book(booking(), { originHost: host, ownHost: null, ip: `198.51.100.${i}` }),
+        ),
+      );
+      expect(results.filter((r) => r.status === 'fulfilled').length).toBeLessThanOrEqual(30);
+    } finally {
+      reservations.create.mockImplementation(createBooking);
+    }
+  });
+
   // Аудит 26.09, С-33: после записи брони шли привязка сессии и журнал без защиты. Их сбой отдавал гостю ошибку, кнопка
   // снова была активна, и повтор создавал вторую настоящую бронь.
   it('сбой после записи брони не превращается в ошибку для гостя', async () => {

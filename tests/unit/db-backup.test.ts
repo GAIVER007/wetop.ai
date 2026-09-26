@@ -169,6 +169,16 @@ describe('db-backup.sh: ночная копия рабочей базы', { time
     expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe('p@ss/w0rd');
   });
 
+  // Проверка исправлений 26.09: раскодирование шло через printf '%b', и обратная косая в пароле читалась как управляющая
+  // последовательность — «\c» обрезал пароль, «\n» превращался в перевод строки, и копия не снималась
+  it('обратная косая в пароле остаётся сама собой', () => {
+    const sb = sandbox({
+      env: `DIRECT_URL=postgresql://owner:a\\cb\\n%21@db.example.invalid:5432/postgres\n`,
+    });
+    expect(sb.run().status).toBe(0);
+    expect(readFileSync(join(sb.dir, 'pg_dump-password'), 'utf8')).toBe('a\\cb\\n!');
+  });
+
   it('pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17', () => {
     const sb = sandbox({ pgVersion: '16.13' });
     const r = sb.run();

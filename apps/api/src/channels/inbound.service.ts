@@ -854,7 +854,12 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
 
     if (!existing) {
       // Шаг 4 (ADR-024): подтянутая каналом бронь, которая уже лежит в PMS после переноса из Exely.
-      const linked = await this.linkImported(repo, a, items);
+      const candidate = await this.linkImported(repo, a, items);
+      // Найденную перенесённую бронь тоже под замок и заново: стойка могла менять её в эту же секунду
+      if (candidate) await repo.lockReservation(candidate.confirmationNumber);
+      const linked = candidate
+        ? await repo.reservationByNumber(candidate.confirmationNumber)
+        : null;
       if (linked) return this.linkExisting(repo, linked, a, items, header, warnings, affectedOf);
       // ADR-009/ADR-018: настоящие ФИО и контакты допустимы только в production-БД в Казахстане.
       // Пока Q-070 открыт и база в Сингапуре, гость канала записывается псевдонимом.
@@ -900,8 +905,9 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     // ADR-071: первая ревизия подключённого канала по брони, которую стойка завела с номером брони в канале
     // (найдена по ota_reservation_code). Это подтяжка той же брони, а не правка: связываем, как перенесённую
     // (ADR-024) — гость, статус проживаний, ячейки и заметка стойки остаются, дальше бронь идёт по unique_id.
+    // `existing` — состояние после замка; `byOtaCode` прочитан до него и мог устареть
     if (byOtaCode && a.status === 'new')
-      return this.linkExisting(repo, byOtaCode, a, items, header, warnings, affectedOf);
+      return this.linkExisting(repo, existing, a, items, header, warnings, affectedOf);
 
     // modified (или повторный new для уже известной брони)
     const before = await repo.card(existing.confirmationNumber);

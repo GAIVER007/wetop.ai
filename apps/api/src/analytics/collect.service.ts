@@ -56,6 +56,9 @@ export class CollectService implements OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
   private flushing: Promise<number> | null = null;
   private readonly siteCache = new Map<string, { site: SiteRecord | null; at: number }>();
+  private known = new Map<string, SiteRecord>();
+  private knownAt = Number.NEGATIVE_INFINITY;
+  private loadingKnown: Promise<void> | null = null;
   private lookups = new AttemptWindows(COLLECT_LIMITS.unknownLookupsPerMinute, WINDOW_MS);
   private perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
   private perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
@@ -125,6 +128,8 @@ export class CollectService implements OnModuleDestroy {
     this.perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
     this.perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
     this.siteCache.clear();
+    this.known.clear();
+    this.knownAt = Number.NEGATIVE_INFINITY;
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -145,7 +150,35 @@ export class CollectService implements OnModuleDestroy {
     return this.siteFor(key, Date.now());
   }
 
+  /**
+   * Ключи всех настоящих сайтов — одним запросом раз в `siteCacheMs`. Поток случайных ключей расходует только предел
+   * поисков незнакомых ключей и настоящим сайтам не мешает: раньше предел был общий, и пять запросов в секунду
+   * выключали сбор всем сайтам после каждого перезапуска (проверка исправлений 26.09).
+   */
+  private async knownSite(key: string, nowMs: number): Promise<SiteRecord | undefined> {
+    if (nowMs - this.knownAt >= COLLECT_LIMITS.siteCacheMs) {
+      this.loadingKnown ??= this.repo
+        .allSites()
+        .then((sites) => {
+          this.known = new Map(sites.map((s) => [s.publicKey, s]));
+          this.knownAt = nowMs;
+        })
+        .catch((e: unknown) => {
+          // база недоступна — работаем на прежнем списке; следующая попытка через тот же срок
+          this.knownAt = nowMs;
+          console.warn(`[analytics] список сайтов не прочитан: ${(e as Error).message}`);
+        })
+        .finally(() => {
+          this.loadingKnown = null;
+        });
+      await this.loadingKnown;
+    }
+    return this.known.get(key);
+  }
+
   private async siteFor(key: string, nowMs: number): Promise<SiteRecord | null> {
+    const known = await this.knownSite(key, nowMs);
+    if (known) return known;
     const cached = this.siteCache.get(key);
     if (cached && nowMs - cached.at < COLLECT_LIMITS.siteCacheMs) return cached.site;
     // предел поисков исчерпан — база не трогается; известный сайт живёт на прежнем ответе, пока поток не схлынет

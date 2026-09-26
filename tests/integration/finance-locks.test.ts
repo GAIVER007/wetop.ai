@@ -112,4 +112,23 @@ describe.skipIf(!url)('деньги под блокировкой (integration, 
     ).rejects.toThrow();
     await db.folio.update({ where: { id: folioId }, data: { status: 'OPEN', closedAt: null } });
   });
+
+  // Проверка исправлений 26.09: «уже сторнировано» сервис проверял до транзакции, и два одновременных сторно проходили
+  // оба — вторая запись журнала и повторное снятие блока доплаты. Теперь повтор отклоняется под блокировкой счёта.
+  it('два одновременных сторно одного начисления: проходит одно', async () => {
+    const charge = await db.charge.create({
+      data: {
+        folioId,
+        kind: 'ADJUSTMENT',
+        description: 'integration: блокировка',
+        quantity: 1,
+        unitPrice: 5n,
+        amount: 5n,
+      },
+      select: { id: true },
+    });
+    const results = await Promise.allSettled([repo.voidCharge(charge.id), repo.voidCharge(charge.id)]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+  });
 });
+

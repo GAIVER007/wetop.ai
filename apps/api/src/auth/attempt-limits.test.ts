@@ -6,7 +6,12 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
 import { ExtensionsService } from '../platform/extensions.service';
-import { AttemptWindows, LOGIN_ATTEMPTS_PER_IP, PasswordGate } from './attempt-limits';
+import {
+  AttemptWindows,
+  LOGIN_ATTEMPTS_PER_IP,
+  PasswordGate,
+  visitorKey,
+} from './attempt-limits';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './auth.guard';
@@ -39,6 +44,41 @@ describe('окно попыток по ключу', () => {
     expect(w.allow('жертва', t)).toBe(true);
     for (let i = 0; i < 50; i += 1) w.allow(`мусор-${i}`, t + 1);
     expect(w.allow('жертва', t + 2)).toBe(false);
+  });
+});
+
+// Проверка исправлений 26.09: уборка обходила все ключи на каждой новой попытке сверх предела памяти (1 мс синхронно на
+// ключ при 50 тыс.), а память не имела жёсткого потолка — ключи, которые выбирает сам посетитель, росли без края
+describe('окно попыток: потолок памяти', () => {
+  it('сверх потолка новый ключ получает отказ, память не растёт, известный считается как прежде', () => {
+    const w = new AttemptWindows(5, 60_000, 100);
+    const t = 1_000_000;
+    expect(w.allow('свой', t)).toBe(true);
+    for (let i = 0; i < 1_000; i += 1) w.allow(`мусор-${i}`, t + 1);
+    expect(w.size).toBeLessThanOrEqual(100);
+    expect(w.allow('свой', t + 2)).toBe(true);
+  });
+
+  it('уборка на переполнении — не на каждой попытке', () => {
+    const w = new AttemptWindows(5, 60_000, 1_000);
+    const t = 1_000_000;
+    for (let i = 0; i < 1_000; i += 1) w.allow(`ключ-${i}`, t);
+    const started = performance.now();
+    for (let i = 0; i < 20_000; i += 1) w.allow(`новый-${i}`, t + 1);
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+});
+
+describe('адрес посетителя как ключ', () => {
+  it('IPv6 — по сети /64: адреса одного абонента делят счётчик', () => {
+    expect(visitorKey('2001:db8:1:2:aaaa::1')).toBe(visitorKey('2001:0db8:0001:0002:ffff:1:2:3'));
+    expect(visitorKey('2001:db8:1:2::1')).not.toBe(visitorKey('2001:db8:1:3::1'));
+    expect(visitorKey('2001:db8::1')).toBe('2001:db8:0:0::/64');
+  });
+
+  it('IPv4 и IPv4 внутри IPv6 — один и тот же адрес', () => {
+    expect(visitorKey('203.0.113.7')).toBe('203.0.113.7');
+    expect(visitorKey('::ffff:203.0.113.7')).toBe('203.0.113.7');
   });
 });
 

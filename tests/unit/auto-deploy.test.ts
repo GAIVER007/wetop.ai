@@ -144,8 +144,11 @@ describe('scripts/ops/auto-deploy.sh', () => {
 
   it('владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину', () => {
     const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
-    expect(run().code).toBe(1);
-    const r = run({}, ['--migrations-applied']);
+    const refused = run();
+    expect(refused.code).toBe(1);
+    // подсказка называет вершину: флаг без неё не принимается
+    expect(refused.out).toContain(`--migrations-applied ${target.slice(0, 8)}`);
+    const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
     expect(r.code, r.out).toBe(0);
     expect(head()).toBe(target);
     expect(dockerCalls()).toMatch(/up -d --build api web/);
@@ -164,9 +167,24 @@ describe('scripts/ops/auto-deploy.sh', () => {
     const before = head();
     expect(run().code).toBe(1);
     commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
-    const r = run({}, ['--migrations-applied']);
+    const r = run({}, ['--migrations-applied', applied.slice(0, 8)]);
     expect(r.code, r.out).toBe(1);
     expect(r.out).toContain(applied.slice(0, 8));
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+  });
+
+  // Проверка исправлений 26.09: флаг без вершины брал последнюю отказанную. Отказ на A, release ушёл на B, cron отказал
+  // и B (записал её в отказ), владелец запускает флаг из первого сообщения — и выкладывалась B с неприменёнными миграциями
+  it('флаг без вершины не принимается: cron мог уже отказать и следующей вершине', () => {
+    commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    const before = head();
+    expect(run().code).toBe(1);
+    commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
+    expect(run().code).toBe(1);
+    const r = run({}, ['--migrations-applied']);
+    expect(r.code, r.out).toBe(1);
+    expect(r.out).toMatch(/назовите вершину/);
     expect(head()).toBe(before);
     expect(dockerCalls()).not.toContain('up -d');
   });

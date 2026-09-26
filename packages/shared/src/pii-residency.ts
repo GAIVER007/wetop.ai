@@ -188,6 +188,11 @@ export function deskGuestForStorage(
 
 /** Ключи, под которыми в записях журнала лежит гость (карточка брони, ревизия канала) */
 const GUEST_KEYS = new Set(['primaryGuest', 'guest', 'guests', 'customer']);
+/**
+ * Свободный текст, куда гость и канал пишут что угодно — телефон, почту, имя. В журнале — всегда с маской контактов, и при
+ * `PII_STORAGE=real` тоже: в самой записи текст хранится как введён, а журнал только дописывается (проверка исправлений 26.09)
+ */
+const FREE_TEXT_KEYS = new Set(['notes', 'note', 'comment', 'reason']);
 /** Что о госте журналу можно знать: кто это (id) и для отчётов eQonaq — гражданство. Имени и контактов нет */
 const GUEST_AUDIT_FIELDS = new Set(['id', 'citizenship', 'isPrimary']);
 
@@ -214,7 +219,9 @@ export function withoutGuestIdentity(value: unknown): unknown {
         ? Array.isArray(v)
           ? v.map(keepGuestIdentityOut)
           : keepGuestIdentityOut(v)
-        : withoutGuestIdentity(v),
+        : FREE_TEXT_KEYS.has(k) && typeof v === 'string'
+          ? maskContacts(v)
+          : withoutGuestIdentity(v),
     ]),
   );
 }

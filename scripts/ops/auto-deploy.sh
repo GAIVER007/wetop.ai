@@ -16,7 +16,7 @@
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
 #   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
-#   scripts/ops/auto-deploy.sh --migrations-applied [вершина]
+#   scripts/ops/auto-deploy.sh --migrations-applied <вершина>
 #                                                     владелец применил миграции вершины, на которой был отказ, —
 #                                                     выложить ровно её без проверки миграций; остальные проверки и откат
 #                                                     остаются. Ушёл release дальше — отказ: у новой вершины свои миграции
@@ -113,9 +113,13 @@ refuse() {
 
 # Флаг владельца — про ту вершину, на которой был отказ (или названную им), а не про ту, что стоит в release сейчас:
 # пока он применял миграции A, release мог уйти на B со своими миграциями (аудит 25.09, С-1).
+# Вершину флаг называет всегда: без неё бралась последняя отказанная, а cron мог уже отказать и следующей — тогда
+# выкладывалась вершина, чьи миграции никто не применял (проверка исправлений 26.09).
 if [ "$APPLIED" = 1 ]; then
-  expected="${APPLIED_SHA:-$refused_at}"
-  if [ -z "$expected" ] || [ "${target#"$expected"}" = "$target" ]; then
+  [[ "$APPLIED_SHA" =~ ^[0-9a-f]{7,40}$ ]] ||
+    refuse "--migrations-applied без вершины не принимается — назовите вершину, чьи миграции применены: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
+  expected="$APPLIED_SHA"
+  if [ "${target#"$expected"}" = "$target" ]; then
     refuse "--migrations-applied относится к $(short "${refused_at:-$current}" 2>/dev/null || echo "${expected:-?}"), а release уже на $(short "$target") — проверьте миграции новой вершины и запустите ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
   fi
 fi
@@ -126,7 +130,7 @@ git merge-base --is-ancestor "$current" "$target" ||
   refuse "новая вершина $BRANCH не продолжает текущую — история переписана, нужна выкладка руками"
 migrations="$(git diff --name-only "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
 [ -z "$migrations" ] || [ "$APPLIED" = 1 ] ||
-  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied"
+  refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
 
 compose=(docker compose -f deploy/compose.yml)
 [ -f deploy/compose.hostinger.yml ] && compose+=(-f deploy/compose.hostinger.yml)

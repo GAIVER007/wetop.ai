@@ -792,6 +792,23 @@ describe('manual reservation API', () => {
     expect(fake.state.events.filter((e) => e.endsWith(n2))[0]).toBe(`lock:${n2}`);
   });
 
+  // Предпросмотры читают без транзакции, а рекомендательный замок вне транзакции отпускается тем же запросом: он ничего
+  // не держит, только заставляет чтение ждать чужую запись (проверка исправлений 26.09)
+  it('предпросмотр действия замок брони не берёт — только читает', async () => {
+    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    fake.state.events.length = 0;
+    await request(app.getHttpServer())
+      .get(`/reservations/${n}/items/${itemId}/preview?action=cancel`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(`/reservations/${n}/items/${itemId}/extend-preview?nights=1`)
+      .expect(200);
+    expect(fake.state.events.filter((e) => e.startsWith('lock:'))).toEqual([]);
+    expect(fake.state.events).toContain(`read:${n}`);
+  });
+
   it('Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102)', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')

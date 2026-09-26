@@ -64,6 +64,8 @@ export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
+  /** Все сайты всех объектов — только для приёмника счётчика: ключ → сайт одним запросом, без поиска на каждый ключ */
+  allSites(): Promise<SiteRecord[]>;
   createSite(input: { name: string; hosts: string[]; publicKey: string }): Promise<SiteRecord>;
   updateSite(
     id: string,
@@ -185,6 +187,10 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;
+  }
+  async allSites(): Promise<SiteRecord[]> {
+    const rows = await this.prisma.db.trackedSite.findMany({ select: SITE_SELECT });
+    return rows.map(toRecord);
   }
   async createSite(input: {
     name: string;

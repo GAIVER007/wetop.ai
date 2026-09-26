@@ -253,43 +253,63 @@ class Engine:
     async def _model(self, t: Turn) -> None:
         t.step("model")
         budget_key = _token_budget_key(t.incoming.org_uuid())
-        if await self._over_token_budget(budget_key):
+        reserved = await self._reserve_tokens(budget_key)
+        if reserved is None:
             t.reply, t.outcome.status = BUDGET_REPLY, "budget"
             t.outcome.reasons.append("token_budget")
             return
+        t.result = None
         try:
             t.result = await self._llm.generate(t.messages)
         except Exception:
             logger.exception("слой модели поднял исключение")
-            t.result = None
+        finally:
+            # Списание при любом исходе: неудачный ответ оплачен так же, как удачный (ревизия 26.09).
+            await self._settle_tokens(budget_key, reserved, getattr(t.result, "tokens_used", None))
         if t.result is None or not t.result.ok or t.result.parsed is None:
             # Алерт владельцу — шаг 8; клиенту нейтральная фраза, не текст ошибки.
             logger.error("модель не ответила: %s", getattr(t.result, "error", None) or "exception")
             self._fail(t, "llm_failed")
             return
-        await self._spend_tokens(budget_key, t.result.tokens_used)
 
-    async def _over_token_budget(self, key: str) -> bool:
-        """Суточный бюджет модели исчерпан? Redis недоступен — не исчерпан: бюджет
-        защищает счёт, а не заменяет ответ клиенту."""
+    async def _reserve_tokens(self, key: str) -> int | None:
+        """Суточный бюджет модели: резерв под вызов одной операцией Redis -> размер резерва, None — исчерпан.
+
+        Проверка и списание врозь пропускали к модели все параллельные вызовы: каждый видел счётчик
+        до чужого списания. Резерв (предел ответа модели) виден соседям сразу; после вызова — _settle_tokens.
+        Redis недоступен — не исчерпан: бюджет защищает счёт, а не заменяет ответ клиенту.
+        """
         budget = self._settings.llm_daily_token_budget
         if budget <= 0:
-            return False
+            return 0
+        reserve = max(int(self._settings.llm_max_tokens), 1)
         try:
-            used = int(await self._redis.get(key) or 0)
+            used = int(await self._redis.incrby(key, reserve))
         except Exception:  # noqa: BLE001 — Redis недоступен
             logger.warning("бюджет модели: Redis недоступен, считаем не исчерпанным", exc_info=True)
-            return False
-        if used >= budget:
-            logger.warning("бюджет модели на сутки исчерпан: %s (%s из %s)", key, used, budget)
-            return True
-        return False
+            return 0
+        try:
+            await self._redis.expire(key, 2 * 86_400)
+        except Exception:  # noqa: BLE001 — срок поставит списание
+            logger.warning("бюджет модели: срок счётчика не поставлен", exc_info=True)
+        if used - reserve >= budget:
+            logger.warning("бюджет модели на сутки исчерпан: %s (%s из %s)", key, used - reserve, budget)
+            await self._settle_tokens(key, reserve, None)
+            return None
+        return reserve
 
-    async def _spend_tokens(self, key: str, tokens: int | None) -> None:
-        if not tokens or self._settings.llm_daily_token_budget <= 0:
+    async def _settle_tokens(self, key: str, reserved: int, tokens: int | None) -> None:
+        """Резерв меняется на фактический расход; счётчик не уходит ниже нуля и истекает через двое суток."""
+        if self._settings.llm_daily_token_budget <= 0:
+            return
+        delta = max(int(tokens or 0), 0) - reserved
+        if not delta:
             return
         try:
-            await self._redis.incrby(key, int(tokens))
+            left = int(await self._redis.incrby(key, delta))
+            if left < 0:
+                # ключ истёк между резервом и списанием — ноль, а не долг
+                await self._redis.incrby(key, -left)
             await self._redis.expire(key, 2 * 86_400)
         except Exception:  # noqa: BLE001 — Redis недоступен
             logger.warning("бюджет модели: расход не записан", exc_info=True)

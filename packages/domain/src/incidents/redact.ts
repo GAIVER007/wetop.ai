@@ -29,8 +29,11 @@ export function redactText(text: string, max = MAX_TEXT): string {
   let head = text.length > limit ? text.slice(0, limit) : text;
   if (head.length < text.length) {
     const tail = head.search(/\S*$/);
-    // короткий хвост — разрезанная почта или ключ; длинное слово целиком не теряем, его снимет правило длинных ключей
+    // Короткий хвост — разрезанная почта или ключ, отбрасывается. От длинного слова остаётся только начало до первого
+    // знака препинания: обрубок почты или адреса в его конце («…@mail» без окончания) под маску уже не подходит
+    // (проверка исправлений 26.09), а начало из букв и цифр снимет правило длинных ключей
     if (head.length - tail < 200) head = head.slice(0, tail);
+    else head = head.slice(0, tail) + /^[\w-]*/.exec(head.slice(tail))![0];
   }
   // Выражения начинаются на границе слова: без якоря каждое перебирало все позиции длинного слова
   const masked = maskContacts(

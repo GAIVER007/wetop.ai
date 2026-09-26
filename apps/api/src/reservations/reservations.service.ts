@@ -649,7 +649,7 @@ export class ReservationsService {
     if (!['move', 'extend', 'cancel', 'no_show'].includes(action))
       throw new BadRequestException('action: move | extend | cancel | no_show');
     return this.uow.read(async (repo) => {
-      const state = await this.load(repo, number);
+      const state = await this.load(repo, number, { lock: false });
       const item = state.items.find((i) => i.id === itemId);
       if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
       const base = {
@@ -1217,7 +1217,7 @@ export class ReservationsService {
   ): Promise<MovePreview> {
     if (!q.unitCode) throw new BadRequestException('unitCode обязателен');
     return this.uow.read(async (repo) => {
-      const state = await this.load(repo, number);
+      const state = await this.load(repo, number, { lock: false });
       const item = state.items.find((i) => i.id === itemId);
       if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
       const from = await repo.categoryById(item.accommodationTypeId);
@@ -1266,7 +1266,7 @@ export class ReservationsService {
     if (!Number.isInteger(nights) || nights < 1 || nights > 30)
       throw new BadRequestException('nights — целое от 1 до 30');
     return this.uow.read(async (repo) => {
-      const state = await this.load(repo, number);
+      const state = await this.load(repo, number, { lock: false });
       const item = state.items.find((i) => i.id === itemId);
       if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
       const departureDate = addDays(item.departureDate, nights);
@@ -1313,7 +1313,7 @@ export class ReservationsService {
       q.reason === 'no_show' ? 'no_show' : q.reason === 'cancel' || !q.reason ? 'cancel' : null;
     if (!reason) throw new BadRequestException('reason — cancel или no_show');
     return this.uow.read(async (repo) => {
-      const state = await this.load(repo, number);
+      const state = await this.load(repo, number, { lock: false });
       let items = state.items.filter((i) => i.status !== 'CANCELLED' && i.status !== 'NO_SHOW');
       if (q.itemId) {
         items = items.filter((i) => i.id === q.itemId);
@@ -1399,7 +1399,9 @@ export class ReservationsService {
         if (!item) throw new NotFoundException(`Проживание ${itemId} не найдено в брони ${number}`);
         assertCanCheckOut(item.status);
         const before = await repo.card(number);
-        const debtMinor = await repo.stayBalanceMinor(item.id);
+        // Под блокировкой счёта: начисление со стойки между чтением долга и закрытием счёта иначе оставалось в
+        // закрытом счёте, и принять по нему деньги было уже нельзя (проверка исправлений 26.09, к С-25)
+        const debtMinor = await repo.stayBalanceMinor(item.id, { forUpdate: true });
         if (debtMinor > 0n && !dto.withDebt)
           throw new ConflictException(
             `На счёте долг ${formatMinorRu(debtMinor)}. Примите оплату или подтвердите выселение с долгом`,
@@ -1507,9 +1509,13 @@ export class ReservationsService {
       });
   }
 
-  private async load(repo: ReservationsRepository, number: string) {
-    // замок до чтения: вторая команда по той же брони ждёт первую и видит её результат (аудит 26.09, С-15)
-    await repo.lockReservation(number);
+  /**
+   * Бронь с её проживаниями. Для команды — под замком до чтения: вторая команда по той же брони ждёт первую и видит её
+   * результат (аудит 26.09, С-15). Предпросмотры (`lock: false`) читают без транзакции, а рекомендательный замок вне
+   * транзакции отпускается тем же запросом — он ничего не держал бы, только заставлял ждать чужую запись.
+   */
+  private async load(repo: ReservationsRepository, number: string, { lock = true } = {}) {
+    if (lock) await repo.lockReservation(number);
     const state = await repo.reservationByNumber(number);
     if (!state) throw new NotFoundException(`Бронь ${number} не найдена`);
     return state;

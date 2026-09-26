@@ -86,7 +86,9 @@ conn="$url"
 pgpass=""
 if [[ "$url" =~ ^([A-Za-z][A-Za-z0-9+.-]*://[^:/@]+):([^@]*)@(.*)$ ]]; then
   conn="${BASH_REMATCH[1]}@${BASH_REMATCH[3]}"
-  pgpass="$(printf '%b' "${BASH_REMATCH[2]//%/\\x}")"
+  # %XX → байт; обратная косая сначала удваивается, чтобы printf '%b' не прочёл её как «\c» или «\n» (проверка 26.09)
+  raw="${BASH_REMATCH[2]//\\/\\\\}"
+  pgpass="$(printf '%b' "${raw//%/\\x}")"
 fi
 
 # Пароль в сообщении pg_dump (адрес вида postgresql://user:pass@host) заменяется на ***

@@ -9,8 +9,11 @@
  */
 import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { config as loadEnv } from 'dotenv';
 import { serviceFetch } from '../../lib/service-api';
 const ROOT = resolve(import.meta.dirname, '../../..');
+// Та же база, куда запишет импорт на шаге 1 (он читает тот же .env); переменные окружения важнее файла
+loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 const CONFIRM = '--yes-restore-exely-snapshot';
 if (!process.argv.includes(CONFIRM)) {
@@ -20,15 +23,24 @@ if (!process.argv.includes(CONFIRM)) {
   );
   process.exit(2);
 }
-const host = (() => {
+const LOCAL = ['127.0.0.1', 'localhost', '::1', '[::1]'];
+const hostOf = (url: string) => {
   try {
-    return new URL(API).hostname;
+    return new URL(url).hostname;
   } catch {
     return '';
   }
-})();
-if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(host)) {
+};
+if (!LOCAL.includes(hostOf(API))) {
   console.error(`Отказ: только локальный API (127.0.0.1 или localhost), а задан ${API}.`);
+  process.exit(2);
+}
+// Шаг 1 пишет прямо в базу: локальный API не доказывает, что база не рабочая (проверка исправлений 26.09)
+const database = process.env.DATABASE_URL ?? '';
+if (!LOCAL.includes(hostOf(database))) {
+  console.error(
+    `Отказ: база для импорта — только локальная (127.0.0.1 или localhost), а в DATABASE_URL ${hostOf(database) || 'пусто'}.`,
+  );
   process.exit(2);
 }
 console.log('1/3 импорт календаря цен из снимка Exely');

@@ -25,7 +25,6 @@ import {
   validEmail,
   sessionExpiry,
   sessionState,
-  verifyPasswordAsync,
   MAX_FAILED_ATTEMPTS,
   LOCK_MINUTES,
   type MembershipRole,
@@ -33,7 +32,7 @@ import {
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
-import { PasswordGate } from './attempt-limits';
+import { hashPasswordQueued, verifyPasswordQueued } from './attempt-limits';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -103,10 +102,8 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
-/** Проверки пароля всего процесса — через одну очередь (аудит 26.09, С-5). */
-const passwordGate = new PasswordGate();
-const checkPasswordQueued = (raw: string, stored: string): Promise<boolean> =>
-  passwordGate.run(() => verifyPasswordAsync(raw, stored));
+/** Проверки и хеши паролей всего процесса — через одну очередь (аудит 26.09, С-5). */
+const checkPasswordQueued = verifyPasswordQueued;
 
 /** Роль и отметка главного администратора — к сессии, а не к человеку: роль у каждой организации своя */
 interface Access {
@@ -145,6 +142,35 @@ export class AuthService {
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
   ) {}
 
+  /**
+   * Неудача входа — в самой строке и только условными записями (аудит 25.09 М-3, 26.09 С-6 и проверка исправлений):
+   * сброс счёта после истёкшего замка делает одна попытка из пачки, остальные прибавляют; замок ставится, только если
+   * его нет или он истёк, — опоздавшая попытка свежий замок не трогает.
+   */
+  private async countFailure(userId: string, resetCounter: boolean | undefined, now: Date): Promise<void> {
+    const reset = resetCounter
+      ? await this.prisma.db.user.updateMany({
+          where: { id: userId, lockedUntil: { lte: now } },
+          data: { failedAttempts: 1, lockedUntil: null },
+        })
+      : { count: 0 };
+    const failedAttempts =
+      reset.count > 0
+        ? 1
+        : (
+            await this.prisma.db.user.update({
+              where: { id: userId },
+              data: { failedAttempts: { increment: 1 } },
+              select: { failedAttempts: true },
+            })
+          ).failedAttempts;
+    if (failedAttempts >= MAX_FAILED_ATTEMPTS)
+      await this.prisma.db.user.updateMany({
+        where: { id: userId, OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }] },
+        data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
+      });
+  }
+
   /** ADR-055: единственный источник настройки для API и стойки, без данных пользователей. */
   registrationOptions(): { registrationEnabled: boolean } {
     return { registrationEnabled: registrationOpen() };
@@ -173,39 +199,28 @@ export class AuthService {
       throw new UnauthorizedException(WRONG);
     }
 
-    const state = {
-      status: user.status as UserStatus,
-      failedAttempts: user.failedAttempts,
-      lockedUntil: user.lockedUntil,
-    };
-    const checkable =
-      state.status === 'ACTIVE' && !(state.lockedUntil !== null && state.lockedUntil > now);
+    const checkable = (u: { status: string; lockedUntil: Date | null }) =>
+      u.status === 'ACTIVE' && !(u.lockedUntil !== null && u.lockedUntil > now);
+    const hashable = checkable(user) && user.passwordHash !== '';
     // Запертой и заблокированной учётке пароль тоже «проверяется» — в пустую: время ответа то же, что у неверного
     const passwordOk = await checkPasswordQueued(
       input.password,
-      checkable && user.passwordHash !== '' ? user.passwordHash : DECOY_HASH,
+      hashable ? user.passwordHash : DECOY_HASH,
     );
-    const decision = decideLogin({ user: state, passwordOk: checkable && passwordOk, now });
+    // Состояние замка — заново, после очереди: пока попытка ждала, другие могли запереть учётку или уже сбросить счёт.
+    // По прочитанному до очереди попытки из очереди проверяли настоящий пароль у запертой учётки, а пачка на истёкшем
+    // замке сбрасывала счёт каждой попыткой (проверка исправлений 26.09, к С-6).
+    const fresh = await this.prisma.db.user.findUnique({ where: { id: user.id } });
+    if (!fresh) throw new UnauthorizedException(WRONG);
+    const state = {
+      status: fresh.status as UserStatus,
+      failedAttempts: fresh.failedAttempts,
+      lockedUntil: fresh.lockedUntil,
+    };
+    const decision = decideLogin({ user: state, passwordOk: hashable && passwordOk, now });
 
     if (decision.outcome !== 'ok') {
-      if (decision.outcome === 'wrong') {
-        // Счёт в самой строке, а не прочитанным раньше значением: пачка одновременных попыток иначе считалась за
-        // одну, и порог в пять неудач размывался (аудит 25.09 М-3, 26.09 С-6).
-        const updated = await this.prisma.db.user.update({
-          where: { id: user.id },
-          data: {
-            failedAttempts: decision.resetCounter ? 1 : { increment: 1 },
-            lockedUntil: null,
-          },
-          select: { failedAttempts: true },
-        });
-        if (updated.failedAttempts >= MAX_FAILED_ATTEMPTS) {
-          await this.prisma.db.user.update({
-            where: { id: user.id },
-            data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
-          });
-        }
-      }
+      if (decision.outcome === 'wrong') await this.countFailure(user.id, decision.resetCounter, now);
       throw new UnauthorizedException(WRONG);
     }
 
@@ -277,7 +292,7 @@ export class AuthService {
 
     const name = normalizePersonName(input.name);
     const organizationName = normalizeOrganizationName(input.hotelName);
-    const passwordHash = hashPassword(input.password);
+    const passwordHash = await hashPasswordQueued(input.password);
     let created: { userId: string; organizationId: string };
     try {
       created = await this.prisma.db.$transaction(async (tx) => {
@@ -422,7 +437,7 @@ export class AuthService {
 
     await this.prisma.db.user.update({
       where: { id: full.id },
-      data: { passwordHash: hashPassword(input.newPassword) },
+      data: { passwordHash: await hashPasswordQueued(input.newPassword) },
     });
     const { count } = await this.prisma.db.session.updateMany({
       where: { userId: full.id, revokedAt: null, id: { not: found.session.id } },

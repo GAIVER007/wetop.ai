@@ -1,0 +1,20 @@
+# Модульные (unit) · 26.09.2026 18:37 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 36
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-37-02Z-unit-6cfd.json' 'tests/unit/restore-rates-guard.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/restore-rates-guard.test.ts (3 tests) 3334ms
+   ✓ cli-restore-rates закрыт подтверждением (3)
+     ✓ без подтверждения — отказ до первого шага 1204ms
+     ✓ с подтверждением, но против нелокального API — тоже отказ 1066ms
+     ✓ с подтверждением и локальным API, но с нелокальной базой — отказ 1062ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  13:37:03
+   Duration  3.64s (tests 98%, transform 2%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-37-02Z-unit-6cfd.json
+
+# код выхода 0 · 5 с

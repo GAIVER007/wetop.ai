@@ -218,8 +218,10 @@ export class WebBookingService {
       );
     }
     // Лимит сайта считает брони, а не попытки: тридцать неудачных запросов глушили бронирование с сайта на час
-    // (аудит 26.09, С-35). Засчитывается после записи брони, ниже.
-    if (this.limits.bookPerSite.full(site.id, now.getTime())) {
+    // (аудит 26.09, С-35). Место берётся до записи — иначе одновременные запросы с разных адресов все проходили
+    // проверку (проверка исправлений 26.09), — и возвращается, если бронь не записалась.
+    const slot = now.getTime();
+    if (!this.limits.bookPerSite.allow(site.id, slot)) {
       throw new HttpException(
         'слишком много броней за час, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -230,30 +232,34 @@ export class WebBookingService {
     const guest = guestForStorage(req.guest, `web:${site.id}:${randomUUID()}`);
     const notes =
       `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
-    const card = await this.reservations.create(
-      {
-        source: 'WEBSITE',
-        arrivalDate: req.arrivalDate,
-        departureDate: req.departureDate,
-        notes,
-        guest: {
-          firstName: guest.firstName,
-          lastName: guest.lastName,
-          phone: guest.phone,
-          email: guest.email,
-        },
-        items: [
-          {
-            accommodationTypeCode: req.categoryCode,
-            ratePlanCode: site.bookingRatePlan!.code,
-            adults: req.adults,
-            autoAssign: true,
+    const card = await this.reservations
+      .create(
+        {
+          source: 'WEBSITE',
+          arrivalDate: req.arrivalDate,
+          departureDate: req.departureDate,
+          notes,
+          guest: {
+            firstName: guest.firstName,
+            lastName: guest.lastName,
+            phone: guest.phone,
+            email: guest.email,
           },
-        ],
-      },
-      { guestPrepared: true },
-    );
-    this.limits.bookPerSite.allow(site.id, now.getTime());
+          items: [
+            {
+              accommodationTypeCode: req.categoryCode,
+              ratePlanCode: site.bookingRatePlan!.code,
+              adults: req.adults,
+              autoAssign: true,
+            },
+          ],
+        },
+        { guestPrepared: true },
+      )
+      .catch((e: unknown) => {
+        this.limits.bookPerSite.release(site.id, slot);
+        throw e;
+      });
     // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
     // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
     let linkedSession = false;

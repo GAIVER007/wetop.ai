@@ -15,6 +15,9 @@ describe('приёмник счётчика и случайные ключи', (
         lookups += 1;
         return null;
       },
+      async allSites() {
+        return [];
+      },
     } as unknown as AnalyticsRepository;
     const collect = new CollectService(repo);
     const now = new Date('2026-09-26T10:00:00Z');
@@ -37,4 +40,37 @@ describe('приёмник счётчика и случайные ключи', (
       (collect as unknown as { siteCache: Map<string, unknown> }).siteCache.size,
     ).toBeLessThanOrEqual(COLLECT_LIMITS.siteCacheSize);
   });
+
+  // Проверка исправлений 26.09: предел поисков был общий, и пять запросов в секунду со случайными ключами выключали сбор
+  // для всех сайтов — после каждого перезапуска кэш пуст, и настоящий сайт получал «unknown site».
+  it('поток случайных ключей не выключает сбор настоящему сайту, которого ещё нет в кэше', async () => {
+    const real = {
+      id: 'site-1',
+      name: 'Сайт',
+      hosts: ['x.local'],
+      publicKey: 'pms_0123456789ab',
+      status: 'ACTIVE',
+    };
+    const repo = {
+      async siteByKey(key: string) {
+        return key === real.publicKey ? real : null;
+      },
+      async allSites() {
+        return [real];
+      },
+      async record() {},
+    } as unknown as AnalyticsRepository;
+    const collect = new CollectService(repo);
+    const now = new Date('2026-09-26T10:00:00Z');
+    const hit = (k: string) =>
+      collect.accept(
+        JSON.stringify({ k, v: 'visitor-0001', s: 'session-0001', t: 'pageview', u: 'http://x.local/' }),
+        { origin: 'http://x.local' },
+        now,
+      );
+    for (let i = 0; i < 1_000; i += 1) await hit(`pms_${i.toString(16).padStart(12, 'f')}`);
+    expect(await hit(real.publicKey)).toBe('queued');
+    await collect.onModuleDestroy();
+  });
 });
+

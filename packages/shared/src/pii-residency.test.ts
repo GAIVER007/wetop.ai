@@ -224,4 +224,16 @@ describe('данные гостя для журнала', () => {
     expect(withoutGuestIdentity(null)).toBeNull();
     expect(withoutGuestIdentity({ amountMinor: '100', ids: ['a'] })).toEqual({ amountMinor: '100', ids: ['a'] });
   });
+
+  // Проверка исправлений 26.09: заметка брони (замечания гостя из канала, комментарий с сайта) и причина возврата шли в
+  // журнал как есть — при PII_STORAGE=real с телефоном и почтой, в журнал, который только дописывается
+  it('свободный текст в журнале — с маской контактов, даже когда база хранит настоящие данные', () => {
+    const safe = withoutGuestIdentity({
+      after: { notes: 'Гость просит позвонить +7 701 555 12 34, почта ivan@example.invalid', reason: 'вернуть на 87015551234' },
+    }) as { after: { notes: string; reason: string } };
+    expect(safe.after.notes).not.toMatch(/555|ivan@/);
+    expect(safe.after.notes).toContain('Гость просит позвонить');
+    expect(safe.after.reason).not.toContain('87015551234');
+  });
 });
+

@@ -111,6 +111,9 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async siteByKey(key: string): Promise<SiteRecord | null> {
     return [...this.sitesById.values()].find((s) => s.publicKey === key) ?? null;
   }
+  async allSites(): Promise<SiteRecord[]> {
+    return [...this.sitesById.values()];
+  }
   async createSite(input: {
     name: string;
     hosts: string[];

@@ -64,6 +64,8 @@ export interface AuditRow {
   after: unknown;
 }
 
+type LockFilter = null | { lte: Date };
+
 export const FAKE_ORG = 'org-1';
 
 export interface FakeOrganization {
@@ -188,6 +190,28 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
               : value;
         }
         return { ...user };
+      },
+      // Условная запись, как у Prisma: только `id`, `lockedUntil` (null или `{ lte }`) и `OR` из них — этого хватает замку
+      async updateMany({
+        where,
+        data,
+      }: {
+        where: { id: string; lockedUntil?: LockFilter; OR?: Array<{ lockedUntil?: LockFilter }> };
+        data: Partial<FakeUser>;
+      }) {
+        const lockMatches = (u: FakeUser, f: LockFilter | undefined) =>
+          f === undefined ||
+          (f === null
+            ? u.lockedUntil === null
+            : u.lockedUntil !== null && u.lockedUntil.getTime() <= f.lte.getTime());
+        const hit = users.filter(
+          (u) =>
+            u.id === where.id &&
+            lockMatches(u, where.lockedUntil) &&
+            (where.OR === undefined || where.OR.some((o) => lockMatches(u, o.lockedUntil))),
+        );
+        for (const u of hit) Object.assign(u, data);
+        return { count: hit.length };
       },
       async create({
         data,

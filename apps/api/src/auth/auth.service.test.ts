@@ -134,6 +134,48 @@ describe('AuthService.login', () => {
     expect(users[0]!.lockedUntil).not.toBeNull();
   });
 
+  // Проверка исправлений 26.09 (к С-6): состояние замка читалось ДО очереди проверок пароля. Попытки, уже стоявшие в
+  // очереди, когда пятая ошибка ставила замок, проверяли настоящий пароль, и верная догадка входила; а пачка попыток на
+  // истёкшем замке каждая сбрасывала счёт в 1 — замок не возвращался никогда.
+  it('попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем', async () => {
+    const { auth } = service();
+    const wrong = Array.from({ length: MAX_FAILED_ATTEMPTS + 1 }, () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => null),
+    );
+    const right = auth
+      .login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)
+      .then(
+        () => 'вошла',
+        (e: Error) => e.message,
+      );
+    await Promise.all(wrong);
+    expect(await right).toMatch(/^Неверная почта или пароль/);
+  });
+
+  it('пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой', async () => {
+    const { auth, users } = service();
+    users[0]!.failedAttempts = MAX_FAILED_ATTEMPTS;
+    users[0]!.lockedUntil = new Date(NOW.getTime() - 60_000);
+    await Promise.all(
+      Array.from({ length: MAX_FAILED_ATTEMPTS + 3 }, () =>
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => null),
+      ),
+    );
+    expect(users[0]!.lockedUntil!.getTime()).toBeGreaterThan(NOW.getTime());
+  });
+
+  it('опоздавшая ошибка не снимает свежий замок', async () => {
+    const { auth, users } = service();
+    const late = auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW);
+    // пока попытка в очереди, учётку заперли другие
+    users[0]!.failedAttempts = MAX_FAILED_ATTEMPTS;
+    const fresh = new Date(NOW.getTime() + 10 * 60_000);
+    users[0]!.lockedUntil = fresh;
+    await expect(late).rejects.toThrow();
+    expect(users[0]!.lockedUntil).toEqual(fresh);
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+  });
+
   it('заблокированного сотрудника не пускает', async () => {
     const { auth } = service([fakeUser({ status: 'BLOCKED' })]);
     await expect(
@@ -312,6 +354,26 @@ describe('AuthService.register', () => {
     await expect(auth.register(NEW, NOW)).rejects.toThrow(/Самостоятельная регистрация закрыта/);
     expect(users).toHaveLength(before.users);
     expect(organizations).toHaveLength(before.orgs);
+  });
+
+  // Проверка исправлений 26.09 (к С-5): вход ушёл в пул потоков, а регистрация считала scrypt синхронно — поток
+  // регистраций с разных адресов снова замораживал главный поток, как вход до исправления.
+  it('регистрация не останавливает главный поток на время scrypt', async () => {
+    const { auth } = service();
+    let last = performance.now();
+    let longest = 0;
+    const tick = setInterval(() => {
+      const t = performance.now();
+      longest = Math.max(longest, t - last);
+      last = t;
+    }, 1);
+    try {
+      await auth.register(NEW, NOW);
+      await new Promise((ok) => setTimeout(ok, 5));
+    } finally {
+      clearInterval(tick);
+    }
+    expect(longest).toBeLessThan(25);
   });
 
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {

@@ -1165,7 +1165,9 @@ test('шахматка: статус словом, канал бейджем, д
   await expect(tentative).toHaveAttribute('title', /не подтверждена/);
 
   // канал и остаток к оплате — на плашке брони
-  await expect(page.getByTestId('cell-channel').first()).toBeVisible();
+  // видимый бейдж, а не первый в DOM: у брони с одной видимой ночью канал скрыт намеренно (ширина — имени),
+  // и в воскресенье первой в DOM оказывалась именно такая (27.09.2026)
+  await expect(page.getByTestId('cell-channel').filter({ visible: true }).first()).toBeVisible();
   await expect(page.getByTestId('cell-due').first()).toContainText('₸');
 
   // уборка — бейджем в строке ячейки

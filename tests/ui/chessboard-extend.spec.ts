@@ -1,4 +1,21 @@
+import type { APIRequestContext, Page } from '@playwright/test';
 import { test, expect } from './fixtures';
+
+/**
+ * Доска по умолчанию — текущая неделя, а брони фикстуры стоят «вокруг сегодня»: в пятницу–воскресенье
+ * их последняя ночь или клетка за ней уходит в следующую неделю, и спеки падали таймаутом (26–27.09.2026).
+ * Окно — две недели от «выезд − 7»: последняя ночь брони в середине, справа запас на продление.
+ */
+async function openAroundCheckout(page: Page, request: APIRequestContext, reservation: string) {
+  const stay = (await (
+    await request.get(`http://127.0.0.1:4311/reservations/${reservation}`, {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json()) as { departureDate: string };
+  const from = new Date(`${stay.departureDate}T12:00:00Z`);
+  from.setUTCDate(from.getUTCDate() - 7);
+  await page.goto(`/chessboard?from=${from.toISOString().slice(0, 10)}`);
+}
 
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
@@ -27,7 +44,7 @@ test('мышь: правый край добавляет две ночи тол�
   page,
   request,
 }) => {
-  await page.goto('/chessboard');
+  await openAroundCheckout(page, request, '20260913-TEST3');
   const row = page.locator('[data-unit-code="R04"][data-testid="unit-row"]');
   const handle = row.locator('.board-stay-resize');
   const last = await handle.locator('..').getAttribute('data-date');
@@ -63,7 +80,7 @@ test('отказ сохранения не удлиняет плашку, а о�
   page,
   request,
 }) => {
-  await page.goto('/chessboard');
+  await openAroundCheckout(page, request, '20260913-TEST3');
   const row = page.locator('[data-unit-code="R04"][data-testid="unit-row"]');
   const handle = row.locator('.board-stay-resize');
   const originalDate = await handle.locator('..').getAttribute('data-date');
@@ -96,19 +113,7 @@ test('одна видимая ночь: имя имеет две строки, �
   page,
   request,
 }) => {
-  // Доска по умолчанию — текущая неделя, а бронь R01 — «сегодня + 3 ночи»: в субботу и воскресенье её
-  // последняя ночь уже в следующей неделе, и края брони на доске нет (упало 26.09.2026, суббота).
-  // Поэтому окно — от заезда самой брони.
-  const stay = (await (
-    await request.get('http://127.0.0.1:4311/reservations/20260913-TESTAA', {
-      headers: { 'x-wetop-test-client': '1' },
-    })
-  ).json()) as {
-    arrivalDate: string;
-  };
-  const week = new Date(`${stay.arrivalDate}T12:00:00Z`);
-  week.setUTCDate(week.getUTCDate() + 6);
-  await page.goto(`/chessboard?from=${stay.arrivalDate}&to=${week.toISOString().slice(0, 10)}`);
+  await openAroundCheckout(page, request, '20260913-TESTAA');
   const row = page.locator('[data-unit-code="R01"][data-testid="unit-row"]');
   const last = await row.locator('.board-stay-resize').locator('..').getAttribute('data-date');
   const end = new Date(`${last}T12:00:00Z`);

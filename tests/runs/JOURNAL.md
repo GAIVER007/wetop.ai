@@ -2520,3 +2520,8 @@
 | 26.09.2026 20:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 389 из 389 | 22 мин 49 с | 38dd73e | [лог](logs/2026-09-26T15-55-24Z-e2e-0a7b.log) | strip fix 38dd73ec: full UI suite |
 | 26.09.2026 20:51 | unit | ✅ 1901 из 1904, пропущено 3 | 1 мин 24 с | 38dd73e | [лог](logs/2026-09-26T15-51-57Z-unit-5ec8.log) | Linux node:24 container (flock present): step strip fix: full unit on 38dd73ec |
 | 26.09.2026 20:53 | integration | ✅ 84 из 86, пропущено 2 | 18 с | 38dd73e | [лог](logs/2026-09-26T15-53-48Z-integration-c53d.log) | Linux container, own loopback PG16 on 55432: step strip fix, UTF-8 cluster, wizard tests run |
+| 27.09.2026 00:19 | typecheck | ✅ без ошибок | 20 с | 35aa561 | [лог](logs/2026-09-26T19-19-31Z-typecheck-bf6b.log) | seller key fix 35aa5616 (PMS code unchanged) |
+| 27.09.2026 00:19 | lint | ✅ без ошибок | 16 с | 35aa561 | [лог](logs/2026-09-26T19-19-53Z-lint-4b15.log) | seller key fix 35aa5616 |
+| 27.09.2026 00:25 | e2e | ✅ 25 из 25 | 51 с | 35aa561 | [лог](logs/2026-09-26T19-25-01Z-e2e-0555.log) | seller key fix 35aa5616: live e2e after db:local reset |
+| 27.09.2026 00:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 389 | 19 мин 18 с | 35aa561 | [лог](logs/2026-09-26T19-25-53Z-e2e-adde.log) | seller key fix 35aa5616: full UI suite |
+| 27.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 66 из 66 | 1 мин 50 с | 35aa561 +2 | [лог](logs/2026-09-26T19-46-59Z-e2e-d9eb.log) | chessboard specs independent of the weekday (Sunday in Almaty now) |

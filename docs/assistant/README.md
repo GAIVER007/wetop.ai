@@ -512,6 +512,27 @@ cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml 
 SCRIPT
 ```
 
+**Вебхук WhatsApp продавца наружу (шаг 12).** Правило — как в `deploy/cloudflared.example.yml`: к продавцу пропускается
+только `/channels/whatsapp/webhook/<uuid гостиницы>`; чат продавца, панель и `/internal/*` наружу не выходят. Пока база
+бота не в РК, подключать только тестовый номер Meta (ADR-009). Одна вставка в веб-терминал, повтор ничего не дублирует;
+`cloudflared` перезапускается — стойка на полминуты недоступна:
+
+```bash
+bash <<'SCRIPT'
+set -eu
+F=/root/wetop/deploy/cloudflared/wetop.yml
+grep -q 'seller.wetop.ai' "$F" || sed -i 's#^\(\s*\)- service: http_status:404#\1- hostname: seller.wetop.ai\n\1  path: ^/channels/whatsapp/webhook/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\n\1  service: http://seller:8000\n\1- service: http_status:404#' "$F"
+grep -A2 'hostname: seller.wetop.ai' "$F"
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml restart cloudflared
+SCRIPT
+```
+
+Затем запись DNS `seller` — CNAME на `<ID туннеля>.cfargotunnel.com` с оранжевым облаком — в панели Cloudflare (ID —
+строка `tunnel:` в том же файле). Проверка: адрес вебхука из окна «ИИ-продавец → WhatsApp» с чужим словом —
+`curl -s -o /dev/null -w '%{http_code}\n' '<адрес вебхука>?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=1'`
+даёт `403` (дверь продавца на месте и чужое слово не принимает); `https://seller.wetop.ai/widget/widget.js` и
+`https://seller.wetop.ai/health` — `404`.
+
 **Что вписать в `.env` помощника.**
 
 | Группа | Переменные |

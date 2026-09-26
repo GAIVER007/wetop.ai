@@ -1,0 +1,69 @@
+# Сквозные (e2e) · 26.09.2026 16:12 Алматы · MacBook-Air-Urij.local
+# коммит 09cec40 (codex/ai-seller-unified-plan), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/guest-wizard.spec.ts' '--workers=1'
+[WebServer] (node:85161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85203) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:85347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/guest-wizard.spec.ts:3:1 › гостевой мастер: ручной ввод, живое превью, восстановление после перезагрузки (7.5s)
+  ✘  2 tests/ui/guest-wizard.spec.ts:30:1 › отказ сохранения не теряет ввод и не показывает успешный результат (2.1s)
+
+
+  1) tests/ui/guest-wizard.spec.ts:30:1 › отказ сохранения не теряет ввод и не показывает успешный результат 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "Черновик изменился"
+    Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+        1) <div role="alert" class="guest-wizard__error">Черновик изменился. Обновите страницу</div> aka getByText('Черновик изменился. Обновите страницу')
+        2) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+      - Expect "toContainText" getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('alert')
+
+
+      38 |   await page.getByLabel('Ниша').fill('Хостел');
+      39 |   await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+    > 40 |   await expect(page.getByRole('alert')).toContainText('Черновик изменился');
+         |                                         ^
+      41 |   await expect(page.getByLabel('Название компании')).toHaveValue('Вымышленный объект');
+      42 | });
+      43 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/guest-wizard.spec.ts:40:41
+
+    Error Context: test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guest-wizard-отказ-сохране-59d81-казывает-успешный-результат/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/guest-wizard.spec.ts:30:1 › отказ сохранения не теряет ввод и не показывает успешный результат 
+  1 passed (18.3s)
+
+# код выхода 1 · 20 с

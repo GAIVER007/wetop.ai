@@ -971,6 +971,8 @@ model Organization {
   properties  Property[]
   userErrors  UserError[]
   sellerProfile SellerProfile?
+  agents SellerAgent[]
+  wizardDrafts WizardDraft[]
   extensions  OrganizationExtension[]
 
   @@map("organizations")
@@ -996,6 +998,8 @@ model User {
   failedAttempts Int       @default(0) @map("failed_attempts")
   lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
 
+  sellerAgents SellerAgent[]
+  wizardDrafts WizardDraft[]
   memberships    Membership[]
   sessions       Session[]
   invitesIssued  Invite[]        @relation("InviteCreatedBy")
@@ -1230,4 +1234,116 @@ model OrganizationExtension {
 
   @@id([organizationId, extension])
   @@map("organization_extensions")
+}
+
+
+/// Guest onboarding model approved 26.09.2026; production migration requires separate cutover.
+model SellerAgent {
+  createdBy String @map("created_by") @db.Uuid
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  name String @db.VarChar(200)
+  scenario String @default("sales") @db.VarChar(16)
+  lifecycle String @default("draft") @db.VarChar(16)
+  profile Json @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  draft WizardDraft?
+  @@index([organizationId])
+  @@map("seller_agents")
+}
+
+model WizardSession {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique @map("token_hash") @db.VarChar(64)
+  ref String @default("") @db.VarChar(200)
+  lastStep String @default("intro") @map("last_step") @db.VarChar(24)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  draft WizardDraft?
+  survey WizardSurvey?
+  events WizardEvent[]
+  @@index([expiresAt])
+  @@map("wizard_sessions")
+}
+
+model WizardDraft {
+  claimedBy String? @map("claimed_by") @db.Uuid
+  claimant User? @relation(fields: [claimedBy], references: [id], onDelete: Restrict)
+  organizationId String? @map("organization_id") @db.Uuid
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  id String @id @default(uuid()) @db.Uuid
+  guestSessionId String @unique @map("guest_session_id") @db.Uuid
+  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  businessName String @default("") @map("business_name") @db.VarChar(200)
+  niche String @default("") @db.VarChar(200)
+  description String @default("") @db.VarChar(10000)
+  config Json @default("{}")
+  sources Json @default("[]")
+  revision Int @default(0)
+  generatedRevision Int? @map("generated_revision")
+  generatedPrompt String? @map("generated_prompt")
+  generatedKnowledge Json @default("[]") @map("generated_knowledge")
+  testMessagesUsed Int @default(0) @map("test_messages_used")
+  agentId String? @unique @map("agent_id") @db.Uuid
+  agent SellerAgent? @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  jobs WizardJob[]
+  messages WizardMessage[]
+  @@map("wizard_drafts")
+}
+
+model WizardJob {
+  id String @id @default(uuid()) @db.Uuid
+  draftId String @map("draft_id") @db.Uuid
+  draft WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  kind String @db.VarChar(16)
+  revision Int
+  state String @default("queued") @db.VarChar(16)
+  attempt Int @default(0)
+  retryAt DateTime? @map("retry_at") @db.Timestamptz(6)
+  maskedError String? @map("masked_error") @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@unique([draftId, kind, revision])
+  @@map("wizard_jobs")
+}
+
+model WizardMessage {
+  id String @id @default(uuid()) @db.Uuid
+  draftId String @map("draft_id") @db.Uuid
+  draft WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  requestId String @map("request_id") @db.VarChar(64)
+  role String @db.VarChar(16)
+  text String @db.VarChar(16000)
+  state String @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@unique([draftId, requestId, role])
+  @@map("wizard_messages")
+}
+
+model WizardSurvey {
+  guestSessionId String @id @map("guest_session_id") @db.Uuid
+  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  goal String @default("") @db.VarChar(1000)
+  teamSize String @default("") @map("team_size") @db.VarChar(32)
+  leadsPerDay String @default("") @map("leads_per_day") @db.VarChar(32)
+  source String @default("") @db.VarChar(200)
+  industry String @default("") @db.VarChar(200)
+  @@map("wizard_surveys")
+}
+
+model WizardEvent {
+  id String @id @default(uuid()) @db.Uuid
+  guestSessionId String @map("guest_session_id") @db.Uuid
+  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  eventType String @map("event_type") @db.VarChar(60)
+  payload Json @default("{}")
+  deduplicationKey String @unique @map("deduplication_key") @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@index([guestSessionId, createdAt])
+  @@map("wizard_events")
 }

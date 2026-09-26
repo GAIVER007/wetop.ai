@@ -1,0 +1,53 @@
+# Сквозные (e2e) · 26.09.2026 16:16 Алматы · MacBook-Air-Urij.local
+# коммит 09cec40 (codex/ai-seller-unified-plan), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/wizard-ui/playwright.config.ts' '--workers=1'
+[WebServer] (node:87525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:87679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:87683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/wizard-ui/persistence.spec.ts:5:1 › анонимный браузер → Next proxy → Nest → PostgreSQL → reload (45.4s)
+
+
+  1) tests/wizard-ui/persistence.spec.ts:5:1 › анонимный браузер → Next proxy → Nest → PostgreSQL → reload 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Начать создание' })
+
+
+       8 |   try {
+       9 |     await page.goto('/create?ref=loopback-e2e');
+    > 10 |     await page.getByRole('button', { name: 'Начать создание' }).click();
+         |                                                                 ^
+      11 |     token = await page.evaluate(() => localStorage.getItem('wetop.wizard.token'));
+      12 |     await page.getByRole('button', { name: 'Настроить вручную' }).click();
+      13 |     await page.getByLabel('Название компании').fill('Синтетический хостел');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/wizard-ui/persistence.spec.ts:10:65
+
+    Error Context: test-results/persistence-анонимный-брау-d7d60--Nest-→-PostgreSQL-→-reload/error-context.md
+
+  1 failed
+    tests/wizard-ui/persistence.spec.ts:5:1 › анонимный браузер → Next proxy → Nest → PostgreSQL → reload 
+
+# код выхода 1 · 59 с

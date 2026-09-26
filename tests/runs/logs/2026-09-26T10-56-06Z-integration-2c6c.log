@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 26.09.2026 15:56 Алматы · MacBook-Air-Urij.local
+# коммит d2de85f (codex/ai-seller-unified-plan), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-26T10-56-06Z-integration-2c6c.json' 'tests/integration/wizard-drafts.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+No test files found, exiting with code 0
+
+filter: tests/integration/wizard-drafts.test.ts
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-26T10-56-06Z-integration-2c6c.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: копия данных в pms_test не сделана, схема не изменена: column "issued_at_encrypted" does not exist
+ ❯ copyLiveData tests/tools/test-schema.ts:216:11
+    214|   } catch (e) {
+    215|     await client.query('ROLLBACK');
+    216|     throw new Error(`копия данных в ${TEST_SCHEMA} не сделана, схема н…
+       |           ^
+    217|       cause: e,
+    218|     });
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:13:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+Caused by: error: column "issued_at_encrypted" does not exist
+ ❯ node_modules/pg/lib/client.js:694:17
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ copyLiveData tests/tools/test-schema.ts:203:19
+ ❯ ensureTestSchema tests/tools/test-schema.ts:102:39
+ ❯ Object.setup tests/integration-setup.ts:13:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { length: 252, severity: 'ERROR', code: '42703', detail: 'There is a column named "issued_at_encrypted" in table "guest_documents", but it cannot be referenced from this part of the query.', hint: undefined, position: '291', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', routine: 'errorMissingColumn' }
+
+
+
+
+# код выхода 1 · 3 с

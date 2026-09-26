@@ -1,7 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
-import { validDate } from '../../lib/hotel-api';
+import { hotelToday, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
 import { financeApi } from '../../lib/api';
@@ -35,13 +35,13 @@ const METHOD_RU: Record<string, string> = {
 };
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
-/** Сегодня и границы месяцев в часах объекта (Asia/Almaty, UTC+5). */
-function almaty() {
-  const now = new Date(Date.now() + 5 * 3600 * 1000);
+/** Границы месяцев и недели от «сегодня» объекта (С-13): день даёт пояс объекта, дальше — календарная арифметика */
+function periods(today: string) {
+  const now = new Date(`${today}T00:00:00Z`);
   const y = now.getUTCFullYear();
   const m = now.getUTCMonth();
   return {
-    today: iso(now),
+    today,
     month: { from: iso(new Date(Date.UTC(y, m, 1))), to: iso(new Date(Date.UTC(y, m + 1, 0))) },
     prevMonth: { from: iso(new Date(Date.UTC(y, m - 1, 1))), to: iso(new Date(Date.UTC(y, m, 0))) },
     week: { from: iso(new Date(now.getTime() - 6 * 86400000)), to: iso(now) },
@@ -60,7 +60,7 @@ export default async function FinanceReportPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = normalizeSearchParams(await searchParams);
-  const cal = almaty();
+  const cal = periods(await hotelToday());
   const from = sp.from || cal.month.from;
   const to = sp.to || cal.month.to;
   const dates = validDate(from) && validDate(to) && from <= to;

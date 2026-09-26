@@ -1,0 +1,32 @@
+# Сквозные (e2e) · 26.09.2026 19:08 Алматы · vm
+# коммит 737f27c (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/platform-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:35:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.9s)
+  ✓   2 tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (3.2s)
+  ✓   3 tests/ui/navigation.spec.ts:89:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.9s)
+  ✓   4 tests/ui/navigation.spec.ts:114:1 › все пункты меню открывают существующие страницы (13.1s)
+  ✓   5 tests/ui/navigation.spec.ts:138:3 › навигация ровная, адаптивная и доступная: light (4.9s)
+  ✓   6 tests/ui/navigation.spec.ts:138:3 › навигация ровная, адаптивная и доступная: dark (4.7s)
+  ✓   7 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» виден всегда, «Платформа» — только главному администратору (4.1s)
+  ✓   8 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.7s)
+  ✓   9 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.7s)
+  ✓  10 tests/ui/platform-access.spec.ts:134:1 › сотрудник: настройки только смотрит, а диалоги ведёт; приглашает — владелец (5.8s)
+  ✓  11 tests/ui/platform-access.spec.ts:164:1 › за неделю до конца срока владелец видит напоминание; сотрудник — нет (3.8s)
+  ✓  12 tests/ui/platform-access.spec.ts:182:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.2s)
+  ✓  13 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, light, 1440px (10.9s)
+  ✓  14 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, dark, 1440px (10.7s)
+  ✓  15 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, light, 390px (10.0s)
+  ✓  16 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, dark, 390px (9.8s)
+
+  16 passed (1.9m)
+
+# код выхода 0 · 1 мин 53 с

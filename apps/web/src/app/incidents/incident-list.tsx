@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import type { Incident } from '../../lib/api';
-import { almatyWhen } from '../../lib/almaty';
+import { usePropertyClock } from '../../components/property-time';
 import { pluralRu } from '../../lib/plural';
 import { Badge, Button, EmptyState, Field, Input, cx, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
@@ -69,6 +69,7 @@ export function IncidentList({
   emptyTitle: string;
   emptyHint: string;
 }) {
+  const clock = usePropertyClock();
   const [chip, setChip] = useState<Chip>('ALL');
   const [query, setQuery] = useState('');
   const needle = query.trim().toLocaleLowerCase('ru');
@@ -163,11 +164,11 @@ export function IncidentList({
               </div>
               <p className="incident__facts">
                 {i.severity === 'CRITICAL' && <span className="incident__urgent">Срочно. </span>}
-                Замечена <time dateTime={i.firstSeenAt}>{almatyWhen(i.firstSeenAt)}</time>.{' '}
+                Замечена <time dateTime={i.firstSeenAt}>{clock.when(i.firstSeenAt)}</time>.{' '}
                 {repeatWords(i)}{' '}
                 {i.alertedAt && (
                   <>
-                    Будильник сработал <time dateTime={i.alertedAt}>{almatyWhen(i.alertedAt)}</time>
+                    Будильник сработал <time dateTime={i.alertedAt}>{clock.when(i.alertedAt)}</time>
                     .
                   </>
                 )}

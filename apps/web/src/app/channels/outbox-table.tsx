@@ -2,7 +2,8 @@ import Link from 'next/link';
 import type { OutboxRow, OutboxRowStatus } from '../../lib/api';
 import { Badge, Table } from '../../components/ui';
 import { displayPeriod, displayDay } from '../../lib/display-date';
-import { almatyDateTime } from './format';
+import { hotelClock } from '../../lib/hotel-api';
+import { eventTime } from './format';
 
 const KIND_RU: Record<OutboxRow['kind'], string> = {
   AVAILABILITY: 'остатки',
@@ -28,7 +29,7 @@ export const OUTBOX_FILTERS: Array<[OutboxRowStatus | '', string]> = [
  * Очередь в Channex (срез 7.2, макет «Integration»): что ушло, по каким категориям, на какие даты,
  * статус словом. Действие, породившее строку, не хранится — его ищут в журнале (`/journal`), развилка 7.2-3.
  */
-export function OutboxTable({
+export async function OutboxTable({
   rows,
   filter,
   hrefFor,
@@ -39,6 +40,7 @@ export function OutboxTable({
   hrefFor: (status: OutboxRowStatus | '') => string;
   categoryName: (code: string) => string;
 }) {
+  const clock = await hotelClock();
   return (
     <div className="stack stack--sm">
       <div className="row row--inline filters" role="group" aria-label="Очередь: фильтр по статусу">
@@ -108,7 +110,7 @@ export function OutboxTable({
               </td>
               <td className="num">{r.attempts}</td>
               <td className="mono break-all">{r.taskId ?? '—'}</td>
-              <td className="nowrap">{almatyDateTime(r.createdAt)}</td>
+              <td className="nowrap">{eventTime(r.createdAt, clock)}</td>
             </tr>
           ))}
         </tbody>

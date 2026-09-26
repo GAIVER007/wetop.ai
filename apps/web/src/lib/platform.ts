@@ -1,7 +1,8 @@
 import type { BadgeTone } from '../components/ui';
 import type { ExtensionAccessView, PlatformOrganization } from './api';
 import { extensionLastDay } from './ai-seller';
-import { almatyDate } from './almaty';
+import { PLATFORM_TIMEZONE } from '@pms/domain';
+import { propertyClock } from './property-time';
 import { displayDay } from './display-date';
 
 /**
@@ -58,7 +59,7 @@ export function extensionFormDefaults(e: PlatformOrganization['aiSeller']): {
   };
 }
 
-/** Дата регистрации организации по Алматы */
+/** Дата регистрации организации — по поясу платформы (Алматы): это раздел оператора, а не одной гостиницы */
 export function organizationSince(createdAt: string): string {
-  return displayDay(almatyDate(createdAt));
+  return displayDay(propertyClock(PLATFORM_TIMEZONE).date(createdAt));
 }

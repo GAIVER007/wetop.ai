@@ -36,9 +36,10 @@ const SECTIONS: ReadonlyArray<readonly [string, string, string]> = [
 export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
   // Смене нужны все, кто живёт сегодня: на объекте до 92 гостей, а страница в 25 строк обрезала
   // список молча — 25 из ~80, и остальных было не видно (§7.3 плана wetop-domain)
+  const today = await hotelToday();
   const data = await reservationDirectory({
-    from: hotelToday(),
-    to: hotelToday(),
+    from: today,
+    to: today,
     status,
     pageSize: '200',
   });
@@ -65,7 +66,7 @@ export async function GuestDirectory({ status = 'ALL' }: { status?: string }) {
       <div className="directory-meta">
         {/* Выборка одним предложением: сколько гостей, на какой день и по какому разделу (§14) */}
         <span data-testid="guests-today-count">
-          {`${pluralRu(rows.length, ['гость', 'гостя', 'гостей'])} с проживанием на ${displayDate(hotelToday())}`}
+          {`${pluralRu(rows.length, ['гость', 'гостя', 'гостей'])} с проживанием на ${displayDate(today)}`}
           {section ? `, ${section}` : ''}
         </span>
         <Link href="/reservations">Все бронирования</Link>

@@ -1,0 +1,35 @@
+# Модульные (unit) · 26.09.2026 17:42 Алматы · vm
+# коммит 24df31a (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-42-00Z-unit-3fb5.json' 'apps/web/src/lib/hotel-time.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests | 1 failed) 5723ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 706ms
+   ✓ API не ответил — пояс платформы, страница не падает 9ms
+   × настройки не ответили в срок — пояс платформы, страница не ждёт 5007ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/hotel-time.test.ts > настройки не ответили в срок — пояс платформы, страница не ждёт
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/web/src/lib/hotel-time.test.ts:63:1
+     61|  * `TIMEZONE_WAIT_MS`, дальше — пояс платформы, как было до С-13.
+     62|  */
+     63| it('настройки не ответили в срок — пояс платформы, страница не ждёт', …
+       | ^
+     64|   vi.useFakeTimers({ now: NOW, toFake: ['Date', 'setTimeout', 'clearTi…
+     65|   vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  12:42:01
+   Duration  5.93s (tests 99%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-42-00Z-unit-3fb5.json
+
+# код выхода 1 · 7 с

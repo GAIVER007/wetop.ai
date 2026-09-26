@@ -89,9 +89,11 @@ test('заселить → карточка и шахматка показыва
     )
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
   }
-  // статус читаем в строке проживания: слово встречается ещё и в заголовке брони
-  await cardTab(page, 'Обзор');
+  // статус читаем в строке проживания: слово встречается ещё и в заголовке брони. Сначала итог, потом вкладка:
+  // заселение — серверное действие, и по его ответу карточка возвращает вкладку, где его выполнили (#… адреса
+  // на старте действия), — щелчок по «Обзору» до ответа откатывался (упало 26.09.2026 в наборе на два потока)
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('заселён');
+  await cardTab(page, 'Обзор');
   await page.goto(`/chessboard?from=${plus(3)}&to=${plus(4)}`);
   const cell = page.locator(`td[data-state="OCCUPIED"] a[href*="${number}"]`).first();
   await expect(cell).toBeVisible();
@@ -114,8 +116,9 @@ test('заселить → карточка и шахматка показыва
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="check-out-"]').click();
   await confirmDialog(page, 'Выселить с долгом');
-  await cardTab(page, 'Обзор');
+  // итог действия — до смены вкладки (см. заселение выше)
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('выселен');
+  await cardTab(page, 'Обзор');
   await cardTab(page, 'Счета');
   await expect(page.getByRole('main').getByTestId('folio-balance')).toContainText('к оплате');
   await page.screenshot({ path: 'reports/screenshots/check-out-card.png', fullPage: true });
@@ -138,9 +141,9 @@ test('заселить → карточка и шахматка показыва
   await cardTab(page, 'Действия');
   await page.getByRole('main').locator('[data-testid^="no-show-"]').click();
   await confirmDialog(page, 'Отметить незаезд');
-  // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке
-  await cardTab(page, 'Обзор');
+  // статус читаем в строке проживания: слово «Незаезд» есть ещё и на кнопке; итог — до смены вкладки
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('незаезд');
+  await cardTab(page, 'Обзор');
   // §14: пустое значение — прочерк; ячейка снята, в колонке «—»
   await expect(
     page.getByRole('main').getByTestId('stay-row').first().locator('td').first(),

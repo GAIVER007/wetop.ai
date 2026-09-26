@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { ControlNavigation } from '../../components/control-navigation';
 import { RefreshButton } from '../../components/refresh-button';
-import { almatyClock, almatyDate } from '../../lib/almaty';
+import { hotelClock } from '../../lib/hotel-api';
 import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
@@ -199,7 +199,8 @@ async function JournalEntries({
   searching: boolean;
 }) {
   // день «сегодня» считает сервер по часам объекта: страница серверная, расхождения гидрации нет
-  const today = almatyDate(new Date().toISOString());
+  const clock = await hotelClock();
+  const today = clock.today();
   const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
     (r) => ({ ok: true as const, r }),
     (e: unknown) => ({ ok: false as const, e }),
@@ -234,19 +235,19 @@ async function JournalEntries({
             {rows.map((r, i) => {
               // день пишем один раз на группу: до 21.09 полная дата с годом стояла в каждой строке и
               // делала «Когда» самой широкой колонкой экрана
-              const newDay = i === 0 || almatyDate(r.at) !== almatyDate(rows[i - 1]!.at);
+              const newDay = i === 0 || clock.date(r.at) !== clock.date(rows[i - 1]!.at);
               return (
                 <Fragment key={r.id}>
                   {newDay && (
                     <tr className="journal-day">
                       <th colSpan={4} scope="colgroup" data-testid="journal-day">
-                        {dayTitle(r.at, today)}
+                        {dayTitle(r.at, today, clock)}
                       </th>
                     </tr>
                   )}
                   <tr data-testid="journal-row">
                     <td className="journal-time">
-                      <time dateTime={r.at}>{almatyClock(r.at)}</time>
+                      <time dateTime={r.at}>{clock.clock(r.at)}</time>
                     </td>
                     <td>{r.author ?? <span className="muted-2">система</span>}</td>
                     <td>{ACTION_RU[r.action] ?? r.action}</td>

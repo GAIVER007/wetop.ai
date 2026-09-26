@@ -2549,3 +2549,10 @@
 | 26.09.2026 19:58 | e2e | ✅ 25 из 25 | 48 с | b62a189 +1 | [лог](logs/2026-09-26T14-58-54Z-e2e-ade3.log) | final: live e2e after db:local reset (clean stand, as TESTING.md requires) |
 | 26.09.2026 19:59 | typecheck | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T14-59-57Z-typecheck-282d.log) | final SHA cec8a797 |
 | 26.09.2026 20:00 | lint | ✅ без ошибок | 7 с | cec8a79 | [лог](logs/2026-09-26T15-00-04Z-lint-6eaf.log) | final SHA cec8a797 |
+| 26.09.2026 20:39 | typecheck | ✅ без ошибок | 31 с | 59dda9d | [лог](logs/2026-09-26T15-39-38Z-typecheck-dae4.log) |  |
+| 26.09.2026 20:40 | lint | ✅ без ошибок | 19 с | 59dda9d | [лог](logs/2026-09-26T15-40-10Z-lint-edec.log) |  |
+| 26.09.2026 20:40 | unit | ✅ 1914 из 1917, пропущено 3 | 1 мин 12 с | 59dda9d | [лог](logs/2026-09-26T15-40-33Z-unit-83d8.log) |  |
+| 26.09.2026 20:41 | integration | ❌ код выхода 1 | 2 с | 59dda9d | [лог](logs/2026-09-26T15-41-51Z-integration-8ed8.log) |  |
+| 26.09.2026 20:41 | e2e | ❌ код выхода 1 | 9 с | 59dda9d | [лог](logs/2026-09-26T15-41-53Z-e2e-c1bd.log) | (ошибка вне тестов) |
+| 26.09.2026 20:42 | integration | ✅ 86 из 86 | 29 с | 59dda9d | [лог](logs/2026-09-26T15-42-22Z-integration-777b.log) |  |
+| 26.09.2026 20:42 | e2e | ✅ 25 из 25 | 57 с | 59dda9d | [лог](logs/2026-09-26T15-42-55Z-e2e-ca77.log) |  |

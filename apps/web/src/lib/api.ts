@@ -1443,8 +1443,18 @@ export interface SellerWhatsAppView {
   webhookUrl: string | null;
 }
 
+/** Инструкция продавцу одним текстом (ADR-097) */
+export interface SellerPromptView {
+  saved: boolean;
+  text: string;
+  updatedAt: string | null;
+  applied: boolean;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
+  savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
   extract: (story: string) =>
     sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),

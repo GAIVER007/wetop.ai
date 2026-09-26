@@ -1,4 +1,5 @@
 import { assistant } from '@pms/integrations';
+import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
 import type { ExtensionAccess, SellerFactsSource, SellerProfileInput } from '@pms/domain';
 import type { SellerConfig, SellerConnection, SellerPort } from './seller.connection';
 import type {
@@ -54,6 +55,9 @@ export class FakeSeller implements SellerPort {
   }
   putProfile(payload: unknown) {
     return this.call('putProfile', payload);
+  }
+  putSellerPrompt(payload: { object_name: string; text: string }) {
+    return this.call('putSellerPrompt', payload);
   }
   extractProfile(story: string) {
     return this.call('extractProfile', story);
@@ -157,6 +161,7 @@ export class FakeProfiles implements SellerProfilesRepository {
     const before = this.rows.get(organizationId) ?? null;
     const row: SellerProfileRow = {
       ...(before ?? {
+        promptText: null,
         profileAppliedAt: null,
         factsHash: null,
         factsAppliedAt: null,
@@ -170,6 +175,30 @@ export class FakeProfiles implements SellerProfilesRepository {
     };
     this.rows.set(organizationId, row);
     this.audits.push({ organizationId, before, after: profile });
+    return row;
+  }
+  async savePrompt(
+    organizationId: string,
+    text: string,
+    userId: string | null,
+    now: Date,
+  ): Promise<SellerProfileRow> {
+    const before = this.rows.get(organizationId) ?? null;
+    const row: SellerProfileRow = {
+      ...(before ?? {
+        ...DEFAULT_SELLER_PROFILE,
+        profileAppliedAt: null,
+        factsHash: null,
+        factsAppliedAt: null,
+        lastError: null,
+        lastErrorAt: null,
+      }),
+      promptText: text,
+      organizationId,
+      updatedAt: now,
+      updatedBy: userId,
+    };
+    this.rows.set(organizationId, row);
     return row;
   }
   async markProfileApplied(organizationId: string, version: Date): Promise<void> {

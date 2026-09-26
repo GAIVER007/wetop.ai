@@ -22,24 +22,27 @@ import { pluralRu } from './plural';
  * этим файлом пользуются и серверная страница, и серверные действия.
  */
 
-/** Вкладки раздела — экраны ТЗ §4.1 в том же порядке */
+/** Вкладки раздела — четыре экрана по макету владельца 26.09.2026 (план `plans/seller-prompt-window-2026-09-26.md`) */
 export const SELLER_TABS = [
-  { view: '', href: '/ai-seller', label: 'Настройки' },
-  { view: 'data', href: '/ai-seller/data', label: 'Данные объекта' },
-  { view: 'knowledge', href: '/ai-seller/knowledge', label: 'Знания' },
+  { view: '', href: '/ai-seller', label: 'Настройка' },
   { view: 'dialogs', href: '/ai-seller/dialogs', label: 'Диалоги' },
-  { view: 'embed', href: '/ai-seller/embed', label: 'Код для сайта' },
-  { view: 'model', href: '/ai-seller/model', label: 'Модель' },
-  { view: 'whatsapp', href: '/ai-seller/whatsapp', label: 'WhatsApp' },
-  { view: 'check', href: '/ai-seller/check', label: 'Проверка' },
+  { view: 'knowledge', href: '/ai-seller/knowledge', label: 'Знания' },
+  { view: 'connections', href: '/ai-seller/connections', label: 'Подключения' },
 ] as const;
 
 export type SellerView = (typeof SELLER_TABS)[number]['view'];
 
-/** Предел строк частых вопросов — как в домене и у бота (`SELLER_PROFILE_LIMITS.faqItems`) */
-export const FAQ_MAX = 50;
-/** Строк в «Запретах» и «Когда звать человека» — как у бота (`SELLER_PROFILE_LIMITS.listItems`) */
-export const LIST_MAX = 30;
+/** Инструкция продавцу одним текстом: предел — как у API и колонки `seller_profiles.prompt_text` (ADR-097) */
+export const SELLER_PROMPT_MAX = 20_000;
+
+/** Прежние адреса восьми вкладок ведут в новые экраны: закладки и ссылки из писем не ломаются */
+export const SELLER_LEGACY_VIEWS: Readonly<Record<string, SellerView>> = {
+  data: 'knowledge',
+  model: 'connections',
+  embed: 'connections',
+  whatsapp: 'connections',
+  check: '',
+};
 
 export interface SellerBanner {
   tone: 'alarm' | 'warn' | 'calm';
@@ -132,14 +135,14 @@ export function sellerBanner(status: SellerStatus): SellerBanner {
       tone: 'alarm',
       value: 'отклонил правки',
       title: 'Продавец отклонил правки',
-      text: `${status.lastError}. Сами не повторяем: исправьте, что назвал продавец, и нажмите «Применить» на шаге «Запуск».`,
+      text: `${status.lastError}. Сами не повторяем: исправьте, что назвал продавец, и нажмите «Сохранить и применить» во вкладке «Настройка».`,
     };
   if (!status.profile.saved)
     return {
       tone: 'warn',
       value: 'не настроен',
       title: 'Продавец ещё не настроен',
-      text: 'Пройдите шаги во вкладке «Настройки» и нажмите «Применить» на последнем — «Запуск».',
+      text: 'Опишите продавца своими словами во вкладке «Настройка» и нажмите «Сохранить и применить».',
     };
   if (status.profile.applied && status.facts.applied)
     return {
@@ -156,281 +159,111 @@ export function sellerBanner(status: SellerStatus): SellerBanner {
   };
 }
 
-/**
- * Шаги настройки продавца (поручение владельца 25.09.2026, `plans/ai-seller-setup-wizard-2026-09-25.md`): «Настройки» —
- * не одна длинная форма, а онбординг. Поля — те же, что в профиле (DATA_MODEL §15): шаг только раскладывает их по
- * порядку, в котором владелец о них думает.
- */
-export const SELLER_SETUP_STEPS = [
-  {
-    step: 1,
-    key: 'intro',
-    title: 'Знакомство',
-    hint: 'Как продавец представится гостю и на каких языках ответит.',
-  },
-  { step: 2, key: 'manner', title: 'Манера', hint: 'На «вы» или на «ты», эмодзи и длина ответов.' },
-  {
-    step: 3,
-    key: 'prices',
-    title: 'Цены',
-    hint: 'Какие цены продавец назовёт гостю и что в них входит.',
-  },
-  {
-    step: 4,
-    key: 'rules',
-    title: 'Правила',
-    hint: 'Правила проживания, запреты и когда звать человека.',
-  },
-  {
-    step: 5,
-    key: 'faq',
-    title: 'Частые вопросы',
-    hint: 'Готовые ответы на то, о чём гости спрашивают чаще всего.',
-  },
-  {
-    step: 6,
-    key: 'docs',
-    title: 'Документы',
-    hint: 'Прайс, описание, правила файлом — продавец ответит и по ним.',
-  },
-  {
-    step: 7,
-    key: 'launch',
-    title: 'Запуск',
-    hint: 'Проверьте, что знает продавец, и отправьте ему настройки.',
-  },
-] as const;
-
-export type SellerSetupKey = (typeof SELLER_SETUP_STEPS)[number]['key'];
-/** Шаги с полями профиля — их сохраняют «Назад» и «Сохранить и дальше» */
-export type SellerProfileStep = Exclude<SellerSetupKey, 'docs' | 'launch'>;
-
-/** `later` — шаг заработает, когда продавец будет подключён; `optional` — можно пропустить */
-export type SellerStepState = 'done' | 'todo' | 'optional' | 'later';
-
-export interface SellerStepProgress {
-  step: number;
-  key: SellerSetupKey;
+export interface SellerChecklistItem {
+  key: 'connect' | 'model' | 'prompt' | 'check';
   title: string;
   hint: string;
-  state: SellerStepState;
-  /** Состояние словом: цвет в списке шагов — только в дополнение к нему (DESIGN.md §1, п. 4) */
-  word: string;
+  done: boolean;
+  /** Куда вести кнопкой шага; нет — шаг делается здесь же, на «Настройке» */
+  href?: string;
 }
 
-const filled = (value: string) => value.trim() !== '';
-
 /**
- * Состояние шагов по сохранённому профилю. Какие шаги человек открывал, платформа не хранит, поэтому «готово» — по
- * содержанию: у манеры есть умолчание у каждого поля, и она готова, как только профиль сохранён.
+ * «Три шага до запуска» (макет владельца 26.09.2026): вместо семи бейджей «не заполнено» — только то, что осталось.
+ * Ключ модели и инструкция у продавца — чек-листа нет. `keySet: null` — продавец не подключён, ключ не спросить.
  */
-export function sellerSetupProgress(input: {
-  saved: boolean;
-  profile: SellerProfileBody;
-  /** Документов, загруженных людьми; `null` — продавец не подключён, и списка нет */
-  documents: number | null;
-  /** Продавец принял текущие настройки и данные объекта */
-  applied: boolean;
-}): SellerStepProgress[] {
-  const { saved, profile: p, documents, applied } = input;
-  const done: Record<SellerProfileStep, boolean> = {
-    intro: saved && filled(p.greeting),
-    manner: saved,
-    prices: saved && (filled(p.includedInPrice) || filled(p.extraCharges)),
-    rules:
-      saved && (filled(p.houseRules) || p.prohibitions.length > 0 || p.callHumanWhen.length > 0),
-    faq: saved && p.faq.length > 0,
-  };
-  return SELLER_SETUP_STEPS.map((s) => {
-    let state: SellerStepState;
-    let word: string;
-    if (s.key === 'docs') {
-      state = documents === null ? 'later' : documents > 0 ? 'done' : 'optional';
-      word = state === 'later' ? 'после подключения' : state === 'done' ? 'готово' : 'по желанию';
-    } else if (s.key === 'launch') {
-      state = applied ? 'done' : 'todo';
-      word = applied ? 'отправлено' : 'не отправлено';
-    } else {
-      state = done[s.key] ? 'done' : 'todo';
-      word = state === 'done' ? 'готово' : 'не заполнено';
-    }
-    return { step: s.step, key: s.key, title: s.title, hint: s.hint, state, word };
+export function sellerChecklist(
+  status: SellerStatus,
+  keySet: boolean | null,
+  prompt: { saved: boolean; applied: boolean } | null,
+): SellerChecklistItem[] | null {
+  const items: SellerChecklistItem[] = [];
+  if (!sellerConnected(status))
+    items.push({
+      key: 'connect',
+      title: 'Подключить продавца',
+      hint: 'Адрес и ключ продавца задаются на сервере — это делает администратор WETOP.',
+      done: false,
+    });
+  items.push({
+    key: 'model',
+    title: 'Подключить модель',
+    hint: keySet ? 'Ключ модели сохранён.' : 'Вставьте ключ OpenAI — он хранится у продавца зашифрованным.',
+    done: keySet === true,
+    href: '/ai-seller/connections',
   });
+  items.push({
+    key: 'prompt',
+    title: 'Написать инструкцию',
+    hint: prompt?.applied
+      ? 'Сохранена и отправлена продавцу.'
+      : prompt?.saved
+        ? 'Сохранена, но ещё не у продавца: нажмите «Сохранить и применить».'
+        : 'Опишите продавца своими словами ниже.',
+    done: prompt?.applied === true,
+  });
+  if (items.every((item) => item.done)) return null;
+  items.push({
+    key: 'check',
+    title: 'Проверить ответ',
+    hint: 'Напишите продавцу в «Проверке» так, как написал бы гость.',
+    done: false,
+  });
+  return items;
 }
 
-/** Какой шаг открыть, если в адресе шага нет: первый незаполненный из шагов с полями, иначе «Запуск» */
-export function defaultSellerStep(progress: SellerStepProgress[]): number {
-  const next = progress.find((p) => p.key !== 'docs' && p.key !== 'launch' && p.state === 'todo');
-  return next ? next.step : SELLER_SETUP_STEPS.length;
-}
-
-/** Номер шага из адреса (`?step=3`): только 1…7 цифрой, остальное — не шаг */
-export function sellerStepNumber(raw: string): number | null {
-  if (!/^[1-9]$/.test(raw)) return null;
-  const n = Number(raw);
-  return n <= SELLER_SETUP_STEPS.length ? n : null;
-}
-
-/** Документы, которые загрузили люди: документ фактов собирает сам продавец из «Данных объекта» */
-export function userDocuments(items: ReadonlyArray<{ source: string }>): number {
-  return items.filter((d) => d.source !== 'platform:facts.md').length;
-}
+const lines = (items: readonly string[]) =>
+  items
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => `- ${item}`);
 
 /**
- * Как звучит каждый вариант «Манеры» — пример фразы продавца рядом с вариантом: выбирают по звучанию, а не по слову.
- * Ключи — значения домена (`SELLER_ADDRESS_FORMS`, `SELLER_EMOJI`, `SELLER_REPLY_LENGTHS`).
+ * Черновик инструкции, пока владелец её не написал (ADR-097): разделы скелета кита, которые пишутся под заказчика
+ * (`apps/ai-seller/sistemnyy-prompt.md` §5, §7, §8), и всё, что уже сохранено полями прежних шагов, — при переходе на
+ * одно окно ничего не теряется. Роль, границы, главные правила и общий список «когда звать человека» бот ставит сам
+ * выше текста. Порядок — как в скелете: правила раньше стиля, примеры последними. Цен и остатка в черновике нет: их
+ * продавец берёт из данных объекта сам.
  */
-export const SELLER_MANNER_EXAMPLES = {
-  addressForm: {
-    FORMAL: '«Здравствуйте! Чем могу вам помочь?»',
-    INFORMAL: '«Привет! Чем могу тебе помочь?»',
-  },
-  emoji: {
-    NEVER: '«Номер свободен на эти даты.»',
-    MODERATE: '«Номер свободен на эти даты 👍»',
-    GREETING_ONLY: '«Здравствуйте! 👋» — дальше без эмодзи',
-  },
-  replyLength: {
-    SHORT: 'одно-два предложения, по делу',
-    DETAILED: 'подробнее: с пояснениями и вариантами',
-  },
-} as const satisfies {
-  addressForm: Record<SellerProfileBody['addressForm'], string>;
-  emoji: Record<SellerProfileBody['emoji'], string>;
-  replyLength: Record<SellerProfileBody['replyLength'], string>;
-};
-
-/**
- * Подписи полей для итога рассказа (С1 «под ключ»): теми же словами, что поля мастера.
- * Ключи — имена полей из ответа `POST /ai-seller/extract` (`filled`, `skipped`, `rejected`).
- */
-export const SELLER_STORY_FIELD_LABELS: Readonly<Record<string, string>> = {
-  botName: 'Имя бота',
-  greeting: 'Приветствие',
-  includedInPrice: 'Что входит в цену',
-  extraCharges: 'Что за доплату',
-  houseRules: 'Правила проживания',
-  prohibitions: 'Запреты',
-  callHumanWhen: 'Когда звать человека',
-  faq: 'Частые вопросы',
-  objectName: 'Название объекта',
-};
-
-/** Имена полей словами: «botName, faq» → «Имя бота, Частые вопросы»; незнакомое имя — как пришло */
-export function sellerStoryFieldWords(names: string[]): string {
-  return names.map((name) => SELLER_STORY_FIELD_LABELS[name] ?? name).join(', ');
-}
-
-/** Вопросы, которые гости задают чаще всего, — подсказки шага «Частые вопросы»: щелчок добавляет строку */
-export const SELLER_FAQ_SUGGESTIONS: readonly string[] = [
-  'Можно заселиться раньше?',
-  'Есть ли парковка?',
-  'Как добраться из аэропорта?',
-  'Можно с животными?',
-  'Есть ли завтрак?',
-  'Где оставить вещи после выезда?',
-];
-
-const text = (form: FormData, name: string): string => {
-  const value = form.get(name);
-  return typeof value === 'string' ? value : '';
-};
-
-/** Поле «по одному в строке» → список: края строк обрезаются, пустые строки — не правила */
-const lines = (form: FormData, name: string): string[] =>
-  text(form, name)
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line !== '');
-
-/**
- * Поля шага → профиль целиком для `PUT /ai-seller/profile`: шаг меняет только свои поля, остальные берутся из
- * сохранённого профиля. Чужие поля в форме шага не читаются — даже если их подложили. Проверяет API (домен
- * `parseSellerProfile`): здесь только сборка, края пробелов не трогаются. Строки частых вопросов —
- * `faq-question-N` / `faq-answer-N`, их число — `faqCount`.
- */
-export function sellerStepFromForm(
-  key: SellerProfileStep,
-  form: FormData,
-  current: SellerProfileBody,
-): SellerProfileBody {
-  switch (key) {
-    case 'intro':
-      return {
-        ...current,
-        botName: text(form, 'botName'),
-        greeting: text(form, 'greeting'),
-        languages: form.getAll('languages').filter((v): v is string => typeof v === 'string'),
-      };
-    case 'manner':
-      return {
-        ...current,
-        addressForm: text(form, 'addressForm') as SellerProfileBody['addressForm'],
-        emoji: text(form, 'emoji') as SellerProfileBody['emoji'],
-        replyLength: text(form, 'replyLength') as SellerProfileBody['replyLength'],
-      };
-    case 'prices':
-      return {
-        ...current,
-        includedInPrice: text(form, 'includedInPrice'),
-        extraCharges: text(form, 'extraCharges'),
-      };
-    case 'rules':
-      return {
-        ...current,
-        houseRules: text(form, 'houseRules'),
-        prohibitions: lines(form, 'prohibitions'),
-        callHumanWhen: lines(form, 'callHumanWhen'),
-      };
-    case 'faq': {
-      const count = Math.min(Math.max(Number(text(form, 'faqCount')) || 0, 0), FAQ_MAX);
-      return {
-        ...current,
-        faq: Array.from({ length: count }, (_, i) => ({
-          question: text(form, `faq-question-${i}`),
-          answer: text(form, `faq-answer-${i}`),
-        })),
-      };
-    }
-  }
-}
-
-/** Случаи, когда продавец зовёт человека всегда, без списка владельца (правила ядра бота) */
-const ALWAYS_HUMAN = 'всегда — жалоба, возврат денег, изменение или отмена брони';
-
-/**
- * «Что получит продавец» на шаге «Запуск»: инструкция словами, а не текстом промпта. Промпт собирает бот из
- * неизменяемого ядра и этих полей (ТЗ §2 п. 2) — владелец видит, что из его ответов попадёт в разговор с гостем.
- */
-export function sellerBriefing(p: SellerProfileBody): Array<{ label: string; value: string }> {
-  const dash = (value: string) => (filled(value) ? value.trim() : '—');
-  const languages = p.languages
-    .map((code, i) => `${SELLER_LANGUAGES[code] ?? code}${i === 0 ? ' (основной)' : ''}`)
-    .join(', ');
-  return [
-    {
-      label: 'Представляется',
-      value:
-        p.botName && filled(p.botName) ? `«${p.botName.trim()}»` : 'без имени — от лица гостиницы',
-    },
-    { label: 'Обращается к гостю', value: SELLER_ADDRESS_FORMS[p.addressForm] ?? p.addressForm },
-    { label: 'Эмодзи', value: SELLER_EMOJI[p.emoji] ?? p.emoji },
-    { label: 'Ответы', value: SELLER_REPLY_LENGTHS[p.replyLength] ?? p.replyLength },
-    { label: 'Языки', value: languages || '—' },
-    { label: 'Приветствие', value: dash(p.greeting) },
-    { label: 'Что входит в цену', value: dash(p.includedInPrice) },
-    { label: 'За доплату', value: dash(p.extraCharges) },
-    { label: 'Правила проживания', value: dash(p.houseRules) },
-    { label: 'Запреты', value: p.prohibitions.length > 0 ? p.prohibitions.join('; ') : '—' },
-    { label: 'Зовёт человека', value: [...p.callHumanWhen, ALWAYS_HUMAN].join('; ') },
-    {
-      label: 'Частые вопросы',
-      value:
-        p.faq.length > 0
-          ? pluralRu(p.faq.length, ['готовый ответ', 'готовых ответа', 'готовых ответов'])
-          : '—',
-    },
+export function sellerPromptDraft(profile: SellerProfileBody | null): string {
+  const p = profile;
+  const name = p?.botName?.trim();
+  const languages = (p?.languages.length ? p.languages : ['ru']).map((code) =>
+    (SELLER_LANGUAGES[code] ?? code).toLowerCase(),
+  );
+  const parts = [
+    'Разговор по шагам',
+    ...lines([
+      'Узнай, что нужно гостю: даты, сколько гостей, номер или койка.',
+      'Подбери подходящий вариант и расскажи о нём.',
+      'Попроси телефон, чтобы администратор подтвердил бронь.',
+    ]),
   ];
+  const rules = lines([
+    p?.includedInPrice.trim() ? `Входит в цену: ${p.includedInPrice.trim()}` : '',
+    p?.extraCharges.trim() ? `За доплату: ${p.extraCharges.trim()}` : '',
+    ...(p?.houseRules.split('\n') ?? []),
+  ]);
+  if (rules.length) parts.push('', 'Правила объекта', ...rules);
+  if (p?.prohibitions.length) parts.push('', 'Чего не делать', ...lines(p.prohibitions));
+  if (p?.callHumanWhen.length) parts.push('', 'Когда ещё звать человека', ...lines(p.callHumanWhen));
+  parts.push(
+    '',
+    'Стиль',
+    ...lines([
+      name ? `Тебя зовут ${name}.` : '',
+      `Обращайся к гостю ${SELLER_ADDRESS_FORMS[p?.addressForm ?? 'FORMAL']}, отвечай ${SELLER_REPLY_LENGTHS[p?.replyLength ?? 'SHORT']}, эмодзи — ${SELLER_EMOJI[p?.emoji ?? 'NEVER']}.`,
+      `Отвечай на языке гостя: ${languages.join(', ')}.`,
+      p?.greeting.trim() ? `Первое сообщение: ${p.greeting.trim()}` : '',
+    ]),
+  );
+  if (p?.faq.length)
+    parts.push(
+      '',
+      'Готовые ответы',
+      ...p.faq.map((item) => `- ${item.question.trim()} → ${item.answer.trim()}`),
+    );
+  return parts.join('\n').trim() + '\n';
 }
 
 /**

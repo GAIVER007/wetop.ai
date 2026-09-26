@@ -9,7 +9,8 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.ai.seller_prompt import SellerProfile, dirty_fields, render
+from src.ai.guardrails import scan_document
+from src.ai.seller_prompt import SellerProfile, SellerPromptText, dirty_fields, render, render_owner_text
 from src.config import normalize_bot_role
 from src.dashboard.auth_router import request_org, require_owner
 from src.dashboard.panel_common import log_action, sessions
@@ -55,6 +56,33 @@ async def apply_profile(
         log_action(
             session,
             action="seller_profile",
+            payload={"organization": str(org), "length": len(text)},
+        )
+        await session.commit()
+    return {"status": "ok", "length": len(text)}
+
+
+@router.put("/seller/prompt", dependencies=[Depends(require_owner)])
+async def apply_prompt_text(
+    request: Request, prompt: SellerPromptText, org: uuid.UUID | None = Depends(request_org)
+) -> dict:
+    """Инструкция продавцу одним текстом (ADR-097): ядро бот ставит сам и сверху."""
+    _require_seller(request)
+    if not scan_document(prompt.text).clean:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": "В тексте найдены инструкции для модели", "fields": ["text"]},
+        )
+    text = render_owner_text(prompt)
+    async with sessions()() as session:
+        row = await session.get(Organization, org)
+        if row is None:
+            raise HTTPException(status_code=404, detail="Организация у продавца не заведена")
+        row.system_prompt = text
+        row.updated_at = utcnow()
+        log_action(
+            session,
+            action="seller_prompt",
             payload={"organization": str(org), "length": len(text)},
         )
         await session.commit()

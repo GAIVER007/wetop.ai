@@ -232,8 +232,8 @@ SERVICE_HEADER = "x-service-key"
 SERVICE_ACTOR_EMAIL = "service:platform"
 
 # ТЗ интеграции, Б5: маршруты, которые открывает служебный ключ платформы.
-# 🔴 PUT /prompt здесь нет намеренно: платформа шлёт профиль полями (Б6),
-# и ядро правил продавца владелец объекта переписать не может.
+# 🔴 PUT /prompt (файл помощника) здесь нет намеренно: продавцу платформа шлёт профиль полями (Б6)
+# или текст владельца в /seller/prompt (ADR-097) — ядро правил бот ставит сам, переписать его нельзя.
 SERVICE_ROUTES = frozenset({
     ("GET", "/conversations"),
     ("GET", "/conversations/{conv_id}"),
@@ -244,6 +244,7 @@ SERVICE_ROUTES = frozenset({
     ("POST", "/knowledge"),
     ("GET", "/summary"),
     ("PUT", "/seller/profile"),
+    ("PUT", "/seller/prompt"),
     ("PUT", "/seller/facts"),
     # С1 «под ключ»: рассказ партнёра -> поля анкеты (свободный текст промптом не становится).
     ("POST", "/extract-profile"),

@@ -2728,3 +2728,10 @@
 | 26.09.2026 22:38 | e2e | ✅ 25 из 25 | 1 мин 5 с | 634ab49 +50 | [лог](logs/2026-09-26T17-38-08Z-e2e-d503.log) |  |
 | 26.09.2026 22:39 | e2e | ✅ 26 из 26 | 1 мин 13 с | 634ab49 +50 | [лог](logs/2026-09-26T17-39-14Z-e2e-c0db.log) |  |
 | 26.09.2026 22:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 390 из 390 | 32 мин 9 с | 91a1d10 | [лог](logs/2026-09-26T17-41-23Z-e2e-535f.log) |  |
+| 27.09.2026 00:19 | typecheck | ✅ без ошибок | 20 с | 35aa561 | [лог](logs/2026-09-26T19-19-31Z-typecheck-bf6b.log) | seller key fix 35aa5616 (PMS code unchanged) |
+| 27.09.2026 00:19 | lint | ✅ без ошибок | 16 с | 35aa561 | [лог](logs/2026-09-26T19-19-53Z-lint-4b15.log) | seller key fix 35aa5616 |
+| 27.09.2026 00:25 | e2e | ✅ 25 из 25 | 51 с | 35aa561 | [лог](logs/2026-09-26T19-25-01Z-e2e-0555.log) | seller key fix 35aa5616: live e2e after db:local reset |
+| 27.09.2026 00:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 389 | 19 мин 18 с | 35aa561 | [лог](logs/2026-09-26T19-25-53Z-e2e-adde.log) | seller key fix 35aa5616: full UI suite |
+| 27.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-extend.spec.ts tests/ui/workspace.spec.ts --workers=1) | ✅ 66 из 66 | 1 мин 50 с | 35aa561 +2 | [лог](logs/2026-09-26T19-46-59Z-e2e-d9eb.log) | chessboard specs independent of the weekday (Sunday in Almaty now) |
+| 27.09.2026 00:49 | typecheck | ✅ без ошибок | 8 с | 0278091 | [лог](logs/2026-09-26T19-49-06Z-typecheck-5c93.log) | branch tip after chessboard spec fixes |
+| 27.09.2026 00:49 | lint | ✅ без ошибок | 7 с | 0278091 | [лог](logs/2026-09-26T19-49-15Z-lint-3939.log) | branch tip after chessboard spec fixes |

@@ -2514,3 +2514,7 @@
 | 26.09.2026 19:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ✅ 16 из 16 | 1 мин 43 с | 737f27c +1 | [лог](logs/2026-09-26T14-03-22Z-e2e-0fc9.log) |  |
 | 26.09.2026 19:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 3 из 16 | 2 мин 22 с | 737f27c +3 | [лог](logs/2026-09-26T14-05-51Z-e2e-7439.log) | разделы содержат основные ссылки без дублей; раскрываются с клавиатуры |
 | 26.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ✅ 16 из 16 | 1 мин 53 с | 737f27c +2 | [лог](logs/2026-09-26T14-08-19Z-e2e-c082.log) |  |
+| 26.09.2026 19:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 387 из 387 | 32 мин 39 с | e8cda9c | [лог](logs/2026-09-26T14-10-41Z-e2e-f545.log) |  |
+| 26.09.2026 19:43 | typecheck | ✅ без ошибок | 30 с | e8cda9c | [лог](logs/2026-09-26T14-43-40Z-typecheck-36fd.log) |  |
+| 26.09.2026 19:44 | lint | ✅ без ошибок | 16 с | e8cda9c | [лог](logs/2026-09-26T14-44-10Z-lint-d3a0.log) |  |
+| 26.09.2026 19:44 | e2e | ✅ 25 из 25 | 58 с | e8cda9c | [лог](logs/2026-09-26T14-44-30Z-e2e-f9b2.log) |  |

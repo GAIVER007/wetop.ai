@@ -2404,3 +2404,17 @@
 | 26.09.2026 17:26 | lint | ✅ без ошибок | 16 с | d53aff7 +7 | [лог](logs/2026-09-26T12-26-26Z-lint-fefa.log) | пакет D: персональные данные |
 | 26.09.2026 17:26 | integration | ✅ 80 из 80 | 26 с | d53aff7 +7 | [лог](logs/2026-09-26T12-26-43Z-integration-6252.log) | пакет D |
 | 26.09.2026 17:27 | e2e | ✅ 25 из 25 | 1 мин 8 с | d53aff7 +6 | [лог](logs/2026-09-26T12-27-21Z-e2e-3a11.log) | пакет D |
+| 26.09.2026 17:30 | integration (частично: tests/integration/finance-locks.test.ts) | ❌ упало 2 из 2 | 4 с | bbc311a +1 | [лог](logs/2026-09-26T12-30-05Z-integration-b153.log) | пакет E red: деньги без блокировки |
+| 26.09.2026 17:31 | typecheck | ✅ без ошибок | 21 с | bbc311a +3 | [лог](logs/2026-09-26T12-31-24Z-typecheck-1993.log) | пакет E |
+| 26.09.2026 17:31 | unit (частично: apps/api/src/finance) | ❌ упало 4 из 15 | 3 с | bbc311a +2 | [лог](logs/2026-09-26T12-31-58Z-unit-f30f.log) | пакет E |
+| 26.09.2026 17:32 | integration (частично: tests/integration/finance-locks.test.ts) | ✅ 2 из 2 | 3 с | bbc311a +3 | [лог](logs/2026-09-26T12-32-02Z-integration-815b.log) | пакет E green: деньги под блокировкой |
+| 26.09.2026 17:32 | unit (частично: apps/api/src/finance) | ✅ 15 из 15 | 3 с | bbc311a +3 | [лог](logs/2026-09-26T12-32-26Z-unit-a2bf.log) | пакет E |
+| 26.09.2026 17:33 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ❌ упало 1 из 29 | 4 с | bbc311a +4 | [лог](logs/2026-09-26T12-33-56Z-unit-fd48.log) | С-15 red |
+| 26.09.2026 17:34 | integration (частично: tests/integration/reservation-lock.test.ts) | ❌ упало 1 из 1 | 3 с | bbc311a +6 | [лог](logs/2026-09-26T12-34-00Z-integration-4eae.log) | С-15 red |
+| 26.09.2026 17:34 | unit (частично: apps/api/src/reservations apps/api/src/channels apps/api/src/web-booking) | ✅ 191 из 191 | 6 с | bbc311a +8 | [лог](logs/2026-09-26T12-34-26Z-unit-83b4.log) | С-15 green |
+| 26.09.2026 17:34 | integration (частично: tests/integration/reservation-lock.test.ts) | ✅ 1 из 1 | 3 с | bbc311a +10 | [лог](logs/2026-09-26T12-34-33Z-integration-dd0e.log) | С-15 green |
+| 26.09.2026 17:34 | unit | ✅ 1913 из 1916, пропущено 3 | 1 мин 12 с | bbc311a +8 | [лог](logs/2026-09-26T12-34-43Z-unit-ea1b.log) | пакет E: гонки в деньгах и бронях |
+| 26.09.2026 17:35 | typecheck | ✅ без ошибок | 22 с | bbc311a +10 | [лог](logs/2026-09-26T12-35-55Z-typecheck-5408.log) | пакет E: гонки в деньгах и бронях |
+| 26.09.2026 17:36 | lint | ✅ без ошибок | 16 с | bbc311a +10 | [лог](logs/2026-09-26T12-36-18Z-lint-4aad.log) | пакет E: гонки в деньгах и бронях |
+| 26.09.2026 17:36 | integration | ✅ 83 из 83 | 26 с | bbc311a +10 | [лог](logs/2026-09-26T12-36-35Z-integration-1ee8.log) | пакет E |
+| 26.09.2026 17:37 | e2e | ✅ 25 из 25 | 1 мин 6 с | bbc311a +8 | [лог](logs/2026-09-26T12-37-07Z-e2e-ea2c.log) | пакет E |

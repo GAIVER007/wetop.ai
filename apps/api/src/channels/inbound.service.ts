@@ -743,7 +743,10 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       !byUniqueId && a.ota_reservation_code
         ? await repo.reservationByExternalId(a.ota_reservation_code)
         : null;
-    const existing = byUniqueId ?? byOtaCode ?? (await repo.reservationByNumber(a.unique_id));
+    const found = byUniqueId ?? byOtaCode ?? (await repo.reservationByNumber(a.unique_id));
+    // Та же бронь могла сейчас меняться на стойке: замок и свежее состояние после него (аудит 26.09, С-15)
+    if (found) await repo.lockReservation(found.confirmationNumber);
+    const existing = found ? await repo.reservationByNumber(found.confirmationNumber) : null;
     const codeById = new Map(
       mappings
         .filter((m) => m.localAccommodationTypeId && m.localAccommodationTypeCode)

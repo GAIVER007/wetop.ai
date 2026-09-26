@@ -207,6 +207,7 @@ function makeFakes() {
       return [];
     },
     async lockCategories() {},
+    async lockReservation() {},
     async categoryAvailability() {
       return 99;
     },

@@ -1,0 +1,62 @@
+# Интеграционные (integration) · 26.09.2026 17:30 Алматы · vm
+# коммит bbc311a (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-30-05Z-integration-b153.json' 'tests/integration/finance-locks.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/finance-locks.test.ts (2 tests | 2 failed) 295ms
+   ❯ деньги под блокировкой (integration, DATABASE_URL required) (2)
+     × два одновременных возврата на всю сумму: проходит один, возвращено не больше внесённого 64ms
+     × закрыть счёт с ненулевым балансом репозиторий не даёт, в закрытый счёт начисление не ложится 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/finance-locks.test.ts > деньги под блокировкой (integration, DATABASE_URL required) > два одновременных возврата на всю сумму: проходит один, возвращено не больше внесённого
+AssertionError: expected 2000n to be 1000n // Object.is equality
+
+- Expected
++ Received
+
+- 1000n
++ 2000n
+
+ ❯ tests/integration/finance-locks.test.ts:71:40
+     69|     const results = await Promise.allSettled([refund(), refund()]);
+     70|     const refunded = await db.refund.aggregate({ where: { paymentId: p…
+     71|     expect(refunded._sum.amount ?? 0n).toBe(1_000n);
+       |                                        ^
+     72|     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLeng…
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/finance-locks.test.ts > деньги под блокировкой (integration, DATABASE_URL required) > закрыть счёт с ненулевым балансом репозиторий не даёт, в закрытый счёт начисление не ложится
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/integration/finance-locks.test.ts:86:43
+     84|       },
+     85|     });
+     86|     await expect(repo.closeFolio(folioId)).rejects.toThrow();
+       |                                           ^
+     87|     expect((await db.folio.findUniqueOrThrow({ where: { id: folioId } …
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  12:30:06
+   Duration  2.66s (transform 50%, import 26%, tests 24%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-30-05Z-integration-b153.json
+
+# код выхода 1 · 4 с

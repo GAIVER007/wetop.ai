@@ -1508,6 +1508,8 @@ export class ReservationsService {
   }
 
   private async load(repo: ReservationsRepository, number: string) {
+    // замок до чтения: вторая команда по той же брони ждёт первую и видит её результат (аудит 26.09, С-15)
+    await repo.lockReservation(number);
     const state = await repo.reservationByNumber(number);
     if (!state) throw new NotFoundException(`Бронь ${number} не найдена`);
     return state;

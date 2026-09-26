@@ -233,6 +233,12 @@ export interface ReservationsRepository {
    * блокировки два запроса одновременно продают последнее место категории (Б2).
    */
   lockCategories(typeIds: string[]): Promise<void>;
+  /**
+   * Замок брони до конца транзакции (pg_advisory_xact_lock). Берётся до чтения её состояния: две одновременные отмены
+   * иначе обе проходили проверку «ещё не отменена» и начисляли штраф дважды (аудит 26.09, С-15). Порядок один для всех
+   * путей: сначала бронь, потом категории.
+   */
+  lockReservation(confirmationNumber: string): Promise<void>;
   /** Ограничения продаж (ADR-020) по датам [from, toExclusive) для категории × тарифа; нет строки — нет ограничений */
   restrictionsFor(
     accommodationTypeId: string,
@@ -563,6 +569,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
     return free;
+  }
+  async lockReservation(confirmationNumber: string): Promise<void> {
+    await this.db
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.reservation:${confirmationNumber}`}, 0))`;
   }
   async lockCategories(typeIds: string[]): Promise<void> {
     // xact-блокировка отпускается сама при COMMIT/ROLLBACK; в одной транзакции повторный вызов не ждёт

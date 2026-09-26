@@ -218,15 +218,21 @@ class WidgetApp:
         self.settings = settings
 
     def headers(
-        self, origin: str | None = SITE_ORIGIN, identity: str | None = None
+        self,
+        origin: str | None = SITE_ORIGIN,
+        identity: str | None = None,
+        visitor: str | None = None,
     ) -> dict[str, str]:
-        """Признак пользователя идёт заголовком: в адресе ему не место,
-        адреса оседают в журналах привратника, а в признаке почта."""
+        """Признак пользователя и ключ посетителя идут заголовками: в адресе
+        им не место, адреса оседают в журналах привратника, а в признаке
+        почта, в ключе — пропуск к переписке."""
         out: dict[str, str] = {}
         if origin:
             out["Origin"] = origin
         if identity is not None:
             out["X-Widget-Identity"] = identity
+        if visitor is not None:
+            out["X-Widget-Visitor"] = visitor
         return out
 
     @staticmethod
@@ -288,13 +294,13 @@ class WidgetApp:
         origin: str | None = SITE_ORIGIN,
         org_key: str | None = None,
     ) -> Any:
-        params: dict[str, str] = {"visitor_key": visitor_key}
+        params: dict[str, str] = {}
         if after is not None:
             params["after"] = after
         if org_key is not None:
             params["k"] = org_key
         return self.client.get(
-            f"{PREFIX}/messages", params=params, headers=self.headers(origin, identity)
+            f"{PREFIX}/messages", params=params, headers=self.headers(origin, identity, visitor_key)
         )
 
     def consent(
@@ -323,16 +329,16 @@ class WidgetApp:
         origin: str | None = SITE_ORIGIN,
         org_key: str | None = None,
     ) -> Any:
-        # Ключ идёт в адресе, а не в форме: его проверяют ДО разбора формы,
+        # Ключ идёт заголовком, а не в форме: его проверяют ДО разбора формы,
         # иначе файл окажется на диске раньше, чем спросят, чей он.
-        params: dict[str, str] = {"visitor_key": visitor_key}
+        params: dict[str, str] = {}
         if org_key is not None:
             params["k"] = org_key
         return self.client.post(
             f"{PREFIX}/attachment",
             params=params,
             files={"file": (filename, content, content_type)},
-            headers=self.headers(origin, identity),
+            headers=self.headers(origin, identity, visitor_key),
         )
 
 

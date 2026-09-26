@@ -140,10 +140,11 @@ class WidgetCorsMiddleware(BaseHTTPMiddleware):
             # выписанный нашему.
             response.headers["Vary"] = "Origin"
             response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-            # X-Widget-Identity: признак пользователя ходит заголовком, а не
-            # в адресе; без разрешения браузер его просто не отправит.
+            # X-Widget-Identity и X-Widget-Visitor: признак пользователя и ключ
+            # посетителя ходят заголовками, а не в адресе; без разрешения
+            # браузер их просто не отправит.
             response.headers["Access-Control-Allow-Headers"] = (
-                "Content-Type, X-Widget-Identity"
+                "Content-Type, X-Widget-Identity, X-Widget-Visitor"
             )
         return response
 

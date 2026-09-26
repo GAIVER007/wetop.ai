@@ -2469,3 +2469,10 @@
 | 26.09.2026 16:18 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ✅ 1 из 1 | 33 с | 09cec40 +24 | [лог](logs/2026-09-26T11-18-42Z-e2e-4bfc.log) | Fix same-origin proxy behind Next adapter; actual guest persistence |
 | 26.09.2026 16:21 | e2e (частично: --config tests/wizard-ui/playwright.config.ts --workers=1) | ✅ 2 из 2 | 21 с | 09cec40 +25 | [лог](logs/2026-09-26T11-21-22Z-e2e-f508.log) | Final guest proxy/persistence/security boundaries and responsive evidence |
 | 26.09.2026 16:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/guest-wizard.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 10 с | 09cec40 +25 | [лог](logs/2026-09-26T11-24-25Z-e2e-9f99.log) | Guest wizard final UI recovery and seller regression |
+| 26.09.2026 16:53 | typecheck | ❌ ошибок: 15 | 43 с | 587ce97 | [лог](logs/2026-09-26T11-53-26Z-typecheck-8b4f.log) | TS2339 |
+| 26.09.2026 16:54 | lint | ✅ без ошибок | 22 с | 587ce97 | [лог](logs/2026-09-26T11-54-09Z-lint-b58f.log) |  |
+| 26.09.2026 16:54 | unit | ❌ упало 1 из 1902, пропущено 3 | 1 мин 19 с | 587ce97 | [лог](logs/2026-09-26T11-54-32Z-unit-74da.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 26.09.2026 16:57 | integration | ✅ 85 из 85 | 40 с | 587ce97 | [лог](logs/2026-09-26T11-57-10Z-integration-80d0.log) |  |
+| 26.09.2026 16:57 | typecheck | ✅ без ошибок | 28 с | 587ce97 +3 | [лог](logs/2026-09-26T11-57-51Z-typecheck-6955.log) |  |
+| 26.09.2026 16:58 | lint | ✅ без ошибок | 20 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-20Z-lint-3ef8.log) |  |
+| 26.09.2026 16:58 | unit | ✅ 1899 из 1902, пропущено 3 | 1 мин 12 с | 587ce97 +3 | [лог](logs/2026-09-26T11-58-41Z-unit-55e3.log) |  |

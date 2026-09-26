@@ -2615,3 +2615,8 @@
 | 26.09.2026 21:37 | e2e (частично: tests/e2e/check-in-out.spec.ts --repeat-each=8 --workers=1) | ✅ 9 из 9 | 1 мин 17 с | 62e8a0b | [лог](logs/2026-09-26T16-37-37Z-e2e-861c.log) |  |
 | 26.09.2026 21:40 | e2e (частично: tests/e2e/check-in-out.spec.ts --repeat-each=4 --workers=1) | ✅ 5 из 5 | 43 с | 62e8a0b +1 | [лог](logs/2026-09-26T16-40-10Z-e2e-6c2d.log) |  |
 | 26.09.2026 21:40 | e2e | ✅ 25 из 25 | 58 с | 62e8a0b +1 | [лог](logs/2026-09-26T16-40-54Z-e2e-bf83.log) |  |
+| 26.09.2026 22:38 | typecheck | ✅ без ошибок | 10 с | 1a66ce4 | [лог](logs/2026-09-26T17-38-13Z-typecheck-ed97.log) | после слияния с main c3984cee |
+| 26.09.2026 22:38 | lint | ✅ без ошибок | 7 с | 1a66ce4 | [лог](logs/2026-09-26T17-38-23Z-lint-78e1.log) | после слияния с main c3984cee |
+| 26.09.2026 22:38 | unit | ❌ упало 10 из 1936, пропущено 3 | 1 мин 12 с | 1a66ce4 | [лог](logs/2026-09-26T17-38-31Z-unit-287c.log) | после слияния с main c3984cee |
+| 26.09.2026 22:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ux-retention.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 25 из 25 | 54 с | 1a66ce4 | [лог](logs/2026-09-26T17-39-43Z-e2e-6fbb.log) | после слияния с main c3984cee |
+| 26.09.2026 22:41 | unit (частично: tests/unit/launchd-status.test.ts) | ✅ 4 из 4 | 4 с | 1a66ce4 | [лог](logs/2026-09-26T17-41-04Z-unit-e140.log) | повтор: таймаут под нагрузкой |

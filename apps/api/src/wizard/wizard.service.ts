@@ -3,11 +3,14 @@ import { createHash, randomBytes } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AttemptWindows } from '../auth/attempt-limits';
 import { PrismaService } from '../database/prisma.provider';
 import { wizardConfig, WIZARD_STEPS } from './wizard-input';
 
@@ -16,10 +19,26 @@ const configObject = (value: unknown): Record<string, string> =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, string>)
     : {};
+const HOUR_MS = 3_600_000;
+const TOO_MANY_MESSAGE = 'слишком много запросов, попробуйте позже';
+
+/**
+ * Пределы гостевого мастера (проверка слияния 26.09): без них поток открытий с одного адреса и поток сохранений в
+ * одной сессии рос без края — новая строка сессии, черновика и события в базе на каждый вызов, и раз включат
+ * `WIZARD_ENABLED`, это стало бы отказом в обслуживании. Открытие — по адресу (адрес нет — не считаем, как у входа);
+ * сохранение — по сессии, чтобы работать даже без адреса посетителя.
+ */
+export const WIZARD_LIMITS = {
+  opensPerIpPerHour: 20,
+  savesPerSessionPerHour: 60,
+} as const;
 
 /** Guest drafts are isolated by a random bearer token. No model calls or trial issuance here. */
 @Injectable()
 export class WizardService {
+  private readonly opens = new AttemptWindows(WIZARD_LIMITS.opensPerIpPerHour, HOUR_MS);
+  private readonly saves = new AttemptWindows(WIZARD_LIMITS.savesPerSessionPerHour, HOUR_MS);
+
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   private enabled() {
     if (process.env.WIZARD_ENABLED !== '1')
@@ -53,9 +72,11 @@ export class WizardService {
       },
     };
   }
-  async open(token: string | undefined, ref: unknown) {
+  async open(token: string | undefined, ref: unknown, ip: string | null = null) {
     this.enabled();
     if (token) return this.view(await this.session(token));
+    if (ip && !this.opens.allow(ip, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     const ttl = Number(process.env.WIZARD_SESSION_TTL_SECONDS);
     if (!Number.isSafeInteger(ttl) || ttl < 60 || ttl > 2592000)
       throw new ServiceUnavailableException('Срок хранения черновиков ещё не настроен');
@@ -79,6 +100,8 @@ export class WizardService {
   }
   async save(token: string | undefined, body: unknown) {
     const row = await this.session(token);
+    if (!this.saves.allow(row.id, Date.now()))
+      throw new HttpException(TOO_MANY_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     if (row.draft.agentId) throw new ConflictException('Агент уже сохранён в аккаунте');
     if (!body || typeof body !== 'object' || Array.isArray(body))
       throw new BadRequestException('Ожидаются настройки');

@@ -1664,10 +1664,14 @@ export const inventoryEditorApi = {
 };
 
 
+/** Visitor address for the API's per-address wizard limit (proxy, not the browser) — never counted if absent. */
+const ipHeader = (ip?: string | null): Record<string, string> =>
+  ip ? { 'cf-connecting-ip': ip } : {};
+
 /** Fixed guest operations: no browser-supplied backend path or credentials. */
 export const wizardApi = {
-  open: (token: string, ref: string) => sendJson<import('./wizard-types').WizardState>(
-    'POST', '/wizard/session', { ref }, token ? { 'x-wizard-token': token } : {},
+  open: (token: string, ref: string, ip?: string | null) => sendJson<import('./wizard-types').WizardState>(
+    'POST', '/wizard/session', { ref }, { ...(token ? { 'x-wizard-token': token } : {}), ...ipHeader(ip) },
   ),
   save: (token: string, body: unknown) => sendJson<import('./wizard-types').WizardState>(
     'PATCH', '/wizard/config', body, { 'x-wizard-token': token },

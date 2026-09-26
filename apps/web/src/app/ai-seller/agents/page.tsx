@@ -14,8 +14,10 @@ export default async function AgentsPage() {
   return (
     <main className="seller-agents">
       <header>
-        <div><h1>Мои ИИ-продавцы</h1>
-        <p>Агенты вашей организации. Черновик становится рабочим после подключения и проверки.</p></div>
+        <div>
+          <h1>Мои ИИ-продавцы</h1>
+          <p>Агенты вашей организации. Черновик становится рабочим после подключения и проверки.</p>
+        </div>
         <Link className="btn" href="/create">
           Создать агента
         </Link>{' '}
@@ -34,7 +36,9 @@ export default async function AgentsPage() {
         <div className="seller-agents__grid">
           {items.map((agent) => (
             <article className="panel" key={agent.id}>
-              <h2>{agent.name}</h2>
+              <h2>
+                <Link href={`/ai-seller/agents/${agent.id}`}>{agent.name}</Link>
+              </h2>
               <p>Черновик · {agent.scenario === 'support' ? 'Поддержка' : 'Продажи'}</p>
               <dl>
                 <dt>Компания</dt>

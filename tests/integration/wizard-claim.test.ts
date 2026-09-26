@@ -44,6 +44,29 @@ it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
         [1, 2].map(() => withSignedInUser(actor, () => agents.claim(first.guestToken))),
       );
       expect(results[0].id).toBe(results[1].id);
+      const card = await withSignedInUser(actor, () => agents.get(results[0].id));
+      const changes = await Promise.allSettled(
+        ['First', 'Second'].map((assistantName) =>
+          withSignedInUser(actor, () =>
+            agents.update(card.id, {
+              profile: { ...card.profile, assistantName },
+              updatedAt: card.updatedAt.toISOString(),
+            }),
+          ),
+        ),
+      );
+      expect(changes.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+      const refreshed = await withSignedInUser(actor, () => agents.get(card.id));
+      expect(['First', 'Second']).toContain(refreshed.name);
+      await expect(
+        withSignedInUser(actor, () =>
+          agents.update(card.id, {
+            profile: { businessName: '' },
+            updatedAt: refreshed.updatedAt.toISOString(),
+          }),
+        ),
+      ).rejects.toThrow();
+
       expect(await db.sellerAgent.count({ where: { organizationId: org } })).toBe(1);
       await expect(
         withSignedInUser({ userId: other, organizationId: other, role: 'OWNER' }, () =>

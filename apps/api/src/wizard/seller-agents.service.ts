@@ -3,6 +3,7 @@ import { canWrite } from '@pms/domain';
 import { createHash } from 'node:crypto';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -10,6 +11,7 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { wizardConfig } from './wizard-input';
 import { PrismaService } from '../database/prisma.provider';
 import { currentUserId, currentOrganizationId, currentRole } from '../auth/request-context';
 
@@ -56,6 +58,59 @@ export class SellerAgentsService {
         },
       }),
     };
+  }
+  private validId(id: string) {
+    if (!/^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id))
+      throw new NotFoundException('Агент не найден');
+  }
+  async get(id: string) {
+    this.validId(id);
+    const { organizationId } = await this.owner();
+    const agent = await this.prisma.db.sellerAgent.findFirst({ where: { id, organizationId } });
+    if (!agent) throw new NotFoundException('Агент не найден');
+    return { ...agent, profile: agent.profile as Record<string, string> };
+  }
+  async update(id: string, body: unknown) {
+    this.validId(id);
+    const { organizationId, userId } = await this.owner();
+    if (!body || typeof body !== 'object' || Array.isArray(body))
+      throw new BadRequestException('Проверьте настройки');
+    const input = body as { profile?: unknown; updatedAt?: unknown };
+    const profile = wizardConfig(input.profile);
+    if (!profile.businessName || !profile.niche)
+      throw new BadRequestException('Заполните компанию и нишу');
+    if (typeof input.updatedAt !== 'string' || !Number.isFinite(Date.parse(input.updatedAt)))
+      throw new BadRequestException('Обновите карточку');
+    const expected = new Date(input.updatedAt);
+    const name = profile.assistantName || profile.businessName;
+    return this.prisma.db.$transaction(async (tx) => {
+      const before = await tx.sellerAgent.findFirst({ where: { id, organizationId } });
+      if (!before) throw new NotFoundException('Агент не найден');
+      if (before.lifecycle !== 'draft')
+        throw new ConflictException('Настройки работающего агента меняются через публикацию');
+      const updatedAt = new Date(Math.max(Date.now(), before.updatedAt.getTime() + 1));
+      const changed = await tx.sellerAgent.updateMany({
+        where: { id, organizationId, updatedAt: expected, lifecycle: 'draft' },
+        data: {
+          profile,
+          name,
+          scenario: profile.botType || 'sales',
+          updatedAt,
+        },
+      });
+      if (changed.count !== 1)
+        throw new ConflictException('Агент изменён в другой вкладке. Обновите карточку');
+      await tx.auditLog.create({
+        data: {
+          userId,
+          entityType: 'seller-agent',
+          entityId: id,
+          action: 'agent.updated',
+          after: { fields: Object.keys(profile) },
+        },
+      });
+      return { id, updatedAt: updatedAt.toISOString() };
+    });
   }
   async claim(token: string | undefined) {
     const { userId, organizationId } = await this.owner();

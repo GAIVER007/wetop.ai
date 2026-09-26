@@ -1,4 +1,5 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
+import {agentFixture,resetAgentFixture} from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -2433,7 +2434,9 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
+    if (!demo) { const agentResponse=agentFixture(path,req.method??'GET',body); if(agentResponse) return send(agentResponse.status,agentResponse.data); }
     if (path === '/__test/reset') {
+      resetAgentFixture();
       hits.clear();
       requestHits.clear();
       resetUiAuth();

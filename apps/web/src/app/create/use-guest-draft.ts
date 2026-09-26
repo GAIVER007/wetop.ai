@@ -129,7 +129,7 @@ export function useGuestDraft() {
       const result = await call<{ id: string }>({ operation: 'claim', token: token.current });
       // Keep the bearer until the server has confirmed the idempotent claim.
       localStorage.removeItem(STORAGE_KEY);
-      location.assign('/ai-seller/agents?agent=' + encodeURIComponent(result.id));
+      location.assign('/ai-seller/agents/' + encodeURIComponent(result.id));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не удалось сохранить агента');
     } finally {

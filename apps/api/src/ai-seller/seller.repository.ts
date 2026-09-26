@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  DEFAULT_SELLER_PROFILE,
   pickSellerProfile,
   sellerFactsWindow,
   type SellerAddressForm,
@@ -39,6 +40,8 @@ export interface SellerOrgsRepository {
 /** Строка `seller_profiles` (DATA_MODEL §15): поля «Настроек» плюс отметки доставки продавцу */
 export interface SellerProfileRow extends SellerProfileInput {
   organizationId: string;
+  /** Инструкция продавцу одним текстом (ADR-097); есть — продавцу уходит она, а не поля */
+  promptText: string | null;
   updatedAt: Date;
   updatedBy: string | null;
   /** Версия профиля (`updatedAt`), которую продавец принял */
@@ -55,6 +58,13 @@ export interface SellerProfilesRepository {
   save(
     organizationId: string,
     profile: SellerProfileInput,
+    userId: string | null,
+    now: Date,
+  ): Promise<SellerProfileRow>;
+  /** Инструкция одним текстом (ADR-097): строки нет — заводится с полями по умолчанию, иначе факты не уйдут */
+  savePrompt(
+    organizationId: string,
+    text: string,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow>;
@@ -100,6 +110,7 @@ type ProfileRecord = {
   prohibitions: string[];
   callHumanWhen: string[];
   faq: unknown;
+  promptText: string | null;
   updatedAt: Date;
   updatedBy: string | null;
   profileAppliedAt: Date | null;
@@ -123,6 +134,7 @@ const rowOf = (r: ProfileRecord): SellerProfileRow => ({
   prohibitions: r.prohibitions ?? [],
   callHumanWhen: r.callHumanWhen ?? [],
   faq: faqOf(r.faq),
+  promptText: r.promptText ?? null,
   updatedAt: r.updatedAt,
   updatedBy: r.updatedBy,
   profileAppliedAt: r.profileAppliedAt,
@@ -176,6 +188,39 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
               }
             : {}),
           after: JSON.parse(JSON.stringify(fields)),
+        },
+      });
+      return rowOf(saved as ProfileRecord);
+    });
+  }
+
+  async savePrompt(
+    organizationId: string,
+    text: string,
+    userId: string | null,
+    now: Date,
+  ): Promise<SellerProfileRow> {
+    const defaults = pickSellerProfile(DEFAULT_SELLER_PROFILE);
+    const stamp = { promptText: text, updatedAt: now, updatedBy: userId };
+    return this.prisma.db.$transaction(async (tx) => {
+      const saved = await tx.sellerProfile.upsert({
+        where: { organizationId },
+        create: {
+          organizationId,
+          ...defaults,
+          faq: defaults.faq.map((f) => ({ question: f.question, answer: f.answer })),
+          ...stamp,
+        },
+        update: stamp,
+      });
+      // SECURITY.md §6: правка — в журнал с автором; сам текст — настройка владельца, в журнал идёт его длина
+      await tx.auditLog.create({
+        data: {
+          userId: userId ?? auditUserId(),
+          entityType: 'SellerProfile',
+          entityId: organizationId,
+          action: 'seller.prompt.updated',
+          after: { length: text.length },
         },
       });
       return rowOf(saved as ProfileRecord);

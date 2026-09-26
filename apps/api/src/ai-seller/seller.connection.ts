@@ -31,6 +31,8 @@ export interface SellerPort {
   summary(): Promise<unknown>;
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
   putProfile(payload: unknown): Promise<unknown>;
+  /** Инструкция одним текстом (ADR-097): ядро правил бот ставит сам и сверху */
+  putSellerPrompt(payload: { object_name: string; text: string }): Promise<unknown>;
   putFacts(payload: unknown): Promise<unknown>;
   /** Рассказ владельца → поля анкеты (С1): раскладывает бот, промптом рассказ не становится */
   extractProfile(story: string): Promise<unknown>;

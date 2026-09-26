@@ -85,7 +85,7 @@ test('расширение не подключено: раздел объясн�
   const off = main.getByTestId('seller-extension-off');
   await expect(off).toContainText('Расширение «ИИ-продавец» не подключено');
   await expect(off).toContainText('Подключает администратор WETOP после оплаты');
-  // экранов раздела нет: ни шагов, ни полей
+  // экранов раздела нет: ни окна инструкции, ни проверки
   await expect(main.getByTestId('seller-setup')).toHaveCount(0);
   await shot(page, 'seller-extension-off');
 
@@ -102,18 +102,19 @@ test('срок вышел: всё видно, но менять, отвечат�
 }) => {
   await signIn(page);
   await control(request, { sellerExtension: 'expired' });
-  await page.goto('/ai-seller?step=2');
+  await page.goto('/ai-seller');
   const main = page.getByRole('main');
   await expect(main.getByTestId('seller-state')).toContainText('срок вышел');
-  const step = main.getByTestId('seller-step-manner');
-  await expect(step.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
-  await expect(step.getByRole('radio').first()).toBeDisabled();
-  await expect(main.getByRole('button', { name: 'Сохранить и дальше' })).toHaveCount(0);
+  const setup = main.getByTestId('seller-setup');
+  await expect(setup.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
+  await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeDisabled();
+  await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
+  // список «До запуска» — тому, кто может его выполнить: после срока его нет
+  await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
+  await expect(main.getByTestId('seller-check').getByTestId('seller-action-closed')).toContainText(
+    'Проверка — при действующем расширении',
+  );
   await shot(page, 'seller-expired-read-only');
-
-  await page.goto('/ai-seller?step=7');
-  await expect(main.getByTestId('seller-apply')).toHaveCount(0);
-  await expect(main.getByTestId('seller-read-only')).toBeVisible();
 
   await page.goto('/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c');
   const card = main.getByTestId('seller-dialog-card');
@@ -122,11 +123,7 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(card.getByTestId('dialog-reply')).toHaveCount(0);
   await expect(card.getByTestId('dialog-takeover')).toHaveCount(0);
 
-  await page.goto('/ai-seller/check');
-  await expect(main.getByTestId('seller-action-closed')).toContainText(
-    'Проверка — при действующем расширении',
-  );
-  await page.goto('/ai-seller/embed');
+  await page.goto('/ai-seller/connections');
   await expect(main.getByTestId('seller-action-closed')).toContainText('Код для сайта');
   await expect(main.getByTestId('seller-embed-snippet')).toHaveCount(0);
 });
@@ -137,15 +134,17 @@ test('сотрудник: настройки только смотрит, а д�
 }) => {
   await signIn(page);
   await control(request, { role: 'STAFF' });
-  await page.goto('/ai-seller?step=1');
+  await page.goto('/ai-seller');
   const main = page.getByRole('main');
   await expect(main.getByTestId('seller-read-only')).toHaveText(
     'Настройки продавца меняет владелец организации.',
   );
-  await expect(main.getByLabel('Имя бота')).toBeDisabled();
+  await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeDisabled();
+  await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
+  await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
+  // проверять ответы продавца сотруднику можно — это не настройка
+  await expect(main.getByTestId('seller-check').getByTestId('sandbox-send')).toBeVisible();
   await shot(page, 'seller-staff-read-only');
-  await page.goto('/ai-seller?step=7');
-  await expect(main.getByTestId('seller-apply')).toHaveCount(0);
 
   await page.goto('/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c');
   await expect(
@@ -167,14 +166,14 @@ test('за неделю до конца срока владелец видит �
 }) => {
   await signIn(page);
   await control(request, { sellerDaysLeft: 3 });
-  await page.goto('/ai-seller/data');
+  await page.goto('/ai-seller/knowledge');
   const reminder = page.getByRole('main').getByTestId('seller-extension-ending');
   await expect(reminder).toContainText('Расширение «ИИ-продавец» действует ещё 3 дня');
   await expect(reminder).toContainText('Продлевает администратор WETOP после оплаты');
   await shot(page, 'seller-reminder');
 
   await control(request, { sellerDaysLeft: 3, role: 'STAFF' });
-  await page.goto('/ai-seller/data');
+  await page.goto('/ai-seller/knowledge');
   await expect(page.getByRole('main').getByTestId('seller-facts')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('seller-extension-ending')).toHaveCount(0);
 });
@@ -247,8 +246,9 @@ for (const width of [1440, 390]) {
       const screens: Array<{ control: Record<string, unknown>; route: string }> = [
         { control: { platformAdmin: true }, route: '/platform?org=ui-org-2' },
         { control: { sellerExtension: 'off' }, route: '/ai-seller' },
-        { control: { sellerExtension: 'expired' }, route: '/ai-seller?step=2' },
-        { control: { sellerDaysLeft: 3, role: 'STAFF' }, route: '/ai-seller?step=5' },
+        { control: { sellerExtension: 'expired' }, route: '/ai-seller' },
+        { control: { sellerExtension: 'expired' }, route: '/ai-seller/connections' },
+        { control: { sellerDaysLeft: 3, role: 'STAFF' }, route: '/ai-seller' },
         { control: { sellerDaysLeft: 1 }, route: '/profile' },
       ];
       for (const { control: body, route } of screens) {

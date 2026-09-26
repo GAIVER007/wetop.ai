@@ -84,6 +84,7 @@ describe('SellerClient — адреса и ключ', () => {
     await seller.sandbox({ externalId: 'wetop-check-1', text: 'Есть места?' });
     await seller.putProfile({ address_form: 'informal' });
     await seller.putFacts({ source: 'platform:facts' });
+    await seller.putSellerPrompt({ object_name: 'Хостел', text: 'Отвечай кратко.' });
     // Песочница у бота — в корне экземпляра, не под путём панели (`src/dashboard_router.py`, `/internal/sandbox`):
     // путь зафиксирован сборочным планом бота, служебный ключ платформы она принимает тем же заголовком
     expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
@@ -91,8 +92,13 @@ describe('SellerClient — адреса и ключ', () => {
       'POST http://seller:8000/internal/sandbox',
       'PUT http://seller:8000/panel-x/seller/profile',
       'PUT http://seller:8000/panel-x/seller/facts',
+      'PUT http://seller:8000/panel-x/seller/prompt',
     ]);
     expect(header(calls[1]!, 'x-service-key')).toBe(KEY);
+    expect(JSON.parse(String(calls[4]!.init.body))).toEqual({
+      object_name: 'Хостел',
+      text: 'Отвечай кратко.',
+    });
     expect(JSON.parse(String(calls[1]!.init.body))).toEqual({
       external_id: 'wetop-check-1',
       text: 'Есть места?',

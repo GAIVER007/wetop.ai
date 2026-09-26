@@ -75,6 +75,8 @@ export const SELLER_EXTENSION_EXPIRED =
   'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP';
 /** Роли в организации (§16.1): настройки, знания и «Применить» — у владельца, диалоги ведут все */
 export const SELLER_OWNER_ONLY = 'Настройки продавца меняет владелец организации';
+/** Инструкция продавцу одним текстом (ADR-097): предел — как колонка `seller_profiles.prompt_text` */
+export const SELLER_PROMPT_MAX = 20_000;
 
 /** Предел файла знаний — общий для обоих ботов (`bots/panel.ts`); контроллер раздела берёт его отсюда */
 export { KNOWLEDGE_MAX_BYTES } from '../bots/panel';
@@ -197,6 +199,13 @@ export interface SellerStatus {
   connection: 'not-configured' | 'ready';
   /** Может ли вошедший менять настройки: владелец организации и действующее расширение */
   canConfigure: boolean;
+}
+
+export interface SellerPromptView {
+  saved: boolean;
+  text: string;
+  updatedAt: string | null;
+  applied: boolean;
 }
 
 export interface SellerProfileView {
@@ -421,6 +430,32 @@ export class SellerService {
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     await this.profiles.save(this.profileOrganization(), parsed.value, currentUserId(), now);
     return this.savedProfile();
+  }
+
+  /** Инструкция продавцу одним текстом (ADR-097): читать — как настройки, и после срока расширения */
+  async prompt(now: Date = new Date()): Promise<SellerPromptView> {
+    this.checkUse((await this.gate(now)).extension, 'read');
+    return this.savedPrompt();
+  }
+
+  private async savedPrompt(): Promise<SellerPromptView> {
+    const row = await this.profiles.get(this.profileOrganization());
+    return {
+      saved: !!row?.promptText,
+      text: row?.promptText ?? '',
+      updatedAt: row?.updatedAt.toISOString() ?? null,
+      applied: !!row?.promptText && profileApplied(row),
+    };
+  }
+
+  async savePrompt(raw: unknown, now: Date = new Date()): Promise<SellerPromptView> {
+    this.checkUse((await this.gate(now)).extension, 'configure');
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    if (!text) throw new BadRequestException('Инструкция: пустой текст');
+    if (text.length > SELLER_PROMPT_MAX)
+      throw new BadRequestException(`Инструкция: не длиннее ${SELLER_PROMPT_MAX} знаков`);
+    await this.profiles.savePrompt(this.profileOrganization(), text, currentUserId(), now);
+    return this.savedPrompt();
   }
 
   // ── рассказ владельца (С1 «под ключ», план `plans/seller-partner-bot-2026-09-25.md`) ──────
@@ -664,7 +699,9 @@ export class SellerService {
     try {
       const renamed = this.sentObjectName.get(organizationId) !== objectName;
       if (force || ((!profileApplied(row) || renamed) && held.profile !== key)) {
-        await client.putProfile(sellerProfilePayload(pickSellerProfile(row), objectName));
+        // ADR-097: сохранён текст владельца — уходит он, иначе поля профиля
+        if (row.promptText) await client.putSellerPrompt({ object_name: objectName, text: row.promptText });
+        else await client.putProfile(sellerProfilePayload(pickSellerProfile(row), objectName));
         // принятой считается ровно отправленная версия: правка во время отправки уйдёт следующей сверкой
         await this.profiles.markProfileApplied(organizationId, row.updatedAt);
         this.sentObjectName.set(organizationId, objectName);

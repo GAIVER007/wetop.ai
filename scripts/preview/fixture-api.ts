@@ -1587,6 +1587,9 @@ let sellerAppliedProfile = structuredClone(sellerProfileSeed);
 let sellerSaved = false;
 let sellerApplied = false;
 let sellerUpdatedAt: string | null = null;
+/** Инструкция продавцу одним текстом (ADR-097): сохранённая и та, что продавец получил последним «Применить» */
+let sellerPrompt: string | null = null;
+let sellerAppliedPrompt: string | null = null;
 let sellerDialogs = sellerDialogSeed();
 const sellerKnowledgeSeed = () => [
   { source: 'platform:facts.md', chunks: 2, createdAt: '2026-09-24T06:00:00.000Z' },
@@ -1620,6 +1623,8 @@ function resetSeller() {
   sellerLlmKey = null;
   sellerWhatsApp = null;
   sellerUpdatedAt = null;
+  sellerPrompt = null;
+  sellerAppliedPrompt = null;
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
   sellerState = 'ready';
@@ -2860,7 +2865,8 @@ createServer(async (req, res) => {
             : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
               ? 'configure'
               : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge' ||
+          : path === '/ai-seller/profile' || path === '/ai-seller/prompt' || path === '/ai-seller/apply' ||
+              path === '/ai-seller/knowledge' ||
               path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key') || path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
@@ -2904,6 +2910,13 @@ createServer(async (req, res) => {
             embedAvailable: true,
           });
         if (path === '/ai-seller/profile') return send(200, sellerView());
+        if (path === '/ai-seller/prompt')
+          return send(200, {
+            saved: sellerPrompt !== null,
+            text: sellerPrompt ?? '',
+            updatedAt: sellerUpdatedAt,
+            applied: sellerPrompt !== null && sellerApplied,
+          });
         if (path === '/ai-seller/facts') {
           const src = sellerFactsSource();
           const facts = buildSellerFacts(src);
@@ -2967,6 +2980,17 @@ createServer(async (req, res) => {
         sellerApplied = false;
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
+      }
+      if (path === '/ai-seller/prompt' && req.method === 'PUT') {
+        // те же отказы, что у API: пустой и длиннее 20 000 знаков
+        const text = typeof body['text'] === 'string' ? body['text'].trim() : '';
+        if (!text) return send(400, { message: 'Инструкция: пустой текст' });
+        if (text.length > 20_000) return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
+        sellerPrompt = text;
+        sellerSaved = true;
+        sellerApplied = false;
+        sellerUpdatedAt = new Date().toISOString();
+        return send(200, { saved: true, text, updatedAt: sellerUpdatedAt, applied: false });
       }
       if (path === '/ai-seller/whatsapp' && req.method === 'GET')
         return send(200, sellerWhatsAppView());
@@ -3056,8 +3080,15 @@ createServer(async (req, res) => {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
         if (sellerState === 'not-configured')
           return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
+        // слой 9 продавца: скрытая инструкция в тексте — отказ по содержанию, причина остаётся в разделе
+        if (sellerPrompt !== null && /игнорируй (все )?предыдущие/i.test(sellerPrompt)) {
+          sellerLastError = 'В тексте найдены инструкции для модели';
+          return send(422, { message: 'В тексте найдены инструкции для модели' });
+        }
+        sellerLastError = null;
         sellerApplied = true;
         sellerAppliedProfile = structuredClone(sellerProfile);
+        sellerAppliedPrompt = sellerPrompt;
         return send(200, { profileApplied: true, factsApplied: true });
       }
       if (dialog && dialog[2] && req.method === 'POST') {
@@ -3081,8 +3112,11 @@ createServer(async (req, res) => {
         return send(201, { source: name, created: true, chunks: 1 });
       }
       if (path === '/ai-seller/sandbox' && req.method === 'POST') {
-        // ответ зависит от ПРИМЕНЁННОГО обращения: так видно, что «Применить» дошло до продавца (ТЗ §4.4)
-        const informal = sellerAppliedProfile.addressForm === 'INFORMAL';
+        // ответ зависит от ПРИМЕНЁННОГО обращения: так видно, что «Сохранить и применить» дошло до продавца (ТЗ §4.4)
+        const informal =
+          sellerAppliedPrompt !== null
+            ? /на «?ты»?/i.test(sellerAppliedPrompt)
+            : sellerAppliedProfile.addressForm === 'INFORMAL';
         return send(200, {
           reply: informal ? 'Привет! Чем могу тебе помочь?' : 'Здравствуйте! Чем могу вам помочь?',
           needsHuman: false,

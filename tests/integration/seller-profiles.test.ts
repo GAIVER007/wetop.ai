@@ -112,6 +112,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
 
   afterAll(async () => {
     await purgeAuditRows(db, { entityType: 'SellerProfile', entityId: org });
+    await purgeAuditRows(db, { entityType: 'SellerProfile', entityId: emptyOrg });
     await db.sellerProfile.deleteMany({ where: { organizationId: { in: [org, emptyOrg] } } });
     await db.dailyRate.deleteMany({ where: { ratePlanId: { in: [ids.site!, ids.ota!] } } });
     await db.trackedSite.deleteMany({ where: { propertyId } });
@@ -267,5 +268,25 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
 
   it('у организации нет объекта — фактов нет', async () => {
     expect(await factsRepo.load(emptyOrg, now)).toBeNull();
+  });
+
+  it('инструкция одним текстом (ADR-097): в строку организации, поля прежних шагов целы, в журнал — только длина', async () => {
+    const text = 'Отвечай на «вы», коротко. Парковки нет, рядом городская.';
+    const at = new Date(now.getTime() + 2_000);
+    const row = await profiles.savePrompt(org, text, null, at);
+    expect(row).toMatchObject({ promptText: text, botName: 'Айгерим' });
+    expect(row.updatedAt.getTime()).toBe(at.getTime());
+    const log = await db.auditLog.findFirst({
+      where: { entityType: 'SellerProfile', entityId: org, action: 'seller.prompt.updated' },
+    });
+    expect(log!.after).toEqual({ length: text.length });
+    // первая правка организации — сразу инструкцией: строка заводится с настройками по умолчанию
+    const fresh = await profiles.savePrompt(emptyOrg, text, null, at);
+    expect(fresh).toMatchObject({
+      organizationId: emptyOrg,
+      promptText: text,
+      languages: DEFAULT_SELLER_PROFILE.languages,
+      profileAppliedAt: null,
+    });
   });
 });

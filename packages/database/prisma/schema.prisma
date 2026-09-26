@@ -1171,6 +1171,8 @@ model SellerProfile {
   callHumanWhen    String[]          @default([]) @map("call_human_when")
   /// [{ question, answer }], до 50 — проверяет домен (`parseSellerProfile`)
   faq              Json              @default("[]")
+  /// Инструкция продавцу одним текстом (ADR-097); есть — продавцу уходит она, а не поля выше
+  promptText       String?           @map("prompt_text") @db.VarChar(20000)
   updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
   updatedBy        String?           @map("updated_by") @db.Uuid
   /// Версия профиля (`updated_at`), которую продавец принял; NULL — не принимал

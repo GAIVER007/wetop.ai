@@ -239,6 +239,11 @@ export class BotPanelClient {
     return this.json('PUT', '/seller/profile', payload);
   }
 
+  /** Инструкция продавцу одним текстом (ADR-097): ядро правил бот ставит сам и сверху */
+  putSellerPrompt(payload: { object_name: string; text: string }): Promise<Json> {
+    return this.json('PUT', '/seller/prompt', payload);
+  }
+
   /** Ключ модели партнёра (С2): статус — только «установлен + последние 4 знака», сам ключ бот не отдаёт */
   llmKeyStatus(orgId: string): Promise<Json> {
     return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key`);

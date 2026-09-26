@@ -34,6 +34,12 @@ ASK_PRICE = "Точную стоимость подтвердит админис
 
 _INVISIBLE_TABLE = {ord(c): None for c in INVISIBLE_CHARS}
 _HOMOGLYPH_TABLE = str.maketrans(HOMOGLYPHS_LATIN_TO_CYR)
+# Обратно: кириллические двойники в «латинском» слове (аудит 26.09, С-51) — только буквы, которые пишутся так же:
+# «ь», строчные «н», «м», «т» на «b», «h», «m», «t» не похожи, их не трогаем
+_CYR_LOOKALIKES = "аеорсхукАВСЕНКМОРТХУ"
+_HOMOGLYPH_TABLE_TO_LATIN = str.maketrans(
+    {cyr: lat for lat, cyr in HOMOGLYPHS_LATIN_TO_CYR.items() if cyr in _CYR_LOOKALIKES}
+)
 _LETTER_RUN = re.compile(r"[A-Za-zА-Яа-яЁё]+")
 _SPACES = re.compile(r"\s+")
 _CRESCENDO_RE = re.compile(
@@ -50,9 +56,13 @@ def clip(text: str, max_chars: int) -> str:
 
 def _fix_homoglyphs(word: str) -> str:
     # Латинские двойники меняем только там, где слово в основном кириллическое:
-    # «hotel» остаётся латиницей, «пoкaжи» становится «покажи».
+    # «hotel» остаётся латиницей, «пoкaжи» становится «покажи». И наоборот:
+    # в основном латинском слове кириллические двойники становятся латиницей —
+    # одна кириллическая «о» в «Ignоre» снимала все английские шаблоны (С-51).
     cyr = sum(1 for ch in word if "Ѐ" <= ch <= "ӿ")
-    return word.translate(_HOMOGLYPH_TABLE) if cyr * 2 > len(word) else word
+    if cyr * 2 > len(word):
+        return word.translate(_HOMOGLYPH_TABLE)
+    return word.translate(_HOMOGLYPH_TABLE_TO_LATIN) if cyr else word
 
 
 def normalize(text: str) -> str:

@@ -338,6 +338,14 @@ async def request_org(request: Request) -> uuid.UUID | None:
     settings = _settings(request)
     if normalize_bot_role(settings.bot_role) != "seller":
         return None
+    # 🔴 Организацию у продавца называет только платформа — служебным ключом (его
+    # проверил current_user). Человек, вошедший в собственную панель продавца,
+    # выбирал заголовком любую гостиницу и читал её диалоги с телефонами (аудит
+    # 26.09). Продавцом управляют из платформы (ADR-083).
+    if request.headers.get(SERVICE_HEADER) is None:
+        raise HTTPException(
+            status_code=403, detail="Панель продавца открывается только из платформы WETOP"
+        )
     raw = (request.headers.get(ORG_HEADER) or "").strip()
     if not raw:
         raise HTTPException(status_code=400, detail="У продавца нужен заголовок X-Organization")

@@ -11,15 +11,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import io
 import logging
 import uuid
+import zipfile
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.concurrency import run_in_threadpool
 
 from src.ai.guardrails import scan_document
 from src.db.base import utcnow
@@ -46,6 +49,36 @@ class UnsupportedFormat(ValueError):
 
 class FileTooLarge(ValueError):
     """Файл больше предела. Текст без внутренних имён — он уходит пользователю панели."""
+
+
+class DocumentTooComplex(ValueError):
+    """Документ разбирать опасно: распаковывается в слишком много, слишком
+    сильно сжат, слишком много страниц или разбор не уложился во время.
+
+    🔴 docx и xlsx — это zip. «Бомба» (десятки мегабайт в килобайтах) вешала
+    или роняла воркер у всех гостиниц сразу (аудит 26.09, С-57).
+    """
+
+
+# Пределы разбора: на порядок больше любого настоящего прайса или регламента
+MAX_UNPACKED_BYTES = 50 * 1024 * 1024
+MAX_COMPRESSION_RATIO = 100
+MAX_PDF_PAGES = 500
+PARSE_TIMEOUT_SECONDS = 60
+
+
+def check_archive(data: bytes) -> None:
+    """docx/xlsx до разбора: сумма распакованных размеров и степень сжатия
+    по оглавлению архива — оно читается без распаковки."""
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            entries = archive.infolist()
+    except zipfile.BadZipFile:
+        raise DocumentTooComplex("файл повреждён: это не документ Word или Excel") from None
+    unpacked = sum(e.file_size for e in entries)
+    packed = sum(e.compress_size for e in entries) or 1
+    if unpacked > MAX_UNPACKED_BYTES or unpacked / packed > MAX_COMPRESSION_RATIO:
+        raise DocumentTooComplex("документ распаковывается в слишком большой объём")
 
 
 class SuspiciousDocument(ValueError):
@@ -75,8 +108,10 @@ def extract_text(filename: str, data: bytes) -> str:
     if extension == ".pdf":
         return _extract_pdf(data)
     if extension == ".docx":
+        check_archive(data)
         return _extract_docx(data)
     if extension == ".xlsx":
+        check_archive(data)
         return _extract_xlsx(data)
     raise UnsupportedFormat(extension)
 
@@ -99,6 +134,8 @@ def _extract_pdf(data: bytes) -> str:
     from pypdf import PdfReader
 
     reader = PdfReader(io.BytesIO(data))
+    if len(reader.pages) > MAX_PDF_PAGES:
+        raise DocumentTooComplex(f"в документе больше {MAX_PDF_PAGES} страниц")
     pages = [(page.extract_text() or "").strip() for page in reader.pages]
     return "\n\n".join(p for p in pages if p)
 
@@ -220,7 +257,14 @@ async def ingest_document(
         return IngestResult(document=existing, created=False, chunks_added=0)
 
     # (4) Разбор → нарезка → эмбеддинги одним вызовом (кэш и модель любят пачки).
-    text = extract_text(source, data)
+    # Разбор — в отдельном потоке и с пределом времени: в цикле событий он
+    # останавливал ответы всем клиентам всех гостиниц (аудит 26.09, С-57)
+    try:
+        text = await asyncio.wait_for(
+            run_in_threadpool(extract_text, source, data), timeout=PARSE_TIMEOUT_SECONDS
+        )
+    except TimeoutError:
+        raise DocumentTooComplex("документ разбирается слишком долго") from None
     # Слой 9: те же проверки, что на входе от клиента. До любой записи.
     verdict = scan_document(text)
     if not verdict.clean:

@@ -105,15 +105,13 @@ async def test_seller_role_keeps_the_lead_writer(build) -> None:
 # ─── Незнакомая роль ───
 
 
-async def test_unknown_role_falls_back_to_support(build, caplog: pytest.LogCaptureFixture) -> None:
-    """🔴 Опечатка в .env не оставляет пользователей без ответа, но и не
-    проходит молча: иначе потом не найти, почему бот ведёт себя не так."""
-    caplog.set_level(logging.WARNING)
-    runner = build("директор")
-    assert _tool_names() == SUPPORT_TOOLS
-    assert _engine_of(runner)._lead_hook is None
-    assert caplog.records, "незнакомая роль выбрана молча"
-    assert "роль" in caplog.text.lower()
+async def test_unknown_role_refuses_to_start(build) -> None:
+    """🔴 Опечатка в .env не проходит молча. До 26.09 она сводилась к помощнику, и у экземпляра продавца это
+    открывало диалоги всех гостиниц без отбора (аудит 26.09, С-60). Теперь бот не стартует: его видно по /health."""
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        build("директор")
 
 
 async def test_empty_role_falls_back_to_support(build) -> None:

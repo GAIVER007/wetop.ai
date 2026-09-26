@@ -48,6 +48,13 @@ LeadHook = Callable[[uuid.UUID, dict], Awaitable[None]]
 
 # Общие фразы ядра; клиентские формулировки — в промпте.
 NEUTRAL_REPLY = "Сейчас не могу ответить, администратор свяжется с вами."
+# Суточный бюджет модели исчерпан: без платного вызова, контакт гостя сохранён шагом contact
+BUDGET_REPLY = "Сейчас не могу ответить подробно. Оставьте телефон или почту — администратор свяжется с вами."
+
+
+def _token_budget_key(org: uuid.UUID | None) -> str:
+    """Счётчик токенов модели за сутки (UTC) — на организацию; у помощника организации нет."""
+    return f"llm:tokens:{org or '-'}:{utcnow():%Y%m%d}"
 REFUSAL_REPLY = "Я помогаю с вопросами по размещению и бронированию, давайте вернёмся к ним."
 
 _QUEUE_DRAIN_LIMIT = 20  # предел на вызов: очередь не должна крутить нас вечно
@@ -108,7 +115,11 @@ class Engine:
         await t.session.commit()
         t.outcome.status = "replied"
         await self._contact(t)
-        if await self._guard_in(t):
+        if t.conversation.mode == ConversationMode.OWNER_TAKEOVER:
+            # Диалог у оператора: реплика и контакт сохранены, модель не зовём —
+            # иначе гостю «с вами оператор», а бот отвечает параллельно (аудит 26.09, С-59)
+            t.outcome.status = "operator"
+        elif await self._guard_in(t):
             if t.reply is None:
                 await self._consent(t)
             if t.reply is None:
@@ -241,6 +252,11 @@ class Engine:
 
     async def _model(self, t: Turn) -> None:
         t.step("model")
+        budget_key = _token_budget_key(t.incoming.org_uuid())
+        if await self._over_token_budget(budget_key):
+            t.reply, t.outcome.status = BUDGET_REPLY, "budget"
+            t.outcome.reasons.append("token_budget")
+            return
         try:
             t.result = await self._llm.generate(t.messages)
         except Exception:
@@ -250,6 +266,33 @@ class Engine:
             # Алерт владельцу — шаг 8; клиенту нейтральная фраза, не текст ошибки.
             logger.error("модель не ответила: %s", getattr(t.result, "error", None) or "exception")
             self._fail(t, "llm_failed")
+            return
+        await self._spend_tokens(budget_key, t.result.tokens_used)
+
+    async def _over_token_budget(self, key: str) -> bool:
+        """Суточный бюджет модели исчерпан? Redis недоступен — не исчерпан: бюджет
+        защищает счёт, а не заменяет ответ клиенту."""
+        budget = self._settings.llm_daily_token_budget
+        if budget <= 0:
+            return False
+        try:
+            used = int(await self._redis.get(key) or 0)
+        except Exception:  # noqa: BLE001 — Redis недоступен
+            logger.warning("бюджет модели: Redis недоступен, считаем не исчерпанным", exc_info=True)
+            return False
+        if used >= budget:
+            logger.warning("бюджет модели на сутки исчерпан: %s (%s из %s)", key, used, budget)
+            return True
+        return False
+
+    async def _spend_tokens(self, key: str, tokens: int | None) -> None:
+        if not tokens or self._settings.llm_daily_token_budget <= 0:
+            return
+        try:
+            await self._redis.incrby(key, int(tokens))
+            await self._redis.expire(key, 2 * 86_400)
+        except Exception:  # noqa: BLE001 — Redis недоступен
+            logger.warning("бюджет модели: расход не записан", exc_info=True)
 
     def _unmask(self, t: Turn) -> None:
         t.step("unmask")

@@ -293,6 +293,16 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
         raise HTTPException(status_code=415, detail="unsupported")
     attachment_id = secrets.token_hex(16)
     directory = Path(settings.widget_attachment_dir)
+    room = await run_in_threadpool(
+        _make_room,
+        directory,
+        settings.widget_attachment_dir_max_mb * 1024 * 1024,
+        settings.widget_attachment_keep_days,
+        len(data),
+    )
+    if not room:
+        logger.warning("widget: папка вложений полна, снимок не принят")
+        raise HTTPException(status_code=507, detail="storage_full")
     try:
         await run_in_threadpool(directory.mkdir, parents=True, exist_ok=True)
         # 🔴 Имя и расширение из запроса не берём: в них приезжает '../'.
@@ -301,3 +311,28 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
         logger.exception("widget: вложение не сохранено")
         raise HTTPException(status_code=500, detail="error") from None
     return JSONResponse(content={"attachment_id": attachment_id})
+
+
+def _make_room(directory: Path, max_bytes: int, keep_days: int, incoming: int) -> bool:
+    """Место под новое вложение: старше срока — удаляются, остальное считается.
+
+    🔴 Папка на том же диске, что база; файлы никто не удалял, и с одного адреса
+    набегало ~7 ГБ в сутки (аудит 26.09, С-62). Сверх предела — отказ, а не
+    заполненный диск у платформы.
+    """
+    if not directory.exists():
+        return incoming <= max_bytes
+    cutoff = time.time() - keep_days * 86_400
+    total = 0
+    for path in directory.iterdir():
+        try:
+            info = path.stat()
+            if not path.is_file():
+                continue
+            if info.st_mtime < cutoff:
+                path.unlink(missing_ok=True)
+                continue
+            total += info.st_size
+        except OSError:
+            continue
+    return total + incoming <= max_bytes

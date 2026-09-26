@@ -22,14 +22,25 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * `max` — длина: 500 для неисправностей, для `last_error` (колонка на экране событий) — своя.
  */
 export function redactText(text: string, max = MAX_TEXT): string {
+  // Маскируем не больше, чем может попасть в ответ, с запасом на то, что маска укорачивает: раньше маска шла по всему
+  // тексту — эхо ввода в 100 КБ стоило секунд остановленного API (аудит 26.09, С-38). Недописанное последнее слово
+  // отбрасывается, чтобы на границе не осталось почты или ключа без маски.
+  const limit = Math.max(max * 4, 2_000);
+  let head = text.length > limit ? text.slice(0, limit) : text;
+  if (head.length < text.length) {
+    const tail = head.search(/\S*$/);
+    // короткий хвост — разрезанная почта или ключ; длинное слово целиком не теряем, его снимет правило длинных ключей
+    if (head.length - tail < 200) head = head.slice(0, tail);
+  }
+  // Выражения начинаются на границе слова: без якоря каждое перебирало все позиции длинного слова
   const masked = maskContacts(
-    text
-      .replace(/eyJ[\w-]+\.[\w-]+\.[\w-]+/g, '[jwt]')
+    head
+      .replace(/(?<![\w-])eyJ[\w-]+\.[\w-]+\.[\w-]+/g, '[jwt]')
       .replace(/\b(Bearer|Basic)\s+\S+/gi, '$1 [скрыто]')
-      .replace(/(\w+:\/\/[^\s:/@]+:)[^\s@/]+@/g, '$1***@')
+      .replace(/(?<!\w)(\w+:\/\/[^\s:/@]+:)[^\s@/]+@/g, '$1***@')
       .replace(/[A-Za-z0-9_-]{32,}/g, (m) => (UUID.test(m) ? m : `${m.slice(0, 4)}…`)),
   );
-  return masked.length > max ? `${masked.slice(0, max)}…` : masked;
+  return masked.length > max || head.length < text.length ? `${masked.slice(0, max)}…` : masked;
 }
 
 export function redactDetails(value: unknown, depth = 0): unknown {

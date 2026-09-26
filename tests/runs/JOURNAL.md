@@ -2375,3 +2375,21 @@
 | 26.09.2026 17:06 | integration | ✅ 79 из 79 | 22 с | 0e00b19 +12 | [лог](logs/2026-09-26T12-06-48Z-integration-5eab.log) | пакет B, итоговое дерево |
 | 26.09.2026 17:07 | e2e | ✅ 25 из 25 | 1 мин 1 с | 0e00b19 +11 | [лог](logs/2026-09-26T12-07-16Z-e2e-e4ae.log) | пакет B, итоговое дерево |
 | 26.09.2026 17:08 | e2e | ✅ 26 из 26 | 1 мин 10 с | 0e00b19 +11 | [лог](logs/2026-09-26T12-08-18Z-e2e-565b.log) | пакет B, замок включён |
+| 26.09.2026 17:10 | unit (частично: packages/domain/src/chessboard/build.test.ts) | ❌ упало 1 из 15 | 4 с | 40fd704 +2 | [лог](logs/2026-09-26T12-10-53Z-unit-e4ed.log) | С-37 red |
+| 26.09.2026 17:11 | unit (частично: packages/domain/src/chessboard apps/api/src/chessboard apps/api/src/dashboard) | ✅ 28 из 28 | 3 с | 40fd704 +3 | [лог](logs/2026-09-26T12-11-08Z-unit-a3e5.log) | С-37 green |
+| 26.09.2026 17:11 | unit (частично: apps/api/src/units apps/api/src/rates) | ❌ упало 2 из 24 | 3 с | 40fd704 +4 | [лог](logs/2026-09-26T12-11-34Z-unit-1358.log) | С-37 блокировка и С-32/С-48 red |
+| 26.09.2026 17:11 | unit (частично: apps/api/src/units apps/api/src/rates) | ❌ упало 1 из 24 | 3 с | 40fd704 +7 | [лог](logs/2026-09-26T12-11-50Z-unit-f43b.log) | С-37/С-32/С-48 green |
+| 26.09.2026 17:12 | unit (частично: apps/api/src/units apps/api/src/rates) | ✅ 24 из 24 | 3 с | 40fd704 +7 | [лог](logs/2026-09-26T12-12-00Z-unit-f846.log) | С-37/С-32/С-48 green |
+| 26.09.2026 17:12 | unit (частично: packages/domain/src/incidents/redact.test.ts packages/shared/src/pii-residency.test.ts) | ❌ упало 2 из 26 | 7 с | 40fd704 +9 | [лог](logs/2026-09-26T12-12-55Z-unit-f79c.log) | С-38 red |
+| 26.09.2026 17:13 | unit (частично: packages/domain/src/incidents packages/shared) | ✅ 88 из 88 | 2 с | 40fd704 +11 | [лог](logs/2026-09-26T12-13-25Z-unit-d3f5.log) | С-38 green |
+| 26.09.2026 17:13 | unit (частично: packages/domain/src/incidents packages/shared) | ✅ 89 из 89 | 2 с | 40fd704 +11 | [лог](logs/2026-09-26T12-13-40Z-unit-9e07.log) | С-38 green |
+| 26.09.2026 17:14 | unit (частично: apps/api/src/web-booking apps/api/src/analytics) | ❌ упало 4 из 51 | 3 с | 40fd704 +13 | [лог](logs/2026-09-26T12-14-46Z-unit-675b.log) | С-33..С-36 red |
+| 26.09.2026 17:15 | unit (частично: apps/api/src/web-booking apps/api/src/analytics apps/api/src/auth) | ✅ 172 из 172 | 8 с | 40fd704 +17 | [лог](logs/2026-09-26T12-15-48Z-unit-bf43.log) | пакет C: публичные пути green |
+| 26.09.2026 17:16 | unit | ✅ 1900 из 1903, пропущено 3 | 1 мин 12 с | 40fd704 +17 | [лог](logs/2026-09-26T12-16-10Z-unit-1653.log) | пакет C: отказ в обслуживании |
+| 26.09.2026 17:17 | typecheck | ✅ без ошибок | 29 с | 40fd704 +18 | [лог](logs/2026-09-26T12-17-22Z-typecheck-d845.log) | пакет C: отказ в обслуживании |
+| 26.09.2026 17:17 | lint | ✅ без ошибок | 16 с | 40fd704 +18 | [лог](logs/2026-09-26T12-17-52Z-lint-a036.log) | пакет C: отказ в обслуживании |
+| 26.09.2026 17:18 | integration | ✅ 79 из 79 | 24 с | 40fd704 +16 | [лог](logs/2026-09-26T12-18-09Z-integration-9eab.log) | пакет C |
+| 26.09.2026 17:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ✅ 4 из 4 | 16 с | 40fd704 +18 | [лог](logs/2026-09-26T12-18-34Z-e2e-7e53.log) | С-48 UI: пустые дни недели |
+| 26.09.2026 17:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ❌ упало 1 из 4 | 30 с | 40fd704 +17 | [лог](logs/2026-09-26T12-18-57Z-e2e-7eb1.log) | С-48 UI red (старая форма) |
+| 26.09.2026 17:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ✅ 4 из 4 | 12 с | 40fd704 +18 | [лог](logs/2026-09-26T12-19-34Z-e2e-48a9.log) | С-48 UI green |
+| 26.09.2026 17:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 40fd704 +18 | [лог](logs/2026-09-26T12-19-59Z-e2e-305b.log) | пакет C |

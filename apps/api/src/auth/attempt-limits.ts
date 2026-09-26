@@ -42,6 +42,12 @@ export class AttemptWindows {
     return true;
   }
 
+  /** Предел уже исчерпан — проверка без записи новой попытки: засчитывают потом, когда попытка удалась */
+  full(key: string, now = Date.now()): boolean {
+    const since = now - this.windowMs;
+    return (this.windows.get(key) ?? []).filter((t) => t > since).length >= this.limit;
+  }
+
   private prune(since: number): void {
     for (const [key, hits] of this.windows) {
       if (hits.every((t) => t <= since)) this.windows.delete(key);

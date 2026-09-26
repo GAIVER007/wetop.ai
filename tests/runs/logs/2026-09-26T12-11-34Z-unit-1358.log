@@ -1,0 +1,86 @@
+# Модульные (unit) · 26.09.2026 17:11 Алматы · vm
+# коммит 40fd704 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-11-34Z-unit-1358.json' 'apps/api/src/units' 'apps/api/src/rates'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 12ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 6ms
+[Nest] 4392  - 09/26/2026, 12:11:37 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:191:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:180:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests | 1 failed) 222ms
+   ❯ rates API (10)
+     ✓ expandDates honours weekday filter 3ms
+     ✓ GET /rates returns the calendar for a category × tariff 28ms
+     ✓ POST /rates/bulk: изменение по непродаваемой категории сохранено, но в очередь не ушло 10ms
+     ✓ POST /rates/bulk applies several changes in one transaction and publishes ONE batch (certification tests 3–8) 4ms
+     ✓ rejects bad input with 400: no changes, bad date, nothing to change, occupancy above capacity 14ms
+     × отказывает до работы с базой: период длиннее года, больше 200 строк, пустой список дней 5ms
+     ✓ rejects a zero price with 400: channels refuse it (Channex «rate must be greater than 0») 3ms
+     ✓ min stay 0 and max stay 0 mean «no restriction»: stored and published as null, never as 0 2ms
+     ✓ a price for fewer guests carries its occupancy and the category capacity to the channel publisher 3ms
+     ✓ prices, audit and the channel batch are one transaction: if queueing for channels fails, prices are not saved 5ms
+ ❯ |unit| apps/api/src/units/units.controller.test.ts (6 tests | 1 failed) 260ms
+   ❯ units API: blocks and housekeeping (6)
+     ✓ GET /units/:code returns the card; 404 for unknown 34ms
+     ✓ код ячейки с управляющим символом (%00, перевод строки) — 404 без запроса к базе, а не 500 22ms
+     ✓ block: refuses nights with a stay (409 names the booking), creates otherwise, publishes availability delta, unblock removes 28ms
+     × блокировка длиннее трёх лет — 400 словами, ничего не создано 7ms
+     ✓ housekeeping status change is recorded once per change 9ms
+     ✓ housekeeping follows the cycle: dirty → clean → inspected, no skipping, back to dirty from any step 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rates.controller.test.ts > rates API > отказывает до работы с базой: период длиннее года, больше 200 строк, пустой список дней
+AssertionError: expected 201 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 201
+
+ ❯ apps/api/src/rates/rates.controller.test.ts:270:25
+    268|       .post('/rates/bulk')
+    269|       .send({ changes: [{ ...base, dateTo: '9999-12-31' }] });
+    270|     expect(long.status).toBe(400);
+       |                         ^
+    271|     expect(long.body.message).toMatch(/366/);
+    272|     const many = await request(app.getHttpServer())
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/units/units.controller.test.ts > units API: blocks and housekeeping > блокировка длиннее трёх лет — 400 словами, ничего не создано
+AssertionError: expected 409 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 409
+
+ ❯ apps/api/src/units/units.controller.test.ts:235:24
+    233|       .post('/units/9001/blocks')
+    234|       .send({ dateFrom: '2026-10-01', dateTo: '9999-12-31', type: 'MAI…
+    235|     expect(res.status).toBe(400);
+       |                        ^
+    236|     expect(res.body.message).toMatch(/три года/);
+    237|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  2 failed | 22 passed (24)
+   Start at  12:11:34
+   Duration  2.31s (transform 64%, import 25%, tests 11%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-11-34Z-unit-1358.json
+
+# код выхода 1 · 3 с

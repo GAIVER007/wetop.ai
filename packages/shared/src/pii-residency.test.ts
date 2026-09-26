@@ -157,3 +157,14 @@ describe('maskContacts, freeTextForStorage', () => {
     expect(freeTextForStorage(undefined, {})).toBeNull();
   });
 });
+
+// Аудит 26.09, С-38: выражение почты без якоря перебирало каждую позицию длинного слова — квадратичная работа. Заметка
+// в 100 КБ маскировалась секунды, причём в создании брони — уже под блокировкой категорий.
+describe('маска контактов и длинный текст', () => {
+  it('100 КБ одного слова маскируются быстро', () => {
+    const started = performance.now();
+    maskContacts('a'.repeat(100_000));
+    const ms = performance.now() - started;
+    expect(ms, `маска заняла ${Math.round(ms)} мс`).toBeLessThan(200);
+  });
+});

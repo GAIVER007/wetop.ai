@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { AttemptWindows } from '../auth/attempt-limits';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -84,6 +85,14 @@ export const BOOKING_RATE_LIMITS = {
   perSitePerHour: 30,
 } as const;
 const HOUR_MS = 3_600_000;
+/** Запросов цен с одного адреса в минуту: посетитель листает даты, а не бомбит */
+export const QUOTES_PER_IP_PER_MINUTE = 60;
+
+const newLimits = () => ({
+  bookPerIp: new AttemptWindows(BOOKING_RATE_LIMITS.perIpPerHour, HOUR_MS),
+  bookPerSite: new AttemptWindows(BOOKING_RATE_LIMITS.perSitePerHour, HOUR_MS),
+  quotePerIp: new AttemptWindows(QUOTES_PER_IP_PER_MINUTE, 60_000),
+});
 
 const addDays = (date: string, n: number): string => {
   const x = new Date(`${date}T00:00:00Z`);
@@ -99,7 +108,11 @@ const nightsBetween = (a: string, b: string) =>
  */
 @Injectable()
 export class WebBookingService {
-  private windows = new Map<string, { start: number; count: number }>();
+  /**
+   * Лимиты в памяти процесса. Окна вытесняют только протухшие записи: прежняя карта при переполнении очищалась целиком,
+   * и нагнавший 20 000 адресов сбрасывал и свой счётчик (аудит 25.09, М-4).
+   */
+  private limits = newLimits();
 
   constructor(
     @Inject(ANALYTICS_REPOSITORY) private readonly sites: AnalyticsRepository,
@@ -110,6 +123,13 @@ export class WebBookingService {
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
     const now = ctx.now ?? new Date();
+    // Цены — около 30 обращений к базе на запрос, а ключ сайта публичен (аудит 26.09, С-36)
+    if (ctx.ip && !this.limits.quotePerIp.allow(ctx.ip, now.getTime())) {
+      throw new HttpException(
+        'слишком много запросов цен с одного адреса, попробуйте через минуту',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
     const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
     const site = await this.bookingSite(siteKey, ctx);
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
@@ -191,13 +211,15 @@ export class WebBookingService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const req = parsed.value;
 
-    if (ctx.ip && !this.allow(`ip:${ctx.ip}`, BOOKING_RATE_LIMITS.perIpPerHour, now)) {
+    if (ctx.ip && !this.limits.bookPerIp.allow(ctx.ip, now.getTime())) {
       throw new HttpException(
         'слишком много броней с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-    if (!this.allow(`site:${site.id}`, BOOKING_RATE_LIMITS.perSitePerHour, now)) {
+    // Лимит сайта считает брони, а не попытки: тридцать неудачных запросов глушили бронирование с сайта на час
+    // (аудит 26.09, С-35). Засчитывается после записи брони, ниже.
+    if (this.limits.bookPerSite.full(site.id, now.getTime())) {
       throw new HttpException(
         'слишком много броней за час, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -231,27 +253,36 @@ export class WebBookingService {
       },
       { guestPrepared: true },
     );
+    this.limits.bookPerSite.allow(site.id, now.getTime());
+    // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
+    // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
     let linkedSession = false;
-    if (req.sessionKey) {
-      // Приёмник счётчика пишет события пачкой раз в секунду. Посетитель на быстрой сети бронирует раньше, чем
-      // его первый просмотр доехал до базы, и привязка никого не находит — источник брони терялся молча
-      // (гонка воспроизведена 15.09.2026: хит → сразу /w/book → не привязано, через 2 с — привязано).
-      // Сначала записываем всё, что накопилось, потом привязываем; в журнале — что привязка удалась на самом деле.
-      await this.collect.flush();
-      linkedSession = await this.sites.linkSessionReservation(
-        site.id,
-        req.sessionKey,
-        card.confirmationNumber,
+    try {
+      if (req.sessionKey) {
+        // Приёмник счётчика пишет события пачкой раз в секунду. Посетитель на быстрой сети бронирует раньше, чем
+        // его первый просмотр доехал до базы, и привязка никого не находит — источник брони терялся молча
+        // (гонка воспроизведена 15.09.2026: хит → сразу /w/book → не привязано, через 2 с — привязано).
+        // Сначала записываем всё, что накопилось, потом привязываем; в журнале — что привязка удалась на самом деле.
+        await this.collect.flush();
+        linkedSession = await this.sites.linkSessionReservation(
+          site.id,
+          req.sessionKey,
+          card.confirmationNumber,
+        );
+      }
+      await this.sites.audit('analytics.site.booking', site.id, {
+        confirmationNumber: card.confirmationNumber,
+        categoryCode: req.categoryCode,
+        arrivalDate: req.arrivalDate,
+        departureDate: req.departureDate,
+        adults: req.adults,
+        linkedSession,
+      });
+    } catch (e) {
+      console.warn(
+        `[web-booking] бронь ${card.confirmationNumber} записана, привязка или журнал сайта — нет: ${(e as Error).message}`,
       );
     }
-    await this.sites.audit('analytics.site.booking', site.id, {
-      confirmationNumber: card.confirmationNumber,
-      categoryCode: req.categoryCode,
-      arrivalDate: req.arrivalDate,
-      departureDate: req.departureDate,
-      adults: req.adults,
-      linkedSession,
-    });
     const item = card.items[0];
     return {
       confirmationNumber: card.confirmationNumber,
@@ -277,7 +308,7 @@ export class WebBookingService {
 
   /** Для тестов */
   resetLimits(): void {
-    this.windows = new Map();
+    this.limits = newLimits();
   }
 
   private async bookingSite(key: string, ctx: RequestContext): Promise<SiteRecord> {
@@ -297,17 +328,5 @@ export class WebBookingService {
       throw new NotFoundException('бронирование с сайта для этого объекта пока не подключено');
     }
     return site;
-  }
-
-  private allow(key: string, limit: number, now: Date): boolean {
-    const t = now.getTime();
-    const w = this.windows.get(key);
-    if (!w || t - w.start >= HOUR_MS) {
-      this.windows.set(key, { start: t, count: 1 });
-      if (this.windows.size > 20_000) this.windows.clear();
-      return true;
-    }
-    w.count += 1;
-    return w.count <= limit;
   }
 }

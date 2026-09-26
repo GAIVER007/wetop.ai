@@ -256,3 +256,31 @@ describe('buildChessboard: канал, долг и уборка', () => {
     expect(cell.balanceMinor).toBeUndefined();
   });
 });
+
+// Аудит 26.09, С-37: блокировка и проживание обходились день за днём по всей длине, даже за пределами доски. Блокировка
+// до 9999 года — 2,9 млн шагов на каждую отрисовку шахматки и Главной, секунды занятого процесса.
+describe('шахматка и далёкие даты', () => {
+  it('блокировка до 9999 года красит только окно доски и не обходит тысячелетия', () => {
+    const started = performance.now();
+    const b = buildChessboard({
+      ...input,
+      blocks: [
+        { unitId: 'u3', dateFrom: '2026-09-11', dateTo: '9999-12-31', type: 'MAINTENANCE', reason: null },
+      ],
+    });
+    const ms = performance.now() - started;
+    expect(b.rows.find((r) => r.unit.code === '9011')!.cells.map((c) => c.state)).toEqual([
+      'FREE',
+      'BLOCKED',
+      'BLOCKED',
+      'BLOCKED',
+    ]);
+    expect(ms, `шахматка строилась ${Math.round(ms)} мс`).toBeLessThan(500);
+  });
+
+  it('проживание, начатое до доски, красится с первого дня доски и не помечается заездом', () => {
+    const b = buildChessboard(input);
+    const u1 = b.rows.find((r) => r.unit.code === '9001')!.cells;
+    expect(u1[0]).toMatchObject({ state: 'OCCUPIED', isArrival: false, isLastNight: true });
+  });
+});

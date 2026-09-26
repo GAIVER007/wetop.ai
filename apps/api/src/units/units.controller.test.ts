@@ -227,6 +227,15 @@ describe('units API: blocks and housekeeping', () => {
       else process.env.PII_STORAGE = piiBefore;
     }
   });
+  // Аудит 26.09, С-37: блокировка до 9999 года (опечатка в годе) — 2,9 млн дней, которые потом обходил каждый расчёт
+  it('блокировка длиннее трёх лет — 400 словами, ничего не создано', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/units/9001/blocks')
+      .send({ dateFrom: '2026-10-01', dateTo: '9999-12-31', type: 'MAINTENANCE' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/трёх лет/);
+  });
+
   it('housekeeping status change is recorded once per change', async () => {
     const r = await request(app.getHttpServer())
       .post('/units/9001/housekeeping')

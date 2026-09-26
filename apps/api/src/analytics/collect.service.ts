@@ -16,6 +16,7 @@ import {
   type SiteRecord,
   type StoredHit,
 } from './analytics.repository';
+import { AttemptWindows } from '../auth/attempt-limits';
 
 export interface HitHeaders {
   userAgent?: string | null | undefined;
@@ -32,6 +33,13 @@ export const COLLECT_LIMITS = {
   perVisitorPerMinute: 60,
   perSitePerMinute: 600,
   siteCacheMs: 30_000,
+  /**
+   * Поисков сайта в базе в минуту на весь приёмник. Настоящих сайтов единицы, их ключи живут в кэше; поток случайных
+   * ключей иначе занимал общий пул базы (аудит 26.09, С-34). Сверх предела — отказ без базы или прежний ответ из кэша.
+   */
+  unknownLookupsPerMinute: 300,
+  /** Сколько ключей держит кэш: прежний хранил каждый присланный ключ вечно */
+  siteCacheSize: 5_000,
   flushIntervalMs: 1000,
   flushBatch: 100,
 } as const;
@@ -48,7 +56,9 @@ export class CollectService implements OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
   private flushing: Promise<number> | null = null;
   private readonly siteCache = new Map<string, { site: SiteRecord | null; at: number }>();
-  private windows = new Map<string, { start: number; count: number }>();
+  private lookups = new AttemptWindows(COLLECT_LIMITS.unknownLookupsPerMinute, WINDOW_MS);
+  private perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
+  private perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
 
   constructor(@Inject(ANALYTICS_REPOSITORY) private readonly repo: AnalyticsRepository) {}
 
@@ -72,10 +82,10 @@ export class CollectService implements OnModuleDestroy {
     const fromOwnPage = !!originHost && !!ownHost && originHost === ownHost;
     if (!fromOwnPage && !hostMatches(site.hosts, originHost)) return 'rejected:origin';
 
-    if (!this.allow(`v:${site.id}:${hit.visitorKey}`, COLLECT_LIMITS.perVisitorPerMinute, now)) {
+    if (!this.perVisitor.allow(`${site.id}:${hit.visitorKey}`, now.getTime())) {
       return 'rejected:visitor limit';
     }
-    if (!this.allow(`s:${site.id}`, COLLECT_LIMITS.perSitePerMinute, now)) {
+    if (!this.perSite.allow(site.id, now.getTime())) {
       return 'rejected:site limit';
     }
 
@@ -111,7 +121,9 @@ export class CollectService implements OnModuleDestroy {
 
   /** Для тестов: обнулить окна лимитов и кэш сайтов. */
   resetLimits(): void {
-    this.windows = new Map();
+    this.lookups = new AttemptWindows(COLLECT_LIMITS.unknownLookupsPerMinute, WINDOW_MS);
+    this.perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
+    this.perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
     this.siteCache.clear();
   }
 
@@ -136,21 +148,24 @@ export class CollectService implements OnModuleDestroy {
   private async siteFor(key: string, nowMs: number): Promise<SiteRecord | null> {
     const cached = this.siteCache.get(key);
     if (cached && nowMs - cached.at < COLLECT_LIMITS.siteCacheMs) return cached.site;
+    // предел поисков исчерпан — база не трогается; известный сайт живёт на прежнем ответе, пока поток не схлынет
+    if (!this.lookups.allow('all', nowMs)) return cached?.site ?? null;
     const site = await this.repo.siteByKey(key);
+    this.siteCache.delete(key);
     this.siteCache.set(key, { site, at: nowMs });
+    if (this.siteCache.size > COLLECT_LIMITS.siteCacheSize) this.evict(nowMs);
     return site;
   }
 
-  private allow(key: string, limit: number, now: Date): boolean {
-    const t = now.getTime();
-    const w = this.windows.get(key);
-    if (!w || t - w.start >= WINDOW_MS) {
-      this.windows.set(key, { start: t, count: 1 });
-      if (this.windows.size > 50_000) this.windows.clear(); // защита памяти от перебора ключей
-      return true;
+  /** Сначала протухшие, потом самые старые записи: порядок вставки в Map — порядок записи */
+  private evict(nowMs: number): void {
+    for (const [key, entry] of this.siteCache) {
+      if (nowMs - entry.at >= COLLECT_LIMITS.siteCacheMs) this.siteCache.delete(key);
     }
-    w.count += 1;
-    return w.count <= limit;
+    for (const key of this.siteCache.keys()) {
+      if (this.siteCache.size <= COLLECT_LIMITS.siteCacheSize) break;
+      this.siteCache.delete(key);
+    }
   }
 }
 

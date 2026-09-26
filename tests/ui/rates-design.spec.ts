@@ -109,3 +109,20 @@ test('массовое изменение: дни недели одной стр
   await expect(save).toHaveText('Сохранить 1 изменение');
   await expect(save).toBeEnabled();
 });
+
+// Аудит 26.09, С-48: сняв все дни недели, администратор получал правку «на все дни» — форма просто не передавала
+// список, и стоп-продажа уходила на весь период во все каналы.
+test('массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему', async ({
+  page,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/rates?month=2026-10');
+  const editor = main.getByTestId('bulk-editor');
+  await expect(editor).toBeVisible();
+  for (const box of await editor.locator('input[name^="day-"]').all()) await box.uncheck();
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await expect(editor.getByText('Отметьте хотя бы один день недели')).toBeVisible();
+  await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить');
+});

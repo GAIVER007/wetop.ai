@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { checkDay, verdict, type BoardSnapshot, type DaySnapshot } from './day-selfcheck';
+import { buildChessboard } from '@pms/domain';
+import { boardSnapshot, checkDay, verdict, type BoardSnapshot, type DaySnapshot } from './day-selfcheck';
 
 const row = (n: string, unitCode: string | null = 'R01') => ({
   confirmationNumber: n,
@@ -61,5 +62,58 @@ describe('сутки внутри PMS', () => {
       board({ occupiedByNumber: { 'A-1': ['R01'], 'A-2': ['R02'] }, occupiedCells: 1 }),
     );
     expect(f.some((x) => x.what.includes('занятых клеток на шахматке 1'))).toBe(true);
+  });
+});
+
+// Аудит 26.09, С-73: сверка читала у клетки поле `stay`, которого в ответе шахматки нет, — каждый заселённый выходил
+// ложным FAIL «на шахматке его нет», а правило «разная ячейка» не срабатывало никогда. Проверяем на настоящей шахматке.
+describe('ответ шахматки → снимок для сверки', () => {
+  const unit = (id: string, code: string) => ({
+    id,
+    code,
+    kind: 'BED' as const,
+    accommodationTypeCode: 'dorm-m',
+    accommodationTypeName: 'Мужская общая',
+  });
+  const board = buildChessboard({
+    from: '2026-09-20',
+    to: '2026-09-20',
+    units: [unit('u1', 'R01'), unit('u2', 'R02'), unit('u3', 'R03')],
+    allocations: [
+      {
+        unitId: 'u1',
+        startDate: '2026-09-19',
+        endDate: '2026-09-22',
+        itemId: 'i1',
+        itemStatus: 'CHECKED_IN',
+        confirmationNumber: 'A-1',
+        guestLabel: 'Тестов Т.',
+      },
+    ],
+    blocks: [{ unitId: 'u2', dateFrom: '2026-09-01', dateTo: '2026-10-01', type: 'REPAIR' }],
+    unassigned: [
+      {
+        confirmationNumber: 'B-2',
+        categoryCode: 'dorm-m',
+        categoryName: 'Мужская общая',
+        arrivalDate: '2026-09-20',
+        departureDate: '2026-09-21',
+        status: 'CONFIRMED',
+      },
+    ],
+  });
+  // Через JSON, как по сети
+  const snap = boardSnapshot(JSON.parse(JSON.stringify(board)), '2026-09-20');
+
+  it('занятая клетка даёт номер брони и ячейку; блокировка — не бронь', () => {
+    expect(snap.occupiedByNumber).toEqual({ 'A-1': ['R01'] });
+    expect(snap.occupiedCells).toBe(1);
+    expect(snap.unassigned).toEqual([{ confirmationNumber: 'B-2', categoryName: 'Мужская общая' }]);
+  });
+
+  it('заселённый на шахматке — без ложного FAIL; другая ячейка — FAIL', () => {
+    expect(checkDay(day(), snap)).toEqual([]);
+    const moved = checkDay(day({ inHouse: [row('A-1', 'R03')] }), snap);
+    expect(moved).toEqual([{ level: 'fail', what: 'A-1: на «Главной» ячейка R03, на шахматке R01' }]);
   });
 });

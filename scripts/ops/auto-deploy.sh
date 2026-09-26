@@ -16,8 +16,10 @@
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
 #   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
-#   scripts/ops/auto-deploy.sh --migrations-applied   владелец применил миграции этой вершины — выложить её
-#                                                     без проверки миграций; остальные проверки и откат остаются
+#   scripts/ops/auto-deploy.sh --migrations-applied [вершина]
+#                                                     владелец применил миграции вершины, на которой был отказ, —
+#                                                     выложить ровно её без проверки миграций; остальные проверки и откат
+#                                                     остаются. Ушёл release дальше — отказ: у новой вершины свои миграции
 #
 # DEPLOY_REPO        клон на сервере (/root/wetop)
 # DEPLOY_BRANCH      ветка выкладки (release)
@@ -38,7 +40,11 @@ WAIT="${DEPLOY_HEALTH_WAIT:-180}"
 STEP="${DEPLOY_HEALTH_STEP:-5}"
 ENV_FILE="$REPO/.env"
 APPLIED=0
-[ "${1:-}" = --migrations-applied ] && APPLIED=1
+APPLIED_SHA=""
+if [ "${1:-}" = --migrations-applied ]; then
+  APPLIED=1
+  APPLIED_SHA="${2:-}"
+fi
 
 # git pull меняет и этот файл, а bash читает скрипт по ходу исполнения: работаем с копией
 if [ -z "${AUTO_DEPLOY_COPY:-}" ]; then
@@ -73,8 +79,10 @@ notify() {
   chats="${TELEGRAM_CHAT_ID:-$(env_value TELEGRAM_CHAT_ID)}"
   [ -n "$token" ] && [ -n "$chats" ] || return 0
   for chat in $(printf '%s' "$chats" | tr ',' ' '); do
-    curl -fsS -o /dev/null --max-time 15 -X POST "https://api.telegram.org/bot${token}/sendMessage" \
-      --data-urlencode "chat_id=${chat}" --data-urlencode "text=WETOP, выкладка: $1" ||
+    # Адрес с токеном — через stdin, а не аргументом: аргументы процесса видит любой через `ps` (аудит 25.09)
+    printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$token" |
+      curl -fsS -o /dev/null --max-time 15 -X POST --config - \
+        --data-urlencode "chat_id=${chat}" --data-urlencode "text=WETOP, выкладка: $1" ||
       say 'Telegram не принял сообщение'
   done
 }
@@ -86,18 +94,31 @@ flock -n 9 || exit 0 # прошлый запуск ещё собирает об�
 cd "$REPO"
 git fetch --quiet origin "$BRANCH"
 target="$(git rev-parse "origin/$BRANCH")"
-current="$(git rev-parse HEAD)"
+# Что выложено — по записи удачной выкладки, а не по клону: клон переключается до сборки, и прерванный запуск оставлял
+# его на новой вершине при прежних контейнерах — следующий молча считал всё выложенным (аудит 26.09, С-67).
+[ -s "$STATE/deployed" ] || git rev-parse HEAD >"$STATE/deployed"
+current="$(cat "$STATE/deployed")"
 short() { git rev-parse --short=8 "$1"; }
 
 [ "$target" != "$current" ] || exit 0
+refused_at="$(cat "$STATE/refused" 2>/dev/null || true)"
 # Эту вершину уже отказались выкладывать — сказали один раз, ждём следующий коммит или человека
-[ "$APPLIED" = 1 ] || [ "$(cat "$STATE/refused" 2>/dev/null || true)" != "$target" ] || exit 0
+[ "$APPLIED" = 1 ] || [ "$refused_at" != "$target" ] || exit 0
 
 refuse() {
   printf '%s\n' "$target" >"$STATE/refused"
   notify "$(short "$target") не выложен: $1. На сервере по-прежнему $(short "$current")."
   exit 1
 }
+
+# Флаг владельца — про ту вершину, на которой был отказ (или названную им), а не про ту, что стоит в release сейчас:
+# пока он применял миграции A, release мог уйти на B со своими миграциями (аудит 25.09, С-1).
+if [ "$APPLIED" = 1 ]; then
+  expected="${APPLIED_SHA:-$refused_at}"
+  if [ -z "$expected" ] || [ "${target#"$expected"}" = "$target" ]; then
+    refuse "--migrations-applied относится к $(short "${refused_at:-$current}" 2>/dev/null || echo "${expected:-?}"), а release уже на $(short "$target") — проверьте миграции новой вершины и запустите ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
+  fi
+fi
 
 [ -z "$(git status --porcelain --untracked-files=no)" ] ||
   refuse "в $REPO есть локальные правки (git status) — разберите их, автовыкладка ждёт"

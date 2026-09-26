@@ -24,6 +24,8 @@ interface Case {
   containerSwitch?: 'off' | 'on';
   /** Есть ли файл выключателя до запуска команды. */
   stopped?: boolean;
+  /** Лежит ли рядом наложение Hostinger (`deploy/compose.hostinger.yml`), как на сервере. */
+  hostinger?: boolean;
 }
 
 interface Run {
@@ -44,6 +46,7 @@ function run(args: string[], opts: Case = {}): Run {
   const calls = join(dir, 'docker.log');
   const compose = join(deploy, 'compose.yml');
   writeFileSync(compose, 'name: pms-lux\n');
+  if (opts.hostinger) writeFileSync(join(deploy, 'compose.hostinger.yml'), 'services: {}\n');
   const ariEnv = join(deploy, 'ari.env');
   if (opts.stopped) writeFileSync(ariEnv, 'CHANNEX_ARI=off\n');
   const script = (name: string, body: string) => {
@@ -60,11 +63,17 @@ function run(args: string[], opts: Case = {}): Run {
       : opts.containerSwitch === 'off'
         ? 'true'
         : 'false';
+  // Замок API включён (боевой образ, ADR-085): запрос без служебного ключа получает 401. Ключ живёт в окружении
+  // контейнера api, поэтому скрипт должен брать его оттуда (`process.env.SERVICE_API_KEY`), а не с хоста
   script(
     'docker',
     `echo "$*" >> "${calls}"
 case "$*" in
-  *" exec "*) printf '{"pending":0,"sent":0,"ariStopped":%s}' "${stopped}" ;;
+  *" exec "*)
+    case "$*" in
+      *x-wetop-service-key*process.env.SERVICE_API_KEY*) printf '{"pending":0,"sent":0,"ariStopped":%s}' "${stopped}" ;;
+      *) printf '{"message":"Unauthorized","statusCode":401}' ;;
+    esac ;;
 esac
 exit 0`,
   );
@@ -126,5 +135,20 @@ describe('ari.sh на сервере (Docker)', () => {
     const r = run(['status'], { stopped: false });
     expect(r.code).toBe(0);
     expect(r.docker.match(/ exec /g)?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // Аудит 26.09, С-66: замок API в боевом образе включён, а скрипт ходил без ключа — `stop` выключал ARI, но 90 с ждал
+  // ответа и падал, `start` не отправлял очередь. Ключ берётся внутри контейнера и в строку запуска не попадает.
+  it('ходит в API со служебным ключом из окружения контейнера api, самого ключа в командах нет', () => {
+    const r = run(['stop']);
+    expect(r.code, r.out).toBe(0);
+    expect(r.docker).toContain('process.env.SERVICE_API_KEY');
+    expect(r.docker).not.toMatch(/x-wetop-service-key['"]?\s*:\s*['"][^'"]/);
+  });
+
+  it('на сервере с наложением Hostinger пересоздаёт API с ним, как автовыкладка', () => {
+    const r = run(['stop'], { hostinger: true });
+    expect(r.code, r.out).toBe(0);
+    expect(r.docker).toMatch(/-f \S*compose\.yml -f \S*compose\.hostinger\.yml up -d --force-recreate api/);
   });
 });

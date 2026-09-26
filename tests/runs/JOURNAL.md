@@ -2419,3 +2419,15 @@
 | 26.09.2026 17:36 | integration | ✅ 83 из 83 | 26 с | bbc311a +10 | [лог](logs/2026-09-26T12-36-35Z-integration-1ee8.log) | пакет E |
 | 26.09.2026 17:37 | e2e | ✅ 25 из 25 | 1 мин 6 с | bbc311a +8 | [лог](logs/2026-09-26T12-37-07Z-e2e-ea2c.log) | пакет E |
 | 26.09.2026 17:57 | unit | ✅ 1913 из 1916, пропущено 3 | 1 мин 12 с | 9d0cc4b +14 | [лог](logs/2026-09-26T12-57-34Z-unit-1583.log) | пакет F: правки бота (apps/ai-seller) |
+| 26.09.2026 18:00 | unit (частично: tests/unit/auto-deploy.test.ts) | ❌ упало 4 из 10 | 9 с | ac21b4e +1 | [лог](logs/2026-09-26T13-00-18Z-unit-856c.log) | пакет G red: автовыкладка |
+| 26.09.2026 18:00 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 10 из 10 | 9 с | ac21b4e +2 | [лог](logs/2026-09-26T13-00-49Z-unit-e1e2.log) | пакет G green: автовыкладка |
+| 26.09.2026 18:01 | unit (частично: tests/unit/db-backup.test.ts) | ❌ упало 3 из 13 | 2 с | ac21b4e +3 | [лог](logs/2026-09-26T13-01-58Z-unit-82c3.log) | пакет G red: пароль в аргументах pg_dump |
+| 26.09.2026 18:02 | unit (частично: tests/unit/db-backup.test.ts) | ❌ упало 1 из 13 | 2 с | ac21b4e +4 | [лог](logs/2026-09-26T13-02-08Z-unit-7d7e.log) | пакет G green: пароль в PGPASSWORD |
+| 26.09.2026 18:03 | unit (частично: tests/unit/db-backup.test.ts) | ✅ 13 из 13 | 2 с | ac21b4e +4 | [лог](logs/2026-09-26T13-03-54Z-unit-5c30.log) |  |
+| 26.09.2026 18:04 | unit (частично: tests/unit/ari-switch-server.test.ts) | ❌ упало 7 из 8 | 9 мин 3 с | ac21b4e +5 | [лог](logs/2026-09-26T13-04-45Z-unit-abe8.log) | ari.sh на сервере (Docker) stop кладёт выключатель файлом, пересоздаёт контейнер API и подтверждает ответом самого API |
+| 26.09.2026 18:13 | unit (частично: scripts/reconciliation/src/day-selfcheck.test.ts) | ❌ упало 2 из 8 | 2 с | ac21b4e +8 | [лог](logs/2026-09-26T13-13-54Z-unit-d331.log) | ответ шахматки → снимок для сверки занятая клетка даёт номер брони и ячейку; блокировка — не бронь |
+| 26.09.2026 18:14 | unit (частично: scripts/reconciliation/src/day-selfcheck.test.ts) | ✅ 8 из 8 | 2 с | ac21b4e +8 | [лог](logs/2026-09-26T13-14-04Z-unit-9cd9.log) |  |
+| 26.09.2026 18:14 | unit (частично: tests/unit/ari-switch-server.test.ts tests/unit/ari-server.test.ts) | ✅ 13 из 13 | 1 с | ac21b4e +9 | [лог](logs/2026-09-26T13-14-23Z-unit-22a6.log) |  |
+| 26.09.2026 18:14 | unit (частично: tests/unit/restore-rates-guard.test.ts) | ❌ упало 2 из 2 | 4 с | ac21b4e +10 | [лог](logs/2026-09-26T13-14-39Z-unit-819f.log) | cli-restore-rates закрыт подтверждением без подтверждения — отказ до первого шага |
+| 26.09.2026 18:14 | unit (частично: tests/unit/restore-rates-guard.test.ts) | ✅ 2 из 2 | 2 с | ac21b4e +11 | [лог](logs/2026-09-26T13-14-51Z-unit-f856.log) |  |
+| 26.09.2026 18:16 | unit | ✅ 1923 из 1926, пропущено 3 | 1 мин 12 с | ac21b4e +13 | [лог](logs/2026-09-26T13-16-07Z-unit-324b.log) |  |

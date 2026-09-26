@@ -13,6 +13,10 @@ deploy/cloudflared/
 !deploy/cloudflared.example.yml
 # Состояние выключателя ARI на конкретной машине (scripts/ops/ari.sh), не код
 deploy/ari.env
+# Копии базы (scripts/ops/db-backup.sh): в них вся база с гостями и деньгами — в git не едут ни при каких условиях
+*.dump
+*.dump.partial
+backups/
 
 # --- Claude Code: личное не едет в репозиторий ---
 # settings.json (общие deny-правила) едет. settings.local.json — личные разрешения,

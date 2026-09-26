@@ -289,6 +289,9 @@ ADR-081). Скрипт такой коммит не выложит и напиш
 проверенный коммит `main`; скрипт отказывает и называет миграции; владелец применяет их (бэкап → миграция → проверка —
 `docs/ops/backups.md`) и запускает `/usr/local/sbin/wetop-auto-deploy --migrations-applied` — скрипт выкладывает эту
 вершину без проверки миграций, остальные проверки и откат остаются. Следующие вершины снова проверяются.
+С 26.09.2026 (ADR-085, аудит 25.09 С-1) флаг относится ровно к той вершине, на которой был отказ: если `release` за
+это время ушёл дальше, скрипт снова откажет и назовёт новую вершину — у неё могут быть свои миграции. Вершину можно
+назвать явно: `--migrations-applied afe82ab9`.
 
 **Миграции без Node на сервере** — Prisma CLI есть в образе стойки, миграции берутся из той вершины `release`, на
 которой скрипт отказал (здесь `afe82ab9`). Строка подключения — сессионная (`BACKUP_DATABASE_URL`, как у копии), иначе
@@ -297,14 +300,16 @@ ADR-081). Скрипт такой коммит не выложит и напиш
 ```bash
 cd /root/wetop && V=afe82ab9
 rm -rf /tmp/wetop-mig && mkdir -p /tmp/wetop-mig && git archive "$V" packages/database/prisma | tar -x -C /tmp/wetop-mig
+# DIRECT_URL — из окружения, а не аргументом: аргументы `docker run` видны в `ps` любому процессу на сервере
 mig() { ( set -a; . ./.env; set +a
-  docker run --rm -e DIRECT_URL="${BACKUP_DATABASE_URL:-${DIRECT_URL:-$DATABASE_URL}}" \
+  export DIRECT_URL="${BACKUP_DATABASE_URL:-${DIRECT_URL:-$DATABASE_URL}}"
+  docker run --rm -e DIRECT_URL \
     -v /tmp/wetop-mig/packages/database/prisma:/app/packages/database/prisma:ro \
     -w /app/packages/database pms-lux:latest npx prisma migrate "$@" ); }
 mig status     # ждём: две не применены — 20260924000018_user_errors, 20260924000019_seller_profiles
 mig deploy     # только после свежей копии ($BACKUP, docs/ops/backups.md)
 mig status     # ждём: Database schema is up to date
-/usr/local/sbin/wetop-auto-deploy --migrations-applied
+/usr/local/sbin/wetop-auto-deploy --migrations-applied "$V"
 ```
 
 Выключить — убрать строку из `crontab -e`. Ручная выкладка по §1а остаётся рабочей: перед ней убрать строку cron, чтобы
@@ -332,7 +337,7 @@ npm run site:deploy    # сборка + wrangler pages deploy на проект 
 появится новый пустой проект без домена, сайт не обновится. Правильно — назвать аккаунт явно:
 
 ```bash
-CLOUDFLARE_ACCOUNT_ID=aa05d3443b086b6c6e6b3392ee17ab56 npx wrangler@latest pages project list
+CLOUDFLARE_ACCOUNT_ID=aa05d3443b086b6c6e6b3392ee17ab56 npx wrangler@4.141.0 pages project list
 CLOUDFLARE_ACCOUNT_ID=aa05d3443b086b6c6e6b3392ee17ab56 npm run site:deploy
 ```
 
@@ -372,5 +377,5 @@ npm run build -w apps/web && npm run test:record -- e2e
 - Стойка и API: `git checkout <прошлый коммит>`, затем сборка и `kickstart` по §1.
 - База: `down.sql` рядом с миграцией (`scripts/ops/check-migrations.sh` проверяет их на чистом PostgreSQL).
 - Каналы: `scripts/ops/ari.sh stop` останавливает отправку остатков в Channex, порядок — `CUTOVER.md` ROLLBACK.
-- Главная: `npx wrangler@latest pages deployment list --project-name wetop-site` и откат на прошлую выкладку
+- Главная: `npx wrangler@4.141.0 pages deployment list --project-name wetop-site` и откат на прошлую выкладку
   в панели Cloudflare.

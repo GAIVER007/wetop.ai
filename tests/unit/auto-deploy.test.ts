@@ -86,7 +86,12 @@ exit 0
 `,
   );
   // Подставной curl: Telegram «принимает», вызов записывается — с токеном, чтобы проверить, что в журнал он не идёт
-  writeFileSync(join(bin, 'curl'), '#!/usr/bin/env bash\necho "curl $*" >> "$FAKE_CALLS.curl"\nexit 0\n');
+  // Настройки из stdin (`--config -`) пишутся отдельно: так видно, что токен не в аргументах, которые видны в `ps`
+  writeFileSync(
+    join(bin, 'curl'),
+    '#!/usr/bin/env bash\necho "curl $*" >> "$FAKE_CALLS.curl"\n' +
+      'if [[ " $* " == *" --config - "* ]]; then cat >> "$FAKE_CALLS.curl.stdin"; fi\nexit 0\n',
+  );
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
 });
@@ -112,8 +117,10 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(dockerCalls()).toContain('exec -T api wget');
     expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(target);
     expect(r.out).toContain(`${target.slice(0, 8)} выложен`);
-    expect(readFileSync(`${calls}.curl`, 'utf8')).toContain('sendMessage');
+    expect(readFileSync(`${calls}.curl.stdin`, 'utf8')).toContain('sendMessage');
     expect(r.out).not.toContain(TOKEN);
+    // Аудит 25.09, С-15: токен бота был частью адреса в аргументах curl — его видел любой процесс через `ps`
+    expect(readFileSync(`${calls}.curl`, 'utf8')).not.toContain(TOKEN);
     // второй запуск — выкладывать нечего
     expect(run().out).toBe('');
   });
@@ -147,6 +154,43 @@ describe('scripts/ops/auto-deploy.sh', () => {
     const next = run();
     expect(next.code).toBe(1);
     expect(next.out).toContain('0003_next');
+  });
+
+  // Аудит 25.09, С-1: флаг снимал проверку миграций с той вершины, что стоит в release в момент запуска, а не с той, на
+  // которой был отказ. Пока владелец применял миграции A, release ушёл на B — и B выкладывалась с неприменёнными
+  // миграциями на схему, которой нет в базе.
+  it('release ушёл вперёд после отказа — --migrations-applied не выкладывает новую вершину', () => {
+    const applied = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    const before = head();
+    expect(run().code).toBe(1);
+    commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
+    const r = run({}, ['--migrations-applied']);
+    expect(r.code, r.out).toBe(1);
+    expect(r.out).toContain(applied.slice(0, 8));
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+  });
+
+  it('--migrations-applied с номером вершины выкладывает ровно её, другую — нет', () => {
+    const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    expect(run().code).toBe(1);
+    expect(run({}, ['--migrations-applied', 'deadbeef']).code).toBe(1);
+    const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    expect(r.code, r.out).toBe(0);
+    expect(head()).toBe(target);
+  });
+
+  // Аудит 26.09, С-67: клон переключался на новую вершину до сборки. Прерванный запуск (нехватка памяти, перезагрузка)
+  // оставлял клон на новой вершине с прежними контейнерами, и следующий запуск молча считал всё выложенным.
+  it('прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает', () => {
+    expect(run().code).toBe(0); // первый запуск запоминает выложенное
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    git(server, 'fetch', '-q', 'origin', 'release');
+    git(server, 'checkout', '-q', '-B', 'release', target);
+    const r = run();
+    expect(r.code, r.out).toBe(0);
+    expect(dockerCalls()).toMatch(/up -d --build api web/);
+    expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(target);
   });
 
   it('локальные правки в клоне — не затирает их', () => {

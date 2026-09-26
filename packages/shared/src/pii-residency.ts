@@ -209,6 +209,21 @@ const keepGuestIdentityOut = (guest: unknown): unknown => {
  * неудаляемыми. Под ключами гостя остаются только id, гражданство и признак основного гостя — по разрешённому списку,
  * чтобы новое поле карточки не уехало в журнал само.
  */
+/**
+ * Только маска контактов в свободном тексте (`notes`, `note`, `comment`, `reason`) на любой глубине; остальное как есть.
+ * Для карточки брони, у которой гостя уже спроецировал `cardForAudit` (apps/api), — и для частей `withoutGuestIdentity`.
+ */
+export function maskAuditFreeText(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(maskAuditFreeText);
+  if (value === null || typeof value !== 'object' || value instanceof Date) return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([k, v]) => [
+      k,
+      FREE_TEXT_KEYS.has(k) && typeof v === 'string' ? maskContacts(v) : maskAuditFreeText(v),
+    ]),
+  );
+}
+
 export function withoutGuestIdentity(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(withoutGuestIdentity);
   if (value === null || typeof value !== 'object' || value instanceof Date) return value;

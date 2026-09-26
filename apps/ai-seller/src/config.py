@@ -55,6 +55,11 @@ class Settings(BaseSettings):
     # ─── Модели ───
     llm_api_key: str = ""
     llm_base_url: str = ""
+    # С2: секрет хранилища ключей партнёров (Fernet, base64url 32 байта).
+    # Пуст — ключи партнёров не принимаются, ходы идут ключом платформы.
+    llm_keys_secret: str = ""
+    # С3: адрес Graph API для WhatsApp Cloud (в тестах подменяется).
+    whatsapp_graph_base_url: str = "https://graph.facebook.com/v20.0"
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""

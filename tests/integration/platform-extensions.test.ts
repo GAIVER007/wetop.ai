@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaExtensionsRepository } from '../../apps/api/src/platform/extensions.repository';
+import { purgeAuditRows } from '../tools/audit-purge';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -58,7 +59,7 @@ describe.skipIf(!url)('расширения организаций (integration,
 
   afterAll(async () => {
     if (!db) return;
-    await db.auditLog.deleteMany({ where: { entityType: 'organization', entityId: { in: [orgA, orgB] } } });
+    await purgeAuditRows(db, { entityType: 'organization', entityId: { in: [orgA, orgB] } });
     await db.organizationExtension.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
     await db.membership.deleteMany({ where: { organizationId: { in: [orgA, orgB] } } });
     await db.user.deleteMany({ where: { id: { in: [owner, staff] } } });

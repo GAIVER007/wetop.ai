@@ -4,7 +4,7 @@ import type { InventoryImportPlan } from '@pms/domain';
 import { countActiveBlocks, readInventoryPlanFromDb } from '@pms/imports';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyToday, propertyIdRef } from '../database/property-ref';
 
 export interface InventoryPropertyInfo {
   name: string;
@@ -31,7 +31,6 @@ export const INVENTORY_REPOSITORY = Symbol('INVENTORY_REPOSITORY');
  * новая единица появится на экранах не позже чем через минуту. Блокировки — живые, считаются на каждый запрос.
  */
 const PLAN_TTL_MS = () => Number(process.env.INVENTORY_PLAN_TTL_MS ?? 60_000);
-const almatyToday = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 
 @Injectable()
 export class PrismaInventoryRepository implements InventoryRepository {
@@ -55,7 +54,11 @@ export class PrismaInventoryRepository implements InventoryRepository {
     // Волна 4: дерево фонда — 5+ обращений к базе в Сингапуре; с кэшем на запрос остаётся один подсчёт блокировок
     const hit = this.cached.get(propertyId);
     if (hit && Date.now() - hit.at < PLAN_TTL_MS()) {
-      const blocks = await countActiveBlocks(this.prisma.db, propertyId, almatyToday());
+      const blocks = await countActiveBlocks(
+        this.prisma.db,
+        propertyId,
+        await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name),
+      );
       return { property: hit.property, plan: hit.plan, blocks };
     }
     const fromDb = await readInventoryPlanFromDb(this.prisma.db, { id: propertyId });

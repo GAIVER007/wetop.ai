@@ -32,6 +32,19 @@ export interface SellerPort {
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
   putProfile(payload: unknown): Promise<unknown>;
   putFacts(payload: unknown): Promise<unknown>;
+  /** Рассказ владельца → поля анкеты (С1): раскладывает бот, промптом рассказ не становится */
+  extractProfile(story: string): Promise<unknown>;
+  /** Ключ модели партнёра (С2): хранит только бот, наружу — set и последние 4 знака */
+  llmKeyStatus(orgId: string): Promise<unknown>;
+  putLlmKey(orgId: string, key: string): Promise<unknown>;
+  checkLlmKey(orgId: string, key: string): Promise<unknown>;
+  /** Подключение WhatsApp (С3): статус, поставить/снять, проверка номера и токена */
+  whatsappStatus(orgId: string): Promise<unknown>;
+  putWhatsApp(
+    orgId: string,
+    input: { phoneNumberId: string; token: string; appSecret: string },
+  ): Promise<unknown>;
+  checkWhatsApp(orgId: string, input: { phoneNumberId: string; token: string }): Promise<unknown>;
   /** Завести или поправить гостиницу у продавца (Э4) */
   putOrganization(
     id: string,

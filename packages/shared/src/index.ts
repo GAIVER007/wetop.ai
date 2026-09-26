@@ -23,6 +23,7 @@ export {
   pseudonymSalt,
   AnonymizeSaltMissingError,
   withoutGuestIdentity,
+  maskAuditFreeText,
   type DeskGuestInput,
   type GuestIdentity,
 } from './pii-residency';

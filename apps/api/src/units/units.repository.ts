@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
@@ -34,9 +34,12 @@ export interface UnitCard {
   housekeepingHistory: Array<{ at: string; from: HousekeepingStatus; to: HousekeepingStatus }>;
 }
 export interface UnitsRepository {
+  /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026) */
+  today(): Promise<string>;
   unitByCode(code: string): Promise<{
     id: string;
     code: string;
+    accommodationTypeId: string;
     accommodationTypeCode: string;
     housekeepingStatus: HousekeepingStatus;
   } | null>;
@@ -49,7 +52,7 @@ export interface UnitsRepository {
   ): Promise<Array<{ confirmationNumber: string; startDate: string; endDate: string }>>;
   /** Блокировка и её запись в журнале — одной транзакцией (SECURITY.md §6); `after` дополняется её id */
   createBlock(
-    unitId: string,
+    unit: { id: string; accommodationTypeId: string },
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
     audit: { before: unknown; after: Record<string, unknown> },
   ): Promise<string>;
@@ -82,6 +85,10 @@ export class PrismaUnitsRepository implements UnitsRepository {
       },
     };
   }
+
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
   async unitByCode(code: string) {
     const u = await this.prisma.db.inventoryUnit.findFirst({
       where: { code, ...(await this.ofProperty()) },
@@ -91,6 +98,7 @@ export class PrismaUnitsRepository implements UnitsRepository {
       ? {
           id: u.id,
           code: u.code,
+          accommodationTypeId: u.accommodationTypeId,
           accommodationTypeCode: u.accommodationType.code,
           housekeepingStatus: u.housekeepingStatus,
         }
@@ -175,11 +183,37 @@ export class PrismaUnitsRepository implements UnitsRepository {
     }));
   }
   async createBlock(
-    unitId: string,
+    unit: { id: string; accommodationTypeId: string },
     b: { dateFrom: string; dateTo: string; type: BlockType; reason: string | null },
     audit: { before: unknown; after: Record<string, unknown> },
   ) {
+    const unitId = unit.id;
     return this.prisma.db.$transaction(async (tx) => {
+      /*
+       * ТЗ аудита 25.09.2026, С-3: проверка «нет ли проживаний» до транзакции — гонка: гость успевал
+       * заселиться между проверкой и вставкой, и ячейка закрывалась вместе с ним. Берём тот же
+       * категорийный замок, что путь брони (lockCategories в reservations.repository), и перепроверяем
+       * уже под ним: бронь либо завершилась до нас — и мы её видим, либо ждёт нас — и увидит блокировку
+       * (hasBlockOverlap) под тем же замком.
+       */
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.category:${unit.accommodationTypeId}`}, 0))`;
+      const busy = await tx.allocation.findMany({
+        where: {
+          inventoryUnitId: unitId,
+          startDate: { lt: asDate(b.dateTo) },
+          endDate: { gt: asDate(b.dateFrom) },
+          reservationItem: { status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+        },
+        include: {
+          reservationItem: { select: { reservation: { select: { confirmationNumber: true } } } },
+        },
+      });
+      if (busy.length)
+        throw new ConflictException(
+          `В ячейке есть проживание: ${busy
+            .map((a) => `${a.reservationItem.reservation.confirmationNumber} (${iso(a.startDate)} → ${iso(a.endDate)})`)
+            .join(', ')} — сначала переселите`,
+        );
       const row = await tx.inventoryBlock.create({
         data: {
           inventoryUnitId: unitId,

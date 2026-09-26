@@ -77,15 +77,15 @@ def test_protocol_methods_are_async(cls_name: str, method: str) -> None:
     assert inspect.iscoroutinefunction(func), f"{cls_name}.{method} не async"
 
 
-def test_wetop_docstring_says_the_connection_is_not_decided_yet() -> None:
-    """🔴 Способ подключения к WETOP владельцем не выбран: файл обязан
-    говорить об этом сам, иначе его включат как готовый."""
+def test_wetop_docstring_names_the_decision_and_its_scope() -> None:
+    """Подключение решено в объёме чтения (ADR-085), бронь из чата — нет
+    (Q-166б, ADR-086): файл обязан называть решение и границу сам,
+    иначе бронь включат как готовую."""
     import src.integrations.wetop as wetop
 
-    doc = (wetop.__doc__ or "") + (inspect.getdoc(wetop.WetopProviders) or "")
-    lowered = doc.lower()
-    assert "stub" in lowered or "заглушк" in lowered
-    assert "владел" in lowered, "в docstring нет оговорки про решение владельца"
+    doc = wetop.__doc__ or ""
+    assert "ADR-085" in doc, "в docstring нет решения о котировке"
+    assert "Q-166б" in doc, "в docstring нет границы: бронь не включена"
 
 
 def _code_without_docs(module) -> str:

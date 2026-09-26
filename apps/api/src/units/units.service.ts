@@ -46,7 +46,7 @@ export class UnitsService {
 
   async card(code: string): Promise<UnitCard> {
     this.assertCode(code);
-    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const today = await this.repo.today();
     const card = await this.repo.card(code, today, plusDays(today, 60));
     if (!card) throw new NotFoundException(`Ячейка ${code} не найдена`);
     return card;
@@ -88,7 +88,7 @@ export class UnitsService {
       reason: freeTextForStorage(dto.reason?.trim() || null),
     };
     // SECURITY.md §6: ручное изменение доступности — блокировка и журнал одной транзакцией
-    await this.repo.createBlock(unit.id, block, { before: before?.blocks ?? [], after: block });
+    await this.repo.createBlock(unit, block, { before: before?.blocks ?? [], after: block });
     const after = await this.card(code);
     await publishAfterCommit(this.publisher, {
       categoryCodes: [unit.accommodationTypeCode],

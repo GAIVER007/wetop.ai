@@ -239,6 +239,54 @@ export class BotPanelClient {
     return this.json('PUT', '/seller/profile', payload);
   }
 
+  /** Ключ модели партнёра (С2): статус — только «установлен + последние 4 знака», сам ключ бот не отдаёт */
+  llmKeyStatus(orgId: string): Promise<Json> {
+    return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key`);
+  }
+
+  /** Пустой ключ снимает сохранённый */
+  putLlmKey(orgId: string, key: string): Promise<Json> {
+    return this.json('PUT', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key`, { key });
+  }
+
+  /** Проверка ключа живым вызовом роутера у бота; наружу — только вердикт */
+  checkLlmKey(orgId: string, key: string): Promise<Json> {
+    return this.json('POST', `/seller/organizations/${encodeURIComponent(orgId)}/llm-key/check`, {
+      key,
+    });
+  }
+
+  /** Подключение WhatsApp (С3): токен и секрет Meta бот хранит шифрованными и назад не отдаёт */
+  whatsappStatus(orgId: string): Promise<Json> {
+    return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`);
+  }
+
+  putWhatsApp(
+    orgId: string,
+    input: { phoneNumberId: string; token: string; appSecret: string },
+  ): Promise<Json> {
+    return this.json('PUT', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`, {
+      phone_number_id: input.phoneNumberId,
+      token: input.token,
+      app_secret: input.appSecret,
+    });
+  }
+
+  checkWhatsApp(orgId: string, input: { phoneNumberId: string; token: string }): Promise<Json> {
+    return this.json('POST', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp/check`, {
+      phone_number_id: input.phoneNumberId,
+      token: input.token,
+    });
+  }
+
+  /**
+   * Рассказ владельца → поля анкеты (С1 «под ключ»): бот раскладывает свободный текст по полям Б6/Б7 своей
+   * моделью и слоем 9; промптом рассказ не становится. Таймаут — как у песочницы: внутри вызов модели.
+   */
+  extractProfile(story: string): Promise<Json> {
+    return this.request('POST', '/extract-profile', JSON.stringify({ story }), SANDBOX_TIMEOUT_MS);
+  }
+
   putFacts(payload: unknown): Promise<Json> {
     return this.json('PUT', '/seller/facts', payload);
   }

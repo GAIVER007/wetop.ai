@@ -28,6 +28,8 @@ export const SELLER_TABS = [
   { view: 'knowledge', href: '/ai-seller/knowledge', label: 'Знания' },
   { view: 'dialogs', href: '/ai-seller/dialogs', label: 'Диалоги' },
   { view: 'embed', href: '/ai-seller/embed', label: 'Код для сайта' },
+  { view: 'model', href: '/ai-seller/model', label: 'Модель' },
+  { view: 'whatsapp', href: '/ai-seller/whatsapp', label: 'WhatsApp' },
   { view: 'check', href: '/ai-seller/check', label: 'Проверка' },
 ] as const;
 
@@ -291,6 +293,27 @@ export const SELLER_MANNER_EXAMPLES = {
   emoji: Record<SellerProfileBody['emoji'], string>;
   replyLength: Record<SellerProfileBody['replyLength'], string>;
 };
+
+/**
+ * Подписи полей для итога рассказа (С1 «под ключ»): теми же словами, что поля мастера.
+ * Ключи — имена полей из ответа `POST /ai-seller/extract` (`filled`, `skipped`, `rejected`).
+ */
+export const SELLER_STORY_FIELD_LABELS: Readonly<Record<string, string>> = {
+  botName: 'Имя бота',
+  greeting: 'Приветствие',
+  includedInPrice: 'Что входит в цену',
+  extraCharges: 'Что за доплату',
+  houseRules: 'Правила проживания',
+  prohibitions: 'Запреты',
+  callHumanWhen: 'Когда звать человека',
+  faq: 'Частые вопросы',
+  objectName: 'Название объекта',
+};
+
+/** Имена полей словами: «botName, faq» → «Имя бота, Частые вопросы»; незнакомое имя — как пришло */
+export function sellerStoryFieldWords(names: string[]): string {
+  return names.map((name) => SELLER_STORY_FIELD_LABELS[name] ?? name).join(', ');
+}
 
 /** Вопросы, которые гости задают чаще всего, — подсказки шага «Частые вопросы»: щелчок добавляет строку */
 export const SELLER_FAQ_SUGGESTIONS: readonly string[] = [

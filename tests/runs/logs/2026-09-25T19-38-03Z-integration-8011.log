@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 26.09.2026 00:38 Алматы · vm
+# коммит 6d072bd (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T19-38-03Z-integration-8011.json' 'tests/integration/refund-race.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 234ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  19:38:04
+   Duration  1.96s (transform 47%, import 28%, tests 25%)
+
+JSON report written to /tmp/pms-test-2026-09-25T19-38-03Z-integration-8011.json
+
+# код выхода 0 · 3 с

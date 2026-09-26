@@ -12,6 +12,8 @@ import {
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
+  LOCK_MINUTES,
+  MAX_FAILED_ATTEMPTS,
   checkPassword,
   decideLogin,
   hashPassword,
@@ -25,8 +27,6 @@ import {
   validEmail,
   sessionExpiry,
   sessionState,
-  MAX_FAILED_ATTEMPTS,
-  LOCK_MINUTES,
   type MembershipRole,
   type UserStatus,
 } from '@pms/domain';

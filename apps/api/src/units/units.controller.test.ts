@@ -24,7 +24,7 @@ function makeFakes() {
   const blockAudits: unknown[] = [];
   const separateAudits: string[] = [];
   let hk: 'DIRTY' | 'CLEAN' | 'INSPECTED' = 'DIRTY';
-  const unit = { id: 'u1', code: '9001', accommodationTypeCode: 'exely-900001' };
+  const unit = { id: 'u1', code: '9001', accommodationTypeId: 'type-1', accommodationTypeCode: 'exely-900001' };
   const card = (): UnitCard => ({
     id: 'u1',
     code: '9001',
@@ -53,6 +53,10 @@ function makeFakes() {
     housekeepingHistory: [],
   });
   const repo: UnitsRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async unitByCode(code) {
       return code === '9001' ? { ...unit, housekeepingStatus: hk } : null;
     },
@@ -65,8 +69,8 @@ function makeFakes() {
         : [];
     },
     // Блокировка и её запись в журнале — одна транзакция (SECURITY.md §6): журнал приходит вместе с командой
-    async createBlock(unitId, b, audit) {
-      blocks.push({ id: `blk${blocks.length + 1}`, unitId, ...b });
+    async createBlock(unit, b, audit) {
+      blocks.push({ id: `blk${blocks.length + 1}`, unitId: unit.id, ...b });
       audits.push('unit.block');
       blockAudits.push(audit);
       return `blk${blocks.length}`;

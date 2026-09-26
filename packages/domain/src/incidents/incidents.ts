@@ -26,7 +26,8 @@ export type IncidentKind =
   | 'tests.failing'
   | 'web.down'
   | 'ari.oversell'
-  | 'backup.stale';
+  | 'backup.stale'
+  | 'booking.flood';
 
 export interface FixPolicy {
   /** Сколько раз сторож пробует сам, дальше — будит */
@@ -169,6 +170,12 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
     escalateAfterMs: 0,
     close: { by: 'recheck' },
   },
+  /**
+   * Брони с сайта упёрлись в предел за час (С-7, ТЗ аудита 25.09.2026): либо всплеск спроса, либо
+   * фальшивые брони закрывают продажи (denial of inventory). Чинить нечего — человек смотрит свежие
+   * брони и решает; сутки тишины закрывают строку сами.
+   */
+  'booking.flood': { class: 'B', severity: 'WARNING', close: { by: 'quiet', afterMs: 24 * HOUR } },
 };
 
 /** Что заметила проверка. Без ФИО, телефонов и секретов — только номера и коды. */

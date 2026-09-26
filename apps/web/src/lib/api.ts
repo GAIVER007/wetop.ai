@@ -39,7 +39,7 @@ export interface InventoryUnit {
 }
 
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
-const QUIET_401_PATHS = ['/auth/', '/assistant/identity'];
+const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
 async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
@@ -297,11 +297,11 @@ async function sendJson<T>(
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
-  extraHeaders: Record<string, string> = {},
+  headers: Record<string, string> = {},
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
-    headers: { ...extraHeaders, 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
     cache: 'no-store',
   });
@@ -373,16 +373,6 @@ function authHeaders(info: AuthClientInfo, token?: string | null): Record<string
     ...(token ? { authorization: `Bearer ${token}` } : {}),
   };
 }
-/**
- * Адрес и браузер посетителя для публичных форм входа: API считает по адресу пределы попыток (аудит 26.09, С-5). Без
- * него все посетители стойки делили бы один счётчик — адрес самой стойки.
- */
-function visitorHeaders(info?: AuthClientInfo): Record<string, string> {
-  return {
-    ...(info?.ip ? { 'cf-connecting-ip': info.ip } : {}),
-    ...(info?.userAgent ? { 'user-agent': info.userAgent } : {}),
-  };
-}
 async function messageOf(res: Response): Promise<string> {
   try {
     const j = (await res.json()) as { message?: string | string[] };
@@ -402,12 +392,13 @@ async function messageOf(res: Response): Promise<string> {
  */
 export const authApi = {
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
+  // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
   login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
       'POST',
       '/auth/login',
       body,
-      visitorHeaders(info),
+      info ? authHeaders(info) : {},
     ),
   me: () =>
     getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
@@ -416,10 +407,15 @@ export const authApi = {
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
   requestReset: (body: { email: string }, info?: AuthClientInfo) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body, visitorHeaders(info)),
+    sendJson<{ ok: boolean }>(
+      'POST',
+      '/auth/password-reset/request',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }, info?: AuthClientInfo) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body, visitorHeaders(info)),
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body, info ? authHeaders(info) : {}),
   // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
@@ -433,7 +429,7 @@ export const authApi = {
       'POST',
       '/auth/register',
       body,
-      visitorHeaders(info),
+      info ? authHeaders(info) : {},
     ),
   /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
   verifyEmail: (body: { token: string }, info?: AuthClientInfo) =>
@@ -441,11 +437,11 @@ export const authApi = {
       'POST',
       '/auth/email/verify',
       body,
-      visitorHeaders(info),
+      info ? authHeaders(info) : {},
     ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
   resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, visitorHeaders(info)),
+    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, info ? authHeaders(info) : {}),
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
@@ -1424,8 +1420,50 @@ export interface SellerSummary {
   slaBreaches: number;
 }
 
+export interface SellerExtractResult {
+  filled: string[];
+  skipped: string[];
+  rejected: string[];
+  unparsed: string[];
+  /** Не записывается никуда: адрес, заезд и цены из рассказа — сверить с данными платформы */
+  aside: {
+    objectName: string | null;
+    address: string | null;
+    checkIn: string | null;
+    checkOut: string | null;
+    categories: Array<{ name: string; kind: string; capacity: number; priceMinor: number | null }>;
+  };
+  profile: SellerProfileView;
+}
+
+export interface SellerWhatsAppView {
+  set: boolean;
+  phoneNumberId: string | null;
+  verifyToken: string | null;
+  webhookUrl: string | null;
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
+  extract: (story: string) =>
+    sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
+  /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
+  llmKey: () => getJson<{ set: boolean; last4: string | null }>('/ai-seller/llm-key'),
+  saveLlmKey: (key: string) =>
+    sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
+  checkLlmKey: (key: string) =>
+    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', { key }),
+  /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */
+  whatsapp: () => getJson<SellerWhatsAppView>('/ai-seller/whatsapp'),
+  saveWhatsApp: (input: { phoneNumberId: string; token?: string; appSecret?: string }) =>
+    sendJson<SellerWhatsAppView>('PUT', '/ai-seller/whatsapp', input),
+  checkWhatsApp: (input: { phoneNumberId: string; token: string }) =>
+    sendJson<{ valid: boolean; phone: string | null; reason: string | null }>(
+      'POST',
+      '/ai-seller/whatsapp/check',
+      input,
+    ),
   profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
   saveProfile: (body: SellerProfileBody) =>
     sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),
@@ -1623,4 +1661,24 @@ export const inventoryEditorApi = {
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
       body,
     ),
+};
+
+
+/** Fixed guest operations: no browser-supplied backend path or credentials. */
+export const wizardApi = {
+  open: (token: string, ref: string) => sendJson<import('./wizard-types').WizardState>(
+    'POST', '/wizard/session', { ref }, token ? { 'x-wizard-token': token } : {},
+  ),
+  save: (token: string, body: unknown) => sendJson<import('./wizard-types').WizardState>(
+    'PATCH', '/wizard/config', body, { 'x-wizard-token': token },
+  ),
+};
+
+export interface SellerAgentCard {id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}
+export const sellerAgentsApi = {
+  create: (id:string,profile:Record<string,string>) => sendJson<{id:string}>('POST','/seller-agents',{id,profile}),
+  get: (id:string) => getJson<SellerAgentCard>('/seller-agents/'+encodeURIComponent(id)),
+  update: (id:string,body:unknown) => sendJson<{id:string;updatedAt:string}>('PATCH','/seller-agents/'+encodeURIComponent(id),body),
+  list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),
+  claim: (token:string) => sendJson<{id:string}>('POST','/seller-agents/claim',{}, {'x-wizard-token':token}),
 };

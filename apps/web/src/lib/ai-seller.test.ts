@@ -16,6 +16,7 @@ import {
   sellerStepFromForm,
   sellerStepNumber,
   userDocuments,
+  sellerStoryFieldWords,
 } from './ai-seller';
 import type { SellerCategoryPrice, SellerProfileBody, SellerStatus } from './api';
 
@@ -33,13 +34,15 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
 });
 
 describe('вкладки раздела (ТЗ §4.1)', () => {
-  it('шесть экранов в порядке ТЗ', () => {
+  it('восемь экранов: шесть по ТЗ, «Модель» (С2) и «WhatsApp» (С3)', () => {
     expect(SELLER_TABS.map((t) => t.label)).toEqual([
       'Настройки',
       'Данные объекта',
       'Знания',
       'Диалоги',
       'Код для сайта',
+      'Модель',
+      'WhatsApp',
       'Проверка',
     ]);
     expect(SELLER_TABS.map((t) => t.href)).toEqual([
@@ -48,6 +51,8 @@ describe('вкладки раздела (ТЗ §4.1)', () => {
       '/ai-seller/knowledge',
       '/ai-seller/dialogs',
       '/ai-seller/embed',
+      '/ai-seller/model',
+      '/ai-seller/whatsapp',
       '/ai-seller/check',
     ]);
   });
@@ -481,5 +486,16 @@ describe('leadFacts — что продавец узнал о госте, сло
     ]);
     expect(leadFacts({})).toEqual([]);
     expect(leadFacts({ extra: 'не объект' })).toEqual([]);
+  });
+});
+
+describe('итог рассказа: имена полей словами мастера (С1)', () => {
+  it('известные поля — подписями шагов, незнакомое — как пришло', () => {
+    expect(sellerStoryFieldWords(['botName', 'includedInPrice', 'faq'])).toBe(
+      'Имя бота, Что входит в цену, Частые вопросы',
+    );
+    expect(sellerStoryFieldWords(['objectName'])).toBe('Название объекта');
+    expect(sellerStoryFieldWords(['neizvestnoe'])).toBe('neizvestnoe');
+    expect(sellerStoryFieldWords([])).toBe('');
   });
 });

@@ -26,6 +26,10 @@ const stay = (over: Partial<DeskStay>): DeskStay => ({
 });
 
 const repo: DeskRepository = {
+  async today() {
+    // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+    return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  },
   async stays(date) {
     if (date !== '2026-10-05') return [];
     return [

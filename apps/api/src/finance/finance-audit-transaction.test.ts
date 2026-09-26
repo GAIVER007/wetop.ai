@@ -72,7 +72,11 @@ function fakePrisma(opts: { auditThrows?: boolean } = {}) {
     // объект читается через `propertyIdRef` (findFirst, один раз на процесс) — как у остальных хранилищ
     property: { findFirst: async () => ({ id: 'prop-1', name: 'Luxx Aparts' }) },
   });
-  const tx = tables('tx');
+  const tx = {
+    ...tables('tx'),
+    // замок платежа (С-2) — в подделке просто проглатывается
+    $executeRaw: async () => 0,
+  };
   const db = {
     ...tables('db'),
     $transaction: async <T>(fn: (t: typeof tx) => Promise<T>): Promise<T> => {

@@ -23,8 +23,6 @@ import {
   Row,
   SectionTitle,
   Stack,
-  StateBar,
-  StateFact,
   Table,
 } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
@@ -69,11 +67,15 @@ import {
   DialogModeButtons,
   DialogReplyForm,
   KnowledgeUploadForm,
+  LlmKeyForm,
   SandboxForm,
+  WhatsAppForm,
   SellerStepForm,
+  StoryIntake,
   type MannerChoice,
 } from '../forms';
 import '../ai-seller.css';
+import { SetupWorkspace } from '../setup-workspace';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079). Шесть экранов вкладками — так же, как «Настройки гостиницы».
@@ -121,11 +123,11 @@ export default async function AiSellerPage({
   return (
     <Page
       title={view ? tab.label : 'ИИ-продавец'}
-      subtitle="Бот, который отвечает гостям на сайте объекта: как он говорит, что знает, с кем говорил."
-      actions={<RefreshButton />}
+      subtitle="Продавец гостиницы: настройка и подключения"
+      actions={<><Link className="btn btn--secondary" href="/ai-seller/agents">Мои агенты</Link><RefreshButton /></>}
       crumbs={view ? <Link href="/ai-seller">ИИ-продавец</Link> : undefined}
     >
-      <nav className="settings-tabs" aria-label="ИИ-продавец">
+      <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
         {SELLER_TABS.map((item) => (
           <Link
             key={item.href}
@@ -179,8 +181,54 @@ async function SellerScreen({
       {view === 'knowledge' && <KnowledgeView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
       {view === 'embed' && <EmbedView status={status.value} />}
+      {view === 'model' && <ModelView status={status.value} />}
+      {view === 'whatsapp' && <WhatsAppView status={status.value} />}
       {view === 'check' && <CheckView status={status.value} />}
     </Stack>
+  );
+}
+
+/** «Модель» (С2): ключ модели самого партнёра — вводится и проверяется здесь, хранится только у бота */
+async function ModelView({ status }: { status: SellerStatus }) {
+  const readOnly = sellerReadOnlyReason(status);
+  if (!sellerConnected(status))
+    return (
+      <Panel data-testid="seller-llm-key-offline">
+        <p className="settings-note">
+          Продавец не подключён к платформе — ключ модели вводится после подключения (адрес и
+          служебный ключ в окружении API).
+        </p>
+      </Panel>
+    );
+  const loaded = await settle(sellerApi.llmKey());
+  if (!loaded.ok)
+    return <LoadError testId="seller-llm-key-error-load" {...loadErrorProps(loaded.error)} />;
+  return (
+    <Panel data-testid="seller-llm-key" aria-label="Ключ модели партнёра">
+      <LlmKeyForm status={loaded.value} readOnly={readOnly} />
+    </Panel>
+  );
+}
+
+/** «WhatsApp» (С3): подключение номера партнёра; токен и секрет живут только у бота */
+async function WhatsAppView({ status }: { status: SellerStatus }) {
+  const readOnly = sellerReadOnlyReason(status);
+  if (!sellerConnected(status))
+    return (
+      <Panel data-testid="seller-whatsapp-offline">
+        <p className="settings-note">
+          Продавец не подключён к платформе — WhatsApp подключается после него (адрес и служебный
+          ключ в окружении API).
+        </p>
+      </Panel>
+    );
+  const loaded = await settle(sellerApi.whatsapp());
+  if (!loaded.ok)
+    return <LoadError testId="seller-whatsapp-error-load" {...loadErrorProps(loaded.error)} />;
+  return (
+    <Panel data-testid="seller-whatsapp" aria-label="Подключение WhatsApp">
+      <WhatsAppForm status={loaded.value} readOnly={readOnly} />
+    </Panel>
   );
 }
 
@@ -203,35 +251,32 @@ function ExtensionOff({ status }: { status: SellerStatus }) {
 function SellerBanner({ status }: { status: SellerStatus }) {
   const banner = sellerBanner(status);
   return (
-    <StateBar
-      tone={banner.tone}
-      label="ИИ-продавец"
-      value={banner.value}
-      summary={`${banner.title}. ${banner.text}`}
-      data-testid="seller-state"
-    >
-      <StateFact
-        label="Настройки"
-        value={
-          !status.profile.saved
+    <section className="seller-connection" data-testid="seller-state" aria-label="Состояние агента">
+      <div className="seller-connection__summary">
+        <Badge tone={banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn'}>
+          {banner.value}
+        </Badge>
+        <strong>{banner.title}</strong>
+        <span>
+          Настройки:{' '}
+          {!status.profile.saved
             ? 'не сохранены'
             : status.profile.applied
               ? 'применены'
-              : 'ждут отправки'
-        }
-      >
-        {status.profile.updatedAt ? `правка ${almatyWhen(status.profile.updatedAt)}` : undefined}
-      </StateFact>
-      <StateFact
-        label="Данные объекта"
-        value={status.facts.applied ? 'у продавца' : 'ждут отправки'}
-      >
-        {status.facts.appliedAt ? `отправлены ${almatyWhen(status.facts.appliedAt)}` : undefined}
-      </StateFact>
-      {status.lastErrorAt && (
-        <StateFact label="Последний отказ" value={almatyWhen(status.lastErrorAt)} />
-      )}
-    </StateBar>
+              : 'ждут отправки'}
+        </span>
+        <span>Данные объекта: {status.facts.applied ? 'у продавца' : 'ждут отправки'}</span>
+      </div>
+      <details data-testid="seller-connection-details">
+        <summary>Подробности подключения</summary>
+        <p>{banner.text}</p>
+        {status.profile.updatedAt && (
+          <p>Настройки обновлены: {almatyWhen(status.profile.updatedAt)}</p>
+        )}
+        {status.facts.appliedAt && <p>Данные отправлены: {almatyWhen(status.facts.appliedAt)}</p>}
+        {status.lastErrorAt && <p>Последний отказ: {almatyWhen(status.lastErrorAt)}</p>}
+      </details>
+    </section>
   );
 }
 
@@ -281,22 +326,31 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
   const profile = loaded.value.profile;
   return (
     <Stack>
-      <SetupSteps progress={progress} current={step} />
-      <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
-        <div className="form-section-title">
-          <span>{pad(step)}</span>
-          <div>
-            <h2 id="seller-step-title">{current.title}</h2>
-            <p>{current.hint}</p>
+      <SetupWorkspace
+        key={`${step}:${profile.botName}:${profile.greeting}`}
+        name={profile.botName}
+        greeting={profile.greeting}
+        navigation={<SetupSteps progress={progress} current={step} />}
+      >
+        <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
+          <div className="form-section-title">
+            <span>{pad(step)}</span>
+            <div>
+              <h2 id="seller-step-title">{current.title}</h2>
+              <p>{current.hint}</p>
+            </div>
           </div>
-        </div>
-        {current.key === 'docs' ? (
-          <DocsStep ready={sellerConnected(status)} items={items} readOnly={readOnly} />
-        ) : current.key === 'launch' ? (
-          <LaunchStep profile={profile} progress={progress} readOnly={readOnly} />
-        ) : (
-          <ProfileStep stepKey={current.key} profile={profile} readOnly={readOnly} />
-        )}
+          {current.key === 'docs' ? (
+            <DocsStep ready={sellerConnected(status)} items={items} readOnly={readOnly} />
+          ) : current.key === 'launch' ? (
+            <LaunchStep profile={profile} progress={progress} readOnly={readOnly} />
+          ) : (
+            <ProfileStep stepKey={current.key} profile={profile} readOnly={readOnly} />
+          )}
+        </Panel>
+      </SetupWorkspace>
+      <Panel data-testid="seller-story-panel">
+        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
       </Panel>
     </Stack>
   );
@@ -884,8 +938,8 @@ async function EmbedView({ status }: { status: SellerStatus }) {
         </p>
       ) : (
         <p className="settings-note" data-testid="seller-embed-no-site">
-          У гостиницы нет сайта в «Настройках сайта» — виджету не с чего открываться. Заведите
-          сайт с доменом, и продавец начнёт пускать с него.
+          У гостиницы нет сайта в «Настройках сайта» — виджету не с чего открываться. Заведите сайт
+          с доменом, и продавец начнёт пускать с него.
         </p>
       )}
     </Panel>

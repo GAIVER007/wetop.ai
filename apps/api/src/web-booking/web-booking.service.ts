@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { AttemptWindows } from '../auth/attempt-limits';
+import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
 import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   assertRestrictionsAllow,
+  fingerprintOf,
   hostMatches,
   localDate,
   parseBookingRequest,
@@ -27,6 +28,7 @@ import {
   type SiteRecord,
 } from '../analytics/analytics.repository';
 import { CollectService } from '../analytics/collect.service';
+import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 
@@ -84,6 +86,8 @@ export const BOOKING_RATE_LIMITS = {
   perIpPerHour: 5,
   perSitePerHour: 30,
 } as const;
+/** Котировок продавца на организацию в час (Q-166, ADR-085): вопрос гостя — один-два вызова инструментов */
+export const BOT_QUOTES_PER_HOUR = 120;
 const HOUR_MS = 3_600_000;
 /** Запросов цен с одного адреса в минуту: посетитель листает даты, а не бомбит */
 export const QUOTES_PER_IP_PER_MINUTE = 60;
@@ -92,6 +96,8 @@ const newLimits = () => ({
   bookPerIp: new AttemptWindows(BOOKING_RATE_LIMITS.perIpPerHour, HOUR_MS),
   bookPerSite: new AttemptWindows(BOOKING_RATE_LIMITS.perSitePerHour, HOUR_MS),
   quotePerIp: new AttemptWindows(QUOTES_PER_IP_PER_MINUTE, 60_000),
+  /** Котировки продавца по организации (ADR-085) */
+  botQuotePerOrg: new AttemptWindows(BOT_QUOTES_PER_HOUR, HOUR_MS),
 });
 
 const addDays = (date: string, n: number): string => {
@@ -119,12 +125,13 @@ export class WebBookingService {
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
     @Inject(CollectService) private readonly collect: CollectService,
+    @Inject(INCIDENTS_REPOSITORY) private readonly incidents: IncidentsRepository,
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
     const now = ctx.now ?? new Date();
     // Цены — около 30 обращений к базе на запрос, а ключ сайта публичен (аудит 26.09, С-36)
-    if (ctx.ip && !this.limits.quotePerIp.allow(ctx.ip, now.getTime())) {
+    if (ctx.ip && !this.limits.quotePerIp.allow(visitorKey(ctx.ip), now.getTime())) {
       throw new HttpException(
         'слишком много запросов цен с одного адреса, попробуйте через минуту',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -132,6 +139,31 @@ export class WebBookingService {
     }
     const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
     const site = await this.bookingSite(siteKey, ctx);
+    return this.quoteForSite(site, raw, now);
+  }
+
+  /**
+   * Котировка для ИИ-продавца (Q-166 в объёме чтения, ADR-085): тот же расчёт и тот же JSON, что у публичного
+   * виджета, но сайт находится по организации, а не по ключу в запросе, и домены не проверяются — дверь
+   * держит узкий ключ `SELLER_QUOTE_KEY` (контроллер `/bot/availability`). Брони здесь нет (Q-166б).
+   */
+  async quoteForOrganization(organizationId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
+    const site = await this.sites.bookingSiteForOrganization(organizationId);
+    if (!site) {
+      throw new NotFoundException('у организации нет сайта с включённым бронированием');
+    }
+    await this.assertServingProperty(site, 'котировка для объекта этой организации пока не подключена');
+    if (!this.limits.botQuotePerOrg.allow(organizationId, now.getTime())) {
+      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+    }
+    // Ключ сайта в тело подставляет дверь: разбор запроса общий с виджетом и требует его,
+    // а продавец знает организацию, не ключ.
+    const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
+    return this.quoteForSite(site, { ...body, k: site.publicKey }, now);
+  }
+
+  /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */
+  private async quoteForSite(site: SiteRecord, raw: unknown, now: Date): Promise<Quote> {
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const { arrivalDate, departureDate, adults } = parsed.value;
@@ -211,7 +243,8 @@ export class WebBookingService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const req = parsed.value;
 
-    if (ctx.ip && !this.limits.bookPerIp.allow(ctx.ip, now.getTime())) {
+    if (ctx.ip && !this.limits.bookPerIp.allow(visitorKey(ctx.ip), now.getTime())) {
+      await this.flood(site, { limit: 'ip-hour', perHour: BOOKING_RATE_LIMITS.perIpPerHour }, now);
       throw new HttpException(
         'слишком много броней с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -222,6 +255,22 @@ export class WebBookingService {
     // проверку (проверка исправлений 26.09), — и возвращается, если бронь не записалась.
     const slot = now.getTime();
     if (!this.limits.bookPerSite.allow(site.id, slot)) {
+      await this.flood(site, { limit: 'site-hour', perHour: BOOKING_RATE_LIMITS.perSitePerHour }, now);
+      throw new HttpException(
+        'слишком много броней за час, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    // С-7 (ТЗ аудита 25.09.2026): стойкий предел за час — по журналу действий, который только дописывается.
+    // Окна выше живут в памяти и обнуляются перезапуском API; журнал — нет.
+    const lastHour = await this.sites.siteBookingsSince(site.id, new Date(now.getTime() - HOUR_MS));
+    if (lastHour >= BOOKING_RATE_LIMITS.perSitePerHour) {
+      this.limits.bookPerSite.release(site.id, slot);
+      await this.flood(
+        site,
+        { limit: 'site-hour-journal', perHour: BOOKING_RATE_LIMITS.perSitePerHour, lastHour },
+        now,
+      );
       throw new HttpException(
         'слишком много броней за час, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -326,13 +375,43 @@ export class WebBookingService {
     if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
-    // Цены, тариф, фонд и выгрузка в Channex у бронирования с сайта — объекта этой установки (служебный контекст).
-    // Сайт другого объекта показывал бы цены Luxx и заводил брони с данными своих гостей в фонде Luxx (аудит 26.09,
-    // В-4; Q-190, ADR-095) — такому сайту честный отказ, пока бронирование с сайта не научится нескольким объектам.
-    const serving = await this.uow.read((repo) => repo.property());
-    if (site.propertyId !== serving.id) {
-      throw new NotFoundException('бронирование с сайта для этого объекта пока не подключено');
-    }
+    await this.assertServingProperty(site, 'бронирование с сайта для этого объекта пока не подключено');
     return site;
   }
+
+  /**
+   * Цены, тариф, фонд и выгрузка в Channex у бронирования с сайта и у котировки продавца — объекта этой установки
+   * (служебный контекст). Сайт другого объекта показывал бы цены и места Luxx и заводил брони своих гостей в фонде
+   * Luxx (аудит 26.09, В-4; Q-190, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
+   */
+  private async assertServingProperty(site: SiteRecord, message: string): Promise<void> {
+    const serving = await this.uow.read((repo) => repo.property());
+    if (site.propertyId !== serving.id) throw new NotFoundException(message);
+  }
+
+  /**
+   * Алерт С-7: предел броней исчерпан — фальшивые брони закрывают продажи (denial of inventory)
+   * или всплеск спроса; человек смотрит свежие брони и решает. Одна строка на сайт (отпечаток),
+   * повторы растят occurrences; адрес посетителя в неисправность не пишется (план среза 9 §4).
+   * Сбой записи бронь не роняет: лимит уже отказал, наблюдение — best effort.
+   */
+  private async flood(site: SiteRecord, details: Record<string, unknown>, now: Date): Promise<void> {
+    const kind = 'booking.flood' as const;
+    try {
+      await this.incidents.record(
+        {
+          kind,
+          title: `Брони с сайта «${site.name}» упёрлись в предел за час`,
+          subjectType: 'TrackedSite',
+          subjectId: site.id,
+          details,
+          fingerprint: fingerprintOf({ kind, subjectId: site.id }),
+        },
+        now,
+      );
+    } catch (e) {
+      console.warn(`[web-booking] неисправность booking.flood не записана: ${(e as Error).message}`);
+    }
+  }
+
 }

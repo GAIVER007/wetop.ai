@@ -119,8 +119,12 @@ function makeFake() {
     );
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const repo: ReservationsRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async property() {
-      return { id: 'prop', currency: 'KZT' };
+      return { id: 'prop', currency: 'KZT', timezone: 'Asia/Almaty' };
     },
     async categoryByCode(code) {
       return types.find((t) => t.code === code) ?? null;
@@ -385,7 +389,8 @@ function makeFake() {
             units.find((u) => u.id === state.allocations.find((a) => a.itemId === it.id)?.unitId)
               ?.housekeepingStatus ?? null,
           // как loadReservationCard: гости проживания из StayGuest (заказчик записан на каждое)
-          guests: Array.from({ length: it.guestsCount }, () => ({
+          guests: Array.from({ length: it.guestsCount }, (_v, i) => ({
+            id: `g-${i + 1}`,
             label: 'Гость Тестовый',
             isPrimary: true,
           })),

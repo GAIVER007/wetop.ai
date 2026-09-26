@@ -1,16 +1,7 @@
 import 'reflect-metadata';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { hashPasswordAsync, verifyPasswordAsync } from '@pms/domain';
 
-/** Попыток входа с одного адреса за 10 минут. Живой администратор столько не наберёт, перебор — упрётся. */
-export const LOGIN_ATTEMPTS_PER_IP = 30;
-/** Регистраций с одного адреса за час: регистрация заводит организацию и объект, это не бесплатная строка. */
-export const REGISTRATIONS_PER_IP = 5;
-/** Писем (сброс пароля, повтор подтверждения) с одного адреса за час. */
-export const MAIL_REQUESTS_PER_IP = 10;
-
-export const TOO_MANY_ATTEMPTS_MESSAGE =
-  'Слишком много попыток с этого адреса. Попробуйте через несколько минут.';
 export const PASSWORD_QUEUE_FULL_MESSAGE =
   'Сервер сейчас занят проверкой входов. Попробуйте через минуту.';
 
@@ -137,18 +128,4 @@ export function visitorKey(ip: string): string {
     .slice(0, 4)
     .map((g) => g.replace(/^0+(?=.)/, '') || '0')
     .join(':')}::/64`;
-}
-
-/** Пределы публичных форм входа по адресу посетителя (аудит 26.09, С-5). Один экземпляр на процесс. */
-@Injectable()
-export class AuthAttemptLimits {
-  readonly login = new AttemptWindows(LOGIN_ATTEMPTS_PER_IP, 10 * 60_000);
-  readonly register = new AttemptWindows(REGISTRATIONS_PER_IP, 60 * 60_000);
-  readonly mail = new AttemptWindows(MAIL_REQUESTS_PER_IP, 60 * 60_000);
-
-  /** Адреса нет (вызов не через стойку и не через туннель) — не считаем: иначе все без адреса делили бы один счётчик. */
-  check(windows: AttemptWindows, ip: string | null): void {
-    if (ip && !windows.allow(visitorKey(ip)))
-      throw new HttpException(TOO_MANY_ATTEMPTS_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
-  }
 }

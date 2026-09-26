@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { UnauthorizedException } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionGuard, tokenFromHeaders } from './auth.guard';
 import { PUBLIC_ROUTE } from './public.decorator';
@@ -89,6 +90,52 @@ describe('SessionGuard', () => {
       (service as unknown as { whoami: { mock: { calls: unknown[] } } }).whoami.mock.calls,
     ).toHaveLength(0);
     expect(request.user).toBeUndefined();
+  });
+
+  /*
+   * ТЗ аудита 25.09.2026, В-2: замок fail-closed. В production он включён всегда, любое значение,
+   * кроме явного '0', означает «закрыто» — опечатка или пустая переменная не открывают API молча.
+   */
+  describe('в production (NODE_ENV=production)', () => {
+    const nodeEnv = process.env.NODE_ENV;
+    beforeEach(() => {
+      process.env.NODE_ENV = 'production';
+    });
+    afterEach(() => {
+      process.env.NODE_ENV = nodeEnv;
+    });
+
+    it('переменная не задана — замок закрыт', async () => {
+      const { ctx } = context();
+      await expect(new SessionGuard(reflector(false), auth(true)).canActivate(ctx)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('опечатка вроде AUTH_REQUIRED=true — замок закрыт, а не молча открыт', async () => {
+      process.env.AUTH_REQUIRED = 'true';
+      const { ctx } = context();
+      await expect(new SessionGuard(reflector(false), auth(true)).canActivate(ctx)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('«false» в production — тоже закрыт: снимает только явный «0»', async () => {
+      process.env.AUTH_REQUIRED = 'false';
+      const { ctx } = context();
+      await expect(new SessionGuard(reflector(false), auth(true)).canActivate(ctx)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('выключается только явным нулём', async () => {
+      process.env.AUTH_REQUIRED = '0';
+      const { ctx, request } = context();
+      await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).resolves.toBe(
+        true,
+      );
+      expect(request.user).toBeUndefined();
+    });
   });
 
   describe('когда AUTH_REQUIRED=1', () => {

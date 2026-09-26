@@ -1,0 +1,29 @@
+# Модульные (unit) · 25.09.2026 23:57 Алматы · vm
+# коммит 46ae4a2 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T18-57-07Z-unit-68e2.json' 'apps/api/src/auth/auth.service.test.ts' 'apps/api/src/auth/auth.guard.test.ts' 'tests/unit/auto-deploy.test.ts' 'apps/web/src/lib/auth-lock.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (25 tests) 20ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 4ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (29 tests) 2529ms
+ ✓ |unit| tests/unit/auto-deploy.test.ts (9 tests) 7010ms
+   ✓ scripts/ops/auto-deploy.sh (9)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 351ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 556ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 515ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 719ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 466ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 700ms
+     ✓ локальные правки в клоне — не затирает их 479ms
+     ✓ историю ветки переписали — не выкладывает поверх 679ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2543ms
+
+ Test Files  4 passed (4)
+      Tests  65 passed (65)
+   Start at  18:57:08
+   Duration  7.33s (tests 80%, transform 13%, import 7%)
+
+JSON report written to /tmp/pms-test-2026-09-25T18-57-07Z-unit-68e2.json
+
+# код выхода 0 · 8 с

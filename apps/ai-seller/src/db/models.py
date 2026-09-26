@@ -74,6 +74,57 @@ class Organization(Base):
 # ─── Клиенты ───
 
 
+class OrganizationLlmKey(Base):
+    """API-ключ модели самого партнёра (С2 «под ключ», Q-186): расход — на нём.
+
+    Хранится только у бота и только шифрованным (Fernet, секрет
+    `LLM_KEYS_SECRET`); платформа ключ ставит и проверяет, обратно не читает —
+    наружу уходят лишь последние 4 знака. Нет строки — ход идёт ключом
+    платформы, как раньше.
+    """
+
+    __tablename__ = "organization_llm_keys"
+
+    organization_id: Mapped[uuid.UUID] = mapped_column(
+        UUID,
+        sa.ForeignKey(
+            "organizations.id",
+            ondelete="CASCADE",
+            name="fk_organization_llm_keys_organization",
+        ),
+        primary_key=True,
+    )
+    key_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    last4: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class WhatsAppConnection(Base):
+    """Подключение WhatsApp Cloud API гостиницы (С3 «под ключ», Q-185 (а)).
+
+    Номер и приложение Meta — партнёра: бот хранит `phone_number_id`, токен
+    и секрет приложения (шифрованными, секрет хранилища `LLM_KEYS_SECRET`)
+    и проверочное слово вебхука, которое партнёр вписывает в консоль Meta.
+    """
+
+    __tablename__ = "whatsapp_connections"
+
+    organization_id: Mapped[uuid.UUID] = mapped_column(
+        UUID,
+        sa.ForeignKey(
+            "organizations.id",
+            ondelete="CASCADE",
+            name="fk_whatsapp_connections_organization",
+        ),
+        primary_key=True,
+    )
+    phone_number_id: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
+    token_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    app_secret_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    verify_token: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (

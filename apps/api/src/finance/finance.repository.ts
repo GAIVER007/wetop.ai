@@ -2,12 +2,14 @@ import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import {
+  FinanceRuleError,
   LUXX_APARTS_PROPERTY,
   assertRefundWithin,
   folioBalance,
+  zonedStartOfDay,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export type ChargeKind = 'ACCOMMODATION' | 'SERVICE' | 'PENALTY' | 'ADJUSTMENT';
@@ -166,6 +168,8 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
+  /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
+  today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
   chargeById(id: string): Promise<ChargeRecord | null>;
   voidCharge(id: string, audit?: AuditEntry): Promise<void>;
@@ -242,12 +246,12 @@ const asDate = (d: string) => new Date(`${d}T00:00:00Z`);
  * стойка работает круглосуточно: платёж в 02:00 по Алматы — это 21:00 предыдущего дня по UTC,
  * и по UTC-границам он ушёл бы в соседний период.
  */
-const ALMATY_OFFSET = '+05:00';
-const localStart = (d: string) => new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
-const localEndExclusive = (d: string) => {
-  const x = new Date(`${d}T00:00:00${ALMATY_OFFSET}`);
+// С-13 (ТЗ аудита 25.09.2026): границы считаются по Property.timezone, а не по жёсткому смещению
+const localStart = (d: string, tz: string) => zonedStartOfDay(d, tz);
+const localEndExclusive = (d: string, tz: string) => {
+  const x = new Date(`${d}T00:00:00Z`);
   x.setUTCDate(x.getUTCDate() + 1);
-  return x;
+  return zonedStartOfDay(x.toISOString().slice(0, 10), tz);
 };
 const iso = (x: Date) => x.toISOString().slice(0, 10);
 const folioInclude = {
@@ -324,6 +328,12 @@ export class PrismaFinanceRepository implements FinanceRepository {
   private async property(): Promise<{ id: string }> {
     return { id: await propertyIdRef(this.prisma.db, this.propertyName) };
   }
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, this.propertyName);
+  }
+  private async timezone(): Promise<string> {
+    return (await propertyRef(this.prisma.db, this.propertyName)).timezone;
+  }
   async foliosByReservation(confirmationNumber: string): Promise<FolioRecord[] | null> {
     const { id: propertyId } = await this.property();
     const r = await this.prisma.db.reservation.findUnique({
@@ -384,6 +394,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
     }));
   }
   async periodReport(from: string, to: string): Promise<PeriodReport> {
+    const tz = await this.timezone();
     const { id: propertyId } = await this.property();
     const dateRange = { gte: asDate(from), lte: asDate(to) };
     const charges = await this.prisma.db.charge.findMany({
@@ -417,7 +428,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
       where: {
         propertyId,
         status: 'COMPLETED',
-        paidAt: { gte: localStart(from), lt: localEndExclusive(to) },
+        paidAt: { gte: localStart(from, tz), lt: localEndExclusive(to, tz) },
       },
       select: { method: true, amount: true },
     });
@@ -428,7 +439,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
     }
     const refunds = await this.prisma.db.refund.findMany({
       where: {
-        createdAt: { gte: localStart(from), lt: localEndExclusive(to) },
+        createdAt: { gte: localStart(from, tz), lt: localEndExclusive(to, tz) },
         folio: { reservationItem: { reservation: { propertyId } } },
       },
       select: { amount: true },
@@ -570,20 +581,22 @@ export class PrismaFinanceRepository implements FinanceRepository {
    */
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
     const lock = async (tx: TxClient) => {
+      // Распределение не меняется после записи платежа — проверка до блокировок: чужой счёт не блокируем
+      const allocated = await tx.paymentAllocation.findUnique({
+        where: { paymentId_folioId: { paymentId: r.paymentId, folioId: r.folioId } },
+        select: { amount: true },
+      });
+      if (!allocated) throw new FinanceRuleError('Этот платёж на указанный счёт не распределялся');
       await lockOpenFolios(tx, [r.folioId]);
       const payment = await tx.$queryRaw<Array<{ status: string }>>`
         SELECT "status"::text AS status FROM "payments" WHERE "id" = ${r.paymentId}::uuid FOR UPDATE`;
       if (payment[0]?.status !== 'COMPLETED') throw new FinanceStateError('Платёж аннулирован');
-      const allocation = await tx.paymentAllocation.findUnique({
-        where: { paymentId_folioId: { paymentId: r.paymentId, folioId: r.folioId } },
-        select: { amount: true },
-      });
       const refunded = await tx.refund.aggregate({
         where: { paymentId: r.paymentId, folioId: r.folioId },
         _sum: { amount: true },
       });
       assertRefundWithin({
-        allocatedMinor: allocation?.amount ?? 0n,
+        allocatedMinor: allocated.amount,
         refundedMinor: refunded._sum.amount ?? 0n,
         refundMinor: r.amountMinor,
       });

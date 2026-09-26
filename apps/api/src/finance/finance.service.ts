@@ -113,7 +113,6 @@ export interface ServiceView {
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 /** Предел периода сводки: год с запасом, как у отчёта по каналам — дальше это уже выгрузка, не экран */
 const MAX_PERIOD_DAYS = 366;
-const today = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
 const s = (x: bigint) => x.toString();
 /** Тиыны → «12 000,00 ₸» для сообщения администратору; без float. */
 const formatMinorRu = (minor: bigint): string => {
@@ -365,7 +364,7 @@ export class FinanceService {
     const quantity = dto.quantity === undefined ? 1 : Number(dto.quantity);
     if (!Number.isInteger(quantity) || quantity < 1)
       throw new BadRequestException('quantity — целое число от 1');
-    const serviceDate = dto.serviceDate ?? today();
+    const serviceDate = dto.serviceDate ?? (await this.repo.today());
     if (!ISO.test(serviceDate)) throw new BadRequestException('serviceDate — дата YYYY-MM-DD');
     const folio = await this.openFolio(folioId);
 

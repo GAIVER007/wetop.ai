@@ -34,6 +34,7 @@ from src.db.dedup import is_duplicate
 from src.db.models import Client, Conversation, Message, Organization
 from src.knowledge import retriever
 from src.knowledge.prompt import PromptMissing, load_system_prompt
+from src.security.llm_keys import org_llm_api_key
 from src.security.pii import unmask
 
 __all__ = ["Engine", "IncomingMessage", "NEUTRAL_REPLY", "PIPELINE", "REFUSAL_REPLY", "Status", "TurnOutcome", "build_engine"]
@@ -84,6 +85,8 @@ class Engine:
         отброшен как дубль самого себя), а замок держит внешний вызов."""
         outcome = TurnOutcome("error", None, None, False, [], [], [])
         ctx = dependencies.conversation_id_var.set(None)
+        # Организация хода — инструментам (котировка Q-166): снимается вместе с диалогом ниже.
+        org_ctx = dependencies.organization_id_var.set(incoming.organization_id)
         turn: Turn | None = None
         try:
             async with self._sessionmaker() as session:
@@ -103,6 +106,7 @@ class Engine:
             await self._on_exception(turn, incoming)
         finally:
             dependencies.conversation_id_var.reset(ctx)
+            dependencies.organization_id_var.reset(org_ctx)
         return outcome
 
     async def _run_locked(self, t: Turn) -> None:
@@ -230,6 +234,8 @@ class Engine:
             # а не файл PROMPT_PATH: отвечать по чужой инструкции нельзя.
             row = await t.session.get(Organization, org)
             system_prompt = (row.system_prompt or "") if row is not None else ""
+            # С2: ход гостиницы идёт с её ключом модели, если партнёр его подключил.
+            t.llm_api_key = await org_llm_api_key(t.session, org, s)
             if not system_prompt.strip():
                 logger.error("системный промпт организации %s недоступен", org)
                 return self._fail(t, "prompt_missing")
@@ -260,7 +266,7 @@ class Engine:
             return
         t.result = None
         try:
-            t.result = await self._llm.generate(t.messages)
+            t.result = await self._llm.generate(t.messages, api_key=t.llm_api_key)
         except Exception:
             logger.exception("слой модели поднял исключение")
         finally:

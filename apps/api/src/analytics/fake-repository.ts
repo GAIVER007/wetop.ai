@@ -53,6 +53,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     [SITE.id, SITE],
     [SITE_PAUSED.id, SITE_PAUSED],
   ]);
+  /** Чья гостиница у сайта (Q-166, ADR-085): в записи сайта организации нет, она у объекта */
+  siteOrganizations = new Map<string, string>();
   recorded: StoredHit[] = [];
   audits: Array<{ action: string; siteId: string; details?: Record<string, unknown> | undefined }> = [];
   sessionRows: SessionRow[] = [];
@@ -108,6 +110,21 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async site(id: string): Promise<SiteRecord | null> {
     return this.sitesById.get(id) ?? null;
   }
+  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
+    for (const [siteId, org] of this.siteOrganizations) {
+      const site = this.sitesById.get(siteId);
+      if (
+        org === organizationId &&
+        site &&
+        site.status === 'ACTIVE' &&
+        site.bookingEnabled &&
+        site.bookingRatePlan
+      )
+        return site;
+    }
+    return null;
+  }
+
   async siteByKey(key: string): Promise<SiteRecord | null> {
     return [...this.sitesById.values()].find((s) => s.publicKey === key) ?? null;
   }
@@ -180,6 +197,14 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async status(): Promise<SiteStatus> {
     return this.siteStatus;
   }
+  /** Подмена счёта из журнала: тест «перезапуска» задаёт число сам; null — считаем по audits */
+  bookingsSince: number | null = null;
+  async siteBookingsSince(siteId: string): Promise<number> {
+    if (this.bookingsSince !== null) return this.bookingsSince;
+    return this.audits.filter((a) => a.action === 'analytics.site.booking' && a.siteId === siteId)
+      .length;
+  }
+
   async audit(action: string, siteId: string, after?: Record<string, unknown>): Promise<void> {
     this.audits.push({ action, siteId, details: after });
   }

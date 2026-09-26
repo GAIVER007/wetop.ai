@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 26.09.2026 17:35 Алматы · MacBook-Air-Urij.local
+# коммит 92c30dc (codex/seller-agent-handoff), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/seller-agent-editor.spec.ts' '--grep' 'выключенный' '--workers=1'
+[WebServer] (node:18445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:18600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/seller-agent-editor.spec.ts:19:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание (17.1s)
+
+
+  1) tests/ui/seller-agent-editor.spec.ts:19:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Создание агентов пока недоступно' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Создание агентов пока недоступно' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Создание агентов пока недоступно' })
+
+
+      21 |  await request.post('http://127.0.0.1:4311/__test/agents-off');
+      22 |  await page.goto('/ai-seller/agents');
+    > 23 |  await expect(page.getByRole('heading',{name:'Создание агентов пока недоступно'})).toBeVisible();
+         |                                                                                    ^
+      24 |  await expect(page.getByRole('link',{name:'Создать агента',exact:true})).toHaveCount(0);
+      25 |  await expect(page.locator('main').last()).not.toContainText('HTTP 503');
+      26 |  await expect(page.getByRole('link',{name:'Настроить продавца гостиницы'})).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/seller-agent-editor.spec.ts:23:84
+
+    Error Context: test-results/seller-agent-editor-выключ-dfff6-агает-неработающее-создание/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/seller-agent-editor-выключ-dfff6-агает-неработающее-создание/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/seller-agent-editor-выключ-dfff6-агает-неработающее-создание/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/seller-agent-editor.spec.ts:19:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание 
+
+# код выхода 1 · 29 с

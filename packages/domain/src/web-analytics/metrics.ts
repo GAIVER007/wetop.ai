@@ -115,6 +115,15 @@ export function localDate(at: Date, tz: string): string {
   return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
+/**
+ * «Сегодня» по часам объекта (С-13, ТЗ аудита 25.09.2026): одна функция вместо одиннадцати копий
+ * `Date.now() + 5 * 3600 * 1000`. От неё зависят штрафы, досрочный выезд и отмены каналов —
+ * объект не в UTC+5 не должен получать их в чужой час.
+ */
+export function todayAt(tz: string, now: Date = new Date()): string {
+  return localDate(now, tz);
+}
+
 /** Смещение пояса в минутах для момента `at` (положительное к востоку от UTC). */
 function offsetMinutes(at: Date, tz: string): number {
   const { y, m, d, hh, mm, ss } = parts(at, tz);

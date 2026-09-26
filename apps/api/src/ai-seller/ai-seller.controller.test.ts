@@ -609,3 +609,227 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     expect(owner.body.canConfigure).toBe(true);
   });
 });
+
+describe('рассказ владельца → поля мастера (С1, план `plans/seller-partner-bot-2026-09-25.md`)', () => {
+  // Свободный текст промптом не становится: бот раскладывает рассказ по полям Б6/Б7,
+  // платформа кладёт их в ЧЕРНОВИК профиля мастера — и только в пустые поля,
+  // занятое рукой партнёра рассказ не затирает. Промпт по-прежнему собирает
+  // PUT /seller/profile из проверенных полей.
+  const STORY =
+    'У нас хостел «Тёплый» в Алматы, улица Вымышленная, 1. Заезд с 14:00. ' +
+    'Койка — 8000 тенге за ночь. В цену входят бельё и Wi-Fi. Тишина после 23:00.';
+  const botAnswer = {
+    status: 'ok',
+    profile: {
+      bot_name: 'Айсулу',
+      included_in_price: 'Бельё, Wi-Fi.',
+      house_rules: 'Тишина после 23:00.',
+      faq: [{ q: 'Есть ли парковка?', a: 'Рядом городская.' }],
+    },
+    facts: {
+      address: 'Алматы, ул. Вымышленная, 1',
+      check_in: '14:00',
+      check_out: '12:00',
+      categories: [{ name: 'Койка', kind: 'bed', capacity: 1, price_minor: 800000 }],
+    },
+    unparsed: ['как добраться от вокзала — в рассказе нет'],
+    rejected: [],
+  };
+  const extract = (session: string, story: string) =>
+    api().post('/ai-seller/extract').set(as(session)).send({ story });
+
+  it('извлечённое ложится в пустые поля черновика, занятое рукой не затирается', async () => {
+    await api()
+      .put('/ai-seller/profile')
+      .set(as('session-a'))
+      .send({ ...profile, houseRules: 'Своя тишина с 22:00.', botName: null, includedInPrice: '' })
+      .expect(200);
+    connection.seller.replies.extractProfile = botAnswer;
+    const res = await extract('session-a', STORY).expect(200);
+    expect(res.body.filled).toEqual(expect.arrayContaining(['botName', 'includedInPrice', 'faq']));
+    expect(res.body.skipped).toContain('houseRules');
+    const saved = await api().get('/ai-seller/profile').set(as('session-a')).expect(200);
+    expect(saved.body.profile).toMatchObject({
+      botName: 'Айсулу',
+      includedInPrice: 'Бельё, Wi-Fi.',
+      houseRules: 'Своя тишина с 22:00.',
+      faq: [{ question: 'Есть ли парковка?', answer: 'Рядом городская.' }],
+    });
+    // рассказ ушёл боту как есть, организация вызова — вошедшего
+    expect(connection.seller.calls).toContainEqual({ op: 'extractProfile', args: [STORY] });
+    expect(connection.requestedOrgs).toContain(ORG_A);
+  });
+
+  it('адрес, заезд и цены из рассказа не пишутся в тарифы — отдаются сверить глазами', async () => {
+    connection.seller.replies.extractProfile = botAnswer;
+    const res = await extract('session-a', STORY).expect(200);
+    expect(res.body.aside).toEqual({
+      objectName: null,
+      address: 'Алматы, ул. Вымышленная, 1',
+      checkIn: '14:00',
+      checkOut: '12:00',
+      categories: [{ name: 'Койка', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+    });
+    expect(res.body.unparsed).toEqual(['как добраться от вокзала — в рассказе нет']);
+    // цены платформы не тронуты: факты продавцу не отправлялись
+    expect(connection.seller.calls.map((c) => c.op)).toEqual(['extractProfile']);
+  });
+
+  it('поле, отброшенное защитой бота, называется человеку', async () => {
+    connection.seller.replies.extractProfile = { ...botAnswer, rejected: ['house_rules'] };
+    const res = await extract('session-a', STORY).expect(200);
+    expect(res.body.rejected).toEqual(['houseRules']);
+  });
+
+  it('слишком короткий рассказ — 400, продавца не звали', async () => {
+    await extract('session-a', 'мало').expect(400);
+    expect(connection.seller.calls).toEqual([]);
+  });
+
+  it('настройка — владельцу с действующим расширением', async () => {
+    connection.seller.replies.extractProfile = botAnswer;
+    const staff = await extract('session-staff', STORY).expect(403);
+    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    extensions.access = 'expired';
+    const expired = await extract('session-a', STORY).expect(403);
+    expect(expired.body.message).toBe(SELLER_EXTENSION_EXPIRED);
+    expect(connection.seller.calls).toEqual([]);
+  });
+
+  it('продавец недоступен — 503 со словами, черновик цел', async () => {
+    connection.seller.failWith = unavailable();
+    const res = await extract('session-a', STORY).expect(503);
+    expect(res.body.message).toMatch(/недоступен/);
+    expect(profiles.rows.size).toBe(0);
+  });
+});
+
+describe('ключ модели партнёра (С2, Q-186; план `plans/seller-partner-bot-2026-09-25.md`)', () => {
+  // Ключ хранит только бот (шифрованным); платформа его ставит, проверяет и видит
+  // только последние 4 знака — ни в её базе, ни в её ответах ключа нет.
+  it('поставить и прочитать: наружу — set и последние 4 знака, ключ уходит боту как есть', async () => {
+    connection.seller.replies.putLlmKey = { status: 'ok', set: true, last4: '7890' };
+    const saved = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-1234567890' })
+      .expect(200);
+    expect(saved.body).toEqual({ set: true, last4: '7890' });
+    expect(connection.seller.calls).toContainEqual({
+      op: 'putLlmKey',
+      args: [ORG_A, 'sk-partner-1234567890'],
+    });
+    connection.seller.replies.llmKeyStatus = { set: true, last4: '7890' };
+    const got = await api().get('/ai-seller/llm-key').set(as('session-a')).expect(200);
+    expect(got.body).toEqual({ set: true, last4: '7890' });
+    expect(got.text).not.toContain('sk-partner');
+  });
+
+  it('пустой ключ снимает сохранённый; проверка отдаёт вердикт словами', async () => {
+    connection.seller.replies.putLlmKey = { status: 'ok', set: false, last4: null };
+    const cleared = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: '' })
+      .expect(200);
+    expect(cleared.body).toEqual({ set: false, last4: null });
+    connection.seller.replies.checkLlmKey = { valid: false, reason: 'Роутер не принял ключ' };
+    const res = await api()
+      .post('/ai-seller/llm-key/check')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-000111' })
+      .expect(200);
+    expect(res.body).toEqual({ valid: false, reason: 'Роутер не принял ключ' });
+    expect(connection.seller.calls).toContainEqual({
+      op: 'checkLlmKey',
+      args: [ORG_A, 'sk-partner-000111'],
+    });
+  });
+
+  it('настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова', async () => {
+    const staff = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-staff'))
+      .send({ key: 'sk-x-12345678' })
+      .expect(403);
+    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    extensions.access = 'expired';
+    await api().get('/ai-seller/llm-key').set(as('session-a')).expect(403);
+    extensions.access = 'active';
+    await api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: '' }).expect(400);
+    expect(connection.seller.calls).toEqual([]);
+  });
+
+  it('продавец недоступен — 503 словами, ключ в тексте не всплывает', async () => {
+    connection.seller.failWith = unavailable();
+    const res = await api()
+      .put('/ai-seller/llm-key')
+      .set(as('session-a'))
+      .send({ key: 'sk-partner-1234567890' })
+      .expect(503);
+    expect(res.body.message).toMatch(/недоступен/);
+    expect(res.text).not.toContain('sk-partner');
+  });
+});
+
+describe('подключение WhatsApp (С3, Q-185 (а); план `plans/seller-partner-bot-2026-09-25.md`)', () => {
+  // Токен и секрет приложения Meta хранит только бот (шифрованными); платформа
+  // показывает phone_number_id, проверочное слово и адрес вебхука для консоли Meta.
+  it('подключить: поля уходят боту, назад — номер, слово и адрес вебхука без токена', async () => {
+    connection.seller.replies.putWhatsApp = {
+      set: true,
+      phone_number_id: '555000111',
+      verify_token: 'slovo-dlya-meta',
+    };
+    const res = await api()
+      .put('/ai-seller/whatsapp')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' })
+      .expect(200);
+    expect(res.body).toEqual({
+      set: true,
+      phoneNumberId: '555000111',
+      verifyToken: 'slovo-dlya-meta',
+      webhookUrl: `https://seller.example.invalid/channels/whatsapp/webhook/${ORG_A}`,
+    });
+    expect(res.text).not.toContain('EAAG-token');
+    expect(connection.seller.calls).toContainEqual({
+      op: 'putWhatsApp',
+      args: [ORG_A, { phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' }],
+    });
+  });
+
+  it('статус и отключение; проверка отдаёт вердикт и номер словами', async () => {
+    connection.seller.replies.whatsappStatus = {
+      set: true,
+      phone_number_id: '555000111',
+      verify_token: 'slovo',
+    };
+    const got = await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(200);
+    expect(got.body).toMatchObject({ set: true, phoneNumberId: '555000111' });
+    connection.seller.replies.putWhatsApp = { set: false, phone_number_id: null, verify_token: null };
+    const off = await api().put('/ai-seller/whatsapp').set(as('session-a')).send({ phoneNumberId: '' }).expect(200);
+    expect(off.body).toMatchObject({ set: false, phoneNumberId: null, webhookUrl: null });
+    connection.seller.replies.checkWhatsApp = { valid: true, phone: '+7 701 000-00-00', reason: null };
+    const check = await api()
+      .post('/ai-seller/whatsapp/check')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '555000111', token: 'EAAG-token-16chars-min' })
+      .expect(200);
+    expect(check.body).toEqual({ valid: true, phone: '+7 701 000-00-00', reason: null });
+  });
+
+  it('настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова', async () => {
+    const staff = await api()
+      .put('/ai-seller/whatsapp')
+      .set(as('session-staff'))
+      .send({ phoneNumberId: '1', token: 'EAAG-token-16chars-min', appSecret: 's' })
+      .expect(403);
+    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    extensions.access = 'expired';
+    await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(403);
+    extensions.access = 'active';
+    await api().post('/ai-seller/whatsapp/check').set(as('session-a')).send({ phoneNumberId: '' }).expect(400);
+    expect(connection.seller.calls).toEqual([]);
+  });
+});

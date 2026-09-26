@@ -771,7 +771,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       }
       // SECURITY.md §6: отмена каналом — в журнале карточка до и после, как у отмены со стойки
       const before = await repo.card(existing.confirmationNumber);
-      const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+      const today = await repo.today();
       for (const item of existing.items) {
         for (const al of item.allocations) await repo.deleteAllocation(al.id);
         if (item.status !== 'CANCELLED') await repo.updateItem(item.id, { status: 'CANCELLED' });

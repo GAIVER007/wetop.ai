@@ -1,3 +1,4 @@
+import { WizardModule } from './wizard/wizard.module';
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -58,6 +59,7 @@ import { DataConnectionModule } from './database/connection';
     AssistantModule,
     // Раздел «ИИ-продавец»: профиль, прокси к продавцу, применение и сверка (ТЗ ред. 1, ADR-079)
     AiSellerModule,
+    WizardModule,
   ],
   // Замок непубличных маршрутов. В боевом образе включён, пока не выключен явным AUTH_REQUIRED=0 (auth.guard.ts)
   providers: [

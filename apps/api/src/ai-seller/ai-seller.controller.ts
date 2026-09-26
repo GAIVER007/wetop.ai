@@ -49,6 +49,49 @@ export class AiSellerController {
     return this.seller.apply();
   }
 
+  /** Рассказ о гостинице своими словами → черновик профиля мастера (С1); адрес и цены — только сверить */
+  @Post('extract')
+  @HttpCode(200)
+  extract(@Body() body: { story?: unknown } | undefined) {
+    return this.seller.extract(body?.story);
+  }
+
+  /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
+  @Get('llm-key')
+  @Header('Cache-Control', 'no-store')
+  llmKey() {
+    return this.seller.llmKey();
+  }
+
+  @Put('llm-key')
+  saveLlmKey(@Body() body: { key?: unknown } | undefined) {
+    return this.seller.saveLlmKey(body?.key);
+  }
+
+  @Post('llm-key/check')
+  @HttpCode(200)
+  checkLlmKey(@Body() body: { key?: unknown } | undefined) {
+    return this.seller.checkLlmKey(body?.key);
+  }
+
+  /** Подключение WhatsApp (С3): номер, слово и адрес вебхука для консоли Meta; токена в ответах нет */
+  @Get('whatsapp')
+  @Header('Cache-Control', 'no-store')
+  whatsapp() {
+    return this.seller.whatsapp();
+  }
+
+  @Put('whatsapp')
+  saveWhatsApp(@Body() body: unknown) {
+    return this.seller.saveWhatsApp(body);
+  }
+
+  @Post('whatsapp/check')
+  @HttpCode(200)
+  checkWhatsApp(@Body() body: unknown) {
+    return this.seller.checkWhatsApp(body);
+  }
+
   @Get('facts')
   @Header('Cache-Control', 'no-store')
   facts() {

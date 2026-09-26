@@ -35,6 +35,8 @@ test('раздел в меню «Продажи», шесть вкладок, п
     'Знания',
     'Диалоги',
     'Код для сайта',
+    'Модель',
+    'WhatsApp',
     'Проверка',
   ]);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
@@ -351,4 +353,99 @@ test('снимки экранов раздела', async ({ page }) => {
   await page.goto('/ai-seller?step=2');
   await expect(page.getByRole('heading', { level: 2, name: 'Манера' })).toBeVisible();
   await page.screenshot({ path: `${dir}/step-2-390.png`, fullPage: false });
+});
+
+test('окно рассказа (С1): «Создать» раскладывает рассказ по пустым полям, адрес и цены — только сверить', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller');
+  const story = page.getByTestId('seller-story');
+  await expect(story).toBeVisible();
+  // голос — по желанию: кнопка на месте, аудио на сервер не уходит (распознаёт браузер)
+  await expect(page.getByTestId('seller-story-mic')).toHaveText('Говорить голосом');
+  await page
+    .getByTestId('seller-story-text')
+    .fill('У нас хостел «Тёплый» в Алматы, улица Вымышленная, 1. Койка — 8000 тенге, заезд с 14:00.');
+  await page.getByTestId('seller-story-send').click();
+  const result = page.getByTestId('seller-story-result');
+  await expect(result).toContainText('Имя бота');
+  await expect(result).toContainText('Проверьте шаги ниже');
+  // адрес и цены из рассказа никуда не записаны — блок «сверьте» с ценой словами
+  const aside = page.getByTestId('seller-story-aside');
+  await expect(aside).toContainText('Алматы, ул. Вымышленная, 1');
+  await expect(aside).toContainText('8 000');
+  await expect(aside).toContainText('сверьте с «Данными объекта» и «Тарифами»');
+  // извлечённое легло в черновик: шаг «Знакомство» показывает имя (мастер сам открылся бы на незаполненном)
+  await page.goto('/ai-seller?step=1');
+  await expect(page.getByLabel('Имя бота')).toHaveValue('Айсулу');
+});
+
+test('окно рассказа: занятые руками поля не затираются, слишком короткий рассказ — отказ словами', async ({
+  page,
+}) => {
+  // сначала рука: имя бота на шаге «Знакомство»
+  await page.goto('/ai-seller?step=1');
+  await page.getByLabel('Имя бота').fill('Дана');
+  await page.getByTestId('seller-step-next').click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Манера', exact: true })).toBeVisible();
+  await page.goto('/ai-seller');
+  await page.getByTestId('seller-story').locator('summary').click();
+  await page
+    .getByTestId('seller-story-text')
+    .fill('Хостел «Тёплый» в Алматы, койка 8000 тенге, бельё и Wi-Fi в цене.');
+  await page.getByTestId('seller-story-send').click();
+  const result = page.getByTestId('seller-story-result');
+  await expect(result).toContainText('Уже заполнено раньше и не тронуто: Имя бота');
+  await page.goto('/ai-seller?step=1');
+  await expect(page.getByLabel('Имя бота')).toHaveValue('Дана');
+});
+
+test('окно «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять', async ({ page }) => {
+  await page.goto('/ai-seller/model');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+  // «Проверить» — живой вызов роутера у бота: чужой ключ он не принимает
+  await page.getByTestId('seller-llm-key-input').fill('sk-bad-key-123456');
+  await page.getByTestId('seller-llm-key-check').click();
+  await expect(page.getByTestId('seller-llm-key-error')).toContainText('Роутер не принял ключ');
+  // действительный — сохраняется; наружу — только последние 4 знака
+  await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+  await page.getByTestId('seller-llm-key-check').click();
+  await expect(page.getByTestId('seller-llm-key-message')).toContainText('Ключ действителен');
+  await page.getByTestId('seller-llm-key-input').fill('sk-valid-key-7890');
+  await page.getByTestId('seller-llm-key-save').click();
+  await expect(page.getByTestId('seller-llm-key-message')).toContainText('оканчивается на 7890');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('····7890');
+  await expect(page.locator('body')).not.toContainText('sk-valid-key-7890');
+  // «Снять ключ» возвращает ход на ключ платформы
+  await page.getByTestId('seller-llm-key-clear').click();
+  await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
+  await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+});
+
+test('окно «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить', async ({
+  page,
+}) => {
+  await page.goto('/ai-seller/whatsapp');
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('не подключён');
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-bad-token-16chars');
+  await page.getByTestId('seller-whatsapp-check').click();
+  await expect(page.getByTestId('seller-whatsapp-error')).toContainText('Meta не приняла номер или токен');
+  // после действия форма сбрасывается — заполняем оба поля заново
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-check').click();
+  await expect(page.getByTestId('seller-whatsapp-message')).toContainText('Номер подтверждён');
+  await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
+  await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-secret').fill('meta-app-secret');
+  await page.getByTestId('seller-whatsapp-save').click();
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('555000111');
+  // партнёру — что вписать в консоль Meta; токен на экран не возвращается
+  const meta = page.getByTestId('seller-whatsapp-meta');
+  await expect(meta).toContainText('/channels/whatsapp/webhook/');
+  await expect(meta).toContainText('slovo-dlya-meta-ui');
+  await expect(page.locator('body')).not.toContainText('EAAG-valid-token-16chars');
+  await page.getByTestId('seller-whatsapp-disconnect').click();
+  await expect(page.getByTestId('seller-whatsapp-state')).toContainText('не подключён');
 });

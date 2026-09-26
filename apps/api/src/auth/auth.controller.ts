@@ -5,35 +5,22 @@ import {
   Controller,
   Get,
   Headers,
+  HttpException,
+  HttpStatus,
   Inject,
-  Optional,
+  Ip,
   Post,
-  Req,
 } from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
 import { ExtensionsService } from '../platform/extensions.service';
+import { RateWindows } from '../rate-window';
+import { visitorIp } from '../web-booking/client-ip';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
 import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
-import { clientIp } from '../web-booking/client-ip';
-import { AuthAttemptLimits } from './attempt-limits';
-
-/** Запрос в той мере, в какой он нужен для адреса посетителя */
-interface PeerRequest {
-  socket?: { remoteAddress?: string };
-  headers?: Record<string, string | string[] | undefined>;
-}
-
-/**
- * Адрес посетителя: стойка передаёт его заголовком `cf-connecting-ip`, и учитывается он только от своих служб (loopback
- * и частная сеть compose, `clientIp`) — снаружи до этих маршрутов не достать, туннель их не пропускает.
- */
-const visitorIp = (req: PeerRequest): string | null => {
-  const header = req.headers?.['cf-connecting-ip'];
-  return clientIp(req.socket?.remoteAddress, Array.isArray(header) ? header[0] : header);
-};
+import { visitorKey } from './attempt-limits';
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -41,6 +28,22 @@ const text = (value: unknown, field: string, max = 200): string => {
   if (value.length > max) throw new BadRequestException(`${field}: длиннее ${max} символов`);
   return value;
 };
+
+/**
+ * Попыток в час с одного адреса (С-5, ТЗ аудита 25.09.2026). Локаут учётки (5 промахов) остаётся первой
+ * защитой; лимит по адресу сдерживает перебор МНОГИХ учёток и рассылку писем с одной точки. Вход щедрее
+ * остальных: за офисным адресом гостиницы вся смена. Переход по ссылке из письма и пароль по ссылке тоже впускают
+ * или меняют пароль — у них свои окна (аудит 26.09, С-5).
+ */
+export const AUTH_IP_LIMITS = {
+  loginPerHour: 30,
+  registerPerHour: 10,
+  resetPerHour: 10,
+  resendPerHour: 10,
+  verifyPerHour: 30,
+  resetConfirmPerHour: 10,
+} as const;
+const HOUR_MS = 3_600_000;
 
 /**
  * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Cookie ставит стойка: браузер ходит к Next, а Next — к API,
@@ -53,10 +56,22 @@ export class AuthController {
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
-    @Optional()
-    @Inject(AuthAttemptLimits)
-    private readonly limits: AuthAttemptLimits = new AuthAttemptLimits(),
   ) {}
+
+  /** Окна лимитов по адресу; адрес нигде не сохраняется — только ключ окна в памяти */
+  private readonly windows = new RateWindows(HOUR_MS, 10_000);
+
+  private ipLimit(kind: string, limit: number, socketIp?: string, cfConnectingIp?: string): void {
+    const ip = visitorIp(socketIp, cfConnectingIp);
+    if (!ip) return; // свои службы с туннеля без заголовка, юнит-тесты и вызовы без сокета
+    // IPv6 — по сети /64: иначе перебор адресов одного абонента обходил бы предел (аудит 26.09)
+    if (!this.windows.allow(`${kind}:${visitorKey(ip)}`, limit, new Date())) {
+      throw new HttpException(
+        'слишком много попыток с одного адреса, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
 
   @Public()
   @Get('options')
@@ -67,12 +82,14 @@ export class AuthController {
   /** Без входа по построению: этим маршрутом и входят. */
   @Public()
   @Post('login')
-  login(
+  // async: отказ лимита должен прийти отказом промиса, как и отказ сервиса
+  async login(
     @Body() body: Record<string, unknown>,
-    @Req() req: PeerRequest,
     @Headers('user-agent') userAgent?: string,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
-    this.limits.check(this.limits.login, visitorIp(req));
+    this.ipLimit('login', AUTH_IP_LIMITS.loginPerHour, socketIp, cfConnectingIp);
     return this.auth.login({
       email: text(body?.email, 'email'),
       password: text(body?.password, 'password', 200),
@@ -87,9 +104,13 @@ export class AuthController {
    */
   @Public()
   @Post('register')
-  register(@Body() body: Record<string, unknown>, @Req() req: PeerRequest) {
+  async register(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('register', AUTH_IP_LIMITS.registerPerHour, socketIp, cfConnectingIp);
     this.auth.assertRegistrationOpen();
-    this.limits.check(this.limits.register, visitorIp(req));
     return this.auth.register({
       email: text(body?.email, 'email'),
       name: text(body?.name, 'name'),
@@ -107,10 +128,11 @@ export class AuthController {
   @Post('email/verify')
   async verifyEmail(
     @Body() body: Record<string, unknown>,
-    @Req() req: PeerRequest,
     @Headers('user-agent') userAgent?: string,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
-    this.limits.check(this.limits.login, visitorIp(req));
+    this.ipLimit('verify', AUTH_IP_LIMITS.verifyPerHour, socketIp, cfConnectingIp);
     const confirmed = await this.verification.confirm(text(body?.token, 'token', 200));
     return this.auth.startSession({
       userId: confirmed.userId,
@@ -122,8 +144,12 @@ export class AuthController {
   /** «Выслать письмо заново». Ответ всегда одинаковый: по нему не узнать, есть ли такая почта. */
   @Public()
   @Post('email/resend')
-  async resendEmail(@Body() body: Record<string, unknown>, @Req() req: PeerRequest) {
-    this.limits.check(this.limits.mail, visitorIp(req));
+  async resendEmail(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('resend', AUTH_IP_LIMITS.resendPerHour, socketIp, cfConnectingIp);
     await this.verification.resend(text(body?.email, 'email'));
     return { ok: true };
   }
@@ -154,8 +180,12 @@ export class AuthController {
    */
   @Public()
   @Post('password-reset/request')
-  async requestReset(@Body() body: Record<string, unknown>, @Req() req: PeerRequest) {
-    this.limits.check(this.limits.mail, visitorIp(req));
+  async requestReset(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('reset', AUTH_IP_LIMITS.resetPerHour, socketIp, cfConnectingIp);
     await this.reset.request(text(body?.email, 'email'));
     return { ok: true };
   }
@@ -163,8 +193,12 @@ export class AuthController {
   /** Пароль по ссылке из письма: ссылка одноразовая, пароль человек задаёт себе сам. */
   @Public()
   @Post('password-reset/confirm')
-  async confirmReset(@Body() body: Record<string, unknown>, @Req() req: PeerRequest) {
-    this.limits.check(this.limits.login, visitorIp(req));
+  async confirmReset(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('reset-confirm', AUTH_IP_LIMITS.resetConfirmPerHour, socketIp, cfConnectingIp);
     await this.reset.confirm({
       token: text(body?.token, 'token', 400),
       password: text(body?.password, 'password', 200),

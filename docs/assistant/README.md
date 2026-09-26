@@ -41,7 +41,7 @@
 ## 2. Узкий ключ помощника (П4)
 
 Заголовок `x-wetop-service-key: <ASSISTANT_READ_KEY>` — тот же, что у ключа сторожа (ADR-067). Ключ пускает ровно на
-два адреса; всё остальное, включая запись, — `403`.
+три адреса; всё остальное, включая запись, — `403`.
 
 ### `GET /assistant/errors`
 
@@ -80,6 +80,14 @@ SELECT message, status, count(*) AS n
  ORDER BY n DESC
  LIMIT 50;
 ```
+
+### `GET /assistant/organization` (С5, Q-187)
+
+Клиент и подписка для техподдержки: `?id=<UUID организации>` → название, статус, дата регистрации
+и расширение «ИИ-продавец» (`aiSeller.access` / `activeUntil` / `daysLeft`). Почт, денег и данных
+гостей в ответе нет. 400 — id не UUID, 404 — организации нет («не наш клиент»). Инструмент бота
+`my_subscription` для вошедших берёт организацию из подписи (ничего называть не нужно), обращению
+без подписи нужен ID — точным совпадением (рекомендация Q-187).
 
 ### `GET /guard/status`
 
@@ -147,8 +155,15 @@ networks:
 | `GET /summary` | сводка за сутки | `{ hours, dialogs, replies, leads, sla_breaches }` |
 | `POST /internal/sandbox` — **в корне экземпляра**, не под путём панели | «Проверка» | тело `{ external_id, text, organization_id }`, текст до 2000 знаков, `external_id` = `wetop-check-<user_id>` — у каждого сотрудника свой разговор; ответ `{ status, reply, needs_human, edits, reasons, conversation_id }` |
 | `PUT /seller/profile` | профиль (Б6) | ниже |
+| `POST /extract-profile` | рассказ владельца → поля анкеты (С1 «под ключ»): раскладывает модель бота, каждое поле — через слой 9; свободный текст промптом не становится | тело `{ story }` (10…4000 знаков); ответ `{ status, profile, facts, unparsed, rejected }` — поля схем Б6/Б7 в snake_case, цены категорий в `price_minor`; 422 — инъекция в рассказе, 503 — модель не ответила |
 | `PUT /seller/facts` | факты объекта (Б7) | ниже |
 | `PUT /seller/organizations/{id}` | гостиница у продавца (Э4) | тело `{ name, public_key, active, hosts }`; `{ status }`; идемпотентно — та же строка перезаписывается |
+| `GET /seller/organizations/{id}/llm-key` | ключ модели партнёра (С2, Q-186): статус | `{ set, last4 }` — сам ключ бот не отдаёт никогда |
+| `PUT /seller/organizations/{id}/llm-key` | поставить или снять ключ | тело `{ key }`; пустой — снять; ключ ложится в базу бота шифрованным (`LLM_KEYS_SECRET`), без секрета — 409; `{ status, set, last4 }` |
+| `POST /seller/organizations/{id}/llm-key/check` | проверка ключа до сохранения | тело `{ key }`; бот живым вызовом спрашивает роутер (`GET {LLM_BASE_URL}/models`); `{ valid, reason }` — ключа в ответе нет |
+| `GET /seller/organizations/{id}/whatsapp` | WhatsApp (С3, Q-185 (а)): статус | `{ set, phone_number_id, verify_token }` — токена и секрета в ответах нет никогда |
+| `PUT /seller/organizations/{id}/whatsapp` | подключить или снять | тело `{ phone_number_id, token, app_secret }` (пустой номер — снять); токен и секрет ложатся шифрованными (`LLM_KEYS_SECRET`); слово вебхука выдаёт бот |
+| `POST /seller/organizations/{id}/whatsapp/check` | проверка до сохранения | тело `{ phone_number_id, token }`; бот спрашивает Graph (`GET {WHATSAPP_GRAPH_BASE_URL}/{id}?fields=display_phone_number`); `{ valid, phone, reason }` |
 
 **Песочница.** У бота она осталась в корне экземпляра — `POST /internal/sandbox`, путь зафиксирован его сборочным
 планом — и принимает служебный ключ платформы тем же заголовком `X-Service-Key` (`src/dashboard_router.py`). Платформа
@@ -273,6 +288,22 @@ networks:
   «Применить» и когда их отпечаток (SHA-256 тела) отличается от доставленного. Проверка — раз в минуту; версию,
   отклонённую по содержанию, сверка сама не повторяет.
 
+### Обратно: что продавец зовёт у платформы — котировка (Q-166 в объёме чтения, ADR-085)
+
+Единственный вызов бота к платформе у продавца. Заголовок `x-wetop-service-key: <SELLER_QUOTE_KEY>` — свой узкий
+ключ по образцу ключа помощника (§2): ровно один адрес, только GET, всё остальное — 403. Ходит по внутренней сети
+`wetop-internal` (`INTEGRATION_BASE_URL=http://api:3001`), наружу адрес не выходит (SECURITY.md §11).
+
+`GET /bot/availability?organization=<uuid>&arrival=YYYY-MM-DD&departure=YYYY-MM-DD&adults=N`
+
+Организацию бот берёт из хода (Э4). Платформа находит сайт организации сама — первый ACTIVE с включённым
+бронированием и тарифом сайта, тот же выбор, что у фактов продавца, — и отвечает ровно тем JSON `Quote`, что публичный
+`GET /w/availability` (categories: `available`, `closed`, `fits`, `totalMinor` строкой минорных, `currency`). Отказы:
+401/403 — ключ, 400 — организация не UUID или даты не по правилам виджета, 404 — у организации нет сайта с
+бронированием, 429 — больше 120 котировок в час на организацию. Бот на любой отказ честно говорит «уточнит
+администратор»; число мест наружу не называет — только признак «есть/мало/нет» (категории `closed` или не `fits`
+местом не считаются), сумму только берёт из `totalMinor`, сам не считает. Брони этой дверью нет (Q-166б, ADR-086).
+
 ## 5. Переменные окружения
 
 | Сторона | Имя | Значение |
@@ -283,12 +314,16 @@ networks:
 | API платформы | ~~`SELLER_ORGANIZATION_ID`~~ | **снята (Э4, ADR-083):** продавец общий, организация — в каждом вызове; оставшаяся в `.env` строка игнорируется, можно удалить |
 | API платформы | `SELLER_PUBLIC_URL` | публичный адрес продавца — из него код чата для сайта объекта |
 | API платформы | `ASSISTANT_PANEL_URL`, `ASSISTANT_SERVICE_KEY` | внутренний адрес панели помощника с её путём (`http://assistant:8000<DASHBOARD_PATH_PREFIX>`) и ключ «Техподдержки»; у помощника тот же ключ — в `SELLER_SERVICE_KEY` |
+| API платформы | `SELLER_QUOTE_KEY` | общий с продавцом: у него — `INTEGRATION_API_KEY`; открывает только `GET /bot/availability` |
 | API платформы | `USER_ERRORS_RETENTION`, `SELLER_SYNC` | `off` — выключить уборку журнала ошибок и сверку фактов |
 | стойка | `ASSISTANT_URL` | публичный адрес помощника |
 | главная | `assistantUrl` в `apps/site/src/site.config.ts` | то же для wetop.ai |
 | помощник | `WIDGET_IDENTITY_SECRET`, `WIDGET_IDENTITY_TTL_SECONDS=43200`, `WIDGET_SITE_HOSTS=app.wetop.ai,wetop.ai,www.wetop.ai` | Б2, Б3 |
 | помощник | `BOT_ROLE=support`, `SELLER_SERVICE_KEY` = `ASSISTANT_SERVICE_KEY` платформы, `LLM_ALLOWED_MODELS` (по желанию) | «Техподдержка»; без ключа панель закрыта целиком |
 | продавец | `BOT_ROLE=seller`, `SELLER_SERVICE_KEY` | Б5, Б8. Домены у продавца — от платформы по каждой гостинице (Э4): `WIDGET_SITE_HOSTS` его дверей больше не касается и остаётся помощнику |
+| продавец | `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `SELLER_QUOTE_KEY` платформы | котировка (ADR-085): без них инструменты наличия и цены отвечают «не знаю» |
+| продавец | `LLM_KEYS_SECRET` | хранилище ключей моделей партнёров (С2, Q-186): Fernet, `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`; пуст — ключи партнёров не принимаются, ходы идут ключом платформы |
+| продавец | `WHATSAPP_GRAPH_BASE_URL` | по умолчанию `https://graph.facebook.com/v20.0`; менять не нужно |
 
 ## 6. Включение по шагам (владелец; 25.09.2026)
 
@@ -301,13 +336,16 @@ networks:
 | 1 | Бэкап рабочей базы, затем две миграции: `20260924000018_user_errors` и `20260924000019_seller_profiles`. Откат — `down.sql` рядом | `docs/ops/backups.md`: бэкап → `migration.sql` каждой по порядку → проверка | `select count(*) from user_errors;` и `select count(*) from seller_profiles;` — оба `0`, без ошибки |
 | 2 | Три общих ключа: `openssl rand -hex 32`, трижды | `WIDGET_IDENTITY_SECRET`, `ASSISTANT_READ_KEY`, `SELLER_SERVICE_KEY` — одинаковые у платформы и бота (§5; у помощника `ASSISTANT_READ_KEY` зовётся `INTEGRATION_API_KEY`) | — |
 | 3 | Переменные платформы в `.env` корня клона: `ASSISTANT_URL=https://assistant.wetop.ai`, `SELLER_URL=http://seller:8000/<DASHBOARD_PATH_PREFIX>`, `SELLER_PUBLIC_URL=https://seller.wetop.ai` и ключи шага 2 (`SELLER_ORGANIZATION_ID` с Э4 не нужна) | имена — и в `.env.example` | — |
-| 4 | Выкладка платформы | `release` → проверенный коммит `main`, затем `/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина из сообщения об отказе>` (`docs/deploy.md` §1д) | `/health` — ok; в «Продажах» есть «ИИ-продавец»; `docker network inspect wetop-internal` — в сети `api` |
+| 4 | Выкладка платформы | `release` → проверенный коммит `main`, затем `/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина из отказа>` (`docs/deploy.md` §1д) | `/health` — ok; в «Продажах» есть «ИИ-продавец»; `docker network inspect wetop-internal` — в сети `api` |
 | 4а | С 25.09 (ADR-083): отметка главного администратора и расширение своей гостиницы — после миграции `20260925000020_access_extensions`. Без расширения пункта «ИИ-продавец» нет, а раздел отвечает 403 | `accounts -- platform-admin --email=<ваша почта>` и `accounts -- extension --email=<ваша почта> --status=active` в контейнере `api` (`plans/platform-roles-extensions-2026-09-25.md` §11) | `accounts -- list` — у вас «владелец» и «главный администратор»; в стойке — «ИИ-продавец» в «Продажах» и «Платформа» внизу меню |
 | 5 | Экземпляры бота: помощник (`BOT_ROLE=support`) и продавец (`BOT_ROLE=seller`) — каждый своей папкой и проектом compose, с файлом сети из §3; `assistant.wetop.ai` — правилом туннеля и записью DNS | команды ниже; перед деплоем — `apps/ai-seller/vykatka.md` | `https://assistant.wetop.ai/health` — 200; `https://assistant.wetop.ai/widget/widget.js` — 200 |
 | 6 | Главная wetop.ai | `CLOUDFLARE_ACCOUNT_ID=… npm run site:deploy` (`docs/deploy.md` §2) | `curl -s https://wetop.ai/ \| grep -c assistant.wetop.ai/widget/widget.js` — `1` |
 | 7 | «ИИ-продавец» → «Настройки» → «Применить» | стойка | баннер «Применено: продавец получил настройки и данные объекта» |
 | 8 | Правила помощника (ADR-084): «Платформа → Техподдержка → Настройки» — вписать системный промпт по шаблону `apps/ai-seller/sistemnyy-prompt-pomoshchnik.md` (подстановки `{{…}}` заменить) и сохранить. Пока правил нет, помощник не отвечает: файла `data/system_prompt.md` в его томе ещё нет | стойка | вкладка «Проверка» — помощник отвечает; предупреждения «Правил нет» нет |
-| 9 | Э4 «один продавец на все гостиницы» (после слияния Э4, план `plans/seller-multitenancy-2026-09-25.md` §3): `release` на свежий `main`; обновить код копии продавца («Обновить код…» ниже, папка `seller`) — его alembic применит `0002_organizations` сам при старте; сверка платформы заведёт гостиницу у продавца в течение минуты. Тег чата на сайте гостиницы заменить на новый из «Код для сайта» — теперь в нём `data-key`. Старые диалоги виджета (по желанию): `UPDATE clients SET organization_id='<uuid организации>' WHERE channel='widget' AND organization_id IS NULL;` в базе продавца — uuid показывает «Платформа → Организации» | веб-терминал | в «Код для сайта» тег с `data-key`; чат на сайте отвечает; «Диалоги» раздела показывают новые разговоры |
+| 9 | Э4 «один продавец на все гостиницы» (после слияния Э4, план `plans/seller-multitenancy-2026-09-25.md` §3): `release` на свежий `main`; обновить код копии продавца («Обновить код продавца» ниже) — его alembic применит `0002_organizations` сам при старте; сверка платформы заведёт гостиницу у продавца в течение минуты. Тег чата на сайте гостиницы заменить на новый из «Код для сайта» — теперь в нём `data-key`. Старые диалоги виджета (по желанию): `UPDATE clients SET organization_id='<uuid организации>' WHERE channel='widget' AND organization_id IS NULL;` в базе продавца — uuid показывает «Платформа → Организации» | веб-терминал | в «Код для сайта» тег с `data-key`; чат на сайте отвечает; «Диалоги» раздела показывают новые разговоры |
+| 10 | Котировка продавца (после слияния ADR-085): `openssl rand -hex 32` → `SELLER_QUOTE_KEY` в `.env` платформы; тот же ключ у продавца в `.env` — `INTEGRATION_API_KEY`, там же `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`; перезапуск `api` и продавца | веб-терминал; имена — в `.env.example` вписать владельцу | в чате продавца «есть места на завтра на двоих?» — признак и цена тарифа сайта, а не «уточнит администратор» |
+| 11 | Ключ модели партнёра (С2): сгенерировать `LLM_KEYS_SECRET` (команда в §5) → в `.env` продавца; обновить код копии продавца («Обновить код продавца» ниже) — alembic применит `0003_org_llm_keys` при старте; затем в стойке «ИИ-продавец → Модель» — ключ, «Проверить», «Сохранить» | веб-терминал, затем стойка | в окне «Модель» — «оканчивается на ····…»; ход в «Проверке» отвечает как раньше |
+| 12 | WhatsApp гостиницы (С3; после ответа Q-185 и при базе бота в РК для чужих сайтов — ADR-009): партнёр заводит номер, Meta Business c проверкой и постоянный токен; в стойке «ИИ-продавец → WhatsApp» — номер, токен, секрет → «Проверить» → «Подключить»; адрес вебхука и слово с экрана — в консоль Meta (Webhook → Callback URL / Verify token, подписка на messages). Наружу нужен путь `/channels/whatsapp/webhook/*` к продавцу (`SELLER_PUBLIC_URL`) | стойка + консоль Meta; ingress продавца | сообщение на номер → ответ бота в WhatsApp; диалог в «Диалогах» раздела |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).
@@ -424,10 +462,51 @@ tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./
 cd /opt/wetop-bot/assistant && docker compose up -d --build app && curl -s 127.0.0.1:8000/health
 ```
 
+**Обновить код продавца** — то же, но папка `seller`, и 🔴 порт возвращается сразу после копирования: `compose.yml` из
+клона снова слушает `8000`, а он занят помощником — без правки продавец не поднимется. Пересобираются обе службы
+(`app` и `monitor`), миграции бота (`0002`…`0004`) alembic применит сам при старте:
+
+```bash
+tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./.env -cf - . | tar -C /opt/wetop-bot/seller -xf -
+sed -i 's/127.0.0.1:8000:8000/127.0.0.1:8001:8000/' /opt/wetop-bot/seller/compose.yml
+cd /opt/wetop-bot/seller && docker compose up -d --build && curl -s 127.0.0.1:8001/health
+```
+
+🔴 **Всё, что вставляется в веб-терминал, — внутри `bash <<'SCRIPT' … SCRIPT`.** `set -e`, вставленный прямо в
+терминал, закрывает сам терминал на первой ошибке («Your session ended», 26.09.2026): так закрыла его проверка
+`curl`, запущенная раньше, чем продавец успел подняться. В дочернем `bash` ошибка заканчивает только скрипт.
+
+**Шаги 10–11 одним скриптом** (котировка и хранилище ключей продавца). Запускать **после** выкладки нового кода:
+скрипт сам откажет, если клон на сервере старый. Повторный запуск безопасен: ключ котировки берётся уже вписанный,
+`LLM_KEYS_SECRET` не перезаписывается никогда, значения не печатаются:
+
+```bash
+bash <<'SCRIPT'
+set -u
+P=/root/wetop/.env; D=/opt/wetop-bot/seller; S=$D/.env
+put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
+[ -f "$P" ] || { echo "✗ нет $P"; exit 1; }
+[ -f "$S" ] || { echo "✗ нет $S: копия продавца не заведена — сначала шаг 5б"; exit 1; }
+grep -q SELLER_QUOTE_KEY /root/wetop/apps/api/src/auth/auth.guard.ts || { echo "✗ клон на старом коде: сначала release на свежий main и миграции"; exit 1; }
+Q=$(grep -m1 '^SELLER_QUOTE_KEY=' "$P" | cut -d= -f2-); [ -n "$Q" ] || Q=$(openssl rand -hex 32)
+put "$P" SELLER_QUOTE_KEY "$Q"; put "$S" INTEGRATION_API_KEY "$Q"; unset Q
+put "$S" INTEGRATION_MODE wetop; put "$S" INTEGRATION_BASE_URL http://api:3001
+grep -q '^LLM_KEYS_SECRET=.' "$S" || put "$S" LLM_KEYS_SECRET "$(openssl rand -base64 32 | tr '+/' '-_')"
+echo "✓ 1/3 ключи вписаны"
+tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./.env -cf - . | tar -C "$D" -xf - || { echo "✗ код продавца не скопирован"; exit 1; }
+sed -i 's/127.0.0.1:8000:8000/127.0.0.1:8001:8000/' "$D/compose.yml"
+cd "$D" && docker compose up -d --build || { echo "✗ продавец не собрался — вывод выше"; exit 1; }
+for i in $(seq 1 40); do curl -sf 127.0.0.1:8001/health >/dev/null && break; sleep 3; done
+curl -sf 127.0.0.1:8001/health >/dev/null && echo "✓ 2/3 продавец отвечает" || echo "✗ продавец молчит 2 минуты: cd $D && docker compose logs --tail=60 app"
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api web && echo "✓ 3/3 api и web перезапущены"
+SCRIPT
+```
+
 **Скрипт уже запускали до «Техподдержки» (Э3)?** Тогда у помощника пустой `SELLER_SERVICE_KEY`, и панель закрыта. Ключ
 и адрес панели — одной вставкой в веб-терминал; значения не печатаются, `api` и помощник перезапускаются:
 
 ```bash
+bash <<'SCRIPT'
 set -eu
 B=/opt/wetop-bot/assistant/.env; P=/root/wetop/.env
 put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
@@ -436,6 +515,7 @@ put "$B" SELLER_SERVICE_KEY "$S"; put "$P" ASSISTANT_SERVICE_KEY "$S"; unset S
 put "$P" ASSISTANT_PANEL_URL "http://assistant:8000$(grep '^DASHBOARD_PATH_PREFIX=' "$B" | cut -d= -f2-)"
 cd /opt/wetop-bot/assistant && docker compose up -d --force-recreate app
 cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api
+SCRIPT
 ```
 
 **Что вписать в `.env` помощника.**

@@ -1,6 +1,7 @@
 import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+import { lockRequired } from './auth-lock';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
 export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
@@ -12,18 +13,13 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
  * куки то же, что у API (`wetop_session`): на `.wetop.ai` это одна и та же кука, локально — своя у
  * каждого хоста, и это нормально.
  *
- * Пока `APP_AUTH_REQUIRED` не задан, стойка в разработке работает и без входа: иначе сквозные тесты, сторож и
- * демонстрационный режим встали бы разом. В боевом образе (`NODE_ENV=production`) вход обязателен (ADR-095).
+ * В production замок включён всегда и выключается только явным `APP_AUTH_REQUIRED=0` (fail-closed,
+ * ТЗ аудита 25.09.2026 В-2, ADR-095, правило — `auth-lock.ts`); на dev-стенде и в тестах — любым значением,
+ * кроме «0» и «false»; без значения стойка в разработке работает без входа — иначе встали бы сквозные наборы.
  */
 
-export const authRequired = (): boolean => {
-  // Правило то же, что у замка API (ADR-095): в боевом образе вход обязателен, пока его не выключили явным «0»;
-  // непонятное значение («true», опечатка) включает, а не снимает (аудит 25.09 В-2)
-  const setting = process.env.APP_AUTH_REQUIRED?.trim().toLowerCase();
-  if (setting === '0' || setting === 'false') return false;
-  if (!setting) return process.env.NODE_ENV === 'production';
-  return true;
-};
+export const authRequired = () =>
+  lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
 
 /** Адрес посетителя и его браузер — API считает по ним пределы и список «где я вошёл». Вне запроса — пусто. */
 export async function clientInfo(): Promise<AuthClientInfo> {

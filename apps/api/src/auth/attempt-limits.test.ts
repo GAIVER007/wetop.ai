@@ -6,13 +6,8 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
 import { ExtensionsService } from '../platform/extensions.service';
-import {
-  AttemptWindows,
-  LOGIN_ATTEMPTS_PER_IP,
-  PasswordGate,
-  visitorKey,
-} from './attempt-limits';
-import { AuthController } from './auth.controller';
+import { AttemptWindows, PasswordGate, visitorKey } from './attempt-limits';
+import { AUTH_IP_LIMITS, AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './auth.guard';
 import { PasswordResetService } from './password-reset.service';
@@ -127,11 +122,20 @@ describe('вход: предел попыток с одного адреса', (
       .set('cf-connecting-ip', ip)
       .send({ email: 'nikogo-net@example.invalid', password: 'ne-tot-parol' });
 
-  it(`после ${LOGIN_ATTEMPTS_PER_IP} попыток с адреса — 429, а соседний адрес входит как прежде`, async () => {
-    for (let i = 0; i < LOGIN_ATTEMPTS_PER_IP; i += 1) expect((await attempt('203.0.113.7')).status).toBe(401);
+  it(`после ${AUTH_IP_LIMITS.loginPerHour} попыток с адреса — 429, а соседний адрес входит как прежде`, async () => {
+    for (let i = 0; i < AUTH_IP_LIMITS.loginPerHour; i += 1)
+      expect((await attempt('203.0.113.7')).status).toBe(401);
     const over = await attempt('203.0.113.7');
     expect(over.status).toBe(429);
     expect(over.body.message).toMatch(/попыток/);
     expect((await attempt('203.0.113.8')).status).toBe(401);
+  }, 30_000);
+
+  // Проверка исправлений 26.09: IPv6-абонент получает сеть /64 и перебором адресов в ней обходил предел
+  it('адреса IPv6 одной сети /64 делят один предел', async () => {
+    for (let i = 0; i < AUTH_IP_LIMITS.loginPerHour; i += 1)
+      expect((await attempt(`2001:db8:1:2::${(i + 1).toString(16)}`)).status).toBe(401);
+    expect((await attempt('2001:db8:1:2::ffff')).status).toBe(429);
+    expect((await attempt('2001:db8:1:3::1')).status).toBe(401);
   }, 30_000);
 });

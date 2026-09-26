@@ -10,13 +10,13 @@ import {
   VERIFY_ALREADY_MESSAGE,
   VERIFY_BAD_LINK_MESSAGE,
   VERIFY_EXPIRED_MESSAGE,
-  VERIFY_REPEAT_MINUTES,
   emailVerificationLetter,
   hashSessionToken,
   newSessionToken,
   validEmail,
   verifyExpiry,
   verifyLink,
+  VERIFY_REUSE_WINDOW_MS,
   verifyState,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -106,7 +106,7 @@ export class EmailVerificationService {
     // Уже подтверждённая почта + использованная ссылка — это повторный переход по той же ссылке
     // (письмо открыли дважды, почтовый клиент сходил по ссылке сам). Это не ошибка человека.
     // Но только по той ссылке, что подтвердила почту (у погашенной повторной отправкой время другое), только
-    // VERIFY_REPEAT_MINUTES и не заблокированному: до 26.09 любая ссылка впускала без пароля бессрочно — даже после
+    // VERIFY_REUSE_WINDOW_MS, пока ссылка не истекла, и не заблокированному: до 26.09 любая ссылка впускала без пароля бессрочно — даже после
     // смены пароля и «выйти везде» (аудит 25.09 В-1, 26.09 С-7; ADR-095).
     if (state === 'used' && row.user.emailVerifiedAt !== null) {
       // «Своя» — последняя выданная человеку и погашенная самим подтверждением: у погашенной повторной отправкой
@@ -121,10 +121,11 @@ export class EmailVerificationService {
         row.usedAt !== null &&
         row.usedAt.getTime() === row.user.emailVerifiedAt.getTime();
       const fresh =
-        row.usedAt !== null &&
-        now.getTime() - row.usedAt.getTime() <= VERIFY_REPEAT_MINUTES * 60_000;
-      if (!ownLink || !fresh || row.user.status === 'BLOCKED')
+        row.usedAt !== null && now.getTime() - row.usedAt.getTime() <= VERIFY_REUSE_WINDOW_MS;
+      // окно повтора не продлевает срок самой ссылки (ТЗ аудита 25.09, В-1)
+      if (!ownLink || !fresh || row.expiresAt.getTime() <= now.getTime())
         throw new UnauthorizedException(VERIFY_ALREADY_MESSAGE);
+      if (row.user.status === 'BLOCKED') throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
       const organizationId = row.user.memberships[0]?.organizationId;
       if (!organizationId) throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
       return { userId: row.user.id, organizationId };

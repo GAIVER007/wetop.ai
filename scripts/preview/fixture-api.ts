@@ -1,4 +1,5 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
+import {agentFixture,resetAgentFixture} from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -1592,6 +1593,18 @@ const sellerKnowledgeSeed = () => [
   { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
 ];
 let sellerKnowledge = sellerKnowledgeSeed();
+// С2: ключ модели партнёра — подставной бот хранит только последние 4 знака
+let sellerLlmKey: string | null = null;
+// С3: подключение WhatsApp — подставной бот выдаёт слово вебхука, токен не хранится
+let sellerWhatsApp: { phoneNumberId: string; verifyToken: string } | null = null;
+const sellerWhatsAppView = () => ({
+  set: sellerWhatsApp !== null,
+  phoneNumberId: sellerWhatsApp?.phoneNumberId ?? null,
+  verifyToken: sellerWhatsApp?.verifyToken ?? null,
+  webhookUrl: sellerWhatsApp
+    ? `https://seller.wetop.example/channels/whatsapp/webhook/ui-org`
+    : null,
+});
 /** Состояние продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }`.
  * Э4: продавец общий для всех гостиниц, состояния `other-organization` больше нет. */
 let sellerState: 'ready' | 'not-configured' = 'ready';
@@ -1604,6 +1617,8 @@ function resetSeller() {
   sellerAppliedProfile = structuredClone(sellerProfileSeed);
   sellerSaved = false;
   sellerApplied = false;
+  sellerLlmKey = null;
+  sellerWhatsApp = null;
   sellerUpdatedAt = null;
   sellerDialogs = sellerDialogSeed();
   sellerKnowledge = sellerKnowledgeSeed();
@@ -2419,7 +2434,9 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
+    if (!demo) { const agentResponse=agentFixture(path,req.method??'GET',body); if(agentResponse) return send(agentResponse.status,agentResponse.data); }
     if (path === '/__test/reset') {
+      resetAgentFixture();
       hits.clear();
       requestHits.clear();
       resetUiAuth();
@@ -2840,8 +2857,11 @@ createServer(async (req, res) => {
         req.method === 'GET'
           ? path === '/ai-seller/embed'
             ? 'act'
-            : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge'
+            : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
+              ? 'configure'
+              : 'read'
+          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge' ||
+              path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key') || path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
       if (path !== '/ai-seller/status') {
@@ -2947,6 +2967,90 @@ createServer(async (req, res) => {
         sellerApplied = false;
         sellerUpdatedAt = new Date().toISOString();
         return send(200, sellerView());
+      }
+      if (path === '/ai-seller/whatsapp' && req.method === 'GET')
+        return send(200, sellerWhatsAppView());
+      if (path === '/ai-seller/whatsapp' && req.method === 'PUT') {
+        const phoneId = String(body['phoneNumberId'] ?? '').trim();
+        if (phoneId === '') {
+          sellerWhatsApp = null;
+          return send(200, sellerWhatsAppView());
+        }
+        if (!/^\d+$/.test(phoneId))
+          return send(400, { message: 'phone_number_id — цифры из консоли Meta' });
+        if (String(body['token'] ?? '').trim().length < 16)
+          return send(400, { message: 'Нужны постоянный токен и секрет приложения Meta' });
+        sellerWhatsApp = { phoneNumberId: phoneId, verifyToken: 'slovo-dlya-meta-ui' };
+        return send(200, sellerWhatsAppView());
+      }
+      if (path === '/ai-seller/whatsapp/check' && req.method === 'POST') {
+        const phoneId = String(body['phoneNumberId'] ?? '').trim();
+        const token = String(body['token'] ?? '').trim();
+        if (phoneId === '' || token === '') return send(400, { message: 'Нужны phone_number_id и токен' });
+        return send(200, token.includes('valid')
+          ? { valid: true, phone: '+7 701 000-00-00', reason: null }
+          : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' });
+      }
+      if (path === '/ai-seller/llm-key' && req.method === 'GET')
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      if (path === '/ai-seller/llm-key' && req.method === 'PUT') {
+        const key = String(body['key'] ?? '').trim();
+        sellerLlmKey = key === '' ? null : key.slice(-4);
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      }
+      if (path === '/ai-seller/llm-key/check' && req.method === 'POST') {
+        const key = String(body['key'] ?? '').trim();
+        if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
+        // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
+        return send(200, key.includes('valid')
+          ? { valid: true, reason: null }
+          : { valid: false, reason: 'Роутер не принял ключ' });
+      }
+      if (path === '/ai-seller/extract' && req.method === 'POST') {
+        // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
+        const story = String(body['story'] ?? '').trim();
+        if (story.length < 10)
+          return send(400, { message: 'Рассказ короче 10 знаков — расскажите подробнее' });
+        const extracted: Array<[keyof typeof sellerProfile, unknown]> = [
+          ['botName', 'Айсулу'],
+          ['greeting', 'Здравствуйте! Помогу выбрать место и ответить на вопросы.'],
+          ['includedInPrice', 'Бельё и Wi-Fi.'],
+          ['houseRules', 'Тишина после 23:00.'],
+        ];
+        const filled: string[] = [];
+        const skipped: string[] = [];
+        for (const [field, value] of extracted) {
+          const current = sellerProfile[field];
+          const empty =
+            current === null ||
+            (typeof current === 'string' && current.trim() === '') ||
+            (Array.isArray(current) && current.length === 0);
+          if (!empty) {
+            skipped.push(field);
+            continue;
+          }
+          (sellerProfile as unknown as Record<string, unknown>)[field] = value;
+          filled.push(field);
+        }
+        if (filled.length > 0) {
+          sellerSaved = true;
+          sellerApplied = false;
+          sellerUpdatedAt = new Date().toISOString();
+        }
+        return send(200, {
+          filled,
+          skipped,
+          rejected: [],
+          unparsed: ['как добраться от вокзала — в рассказе нет'],
+          aside: {
+            objectName: 'Хостел «Тёплый»',
+            address: 'Алматы, ул. Вымышленная, 1',
+            checkIn: '14:00',
+            checkOut: '12:00',
+            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+          },
+          profile: sellerView(),
+        });
       }
       if (path === '/ai-seller/apply' && req.method === 'POST') {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });

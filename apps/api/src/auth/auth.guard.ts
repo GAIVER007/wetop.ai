@@ -60,7 +60,14 @@ const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
  * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
  * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
  */
-const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status'];
+const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status', '/assistant/organization'];
+
+/**
+ * Узкий ключ котировки ИИ-продавца (`SELLER_QUOTE_KEY`, Q-166 в объёме чтения — ADR-085): наличие и цена
+ * тарифа сайта по организации, ровно один адрес, только GET — тот же образец. Брони этим ключом нет:
+ * она остаётся заявкой администратору до базы в РК (Q-166б, ADR-086).
+ */
+const SELLER_QUOTE_ALLOWED = ['/bot/availability'];
 
 function readAllowed(allowed: readonly string[], method: unknown, url: unknown): boolean {
   if (method !== 'GET') return false;
@@ -70,7 +77,7 @@ function readAllowed(allowed: readonly string[], method: unknown, url: unknown):
 }
 
 /** Какой служебный ключ пришёл в `x-wetop-service-key`: `null` — никакого, `unknown` — ни один не подошёл */
-export type ServiceKeyKind = 'service' | 'guard-read' | 'assistant-read' | 'unknown';
+export type ServiceKeyKind = 'service' | 'guard-read' | 'assistant-read' | 'seller-quote' | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
   const presented = headers['x-wetop-service-key'];
@@ -81,20 +88,22 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (readKey && sameKey(presented, readKey)) return 'guard-read';
   const assistantKey = process.env.ASSISTANT_READ_KEY?.trim();
   if (assistantKey && sameKey(presented, assistantKey)) return 'assistant-read';
+  const quoteKey = process.env.SELLER_QUOTE_KEY?.trim();
+  if (quoteKey && sameKey(presented, quoteKey)) return 'seller-quote';
   return 'unknown';
 }
 
 /**
- * Включён ли замок (ADR-095). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда, пока его не выключили
- * явным `AUTH_REQUIRED=0`. Непонятное значение («true», «yes», опечатка) замок включает, а не снимает: до 26.09 любое
- * значение, кроме строки «1», молча открывало весь API (аудит 25.09, В-2). В разработке без переменной — выключен, как
- * раньше: сквозные тесты и сторож на Mac ходят без входа.
+ * Включён ли замок (ТЗ аудита 25.09 В-2, ADR-095). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда,
+ * пока его не выключили явным `AUTH_REQUIRED=0`. Вне production непонятное значение («true», «yes», опечатка) замок
+ * включает, а не снимает; без переменной, «0» и «false» — выключен, как раньше: сквозные тесты и сторож на Mac ходят
+ * без входа. То же правило у стойки — `apps/web/src/lib/auth-lock.ts`.
  */
 export function authRequired(env: Record<string, string | undefined> = process.env): boolean {
   const setting = env.AUTH_REQUIRED?.trim().toLowerCase();
-  if (setting === '0' || setting === 'false') return false;
-  if (!setting) return env.NODE_ENV === 'production';
-  return true;
+  // в production снимает только явный «0» — «false» или пустая строка замок не открывают (ТЗ аудита 25.09, В-2)
+  if (env.NODE_ENV === 'production') return setting !== '0';
+  return !!setting && setting !== '0' && setting !== 'false';
 }
 
 @Injectable()
@@ -155,6 +164,13 @@ export class SessionGuard implements CanActivate {
       throw new ForbiddenException(
         'Ключ помощника читает только ошибки человека и состояние системы',
       );
+    }
+    if (key === 'seller-quote') {
+      if (readAllowed(SELLER_QUOTE_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ котировки продавца читает только наличие и цену');
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

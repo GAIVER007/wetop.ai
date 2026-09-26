@@ -18,7 +18,8 @@ import pytest
 from src.channels.widget_runner import WidgetSender, build_runner
 from src.config import get_settings, normalize_bot_role
 
-SUPPORT_TOOLS = ["find_error", "my_recent_errors", "platform_status"]
+# С5 (Q-187) добавил четвёртый инструмент — подписку организации
+SUPPORT_TOOLS = ["find_error", "my_recent_errors", "my_subscription", "platform_status"]
 SELLER_TOOLS = ["check_availability", "get_price"]
 
 

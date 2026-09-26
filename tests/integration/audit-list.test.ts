@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
 import { AuditService } from '../../apps/api/src/audit/audit.module';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { purgeAuditRows } from '../tools/audit-purge';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -38,7 +39,7 @@ describe.skipIf(!url)('журнал действий: список (integration,
 
   afterAll(async () => {
     if (db) {
-      await db.auditLog.deleteMany({ where: { entityId: mark } });
+      await purgeAuditRows(db, { entityId: mark });
       await db.$disconnect();
     }
   });

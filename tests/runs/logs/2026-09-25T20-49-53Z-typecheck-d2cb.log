@@ -1,0 +1,39 @@
+# Типы (typecheck) · 26.09.2026 01:49 Алматы · vm
+# коммит cd20193 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 27
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/reservations/reservation-card.ts(116,22): error TS2339: Property 'id' does not exist on type '{ firstName: string; lastName: string; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/chessboard/chessboard.controller.test.ts(79,9): error TS2322: Type '(number: string) => Promise<{ confirmationNumber: string; source: string; channel: string; status: string; arrivalDate: string; departureDate: string; adults: number; children: number; currency: string; totalAmountMinor: string; notes: null; primaryGuest: { ...; }; items: { ...; }[]; } | null>' is not assignable to type '(confirmationNumber: string) => Promise<ReservationCard | null>'.
+  Type 'Promise<{ confirmationNumber: string; source: string; channel: string; status: string; arrivalDate: string; departureDate: string; adults: number; children: number; currency: string; totalAmountMinor: string; notes: null; primaryGuest: { ...; }; items: { ...; }[]; } | null>' is not assignable to type 'Promise<ReservationCard | null>'.
+    Type '{ confirmationNumber: string; source: string; channel: string; status: string; arrivalDate: string; departureDate: string; adults: number; children: number; currency: string; totalAmountMinor: string; notes: null; primaryGuest: { ...; }; items: { ...; }[]; } | null' is not assignable to type 'ReservationCard | null'.
+      Type '{ confirmationNumber: string; source: string; channel: string; status: string; arrivalDate: string; departureDate: string; adults: number; children: number; currency: string; totalAmountMinor: string; notes: null; primaryGuest: { ...; }; items: { ...; }[]; }' is not assignable to type 'ReservationCard'.
+        Types of property 'items' are incompatible.
+          Type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode: null; ratePlanName: null; unitCode: string; adults: number; children: number; guests: { ...; }[]; }[]' is not assignable to type 'ReservationCardItem[]'.
+            Type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode: null; ratePlanName: null; unitCode: string; adults: number; children: number; guests: { ...; }[]; }' is not assignable to type 'ReservationCardItem'.
+              Types of property 'guests' are incompatible.
+                Type '{ label: string; isPrimary: true; }[]' is not assignable to type '{ id: string; label: string; isPrimary: boolean; }[]'.
+                  Property 'id' is missing in type '{ label: string; isPrimary: true; }' but required in type '{ id: string; label: string; isPrimary: boolean; }'.
+apps/api/src/reservations/reservation-card.ts(116,22): error TS2339: Property 'id' does not exist on type '{ firstName: string; lastName: string; }'.
+apps/api/src/reservations/reservations.controller.test.ts(345,11): error TS2322: Type '(number: string) => Promise<{ confirmationNumber: string; source: string; channel: null; status: ReservationStatus; arrivalDate: string; departureDate: string; adults: number; ... 5 more ...; items: { ...; }[]; } | null>' is not assignable to type '(confirmationNumber: string) => Promise<ReservationCard | null>'.
+  Type 'Promise<{ confirmationNumber: string; source: string; channel: null; status: ReservationStatus; arrivalDate: string; departureDate: string; adults: number; children: number; ... 4 more ...; items: { ...; }[]; } | null>' is not assignable to type 'Promise<ReservationCard | null>'.
+    Type '{ confirmationNumber: string; source: string; channel: null; status: ReservationStatus; arrivalDate: string; departureDate: string; adults: number; children: number; ... 4 more ...; items: { ...; }[]; } | null' is not assignable to type 'ReservationCard | null'.
+      Type '{ confirmationNumber: string; source: string; channel: null; status: ReservationStatus; arrivalDate: string; departureDate: string; adults: number; children: number; currency: string; totalAmountMinor: string; notes: string | null; primaryGuest: { ...; }; items: { ...; }[]; }' is not assignable to type 'ReservationCard'.
+        Types of property 'items' are incompatible.
+          Type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: ReservationStatus; priceMinor: string; ... 6 more ...; guests: { ...; }[]; }[]' is not assignable to type 'ReservationCardItem[]'.
+            Type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: ReservationStatus; priceMinor: string; ... 6 more ...; guests: { ...; }[]; }' is not assignable to type 'ReservationCardItem'.
+              Types of property 'guests' are incompatible.
+                Type '{ label: string; isPrimary: true; }[]' is not assignable to type '{ id: string; label: string; isPrimary: boolean; }[]'.
+                  Property 'id' is missing in type '{ label: string; isPrimary: true; }' but required in type '{ id: string; label: string; isPrimary: boolean; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 21 с

@@ -77,7 +77,7 @@ export default async function AgentsPage() {
         </section>
       ) : (
         <>
-          <div className="seller-agents__count">Агенты · {items.length}</div>
+          <div className="seller-agents__count">Всего агентов: {items.length}</div>
           <div className="seller-agents__grid">
             {items.map((agent) => (
               <article key={agent.id}>

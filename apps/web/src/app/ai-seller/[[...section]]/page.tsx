@@ -123,7 +123,7 @@ export default async function AiSellerPage({
   return (
     <Page
       title={view ? tab.label : 'ИИ-продавец'}
-      subtitle="Продавец гостиницы · настройка и подключения"
+      subtitle="Продавец гостиницы: настройка и подключения"
       actions={<><Link className="btn btn--secondary" href="/ai-seller/agents">Мои агенты</Link><RefreshButton /></>}
       crumbs={view ? <Link href="/ai-seller">ИИ-продавец</Link> : undefined}
     >

@@ -64,7 +64,7 @@ export function AgentEditor({
   return (
     <section className="guest-wizard__card">
       <h2>Настройки агента</h2>
-      <p>Черновик · {values.assistantName || values.businessName || 'Новый агент'}</p>
+      <p>Черновик: {values.assistantName || values.businessName || 'Новый агент'}</p>
       {error && <p role="alert">{error}</p>}
       <form
         onSubmit={(e) => {

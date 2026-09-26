@@ -123,7 +123,7 @@ export default async function AiSellerPage({
   return (
     <Page
       title={view ? tab.label : 'ИИ-продавец'}
-      subtitle="Настройте общение, добавьте знания и проверьте ответы агента."
+      subtitle="Продавец гостиницы · настройка и подключения"
       actions={<><Link className="btn btn--secondary" href="/ai-seller/agents">Мои агенты</Link><RefreshButton /></>}
       crumbs={view ? <Link href="/ai-seller">ИИ-продавец</Link> : undefined}
     >
@@ -326,9 +326,6 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
   const profile = loaded.value.profile;
   return (
     <Stack>
-      <Panel data-testid="seller-story-panel">
-        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
-      </Panel>
       <SetupWorkspace
         key={`${step}:${profile.botName}:${profile.greeting}`}
         name={profile.botName}
@@ -352,6 +349,9 @@ async function SetupView({ status, step: raw }: { status: SellerStatus; step: st
           )}
         </Panel>
       </SetupWorkspace>
+      <Panel data-testid="seller-story-panel">
+        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
+      </Panel>
     </Stack>
   );
 }

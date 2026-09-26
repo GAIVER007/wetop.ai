@@ -9,7 +9,8 @@ import { IncidentList, type IncidentRow } from './incident-list';
 import { Suspense } from 'react';
 import { RefreshButton } from '../../components/refresh-button';
 import { ControlNavigation } from '../../components/control-navigation';
-import { almatyWhen } from '../../lib/almaty';
+import { hotelClock } from '../../lib/hotel-api';
+import type { PropertyClock } from '../../lib/property-time';
 import './incidents.css';
 
 /**
@@ -19,16 +20,17 @@ import './incidents.css';
 const RESOLVED_BY_RU = { GUARD: 'сторож', AGENT: 'дежурный агент', STAFF: 'вручную' } as const;
 
 /** Время по часам объекта: страница рендерится на сервере, у которого может быть другой пояс */
-const atText = (iso: string) =>
+const atText = (iso: string, clock: PropertyClock) =>
   new Date(iso).toLocaleString('ru-RU', {
-    timeZone: 'Asia/Almaty',
+    timeZone: clock.timezone,
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
   });
 /** Время словами внутри `<time>`: сырое значение остаётся тестам и копированию (§14) */
-const at = (iso: string | null) => (iso ? <time dateTime={iso}>{almatyWhen(iso)}</time> : '—');
+const at = (iso: string | null, clock: PropertyClock) =>
+  iso ? <time dateTime={iso}>{clock.when(iso)}</time> : '—';
 
 /** Сколько записей истории читаем: если пришло ровно столько, список обрезан — и это написано на экране */
 const HISTORY_LIMIT = 200;
@@ -67,6 +69,7 @@ export default function IncidentsPage() {
 }
 
 async function IncidentContent() {
+  const clock = await hotelClock();
   const [loadedStatus, open, all] = await Promise.all([
     guardApi.status().then(
       (r) => ({ ok: true as const, r }),
@@ -130,7 +133,7 @@ async function IncidentContent() {
           label="Последний проход"
           value={
             <>
-              {tick ? at(tick.at) : status ? 'ещё не было' : '—'}
+              {tick ? at(tick.at, clock) : status ? 'ещё не было' : '—'}
               {tick && (
                 <span className="state-bar__sub">
                   {pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}
@@ -205,7 +208,7 @@ async function IncidentContent() {
               }),
             )}
             emptyTitle="Открытых неисправностей нет"
-            emptyHint={`${tick ? `Последний проход в ${atText(tick.at)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}. ` : ''}${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
+            emptyHint={`${tick ? `Последний проход в ${atText(tick.at, clock)}: ${pluralRu(tick.checked.length, ['проверка', 'проверки', 'проверок'])}. ` : ''}${status?.running ? 'Сторож проверяет систему раз в минуту; новые записи появятся здесь.' : 'Автоматический мониторинг сейчас выключен.'}`}
           />
         </>
       )}
@@ -242,7 +245,7 @@ async function IncidentContent() {
               <li key={i.id} data-testid="incidents-closed-row">
                 <span className="incident-history__title">{i.title}</span>
                 <span className="incident-history__meta">
-                  Замечена {at(i.firstSeenAt)}, закрыта {at(i.resolvedAt)},{' '}
+                  Замечена {at(i.firstSeenAt, clock)}, закрыта {at(i.resolvedAt, clock)},{' '}
                   {i.resolvedBy ? RESOLVED_BY_RU[i.resolvedBy] : 'кем — неизвестно'}.
                   {i.lastFixResult ? ` ${i.lastFixResult}.` : ''}
                 </span>

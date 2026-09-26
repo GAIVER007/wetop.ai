@@ -36,9 +36,10 @@ export default async function RoomsPage({
       </Page>
     );
   }
+  const today = await hotelToday();
   const q = normalizeSearchParams(await searchParams),
-    arrival = q.arrival ?? hotelToday(),
-    departure = q.departure ?? (validDate(arrival) ? nextDay(arrival) : hotelToday());
+    arrival = q.arrival ?? today,
+    departure = q.departure ?? (validDate(arrival) ? nextDay(arrival) : today);
   const valid =
     validDate(arrival) &&
     validDate(departure) &&
@@ -67,7 +68,7 @@ export default async function RoomsPage({
     >
       <FundTabs active="availability" />
       <AvailabilityFinder
-        today={hotelToday()}
+        today={today}
         arrival={arrival}
         departure={departure}
         result={result.data}

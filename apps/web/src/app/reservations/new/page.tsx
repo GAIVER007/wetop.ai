@@ -1,6 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { api, reservationsApi } from '../../../lib/api';
+import { hotelToday } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Alert, Button, Field } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
@@ -26,7 +27,7 @@ export default async function NewReservationPage({
   searchParams: Promise<SearchParams>;
 }) {
   const q = normalizeSearchParams(await searchParams);
-  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  const today = await hotelToday();
   const arrival = q.arrival ?? today;
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;

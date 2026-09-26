@@ -1,0 +1,804 @@
+# Сквозные (e2e) · 26.09.2026 17:03 Алматы · vm
+# коммит 96cdb5e (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 49
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 381 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 1440px (1.4m)
+  ✓    2 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 1440px (1.3m)
+  ✓    3 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 390px (1.1m)
+  ✓    4 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 390px (1.2m)
+  ✓    5 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 1440px (7.5s)
+  ✓    6 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 1440px (6.7s)
+  ✓    7 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 390px (6.0s)
+  ✓    8 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 390px (6.1s)
+  ✓    9 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (2.6s)
+  ✓   10 tests/ui/ai-seller.spec.ts:57:1 › семь шагов по порядку: «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (7.4s)
+  ✓   11 tests/ui/ai-seller.spec.ts:128:1 › «Назад» сохраняет введённое; эмодзи — из трёх вариантов бота, запреты — по одному в строке (ADR-081) (5.2s)
+  ✓   12 tests/ui/ai-seller.spec.ts:154:1 › без языков шаг отказывает словами домена и остаётся открытым, введённое не пропадает (1.8s)
+  ✓   13 tests/ui/ai-seller.spec.ts:164:1 › «Запуск» называет незаполненные шаги и не прячет правила ядра (1.3s)
+  ✓   14 tests/ui/ai-seller.spec.ts:174:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.4s)
+  ✓   15 tests/ui/ai-seller.spec.ts:196:1 › «Знания»: список и загрузка документа (1.8s)
+  ✓   16 tests/ui/ai-seller.spec.ts:212:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.0s)
+  ✓   17 tests/ui/ai-seller.spec.ts:246:1 › «Код для сайта»: тег с ключом гостиницы, домены её сайта, кнопка «Скопировать» (Э4) (2.1s)
+  ✓   18 tests/ui/ai-seller.spec.ts:263:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.1s)
+  ✓   19 tests/ui/ai-seller.spec.ts:269:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) (6.4s)
+  ✓   20 tests/ui/ai-seller.spec.ts:297:1 › продавец недоступен — раздел говорит об этом и обещает повтор (1.2s)
+  ✓   21 tests/ui/ai-seller.spec.ts:307:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           ...
+[WebServer]                             <Field label="Рассказ">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Textarea name="story" rows={5} maxLength={4000} required={true} minLength={10} value="" ...>
+[WebServer]                                   <textarea
+[WebServer]                                     className="inp"
+[WebServer]                                     name="story"
+[WebServer]                                     rows={5}
+[WebServer]                                     maxLength={4000}
+[WebServer]                                     required={true}
+[WebServer]                                     minLength={10}
+[WebServer]                                     value=""
+[WebServer]                                     onChange={function onChange}
+[WebServer]                                     placeholder="У нас хостел в Алматы, улица… Койка — … тенге за ночь, заезд с 14:00…"
+[WebServer]                                     data-testid="seller-story-text"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                           <nav>
+[WebServer]                           ...
+[WebServer]                             <div className="stack">
+[WebServer]                               <Field label="Имя бота">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Input name="botName" defaultValue="Айгерим" maxLength={40} placeholder="Например, ...">
+[WebServer]                                     <input
+[WebServer]                                       className="inp"
+[WebServer]                                       name="botName"
+[WebServer]                                       defaultValue="Айгерим"
+[WebServer]                                       maxLength={40}
+[WebServer]                                       placeholder="Например, Айгерим"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               <p>
+[WebServer]                               <Field label="Приветствие">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="greeting" rows={3} maxLength={300} defaultValue="Привет! Я ..." ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="greeting"
+[WebServer]                                       rows={3}
+[WebServer]                                       maxLength={300}
+[WebServer]                                       defaultValue="Привет! Я Айгерим, помогу выбрать место."
+[WebServer]                                       placeholder="Здравствуйте! Помогу выбрать номер и расскажу о ценах. На какие дат..."
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               <p>
+[WebServer]                               <fieldset className="seller-cho...">
+[WebServer]                                 <legend>
+[WebServer]                                 <div className="seller-cho...">
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="ru"
+[WebServer]                                       defaultChecked={true}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="kk"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="en"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="zh"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="uz"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="ky"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="tr"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="ko"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="de"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="fr"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="es"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]                                   <label className="check">
+[WebServer]                                     <input
+[WebServer]                                       type="checkbox"
+[WebServer]                                       name="languages"
+[WebServer]                                       value="ar"
+[WebServer]                                       defaultChecked={false}
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                     ...
+[WebServer]     ...
+[WebServer]  
+  ✓   22 tests/ui/ai-seller.spec.ts:324:1 › снимки экранов раздела (8.9s)
+  ✓   23 tests/ui/ai-seller.spec.ts:358:1 › окно рассказа (С1): «Создать» раскладывает рассказ по пустым полям, адрес и цены — только сверить (2.8s)
+  ✓   24 tests/ui/ai-seller.spec.ts:383:1 › окно рассказа: занятые руками поля не затираются, слишком короткий рассказ — отказ словами (4.1s)
+  ✓   25 tests/ui/ai-seller.spec.ts:403:1 › окно «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (2.7s)
+  ✓   26 tests/ui/ai-seller.spec.ts:425:1 › окно «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (2.8s)
+  ✓   27 tests/ui/analytics-design.spec.ts:19:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (2.1s)
+  ✓   28 tests/ui/analytics-design.spec.ts:49:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (1.5s)
+  ✓   29 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (2.0s)
+  ✓   30 tests/ui/channex-screens.spec.ts:24:1 › менеджер каналов: стоимость — плитка в ряду, без дубля числа источников и без монограмм (2.1s)
+  ✓   31 tests/ui/channex-screens.spec.ts:59:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.5s)
+  ✓   32 tests/ui/channex-screens.spec.ts:119:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.0s)
+  ✓   33 tests/ui/channex-screens.spec.ts:136:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (5.0s)
+  ✓   34 tests/ui/channex-screens.spec.ts:200:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (4.7s)
+  ✓   35 tests/ui/channex-screens.spec.ts:249:1 › приём брони: ревизия с двоеточиями в номере открывается (1.1s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   36 tests/ui/channex-screens.spec.ts:263:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.6s)
+  ✓   37 tests/ui/channex-screens.spec.ts:283:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (7.8s)
+  ✓   38 tests/ui/channex-screens.spec.ts:348:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (9.9s)
+  ✓   39 tests/ui/channex-screens.spec.ts:428:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (8.7s)
+  ✓   40 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (2.2s)
+  ✓   41 tests/ui/chessboard-design.spec.ts:9:1 › статусы шахматки понятны без открытия инструкции (1.9s)
+  ✓   42 tests/ui/chessboard-design.spec.ts:34:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (4.9s)
+  ✓   43 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: light, компактное управление и доступная сетка (16.8s)
+  ✓   44 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: dark, компактное управление и доступная сетка (16.7s)
+  ✓   45 tests/ui/chessboard-extend.spec.ts:7:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (2.6s)
+  ✓   46 tests/ui/chessboard-extend.spec.ts:26:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (4.8s)
+  ✓   47 tests/ui/chessboard-extend.spec.ts:62:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (3.2s)
+  ✘   48 tests/ui/chessboard-extend.spec.ts:95:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (45.3s)
+  ✓   49 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (3.3s)
+  ✓   50 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (4.6s)
+  ✓   51 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.3s)
+  ✓   52 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.9s)
+  ✓   53 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.7s)
+  ✓   54 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.9s)
+  ✓   55 tests/ui/chessboard-month.spec.ts:66:1 › неделя, 14 дней, произвольный период и возврат к месяцу (5.6s)
+  ✓   56 tests/ui/chessboard-month.spec.ts:86:1 › в месяце открываются брони, свободные даты и группы номеров (6.9s)
+  ✓   57 tests/ui/chessboard-month.spec.ts:122:3 › месячная сетка: light, читаемость и адаптивность (30.5s)
+  ✓   58 tests/ui/chessboard-month.spec.ts:122:3 › месячная сетка: dark, читаемость и адаптивность (31.5s)
+  ✓   59 tests/ui/chessboard-week.spec.ts:9:1 › C1: сетка начинается до 350 px, фильтры объясняют дату статуса (2.2s)
+  ✓   60 tests/ui/chessboard-week.spec.ts:22:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (6.2s)
+  ✓   61 tests/ui/chessboard-week.spec.ts:62:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.6s)
+  ✓   62 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.2s)
+  ✓   63 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (4.2s)
+  ✓   64 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (4.3s)
+  ✓   65 tests/ui/chessboard-week.spec.ts:112:1 › в неделе работают бронь, категории и создание на воскресенье (4.0s)
+  ✓   66 tests/ui/chessboard-week.spec.ts:146:3 › неделя помещается на экране: light, обе панели и телефон (18.7s)
+  ✓   67 tests/ui/chessboard-week.spec.ts:146:3 › неделя помещается на экране: dark, обе панели и телефон (18.4s)
+  ✓   68 tests/ui/chessboard-week.spec.ts:182:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (1.9s)
+  ✓   69 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API (1.9s)
+  ✓   70 tests/ui/control-design.spec.ts:34:1 › контроль: принятие с ошибкой и повтором, закрытие и история сохраняются после reload (3.5s)
+  ✓   71 tests/ui/control-design.spec.ts:57:1 › журнал: дни группами, время без года, объект одной подписью, чипы разделов (2.1s)
+CONTROL_JOURNAL_CONTROLS_MS 572
+  ✓   72 tests/ui/control-design.spec.ts:105:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (7.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   73 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность light (5.7s)
+  ✓   74 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность dark (5.4s)
+  ✓   75 tests/ui/dashboard-design.spec.ts:19:1 › главная: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (2.4s)
+  ✓   76 tests/ui/dashboard-design.spec.ts:56:1 › главная: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.4s)
+  ✓   77 tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (2.6s)
+  ✓   78 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (2.4s)
+  ✓   79 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (8.4s)
+  ✓   80 tests/ui/dashboard-desk.spec.ts:81:1 › 3. сводка сверху называет причины и дату, без двойной точки (2.7s)
+  ✓   81 tests/ui/dashboard-desk.spec.ts:97:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (7.3s)
+  ✓   82 tests/ui/dashboard-desk.spec.ts:137:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (1.6s)
+  ✓   83 tests/ui/dashboard-desk.spec.ts:170:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (2.4s)
+  ✓   84 tests/ui/dashboard-desk.spec.ts:186:1 › 7. строки главной без разделителя « · » (1.6s)
+  ✓   85 tests/ui/dashboard-desk.spec.ts:207:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (1.9s)
+  ✓   86 tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px (3.0s)
+  ✓   87 tests/ui/dashboard-desk.spec.ts:268:1 › 10. заголовок страницы и панели брони — по шкале §6 (5.5s)
+  ✓   88 tests/ui/dashboard-resilience.spec.ts:15:1 › показатели не пришли — экран открыт, стойка на месте, причина названа (1.4s)
+  ✓   89 tests/ui/dashboard-resilience.spec.ts:30:1 › период выбирается: «этот месяц» открывается с числами (1.4s)
+  ✓   90 tests/ui/date-field.spec.ts:20:1 › главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (1.9s)
+  ✓   91 tests/ui/date-field.spec.ts:51:1 › главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (3.3s)
+  ✓   92 tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся (1.1s)
+  ✓   93 tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (4.7s)
+  ✓   94 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (24.8s)
+  ✓   95 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (25.8s)
+  ✓   96 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и резюме внимания доступны на первом экране (4.1s)
+  ✓   97 tests/ui/design-refresh.spec.ts:27:1 › период на телефоне: подписанные поля и цели не меньше 44 px (1.5s)
+  ✓   98 tests/ui/design-refresh.spec.ts:45:1 › месячные показатели и задачи конкретного дня подписаны отдельно (1.6s)
+  ✓   99 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (11.1s)
+  ✓  100 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (10.7s)
+  ✓  101 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (10.5s)
+  ✓  102 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (10.1s)
+  ✓  103 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (3.3s)
+  ✓  104 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (11.3s)
+  ✓  105 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (11.1s)
+  ✓  106 tests/ui/design-system.spec.ts:73:1 › масштаб 200 %: нет горизонтальной прокрутки (1.5s)
+  ✓  107 tests/ui/design-system.spec.ts:94:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (2.7s)
+  ✓  108 tests/ui/design-system.spec.ts:116:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (3.1s)
+  ✓  109 tests/ui/design-system.spec.ts:131:1 › уведомление появляется в живой области и закрывается (2.2s)
+  ✓  110 tests/ui/design-system.spec.ts:143:1 › подсказка открывается фокусом и закрывается Escape (2.2s)
+  ✓  111 tests/ui/design-system.spec.ts:156:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (2.3s)
+  ✓  112 tests/ui/empty-base.spec.ts:39:3 › пустая база: /today открывается и объясняет пустоту (1.1s)
+  ✓  113 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.7s)
+  ✓  114 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (1.0s)
+  ✓  115 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.1s)
+  ✓  116 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (1.1s)
+  ✓  117 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.3s)
+  ✓  118 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.3s)
+  ✓  119 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rates открывается и объясняет пустоту (1.3s)
+  ✓  120 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.2s)
+  ✓  121 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/statistics открывается и объясняет пустоту (1.3s)
+  ✓  122 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (1.1s)
+  ✓  123 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (1.0s)
+  ✓  124 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (1.1s)
+  ✓  125 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.1s)
+  ✓  126 tests/ui/empty-base.spec.ts:39:3 › пустая база: /analytics открывается и объясняет пустоту (1.2s)
+  ✓  127 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.2s)
+  ✓  128 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channel-manager открывается и объясняет пустоту (1.2s)
+  ✓  129 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.9s)
+  ✓  130 tests/ui/empty-base.spec.ts:60:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.2s)
+  ✓  131 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (1.3s)
+  ✓  132 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (1.3s)
+  ✓  133 tests/ui/finance-units-design.spec.ts:62:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (1.3s)
+  ✓  134 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (24ms)
+  ✓  135 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (16ms)
+  ✓  136 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (5.4s)
+  ✓  137 tests/ui/fund-workspace.spec.ts:33:1 › availability preserves exact unit and dates; responsive category design (8.9s)
+  ✓  138 tests/ui/fund-workspace.spec.ts:65:1 › dark categories and availability; invalid dates and empty onboarding (6.6s)
+  ✓  139 tests/ui/guests-design.spec.ts:22:1 › гости: выборка названа одним предложением со статусом, статус гостя — в единственном числе (1.7s)
+  ✓  140 tests/ui/guests-design.spec.ts:42:1 › гости: пустой список не рисует шапку таблицы, разделы — чипы, имя гостя видно как ссылка (2.6s)
+  ✓  141 tests/ui/housekeeping.spec.ts:20:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (4.2s)
+  ✓  142 tests/ui/housekeeping.spec.ts:76:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (2.6s)
+  ✓  143 tests/ui/housekeeping.spec.ts:105:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (1.3s)
+  ✓  144 tests/ui/housekeeping.spec.ts:113:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (2.7s)
+  ✓  145 tests/ui/housekeeping.spec.ts:153:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (2.4s)
+  ✓  146 tests/ui/housekeeping.spec.ts:180:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (6.3s)
+  ✓  147 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.4s)
+  ✓  148 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.6s)
+  ✓  149 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.3s)
+  ✓  150 tests/ui/incidents-design.spec.ts:96:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (6.9s)
+  ✓  151 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (3.5s)
+  ✓  152 tests/ui/inventory-catalog.spec.ts:31:1 › прямая ссылка на категорию и вид списка сохраняются, карточка открывается (2.7s)
+  ✓  153 tests/ui/inventory-catalog.spec.ts:49:1 › пустой поиск объясняется, сброс возвращает фонд (1.6s)
+  ✓  154 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: light (14.0s)
+  ✓  155 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: dark (13.3s)
+  ✓  156 tests/ui/inventory-catalog.spec.ts:93:1 › пустой фонд отличается от пустого поиска (1.1s)
+  ✓  157 tests/ui/inventory-catalog.spec.ts:101:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.0s)
+  ✓  158 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (2.6s)
+  ✓  159 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (837ms)
+  ✓  160 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (2.4s)
+  ✓  161 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (1.2s)
+  ✓  162 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (1.6s)
+  ✘  163 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (46.4s)
+  ✓  164 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (6.7s)
+  ✓  165 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (1.9s)
+TODAY_LOADING_MS [{"heading":2793,"kpi":2796,"desk":2798},{"heading":2850,"kpi":2859,"desk":2864},{"heading":2779,"kpi":2782,"desk":2811}]
+  ✓  166 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (9.7s)
+  ✓  167 tests/ui/loading-performance.spec.ts:127:1 › фоновый опрос не перекрывается и восстанавливается после отказа (1.8s)
+  ✓  168 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (895ms)
+  ✓  169 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.4s)
+  ✓  170 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.1s)
+  ✓  171 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (881ms)
+  ✓  172 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (1.5s)
+  ✓  173 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (1.6s)
+  ✓  174 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (9.0s)
+  ✓  175 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (8.9s)
+  ✓  176 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (857ms)
+  ✓  177 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.0s)
+  ✓  178 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (941ms)
+  ✓  179 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.0s)
+  ✓  180 tests/ui/login-access.spec.ts:250:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (884ms)
+  ✓  181 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (1.3s)
+  ✓  182 tests/ui/login-access.spec.ts:277:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.5s)
+  ✓  183 tests/ui/login-access.spec.ts:300:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (1.2s)
+  ✓  184 tests/ui/login-access.spec.ts:307:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.2s)
+  ✓  185 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.3s)
+  ✓  186 tests/ui/manager-actions.spec.ts:69:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.7s)
+  ✓  187 tests/ui/manager-actions.spec.ts:133:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (8.2s)
+  ✓  188 tests/ui/manager-actions.spec.ts:194:1 › карточка: предварительная бронь названа словом, место за ней держится (1.5s)
+  ✓  189 tests/ui/manager-actions.spec.ts:213:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.6s)
+  ✓  190 tests/ui/manager-actions.spec.ts:229:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (4.3s)
+  ✓  191 tests/ui/manager-actions.spec.ts:270:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (3.7s)
+  ✓  192 tests/ui/manager-actions.spec.ts:330:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.5s)
+  ✓  193 tests/ui/manager-actions.spec.ts:353:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.2s)
+  ✓  194 tests/ui/navigation.spec.ts:34:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.0s)
+  ✓  195 tests/ui/navigation.spec.ts:47:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.8s)
+  ✓  196 tests/ui/navigation.spec.ts:88:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.0s)
+  ✓  197 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (10.0s)
+  ✓  198 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: light (4.6s)
+  ✓  199 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: dark (4.7s)
+  ✓  200 tests/ui/onboarding.spec.ts:14:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (2.4s)
+  ✓  201 tests/ui/onboarding.spec.ts:36:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.3s)
+  ✓  202 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (1.4s)
+  ✓  203 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (2.0s)
+  ✓  204 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (2.6s)
+  ✓  205 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.3s)
+  ✓  206 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.3s)
+  ✓  207 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.3s)
+  ✓  208 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (1.0s)
+  ✓  209 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (1.3s)
+  ✓  210 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (977ms)
+  ✓  211 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (2.7s)
+  ✓  212 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (2.2s)
+  ✓  213 tests/ui/payment-draft.spec.ts:62:1 › оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит (2.0s)
+  ✓  214 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (1.9s)
+  ✓  215 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (1.6s)
+  ✓  216 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (4.2s)
+  ✓  217 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» — у организации с расширением, «Платформа» — у главного администратора (4.2s)
+  ✓  218 tests/ui/platform-access.spec.ts:76:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.2s)
+  ✓  219 tests/ui/platform-access.spec.ts:98:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.8s)
+  ✓  220 tests/ui/platform-access.spec.ts:133:1 › сотрудник: настройки только смотрит, а диалоги ведёт; приглашает — владелец (5.7s)
+  ✓  221 tests/ui/platform-access.spec.ts:163:1 › за неделю до конца срока владелец видит напоминание; сотрудник — нет (4.0s)
+  ✓  222 tests/ui/platform-access.spec.ts:181:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (6.2s)
+  ✓  223 tests/ui/platform-access.spec.ts:234:5 › доступность: «Организации» и состояния расширения, light, 1440px (10.4s)
+  ✓  224 tests/ui/platform-access.spec.ts:234:5 › доступность: «Организации» и состояния расширения, dark, 1440px (10.0s)
+  ✓  225 tests/ui/platform-access.spec.ts:234:5 › доступность: «Организации» и состояния расширения, light, 390px (9.4s)
+  ✓  226 tests/ui/platform-access.spec.ts:234:5 › доступность: «Организации» и состояния расширения, dark, 390px (9.5s)
+  ✓  227 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (2.8s)
+  ✓  228 tests/ui/platform-support.spec.ts:57:1 › главный администратор: сводка, отбор, карточка — кто пишет; перехват, ответ, возврат (7.6s)
+  ✓  229 tests/ui/platform-support.spec.ts:117:1 › знания помощника: список и загрузка документа (4.1s)
+  ✓  230 tests/ui/platform-support.spec.ts:137:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (7.3s)
+  ✓  231 tests/ui/platform-support.spec.ts:181:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.5s)
+  ✓  232 tests/ui/platform-support.spec.ts:198:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.3s)
+  ✓  233 tests/ui/platform-support.spec.ts:208:5 › доступность «Техподдержки»: light, 1440px (12.1s)
+  ✓  234 tests/ui/platform-support.spec.ts:208:5 › доступность «Техподдержки»: dark, 1440px (10.9s)
+  ✓  235 tests/ui/platform-support.spec.ts:208:5 › доступность «Техподдержки»: light, 390px (10.6s)
+  ✓  236 tests/ui/platform-support.spec.ts:208:5 › доступность «Техподдержки»: dark, 390px (10.1s)
+  ✓  237 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.9s)
+  ✓  238 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (4.0s)
+  ✓  239 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (6.6s)
+  ✓  240 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (7.6s)
+  ✓  241 tests/ui/premium.spec.ts:113:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.7m)
+  ✓  242 tests/ui/premium.spec.ts:169:1 › вход не пускает с чужой почтой и чужим паролем (1.0s)
+  ✓  243 tests/ui/premium.spec.ts:186:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (4.2s)
+  ✓  244 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (3.1s)
+  ✓  245 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (1.1s)
+  ✓  246 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.6s)
+  ✓  247 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (2.2s)
+  ✓  248 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.6s)
+  ✓  249 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.7s)
+  ✓  250 tests/ui/quality.spec.ts:91:1 › список гостей и вторая бронь открывают собственные карточки (2.8s)
+  ✓  251 tests/ui/quality.spec.ts:103:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.8s)
+  ✓  252 tests/ui/quality.spec.ts:126:1 › изменение уборки относится только к выбранному номеру (2.7s)
+  ✓  253 tests/ui/quality.spec.ts:140:1 › неподключённые внешние демо не ведут на несуществующие страницы (1.4s)
+  ✓  254 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: профиль гостя (2.0s)
+  ✓  255 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: документ гостя (1.9s)
+  ✓  256 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: блокировка номера (2.0s)
+  ✓  257 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: сайт аналитики (2.0s)
+  ✓  258 tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель (1.7s)
+  ✓  259 tests/ui/rates-design.spec.ts:56:1 › цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке (1.9s)
+  ✓  260 tests/ui/rates-design.spec.ts:91:1 › массовое изменение: дни недели одной строкой, кнопка называет число изменений (1.8s)
+  ✓  261 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (1.3s)
+  ✓  262 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.6s)
+  ✓  263 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.6s)
+  ✓  264 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (1.1s)
+  ✘  265 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (50.1s)
+  ✓  266 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login оставляет вход сотрудников (1.0s)
+  ✓  267 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /register оставляет вход сотрудников (909ms)
+  ✓  268 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (868ms)
+  ✓  269 tests/ui/registration-closed.spec.ts:27:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (861ms)
+  ✓  270 tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии (1.1s)
+  ✓  271 tests/ui/requests.spec.ts:61:3 › экран /today: данные берутся одним запросом на путь (1.6s)
+  ✓  272 tests/ui/requests.spec.ts:61:3 › экран /chessboard: данные берутся одним запросом на путь (1.8s)
+  ✓  273 tests/ui/requests.spec.ts:61:3 › экран /reservations: данные берутся одним запросом на путь (1.6s)
+  ✓  274 tests/ui/requests.spec.ts:61:3 › экран /guests: данные берутся одним запросом на путь (1.6s)
+  ✓  275 tests/ui/requests.spec.ts:61:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓  276 tests/ui/requests.spec.ts:61:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.7s)
+  ✓  277 tests/ui/requests.spec.ts:61:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.9s)
+  ✓  278 tests/ui/requests.spec.ts:61:3 › экран /rates: данные берутся одним запросом на путь (2.6s)
+  ✓  279 tests/ui/requests.spec.ts:61:3 › экран /management/statistics: данные берутся одним запросом на путь (1.7s)
+  ✓  280 tests/ui/requests.spec.ts:61:3 › экран /finance: данные берутся одним запросом на путь (1.5s)
+  ✓  281 tests/ui/requests.spec.ts:61:3 › экран /channel-manager: данные берутся одним запросом на путь (1.6s)
+  ✓  282 tests/ui/requests.spec.ts:61:3 › экран /channels: данные берутся одним запросом на путь (1.6s)
+  ✓  283 tests/ui/requests.spec.ts:61:3 › экран /analytics: данные берутся одним запросом на путь (1.6s)
+  ✓  284 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.7s)
+  ✓  285 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings/penalties: данные берутся одним запросом на путь (1.6s)
+  ✓  286 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓  287 tests/ui/requests.spec.ts:61:3 › экран /connections: данные берутся одним запросом на путь (1.6s)
+  ✓  288 tests/ui/requests.spec.ts:61:3 › экран /analytics/setup: данные берутся одним запросом на путь (1.5s)
+  ✓  289 tests/ui/requests.spec.ts:61:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  290 tests/ui/requests.spec.ts:61:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓  291 tests/ui/requests.spec.ts:61:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+  ✓  292 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (2.1s)
+  ✓  293 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (2.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  294 tests/ui/reservation-tariff.spec.ts:64:1 › справочник тарифов не загрузился — карточка брони остаётся с предупреждением, а не экран ошибки (1.8s)
+  ✓  295 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (1.8s)
+  ✓  296 tests/ui/reservations-design.spec.ts:35:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (3.6s)
+  ✓  297 tests/ui/reservations-design.spec.ts:57:3 › Брони: light, читаемый список на пяти ширинах (8.5s)
+  ✓  298 tests/ui/reservations-design.spec.ts:57:3 › Брони: dark, читаемый список на пяти ширинах (8.4s)
+  ✓  299 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.8s)
+  ✓  300 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.2s)
+  ✓  301 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.1s)
+  ✓  302 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (1.9s)
+  ✓  303 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (2.2s)
+  ✓  304 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (3.4s)
+  ✓  305 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (908ms)
+  ✓  306 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (863ms)
+  ✓  307 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (3.5s)
+  ✓  308 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (2.5s)
+  ✓  309 tests/ui/settings-simplification.spec.ts:34:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (6.1s)
+  ✓  310 tests/ui/settings-simplification.spec.ts:55:1 › поиск услуг и фильтр правил отмены работают без повторной загрузки каталога (2.0s)
+  ✓  311 tests/ui/settings-simplification.spec.ts:81:1 › ошибка каталога сохраняет навигацию и исправляется повтором (1.6s)
+  ✓  312 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (7.0s)
+  ✓  313 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (7.3s)
+  ✓  314 tests/ui/settings-simplification.spec.ts:157:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (1.3s)
+  ✓  315 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (7.5s)
+  ✓  316 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (7.9s)
+  ✓  317 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (13.0s)
+  ✓  318 tests/ui/system-screens.spec.ts:249:1 › настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом (8.4s)
+  ✓  319 tests/ui/system-screens.spec.ts:301:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (6.8s)
+  ✓  320 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (33.5s)
+  ✓  321 tests/ui/workspace.spec.ts:95:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (3.9s)
+  ✓  322 tests/ui/workspace.spec.ts:133:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.9s)
+  ✓  323 tests/ui/workspace.spec.ts:152:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (3.5s)
+  ✓  324 tests/ui/workspace.spec.ts:177:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (6.0s)
+  ✓  325 tests/ui/workspace.spec.ts:204:1 › главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса (7.0s)
+  ✓  326 tests/ui/workspace.spec.ts:255:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.7s)
+  ✓  327 tests/ui/workspace.spec.ts:283:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.5s)
+  ✓  328 tests/ui/workspace.spec.ts:303:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.8s)
+  ✓  329 tests/ui/workspace.spec.ts:335:1 › карточка: профиль гостя и заселение проходят через server actions (4.2s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  330 tests/ui/workspace.spec.ts:378:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.2s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:43:13)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  331 tests/ui/workspace.spec.ts:395:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.3s)
+  ✓  332 tests/ui/workspace.spec.ts:412:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.7s)
+  ✓  333 tests/ui/workspace.spec.ts:434:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  334 tests/ui/workspace.spec.ts:460:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.2s)
+  ✓  335 tests/ui/workspace.spec.ts:469:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.5s)
+  ✓  336 tests/ui/workspace.spec.ts:495:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.0s)
+  ✓  337 tests/ui/workspace.spec.ts:507:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.3s)
+  ✓  338 tests/ui/workspace.spec.ts:514:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.2s)
+  ✓  339 tests/ui/workspace.spec.ts:523:1 › групповая бронь: разные категории сохраняются при конфликте (2.0s)
+  ✓  340 tests/ui/workspace.spec.ts:547:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.7s)
+  ✓  341 tests/ui/workspace.spec.ts:574:1 › обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия (2.9s)
+  ✓  342 tests/ui/workspace.spec.ts:615:1 › ошибка буфера обмена видна, код остаётся доступен (1.6s)
+  ✓  343 tests/ui/workspace.spec.ts:632:1 › финансы: неверные даты можно исправить без падения страницы (2.0s)
+  ✓  344 tests/ui/workspace.spec.ts:643:1 › ошибка загрузки тарифов не позволяет включить виджет (1.1s)
+  ✓  345 tests/ui/workspace.spec.ts:652:1 › номера: статус уборки, блокировка и снятие сохраняются (3.1s)
+  ✓  346 tests/ui/workspace.spec.ts:682:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.9s)
+  ✓  347 tests/ui/workspace.spec.ts:709:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓  348 tests/ui/workspace.spec.ts:718:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.0s)
+  ✓  349 tests/ui/workspace.spec.ts:736:1 › неисправности: когда история обрезана, это написано (2.1s)
+  ✓  350 tests/ui/workspace.spec.ts:744:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.7s)
+  ✓  351 tests/ui/workspace.spec.ts:756:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.8s)
+  ✓  352 tests/ui/workspace.spec.ts:781:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.1s)
+  ✓  353 tests/ui/workspace.spec.ts:808:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (4.0s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-21&to=2026-09-27: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:76:38)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  354 tests/ui/workspace.spec.ts:840:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (7.7s)
+  ✓  355 tests/ui/workspace.spec.ts:899:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.8s)
+  ✓  356 tests/ui/workspace.spec.ts:928:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.1s)
+  ✓  357 tests/ui/workspace.spec.ts:952:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.8s)
+  ✓  358 tests/ui/workspace.spec.ts:971:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.7s)
+  ✓  359 tests/ui/workspace.spec.ts:983:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.9s)
+  ✓  360 tests/ui/workspace.spec.ts:990:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (4.8s)
+  ✓  361 tests/ui/workspace.spec.ts:1014:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.8s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:25:28)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  362 tests/ui/workspace.spec.ts:1036:1 › фонд и категории открываются независимо от сбоя шахматки (4.3s)
+  ✓  363 tests/ui/workspace.spec.ts:1057:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.6s)
+  ✓  364 tests/ui/workspace.spec.ts:1075:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.2s)
+  ✓  365 tests/ui/workspace.spec.ts:1094:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.0s)
+  ✓  366 tests/ui/workspace.spec.ts:1109:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.0s)
+  ✓  367 tests/ui/workspace.spec.ts:1122:1 › счета: приём оплаты подтверждается суммой на экране (2.2s)
+  ✓  368 tests/ui/workspace.spec.ts:1139:1 › деньги за период: период длиннее года объясняется на странице (1.2s)
+  ✓  369 tests/ui/workspace.spec.ts:1158:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.9s)
+  ✓  370 tests/ui/workspace.spec.ts:1175:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.9s)
+  ✓  371 tests/ui/workspace.spec.ts:1200:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.2s)
+  ✓  372 tests/ui/workspace.spec.ts:1219:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.5s)
+  ✓  373 tests/ui/workspace.spec.ts:1234:1 › каналы: входящая бронь ведёт на карточку брони (2.2s)
+  ✓  374 tests/ui/workspace.spec.ts:1247:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (2.0s)
+  ✓  375 tests/ui/workspace.spec.ts:1266:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.0s)
+  ✓  376 tests/ui/workspace.spec.ts:1284:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  377 tests/ui/workspace.spec.ts:1322:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.7s)
+  ✓  378 tests/ui/workspace.spec.ts:1384:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.5s)
+  ✓  379 tests/ui/workspace.spec.ts:1450:1 › деньги D2: период словами, три блока с пояснениями, отказ не выглядит нулями (3.0s)
+  ✓  380 tests/ui/workspace.spec.ts:1491:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (5.0s)
+  ✓  381 tests/ui/workspace.spec.ts:1516:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.8s)
+
+
+  1) tests/ui/chessboard-extend.spec.ts:95:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('[data-unit-code="R01"][data-testid="unit-row"]').locator('.board-stay-resize').locator('..')
+
+
+       96 |   await page.goto('/chessboard');
+       97 |   const row = page.locator('[data-unit-code="R01"][data-testid="unit-row"]');
+    >  98 |   const last = await row.locator('.board-stay-resize').locator('..').getAttribute('data-date');
+          |                                                                      ^
+       99 |   const end = new Date(`${last}T12:00:00Z`);
+      100 |   end.setUTCDate(end.getUTCDate() + 6);
+      101 |   await page.goto(`/chessboard?from=${last}&to=${end.toISOString().slice(0, 10)}`);
+        at /home/user/wetop.ai/tests/ui/chessboard-extend.spec.ts:98:70
+
+    Error Context: test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-extend-одна-вид-46dea-ки-канал-не-отнимает-ширину/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.workspace-sidebar .workspace-property')
+    Expected substring: "Объект не загружен"
+    Received string:    "Luxx ApartsТестовый адрес, 1"
+
+    Call log:
+      - Expect "toContainText" locator('.workspace-sidebar .workspace-property') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar .workspace-property')
+        5 × locator resolved to <a href="/hotel-settings" class="workspace-property">…</a>
+          - unexpected value "Luxx ApartsТестовый адрес, 1"
+      - Test timeout of 45000ms exceeded.
+
+
+      37 |     await expect(page.getByTestId('kpi-occupancy')).toBeVisible({ timeout: 5000 });
+      38 |     await expect(page.getByTestId('c-arrivals')).toBeVisible({ timeout: 5000 });
+    > 39 |     await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+         |                                                                          ^
+      40 |       'Объект не загружен',
+      41 |     );
+      42 |   } finally {
+        at /home/user/wetop.ai/tests/ui/loading-performance.spec.ts:39:74
+
+    Error Context: test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/loading-performance-Главна-43623-и-гостиницы-ещё-загружаются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new", waiting until "commit"
+
+
+       at fixtures.ts:46
+
+      44 |     const goto = page.goto.bind(page);
+      45 |     page.goto = async (url, options) => {
+    > 46 |       const response = await goto(url, options);
+         |                              ^
+      47 |       await settleStreaming(page);
+      48 |       return response;
+      49 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:46:30)
+        at /home/user/wetop.ai/tests/ui/real-data.spec.ts:65:16
+
+    Error Context: test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-data-поздняя-загрузка-d5156--ввод-формы-и-открытое-меню/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/accessibility.spec.ts (5.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  3 failed
+    tests/ui/chessboard-extend.spec.ts:95:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину 
+    tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются 
+    tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню 
+  378 passed (34.7m)
+
+# код выхода 1 · 34 мин 45 с

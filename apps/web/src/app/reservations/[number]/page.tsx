@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
+import { hotelToday } from '../../../lib/hotel-api';
 import { Icon } from '../../../components/icon';
 import { AmountChip } from '../../../components/amount-chip';
 import { notFoundOn404 } from '../../../lib/page-error';
@@ -40,6 +41,7 @@ const SOURCE_RU: Record<string, string> = {
 export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
+  const today = await hotelToday();
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
   // Доступность считается не дальше 62 ночей (ADR: предел шахматки). У долгих проживаний — а это
@@ -303,7 +305,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                     number={r.confirmationNumber}
                     finance={finance}
                     services={services}
-                    today={new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10)}
+                    today={today}
                   />
                 ) : (
                   <Alert boxed>

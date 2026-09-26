@@ -11,7 +11,7 @@ import { ChessboardGrid } from './board-grid';
 import { BoardHelp } from './board-help';
 import { BoardDateRange } from './board-date-range';
 import { displayDate } from '../../lib/display-date';
-import { validDate } from '../../lib/hotel-api';
+import { hotelToday, validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
 import { weekPeriod } from './week-period';
@@ -36,7 +36,7 @@ export default async function ChessboardPage({
   searchParams: Promise<SearchParams>;
 }) {
   const query = normalizeSearchParams(await searchParams);
-  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  const today = await hotelToday();
   const currentWeek = weekPeriod(today);
   const from = query.from || currentWeek.from;
   const to =

@@ -3,15 +3,13 @@ import { analyticsApi, channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { RefreshButton } from '../../components/refresh-button';
 import { Alert, Badge, Fact, Grid, Help, Panel } from '../../components/ui';
-import { hotelApi } from '../../lib/hotel-api';
+import { hotelApi, hotelClock } from '../../lib/hotel-api';
 import { pluralRu } from '../../lib/plural';
 import { DataConnectionPanel } from './data-connection';
 
-/** Время события по часам объекта; событий не было — «—» (§14), а не фраза вместо значения */
-const time = (value: string | null) =>
-  value ? new Date(value).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) : '—';
-
 export default async function ConnectionsPage() {
+  // Время события по часам объекта (С-13); событий не было — «—» (§14), а не фраза вместо значения
+  const clock = await hotelClock();
   const [connection, webhook, sites, database] = await Promise.allSettled([
     channelsApi.connection(),
     channelsApi.webhookStatus(),
@@ -49,8 +47,11 @@ export default async function ConnectionsPage() {
                   label="Сопоставлено"
                   value={`${pluralRu(status.mappedCategories, ['категория', 'категории', 'категорий'])}, ${pluralRu(status.mappedRatePlans, ['тариф', 'тарифа', 'тарифов'])}`}
                 />
-                <Fact label="Последний webhook, по Алматы" value={time(status.lastWebhookAt)} />
-                <Fact label="Последний импорт, по Алматы" value={time(status.lastPullAt)} />
+                <Fact
+                  label="Последний webhook, по Алматы"
+                  value={clock.local(status.lastWebhookAt)}
+                />
+                <Fact label="Последний импорт, по Алматы" value={clock.local(status.lastPullAt)} />
               </Grid>
             )}
             {webhook.status === 'fulfilled' ? (

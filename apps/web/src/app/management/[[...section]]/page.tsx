@@ -28,7 +28,7 @@ export default async function ManagementPage({
   const sp = normalizeSearchParams(await searchParams);
   return (
     <Page title={item.label}>
-      {section[0] === 'statistics' && <Statistics date={sp.date ?? hotelToday()} />}
+      {section[0] === 'statistics' && <Statistics date={sp.date ?? (await hotelToday())} />}
     </Page>
   );
 }

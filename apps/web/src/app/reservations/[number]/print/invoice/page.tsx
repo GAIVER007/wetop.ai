@@ -1,12 +1,11 @@
 import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
 import { chessboardApi, financeApi, formatMinor } from '../../../../../lib/api';
-import { hotelApi } from '../../../../../lib/hotel-api';
+import { hotelApi, hotelClock } from '../../../../../lib/hotel-api';
 import { PrintButton } from '../print-button';
 import {
   DRAFT_BANNER,
   INVOICE_T,
   PROPERTY,
-  almatyNow,
   invoiceLines,
   pickLang,
   propertyParty,
@@ -39,7 +38,7 @@ export default async function PrintInvoice({
   const lines = invoiceLines(finance);
   const total = sumMinor(lines.map((x) => x.amountMinor));
   const balance = BigInt(finance.balanceMinor);
-  const now = almatyNow();
+  const now = (await hotelClock()).printed();
   const back = `/reservations/${encodeURIComponent(r.confirmationNumber)}`;
   return (
     <main

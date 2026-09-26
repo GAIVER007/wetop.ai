@@ -31,8 +31,8 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     expect(deskShellOf(null)).toBe(CLOSED_SHELL);
   });
 
-  it('закрытых пунктов в меню нет, а раздел «Платформа» без прав не показывается вовсе', () => {
-    expect(hrefs({ aiSeller: false, platform: false })).not.toContain('/ai-seller');
+  it('продавец виден для знакомства, а раздел «Платформа» без прав скрыт', () => {
+    expect(hrefs({ aiSeller: false, platform: false })).toContain('/ai-seller');
     expect(hrefs({ aiSeller: false, platform: false })).not.toContain('/platform');
     expect(sidebarSectionsFor({ aiSeller: false, platform: false }).map((s) => s.id)).not.toContain(
       'platform',

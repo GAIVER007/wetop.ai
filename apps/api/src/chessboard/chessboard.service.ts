@@ -29,7 +29,7 @@ export class ChessboardService {
 
   /** Диапазон по умолчанию — сегодня (Asia/Almaty) + 14 дней. */
   async board(fromRaw?: string, toRaw?: string): Promise<Chessboard> {
-    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const today = await this.repo.today();
     const from = fromRaw ?? today;
     const to = toRaw ?? plusDays(from, 14);
     if (
@@ -55,7 +55,7 @@ export class ChessboardService {
 
   /** Доступность ячеек по категориям для проживания [arrival, departure). */
   async availability(arrivalRaw?: string, departureRaw?: string): Promise<StayAvailability> {
-    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const today = await this.repo.today();
     const arrival = arrivalRaw ?? today;
     const departure = departureRaw ?? plusDays(arrival, 1);
     if (

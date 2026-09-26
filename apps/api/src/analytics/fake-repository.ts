@@ -194,6 +194,14 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   async status(): Promise<SiteStatus> {
     return this.siteStatus;
   }
+  /** Подмена счёта из журнала: тест «перезапуска» задаёт число сам; null — считаем по audits */
+  bookingsSince: number | null = null;
+  async siteBookingsSince(siteId: string): Promise<number> {
+    if (this.bookingsSince !== null) return this.bookingsSince;
+    return this.audits.filter((a) => a.action === 'analytics.site.booking' && a.siteId === siteId)
+      .length;
+  }
+
   async audit(action: string, siteId: string, after?: Record<string, unknown>): Promise<void> {
     this.audits.push({ action, siteId, details: after });
   }

@@ -287,7 +287,8 @@ crontab -l | grep wetop-auto-deploy                               # строка
 ADR-081). Скрипт такой коммит не выложит и напишет, какие миграции ждут. Порядок (весь путь включения —
 `docs/assistant/README.md` §6): `release` перематывается на
 проверенный коммит `main`; скрипт отказывает и называет миграции; владелец применяет их (бэкап → миграция → проверка —
-`docs/ops/backups.md`) и запускает `/usr/local/sbin/wetop-auto-deploy --migrations-applied` — скрипт выкладывает эту
+`docs/ops/backups.md`) и запускает `/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина из отказа>` — скрипт сверяет её с
+`origin/release` (перемотали после отказа — откажет снова; ТЗ аудита 25.09, С-1) и выкладывает эту
 вершину без проверки миграций, остальные проверки и откат остаются. Следующие вершины снова проверяются.
 
 **Миграции без Node на сервере** — Prisma CLI есть в образе стойки, миграции берутся из той вершины `release`, на
@@ -304,7 +305,7 @@ mig() { ( set -a; . ./.env; set +a
 mig status     # ждём: две не применены — 20260924000018_user_errors, 20260924000019_seller_profiles
 mig deploy     # только после свежей копии ($BACKUP, docs/ops/backups.md)
 mig status     # ждём: Database schema is up to date
-/usr/local/sbin/wetop-auto-deploy --migrations-applied
+/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина из отказа>   # sha называет сам отказ
 ```
 
 Выключить — убрать строку из `crontab -e`. Ручная выкладка по §1а остаётся рабочей: перед ней убрать строку cron, чтобы

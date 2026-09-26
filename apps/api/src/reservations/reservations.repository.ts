@@ -17,9 +17,9 @@ import type {
 } from '@pms/domain';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { loadReservationCard, type ReservationCard } from './reservation-card';
+import { cardForAudit, isReservationCard, loadReservationCard, type ReservationCard } from './reservation-card';
 import { auditUserId } from '../accounts/actor';
 
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
@@ -183,6 +183,8 @@ export interface AuditEntry {
 
 /** Порт команд ручной брони. Все методы вызываются внутри одной транзакции (UnitOfWork). */
 export interface ReservationsRepository {
+  /** Сегодня по часам объекта: ночная смена не должна писать вчерашнюю дату (С-13) */
+  today(): Promise<string>;
   property(): Promise<{ id: string; currency: string }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
   /** Активные категории объекта по имени — виджет сайта показывает их все (срез 9) */
@@ -368,19 +370,18 @@ export const RESERVATIONS_UOW = Symbol('RESERVATIONS_UOW');
 
 const asDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const iso = (x: Date) => x.toISOString().slice(0, 10);
-/** Сегодня по часам объекта (Asia/Almaty, UTC+5): ночная смена не должна писать вчерашнюю дату */
-const almatyToday = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+// «сегодня» считает today(): по Property.timezone, не по жёсткому UTC+5 (С-13, ТЗ аудита 25.09.2026)
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 export class PrismaReservationsRepository implements ReservationsRepository {
-  private propertyCache: { id: string; currency: string } | null = null;
+  private propertyCache: { id: string; currency: string; timezone: string } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
     private readonly db: Db | DbTx,
     private readonly propertyName: string = LUXX_APARTS_PROPERTY.name,
   ) {}
 
-  async property(): Promise<{ id: string; currency: string }> {
+  async property(): Promise<{ id: string; currency: string; timezone: string }> {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
@@ -389,19 +390,23 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({
           where: { organizationId },
-          select: { id: true, currency: true },
+          select: { id: true, currency: true, timezone: true },
         });
         if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
-        this.propertyCache = { id: found.id, currency: found.currency };
+        this.propertyCache = found;
       } else {
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
-          select: { id: true, currency: true },
+          select: { id: true, currency: true, timezone: true },
         });
-        this.propertyCache = { id: found.id, currency: found.currency };
+        this.propertyCache = found;
       }
     }
     return this.propertyCache;
+  }
+
+  async today(): Promise<string> {
+    return todayAt((await this.property()).timezone);
   }
   async activeCategories(): Promise<CategoryRef[]> {
     const { id: propertyId } = await this.property();
@@ -1191,7 +1196,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         quantity: 1,
         unitPrice: amountMinor,
         amount: amountMinor,
-        serviceDate: new Date(`${almatyToday()}T00:00:00Z`),
+        serviceDate: new Date(`${await this.today()}T00:00:00Z`),
       },
       select: { id: true },
     });
@@ -1290,14 +1295,16 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async audit(entry: AuditEntry): Promise<void> {
+    // В-5 (ТЗ аудита 25.09.2026): карточка в журнале — без ФИО, телефон маской; остальное — как было
+    const forJournal = (v: unknown) => (isReservationCard(v) ? cardForAudit(v) : v);
     await this.db.auditLog.create({
       data: {
         userId: auditUserId(),
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,
-        before: json(entry.before),
-        after: json(entry.after),
+        before: json(forJournal(entry.before)),
+        after: json(forJournal(entry.after)),
       },
     });
   }

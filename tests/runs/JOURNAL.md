@@ -2336,10 +2336,90 @@
 | 25.09.2026 22:43 | unit | ✅ 1847 из 1850, пропущено 3 | 1 мин 26 с | 2c5fb03 +15 | [лог](logs/2026-09-25T17-43-42Z-unit-a824.log) |  |
 | 25.09.2026 22:46 | typecheck | ✅ без ошибок | 29 с | 2c5fb03 +17 | [лог](logs/2026-09-25T17-46-01Z-typecheck-52f2.log) |  |
 | 25.09.2026 22:46 | integration | ✅ 76 из 76 | 32 с | 2c5fb03 +11 | [лог](logs/2026-09-25T17-46-39Z-integration-0923.log) |  |
+| 25.09.2026 23:09 | lint | ✅ без ошибок | 19 с | 1cbd2e9 | [лог](logs/2026-09-25T18-09-38Z-lint-8022.log) | predpokaznaya proverka na 1cbd2e9d |
+| 25.09.2026 23:10 | e2e | ❌ упало 21 из 25, пропущено 3 | 29 с | 1cbd2e9 | [лог](logs/2026-09-25T18-10-18Z-e2e-e913.log) | predpokaznaya proverka na 1cbd2e9d |
+| 25.09.2026 23:12 | e2e | ❌ упало 21 из 25, пропущено 3 | 18 с | 1cbd2e9 | [лог](logs/2026-09-25T18-12-02Z-e2e-859b.log) | predpokaznaya proverka na 1cbd2e9d posle regeneratsii klienta |
+| 25.09.2026 23:13 | e2e | ✅ 25 из 25 | 52 с | 1cbd2e9 | [лог](logs/2026-09-25T18-13-54Z-e2e-1984.log) | predpokaznaya proverka na 1cbd2e9d, brauzer 1243 iz predustanovlennogo 1194 |
+| 25.09.2026 23:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 375 из 377 | 6 мин 52 с | 1cbd2e9 | [лог](logs/2026-09-25T18-15-13Z-e2e-56de.log) | predpokaznaya proverka: polnyy UI na 1cbd2e9d |
+| 25.09.2026 23:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 377 из 377 | 29 мин 25 с | b67a0c3 | [лог](logs/2026-09-25T18-22-44Z-e2e-a1ee.log) | predpokaznaya proverka: polnyy UI na 1cbd2e9d, Chromium vmesto Chrome (v kontejnere Chrome net) |
+| 25.09.2026 23:54 | unit (частично: apps/api/src/auth/auth.service.test.ts apps/api/src/auth/auth.guard.test.ts tests/unit/auto-deploy.test.ts apps/web/src/lib/auth-lock.test.ts) | ❌ упало 6 из 38 | 9 с | 46ae4a2 +4 | [лог](logs/2026-09-25T18-54-25Z-unit-fdbf.log) | TZ audita blok 1: red do pravok (V-1, V-2, S-1) |
+| 25.09.2026 23:56 | unit (частично: apps/api/src/auth/auth.service.test.ts apps/api/src/auth/auth.guard.test.ts tests/unit/auto-deploy.test.ts apps/web/src/lib/auth-lock.test.ts) | ❌ упало 2 из 65 | 8 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-56-25Z-unit-bb70.log) | TZ audita blok 1: green posle pravok |
+| 25.09.2026 23:57 | unit (частично: apps/api/src/auth/auth.service.test.ts apps/api/src/auth/auth.guard.test.ts tests/unit/auto-deploy.test.ts apps/web/src/lib/auth-lock.test.ts) | ✅ 65 из 65 | 8 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-57-07Z-unit-68e2.log) | TZ audita blok 1: green |
+| 25.09.2026 23:57 | unit | ✅ 1857 из 1860, пропущено 3 | 1 мин 12 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-57-23Z-unit-cbd3.log) | TZ audita blok 1 na polnom dereve |
+| 25.09.2026 23:58 | typecheck | ✅ без ошибок | 27 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-58-35Z-typecheck-e8a5.log) | TZ audita blok 1 na polnom dereve |
+| 25.09.2026 23:59 | lint | ✅ без ошибок | 14 с | 46ae4a2 +10 | [лог](logs/2026-09-25T18-59-03Z-lint-8891.log) | TZ audita blok 1 na polnom dereve |
+| 26.09.2026 00:08 | integration (частично: tests/integration/integrity-guards.test.ts) | ❌ упало 5 из 5 | 3 с | 6972a66 +1 | [лог](logs/2026-09-25T19-08-17Z-integration-afe0.log) | TZ audita blok 3: red do migratsii i koda |
+| 26.09.2026 00:09 | integration (частично: tests/integration/integrity-guards.test.ts) | ✅ 5 из 5 | 3 с | 6972a66 +8 | [лог](logs/2026-09-25T19-09-46Z-integration-a469.log) | TZ audita blok 3: green |
+| 26.09.2026 00:10 | integration | ❌ упало 2 из 81 | 24 с | 6972a66 +8 | [лог](logs/2026-09-25T19-10-51Z-integration-275d.log) | TZ audita blok 3 na polnom nabore |
+| 26.09.2026 00:11 | unit | ✅ 1858 из 1861, пропущено 3 | 1 мин 12 с | 6972a66 +7 | [лог](logs/2026-09-25T19-11-16Z-unit-0c4c.log) | TZ audita blok 3 |
+| 26.09.2026 00:12 | typecheck | ❌ ошибок: 2 | 20 с | 6972a66 +8 | [лог](logs/2026-09-25T19-12-29Z-typecheck-c396.log) | TZ audita blok 3 |
+| 26.09.2026 00:12 | lint | ✅ без ошибок | 14 с | 6972a66 +8 | [лог](logs/2026-09-25T19-12-49Z-lint-1981.log) | TZ audita blok 3 |
+| 26.09.2026 00:14 | integration | ❌ код выхода 1 | 23 с | 6972a66 +12 | [лог](logs/2026-09-25T19-14-57Z-integration-0ece.log) | TZ audita blok 3: polnyy nabor posle popravok triggera |
+| 26.09.2026 00:15 | integration | ✅ 81 из 81 | 23 с | 6972a66 +13 | [лог](logs/2026-09-25T19-15-55Z-integration-6f07.log) | TZ audita blok 3: polnyy nabor, green |
+| 26.09.2026 00:16 | typecheck | ❌ ошибок: 6 | 19 с | 6972a66 +14 | [лог](logs/2026-09-25T19-16-25Z-typecheck-3703.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:16 | unit | ✅ 1858 из 1861, пропущено 3 | 1 мин 12 с | 6972a66 +8 | [лог](logs/2026-09-25T19-16-45Z-unit-bdfa.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:17 | lint | ✅ без ошибок | 13 с | 6972a66 +14 | [лог](logs/2026-09-25T19-17-57Z-lint-8a8d.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:18 | typecheck | ❌ ошибок: 1 | 20 с | 6972a66 +14 | [лог](logs/2026-09-25T19-18-58Z-typecheck-2c47.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:19 | typecheck | ✅ без ошибок | 19 с | 6972a66 +14 | [лог](logs/2026-09-25T19-19-34Z-typecheck-cc0f.log) | TZ audita blok 3 itog |
+| 26.09.2026 00:19 | unit (частично: apps/api/src/units/units.controller.test.ts) | ✅ 5 из 5 | 3 с | 6972a66 +8 | [лог](logs/2026-09-25T19-19-53Z-unit-4fbd.log) | TZ audita blok 3: fake posle popravki |
+| 26.09.2026 00:19 | integration (частично: tests/integration/audit-list.test.ts tests/integration/integrity-guards.test.ts) | ✅ 8 из 8 | 4 с | 6972a66 +13 | [лог](logs/2026-09-25T19-19-57Z-integration-277f.log) | helper types |
+| 26.09.2026 00:20 | lint | ✅ без ошибок | 13 с | 6972a66 +14 | [лог](logs/2026-09-25T19-20-41Z-lint-1f2f.log) | TZ audita blok 3 itog |
 | 25.09.2026 23:54 | typecheck | ✅ без ошибок | 29 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-54-23Z-typecheck-8098.log) |  |
 | 25.09.2026 23:54 | lint | ✅ без ошибок | 22 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-54-53Z-lint-0a84.log) |  |
 | 25.09.2026 23:55 | unit | ✅ 1853 из 1856, пропущено 3 | 1 мин 13 с | 1cbd2e9 +15 | [лог](logs/2026-09-25T18-55-23Z-unit-149a.log) |  |
 | 25.09.2026 23:56 | integration | ✅ 76 из 76 | 31 с | 1cbd2e9 +7 | [лог](logs/2026-09-25T18-56-49Z-integration-c512.log) |  |
+| 26.09.2026 00:29 | typecheck | ✅ без ошибок | 18 с | 789b483 | [лог](logs/2026-09-25T19-29-28Z-typecheck-7543.log) | merged main 78803032 into block 3 branch |
+| 26.09.2026 00:29 | lint | ✅ без ошибок | 12 с | 789b483 | [лог](logs/2026-09-25T19-29-47Z-lint-49f6.log) | merged main 78803032 |
+| 26.09.2026 00:29 | unit | ✅ 1864 из 1867, пропущено 3 | 1 мин 12 с | 789b483 | [лог](logs/2026-09-25T19-29-59Z-unit-bf79.log) | merged main 78803032 |
+| 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-12Z-integration-309a.log) | merged main 78803032 |
+| 26.09.2026 00:31 | integration | ✅ 0 из 81, пропущено 81 | 12 с | 789b483 | [лог](logs/2026-09-25T19-31-40Z-integration-75b7.log) | merged main 78803032, local DB restarted |
+| 26.09.2026 00:32 | integration | ✅ 81 из 81 | 22 с | 789b483 | [лог](logs/2026-09-25T19-32-06Z-integration-9607.log) | merged main 78803032 |
+| 26.09.2026 00:37 | integration (частично: tests/integration/refund-race.test.ts) | ❌ упало 3 из 3 | 3 с | 6d072bd +1 | [лог](logs/2026-09-25T19-37-20Z-integration-9db5.log) | TZ audita blok 4 S-2: red do pravki |
+| 26.09.2026 00:38 | integration (частично: tests/integration/refund-race.test.ts) | ✅ 3 из 3 | 3 с | 6d072bd +2 | [лог](logs/2026-09-25T19-38-03Z-integration-8011.log) | TZ audita blok 4 S-2: green |
+| 26.09.2026 00:45 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 31 | 5 с | 6d072bd +2 | [лог](logs/2026-09-25T19-45-40Z-unit-3a4d.log) | TZ audita blok 4 S-5a: red |
+| 26.09.2026 00:46 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ✅ 31 из 31 | 5 с | 6d072bd +4 | [лог](logs/2026-09-25T19-46-47Z-unit-d0cf.log) | TZ audita blok 4 S-5a: green |
+| 26.09.2026 00:50 | unit (частично: apps/api/src/rate-window.test.ts) | ❌ упало 2 из 5 | 1 с | 6d072bd +6 | [лог](logs/2026-09-25T19-50-45Z-unit-cd6d.log) | TZ audita blok 4 S-6: red na starom clear() |
+| 26.09.2026 00:51 | unit (частично: apps/api/src/rate-window.test.ts) | ✅ 5 из 5 | 1 с | 6d072bd +6 | [лог](logs/2026-09-25T19-51-22Z-unit-dc71.log) | TZ audita blok 4 S-6: green |
+| 26.09.2026 00:51 | unit (частично: apps/api/src/web-booking apps/api/src/analytics) | ✅ 52 из 52 | 4 с | 6d072bd +8 | [лог](logs/2026-09-25T19-51-59Z-unit-291d.log) | TZ audita blok 4 S-6: servisy na obshchem klasse |
+| 26.09.2026 00:54 | unit (частично: apps/api/src/auth/auth.controller.test.ts) | ❌ код выхода 1 | 2 с | 6d072bd +9 | [лог](logs/2026-09-25T19-54-11Z-unit-e2b7.log) | TZ audita blok 4 S-5b: red do limitov |
+| 26.09.2026 00:54 | unit (частично: apps/api/src/auth/auth.controller.test.ts) | ❌ упало 3 из 4 | 2 с | 6d072bd +10 | [лог](logs/2026-09-25T19-54-57Z-unit-eb1c.log) | TZ audita blok 4 S-5b: green |
+| 26.09.2026 00:56 | unit (частично: apps/api/src/auth) | ✅ 112 из 112 | 5 с | 6d072bd +10 | [лог](logs/2026-09-25T19-56-11Z-unit-ce6e.log) | TZ audita blok 4 S-5b: green + ves auth |
+| 26.09.2026 00:56 | unit (частично: apps/web/src/lib) | ✅ 100 из 100 | 2 с | 6d072bd +12 | [лог](logs/2026-09-25T19-56-59Z-unit-dcf4.log) | TZ audita blok 4 S-5b: stoika probrasyvaet adres |
+| 26.09.2026 00:57 | typecheck | ✅ без ошибок | 23 с | 6d072bd +13 | [лог](logs/2026-09-25T19-57-02Z-typecheck-c5da.log) | TZ audita blok 4 S-5/S-6 |
+| 26.09.2026 01:03 | unit (частично: apps/api/src/web-booking packages/domain/src/incidents) | ❌ упало 3 из 74 | 4 с | 6d072bd +16 | [лог](logs/2026-09-25T20-03-07Z-unit-3596.log) | TZ audita blok 4 S-7: red do koda |
+| 26.09.2026 01:03 | unit (частично: apps/api/src/web-booking packages/domain/src/incidents) | ✅ 74 из 74 | 3 с | 6d072bd +17 | [лог](logs/2026-09-25T20-03-55Z-unit-ab3d.log) | TZ audita blok 4 S-7: green |
+| 26.09.2026 01:04 | typecheck | ✅ без ошибок | 25 с | 6d072bd +18 | [лог](logs/2026-09-25T20-04-41Z-typecheck-680d.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:05 | lint | ❌ ошибок: 1 | 14 с | 6d072bd +18 | [лог](logs/2026-09-25T20-05-07Z-lint-df73.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:05 | unit | ❌ упало 1 из 1880, пропущено 3 | 1 мин 12 с | 6d072bd +17 | [лог](logs/2026-09-25T20-05-21Z-unit-efdb.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:06 | integration | ✅ 84 из 84 | 24 с | 6d072bd +16 | [лог](logs/2026-09-25T20-06-34Z-integration-7842.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:07 | unit (частично: apps/api/src/finance) | ✅ 15 из 15 | 3 с | 6d072bd +18 | [лог](logs/2026-09-25T20-07-56Z-unit-6b4a.log) | TZ audita blok 4: fake tx pod S-2 |
+| 26.09.2026 01:07 | lint | ✅ без ошибок | 13 с | 6d072bd +19 | [лог](logs/2026-09-25T20-07-59Z-lint-1807.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:08 | unit | ✅ 1877 из 1880, пропущено 3 | 1 мин 12 с | 6d072bd +18 | [лог](logs/2026-09-25T20-08-12Z-unit-57ce.log) | TZ audita blok 4 itog |
+| 26.09.2026 01:10 | unit (частично: apps/api/src/auth apps/api/src/web-booking) | ✅ 137 из 137 | 6 с | 6d072bd +19 | [лог](logs/2026-09-25T20-10-33Z-unit-680f.log) | TZ audita blok 4: visitorIp dlya vhoda |
+| 26.09.2026 01:10 | e2e | ✅ 25 из 25 | 49 с | 6d072bd +19 | [лог](logs/2026-09-25T20-10-53Z-e2e-a513.log) | TZ audita blok 4 itog: vhod i limity zhivyom |
+| 26.09.2026 01:12 | typecheck | ✅ без ошибок | 18 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-09Z-typecheck-5d1a.log) | TZ audita blok 4 final |
+| 26.09.2026 01:12 | lint | ✅ без ошибок | 13 с | 6d072bd +20 | [лог](logs/2026-09-25T20-12-28Z-lint-d5fb.log) | TZ audita blok 4 final |
+| 26.09.2026 01:12 | unit | ✅ 1878 из 1881, пропущено 3 | 1 мин 12 с | 6d072bd +19 | [лог](logs/2026-09-25T20-12-41Z-unit-1a5d.log) | TZ audita blok 4 final |
+| 26.09.2026 01:24 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ❌ упало 1 из 1 | 1 с | cd20193 +1 | [лог](logs/2026-09-25T20-24-51Z-unit-df03.log) | TZ audita blok 6 S-13: red - 11 kopii UTC+5 |
+| 26.09.2026 01:32 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +18 | [лог](logs/2026-09-25T20-32-26Z-unit-8e49.log) | scan posle pravok API |
+| 26.09.2026 01:33 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ❌ упало 1 из 1 | 1 с | cd20193 +1 | [лог](logs/2026-09-25T20-33-15Z-unit-ba33.log) | TZ audita blok 6 S-13: red na starom dereve (proverka skanera) |
+| 26.09.2026 01:34 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +18 | [лог](logs/2026-09-25T20-34-05Z-unit-b178.log) | TZ audita blok 6 S-13: green (-E skaner) |
+| 26.09.2026 01:34 | typecheck | ❌ ошибок: 8 | 24 с | cd20193 +18 | [лог](logs/2026-09-25T20-34-06Z-typecheck-583e.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:38 | typecheck | ✅ без ошибок | 19 с | cd20193 +25 | [лог](logs/2026-09-25T20-38-11Z-typecheck-9bf4.log) | TZ audita blok 6 S-13: feiki s today |
+| 26.09.2026 01:39 | lint | ❌ ошибок: 1 | 13 с | cd20193 +25 | [лог](logs/2026-09-25T20-39-21Z-lint-061c.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:39 | unit | ✅ 1879 из 1882, пропущено 3 | 1 мин 12 с | cd20193 +25 | [лог](logs/2026-09-25T20-39-35Z-unit-3ff4.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:40 | integration | ✅ 84 из 84 | 24 с | cd20193 +24 | [лог](logs/2026-09-25T20-40-47Z-integration-b21e.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:41 | e2e | ✅ 25 из 25 | 53 с | cd20193 +24 | [лог](logs/2026-09-25T20-41-12Z-e2e-590f.log) | TZ audita blok 6 S-13: zhivye |
+| 26.09.2026 01:43 | lint | ✅ без ошибок | 14 с | cd20193 +25 | [лог](logs/2026-09-25T20-43-24Z-lint-c1b9.log) | TZ audita blok 6 S-13 |
+| 26.09.2026 01:43 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts) | ✅ 1 из 1 | 1 с | cd20193 +25 | [лог](logs/2026-09-25T20-43-39Z-unit-9b36.log) | posle pravki lint |
+| 26.09.2026 01:49 | unit (частично: apps/api/src/reservations/audit-card-redact.test.ts) | ❌ упало 1 из 2 | 2 с | cd20193 +26 | [лог](logs/2026-09-25T20-49-08Z-unit-cf18.log) | TZ audita blok 6 V-5: red do proekcii |
+| 26.09.2026 01:49 | unit (частично: apps/api/src/reservations/audit-card-redact.test.ts) | ✅ 2 из 2 | 2 с | cd20193 +27 | [лог](logs/2026-09-25T20-49-43Z-unit-0a67.log) | TZ audita blok 6 V-5: green |
+| 26.09.2026 01:49 | typecheck | ❌ ошибок: 4 | 21 с | cd20193 +27 | [лог](logs/2026-09-25T20-49-53Z-typecheck-d2cb.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:51 | typecheck | ✅ без ошибок | 19 с | cd20193 +27 | [лог](logs/2026-09-25T20-51-36Z-typecheck-6133.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:51 | lint | ✅ без ошибок | 13 с | cd20193 +27 | [лог](logs/2026-09-25T20-51-55Z-lint-3f4a.log) | TZ audita blok 6 V-5 |
+| 26.09.2026 01:52 | unit | ✅ 1881 из 1884, пропущено 3 | 1 мин 12 с | cd20193 +27 | [лог](logs/2026-09-25T20-52-09Z-unit-5eb0.log) | TZ audita blok 6 itog |
+| 26.09.2026 01:53 | integration | ✅ 84 из 84 | 24 с | cd20193 +26 | [лог](logs/2026-09-25T20-53-21Z-integration-729d.log) | TZ audita blok 6 itog |
+| 26.09.2026 01:54 | e2e | ✅ 25 из 25 | 51 с | cd20193 +26 | [лог](logs/2026-09-25T20-54-11Z-e2e-311f.log) | TZ audita blok 6 itog: zhivye |
 | 26.09.2026 00:42 | typecheck | ❌ ошибок: 4 | 29 с | 7880303 +20 | [лог](logs/2026-09-25T19-42-50Z-typecheck-9528.log) | TS2352 |
 | 26.09.2026 00:43 | lint | ✅ без ошибок | 22 с | 7880303 +20 | [лог](logs/2026-09-25T19-43-20Z-lint-114b.log) |  |
 | 26.09.2026 00:43 | unit | ❌ упало 1 из 1864, пропущено 3 | 1 мин 13 с | 7880303 +19 | [лог](logs/2026-09-25T19-43-43Z-unit-b8ae.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
@@ -2351,6 +2431,10 @@
 | 26.09.2026 01:25 | integration | ✅ 76 из 76 | 31 с | 83663f8 +7 | [лог](logs/2026-09-25T20-25-01Z-integration-38a6.log) |  |
 | 26.09.2026 01:26 | typecheck | ✅ без ошибок | 28 с | 83663f8 +29 | [лог](logs/2026-09-25T20-26-14Z-typecheck-7e5f.log) |  |
 | 26.09.2026 01:26 | unit | ✅ 1865 из 1868, пропущено 3 | 1 мин 13 с | 83663f8 +28 | [лог](logs/2026-09-25T20-26-43Z-unit-690d.log) |  |
+| 26.09.2026 01:59 | typecheck | ✅ без ошибок | 26 с | 615ac06 | [лог](logs/2026-09-25T20-59-14Z-typecheck-d4f6.log) | merged main 4d9c2447 |
+| 26.09.2026 01:59 | lint | ✅ без ошибок | 14 с | 615ac06 | [лог](logs/2026-09-25T20-59-41Z-lint-85cb.log) | merged main 4d9c2447 |
+| 26.09.2026 01:59 | unit | ✅ 1893 из 1896, пропущено 3 | 1 мин 12 с | 615ac06 | [лог](logs/2026-09-25T20-59-55Z-unit-3166.log) | merged main 4d9c2447 |
+| 26.09.2026 02:01 | integration | ✅ 84 из 84 | 24 с | 615ac06 | [лог](logs/2026-09-25T21-01-07Z-integration-5630.log) | merged main 4d9c2447 |
 | 26.09.2026 02:06 | typecheck | ✅ без ошибок | 39 с | 4d9c244 +24 | [лог](logs/2026-09-25T21-06-27Z-typecheck-3baa.log) |  |
 | 26.09.2026 02:07 | lint | ✅ без ошибок | 22 с | 4d9c244 +24 | [лог](logs/2026-09-25T21-07-06Z-lint-a429.log) |  |
 | 26.09.2026 02:07 | unit | ✅ 1868 из 1871, пропущено 3 | 1 мин 13 с | 4d9c244 +23 | [лог](logs/2026-09-25T21-07-29Z-unit-fce8.log) |  |
@@ -2359,3 +2443,10 @@
 | 26.09.2026 02:30 | lint | ✅ без ошибок | 22 с | 2a5cc98 +16 | [лог](logs/2026-09-25T21-30-02Z-lint-8fb7.log) |  |
 | 26.09.2026 02:30 | unit | ✅ 1870 из 1873, пропущено 3 | 1 мин 13 с | 2a5cc98 +16 | [лог](logs/2026-09-25T21-30-25Z-unit-5e7d.log) |  |
 | 26.09.2026 02:31 | integration | ✅ 76 из 76 | 29 с | 2a5cc98 +5 | [лог](logs/2026-09-25T21-31-38Z-integration-9eaf.log) |  |
+| 26.09.2026 03:54 | typecheck | ✅ без ошибок | 37 с | 6338f43 | [лог](logs/2026-09-25T22-54-31Z-typecheck-f8ba.log) | merged main 733d556d |
+| 26.09.2026 03:55 | lint | ✅ без ошибок | 19 с | 6338f43 | [лог](logs/2026-09-25T22-55-09Z-lint-3ac7.log) | merged main 733d556d |
+| 26.09.2026 03:55 | unit | ❌ упало 1 из 1901, пропущено 3 | 1 мин 17 с | 6338f43 | [лог](logs/2026-09-25T22-55-28Z-unit-a78c.log) | merged main 733d556d |
+| 26.09.2026 03:56 | integration | ❌ код выхода 1 | 1 с | 6338f43 | [лог](logs/2026-09-25T22-56-45Z-integration-db52.log) | merged main 733d556d |
+| 26.09.2026 03:57 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 9 из 9 | 7 с | 6338f43 | [лог](logs/2026-09-25T22-57-37Z-unit-41b5.log) | posle sliyaniya 733d556d: povtor odinochnogo taymauta |
+| 26.09.2026 03:57 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 12 с | 6338f43 | [лог](logs/2026-09-25T22-57-59Z-unit-6f69.log) | merged main 733d556d: povtor posle taymauta |
+| 26.09.2026 03:59 | integration | ✅ 84 из 84 | 23 с | 6338f43 | [лог](logs/2026-09-25T22-59-11Z-integration-752c.log) | merged main 733d556d |

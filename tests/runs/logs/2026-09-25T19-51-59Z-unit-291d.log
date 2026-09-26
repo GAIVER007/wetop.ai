@@ -1,0 +1,22 @@
+# Модульные (unit) · 26.09.2026 00:51 Алматы · vm
+# коммит 6d072bd (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T19-51-59Z-unit-291d.json' 'apps/api/src/web-booking' 'apps/api/src/analytics'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 254ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (12 tests) 195ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (11 tests) 164ms
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (6 tests) 401ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+[Nest] 9597  - 09/25/2026, 7:52:03 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 12ms
+
+ Test Files  6 passed (6)
+      Tests  52 passed (52)
+   Start at  19:52:00
+   Duration  2.62s (transform 43%, import 42%, tests 15%)
+
+JSON report written to /tmp/pms-test-2026-09-25T19-51-59Z-unit-291d.json
+
+# код выхода 0 · 4 с

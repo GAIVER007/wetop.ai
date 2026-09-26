@@ -297,10 +297,11 @@ async function sendJson<T>(
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
+  headers: Record<string, string> = {},
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
     cache: 'no-store',
   });
@@ -391,16 +392,27 @@ async function messageOf(res: Response): Promise<string> {
  */
 export const authApi = {
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
-  login: (body: { email: string; password: string }) =>
-    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
+  // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
+  login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/login',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   me: () =>
     getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
-  requestReset: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  requestReset: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>(
+      'POST',
+      '/auth/password-reset/request',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
@@ -409,11 +421,15 @@ export const authApi = {
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
-  register: (body: { email: string; name: string; hotelName: string; password: string }) =>
+  register: (
+    body: { email: string; name: string; hotelName: string; password: string },
+    info?: AuthClientInfo,
+  ) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
       'POST',
       '/auth/register',
       body,
+      info ? authHeaders(info) : {},
     ),
   /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
   verifyEmail: (body: { token: string }) =>
@@ -423,8 +439,8 @@ export const authApi = {
       body,
     ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
-  resendVerification: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body),
+  resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, info ? authHeaders(info) : {}),
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {

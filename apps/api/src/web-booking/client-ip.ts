@@ -38,3 +38,21 @@ export function clientIp(
   if (socket && fromTunnel(socket) && header && isIP(header)) return header;
   return socket;
 }
+
+/**
+ * Адрес посетителя для лимитов входа (С-5, ТЗ аудита 25.09.2026). Отличие от `clientIp`: запрос со своей
+ * инфраструктуры (туннель, стойка на loopback) БЕЗ заголовка — это не посетитель, а свои службы и локальные
+ * наборы; считать их одним ведром «127.0.0.1» значит запереть всю стойку одним нападающим. Снаружи до API
+ * дотянуться можно только через туннель, а его край всегда ставит CF-Connecting-IP.
+ */
+export function visitorIp(
+  socketIp: string | undefined,
+  cfConnectingIp: string | undefined,
+): string | null {
+  const socket = socketIp?.trim() || null;
+  if (socket && fromTunnel(socket)) {
+    const header = cfConnectingIp?.trim();
+    return header && isIP(header) ? header : null;
+  }
+  return socket;
+}

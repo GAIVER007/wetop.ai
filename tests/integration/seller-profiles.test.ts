@@ -9,6 +9,7 @@ import {
   PrismaSellerProfilesRepository,
 } from '../../apps/api/src/ai-seller/seller.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { purgeAuditRows } from '../tools/audit-purge';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -110,7 +111,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
   });
 
   afterAll(async () => {
-    await db.auditLog.deleteMany({ where: { entityType: 'SellerProfile', entityId: org } });
+    await purgeAuditRows(db, { entityType: 'SellerProfile', entityId: org });
     await db.sellerProfile.deleteMany({ where: { organizationId: { in: [org, emptyOrg] } } });
     await db.dailyRate.deleteMany({ where: { ratePlanId: { in: [ids.site!, ids.ota!] } } });
     await db.trackedSite.deleteMany({ where: { propertyId } });

@@ -31,6 +31,7 @@ v1.6 (20–21.09.2026; записано задним числом 22.09.2026; **
 v1.7 (24.09.2026; **утверждено владельцем 25.09.2026 — ADR-082, все четыре предложения; реализовано 25.09.2026** — план `plans/data-model-v17-2026-09-25.md`, миграция `20260925000021_v17_document_dates_property_contacts` с `down.sql`, **на рабочей базе применяет владелец**; по проверке SECURITY.md, `reports/security-check-2026-09-24.md`): §3 даты документа гостя — шифрованием, как номер; §10 журнал действий только дописывается — SQL подготовлен к переезду базы в РК (`deploy/sql/audit-append-only.sql`); §1 телефон и почта объекта для печатных форм; §12 список видов неисправностей сверен с кодом и держится тестом.
 v1.8 (24.09.2026; **утверждён владельцем 24.09.2026 — «давай все утверждай», ADR-081, Q-177**; ТЗ ред. 1 «ИИ-помощник и раздел „ИИ-продавец“», ADR-079, `plans/ai-assistant-seller-2026-09-24.md`): §14 `user_errors` — ошибки, которые видит человек (ТЗ П3); §15 `seller_profiles` — профиль ИИ-продавца (ТЗ П5). Обе таблицы названы в ТЗ прямо, существующие таблицы не меняются. Миграции `20260924000018_user_errors` и `20260924000019_seller_profiles` с `down.sql` лежат на ветке `claude/festive-johnson-0aark9` и нигде, кроме локальной PostgreSQL, не применялись. Сначала записано как «принято» по поручению «заряжай делай все по плану»; тем же днём владелец уточнил порядок — новые таблицы сначала ему, — и статус исправлен. §15 пересмотрен в тот же день сверкой с кодом бота (`origin/ai-seller` `3014331d`, `src/ai/seller_prompt.py`), и после утверждения миграция `…19` переписана под него — на рабочей базе её не было.
 v1.9 (25.09.2026; **утверждено владельцем 25.09.2026 — ADR-083, Q-182…Q-184**; поручение владельца о двух ботах, ролях и платном расширении, `plans/platform-roles-extensions-2026-09-25.md`): §16 — роль в членстве `memberships.role`, главный администратор `platform_admins`, расширения организации `organization_extensions` — миграция `20260925000020_access_extensions`
+v1.10 (25.09.2026; предохранители в самой базе по ТЗ аудита безопасности, поручение «наводи порядок по тому ТЗ, строго иди» — `plans/security-audit-fixes-2026-09-25.md`, блок 3; сущности и поля не меняются): §2 `UNIQUE(property_id, external_id)` — дубль OTA-брони отвергает база (С-4); §6 `CHECK (amount > 0)` на `payments`/`payment_allocations`/`refunds` (С-14); §10 журнал только дописывается уже сейчас — триггер `audit_logs_immutable` (С-14) — миграция `20260925000022_integrity_guards` с `down.sql`, **на рабочей базе применяет владелец**
 Дата: 2026-09-07
 
 ---
@@ -196,7 +197,7 @@ property_id           → Property
 confirmation_number
 source                DESK | PHONE | WHATSAPP | WALK_IN | INSTAGRAM | OTA | WEBSITE
 channel
-external_id
+external_id           v1.10: UNIQUE(property_id, external_id) — дубль OTA-брони отвергает база; NULL различны
 status
 booked_at
 
@@ -631,6 +632,10 @@ active
 - **отмена и незаезд** — штраф по политике тарифа (`NONE` / `FIRST_NIGHT` / `FULL_STAY`) и только с дня заезда (Q-103);
   предоплата канала после отмены — ADR-022.
 
+> **v1.10 (25.09.2026, ТЗ аудита, С-14; миграция `20260925000022_integrity_guards`).** Суммы платежа,
+> разнесения и возврата держит база: `CHECK (amount > 0)` на `payments`, `payment_allocations`, `refunds` —
+> ноль и минус не запишутся даже ошибкой кода. Начисления (`charges`) без CHECK намеренно: сторно — минус.
+
 ## 7. Channel Manager
 
 > **Назначение ячейки броням из каналов (Q-094, 10.09.2026):** при приёме ревизии `new` проживание получает
@@ -827,6 +832,12 @@ payment; refund; manual availability; изменение guest document.
 >   правом `DELETE`, которой API не пользуется;
 > - миграции — роль владельца схемы, как сейчас.
 >
+> **v1.10 (25.09.2026, ТЗ аудита, С-14).** Не дожидаясь ролей, журнал держит триггер
+> `audit_logs_immutable` (миграция `20260925000022`): `UPDATE`/`DELETE` отвергаются; исключения ровно два —
+> обнуление автора при удалении сотрудника (FK `ON DELETE SET NULL`, меняется только `user_id`) и уборка
+> тестовых данных, объявившая себя `set_config('wetop.audit_purge','on',true)` в своей транзакции
+> (`cli-purge-test-data`, в тестах — `tests/tools/audit-purge.ts`). Роли из v1.7 при переезде добавятся сверху.
+>
 > На нынешней базе роль одна, поэтому правило вводится вместе с переездом: готовый SQL — `deploy/sql/audit-append-only.sql`,
 > выполняет владелец на шаге A1. Колонок не меняет.
 
@@ -941,7 +952,8 @@ kind              вид неисправности, ровно виды POLICY 
                   webhook.suspect | webhook.unreachable | webhook.misrouted | feed.stale |
                   outbox.failed | outbox.stuck | ari.delta.lost | event.failed | event.rejected |
                   sync.missing | db.down | stay.overbooked | stay.unassigned | api.error |
-                  reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale
+                  reconciliation.fail | tests.failing | web.down | ari.oversell | backup.stale |
+                  booking.flood     (v1.10: брони с сайта упёрлись в предел за час — С-7 ТЗ аудита)
 class             A | B | C        A — техника, сторож чинит сам; B — данные, будит человека;
                                    C — код, исправляет дежурный агент в ветке без выката
 severity          CRITICAL | WARNING

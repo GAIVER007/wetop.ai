@@ -9,6 +9,10 @@ import { CHESSBOARD_REPOSITORY, type ChessboardRepository } from './chessboard.r
 
 /** Вымышленные данные: 2 ячейки, 1 проживание, 1 бронь. */
 const fakeRepo: ChessboardRepository = {
+  async today() {
+    // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+    return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+  },
   async units() {
     return [
       {
@@ -106,7 +110,7 @@ const fakeRepo: ChessboardRepository = {
           unitCode: '9010',
           adults: 1,
           children: 0,
-          guests: [{ label: 'Гость Тест-abc', isPrimary: true }],
+          guests: [{ id: 'g-abc', label: 'Гость Тест-abc', isPrimary: true }],
         },
       ],
     };

@@ -12,6 +12,8 @@ import {
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
+  LOCK_MINUTES,
+  MAX_FAILED_ATTEMPTS,
   checkPassword,
   evaluateLogin,
   hashPassword,
@@ -179,10 +181,19 @@ export class AuthService {
 
     if (decision.outcome !== 'ok') {
       if (decision.outcome === 'wrong') {
-        await this.prisma.db.user.update({
+        // С-5 (ТЗ аудита 25.09.2026): счётчик растёт атомарно в базе — параллельные промахи не читают
+        // одно значение и не съедают локаут; запрет ставится по значению, которое вернула сама база
+        const { failedAttempts } = await this.prisma.db.user.update({
           where: { id: user.id },
-          data: { failedAttempts: decision.failedAttempts, lockedUntil: decision.lockedUntil },
+          data: { failedAttempts: { increment: 1 } },
+          select: { failedAttempts: true },
         });
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          await this.prisma.db.user.update({
+            where: { id: user.id },
+            data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
+          });
+        }
       }
       throw new UnauthorizedException(WRONG);
     }

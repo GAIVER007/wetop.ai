@@ -50,6 +50,10 @@ function makeFakes() {
   const audits: string[] = [];
   let seq = 0;
   const repo: FinanceRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async foliosByReservation(n) {
       const fs = folios.filter((f) => f.confirmationNumber === n);
       return fs.length ? fs : null;

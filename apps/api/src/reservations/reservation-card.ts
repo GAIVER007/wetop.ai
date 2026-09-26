@@ -1,5 +1,6 @@
 import type { Db, DbTx } from '@pms/database';
 import { normalizeCitizenship } from '@pms/domain';
+import { maskNumber } from '@pms/shared';
 
 export interface ReservationCardItem {
   id: string;
@@ -18,7 +19,7 @@ export interface ReservationCardItem {
   unitCode: string | null;
   /** Статус уборки ячейки (Q-156, ADR-068): стойка предупреждает о заселении в непроверенную */
   unitHousekeepingStatus?: 'DIRTY' | 'CLEAN' | 'INSPECTED' | null;
-  guests: Array<{ label: string; isPrimary: boolean }>;
+  guests: Array<{ id: string; label: string; isPrimary: boolean }>;
 }
 export interface ReservationCard {
   confirmationNumber: string;
@@ -70,7 +71,7 @@ export async function loadReservationCard(
             orderBy: { startDate: 'asc' },
             include: { inventoryUnit: { select: { code: true, housekeepingStatus: true } } },
           },
-          stayGuests: { include: { guest: { select: { firstName: true, lastName: true } } } },
+          stayGuests: { include: { guest: { select: { id: true, firstName: true, lastName: true } } } },
         },
       },
     },
@@ -111,7 +112,44 @@ export async function loadReservationCard(
       children: it.children,
       unitCode: it.allocations.at(-1)?.inventoryUnit.code ?? null,
       unitHousekeepingStatus: it.allocations.at(-1)?.inventoryUnit.housekeepingStatus ?? null,
-      guests: it.stayGuests.map((sg) => ({ label: guestLabel(sg.guest), isPrimary: sg.isPrimary })),
+      guests: it.stayGuests.map((sg) => ({
+        id: sg.guest.id,
+        label: guestLabel(sg.guest),
+        isPrimary: sg.isPrimary,
+      })),
     })),
   };
+}
+
+/**
+ * Проекция карточки для журнала действий (В-5, ТЗ аудита 25.09.2026). Журнал с миграции №22 только
+ * дописывается, а после `PII_STORAGE=real` в карточке настоящие ФИО и телефон — в журнале они стали бы
+ * неудаляемыми. Гость в журнале — по `id`, телефон — маской, ФИО не пишутся; стойке карточка отдаётся полной.
+ */
+export function cardForAudit(card: ReservationCard) {
+  return {
+    ...card,
+    primaryGuest: card.primaryGuest
+      ? {
+          id: card.primaryGuest.id,
+          citizenship: card.primaryGuest.citizenship,
+          phone: card.primaryGuest.phone ? maskNumber(card.primaryGuest.phone) : null,
+        }
+      : null,
+    items: card.items.map((it) => ({
+      ...it,
+      guests: it.guests.map((g) => ({ id: g.id, isPrimary: g.isPrimary })),
+    })),
+  };
+}
+
+/** Похоже на карточку брони — редактировать перед журналом (см. `cardForAudit`) */
+export function isReservationCard(value: unknown): value is ReservationCard {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    'confirmationNumber' in value &&
+    'primaryGuest' in value &&
+    Array.isArray((value as { items?: unknown }).items)
+  );
 }

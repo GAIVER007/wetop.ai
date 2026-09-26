@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 26.09.2026 00:09 Алматы · vm
+# коммит 6972a66 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T19-09-46Z-integration-a469.json' 'tests/integration/integrity-guards.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 730ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 486ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  19:09:47
+   Duration  2.20s (tests 63%, transform 19%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-09-25T19-09-46Z-integration-a469.json
+
+# код выхода 0 · 3 с

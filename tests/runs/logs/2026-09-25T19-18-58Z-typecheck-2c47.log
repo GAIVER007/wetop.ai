@@ -1,0 +1,21 @@
+# Типы (typecheck) · 26.09.2026 00:18 Алматы · vm
+# коммит 6972a66 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/tools/audit-purge.ts(14,44): error TS2379: Argument of type '{ where: AuditLogWhereInput | undefined; }' is not assignable to parameter of type '{ where?: AuditLogWhereInput; limit?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'where' are incompatible.
+    Type 'AuditLogWhereInput | undefined' is not assignable to type 'AuditLogWhereInput'.
+      Type 'undefined' is not assignable to type 'AuditLogWhereInput'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 20 с

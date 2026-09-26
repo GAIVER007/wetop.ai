@@ -1,0 +1,219 @@
+# Модульные (unit) · 25.09.2026 23:54 Алматы · vm
+# коммит 46ae4a2 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T18-54-25Z-unit-fdbf.json' 'apps/api/src/auth/auth.service.test.ts' 'apps/api/src/auth/auth.guard.test.ts' 'tests/unit/auto-deploy.test.ts' 'apps/web/src/lib/auth-lock.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/auth.guard.test.ts (0 test)
+ ❯ |unit| apps/web/src/lib/auth-lock.test.ts (0 test)
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (29 tests | 3 failed) 2578ms
+   ✓ AuthService.login (7)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 104ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 81ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 74ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 75ms
+     ✓ мусор вместо почты не пускает 76ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 258ms
+     ✓ заблокированного сотрудника не пускает 37ms
+   ✓ AuthService.whoami (5)
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 74ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 77ms
+     ✓ сессия заблокированного сотрудника больше не годится 77ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 77ms
+     ✓ роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083) 74ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 84ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 258ms
+     ✓ неверный текущий пароль ничего не меняет 112ms
+     ✓ слабый новый пароль отклоняется с объяснением 111ms
+     ✓ без годной сессии пароль не сменить 37ms
+   ❯ AuthService.register (12)
+     ✓ явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу 38ms
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 85ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 124ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 118ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 85ms
+     × через 10 минут использованная ссылка больше не впускает — зовёт войти паролем 93ms
+     × использованная ссылка не впускает заблокированного даже в свежем окне 77ms
+     × окно повтора не продлевает срок самой ссылки 77ms
+     ✓ негодная ссылка отвечает отказом и никого не впускает 37ms
+     ✓ занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку 74ms
+     ✓ короткий пароль не принимается, и организация от такой попытки не остаётся 38ms
+     ✓ пустое имя и строка, не похожая на почту, — отказ с понятным текстом 38ms
+ ❯ |unit| tests/unit/auto-deploy.test.ts (9 tests | 3 failed) 6617ms
+   ❯ scripts/ops/auto-deploy.sh (9)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 319ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 574ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 498ms
+     × владелец применил миграции и назвал вершину — выкладывает ровно её 475ms
+     × --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 500ms
+     × release перемотали после отказа — флаг со старой вершиной не выкладывает новую 603ms
+     ✓ локальные правки в клоне — не затирает их 438ms
+     ✓ историю ветки переписали — не выкладывает поверх 661ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2547ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts [ apps/api/src/auth/auth.guard.test.ts ]
+ReferenceError: afterEach is not defined
+ ❯ apps/api/src/auth/auth.guard.test.ts:72:5
+     70|       process.env.NODE_ENV = 'production';
+     71|     });
+     72|     afterEach(() => {
+       |     ^
+     73|       process.env.NODE_ENV = nodeEnv;
+     74|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-lock.test.ts [ apps/web/src/lib/auth-lock.test.ts ]
+Error: Cannot find module './auth-lock' imported from /home/user/wetop.ai/apps/web/src/lib/auth-lock.test.ts
+ ❯ apps/web/src/lib/auth-lock.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { lockRequired } from './auth-lock';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и назвал вершину — выкладывает ровно её
+AssertionError: expected '2026-09-25T18:54:29Z auto-deploy: c8e…' to contain '--migrations-applied c8e15482'
+
+- Expected
++ Received
+
+- --migrations-applied c8e15482
++ 2026-09-25T18:54:29Z auto-deploy: c8e15482 не выложен: в обновлении миграции (packages/database/prisma/migrations/0002_more) — их применяет владелец (AGENTS.md §15), затем на сервере: /home/user/wetop.ai/scripts/ops/auto-deploy.sh --migrations-applied. На сервере по-прежнему f06036ff.
++
+
+ ❯ tests/unit/auto-deploy.test.ts:143:25
+    141|     expect(refusal.code).toBe(1);
+    142|     // подсказка называет точную вершину — её владелец и передаёт
+    143|     expect(refusal.out).toContain(`--migrations-applied ${target.slice…
+       |                         ^
+    144|     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    145|     expect(r.code, r.out).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > --migrations-applied без вершины — отказ с подсказкой, ничего не выложено
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:162:20
+    160|     const before = head();
+    161|     const r = run({}, ['--migrations-applied']);
+    162|     expect(r.code).toBe(2);
+       |                    ^
+    163|     expect(r.out).toContain('вершин');
+    164|     expect(head()).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > release перемотали после отказа — флаг со старой вершиной не выкладывает новую
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:175:20
+    173|     const before = head();
+    174|     const r = run({}, ['--migrations-applied', applied.slice(0, 8)]);
+    175|     expect(r.code).toBe(2);
+       |                    ^
+    176|     expect(r.out).toContain('не совпадает');
+    177|     expect(r.out).toContain(moved.slice(0, 8));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > через 10 минут использованная ссылка больше не впускает — зовёт войти паролем
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:365:53
+    363|     await verification.confirm(token, NOW);
+    364|     const later = new Date(NOW.getTime() + 11 * 60_000);
+    365|     await expect(verification.confirm(token, later)).rejects.toThrow(/…
+       |                                                     ^
+    366|   });
+    367|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > использованная ссылка не впускает заблокированного даже в свежем окне
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:377:55
+    375|     users.find((u) => u.email === '<email>')!.status = '…
+    376|     const shortly = new Date(NOW.getTime() + 60_000);
+    377|     await expect(verification.confirm(token, shortly)).rejects.toThrow…
+       |                                                       ^
+    378|   });
+    379|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > окно повтора не продлевает срок самой ссылки
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:389:58
+    387|     await verification.confirm(token, nearExpiry);
+    388|     const pastExpiry = new Date(NOW.getTime() + 72 * 3_600_000 + 60_00…
+    389|     await expect(verification.confirm(token, pastExpiry)).rejects.toTh…
+       |                                                          ^
+    390|   });
+    391|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  6 failed | 32 passed (38)
+   Start at  18:54:27
+   Duration  6.91s (tests 87%, transform 9%, import 4%)
+
+JSON report written to /tmp/pms-test-2026-09-25T18-54-25Z-unit-fdbf.json
+
+# код выхода 1 · 9 с

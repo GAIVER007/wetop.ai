@@ -170,10 +170,24 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!include?.memberships) return { ...found };
         return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
       },
-      async update({ where, data }: { where: { id: string }; data: Partial<FakeUser> }) {
+      async update({
+        where,
+        data,
+      }: {
+        where: { id: string };
+        data: Partial<Omit<FakeUser, 'failedAttempts'>> & {
+          failedAttempts?: number | { increment: number };
+        };
+        select?: Record<string, boolean>;
+      }) {
         const user = users.find((u) => u.id === where.id);
         if (!user) throw new Error('нет такого пользователя');
-        Object.assign(user, data);
+        const { failedAttempts, ...rest } = data;
+        Object.assign(user, rest);
+        if (typeof failedAttempts === 'number') user.failedAttempts = failedAttempts;
+        // атомарный счётчик промахов, как `{ increment }` у Prisma (С-5): прибавка к текущему значению в «базе»
+        if (typeof failedAttempts === 'object' && failedAttempts !== null)
+          user.failedAttempts += failedAttempts.increment;
         return { ...user };
       },
       async create({

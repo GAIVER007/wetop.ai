@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   assertRestrictionsAllow,
+  fingerprintOf,
   hostMatches,
   localDate,
   parseBookingRequest,
@@ -26,6 +27,8 @@ import {
   type SiteRecord,
 } from '../analytics/analytics.repository';
 import { CollectService } from '../analytics/collect.service';
+import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
+import { RateWindows } from '../rate-window';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 
@@ -101,13 +104,14 @@ const nightsBetween = (a: string, b: string) =>
  */
 @Injectable()
 export class WebBookingService {
-  private windows = new Map<string, { start: number; count: number }>();
+  private windows = new RateWindows(HOUR_MS, 20_000);
 
   constructor(
     @Inject(ANALYTICS_REPOSITORY) private readonly sites: AnalyticsRepository,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
     @Inject(CollectService) private readonly collect: CollectService,
+    @Inject(INCIDENTS_REPOSITORY) private readonly incidents: IncidentsRepository,
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
@@ -218,12 +222,28 @@ export class WebBookingService {
     const req = parsed.value;
 
     if (ctx.ip && !this.allow(`ip:${ctx.ip}`, BOOKING_RATE_LIMITS.perIpPerHour, now)) {
+      await this.flood(site, { limit: 'ip-hour', perHour: BOOKING_RATE_LIMITS.perIpPerHour }, now);
       throw new HttpException(
         'слишком много броней с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
     if (!this.allow(`site:${site.id}`, BOOKING_RATE_LIMITS.perSitePerHour, now)) {
+      await this.flood(site, { limit: 'site-hour', perHour: BOOKING_RATE_LIMITS.perSitePerHour }, now);
+      throw new HttpException(
+        'слишком много броней за час, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    // С-7 (ТЗ аудита 25.09.2026): стойкий предел за час — по журналу действий, который только дописывается.
+    // Окна выше живут в памяти и обнуляются перезапуском API; журнал — нет.
+    const lastHour = await this.sites.siteBookingsSince(site.id, new Date(now.getTime() - HOUR_MS));
+    if (lastHour >= BOOKING_RATE_LIMITS.perSitePerHour) {
+      await this.flood(
+        site,
+        { limit: 'site-hour-journal', perHour: BOOKING_RATE_LIMITS.perSitePerHour, lastHour },
+        now,
+      );
       throw new HttpException(
         'слишком много броней за час, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -303,7 +323,7 @@ export class WebBookingService {
 
   /** Для тестов */
   resetLimits(): void {
-    this.windows = new Map();
+    this.windows.reset();
   }
 
   private async bookingSite(key: string, ctx: RequestContext): Promise<SiteRecord> {
@@ -318,15 +338,33 @@ export class WebBookingService {
     return site;
   }
 
-  private allow(key: string, limit: number, now: Date): boolean {
-    const t = now.getTime();
-    const w = this.windows.get(key);
-    if (!w || t - w.start >= HOUR_MS) {
-      this.windows.set(key, { start: t, count: 1 });
-      if (this.windows.size > 20_000) this.windows.clear();
-      return true;
+  /**
+   * Алерт С-7: предел броней исчерпан — фальшивые брони закрывают продажи (denial of inventory)
+   * или всплеск спроса; человек смотрит свежие брони и решает. Одна строка на сайт (отпечаток),
+   * повторы растят occurrences; адрес посетителя в неисправность не пишется (план среза 9 §4).
+   * Сбой записи бронь не роняет: лимит уже отказал, наблюдение — best effort.
+   */
+  private async flood(site: SiteRecord, details: Record<string, unknown>, now: Date): Promise<void> {
+    const kind = 'booking.flood' as const;
+    try {
+      await this.incidents.record(
+        {
+          kind,
+          title: `Брони с сайта «${site.name}» упёрлись в предел за час`,
+          subjectType: 'TrackedSite',
+          subjectId: site.id,
+          details,
+          fingerprint: fingerprintOf({ kind, subjectId: site.id }),
+        },
+        now,
+      );
+    } catch (e) {
+      console.warn(`[web-booking] неисправность booking.flood не записана: ${(e as Error).message}`);
     }
-    w.count += 1;
-    return w.count <= limit;
+  }
+
+  private allow(key: string, limit: number, now: Date): boolean {
+    // С-6 (ТЗ аудита 25.09.2026): вытеснение только протухших окон — общий класс, не clear()
+    return this.windows.allow(key, limit, now);
   }
 }

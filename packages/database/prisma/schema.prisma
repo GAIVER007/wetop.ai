@@ -236,6 +236,8 @@ model Reservation {
   webSessions  WebSession[]
 
   @@unique([propertyId, confirmationNumber])
+  /// дубль OTA-брони отвергает база, NULL ручных броней различны (ТЗ аудита 25.09, С-4; v1.10)
+  @@unique([propertyId, externalId])
   @@index([propertyId, arrivalDate])
   @@index([propertyId, departureDate])
   @@index([status])

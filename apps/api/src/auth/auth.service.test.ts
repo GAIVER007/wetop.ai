@@ -74,6 +74,24 @@ describe('AuthService.login', () => {
     expect(JSON.stringify(audit)).not.toContain('не тот');
   });
 
+  it('два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5)', async () => {
+    const { auth, users } = service();
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    // обе попытки читают пользователя до того, как первая запишет счётчик, — как два запроса в API
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(2);
+  });
+
+  it('пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5)', async () => {
+    const { auth, users } = service([fakeUser({ failedAttempts: MAX_FAILED_ATTEMPTS - 2 })]);
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+    expect(users[0]!.lockedUntil).not.toBeNull();
+  });
+
   it('неизвестная почта отвечает тем же текстом, что и неверный пароль', async () => {
     const { auth } = service();
     await expect(
@@ -347,6 +365,46 @@ describe('AuthService.register', () => {
     await expect(verification.confirm(token, NOW)).resolves.toMatchObject({
       organizationId: expect.any(String),
     });
+  });
+
+  /*
+   * ТЗ аудита 25.09.2026, В-1: использованная ссылка не должна быть вечным входом без пароля.
+   * Повтор впускает только короткое окно после использования (почтовые клиенты ходят по ссылкам сами),
+   * и только пока ссылка не истекла и человек не заблокирован.
+   */
+  it('через 10 минут использованная ссылка больше не впускает — зовёт войти паролем', async () => {
+    const { verification, letters, auth } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    const later = new Date(NOW.getTime() + 11 * 60_000);
+    await expect(verification.confirm(token, later)).rejects.toThrow(/уже подтверждена/);
+  });
+
+  it('использованная ссылка не впускает заблокированного даже в свежем окне', async () => {
+    const { verification, letters, auth, users } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    users.find((u) => u.email === 'novyi@example.invalid')!.status = 'BLOCKED';
+    const shortly = new Date(NOW.getTime() + 60_000);
+    await expect(verification.confirm(token, shortly)).rejects.toThrow(/Ссылка не годится/);
+  });
+
+  it('окно повтора не продлевает срок самой ссылки', async () => {
+    const { verification, letters, auth } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    const nearExpiry = new Date(NOW.getTime() + 72 * 3_600_000 - 60_000);
+    await verification.confirm(token, nearExpiry);
+    const pastExpiry = new Date(NOW.getTime() + 72 * 3_600_000 + 60_000);
+    await expect(verification.confirm(token, pastExpiry)).rejects.toThrow(/уже подтверждена/);
   });
 
   it('негодная ссылка отвечает отказом и никого не впускает', async () => {

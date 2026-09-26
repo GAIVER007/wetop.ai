@@ -85,7 +85,11 @@ describe.skipIf(!url)('audit author from session (integration, DATABASE_URL requ
     if (app) await app.close();
     if (migrated) {
       if (guestIds.length)
-        await db.$executeRaw`DELETE FROM audit_logs WHERE action = ${PROBE_ACTION} AND entity_id = ANY(${guestIds})`;
+        // журнал только дописывается (миграция 20260925000022): уборка своих строк — с отметкой в той же транзакции
+        await db.$transaction(async (tx) => {
+          await tx.$executeRaw`SELECT set_config('wetop.audit_purge', 'on', true)`;
+          await tx.$executeRaw`DELETE FROM audit_logs WHERE action = ${PROBE_ACTION} AND entity_id = ANY(${guestIds})`;
+        });
       await db.$executeRaw`DELETE FROM sessions WHERE user_id = ${userId}::uuid`;
       await db.$executeRaw`DELETE FROM memberships WHERE user_id = ${userId}::uuid`;
       await db.$executeRaw`DELETE FROM users WHERE id = ${userId}::uuid`;

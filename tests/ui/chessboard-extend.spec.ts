@@ -92,8 +92,23 @@ test('отказ сохранения не удлиняет плашку, а о�
   await expect(dialog).toBeHidden();
 });
 
-test('одна видимая ночь: имя имеет две строки, канал не отнимает ширину', async ({ page }) => {
-  await page.goto('/chessboard');
+test('одна видимая ночь: имя имеет две строки, канал не отнимает ширину', async ({
+  page,
+  request,
+}) => {
+  // Доска по умолчанию — текущая неделя, а бронь R01 — «сегодня + 3 ночи»: в субботу и воскресенье её
+  // последняя ночь уже в следующей неделе, и края брони на доске нет (упало 26.09.2026, суббота).
+  // Поэтому окно — от заезда самой брони.
+  const stay = (await (
+    await request.get('http://127.0.0.1:4311/reservations/20260913-TESTAA', {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json()) as {
+    arrivalDate: string;
+  };
+  const week = new Date(`${stay.arrivalDate}T12:00:00Z`);
+  week.setUTCDate(week.getUTCDate() + 6);
+  await page.goto(`/chessboard?from=${stay.arrivalDate}&to=${week.toISOString().slice(0, 10)}`);
   const row = page.locator('[data-unit-code="R01"][data-testid="unit-row"]');
   const last = await row.locator('.board-stay-resize').locator('..').getAttribute('data-date');
   const end = new Date(`${last}T12:00:00Z`);

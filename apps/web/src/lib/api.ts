@@ -39,7 +39,7 @@ export interface InventoryUnit {
 }
 
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
-const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/'];
+const QUIET_401_PATHS = ['/auth/', '/assistant/identity', '/wizard/', '/seller-agents'];
 
 /** Explicit test/demo sources are isolated from normal and production API access. */
 async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
@@ -1671,4 +1671,9 @@ export const wizardApi = {
   save: (token: string, body: unknown) => sendJson<import('./wizard-types').WizardState>(
     'PATCH', '/wizard/config', body, { 'x-wizard-token': token },
   ),
+};
+
+export const sellerAgentsApi = {
+  list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),
+  claim: (token:string) => sendJson<{id:string}>('POST','/seller-agents/claim',{}, {'x-wizard-token':token}),
 };

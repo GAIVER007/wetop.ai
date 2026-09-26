@@ -1,0 +1,8 @@
+.seller-agents{max-width:1200px;margin:0 auto;padding:24px;display:grid;gap:24px}
+.seller-agents header{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.seller-agents header>div{flex:1;min-width:240px}
+.seller-agents h1{margin:0 0 8px}.seller-agents p{color:var(--muted);line-height:1.5}
+.seller-agents__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.seller-agents article,.seller-agents section{padding:24px;border:1px solid var(--border);border-radius:20px;background:var(--surface)}
+.seller-agents dd{margin:4px 0 16px;overflow-wrap:anywhere}.seller-agents dt{color:var(--muted);font-size:13px}
+@media(max-width:480px){.seller-agents{padding:16px}.seller-agents header .btn{width:100%}}

@@ -124,7 +124,7 @@ export default async function AiSellerPage({
     <Page
       title={view ? tab.label : 'ИИ-продавец'}
       subtitle="Настройте общение, добавьте знания и проверьте ответы агента."
-      actions={<RefreshButton />}
+      actions={<><Link className="btn btn--secondary" href="/ai-seller/agents">Мои агенты</Link><RefreshButton /></>}
       crumbs={view ? <Link href="/ai-seller">ИИ-продавец</Link> : undefined}
     >
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">

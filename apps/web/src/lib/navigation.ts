@@ -124,7 +124,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'ИИ-продавец',
         icon: 'chat',
         description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
-        requires: 'aiSeller',
+        // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
         href: '/analytics',

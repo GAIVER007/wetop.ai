@@ -2510,3 +2510,7 @@
 | 26.09.2026 18:23 | unit | ✅ 1914 из 1917, пропущено 3 | 1 мин 12 с | 5546ef1 +24 | [лог](logs/2026-09-26T13-23-44Z-unit-68e3.log) | sliyanie main f76e5e54 |
 | 26.09.2026 18:24 | integration | ✅ 85 из 85 | 28 с | 5546ef1 +9 | [лог](logs/2026-09-26T13-24-57Z-integration-0028.log) | sliyanie main f76e5e54 |
 | 26.09.2026 18:25 | e2e | ✅ 25 из 25 | 1 мин 3 с | 5546ef1 +25 | [лог](logs/2026-09-26T13-25-26Z-e2e-2603.log) | sliyanie main f76e5e54: zhivye |
+| 26.09.2026 18:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 387 | 32 мин 15 с | 737f27c | [лог](logs/2026-09-26T13-27-14Z-e2e-60d0.log) | sliyanie main f76e5e54: polnyy UI |
+| 26.09.2026 19:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ✅ 16 из 16 | 1 мин 43 с | 737f27c +1 | [лог](logs/2026-09-26T14-03-22Z-e2e-0fc9.log) |  |
+| 26.09.2026 19:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ❌ упало 3 из 16 | 2 мин 22 с | 737f27c +3 | [лог](logs/2026-09-26T14-05-51Z-e2e-7439.log) | разделы содержат основные ссылки без дублей; раскрываются с клавиатуры |
+| 26.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/platform-access.spec.ts) | ✅ 16 из 16 | 1 мин 53 с | 737f27c +2 | [лог](logs/2026-09-26T14-08-19Z-e2e-c082.log) |  |

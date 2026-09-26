@@ -6,7 +6,9 @@ sentence_transformers весит вместе с torch секунды на им�
 
 import importlib
 import importlib.util
+import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -29,11 +31,20 @@ def test_module_imports(name: str) -> None:
 
 
 def test_import_does_not_load_sentence_transformers() -> None:
-    for name in MODULES:
-        importlib.import_module(name)
-    importlib.import_module("src.main")
-    assert "sentence_transformers" not in sys.modules
-    assert "torch" not in sys.modules
+    # В чистом интерпретаторе: в общем прогоне модель уже подняли другие тесты (ингест настоящим
+    # эмбеддером, когда sentence-transformers установлен), и sys.modules этого процесса о времени
+    # импорта ничего не говорит — 26.09.2026 тест был красным только в полном наборе.
+    code = "\n".join(
+        [f"import {name}" for name in [*MODULES, "src.main"]]
+        + [
+            "import sys",
+            "assert 'sentence_transformers' not in sys.modules, 'sentence_transformers'",
+            "assert 'torch' not in sys.modules, 'torch'",
+        ]
+    )
+    root = Path(__file__).resolve().parent.parent
+    result = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr[-2000:]
 
 
 def test_package_docstring() -> None:

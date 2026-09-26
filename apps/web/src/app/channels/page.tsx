@@ -8,18 +8,17 @@ import { loadErrorProps } from '../../lib/load-error';
 import { ChannelButtons } from './buttons';
 import { OutboxTable } from './outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from './events-table';
-import { almatyDateTime } from './format';
+import { hotelClock } from '../../lib/hotel-api';
+import type { PropertyClock } from '../../lib/property-time';
+import { eventTime } from './format';
 import '../directory.css';
 
-/** Время по часам объекта: сервер стойки может стоять не в Алматы */
-const almatyTime = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'Asia/Almaty',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-/** «, проверено 14:22 по Алматы» — время последней пробы адреса webhook; без пробы подпись не нужна */
-const checkedAt = (iso: string | null | undefined) =>
-  iso ? `, проверено ${almatyTime.format(new Date(iso))} по Алматы` : '';
+/**
+ * «, проверено 14:22 по Алматы» — время последней пробы адреса webhook по часам объекта (С-13: сервер стойки
+ * может стоять не в поясе объекта); без пробы подпись не нужна
+ */
+const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
+  iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';
 
 /** Ответ API как есть или причина отказа: экран остаётся, вместо данных — сбой со следующим шагом (D4) */
 const settle = <T,>(p: Promise<T>) =>
@@ -40,6 +39,7 @@ export default async function ChannelsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const clock = await hotelClock();
   const sp = normalizeSearchParams(await searchParams);
   const queue: OutboxRowStatus | '' =
     sp.queue === 'PENDING' || sp.queue === 'FAILED' ? sp.queue : '';
@@ -164,7 +164,7 @@ export default async function ChannelsPage({
         >
           <span className="state-bar__sub">
             {outbox?.lastSentAt
-              ? `последняя ${almatyDateTime(outbox.lastSentAt)}`
+              ? `последняя ${eventTime(outbox.lastSentAt, clock)}`
               : outbox
                 ? 'ещё не было'
                 : 'сводка не загрузилась'}
@@ -215,13 +215,13 @@ export default async function ChannelsPage({
             webhook.callbackReachable === false &&
             (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
               <span className="state-bar__sub danger-text">
-                адрес не отвечает{checkedAt(webhook.callbackCheckedAt)} — брони подберёт опрос
-                ленты, но webhook надо поднять
+                адрес не отвечает{checkedAt(webhook.callbackCheckedAt, clock)} — брони подберёт
+                опрос ленты, но webhook надо поднять
               </span>
             )}
           {webhook?.registered && webhook.callbackReachable === true && (
             <span className="state-bar__sub ok-text">
-              адрес отвечает{checkedAt(webhook.callbackCheckedAt)}
+              адрес отвечает{checkedAt(webhook.callbackCheckedAt, clock)}
             </span>
           )}
         </StateFact>

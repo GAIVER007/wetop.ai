@@ -27,7 +27,7 @@ import {
   type FinanceActionResult,
   stayExtraAction,
 } from './finance-actions';
-import { almatyDate } from '../../../lib/almaty';
+import { usePropertyClock } from '../../../components/property-time';
 import { displayDate } from '../../../lib/display-date';
 import { useConfirm } from '../../../components/use-confirm';
 
@@ -122,6 +122,8 @@ function FolioPanel({
   services: ServiceOption[];
   today: string;
 }) {
+  // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
+  const clock = usePropertyClock();
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -246,7 +248,7 @@ function FolioPanel({
                   {p.externalReference ? `, ${p.externalReference}` : ''}
                   {p.status === 'VOIDED' ? ' — аннулирован' : ''}
                 </td>
-                <td>{almatyDate(p.paidAt)}</td>
+                <td>{clock.date(p.paidAt)}</td>
                 <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                 <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
                 <td>
@@ -272,7 +274,7 @@ function FolioPanel({
           {folio.refunds
             .map(
               (r) =>
-                `${formatMoney(r.amountMinor, folio.currency)} (${almatyDate(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
+                `${formatMoney(r.amountMinor, folio.currency)} (${clock.date(r.createdAt)}${r.reason ? `, ${r.reason}` : ''})`,
             )
             .join('; ')}
         </div>

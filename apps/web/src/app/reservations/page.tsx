@@ -27,7 +27,9 @@ export default async function ReservationsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = normalizeSearchParams(await searchParams);
-  const from = sp.from || sp.date || hotelToday(),
+  // Сегодня по часам объекта (С-13): одно на страницу — и для периода, и для готовых отрезков
+  const today = await hotelToday();
+  const from = sp.from || sp.date || today,
     to = sp.to || from,
     status = sp.status || 'ALL',
     q = sp.q || '';
@@ -66,7 +68,6 @@ export default async function ReservationsPage({
       : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
   // Готовые отрезки, как в «Деньгах за период»: обычные вопросы стойки — один щелчок вместо
   // двух календарей (owner 21.09). Поиск и статус сохраняются, страница сбрасывается на первую.
-  const today = hotelToday();
   const periodPresets: [string, { from: string; to: string }][] = [
     ['Сегодня', { from: today, to: today }],
     ['Завтра', { from: plusDays(today, 1), to: plusDays(today, 1) }],

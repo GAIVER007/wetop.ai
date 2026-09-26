@@ -1,5 +1,6 @@
 import { normalizeSearchParams, type SearchParams } from '../../../../lib/search-params';
 import { api, chessboardApi, formatMinor, guestsApi } from '../../../../lib/api';
+import { hotelClock } from '../../../../lib/hotel-api';
 import { PrintButton } from './print-button';
 
 /**
@@ -82,10 +83,8 @@ export default async function PrintRegistrationCard({
     r.primaryGuest ? guestsApi.card(r.primaryGuest.id) : Promise.resolve(null),
   ]);
   const doc = guest?.documents[0];
-  const printedAt = new Date(Date.now() + 5 * 3600 * 1000)
-    .toISOString()
-    .slice(0, 16)
-    .replace('T', ' ');
+  // Штамп печати — по часам объекта (С-13): «2026-09-17 13:30»
+  const printedAt = (await hotelClock()).printed().stamp;
   return (
     <main
       data-testid="print-registration"

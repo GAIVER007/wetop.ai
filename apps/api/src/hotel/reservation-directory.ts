@@ -12,7 +12,7 @@ import { ReservationStatus } from '@pms/database';
 import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 export interface DirectoryQuery {
   from?: string;
   to?: string;
@@ -32,8 +32,8 @@ export class ReservationDirectory {
       if (query[key] !== undefined && typeof query[key] !== 'string')
         throw new BadRequestException('Параметры поиска должны быть строками');
     }
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
-    const from = query.from || today;
+    // Без дат — «сегодня» по поясу объекта (С-13), а не по Алматы: справочник у каждой гостиницы свой
+    const from = query.from || (await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name));
     const to = query.to || from;
     const valid = (date: string) =>
       /^\d{4}-\d{2}-\d{2}$/.test(date) &&

@@ -2453,3 +2453,15 @@
 | 26.09.2026 11:37 | lint | ✅ без ошибок | 24 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-20Z-lint-ad46.log) |  |
 | 26.09.2026 11:37 | typecheck | ✅ без ошибок | 29 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-37-44Z-typecheck-f096.log) |  |
 | 26.09.2026 11:38 | unit | ✅ 1898 из 1901, пропущено 3 | 1 мин 15 с | 80d8eb0 +2 | [лог](logs/2026-09-26T06-38-14Z-unit-3343.log) |  |
+| 26.09.2026 16:48 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts apps/web/src/lib/property-time.test.ts apps/web/src/lib/hotel-time.test.ts apps/web/src/components/property | ❌ упало 4 из 13 | 12 с | 96cdb5e +5 | [лог](logs/2026-09-26T11-48-50Z-unit-3900.log) | C-13 web: red do pravki (skaner web+api, chasy obekta, hotelToday, hook, directory) |
+| 26.09.2026 16:54 | unit (частично: apps/web/src/app/journal/journal-view.test.ts) | ❌ упало 1 из 7 | 2 с | 96cdb5e +34 | [лог](logs/2026-09-26T11-54-05Z-unit-39a6.log) | C-13 web: journal dayTitle red do pravki |
+| 26.09.2026 16:55 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts apps/web/src/lib/property-time.test.ts apps/web/src/lib/hotel-time.test.ts apps/web/src/components/property | ❌ упало 1 из 27 | 4 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-55-25Z-unit-cad5.log) | C-13 web: green posle pravki |
+| 26.09.2026 16:55 | unit (частично: tests/unit/no-hardcoded-utc5.test.ts apps/web/src/lib/property-time.test.ts apps/web/src/lib/hotel-time.test.ts apps/web/src/components/property | ✅ 29 из 29 | 2 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-55-49Z-unit-fa49.log) | C-13 web: green posle pravki obvyazki |
+| 26.09.2026 16:55 | typecheck | ❌ ошибок: 1 | 33 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-55-57Z-typecheck-3ea5.log) | C-13 web |
+| 26.09.2026 16:56 | typecheck | ✅ без ошибок | 21 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-56-42Z-typecheck-c36c.log) | C-13 web |
+| 26.09.2026 16:57 | lint | ✅ без ошибок | 17 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-57-04Z-lint-c611.log) | C-13 web |
+| 26.09.2026 16:58 | typecheck | ✅ без ошибок | 22 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-58-44Z-typecheck-9de5.log) | C-13 web: posle prettier |
+| 26.09.2026 16:59 | lint | ✅ без ошибок | 15 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-59-06Z-lint-d2be.log) | C-13 web: posle prettier |
+| 26.09.2026 16:59 | unit | ✅ 1910 из 1913, пропущено 3 | 1 мин 15 с | 96cdb5e +50 | [лог](logs/2026-09-26T11-59-21Z-unit-04d8.log) | C-13 web: polnyy unit |
+| 26.09.2026 17:01 | integration | ✅ 84 из 84 | 27 с | 96cdb5e +4 | [лог](logs/2026-09-26T12-01-22Z-integration-3908.log) | C-13 web |
+| 26.09.2026 17:01 | e2e | ✅ 25 из 25 | 1 мин 5 с | 96cdb5e +49 | [лог](logs/2026-09-26T12-01-50Z-e2e-054a.log) | C-13 web: zhivye |

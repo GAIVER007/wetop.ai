@@ -5,7 +5,9 @@ import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
 import { OnboardingGate } from './onboarding-gate';
-import { hotelApi } from '../lib/hotel-api';
+import { PropertyTimeProvider } from '../components/property-time';
+import { hotelApi, propertyTimezone } from '../lib/hotel-api';
+import { FALLBACK_TIMEZONE } from '../lib/property-time';
 import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import './globals.css';
@@ -46,6 +48,9 @@ export default function RootLayout({
 }) {
   // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
   const desk = deskShell();
+  // Пояс объекта для календарей и времени в клиентских компонентах (С-13) — тоже обещанием. Отказ API или
+  // уход на вход здесь не решаются: их решает заголовок объекта ниже, а часам хватит пояса платформы
+  const timezone = propertyTimezone().catch(() => FALLBACK_TIMEZONE);
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -56,32 +61,34 @@ export default function RootLayout({
           <OnboardingGate />
         </Suspense>
         <ThemeProvider>
-          <ToastProvider>
-            <TopNav
-              account={
-                <Suspense fallback={null}>
-                  <AccountMenu />
-                </Suspense>
-              }
-              demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-              desk={desk}
-              property={{
-                name: (
-                  <Suspense fallback="Объект не загружен">
-                    <ProjectProperty field="name" />
+          <PropertyTimeProvider timezone={timezone}>
+            <ToastProvider>
+              <TopNav
+                account={
+                  <Suspense fallback={null}>
+                    <AccountMenu />
                   </Suspense>
-                ),
-                address: (
-                  <Suspense fallback="Настройки гостиницы">
-                    <ProjectProperty field="address" />
-                  </Suspense>
-                ),
-              }}
-            >
-              {children}
-            </TopNav>
-            {drawer}
-          </ToastProvider>
+                }
+                demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+                desk={desk}
+                property={{
+                  name: (
+                    <Suspense fallback="Объект не загружен">
+                      <ProjectProperty field="name" />
+                    </Suspense>
+                  ),
+                  address: (
+                    <Suspense fallback="Настройки гостиницы">
+                      <ProjectProperty field="address" />
+                    </Suspense>
+                  ),
+                }}
+              >
+                {children}
+              </TopNav>
+              {drawer}
+            </ToastProvider>
+          </PropertyTimeProvider>
         </ThemeProvider>
         {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
         <Suspense fallback={null}>

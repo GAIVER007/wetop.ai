@@ -1,4 +1,5 @@
-import { getJsonPublic } from './api';
+import { ApiError, getJsonPublic } from './api';
+import { FALLBACK_TIMEZONE, propertyClock, type PropertyClock } from './property-time';
 import type { DataConnection } from '@pms/shared';
 import { cache } from 'react';
 
@@ -87,14 +88,23 @@ export const hotelApi = {
     ),
 };
 
-/** Property-local calendar date; never browser timezone. */
-export const hotelToday = () =>
-  new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Almaty',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date());
+/**
+ * Пояс объекта для этого рендера (С-13, ТЗ аудита 25.09.2026): из `/hotel/settings` — тот же запрос, что
+ * макет делает на каждой странице, `cache` не даёт ему повториться. API не ответил — пояс платформы:
+ * экран не падает из-за часов, как не падает заголовок объекта в макете.
+ */
+export const propertyTimezone = cache(async (): Promise<string> => {
+  const hotel = await hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
+  return hotel?.property.timezone || FALLBACK_TIMEZONE;
+});
+/** Часы объекта для серверной страницы: «сегодня», месяц, моменты событий (`lib/property-time.ts`) */
+export const hotelClock = async (): Promise<PropertyClock> =>
+  propertyClock(await propertyTimezone());
+/** Сегодня по часам объекта: не пояс браузера и не сдвиг на UTC+5 */
+export const hotelToday = async (): Promise<string> => (await hotelClock()).today();
 export const nextDay = (date: string) =>
   new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10);
 /** Дата через n дней (n может быть отрицательным), YYYY-MM-DD */

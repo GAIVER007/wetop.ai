@@ -280,7 +280,7 @@ export class AuthService {
           data: {
             organizationId: org.id,
             name: organizationName,
-            timezone: 'Asia/Almaty',
+            timezone: 'Asia/Almaty', // tz-allow: значение по умолчанию новой гостиницы, не вычисление времени
             currency: 'KZT',
             checkInTime: '14:00',
             checkOutTime: '12:00',

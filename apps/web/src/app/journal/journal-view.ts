@@ -1,4 +1,4 @@
-import { almatyDate } from '../../lib/almaty';
+import type { PropertyClock } from '../../lib/property-time';
 
 /**
  * Слова журнала действий (21.09.2026). Дата стояла в каждой строке целиком, с годом, и колонка «Когда»
@@ -29,12 +29,12 @@ const shiftDay = (day: string, by: number): string =>
 /**
  * Подпись дня: «Сегодня, 21 сентября», «Вчера, 20 сентября», «18 сентября», «3 января 2025».
  *
- * День считается по часам объекта (`almatyDate`): событие в 20:00 UTC — это уже следующий день в Алматы,
+ * День считается по часам объекта (`clock.date`, С-13): событие в 20:00 UTC — это уже следующий день в Алматы,
  * и без пересчёта строки уезжали бы в чужую группу. Год пишем только у прошлых лет: «3 января» в журнале
  * за этот год читается однозначно, а через границу года — нет.
  */
-export function dayTitle(iso: string, todayAlmaty: string): string {
-  const day = almatyDate(iso);
+export function dayTitle(iso: string, todayAlmaty: string, clock: PropertyClock): string {
+  const day = clock.date(iso);
   if (!day) return 'Дата неизвестна';
   const [year, month, date] = day.split('-').map(Number) as [number, number, number];
   const words = `${date} ${MONTHS[month - 1]}`;

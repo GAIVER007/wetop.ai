@@ -1,4 +1,5 @@
 import {
+  PLATFORM_TIMEZONE,
   SELLER_ADDRESS_FORMS,
   SELLER_EMOJI,
   SELLER_LANGUAGES,
@@ -11,7 +12,7 @@ import type {
   SellerProfileBody,
   SellerStatus,
 } from './api';
-import { almatyDate } from './almaty';
+import { propertyClock } from './property-time';
 import { displayDay } from './display-date';
 import { formatMoney } from './money';
 import { pluralRu } from './plural';
@@ -67,10 +68,15 @@ export function sellerCanAct(status: SellerStatus): boolean {
   return status.state === 'ready';
 }
 
-/** Последний день расширения по Алматы: срок хранится моментом начала следующего дня (DATA_MODEL §16.3) */
+/**
+ * Последний день расширения — по поясу платформы: срок хранится моментом начала следующего дня в том же
+ * поясе, в каком его пишет домен (`PLATFORM_TIMEZONE`, DATA_MODEL §16.3)
+ */
 export function extensionLastDay(activeUntil: string): string {
   const t = Date.parse(activeUntil);
-  return Number.isNaN(t) ? '' : almatyDate(new Date(t - 1).toISOString());
+  return Number.isNaN(t)
+    ? ''
+    : propertyClock(PLATFORM_TIMEZONE).date(new Date(t - 1).toISOString());
 }
 
 /** Напоминание владельцу организации за 7 дней и в последний день (Q-183); бессрочно или дальше — `null` */

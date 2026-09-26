@@ -26,7 +26,6 @@ export function GuestWizard() {
         <Link href="/" className="guest-wizard__brand">
           WETOP<span>.AI</span>
         </Link>
-        <Link href="/login">Войти в аккаунт</Link>
       </header>
       <ol className="guest-wizard__progress" aria-label="Этапы создания">
         {['Источник', 'Проверка', 'Тест', 'Сохранение в аккаунт'].map((name, i) => (

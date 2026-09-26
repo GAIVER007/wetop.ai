@@ -1,0 +1,22 @@
+# Типы (typecheck) · 26.09.2026 18:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит 65668e7 (codex/seller-agent-handoff)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+tests/integration/wizard-claim.test.ts(46,14): error TS2532: Object is possibly 'undefined'.
+tests/integration/wizard-claim.test.ts(46,34): error TS2532: Object is possibly 'undefined'.
+tests/integration/wizard-claim.test.ts(47,67): error TS2532: Object is possibly 'undefined'.
+tests/integration/wizard-claim.test.ts(93,14): error TS2532: Object is possibly 'undefined'.
+tests/integration/wizard-claim.test.ts(93,33): error TS2532: Object is possibly 'undefined'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 14 с

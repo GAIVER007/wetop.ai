@@ -2493,3 +2493,5 @@
 | 26.09.2026 18:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/seller-agent-editor.spec.ts tests/ui/seller-workspace.spec.ts --workers=1) | ✅ 5 из 5 | 58 с | f5e41a2 +22 | [лог](logs/2026-09-26T13-07-09Z-e2e-264a.log) | Seller workspace regression after authenticated creation |
 | 26.09.2026 18:33 | unit | ❌ упало 14 из 1904, пропущено 3 | 1 мин 19 с | 3f8ad12 | [лог](logs/2026-09-26T13-33-16Z-unit-d1aa.log) | PR93 3f8ad12c clean worktree: reproduce 22 unit failures from 12-58-39Z-unit-94ec |
 | 26.09.2026 18:38 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/design-rules.test.ts) | ✅ 24 из 24 | 1 с | 3f8ad12 +5 | [лог](logs/2026-09-26T13-38-12Z-unit-612e.log) | PR93 design fixes: tokens instead of off-scale px, no dot separators |
+| 26.09.2026 18:40 | typecheck | ❌ ошибок: 5 | 14 с | 65668e7 | [лог](logs/2026-09-26T13-40-58Z-typecheck-edeb.log) | 65668e70: root, api, web |
+| 26.09.2026 18:41 | lint | ✅ без ошибок | 8 с | 65668e7 | [лог](logs/2026-09-26T13-41-13Z-lint-5ae6.log) | 65668e70 |

@@ -43,8 +43,8 @@ it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
       const results = await Promise.all(
         [1, 2].map(() => withSignedInUser(actor, () => agents.claim(first.guestToken))),
       );
-      expect(results[0].id).toBe(results[1].id);
-      const card = await withSignedInUser(actor, () => agents.get(results[0].id));
+      expect(results[0]!.id).toBe(results[1]!.id);
+      const card = await withSignedInUser(actor, () => agents.get(results[0]!.id));
       const changes = await Promise.allSettled(
         ['First', 'Second'].map((assistantName) =>
           withSignedInUser(actor, () =>
@@ -90,7 +90,7 @@ it.skipIf(!process.env.DATABASE_URL?.includes('@127.0.0.1:55432/'))(
       const direct = await Promise.all(
         [1, 2].map(() => withSignedInUser(actor, () => agents.create(input))),
       );
-      expect(direct[0].id).toBe(direct[1].id);
+      expect(direct[0]!.id).toBe(direct[1]!.id);
       expect((await withSignedInUser(actor, () => agents.get(requestId))).name).toBe(
         'Direct assistant',
       );

@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
+import { AuthAttemptLimits } from './attempt-limits';
 
 /**
  * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Отправка писем настраивается ключом в окружении:
@@ -22,6 +23,7 @@ import { EmailVerificationService } from './email-verification.service';
     AuthService,
     PasswordResetService,
     EmailVerificationService,
+    AuthAttemptLimits,
     {
       provide: MAILER,
       useFactory: (): Mailer | null => {

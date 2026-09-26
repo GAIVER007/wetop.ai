@@ -12,11 +12,18 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
  * куки то же, что у API (`wetop_session`): на `.wetop.ai` это одна и та же кука, локально — своя у
  * каждого хоста, и это нормально.
  *
- * Пока `APP_AUTH_REQUIRED` не задан, стойка работает и без входа: иначе сквозные тесты, сторож и
- * демонстрационный режим встали бы разом. Охрану снаружи держит Cloudflare Access (ADR-045).
+ * Пока `APP_AUTH_REQUIRED` не задан, стойка в разработке работает и без входа: иначе сквозные тесты, сторож и
+ * демонстрационный режим встали бы разом. В боевом образе (`NODE_ENV=production`) вход обязателен (ADR-085).
  */
 
-export const authRequired = () => process.env.APP_AUTH_REQUIRED === '1';
+export const authRequired = (): boolean => {
+  // Правило то же, что у замка API (ADR-085): в боевом образе вход обязателен, пока его не выключили явным «0»;
+  // непонятное значение («true», опечатка) включает, а не снимает (аудит 25.09 В-2)
+  const setting = process.env.APP_AUTH_REQUIRED?.trim().toLowerCase();
+  if (setting === '0' || setting === 'false') return false;
+  if (!setting) return process.env.NODE_ENV === 'production';
+  return true;
+};
 
 /** Адрес посетителя и его браузер — API считает по ним пределы и список «где я вошёл». Вне запроса — пусто. */
 export async function clientInfo(): Promise<AuthClientInfo> {

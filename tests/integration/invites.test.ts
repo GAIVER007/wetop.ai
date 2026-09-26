@@ -122,4 +122,25 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
       }),
     ).rejects.toMatchObject({ code: 'P2002' });
   });
+
+  // Аудит 26.09, С-10 и С-11: отзыв приглашения и суточный счётчик — на настоящей базе, а не только на подделке
+  it('отзыв гасит только живое приглашение своей организации; счётчик за сутки считает созданные', async () => {
+    const since = new Date(Date.now() - 60_000);
+    const before = await repo.invitesCreatedSince(organizationId, since);
+    const created = await repo.createInvite({
+      organizationId,
+      email: outsiderEmail,
+      tokenHash: hashSecret(newSessionToken()),
+      expiresAt: new Date(Date.now() + 86_400_000),
+      createdBy: ownerId,
+    });
+    expect(await repo.invitesCreatedSince(organizationId, since)).toBe(before + 1);
+    expect(await repo.revokeInvite(created.id, randomUUID(), new Date())).toBe(false);
+    expect(await repo.revokeInvite('не-uuid', organizationId, new Date())).toBe(false);
+    expect(await repo.revokeInvite(created.id, organizationId, new Date())).toBe(true);
+    expect((await repo.pendingInvites(organizationId, new Date())).map((i) => i.id)).not.toContain(
+      created.id,
+    );
+    expect(await repo.revokeInvite(created.id, organizationId, new Date())).toBe(false);
+  });
 });

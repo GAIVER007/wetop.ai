@@ -26,10 +26,8 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
 /**
  * Замок на непубличных маршрутах API (DATA_MODEL §13 шаг 1, ADR-046).
  *
- * **Включается переменной `AUTH_REQUIRED=1` и по умолчанию выключен** — иначе первый же выкат положил бы
- * живую стойку, сторожа, импорт из Exely и скрипты сверки: они ходят в API без токена (ADR-023). Порядок
- * включения и проверки — `plans/slice-13-accounts-saas.md`. Пока выключен, охрану держит Cloudflare Access
- * на периметре (ADR-045).
+ * **В боевом образе включён всегда, пока не выключен явным `AUTH_REQUIRED=0`** (ADR-085, `authRequired` ниже). В
+ * разработке без переменной выключен: сквозные тесты, сторож и скрипты сверки на Mac ходят в API без токена.
  *
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
  * записи в журнале от него идут без автора.
@@ -86,6 +84,19 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   return 'unknown';
 }
 
+/**
+ * Включён ли замок (ADR-085). В боевом образе (`NODE_ENV=production`, deploy/Dockerfile) — всегда, пока его не выключили
+ * явным `AUTH_REQUIRED=0`. Непонятное значение («true», «yes», опечатка) замок включает, а не снимает: до 26.09 любое
+ * значение, кроме строки «1», молча открывало весь API (аудит 25.09, В-2). В разработке без переменной — выключен, как
+ * раньше: сквозные тесты и сторож на Mac ходят без входа.
+ */
+export function authRequired(env: Record<string, string | undefined> = process.env): boolean {
+  const setting = env.AUTH_REQUIRED?.trim().toLowerCase();
+  if (setting === '0' || setting === 'false') return false;
+  if (!setting) return env.NODE_ENV === 'production';
+  return true;
+}
+
 @Injectable()
 export class SessionGuard implements CanActivate {
   constructor(
@@ -94,7 +105,7 @@ export class SessionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const required = process.env.AUTH_REQUIRED === '1';
+    const required = authRequired();
 
     if (!required) {
       // Замок молчит, но токен, если он пришёл, всё равно опознаём: журналу нужен автор действия.

@@ -4,9 +4,12 @@ import {
   ForbiddenException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
+  HttpException,
+  HttpStatus,
   Inject,
   NotFoundException,
   Param,
@@ -19,6 +22,7 @@ import {
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
+  INVITE_LIMIT_MESSAGE,
   INVITE_OWNER_ONLY_MESSAGE,
   SESSION_ENDED_MESSAGE,
 } from '@pms/domain';
@@ -112,6 +116,8 @@ export class AccountsController {
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     // приглашает только владелец организации (DATA_MODEL §16.1, ADR-083)
     if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'limit')
+      throw new HttpException(INVITE_LIMIT_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     if (!outcome.ok) {
       throw new BadRequestException(
         outcome.reason === 'member' ? INVITE_ALREADY_MEMBER_MESSAGE : INVITE_EMAIL_MESSAGE,
@@ -130,6 +136,21 @@ export class AccountsController {
     if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
     if (list === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
     return list.map(inviteJson);
+  }
+
+  /** Отозвать приглашение своей организации (аудит 26.09, С-10). Только владелец; чужое и мёртвое — 404. */
+  @Delete('invites/:id')
+  @HttpCode(200)
+  async revokeInvite(
+    @Param('id') id: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.revokeInvite(tokenFrom(cookie, authorization), id);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
+    if (outcome === 'missing') throw new NotFoundException(INVITE_INVALID_MESSAGE);
+    return { ok: true };
   }
 
   /** Кто зовёт и кого — по ключу из ссылки. Мёртвая ссылка — 404 одним текстом, без подробностей. */

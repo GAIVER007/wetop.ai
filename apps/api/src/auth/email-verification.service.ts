@@ -7,8 +7,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
+  VERIFY_ALREADY_MESSAGE,
   VERIFY_BAD_LINK_MESSAGE,
   VERIFY_EXPIRED_MESSAGE,
+  VERIFY_REPEAT_MINUTES,
   emailVerificationLetter,
   hashSessionToken,
   newSessionToken,
@@ -62,6 +64,11 @@ export class EmailVerificationService {
       return false;
     }
     this.lastSent.set(input.email, now.getTime());
+    // Память «когда слали» не растёт без предела: старше минуты она уже ничего не запрещает (аудит 25.09, М-4)
+    if (this.lastSent.size > 10_000) {
+      for (const [email, at] of this.lastSent)
+        if (now.getTime() - at >= REPEAT_SECONDS * 1_000) this.lastSent.delete(email);
+    }
     return true;
   }
 
@@ -98,7 +105,26 @@ export class EmailVerificationService {
     const state = verifyState(row, now);
     // Уже подтверждённая почта + использованная ссылка — это повторный переход по той же ссылке
     // (письмо открыли дважды, почтовый клиент сходил по ссылке сам). Это не ошибка человека.
+    // Но только по той ссылке, что подтвердила почту (у погашенной повторной отправкой время другое), только
+    // VERIFY_REPEAT_MINUTES и не заблокированному: до 26.09 любая ссылка впускала без пароля бессрочно — даже после
+    // смены пароля и «выйти везде» (аудит 25.09 В-1, 26.09 С-7; ADR-085).
     if (state === 'used' && row.user.emailVerifiedAt !== null) {
+      // «Своя» — последняя выданная человеку и погашенная самим подтверждением: у погашенной повторной отправкой
+      // есть ссылка новее
+      const latest = await this.prisma.db.emailVerification.findFirst({
+        where: { userId: row.userId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true },
+      });
+      const ownLink =
+        latest?.id === row.id &&
+        row.usedAt !== null &&
+        row.usedAt.getTime() === row.user.emailVerifiedAt.getTime();
+      const fresh =
+        row.usedAt !== null &&
+        now.getTime() - row.usedAt.getTime() <= VERIFY_REPEAT_MINUTES * 60_000;
+      if (!ownLink || !fresh || row.user.status === 'BLOCKED')
+        throw new UnauthorizedException(VERIFY_ALREADY_MESSAGE);
       const organizationId = row.user.memberships[0]?.organizationId;
       if (!organizationId) throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
       return { userId: row.user.id, organizationId };

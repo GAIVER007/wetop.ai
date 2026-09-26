@@ -106,6 +106,9 @@ export class PasswordResetService {
         status: 'ACTIVE',
         failedAttempts: 0,
         lockedUntil: null,
+        // Ссылка пришла на эту почту — значит, почта его. Приглашённый задаёт пароль этой же дорогой и без отметки
+        // упирался в «Почта не подтверждена» навсегда, вопреки ADR-060 (аудит 26.09, С-9)
+        emailVerifiedAt: row.user.emailVerifiedAt ?? now,
       },
     });
     await this.prisma.db.passwordReset.update({ where: { id: row.id }, data: { usedAt: now } });

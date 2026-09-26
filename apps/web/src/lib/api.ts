@@ -297,10 +297,11 @@ async function sendJson<T>(
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
+  extraHeaders: Record<string, string> = {},
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
-    headers: { 'content-type': 'application/json' },
+    headers: { ...extraHeaders, 'content-type': 'application/json' },
     body: JSON.stringify(body),
     cache: 'no-store',
   });
@@ -372,6 +373,16 @@ function authHeaders(info: AuthClientInfo, token?: string | null): Record<string
     ...(token ? { authorization: `Bearer ${token}` } : {}),
   };
 }
+/**
+ * Адрес и браузер посетителя для публичных форм входа: API считает по адресу пределы попыток (аудит 26.09, С-5). Без
+ * него все посетители стойки делили бы один счётчик — адрес самой стойки.
+ */
+function visitorHeaders(info?: AuthClientInfo): Record<string, string> {
+  return {
+    ...(info?.ip ? { 'cf-connecting-ip': info.ip } : {}),
+    ...(info?.userAgent ? { 'user-agent': info.userAgent } : {}),
+  };
+}
 async function messageOf(res: Response): Promise<string> {
   try {
     const j = (await res.json()) as { message?: string | string[] };
@@ -391,40 +402,50 @@ async function messageOf(res: Response): Promise<string> {
  */
 export const authApi = {
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
-  login: (body: { email: string; password: string }) =>
-    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
+  login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/login',
+      body,
+      visitorHeaders(info),
+    ),
   me: () =>
     getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
-  requestReset: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  requestReset: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body, visitorHeaders(info)),
   /** Пароль по одноразовой ссылке из письма */
-  confirmReset: (body: { token: string; password: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
+  confirmReset: (body: { token: string; password: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body, visitorHeaders(info)),
   // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCode и verify убраны вместе с ним.
   /**
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
-  register: (body: { email: string; name: string; hotelName: string; password: string }) =>
+  register: (
+    body: { email: string; name: string; hotelName: string; password: string },
+    info?: AuthClientInfo,
+  ) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
       'POST',
       '/auth/register',
       body,
+      visitorHeaders(info),
     ),
   /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
-  verifyEmail: (body: { token: string }) =>
+  verifyEmail: (body: { token: string }, info?: AuthClientInfo) =>
     sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
       'POST',
       '/auth/email/verify',
       body,
+      visitorHeaders(info),
     ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
-  resendVerification: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body),
+  resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, visitorHeaders(info)),
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {

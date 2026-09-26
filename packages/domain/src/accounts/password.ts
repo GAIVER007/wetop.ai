@@ -1,4 +1,4 @@
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scrypt, scryptSync, timingSafeEqual } from 'node:crypto';
 
 /**
  * Пароли сотрудников (DATA_MODEL §13.8, ADR-049). Считаем `scrypt` из стандартной библиотеки Node:
@@ -56,6 +56,30 @@ export function verifyPassword(raw: string, stored: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * То же, что `verifyPassword`, но scrypt считается в пуле потоков Node, а не в главном: синхронная проверка занимала
+ * ~40 мс главного потока на попытку, и поток входов замораживал весь API (аудит 26.09, С-5).
+ */
+export async function verifyPasswordAsync(raw: string, stored: string): Promise<boolean> {
+  const parts = stored.split('$');
+  if (parts.length !== 6 || parts[0] !== 'scrypt') return false;
+  const [, n, r, p, salt, expected] = parts as [string, string, string, string, string, string];
+  const cost = { N: Number(n), r: Number(r), p: Number(p) };
+  if (!Number.isInteger(cost.N) || !Number.isInteger(cost.r) || !Number.isInteger(cost.p)) return false;
+  if (cost.N < 1024 || cost.r < 1 || cost.p < 1 || salt === '' || expected === '') return false;
+  const actual = await new Promise<string | null>((resolve) => {
+    try {
+      scrypt(raw.normalize('NFKC'), salt, KEY_LENGTH, cost, (err, key) =>
+        resolve(err ? null : key.toString('base64url')),
+      );
+    } catch {
+      resolve(null);
+    }
+  });
+  if (actual === null || actual.length !== expected.length) return false;
+  return timingSafeEqual(bytes.encode(actual), bytes.encode(expected));
 }
 
 /** Токен сессии: у человека в cookie — сам токен, в базе только его хеш (утечка базы не даёт войти). */

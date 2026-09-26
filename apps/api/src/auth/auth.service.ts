@@ -13,7 +13,7 @@ import {
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
   checkPassword,
-  evaluateLogin,
+  decideLogin,
   hashPassword,
   hashSessionToken,
   isOrganizationNameShaped,
@@ -25,12 +25,15 @@ import {
   validEmail,
   sessionExpiry,
   sessionState,
-  verifyPassword,
+  verifyPasswordAsync,
+  MAX_FAILED_ATTEMPTS,
+  LOCK_MINUTES,
   type MembershipRole,
   type UserStatus,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
+import { PasswordGate } from './attempt-limits';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -80,8 +83,14 @@ export interface RegisterResult {
  * новых таких сессий не появляется, и `SESSION_SECRET` замку больше не нужен.
  */
 
-/** Один и тот же ответ на неверную почту и на неверный пароль: форма входа не рассказывает, кто у нас есть. */
-const WRONG = 'Неверная почта или пароль';
+/**
+ * Один и тот же ответ на неверную почту, неверный пароль и запертую учётку: форма входа не рассказывает, кто у нас есть
+ * (аудит 26.09, С-6 — ответ «Вход заперт…» раньше выдавал существование почты). Про замок текст говорит сам.
+ */
+const WRONG = `Неверная почта или пароль. После ${MAX_FAILED_ATTEMPTS} неверных попыток подряд вход запирается на ${LOCK_MINUTES} минут.`;
+/** Организацию приостановил владелец WETOP (ADR-046): входа нет ни у кого из неё. Пароль при этом назван верно. */
+export const ORGANIZATION_SUSPENDED_MESSAGE =
+  'Доступ вашей организации приостановлен. Обратитесь в поддержку WETOP.';
 /** Регистрация открыта по решению владельца (ADR-055); 0 явно отключает её. */
 export const REGISTRATION_CLOSED_MESSAGE =
   'Самостоятельная регистрация закрыта. Попросите владельца объекта прислать приглашение.';
@@ -93,6 +102,11 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
+
+/** Проверки пароля всего процесса — через одну очередь (аудит 26.09, С-5). */
+const passwordGate = new PasswordGate();
+const checkPasswordQueued = (raw: string, stored: string): Promise<boolean> =>
+  passwordGate.run(() => verifyPasswordAsync(raw, stored));
 
 /** Роль и отметка главного администратора — к сессии, а не к человеку: роль у каждой организации своя */
 interface Access {
@@ -155,34 +169,42 @@ export class AuthService {
       : null;
 
     if (!user) {
-      verifyPassword(input.password, DECOY_HASH);
+      await checkPasswordQueued(input.password, DECOY_HASH);
       throw new UnauthorizedException(WRONG);
     }
 
-    const decision = evaluateLogin({
-      user: {
-        status: user.status as UserStatus,
-        passwordHash: user.passwordHash,
-        failedAttempts: user.failedAttempts,
-        lockedUntil: user.lockedUntil,
-      },
-      password: input.password,
-      now,
-    });
-
-    if (decision.outcome === 'locked') {
-      const until = decision.lockedUntil ?? now;
-      throw new UnauthorizedException(
-        `Вход заперт после нескольких неверных попыток. Попробуйте после ${until.toISOString()}`,
-      );
-    }
+    const state = {
+      status: user.status as UserStatus,
+      failedAttempts: user.failedAttempts,
+      lockedUntil: user.lockedUntil,
+    };
+    const checkable =
+      state.status === 'ACTIVE' && !(state.lockedUntil !== null && state.lockedUntil > now);
+    // Запертой и заблокированной учётке пароль тоже «проверяется» — в пустую: время ответа то же, что у неверного
+    const passwordOk = await checkPasswordQueued(
+      input.password,
+      checkable && user.passwordHash !== '' ? user.passwordHash : DECOY_HASH,
+    );
+    const decision = decideLogin({ user: state, passwordOk: checkable && passwordOk, now });
 
     if (decision.outcome !== 'ok') {
       if (decision.outcome === 'wrong') {
-        await this.prisma.db.user.update({
+        // Счёт в самой строке, а не прочитанным раньше значением: пачка одновременных попыток иначе считалась за
+        // одну, и порог в пять неудач размывался (аудит 25.09 М-3, 26.09 С-6).
+        const updated = await this.prisma.db.user.update({
           where: { id: user.id },
-          data: { failedAttempts: decision.failedAttempts, lockedUntil: decision.lockedUntil },
+          data: {
+            failedAttempts: decision.resetCounter ? 1 : { increment: 1 },
+            lockedUntil: null,
+          },
+          select: { failedAttempts: true },
         });
+        if (updated.failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          await this.prisma.db.user.update({
+            where: { id: user.id },
+            data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
+          });
+        }
       }
       throw new UnauthorizedException(WRONG);
     }
@@ -195,6 +217,7 @@ export class AuthService {
     // Сессия открывается под организацией: без членства человеку нечего открывать (§13.3, §13.5)
     const organizationId = user.memberships[0]?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
+    await this.assertOrganizationOpen(organizationId);
 
     const token = newSessionToken();
     await this.prisma.db.user.update({
@@ -308,7 +331,8 @@ export class AuthService {
     now = new Date(),
   ): Promise<LoginResult> {
     const user = await this.prisma.db.user.findUnique({ where: { id: input.userId } });
-    if (!user) throw new UnauthorizedException(WRONG);
+    if (!user || user.status !== 'ACTIVE') throw new UnauthorizedException(WRONG);
+    await this.assertOrganizationOpen(input.organizationId);
 
     const token = newSessionToken();
     const expiresAt = sessionExpiry(now);
@@ -325,6 +349,8 @@ export class AuthService {
       where: { id: user.id },
       data: { failedAttempts: 0, lockedUntil: null, lastLoginAt: now },
     });
+    // Вход без пароля — тем более в журнал: раньше он не оставлял следа (аудит 26.09, С-7)
+    await this.record(user.id, 'user.login', { via: 'email-link' });
 
     return {
       token,
@@ -388,7 +414,7 @@ export class AuthService {
     if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');
 
     const full = await this.prisma.db.user.findUnique({ where: { id: found.user.id } });
-    if (!full || !verifyPassword(input.currentPassword, full.passwordHash))
+    if (!full || !(await checkPasswordQueued(input.currentPassword, full.passwordHash)))
       throw new UnauthorizedException('Неверный текущий пароль');
 
     const policy = checkPassword(input.newPassword);
@@ -426,7 +452,30 @@ export class AuthService {
     if (!found?.row.user) return null;
     if (sessionState(found.row, now) !== 'active') return null;
     if (found.row.user.status !== 'ACTIVE') return null;
+    // Приостановленная организация — ни одной живой сессии (ADR-046, аудит 26.09, С-4)
+    if (found.row.organization?.status === 'SUSPENDED') return null;
+    // Исключённый из организации — сессия гаснет сразу: раньше роль подставлялась «сотрудник», и сессия жила до
+    // конца смены (аудит 26.09, С-10)
+    const membership = await this.prisma.db.membership.findUnique({
+      where: {
+        userId_organizationId: {
+          userId: found.row.userId,
+          organizationId: found.row.organizationId,
+        },
+      },
+      select: { role: true },
+    });
+    if (!membership) return null;
     return { session: found.row, user: found.row.user };
+  }
+
+  /** Организация приостановлена — входа нет ни паролем, ни по ссылке */
+  private async assertOrganizationOpen(organizationId: string): Promise<void> {
+    const org = await this.prisma.db.organization.findUnique({
+      where: { id: organizationId },
+      select: { status: true },
+    });
+    if (org?.status === 'SUSPENDED') throw new ForbiddenException(ORGANIZATION_SUSPENDED_MESSAGE);
   }
 
   /**

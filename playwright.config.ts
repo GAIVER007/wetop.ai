@@ -122,7 +122,8 @@ export default defineConfig({
             GUARD_HEARTBEAT_URL: '',
             TELEGRAM_BOT_TOKEN: '',
             TELEGRAM_CHAT_ID: '',
-            ...(AUTH ? { AUTH_REQUIRED: '1', SERVICE_API_KEY: SERVICE_KEY } : {}),
+            // Замок выключается только явным «0» (ADR-085): без него стойка production-сборки требовала бы вход
+            ...(AUTH ? { AUTH_REQUIRED: '1', SERVICE_API_KEY: SERVICE_KEY } : { AUTH_REQUIRED: '0' }),
           },
           // отвечает 200 и без готовой схемы — схему готовит globalSetup, проверяет schema-guard
           url: `${TEST_API}/system/connection`,
@@ -132,7 +133,7 @@ export default defineConfig({
         {
           command: `npx next start --port ${TEST_WEB_PORT} --hostname 127.0.0.1`,
           cwd: 'apps/web',
-          env: { APP_API_URL: TEST_API, ...(AUTH ? { APP_AUTH_REQUIRED: '1' } : {}) },
+          env: { APP_API_URL: TEST_API, APP_AUTH_REQUIRED: AUTH ? '1' : '0' },
           url: `${TEST_WEB}/inventory`,
           reuseExistingServer: true,
           timeout: 180_000,

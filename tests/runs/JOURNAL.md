@@ -2350,3 +2350,13 @@
 | 26.09.2026 15:59 | lint | ✅ без ошибок | 15 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-59-30Z-lint-5e49.log) | security fixes В-1/В-3/В-6, final tree |
 | 26.09.2026 15:59 | integration | ✅ 77 из 77 | 23 с | 7b98a24 +7 | [лог](logs/2026-09-26T10-59-46Z-integration-a9cb.log) | security fixes В-1/В-3/В-6, final tree |
 | 26.09.2026 16:00 | e2e | ✅ 25 из 25 | 1 мин 3 с | 7b98a24 +6 | [лог](logs/2026-09-26T11-00-15Z-e2e-9647.log) | security fixes В-1/В-3/В-6, final tree |
+| 26.09.2026 16:44 | unit (частично: apps/api/src/auth apps/api/src/accounts apps/web/src/lib/auth-required.test.ts) | ❌ упало 24 из 156 | 14 с | 27bdf62 +7 | [лог](logs/2026-09-26T11-44-25Z-unit-058b.log) | пакет A red: вход и учётные записи |
+| 26.09.2026 16:47 | unit (частично: apps/api/src/auth apps/api/src/accounts apps/web/src/lib/auth-required.test.ts packages/domain/src/accounts) | ❌ упало 8 из 246 | 8 с | 27bdf62 +25 | [лог](logs/2026-09-26T11-47-47Z-unit-5045.log) | пакет A green |
+| 26.09.2026 16:49 | unit (частично: apps/api/src/auth apps/api/src/accounts apps/web/src/lib packages/domain/src/accounts tests/unit/e2e-auth-config.test.ts) | ✅ 348 из 348 | 9 с | 27bdf62 +29 | [лог](logs/2026-09-26T11-49-09Z-unit-58e7.log) | пакет A green |
+| 26.09.2026 16:50 | unit | ✅ 1881 из 1884, пропущено 3 | 1 мин 12 с | 27bdf62 +29 | [лог](logs/2026-09-26T11-50-05Z-unit-92fc.log) | пакет A: вход и учётные записи |
+| 26.09.2026 16:51 | typecheck | ✅ без ошибок | 31 с | 27bdf62 +31 | [лог](logs/2026-09-26T11-51-17Z-typecheck-79d8.log) | пакет A: вход и учётные записи |
+| 26.09.2026 16:51 | lint | ✅ без ошибок | 17 с | 27bdf62 +31 | [лог](logs/2026-09-26T11-51-49Z-lint-0b38.log) | пакет A: вход и учётные записи |
+| 26.09.2026 16:52 | integration | ✅ 78 из 78 | 23 с | 27bdf62 +25 | [лог](logs/2026-09-26T11-52-06Z-integration-1b63.log) | пакет A |
+| 26.09.2026 16:53 | e2e | ✅ 25 из 25 | 1 мин 8 с | 27bdf62 +29 | [лог](logs/2026-09-26T11-53-07Z-e2e-70f5.log) | пакет A |
+| 26.09.2026 16:54 | e2e | ✅ 26 из 26 | 1 мин 10 с | 27bdf62 +29 | [лог](logs/2026-09-26T11-54-15Z-e2e-a4a5.log) | пакет A, замок включён (E2E_AUTH=1) |
+| 26.09.2026 16:55 | e2e (частично: --config tests/ui/playwright.auth.config.ts) | ✅ 4 из 4 | 19 с | 27bdf62 +29 | [лог](logs/2026-09-26T11-55-34Z-e2e-caf9.log) | пакет A: вход стойки с замком |

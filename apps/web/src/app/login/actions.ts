@@ -22,7 +22,7 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
   if (!email || !password) return { error: 'Введите почту и пароль' };
 
   try {
-    const result = await authApi.login({ email, password });
+    const result = await authApi.login({ email, password }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
@@ -53,7 +53,7 @@ export async function requestReset(
   const email = String(form.get('email') ?? '').trim();
   if (!email) return { error: 'Введите почту', sent: false };
   try {
-    await authApi.requestReset({ email });
+    await authApi.requestReset({ email }, await clientInfo());
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message, sent: false };
     throw error;
@@ -76,7 +76,7 @@ export async function setPassword(
   if (!token) return { error: 'Ссылка неполная: откройте её из письма целиком' };
   if (password !== again) return { error: 'Пароли не совпадают' };
   try {
-    await authApi.confirmReset({ token, password });
+    await authApi.confirmReset({ token, password }, await clientInfo());
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;
@@ -111,7 +111,7 @@ export async function registerAction(
 ): Promise<AuthActionResult> {
   let sent: boolean;
   try {
-    const result = await authApi.register({ email, name, hotelName, password });
+    const result = await authApi.register({ email, name, hotelName, password }, await clientInfo());
     sent = result.sent;
   } catch (e) {
     return { error: errorText(e) };
@@ -126,7 +126,7 @@ export async function registerAction(
  */
 export async function verifyEmailAction(token: string): Promise<AuthActionResult> {
   try {
-    const result = await authApi.verifyEmail({ token });
+    const result = await authApi.verifyEmail({ token }, await clientInfo());
     await setSessionCookie(result.token, result.expiresAt);
   } catch (e) {
     return { error: errorText(e) };
@@ -144,7 +144,7 @@ export async function resendVerification(_prev: ResendState, form: FormData): Pr
   const email = String(form.get('email') ?? '').trim();
   if (!email) return { error: 'Введите почту', sent: false };
   try {
-    await authApi.resendVerification({ email });
+    await authApi.resendVerification({ email }, await clientInfo());
   } catch (e) {
     return { error: errorText(e), sent: false };
   }

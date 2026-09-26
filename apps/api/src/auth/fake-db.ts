@@ -170,10 +170,23 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!include?.memberships) return { ...found };
         return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
       },
-      async update({ where, data }: { where: { id: string }; data: Partial<FakeUser> }) {
+      async update({
+        where,
+        data,
+      }: {
+        where: { id: string };
+        data: { [K in keyof FakeUser]?: FakeUser[K] | { increment: number } };
+      }) {
         const user = users.find((u) => u.id === where.id);
         if (!user) throw new Error('нет такого пользователя');
-        Object.assign(user, data);
+        // `{ increment }` — как у Prisma: счётчик меняется в самой строке, а не значением, прочитанным раньше
+        for (const [key, value] of Object.entries(data)) {
+          const row = user as unknown as Record<string, unknown>;
+          row[key] =
+            value !== null && typeof value === 'object' && 'increment' in value
+              ? (row[key] as number) + (value as { increment: number }).increment
+              : value;
+        }
         return { ...user };
       },
       async create({
@@ -267,6 +280,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           ...row,
           user: { ...user, memberships: memberships.filter((m) => m.userId === user.id) },
         };
+      },
+      /** Последняя выданная ссылка человека: строки в массиве идут в порядке выдачи, как `created_at` в базе */
+      async findFirst({ where }: { where: { userId: string } }) {
+        const rows = verifications.filter((r) => r.userId === where.userId);
+        const last = rows.at(-1);
+        return last ? { id: last.id } : null;
       },
       async update({ where, data }: { where: { id: string }; data: Partial<FakeVerification> }) {
         const row = verifications.find((r) => r.id === where.id);

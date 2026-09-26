@@ -2570,3 +2570,8 @@
 | 26.09.2026 21:24 | lint | ✅ без ошибок | 17 с | e1cbd81 | [лог](logs/2026-09-26T16-24-34Z-lint-2ec5.log) |  |
 | 26.09.2026 21:24 | unit | ✅ 1914 из 1917, пропущено 3 | 1 мин 12 с | e1cbd81 | [лог](logs/2026-09-26T16-24-51Z-unit-ed3c.log) |  |
 | 26.09.2026 21:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/seller-workspace.spec.ts tests/ui/ai-seller.spec.ts tests/ui/seller-agent-editor.spec | ✅ 23 из 23 | 1 мин 21 с | e1cbd81 | [лог](logs/2026-09-26T16-26-08Z-e2e-f4d4.log) |  |
+| 26.09.2026 21:33 | integration | ✅ 86 из 86 | 27 с | 62e8a0b | [лог](logs/2026-09-26T16-33-07Z-integration-5b82.log) |  |
+| 26.09.2026 21:33 | e2e | ❌ упало 1 из 25 | 1 мин 6 с | 62e8a0b | [лог](logs/2026-09-26T16-33-35Z-e2e-7517.log) | заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку |
+| 26.09.2026 21:37 | e2e (частично: tests/e2e/check-in-out.spec.ts --repeat-each=8 --workers=1) | ✅ 9 из 9 | 1 мин 17 с | 62e8a0b | [лог](logs/2026-09-26T16-37-37Z-e2e-861c.log) |  |
+| 26.09.2026 21:40 | e2e (частично: tests/e2e/check-in-out.spec.ts --repeat-each=4 --workers=1) | ✅ 5 из 5 | 43 с | 62e8a0b +1 | [лог](logs/2026-09-26T16-40-10Z-e2e-6c2d.log) |  |
+| 26.09.2026 21:40 | e2e | ✅ 25 из 25 | 58 с | 62e8a0b +1 | [лог](logs/2026-09-26T16-40-54Z-e2e-bf83.log) |  |

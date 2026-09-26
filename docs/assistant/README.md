@@ -466,10 +466,41 @@ sed -i 's/127.0.0.1:8000:8000/127.0.0.1:8001:8000/' /opt/wetop-bot/seller/compos
 cd /opt/wetop-bot/seller && docker compose up -d --build && curl -s 127.0.0.1:8001/health
 ```
 
+🔴 **Всё, что вставляется в веб-терминал, — внутри `bash <<'SCRIPT' … SCRIPT`.** `set -e`, вставленный прямо в
+терминал, закрывает сам терминал на первой ошибке («Your session ended», 26.09.2026): так закрыла его проверка
+`curl`, запущенная раньше, чем продавец успел подняться. В дочернем `bash` ошибка заканчивает только скрипт.
+
+**Шаги 10–11 одним скриптом** (котировка и хранилище ключей продавца). Запускать **после** выкладки нового кода:
+скрипт сам откажет, если клон на сервере старый. Повторный запуск безопасен: ключ котировки берётся уже вписанный,
+`LLM_KEYS_SECRET` не перезаписывается никогда, значения не печатаются:
+
+```bash
+bash <<'SCRIPT'
+set -u
+P=/root/wetop/.env; D=/opt/wetop-bot/seller; S=$D/.env
+put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
+[ -f "$P" ] || { echo "✗ нет $P"; exit 1; }
+[ -f "$S" ] || { echo "✗ нет $S: копия продавца не заведена — сначала шаг 5б"; exit 1; }
+grep -q SELLER_QUOTE_KEY /root/wetop/apps/api/src/auth/auth.guard.ts || { echo "✗ клон на старом коде: сначала release на свежий main и миграции"; exit 1; }
+Q=$(grep -m1 '^SELLER_QUOTE_KEY=' "$P" | cut -d= -f2-); [ -n "$Q" ] || Q=$(openssl rand -hex 32)
+put "$P" SELLER_QUOTE_KEY "$Q"; put "$S" INTEGRATION_API_KEY "$Q"; unset Q
+put "$S" INTEGRATION_MODE wetop; put "$S" INTEGRATION_BASE_URL http://api:3001
+grep -q '^LLM_KEYS_SECRET=.' "$S" || put "$S" LLM_KEYS_SECRET "$(openssl rand -base64 32 | tr '+/' '-_')"
+echo "✓ 1/3 ключи вписаны"
+tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./.env -cf - . | tar -C "$D" -xf - || { echo "✗ код продавца не скопирован"; exit 1; }
+sed -i 's/127.0.0.1:8000:8000/127.0.0.1:8001:8000/' "$D/compose.yml"
+cd "$D" && docker compose up -d --build || { echo "✗ продавец не собрался — вывод выше"; exit 1; }
+for i in $(seq 1 40); do curl -sf 127.0.0.1:8001/health >/dev/null && break; sleep 3; done
+curl -sf 127.0.0.1:8001/health >/dev/null && echo "✓ 2/3 продавец отвечает" || echo "✗ продавец молчит 2 минуты: cd $D && docker compose logs --tail=60 app"
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api web && echo "✓ 3/3 api и web перезапущены"
+SCRIPT
+```
+
 **Скрипт уже запускали до «Техподдержки» (Э3)?** Тогда у помощника пустой `SELLER_SERVICE_KEY`, и панель закрыта. Ключ
 и адрес панели — одной вставкой в веб-терминал; значения не печатаются, `api` и помощник перезапускаются:
 
 ```bash
+bash <<'SCRIPT'
 set -eu
 B=/opt/wetop-bot/assistant/.env; P=/root/wetop/.env
 put() { if grep -q "^$2=" "$1"; then sed -i "s#^$2=.*#$2=$3#" "$1"; else printf '%s=%s\n' "$2" "$3" >> "$1"; fi; }
@@ -478,6 +509,7 @@ put "$B" SELLER_SERVICE_KEY "$S"; put "$P" ASSISTANT_SERVICE_KEY "$S"; unset S
 put "$P" ASSISTANT_PANEL_URL "http://assistant:8000$(grep '^DASHBOARD_PATH_PREFIX=' "$B" | cut -d= -f2-)"
 cd /opt/wetop-bot/assistant && docker compose up -d --force-recreate app
 cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api
+SCRIPT
 ```
 
 **Что вписать в `.env` помощника.**

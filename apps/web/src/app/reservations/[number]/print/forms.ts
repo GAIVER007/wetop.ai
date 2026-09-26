@@ -245,9 +245,3 @@ export function invoiceLines(finance: ReservationFinance): InvoiceLine[] {
 export function sumMinor(values: string[]): string {
   return values.reduce((s, v) => s + BigInt(v), 0n).toString();
 }
-
-/** Сегодня и «сейчас» по часам объекта (Asia/Almaty, UTC+5) — как в регистрационной карте. */
-export function almatyNow(): { date: string; stamp: string } {
-  const iso = new Date(Date.now() + 5 * 3600 * 1000).toISOString();
-  return { date: iso.slice(0, 10), stamp: iso.slice(0, 16).replace('T', ' ') };
-}

@@ -1,0 +1,169 @@
+# Модульные (unit) · 26.09.2026 16:48 Алматы · vm
+# коммит 96cdb5e (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T11-48-50Z-unit-3900.json' 'tests/unit/no-hardcoded-utc5.test.ts' 'apps/web/src/lib/property-time.test.ts' 'apps/web/src/lib/hotel-time.test.ts' 'apps/web/src/components/property-time.test.ts' 'apps/api/src/hotel/reservation-directory.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests | 2 failed) 56ms
+   ❯ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     × API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 28ms
+     × стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 25ms
+ ❯ |unit| apps/web/src/lib/hotel-time.test.ts (2 tests | 1 failed) 214ms
+   × «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 210ms
+   ✓ API не ответил — пояс платформы, страница не падает 3ms
+ ❯ |unit| apps/web/src/lib/property-time.test.ts (0 test)
+ ❯ |unit| apps/web/src/components/property-time.test.ts (0 test)
+ ❯ |unit| apps/api/src/hotel/reservation-directory.test.ts (9 tests | 1 failed) 30ms
+   ❯ reservation directory is a bounded read projection (9)
+     ✓ rejects repeated or structured query parameters with a client error 5ms
+     ✓ rejects invalid dates, statuses and pagination before querying records 4ms
+     ✓ scopes and limits reads, preserving empty data and decimal-safe money 2ms
+     ✓ размер страницы задаётся вызывающим, по умолчанию прежние 25 1ms
+     ✓ негодный размер страницы отклоняется до запроса к базе 2ms
+     ✓ ADR-071: ищет и по номеру брони в канале — без пробелов, как его хранит стойка 1ms
+     ✓ считает брони по статусам отбором без самого статуса 1ms
+     ✓ excludes voided finance entries in the read selection and preserves refunds 1ms
+     × без дат «сегодня» — по поясу объекта, а не по Алматы 11ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/components/property-time.test.ts [ apps/web/src/components/property-time.test.ts ]
+Error: Cannot find module './property-time' imported from /home/user/wetop.ai/apps/web/src/components/property-time.test.ts
+ ❯ apps/web/src/components/property-time.test.ts:4:1
+      2| import { prerenderToNodeStream } from 'react-dom/static';
+      3| import { expect, it } from 'vitest';
+      4| import { PropertyTimeProvider, usePropertyClock } from './property-tim…
+       | ^
+      5|
+      6| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/property-time.test.ts [ apps/web/src/lib/property-time.test.ts ]
+Error: Cannot find module './property-time' imported from /home/user/wetop.ai/apps/web/src/lib/property-time.test.ts
+ ❯ apps/web/src/lib/property-time.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { PLATFORM_TIMEZONE } from '@pms/domain';
+      3| import { FALLBACK_TIMEZONE, propertyClock } from './property-time';
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty
+AssertionError: день объекта — от Property.timezone: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/api/src/auth/auth.service.ts:283:            timezone: 'Asia/Almaty',",
++   "apps/api/src/hotel/reservation-directory.ts:35:    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());",
++ ]
+
+ ❯ tests/unit/no-hardcoded-utc5.test.ts:55:86
+     53| describe('С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки не…
+     54|   it('API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia…
+     55|     expect(hardcodedTimezone('apps/api/src'), 'день объекта — от Prope…
+       |                                                                                      ^
+     56|   });
+     57|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5
+AssertionError: часы объекта — lib/property-time.ts: expected [ …(22) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/date-field.tsx:48:const hotelToday = () => new Date(Date.now() + 5 * 3_600_000).toISOString().slice(0, 10);",
++   "apps/web/src/components/data-freshness.tsx:20:    timeZone: 'Asia/Almaty',",
++   "apps/web/src/app/chessboard/page.tsx:39:  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);",
++   "apps/web/src/app/reservations/new/page.tsx:29:  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);",
++   "apps/web/src/app/reservations/[number]/page.tsx:306:                    today={new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10)}",
++   "apps/web/src/app/reservations/[number]/print/page.tsx:85:  const printedAt = new Date(Date.now() + 5 * 3600 * 1000)",
++   "apps/web/src/app/reservations/[number]/print/forms.ts:251:  const iso = new Date(Date.now() + 5 * 3600 * 1000).toISOString();",
++   "apps/web/src/app/rates/page.tsx:46:  const month = q.month ?? new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 7);",
++   "apps/web/src/app/incidents/page.tsx:24:    timeZone: 'Asia/Almaty',",
++   "apps/web/src/app/finance/page.tsx:40:  const now = new Date(Date.now() + 5 * 3600 * 1000);",
++   "apps/web/src/app/channels/format.ts:3:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/app/channels/format.ts:17:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/app/channels/page.tsx:16:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/app/units/[code]/page.tsx:22:  const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);",
++   "apps/web/src/app/connections/page.tsx:12:  value ? new Date(value).toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' }) : '—';",
++   "apps/web/src/app/connections/data-connection.tsx:53:              timeZone: connection.property?.timezone ?? 'Asia/Almaty',",
++   "apps/web/src/app/today/page.tsx:29:  return <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />;",
++   "apps/web/src/lib/hotel-api.ts:93:    timeZone: 'Asia/Almaty',",
++   "apps/web/src/lib/almaty.ts:2:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/lib/almaty.ts:15:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/lib/almaty.ts:33:  timeZone: 'Asia/Almaty',",
++   "apps/web/src/lib/almaty.ts:60:  timeZone: 'Asia/Almaty',",
++ ]
+
+ ❯ tests/unit/no-hardcoded-utc5.test.ts:59:86
+     57|
+     58|   it('стойка: даты и моменты — по поясу объекта из /hotel/settings, а …
+     59|     expect(hardcodedTimezone('apps/web/src'), 'часы объекта — lib/prop…
+       |                                                                                      ^
+     60|   });
+     61| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > reservation directory is a bounded read projection > без дат «сегодня» — по поясу объекта, а не по Алматы
+AssertionError: expected { from: '2026-10-01', …(6) } to match object { Object (from, to) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "from": "2026-09-30",
+-   "to": "2026-09-30",
++   "from": "2026-10-01",
++   "to": "2026-10-01",
+  }
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:159:38
+    157|       });
+    158|       // 19:30 UTC: в Нью-Йорке ещё 30 сентября, в Алматы уже 1 октября
+    159|       expect(await service.list({})).toMatchObject({ from: '2026-09-30…
+       |                                      ^
+    160|     } finally {
+    161|       vi.useRealTimers();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/web/src/lib/hotel-time.test.ts > «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5
+AssertionError: expected '2026-10-01' to be '2026-09-30' // Object.is equality
+
+Expected: "2026-09-30"
+Received: "2026-10-01"
+
+ ❯ apps/web/src/lib/hotel-time.test.ts:38:30
+     36|   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(settings('America/N…
+     37|   const { hotelClock, hotelToday } = await import('./hotel-api');
+     38|   expect(await hotelToday()).toBe('2026-09-30');
+       |                              ^
+     39|   const clock = await hotelClock();
+     40|   expect(clock.timezone).toBe('America/New_York');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  4 failed | 9 passed (13)
+   Start at  11:48:57
+   Duration  4.32s (import 76%, transform 13%, tests 7%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-09-26T11-48-50Z-unit-3900.json
+
+# код выхода 1 · 12 с

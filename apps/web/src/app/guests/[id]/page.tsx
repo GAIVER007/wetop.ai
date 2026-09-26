@@ -28,7 +28,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
     api.piiStorage(),
   ]);
   const messengers = messengerLinks(g.phone);
-  const today = hotelToday();
+  const today = await hotelToday();
   const stays = [...g.stays].sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate));
   return (
     <Page

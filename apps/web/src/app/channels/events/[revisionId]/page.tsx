@@ -15,8 +15,9 @@ import {
   EVENT_STATUS_TONE,
   EVENT_TYPE_RU,
   VIA_RU,
-  almatyDateTimeFull,
+  eventTimeFull,
 } from '../../format';
+import { hotelClock } from '../../../../lib/hotel-api';
 
 /** Сумма канала приходит десятичной строкой («16000.00») — в тиыны без float (ADR-008) */
 function decimalToMinor(amount: string): string | null {
@@ -48,6 +49,7 @@ export default async function RevisionPageView({
 }: {
   params: Promise<{ revisionId: string }>;
 }) {
+  const clock = await hotelClock();
   // Next не декодирует сегменты адреса: у ревизии Channex вида `test:<время>:<хеш>` сюда приходит
   // `test%3A…`, и повторное кодирование в клиенте API давало 404 на существующую запись
   const revisionId = decodeRouteParam((await params).revisionId);
@@ -106,7 +108,7 @@ export default async function RevisionPageView({
             </Badge>
           </div>
           <div>
-            {facts.otaName ?? 'канал не назван'}, получено {almatyDateTimeFull(event.receivedAt)}
+            {facts.otaName ?? 'канал не назван'}, получено {eventTimeFull(event.receivedAt, clock)}
           </div>
           <div className="muted mono">
             unique_id {facts.uniqueId ?? '—'}, ревизия {event.externalEventId}

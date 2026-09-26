@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { usePropertyClock } from './property-time';
 import { cx } from './ui';
 
 interface Freshness {
@@ -15,12 +16,6 @@ interface Freshness {
 /** Дельта ARI уходит за секунды; висит дольше 10 минут — канал не знает об изменении */
 const QUEUE_STALE_MIN = 10;
 
-const time = (iso: string) =>
-  new Intl.DateTimeFormat('ru-RU', {
-    timeZone: 'Asia/Almaty',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(iso));
 const minutesSince = (iso: string | null) =>
   iso ? (Date.now() - Date.parse(iso)) / 60_000 : Number.POSITIVE_INFINITY;
 
@@ -67,6 +62,8 @@ export function DataFreshnessProvider({ children }: { children: ReactNode }) {
 /** Строка состояния читает общий результат, не заводя собственный таймер. */
 export function DataFreshness() {
   const { data, failed } = useContext(FreshnessContext);
+  // Время последнего события — по часам объекта (С-13), а не по зашитому поясу
+  const clock = usePropertyClock();
 
   if (!data)
     return failed ? (
@@ -84,7 +81,7 @@ export function DataFreshness() {
       data-testid="data-freshness"
       title={'Последнее событие из Channex и очередь изменений остатков и цен в Channex'}
     >
-      Channex {data.channex.lastEventAt ? time(data.channex.lastEventAt) : '—'} · очередь{' '}
+      Channex {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
       {data.channex.outboxPending}
       {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
     </span>

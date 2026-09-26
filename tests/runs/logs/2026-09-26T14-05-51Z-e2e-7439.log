@@ -1,0 +1,130 @@
+# Сквозные (e2e) · 26.09.2026 19:05 Алматы · vm
+# коммит 737f27c (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/platform-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:35:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.2s)
+  ✘   2 tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.5s)
+  ✓   3 tests/ui/navigation.spec.ts:89:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.2s)
+  ✓   4 tests/ui/navigation.spec.ts:114:1 › все пункты меню открывают существующие страницы (11.9s)
+  ✓   5 tests/ui/navigation.spec.ts:138:3 › навигация ровная, адаптивная и доступная: light (6.0s)
+  ✓   6 tests/ui/navigation.spec.ts:138:3 › навигация ровная, адаптивная и доступная: dark (7.3s)
+  ✘   7 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» виден всегда, «Платформа» — только главному администратору (16.0s)
+  ✓   8 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (4.1s)
+  ✓   9 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.8s)
+  ✓  10 tests/ui/platform-access.spec.ts:134:1 › сотрудник: настройки только смотрит, а диалоги ведёт; приглашает — владелец (6.5s)
+  ✓  11 tests/ui/platform-access.spec.ts:164:1 › за неделю до конца срока владелец видит напоминание; сотрудник — нет (4.0s)
+  ✘  12 tests/ui/platform-access.spec.ts:182:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (21.0s)
+  ✓  13 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, light, 1440px (11.4s)
+  ✓  14 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, dark, 1440px (10.1s)
+  ✓  15 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, light, 390px (9.4s)
+  ✓  16 tests/ui/platform-access.spec.ts:240:5 › доступность: «Организации» и состояния расширения, dark, 390px (10.2s)
+
+
+  1) tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -1,7 +1,6 @@
+      Array [
+    -   "/ai-seller",
+        "/analytics",
+        "/analytics/setup",
+        "/channel-manager",
+        "/channels",
+        "/chessboard",
+
+      61 |     .locator('.workspace-links a')
+      62 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 63 |   expect(links.sort()).toEqual([...routes].sort());
+         |                        ^
+      64 |   expect(new Set(links).size).toBe(links.length);
+      65 |   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
+      66 |   // /today стримится, а панель — клиентский компонент: до гидрации у кнопки нет обработчика, и Space
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:63:24
+
+    Error Context: test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» виден всегда, «Платформа» — только главному администратору 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: "/ai-seller"
+    Received array: ["/today", "/chessboard", "/reservations", "/guests", "/inventory", "/rooms/categories", "/rooms/availability", "/rates", "/channel-manager", "/channels", …]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      42 |   // без входа стойка не знает организацию: продавец в меню для знакомства (ADR-090), «Платформы» нет
+      43 |   await page.goto('/today');
+    > 44 |   await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+         |                                            ^
+      45 |   expect(await menuLinks(page)).not.toContain('/platform');
+      46 |
+      47 |   await signIn(page);
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:44:44
+
+    Error Context: test-results/platform-access-меню-«ИИ-п-44a3f-ько-главному-администратору/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-меню-«ИИ-п-44a3f-ько-главному-администратору/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-меню-«ИИ-п-44a3f-ько-главному-администратору/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/platform-access.spec.ts:182:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: "/ai-seller"
+    Received array: ["/today", "/chessboard", "/reservations", "/guests", "/inventory", "/rooms/categories", "/rooms/availability", "/rates", "/channel-manager", "/channels", …]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      228 |   await expect(page.getByTestId('platform-extension-result')).toContainText('не подключён');
+      229 |   await page.goto('/today');
+    > 230 |   await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+          |                                            ^
+      231 |   await page.goto('/ai-seller');
+      232 |   await expect(page.getByRole('main').getByTestId('seller-extension-off')).toContainText(
+      233 |     'Расширение «ИИ-продавец» не подключено',
+        at /home/user/wetop.ai/tests/ui/platform-access.spec.ts:230:44
+
+    Error Context: test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-access-«Платформа-8e6f1-лючает-продавца-организации/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/navigation.spec.ts:48:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+    tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» виден всегда, «Платформа» — только главному администратору 
+    tests/ui/platform-access.spec.ts:182:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации 
+  13 passed (2.3m)
+
+# код выхода 1 · 2 мин 22 с

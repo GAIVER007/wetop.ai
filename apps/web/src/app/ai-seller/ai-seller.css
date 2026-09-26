@@ -318,7 +318,8 @@
     padding-bottom: var(--space-2);
     scrollbar-width: thin;
   }
-  .seller-workspace .seller-steps__link {
+  /* ширина — у пункта ленты (li): он и есть flex-элемент, ссылка внутри растягивается на него */
+  .seller-workspace .seller-steps > li {
     flex: 0 0 180px;
   }
   .seller-workspace .seller-steps__title {

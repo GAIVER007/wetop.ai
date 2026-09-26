@@ -51,7 +51,7 @@ import {
   type SellerStepState,
   type SellerView,
 } from '../../../lib/ai-seller';
-import { almatyMoment, almatyWhen } from '../../../lib/almaty';
+import { hotelClock } from '../../../lib/hotel-api';
 import { displayPeriod } from '../../../lib/display-date';
 import {
   sellerApi,
@@ -248,7 +248,8 @@ function ExtensionOff({ status }: { status: SellerStatus }) {
 }
 
 /** Полоса состояния: подключён ли продавец и дошли ли до него правки */
-function SellerBanner({ status }: { status: SellerStatus }) {
+async function SellerBanner({ status }: { status: SellerStatus }) {
+  const clock = await hotelClock();
   const banner = sellerBanner(status);
   return (
     <section className="seller-connection" data-testid="seller-state" aria-label="Состояние агента">
@@ -271,10 +272,10 @@ function SellerBanner({ status }: { status: SellerStatus }) {
         <summary>Подробности подключения</summary>
         <p>{banner.text}</p>
         {status.profile.updatedAt && (
-          <p>Настройки обновлены: {almatyWhen(status.profile.updatedAt)}</p>
+          <p>Настройки обновлены: {clock.when(status.profile.updatedAt)}</p>
         )}
-        {status.facts.appliedAt && <p>Данные отправлены: {almatyWhen(status.facts.appliedAt)}</p>}
-        {status.lastErrorAt && <p>Последний отказ: {almatyWhen(status.lastErrorAt)}</p>}
+        {status.facts.appliedAt && <p>Данные отправлены: {clock.when(status.facts.appliedAt)}</p>}
+        {status.lastErrorAt && <p>Последний отказ: {clock.when(status.lastErrorAt)}</p>}
       </details>
     </section>
   );
@@ -657,11 +658,12 @@ function PricesTable({ view }: { view: SellerFactsView }) {
 }
 
 /** Загруженные документы продавца */
-function KnowledgeTable({
+async function KnowledgeTable({
   items,
 }: {
   items: Array<{ source: string; chunks: number; createdAt: string | null }>;
 }) {
+  const clock = await hotelClock();
   return (
     <Table aria-label="Документы продавца" data-testid="seller-knowledge">
       <thead>
@@ -676,7 +678,7 @@ function KnowledgeTable({
           <tr key={`${d.source}-${i}`}>
             <td>{knowledgeSourceLabel(d.source)}</td>
             <td>{d.chunks}</td>
-            <td>{almatyMoment(d.createdAt)}</td>
+            <td>{clock.moment(d.createdAt)}</td>
           </tr>
         ))}
       </tbody>
@@ -743,6 +745,7 @@ async function DialogsView({
   mode: string;
   id: string;
 }) {
+  const clock = await hotelClock();
   if (!sellerConnected(status))
     return <NotReady status={status} title="Диалоги появятся, когда продавец будет подключён" />;
   const selected = MODES.some((m) => m.value === mode) ? mode : '';
@@ -813,7 +816,7 @@ async function DialogsView({
                   </td>
                   <td>{conversationStageLabel(c.stage)}</td>
                   <td>{c.messages}</td>
-                  <td>{almatyMoment(c.lastActivityAt)}</td>
+                  <td>{clock.moment(c.lastActivityAt)}</td>
                 </tr>
               );
             })}
@@ -824,13 +827,14 @@ async function DialogsView({
   );
 }
 
-function DialogCard({
+async function DialogCard({
   card,
   canAct,
 }: {
   card: Awaited<ReturnType<typeof sellerApi.conversation>>;
   canAct: boolean;
 }) {
+  const clock = await hotelClock();
   const m = conversationModeLabel(card.mode);
   const lead = leadFacts(card.leadData);
   return (
@@ -866,7 +870,7 @@ function DialogCard({
               }
             >
               <b>{ROLE[msg.role] ?? msg.role}</b>
-              {msg.at ? <span className="sub"> {almatyMoment(msg.at)}</span> : null}: {msg.text}
+              {msg.at ? <span className="sub"> {clock.moment(msg.at)}</span> : null}: {msg.text}
             </p>
           </li>
         ))}

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { propertyClock } from '../../lib/property-time';
 import { dayTitle } from './journal-view';
+
+const almaty = propertyClock('Asia/Almaty');
 
 /**
  * Подпись дня в журнале (21.09.2026): дата стояла в каждой строке целиком, с годом («2026-09-21 13:30»),
@@ -8,21 +11,28 @@ import { dayTitle } from './journal-view';
 describe('dayTitle — день группы словами', () => {
   const today = '2026-09-21';
   it('сегодняшний день назван «Сегодня» и числом', () => {
-    expect(dayTitle('2026-09-21T08:30:00Z', today)).toBe('Сегодня, 21 сентября');
+    expect(dayTitle('2026-09-21T08:30:00Z', today, almaty)).toBe('Сегодня, 21 сентября');
   });
   it('вчерашний — «Вчера»', () => {
-    expect(dayTitle('2026-09-20T11:15:00Z', today)).toBe('Вчера, 20 сентября');
+    expect(dayTitle('2026-09-20T11:15:00Z', today, almaty)).toBe('Вчера, 20 сентября');
   });
   it('давний день этого года — без года', () => {
-    expect(dayTitle('2026-09-18T06:05:00Z', today)).toBe('18 сентября');
+    expect(dayTitle('2026-09-18T06:05:00Z', today, almaty)).toBe('18 сентября');
   });
   it('прошлый год — с годом: иначе «3 января» читается как ближайшее', () => {
-    expect(dayTitle('2025-01-03T06:05:00Z', today)).toBe('3 января 2025');
+    expect(dayTitle('2025-01-03T06:05:00Z', today, almaty)).toBe('3 января 2025');
   });
   it('время по часам объекта, а не UTC: 20:00 UTC — это уже следующий день в Алматы', () => {
-    expect(dayTitle('2026-09-20T20:00:00Z', today)).toBe('Сегодня, 21 сентября');
+    expect(dayTitle('2026-09-20T20:00:00Z', today, almaty)).toBe('Сегодня, 21 сентября');
   });
   it('неверная дата не роняет экран', () => {
-    expect(dayTitle('не дата', today)).toBe('Дата неизвестна');
+    expect(dayTitle('не дата', today, almaty)).toBe('Дата неизвестна');
+  });
+
+  it('день группы — по поясу объекта: в Токио тот же момент уже «сегодня» (С-13)', () => {
+    const tokyo = propertyClock('Asia/Tokyo');
+    // 16:30 UTC 20 сентября: в Алматы 21:30 20-го, в Токио 01:30 уже 21-го
+    expect(dayTitle('2026-09-20T16:30:00Z', today, almaty)).toBe('Вчера, 20 сентября');
+    expect(dayTitle('2026-09-20T16:30:00Z', today, tokyo)).toBe('Сегодня, 21 сентября');
   });
 });

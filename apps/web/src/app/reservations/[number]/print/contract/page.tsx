@@ -1,12 +1,11 @@
 import { normalizeSearchParams, type SearchParams } from '../../../../../lib/search-params';
 import { chessboardApi, formatMinor, guestsApi } from '../../../../../lib/api';
-import { hotelApi } from '../../../../../lib/hotel-api';
+import { hotelApi, hotelClock } from '../../../../../lib/hotel-api';
 import { PrintButton } from '../print-button';
 import {
   CONTRACT_T,
   DRAFT_BANNER,
   PROPERTY,
-  almatyNow,
   cancellationRule,
   nightsBetween,
   pickLang,
@@ -36,7 +35,7 @@ export default async function PrintContract({
   ]);
   const party = propertyParty(settings.property);
   const doc = guest?.documents[0];
-  const now = almatyNow();
+  const now = (await hotelClock()).printed();
   const guestName = guest
     ? `${guest.lastName} ${guest.firstName} ${guest.middleName ?? ''}`.trim()
     : (r.primaryGuest?.label ?? '—');

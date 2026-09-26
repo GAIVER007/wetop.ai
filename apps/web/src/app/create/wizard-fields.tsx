@@ -7,7 +7,7 @@ export const INITIAL_CONFIG = {
   goal: '',
   advantages: '',
   currency: 'KZT',
-  timezone: 'Asia/Almaty',
+  timezone: 'Asia/Almaty', // tz-allow: начальное значение поля мастера, человек выбирает сам
   botType: 'sales',
 };
 export type WizardConfig = typeof INITIAL_CONFIG;
@@ -94,6 +94,7 @@ export function WizardFields({
       <label>
         Часовой пояс
         <select value={values.timezone} onChange={change('timezone')}>
+          {/* tz-allow: вариант в списке поясов, человек выбирает сам */}
           <option value="Asia/Almaty">Алматы / Астана (UTC+5)</option>
           <option value="Europe/Moscow">Москва (UTC+3)</option>
           <option value="UTC">UTC</option>

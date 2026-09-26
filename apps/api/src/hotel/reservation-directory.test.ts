@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BadRequestException } from '@nestjs/common';
 import { ReservationDirectory } from './reservation-directory';
+import { forgetPropertyRef } from '../database/property-ref';
 const fixture = () => {
   const db = {
     property: { findFirst: vi.fn().mockResolvedValue({ id: 'p' }) },
@@ -137,5 +138,28 @@ describe('reservation directory is a bounded read projection', () => {
     expect(args.select.items.select.folio.select.allocations.where).toEqual({
       payment: { status: 'COMPLETED' },
     });
+  });
+
+  /**
+   * С-13 (ТЗ аудита 25.09.2026): без дат справочник берёт «сегодня» — и брал его по Алматы
+   * (`Intl` с зашитым 'Asia/Almaty'). Объект в другом поясе видел бы «гостей на сегодня» за чужой день.
+   */
+  it('без дат «сегодня» — по поясу объекта, а не по Алматы', async () => {
+    forgetPropertyRef();
+    vi.useFakeTimers({ now: new Date('2026-09-30T19:30:00Z'), toFake: ['Date'] });
+    try {
+      const { db, service } = fixture();
+      db.property.findFirst.mockResolvedValue({
+        id: 'p',
+        name: 'Тестовая гостиница',
+        organizationId: null,
+        timezone: 'America/New_York',
+      });
+      // 19:30 UTC: в Нью-Йорке ещё 30 сентября, в Алматы уже 1 октября
+      expect(await service.list({})).toMatchObject({ from: '2026-09-30', to: '2026-09-30' });
+    } finally {
+      vi.useRealTimers();
+      forgetPropertyRef();
+    }
   });
 });

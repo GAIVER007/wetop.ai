@@ -47,8 +47,11 @@ export function extensionDaysLeft(row: ExtensionState | null, now: Date): number
   return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
 }
 
-/** Сроки расширений — по Алматы: главный администратор пишет дату, а не момент */
-const TZ = 'Asia/Almaty';
+/**
+ * Пояс платформы: сроки расширений — по Алматы (главный администратор пишет дату, а не момент), и он же —
+ * запасной пояс стойки, пока настройки объекта не пришли (С-13, ТЗ аудита 25.09.2026). Одно место на систему.
+ */
+export const PLATFORM_TIMEZONE = 'Asia/Almaty';
 const NOTE_MAX = 300;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -81,7 +84,7 @@ export function parseExtensionChange(
       errors.push('Срок: дата ГГГГ-ММ-ДД');
     } else {
       const next = new Date(Date.parse(`${day}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
-      activeUntil = zonedStartOfDay(next, TZ);
+      activeUntil = zonedStartOfDay(next, PLATFORM_TIMEZONE);
       if (activeUntil <= now) errors.push('Срок уже прошёл');
     }
   }

@@ -1,5 +1,6 @@
 import type { DataConnection } from '@pms/shared';
 import { Alert, Badge, Fact, Grid, Panel } from '../../components/ui';
+import { FALLBACK_TIMEZONE, propertyClock } from '../../lib/property-time';
 
 export function DataConnectionPanel({ connection }: { connection: DataConnection | null }) {
   const source = connection?.source;
@@ -49,9 +50,9 @@ export function DataConnectionPanel({ connection }: { connection: DataConnection
           )}
           <p className="note">
             Проверено:{' '}
-            {new Date(connection.checkedAt).toLocaleString('ru-RU', {
-              timeZone: connection.property?.timezone ?? 'Asia/Almaty',
-            })}
+            {propertyClock(connection.property?.timezone ?? FALLBACK_TIMEZONE).local(
+              connection.checkedAt,
+            )}
           </p>
         </>
       )}
